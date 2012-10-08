@@ -17,18 +17,14 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.Field;
 import com.sun.jdi.LocalVariable;
-import com.sun.jdi.Location;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StackFrame;
-import com.sun.jdi.StringReference;
 import com.sun.jdi.ThreadReference;
-import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
 import com.sun.jdi.event.Event;
-import com.sun.jdi.event.EventIterator;
 import com.sun.jdi.event.EventQueue;
 import com.sun.jdi.event.EventSet;
 import com.sun.jdi.event.ModificationWatchpointEvent;
@@ -36,11 +32,8 @@ import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
-import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.ModificationWatchpointRequest;
-
-import org.apache.hadoop.mapreduce.Reducer.Context;
 
 public class VMViewer {
 
@@ -163,109 +156,6 @@ public class VMViewer {
 		}
 	}
 	
-	public static void watchBreakpointTest()
-			throws IOException,
-			AbsentInformationException,
-			InterruptedException {
-
-		int lineNumber = 329;
-		String varName = "status";
-		
-		VirtualMachine vm = new VMAttach().connect(8008);
-		
-		
-		List<ReferenceType> refTypes = vm.allClasses();
-		Location breakpointLocation = null;
-		for (ReferenceType refType: refTypes)
-		{
-			if (breakpointLocation != null)
-			{
-				break;
-			}
-			List<Location> locs = refType.allLineLocations();
-			for (Location loc: locs)
-			{
-				if (loc.lineNumber() == lineNumber)
-				{
-					breakpointLocation = loc;
-					break;
-				}
-			}
-		}
-
-		if (breakpointLocation != null)
-		{
-			EventRequestManager evtReqMgr = vm.eventRequestManager();
-			//BreakpointRequest bReq = evtReqMgr.createBreakpointRequest(breakpointLocation);
-			//bReq.setSuspendPolicy(BreakpointRequest.SUSPEND_ALL);
-			//bReq.enable();
-			
-			String className = "org.apache.hadoop.mapreduce.Job";
-			String methodName = "setStatus";
-			ReferenceType classReference = vm.classesByName(className).get(0);
-			Method method = classReference.methodsByName(methodName).get(0);
-			
-			BreakpointRequest breakpointRequest = evtReqMgr.createBreakpointRequest(method.location());
-			breakpointRequest.setSuspendPolicy(BreakpointRequest.SUSPEND_ALL);
-			breakpointRequest.setEnabled(true);
-			
-			
-			
-			EventQueue evtQueue = vm.eventQueue();
-			while(true)
-			{
-				EventSet evtSet = evtQueue.remove();
-				EventIterator evtIter = evtSet.eventIterator();
-				while (evtIter.hasNext())
-				{
-					try
-					{
-						Event evt = evtIter.next();
-						EventRequest evtReq = evt.request();
-						if (evtReq instanceof BreakpointRequest)
-						{
-							BreakpointRequest bpReq = (BreakpointRequest)evtReq;
-							if (bpReq.location().lineNumber() == lineNumber)
-							{
-								System.out.println("Breakpoint at line " + lineNumber + ": ");
-								BreakpointEvent brEvt = (BreakpointEvent)evt;
-								ThreadReference threadRef = brEvt.thread();
-								StackFrame stackFrame = threadRef.frame(0);
-								List<LocalVariable> visVars = stackFrame.visibleVariables();
-								System.out.println("Got the visible variables without AbsentInformationException.");
-								for (LocalVariable visibleVar: visVars)
-								{
-									if (visibleVar.name().equals(varName))
-									{
-										Value val = stackFrame.getValue(visibleVar);
-										if (val instanceof StringReference)
-										{
-											String varNameValue = ((StringReference)val).value();
-											System.out.println(varName + " = '" + varNameValue + "'");
-										}
-									}
-								}
-							}
-						}
-					}
-					catch (AbsentInformationException aie)
-					{
-						System.out.println("AbsentInformationException: did you compile your target application with -g option?");
-					}
-					catch (Exception exc)
-					{
-						System.out.println(exc.getClass().getName() + ": " + exc.getMessage());
-					}
-					finally
-					{
-						evtSet.resume();
-					}
-				}
-			}
-		}
-
-	}
-
 	private static void addClassViewer(VirtualMachine vm, String className) {
 		EventRequestManager evtReqManager = vm.eventRequestManager();
 		ClassPrepareRequest classPrepareRequest = evtReqManager.createClassPrepareRequest();
