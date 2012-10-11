@@ -49,32 +49,35 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.ModificationWatchpointRequest;
 
 public class VMViewer {
-
-	public static final String CLASS_NAME_WATCH = "org.apache.hadoop.mapreduce.Job";
-	public static final String CLASS_NAME_BREAKPOINT = "org.apache.hadoop.mapreduce.Reducer";
-	public static final String FIELD_NAME_WATCH = "state";
-	public static final String METHOD_NAME_WATCH = "updateStatus";
-	public static final String METHOD_NAME_BREAKPOINT = "run";
 	
+	public static final int DEFAULT_DEBUG_ATTACH_PORT = 8008;
 	public static final int RECURSION_DEPTH_DEFAULT = 2;
 
-	public static void watchVariable() 
+	private VirtualMachine vm;
+	
+	public VMViewer() throws IOException {
+		this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
+	}
+	
+	public VMViewer(int port) throws IOException {
+		this.vm = new VMAttach(port).connect();
+	}
+	
+	public void watchVariable(String className, String variable) 
 			throws IOException, 
 			InterruptedException 
 			{
-		
-		VirtualMachine vm = new VMAttach().connect(8008);
 
-		List<ReferenceType> referenceTypes = vm.classesByName(CLASS_NAME_WATCH);
+		List<ReferenceType> referenceTypes = this.vm.classesByName(className);
 		for (ReferenceType refType : referenceTypes) {
-			addFieldViewer(vm, refType);
+			addFieldViewer(refType, variable);
 		}
 		
-		addClassViewer(vm, CLASS_NAME_WATCH);
+		this.addClassViewer(className);
 
-		vm.resume();
+		this.vm.resume();
 
-		EventQueue eventQueue = vm.eventQueue();
+		EventQueue eventQueue = this.vm.eventQueue();
 		while (true) {
 			EventSet eventSet = eventQueue.remove();
 			for (Event event : eventSet) {
@@ -83,33 +86,31 @@ public class VMViewer {
 				} else if (event instanceof ClassPrepareEvent) {
 					ClassPrepareEvent classPrepEvent = (ClassPrepareEvent) event;
 					ReferenceType refType = classPrepEvent.referenceType();
-					addFieldViewer(vm, refType);
+					addFieldViewer(refType, variable);
 				} else if (event instanceof ModificationWatchpointEvent) {
 					ModificationWatchpointEvent modWatchEvent = (ModificationWatchpointEvent) event;
 					System.out.println("OLD VALUE=" + modWatchEvent.valueCurrent());
 					System.out.println("NEW VALUE=" + modWatchEvent.valueToBe());
 					System.out.println();
+					
+					this.objectRefRecurse(modWatchEvent.valueToBe(), "", RECURSION_DEPTH_DEFAULT);
 				} 
 			}
 			eventSet.resume();
 		}
 	}
 	
-	public static void watchBreakpoint() 
+	public void breakpointMethod(String className, String methodName) 
 			throws IOException, 
 			InterruptedException, 
 			AbsentInformationException, 
 			IncompatibleThreadStateException {
 
-		VirtualMachine vm = new VMAttach().connect(8008);
-
-		//addBreakpointMethod(vm, "org.apache.hadoop.mapreduce.Job", "getStartTime");
-
-		List<ReferenceType> referenceTypes = vm.classesByName(CLASS_NAME_BREAKPOINT);
+		List<ReferenceType> referenceTypes = this.vm.classesByName(className);
 		for (ReferenceType refType : referenceTypes) {
-			EventRequestManager evtReqManager = vm.eventRequestManager();
+			EventRequestManager evtReqManager = this.vm.eventRequestManager();
 			
-			List<Method> methods = refType.methodsByName(METHOD_NAME_BREAKPOINT);
+			List<Method> methods = refType.methodsByName(methodName);
 			
 			for (Method methodRefType : methods) {
 				BreakpointRequest breakpointRequest = evtReqManager.createBreakpointRequest(methodRefType.location());
@@ -119,24 +120,24 @@ public class VMViewer {
 			
 		}
 
-		addClassViewer(vm, CLASS_NAME_BREAKPOINT);
+		this.addClassViewer(className);
 		
-		vm.resume();
+		this.vm.resume();
 
-		EventQueue eventQueue = vm.eventQueue();
+		EventQueue eventQueue = this.vm.eventQueue();
 		while (true) {
 			EventSet eventSet = eventQueue.remove();
 			for (Event event : eventSet) {
 				if (event instanceof VMDeathEvent || event instanceof VMDisconnectEvent) {
 					return;
 				} else if (event instanceof ClassPrepareEvent) {
-					vm.suspend();
+					this.vm.suspend();
 					
 					ClassPrepareEvent classPrepEvent = (ClassPrepareEvent) event;
 					ReferenceType refType = classPrepEvent.referenceType();
 
-					EventRequestManager evtReqManager = vm.eventRequestManager();
-					List<Method> methods = refType.methodsByName(METHOD_NAME_BREAKPOINT);
+					EventRequestManager evtReqManager = this.vm.eventRequestManager();
+					List<Method> methods = refType.methodsByName(methodName);
 					
 					for (Method methodRefType : methods) {
 						BreakpointRequest breakpointRequest = evtReqManager.createBreakpointRequest(methodRefType.location());
@@ -144,9 +145,9 @@ public class VMViewer {
 						breakpointRequest.setEnabled(true);
 					}
 					
-					vm.resume();
+					this.vm.resume();
 				} else if (event instanceof BreakpointEvent) {
-					vm.suspend();
+					this.vm.suspend();
 					
 					BreakpointEvent breakpointEvent = (BreakpointEvent) event;
 					System.out.println("BREAKPOINT: " + breakpointEvent.toString());
@@ -163,26 +164,53 @@ public class VMViewer {
 						System.out.println("VARIABLE NAME: " + visibleVar.name());
 						Value val = stackFrame.getValue(visibleVar);
 						
-						int recursionDepth = RECURSION_DEPTH_DEFAULT;
-						objectRefRecurse(val, "", recursionDepth);
+						this.objectRefRecurse(val, "", RECURSION_DEPTH_DEFAULT);
 					}
 					
 					threadRef.resume();
-					vm.resume();
+					this.vm.resume();
 				}
 			}
 			eventSet.resume();
 		}
 	}
 	
-	private static void objectRefRecurse(Value val, String tabIndent, int recursionDepth) {
+	private void objectRefRecurse(Value val, String tabIndent, int recursionDepth) {
 		String value = "";
 		
-		if (val instanceof StringReference) {
+
+		if (val instanceof BooleanValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((BooleanValue)val).toString());
+		}
+		else if (val instanceof ByteValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((ByteValue)val).toString());
+		}
+		else if (val instanceof CharValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((CharValue)val).toString());
+		}
+		else if (val instanceof DoubleValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((DoubleValue)val).toString());
+		}
+		else if (val instanceof FloatValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((FloatValue)val).toString());
+		}
+		else if (val instanceof IntegerValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((IntegerValue)val).toString());
+		}
+		else if (val instanceof LongValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((LongValue)val).toString());
+		}
+		else if (val instanceof ShortValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((ShortValue)val).toString());
+		}
+		else if (val instanceof VoidValue) {
+			System.out.println(tabIndent + "\tVALUE = " + ((VoidValue)val).toString());
+		}
+		else if (val instanceof StringReference) {
 			value = ((StringReference)val).value();
 			System.out.println(tabIndent + "StringReference VALUE: " + value);
 		}
-		if (val instanceof ArrayReference) {
+		else if (val instanceof ArrayReference) {
 			value = ((ArrayReference)val).toString();
 			System.out.println(tabIndent + "ArrayReference VALUE: " + value);
 		}
@@ -236,24 +264,24 @@ public class VMViewer {
 		}
 	}
 	
-	private static void addClassViewer(VirtualMachine vm, String className) {
-		EventRequestManager evtReqManager = vm.eventRequestManager();
+	private void addClassViewer(String className) {
+		EventRequestManager evtReqManager = this.vm.eventRequestManager();
 		ClassPrepareRequest classPrepareRequest = evtReqManager.createClassPrepareRequest();
 		classPrepareRequest.addClassFilter(className);
 		classPrepareRequest.setEnabled(true);
 	}
 
-	private static void addFieldViewer(VirtualMachine vm, ReferenceType refType) {
-		EventRequestManager evtReqManager = vm.eventRequestManager();
-		Field field = refType.fieldByName(FIELD_NAME_WATCH);
+	private void addFieldViewer(ReferenceType refType, String variable) {
+		EventRequestManager evtReqManager = this.vm.eventRequestManager();
+		Field field = refType.fieldByName(variable);
 		ModificationWatchpointRequest modificationWatchpointRequest = evtReqManager.createModificationWatchpointRequest(field);
 		modificationWatchpointRequest.setEnabled(true);
 	}
 	
-	private static void addBreakpointMethod(VirtualMachine vm, String className, String methodName) {
-		EventRequestManager evtReqManager = vm.eventRequestManager();
+	private void addBreakpointMethod(String className, String methodName) {
+		EventRequestManager evtReqManager = this.vm.eventRequestManager();
 		
-		ReferenceType classReference = vm.classesByName(className).get(0);
+		ReferenceType classReference = this.vm.classesByName(className).get(0);
 		Method method = classReference.methodsByName(methodName).get(0);
 		
 		BreakpointRequest breakpointRequest = evtReqManager.createBreakpointRequest(method.location());
@@ -261,10 +289,10 @@ public class VMViewer {
 		breakpointRequest.setEnabled(true);
 	}
 	
-	private static void addBreakpointMethodLine(VirtualMachine vm, String className, String methodName, long methodLine) {
-		EventRequestManager evtReqManager = vm.eventRequestManager();
+	private void addBreakpointMethodLine(String className, String methodName, long methodLine) {
+		EventRequestManager evtReqManager = this.vm.eventRequestManager();
 		
-		ReferenceType classReference = vm.classesByName(className).get(0);
+		ReferenceType classReference = this.vm.classesByName(className).get(0);
 		Method method = classReference.methodsByName(methodName).get(0);
 		
 		BreakpointRequest breakpointRequest = evtReqManager.createBreakpointRequest(method.locationOfCodeIndex(methodLine));

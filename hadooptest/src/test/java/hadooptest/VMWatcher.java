@@ -19,12 +19,14 @@ public class VMWatcher {
 
 	@Test
 	public void attachToExistingVMAndWatch() throws Exception {
-		VMViewer.watchVariable();
+		VMViewer debugger = new VMViewer();
+		debugger.watchVariable("org.apache.hadoop.mapreduce.Job", "state");
 	}
 	
 	@Test
 	public void attachToExistingVMAndBreakpoint() throws Exception {
-		VMViewer.watchBreakpoint();
+		VMViewer debugger = new VMViewer();
+		debugger.breakpointMethod("org.apache.hadoop.mapreduce.Reducer", "run");
 	}
 
 }

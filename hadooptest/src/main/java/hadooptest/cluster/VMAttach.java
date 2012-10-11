@@ -21,8 +21,14 @@ import java.util.Map;
 
 public class VMAttach {
 	
-	public VirtualMachine connect(int port) throws IOException {
-		String port_str = Integer.toString(port);
+	private int debug_port;
+	
+	public VMAttach(int port) {
+		debug_port = port;
+	}
+	
+	public VirtualMachine connect() throws IOException {
+		String port_str = Integer.toString(this.debug_port);
 		AttachingConnector connector = getAttachingConnector();
 		
 		try {
