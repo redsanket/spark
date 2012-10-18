@@ -19,6 +19,8 @@ public class MapredKillTask {
 
 	private int jobID = 0;
 	
+	/******************* CLASS BEFORE/AFTER ***********************/
+	
 	/*
 	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
 	 */
@@ -36,6 +38,8 @@ public class MapredKillTask {
 		// stop the cluster
 		// clean up configuration
 	}
+	
+	/******************* TEST BEFORE/AFTER ***********************/
 	
 	/*
 	 * Before each test, we much initialize the sleep job and verify that its job ID is valid.
@@ -56,6 +60,8 @@ public class MapredKillTask {
 		
 		// make sure any sleep jobs are finished/failed/killed
 	}
+	
+	/******************* TESTS ***********************/
 	
 	/*
 	 * A test which attempts to kill a running task from a sleep job.
@@ -106,7 +112,9 @@ public class MapredKillTask {
 				this.killTaskAttempt(taskID));
 	}
 	
-	/***** CONVENIENCE METHODS *****/
+	/******************* END TESTS ***********************/
+	
+	/******************* CONVENIENCE METHODS *********************/
 	
 	/*
 	 * Submits a sleep job.
