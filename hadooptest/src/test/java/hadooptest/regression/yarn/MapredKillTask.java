@@ -117,18 +117,95 @@ public class MapredKillTask {
 	/******************* CONVENIENCE METHODS *********************/
 	
 	/*
-	 * Submits a sleep job.
+	 * Submits a default sleep job.
 	 * 
 	 * @return int The ID of the sleep job.
 	 */
 	private int submitSleepJob() {
+		return submitSleepJob(10, 10, 50000, 50000, 1);
+	}
+	
+	/*
+	 * Submits a sleep job.
+	 * 
+	 * @return int The ID of the sleep job.
+	 */
+	private int submitSleepJob(int m_param, int r_param, int mt_param, int rt_param, int numJobs) {
 		int sleepJobID = 0;
 		
 		// submit sleep job
 		
+		Process hadoopProc = null;
+		
+		String hadoop_version = "0.23.4"; // should come from prop variable in fw conf
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String hadoop_mapred_test_jar = hadoop_install + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + hadoop_version + "-tests.jar";
+		String artifacts_dir = "";
+		String hadoop_conf_dir = "";
+		
+		String user = "rbernota"; // not sure where this should go... probably in fw conf for now, but possibly extract from system.
+		
+		for (int i = 0; i < numJobs; i++) {
+			//createFile $ARTIFACTS_DIR/sleep.$i.log
+			this.createArtifactsFile(artifacts_dir, i);
+			
+			String hadoopCmd = "--config " + hadoop_conf_dir 
+					+ " jar " + hadoop_mapred_test_jar 
+					+ " sleep -Dmapreduce.job.user.name=" + user 
+					+ " -m " + m_param 
+					+ " -r " + r_param 
+					+ " -mt " + mt_param 
+					+ " -rt " + rt_param 
+					+ " > " + artifacts_dir + "/sleep." + i + ".log";
+			try {
+				hadoopProc = Runtime.getRuntime().exec(new String[] {"hadoop", hadoopCmd} );
+			}
+			catch (Exception e) {
+				if (hadoopProc != null) {
+					hadoopProc.destroy();
+				}
+				e.printStackTrace();
+			}
+		}
+
 		// get job id
 		
+		/*
+		 
+		    local myloc="$ARTIFACTS_DIR/sleep.0.log"
+   if [ ! -z $1 ] ; then
+      myloc=$1
+   fi
+   for (( i=0; i < 10; i++ )); do
+      local myjobId=`cat $myloc |grep "Running job"|awk -F'job:' '{print $2}'`
+      # Stripping of the leading blank space quick and easy way
+      myjobId=`echo $myjobId`
+      if [ ! "X${myjobId}X" == "XX" ] ; then
+         break
+      else
+         sleep 10
+      fi
+   done
+   validateJobId $myjobId
+   if [ $? -ne 0 ] ; then
+      echo "0"
+   else
+      echo $myjobId
+   fi
+   # return $?
+		 
+		 */
 		return sleepJobID;
+	}
+	
+	/*
+	 * Create an artifact file
+	 * 
+	 * @param String The location of the artifact directory
+	 * @param int The unique identifying integer for the filename
+	 */
+	private void createArtifactsFile(String artifactsDir, int fileInstance) {
+		// touch $1 > /dev/null 2>&1 && echo "File $1 created."
 	}
 	
 	/*
@@ -139,6 +216,21 @@ public class MapredKillTask {
 	 */
 	private boolean verifyJobID(int jobID) {
 		// verify job ID
+		// make sure it isn't 0, plus...
+		
+		
+		/*
+		 *    local myjobId=$1
+   pattern=`echo $myjobId |grep job_ `
+   if [ -z "$pattern" ] ; then
+      # echo " The job id does meet the format"
+      return 1
+   else
+      # echo " The job id meets the format "
+      return 0
+   fi
+		*/
+		
 		if (true/*valid*/) {
 			return true;
 		}
@@ -178,6 +270,13 @@ public class MapredKillTask {
 	private boolean killTaskAttempt(int jobID) {
 		// Kill task attempt with known ID
 
+		/*
+		 *    $HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -kill-task $1
+   				# resp=`$HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -fail-task $1 | grep Killed`
+   				# echo " The response of the fail task is $resp "
+		 */
+		
+		
 		// Look for "killed task" message
 		
 		if (true/* message exists */) {
@@ -197,6 +296,20 @@ public class MapredKillTask {
 	private boolean failJob(int jobID) {
 		// Fail job with given ID
 		
+		/*
+		 * 
+		 *    local myjobId=$1
+   local myAttemptId1=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_0/g')
+   local myAttemptId2=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_1/g')
+   local myAttemptId3=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_2/g')
+   local myAttemptId4=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_3/g')
+   local myAttemptIds=" $myAttemptId1 $myAttemptId2 $myAttemptId3 $myAttemptId4"
+   for myAttemptId in $myAttemptIds; do
+      failGivenAttemptId $myAttemptId
+   done
+		 * 
+		 */
+		
 		// Get job status
 		
 		// Greps the job status output to see if it failed the job 
@@ -212,6 +325,17 @@ public class MapredKillTask {
 	 */
 	private boolean killJob(int jobID) {
 		// Kill job with given ID
+		
+		/*
+		 * 
+		 *    local captureFile=$2
+   if [ "X"$captureFile"X" == "XX" ] ; then
+      $HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -kill $1 |tail -1 |cut -f 1 | awk -F" " '{print $1}'
+   else
+      $HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -kill $1 > $captureFile 2>&1
+   fi
+		 * 
+		 */
 		
 		return true; // return if the job was killed or not
 	}
