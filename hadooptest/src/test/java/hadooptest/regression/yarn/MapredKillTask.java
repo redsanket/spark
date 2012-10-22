@@ -12,12 +12,19 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 /*
  * A test suite used to exercise the ability to kill tasks.
  */
 public class MapredKillTask {
 
-	private int jobID = 0;
+	private String jobID = "0";
+	private String mapTaskID = "0";
+	private String reduceTaskID = "0";
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -25,7 +32,7 @@ public class MapredKillTask {
 	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
 	 */
 	@BeforeClass
-	public void startCluster() {
+	public static void startCluster() {
 		// set configuration
 		// start the cluster
 	}
@@ -34,7 +41,7 @@ public class MapredKillTask {
 	 * Cluster cleanup that should happen after running tests in the class instance.
 	 */
 	@AfterClass
-	public void stopCluster() {
+	public static void stopCluster() {
 		// stop the cluster
 		// clean up configuration
 	}
@@ -56,7 +63,7 @@ public class MapredKillTask {
 	 */
 	@After
 	public void resetClusterState() {
-		this.jobID = 0;
+		this.jobID = "0";
 		
 		// make sure any sleep jobs are finished/failed/killed
 	}
@@ -81,7 +88,7 @@ public class MapredKillTask {
 		assertTrue("Was not able to kill the job.", 
 				this.killJob(this.jobID));
 		
-		int taskID = this.getTaskAttemptID(this.jobID);
+		String taskID = this.getTaskAttemptID(this.jobID);
 		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
 				this.killTaskAttempt(taskID));
 	}
@@ -94,7 +101,7 @@ public class MapredKillTask {
 		
 		assertTrue("Was not able to fail the job.", this.failJob(this.jobID));
 		
-		int taskID = this.getTaskAttemptID(this.jobID);
+		String taskID = this.getTaskAttemptID(this.jobID);
 		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
 				this.killTaskAttempt(taskID));
 	}
@@ -107,7 +114,7 @@ public class MapredKillTask {
 		
 		assertTrue("Job did not succeed.", this.verifyJobSuccess(this.jobID));
 		
-		int taskID = this.getTaskAttemptID(this.jobID);
+		String taskID = this.getTaskAttemptID(this.jobID);
 		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
 				this.killTaskAttempt(taskID));
 	}
@@ -119,46 +126,74 @@ public class MapredKillTask {
 	/*
 	 * Submits a default sleep job.
 	 * 
-	 * @return int The ID of the sleep job.
+	 * @return String The ID of the sleep job.
 	 */
-	private int submitSleepJob() {
+	private String submitSleepJob() {
 		return submitSleepJob(10, 10, 50000, 50000, 1);
 	}
 	
 	/*
 	 * Submits a sleep job.
 	 * 
-	 * @return int The ID of the sleep job.
+	 * @return String The ID of the sleep job.
 	 */
-	private int submitSleepJob(int m_param, int r_param, int mt_param, int rt_param, int numJobs) {
-		int sleepJobID = 0;
-		
-		// submit sleep job
-		
+	private String submitSleepJob(int m_param, int r_param, int mt_param, int rt_param, int numJobs) {			
 		Process hadoopProc = null;
+		String jobID = "";
+		String taskAttemptID = "";
 		
 		String hadoop_version = "0.23.4"; // should come from prop variable in fw conf
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
 		String hadoop_mapred_test_jar = hadoop_install + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + hadoop_version + "-tests.jar";
-		String artifacts_dir = "";
-		String hadoop_conf_dir = "";
-		
+		String artifacts_dir = "/Users/rbernota/workspace/artifacts";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/conf";
+		String hadoop_exe = hadoop_install + "/bin/hadoop";
 		String user = "rbernota"; // not sure where this should go... probably in fw conf for now, but possibly extract from system.
 		
 		for (int i = 0; i < numJobs; i++) {
 			//createFile $ARTIFACTS_DIR/sleep.$i.log
 			this.createArtifactsFile(artifacts_dir, i);
 			
-			String hadoopCmd = "--config " + hadoop_conf_dir 
+			String hadoopCmd = hadoop_exe + " --config " + hadoop_conf_dir 
 					+ " jar " + hadoop_mapred_test_jar 
 					+ " sleep -Dmapreduce.job.user.name=" + user 
 					+ " -m " + m_param 
 					+ " -r " + r_param 
 					+ " -mt " + mt_param 
-					+ " -rt " + rt_param 
+					+ " -rt " + rt_param
 					+ " > " + artifacts_dir + "/sleep." + i + ".log";
+			
+			System.out.println("COMMAND: " + hadoop_exe + hadoopCmd);
+			
+			String jobPatternStr = " - Running job: (.*)$";
+			Pattern jobPattern = Pattern.compile(jobPatternStr);
+			
+			String mapTaskPatternStr = " - Starting task: (.*)$";
+			Pattern mapTaskPattern = Pattern.compile(mapTaskPatternStr);
+			
 			try {
-				hadoopProc = Runtime.getRuntime().exec(new String[] {"hadoop", hadoopCmd} );
+				hadoopProc = Runtime.getRuntime().exec(hadoopCmd);
+				//hadoopProc.waitFor();
+				BufferedReader reader=new BufferedReader(new InputStreamReader(hadoopProc.getInputStream())); 
+				String line=reader.readLine(); 
+				while(line!=null) 
+				{ 
+					System.out.println(line); 
+					line=reader.readLine();
+					
+					Matcher jobMatcher = jobPattern.matcher(line);
+					Matcher mapTaskMatcher = mapTaskPattern.matcher(line);
+					
+					if (jobMatcher.find()) {
+						jobID = jobMatcher.group(1);
+						System.out.println("JOB ID: " + jobID);
+					}
+					else if (mapTaskMatcher.find()) {
+						taskAttemptID = mapTaskMatcher.group(1);
+						System.out.println("TASK ATTEMPT ID: " + taskAttemptID);
+						break;
+					}
+				} 
 			}
 			catch (Exception e) {
 				if (hadoopProc != null) {
@@ -168,34 +203,9 @@ public class MapredKillTask {
 			}
 		}
 
-		// get job id
+		this.mapTaskID = taskAttemptID;
 		
-		/*
-		 
-		    local myloc="$ARTIFACTS_DIR/sleep.0.log"
-   if [ ! -z $1 ] ; then
-      myloc=$1
-   fi
-   for (( i=0; i < 10; i++ )); do
-      local myjobId=`cat $myloc |grep "Running job"|awk -F'job:' '{print $2}'`
-      # Stripping of the leading blank space quick and easy way
-      myjobId=`echo $myjobId`
-      if [ ! "X${myjobId}X" == "XX" ] ; then
-         break
-      else
-         sleep 10
-      fi
-   done
-   validateJobId $myjobId
-   if [ $? -ne 0 ] ; then
-      echo "0"
-   else
-      echo $myjobId
-   fi
-   # return $?
-		 
-		 */
-		return sleepJobID;
+		return jobID;
 	}
 	
 	/*
@@ -209,37 +219,35 @@ public class MapredKillTask {
 	}
 	
 	/*
-	 * Verifies a job ID exists.
+	 * Verifies a job ID is a valid ID for the expected format.
 	 * 
 	 * @param jobID The ID of the job to verify.
 	 * @return boolean Whether the job is valid or not.
 	 */
-	private boolean verifyJobID(int jobID) {
-		// verify job ID
-		// make sure it isn't 0, plus...
+	private boolean verifyJobID(String jobID) {
+		if (jobID == "0") {
+			System.out.println("JOB ID DID NOT MATCH FORMAT AND WAS ZERO");
+			return false;
+		}
+
+		String jobPatternStr = "job_(.*)$";
+		Pattern jobPattern = Pattern.compile(jobPatternStr);
 		
+		Matcher jobMatcher = jobPattern.matcher(jobID);
 		
-		/*
-		 *    local myjobId=$1
-   pattern=`echo $myjobId |grep job_ `
-   if [ -z "$pattern" ] ; then
-      # echo " The job id does meet the format"
-      return 1
-   else
-      # echo " The job id meets the format "
-      return 0
-   fi
-		*/
-		
-		if (true/*valid*/) {
+		if (jobMatcher.find()) {
+			jobID = jobMatcher.group(1);
+			System.out.println("JOB ID MATCHED EXPECTED FORMAT");
+			System.out.println("JOB ID: " + jobID);
 			return true;
 		}
 		else {
+			System.out.println("JOB ID DID NOT MATCH FORMAT");
 			return false;
 		}
 	}
 	
-	private boolean verifyJobSuccess(int jobID) {
+	private boolean verifyJobSuccess(String jobID) {
 		// Runs Hadoop to check for the SUCCEEDED state of the job 
 		boolean jobSuccess = false;
 		
@@ -252,11 +260,11 @@ public class MapredKillTask {
 	 * Get the task attempt ID associated with the specified job ID.
 	 * 
 	 * @param jobID The ID of the job to associate with the task attempt.
-	 * @return int The ID of the task attempt.
+	 * @return String The ID of the task attempt.
 	 */
-	private int getTaskAttemptID(int jobID) {
+	private String getTaskAttemptID(String jobID) {
 		// Get the task attempt ID given a job ID
-		int taskID = 0; //should get the real taskID here
+		String taskID = "0"; //should get the real taskID here
 		
 		return taskID;
 	}
@@ -267,7 +275,7 @@ public class MapredKillTask {
 	 * @param jobID The ID of the job matching the task attempt.
 	 * @return boolean Whether the task attempt was killed or not.
 	 */
-	private boolean killTaskAttempt(int jobID) {
+	private boolean killTaskAttempt(String taskID) {
 		// Kill task attempt with known ID
 
 		/*
@@ -275,16 +283,48 @@ public class MapredKillTask {
    				# resp=`$HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -fail-task $1 | grep Killed`
    				# echo " The response of the fail task is $resp "
 		 */
+		taskID = this.mapTaskID;
 		
+		Process mapredProc = null;
 		
-		// Look for "killed task" message
+		String hadoop_version = "0.23.4"; // should come from prop variable in fw conf
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String hadoop_conf_dir = "/Users/rbernota/workspace/conf";
+		String mapred_exe = hadoop_install + "/bin/mapred";
 		
-		if (true/* message exists */) {
-			return true;
+		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -kill-task " + taskID;
+		
+		System.out.println(mapredCmd);
+
+		String mapredPatternStr = "Killed";
+		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
+		
+		try {
+			mapredProc = Runtime.getRuntime().exec(mapredCmd);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
+			String line=reader.readLine(); 
+			while(line!=null) 
+			{ 
+				System.out.println(line); 
+				line=reader.readLine();
+				
+				Matcher mapredMatcher = mapredPattern.matcher(line);
+				
+				if (mapredMatcher.find()) {
+					System.out.println("TASK ATTEMPT WAS KILLED");
+					return true;
+				}
+			} 
 		}
-		else {
-			return false;
+		catch (Exception e) {
+			if (mapredProc != null) {
+				mapredProc.destroy();
+			}
+			e.printStackTrace();
 		}
+		
+		System.out.println("TASK ATTEMPT WAS NOT KILLED");
+		return false;
 	}
 	
 	/*
@@ -293,7 +333,7 @@ public class MapredKillTask {
 	 * @param jobID The ID of the job to fail.
 	 * @return boolean Whether the job was failed or not.
 	 */
-	private boolean failJob(int jobID) {
+	private boolean failJob(String jobID) {
 		// Fail job with given ID
 		
 		/*
@@ -323,7 +363,7 @@ public class MapredKillTask {
 	 * @param jobID The ID of the job to kill.
 	 * @return boolean Whether the job was killed or not.
 	 */
-	private boolean killJob(int jobID) {
+	private boolean killJob(String jobID) {
 		// Kill job with given ID
 		
 		/*
