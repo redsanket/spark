@@ -146,7 +146,7 @@ public class MapredKillTask {
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
 		String hadoop_mapred_test_jar = hadoop_install + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + hadoop_version + "-tests.jar";
 		String artifacts_dir = "/Users/rbernota/workspace/artifacts";
-		String hadoop_conf_dir = "/Users/rbernota/workspace/conf";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
 		String hadoop_exe = hadoop_install + "/bin/hadoop";
 		String user = "rbernota"; // not sure where this should go... probably in fw conf for now, but possibly extract from system.
 		
