@@ -306,23 +306,15 @@ public class MapredKillTask {
 	}
 	
 	/*
-	 * Kills the task attempt associated with the specified job ID.
+	 * Kills the task attempt associated with the specified task ID.
 	 * 
 	 * @param jobID The ID of the job matching the task attempt.
 	 * @return boolean Whether the task attempt was killed or not.
 	 */
 	private boolean killTaskAttempt(String taskID) {
-		// Kill task attempt with known ID
-
-		/*
-		 *    $HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -kill-task $1
-   				# resp=`$HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -fail-task $1 | grep Killed`
-   				# echo " The response of the fail task is $resp "
-		 */
 		
 		Process mapredProc = null;
 		
-		String hadoop_version = "0.23.4"; // should come from prop variable in fw conf
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
 		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
 		String mapred_exe = hadoop_install + "/bin/mapred";
@@ -364,6 +356,56 @@ public class MapredKillTask {
 	}
 	
 	/*
+	 * Fails the task attempt associated with the specified task ID.
+	 * 
+	 * @param jobID The ID of the job matching the task attempt.
+	 * @return boolean Whether the task attempt was killed or not.
+	 */
+	private boolean failTaskAttempt(String taskID) {
+		
+		Process mapredProc = null;
+		
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String mapred_exe = hadoop_install + "/bin/mapred";
+		
+		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -fail-task " + taskID;
+		
+		System.out.println(mapredCmd);
+
+		String mapredPatternStr = "(.*)(Failed task " + taskID + ")(.*)";
+		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
+		
+		try {
+			mapredProc = Runtime.getRuntime().exec(mapredCmd);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
+			String line=reader.readLine(); 
+			while(line!=null) 
+			{ 
+				System.out.println(line); 
+				
+				Matcher mapredMatcher = mapredPattern.matcher(line);
+				
+				if (mapredMatcher.find()) {
+					System.out.println("TASK ATTEMPT " + taskID + " WAS FAILED");
+					return true;
+				}
+				
+				line=reader.readLine();
+			} 
+		}
+		catch (Exception e) {
+			if (mapredProc != null) {
+				mapredProc.destroy();
+			}
+			e.printStackTrace();
+		}
+		
+		System.out.println("TASK ATTEMPT " + taskID + " WAS NOT FAILED");
+		return false;
+	}
+	
+	/*
 	 * Fail a job.
 	 * 
 	 * @param jobID The ID of the job to fail.
@@ -385,6 +427,26 @@ public class MapredKillTask {
    done
 		 * 
 		 */
+		String taskID = "0"; //should get the real taskID here
+		
+		String taskIDExtractStr = "(job)(.*)";
+		Pattern taskIDPattern = Pattern.compile(taskIDExtractStr);
+		
+		Matcher taskIDMatcher = taskIDPattern.matcher(jobID);
+		
+		while (taskIDMatcher.find()) {
+			for (int i = 0; i < 4; i++) {
+				taskID = "attempt" + taskIDMatcher.group(2) + "_m_00000_" + Integer.toString(i);
+				if (! this.failTaskAttempt(taskID)) {
+					return false;
+				}
+			}
+		}
+		
+		
+		
+		
+		
 		
 		// Get job status
 		
@@ -400,20 +462,47 @@ public class MapredKillTask {
 	 * @return boolean Whether the job was killed or not.
 	 */
 	private boolean killJob(String jobID) {
-		// Kill job with given ID
+
+		Process mapredProc = null;
 		
-		/*
-		 * 
-		 *    local captureFile=$2
-   if [ "X"$captureFile"X" == "XX" ] ; then
-      $HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -kill $1 |tail -1 |cut -f 1 | awk -F" " '{print $1}'
-   else
-      $HADOOP_MAPRED_CMD --config $HADOOP_CONF_DIR job -kill $1 > $captureFile 2>&1
-   fi
-		 * 
-		 */
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String mapred_exe = hadoop_install + "/bin/mapred";
 		
-		return true; // return if the job was killed or not
+		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -kill " + jobID;
+		
+		System.out.println(mapredCmd);
+
+		String mapredPatternStr = "(.*)(Killed job " + jobID + ")(.*)";
+		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
+		
+		try {
+			mapredProc = Runtime.getRuntime().exec(mapredCmd);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
+			String line=reader.readLine(); 
+			while(line!=null) 
+			{ 
+				System.out.println(line); 
+				
+				Matcher mapredMatcher = mapredPattern.matcher(line);
+				
+				if (mapredMatcher.find()) {
+					System.out.println("JOB " + jobID + " WAS KILLED");
+					return true;
+				}
+				
+				line=reader.readLine();
+			} 
+		}
+		catch (Exception e) {
+			if (mapredProc != null) {
+				mapredProc.destroy();
+			}
+			e.printStackTrace();
+		}
+		
+		System.out.println("JOB " + jobID + " WAS NOT KILLED");
+		return false;
 	}
 	
 }
