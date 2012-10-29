@@ -23,8 +23,6 @@ import java.util.regex.Matcher;
 public class MapredKillTask {
 
 	private String jobID = "0";
-	private String mapTaskID = "0";
-	private String reduceTaskID = "0";
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -35,6 +33,21 @@ public class MapredKillTask {
 	public static void startCluster() {
 		// set configuration
 		// start the cluster
+		// start-dfs.sh --config ~/workspace/hadoop/test/pseudodistributed_configs/ 
+		// start-yarn.sh --config ~/workspace/hadoop/test/pseudodistributed_configs/ 
+		// hadoop-daemon.sh --config ~/workspace/hadoop/test/pseudodistributed_configs/ start datanode 
+		
+		/*
+		 * For killTaskOfAlreadyFailedJob to work, you need to limit the number of map task attempts to a number that you can know ahead of time.
+		 * 
+		 * mapreduce.map.maxattempts = 4
+		 * mapreduce.reduce.maxattempts = 4
+		 * 
+		 * The reduce version is not necessary, but it is a similar property.  The server daemons need to be started with these properties.
+		 * It normally goes in yarn-site.xml.
+		 * 
+		 * Knowing this number, we can then specify the number of task attempts to kill in the map phase, and know that it won't retry past that.
+		 */
 	}
 	
 	/*
@@ -43,7 +56,12 @@ public class MapredKillTask {
 	@AfterClass
 	public static void stopCluster() {
 		// stop the cluster
+		// kill any remaining jobs
+		// stop-dfs.sh
+		// stop-yarn.sh
+		
 		// clean up configuration
+		
 	}
 	
 	/******************* TEST BEFORE/AFTER ***********************/
@@ -100,7 +118,8 @@ public class MapredKillTask {
 	@Test
 	public void killTaskOfAlreadyFailedJob() {
 		
-		assertTrue("Was not able to fail the job.", this.failJob(this.jobID));
+		assertTrue("Was not able to fail the job.", 
+				this.failJob(this.jobID));
 		
 		String taskID = this.getMapTaskAttemptID(this.jobID);
 		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
@@ -113,7 +132,8 @@ public class MapredKillTask {
 	@Test
 	public void killTaskOfAlreadyCompletedJob() {
 		
-		assertTrue("Job did not succeed.", this.verifyJobSuccess(this.jobID));
+		assertTrue("Job did not succeed.", 
+				this.verifyJobSuccess(this.jobID));
 		
 		String taskID = this.getMapTaskAttemptID(this.jobID);
 		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
@@ -373,7 +393,7 @@ public class MapredKillTask {
 		
 		System.out.println(mapredCmd);
 
-		String mapredPatternStr = "(.*)(Failed task " + taskID + ")(.*)";
+		String mapredPatternStr = "(.*)(Killed task " + taskID + " by failing it)(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
 		
 		try {
@@ -427,7 +447,7 @@ public class MapredKillTask {
    done
 		 * 
 		 */
-		String taskID = "0"; //should get the real taskID here
+		String taskID; //should get the real taskID here
 		
 		String taskIDExtractStr = "(job)(.*)";
 		Pattern taskIDPattern = Pattern.compile(taskIDExtractStr);
@@ -436,23 +456,58 @@ public class MapredKillTask {
 		
 		while (taskIDMatcher.find()) {
 			for (int i = 0; i < 4; i++) {
-				taskID = "attempt" + taskIDMatcher.group(2) + "_m_00000_" + Integer.toString(i);
+				taskID = "attempt" + taskIDMatcher.group(2) + "_m_000000_" + Integer.toString(i);
 				if (! this.failTaskAttempt(taskID)) {
 					return false;
 				}
 			}
 		}
 		
-		
-		
-		
-		
-		
+
 		// Get job status
+
+		Process mapredProc = null;
+		
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String mapred_exe = hadoop_install + "/bin/mapred";
+		
+		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -status " + jobID;
+		
+		System.out.println(mapredCmd);
+
+		String mapredPatternStr = "(.*)(Job state: FAILED)(.*)";
+		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
 		
 		// Greps the job status output to see if it failed the job 
-		
-		return true; // return if the job was failed or not
+
+		try {
+			mapredProc = Runtime.getRuntime().exec(mapredCmd);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
+			String line=reader.readLine(); 
+			while(line!=null) 
+			{ 
+				System.out.println(line); 
+				
+				Matcher mapredMatcher = mapredPattern.matcher(line);
+				
+				if (mapredMatcher.find()) {
+					System.out.println("JOB " + jobID + " WAS FAILED");
+					return true;
+				}
+				
+				line=reader.readLine();
+			} 
+		}
+		catch (Exception e) {
+			if (mapredProc != null) {
+				mapredProc.destroy();
+			}
+			e.printStackTrace();
+		}
+
+		System.out.println("JOB " + jobID + " WAS NOT FAILED");
+		return false; // job didn't fail
 	}
 
 	/*
