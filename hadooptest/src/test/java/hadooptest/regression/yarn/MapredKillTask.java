@@ -171,10 +171,7 @@ public class MapredKillTask {
 		String hadoop_exe = hadoop_install + "/bin/hadoop";
 		String user = "rbernota"; // not sure where this should go... probably in fw conf for now, but possibly extract from system.
 		
-		for (int i = 0; i < numJobs; i++) {
-			//createFile $ARTIFACTS_DIR/sleep.$i.log
-			this.createArtifactsFile(artifacts_dir, i);
-			
+		for (int i = 0; i < numJobs; i++) {			
 			String hadoopCmd = hadoop_exe + " --config " + hadoop_conf_dir 
 					+ " jar " + hadoop_mapred_test_jar 
 					+ " sleep -Dmapreduce.job.user.name=" + user 
@@ -232,16 +229,6 @@ public class MapredKillTask {
 	}
 	
 	/*
-	 * Create an artifact file
-	 * 
-	 * @param String The location of the artifact directory
-	 * @param int The unique identifying integer for the filename
-	 */
-	private void createArtifactsFile(String artifactsDir, int fileInstance) {
-		// touch $1 > /dev/null 2>&1 && echo "File $1 created."
-	}
-	
-	/*
 	 * Verifies a job ID is a valid ID for the expected format.
 	 * 
 	 * @param jobID The ID of the job to verify.
@@ -272,11 +259,89 @@ public class MapredKillTask {
 	
 	private boolean verifyJobSuccess(String jobID) {
 		// Runs Hadoop to check for the SUCCEEDED state of the job 
-		boolean jobSuccess = false;
 		
 		// check for job success here
-				
-		return jobSuccess;
+		Process mapredProc = null;
+		
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String mapred_exe = hadoop_install + "/bin/mapred";
+		
+		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -status " + jobID;
+		
+		System.out.println(mapredCmd);
+
+		String mapredPatternStrSuccess = "(.*)(Job state: SUCCEEDED)(.*)";
+		Pattern mapredPatternSuccess = Pattern.compile(mapredPatternStrSuccess);
+		
+		String mapredPatternStrFailed = "(.*)(Job state: FAILED)(.*)";
+		Pattern mapredPatternFailed = Pattern.compile(mapredPatternStrFailed);
+		
+		String mapredPatternStrKilled = "(.*)(Job state: KILLED)(.*)";
+		Pattern mapredPatternKilled = Pattern.compile(mapredPatternStrKilled);
+
+		String mapredPatternStrPrep = "(.*)(Job state: PREP)(.*)";
+		Pattern mapredPatternPrep = Pattern.compile(mapredPatternStrPrep);
+
+		String mapredPatternStrRunning = "(.*)(Job state: RUNNING)(.*)";
+		Pattern mapredPatternRunning = Pattern.compile(mapredPatternStrRunning);
+
+		// Give the sleep job 5 minutes to complete
+		for (int i = 0; i <= 50; i++) {
+		
+			try {
+				mapredProc = Runtime.getRuntime().exec(mapredCmd);
+				BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
+				String line=reader.readLine(); 
+				while(line!=null) 
+				{ 
+					System.out.println(line); 
+
+					Matcher mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
+					Matcher mapredMatcherFailed = mapredPatternFailed.matcher(line);
+					Matcher mapredMatcherKilled = mapredPatternKilled.matcher(line);
+					Matcher mapredMatcherPrep = mapredPatternPrep.matcher(line);
+					Matcher mapredMatcherRunning = mapredPatternRunning.matcher(line);
+
+					if (mapredMatcherSuccess.find()) {
+						System.out.println("JOB " + jobID + " SUCCEEDED");
+						return true;
+					}
+					else if (mapredMatcherFailed.find()) {
+						System.out.println("JOB " + jobID + " FAILED");
+						return false;
+					}
+					else if (mapredMatcherKilled.find()) {
+						System.out.println("JOB " + jobID + " WAS KILLED");
+						return false;
+					}
+					else if (mapredMatcherPrep.find()) {
+						System.out.println("JOB " + jobID + " IS STILL IN PREP STATE");
+					}
+					else if (mapredMatcherRunning.find()) {
+						System.out.println("JOB " + jobID + " IS STILL RUNNING");
+					}
+
+					line=reader.readLine();
+				} 
+			}
+			catch (Exception e) {
+				if (mapredProc != null) {
+					mapredProc.destroy();
+				}
+				e.printStackTrace();
+			}
+
+			try {
+				Thread.currentThread().sleep(10000);
+			}
+			catch (InterruptedException ie) {
+				System.out.println("Couldn't sleep the current Thread.");
+			}
+		}
+
+		System.out.println("JOB " + jobID + " didn't SUCCEED within the 5 minute timeout window.");
+		return false;
 	}
 	
 	/*
