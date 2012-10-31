@@ -5,6 +5,7 @@
 package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,6 +49,8 @@ public class MapredKillTask {
 		 * 
 		 * Knowing this number, we can then specify the number of task attempts to kill in the map phase, and know that it won't retry past that.
 		 */
+
+		startPseudoDistributedCluster();
 	}
 	
 	/*
@@ -55,13 +58,125 @@ public class MapredKillTask {
 	 */
 	@AfterClass
 	public static void stopCluster() {
+		stopPseudoDistributedCluster();
+
+		// clean up configuration
+	}
+	
+	private static void startPseudoDistributedCluster() {
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		
+		String format_dfs = hadoop_install + "/bin/hadoop namenode -format";
+		String start_dfs = hadoop_install + "/sbin/start-dfs.sh --config " + hadoop_conf_dir;
+		String start_yarn = hadoop_install + "/sbin/start-yarn.sh --config " + hadoop_conf_dir;
+		String start_datanode = hadoop_install + "/sbin/hadoop-daemon.sh --config " + hadoop_conf_dir;
+		
+		System.out.println("FORMATTING DFS...");
+		runProc(format_dfs);
+
+		System.out.println("STARTING DFS...");
+		runProc(start_dfs);
+		
+		// verify with jps
+		assertTrue("The NameNode was not started.", verifyJpsProcRunning("NameNode"));
+		assertTrue("The SecondaryNameNode was not started.", verifyJpsProcRunning("SecondaryNameNode"));
+
+		System.out.println("STARTING YARN...");
+		runProc(start_yarn);
+		
+		// verify with jps
+		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
+
+		System.out.println("STARTING DATANODE...");
+		runProc(start_datanode);
+		
+		// verify with jps
+		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
+	}
+	
+	private static void stopPseudoDistributedCluster() {
 		// stop the cluster
 		// kill any remaining jobs
 		// stop-dfs.sh
 		// stop-yarn.sh
 		
-		// clean up configuration
+		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
+		String stop_dfs = hadoop_install + "/sbin/stop-dfs.sh";
+		String stop_yarn = hadoop_install + "/sbin/stop-yarn.sh";
 		
+		runProc(stop_dfs);
+		
+		runProc(stop_yarn);
+		
+		// verify with jps
+		assertFalse("The NameNode was not stopped.", verifyJpsProcRunning("NameNode"));
+		assertFalse("The SecondaryNameNode was not stopped.", verifyJpsProcRunning("SecondaryNameNode"));
+		assertFalse("The ResourceManager was not stopped.", verifyJpsProcRunning("ResourceManager"));
+		assertFalse("The DataNode was not stopped.", verifyJpsProcRunning("DataNode"));
+	}
+	
+	private static void runProc(String command) {
+		Process proc = null;
+		
+		System.out.println(command);
+		
+		try {
+			proc = Runtime.getRuntime().exec(command);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(proc.getInputStream())); 
+			String line=reader.readLine(); 
+			while(line!=null) 
+			{ 
+				System.out.println(line); 				
+				line=reader.readLine();
+			} 
+		}
+		catch (Exception e) {
+			if (proc != null) {
+				proc.destroy();
+			}
+			e.printStackTrace();
+		}
+	}
+	
+	private static boolean verifyJpsProcRunning(String process) {
+
+		Process jpsProc = null;
+		
+		String jpsCmd = "jps";
+		
+		System.out.println(jpsCmd);
+
+		String jpsPatternStr = "(.*)(" + process + ")(.*)";
+		Pattern jpsPattern = Pattern.compile(jpsPatternStr);
+		
+		try {
+			jpsProc = Runtime.getRuntime().exec(jpsCmd);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(jpsProc.getInputStream())); 
+			String line=reader.readLine(); 
+			while(line!=null) 
+			{ 
+				System.out.println(line); 
+				
+				Matcher jpsMatcher = jpsPattern.matcher(line);
+				
+				if (jpsMatcher.find()) {
+					System.out.println("FOUND PROCESS: " + process);
+					return true;
+				}
+				
+				line=reader.readLine();
+			} 
+		}
+		catch (Exception e) {
+			if (jpsProc != null) {
+				jpsProc.destroy();
+			}
+			e.printStackTrace();
+		}
+		
+		System.out.println("PROCESS WAS NOT KILLED: " + process);
+		return false;
 	}
 	
 	/******************* TEST BEFORE/AFTER ***********************/
