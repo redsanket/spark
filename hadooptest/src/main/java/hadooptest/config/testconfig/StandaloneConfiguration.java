@@ -24,7 +24,7 @@ public class StandaloneConfiguration extends TestConfiguration
 
    public StandaloneConfiguration(boolean loadDefaults)
    {
-      super(false); 
+      super(loadDefaults); 
 
       initDefaults();
    }
@@ -55,13 +55,13 @@ public class StandaloneConfiguration extends TestConfiguration
     */
    private void initDefaults()
    {	   
-	   this.addResource(this.getClassLoader().getResourceAsStream("default_configuration/core-default.xml"));
-	   this.addResource(this.getClassLoader().getResourceAsStream("default_configuration/hdfs-default.xml"));
-	   this.addResource(this.getClassLoader().getResourceAsStream("default_configuration/yarn-default.xml"));
-	   this.addResource(this.getClassLoader().getResourceAsStream("default_configuration/distcp-default.xml"));
-	   this.addResource(this.getClassLoader().getResourceAsStream("default_configuration/httpfs-default.xml"));
-	   this.addResource(this.getClassLoader().getResourceAsStream("default_configuration/mapred-default.xml"));
-	   this.addResource(this.getClassLoader().getResourceAsStream("default_configuration/testserver-default.xml"));
+	   this.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
+	   this.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
+	   this.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
+	   //this.addResource(this.getClassLoader().getResourceAsStream("distcp-default.xml"));
+	   //this.addResource(this.getClassLoader().getResourceAsStream("httpfs-default.xml"));
+	   this.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
+	   //this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
 	   
 	   // This seems to be necessary to get the added resources to be available.  get seems to be doing
 	   // something that addResource() doesn't when you have created a Configuration(false).  This might 

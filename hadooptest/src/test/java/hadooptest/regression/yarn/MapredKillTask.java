@@ -14,9 +14,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+
+import hadooptest.config.testconfig.PseudodistributedConfiguration;
 
 /*
  * A test suite used to exercise the ability to kill tasks.
@@ -24,6 +32,7 @@ import java.util.regex.Matcher;
 public class MapredKillTask {
 
 	private String jobID = "0";
+	private static PseudodistributedConfiguration conf;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -31,24 +40,12 @@ public class MapredKillTask {
 	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
 	 */
 	@BeforeClass
-	public static void startCluster() {
-		// set configuration
-		// start the cluster
-		// start-dfs.sh --config ~/workspace/hadoop/test/pseudodistributed_configs/ 
-		// start-yarn.sh --config ~/workspace/hadoop/test/pseudodistributed_configs/ 
-		// hadoop-daemon.sh --config ~/workspace/hadoop/test/pseudodistributed_configs/ start datanode 
+	public static void startCluster() throws FileNotFoundException, IOException {
 		
-		/*
-		 * For killTaskOfAlreadyFailedJob to work, you need to limit the number of map task attempts to a number that you can know ahead of time.
-		 * 
-		 * mapreduce.map.maxattempts = 4
-		 * mapreduce.reduce.maxattempts = 4
-		 * 
-		 * The reduce version is not necessary, but it is a similar property.  The server daemons need to be started with these properties.
-		 * It normally goes in yarn-site.xml.
-		 * 
-		 * Knowing this number, we can then specify the number of task attempts to kill in the map phase, and know that it won't retry past that.
-		 */
+		conf = new PseudodistributedConfiguration();
+		conf.set("mapreduce.map.maxattempts", "4");
+		conf.set("mapreduce.reduce.maxattempts", "4");
+		conf.write();
 
 		startPseudoDistributedCluster();
 	}
@@ -59,22 +56,26 @@ public class MapredKillTask {
 	@AfterClass
 	public static void stopCluster() {
 		stopPseudoDistributedCluster();
-
-		// clean up configuration
+		conf.cleanup();
 	}
 	
 	private static void startPseudoDistributedCluster() {
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 		
-		String format_dfs = hadoop_install + "/bin/hadoop namenode -format";
+		//String delete_dfs = "rm -rf /tmp/hadoop-rbernota/dfs/*";
+		//String format_dfs = hadoop_install + "/bin/hadoop namenode -format";
 		String start_dfs = hadoop_install + "/sbin/start-dfs.sh --config " + hadoop_conf_dir;
 		String start_yarn = hadoop_install + "/sbin/start-yarn.sh --config " + hadoop_conf_dir;
-		String start_datanode = hadoop_install + "/sbin/hadoop-daemon.sh --config " + hadoop_conf_dir;
+		String start_nodemanager = hadoop_install + "/sbin/start-yarn.sh";
+		String start_datanode = hadoop_install + "/sbin/hadoop-daemon.sh --config " + hadoop_conf_dir + " start datanode";
 		
-		System.out.println("FORMATTING DFS...");
-		runProc(format_dfs);
-
+		//System.out.println("REMOVING OLD DFS FILES AND DIRS...");
+		//runProc(delete_dfs);
+		
+		//System.out.println("FORMATTING DFS...");
+		//runProc(format_dfs);
+		
 		System.out.println("STARTING DFS...");
 		runProc(start_dfs);
 		
@@ -85,6 +86,9 @@ public class MapredKillTask {
 		System.out.println("STARTING YARN...");
 		runProc(start_yarn);
 		
+		//System.out.println("STARTING YARN NODEMANAGER...");
+		//runProc(start_nodemanager);
+		
 		// verify with jps
 		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
 
@@ -93,6 +97,14 @@ public class MapredKillTask {
 		
 		// verify with jps
 		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
+		
+		System.out.println("Sleeping for 30s to wait for HDFS to get out of safe mode.");
+		try {
+			Thread.currentThread().sleep(30000);
+		}
+		catch (InterruptedException ie) {
+			System.out.println("Couldn't sleep the current Thread.");
+		}
 	}
 	
 	private static void stopPseudoDistributedCluster() {
@@ -108,6 +120,13 @@ public class MapredKillTask {
 		runProc(stop_dfs);
 		
 		runProc(stop_yarn);
+		
+		try {
+			Thread.currentThread().sleep(10000);
+		}
+		catch (InterruptedException ie) {
+			System.out.println("Couldn't sleep the current Thread.");
+		}
 		
 		// verify with jps
 		assertFalse("The NameNode was not stopped.", verifyJpsProcRunning("NameNode"));
@@ -175,7 +194,7 @@ public class MapredKillTask {
 			e.printStackTrace();
 		}
 		
-		System.out.println("PROCESS WAS NOT KILLED: " + process);
+		System.out.println("PROCESS IS NO LONGER RUNNING: " + process);
 		return false;
 	}
 	
@@ -196,9 +215,14 @@ public class MapredKillTask {
 	 */
 	@After
 	public void resetClusterState() {
-		this.jobID = "0";
+		if (this.killJob(this.jobID) && this.jobID != "0") {
+			System.out.println("Cleaned up latent job by killing it: " + this.jobID);
+		}
+		else {
+			System.out.println("Job was already killed or never started, no need to clean up: " + this.jobID);
+		}
 		
-		// make sure any sleep jobs are finished/failed/killed
+		this.jobID = "0";
 	}
 	
 	/******************* TESTS ***********************/
@@ -282,7 +306,7 @@ public class MapredKillTask {
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
 		String hadoop_mapred_test_jar = hadoop_install + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + hadoop_version + "-tests.jar";
 		String artifacts_dir = "/Users/rbernota/workspace/artifacts";
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 		String hadoop_exe = hadoop_install + "/bin/hadoop";
 		String user = "rbernota"; // not sure where this should go... probably in fw conf for now, but possibly extract from system.
 		
@@ -379,7 +403,7 @@ public class MapredKillTask {
 		Process mapredProc = null;
 		
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 		String mapred_exe = hadoop_install + "/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -status " + jobID;
@@ -516,7 +540,7 @@ public class MapredKillTask {
 		Process mapredProc = null;
 		
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 		String mapred_exe = hadoop_install + "/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -kill-task " + taskID;
@@ -566,7 +590,7 @@ public class MapredKillTask {
 		Process mapredProc = null;
 		
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 		String mapred_exe = hadoop_install + "/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -fail-task " + taskID;
@@ -649,7 +673,7 @@ public class MapredKillTask {
 		Process mapredProc = null;
 		
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 		String mapred_exe = hadoop_install + "/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -status " + jobID;
@@ -701,7 +725,7 @@ public class MapredKillTask {
 		Process mapredProc = null;
 		
 		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/";
+		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 		String mapred_exe = hadoop_install + "/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -kill " + jobID;
