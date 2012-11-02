@@ -17,17 +17,17 @@ import java.io.IOException;
 
 import hadooptest.config.TestConfiguration;
 
-public class PseudodistributedConfiguration extends TestConfiguration
+public class PseudoDistributedConfiguration extends TestConfiguration
 {
 
-   public PseudodistributedConfiguration()
+   public PseudoDistributedConfiguration()
    {
       super(false);
 
       initDefaults();
    }
 
-   public PseudodistributedConfiguration(boolean loadDefaults)
+   public PseudoDistributedConfiguration(boolean loadDefaults)
    {
       super(loadDefaults); 
 
