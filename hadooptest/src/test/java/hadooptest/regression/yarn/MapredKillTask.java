@@ -132,6 +132,9 @@ public class MapredKillTask {
 	
 	/******************* END TESTS ***********************/
 
+	/*
+	 * A helper method to get the map task attempt ID, and kill the task attempt.
+	 */
 	private void killTask() {
 		String taskID = sleepJob.getMapTaskAttemptID();
 		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 

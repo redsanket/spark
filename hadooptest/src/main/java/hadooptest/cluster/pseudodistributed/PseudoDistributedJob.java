@@ -17,6 +17,9 @@ public abstract class PseudoDistributedJob implements Job {
 	public String ID = "0";
 	public JobState state;
 	
+	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
+	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
+	
 	public PseudoDistributedJob() {
 		super();
 	}
@@ -66,11 +69,9 @@ public abstract class PseudoDistributedJob implements Job {
 
 		Process mapredProc = null;
 		
-		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
-		String mapred_exe = hadoop_install + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
 		
-		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -kill " + this.ID;
+		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -kill " + this.ID;
 		
 		System.out.println(mapredCmd);
 
@@ -113,21 +114,7 @@ public abstract class PseudoDistributedJob implements Job {
 	 * @return boolean Whether the job was successfully failed.
 	 */
 	public boolean fail() {
-		// Fail job with given ID
-		
-		/*
-		 * 
-		 *    local myjobId=$1
-   local myAttemptId1=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_0/g')
-   local myAttemptId2=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_1/g')
-   local myAttemptId3=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_2/g')
-   local myAttemptId4=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_000000_3/g')
-   local myAttemptIds=" $myAttemptId1 $myAttemptId2 $myAttemptId3 $myAttemptId4"
-   for myAttemptId in $myAttemptIds; do
-      failGivenAttemptId $myAttemptId
-   done
-		 * 
-		 */
+
 		String taskID; //should get the real taskID here
 		
 		String taskIDExtractStr = "(job)(.*)";
@@ -143,17 +130,14 @@ public abstract class PseudoDistributedJob implements Job {
 				}
 			}
 		}
-		
 
 		// Get job status
 
 		Process mapredProc = null;
 		
-		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
-		String mapred_exe = hadoop_install + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
 		
-		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -status " + this.ID;
+		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -status " + this.ID;
 		
 		System.out.println(mapredCmd);
 
@@ -212,11 +196,9 @@ public abstract class PseudoDistributedJob implements Job {
 		// check for job success here
 		Process mapredProc = null;
 		
-		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
-		String mapred_exe = hadoop_install + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
 		
-		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -status " + this.ID;
+		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -status " + this.ID;
 		
 		System.out.println(mapredCmd);
 
@@ -304,11 +286,9 @@ public abstract class PseudoDistributedJob implements Job {
 		
 		Process mapredProc = null;
 		
-		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
-		String mapred_exe = hadoop_install + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
 		
-		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -fail-task " + taskID;
+		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -fail-task " + taskID;
 		
 		System.out.println(mapredCmd);
 
@@ -363,8 +343,6 @@ public abstract class PseudoDistributedJob implements Job {
 			taskID = "attempt" + taskIDMatcher.group(2) + "_m_00000_0";
 		}
 		
-		//local myAttemptId1=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_00000_0/g') 
-		
 		System.out.println("MAP TASK ID = " + taskID);
 		
 		return taskID;
@@ -384,8 +362,6 @@ public abstract class PseudoDistributedJob implements Job {
 			taskID = "attempt" + taskIDMatcher.group(2) + "_r_00000_0";
 		}
 		
-		//local myAttemptId1=$(echo $myjobId |sed 's/job/attempt/g'|sed 's/$/_m_00000_0/g') 
-		
 		System.out.println("REDUCE TASK ID = " + taskID);
 		
 		return taskID;
@@ -401,11 +377,9 @@ public abstract class PseudoDistributedJob implements Job {
 		
 		Process mapredProc = null;
 		
-		String hadoop_install = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4"; // this should come from env $HADOOP_INSTALL or prop variable in fw conf
-		String hadoop_conf_dir = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
-		String mapred_exe = hadoop_install + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
 		
-		String mapredCmd = mapred_exe + " --config " + hadoop_conf_dir + " job -kill-task " + taskID;
+		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -kill-task " + taskID;
 		
 		System.out.println(mapredCmd);
 
