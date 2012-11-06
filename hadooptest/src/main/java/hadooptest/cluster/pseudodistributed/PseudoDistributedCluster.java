@@ -44,7 +44,7 @@ public class PseudoDistributedCluster implements Cluster {
 
 		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
 		String start_yarn = HADOOP_INSTALL + "/sbin/start-yarn.sh --config " + CONFIG_BASE_DIR;
-		String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
+		//String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
 
 		System.out.println("STARTING DFS...");
 		runProc(start_dfs);
@@ -59,8 +59,8 @@ public class PseudoDistributedCluster implements Cluster {
 		// verify with jps
 		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
 
-		System.out.println("STARTING DATANODE...");
-		runProc(start_datanode);
+		//System.out.println("STARTING DATANODE...");
+		//runProc(start_datanode);
 
 		// verify with jps
 		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));

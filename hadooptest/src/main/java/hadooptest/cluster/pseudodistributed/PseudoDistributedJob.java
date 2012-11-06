@@ -16,7 +16,7 @@ public abstract class PseudoDistributedJob implements Job {
 	 */
 	public String ID = "0";
 	public JobState state;
-	
+
 	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
 	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 	
@@ -115,7 +115,7 @@ public abstract class PseudoDistributedJob implements Job {
 	 */
 	public boolean fail() {
 
-		String taskID; //should get the real taskID here
+		String taskID;
 		
 		String taskIDExtractStr = "(job)(.*)";
 		Pattern taskIDPattern = Pattern.compile(taskIDExtractStr);
@@ -125,6 +125,7 @@ public abstract class PseudoDistributedJob implements Job {
 		while (taskIDMatcher.find()) {
 			for (int i = 0; i < 4; i++) {
 				taskID = "attempt" + taskIDMatcher.group(2) + "_m_000000_" + Integer.toString(i);
+				
 				if (! this.failTaskAttempt(taskID)) {
 					return false;
 				}
@@ -217,8 +218,8 @@ public abstract class PseudoDistributedJob implements Job {
 		String mapredPatternStrRunning = "(.*)(Job state: RUNNING)(.*)";
 		Pattern mapredPatternRunning = Pattern.compile(mapredPatternStrRunning);
 
-		// Give the sleep job 5 minutes to complete
-		for (int i = 0; i <= 50; i++) {
+		// Give the sleep job 15 minutes to complete
+		for (int i = 0; i <= 150; i++) {
 		
 			try {
 				mapredProc = Runtime.getRuntime().exec(mapredCmd);

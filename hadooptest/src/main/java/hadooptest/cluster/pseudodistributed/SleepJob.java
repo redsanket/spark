@@ -22,7 +22,8 @@ public class SleepJob extends PseudoDistributedJob {
 	 * @return String the ID of the job submitted.
 	 */
 	public String submit() {
-		return this.submit(10, 10, 50000, 50000, 1);
+		//return this.submit(10, 10, 50000, 50000, 1);
+		return this.submit(5, 5, 500, 500, 1);
 	}
 	
 	private String submit(int m_param, int r_param, int mt_param, int rt_param, int numJobs) {			
@@ -41,7 +42,7 @@ public class SleepJob extends PseudoDistributedJob {
 					+ " -mt " + mt_param 
 					+ " -rt " + rt_param;
 			
-			System.out.println("COMMAND: " + hadoop_exe + hadoopCmd);
+			System.out.println("COMMAND: " + hadoopCmd);
 			
 			String jobPatternStr = " - Running job: (.*)$";
 			Pattern jobPattern = Pattern.compile(jobPatternStr);
