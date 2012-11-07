@@ -44,27 +44,26 @@ public class PseudoDistributedCluster implements Cluster {
 
 		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
 		String start_yarn = HADOOP_INSTALL + "/sbin/start-yarn.sh --config " + CONFIG_BASE_DIR;
+		String start_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh start historyserver --config " + CONFIG_BASE_DIR;
 		//String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
 
 		System.out.println("STARTING DFS...");
 		runProc(start_dfs);
-
-		// verify with jps
 		assertTrue("The NameNode was not started.", verifyJpsProcRunning("NameNode"));
 		assertTrue("The SecondaryNameNode was not started.", verifyJpsProcRunning("SecondaryNameNode"));
 
-		System.out.println("STARTING YARN...");
-		runProc(start_yarn);
-
-		// verify with jps
-		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
-
 		//System.out.println("STARTING DATANODE...");
 		//runProc(start_datanode);
-
-		// verify with jps
 		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
+		
+		System.out.println("STARTING YARN...");
+		runProc(start_yarn);
+		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
 
+		System.out.println("STARTING JOB HISTORY SERVER...");
+		runProc(start_historyserver);
+		assertTrue("The JobHistoryServer was not started.", verifyJpsProcRunning("JobHistoryServer"));
+		
 		System.out.println("Sleeping for 30s to wait for HDFS to get out of safe mode.");
 		try {
 			Thread.currentThread().sleep(30000);
@@ -77,10 +76,11 @@ public class PseudoDistributedCluster implements Cluster {
 	public void stop() throws IOException {
 		String stop_dfs = HADOOP_INSTALL + "/sbin/stop-dfs.sh";
 		String stop_yarn = HADOOP_INSTALL + "/sbin/stop-yarn.sh";
+		String stop_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
 
 		runProc(stop_dfs);
-
 		runProc(stop_yarn);
+		runProc(stop_historyserver);
 
 		try {
 			Thread.currentThread().sleep(10000);
@@ -92,8 +92,9 @@ public class PseudoDistributedCluster implements Cluster {
 		// verify with jps
 		assertFalse("The NameNode was not stopped.", verifyJpsProcRunning("NameNode"));
 		assertFalse("The SecondaryNameNode was not stopped.", verifyJpsProcRunning("SecondaryNameNode"));
-		assertFalse("The ResourceManager was not stopped.", verifyJpsProcRunning("ResourceManager"));
 		assertFalse("The DataNode was not stopped.", verifyJpsProcRunning("DataNode"));
+		assertFalse("The ResourceManager was not stopped.", verifyJpsProcRunning("ResourceManager"));
+		assertFalse("The JobHistoryServer was not stopped.", verifyJpsProcRunning("JobHistoryServer"));
 	}
 
 	public void die() throws IOException {

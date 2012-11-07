@@ -39,6 +39,11 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	public void write() throws IOException {
 		File outdir = new File(CONFIG_BASE_DIR);
 		outdir.mkdirs();
+		
+		File historytmp = new File(CONFIG_BASE_DIR + "jobhistory/tmp");
+		historytmp.mkdirs();
+		File historydone = new File(CONFIG_BASE_DIR + "jobhistory/done");
+		historydone.mkdirs();
 
 		File core_site = new File(CONFIG_BASE_DIR + "core-site.xml");
 		File hdfs_site = new File(CONFIG_BASE_DIR + "hdfs-site.xml");
@@ -106,6 +111,8 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		set("mapreduce.framework.name", "yarn");
 		set("yarn.resourcemanager.address", "localhost:8032");
 		set("yarn.nodemanager.aux-services", "mapreduce.shuffle");
+		set("mapreduce.jobhistory.intermediate-done-dir", CONFIG_BASE_DIR + "jobhistory/tmp");
+		set("mapreduce.jobhistory.done-dir", CONFIG_BASE_DIR + "jobhistory/done");
 	}
 
 }
