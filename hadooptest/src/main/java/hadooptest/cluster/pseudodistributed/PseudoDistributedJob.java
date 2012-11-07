@@ -1,3 +1,7 @@
+/*
+ * YAHOO!
+ */
+
 package hadooptest.cluster.pseudodistributed;
 
 import java.io.BufferedReader;
@@ -8,6 +12,9 @@ import java.util.regex.Pattern;
 import hadooptest.cluster.Job;
 import hadooptest.cluster.JobState;
 
+/*
+ * A class which represents a base pseudodistributed cluster job.
+ */
 public abstract class PseudoDistributedJob implements Job {
 	/*
 	 * The ID of the job.
@@ -131,7 +138,7 @@ public abstract class PseudoDistributedJob implements Job {
 				}
 			}
 		}
-
+		
 		// Get job status
 
 		Process mapredProc = null;
@@ -206,6 +213,9 @@ public abstract class PseudoDistributedJob implements Job {
 		String mapredPatternStrSuccess = "(.*)(Job state: SUCCEEDED)(.*)";
 		Pattern mapredPatternSuccess = Pattern.compile(mapredPatternStrSuccess);
 		
+		String mapredAppStatusPatternStrSuccess = "(.*)(FinalApplicationStatus=SUCCEEDED)(.*)";
+		Pattern mapredAppStatusPatternSuccess = Pattern.compile(mapredAppStatusPatternStrSuccess);
+		
 		String mapredPatternStrFailed = "(.*)(Job state: FAILED)(.*)";
 		Pattern mapredPatternFailed = Pattern.compile(mapredPatternStrFailed);
 		
@@ -230,12 +240,17 @@ public abstract class PseudoDistributedJob implements Job {
 					System.out.println(line); 
 
 					Matcher mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
+					Matcher mapredMatcherAppStatusSuccess = mapredPatternSuccess.matcher(line);
 					Matcher mapredMatcherFailed = mapredPatternFailed.matcher(line);
 					Matcher mapredMatcherKilled = mapredPatternKilled.matcher(line);
 					Matcher mapredMatcherPrep = mapredPatternPrep.matcher(line);
 					Matcher mapredMatcherRunning = mapredPatternRunning.matcher(line);
 
 					if (mapredMatcherSuccess.find()) {
+						System.out.println("JOB " + this.ID + " SUCCEEDED");
+						return true;
+					}
+					if (mapredMatcherAppStatusSuccess.find()) {
 						System.out.println("JOB " + this.ID + " SUCCEEDED");
 						return true;
 					}
@@ -275,7 +290,6 @@ public abstract class PseudoDistributedJob implements Job {
 		System.out.println("JOB " + this.ID + " didn't SUCCEED within the 5 minute timeout window.");
 		return false;
 	}
-	
 
 	/*
 	 * Fails the task attempt associated with the specified task ID.
@@ -326,7 +340,7 @@ public abstract class PseudoDistributedJob implements Job {
 	}
 	
 	/*
-	 * Get the task attempt ID associated with the specified job ID.
+	 * Get the map task attempt ID associated with the specified job ID.
 	 * 
 	 * @param jobID The ID of the job to associate with the task attempt.
 	 * @return String The ID of the task attempt.
@@ -349,7 +363,12 @@ public abstract class PseudoDistributedJob implements Job {
 		return taskID;
 	}
 	
-
+	/*
+	 * Get the reduce task attempt ID associated with the specified job ID.
+	 * 
+	 * @param jobID The ID of the job to associate with the task attempt.
+	 * @return String The ID of the task attempt.
+	 */
 	public String getReduceTaskAttemptID() {
 		// Get the task attempt ID given a job ID
 		String taskID = "0"; //should get the real taskID here

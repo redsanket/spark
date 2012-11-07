@@ -4,6 +4,7 @@
 
 package hadooptest.regression.yarn;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.pseudodistributed.SleepJob;
@@ -127,7 +128,10 @@ public class MapredKillTask {
 		assertTrue("Job did not succeed.",
 				sleepJob.waitForSuccess());
 		
-		this.killTask();
+		//this.killTask();
+		String taskID = sleepJob.getMapTaskAttemptID();
+		assertFalse("Killed task and we shouldn't have been able to.", 
+				sleepJob.killTaskAttempt(taskID));
 	}
 	
 	/******************* END TESTS ***********************/

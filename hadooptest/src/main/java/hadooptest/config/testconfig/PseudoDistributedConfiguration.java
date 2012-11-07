@@ -1,10 +1,6 @@
 /*
  * YAHOO!
  * 
- * A class that represents a Hadoop Configuration for a pseudodistributed
- * Hadoop cluster under test.
- * 
- * 2012.10.08 - Rick Bernotas - Initial version.
  */
 
 package hadooptest.config.testconfig;
@@ -17,11 +13,22 @@ import java.io.IOException;
 
 import hadooptest.config.TestConfiguration;
 
+/*
+ * A class that represents a Hadoop Configuration for a pseudodistributed
+ * Hadoop cluster under test.
+ */
 public class PseudoDistributedConfiguration extends TestConfiguration
 {
 
 	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 
+	/*
+	 * Class constructor.
+	 * 
+	 * Calls the superclass constructor, and initializes the default
+	 * configuration parameters for a pseudodistributed cluster under test.  Hadoop
+	 * default configuration is not used.
+	 */
 	public PseudoDistributedConfiguration()
 	{
 		super(false);
@@ -29,6 +36,16 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		initDefaults();
 	}
 
+	/*
+	 * Class constructor.
+	 * 
+	 * Loads the Hadoop default configuration if true is passed as a parameter, before the 
+	 * pseudodistributed test cluster default configuration is initialized into the 
+	 * configuration.
+	 * 
+	 * @param loadDefaults whether or not to load the default configuration parameters
+	 * specified by the Hadoop installation, before loading the class configuration defaults.
+	 */
 	public PseudoDistributedConfiguration(boolean loadDefaults)
 	{
 		super(loadDefaults); 
@@ -36,6 +53,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		initDefaults();
 	}
 
+	/*
+	 * Writes the pseudodistributed cluster configuration specified by the object out
+	 * to disk.
+	 */
 	public void write() throws IOException {
 		File outdir = new File(CONFIG_BASE_DIR);
 		outdir.mkdirs();
@@ -88,6 +109,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		slaves.close();
 	}
 
+	/*
+	 * Removes the configuration files from disk, that were written to disk
+	 * by the .write() of the object.
+	 */
 	public void cleanup() {
 		File core_site = new File(CONFIG_BASE_DIR + "core-site.xml");
 		File hdfs_site = new File(CONFIG_BASE_DIR + "hdfs-site.xml");
@@ -102,7 +127,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		slaves.delete();
 	}
 
-	/**
+	/*
+	 * Initializes a set of default configuration properties that have been 
+	 * determined to be a reasonable set of defaults for running a pseudodistributed
+	 * cluster under test.
 	 */
 	private void initDefaults()
 	{

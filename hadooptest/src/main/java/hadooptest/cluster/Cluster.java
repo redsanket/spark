@@ -1,10 +1,5 @@
 /*
  * YAHOO!
- * 
- * An interface which should represent the base capability of any cluster
- * type in the framework.
- * 
- * 2012.10.08 - Rick Bernotas - Initial version.
  */
 
 package hadooptest.cluster;
@@ -13,6 +8,10 @@ import hadooptest.config.TestConfiguration;
 
 import java.io.IOException;
 
+/*
+ * An interface which should represent the base capability of any cluster
+ * type in the framework.
+ */
 public interface Cluster {
 
    /**
@@ -39,6 +38,8 @@ public interface Cluster {
   
    /**
     * Get the current state of the cluster.
+    * 
+    * @return ClusterState the state of the cluster.
     **/
    public ClusterState getState();
 }

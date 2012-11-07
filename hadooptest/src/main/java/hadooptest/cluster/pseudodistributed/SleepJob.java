@@ -1,3 +1,7 @@
+/*
+ * YAHOO
+ */
+
 package hadooptest.cluster.pseudodistributed;
 
 import java.io.BufferedReader;
@@ -5,6 +9,9 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * A class which represents a pseudodistributed MapReduce Sleep Job.
+ */
 public class SleepJob extends PseudoDistributedJob {
 	
 	private final String HADOOP_VERSION = "0.23.4";
@@ -12,12 +19,15 @@ public class SleepJob extends PseudoDistributedJob {
 	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 	private final String USER = "rbernota";
 	
+	/*
+	 * Class constructor.
+	 */
 	public SleepJob() {
 		super();
 	}
 	
 	/*
-	 * Submit the job to the cluster.
+	 * Submit a single default sleep job to the cluster.
 	 * 
 	 * @return String the ID of the job submitted.
 	 */
@@ -26,6 +36,17 @@ public class SleepJob extends PseudoDistributedJob {
 		return this.submit(5, 5, 500, 500, 1);
 	}
 	
+	/*
+	 * Submit a sleep job to the cluster, while being able to specify the sleep job parameters.
+	 * 
+	 * @param m_param The "-m" param to the sleep job (number of mappers)
+	 * @param r_param The "-r" param to the sleep job (number of reducers)
+	 * @param mt_param The "-rt" param to the sleep job (map time)
+	 * @param rt_param The "-mt" param to the sleep job (reduce time)
+	 * @param numJobs The number of sleep jobs to run.
+	 * 
+	 * @return String the ID of the sleep job that was submitted to the pseudodistributed cluster.
+	 */
 	private String submit(int m_param, int r_param, int mt_param, int rt_param, int numJobs) {			
 		Process hadoopProc = null;
 		String jobID = "";

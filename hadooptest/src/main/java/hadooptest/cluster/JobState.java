@@ -1,5 +1,12 @@
+/*
+ * YAHOO!
+ */
+
 package hadooptest.cluster;
 
+/*
+ * A class which represents an enumerated type of the state of a job.
+ */
 public class JobState {
 
 	public static final int PREP = 0;

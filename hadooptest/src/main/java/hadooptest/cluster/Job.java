@@ -1,14 +1,13 @@
 /*
  * YAHOO!
- * 
- * An interface which should represent the base capability of any job
- * submitted to a cluster.
- * 
- * 2012.11.05 - Rick Bernotas - Initial version.
  */
 
 package hadooptest.cluster;
 
+/*
+ * An interface which should represent the base capability of any job
+ * submitted to a cluster.
+ */
 public interface Job {
 
 	/*
