@@ -4,13 +4,14 @@
 
 package hadooptest.cluster.pseudodistributed;
 
+import hadooptest.Util;
+import hadooptest.cluster.Job;
+import hadooptest.cluster.JobState;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import hadooptest.cluster.Job;
-import hadooptest.cluster.JobState;
 
 /*
  * A class which represents a base pseudodistributed cluster job.
@@ -114,13 +115,28 @@ public abstract class PseudoDistributedJob implements Job {
 		return false;
 	}
 	
+	/*
+	 * Fails a job, assuming that a maximum of 1 map task attempts needs to
+	 * be failed to fail the job.
+	 * 
+	 * @return boolean Whether the job was successfully failed.
+	 * 
+	 * (non-Javadoc)
+	 * @see hadooptest.cluster.Job#fail()
+	 */
+	public boolean fail() {
+		return fail(1);
+	}
 	
 	/*
 	 * Fails the job.
 	 * 
+	 * @param max_attempts The maximum number of map task attempts to fail before 
+	 * 						assuming that the job should have failed.
+	 * 
 	 * @return boolean Whether the job was successfully failed.
 	 */
-	public boolean fail() {
+	public boolean fail(int max_attempts) {
 
 		String taskID;
 		
@@ -130,7 +146,7 @@ public abstract class PseudoDistributedJob implements Job {
 		Matcher taskIDMatcher = taskIDPattern.matcher(this.ID);
 		
 		while (taskIDMatcher.find()) {
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < max_attempts; i++) {
 				taskID = "attempt" + taskIDMatcher.group(2) + "_m_000000_" + Integer.toString(i);
 				
 				if (! this.failTaskAttempt(taskID)) {
@@ -240,7 +256,7 @@ public abstract class PseudoDistributedJob implements Job {
 					System.out.println(line); 
 
 					Matcher mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
-					Matcher mapredMatcherAppStatusSuccess = mapredPatternSuccess.matcher(line);
+					Matcher mapredMatcherAppStatusSuccess = mapredAppStatusPatternSuccess.matcher(line);
 					Matcher mapredMatcherFailed = mapredPatternFailed.matcher(line);
 					Matcher mapredMatcherKilled = mapredPatternKilled.matcher(line);
 					Matcher mapredMatcherPrep = mapredPatternPrep.matcher(line);
@@ -279,12 +295,7 @@ public abstract class PseudoDistributedJob implements Job {
 				e.printStackTrace();
 			}
 
-			try {
-				Thread.currentThread().sleep(10000);
-			}
-			catch (InterruptedException ie) {
-				System.out.println("Couldn't sleep the current Thread.");
-			}
+			Util.sleep(10);
 		}
 
 		System.out.println("JOB " + this.ID + " didn't SUCCEED within the 5 minute timeout window.");

@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
+import hadooptest.Util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,18 +68,22 @@ public class PseudoDistributedCluster implements Cluster {
 	 */
 	public void start() throws IOException {
 
+		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
 		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
 		String start_yarn = HADOOP_INSTALL + "/sbin/start-yarn.sh --config " + CONFIG_BASE_DIR;
 		String start_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh start historyserver --config " + CONFIG_BASE_DIR;
-		//String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
+		String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
 
+		//System.out.println("FORMATTING DFS...");
+		//runProc(format_dfs);
+		
 		System.out.println("STARTING DFS...");
 		runProc(start_dfs);
 		assertTrue("The NameNode was not started.", verifyJpsProcRunning("NameNode"));
 		assertTrue("The SecondaryNameNode was not started.", verifyJpsProcRunning("SecondaryNameNode"));
 
-		//System.out.println("STARTING DATANODE...");
-		//runProc(start_datanode);
+		System.out.println("STARTING DATANODE...");
+		runProc(start_datanode);
 		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
 		
 		System.out.println("STARTING YARN...");
@@ -90,12 +95,7 @@ public class PseudoDistributedCluster implements Cluster {
 		assertTrue("The JobHistoryServer was not started.", verifyJpsProcRunning("JobHistoryServer"));
 		
 		System.out.println("Sleeping for 30s to wait for HDFS to get out of safe mode.");
-		try {
-			Thread.currentThread().sleep(30000);
-		}
-		catch (InterruptedException ie) {
-			System.out.println("Couldn't sleep the current Thread.");
-		}
+		Util.sleep(30);
 	}
 
 	/* 
@@ -109,18 +109,15 @@ public class PseudoDistributedCluster implements Cluster {
 		String stop_dfs = HADOOP_INSTALL + "/sbin/stop-dfs.sh";
 		String stop_yarn = HADOOP_INSTALL + "/sbin/stop-yarn.sh";
 		String stop_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
+		String stop_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh stop datanode";
 
 		runProc(stop_dfs);
 		runProc(stop_yarn);
 		runProc(stop_historyserver);
+		runProc(stop_datanode);
 
 		// Wait for 10 seconds to ensure that the daemons have had time to stop.
-		try {
-			Thread.currentThread().sleep(10000);
-		}
-		catch (InterruptedException ie) {
-			System.out.println("Couldn't sleep the current Thread.");
-		}
+		Util.sleep(10);
 
 		assertFalse("The NameNode was not stopped.", verifyJpsProcRunning("NameNode"));
 		assertFalse("The SecondaryNameNode was not stopped.", verifyJpsProcRunning("SecondaryNameNode"));

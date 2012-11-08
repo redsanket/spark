@@ -28,6 +28,9 @@ public class MapredKillTask {
 	private static PseudoDistributedConfiguration conf;
 	private static PseudoDistributedCluster cluster;
 	
+	private static final int MAPREDUCE_MAP_MAXATTEMPTS = 4;
+	private static final int MAPREDUCE_REDUCE_MAXATTEMPTS = 4;
+	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
 	/*
@@ -37,8 +40,8 @@ public class MapredKillTask {
 	public static void startCluster() throws FileNotFoundException, IOException{
 		
 		conf = new PseudoDistributedConfiguration();
-		conf.set("mapreduce.map.maxattempts", "4");
-		conf.set("mapreduce.reduce.maxattempts", "4");
+		conf.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
+		conf.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
 		conf.write();
 
 		cluster = new PseudoDistributedCluster(conf);
@@ -114,7 +117,7 @@ public class MapredKillTask {
 	public void killTaskOfAlreadyFailedJob() {
 		
 		assertTrue("Was not able to fail the job.", 
-				sleepJob.fail());
+				sleepJob.fail(MAPREDUCE_MAP_MAXATTEMPTS));
 
 		this.killTask();
 	}
@@ -128,7 +131,6 @@ public class MapredKillTask {
 		assertTrue("Job did not succeed.",
 				sleepJob.waitForSuccess());
 		
-		//this.killTask();
 		String taskID = sleepJob.getMapTaskAttemptID();
 		assertFalse("Killed task and we shouldn't have been able to.", 
 				sleepJob.killTaskAttempt(taskID));
