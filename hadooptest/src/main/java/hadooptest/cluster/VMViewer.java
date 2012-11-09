@@ -218,7 +218,42 @@ public class VMViewer {
 	private void objectRefRecurse(Value val, String tabIndent, int recursionDepth) {
 		String value = "";
 		
+		this.printValue(val, tabIndent);
 
+		if (val instanceof StringReference) {
+			value = ((StringReference)val).value();
+			System.out.println(tabIndent + "StringReference VALUE: " + value);
+		}
+		else if (val instanceof ArrayReference) {
+			value = ((ArrayReference)val).toString();
+			System.out.println(tabIndent + "ArrayReference VALUE: " + value);
+		}
+		else if (val instanceof ObjectReference) {
+			value = ((ObjectReference)val).toString();
+			System.out.println(tabIndent + "OBJECT VALUE: " + value);
+			List<Field> childFields = ((ObjectReference)val).referenceType().allFields();
+			for (Field childField: childFields) {
+				System.out.println(tabIndent + "CHILD FIELD NAME: " + childField.name() + " - " + childField.toString());
+				Value fieldValue = ((ObjectReference)val).getValue(childField);
+
+				this.printValue(fieldValue, tabIndent);
+
+				if (fieldValue instanceof ObjectReference) {
+					if (recursionDepth > 0) {
+						tabIndent = tabIndent + "\t";
+						recursionDepth = recursionDepth - 1;
+						objectRefRecurse(fieldValue, tabIndent, recursionDepth);
+					}
+					else {
+						value = ((ObjectReference)val).toString();
+						System.out.println(tabIndent + "OBJECT VALUE: " + value);
+					}
+				}
+			}
+		}
+	}
+	
+	private void printValue(Value val, String tabIndent) {
 		if (val instanceof BooleanValue) {
 			System.out.println(tabIndent + "\tVALUE = " + ((BooleanValue)val).toString());
 		}
@@ -245,62 +280,6 @@ public class VMViewer {
 		}
 		else if (val instanceof VoidValue) {
 			System.out.println(tabIndent + "\tVALUE = " + ((VoidValue)val).toString());
-		}
-		else if (val instanceof StringReference) {
-			value = ((StringReference)val).value();
-			System.out.println(tabIndent + "StringReference VALUE: " + value);
-		}
-		else if (val instanceof ArrayReference) {
-			value = ((ArrayReference)val).toString();
-			System.out.println(tabIndent + "ArrayReference VALUE: " + value);
-		}
-		else if (val instanceof ObjectReference) {
-			value = ((ObjectReference)val).toString();
-			System.out.println(tabIndent + "OBJECT VALUE: " + value);
-			List<Field> childFields = ((ObjectReference)val).referenceType().allFields();
-			for (Field childField: childFields) {
-				System.out.println(tabIndent + "CHILD FIELD NAME: " + childField.name() + " - " + childField.toString());
-				Value fieldValue = ((ObjectReference)val).getValue(childField);
-
-				if (fieldValue instanceof BooleanValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((BooleanValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof ByteValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((ByteValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof CharValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((CharValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof DoubleValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((DoubleValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof FloatValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((FloatValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof IntegerValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((IntegerValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof LongValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((LongValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof ShortValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((ShortValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof VoidValue) {
-					System.out.println(tabIndent + "\tVALUE = " + ((VoidValue)fieldValue).toString());
-				}
-				else if (fieldValue instanceof ObjectReference) {
-					if (recursionDepth > 0) {
-						tabIndent = tabIndent + "\t";
-						recursionDepth = recursionDepth - 1;
-						objectRefRecurse(fieldValue, tabIndent, recursionDepth);
-					}
-					else {
-						value = ((ObjectReference)val).toString();
-						System.out.println(tabIndent + "OBJECT VALUE: " + value);
-					}
-				}
-			}
 		}
 	}
 	
