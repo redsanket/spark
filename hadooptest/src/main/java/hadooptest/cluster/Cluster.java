@@ -4,8 +4,6 @@
 
 package hadooptest.cluster;
 
-import hadooptest.config.TestConfiguration;
-
 import java.io.IOException;
 
 /*
@@ -35,7 +33,7 @@ public interface Cluster {
     * configuration, without stopping or killing it.
     **/ 
    public void reset();
-  
+   
    /**
     * Get the current state of the cluster.
     * 

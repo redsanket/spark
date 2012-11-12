@@ -121,7 +121,6 @@ public class MapredKillTask {
 	 */
 	@Test
 	public void killTaskOfAlreadyFailedJob() {
-		
 		assertTrue("Was not able to fail the job.", 
 				sleepJob.fail(MAPREDUCE_MAP_MAXATTEMPTS));
 

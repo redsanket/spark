@@ -17,17 +17,16 @@ import java.util.regex.Pattern;
  * A class which represents a base pseudodistributed cluster job.
  */
 public abstract class PseudoDistributedJob implements Job {
-	/*
-	 * The ID of the job.
-	 * 
-	 * @return String The job ID.
-	 */
-	public String ID = "0";
+
+	public String ID = "0";	// The ID of the job.
 	public JobState state;
 
 	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
 	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 	
+	/*
+	 * Class Constructor.
+	 */
 	public PseudoDistributedJob() {
 		super();
 	}
