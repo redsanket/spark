@@ -9,11 +9,10 @@ import static org.junit.Assert.assertTrue;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.pseudodistributed.SleepJob;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
-import hadooptest.ConfigProperties;
+import hadooptest.TestSession;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.File;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -26,14 +25,14 @@ import org.junit.Test;
  */
 public class MapredKillTask {
 
+	private static TestSession testSession;
+	
 	private SleepJob sleepJob;
 	private static PseudoDistributedConfiguration conf;
 	private static PseudoDistributedCluster cluster;
 	
 	private static final int MAPREDUCE_MAP_MAXATTEMPTS = 4;
 	private static final int MAPREDUCE_REDUCE_MAXATTEMPTS = 4;
-
-	private static ConfigProperties framework_conf;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -43,7 +42,7 @@ public class MapredKillTask {
 	@BeforeClass
 	public static void startCluster() throws FileNotFoundException, IOException{
 		
-		frameworkInit();
+		testSession = new TestSession();
 		
 		conf = new PseudoDistributedConfiguration();
 		conf.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
@@ -83,14 +82,14 @@ public class MapredKillTask {
 	public void resetClusterState() {
 		if (sleepJob != null) {
 			if (sleepJob.ID != "0" && sleepJob.kill()) {
-				System.out.println("Cleaned up latent job by killing it: " + sleepJob.ID);
+				testSession.logger.info("Cleaned up latent job by killing it: " + sleepJob.ID);
 			}
 			else {
-				System.out.println("Sleep job never started, no need to clean up.");
+				testSession.logger.info("Sleep job never started, no need to clean up.");
 			}
 		}
 		else {
-			System.out.println("Job was already killed or never started, no need to clean up.");
+			testSession.logger.info("Job was already killed or never started, no need to clean up.");
 		}
 	}
 	
@@ -150,13 +149,6 @@ public class MapredKillTask {
 		String taskID = sleepJob.getMapTaskAttemptID();
 		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
 				sleepJob.killTaskAttempt(taskID));
-	}
-	
-	private static void frameworkInit() throws IOException {
-		framework_conf = new ConfigProperties();
-		File conf_location = new File("/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/hadooptest.conf");
-		framework_conf.load(conf_location);
-		System.out.println("Hadooptest conf property USER = " + framework_conf.getProperty("USER"));
 	}
 	
 }

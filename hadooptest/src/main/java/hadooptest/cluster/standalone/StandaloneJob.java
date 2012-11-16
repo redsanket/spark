@@ -1,11 +1,19 @@
 package hadooptest.cluster.standalone;
 
-import hadooptest.cluster.JobState;
-import hadooptest.cluster.Job;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class StandaloneJob implements Job {
+import hadooptest.cluster.Job;
+import hadooptest.cluster.JobState;
+
+public abstract class StandaloneJob implements Job {
 
 	public String ID = "0";	// The ID of the job.
+	public JobState state;
+
+	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
+	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
+	
 	
 	/*
 	 * Class Constructor.
@@ -13,32 +21,14 @@ public class StandaloneJob implements Job {
 	public StandaloneJob() {
 		super();
 	}
-	
+
 	/*
-	 * Submit the job to the cluster.
+	 * Returns the state of the job in the JobState format.
 	 * 
-	 * @return String the ID of the job submitted.
+	 * @return JobState The state of the job.
 	 */
-	public String submit() {
-		
-	}
-	
-	/*
-	 * Fails the job.
-	 * 
-	 * @return boolean Whether the job was successfully failed.
-	 */
-	public boolean fail() {
-		
-	}
-	
-	/*
-	 * Kills the job.
-	 * 
-	 * @return boolean Whether the job was successfully killed.
-	 */
-	public boolean kill() {
-		
+	public JobState state() {
+		return state;
 	}
 	
 	/*
@@ -47,34 +37,25 @@ public class StandaloneJob implements Job {
 	 * @return boolean Whether the job ID matches the expected format.
 	 */
 	public boolean verifyID() {
+		if (this.ID == "0") {
+			System.out.println("JOB ID DID NOT MATCH FORMAT AND WAS ZERO");
+			return false;
+		}
+
+		String jobPatternStr = "job_local_(.*)$";
+		Pattern jobPattern = Pattern.compile(jobPatternStr);
 		
+		Matcher jobMatcher = jobPattern.matcher(this.ID);
+		
+		if (jobMatcher.find()) {
+			System.out.println("JOB ID MATCHED EXPECTED FORMAT");
+			System.out.println("JOB ID: " + this.ID);
+			return true;
+		}
+		else {
+			System.out.println("JOB ID DID NOT MATCH FORMAT");
+			return false;
+		}
 	}
 	
-	/*
-	 * Waits for the job to succeed, and returns true for success.
-	 * 
-	 * @return boolean whether the job succeeded
-	 */
-	public boolean waitForSuccess() {
-		
-	}
-	
-	/*
-	 * Waits for the specified number of seconds for the job to 
-	 * succeed, and returns true for success.
-	 * 
-	 * @param seconds The number of seconds to wait for the success state.
-	 */
-	public boolean waitForSuccess(int seconds) {
-		
-	}
-	
-	/*
-	 * Returns the state of the job in the JobState format.
-	 * 
-	 * @return JobState The state of the job.
-	 */
-	public JobState state() {
-		
-	}
 }

@@ -12,26 +12,26 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import hadooptest.ConfigProperties;
-import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
-import hadooptest.cluster.pseudodistributed.SleepJob;
-import hadooptest.config.testconfig.PseudoDistributedConfiguration;
+import hadooptest.TestSession;
+//import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
+//import hadooptest.cluster.pseudodistributed.SleepJob;
+//import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 
 import hadooptest.Util;
 
-//import hadooptest.config.testconfig.StandaloneConfiguration;
-//import hadooptest.cluster.standalone.StandaloneCluster;
+import hadooptest.config.testconfig.StandaloneConfiguration;
+import hadooptest.cluster.standalone.StandaloneCluster;
 
 public class JobSummaryInfo {
 
-	private SleepJob sleepJob;
-	private static PseudoDistributedConfiguration conf;
-	private static PseudoDistributedCluster cluster;
+	private static TestSession testSession;
 	
-	//private static StandaloneConfiguration conf;
-	//private static StandaloneCluster cluster;
-
-	private static ConfigProperties framework_conf;
+	private SleepJob sleepJob;
+	//private static PseudoDistributedConfiguration conf;
+	//private static PseudoDistributedCluster cluster;
+	
+	private static StandaloneConfiguration conf;
+	private static StandaloneCluster cluster;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -41,18 +41,18 @@ public class JobSummaryInfo {
 	@BeforeClass
 	public static void startCluster() throws FileNotFoundException, IOException{
 		
-		frameworkInit();
+		testSession = new TestSession();
 		
-		conf = new PseudoDistributedConfiguration();
-		conf.write();
+		//conf = new PseudoDistributedConfiguration();
+		//conf.write();
 
-		cluster = new PseudoDistributedCluster(conf);
-		cluster.start();
-		
-		//conf = new StandaloneConfiguration();
-		
-		//cluster = new StandaloneCluster(conf);
+		//cluster = new PseudoDistributedCluster(conf);
 		//cluster.start();
+		
+		conf = new StandaloneConfiguration();
+		
+		cluster = new StandaloneCluster(conf);
+		cluster.start();
 	}
 	
 	/*
@@ -276,11 +276,5 @@ public class JobSummaryInfo {
 	}
 
 	/******************* END TESTS ***********************/
-	private static void frameworkInit() throws IOException {
-		framework_conf = new ConfigProperties();
-		File conf_location = new File("/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/hadooptest.conf");
-		framework_conf.load(conf_location);
-		System.out.println("Hadooptest conf property USER = " + framework_conf.getProperty("USER"));
-	}
 	
 }
