@@ -44,12 +44,12 @@ public class MapredKillTask {
 		
 		testSession = new TestSession();
 		
-		conf = new PseudoDistributedConfiguration();
+		conf = new PseudoDistributedConfiguration(testSession);
 		conf.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
 		conf.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
 		conf.write();
 
-		cluster = new PseudoDistributedCluster(conf);
+		cluster = new PseudoDistributedCluster(testSession, conf);
 		cluster.start();
 	}
 	
@@ -69,7 +69,7 @@ public class MapredKillTask {
 	 */
 	@Before
 	public void initTestJob() {
-		sleepJob = new SleepJob();
+		sleepJob = new SleepJob(testSession);
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());

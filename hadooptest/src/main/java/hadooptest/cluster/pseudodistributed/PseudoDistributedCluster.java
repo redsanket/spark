@@ -11,6 +11,7 @@ import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 import hadooptest.Util;
+import hadooptest.TestSession;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,17 +30,21 @@ public class PseudoDistributedCluster implements Cluster {
 	// The state of the pseudodistributed cluster.
 	protected ClusterState cluster_state;
 
-	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
-	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
+	private static TestSession TSM;
+	
+	private String HADOOP_INSTALL;
+	private String CONFIG_BASE_DIR;
 	
 	/*
 	 * Class constructor.
 	 * 
 	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
 	 */
-	public PseudoDistributedCluster() throws IOException
+	public PseudoDistributedCluster(TestSession testSession) throws IOException
 	{
-		this.conf = new PseudoDistributedConfiguration();
+		TSM = testSession;
+		
+		this.conf = new PseudoDistributedConfiguration(testSession);
 		this.conf.write();
 	}
 
@@ -48,9 +53,13 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * Accepts a custom configuration, and assumed you will write it to disk.
 	 */
-	public PseudoDistributedCluster(PseudoDistributedConfiguration conf)
+	public PseudoDistributedCluster(TestSession testSession, PseudoDistributedConfiguration conf)
 	{
+		TSM = testSession;
 		this.conf = conf;
+		
+		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
 	}
 
 	/*
@@ -74,27 +83,27 @@ public class PseudoDistributedCluster implements Cluster {
 		String start_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh start historyserver --config " + CONFIG_BASE_DIR;
 		String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
 
-		//System.out.println("FORMATTING DFS...");
+		//TSM.logger.info("FORMATTING DFS...");
 		//runProc(format_dfs);
 		
-		System.out.println("STARTING DFS...");
+		TSM.logger.info("STARTING DFS...");
 		runProc(start_dfs);
 		assertTrue("The NameNode was not started.", verifyJpsProcRunning("NameNode"));
 		assertTrue("The SecondaryNameNode was not started.", verifyJpsProcRunning("SecondaryNameNode"));
 
-		System.out.println("STARTING DATANODE...");
+		TSM.logger.info("STARTING DATANODE...");
 		runProc(start_datanode);
 		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
 		
-		System.out.println("STARTING YARN...");
+		TSM.logger.info("STARTING YARN");
 		runProc(start_yarn);
 		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
 
-		System.out.println("STARTING JOB HISTORY SERVER...");
+		TSM.logger.info("STARTING JOB HISTORY SERVER...");
 		runProc(start_historyserver);
 		assertTrue("The JobHistoryServer was not started.", verifyJpsProcRunning("JobHistoryServer"));
 		
-		System.out.println("Sleeping for 30s to wait for HDFS to get out of safe mode.");
+		TSM.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
 		Util.sleep(30);
 	}
 
@@ -175,7 +184,7 @@ public class PseudoDistributedCluster implements Cluster {
 	private static void runProc(String command) {
 		Process proc = null;
 
-		System.out.println(command);
+		TSM.logger.debug(command);
 
 		try {
 			proc = Runtime.getRuntime().exec(command);
@@ -183,7 +192,7 @@ public class PseudoDistributedCluster implements Cluster {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				System.out.println(line); 				
+				TSM.logger.debug(line); 				
 				line=reader.readLine();
 			} 
 		}
@@ -206,7 +215,7 @@ public class PseudoDistributedCluster implements Cluster {
 
 		String jpsCmd = "jps";
 
-		System.out.println(jpsCmd);
+		TSM.logger.debug(jpsCmd);
 
 		String jpsPatternStr = "(.*)(" + process + ")(.*)";
 		Pattern jpsPattern = Pattern.compile(jpsPatternStr);
@@ -216,13 +225,13 @@ public class PseudoDistributedCluster implements Cluster {
 			BufferedReader reader=new BufferedReader(new InputStreamReader(jpsProc.getInputStream())); 
 			String line=reader.readLine(); 
 			while(line!=null) 
-			{ 
-				System.out.println(line); 
+			{  
+				TSM.logger.debug(line);
 
 				Matcher jpsMatcher = jpsPattern.matcher(line);
 
 				if (jpsMatcher.find()) {
-					System.out.println("FOUND PROCESS: " + process);
+					TSM.logger.debug("FOUND PROCESS: " + process);
 					return true;
 				}
 
@@ -236,7 +245,7 @@ public class PseudoDistributedCluster implements Cluster {
 			e.printStackTrace();
 		}
 
-		System.out.println("PROCESS IS NO LONGER RUNNING: " + process);
+		TSM.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
 		return false;
 	}
 

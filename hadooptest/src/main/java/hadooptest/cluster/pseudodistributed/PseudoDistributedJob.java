@@ -4,6 +4,7 @@
 
 package hadooptest.cluster.pseudodistributed;
 
+import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.Job;
 import hadooptest.cluster.JobState;
@@ -24,11 +25,15 @@ public abstract class PseudoDistributedJob implements Job {
 	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
 	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 	
+	private static TestSession TSM;
+	
 	/*
 	 * Class Constructor.
 	 */
-	public PseudoDistributedJob() {
+	public PseudoDistributedJob(TestSession testSession) {
 		super();
+		
+		TSM = testSession;
 	}
 	
 	/*
@@ -47,7 +52,7 @@ public abstract class PseudoDistributedJob implements Job {
 	 */
 	public boolean verifyID() {
 		if (this.ID == "0") {
-			System.out.println("JOB ID DID NOT MATCH FORMAT AND WAS ZERO");
+			TSM.logger.error("JOB ID DID NOT MATCH FORMAT AND WAS ZERO");
 			return false;
 		}
 
@@ -57,12 +62,12 @@ public abstract class PseudoDistributedJob implements Job {
 		Matcher jobMatcher = jobPattern.matcher(this.ID);
 		
 		if (jobMatcher.find()) {
-			System.out.println("JOB ID MATCHED EXPECTED FORMAT");
-			System.out.println("JOB ID: " + this.ID);
+			TSM.logger.info("JOB ID MATCHED EXPECTED FORMAT");
+			TSM.logger.info("JOB ID: " + this.ID);
 			return true;
 		}
 		else {
-			System.out.println("JOB ID DID NOT MATCH FORMAT");
+			TSM.logger.error("JOB ID DID NOT MATCH FORMAT");
 			return false;
 		}
 	}
@@ -79,8 +84,8 @@ public abstract class PseudoDistributedJob implements Job {
 		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -kill " + this.ID;
-		
-		System.out.println(mapredCmd);
+
+		TSM.logger.debug(mapredCmd);
 
 		String mapredPatternStr = "(.*)(Killed job " + this.ID + ")(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
@@ -91,12 +96,12 @@ public abstract class PseudoDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				System.out.println(line); 
+				TSM.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					System.out.println("JOB " + this.ID + " WAS KILLED");
+					TSM.logger.info("JOB " + this.ID + " WAS KILLED");
 					return true;
 				}
 				
@@ -110,7 +115,7 @@ public abstract class PseudoDistributedJob implements Job {
 			e.printStackTrace();
 		}
 		
-		System.out.println("JOB " + this.ID + " WAS NOT KILLED");
+		TSM.logger.error("JOB " + this.ID + " WAS NOT KILLED");
 		return false;
 	}
 	
@@ -162,7 +167,7 @@ public abstract class PseudoDistributedJob implements Job {
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -status " + this.ID;
 		
-		System.out.println(mapredCmd);
+		TSM.logger.debug(mapredCmd);
 
 		String mapredPatternStr = "(.*)(Job state: FAILED)(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
@@ -175,12 +180,12 @@ public abstract class PseudoDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				System.out.println(line); 
+				TSM.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					System.out.println("JOB " + this.ID + " WAS FAILED");
+					TSM.logger.info("JOB " + this.ID + " WAS FAILED");
 					return true;
 				}
 				
@@ -194,7 +199,7 @@ public abstract class PseudoDistributedJob implements Job {
 			e.printStackTrace();
 		}
 
-		System.out.println("JOB " + this.ID + " WAS NOT FAILED");
+		TSM.logger.error("JOB " + this.ID + " WAS NOT FAILED");
 		return false; // job didn't fail
 	}
 	
@@ -223,7 +228,7 @@ public abstract class PseudoDistributedJob implements Job {
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -status " + this.ID;
 		
-		System.out.println(mapredCmd);
+		TSM.logger.debug(mapredCmd);
 
 		String mapredPatternStrSuccess = "(.*)(Job state: SUCCEEDED)(.*)";
 		Pattern mapredPatternSuccess = Pattern.compile(mapredPatternStrSuccess);
@@ -252,7 +257,7 @@ public abstract class PseudoDistributedJob implements Job {
 				String line=reader.readLine(); 
 				while(line!=null) 
 				{ 
-					System.out.println(line); 
+					TSM.logger.debug(line);
 
 					Matcher mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
 					Matcher mapredMatcherAppStatusSuccess = mapredAppStatusPatternSuccess.matcher(line);
@@ -262,26 +267,26 @@ public abstract class PseudoDistributedJob implements Job {
 					Matcher mapredMatcherRunning = mapredPatternRunning.matcher(line);
 
 					if (mapredMatcherSuccess.find()) {
-						System.out.println("JOB " + this.ID + " SUCCEEDED");
+						TSM.logger.info("JOB " + this.ID + " SUCCEEDED");
 						return true;
 					}
 					if (mapredMatcherAppStatusSuccess.find()) {
-						System.out.println("JOB " + this.ID + " SUCCEEDED");
+						TSM.logger.info("JOB " + this.ID + " SUCCEEDED");
 						return true;
 					}
 					else if (mapredMatcherFailed.find()) {
-						System.out.println("JOB " + this.ID + " FAILED");
+						TSM.logger.error("JOB " + this.ID + " FAILED");
 						return false;
 					}
 					else if (mapredMatcherKilled.find()) {
-						System.out.println("JOB " + this.ID + " WAS KILLED");
+						TSM.logger.error("JOB " + this.ID + " WAS KILLED");
 						return false;
 					}
 					else if (mapredMatcherPrep.find()) {
-						System.out.println("JOB " + this.ID + " IS STILL IN PREP STATE");
+						TSM.logger.info("JOB " + this.ID + " IS STILL IN PREP STATE");
 					}
 					else if (mapredMatcherRunning.find()) {
-						System.out.println("JOB " + this.ID + " IS STILL RUNNING");
+						TSM.logger.info("JOB " + this.ID + " IS STILL RUNNING");
 					}
 
 					line=reader.readLine();
@@ -297,7 +302,7 @@ public abstract class PseudoDistributedJob implements Job {
 			Util.sleep(10);
 		}
 
-		System.out.println("JOB " + this.ID + " didn't SUCCEED within the 5 minute timeout window.");
+		TSM.logger.error("JOB " + this.ID + " didn't SUCCEED within the 5 minute timeout window.");
 		return false;
 	}
 
@@ -315,7 +320,7 @@ public abstract class PseudoDistributedJob implements Job {
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -fail-task " + taskID;
 		
-		System.out.println(mapredCmd);
+		TSM.logger.debug(mapredCmd);
 
 		String mapredPatternStr = "(.*)(Killed task " + taskID + " by failing it)(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
@@ -326,12 +331,12 @@ public abstract class PseudoDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				System.out.println(line); 
+				TSM.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					System.out.println("TASK ATTEMPT " + taskID + " WAS FAILED");
+					TSM.logger.info("TASK ATTEMPT " + taskID + " WAS FAILED");
 					return true;
 				}
 				
@@ -345,7 +350,7 @@ public abstract class PseudoDistributedJob implements Job {
 			e.printStackTrace();
 		}
 		
-		System.out.println("TASK ATTEMPT " + taskID + " WAS NOT FAILED");
+		TSM.logger.error("TASK ATTEMPT " + taskID + " WAS NOT FAILED");
 		return false;
 	}
 	
@@ -368,7 +373,7 @@ public abstract class PseudoDistributedJob implements Job {
 			taskID = "attempt" + taskIDMatcher.group(2) + "_m_00000_0";
 		}
 		
-		System.out.println("MAP TASK ID = " + taskID);
+		TSM.logger.info("MAP TASK ID = " + taskID);
 		
 		return taskID;
 	}
@@ -392,7 +397,7 @@ public abstract class PseudoDistributedJob implements Job {
 			taskID = "attempt" + taskIDMatcher.group(2) + "_r_00000_0";
 		}
 		
-		System.out.println("REDUCE TASK ID = " + taskID);
+		TSM.logger.info("REDUCE TASK ID = " + taskID);
 		
 		return taskID;
 	}
@@ -411,8 +416,8 @@ public abstract class PseudoDistributedJob implements Job {
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -kill-task " + taskID;
 		
-		System.out.println(mapredCmd);
-
+		TSM.logger.debug(mapredCmd);
+		
 		String mapredPatternStr = "(.*)(Killed task " + taskID + ")(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
 		
@@ -422,12 +427,12 @@ public abstract class PseudoDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				System.out.println(line); 
+				TSM.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					System.out.println("TASK ATTEMPT " + taskID + " WAS KILLED");
+					TSM.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
 					return true;
 				}
 				
@@ -440,8 +445,8 @@ public abstract class PseudoDistributedJob implements Job {
 			}
 			e.printStackTrace();
 		}
-		
-		System.out.println("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
+
+		TSM.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
 		return false;
 	}
 }

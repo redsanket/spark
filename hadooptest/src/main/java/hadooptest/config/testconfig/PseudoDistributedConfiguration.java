@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
 /*
@@ -18,9 +19,10 @@ import hadooptest.config.TestConfiguration;
  * Hadoop cluster under test.
  */
 public class PseudoDistributedConfiguration extends TestConfiguration
-{
-
-	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
+{	
+	private String CONFIG_BASE_DIR;
+	
+	private static TestSession TSM;
 
 	/*
 	 * Class constructor.
@@ -29,10 +31,14 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * configuration parameters for a pseudodistributed cluster under test.  Hadoop
 	 * default configuration is not used.
 	 */
-	public PseudoDistributedConfiguration()
+	public PseudoDistributedConfiguration(TestSession testSession)
 	{
 		super(false);
 
+		TSM = testSession;
+		
+		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		
 		initDefaults();
 	}
 
@@ -76,7 +82,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 			this.writeXml(out);
 		}
 		else {
-			System.out.println("Couldn't create the xml configuration output file.");
+			TSM.logger.warn("Couldn't create the xml configuration output file.");
 		}
 
 		if (hdfs_site.createNewFile()) {
@@ -84,7 +90,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 			this.writeXml(out);
 		}
 		else {
-			System.out.println("Couldn't create the xml configuration output file.");
+			TSM.logger.warn("Couldn't create the xml configuration output file.");
 		}
 
 		if (yarn_site.createNewFile()) {
@@ -92,7 +98,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 			this.writeXml(out);
 		}
 		else {
-			System.out.println("Couldn't create the xml configuration output file.");
+			TSM.logger.warn("Couldn't create the xml configuration output file.");
 		}
 
 		if (mapred_site.createNewFile()) {
@@ -100,7 +106,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 			this.writeXml(out);
 		}
 		else {
-			System.out.println("Couldn't create the xml configuration output file.");
+			TSM.logger.warn("Couldn't create the xml configuration output file.");
 		}
 
 		FileWriter slaves_file = new FileWriter(CONFIG_BASE_DIR + "slaves");

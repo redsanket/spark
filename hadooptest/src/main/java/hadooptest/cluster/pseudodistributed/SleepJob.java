@@ -9,21 +9,32 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import hadooptest.TestSession;
+
 /*
  * A class which represents a pseudodistributed MapReduce Sleep Job.
  */
 public class SleepJob extends PseudoDistributedJob {
 	
-	private final String HADOOP_VERSION = "0.23.4";
-	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
-	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
-	private final String USER = "rbernota";
+	private String HADOOP_VERSION;
+	private String HADOOP_INSTALL;
+	private String CONFIG_BASE_DIR;
+	private String USER;
+	
+	private static TestSession TSM;
 	
 	/*
 	 * Class constructor.
 	 */
-	public SleepJob() {
-		super();
+	public SleepJob(TestSession testSession) {
+		super(testSession);
+		
+		TSM = testSession;
+
+		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
+		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		USER = TSM.conf.getProperty("USER", "");
 	}
 	
 	/*
@@ -63,7 +74,7 @@ public class SleepJob extends PseudoDistributedJob {
 					+ " -mt " + mt_param 
 					+ " -rt " + rt_param;
 			
-			System.out.println("COMMAND: " + hadoopCmd);
+			TSM.logger.debug("COMMAND: " + hadoopCmd);
 			
 			String jobPatternStr = " - Running job: (.*)$";
 			Pattern jobPattern = Pattern.compile(jobPatternStr);
@@ -75,13 +86,13 @@ public class SleepJob extends PseudoDistributedJob {
 				
 				while(line!=null) 
 				{ 
-					System.out.println(line); 
+					TSM.logger.debug(line);
 					
 					Matcher jobMatcher = jobPattern.matcher(line);
 					
 					if (jobMatcher.find()) {
 						jobID = jobMatcher.group(1);
-						System.out.println("JOB ID: " + jobID);
+						TSM.logger.debug("JOB ID: " + jobID);
 						break;
 					}
 					

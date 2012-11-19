@@ -25,7 +25,6 @@ public class TestSession {
 		conf = new ConfigProperties();
 		File conf_location = new File("/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/hadooptest.conf");
 		conf.load(conf_location);
-		System.out.println("Hadooptest conf property USER = " + conf.getProperty("USER"));
 	}
 	
 	private void initLogging() {
