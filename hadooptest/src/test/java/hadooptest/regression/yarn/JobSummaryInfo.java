@@ -1,8 +1,8 @@
 package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -13,25 +13,19 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import hadooptest.TestSession;
-//import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
-//import hadooptest.cluster.pseudodistributed.SleepJob;
-//import hadooptest.config.testconfig.PseudoDistributedConfiguration;
+import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
+import hadooptest.cluster.pseudodistributed.SleepJob;
+import hadooptest.cluster.pseudodistributed.FailJob;
 
 import hadooptest.Util;
-
-import hadooptest.config.testconfig.StandaloneConfiguration;
-import hadooptest.cluster.standalone.StandaloneCluster;
 
 public class JobSummaryInfo {
 
 	private static TestSession testSession;
 	
 	private SleepJob sleepJob;
-	//private static PseudoDistributedConfiguration conf;
-	//private static PseudoDistributedCluster cluster;
-	
-	private static StandaloneConfiguration conf;
-	private static StandaloneCluster cluster;
+	private FailJob failJob;
+	private static PseudoDistributedCluster cluster;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -40,18 +34,9 @@ public class JobSummaryInfo {
 	 */
 	@BeforeClass
 	public static void startCluster() throws FileNotFoundException, IOException{
-		
 		testSession = new TestSession();
 		
-		//conf = new PseudoDistributedConfiguration();
-		//conf.write();
-
-		//cluster = new PseudoDistributedCluster(conf);
-		//cluster.start();
-		
-		conf = new StandaloneConfiguration();
-		
-		cluster = new StandaloneCluster(conf);
+		cluster = new PseudoDistributedCluster(testSession);
 		cluster.start();
 	}
 	
@@ -61,7 +46,7 @@ public class JobSummaryInfo {
 	@AfterClass
 	public static void stopCluster() throws IOException {
 		cluster.stop();
-		conf.cleanup();
+		cluster.getConf().cleanup();
 	}
 	
 	/******************* TEST BEFORE/AFTER ***********************/
@@ -71,7 +56,6 @@ public class JobSummaryInfo {
 	 */
 	@Before
 	public void initTest() {
-
 	}
 	
 	/*
@@ -81,14 +65,26 @@ public class JobSummaryInfo {
 	public void resetClusterState() {
 		if (sleepJob != null) {
 			if (sleepJob.ID != "0" && sleepJob.kill()) {
-				System.out.println("Cleaned up latent job by killing it: " + sleepJob.ID);
+				testSession.logger.info("Cleaned up latent job by killing it: " + sleepJob.ID);
 			}
 			else {
-				System.out.println("Sleep job never started, no need to clean up.");
+				testSession.logger.info("Sleep job never started, no need to clean up.");
 			}
 		}
 		else {
-			System.out.println("Job was already killed or never started, no need to clean up.");
+			testSession.logger.info("Job was already killed or never started, no need to clean up.");
+		}
+		
+		if (failJob != null) {
+			if (failJob.ID != "0" && failJob.kill()) {
+				testSession.logger.info("Cleaned up latent job by killing it: " + failJob.ID);
+			}
+			else {
+				testSession.logger.info("Fail job never started, no need to clean up.");
+			}
+		}
+		else {
+			testSession.logger.info("Job was already killed or never started, no need to clean up.");
 		}
 	}
 	
@@ -102,8 +98,8 @@ public class JobSummaryInfo {
 	@Test
 	public void JobSummaryInfoSuccess() {
 		// Start sleep job
-		sleepJob = new SleepJob();
-		sleepJob.submit();
+		sleepJob = new SleepJob(testSession);
+		sleepJob.submit(10, 10, 500, 500, 1, -1, -1);
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 		
@@ -125,9 +121,9 @@ public class JobSummaryInfo {
 	 */
 	@Test
 	public void JobSummaryInfoHighRAM() {
-		// Start sleep job with mapred.job.map.memory.mb=6144 
-		sleepJob = new SleepJob();
-		sleepJob.submit();
+		// Start sleep job with -Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
+		sleepJob = new SleepJob(testSession);
+		sleepJob.submit(10, 10, 500, 500, 1, 6144, 8192);
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 		
@@ -150,14 +146,14 @@ public class JobSummaryInfo {
 	 */
 	@Test
 	public void JobSummaryInfoMappersFailed() {
-		// Start sleep job with -failMappers 
-		sleepJob = new SleepJob();
-		sleepJob.submit();
-		assertTrue("Sleep job ID is invalid.", 
-				sleepJob.verifyID());
+		// Start fail job with -failMappers 
+		failJob = new FailJob(testSession);
+		failJob.submit(true, false);
+		assertTrue("Fail job ID is invalid.", 
+				failJob.verifyID());
 		
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess());
+		assertFalse("Job did not fail.",
+				failJob.waitForSuccess());
 		
 		// Build job summary info template
 		
@@ -176,13 +172,13 @@ public class JobSummaryInfo {
 	@Test
 	public void JobSummaryInfoReducersFailed() {
 		// Start sleep job with -failReducers 
-		sleepJob = new SleepJob();
-		sleepJob.submit();
-		assertTrue("Sleep job ID is invalid.", 
+		failJob = new FailJob(testSession);
+		failJob.submit(false, true);
+		assertTrue("Fail job ID is invalid.", 
 				sleepJob.verifyID());
 		
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess());
+		assertFalse("Job did not fail.",
+				failJob.waitForSuccess());
 		
 		// Build job summary info template
 		
@@ -204,7 +200,7 @@ public class JobSummaryInfo {
 		 // Sets kerberos ticket for user hadoop1
 		
 		 // Starts sleep job
-		sleepJob = new SleepJob();
+		sleepJob = new SleepJob(testSession);
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
@@ -232,7 +228,7 @@ public class JobSummaryInfo {
 	@Test
 	public void JobSummaryInfoDifferentQueue() {
 		// Start sleep job with mapreduce.job.queuename=grideng 
-		sleepJob = new SleepJob();
+		sleepJob = new SleepJob(testSession);
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
@@ -257,7 +253,7 @@ public class JobSummaryInfo {
 	@Test
 	public void JobSummaryInfoKilledJob() {
 		// Start sleep job
-		sleepJob = new SleepJob();
+		sleepJob = new SleepJob(testSession);
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());

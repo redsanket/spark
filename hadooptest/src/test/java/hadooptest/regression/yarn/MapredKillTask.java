@@ -28,7 +28,6 @@ public class MapredKillTask {
 	private static TestSession testSession;
 	
 	private SleepJob sleepJob;
-	private static PseudoDistributedConfiguration conf;
 	private static PseudoDistributedCluster cluster;
 	
 	private static final int MAPREDUCE_MAP_MAXATTEMPTS = 4;
@@ -44,7 +43,7 @@ public class MapredKillTask {
 		
 		testSession = new TestSession();
 		
-		conf = new PseudoDistributedConfiguration(testSession);
+		PseudoDistributedConfiguration conf = new PseudoDistributedConfiguration(testSession);
 		conf.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
 		conf.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
 		conf.write();
@@ -59,7 +58,7 @@ public class MapredKillTask {
 	@AfterClass
 	public static void stopCluster() throws IOException {
 		cluster.stop();
-		conf.cleanup();
+		cluster.getConf().cleanup();
 	}
 	
 	/******************* TEST BEFORE/AFTER ***********************/

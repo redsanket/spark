@@ -1,7 +1,3 @@
-/*
- * YAHOO
- */
-
 package hadooptest.cluster.pseudodistributed;
 
 import java.io.BufferedReader;
@@ -10,11 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.pseudodistributed.PseudoDistributedJob;
 
-/*
- * A class which represents a pseudodistributed MapReduce Sleep Job.
- */
-public class SleepJob extends PseudoDistributedJob {
+public class FailJob extends PseudoDistributedJob {
 	
 	private String HADOOP_VERSION;
 	private String HADOOP_INSTALL;
@@ -26,7 +20,7 @@ public class SleepJob extends PseudoDistributedJob {
 	/*
 	 * Class constructor.
 	 */
-	public SleepJob(TestSession testSession) {
+	public FailJob(TestSession testSession) {
 		super(testSession);
 		
 		TSM = testSession;
@@ -44,7 +38,7 @@ public class SleepJob extends PseudoDistributedJob {
 	 */
 	public String submit() {
 		//return this.submit(10, 10, 50000, 50000, 1);
-		return this.submit(5, 5, 500, 500, 1, -1, -1);
+		return this.submit(true, true);
 	}
 	
 	/*
@@ -60,72 +54,64 @@ public class SleepJob extends PseudoDistributedJob {
 	 * 
 	 * @return String the ID of the sleep job that was submitted to the pseudodistributed cluster.
 	 */
-	public String submit(int mappers, int reducers, int map_time, int reduce_time, int numJobs, int map_memory, int reduce_memory) {			
+	public String submit(boolean failMappers, boolean failReducers) {			
 		Process hadoopProc = null;
 		String jobID = "";
-		
+
 		String hadoop_mapred_test_jar = HADOOP_INSTALL + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + HADOOP_VERSION + "-tests.jar";
 		String hadoop_exe = HADOOP_INSTALL + "/bin/hadoop";
-		
-		String strMapMemory = "";
-		if (map_memory != -1) {
-			//-Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
-			strMapMemory = "-Dmapred.job.map.memory.mb=" + map_memory;
+
+		String strFailMappers = "";
+		if (failMappers) {
+			strFailMappers = "-failMappers";
 		}
 		
-		String strReduceMemory = "";
-		if (reduce_memory != -1) {
-			strReduceMemory = "-Dmapred.job.reduce.memory.mb=" + reduce_memory;
+		String strFailReducers = "";
+		if (failReducers) {
+			strFailReducers = "-failReducers";
 		}
 		
-		for (int i = 0; i < numJobs; i++) {			
-			String hadoopCmd = hadoop_exe + " --config " + CONFIG_BASE_DIR 
-					+ " jar " + hadoop_mapred_test_jar 
-					+ " sleep -Dmapreduce.job.user.name=" + USER 
-					+ " " + strMapMemory
-					+ " " + strReduceMemory
-					+ " -m " + mappers 
-					+ " -r " + reducers 
-					+ " -mt " + map_time 
-					+ " -rt " + reduce_time;
-			
-			TSM.logger.debug("COMMAND: " + hadoopCmd);
-			
-			String jobPatternStr = " - Running job: (.*)$";
-			Pattern jobPattern = Pattern.compile(jobPatternStr);
-			
-			try {
-				hadoopProc = Runtime.getRuntime().exec(hadoopCmd);
-				BufferedReader reader=new BufferedReader(new InputStreamReader(hadoopProc.getInputStream())); 
-				String line=reader.readLine(); 
-				
-				while(line!=null) 
-				{ 
-					TSM.logger.debug(line);
-					
-					Matcher jobMatcher = jobPattern.matcher(line);
-					
-					if (jobMatcher.find()) {
-						jobID = jobMatcher.group(1);
-						TSM.logger.debug("JOB ID: " + jobID);
-						break;
-					}
-					
-					line=reader.readLine();
-				} 
-			}
-			catch (Exception e) {
-				if (hadoopProc != null) {
-					hadoopProc.destroy();
+		String hadoopCmd = hadoop_exe + " --config " + CONFIG_BASE_DIR 
+				+ " jar " + hadoop_mapred_test_jar 
+				+ " fail -Dmapreduce.job.user.name=" + USER 
+				+ " " + strFailMappers
+				+ " " + strFailReducers;
+
+		TSM.logger.debug("COMMAND: " + hadoopCmd);
+
+		String jobPatternStr = " - Running job: (.*)$";
+		Pattern jobPattern = Pattern.compile(jobPatternStr);
+
+		try {
+			hadoopProc = Runtime.getRuntime().exec(hadoopCmd);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(hadoopProc.getInputStream())); 
+			String line=reader.readLine(); 
+
+			while(line!=null) 
+			{ 
+				TSM.logger.debug(line);
+
+				Matcher jobMatcher = jobPattern.matcher(line);
+
+				if (jobMatcher.find()) {
+					jobID = jobMatcher.group(1);
+					TSM.logger.debug("JOB ID: " + jobID);
+					break;
 				}
-				e.printStackTrace();
-			}
+
+				line=reader.readLine();
+			} 
 		}
-		
+		catch (Exception e) {
+			if (hadoopProc != null) {
+				hadoopProc.destroy();
+			}
+			e.printStackTrace();
+		}
+
 		this.ID = jobID;
-		
+
 		return jobID;
 	}
 
-	
 }
