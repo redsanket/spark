@@ -19,7 +19,6 @@ public class SleepJob extends PseudoDistributedJob {
 	private String HADOOP_VERSION;
 	private String HADOOP_INSTALL;
 	private String CONFIG_BASE_DIR;
-	private String USER;
 	
 	private static TestSession TSM;
 	
@@ -34,7 +33,6 @@ public class SleepJob extends PseudoDistributedJob {
 		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
 		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
 		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
-		USER = TSM.conf.getProperty("USER", "");
 	}
 	
 	/*
@@ -70,20 +68,26 @@ public class SleepJob extends PseudoDistributedJob {
 		String strMapMemory = "";
 		if (map_memory != -1) {
 			//-Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
-			strMapMemory = "-Dmapred.job.map.memory.mb=" + map_memory;
+			strMapMemory = " -Dmapred.job.map.memory.mb=" + map_memory;
 		}
 		
 		String strReduceMemory = "";
 		if (reduce_memory != -1) {
-			strReduceMemory = "-Dmapred.job.reduce.memory.mb=" + reduce_memory;
+			strReduceMemory = " -Dmapred.job.reduce.memory.mb=" + reduce_memory;
+		}
+		
+		String strQueue = "";
+		if (QUEUE != "") {
+			strQueue = " -Dmapreduce.job.queuename=" + QUEUE;
 		}
 		
 		for (int i = 0; i < numJobs; i++) {			
 			String hadoopCmd = hadoop_exe + " --config " + CONFIG_BASE_DIR 
 					+ " jar " + hadoop_mapred_test_jar 
-					+ " sleep -Dmapreduce.job.user.name=" + USER 
-					+ " " + strMapMemory
-					+ " " + strReduceMemory
+					+ " sleep -Dmapreduce.job.user.name=" + USER
+					+ strQueue
+					+ strMapMemory
+					+ strReduceMemory
 					+ " -m " + mappers 
 					+ " -r " + reducers 
 					+ " -mt " + map_time 
@@ -91,7 +95,7 @@ public class SleepJob extends PseudoDistributedJob {
 			
 			TSM.logger.debug("COMMAND: " + hadoopCmd);
 			
-			String jobPatternStr = " - Running job: (.*)$";
+			String jobPatternStr = " Running job: (.*)$";
 			Pattern jobPattern = Pattern.compile(jobPatternStr);
 			
 			try {

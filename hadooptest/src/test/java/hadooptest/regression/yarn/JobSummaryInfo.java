@@ -17,8 +17,6 @@ import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.pseudodistributed.SleepJob;
 import hadooptest.cluster.pseudodistributed.FailJob;
 
-import hadooptest.Util;
-
 public class JobSummaryInfo {
 
 	private static TestSession testSession;
@@ -96,8 +94,7 @@ public class JobSummaryInfo {
 	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void JobSummaryInfoSuccess() {
-		// Start sleep job
+	public void JobSummaryInfoSuccess() throws IOException, FileNotFoundException {
 		sleepJob = new SleepJob(testSession);
 		sleepJob.submit(10, 10, 500, 500, 1, -1, -1);
 		assertTrue("Sleep job ID is invalid.", 
@@ -106,12 +103,7 @@ public class JobSummaryInfo {
 		assertTrue("Job did not succeed.",
 				sleepJob.waitForSuccess());
 		
-		// Build job summary info template
-		
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
-		
-		// ssh to ResourceManager and grep through summary logs to find job summary info.  If found, pass the test.
+		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("SUCCEEDED", "Sleep\\sjob", testSession.conf.getProperty("USER"), "default"));
 	}
 	
 	/*
@@ -120,8 +112,7 @@ public class JobSummaryInfo {
 	 * Equivalent to JobSummaryInfo20 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void JobSummaryInfoHighRAM() {
-		// Start sleep job with -Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
+	public void JobSummaryInfoHighRAM() throws IOException, FileNotFoundException  {
 		sleepJob = new SleepJob(testSession);
 		sleepJob.submit(10, 10, 500, 500, 1, 6144, 8192);
 		assertTrue("Sleep job ID is invalid.", 
@@ -130,13 +121,7 @@ public class JobSummaryInfo {
 		assertTrue("Job did not succeed.",
 				sleepJob.waitForSuccess());
 		
-		// Build job summary info template
-		
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
-		
-		// ssh to ResourceManager and grep through summary logs to find job summary info.  If found, pass the test.
-		
+		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("SUCCEEDED", "Sleep\\sjob", testSession.conf.getProperty("USER"), "default"));
 	}
 	
 	/*
@@ -145,8 +130,7 @@ public class JobSummaryInfo {
 	 * Equivalent to JobSummaryInfo30 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void JobSummaryInfoMappersFailed() {
-		// Start fail job with -failMappers 
+	public void JobSummaryInfoMappersFailed() throws IOException, FileNotFoundException {
 		failJob = new FailJob(testSession);
 		failJob.submit(true, false);
 		assertTrue("Fail job ID is invalid.", 
@@ -155,13 +139,7 @@ public class JobSummaryInfo {
 		assertFalse("Job did not fail.",
 				failJob.waitForSuccess());
 		
-		// Build job summary info template
-		
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
-		
-		// ssh to ResourceManager and grep through summary logs to find job summary info.  If found, pass the test.
-		
+		assertTrue("Did not find job summary info.", failJob.findSummaryInfo("FAILED", "Fail\\sjob", testSession.conf.getProperty("USER"), "default"));
 	}
 	
 	/*
@@ -170,8 +148,7 @@ public class JobSummaryInfo {
 	 * Equivalent to JobSummaryInfo40 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void JobSummaryInfoReducersFailed() {
-		// Start sleep job with -failReducers 
+	public void JobSummaryInfoReducersFailed() throws IOException, FileNotFoundException {
 		failJob = new FailJob(testSession);
 		failJob.submit(false, true);
 		assertTrue("Fail job ID is invalid.", 
@@ -180,13 +157,7 @@ public class JobSummaryInfo {
 		assertFalse("Job did not fail.",
 				failJob.waitForSuccess());
 		
-		// Build job summary info template
-		
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
-		
-		// ssh to ResourceManager and grep through summary logs to find job summary info.  If found, pass the test.
-		
+		assertTrue("Did not find job summary info.", failJob.findSummaryInfo("FAILED", "Fail\\sjob", testSession.conf.getProperty("USER"), "default"));	
 	}
 	
 	/*
@@ -195,12 +166,9 @@ public class JobSummaryInfo {
 	 * Equivalent to JobSummaryInfo50 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void JobSummaryInfoDifferentUser() {
-		 // Gets kerberos ticket for user hadoop1
-		 // Sets kerberos ticket for user hadoop1
-		
-		 // Starts sleep job
+	public void JobSummaryInfoDifferentUser() throws IOException, FileNotFoundException {
 		sleepJob = new SleepJob(testSession);
+		sleepJob.setUser("testuser");
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
@@ -208,16 +176,7 @@ public class JobSummaryInfo {
 		assertTrue("Job did not succeed.",
 				sleepJob.waitForSuccess());
 		
-		 // Gets kerberos ticket for user hadoopqa
-		 // Sets kerberos ticket for user hadoopqa 
-		
-		// Build job summary info template
-		
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
-		
-		// ssh to ResourceManager and grep through summary logs to find job summary info.  If found, pass the test.
-		
+		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("FAILED", "Sleep\\sjob", "testuser", "default"));	
 	}
 	
 	/*
@@ -226,9 +185,10 @@ public class JobSummaryInfo {
 	 * Equivalent to JobSummaryInfo60 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void JobSummaryInfoDifferentQueue() {
+	public void JobSummaryInfoDifferentQueue() throws IOException, FileNotFoundException {
 		// Start sleep job with mapreduce.job.queuename=grideng 
 		sleepJob = new SleepJob(testSession);
+		sleepJob.setQueue("testQueue");
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
@@ -236,13 +196,7 @@ public class JobSummaryInfo {
 		assertTrue("Job did not succeed.",
 				sleepJob.waitForSuccess());
 		
-		// Build job summary info template
-		
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
-		
-		// ssh to ResourceManager and grep through summary logs to find job summary info.  If found, pass the test.
-		
+		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("FAILED", "Sleep\\sjob", testSession.conf.getProperty("USER"), "testQueue"));	
 	}
 	
 	/*
@@ -251,26 +205,17 @@ public class JobSummaryInfo {
 	 * Equivalent to JobSummaryInfo70 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void JobSummaryInfoKilledJob() {
-		// Start sleep job
+	public void JobSummaryInfoKilledJob() throws IOException, FileNotFoundException {
 		sleepJob = new SleepJob(testSession);
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 		
-		// Kill the job
 		assertTrue("Was not able to kill the job.", 
 				sleepJob.kill());
 		
-		// Build job summary info template
-		
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
-		
-		// ssh to ResourceManager and grep through summary logs to find job summary info.  If found, pass the test.
-		
+		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("KILLED", "Sleep\\sjob", testSession.conf.getProperty("USER"), "default"));
 	}
 
-	/******************* END TESTS ***********************/
-	
+	/******************* END TESTS ***********************/	
 }

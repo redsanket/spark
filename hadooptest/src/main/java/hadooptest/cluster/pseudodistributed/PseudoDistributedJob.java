@@ -10,6 +10,10 @@ import hadooptest.cluster.Job;
 import hadooptest.cluster.JobState;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,13 +24,15 @@ import java.util.regex.Pattern;
 public abstract class PseudoDistributedJob implements Job {
 
 	public String ID = "0";	// The ID of the job.
+	public String USER = ""; // The user for the job.
+	public String QUEUE = ""; // The queue for the job.
 	public JobState state;
 
 	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
 	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 	
 	private static TestSession TSM;
-	
+
 	/*
 	 * Class Constructor.
 	 */
@@ -34,6 +40,7 @@ public abstract class PseudoDistributedJob implements Job {
 		super();
 		
 		TSM = testSession;
+		USER = TSM.conf.getProperty("USER", "");
 	}
 	
 	/*
@@ -43,6 +50,24 @@ public abstract class PseudoDistributedJob implements Job {
 	 */
 	public JobState state() {
 		return state;
+	}
+	
+	/*
+	 * Sets a user for the job other than the default.
+	 * 
+	 * @param user The user to override the default user with.
+	 */
+	public void setUser(String user) {
+		USER = user;
+	}
+	
+	/*
+	 * Sets a queue for the job other than the default.
+	 * 
+	 * @param queue The queue to override the default queue with.
+	 */
+	public void setQueue(String queue) {
+		QUEUE = queue;
 	}
 	
 	/*
@@ -448,5 +473,61 @@ public abstract class PseudoDistributedJob implements Job {
 
 		TSM.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
 		return false;
+	}
+	
+	/*
+	 * Finds whether the job summary info in the summary info log file exists.
+	 * 
+	 * @param status The status of the job
+	 * @param jobName The name of the job
+	 * @param user The job user
+	 * @param queue The queue for the job
+	 * 
+	 * @return boolean Whether the job summary info was found in the summary info log file or not
+	 */
+	public boolean findSummaryInfo(String status, String jobName, String user, String queue) throws FileNotFoundException, IOException {
+		// Build job summary info template
+		String numMaps = "10";
+		String numReduces = "10";
+		String patternStr = "(.*)"
+				+ "jobId=" + this.ID
+				+ ",submitTime=[0-9]{13}"
+				+ ",launchTime=[0-9]{13}"
+				+ ",firstMapTaskLaunchTime=[0-9]{13}"
+				+ ",firstReduceTaskLaunchTime=[0-9]{13}"
+				+ ",finishTime=[0-9]{13}"
+				+ ",resourcesPerMap=[0-9]+"
+				+ ",resourcesPerReduce=[0-9]+"
+				+ ",numMaps=" + numMaps
+				+ ",numReduces=" + numReduces
+				+ ",user=" + user
+				+ ",queue=" + queue
+				+ ",status=" + status
+				+ ",mapSlotSeconds=[0-9]+"
+				+ ",reduceSlotSeconds=[0-9]+"
+				+ ",jobName=" + jobName
+				+ "(.*)";
+		Pattern infoPattern = Pattern.compile(patternStr);
+
+		// Sleep 200s waiting for logs to be updated
+		Util.sleep(200);
+
+		String HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
+		FileInputStream summaryInfoFile = new FileInputStream(HADOOP_INSTALL + "logs/hadoop-mapreduce.jobsummary.log");
+		DataInputStream in = new DataInputStream(summaryInfoFile);
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+		String line;
+		Matcher infoMatcher;
+		Boolean foundSummaryInfo = false;
+
+		while ((line = br.readLine()) != null)   {
+			infoMatcher = infoPattern.matcher(line);
+			if (infoMatcher.find()) { foundSummaryInfo = true; }
+		}
+
+		in.close();
+		
+		return foundSummaryInfo;
 	}
 }

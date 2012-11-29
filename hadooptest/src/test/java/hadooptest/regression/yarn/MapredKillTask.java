@@ -10,6 +10,7 @@ import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.pseudodistributed.SleepJob;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 import hadooptest.TestSession;
+import hadooptest.Util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class MapredKillTask {
 		conf.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
 		conf.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
 		conf.write();
-
+		
 		cluster = new PseudoDistributedCluster(testSession, conf);
 		cluster.start();
 	}
@@ -135,8 +136,7 @@ public class MapredKillTask {
 				sleepJob.waitForSuccess());
 		
 		String taskID = sleepJob.getMapTaskAttemptID();
-		assertFalse("Killed task and we shouldn't have been able to.", 
-				sleepJob.killTaskAttempt(taskID));
+		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
 	}
 	
 	/******************* END TESTS ***********************/
