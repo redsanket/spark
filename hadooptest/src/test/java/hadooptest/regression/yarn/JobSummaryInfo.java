@@ -1,7 +1,12 @@
 package hadooptest.regression.yarn;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import hadooptest.TestSession;
+import hadooptest.cluster.pseudodistributed.FailJob;
+import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
+import hadooptest.cluster.pseudodistributed.SleepJob;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,11 +16,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import hadooptest.TestSession;
-import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
-import hadooptest.cluster.pseudodistributed.SleepJob;
-import hadooptest.cluster.pseudodistributed.FailJob;
 
 public class JobSummaryInfo {
 
@@ -152,7 +152,7 @@ public class JobSummaryInfo {
 		failJob = new FailJob(testSession);
 		failJob.submit(false, true);
 		assertTrue("Fail job ID is invalid.", 
-				sleepJob.verifyID());
+				failJob.verifyID());
 		
 		assertFalse("Job did not fail.",
 				failJob.waitForSuccess());

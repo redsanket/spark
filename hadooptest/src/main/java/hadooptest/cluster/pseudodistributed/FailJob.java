@@ -79,7 +79,7 @@ public class FailJob extends PseudoDistributedJob {
 
 		TSM.logger.debug("COMMAND: " + hadoopCmd);
 
-		String jobPatternStr = " - Running job: (.*)$";
+		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
 		try {

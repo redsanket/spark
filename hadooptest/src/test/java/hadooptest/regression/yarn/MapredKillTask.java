@@ -10,7 +10,6 @@ import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.pseudodistributed.SleepJob;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 import hadooptest.TestSession;
-import hadooptest.Util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

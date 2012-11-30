@@ -509,11 +509,11 @@ public abstract class PseudoDistributedJob implements Job {
 				+ "(.*)";
 		Pattern infoPattern = Pattern.compile(patternStr);
 
-		// Sleep 200s waiting for logs to be updated
-		Util.sleep(200);
+		TSM.logger.info("Sleeping for 200s to wait for the job summary info log to be updated.");
+		//Util.sleep(200);
 
 		String HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		FileInputStream summaryInfoFile = new FileInputStream(HADOOP_INSTALL + "logs/hadoop-mapreduce.jobsummary.log");
+		FileInputStream summaryInfoFile = new FileInputStream(HADOOP_INSTALL + "/logs/hadoop-mapreduce.jobsummary.log");
 		DataInputStream in = new DataInputStream(summaryInfoFile);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
@@ -522,11 +522,19 @@ public abstract class PseudoDistributedJob implements Job {
 		Boolean foundSummaryInfo = false;
 
 		while ((line = br.readLine()) != null)   {
+			TSM.logger.debug("JOB SUMMARY INFO: " + line);
 			infoMatcher = infoPattern.matcher(line);
-			if (infoMatcher.find()) { foundSummaryInfo = true; }
+			if (infoMatcher.find()) {
+				foundSummaryInfo = true; 
+				TSM.logger.info("Summary info for the job was found.");
+				}
 		}
 
 		in.close();
+
+		if (!foundSummaryInfo) {
+			TSM.logger.error("Job summary info was not found in the log file.");
+		}
 		
 		return foundSummaryInfo;
 	}

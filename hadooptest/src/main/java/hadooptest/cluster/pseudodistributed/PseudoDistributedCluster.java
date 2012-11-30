@@ -45,6 +45,9 @@ public class PseudoDistributedCluster implements Cluster {
 		TSM = testSession;
 		
 		this.conf = new PseudoDistributedConfiguration(testSession);
+		
+		this.initTestSessionConf();
+		
 		this.conf.write();
 	}
 
@@ -58,10 +61,9 @@ public class PseudoDistributedCluster implements Cluster {
 		TSM = testSession;
 		this.conf = conf;
 		
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		this.initTestSessionConf();
 	}
-
+	
 	/*
 	 * Starts the pseudodistributed cluster instance by starting:
 	 *   - NameNode
@@ -181,6 +183,20 @@ public class PseudoDistributedCluster implements Cluster {
 		return this.cluster_state;
 	}
 
+	/*
+	 * Initialize the test session configuration properties necessary to use the 
+	 * pseudo distributed cluster instance.
+	 */
+	private void initTestSessionConf() {
+		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+	}
+	
+	/*
+	 * Run a local system command.
+	 * 
+	 * @param command The system command to run.
+	 */
 	private static void runProc(String command) {
 		Process proc = null;
 
