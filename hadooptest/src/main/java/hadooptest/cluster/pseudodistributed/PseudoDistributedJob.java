@@ -26,10 +26,10 @@ public abstract class PseudoDistributedJob implements Job {
 	public String ID = "0";	// The ID of the job.
 	public String USER = ""; // The user for the job.
 	public String QUEUE = ""; // The queue for the job.
+	private String HADOOP_INSTALL;
+	private String CONFIG_BASE_DIR;
+	
 	public JobState state;
-
-	private final String HADOOP_INSTALL = "/Users/rbernota/workspace/eclipse/branch-0.23.4/hadoop-dist/target/hadoop-0.23.4";
-	private final String CONFIG_BASE_DIR = "/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/test/";
 	
 	private static TestSession TSM;
 
@@ -41,6 +41,9 @@ public abstract class PseudoDistributedJob implements Job {
 		
 		TSM = testSession;
 		USER = TSM.conf.getProperty("USER", "");
+		
+		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
 	}
 	
 	/*
