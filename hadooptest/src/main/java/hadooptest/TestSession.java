@@ -23,7 +23,25 @@ public class TestSession {
 	
 	private void initConfiguration() throws IOException {
 		conf = new ConfigProperties();
-		File conf_location = new File("/Users/rbernota/workspace/hadoop/test/pseudodistributed_configs/hadooptest.conf");
+		
+		String osName = System.getProperty("os.name");
+		System.out.println("Operating System: " + osName);
+		
+		String userHome = System.getProperty("user.home");
+		System.out.println("User home: " + userHome);
+		
+		File conf_location = null;
+		
+		if (osName.contains("Mac OS X")) {
+			conf_location = new File(userHome + "/hadooptest.conf");
+		}
+		else if (osName.contains("Linux")) {
+			conf_location = new File(userHome + "/hadooptest.conf");
+		}
+		else {
+			System.out.println("OS is not supported by hadooptest: "  + osName);
+		}
+		
 		conf.load(conf_location);
 	}
 	

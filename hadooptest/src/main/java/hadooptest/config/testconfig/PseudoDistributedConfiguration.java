@@ -31,15 +31,14 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * configuration parameters for a pseudodistributed cluster under test.  Hadoop
 	 * default configuration is not used.
 	 */
-	public PseudoDistributedConfiguration(TestSession testSession)
-	{
+	public PseudoDistributedConfiguration(TestSession testSession) {
 		super(false);
 
 		TSM = testSession;
 		
 		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
 		
-		initDefaults();
+		this.initDefaults();
 	}
 
 	/*
@@ -52,11 +51,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * @param loadDefaults whether or not to load the default configuration parameters
 	 * specified by the Hadoop installation, before loading the class configuration defaults.
 	 */
-	public PseudoDistributedConfiguration(boolean loadDefaults)
-	{
+	public PseudoDistributedConfiguration(boolean loadDefaults) {
 		super(loadDefaults); 
 
-		initDefaults();
+		this.initDefaults();
 	}
 
 	/*
@@ -125,12 +123,14 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		File yarn_site = new File(CONFIG_BASE_DIR + "yarn-site.xml");
 		File mapred_site = new File(CONFIG_BASE_DIR + "mapred-site.xml");	
 		File slaves = new File(CONFIG_BASE_DIR + "slaves");	
+		File log4jProperties = new File(CONFIG_BASE_DIR + "log4j.properties");
 
 		core_site.delete();
 		hdfs_site.delete();
 		yarn_site.delete();
 		mapred_site.delete();
 		slaves.delete();
+		log4jProperties.delete();
 	}
 
 	/*
@@ -138,8 +138,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * determined to be a reasonable set of defaults for running a pseudodistributed
 	 * cluster under test.
 	 */
-	private void initDefaults()
-	{
+	private void initDefaults() {
 		set("fs.default.name", "hdfs://localhost/");
 		set("dfs.replication", "1");
 		set("mapreduce.framework.name", "yarn");
