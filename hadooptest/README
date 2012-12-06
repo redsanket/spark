@@ -1,0 +1,23 @@
+hadooptest README
+---
+hadooptest is an automation framework for Yahoo core Hadoop.
+
+The framework currently contains an API which allows for:
+ 
+. Running jobs on pseudodistributed clusters, and associated tasks with 
+  monitoring and manipulating jobs and tasks.
+. A programmatic debugger interface which allows for setting watch points
+  and breakpoints in a standalone cluster, using the JDI / JPDA.
+. Further architecture to define automated test structure and interfaces
+  to other types of Hadoop clusters.
+
+For more information, please contact:
+
+- rbernota@yahoo-inc.com
+- http://twiki.corp.yahoo.com/view/Main/RbernotaYahoo#hadooptest_Hadoop_Automation_Framework
+
+-----
+Version 0.0.1
+-----
+. Initial version.
+
