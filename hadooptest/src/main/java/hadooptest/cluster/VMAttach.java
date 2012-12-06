@@ -8,8 +8,11 @@ import com.sun.jdi.Bootstrap;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VirtualMachineManager;
 import com.sun.jdi.connect.AttachingConnector;
+import com.sun.jdi.connect.ListeningConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import com.sun.jdi.connect.Connector.Argument;
+import com.sun.jdi.connect.Connector.IntegerArgument;
 
 import java.io.IOException;
 import java.util.Map;
@@ -50,6 +53,30 @@ public class VMAttach {
 			throw new IllegalStateException(e);
 		}
 	}
+	
+	/*
+	 * Listens to a host JVM debug port for a client to attach, and returns a VM.
+	 * 
+	 * @return VirtualMachine the VM hosting the debug port.
+	 */
+	public VirtualMachine listen() throws IOException {
+		ListeningConnector connector = getListeningConnector();
+		
+		Map<String, Argument> map = connector.defaultArguments();
+		
+		IntegerArgument listenPort = (IntegerArgument) map.get("port");
+		listenPort.setValue(this.debug_port);
+		
+		IntegerArgument listenTimeout = (IntegerArgument) map.get("timeout");
+		listenTimeout.setValue(0);
+		
+		try {
+			connector.startListening(map);
+			return connector.accept(map); 
+		} catch (IllegalConnectorArgumentsException e) {
+			throw new IllegalStateException(e);
+		}
+	}
 
 	/*
 	 * Gets the attaching connector for the debug session, which is
@@ -71,6 +98,27 @@ public class VMAttach {
 		throw new IllegalStateException();
 	}
 
+
+	/*
+	 * Gets the listening connector for the debug session, which is
+	 * the JDI SocketListen.
+	 * 
+	 * @return ListeningConnector the AttachingConnector for the debug session.
+	 */
+	private ListeningConnector getListeningConnector() {
+		VirtualMachineManager VMManager = Bootstrap.virtualMachineManager();
+		
+		for (Connector connector : VMManager.listeningConnectors()) {
+			System.out.println("Listening Connector is: " + connector.name());
+			
+			if ("com.sun.jdi.SocketListen".equals(connector.name())) {
+				return (ListeningConnector) connector;
+			}
+		}
+		
+		throw new IllegalStateException();
+	}
+	
 	/*
 	 * Connects the debug session with the given attachingconnector and debug port.
 	 * 
@@ -82,8 +130,8 @@ public class VMAttach {
 	private VirtualMachine connectToVM(AttachingConnector connector, String port) 
 			throws IllegalConnectorArgumentsException, IOException {
 		
-		Map<String, Connector.Argument> arguments = connector.defaultArguments();
-		Connector.Argument portArgument = arguments.get("port");
+		Map<String, Argument> arguments = connector.defaultArguments();
+		Argument portArgument = arguments.get("port");
 		
 		if (portArgument == null) {
 			throw new IllegalStateException();

@@ -52,6 +52,9 @@ public class VMViewer {
 	// Hadoop debug port to attach to.
 	public static final int DEFAULT_DEBUG_ATTACH_PORT = 8008;
 	
+	// Hadoop default debug port to listen on.
+	public static final int DEFAULT_DEBUG_LISTEN_PORT = 4000;
+	
 	// Depth of recursion to prevent chasing circular references in the stack.
 	public static final int RECURSION_DEPTH_DEFAULT = 2;
 
@@ -63,8 +66,13 @@ public class VMViewer {
 	 * 
 	 * Attaches to the default debug attach port of the suspended Hadoop VM.
 	 */
-	public VMViewer() throws IOException {
-		this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
+	public VMViewer(boolean isListener) throws IOException {
+		if (isListener) {
+			this.vm = new VMAttach(DEFAULT_DEBUG_LISTEN_PORT).listen();
+		}
+		else {
+			this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
+		}
 	}
 	
 	/*
@@ -74,8 +82,13 @@ public class VMViewer {
 	 * 
 	 * @param port the debug port to attach to.
 	 */
-	public VMViewer(int port) throws IOException {
-		this.vm = new VMAttach(port).connect();
+	public VMViewer(boolean isListener, int port) throws IOException {
+		if (isListener) {
+			this.vm = new VMAttach(port).listen();
+		}
+		else {
+			this.vm = new VMAttach(port).connect();
+		}
 	}
 	
 	/*
