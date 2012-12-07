@@ -8,6 +8,7 @@ package hadooptest.cluster;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Vector;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ArrayReference;
@@ -55,7 +56,7 @@ public class VMViewer {
 	public static final int DEFAULT_DEBUG_ATTACH_PORT = 8008;
 	
 	// Hadoop default debug port to listen on.
-	public static final int DEFAULT_DEBUG_LISTEN_PORT = 4000;
+	public static final int DEFAULT_DEBUG_LISTEN_PORT = 8002;
 	
 	// Depth of recursion to prevent chasing circular references in the stack.
 	public static final int RECURSION_DEPTH_DEFAULT = 2;
@@ -63,20 +64,19 @@ public class VMViewer {
 	// The attaching VM for the debug session.
 	private VirtualMachine vm;
 	
-	public VirtualMachine vms[];
+	private String listenerClassName;
+	private String listenerVariable;
+	private String listenerMethod;
+	
+	public Vector<VirtualMachine> listenerVMs;
 	
 	/*
 	 * Class constructor.
 	 * 
 	 * Attaches to the default debug attach port of the suspended Hadoop VM.
 	 */
-	public VMViewer(boolean isListener) throws IOException {
-		if (isListener) {
-			this.vms = new VMAttach(DEFAULT_DEBUG_LISTEN_PORT).listen();
-		}
-		else {
-			this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
-		}
+	public VMViewer() throws IOException {
+		this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
 	}
 	
 	/*
@@ -87,12 +87,45 @@ public class VMViewer {
 	 * @param port the debug port to attach to.
 	 */
 	public VMViewer(boolean isListener, int port) throws IOException {
-		if (isListener) {
-			this.vms = new VMAttach(port).listen();
+		this.vm = new VMAttach(port).connect();
+	}
+
+	public VMViewer(String actionType, String className, String debugTarget) throws IOException {
+		this.listenerClassName = className;
+		
+		if (actionType == "WATCH") {
+			this.listenerVariable = debugTarget;
 		}
-		else {
-			this.vm = new VMAttach(port).connect();
+		else if (actionType == "BREAK") {
+			this.listenerMethod = debugTarget;
 		}
+		
+		VMAttach vmAttacher = new VMAttach(DEFAULT_DEBUG_LISTEN_PORT);
+		VMListenerVectorWatcher watcher = new VMListenerVectorWatcher(vmAttacher, this);
+		
+		vmAttacher.listen();
+		watcher.start();
+		
+		while(true) {
+
+		}
+	}
+	
+	public VMViewer(String actionType, int port, String className, String debugTarget) throws IOException {
+		this.listenerClassName = className;
+
+		if (actionType == "WATCH") {
+			this.listenerVariable = debugTarget;
+		}
+		else if (actionType == "BREAK") {
+			this.listenerMethod = debugTarget;
+		}
+		
+		VMAttach vmAttacher = new VMAttach(port);
+		VMListenerVectorWatcher watcher = new VMListenerVectorWatcher(vmAttacher, this);
+		
+		vmAttacher.listen();
+		watcher.start();
 	}
 	
 	/*
@@ -104,10 +137,7 @@ public class VMViewer {
 	 * 						(must include the package name).
 	 * @param variable the variable to set the watch point on.
 	 */
-	public void watchVariable(String className, String variable) 
-			throws IOException, 
-			InterruptedException 
-			{
+	public void watchVariable(String className, String variable) throws IOException, InterruptedException {
 
 		List<ReferenceType> referenceTypes = this.vm.classesByName(className);
 		for (ReferenceType refType : referenceTypes) {
@@ -138,56 +168,6 @@ public class VMViewer {
 				} 
 			}
 			eventSet.resume();
-		}
-	}
-	
-	public void watchVariableMultiVM(String className, String variable) 
-			throws IOException, 
-			InterruptedException 
-			{
-
-		int vmsSize = vms.length;
-		for (int i = 0; i < vmsSize; i++) {
-
-			System.out.println("*** THIS IS VM NUMBER " + i + " ***");
-			
-			List<ReferenceType> referenceTypes = vms[i].classesByName(className);
-			for (ReferenceType refType : referenceTypes) {
-				addFieldViewerMultiVM(refType, variable, vms[i]);
-			}
-
-			this.addClassViewerMultiVM(className, vms[i]);
-
-			vms[i].resume();
-
-			boolean vmDisconnected = false;
-			EventQueue eventQueue = vms[i].eventQueue();
-			while (true) {
-				EventSet eventSet = eventQueue.remove();
-				for (Event event : eventSet) {
-					if (event instanceof VMDeathEvent || event instanceof VMDisconnectEvent) {
-						//return;
-						vmDisconnected = true;
-						break;
-					} else if (event instanceof ClassPrepareEvent) {
-						ClassPrepareEvent classPrepEvent = (ClassPrepareEvent) event;
-						ReferenceType refType = classPrepEvent.referenceType();
-						addFieldViewerMultiVM(refType, variable, vms[i]);
-					} else if (event instanceof ModificationWatchpointEvent) {
-						ModificationWatchpointEvent modWatchEvent = (ModificationWatchpointEvent) event;
-						System.out.println("OLD VALUE=" + modWatchEvent.valueCurrent());
-						System.out.println("NEW VALUE=" + modWatchEvent.valueToBe());
-						System.out.println();
-
-						this.objectRefRecurse(modWatchEvent.valueToBe(), "", RECURSION_DEPTH_DEFAULT);
-					} 
-				}
-				
-				if (vmDisconnected) { break; }
-				
-				eventSet.resume();
-			}
-
 		}
 	}
 	
@@ -361,13 +341,6 @@ public class VMViewer {
 		classPrepareRequest.addClassFilter(className);
 		classPrepareRequest.setEnabled(true);
 	}
-
-	private void addClassViewerMultiVM(String className, VirtualMachine vmInstance) {
-		EventRequestManager evtReqManager = vmInstance.eventRequestManager();
-		ClassPrepareRequest classPrepareRequest = evtReqManager.createClassPrepareRequest();
-		classPrepareRequest.addClassFilter(className);
-		classPrepareRequest.setEnabled(true);
-	}
 	
 	/*
 	 * Adds a variable field viewer to the debug session
@@ -377,13 +350,6 @@ public class VMViewer {
 	 */
 	private void addFieldViewer(ReferenceType refType, String variable) {
 		EventRequestManager evtReqManager = this.vm.eventRequestManager();
-		Field field = refType.fieldByName(variable);
-		ModificationWatchpointRequest modificationWatchpointRequest = evtReqManager.createModificationWatchpointRequest(field);
-		modificationWatchpointRequest.setEnabled(true);
-	}
-	
-	private void addFieldViewerMultiVM(ReferenceType refType, String variable, VirtualMachine vmInstance) {
-		EventRequestManager evtReqManager = vmInstance.eventRequestManager();
 		Field field = refType.fieldByName(variable);
 		ModificationWatchpointRequest modificationWatchpointRequest = evtReqManager.createModificationWatchpointRequest(field);
 		modificationWatchpointRequest.setEnabled(true);
@@ -422,6 +388,262 @@ public class VMViewer {
 		BreakpointRequest breakpointRequest = evtReqManager.createBreakpointRequest(method.locationOfCodeIndex(methodLine));
 		breakpointRequest.setSuspendPolicy(BreakpointRequest.SUSPEND_ALL);
 		breakpointRequest.setEnabled(true);
+	}
+	
+	private class VMListenerVectorWatcher extends Thread {
+		
+		private VMAttach attacher;
+		
+		private String className;
+		private String variable;
+		private String method;
+		
+		public VMListenerVectorWatcher(VMAttach VMAttacher, VMViewer viewer){
+			
+			attacher = VMAttacher;
+			
+			this.className = viewer.listenerClassName;
+			this.variable = viewer.listenerVariable;
+			this.method = viewer.listenerMethod;
+		}
+		
+		@Override
+		public void run() {
+			while(true) {
+				//System.out.println("PROCESS VM VECTOR SIZE: " + attacher.listenerVMs.size());
+				if (attacher.listenerVMs.size() > 0) {
+					try {
+						processVM();
+					} catch (IOException ioe) {
+
+					} catch (InterruptedException ie) {
+
+					}
+
+					attacher.listenerVMs.remove(0);
+				}
+			}
+		}
+		
+		private void processVM() throws IOException, InterruptedException {
+
+			System.out.println("*** PROCESSING OLDEST UN-PROCESSED VM ***");
+
+			try {
+				if (variable == null) {
+					this.processBreakpointMethod();
+				}
+				else if (method == null) {
+					this.processWatchVariable();
+				} 
+			} catch (Exception e) {}
+		}
+		
+		private void processWatchVariable() throws InterruptedException {
+
+			VirtualMachine vmProcess = attacher.listenerVMs.get(0);
+			
+			List<ReferenceType> referenceTypes = vmProcess.classesByName(this.className);
+			for (ReferenceType refType : referenceTypes) {
+				addFieldViewerMultiVM(refType, this.variable, vmProcess);
+			}
+
+			this.addClassViewerMultiVM(this.className, vmProcess);
+
+			vmProcess.resume();
+
+			EventQueue eventQueue = vmProcess.eventQueue();
+			while (true) {
+				EventSet eventSet = eventQueue.remove();
+				for (Event event : eventSet) {
+					if (event instanceof VMDeathEvent || event instanceof VMDisconnectEvent) {
+						return;
+					} else if (event instanceof ClassPrepareEvent) {
+						ClassPrepareEvent classPrepEvent = (ClassPrepareEvent) event;
+						ReferenceType refType = classPrepEvent.referenceType();
+						addFieldViewerMultiVM(refType, this.variable, vmProcess);
+					} else if (event instanceof ModificationWatchpointEvent) {
+						ModificationWatchpointEvent modWatchEvent = (ModificationWatchpointEvent) event;
+						System.out.println("OLD VALUE=" + modWatchEvent.valueCurrent());
+						System.out.println("NEW VALUE=" + modWatchEvent.valueToBe());
+						System.out.println();
+
+						this.objectRefRecurse(modWatchEvent.valueToBe(), "", RECURSION_DEPTH_DEFAULT);
+					} 
+				}
+
+				eventSet.resume();
+			}
+
+		}
+		
+		private void processBreakpointMethod() 
+				throws IOException, 
+				InterruptedException, 
+				AbsentInformationException, 
+				IncompatibleThreadStateException {
+
+			VirtualMachine vmProcess = attacher.listenerVMs.get(0);
+			
+			List<ReferenceType> referenceTypes = vmProcess.classesByName(this.className);
+			for (ReferenceType refType : referenceTypes) {
+				EventRequestManager evtReqManager = vmProcess.eventRequestManager();
+				
+				List<Method> methods = refType.methodsByName(this.method);
+				
+				for (Method methodRefType : methods) {
+					BreakpointRequest breakpointRequest = evtReqManager.createBreakpointRequest(methodRefType.location());
+					breakpointRequest.setSuspendPolicy(BreakpointRequest.SUSPEND_ALL);
+					breakpointRequest.setEnabled(true);
+				}
+				
+			}
+
+			this.addClassViewerMultiVM(this.className, vmProcess);
+			
+			vmProcess.resume();
+
+			EventQueue eventQueue = vmProcess.eventQueue();
+			while (true) {
+				EventSet eventSet = eventQueue.remove();
+				for (Event event : eventSet) {
+					if (event instanceof VMDeathEvent || event instanceof VMDisconnectEvent) {
+						return;
+					} else if (event instanceof ClassPrepareEvent) {
+						vmProcess.suspend();
+						
+						ClassPrepareEvent classPrepEvent = (ClassPrepareEvent) event;
+						ReferenceType refType = classPrepEvent.referenceType();
+
+						EventRequestManager evtReqManager = vmProcess.eventRequestManager();
+						List<Method> methods = refType.methodsByName(this.method);
+						
+						for (Method methodRefType : methods) {
+							BreakpointRequest breakpointRequest = evtReqManager.createBreakpointRequest(methodRefType.location());
+							breakpointRequest.setSuspendPolicy(BreakpointRequest.SUSPEND_ALL);
+							breakpointRequest.setEnabled(true);
+						}
+						
+						vmProcess.resume();
+					} else if (event instanceof BreakpointEvent) {
+						vmProcess.suspend();
+						
+						BreakpointEvent breakpointEvent = (BreakpointEvent) event;
+						System.out.println("BREAKPOINT: " + breakpointEvent.toString());
+						System.out.println("BP LINE NUMBER: " + breakpointEvent.location().lineNumber());
+						System.out.println("BP SOURCE NAME: " + breakpointEvent.location().sourceName());
+						System.out.println();
+						
+						ThreadReference threadRef = breakpointEvent.thread();
+						threadRef.suspend();
+						StackFrame stackFrame = threadRef.frame(0);
+						
+						List<LocalVariable> visibleVars = stackFrame.visibleVariables();
+						for (LocalVariable visibleVar: visibleVars) {
+							System.out.println("VARIABLE NAME: " + visibleVar.name());
+							Value val = stackFrame.getValue(visibleVar);
+							
+							this.objectRefRecurse(val, "", RECURSION_DEPTH_DEFAULT);
+						}
+						
+						threadRef.resume();
+						vmProcess.resume();
+					}
+				}
+				eventSet.resume();
+			}
+		}
+		
+		private void addFieldViewerMultiVM(ReferenceType refType, String variable, VirtualMachine vmInstance) {
+			EventRequestManager evtReqManager = vmInstance.eventRequestManager();
+			Field field = refType.fieldByName(variable);
+			ModificationWatchpointRequest modificationWatchpointRequest = evtReqManager.createModificationWatchpointRequest(field);
+			modificationWatchpointRequest.setEnabled(true);
+		}
+
+		private void addClassViewerMultiVM(String className, VirtualMachine vmInstance) {
+			EventRequestManager evtReqManager = vmInstance.eventRequestManager();
+			ClassPrepareRequest classPrepareRequest = evtReqManager.createClassPrepareRequest();
+			classPrepareRequest.addClassFilter(className);
+			classPrepareRequest.setEnabled(true);
+		}
+		
+		/*
+		 * A recursive method that takes a stack value and prints some information
+		 * about it to stdout.
+		 * 
+		 * @param val the stack value to explore.
+		 * @param tabIndent the accumulated indentation for the std output
+		 * @param recursionDepth the remaining depth of the stack to recurse.
+		 */
+		private void objectRefRecurse(Value val, String tabIndent, int recursionDepth) {
+			String value = "";
+			
+			this.printValue(val, tabIndent);
+
+			if (val instanceof StringReference) {
+				value = ((StringReference)val).value();
+				System.out.println(tabIndent + "StringReference VALUE: " + value);
+			}
+			else if (val instanceof ArrayReference) {
+				value = ((ArrayReference)val).toString();
+				System.out.println(tabIndent + "ArrayReference VALUE: " + value);
+			}
+			else if (val instanceof ObjectReference) {
+				value = ((ObjectReference)val).toString();
+				System.out.println(tabIndent + "OBJECT VALUE: " + value);
+				List<Field> childFields = ((ObjectReference)val).referenceType().allFields();
+				for (Field childField: childFields) {
+					System.out.println(tabIndent + "CHILD FIELD NAME: " + childField.name() + " - " + childField.toString());
+					Value fieldValue = ((ObjectReference)val).getValue(childField);
+
+					this.printValue(fieldValue, tabIndent);
+
+					if (fieldValue instanceof ObjectReference) {
+						if (recursionDepth > 0) {
+							tabIndent = tabIndent + "\t";
+							recursionDepth = recursionDepth - 1;
+							objectRefRecurse(fieldValue, tabIndent, recursionDepth);
+						}
+						else {
+							value = ((ObjectReference)val).toString();
+							System.out.println(tabIndent + "OBJECT VALUE: " + value);
+						}
+					}
+				}
+			}
+		}
+		
+		private void printValue(Value val, String tabIndent) {
+			if (val instanceof BooleanValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((BooleanValue)val).toString());
+			}
+			else if (val instanceof ByteValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((ByteValue)val).toString());
+			}
+			else if (val instanceof CharValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((CharValue)val).toString());
+			}
+			else if (val instanceof DoubleValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((DoubleValue)val).toString());
+			}
+			else if (val instanceof FloatValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((FloatValue)val).toString());
+			}
+			else if (val instanceof IntegerValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((IntegerValue)val).toString());
+			}
+			else if (val instanceof LongValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((LongValue)val).toString());
+			}
+			else if (val instanceof ShortValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((ShortValue)val).toString());
+			}
+			else if (val instanceof VoidValue) {
+				System.out.println(tabIndent + "\tVALUE = " + ((VoidValue)val).toString());
+			}
+		}
+		
 	}
 	
 }

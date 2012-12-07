@@ -18,6 +18,7 @@ import com.sun.jdi.connect.Connector.IntegerArgument;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Vector;
 
 /*
  * A class which allows the framework to connect to a debuggable instance of
@@ -28,6 +29,8 @@ public class VMAttach {
 	// The debug port we are going to attach to.
 	private int debug_port;
 	
+	public Vector<VirtualMachine> listenerVMs;
+	
 	/*
 	 * Class constructor.
 	 * 
@@ -37,6 +40,8 @@ public class VMAttach {
 	 */
 	public VMAttach(int port) {
 		debug_port = port;
+		
+		listenerVMs = new Vector<VirtualMachine>(1);
 	}
 	
 	/*
@@ -61,7 +66,7 @@ public class VMAttach {
 	 * 
 	 * @return VirtualMachine the VM hosting the debug port.
 	 */
-	public VirtualMachine[] listen() throws IOException {
+	public void listen() throws IOException {
 		ListeningConnector connector = getListeningConnector();
 		
 		Map<String, Argument> map = connector.defaultArguments();
@@ -81,8 +86,9 @@ public class VMAttach {
 		}
 		*/
 
-		VirtualMachine vmList[] = new VirtualMachine[2];
+		//VirtualMachine vmList[] = new VirtualMachine[2];
 		
+		/*
 		try {
 			for (int i = 0; i < 2; i++) {
 				vmList[i] = connector.accept(map);
@@ -91,8 +97,12 @@ public class VMAttach {
 		catch (IllegalConnectorArgumentsException e) {
 			throw new IllegalStateException(e);
 		}
+		*/
 		
-		return vmList;
+		VMListenerThread listener = new VMListenerThread(map, connector);
+		listener.start();
+		
+		//return vmList;
 	}
 
 	/*
@@ -159,15 +169,33 @@ public class VMAttach {
 		return connector.attach(arguments);
 	}
 
-	private class Listener extends Thread {
+	private class VMListenerThread extends Thread {
 
-		public Listener() {
-			
+		private Map<String, Argument> listenerMap;
+		ListeningConnector VMConnector;
+		
+		public VMListenerThread(Map<String, Argument> map, ListeningConnector connector) {
+			listenerMap = map;
+			VMConnector = connector;
 		}
 		
 		@Override
 		public void run() {
-			
+			synchronized(this) {
+				try {
+					while (true) {
+						listenerVMs.add(VMConnector.accept(listenerMap));
+						System.out.println("*** NEW VM ATTACHED ***");
+						System.out.println("--- VM Vector size: " + listenerVMs.size());
+					}
+				}
+				catch (IllegalConnectorArgumentsException e) {
+					throw new IllegalStateException(e);
+				}
+				catch (IOException e) {
+					throw new IllegalStateException(e);
+				}
+			}
 		}
 	}
 
