@@ -4,7 +4,7 @@
  * A set of JUnit tests that act as wrappers to run the hadooptest
  * programmatic debugger.
  * 
- * 2012.10.08 - Rick Bernotas - Initial version.
+ * Rick Bernotas (rbernota)
  */
 
 package hadooptest;
@@ -32,7 +32,7 @@ public class VMWatcher {
 	@Test
 	public void listenForVMAndWatch() throws Exception {
 		VMViewer debugger = new VMViewer(true);
-		debugger.watchVariable("org.apache.hadoop.mapreduce.Job", "state");
+		debugger.watchVariableMultiVM("org.apache.hadoop.mapreduce.Job", "state");
 	}
 
 	@Test

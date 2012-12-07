@@ -1,5 +1,7 @@
 /*
  * YAHOO!
+ * 
+ * Rick Bernotas (rbernota)
  */
 
 package hadooptest.cluster;
@@ -59,7 +61,7 @@ public class VMAttach {
 	 * 
 	 * @return VirtualMachine the VM hosting the debug port.
 	 */
-	public VirtualMachine listen() throws IOException {
+	public VirtualMachine[] listen() throws IOException {
 		ListeningConnector connector = getListeningConnector();
 		
 		Map<String, Argument> map = connector.defaultArguments();
@@ -70,12 +72,27 @@ public class VMAttach {
 		IntegerArgument listenTimeout = (IntegerArgument) map.get("timeout");
 		listenTimeout.setValue(0);
 		
+		/*
 		try {
 			connector.startListening(map);
 			return connector.accept(map); 
 		} catch (IllegalConnectorArgumentsException e) {
 			throw new IllegalStateException(e);
 		}
+		*/
+
+		VirtualMachine vmList[] = new VirtualMachine[2];
+		
+		try {
+			for (int i = 0; i < 2; i++) {
+				vmList[i] = connector.accept(map);
+			}
+		}
+		catch (IllegalConnectorArgumentsException e) {
+			throw new IllegalStateException(e);
+		}
+		
+		return vmList;
 	}
 
 	/*
@@ -141,4 +158,18 @@ public class VMAttach {
 
 		return connector.attach(arguments);
 	}
+
+	private class Listener extends Thread {
+
+		public Listener() {
+			
+		}
+		
+		@Override
+		public void run() {
+			
+		}
+	}
+
 }
+

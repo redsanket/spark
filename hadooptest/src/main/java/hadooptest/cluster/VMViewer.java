@@ -1,5 +1,7 @@
 /*
  * YAHOO!
+ * 
+ *  Rick Bernotas (rbernota)
  */
 
 package hadooptest.cluster;
@@ -61,6 +63,8 @@ public class VMViewer {
 	// The attaching VM for the debug session.
 	private VirtualMachine vm;
 	
+	public VirtualMachine vms[];
+	
 	/*
 	 * Class constructor.
 	 * 
@@ -68,7 +72,7 @@ public class VMViewer {
 	 */
 	public VMViewer(boolean isListener) throws IOException {
 		if (isListener) {
-			this.vm = new VMAttach(DEFAULT_DEBUG_LISTEN_PORT).listen();
+			this.vms = new VMAttach(DEFAULT_DEBUG_LISTEN_PORT).listen();
 		}
 		else {
 			this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
@@ -84,7 +88,7 @@ public class VMViewer {
 	 */
 	public VMViewer(boolean isListener, int port) throws IOException {
 		if (isListener) {
-			this.vm = new VMAttach(port).listen();
+			this.vms = new VMAttach(port).listen();
 		}
 		else {
 			this.vm = new VMAttach(port).connect();
@@ -134,6 +138,56 @@ public class VMViewer {
 				} 
 			}
 			eventSet.resume();
+		}
+	}
+	
+	public void watchVariableMultiVM(String className, String variable) 
+			throws IOException, 
+			InterruptedException 
+			{
+
+		int vmsSize = vms.length;
+		for (int i = 0; i < vmsSize; i++) {
+
+			System.out.println("*** THIS IS VM NUMBER " + i + " ***");
+			
+			List<ReferenceType> referenceTypes = vms[i].classesByName(className);
+			for (ReferenceType refType : referenceTypes) {
+				addFieldViewerMultiVM(refType, variable, vms[i]);
+			}
+
+			this.addClassViewerMultiVM(className, vms[i]);
+
+			vms[i].resume();
+
+			boolean vmDisconnected = false;
+			EventQueue eventQueue = vms[i].eventQueue();
+			while (true) {
+				EventSet eventSet = eventQueue.remove();
+				for (Event event : eventSet) {
+					if (event instanceof VMDeathEvent || event instanceof VMDisconnectEvent) {
+						//return;
+						vmDisconnected = true;
+						break;
+					} else if (event instanceof ClassPrepareEvent) {
+						ClassPrepareEvent classPrepEvent = (ClassPrepareEvent) event;
+						ReferenceType refType = classPrepEvent.referenceType();
+						addFieldViewerMultiVM(refType, variable, vms[i]);
+					} else if (event instanceof ModificationWatchpointEvent) {
+						ModificationWatchpointEvent modWatchEvent = (ModificationWatchpointEvent) event;
+						System.out.println("OLD VALUE=" + modWatchEvent.valueCurrent());
+						System.out.println("NEW VALUE=" + modWatchEvent.valueToBe());
+						System.out.println();
+
+						this.objectRefRecurse(modWatchEvent.valueToBe(), "", RECURSION_DEPTH_DEFAULT);
+					} 
+				}
+				
+				if (vmDisconnected) { break; }
+				
+				eventSet.resume();
+			}
+
 		}
 	}
 	
@@ -308,6 +362,13 @@ public class VMViewer {
 		classPrepareRequest.setEnabled(true);
 	}
 
+	private void addClassViewerMultiVM(String className, VirtualMachine vmInstance) {
+		EventRequestManager evtReqManager = vmInstance.eventRequestManager();
+		ClassPrepareRequest classPrepareRequest = evtReqManager.createClassPrepareRequest();
+		classPrepareRequest.addClassFilter(className);
+		classPrepareRequest.setEnabled(true);
+	}
+	
 	/*
 	 * Adds a variable field viewer to the debug session
 	 * 
@@ -316,6 +377,13 @@ public class VMViewer {
 	 */
 	private void addFieldViewer(ReferenceType refType, String variable) {
 		EventRequestManager evtReqManager = this.vm.eventRequestManager();
+		Field field = refType.fieldByName(variable);
+		ModificationWatchpointRequest modificationWatchpointRequest = evtReqManager.createModificationWatchpointRequest(field);
+		modificationWatchpointRequest.setEnabled(true);
+	}
+	
+	private void addFieldViewerMultiVM(ReferenceType refType, String variable, VirtualMachine vmInstance) {
+		EventRequestManager evtReqManager = vmInstance.eventRequestManager();
 		Field field = refType.fieldByName(variable);
 		ModificationWatchpointRequest modificationWatchpointRequest = evtReqManager.createModificationWatchpointRequest(field);
 		modificationWatchpointRequest.setEnabled(true);
