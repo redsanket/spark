@@ -35,7 +35,7 @@ public class TestSession {
 		
 		File conf_location = null;
 		
-		if(userName == "yahoo") {
+		if(userName.equals("yahoo")) {
 			// We are using a headless build user, so pull the configuration
 			// from somewhere other than the user home directory.
 			conf_location = new File("/tmp/hadooptest/hadooptest.conf");
