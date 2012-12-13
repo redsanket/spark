@@ -30,16 +30,26 @@ public class TestSession {
 		String userHome = System.getProperty("user.home");
 		System.out.println("User home: " + userHome);
 		
+		String userName = System.getProperty("user.name");
+		System.out.println("User name: " + userName);
+		
 		File conf_location = null;
 		
-		if (osName.contains("Mac OS X")) {
-			conf_location = new File(userHome + "/hadooptest.conf");
-		}
-		else if (osName.contains("Linux")) {
-			conf_location = new File(userHome + "/hadooptest.conf");
+		if(userName == "yahoo") {
+			// We are using a headless build user, so pull the configuration
+			// from somewhere other than the user home directory.
+			conf_location = new File("/tmp/hadooptest/hadooptest.conf");
 		}
 		else {
-			System.out.println("OS is not supported by hadooptest: "  + osName);
+			if (osName.contains("Mac OS X")) {
+				conf_location = new File(userHome + "/hadooptest.conf");
+			}
+			else if (osName.contains("Linux")) {
+				conf_location = new File(userHome + "/hadooptest.conf");
+			}
+			else {
+				System.out.println("OS is not supported by hadooptest: "  + osName);
+			}
 		}
 		
 		conf.load(conf_location);
