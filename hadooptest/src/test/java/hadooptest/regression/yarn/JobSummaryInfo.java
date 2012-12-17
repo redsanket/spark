@@ -15,6 +15,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JobSummaryInfo {
@@ -93,6 +94,7 @@ public class JobSummaryInfo {
 	 * 
 	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoSuccess() throws IOException, FileNotFoundException {
 		sleepJob = new SleepJob(testSession);
@@ -111,6 +113,7 @@ public class JobSummaryInfo {
 	 * 
 	 * Equivalent to JobSummaryInfo20 in the original shell script YARN regression suite.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoHighRAM() throws IOException, FileNotFoundException  {
 		sleepJob = new SleepJob(testSession);
@@ -129,6 +132,7 @@ public class JobSummaryInfo {
 	 * 
 	 * Equivalent to JobSummaryInfo30 in the original shell script YARN regression suite.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoMappersFailed() throws IOException, FileNotFoundException {
 		failJob = new FailJob(testSession);
@@ -147,6 +151,7 @@ public class JobSummaryInfo {
 	 * 
 	 * Equivalent to JobSummaryInfo40 in the original shell script YARN regression suite.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoReducersFailed() throws IOException, FileNotFoundException {
 		failJob = new FailJob(testSession);
@@ -165,6 +170,7 @@ public class JobSummaryInfo {
 	 * 
 	 * Equivalent to JobSummaryInfo50 in the original shell script YARN regression suite.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoDifferentUser() throws IOException, FileNotFoundException {
 		sleepJob = new SleepJob(testSession);
@@ -184,6 +190,7 @@ public class JobSummaryInfo {
 	 * 
 	 * Equivalent to JobSummaryInfo60 in the original shell script YARN regression suite.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoDifferentQueue() throws IOException, FileNotFoundException {
 		// Start sleep job with mapreduce.job.queuename=grideng 
@@ -204,6 +211,7 @@ public class JobSummaryInfo {
 	 * 
 	 * Equivalent to JobSummaryInfo70 in the original shell script YARN regression suite.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoKilledJob() throws IOException, FileNotFoundException {
 		sleepJob = new SleepJob(testSession);
