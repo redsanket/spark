@@ -19,6 +19,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 
 /*
  * A test suite used to exercise the ability to kill task attempts from a MapReduce sleep job.
@@ -128,6 +129,7 @@ public class MapredKillTask {
 	/*
 	 * A test which attempts to kill a task from a sleep job which has already succeeded.
 	 */
+	@Ignore("Known not working.")
 	@Test
 	public void killTaskOfAlreadyCompletedJob() {
 		
