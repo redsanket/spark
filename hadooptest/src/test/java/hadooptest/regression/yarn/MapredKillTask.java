@@ -118,7 +118,6 @@ public class MapredKillTask {
 	/*
 	 * A test which attempts to kill a task from a sleep job which has failed.
 	 */
-	@Ignore("Known not working.")
 	@Test
 	public void killTaskOfAlreadyFailedJob() {
 		assertTrue("Was not able to fail the job.", 
@@ -130,7 +129,6 @@ public class MapredKillTask {
 	/*
 	 * A test which attempts to kill a task from a sleep job which has already succeeded.
 	 */
-	@Ignore("Known not working.")
 	@Test
 	public void killTaskOfAlreadyCompletedJob() {
 		
