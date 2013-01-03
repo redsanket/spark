@@ -241,12 +241,12 @@ public abstract class PseudoDistributedJob implements Job {
 	}
 	
 	/*
-	 * Waits for the specified number of seconds for the job to 
+	 * Waits for the specified number of minutes for the job to 
 	 * succeed, and returns true for success.
 	 * 
-	 * @param seconds The number of seconds to wait for the success state.
+	 * @param seconds The number of minutes to wait for the success state.
 	 */
-	public boolean waitForSuccess(int seconds) {
+	public boolean waitForSuccess(int minutes) {
 		// Runs Hadoop to check for the SUCCEEDED state of the job 
 		
 		// check for job success here
@@ -277,7 +277,7 @@ public abstract class PseudoDistributedJob implements Job {
 		Pattern mapredPatternRunning = Pattern.compile(mapredPatternStrRunning);
 
 		// Give the sleep job 15 minutes to complete
-		for (int i = 0; i <= 150; i++) {
+		for (int i = 0; i <= (minutes * 6); i++) {
 		
 			try {
 				mapredProc = Runtime.getRuntime().exec(mapredCmd);

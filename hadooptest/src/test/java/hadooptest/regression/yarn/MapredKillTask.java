@@ -133,7 +133,7 @@ public class MapredKillTask {
 	public void killTaskOfAlreadyCompletedJob() {
 		
 		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess(60));
+				sleepJob.waitForSuccess(1));
 		
 		String taskID = sleepJob.getMapTaskAttemptID();
 		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
