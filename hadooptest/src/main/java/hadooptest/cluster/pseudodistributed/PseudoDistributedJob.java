@@ -330,7 +330,7 @@ public abstract class PseudoDistributedJob implements Job {
 			Util.sleep(10);
 		}
 
-		TSM.logger.error("JOB " + this.ID + " didn't SUCCEED within the 5 minute timeout window.");
+		TSM.logger.error("JOB " + this.ID + " didn't SUCCEED within the timeout window.");
 		return false;
 	}
 

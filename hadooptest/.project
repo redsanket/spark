@@ -16,7 +16,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/mvn package -DskipTests.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/mvn package -Pdist -Dtar.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
