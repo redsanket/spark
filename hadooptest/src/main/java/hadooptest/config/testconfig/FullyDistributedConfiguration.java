@@ -11,17 +11,17 @@ package hadooptest.config.testconfig;
 
 import hadooptest.config.TestConfiguration;
 
-public class FullydistributedConfiguration extends TestConfiguration
+public class FullyDistributedConfiguration extends TestConfiguration
 {
 
-   public FullydistributedConfiguration()
+   public FullyDistributedConfiguration()
    {
       super(new StandaloneConfiguration());
 
       initDefaults();
    }
 
-   public FullydistributedConfiguration(boolean loadDefaults)
+   public FullyDistributedConfiguration(boolean loadDefaults)
    {
       super(new StandaloneConfiguration()); 
 
