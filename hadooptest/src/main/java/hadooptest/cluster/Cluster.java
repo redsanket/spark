@@ -40,4 +40,12 @@ public interface Cluster {
     * @return ClusterState the state of the cluster.
     **/
    public ClusterState getState();
+
+   /**
+    * Get the current state of the cluster.
+    * 
+    * @return ClusterState the state of the cluster.
+    **/
+   public String getVersion();
+
 }

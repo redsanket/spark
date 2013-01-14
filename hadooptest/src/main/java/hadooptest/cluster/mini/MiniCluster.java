@@ -18,6 +18,7 @@ public abstract class MiniCluster implements Cluster {
 
    protected MiniclusterConfiguration conf;
    protected ClusterState cluster_state;
+   protected String cluster_version = "";
 
    public void start() throws IOException {
 
@@ -55,6 +56,10 @@ public abstract class MiniCluster implements Cluster {
 
    public ClusterState getState() {
       return this.cluster_state;
+   }
+   
+   public String getVersion() {
+	   	return this.cluster_version;
    }
 
    protected abstract void startMiniClusterService(MiniclusterConfiguration conf) throws IOException;

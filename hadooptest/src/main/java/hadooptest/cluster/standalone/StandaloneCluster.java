@@ -15,6 +15,9 @@ public class StandaloneCluster implements Cluster {
 	// The state of the pseudodistributed cluster.
 	protected ClusterState cluster_state;
 	
+	// The version of the cluster.
+	protected String cluster_version = "";
+	
 	/*
 	 * Class constructor.
 	 * 
@@ -88,6 +91,10 @@ public class StandaloneCluster implements Cluster {
 	 **/
 	public ClusterState getState() {
 		return this.cluster_state;
+	}
+
+	public String getVersion() {
+		return this.cluster_version;
 	}
 
 }

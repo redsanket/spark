@@ -1,17 +1,7 @@
-/*
- * YAHOO!
- */
-
-package hadooptest.cluster.pseudodistributed;
+package hadooptest.cluster.fullydistributed;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import hadooptest.cluster.Cluster;
-import hadooptest.cluster.ClusterState;
-import hadooptest.config.testconfig.PseudoDistributedConfiguration;
-import hadooptest.Util;
-import hadooptest.TestSession;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,19 +9,19 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/* 
- * A class that is the base representation of any pseudodistributed cluster.
- */
-public class PseudoDistributedCluster implements Cluster {
+import hadooptest.TestSession;
+import hadooptest.Util;
+import hadooptest.cluster.Cluster;
+import hadooptest.cluster.ClusterState;
+import hadooptest.config.testconfig.FullyDistributedConfiguration;
+
+public class FullyDistributedCluster implements Cluster {
 
 	// The base pseudodistributed configuration.
-	protected PseudoDistributedConfiguration conf;
+	protected FullyDistributedConfiguration conf;
 	
 	// The state of the pseudodistributed cluster.
 	protected ClusterState cluster_state;
-	
-	// The version of the cluster.
-	protected String cluster_version = "";
 
 	private static TestSession TSM;
 	
@@ -43,11 +33,11 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
 	 */
-	public PseudoDistributedCluster(TestSession testSession) throws IOException
+	public FullyDistributedCluster(TestSession testSession) throws IOException
 	{
 		TSM = testSession;
 		
-		this.conf = new PseudoDistributedConfiguration(testSession);
+		this.conf = new FullyDistributedConfiguration(testSession);
 		
 		this.initTestSessionConf();
 		
@@ -59,7 +49,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * Accepts a custom configuration, and assumed you will write it to disk.
 	 */
-	public PseudoDistributedCluster(TestSession testSession, PseudoDistributedConfiguration conf)
+	public FullyDistributedCluster(TestSession testSession, FullyDistributedConfiguration conf)
 	{
 		TSM = testSession;
 		this.conf = conf;
@@ -161,7 +151,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
 	 */
-	public void setConf(PseudoDistributedConfiguration conf) {
+	public void setConf(FullyDistributedConfiguration conf) {
 		this.conf = conf;
 	}
 
@@ -170,7 +160,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * @return PseudoDistributedConfiguration the configuration for the cluster instance.
 	 */
-	public PseudoDistributedConfiguration getConf() {
+	public FullyDistributedConfiguration getConf() {
 		return this.conf;
 	}
 
@@ -267,9 +257,4 @@ public class PseudoDistributedCluster implements Cluster {
 		TSM.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
 		return false;
 	}
-
-	public String getVersion() {
-		return this.cluster_version;
-	}		
-
 }
