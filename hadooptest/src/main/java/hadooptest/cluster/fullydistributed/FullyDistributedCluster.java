@@ -1,8 +1,5 @@
 package hadooptest.cluster.fullydistributed;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import hadooptest.TestSession;
-import hadooptest.Util;
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
@@ -71,7 +67,7 @@ public class FullyDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#start()
 	 */
 	public void start() throws IOException {
-
+/*
 		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
 		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
 		String start_yarn = HADOOP_INSTALL + "/sbin/start-yarn.sh --config " + CONFIG_BASE_DIR;
@@ -100,6 +96,7 @@ public class FullyDistributedCluster implements Cluster {
 		
 		TSM.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
 		Util.sleep(30);
+*/
 	}
 
 	/* 
@@ -110,6 +107,7 @@ public class FullyDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#stop()
 	 */
 	public void stop() throws IOException {
+/*
 		String stop_dfs = HADOOP_INSTALL + "/sbin/stop-dfs.sh";
 		String stop_yarn = HADOOP_INSTALL + "/sbin/stop-yarn.sh";
 		String stop_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
@@ -128,6 +126,7 @@ public class FullyDistributedCluster implements Cluster {
 		assertFalse("The DataNode was not stopped.", verifyJpsProcRunning("DataNode"));
 		assertFalse("The ResourceManager was not stopped.", verifyJpsProcRunning("ResourceManager"));
 		assertFalse("The JobHistoryServer was not stopped.", verifyJpsProcRunning("JobHistoryServer"));
+*/
 	}
 
 	/*
@@ -174,6 +173,16 @@ public class FullyDistributedCluster implements Cluster {
 	 */
 	public ClusterState getState() {
 		return this.cluster_state;
+	}
+	
+	/*
+	 * Returns the version of the fully distributed hadoop cluster being used.
+	 * 
+	 * (non-Javadoc)
+	 * @see hadooptest.cluster.Cluster#getVersion()
+	 */
+	public String getVersion() {
+		return "";
 	}
 
 	/*
