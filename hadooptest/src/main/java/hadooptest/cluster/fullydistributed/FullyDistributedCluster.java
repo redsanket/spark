@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -188,17 +189,17 @@ public class FullyDistributedCluster implements Cluster {
      * @see hadooptest.cluster.Cluster#getVersion()
      */
     public String getVersion() {
-            // Get Cluster Version if undefined
-            if (cluster_version.equals("")) {
-            	// this.cluster_version = "Hadoop 0.23.6";
-            	// Call hadoop version to fetch the version
-            	String cmd = HADOOP_INSTALL + "/share/hadoop/bin/hadoop --config " + 
-            			CONFIG_BASE_DIR + " version";
-            	this.cluster_version = runProc(cmd);
-            }	
-            return this.cluster_version;
-    }
-	
+        // Get Cluster Version if undefined
+        if (cluster_version.equals("")) {
+        	// Call hadoop version to fetch the version
+        	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
+        			"--config", CONFIG_BASE_DIR, "version" };
+        	this.cluster_version = runProcBuilder(cmd);
+        }	
+        return this.cluster_version;
+}
+    
+    
 	/*
 	 * Initialize the test session configuration properties necessary to use the 
 	 * pseudo distributed cluster instance.
@@ -213,22 +214,20 @@ public class FullyDistributedCluster implements Cluster {
 	 * 
 	 * @param command The system command to run.
 	 */
-	private static String runProc(String command) {
+	private static String runProcBuilder(String[] commandArray) {
 		Process proc = null;
-
-		TSM.logger.debug(command);
-		StringBuilder sb = new StringBuilder();
-		String line = null;
+		TSM.logger.debug(commandArray);
+		String output = null;
+		String error = null;
 		try {
-			proc = Runtime.getRuntime().exec(command);
-			BufferedReader reader=new BufferedReader(new InputStreamReader(proc.getInputStream())); 
-			line=reader.readLine(); 
-			while(line!=null) 
-			{ 
-				TSM.logger.debug(line);
-		        sb.append(line).append("\n");
-				line=reader.readLine();
-			} 
+			ProcessBuilder pb = new ProcessBuilder(commandArray);
+	        proc = pb.start();
+	        output = loadStream(proc.getInputStream());
+	        error = loadStream(proc.getErrorStream());
+	        int rc = proc.waitFor();
+	        TSM.logger.debug("Process ended with rc=" + rc);
+	        TSM.logger.debug("Standard Output:" + output);
+	        TSM.logger.debug("Standard Error:" + error);						
 		}
 		catch (Exception e) {
 			if (proc != null) {
@@ -236,9 +235,43 @@ public class FullyDistributedCluster implements Cluster {
 			}
 			e.printStackTrace();
 		}
-		return sb.toString();
+		return output;
+	}
+	
+    private static String loadStream(InputStream is) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+			TSM.logger.debug(line);
+            sb.append(line).append("\n");
+        }
+        return sb.toString();
+    }
+    
+	/*
+	 * Run a local system command.
+	 * 
+	 * @param command The system command to run.
+	 */
+	private static String runProc(String command) {
+		Process proc = null;
+		TSM.logger.debug(command);
+		String output = null;
+		try {
+			proc = Runtime.getRuntime().exec(command);
+	        output = loadStream(proc.getInputStream());
+		}
+		catch (Exception e) {
+			if (proc != null) {
+				proc.destroy();
+			}
+			e.printStackTrace();
+		}
+		return output;
 	}
 
+	
 	/*
 	 * Verifies, with jps, that a given process name is running.
 	 * 
