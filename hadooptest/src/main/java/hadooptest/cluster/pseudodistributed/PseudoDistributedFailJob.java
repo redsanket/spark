@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import hadooptest.TestSession;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedJob;
 
-public class FailJob extends PseudoDistributedJob {
+public class PseudoDistributedFailJob extends PseudoDistributedJob {
 	
 	private String HADOOP_VERSION;
 	private String HADOOP_INSTALL;
@@ -20,7 +20,7 @@ public class FailJob extends PseudoDistributedJob {
 	/*
 	 * Class constructor.
 	 */
-	public FailJob(TestSession testSession) {
+	public PseudoDistributedFailJob(TestSession testSession) {
 		super(testSession);
 		
 		TSM = testSession;
