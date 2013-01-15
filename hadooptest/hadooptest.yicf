@@ -30,6 +30,7 @@ file - - - etc/hadooptest/java/lib/ ./target/hadooptest-1.0-SNAPSHOT.jar
 ###
 # Dependencies
 ###
+YINST requires pkg yjava_junit
 
 ###
 # YINST Directives
