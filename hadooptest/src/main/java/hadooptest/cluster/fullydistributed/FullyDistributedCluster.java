@@ -23,6 +23,9 @@ public class FullyDistributedCluster implements Cluster {
 	// The state of the pseudodistributed cluster.
 	protected ClusterState cluster_state;
 
+    // The Hadoop version on the fully distributed cluster.
+    protected String cluster_version = "";
+
 	private static TestSession TSM;
 	
 	private String HADOOP_INSTALL;
@@ -41,7 +44,7 @@ public class FullyDistributedCluster implements Cluster {
 		
 		this.initTestSessionConf();
 		
-		this.conf.write();
+		// this.conf.write();
 	}
 
 	/*
@@ -176,6 +179,26 @@ public class FullyDistributedCluster implements Cluster {
 		return this.cluster_state;
 	}
 
+    /*
+     * Returns the Hadoop version for the fully distributed cluster.
+     * 
+     * @return String the Hadoop version for the fully distributed cluster.
+     * 
+     * (non-Javadoc)
+     * @see hadooptest.cluster.Cluster#getVersion()
+     */
+    public String getVersion() {
+            // Get Cluster Version if undefined
+            if (cluster_version.equals("")) {
+            	// this.cluster_version = "Hadoop 0.23.6";
+            	// Call hadoop version to fetch the version
+            	String cmd = HADOOP_INSTALL + "/share/hadoop/bin/hadoop --config " + 
+            			CONFIG_BASE_DIR + " version";
+            	this.cluster_version = runProc(cmd);
+            }	
+            return this.cluster_version;
+    }
+	
 	/*
 	 * Initialize the test session configuration properties necessary to use the 
 	 * pseudo distributed cluster instance.
@@ -190,18 +213,20 @@ public class FullyDistributedCluster implements Cluster {
 	 * 
 	 * @param command The system command to run.
 	 */
-	private static void runProc(String command) {
+	private static String runProc(String command) {
 		Process proc = null;
 
 		TSM.logger.debug(command);
-
+		StringBuilder sb = new StringBuilder();
+		String line = null;
 		try {
 			proc = Runtime.getRuntime().exec(command);
 			BufferedReader reader=new BufferedReader(new InputStreamReader(proc.getInputStream())); 
-			String line=reader.readLine(); 
+			line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line); 				
+				TSM.logger.debug(line);
+		        sb.append(line).append("\n");
 				line=reader.readLine();
 			} 
 		}
@@ -211,6 +236,7 @@ public class FullyDistributedCluster implements Cluster {
 			}
 			e.printStackTrace();
 		}
+		return sb.toString();
 	}
 
 	/*
