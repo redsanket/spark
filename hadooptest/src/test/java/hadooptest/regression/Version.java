@@ -26,7 +26,7 @@ public class Version {
 		testSession = new TestSession();
 		
 		cluster = new FullyDistributedCluster(testSession);
-		cluster.start();
+		// cluster.start();
 	}
 		
 	/*
@@ -34,8 +34,8 @@ public class Version {
 	 */
 	@AfterClass
 	public static void stopCluster() throws IOException {
-		cluster.stop();
-		cluster.getConf().cleanup();
+		// cluster.stop();
+		// cluster.getConf().cleanup();
 	}
 	
 	
@@ -57,7 +57,9 @@ public class Version {
 	
 	@Test
 	public void printHadoopVersion() {
-		
+		String version = cluster.getVersion();
+		System.out.println("Hadoop Version = <" + version + ">");
 	}
+	
 	
 }
