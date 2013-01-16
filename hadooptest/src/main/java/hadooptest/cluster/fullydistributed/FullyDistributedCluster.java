@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -197,8 +198,19 @@ public class FullyDistributedCluster implements Cluster {
         	this.cluster_version = runProcBuilder(cmd);
         }	
         return this.cluster_version;
-}
+    }
     
+    // Putting this here temporary
+    public String runSleepJob() {
+    	String version = "0.23.6.0.1301071353";
+    	String sleepJobJar = HADOOP_INSTALL +
+    			"/share/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-"+
+    			version+"-tests.jar";
+    	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
+    			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
+    			"-m", "1", "-r", "1", "-mt", "1", "-rt", "1" };
+    	return runProcBuilder(cmd);
+    }
     
 	/*
 	 * Initialize the test session configuration properties necessary to use the 
@@ -216,7 +228,8 @@ public class FullyDistributedCluster implements Cluster {
 	 */
 	private static String runProcBuilder(String[] commandArray) {
 		Process proc = null;
-		TSM.logger.debug(commandArray);
+		TSM.logger.debug(Arrays.toString(commandArray));
+		System.out.println("run command: "+Arrays.toString(commandArray));
 		String output = null;
 		String error = null;
 		try {
@@ -227,7 +240,7 @@ public class FullyDistributedCluster implements Cluster {
 	        int rc = proc.waitFor();
 	        TSM.logger.debug("Process ended with rc=" + rc);
 	        TSM.logger.debug("Standard Output:" + output);
-	        TSM.logger.debug("Standard Error:" + error);						
+	        TSM.logger.debug("Standard Error:" + error);
 		}
 		catch (Exception e) {
 			if (proc != null) {
@@ -235,7 +248,7 @@ public class FullyDistributedCluster implements Cluster {
 			}
 			e.printStackTrace();
 		}
-		return output;
+		return output+error;
 	}
 	
     private static String loadStream(InputStream is) throws Exception {
@@ -243,7 +256,7 @@ public class FullyDistributedCluster implements Cluster {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) {
-			TSM.logger.debug(line);
+ 			TSM.logger.debug(line);
             sb.append(line).append("\n");
         }
         return sb.toString();
@@ -257,6 +270,7 @@ public class FullyDistributedCluster implements Cluster {
 	private static String runProc(String command) {
 		Process proc = null;
 		TSM.logger.debug(command);
+		System.out.println("run command="+command);
 		String output = null;
 		try {
 			proc = Runtime.getRuntime().exec(command);
