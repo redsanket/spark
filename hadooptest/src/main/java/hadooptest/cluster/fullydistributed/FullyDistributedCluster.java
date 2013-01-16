@@ -227,8 +227,7 @@ public class FullyDistributedCluster implements Cluster {
 	 */
 	private static String runProcBuilder(String[] commandArray) {
 		Process proc = null;
-		TSM.logger.debug(Arrays.toString(commandArray));
-		System.out.println("run command: "+Arrays.toString(commandArray));
+		TSM.logger.info(Arrays.toString(commandArray));
 		String output = null;
 		String error = null;
 		try {
@@ -268,8 +267,7 @@ public class FullyDistributedCluster implements Cluster {
 	 */
 	private static String runProc(String command) {
 		Process proc = null;
-		TSM.logger.debug(command);
-		System.out.println("run command="+command);
+		TSM.logger.info(command);
 		String output = null;
 		try {
 			proc = Runtime.getRuntime().exec(command);
