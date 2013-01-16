@@ -26,10 +26,12 @@ PERM = 0444
 # Installed packages
 ###
 file - - - etc/hadooptest/java/lib/ ./target/hadooptest-1.0-SNAPSHOT.jar
+file - - - etc/hadooptest/java/lib/ ./target/hadooptest-1.0-SNAPSHOT-tests.jar
 
 ###
 # Dependencies
 ###
+YINST requires pkg yjava_junit
 
 ###
 # YINST Directives

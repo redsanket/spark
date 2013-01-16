@@ -2,7 +2,7 @@
  * YAHOO
  */
 
-package hadooptest.cluster.pseudodistributed;
+package hadooptest.cluster.fullydistributed;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -14,7 +14,7 @@ import hadooptest.TestSession;
 /*
  * A class which represents a pseudodistributed MapReduce Sleep Job.
  */
-public class SleepJob extends PseudoDistributedJob {
+public class FullyDistributedSleepJob extends FullyDistributedJob {
 	
 	private String HADOOP_VERSION;
 	private String HADOOP_INSTALL;
@@ -25,7 +25,7 @@ public class SleepJob extends PseudoDistributedJob {
 	/*
 	 * Class constructor.
 	 */
-	public SleepJob(TestSession testSession) {
+	public FullyDistributedSleepJob(TestSession testSession) {
 		super(testSession);
 		
 		TSM = testSession;

@@ -4,9 +4,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.pseudodistributed.FailJob;
+import hadooptest.cluster.pseudodistributed.PseudoDistributedFailJob;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
-import hadooptest.cluster.pseudodistributed.SleepJob;
+import hadooptest.cluster.pseudodistributed.PseudoDistributedSleepJob;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,8 +22,8 @@ public class JobSummaryInfo {
 
 	private static TestSession testSession;
 	
-	private SleepJob sleepJob;
-	private FailJob failJob;
+	private PseudoDistributedSleepJob sleepJob;
+	private PseudoDistributedFailJob failJob;
 	private static PseudoDistributedCluster cluster;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
@@ -97,7 +97,7 @@ public class JobSummaryInfo {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoSuccess() throws IOException, FileNotFoundException {
-		sleepJob = new SleepJob(testSession);
+		sleepJob = new PseudoDistributedSleepJob(testSession);
 		sleepJob.submit(10, 10, 500, 500, 1, -1, -1);
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
@@ -116,7 +116,7 @@ public class JobSummaryInfo {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoHighRAM() throws IOException, FileNotFoundException  {
-		sleepJob = new SleepJob(testSession);
+		sleepJob = new PseudoDistributedSleepJob(testSession);
 		sleepJob.submit(10, 10, 500, 500, 1, 6144, 8192);
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
@@ -135,7 +135,7 @@ public class JobSummaryInfo {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoMappersFailed() throws IOException, FileNotFoundException {
-		failJob = new FailJob(testSession);
+		failJob = new PseudoDistributedFailJob(testSession);
 		failJob.submit(true, false);
 		assertTrue("Fail job ID is invalid.", 
 				failJob.verifyID());
@@ -154,7 +154,7 @@ public class JobSummaryInfo {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoReducersFailed() throws IOException, FileNotFoundException {
-		failJob = new FailJob(testSession);
+		failJob = new PseudoDistributedFailJob(testSession);
 		failJob.submit(false, true);
 		assertTrue("Fail job ID is invalid.", 
 				failJob.verifyID());
@@ -173,7 +173,7 @@ public class JobSummaryInfo {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoDifferentUser() throws IOException, FileNotFoundException {
-		sleepJob = new SleepJob(testSession);
+		sleepJob = new PseudoDistributedSleepJob(testSession);
 		sleepJob.setUser("testuser");
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
@@ -194,7 +194,7 @@ public class JobSummaryInfo {
 	@Test
 	public void JobSummaryInfoDifferentQueue() throws IOException, FileNotFoundException {
 		// Start sleep job with mapreduce.job.queuename=grideng 
-		sleepJob = new SleepJob(testSession);
+		sleepJob = new PseudoDistributedSleepJob(testSession);
 		sleepJob.setQueue("testQueue");
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
@@ -214,7 +214,7 @@ public class JobSummaryInfo {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoKilledJob() throws IOException, FileNotFoundException {
-		sleepJob = new SleepJob(testSession);
+		sleepJob = new PseudoDistributedSleepJob(testSession);
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
