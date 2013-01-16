@@ -1,0 +1,19 @@
+#/bin/bash
+
+# Usage: 
+# CLUSTER=<cluster name> GATEWAY=<gateway host> run_hadooptest_remote
+# CLUSTER=faramir GATEWAY=gwbl2003.blue.ygrid.yahoo.com run_hadooptest_remote
+
+CLUSTER=${CLUSTER:="theoden"}
+GATEWAY=${GATEWAY:="gwbl2005.blue.ygrid.yahoo.com"}
+
+USER=`whoami`
+GATEWAY_DIR=${GATEWAY_DIR:="/homes/$USER"}
+
+SOURCE_ROOT=${SOURCE_ROOT:="/Users/$USER/git/hadooptest/hadooptest"}
+SOURCE_TARGET_DIR=${SOURCE_LIB:="$SOURCE_ROOT/target"}
+scp $SOURCE_TARGET_DIR/*.jar $GATEWAY:$GATEWAY_DIR
+scp $SOURCE_ROOT/scripts/run_hadooptest $GATEWAY:$GATEWAY_DIR
+
+ssh $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest"
+

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Usage: 
+# CLUSTER=<cluster name> HADOOPTEST_LIB=<hadooptest lib directory> run_hadooptest
+# CLUSTER=faramir run_hadooptest
+
+if [ -z $CLUSTER ]; then
+   echo "ERROR: Required CLUSTER value not defined!!!";
+   exit 1;
+fi
+
+HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
+
+CLASSPATH=/home/y/lib/jars/junit.jar:/home/gs/gridre/yroot.$CLUSTER/var/yinst/packages/hadoopcoretree-0.23.6.0.1301071353/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/lib/log4j-1.2.15.jar:/home/gs/gridre/yroot.$CLUSTER/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/hadoop-common-0.23.6.0.1301071353.jar:/home/gs/gridre/yroot.$CLUSTER/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/lib/commons-logging-1.1.1.jar:$HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT.jar:$HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT-tests.jar 
+echo "CLASSPATH=$CLASSPATH"
+
+TESTS=hadooptest.regression.Version hadooptest.regression.yarn.SleepJob
+
+java -cp $CLASSPATH org.junit.runner.JUnitCore \
+hadooptest.regression.Version \
+hadooptest.regression.yarn.SleepJob
+
+
+
