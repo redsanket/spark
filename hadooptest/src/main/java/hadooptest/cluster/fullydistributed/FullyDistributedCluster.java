@@ -180,18 +180,8 @@ public class FullyDistributedCluster implements Cluster {
 		return this.cluster_state;
 	}
 	
-	/*
-	 * Returns the version of the fully distributed hadoop cluster being used.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#getVersion()
-	 */
-	public String getVersion() {
-		return "";
-	}
-
     /*
-     * Returns the Hadoop version for the fully distributed cluster.
+     * Returns the version of the fully distributed hadoop cluster being used.
      * 
      * @return String the Hadoop version for the fully distributed cluster.
      * 
