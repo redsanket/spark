@@ -26,8 +26,8 @@ TESTS="\
 hadooptest.regression.Version \
 hadooptest.regression.yarn.SleepJob\
 "
-
+set -x
 java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
-
+set +x
 
 
