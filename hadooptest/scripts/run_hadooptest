@@ -27,6 +27,7 @@ hadooptest.regression.Version \
 hadooptest.regression.yarn.SleepJob\
 "
 
+# TODO: long term this should move into the java test framework
 USER=`whoami`
 if [ $USER != 'hadoopqa' ];then
    stty -echo
