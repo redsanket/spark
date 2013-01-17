@@ -19,6 +19,9 @@ public class TestSession {
 	public TestSession() throws IOException {
 		this.initConfiguration();
 		this.initLogging();
+		
+    	String classpath = System.getProperty("java.class.path");
+		logger.info("CLASSPATH="+classpath);
 	}
 	
 	private void initConfiguration() throws IOException {
