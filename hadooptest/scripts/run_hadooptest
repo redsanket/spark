@@ -26,8 +26,16 @@ TESTS="\
 hadooptest.regression.Version \
 hadooptest.regression.yarn.SleepJob\
 "
+
+USER=`whoami`
+if [ $USER != 'hadoopqa' ];then
+   stty -echo
+   /usr/kerberos/bin/kinit $USER@DS.CORP.YAHOO.COM
+   stty echo
+fi
+
 set -x
-java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
+/home/y/bin/java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
 set +x
 
 
