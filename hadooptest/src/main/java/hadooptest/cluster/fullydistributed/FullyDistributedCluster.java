@@ -264,10 +264,11 @@ public class FullyDistributedCluster implements Cluster {
 	        proc = pb.start();
 	        output = loadStream(proc.getInputStream());
 	        error = loadStream(proc.getErrorStream());
+	        
 	        int rc = proc.waitFor();
 	        TSM.logger.debug("Process ended with rc=" + rc);
-	        TSM.logger.debug("Process Stdout:" + output);
-	        TSM.logger.debug("Process Stderr:" + error);
+	        // TSM.logger.debug("Process Stdout:" + output);
+	        // TSM.logger.debug("Process Stderr:" + error);
 		}
 		catch (Exception e) {
 			if (proc != null) {
@@ -295,10 +296,15 @@ public class FullyDistributedCluster implements Cluster {
 	 * @param command The system command to run.
 	 */
 	private String runHadoopProcBuilder(String[] commandArray, String username) {
-		this.setupKerberos(username);
-		Map<String, String> newEnv = new HashMap<String, String>();
-		newEnv.put("KRB5CCNAME", this.kerberosCachename);
-		return runProcBuilder(commandArray, newEnv);
+		if (this.isHeadless(username)) {
+			this.setupKerberos(username);
+			Map<String, String> newEnv = new HashMap<String, String>();
+			newEnv.put("KRB5CCNAME", this.kerberosCachename);
+			return runProcBuilder(commandArray, newEnv);
+		}
+		else {
+			return runProcBuilder(commandArray);			
+		}
 	}
 
 	private static String loadStream(InputStream is) throws Exception {
