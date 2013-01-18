@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.File;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.HashMap;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.Cluster;
@@ -19,15 +22,19 @@ public class FullyDistributedCluster implements Cluster {
 	protected FullyDistributedConfiguration conf;
 	
 	// The state of the pseudodistributed cluster.
-	protected ClusterState cluster_state;
+	protected ClusterState clusterState;
 
     // The Hadoop version on the fully distributed cluster.
-    protected String cluster_version = "";
+    protected String clusterVersion = "";
+
+    // The Hadoop version on the fully distributed cluster.
+    protected String kerberosCachename = "";
 
 	private static TestSession TSM;
 	
 	private String HADOOP_INSTALL;
 	private String CONFIG_BASE_DIR;
+	private String CLUSTER_NAME;
 	
 	/*
 	 * Class constructor.
@@ -41,7 +48,7 @@ public class FullyDistributedCluster implements Cluster {
 		this.conf = new FullyDistributedConfiguration(testSession);
 		
 		this.initTestSessionConf();
-		
+		this.initSecurity();
 		// this.conf.write();
 	}
 
@@ -177,7 +184,7 @@ public class FullyDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#getState()
 	 */
 	public ClusterState getState() {
-		return this.cluster_state;
+		return this.clusterState;
 	}
 	
     /*
@@ -190,17 +197,23 @@ public class FullyDistributedCluster implements Cluster {
      */
     public String getVersion() {
         // Get Cluster Version if undefined
-        if (cluster_version.equals("")) {
+        if (clusterVersion.equals("")) {
         	// Call hadoop version to fetch the version
         	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
         			"--config", CONFIG_BASE_DIR, "version" };
-        	this.cluster_version = runProcBuilder(cmd);
+        	this.clusterVersion = runProcBuilder(cmd);
         }	
-        return this.cluster_version;
+        return this.clusterVersion;
     }
     
     // Putting this here temporary
     public String runSleepJob() {
+		String user = System.getProperty("user.name");
+		return runSleepJob(user);
+    }
+
+    // Putting this here temporary
+    public String runSleepJob(String user) {
     	String version = "0.23.6.0.1301071353";
     	String sleepJobJar = HADOOP_INSTALL +
     			"/share/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-"+
@@ -208,16 +221,17 @@ public class FullyDistributedCluster implements Cluster {
     	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
     			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
     			"-m", "1", "-r", "1", "-mt", "1", "-rt", "1" };
-    	return runProcBuilder(cmd);
+    	return runHadoopProcBuilder(cmd, user);
     }
     
-	/*
+    /*
 	 * Initialize the test session configuration properties necessary to use the 
 	 * pseudo distributed cluster instance.
 	 */
 	private void initTestSessionConf() {
 		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
 		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
 	}
 	
 	/*
@@ -225,20 +239,35 @@ public class FullyDistributedCluster implements Cluster {
 	 * 
 	 * @param command The system command to run.
 	 */
-	private static String runProcBuilder(String[] commandArray) {
-		Process proc = null;
+	private String runProcBuilder(String[] commandArray) {
+		return runProcBuilder(commandArray, null);
+	}
+
+	/*
+	 * Run a local system command.
+	 * 
+	 * @param command The system command to run.
+	 */
+	private String runProcBuilder(String[] commandArray, Map<String, String> newEnv) {
 		TSM.logger.info(Arrays.toString(commandArray));
+		Process proc = null;
 		String output = null;
 		String error = null;
 		try {
 			ProcessBuilder pb = new ProcessBuilder(commandArray);
+			
+			Map<String, String> env = pb.environment();
+			if (newEnv != null) {
+				env.putAll(newEnv);
+			}
+			
 	        proc = pb.start();
 	        output = loadStream(proc.getInputStream());
 	        error = loadStream(proc.getErrorStream());
 	        int rc = proc.waitFor();
 	        TSM.logger.debug("Process ended with rc=" + rc);
-	        TSM.logger.debug("Standard Output:" + output);
-	        TSM.logger.debug("Standard Error:" + error);
+	        TSM.logger.debug("Process Stdout:" + output);
+	        TSM.logger.debug("Process Stderr:" + error);
 		}
 		catch (Exception e) {
 			if (proc != null) {
@@ -249,7 +278,30 @@ public class FullyDistributedCluster implements Cluster {
 		return output+error;
 	}
 	
-    private static String loadStream(InputStream is) throws Exception {
+	/*
+	 * Run a local system command.
+	 * 
+	 * @param command The system command to run.
+	 */
+	private String runHadoopProcBuilder(String[] commandArray) {
+		return runHadoopProcBuilder(
+				commandArray,
+				System.getProperty("user.name"));
+	}
+
+	/*
+	 * Run a local system command.
+	 * 
+	 * @param command The system command to run.
+	 */
+	private String runHadoopProcBuilder(String[] commandArray, String username) {
+		this.setupKerberos(username);
+		Map<String, String> newEnv = new HashMap<String, String>();
+		newEnv.put("KRB5CCNAME", this.kerberosCachename);
+		return runProcBuilder(commandArray, newEnv);
+	}
+
+	private static String loadStream(InputStream is) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
         StringBuilder sb = new StringBuilder();
         String line;
@@ -327,4 +379,38 @@ public class FullyDistributedCluster implements Cluster {
 		TSM.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
 		return false;
 	}
+	
+	private boolean isHeadless(String username) {
+		return (username.equals("hadoopqa")) ? true : false;
+	}
+	
+	private void initSecurity() {
+		String user = System.getProperty("user.name");
+		if (this.isHeadless(user)) {
+			setupKerberos(user);
+		}
+	}
+	
+	private void setupKerberos(String user) {
+		TSM.logger.info("Setup Kerberos for user '"+user+"':");
+		String ticketDir = "/tmp/"+user+"/"+CLUSTER_NAME+"/kerberosTickets";		
+		File file = new File(ticketDir);
+		file.mkdirs();
+		
+		String keytabFileDir = (user.equals("hadoopqa")) ?
+	             "/homes/"+user : "/homes/hdfsqa/etc/keytabs";				
+		String keytabFile = user+".dev.headless.keytab";
+		String kinitUser = (user.equals("hdfs")) ? 
+				user+"/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM" : user;
+		String cacheName = ticketDir+"/"+user+".kerberos.ticket";
+		
+		// e.g. kinit -c /tmp/hadoopqe/kerberosTickets/hadoop1.kerberos.ticket
+		// -k -t /homes/hdfsqa/etc/keytabs/hadoop1.dev.headless.keytab hadoop1
+	    String[] cmd =
+	    		{ "/usr/kerberos/bin/kinit", "-c", cacheName, "-k","-t",
+	    		keytabFileDir+"/"+keytabFile, kinitUser};
+	    runProcBuilder(cmd);
+	    this.kerberosCachename = cacheName;
+	}
+	
 }
