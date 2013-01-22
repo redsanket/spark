@@ -26,12 +26,14 @@ public abstract class FullyDistributedJob implements Job {
 	public String ID = "0";	// The ID of the job.
 	public String USER = ""; // The user for the job.
 	public String QUEUE = ""; // The queue for the job.
-	private String HADOOP_INSTALL;
-	private String CONFIG_BASE_DIR;
-	
 	public JobState state;
 	
-	private static TestSession TSM;
+	protected String HADOOP_VERSION;
+	protected String HADOOP_INSTALL;
+	protected String CONFIG_BASE_DIR;
+	protected String CLUSTER_NAME;
+	protected static TestSession TSM;
+	protected FullyDistributedHadoop hadoop;
 
 	/*
 	 * Class Constructor.
@@ -40,10 +42,18 @@ public abstract class FullyDistributedJob implements Job {
 		super();
 		
 		TSM = testSession;
+		hadoop = new FullyDistributedHadoop(TSM);
+
 		USER = TSM.conf.getProperty("USER", "");
 		
 		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
 		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		
+		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
+		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
+
 	}
 	
 	/*
