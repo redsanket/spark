@@ -48,7 +48,6 @@ public class FullyDistributedCluster implements Cluster {
 		this.conf = new FullyDistributedConfiguration(testSession);
 		
 		this.initTestSessionConf();
-		this.initSecurity();
 		// this.conf.write();
 	}
 
@@ -208,13 +207,17 @@ public class FullyDistributedCluster implements Cluster {
     
     // Putting this here temporary
     public String runSleepJob() {
-		String user = System.getProperty("user.name");
+		String user = TSM.conf.getProperty("USER", 
+				System.getProperty("user.name"));		
 		return runSleepJob(user);
     }
 
     // Putting this here temporary
     public String runSleepJob(String user) {
     	String version = "0.23.6.0.1301071353";
+    	
+    	// -Dmapred.job.queue.name=default
+    			
     	String sleepJobJar = HADOOP_INSTALL +
     			"/share/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-"+
     			version+"-tests.jar";
@@ -387,19 +390,14 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 	private boolean isHeadless(String username) {
-		return (username.equals("hadoopqa")) ? true : false;
+		return (username.startsWith("hadoop")) ? true : false;
 	}
-	
-	private void initSecurity() {
-		String user = System.getProperty("user.name");
-		if (this.isHeadless(user)) {
-			setupKerberos(user);
-		}
-	}
-	
+		
 	private void setupKerberos(String user) {
 		TSM.logger.info("Setup Kerberos for user '"+user+"':");
-		String ticketDir = "/tmp/"+user+"/"+CLUSTER_NAME+"/kerberosTickets";		
+		
+		String realUser = System.getProperty("user.name");	
+		String ticketDir = "/tmp/"+realUser+"/"+CLUSTER_NAME+"/kerberosTickets";		
 		File file = new File(ticketDir);
 		file.mkdirs();
 		
