@@ -16,23 +16,11 @@ import hadooptest.TestSession;
  */
 public class FullyDistributedSleepJob extends FullyDistributedJob {
 	
-	private String HADOOP_VERSION;
-	private String HADOOP_INSTALL;
-	private String CONFIG_BASE_DIR;
-	
-	private static TestSession TSM;
-	
 	/*
 	 * Class constructor.
 	 */
 	public FullyDistributedSleepJob(TestSession testSession) {
-		super(testSession);
-		
-		TSM = testSession;
-
-		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		super(testSession);		
 	}
 	
 	/*
@@ -130,6 +118,28 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 		
 		return jobID;
 	}
-
 	
+    // Putting this here temporary
+    public String runSleepJob() {
+		String user = TSM.conf.getProperty("USER", 
+				System.getProperty("user.name"));		
+		return runSleepJob(user);
+    }
+
+    // Putting this here temporary
+    public String runSleepJob(String user) {
+    	String version = "0.23.6.0.1301071353";
+    	
+    	// -Dmapred.job.queue.name=default
+    			
+    	String sleepJobJar = HADOOP_INSTALL +
+    			"/share/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-"+
+    			version+"-tests.jar";
+    	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
+    			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
+    			"-m", "1", "-r", "1", "-mt", "1", "-rt", "1" };
+    	// FullyDistributedHadoop hadoop = new FullyDistributedHadoop(TSM);
+    	return hadoop.runHadoopProcBuilder(cmd, user);
+    }    
+
 }
