@@ -1,7 +1,6 @@
 package hadooptest.regression;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -14,9 +13,8 @@ import java.io.IOException;
 public class Version {
 
 	private static TestSession testSession;
+	protected static TestSession TSM;
 
-	private static FullyDistributedCluster cluster;
-	
 	/*
 	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
 	 */
@@ -24,8 +22,7 @@ public class Version {
 	public static void startCluster() throws IOException {
 		
 		testSession = new TestSession();
-		
-		cluster = new FullyDistributedCluster(testSession);
+		TSM = testSession;
 		// cluster.start();
 	}
 		
@@ -57,7 +54,7 @@ public class Version {
 	
 	@Test
 	public void printHadoopVersion() {
-		String version = cluster.getVersion();
+		String version = TSM.getCluster().getVersion();
 		System.out.println("Hadoop Version = <" + version + ">");
 	}
 	
