@@ -4,7 +4,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.fullydistributed.FullyDistributedSleepJob;
 
 import java.io.FileNotFoundException;
@@ -20,7 +19,8 @@ import org.junit.Test;
 public class SleepJob {
 
 	private static TestSession testSession;	
-	private static FullyDistributedCluster cluster;
+	// private static FullyDistributedCluster cluster;
+	protected static TestSession TSM;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -30,8 +30,7 @@ public class SleepJob {
 	@BeforeClass
 	public static void startCluster() throws FileNotFoundException, IOException{
 		testSession = new TestSession();
-		
-		cluster = new FullyDistributedCluster(testSession);
+		TSM = testSession;
 		// cluster.start();
 	}
 	
@@ -72,6 +71,9 @@ public class SleepJob {
 		FullyDistributedSleepJob job = new FullyDistributedSleepJob(testSession);
 		job.runSleepJob();
 		job.runSleepJob("hadoop1");
+		
+		String output = job.listJobs();
+		TSM.logger.info("Job List:"+output);
 	}
 	
 	/******************* END TESTS ***********************/	
