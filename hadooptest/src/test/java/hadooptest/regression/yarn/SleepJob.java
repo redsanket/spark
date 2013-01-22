@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
-// import hadooptest.cluster.fullydistributed.SleepJob;
+import hadooptest.cluster.fullydistributed.FullyDistributedSleepJob;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,9 +19,7 @@ import org.junit.Test;
 
 public class SleepJob {
 
-	private static TestSession testSession;
-	
-	private SleepJob sleepJob;
+	private static TestSession testSession;	
 	private static FullyDistributedCluster cluster;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
@@ -70,8 +68,10 @@ public class SleepJob {
 	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void RunSleepRun() throws IOException, FileNotFoundException {
-		String version = cluster.runSleepJob();
+	public void runSleepTest() throws IOException, FileNotFoundException {
+		FullyDistributedSleepJob job = new FullyDistributedSleepJob(testSession);
+		job.runSleepJob();
+		job.runSleepJob("hadoop1");
 	}
 	
 	/******************* END TESTS ***********************/	
