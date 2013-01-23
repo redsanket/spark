@@ -3,6 +3,7 @@ package hadooptest.cluster.fullydistributed;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,12 +17,14 @@ public class FullyDistributedCluster implements Cluster {
 
 	// The base pseudodistributed configuration.
 	protected FullyDistributedConfiguration conf;
-	
+
 	// The state of the pseudodistributed cluster.
 	protected ClusterState clusterState;
 
     // The Hadoop version on the fully distributed cluster.
     protected String clusterVersion = "";
+    
+    protected Hashtable<String, String> paths = new Hashtable<String, String>();
 
 	private static TestSession TSM;
 	private FullyDistributedHadoop hadoop;
@@ -38,11 +41,10 @@ public class FullyDistributedCluster implements Cluster {
 	public FullyDistributedCluster(TestSession testSession) throws IOException
 	{
 		TSM = testSession;
-		
-		this.conf = new FullyDistributedConfiguration(testSession);
-		
 		this.initTestSessionConf();
 		hadoop = new FullyDistributedHadoop(TSM);
+		this.conf = new FullyDistributedConfiguration(testSession);		
+		this.initClusterPaths();
 
 		// this.conf.write();
 	}
@@ -52,13 +54,14 @@ public class FullyDistributedCluster implements Cluster {
 	 * 
 	 * Accepts a custom configuration, and assumed you will write it to disk.
 	 */
-	public FullyDistributedCluster(TestSession testSession, FullyDistributedConfiguration conf)
+	public FullyDistributedCluster(TestSession testSession,
+			FullyDistributedConfiguration conf)
 	{
 		TSM = testSession;
 		this.conf = conf;
-		
 		this.initTestSessionConf();
 		hadoop = new FullyDistributedHadoop(TSM);
+		this.initClusterPaths();
 	}
 	
 	/*
@@ -203,6 +206,14 @@ public class FullyDistributedCluster implements Cluster {
         return this.clusterVersion;
     }
     
+    public Hashtable<String, String> getPaths() {
+    	return paths;
+    }
+
+    public String getPaths(String key) {
+    	return paths.get(key).toString();
+    }
+
     /*
 	 * Initialize the test session configuration properties necessary to use the 
 	 * pseudo distributed cluster instance.
@@ -213,7 +224,20 @@ public class FullyDistributedCluster implements Cluster {
 		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
 	}
 	
-    
+    /*
+	 * Initialize the cluster paths.
+	 */
+	private void initClusterPaths() {		
+		String jar = HADOOP_INSTALL + "/share/hadoop/share/hadoop/mapreduce";
+		String version = this.getVersion();
+		
+		paths.put("hadoop", HADOOP_INSTALL+"/share/hadoop/bin/hadoop");
+		paths.put("mapred", HADOOP_INSTALL+"/share/hadoop/bin/mapred");
+		paths.put("jar", jar);
+		paths.put("sleepJar", jar + "/" +
+				"hadoop-mapreduce-client-jobclient-" + version + "-tests.jar"); 
+	}
+	    
 	/*
 	 * Verifies, with jps, that a given process name is running.
 	 * 
