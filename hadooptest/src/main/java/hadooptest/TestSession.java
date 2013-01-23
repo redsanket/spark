@@ -8,6 +8,7 @@ import org.apache.log4j.Level;
 
 import hadooptest.ConfigProperties;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
+import hadooptest.cluster.fullydistributed.FullyDistributedHadoop;
 
 public class TestSession {
 
@@ -15,8 +16,10 @@ public class TestSession {
 	public Logger logger;
 
 	// TODO: this should be a generic cluster
-	protected FullyDistributedCluster cluster;
+	public FullyDistributedCluster cluster;
 
+	public FullyDistributedHadoop hadoop = null;	
+	
 	/* The test session configuration properties */
 	public ConfigProperties conf;
 	
@@ -24,16 +27,12 @@ public class TestSession {
 		this.initConfiguration();
 		this.initLogging();
 		
-		// TODO: this should be a generic cluster
+		// TODO: this should be a generic hadoop and cluster
+		hadoop = new FullyDistributedHadoop(this);
 		cluster = new FullyDistributedCluster(this);
-
+		
     	String classpath = System.getProperty("java.class.path");
 		logger.info("CLASSPATH="+classpath);
-	}
-	
-	// TODO: this should be a generic cluster
-	public FullyDistributedCluster getCluster() {
-		return cluster;
 	}
 	
 	private void initConfiguration() throws IOException {
