@@ -3,7 +3,6 @@ package hadooptest.cluster.fullydistributed;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,23 +10,19 @@ import hadooptest.TestSession;
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
-import hadooptest.cluster.fullydistributed.FullyDistributedHadoop;
 
 public class FullyDistributedCluster implements Cluster {
 
-	// The base pseudodistributed configuration.
-	protected FullyDistributedConfiguration conf;
+	// The base fully distributed configuration.
+	public FullyDistributedConfiguration conf;
 
-	// The state of the pseudodistributed cluster.
+	// The state of the fully distributed cluster.
 	protected ClusterState clusterState;
 
     // The Hadoop version on the fully distributed cluster.
     protected String clusterVersion = "";
     
-    protected Hashtable<String, String> paths = new Hashtable<String, String>();
-
 	private static TestSession TSM;
-	private FullyDistributedHadoop hadoop;
 	
 	private String HADOOP_INSTALL;
 	private String CONFIG_BASE_DIR;
@@ -42,9 +37,7 @@ public class FullyDistributedCluster implements Cluster {
 	{
 		TSM = testSession;
 		this.initTestSessionConf();
-		hadoop = new FullyDistributedHadoop(TSM);
 		this.conf = new FullyDistributedConfiguration(testSession);		
-		this.initClusterPaths();
 
 		// this.conf.write();
 	}
@@ -60,8 +53,6 @@ public class FullyDistributedCluster implements Cluster {
 		TSM = testSession;
 		this.conf = conf;
 		this.initTestSessionConf();
-		hadoop = new FullyDistributedHadoop(TSM);
-		this.initClusterPaths();
 	}
 	
 	/*
@@ -173,6 +164,20 @@ public class FullyDistributedCluster implements Cluster {
 	public FullyDistributedConfiguration getConf() {
 		return this.conf;
 	}
+	
+	/*
+	 * Returns the state of the pseudodistributed cluster instance.
+	 * 
+	 * @return ClusterState the state of the cluster.
+	 * 
+	 * (non-Javadoc)
+	 * @see hadooptest.cluster.Cluster#getState()
+	 */
+	/*
+	public FullyDistributedConfiguration getConfig() {
+		return this.conf;
+	}
+	*/
 
 	/*
 	 * Returns the state of the pseudodistributed cluster instance.
@@ -184,6 +189,18 @@ public class FullyDistributedCluster implements Cluster {
 	 */
 	public ClusterState getState() {
 		return this.clusterState;
+	}
+	
+	/*
+	 * Returns the state of the pseudodistributed cluster instance.
+	 * 
+	 * @return ClusterState the state of the cluster.
+	 * 
+	 * (non-Javadoc)
+	 * @see hadooptest.cluster.Cluster#getState()
+	 */
+	public String getClusterName() {
+		return CLUSTER_NAME;
 	}
 	
     /*
@@ -200,20 +217,12 @@ public class FullyDistributedCluster implements Cluster {
         	// Call hadoop version to fetch the version
         	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
         			"--config", CONFIG_BASE_DIR, "version" };
-        	String version = (hadoop.runProcBuilder(cmd)).split("\n")[0];
+        	String version = (TSM.hadoop.runProcBuilder(cmd)).split("\n")[0];
         	this.clusterVersion = version.split(" ")[1];
         }	
         return this.clusterVersion;
     }
     
-    public Hashtable<String, String> getPaths() {
-    	return paths;
-    }
-
-    public String getPaths(String key) {
-    	return paths.get(key).toString();
-    }
-
     /*
 	 * Initialize the test session configuration properties necessary to use the 
 	 * pseudo distributed cluster instance.
@@ -224,20 +233,6 @@ public class FullyDistributedCluster implements Cluster {
 		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
 	}
 	
-    /*
-	 * Initialize the cluster paths.
-	 */
-	private void initClusterPaths() {		
-		String jar = HADOOP_INSTALL + "/share/hadoop/share/hadoop/mapreduce";
-		String version = this.getVersion();
-		
-		paths.put("hadoop", HADOOP_INSTALL+"/share/hadoop/bin/hadoop");
-		paths.put("mapred", HADOOP_INSTALL+"/share/hadoop/bin/mapred");
-		paths.put("jar", jar);
-		paths.put("sleepJar", jar + "/" +
-				"hadoop-mapreduce-client-jobclient-" + version + "-tests.jar"); 
-	}
-	    
 	/*
 	 * Verifies, with jps, that a given process name is running.
 	 * 
