@@ -130,8 +130,8 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 
     // Putting this here temporary
     public String runSleepJob(String user) {    	
-    	String sleepJobJar = TSM.getCluster().getPaths("sleepJar");
-    	String hadoopPath = TSM.getCluster().getPaths("hadoop");
+    	String sleepJobJar = TSM.cluster.conf.getPaths("sleepJar");
+    	String hadoopPath = TSM.cluster.conf.getPaths("hadoop");
         	
     	// -Dmapred.job.queue.name=default
     	String[] cmd = { hadoopPath,
@@ -142,7 +142,7 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 
     // Putting this here temporary
     public String listJobs() {
-    	String mapredPath = TSM.getCluster().getPaths("mapred");
+    	String mapredPath = TSM.cluster.conf.getPaths("mapred");
     	String[] cmd = { mapredPath,
     			"--config", CONFIG_BASE_DIR, "job", "-list" };
 		return hadoop.runProcBuilder(cmd);   		
