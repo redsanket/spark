@@ -3,9 +3,11 @@
 # Usage: 
 # CLUSTER=<cluster name> GATEWAY=<gateway host> run_hadooptest_remote
 # CLUSTER=faramir GATEWAY=gwbl2003.blue.ygrid.yahoo.com run_hadooptest_remote
+# CLUSTER=faramir GATEWAY=gwbl2003.blue.ygrid.yahoo.com run_hadooptest_remote -nopassword
 
 CLUSTER=${CLUSTER:="theoden"}
 GATEWAY=${GATEWAY:="gwbl2005.blue.ygrid.yahoo.com"}
+PASSWORD_OPTION=$1
 
 USER=`whoami`
 GATEWAY_DIR=${GATEWAY_DIR:="/homes/$USER"}
@@ -16,5 +18,5 @@ SOURCE_TARGET_DIR=${SOURCE_LIB:="$SOURCE_ROOT/target"}
 set -x
 scp $SOURCE_TARGET_DIR/*.jar $GATEWAY:$GATEWAY_DIR
 scp $SOURCE_ROOT/scripts/run_hadooptest $GATEWAY:$GATEWAY_DIR
-ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest"
+ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest $PASSWORD_OPTION"
 set +x

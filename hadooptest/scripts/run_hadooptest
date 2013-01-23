@@ -11,6 +11,8 @@ fi
 
 HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
 
+PASSWORD_OPTION=$1
+
 CLASSPATH=\
 /home/y/lib/jars/junit.jar:\
 /home/gs/gridre/yroot.$CLUSTER/var/yinst/packages/hadoopcoretree-0.23.6.0.1301071353/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/lib/log4j-1.2.15.jar:\
@@ -29,11 +31,13 @@ hadooptest.regression.yarn.SleepJob\
 "
 
 # TODO: long term this should move into the java test framework
-USER=`whoami`
-if [ $USER != 'hadoopqa' ];then
-   stty -echo
-   /usr/kerberos/bin/kinit $USER@DS.CORP.YAHOO.COM
-   stty echo
+if [ $PASSWORD_OPTION != '-nopassword' ]; then 
+   USER=`whoami`
+   if [ $USER != 'hadoopqa' ];then
+      stty -echo
+      /usr/kerberos/bin/kinit $USER@DS.CORP.YAHOO.COM
+      stty echo
+   fi
 fi
 
 set -x
