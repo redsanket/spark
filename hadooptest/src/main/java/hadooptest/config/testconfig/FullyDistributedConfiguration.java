@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Hashtable;
 
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
@@ -20,9 +21,12 @@ import hadooptest.config.TestConfiguration;
 public class FullyDistributedConfiguration extends TestConfiguration
 {
 
+	private String HADOOP_INSTALL;
 	private String CONFIG_BASE_DIR;
 	
 	private static TestSession TSM;
+
+    protected Hashtable<String, String> paths = new Hashtable<String, String>();
 
 	/*
 	 * Class constructor.
@@ -36,8 +40,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 		TSM = testSession;
 		
+		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
 		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
 		
+		this.initClusterPaths();
+
 		this.initDefaults();
 	}
 
@@ -56,6 +63,30 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 		this.initDefaults();
 	}
+
+
+	public Hashtable<String, String> getPaths() {
+    	return paths;
+    }
+
+    public String getPaths(String key) {
+    	return paths.get(key).toString();
+    }
+
+    /*
+	 * Initialize the cluster paths.
+	 */
+	private void initClusterPaths() {		
+		String jar = HADOOP_INSTALL + "/share/hadoop/share/hadoop/mapreduce";
+		String version = this.getVersion();
+		
+		paths.put("hadoop", HADOOP_INSTALL+"/share/hadoop/bin/hadoop");
+		paths.put("mapred", HADOOP_INSTALL+"/share/hadoop/bin/mapred");
+		paths.put("jar", jar);
+		paths.put("sleepJar", jar + "/" +
+				"hadoop-mapreduce-client-jobclient-" + version + "-tests.jar"); 
+	}
+	    
 
 	/*
 	 * Writes the distributed cluster configuration specified by the object out
@@ -142,4 +173,20 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	}
 
+    /*
+     * Returns the version of the fully distributed hadoop cluster being used.
+     * 
+     * @return String the Hadoop version for the fully distributed cluster.
+     * 
+     * (non-Javadoc)
+     * @see hadooptest.cluster.Cluster#getVersion()
+     */
+    public String getVersion() {
+    	// Call hadoop version to fetch the version
+    	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
+    			"--config", CONFIG_BASE_DIR, "version" };	
+    	String version = (TSM.hadoop.runProcBuilder(cmd)).split("\n")[0];
+        return version.split(" ")[1];
+    }
+	
 }
