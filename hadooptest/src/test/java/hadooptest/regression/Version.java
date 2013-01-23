@@ -54,7 +54,7 @@ public class Version {
 	
 	@Test
 	public void printHadoopVersion() {
-		String version = TSM.getCluster().getVersion();
+		String version = TSM.cluster.getVersion();
 		System.out.println("Hadoop Version = <" + version + ">");
 	}
 	
