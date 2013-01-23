@@ -197,7 +197,7 @@ public class FullyDistributedCluster implements Cluster {
         	// Call hadoop version to fetch the version
         	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
         			"--config", CONFIG_BASE_DIR, "version" };
-    		this.clusterVersion = hadoop.runProcBuilder(cmd);        	
+        	this.clusterVersion = (hadoop.runProcBuilder(cmd)).split("\n")[0];
         }	
         return this.clusterVersion;
     }
