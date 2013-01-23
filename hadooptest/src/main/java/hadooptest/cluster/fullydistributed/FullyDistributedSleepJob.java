@@ -5,12 +5,9 @@
 package hadooptest.cluster.fullydistributed;
 
 import java.io.BufferedReader;
-import java.io.FileFilter;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.io.File;
 
 import hadooptest.TestSession;
 
@@ -49,7 +46,9 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 	 * 
 	 * @return String the ID of the sleep job that was submitted to the pseudodistributed cluster.
 	 */
-	public String submit(int mappers, int reducers, int map_time, int reduce_time, int numJobs, int map_memory, int reduce_memory) {			
+	public String submit(int mappers, int reducers, int map_time,
+			int reduce_time, int numJobs, int map_memory, int reduce_memory) {
+
 		Process hadoopProc = null;
 		String jobID = "";
 		
@@ -130,15 +129,12 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
     }
 
     // Putting this here temporary
-    public String runSleepJob(String user) {
-    	
-    	String version = TSM.getCluster().getVersion();
-    	String sleepJobJar = HADOOP_INSTALL +
-    			"/share/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-"+
-    			version+"-tests.jar";    	
-
+    public String runSleepJob(String user) {    	
+    	String sleepJobJar = TSM.getCluster().getPaths("sleepJar");
+    	String hadoopPath = TSM.getCluster().getPaths("hadoop");
+        	
     	// -Dmapred.job.queue.name=default
-    	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
+    	String[] cmd = { hadoopPath,
     			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
     			"-m", "1", "-r", "1", "-mt", "1", "-rt", "1" };
     	return hadoop.runHadoopProcBuilder(cmd, user);
@@ -146,7 +142,8 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 
     // Putting this here temporary
     public String listJobs() {
-    	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/mapred",
+    	String mapredPath = TSM.getCluster().getPaths("mapred");
+    	String[] cmd = { mapredPath,
     			"--config", CONFIG_BASE_DIR, "job", "-list" };
 		return hadoop.runProcBuilder(cmd);   		
     }    
