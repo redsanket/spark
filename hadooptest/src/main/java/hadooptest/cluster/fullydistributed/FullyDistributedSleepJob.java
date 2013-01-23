@@ -5,14 +5,17 @@
 package hadooptest.cluster.fullydistributed;
 
 import java.io.BufferedReader;
+import java.io.FileFilter;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.File;
+
 import hadooptest.TestSession;
 
 /*
- * A class which represents a pseudodistributed MapReduce Sleep Job.
+ * A class which represents a fully distributed MapReduce Sleep Job.
  */
 public class FullyDistributedSleepJob extends FullyDistributedJob {
 	
@@ -128,18 +131,24 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 
     // Putting this here temporary
     public String runSleepJob(String user) {
-    	String version = "0.23.6.0.1301071353";
     	
-    	// -Dmapred.job.queue.name=default
-    			
+    	String version = TSM.getCluster().getVersion();
     	String sleepJobJar = HADOOP_INSTALL +
     			"/share/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-"+
-    			version+"-tests.jar";
+    			version+"-tests.jar";    	
+
+    	// -Dmapred.job.queue.name=default
     	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
     			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
     			"-m", "1", "-r", "1", "-mt", "1", "-rt", "1" };
-    	// FullyDistributedHadoop hadoop = new FullyDistributedHadoop(TSM);
     	return hadoop.runHadoopProcBuilder(cmd, user);
+    }    
+
+    // Putting this here temporary
+    public String listJobs() {
+    	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/mapred",
+    			"--config", CONFIG_BASE_DIR, "job", "-list" };
+		return hadoop.runProcBuilder(cmd);   		
     }    
 
 }
