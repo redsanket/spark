@@ -59,7 +59,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
     }
 
     public String getConf(String key) {
-    	return conf.get(key).toString();
+    	if (conf.containsKey(key)) {
+    		return conf.get(key).toString(); }
+    	else {
+			TSM.logger.error("Couldn't find value for key '" + key + "'.");
+			return "";
+    	}
     }
 
 	/*
@@ -68,34 +73,47 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * cluster under test.
 	 */
 	private void initDefaults() {
-		String CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
+
 		String HADOOP_ROOT="/home";  // /grid/0
-		String JAVA_HOME=HADOOP_ROOT+"/gs/java/jdk";
-		String HADOOP_INSTALL=HADOOP_ROOT+"/gs/gridre/yroot."+CLUSTER_NAME;
-		String HADOOP_CONF_DIR=HADOOP_INSTALL+"/conf/hadoop";
-		String HADOOP_COMMON_HOME=HADOOP_INSTALL+"/share/hadoop";
-		String HADOOP_JAR_DIR=HADOOP_COMMON_HOME+"/share/hadoop/mapreduce";
-		String HADOOP_BIN_DIR=HADOOP_COMMON_HOME+"/bin";
-		String HADOOP_BIN=HADOOP_BIN_DIR+"/hadoop";
-		String HDFS_BIN=HADOOP_BIN_DIR+"/hdfs";
-		String MAPRED_BIN=HADOOP_BIN_DIR+"/mapred";
-			
-		conf.put("CLUSTER_NAME", CLUSTER_NAME);
-		conf.put("JAVA_HOME", JAVA_HOME);
-		conf.put("HADOOP_INSTALL", HADOOP_INSTALL);
-		conf.put("HADOOP_CONF_DIR", HADOOP_CONF_DIR);
-		conf.put("HADOOP_COMMON_HOME", HADOOP_COMMON_HOME);
-		conf.put("HADOOP_BIN", HADOOP_BIN);
-		conf.put("HDFS_BIN", HDFS_BIN);
-		conf.put("MAPRED_BIN", MAPRED_BIN);
-		conf.put("HADOOP_JAR_DIR", HADOOP_JAR_DIR);
+		conf.put("CLUSTER_NAME", TSM.conf.getProperty("CLUSTER_NAME", ""));
+		conf.put("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
+		conf.put("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
+				getConf("CLUSTER_NAME"));
+		conf.put("HADOOP_CONF_DIR", getConf("HADOOP_INSTALL") +
+				"/conf/hadoop");
+		conf.put("HADOOP_COMMON_HOME", getConf("HADOOP_INSTALL") +
+				"/share/hadoop");
+		
+		// Binaries
+		conf.put("HADOOP_BIN_DIR", getConf("HADOOP_COMMON_HOME") + "/bin");
+		conf.put("HADOOP_BIN", getConf("HADOOP_BIN_DIR") + "/hadoop");
+		conf.put("HDFS_BIN", getConf("HADOOP_BIN_DIR") + "/hdfs");
+		conf.put("MAPRED_BIN", getConf("HADOOP_BIN_DIR") + "/mapred");
+		conf.put("YARN_BIN", getConf("HADOOP_BIN_DIR") + "/yarn");
 
 		// Version dependent environment variables
 		String HADOOP_VERSION = this.getVersion();
 		conf.put("HADOOP_VERSION", HADOOP_VERSION);
-		conf.put("HADOOP_SLEEP_JAR", HADOOP_JAR_DIR + "/" +
-				"hadoop-mapreduce-client-jobclient-" + HADOOP_VERSION +
-				"-tests.jar"); 
+		
+		// Jars
+		conf.put("HADOOP_JAR_DIR", getConf("HADOOP_COMMON_HOME") +
+				"/share/hadoop");
+		conf.put("HADOOP_SLEEP_JAR", getConf("HADOOP_JAR_DIR") + 
+				"/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
+				HADOOP_VERSION + "-tests.jar"); 
+		conf.put("HADOOP_EXAMPLE_JAR", getConf("HADOOP_JAR_DIR") +
+				"/mapreduce/" + "hadoop-mapreduce-examples-" +
+				HADOOP_VERSION + ".jar"); 
+		conf.put("HADOOP_MR_CLIENT_JAR", getConf("HADOOP_JAR_DIR") + 
+				"/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
+				HADOOP_VERSION + ".jar"); 
+		conf.put("HADOOP_STREAMING_JAR", getConf("HADOOP_JAR_DIR") +
+				"/tools/lib/" + "hadoop-streaming-" + 
+				HADOOP_VERSION + ".jar"); 
+		
+		// Configuration
+		
+		
 	}
 	    
 
