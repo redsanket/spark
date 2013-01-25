@@ -142,7 +142,7 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 
     // Putting this here temporary
     public String listJobs() {
-    	String mapredPath = TSM.cluster.conf.getConf("HADOOP_MAPRED");
+    	String mapredPath = TSM.cluster.conf.getConf("MAPRED_BIN");
     	String[] cmd = { mapredPath,
     			"--config", CONFIG_BASE_DIR, "job", "-list" };
 		return hadoop.runProcBuilder(cmd);   		
