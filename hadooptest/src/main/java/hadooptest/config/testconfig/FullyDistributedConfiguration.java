@@ -20,31 +20,21 @@ import hadooptest.config.TestConfiguration;
  */
 public class FullyDistributedConfiguration extends TestConfiguration
 {
-
-	private String HADOOP_INSTALL;
-	private String CONFIG_BASE_DIR;
-	
 	private static TestSession TSM;
 
-    protected Hashtable<String, String> paths = new Hashtable<String, String>();
+    protected Hashtable<String, String> conf = new Hashtable<String, String>();
 
 	/*
 	 * Class constructor.
 	 * 
 	 * Calls the superclass constructor, and initializes the default
-	 * configuration parameters for a distributed cluster under test.  Hadoop
-	 * default configuration is not used.
+	 * configuration parameters for a distributed cluster under test.
+	 * Hadoop default configuration is not used.
 	 */
 	public FullyDistributedConfiguration(TestSession testSession) {
 		super(false);
 
 		TSM = testSession;
-		
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
-		
-		this.initClusterPaths();
-
 		this.initDefaults();
 	}
 
@@ -60,31 +50,52 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 */
 	public FullyDistributedConfiguration(boolean loadDefaults) {
 		super(loadDefaults); 
-
 		this.initDefaults();
 	}
 
 
-	public Hashtable<String, String> getPaths() {
-    	return paths;
+	public Hashtable<String, String> getConf() {
+    	return conf;
     }
 
-    public String getPaths(String key) {
-    	return paths.get(key).toString();
+    public String getConf(String key) {
+    	return conf.get(key).toString();
     }
 
-    /*
-	 * Initialize the cluster paths.
+	/*
+	 * Initializes a set of default configuration properties that have been 
+	 * determined to be a reasonable set of defaults for running a distributed
+	 * cluster under test.
 	 */
-	private void initClusterPaths() {		
-		String jar = HADOOP_INSTALL + "/share/hadoop/share/hadoop/mapreduce";
-		String version = this.getVersion();
-		
-		paths.put("hadoop", HADOOP_INSTALL+"/share/hadoop/bin/hadoop");
-		paths.put("mapred", HADOOP_INSTALL+"/share/hadoop/bin/mapred");
-		paths.put("jar", jar);
-		paths.put("sleepJar", jar + "/" +
-				"hadoop-mapreduce-client-jobclient-" + version + "-tests.jar"); 
+	private void initDefaults() {
+		String CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
+		String HADOOP_ROOT="/home";  // /grid/0
+		String JAVA_HOME=HADOOP_ROOT+"/gs/java/jdk";
+		String HADOOP_INSTALL=HADOOP_ROOT+"/gs/gridre/yroot."+CLUSTER_NAME;
+		String HADOOP_CONF_DIR=HADOOP_INSTALL+"/conf/hadoop";
+		String HADOOP_COMMON_HOME=HADOOP_INSTALL+"/share/hadoop";
+		String HADOOP_JAR_DIR=HADOOP_COMMON_HOME+"/share/hadoop/mapreduce";
+		String HADOOP_BIN_DIR=HADOOP_COMMON_HOME+"/bin";
+		String HADOOP_BIN=HADOOP_BIN_DIR+"/hadoop";
+		String HDFS_BIN=HADOOP_BIN_DIR+"/hdfs";
+		String MAPRED_BIN=HADOOP_BIN_DIR+"/mapred";
+			
+		conf.put("CLUSTER_NAME", CLUSTER_NAME);
+		conf.put("JAVA_HOME", JAVA_HOME);
+		conf.put("HADOOP_INSTALL", HADOOP_INSTALL);
+		conf.put("HADOOP_CONF_DIR", HADOOP_CONF_DIR);
+		conf.put("HADOOP_COMMON_HOME", HADOOP_COMMON_HOME);
+		conf.put("HADOOP_BIN", HADOOP_BIN);
+		conf.put("HDFS_BIN", HDFS_BIN);
+		conf.put("MAPRED_BIN", MAPRED_BIN);
+		conf.put("HADOOP_JAR_DIR", HADOOP_JAR_DIR);
+
+		// Version dependent environment variables
+		String HADOOP_VERSION = this.getVersion();
+		conf.put("HADOOP_VERSION", HADOOP_VERSION);
+		conf.put("HADOOP_SLEEP_JAR", HADOOP_JAR_DIR + "/" +
+				"hadoop-mapreduce-client-jobclient-" + HADOOP_VERSION +
+				"-tests.jar"); 
 	}
 	    
 
@@ -93,18 +104,19 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * to disk.
 	 */
 	public void write() throws IOException {
-		File outdir = new File(CONFIG_BASE_DIR);
+		String confDir = this.getConf("HADOOP_CONF_DIR");
+		File outdir = new File(confDir);
 		outdir.mkdirs();
 		
-		File historytmp = new File(CONFIG_BASE_DIR + "jobhistory/tmp");
+		File historytmp = new File(confDir + "jobhistory/tmp");
 		historytmp.mkdirs();
-		File historydone = new File(CONFIG_BASE_DIR + "jobhistory/done");
+		File historydone = new File(confDir + "jobhistory/done");
 		historydone.mkdirs();
 
-		File core_site = new File(CONFIG_BASE_DIR + "core-site.xml");
-		File hdfs_site = new File(CONFIG_BASE_DIR + "hdfs-site.xml");
-		File yarn_site = new File(CONFIG_BASE_DIR + "yarn-site.xml");
-		File mapred_site = new File(CONFIG_BASE_DIR + "mapred-site.xml");		
+		File core_site = new File(confDir + "core-site.xml");
+		File hdfs_site = new File(confDir + "hdfs-site.xml");
+		File yarn_site = new File(confDir + "yarn-site.xml");
+		File mapred_site = new File(confDir + "mapred-site.xml");		
 
 		if (core_site.createNewFile()) {
 			FileOutputStream out = new FileOutputStream(core_site);
@@ -138,7 +150,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			TSM.logger.warn("Couldn't create the xml configuration output file.");
 		}
 
-		FileWriter slaves_file = new FileWriter(CONFIG_BASE_DIR + "slaves");
+		FileWriter slaves_file = new FileWriter(confDir + "slaves");
 		BufferedWriter slaves = new BufferedWriter(slaves_file);
 		slaves.write("localhost");
 		slaves.close();
@@ -149,12 +161,13 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * by the .write() of the object.
 	 */
 	public void cleanup() {
-		File core_site = new File(CONFIG_BASE_DIR + "core-site.xml");
-		File hdfs_site = new File(CONFIG_BASE_DIR + "hdfs-site.xml");
-		File yarn_site = new File(CONFIG_BASE_DIR + "yarn-site.xml");
-		File mapred_site = new File(CONFIG_BASE_DIR + "mapred-site.xml");	
-		File slaves = new File(CONFIG_BASE_DIR + "slaves");	
-		File log4jProperties = new File(CONFIG_BASE_DIR + "log4j.properties");
+		String confDir = this.getConf("HADOOP_CONF_DIR");
+		File core_site = new File(confDir + "core-site.xml");
+		File hdfs_site = new File(confDir + "hdfs-site.xml");
+		File yarn_site = new File(confDir + "yarn-site.xml");
+		File mapred_site = new File(confDir + "mapred-site.xml");	
+		File slaves = new File(confDir + "slaves");	
+		File log4jProperties = new File(confDir + "log4j.properties");
 
 		core_site.delete();
 		hdfs_site.delete();
@@ -162,15 +175,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		mapred_site.delete();
 		slaves.delete();
 		log4jProperties.delete();
-	}
-
-	/*
-	 * Initializes a set of default configuration properties that have been 
-	 * determined to be a reasonable set of defaults for running a distributed
-	 * cluster under test.
-	 */
-	private void initDefaults() {
-
 	}
 
     /*
@@ -182,9 +186,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @see hadooptest.cluster.Cluster#getVersion()
      */
     public String getVersion() {
-    	// Call hadoop version to fetch the version
-    	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
-    			"--config", CONFIG_BASE_DIR, "version" };	
+    	// Call hadoop version to fetch the version 	
+    	String[] cmd = { this.getConf("HADOOP_BIN"),
+    			"--config", this.getConf("HADOOP_CONF_DIR"), "version" };	
     	String version = (TSM.hadoop.runProcBuilder(cmd)).split("\n")[0];
         return version.split(" ")[1];
     }
