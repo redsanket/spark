@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.Properties;
 
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
@@ -22,7 +22,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 {
 	private static TestSession TSM;
 
-    protected Hashtable<String, String> conf = new Hashtable<String, String>();
+    protected Properties conf = new Properties();
 
 	/*
 	 * Class constructor.
@@ -53,14 +53,14 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		this.initDefaults();
 	}
 
-
-	public Hashtable<String, String> getConf() {
+	public Properties getConf() {
     	return conf;
     }
 
-    public String getConf(String key) {
-    	if (conf.containsKey(key)) {
-    		return conf.get(key).toString(); }
+	public String getConf(String key) {
+    	if (!conf.getProperty(key).equals(null)) {
+    		return conf.getProperty(key);
+    	}
     	else {
 			TSM.logger.error("Couldn't find value for key '" + key + "'.");
 			return "";
@@ -75,48 +75,60 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	private void initDefaults() {
 
 		String HADOOP_ROOT="/home";  // /grid/0
-		conf.put("CLUSTER_NAME", TSM.conf.getProperty("CLUSTER_NAME", ""));
-		conf.put("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
-		conf.put("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
-				getConf("CLUSTER_NAME"));
-		conf.put("HADOOP_CONF_DIR", getConf("HADOOP_INSTALL") +
+								
+		conf.setProperty("CLUSTER_NAME", TSM.conf.getProperty("CLUSTER_NAME", ""));
+		conf.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
+		conf.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
+				conf.getProperty("CLUSTER_NAME"));
+		conf.setProperty("HADOOP_CONF_DIR", conf.getProperty("HADOOP_INSTALL") +
 				"/conf/hadoop");
-		conf.put("HADOOP_COMMON_HOME", getConf("HADOOP_INSTALL") +
+		conf.setProperty("HADOOP_COMMON_HOME", conf.getProperty("HADOOP_INSTALL") +
 				"/share/hadoop");
 		
 		// Binaries
-		conf.put("HADOOP_BIN_DIR", getConf("HADOOP_COMMON_HOME") + "/bin");
-		conf.put("HADOOP_BIN", getConf("HADOOP_BIN_DIR") + "/hadoop");
-		conf.put("HDFS_BIN", getConf("HADOOP_BIN_DIR") + "/hdfs");
-		conf.put("MAPRED_BIN", getConf("HADOOP_BIN_DIR") + "/mapred");
-		conf.put("YARN_BIN", getConf("HADOOP_BIN_DIR") + "/yarn");
+		conf.setProperty("HADOOP_BIN_DIR", conf.getProperty("HADOOP_COMMON_HOME") + "/bin");
+		conf.setProperty("HADOOP_BIN", conf.getProperty("HADOOP_BIN_DIR") + "/hadoop");
+		conf.setProperty("HDFS_BIN", conf.getProperty("HADOOP_BIN_DIR") + "/hdfs");
+		conf.setProperty("MAPRED_BIN", conf.getProperty("HADOOP_BIN_DIR") + "/mapred");
+		conf.setProperty("YARN_BIN", getConf("HADOOP_BIN_DIR") + "/yarn");
 
 		// Version dependent environment variables
 		String HADOOP_VERSION = this.getVersion();
-		conf.put("HADOOP_VERSION", HADOOP_VERSION);
+		conf.setProperty("HADOOP_VERSION", HADOOP_VERSION);
 		
 		// Jars
-		conf.put("HADOOP_JAR_DIR", getConf("HADOOP_COMMON_HOME") +
+		conf.setProperty("HADOOP_JAR_DIR", getConf("HADOOP_COMMON_HOME") +
 				"/share/hadoop");
-		conf.put("HADOOP_SLEEP_JAR", getConf("HADOOP_JAR_DIR") + 
+		conf.setProperty("HADOOP_SLEEP_JAR", getConf("HADOOP_JAR_DIR") + 
 				"/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
 				HADOOP_VERSION + "-tests.jar"); 
-		conf.put("HADOOP_EXAMPLE_JAR", getConf("HADOOP_JAR_DIR") +
+		conf.setProperty("HADOOP_EXAMPLE_JAR", getConf("HADOOP_JAR_DIR") +
 				"/mapreduce/" + "hadoop-mapreduce-examples-" +
 				HADOOP_VERSION + ".jar"); 
-		conf.put("HADOOP_MR_CLIENT_JAR", getConf("HADOOP_JAR_DIR") + 
+		conf.setProperty("HADOOP_MR_CLIENT_JAR", getConf("HADOOP_JAR_DIR") + 
 				"/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
 				HADOOP_VERSION + ".jar"); 
-		conf.put("HADOOP_STREAMING_JAR", getConf("HADOOP_JAR_DIR") +
+		conf.setProperty("HADOOP_STREAMING_JAR", getConf("HADOOP_JAR_DIR") +
 				"/tools/lib/" + "hadoop-streaming-" + 
 				HADOOP_VERSION + ".jar"); 
 		
 		// Configuration
-		
-		
+		this.parseHadoopConf();
 	}
 	    
 
+	/*
+	 * Writes the distributed cluster configuration specified by the object out
+	 * to disk.
+	 */
+	public void parseHadoopConf() {
+		String confDir = this.getConf("HADOOP_CONF_DIR");
+
+		
+		
+
+	}
+		
 	/*
 	 * Writes the distributed cluster configuration specified by the object out
 	 * to disk.
