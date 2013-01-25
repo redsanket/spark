@@ -11,7 +11,7 @@ fi
 
 HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
 
-PASSWORD_OPTION=$1
+PASSWORD_OPTION=${1:-"-password"}
 
 CLASSPATH=\
 /home/y/lib/jars/junit.jar:\
