@@ -9,11 +9,22 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 /*
  * A class that represents a Hadoop Configuration for a distributed
  * Hadoop cluster under test.
@@ -22,7 +33,19 @@ public class FullyDistributedConfiguration extends TestConfiguration
 {
 	private static TestSession TSM;
 
-    protected Properties conf = new Properties();
+	// General Hadoop configuration properties such as cluster name, 
+	// directory paths, etc.	
+    protected Properties hadoopProps = new Properties();
+
+    // Contains configuration properties loaded from the xml conf file for 
+    // each Hadoop components
+	Hashtable<String, Properties> hadoopConfFileProps =
+			new Hashtable<String, Properties>();
+
+	// Contains the nodes on the cluster
+	Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
+
+	// Properties clusterNodes = new Properties();
 
 	/*
 	 * Class constructor.
@@ -53,19 +76,33 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		this.initDefaults();
 	}
 
-	public Properties getConf() {
-    	return conf;
+	public Properties getHadoopProps() {
+    	return hadoopProps;
     }
 
-	public String getConf(String key) {
-    	if (!conf.getProperty(key).equals(null)) {
-    		return conf.getProperty(key);
+	public Hashtable<String, Properties> getHadoopConfFileProps() {
+    	return hadoopConfFileProps;
+    }
+
+	public Hashtable<String, String[]> getClusterNodes() {
+    	return clusterNodes;
+    }
+	
+	public String getHadoopProp(String key) {
+    	if (!hadoopProps.getProperty(key).equals(null)) {
+    		return hadoopProps.getProperty(key);
     	}
     	else {
 			TSM.logger.error("Couldn't find value for key '" + key + "'.");
 			return "";
     	}
     }
+
+	private String getHadoopConfFileProp(String component, String propName) {
+		Properties prop = hadoopConfFileProps.get(component);
+		String propValue = prop.getProperty(propName);
+		return propValue;
+	}
 
 	/*
 	 * Initializes a set of default configuration properties that have been 
@@ -76,65 +113,178 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 		String HADOOP_ROOT="/home";  // /grid/0
 								
-		conf.setProperty("CLUSTER_NAME", TSM.conf.getProperty("CLUSTER_NAME", ""));
-		conf.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
-		conf.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
-				conf.getProperty("CLUSTER_NAME"));
-		conf.setProperty("HADOOP_CONF_DIR", conf.getProperty("HADOOP_INSTALL") +
-				"/conf/hadoop");
-		conf.setProperty("HADOOP_COMMON_HOME", conf.getProperty("HADOOP_INSTALL") +
+		hadoopProps.setProperty("CLUSTER_NAME", TSM.conf.getProperty("CLUSTER_NAME", ""));
+		hadoopProps.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
+		hadoopProps.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
+				hadoopProps.getProperty("CLUSTER_NAME"));
+		hadoopProps.setProperty("HADOOP_COMMON_HOME", hadoopProps.getProperty("HADOOP_INSTALL") +
 				"/share/hadoop");
-		
+
+		// Configuration directory and files
+		hadoopProps.setProperty("HADOOP_CONF_DIR", hadoopProps.getProperty("HADOOP_INSTALL") +
+				"/conf/hadoop");
+		hadoopProps.setProperty("HADOOP_CONF_CORE",
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/core-site.xml");
+		hadoopProps.setProperty("HADOOP_CONF_HDFS",
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/hdfs-site.xml");
+		hadoopProps.setProperty("HADOOP_CONF_MAPRED",
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/mapred-site.xml");
+		hadoopProps.setProperty("HADOOP_CONF_YARN",
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/yarn-site.xml");
+		hadoopProps.setProperty("HADOOP_CONF_CAPACITY_SCHEDULER",
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/capacity-scheduler.xml");
+		hadoopProps.setProperty("HADOOP_CONF_FAIR_SCHEDULER",
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/fair-scheduler.xml");
+
 		// Binaries
-		conf.setProperty("HADOOP_BIN_DIR", conf.getProperty("HADOOP_COMMON_HOME") + "/bin");
-		conf.setProperty("HADOOP_BIN", conf.getProperty("HADOOP_BIN_DIR") + "/hadoop");
-		conf.setProperty("HDFS_BIN", conf.getProperty("HADOOP_BIN_DIR") + "/hdfs");
-		conf.setProperty("MAPRED_BIN", conf.getProperty("HADOOP_BIN_DIR") + "/mapred");
-		conf.setProperty("YARN_BIN", getConf("HADOOP_BIN_DIR") + "/yarn");
+		hadoopProps.setProperty("HADOOP_BIN_DIR", hadoopProps.getProperty("HADOOP_COMMON_HOME") + "/bin");
+		hadoopProps.setProperty("HADOOP_BIN", hadoopProps.getProperty("HADOOP_BIN_DIR") + "/hadoop");
+		hadoopProps.setProperty("HDFS_BIN", hadoopProps.getProperty("HADOOP_BIN_DIR") + "/hdfs");
+		hadoopProps.setProperty("MAPRED_BIN", hadoopProps.getProperty("HADOOP_BIN_DIR") + "/mapred");
+		hadoopProps.setProperty("YARN_BIN", getHadoopProp("HADOOP_BIN_DIR") + "/yarn");
 
 		// Version dependent environment variables
 		String HADOOP_VERSION = this.getVersion();
-		conf.setProperty("HADOOP_VERSION", HADOOP_VERSION);
+		hadoopProps.setProperty("HADOOP_VERSION", HADOOP_VERSION);
 		
 		// Jars
-		conf.setProperty("HADOOP_JAR_DIR", getConf("HADOOP_COMMON_HOME") +
+		hadoopProps.setProperty("HADOOP_JAR_DIR", getHadoopProp("HADOOP_COMMON_HOME") +
 				"/share/hadoop");
-		conf.setProperty("HADOOP_SLEEP_JAR", getConf("HADOOP_JAR_DIR") + 
+		hadoopProps.setProperty("HADOOP_SLEEP_JAR", getHadoopProp("HADOOP_JAR_DIR") + 
 				"/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
 				HADOOP_VERSION + "-tests.jar"); 
-		conf.setProperty("HADOOP_EXAMPLE_JAR", getConf("HADOOP_JAR_DIR") +
+		hadoopProps.setProperty("HADOOP_EXAMPLE_JAR", getHadoopProp("HADOOP_JAR_DIR") +
 				"/mapreduce/" + "hadoop-mapreduce-examples-" +
 				HADOOP_VERSION + ".jar"); 
-		conf.setProperty("HADOOP_MR_CLIENT_JAR", getConf("HADOOP_JAR_DIR") + 
+		hadoopProps.setProperty("HADOOP_MR_CLIENT_JAR", getHadoopProp("HADOOP_JAR_DIR") + 
 				"/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
 				HADOOP_VERSION + ".jar"); 
-		conf.setProperty("HADOOP_STREAMING_JAR", getConf("HADOOP_JAR_DIR") +
+		hadoopProps.setProperty("HADOOP_STREAMING_JAR", getHadoopProp("HADOOP_JAR_DIR") +
 				"/tools/lib/" + "hadoop-streaming-" + 
 				HADOOP_VERSION + ".jar"); 
 		
-		// Configuration
-		this.parseHadoopConf();
+		initConfFiles();
+		initClusterNodes();
 	}
 	    
+	private void initConfFiles() {
+		// Configuration
+		String[] confComponents = {
+				"HADOOP_CONF_CORE",
+				"HADOOP_CONF_HDFS",
+				"HADOOP_CONF_MAPRED",
+				"HADOOP_CONF_YARN",
+				"HADOOP_CONF_CAPACITY_SCHEDULER", 
+				"HADOOP_CONF_FAIR_SCHEDULER"
+				};
+		hadoopConfFileProps =
+				new Hashtable<String, Properties>();
+		for (int i = 0; i < confComponents.length; i++) {
+			String confComponent = confComponents[i];
+			hadoopConfFileProps.put(confComponent,
+					this.parseHadoopConf(getHadoopProp(confComponent)));
+		}
 
+		// Print the stored conf properties
+		for (int i = 0; i < confComponents.length; i++) {
+			String confComponent = confComponents[i];
+			Properties prop = hadoopConfFileProps.get(confComponent);
+			TSM.logger.debug("Parsed Hadop configuration file for " + confComponent + ":");
+			printProp(prop);
+		}		
+	}
+
+	private void initClusterNodes() {
+		// Nodes
+		String namenode_addr = getHadoopConfFileProp("HADOOP_CONF_HDFS",
+				"dfs.namenode.https-address");
+		String namenode = namenode_addr.split(":")[0];
+		clusterNodes.put("namenode", new String[] {namenode});		
+
+		String rm_addr = getHadoopConfFileProp("HADOOP_CONF_YARN",
+				"yarn.resourcemanager.resource-tracker.address");
+		String rm = rm_addr.split(":")[0];
+		clusterNodes.put("resourcemanager", new String[] {rm});		
+		
+		// getSlaveNodes(namenode);
+		clusterNodes.put("datanode", getHostsFromList(namenode, getHadoopProp("HADOOP_CONF_DIR") + "/slaves"));		
+		
+		// Show all balances in hash table. 
+		Enumeration<String> components = clusterNodes.keys(); 
+		while (components.hasMoreElements()) { 
+			String component = (String) components.nextElement(); 
+			TSM.logger.debug(component + ": " + Arrays.toString(clusterNodes.get(component))); 
+		} 	
+	}
+
+	private String[] getHostsFromList(String namenode, String file) {
+		String output = TSM.hadoop.runProcBuilder(new String[] {"ssh", namenode, "/bin/cat", file});
+		String[] nodes = output.split(",");
+		return nodes;
+	}
+	
+	private void printProp(Properties prop) {
+		PrintWriter writer = new PrintWriter(System.out);
+		prop.list(writer);
+		writer.flush();	      	
+	}
+
+	
 	/*
 	 * Writes the distributed cluster configuration specified by the object out
 	 * to disk.
 	 */
-	public void parseHadoopConf() {
-		String confDir = this.getConf("HADOOP_CONF_DIR");
+	public Properties parseHadoopConf(String confFile) {
+		TSM.logger.info("Parse Hadoop configuration file: " + confFile);
+		Properties props = new Properties();
+		try {
+			File xmlInputFile = new File(confFile);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbFactory.newDocumentBuilder();
+			Document doc = db.parse(xmlInputFile);
+			doc.getDocumentElement().normalize();			
+			System.out.println("root of xml file: " + doc.getDocumentElement().getNodeName());			
+			NodeList nodes = doc.getElementsByTagName("property");
+						
+			for (int index = 0; index < nodes.getLength(); index++) {
+				Node node = nodes.item(index);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					Element element = (Element) node;
 
-		
-		
-
+					String propName = getValue("name", element);
+					try {
+						// TSM.logger.debug("Property Name: " + getValue("name", element));
+						// TSM.logger.debug("Property Value: " + getValue("value", element));
+						props.put(getValue("name", element),
+								getValue("value", element));
+					}
+					catch (NullPointerException npe) {
+						TSM.logger.warn("Value for property name " + propName + 
+								" is null");
+					}
+				}
+			}
+		}	
+		catch (Exception exception)
+		{
+			exception.printStackTrace();
+		}			
+		return props;
 	}
-		
+
+	
+	private static String getValue(String tag, Element element) {
+		NodeList nodes = element.getElementsByTagName(tag).item(0).getChildNodes();
+		Node node = (Node) nodes.item(0);
+		return node.getNodeValue();
+	}
+	
 	/*
 	 * Writes the distributed cluster configuration specified by the object out
 	 * to disk.
 	 */
 	public void write() throws IOException {
-		String confDir = this.getConf("HADOOP_CONF_DIR");
+		String confDir = this.getHadoopProp("HADOOP_CONF_DIR");
 		File outdir = new File(confDir);
 		outdir.mkdirs();
 		
@@ -191,7 +341,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * by the .write() of the object.
 	 */
 	public void cleanup() {
-		String confDir = this.getConf("HADOOP_CONF_DIR");
+		String confDir = this.getHadoopProp("HADOOP_CONF_DIR");
 		File core_site = new File(confDir + "core-site.xml");
 		File hdfs_site = new File(confDir + "hdfs-site.xml");
 		File yarn_site = new File(confDir + "yarn-site.xml");
@@ -217,8 +367,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
      */
     public String getVersion() {
     	// Call hadoop version to fetch the version 	
-    	String[] cmd = { this.getConf("HADOOP_BIN"),
-    			"--config", this.getConf("HADOOP_CONF_DIR"), "version" };	
+    	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
+    			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
     	String version = (TSM.hadoop.runProcBuilder(cmd)).split("\n")[0];
         return version.split(" ")[1];
     }
