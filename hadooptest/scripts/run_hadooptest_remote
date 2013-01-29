@@ -1,13 +1,42 @@
 #/bin/bash
 
 # Usage: 
-# CLUSTER=<cluster name> GATEWAY=<gateway host> run_hadooptest_remote
-# CLUSTER=faramir GATEWAY=gwbl2003.blue.ygrid.yahoo.com run_hadooptest_remote
-# CLUSTER=faramir GATEWAY=gwbl2003.blue.ygrid.yahoo.com run_hadooptest_remote -nopassword
+# run_hadooptest_remote -c <cluster name> [-g <gateway host>] [-n/-no-password] [-t/-transport-only]
+# run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -t
+# run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -n
 
-CLUSTER=${CLUSTER:="theoden"}
+function usage {
+    echo 
+    echo "USAGE"
+    echo "-----------------------------------------------------------------------------------"
+    echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
+The options
+        -c <cluster name> : cluster name
+        [ -g <gateway host> ] : gateway host 
+        [ -n ] : no password prompt
+        [ -t ] : transport packages to remote host only
+        [ -h ] : help
+"
+    exit 1
+}
+
 GATEWAY=${GATEWAY:="gwbl2005.blue.ygrid.yahoo.com"}
-PASSWORD_OPTION=$1
+
+while getopts "c:g:nth" opt; do
+	case $opt in
+		c) CLUSTER=$OPTARG;;
+		g) GATEWAY=$OPTARG;;
+		n) PASSWORD_OPTION="-n";;
+		t) RUN_OPTION="transport-only";;
+		h) usage;;
+		*) usage;;
+	esac
+done
+
+if [ -z $CLUSTER ]; then
+   echo "ERROR: Required CLUSTER value not defined!!!";
+   exit 1;
+fi
 
 USER=`whoami`
 GATEWAY_DIR=${GATEWAY_DIR:="/homes/$USER"}
@@ -18,5 +47,11 @@ SOURCE_TARGET_DIR=${SOURCE_LIB:="$SOURCE_ROOT/target"}
 set -x
 scp $SOURCE_TARGET_DIR/*.jar $GATEWAY:$GATEWAY_DIR
 scp $SOURCE_ROOT/scripts/run_hadooptest $GATEWAY:$GATEWAY_DIR
-ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest $PASSWORD_OPTION"
 set +x
+
+if [ "$RUN_OPTION" != "transport-only" ]; then
+   set -x
+   ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest $PASSWORD_OPTION";
+   set +x
+fi
+

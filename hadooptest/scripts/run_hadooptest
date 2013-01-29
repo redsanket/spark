@@ -1,23 +1,50 @@
 #!/bin/bash
 
 # Usage: 
-# CLUSTER=<cluster name> HADOOPTEST_LIB=<hadooptest lib directory> run_hadooptest
-# CLUSTER=faramir run_hadooptest
+# run_hadooptest -c <cluster name> [ -l <hadooptest lib directory> ]
+# run_hadooptest -c faramir
+# run_hadooptest -c faramir -l <libpath1>:<libpath2>:...
+
+function usage {
+    echo 
+    echo "USAGE"
+    echo "-----------------------------------------------------------------------------------"
+    echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
+The options
+        -c <cluster name> : cluster name
+        [ -l <lib directory> ] : hadooptest lib directory 
+        [ -n ] : no password prompt
+"
+    exit 1
+}
+
+HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
+PASSWORD_OPTION=${1:-"-password"}
+
+while getopts "c:l:nh" opt; do
+	case $opt in
+		c) CLUSTER=$OPTARG;;
+		l) HADOOPTEST_LIB=$OPTARG;;		
+		n) PASSWORD_OPTION="no-password";;
+		h) usage;;
+		*) usage;;
+	esac
+done
 
 if [ -z $CLUSTER ]; then
    echo "ERROR: Required CLUSTER value not defined!!!";
    exit 1;
 fi
 
-HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
 
-PASSWORD_OPTION=${1:-"-password"}
+# Setup Hadoop Env Variables (e.g. HADOOP_COMMON_HOME, HADOOP_CONF_DIR, etc
 
 CLASSPATH=\
 /home/y/lib/jars/junit.jar:\
 /home/gs/gridre/yroot.$CLUSTER/var/yinst/packages/hadoopcoretree-0.23.6.0.1301071353/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/lib/log4j-1.2.15.jar:\
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/hadoop-common-0.23.6.0.1301071353.jar:\
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/lib/commons-logging-1.1.1.jar:\
+/home/gs/gridre/yroot.theoden/share/hadoop/share/hadoop/common/lib/commons-lang-2.5.jar:\
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop-0.23.6.0.1301071353/share/hadoop/common/lib:\
 /home/gs/gridre/yroot.$CLUSTER/conf/hadoop/:\
 $HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT.jar:\
@@ -31,7 +58,7 @@ hadooptest.regression.yarn.SleepJob\
 "
 
 # TODO: long term this should move into the java test framework
-if [ $PASSWORD_OPTION != '-nopassword' ]; then 
+if [ $PASSWORD_OPTION != 'no-password' ]; then 
    USER=`whoami`
    if [ $USER != 'hadoopqa' ];then
       stty -echo
