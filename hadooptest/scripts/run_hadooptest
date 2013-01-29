@@ -3,7 +3,9 @@
 # Usage: 
 # run_hadooptest -c <cluster name> [ -l <hadooptest lib directory> ]
 # run_hadooptest -c faramir
+# run_hadooptest -c faramir -t <test list>
 # run_hadooptest -c faramir -l <libpath1>:<libpath2>:...
+# run_hadooptest -c theoden -l /homes/philips -t hadooptest.regression.Version -n
 
 function usage {
     echo 
@@ -13,19 +15,27 @@ function usage {
 The options
         -c <cluster name> : cluster name
         [ -l <lib directory> ] : hadooptest lib directory 
+        [ -t <test list> ] : test list 
         [ -n ] : no password prompt
 "
     exit 1
 }
 
+PASSWORD_OPTION=${PASSWORD_OPTION:-"-password"}
 HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
-PASSWORD_OPTION=${1:-"-password"}
 
-while getopts "c:l:nh" opt; do
+DEFAULT_TESTS="\
+hadooptest.regression.Version \
+hadooptest.regression.yarn.SleepJob\
+"
+TESTS=${TESTS:="$DEFAULT_TESTS"}
+
+while getopts "c:l:t:nh" opt; do
 	case $opt in
 		c) CLUSTER=$OPTARG;;
 		l) HADOOPTEST_LIB=$OPTARG;;		
 		n) PASSWORD_OPTION="no-password";;
+		t) TESTS=$OPTARG;;
 		h) usage;;
 		*) usage;;
 	esac
@@ -51,11 +61,6 @@ $HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT.jar:\
 $HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT-tests.jar
 
 echo "CLASSPATH=$CLASSPATH"
-
-TESTS="\
-hadooptest.regression.Version \
-hadooptest.regression.yarn.SleepJob\
-"
 
 # TODO: long term this should move into the java test framework
 if [ $PASSWORD_OPTION != 'no-password' ]; then 
