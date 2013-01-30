@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import hadooptest.TestSession;
@@ -44,7 +45,7 @@ public class FullyDistributedHadoop {
 	 * 
 	 * @param command The system command to run.
 	 */
-	private static String runProc(String command) {
+	public String runProc(String command) {
 		Process proc = null;
 		TSM.logger.info(command);
 		String output = null;
@@ -66,7 +67,7 @@ public class FullyDistributedHadoop {
 	 * 
 	 * @param command The system command to run.
 	 */
-	public String runProcBuilder(String[] commandArray) {
+	public String[] runProcBuilder(String[] commandArray) {
 		return runProcBuilder(commandArray, null);
 	}
 
@@ -75,13 +76,18 @@ public class FullyDistributedHadoop {
 	 * 
 	 * @param command The system command to run.
 	 */
-	public String runProcBuilder(String[] commandArray, Map<String, String> newEnv) {
+	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv) {
 		TSM.logger.info(Arrays.toString(commandArray));
 		Process proc = null;
+		int rc = 0;
 		String output = null;
 		String error = null;
 		try {
 			ProcessBuilder pb = new ProcessBuilder(commandArray);
+
+			// List<String> strList  = pb.command();
+			// String[] strArray = strList.toArray(new String[0]);		
+			// TSM.logger.info("PB command: " + Arrays.toString(strArray));
 			
 			Map<String, String> env = pb.environment();
 			if (newEnv != null) {
@@ -92,7 +98,7 @@ public class FullyDistributedHadoop {
 	        output = loadStream(proc.getInputStream());
 	        error = loadStream(proc.getErrorStream());
 	        
-	        int rc = proc.waitFor();
+	        rc = proc.waitFor();
 	        TSM.logger.debug("Process ended with rc=" + rc);
 	        // TSM.logger.debug("Process Stdout:" + output);
 	        // TSM.logger.debug("Process Stderr:" + error);
@@ -103,7 +109,7 @@ public class FullyDistributedHadoop {
 			}
 			e.printStackTrace();
 		}
-		return output+error;
+		return new String[] { Integer.toString(rc), output, error};
 	}
 	
 	/*
@@ -111,7 +117,7 @@ public class FullyDistributedHadoop {
 	 * 
 	 * @param command The system command to run.
 	 */
-	public String runHadoopProcBuilder(String[] commandArray) {
+	public String[] runHadoopProcBuilder(String[] commandArray) {
 		return runHadoopProcBuilder(
 				commandArray,
 				System.getProperty("user.name"));
@@ -122,7 +128,7 @@ public class FullyDistributedHadoop {
 	 * 
 	 * @param command The system command to run.
 	 */
-	public String runHadoopProcBuilder(String[] commandArray, String username) {
+	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
 		if (this.isHeadless(username)) {
 			Map<String, String> newEnv = new HashMap<String, String>();
 			newEnv.put("KRB5CCNAME", this.obtainKerberosCache(username));
