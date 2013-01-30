@@ -63,15 +63,17 @@ $HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT-tests.jar
 echo "CLASSPATH=$CLASSPATH"
 
 # TODO: long term this should move into the java test framework
-if [ $PASSWORD_OPTION != 'no-password' ]; then 
+if [ "$PASSWORD_OPTION" != 'no-password' ]; then 
    USER=`whoami`
-   if [ $USER != 'hadoopqa' ];then
+   if [ $USER == 'hadoopqa' ];then
+      echo "Headless user 'hadoopqa' requires no password."
+   else 
       stty -echo
       /usr/kerberos/bin/kinit $USER@DS.CORP.YAHOO.COM
       stty echo
    fi
 fi
-
+exit;
 set -x
 /home/y/bin/java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
 set +x
