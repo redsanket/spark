@@ -72,8 +72,8 @@ public class SleepJob {
 		job.runSleepJob();
 		job.runSleepJob("hadoop1");
 		
-		String output = job.listJobs();
-		TSM.logger.info("Job List:"+output);
+		String[] output = job.listJobs();
+		TSM.logger.info("Job List:"+output[1]);
 	}
 	
 	/******************* END TESTS ***********************/	
