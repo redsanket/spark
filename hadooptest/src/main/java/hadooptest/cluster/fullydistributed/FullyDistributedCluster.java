@@ -236,11 +236,14 @@ public class FullyDistributedCluster implements Cluster {
 		  TSM.logger.info("------------------ START CLUSTER " + 
 				  conf.getHadoopProp("CLUSTER_NAME") + 
 				  " ---------------------------------");
-		  // this.hadoopDaemon("start", "namenode", null, null);	  
-		  //this.hadoopDaemon("start", "datanodes", null, null);
-		  //this.hadoopDaemon("start", "resourcemanager", null, null);
-		  //this.hadoopDaemon("stop", "nodemanager", null, null);
-
+		  int returnValue = 0;
+		  returnValue += this.hadoopDaemon("start", "namenode", null, null);	  
+		  returnValue += this.hadoopDaemon("start", "datanode", null, null);
+		  returnValue += this.hadoopDaemon("start", "resourcemanager", null, null);
+		  returnValue += this.hadoopDaemon("start", "nodemanager", null, null);
+		  if (returnValue > 0) {
+			  TSM.logger.error("Stop Cluster returned error exit code!!!");
+		  }
 	}
 		  
 	public void stopCluster() {
@@ -251,7 +254,7 @@ public class FullyDistributedCluster implements Cluster {
 	  returnValue += this.hadoopDaemon("stop", "nodemanager", null, null);
 	  returnValue += this.hadoopDaemon("stop", "resourcemanager", null, null);
 	  returnValue += this.hadoopDaemon("stop", "datanode", null, null);
-	  //returnValue += this.hadoopDaemon("stop", "namenode", null, null);	 
+	  returnValue += this.hadoopDaemon("stop", "namenode", null, null);	 
 	  if (returnValue > 0) {
 		  TSM.logger.error("Stop Cluster returned error exit code!!!");
 	  }
@@ -277,7 +280,7 @@ public class FullyDistributedCluster implements Cluster {
 		String sudoer = getSudoer(component);
 		String[] daemonHost = this.conf.getClusterNodes(component);	
 		if (!action.equals("stop")) {
-			if (confDir.isEmpty()) {
+			if ((confDir == null) || confDir.isEmpty()) {
 				confDir = this.conf.getHadoopProp("HADOOP_CONF_DIR");
 			}
 		}
