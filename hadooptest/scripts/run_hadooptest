@@ -73,7 +73,7 @@ if [ "$PASSWORD_OPTION" != 'no-password' ]; then
       stty echo
    fi
 fi
-exit;
+
 set -x
 /home/y/bin/java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
 set +x
