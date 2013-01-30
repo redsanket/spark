@@ -3,8 +3,12 @@ package hadooptest.cluster.fullydistributed;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.Cluster;
@@ -38,6 +42,9 @@ public class FullyDistributedCluster implements Cluster {
 		TSM = testSession;
 		this.initTestSessionConf();
 		this.conf = new FullyDistributedConfiguration(testSession);		
+		
+		// stopCluster();
+		// startCluster();
 
 		// this.conf.write();
 	}
@@ -224,6 +231,74 @@ public class FullyDistributedCluster implements Cluster {
 		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
 		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
 	}
+
+	public void startCluster() {
+		  TSM.logger.info("------------------ STOP CLUSTER $CLUSTER ---------------------------------");
+		  // this.hadoopDaemon("start", "namenode", null, null);	  
+		  //this.hadoopDaemon("start", "datanodes", null, null);
+		  //this.hadoopDaemon("start", "resourcemanager", null, null);
+		  //this.hadoopDaemon("stop", "nodemanager", null, null);
+
+	}
+		  
+	public void stopCluster() {
+	  TSM.logger.info("------------------ STOP CLUSTER $CLUSTER ---------------------------------");
+	  //this.hadoopDaemon("stop", "nodemanager", null, null);
+	  //this.hadoopDaemon("stop", "resourcemanager", null, null);
+	  //this.hadoopDaemon("stop", "datanodes", null, null);
+	  this.hadoopDaemon("stop", "namenode", null, null);	  
+	}
+
+	private String getSudoer(String component) {
+		String sudoer = "";
+	    if (component.equals("namenode")) {
+	        sudoer = "hdfs";
+	    } else if (component.equals("datanode")) {
+	        sudoer = "root";
+	    } else if ((component.equals("jobtracker")) || (component.equals("tasktracker"))) {
+	        sudoer = "mapred";
+	    } else if (component.equals("resourcemanager")) {
+	        sudoer = "mapredqa";
+	    }
+		return sudoer;
+	}
+	
+
+	public void hadoopDaemon(String action, String component, String hosts, String confDir) {
+		String adminHost = this.conf.getClusterNodes("ADMIN_HOST")[0];
+		String sudoer = getSudoer(component);
+		String[] daemonHost = this.conf.getClusterNodes(component);	
+		if (!action.equals("stop")) {
+			if (confDir.isEmpty()) {
+				confDir = this.conf.getHadoopProp("HADOOP_CONF_DIR");
+			}
+		}
+		else {
+			confDir = "";			
+		}
+		
+		String[] cmd1 = { "/home/y/bin/pdsh", "-w", StringUtils.join(daemonHost, ",") };
+		String[] cmd2 = { "/usr/bin/sudo", "/usr/local/bin/yinst", "set", "-root",
+				this.conf.getHadoopProp("HADOOP_INSTALL"),
+				"hadoop_qa_restart_config.HADOOP_CONF_DIR="+confDir, ";" };
+		String[] cmd3 = { "/usr/bin/sudo", "/usr/local/bin/yinst", action, "-root",
+				this.conf.getHadoopProp("HADOOP_INSTALL"), component };
+		ArrayList<String> temp = new ArrayList<String>();
+		temp.addAll(Arrays.asList(cmd1));
+		temp.addAll(Arrays.asList(cmd2));
+		temp.addAll(Arrays.asList(cmd3));
+		String [] cmd = temp.toArray(new String[cmd1.length+cmd2.length+cmd3.length]);
+		String output[] = TSM.hadoop.runProcBuilder(cmd);
+		TSM.logger.info(Arrays.toString(output));
+		
+		// When running as hadoopqa and using the yinst stop command to stop the
+		// jobtracker instead of calling hadoop-daemon.sh directly, there can be a
+		// delay before the job tracker is actually stopped. This is not ideal as it
+		// poses potential timing issue. Should investigate why yinst stop is existing
+		// before the job pid goes away.
+	}
+	
+
 	
 	/*
 	 * Verifies, with jps, that a given process name is running.
