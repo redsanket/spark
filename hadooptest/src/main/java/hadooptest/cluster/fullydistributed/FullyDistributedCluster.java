@@ -233,7 +233,9 @@ public class FullyDistributedCluster implements Cluster {
 	}
 
 	public void startCluster() {
-		  TSM.logger.info("------------------ STOP CLUSTER $CLUSTER ---------------------------------");
+		  TSM.logger.info("------------------ START CLUSTER " + 
+				  conf.getHadoopProp("CLUSTER_NAME") + 
+				  " ---------------------------------");
 		  // this.hadoopDaemon("start", "namenode", null, null);	  
 		  //this.hadoopDaemon("start", "datanodes", null, null);
 		  //this.hadoopDaemon("start", "resourcemanager", null, null);
@@ -242,11 +244,17 @@ public class FullyDistributedCluster implements Cluster {
 	}
 		  
 	public void stopCluster() {
-	  TSM.logger.info("------------------ STOP CLUSTER $CLUSTER ---------------------------------");
-	  //this.hadoopDaemon("stop", "nodemanager", null, null);
-	  //this.hadoopDaemon("stop", "resourcemanager", null, null);
-	  //this.hadoopDaemon("stop", "datanodes", null, null);
-	  this.hadoopDaemon("stop", "namenode", null, null);	  
+	  TSM.logger.info("------------------ STOP CLUSTER " + 
+			  conf.getHadoopProp("CLUSTER_NAME") + 
+			  " ---------------------------------");
+	  int returnValue = 0;
+	  returnValue += this.hadoopDaemon("stop", "nodemanager", null, null);
+	  returnValue += this.hadoopDaemon("stop", "resourcemanager", null, null);
+	  returnValue += this.hadoopDaemon("stop", "datanode", null, null);
+	  //returnValue += this.hadoopDaemon("stop", "namenode", null, null);	 
+	  if (returnValue > 0) {
+		  TSM.logger.error("Stop Cluster returned error exit code!!!");
+	  }
 	}
 
 	private String getSudoer(String component) {
@@ -264,7 +272,7 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 
-	public void hadoopDaemon(String action, String component, String hosts, String confDir) {
+	public int hadoopDaemon(String action, String component, String hosts, String confDir) {
 		String adminHost = this.conf.getClusterNodes("ADMIN_HOST")[0];
 		String sudoer = getSudoer(component);
 		String[] daemonHost = this.conf.getClusterNodes(component);	
@@ -296,6 +304,12 @@ public class FullyDistributedCluster implements Cluster {
 		// delay before the job tracker is actually stopped. This is not ideal as it
 		// poses potential timing issue. Should investigate why yinst stop is existing
 		// before the job pid goes away.
+		
+		int returnCode = Integer.parseInt(output[0]);
+		if (returnCode != 0) {
+			TSM.logger.error("Operation '" + action + " " + component + "' failed!!!");
+		}
+		return returnCode;
 	}
 	
 
