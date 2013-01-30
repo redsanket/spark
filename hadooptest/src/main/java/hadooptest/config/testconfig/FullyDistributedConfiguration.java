@@ -203,22 +203,29 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	private void initClusterNodes() {
 		// Nodes
 		
-		clusterNodes.put("ADMIN_HOST",
-				new String[] {"adm102.blue.ygrid.yahoo.com", "adm103.blue.ygrid.yahoo.com"});
+		clusterNodes.put("ADMIN_HOST", new String[] {
+				"adm102.blue.ygrid.yahoo.com",
+				"adm103.blue.ygrid.yahoo.com"});
 
+		// Namenode
 		String namenode_addr = getHadoopConfFileProp("HADOOP_CONF_HDFS",
 				"dfs.namenode.https-address");
 		String namenode = namenode_addr.split(":")[0];
 		clusterNodes.put("namenode", new String[] {namenode});		
 
+		// Resource Manager
 		String rm_addr = getHadoopConfFileProp("HADOOP_CONF_YARN",
 				"yarn.resourcemanager.resource-tracker.address");
 		String rm = rm_addr.split(":")[0];
 		clusterNodes.put("resourcemanager", new String[] {rm});		
 		
-		// getSlaveNodes(namenode);
-		clusterNodes.put("datanode", getHostsFromList(namenode, getHadoopProp("HADOOP_CONF_DIR") + "/slaves"));		
+		// Datanode
+		clusterNodes.put("datanode", getHostsFromList(namenode,
+				getHadoopProp("HADOOP_CONF_DIR") + "/slaves"));		
 		
+		// Nodemanager
+		clusterNodes.put("nodemanager", clusterNodes.get("datanode"));		
+
 		// Show all balances in hash table. 
 		Enumeration<String> components = clusterNodes.keys(); 
 		while (components.hasMoreElements()) { 
@@ -229,7 +236,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	private String[] getHostsFromList(String namenode, String file) {
 		String[] output = TSM.hadoop.runProcBuilder(new String[] {"ssh", namenode, "/bin/cat", file});
-		String[] nodes = output[1].split(",");
+		String[] nodes = output[1].split("\n");
 		return nodes;
 	}
 	
