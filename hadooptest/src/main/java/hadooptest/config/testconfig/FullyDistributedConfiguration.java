@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -21,6 +22,7 @@ import hadooptest.config.TestConfiguration;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,7 +38,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	// General Hadoop configuration properties such as cluster name, 
 	// directory paths, etc.	
     protected Properties hadoopProps = new Properties();
-
+    
+    
     // Contains configuration properties loaded from the xml conf file for 
     // each Hadoop components
 	Hashtable<String, Properties> hadoopConfFileProps =
@@ -44,8 +47,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	// Contains the nodes on the cluster
 	Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
-
-	// Properties clusterNodes = new Properties();
 
 	/*
 	 * Class constructor.
@@ -56,9 +57,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 */
 	public FullyDistributedConfiguration(TestSession testSession) {
 		super(false);
-
 		TSM = testSession;
-		this.initDefaults();
+		this.initDefaults();		
 	}
 
 	/*
@@ -86,6 +86,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	public Hashtable<String, String[]> getClusterNodes() {
     	return clusterNodes;
+    }
+	
+	public String[] getClusterNodes(String component) {
+    	return clusterNodes.get(component);
     }
 	
 	public String getHadoopProp(String key) {
@@ -186,16 +190,22 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 
 		// Print the stored conf properties
+		/*
 		for (int i = 0; i < confComponents.length; i++) {
 			String confComponent = confComponents[i];
 			Properties prop = hadoopConfFileProps.get(confComponent);
 			TSM.logger.debug("Parsed Hadop configuration file for " + confComponent + ":");
 			printProp(prop);
-		}		
+		}
+		*/		
 	}
 
 	private void initClusterNodes() {
 		// Nodes
+		
+		clusterNodes.put("ADMIN_HOST",
+				new String[] {"adm102.blue.ygrid.yahoo.com", "adm103.blue.ygrid.yahoo.com"});
+
 		String namenode_addr = getHadoopConfFileProp("HADOOP_CONF_HDFS",
 				"dfs.namenode.https-address");
 		String namenode = namenode_addr.split(":")[0];
@@ -218,8 +228,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	}
 
 	private String[] getHostsFromList(String namenode, String file) {
-		String output = TSM.hadoop.runProcBuilder(new String[] {"ssh", namenode, "/bin/cat", file});
-		String[] nodes = output.split(",");
+		String[] output = TSM.hadoop.runProcBuilder(new String[] {"ssh", namenode, "/bin/cat", file});
+		String[] nodes = output[1].split(",");
 		return nodes;
 	}
 	
@@ -369,7 +379,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
     	// Call hadoop version to fetch the version 	
     	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
     			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
-    	String version = (TSM.hadoop.runProcBuilder(cmd)).split("\n")[0];
+    	String version = (TSM.hadoop.runProcBuilder(cmd))[1].split("\n")[0];
         return version.split(" ")[1];
     }
 	
