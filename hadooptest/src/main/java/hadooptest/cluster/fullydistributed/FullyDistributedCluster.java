@@ -211,16 +211,8 @@ public class FullyDistributedCluster implements Cluster {
      * (non-Javadoc)
      * @see hadooptest.cluster.Cluster#getVersion()
      */
-    public String getVersion() {
-        // Get Cluster Version if undefined
-        if (clusterVersion.equals("")) {
-        	// Call hadoop version to fetch the version
-        	String[] cmd = { HADOOP_INSTALL+"/share/hadoop/bin/hadoop",
-        			"--config", CONFIG_BASE_DIR, "version" };
-        	String version = (TSM.hadoop.runProcBuilder(cmd)).split("\n")[0];
-        	this.clusterVersion = version.split(" ")[1];
-        }	
-        return this.clusterVersion;
+    public String getVersion() {    	
+    	return this.conf.getHadoopProp("HADOOP_VERSION");
     }
     
     /*
