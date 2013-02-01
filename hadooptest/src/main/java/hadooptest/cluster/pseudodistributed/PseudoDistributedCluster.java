@@ -12,6 +12,7 @@ import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 import hadooptest.Util;
 import hadooptest.TestSession;
+import hadooptest.config.TestConfiguration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,8 +33,6 @@ public class PseudoDistributedCluster implements Cluster {
 	
 	// The version of the cluster.
 	protected String cluster_version = "";
-
-	private static TestSession TSM;
 	
 	private String HADOOP_INSTALL;
 	private String CONFIG_BASE_DIR;
@@ -43,11 +42,9 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
 	 */
-	public PseudoDistributedCluster(TestSession testSession) throws IOException
+	public PseudoDistributedCluster() throws IOException
 	{
-		TSM = testSession;
-		
-		this.conf = new PseudoDistributedConfiguration(testSession);
+		this.conf = new PseudoDistributedConfiguration();
 		
 		this.initTestSessionConf();
 		
@@ -59,9 +56,8 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * Accepts a custom configuration, and assumed you will write it to disk.
 	 */
-	public PseudoDistributedCluster(TestSession testSession, PseudoDistributedConfiguration conf)
+	public PseudoDistributedCluster(PseudoDistributedConfiguration conf)
 	{
-		TSM = testSession;
 		this.conf = conf;
 		
 		this.initTestSessionConf();
@@ -80,7 +76,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#start()
 	 */
-	public void start() throws IOException {
+	public void start() {
 
 		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
 		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
@@ -91,24 +87,24 @@ public class PseudoDistributedCluster implements Cluster {
 		//TSM.logger.info("FORMATTING DFS...");
 		//runProc(format_dfs);
 		
-		TSM.logger.info("STARTING DFS...");
+		TestSession.logger.info("STARTING DFS...");
 		runProc(start_dfs);
 		assertTrue("The NameNode was not started.", verifyJpsProcRunning("NameNode"));
 		assertTrue("The SecondaryNameNode was not started.", verifyJpsProcRunning("SecondaryNameNode"));
 
-		TSM.logger.info("STARTING DATANODE...");
+		TestSession.logger.info("STARTING DATANODE...");
 		runProc(start_datanode);
 		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
 		
-		TSM.logger.info("STARTING YARN");
+		TestSession.logger.info("STARTING YARN");
 		runProc(start_yarn);
 		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
 
-		TSM.logger.info("STARTING JOB HISTORY SERVER...");
+		TestSession.logger.info("STARTING JOB HISTORY SERVER...");
 		runProc(start_historyserver);
 		assertTrue("The JobHistoryServer was not started.", verifyJpsProcRunning("JobHistoryServer"));
 		
-		TSM.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
+		TestSession.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
 		Util.sleep(30);
 	}
 
@@ -119,7 +115,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#stop()
 	 */
-	public void stop() throws IOException {
+	public void stop() {
 		String stop_dfs = HADOOP_INSTALL + "/sbin/stop-dfs.sh";
 		String stop_yarn = HADOOP_INSTALL + "/sbin/stop-yarn.sh";
 		String stop_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
@@ -144,7 +140,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#die()
 	 */
-	public void die() throws IOException {
+	public void die() {
 
 	}
 
@@ -161,8 +157,8 @@ public class PseudoDistributedCluster implements Cluster {
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
 	 */
-	public void setConf(PseudoDistributedConfiguration conf) {
-		this.conf = conf;
+	public void setConf(TestConfiguration conf) {
+		this.conf = (PseudoDistributedConfiguration)conf;
 	}
 
 	/*
@@ -185,14 +181,14 @@ public class PseudoDistributedCluster implements Cluster {
 	public ClusterState getState() {
 		return this.cluster_state;
 	}
-
+	
 	/*
 	 * Initialize the test session configuration properties necessary to use the 
 	 * pseudo distributed cluster instance.
 	 */
 	private void initTestSessionConf() {
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 	}
 	
 	/*
@@ -203,7 +199,7 @@ public class PseudoDistributedCluster implements Cluster {
 	private static void runProc(String command) {
 		Process proc = null;
 
-		TSM.logger.debug(command);
+		TestSession.logger.debug(command);
 
 		try {
 			proc = Runtime.getRuntime().exec(command);
@@ -211,7 +207,7 @@ public class PseudoDistributedCluster implements Cluster {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line); 				
+				TestSession.logger.debug(line); 				
 				line=reader.readLine();
 			} 
 		}
@@ -234,7 +230,7 @@ public class PseudoDistributedCluster implements Cluster {
 
 		String jpsCmd = "jps";
 
-		TSM.logger.debug(jpsCmd);
+		TestSession.logger.debug(jpsCmd);
 
 		String jpsPatternStr = "(.*)(" + process + ")(.*)";
 		Pattern jpsPattern = Pattern.compile(jpsPatternStr);
@@ -245,12 +241,12 @@ public class PseudoDistributedCluster implements Cluster {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{  
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 
 				Matcher jpsMatcher = jpsPattern.matcher(line);
 
 				if (jpsMatcher.find()) {
-					TSM.logger.debug("FOUND PROCESS: " + process);
+					TestSession.logger.debug("FOUND PROCESS: " + process);
 					return true;
 				}
 
@@ -264,12 +260,12 @@ public class PseudoDistributedCluster implements Cluster {
 			e.printStackTrace();
 		}
 
-		TSM.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
+		TestSession.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
 		return false;
 	}
 
 	public String getVersion() {
 		return this.cluster_version;
-	}		
+	}	
 
 }

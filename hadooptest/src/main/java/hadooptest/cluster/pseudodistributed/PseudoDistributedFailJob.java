@@ -15,20 +15,15 @@ public class PseudoDistributedFailJob extends PseudoDistributedJob {
 	private String CONFIG_BASE_DIR;
 	private String USER;
 	
-	private static TestSession TSM;
-	
 	/*
 	 * Class constructor.
 	 */
-	public PseudoDistributedFailJob(TestSession testSession) {
-		super(testSession);
-		
-		TSM = testSession;
+	public PseudoDistributedFailJob() {
 
-		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
-		USER = TSM.conf.getProperty("USER", "");
+		HADOOP_VERSION = TestSession.conf.getProperty("HADOOP_VERSION", "");
+		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
+		USER = TestSession.conf.getProperty("USER", "");
 	}
 	
 	/*
@@ -39,6 +34,12 @@ public class PseudoDistributedFailJob extends PseudoDistributedJob {
 	public String submit() {
 		//return this.submit(10, 10, 50000, 50000, 1);
 		return this.submit(true, true);
+	}
+
+	public String submit(int mappers, int reducers, int map_time,
+			int reduce_time, int numJobs, int map_memory, int reduce_memory) {
+		TestSession.logger.debug("submit(int, int, int, int, int, int) is unimplemented for PseudoDistributedFailJob.");
+		return null;
 	}
 	
 	/*
@@ -77,7 +78,7 @@ public class PseudoDistributedFailJob extends PseudoDistributedJob {
 				+ " " + strFailMappers
 				+ " " + strFailReducers;
 
-		TSM.logger.debug("COMMAND: " + hadoopCmd);
+		TestSession.logger.debug("COMMAND: " + hadoopCmd);
 
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
@@ -89,13 +90,13 @@ public class PseudoDistributedFailJob extends PseudoDistributedJob {
 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 
 				Matcher jobMatcher = jobPattern.matcher(line);
 
 				if (jobMatcher.find()) {
 					jobID = jobMatcher.group(1);
-					TSM.logger.debug("JOB ID: " + jobID);
+					TestSession.logger.debug("JOB ID: " + jobID);
 					break;
 				}
 

@@ -10,6 +10,7 @@
 
 package hadooptest.config.testconfig;
 
+import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
 public class MockConfiguration extends TestConfiguration
@@ -29,6 +30,20 @@ public class MockConfiguration extends TestConfiguration
       initDefaults();
    }
 
+   public void write() {
+	   
+   }
+   
+   public void cleanup() {
+	   
+   }
+   
+	public String getHadoopProp(String key) {
+		TestSession.logger.error("Currently unimplemented for this cluster configuration");
+		
+		return null;
+	}
+   
    /**
     */
    private void initDefaults()

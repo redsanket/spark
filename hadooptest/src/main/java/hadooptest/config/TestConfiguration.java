@@ -4,6 +4,10 @@
 
 package hadooptest.config;
 
+import hadooptest.TestSession;
+
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 
 /* 
@@ -42,4 +46,16 @@ public abstract class TestConfiguration extends Configuration {
 		super(other);
 	}
 
+	/*
+	 * Cleans up any test configuration written to disk.
+	 */
+	public abstract void cleanup();
+	
+	/*
+	 * Writes any test configuration to disk.
+	 */
+	public abstract void write();
+	
+	public abstract String getHadoopProp(String key);
+	
 }

@@ -2,10 +2,10 @@ package hadooptest.cluster.standalone;
 
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.Cluster;
-import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 import hadooptest.config.testconfig.StandaloneConfiguration;
+import hadooptest.config.TestConfiguration;
 
-import java.io.IOException;
+import java.util.Hashtable;
 
 public class StandaloneCluster implements Cluster {
 
@@ -17,6 +17,8 @@ public class StandaloneCluster implements Cluster {
 	
 	// The version of the cluster.
 	protected String cluster_version = "";
+
+    protected Hashtable<String, String> paths = new Hashtable<String, String>();
 	
 	/*
 	 * Class constructor.
@@ -40,7 +42,7 @@ public class StandaloneCluster implements Cluster {
 	/**
 	 * Start the cluster from a stopped state.
 	 **/
-	public void start() throws IOException {
+	public void start() {
 
 	}
 
@@ -48,14 +50,14 @@ public class StandaloneCluster implements Cluster {
 	 * Stop the cluster, shut it down cleanly to a state from which
 	 * it can be restarted.
 	 **/
-	public void stop() throws IOException {
+	public void stop() {
 
 	}
 
 	/**
 	 * Kill the cluster irrespective of the state it is left in.
 	 **/
-	public void die() throws IOException {
+	public void die() {
 
 	}
 
@@ -72,8 +74,8 @@ public class StandaloneCluster implements Cluster {
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
 	 */
-	public void setConf(StandaloneConfiguration conf) {
-		this.conf = conf;
+	public void setConf(TestConfiguration conf) {
+		this.conf = (StandaloneConfiguration)conf;
 	}
 
 	/*
@@ -96,5 +98,14 @@ public class StandaloneCluster implements Cluster {
 	public String getVersion() {
 		return this.cluster_version;
 	}
+	
+
+    public Hashtable<String, String> getPaths() {
+    	return paths;
+    }
+
+    public String getPaths(String key) {
+    	return paths.get(key).toString();
+    }
 
 }

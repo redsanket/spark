@@ -27,18 +27,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 /*
  * A class that represents a Hadoop Configuration for a distributed
  * Hadoop cluster under test.
  */
 public class FullyDistributedConfiguration extends TestConfiguration
 {
-	private static TestSession TSM;
 
 	// General Hadoop configuration properties such as cluster name, 
 	// directory paths, etc.	
     protected Properties hadoopProps = new Properties();
-    
     
     // Contains configuration properties loaded from the xml conf file for 
     // each Hadoop components
@@ -47,18 +46,17 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	// Contains the nodes on the cluster
 	Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
-
+    
 	/*
 	 * Class constructor.
 	 * 
 	 * Calls the superclass constructor, and initializes the default
-	 * configuration parameters for a distributed cluster under test.
-	 * Hadoop default configuration is not used.
+	 * configuration parameters for a distributed cluster under test.  Hadoop
+	 * default configuration is not used.
 	 */
-	public FullyDistributedConfiguration(TestSession testSession) {
-		super(false);
-		TSM = testSession;
-		this.initDefaults();		
+	public FullyDistributedConfiguration() {
+		super(false);		
+		this.initDefaults();
 	}
 
 	/*
@@ -72,7 +70,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * specified by the Hadoop installation, before loading the class configuration defaults.
 	 */
 	public FullyDistributedConfiguration(boolean loadDefaults) {
-		super(loadDefaults); 
+		super(loadDefaults);
 		this.initDefaults();
 	}
 
@@ -97,27 +95,130 @@ public class FullyDistributedConfiguration extends TestConfiguration
     		return hadoopProps.getProperty(key);
     	}
     	else {
-			TSM.logger.error("Couldn't find value for key '" + key + "'.");
+			TestSession.logger.error("Couldn't find value for key '" + key + "'.");
 			return "";
     	}
     }
 
+    /*
+     * Returns the version of the fully distributed hadoop cluster being used.
+     * 
+     * @return String the Hadoop version for the fully distributed cluster.
+     * 
+     * (non-Javadoc)
+     * @see hadooptest.cluster.Cluster#getVersion()
+     */
+    public String getVersion() {
+    	// Call hadoop version to fetch the version 	
+    	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
+    			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
+    	String version = (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];
+        return version.split(" ")[1];
+    }
+	
+	/*
+	 * Writes the distributed cluster configuration specified by the object out
+	 * to disk.
+	 */
+	public void write() {
+		/*
+		String confDir = this.getHadoopProp("HADOOP_CONF_DIR");
+		File outdir = new File(confDir);
+		outdir.mkdirs();
+		
+		File historytmp = new File(confDir + "jobhistory/tmp");
+		historytmp.mkdirs();
+		File historydone = new File(confDir + "jobhistory/done");
+		historydone.mkdirs();
+
+		File core_site = new File(confDir + "core-site.xml");
+		File hdfs_site = new File(confDir + "hdfs-site.xml");
+		File yarn_site = new File(confDir + "yarn-site.xml");
+		File mapred_site = new File(confDir + "mapred-site.xml");		
+
+		try{
+			if (core_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(core_site);
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
+
+			if (hdfs_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(hdfs_site);
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
+
+			if (yarn_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(yarn_site);
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
+
+			if (mapred_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(mapred_site);
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
+
+			FileWriter slaves_file = new FileWriter(confDir + "slaves");
+			BufferedWriter slaves = new BufferedWriter(slaves_file);
+			slaves.write("localhost");
+			slaves.close();
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem writing the hadoop configuration to disk.");
+		}
+		*/
+	}
+
+	/*
+	 * Removes the configuration files from disk, that were written to disk
+	 * by the .write() of the object.
+	 */
+	public void cleanup() {
+		/*
+		String confDir = this.getHadoopProp("HADOOP_CONF_DIR");
+		File core_site = new File(confDir + "core-site.xml");
+		File hdfs_site = new File(confDir + "hdfs-site.xml");
+		File yarn_site = new File(confDir + "yarn-site.xml");
+		File mapred_site = new File(confDir + "mapred-site.xml");	
+		File slaves = new File(confDir + "slaves");	
+		File log4jProperties = new File(confDir + "log4j.properties");
+
+		core_site.delete();
+		hdfs_site.delete();
+		yarn_site.delete();
+		mapred_site.delete();
+		slaves.delete();
+		log4jProperties.delete();
+		*/
+	}
+	
 	private String getHadoopConfFileProp(String component, String propName) {
 		Properties prop = hadoopConfFileProps.get(component);
 		String propValue = prop.getProperty(propName);
 		return propValue;
 	}
-
+	
 	/*
 	 * Initializes a set of default configuration properties that have been 
 	 * determined to be a reasonable set of defaults for running a distributed
 	 * cluster under test.
 	 */
 	private void initDefaults() {
-
+		/*
 		String HADOOP_ROOT="/home";  // /grid/0
 								
-		hadoopProps.setProperty("CLUSTER_NAME", TSM.conf.getProperty("CLUSTER_NAME", ""));
+		hadoopProps.setProperty("CLUSTER_NAME", TestSession.conf.getProperty("CLUSTER_NAME", ""));
 		hadoopProps.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
 		hadoopProps.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
 				hadoopProps.getProperty("CLUSTER_NAME"));
@@ -169,8 +270,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		
 		initConfFiles();
 		initClusterNodes();
+		*/
 	}
-	    
+
+    
 	private void initConfFiles() {
 		// Configuration
 		String[] confComponents = {
@@ -230,12 +333,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		Enumeration<String> components = clusterNodes.keys(); 
 		while (components.hasMoreElements()) { 
 			String component = (String) components.nextElement(); 
-			TSM.logger.debug(component + ": " + Arrays.toString(clusterNodes.get(component))); 
+			TestSession.logger.debug(component + ": " + Arrays.toString(clusterNodes.get(component))); 
 		} 	
 	}
 
 	private String[] getHostsFromList(String namenode, String file) {
-		String[] output = TSM.hadoop.runProcBuilder(new String[] {"ssh", namenode, "/bin/cat", file});
+		String[] output = TestSession.exec.runProcBuilder(new String[] {"ssh", namenode, "/bin/cat", file});
 		String[] nodes = output[1].split("\n");
 		return nodes;
 	}
@@ -252,7 +355,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * to disk.
 	 */
 	public Properties parseHadoopConf(String confFile) {
-		TSM.logger.info("Parse Hadoop configuration file: " + confFile);
+		TestSession.logger.info("Parse Hadoop configuration file: " + confFile);
 		Properties props = new Properties();
 		try {
 			File xmlInputFile = new File(confFile);
@@ -276,7 +379,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 								getValue("value", element));
 					}
 					catch (NullPointerException npe) {
-						TSM.logger.warn("Value for property name " + propName + 
+						TestSession.logger.warn("Value for property name " + propName + 
 								" is null");
 					}
 				}
@@ -295,99 +398,5 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		Node node = (Node) nodes.item(0);
 		return node.getNodeValue();
 	}
-	
-	/*
-	 * Writes the distributed cluster configuration specified by the object out
-	 * to disk.
-	 */
-	public void write() throws IOException {
-		String confDir = this.getHadoopProp("HADOOP_CONF_DIR");
-		File outdir = new File(confDir);
-		outdir.mkdirs();
-		
-		File historytmp = new File(confDir + "jobhistory/tmp");
-		historytmp.mkdirs();
-		File historydone = new File(confDir + "jobhistory/done");
-		historydone.mkdirs();
-
-		File core_site = new File(confDir + "core-site.xml");
-		File hdfs_site = new File(confDir + "hdfs-site.xml");
-		File yarn_site = new File(confDir + "yarn-site.xml");
-		File mapred_site = new File(confDir + "mapred-site.xml");		
-
-		if (core_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(core_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
-
-		if (hdfs_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(hdfs_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
-
-		if (yarn_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(yarn_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
-
-		if (mapred_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(mapred_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
-
-		FileWriter slaves_file = new FileWriter(confDir + "slaves");
-		BufferedWriter slaves = new BufferedWriter(slaves_file);
-		slaves.write("localhost");
-		slaves.close();
-	}
-
-	/*
-	 * Removes the configuration files from disk, that were written to disk
-	 * by the .write() of the object.
-	 */
-	public void cleanup() {
-		String confDir = this.getHadoopProp("HADOOP_CONF_DIR");
-		File core_site = new File(confDir + "core-site.xml");
-		File hdfs_site = new File(confDir + "hdfs-site.xml");
-		File yarn_site = new File(confDir + "yarn-site.xml");
-		File mapred_site = new File(confDir + "mapred-site.xml");	
-		File slaves = new File(confDir + "slaves");	
-		File log4jProperties = new File(confDir + "log4j.properties");
-
-		core_site.delete();
-		hdfs_site.delete();
-		yarn_site.delete();
-		mapred_site.delete();
-		slaves.delete();
-		log4jProperties.delete();
-	}
-
-    /*
-     * Returns the version of the fully distributed hadoop cluster being used.
-     * 
-     * @return String the Hadoop version for the fully distributed cluster.
-     * 
-     * (non-Javadoc)
-     * @see hadooptest.cluster.Cluster#getVersion()
-     */
-    public String getVersion() {
-    	// Call hadoop version to fetch the version 	
-    	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
-    			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
-    	String version = (TSM.hadoop.runProcBuilder(cmd))[1].split("\n")[0];
-        return version.split(" ")[1];
-    }
 	
 }

@@ -20,19 +20,14 @@ public class PseudoDistributedSleepJob extends PseudoDistributedJob {
 	private String HADOOP_INSTALL;
 	private String CONFIG_BASE_DIR;
 	
-	private static TestSession TSM;
-	
 	/*
 	 * Class constructor.
 	 */
-	public PseudoDistributedSleepJob(TestSession testSession) {
-		super(testSession);
-		
-		TSM = testSession;
+	public PseudoDistributedSleepJob() {
 
-		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		HADOOP_VERSION = TestSession.conf.getProperty("HADOOP_VERSION", "");
+		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 	}
 	
 	/*
@@ -43,6 +38,11 @@ public class PseudoDistributedSleepJob extends PseudoDistributedJob {
 	public String submit() {
 		//return this.submit(10, 10, 50000, 50000, 1);
 		return this.submit(5, 5, 500, 500, 1, -1, -1);
+	}
+
+	public String submit(boolean failMappers, boolean failReducers) {
+		TestSession.logger.debug("submit(boolean, boolean) is unimplemented for PseudoDistributedSleepJob.");
+		return null;
 	}
 	
 	/*
@@ -93,7 +93,7 @@ public class PseudoDistributedSleepJob extends PseudoDistributedJob {
 					+ " -mt " + map_time 
 					+ " -rt " + reduce_time;
 			
-			TSM.logger.debug("COMMAND: " + hadoopCmd);
+			TestSession.logger.debug("COMMAND: " + hadoopCmd);
 			
 			String jobPatternStr = " Running job: (.*)$";
 			Pattern jobPattern = Pattern.compile(jobPatternStr);
@@ -105,13 +105,13 @@ public class PseudoDistributedSleepJob extends PseudoDistributedJob {
 				
 				while(line!=null) 
 				{ 
-					TSM.logger.debug(line);
+					TestSession.logger.debug(line);
 					
 					Matcher jobMatcher = jobPattern.matcher(line);
 					
 					if (jobMatcher.find()) {
 						jobID = jobMatcher.group(1);
-						TSM.logger.debug("JOB ID: " + jobID);
+						TestSession.logger.debug("JOB ID: " + jobID);
 						break;
 					}
 					

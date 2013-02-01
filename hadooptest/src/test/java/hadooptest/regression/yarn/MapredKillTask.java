@@ -6,50 +6,40 @@ package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
-import hadooptest.cluster.pseudodistributed.PseudoDistributedSleepJob;
-import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 import hadooptest.TestSession;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import hadooptest.cluster.Job;
+import hadooptest.cluster.SleepJobFactory;
+import hadooptest.config.TestConfiguration;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Ignore;
 
 /*
  * A test suite used to exercise the ability to kill task attempts from a MapReduce sleep job.
  */
-public class MapredKillTask {
-
-	private static TestSession testSession;
+public class MapredKillTask extends TestSession {
 	
-	private PseudoDistributedSleepJob sleepJob;
-	private static PseudoDistributedCluster cluster;
+	private Job sleepJob;
 	
 	private static final int MAPREDUCE_MAP_MAXATTEMPTS = 4;
 	private static final int MAPREDUCE_REDUCE_MAXATTEMPTS = 4;
-	
+
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
-	/*
-	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
-	 */
 	@BeforeClass
-	public static void startCluster() throws FileNotFoundException, IOException{
+	public static void startTestSession() {
+		TestSession.start();
 		
-		testSession = new TestSession();
+		TestConfiguration clusterConfig = cluster.getConf();
 		
-		PseudoDistributedConfiguration conf = new PseudoDistributedConfiguration(testSession);
-		conf.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
-		conf.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
-		conf.write();
+		clusterConfig.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
+		clusterConfig.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
+		clusterConfig.write();
 		
-		cluster = new PseudoDistributedCluster(testSession, conf);
+		cluster.setConf(clusterConfig);
 		cluster.start();
 	}
 	
@@ -57,7 +47,7 @@ public class MapredKillTask {
 	 * Cluster cleanup that should happen after running tests in the class instance.
 	 */
 	@AfterClass
-	public static void stopCluster() throws IOException {
+	public static void stopCluster() {
 		cluster.stop();
 		cluster.getConf().cleanup();
 	}
@@ -69,7 +59,8 @@ public class MapredKillTask {
 	 */
 	@Before
 	public void initTestJob() {
-		sleepJob = new PseudoDistributedSleepJob(testSession);
+		sleepJob = SleepJobFactory.getSleepJob();
+		
 		sleepJob.submit();
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
@@ -82,14 +73,14 @@ public class MapredKillTask {
 	public void resetClusterState() {
 		if (sleepJob != null) {
 			if (sleepJob.ID != "0" && sleepJob.kill()) {
-				testSession.logger.info("Cleaned up latent job by killing it: " + sleepJob.ID);
+				logger.info("Cleaned up latent job by killing it: " + sleepJob.ID);
 			}
 			else {
-				testSession.logger.info("Sleep job never started, no need to clean up.");
+				logger.info("Sleep job never started, no need to clean up.");
 			}
 		}
 		else {
-			testSession.logger.info("Job was already killed or never started, no need to clean up.");
+			logger.info("Job was already killed or never started, no need to clean up.");
 		}
 	}
 	

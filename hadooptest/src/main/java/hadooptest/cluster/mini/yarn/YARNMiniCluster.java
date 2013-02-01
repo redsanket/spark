@@ -9,45 +9,41 @@
 package hadooptest.cluster.mini.yarn;
 
 import hadooptest.cluster.mini.MiniCluster;
+import hadooptest.config.TestConfiguration;
 import hadooptest.config.testconfig.MiniclusterConfiguration;
+
+import java.util.Hashtable;
+
 import org.apache.hadoop.yarn.server.MiniYARNCluster;
-
-import org.apache.hadoop.conf.Configuration;
-
-import java.io.IOException;
 
 public class YARNMiniCluster extends MiniCluster {
 
    private MiniYARNCluster cluster;
 
-   public YARNMiniCluster()
-   {
+   protected Hashtable<String, String> paths = new Hashtable<String, String>();
+   
+   public YARNMiniCluster() {
       this.conf = new MiniclusterConfiguration();
    }
 
-   public YARNMiniCluster(MiniclusterConfiguration conf)
-   {
+   public YARNMiniCluster(MiniclusterConfiguration conf) {
       this.conf = conf;
    }
 
-   public void startMiniClusterService(MiniclusterConfiguration conf) throws IOException
-   {
+   public void startMiniClusterService(MiniclusterConfiguration conf) {
       this.conf = conf;
       startMiniClusterService();
    }
 
-   public void stopMiniClusterService() throws IOException
-   {
+   public void stopMiniClusterService() {
 	   this.cluster.stop();
    }
    
-   public MiniYARNCluster getCluster()
-   {
+   public MiniYARNCluster getCluster() {
 	   return this.cluster;
    }
 
-   protected void startMiniClusterService()
-   {
+   protected void startMiniClusterService() {
 	   String test_name = "hadooptest_YARN_minicluster";
 	   int numNodeManagers = 2;
 	   int numLocalDirs = 1;
@@ -58,5 +54,22 @@ public class YARNMiniCluster extends MiniCluster {
 	   this.cluster.init(this.conf);
 	   this.cluster.start();
    }
+   
+   public Hashtable<String, String> getPaths() {
+   	return paths;
+   }
+
+   public String getPaths(String key) {
+   	return paths.get(key).toString();
+   }
+
+	/*
+	 * Set a custom configuration for the pseudodistributed cluster instance.
+	 * 
+	 * @param conf The custom PseudoDistributedConfiguration
+	 */
+	public void setConf(TestConfiguration conf) {
+		this.conf = (MiniclusterConfiguration)conf;
+	}
 
 }

@@ -3,30 +3,30 @@ package hadooptest.cluster.fullydistributed;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
+import hadooptest.config.TestConfiguration;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.apache.commons.lang.StringUtils;
 
 public class FullyDistributedCluster implements Cluster {
 
-	// The base fully distributed configuration.
-	public FullyDistributedConfiguration conf;
+	// The base pseudodistributed configuration.
+	protected FullyDistributedConfiguration conf;
 
-	// The state of the fully distributed cluster.
+	// The state of the pseudodistributed cluster.
 	protected ClusterState clusterState;
 
     // The Hadoop version on the fully distributed cluster.
     protected String clusterVersion = "";
-    
-	private static TestSession TSM;
 	
 	private String HADOOP_INSTALL;
 	private String CONFIG_BASE_DIR;
@@ -37,15 +37,14 @@ public class FullyDistributedCluster implements Cluster {
 	 * 
 	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
 	 */
-	public FullyDistributedCluster(TestSession testSession) throws IOException
+	public FullyDistributedCluster() throws IOException
 	{
-		TSM = testSession;
 		this.initTestSessionConf();
-		this.conf = new FullyDistributedConfiguration(testSession);		
+		this.conf = new FullyDistributedConfiguration();
 		
 		// stopCluster();
 		// startCluster();
-
+		
 		// this.conf.write();
 	}
 
@@ -54,10 +53,8 @@ public class FullyDistributedCluster implements Cluster {
 	 * 
 	 * Accepts a custom configuration, and assumed you will write it to disk.
 	 */
-	public FullyDistributedCluster(TestSession testSession,
-			FullyDistributedConfiguration conf)
+	public FullyDistributedCluster(FullyDistributedConfiguration conf)
 	{
-		TSM = testSession;
 		this.conf = conf;
 		this.initTestSessionConf();
 	}
@@ -75,7 +72,7 @@ public class FullyDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#start()
 	 */
-	public void start() throws IOException {
+	public void start() {
 /*
 		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
 		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
@@ -115,7 +112,7 @@ public class FullyDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#stop()
 	 */
-	public void stop() throws IOException {
+	public void stop() {
 /*
 		String stop_dfs = HADOOP_INSTALL + "/sbin/stop-dfs.sh";
 		String stop_yarn = HADOOP_INSTALL + "/sbin/stop-yarn.sh";
@@ -142,7 +139,7 @@ public class FullyDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#die()
 	 */
-	public void die() throws IOException {
+	public void die() {
 
 	}
 
@@ -159,8 +156,8 @@ public class FullyDistributedCluster implements Cluster {
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
 	 */
-	public void setConf(FullyDistributedConfiguration conf) {
-		this.conf = conf;
+	public void setConf(TestConfiguration conf) {
+		this.conf = (FullyDistributedConfiguration)conf;
 	}
 
 	/*
@@ -171,20 +168,6 @@ public class FullyDistributedCluster implements Cluster {
 	public FullyDistributedConfiguration getConf() {
 		return this.conf;
 	}
-	
-	/*
-	 * Returns the state of the pseudodistributed cluster instance.
-	 * 
-	 * @return ClusterState the state of the cluster.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#getState()
-	 */
-	/*
-	public FullyDistributedConfiguration getConfig() {
-		return this.conf;
-	}
-	*/
 
 	/*
 	 * Returns the state of the pseudodistributed cluster instance.
@@ -198,14 +181,6 @@ public class FullyDistributedCluster implements Cluster {
 		return this.clusterState;
 	}
 	
-	/*
-	 * Returns the state of the pseudodistributed cluster instance.
-	 * 
-	 * @return ClusterState the state of the cluster.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#getState()
-	 */
 	public String getClusterName() {
 		return CLUSTER_NAME;
 	}
@@ -218,22 +193,22 @@ public class FullyDistributedCluster implements Cluster {
      * (non-Javadoc)
      * @see hadooptest.cluster.Cluster#getVersion()
      */
-    public String getVersion() {    	
+    public String getVersion() {
     	return this.conf.getHadoopProp("HADOOP_VERSION");
     }
-    
+
     /*
 	 * Initialize the test session configuration properties necessary to use the 
 	 * pseudo distributed cluster instance.
 	 */
 	private void initTestSessionConf() {
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
-		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
+		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
+		CLUSTER_NAME = TestSession.conf.getProperty("CLUSTER_NAME", "");
 	}
-
+	    
 	public void startCluster() {
-		  TSM.logger.info("------------------ START CLUSTER " + 
+		  TestSession.logger.info("------------------ START CLUSTER " + 
 				  conf.getHadoopProp("CLUSTER_NAME") + 
 				  " ---------------------------------");
 		  int returnValue = 0;
@@ -242,12 +217,12 @@ public class FullyDistributedCluster implements Cluster {
 		  returnValue += this.hadoopDaemon("start", "resourcemanager", null, null);
 		  returnValue += this.hadoopDaemon("start", "nodemanager", null, null);
 		  if (returnValue > 0) {
-			  TSM.logger.error("Stop Cluster returned error exit code!!!");
+			  TestSession.logger.error("Stop Cluster returned error exit code!!!");
 		  }
 	}
 		  
 	public void stopCluster() {
-	  TSM.logger.info("------------------ STOP CLUSTER " + 
+	  TestSession.logger.info("------------------ STOP CLUSTER " + 
 			  conf.getHadoopProp("CLUSTER_NAME") + 
 			  " ---------------------------------");
 	  int returnValue = 0;
@@ -256,7 +231,7 @@ public class FullyDistributedCluster implements Cluster {
 	  returnValue += this.hadoopDaemon("stop", "datanode", null, null);
 	  returnValue += this.hadoopDaemon("stop", "namenode", null, null);	 
 	  if (returnValue > 0) {
-		  TSM.logger.error("Stop Cluster returned error exit code!!!");
+		  TestSession.logger.error("Stop Cluster returned error exit code!!!");
 	  }
 	}
 
@@ -299,8 +274,8 @@ public class FullyDistributedCluster implements Cluster {
 		temp.addAll(Arrays.asList(cmd2));
 		temp.addAll(Arrays.asList(cmd3));
 		String [] cmd = temp.toArray(new String[cmd1.length+cmd2.length+cmd3.length]);
-		String output[] = TSM.hadoop.runProcBuilder(cmd);
-		TSM.logger.info(Arrays.toString(output));
+		String output[] = TestSession.exec.runProcBuilder(cmd);
+		TestSession.logger.info(Arrays.toString(output));
 		
 		// When running as hadoopqa and using the yinst stop command to stop the
 		// jobtracker instead of calling hadoop-daemon.sh directly, there can be a
@@ -310,12 +285,11 @@ public class FullyDistributedCluster implements Cluster {
 		
 		int returnCode = Integer.parseInt(output[0]);
 		if (returnCode != 0) {
-			TSM.logger.error("Operation '" + action + " " + component + "' failed!!!");
+			TestSession.logger.error("Operation '" + action + " " + component + "' failed!!!");
 		}
 		return returnCode;
 	}
 	
-
 	
 	/*
 	 * Verifies, with jps, that a given process name is running.
@@ -328,7 +302,7 @@ public class FullyDistributedCluster implements Cluster {
 
 		String jpsCmd = "jps";
 
-		TSM.logger.debug(jpsCmd);
+		TestSession.logger.debug(jpsCmd);
 
 		String jpsPatternStr = "(.*)(" + process + ")(.*)";
 		Pattern jpsPattern = Pattern.compile(jpsPatternStr);
@@ -339,12 +313,12 @@ public class FullyDistributedCluster implements Cluster {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{  
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 
 				Matcher jpsMatcher = jpsPattern.matcher(line);
 
 				if (jpsMatcher.find()) {
-					TSM.logger.debug("FOUND PROCESS: " + process);
+					TestSession.logger.debug("FOUND PROCESS: " + process);
 					return true;
 				}
 
@@ -358,7 +332,7 @@ public class FullyDistributedCluster implements Cluster {
 			e.printStackTrace();
 		}
 
-		TSM.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
+		TestSession.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
 		return false;
 	}
 	

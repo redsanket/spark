@@ -3,39 +3,84 @@ package hadooptest;
 import java.io.File;
 import java.io.IOException;
 
+import java.lang.reflect.Constructor;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
 import hadooptest.ConfigProperties;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
-import hadooptest.cluster.fullydistributed.FullyDistributedHadoop;
+import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
+import hadooptest.cluster.standalone.StandaloneCluster;
+import hadooptest.cluster.Cluster;
+import hadooptest.cluster.Executor;
+import hadooptest.cluster.fullydistributed.FullyDistributedExecutor;
+import hadooptest.cluster.pseudodistributed.PseudoDistributedExecutor;
+import hadooptest.cluster.standalone.StandaloneExecutor;
 
-public class TestSession {
+public abstract class TestSession {
 
 	/* The Logger for the test session */
-	public Logger logger;
+	public static Logger logger;
 
-	// TODO: this should be a generic cluster
-	public FullyDistributedCluster cluster;
-
-	public FullyDistributedHadoop hadoop = null;	
+	/* The Cluster to use for the test session */
+	public static Cluster cluster;
 	
 	/* The test session configuration properties */
-	public ConfigProperties conf;
+	public static ConfigProperties conf;
 	
-	public TestSession() throws IOException {
-		this.initConfiguration();
-		this.initLogging();
+	/* The process executor for the test session */
+	public static Executor exec;
+	
+	/*
+	 * Class constructor.  In the JUnit architecture,
+	 * this constructor will be called before every test
+	 * (per JUnit).  Therefore, it is better to leave the
+	 * constructor here empty and use start() to initialize
+	 * the test session instead.
+	 * 
+	 * We can also use the TestSession constructor to execute
+	 * instructions before each test, so the user doesn't have
+	 * to code these instructions into every test.  However,
+	 * this can be dangerous with JUnit as exceptions that occur
+	 * in the TestSession constructor won't be caught by JUnit
+	 * (and thus it won't run the @After for the test which
+	 * triggers the exception).
+	 */
+	public TestSession() {
+	}
+	
+	/*
+	 * Initializes the test session.
+	 */
+	public static void start() {
+		// Initialize the framework configuration
+		initConfiguration();
 		
-		// TODO: this should be a generic hadoop and cluster
-		hadoop = new FullyDistributedHadoop(this);
-		cluster = new FullyDistributedCluster(this);
+		// Intitialize the framework logger
+		initLogging();
 		
+		// Initialize the cluster to be used in the framework
+		initCluster();
+
+		// Log the classpath
     	String classpath = System.getProperty("java.class.path");
 		logger.info("CLASSPATH="+classpath);
 	}
 	
-	private void initConfiguration() throws IOException {
+	/*
+	 * Get the cluster for the test session.
+	 * 
+	 * @return Cluster the cluster for the test session.
+	 */
+	public static Cluster getCluster() {
+		return cluster;
+	}
+	
+	/*
+	 * Initialize the framework configuration.
+	 */
+	private static void initConfiguration() {
 		conf = new ConfigProperties();
 		
 		String osName = System.getProperty("os.name");
@@ -65,11 +110,18 @@ public class TestSession {
 				System.out.println("OS is not supported by hadooptest: "  + osName);
 			}
 		}
-		
-		conf.load(conf_location);
+
+		try {
+			conf.load(conf_location);
+		} catch (IOException ioe) {
+			System.out.println("Could not load the framework configuration file hadooptest.conf.");
+		}
 	}
 	
-	private void initLogging() {
+	/*
+	 * Initialize the framework logger.
+	 */
+	private static void initLogging() {
 		logger = Logger.getLogger(TestSession.class);
 		Level logLevel = Level.ALL;  // All logging is turned on by default
 		
@@ -104,6 +156,58 @@ public class TestSession {
 		}
 		
 		logger.setLevel(logLevel);
+	}
+	
+	/*
+	 * Initialize the cluster for the framework.
+	 */
+	private static void initCluster() {
+		// The unknown class type for the cluster
+		Class<?> clusterClass = null;
+		
+		// The unknown constructor for the cluster class
+		Constructor<?> clusterClassConstructor = null;
+		
+		// The unknown class type object instance for the cluster
+		Object clusterObject = null;
+		
+		// Retrieve the cluster type from the framework configuration file.
+		// This should be in the format of package.package.class
+		String strClusterType = conf.getProperty("CLUSTER_TYPE");
+		
+		// Create a new instance of the cluster class specified in the 
+		// framework configuration file.
+		try {
+			clusterClass = Class.forName(strClusterType);
+			clusterClassConstructor = clusterClass.getConstructor();
+			clusterObject = clusterClassConstructor.newInstance();
+		}
+		catch (ClassNotFoundException cnf) {
+			logger.error("The cluster type is not supported: " + strClusterType);
+		}
+		catch (NoSuchMethodException nsm) {
+			logger.error("The cluster type was found, but there is a problem locating the constructor for the class: " + strClusterType);
+		}
+		catch (Exception e) {
+			logger.error("The test session wasn't able to instantiate the class of type: " + strClusterType);
+		}
+		
+		// Initialize the test session cluster instance with the correct cluster type.
+		if (clusterObject instanceof FullyDistributedCluster) {
+			exec = new FullyDistributedExecutor();
+			cluster = (FullyDistributedCluster)clusterObject;
+		}
+		else if (clusterObject instanceof PseudoDistributedCluster) {
+			exec = new PseudoDistributedExecutor();
+			cluster = (PseudoDistributedCluster)clusterObject;
+		}
+		else if (clusterObject instanceof StandaloneCluster) {
+			exec = new StandaloneExecutor();
+			cluster = (StandaloneCluster)clusterObject;
+		}
+		else {
+			logger.error("The cluster type is not yet fully supported: " + strClusterType);
+		}
 	}
 	
 }
