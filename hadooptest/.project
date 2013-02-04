@@ -34,16 +34,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>src/main/java/hadooptest/cluster/Executor.java</name>
-			<type>1</type>
-			<location>/Users/philips/git/hadooptest/hadooptest/src/main/java/hadooptest/cluster/Executor.java</location>
-		</link>
-		<link>
-			<name>src/main/java/hadooptest/cluster/fullydistributed/FullyDistributedExecutor.java</name>
-			<type>1</type>
-			<location>/Users/philips/git/hadooptest/hadooptest/src/main/java/hadooptest/cluster/fullydistributed/FullyDistributedExecutor.java</location>
-		</link>
-	</linkedResources>
 </projectDescription>

@@ -81,6 +81,7 @@ public abstract class TestSession {
 	 * Initialize the framework configuration.
 	 */
 	private static void initConfiguration() {
+		File conf_location = null;
 		conf = new ConfigProperties();
 		
 		String osName = System.getProperty("os.name");
@@ -92,29 +93,23 @@ public abstract class TestSession {
 		String userName = System.getProperty("user.name");
 		System.out.println("User name: " + userName);
 		
-		File conf_location = null;
-		
-		if(userName.equals("yahoo")) {
-			// We are using a headless build user, so pull the configuration
-			// from somewhere other than the user home directory.
-			conf_location = new File("/tmp/hadooptest/hadooptest.conf");
+		if (osName.contains("Mac OS X") || osName.contains("Linux")) {
+			System.out.println("Detected OS is supported by framework.");
 		}
 		else {
-			if (osName.contains("Mac OS X")) {
-				conf_location = new File(userHome + "/hadooptest.conf");
-			}
-			else if (osName.contains("Linux")) {
-				conf_location = new File(userHome + "/hadooptest.conf");
-			}
-			else {
-				System.out.println("OS is not supported by hadooptest: "  + osName);
-			}
+			System.out.println("OS is not supported by framework: "  + osName);
 		}
+		
+		String strFrameworkConfig = System.getProperty("hadooptest.config", userHome + "/hadooptest.conf");
+		System.out.println("Framework configuration file location: " + strFrameworkConfig);
+		System.out.println("To specify a different location, use -Dhadooptest.config=");
+		
+		conf_location = new File(strFrameworkConfig);
 
 		try {
 			conf.load(conf_location);
 		} catch (IOException ioe) {
-			System.out.println("Could not load the framework configuration file hadooptest.conf.");
+			System.out.println("Could not load the framework configuration file.");
 		}
 	}
 	
