@@ -232,32 +232,59 @@ public class FullyDistributedCluster implements Cluster {
 		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
 	}
 
-	public void startCluster() {
+	public int restartCluster() {
+		int returnValue = 0;
+		returnValue += stopCluster();
+		returnValue += startCluster();
+		return returnValue;
+	}
+	
+	public int startCluster() {
 		  TSM.logger.info("------------------ START CLUSTER " + 
 				  conf.getHadoopProp("CLUSTER_NAME") + 
 				  " ---------------------------------");
 		  int returnValue = 0;
-		  returnValue += this.hadoopDaemon("start", "namenode", null, null);	  
-		  returnValue += this.hadoopDaemon("start", "datanode", null, null);
-		  returnValue += this.hadoopDaemon("start", "resourcemanager", null, null);
-		  returnValue += this.hadoopDaemon("start", "nodemanager", null, null);
+		  String action = "start";		  
+		  String[] components = { 
+				  "namenode", 
+				  "datanode", 
+				  "resourcemanager",
+				  "nodemanager" };
+		  for (String component : components) {
+			  returnValue += this.hadoopDaemon(action, component);	
+			  if (returnValue == 0 ) {
+				  waitForComponentState(action, component);
+			  }
+		  }
 		  if (returnValue > 0) {
 			  TSM.logger.error("Stop Cluster returned error exit code!!!");
 		  }
+		  return returnValue;
 	}
 		  
-	public void stopCluster() {
+	public int stopCluster() {
 	  TSM.logger.info("------------------ STOP CLUSTER " + 
 			  conf.getHadoopProp("CLUSTER_NAME") + 
 			  " ---------------------------------");
 	  int returnValue = 0;
-	  returnValue += this.hadoopDaemon("stop", "nodemanager", null, null);
-	  returnValue += this.hadoopDaemon("stop", "resourcemanager", null, null);
-	  returnValue += this.hadoopDaemon("stop", "datanode", null, null);
-	  returnValue += this.hadoopDaemon("stop", "namenode", null, null);	 
+	  String action = "stop";
+
+	  String[] components = { 
+			  "nodemanager", 
+			  "resourcemanager", 
+			  "datanode", 
+			  "namenode" };
+	  for (String component : components) {
+		  returnValue += this.hadoopDaemon(action, component);	
+		  if (returnValue == 0 ) {
+			  waitForComponentState(action, component);
+		  }
+	  }
+	  
 	  if (returnValue > 0) {
 		  TSM.logger.error("Stop Cluster returned error exit code!!!");
 	  }
+	  return returnValue;
 	}
 
 	private String getSudoer(String component) {
@@ -274,10 +301,11 @@ public class FullyDistributedCluster implements Cluster {
 		return sudoer;
 	}
 	
-
+	public int hadoopDaemon(String action, String component) {
+		return hadoopDaemon(action, component, null, null);
+	}
+	
 	public int hadoopDaemon(String action, String component, String hosts, String confDir) {
-		String adminHost = this.conf.getClusterNodes("ADMIN_HOST")[0];
-		String sudoer = getSudoer(component);
 		String[] daemonHost = this.conf.getClusterNodes(component);	
 		if (!action.equals("stop")) {
 			if ((confDir == null) || confDir.isEmpty()) {
@@ -307,6 +335,9 @@ public class FullyDistributedCluster implements Cluster {
 		// delay before the job tracker is actually stopped. This is not ideal as it
 		// poses potential timing issue. Should investigate why yinst stop is existing
 		// before the job pid goes away.
+
+		// $return += $self->wait_for_daemon_state($operation, $component, $daemon_hosts);
+		
 		
 		int returnCode = Integer.parseInt(output[0]);
 		if (returnCode != 0) {
@@ -315,8 +346,178 @@ public class FullyDistributedCluster implements Cluster {
 		return returnCode;
 	}
 	
+	public boolean waitForComponentState(String action, String component) {
+		int waitInterval = 3;
+		int maxWait = 10;
+		String[] daemonHost = this.conf.getClusterNodes(component); 
+		return waitForComponentState(action, component,
+				daemonHost, waitInterval, maxWait);
+	}
+	
+	public boolean waitForComponentState(String action, String component,
+			int waitInterval, int maxWait) {
+		return waitForComponentState(action, component,
+				this.conf.getClusterNodes(component), waitInterval, maxWait);
+	}
+	
+	public boolean waitForComponentState(String action, String component,
+			String[] daemonHost, int waitInterval, int maxWait) {
+	    boolean expectedToBeUp = action.equals("start") ? true : false;
+	    String expStateStr = action.equals("start") ? "started" : "stopped";
+
+		if (waitInterval == 0) {
+			waitInterval = 3;
+		}
+
+		if (maxWait == 0) {
+			maxWait = 10;
+		}
+		
+		if (daemonHost == null) {
+			daemonHost = this.conf.getClusterNodes(component);	
+		}
+
+		int count = 1;
+	    while (count <= maxWait) {
+	    	if (isComponentUp(component) == expectedToBeUp) {
+	            TSM.logger.debug("Daemon process for " + component + " is " +
+	            		expStateStr + ".");
+	            break;	    		
+	    	}
+	        
+	    	TSM.logger.debug("Wait #" + count + " of " + maxWait + "for " +
+	    			component + "daemon on " + Arrays.toString(daemonHost) + 
+	    			" hosts to be " + expStateStr + " in " + waitInterval +
+	    			"(s): total wait time = " + (count-1)*waitInterval +
+	    			"(s): ");
+	    		  
+	    	try {
+	    		Thread.sleep(waitInterval*1000);
+	    	} catch  (InterruptedException e) {
+	    		TSM.logger.error("Encountered Interrupted Exception: " +
+	    				e.toString());
+	    	}
+	        count++;
+	    }	
+	    
+	    if (count > maxWait) {
+	        TSM.logger.warn("Wait time expired before daemon can be " +
+	        		expStateStr + ":" );
+	        return false;
+	    }
+	    return true;
+	}
+	
+	public boolean getClusterStatus() {
+		String[] components = {
+	                       "namenode",
+	                       "resourcemanager",
+	                       "nodemanager",
+	                       "datanode" };
+		boolean overallStatus = true;
+		boolean componentStatus = true;
+		for (String component : components) {
+			  componentStatus = this.isComponentUp(component);
+			  // $status->{uc($component)} = $hosts_status;
+			  TSM.logger.info("Get Cluster Status: " + component + " status is " +
+					  ((componentStatus == true) ? "up" : "down"));
+			  if (componentStatus == false) {
+				  overallStatus = false;
+			  }
+		}
+	    return overallStatus;
+	}
 
 	
+	public boolean isComponentUp(String component) {
+		return isComponentUp(component, null);
+	}
+	
+	public boolean isComponentUp(String component, String[] daemonHost) {
+		String adminHost = this.conf.getClusterNodes("ADMIN_HOST")[0];
+		if (daemonHost == null) {
+			daemonHost = this.conf.getClusterNodes(component);	
+		}
+
+		// Get the number of running process(es) for a given component
+		String prog = (component.equals("datanode")) ? "jsvc.exec" : "java";		    
+		String[] cmd = {"ssh", adminHost, "pdsh", "-w",
+				StringUtils.join(daemonHost, ","), 
+				"ps auxww", "|", "grep \"" + prog + " -Dproc_" + component +
+		        "\"", "|","grep -v grep -c" };		        
+		String output[] = TSM.hadoop.runProcBuilder(cmd);
+
+		// For data node, there should be two jobs per host.
+		// One is started by root, and the other by hdfs.	
+		int numExpectedProcessPerHost = (component.equals("datanode")) ? 2 : 1;
+		TSM.logger.debug("Daemon hosts for " + component + ": " + Arrays.toString(daemonHost));
+		int numExpectedProcess = numExpectedProcessPerHost * daemonHost.length;
+		int numActualProcess = Integer.parseInt(output[1].replace("\n",""));
+		TSM.logger.debug("Number of expected process: " + numExpectedProcess +
+				", Number of actual process: " + numActualProcess);
+		return (numActualProcess == numExpectedProcess) ? true : false;
+	}
+	
+	public boolean isComponentUpOnSingleHost(String component) {
+		return this.isComponentUpOnSingleHost(component, null);
+	}
+	
+	public boolean isComponentUpOnSingleHost(String component,
+			String daemonHost) {
+		return isComponentUp(component, new String[] {daemonHost});		
+	}
+	
+	public boolean waitForSafemodeOff() {
+		int timeout = 300;
+		String fs = this.conf.getHadoopConfFileProp(
+				"HADOOP_CONF_CORE", "fs.DefaultFS");
+		return waitForSafemodeOff(timeout, fs);
+	}
+		
+	public boolean waitForSafemodeOff(int timeout, String fs) {
+	    if (timeout == 0) {
+	    	timeout = 300;
+	    }
+		if ((fs == null) || fs.isEmpty()) {
+	        fs = this.conf.getHadoopConfFileProp(
+	        		"HADOOP_CONF_CORE", "fs.defaultFS");
+		}
+
+		String namenode = this.conf.getClusterNodes("namenode")[0];	
+		String[] safemodeGetCmd = { this.conf.getHadoopProp("HDFS_BIN"),
+				"--config", this.conf.getHadoopProp("HADOOP_CONF_DIR"),
+				"dfsadmin", "-fs", fs, "-safemode", "get" };
+		String[] output = TSM.hadoop.runProcBuilder(safemodeGetCmd);
+		boolean isSafemodeOff = 
+				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
+		 
+	    // for the time out duration wait and see if the namenode comes out of safemode
+	    int waitTime=30;
+	    int i=1;
+	    while ((timeout > 0) && (!isSafemodeOff)) {
+	        TSM.logger.debug("TRY #" + i);	        
+	        TSM.logger.info("WAIT " + waitTime + "s:" );
+	    	try {
+	    		Thread.sleep(waitTime*1000);
+	    	} catch  (InterruptedException e) {
+	    		TSM.logger.error("Encountered Interrupted Exception: " +
+	    				e.toString());
+	    	}
+	    	output = TSM.hadoop.runProcBuilder(safemodeGetCmd);
+	    	isSafemodeOff = 
+	    			(output[1].trim().equals("Safe mode is OFF")) ? true : false;
+	        timeout = timeout - waitTime;
+	        i++;
+	    }
+	    
+	    if (!isSafemodeOff) {
+	    	TSM.logger.info("ALERT: NAMENODE " + namenode + " IS STILL IN SAFEMODE");
+	    }
+	    
+	    return isSafemodeOff;
+	}
+	
+
 	/*
 	 * Verifies, with jps, that a given process name is running.
 	 * 
