@@ -6,6 +6,7 @@ package hadooptest.cluster.fullydistributed;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,16 +131,53 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 
     // Putting this here temporary
     public String[] runSleepJob(String user) {    	
-    	String sleepJobJar = TSM.cluster.conf.getHadoopProp("HADOOP_SLEEP_JAR");
-    	String hadoopPath = TSM.cluster.conf.getHadoopProp("HADOOP_BIN");
-        	
-    	// -Dmapred.job.queue.name=default
-    	String[] cmd = { hadoopPath,
-    			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
-    			"-m", "1", "-r", "1", "-mt", "1", "-rt", "1" };
-    	return hadoop.runHadoopProcBuilder(cmd, user);
+		Properties jobProps = new Properties();
+		jobProps.put("user", "hadoop1");
+		return this.runSleepJob(jobProps);
     }    
 
+    public String[] runSleepJob(Properties jobProps) {    	
+    	String mappers = jobProps.getProperty("mapper", "1");
+    	String reducers = jobProps.getProperty("reducer", "1");
+    	String mtime = jobProps.getProperty("mtime", "100");
+    	String rtime = jobProps.getProperty("rtime", "100");
+    	String mapMemory = jobProps.getProperty("mmem", "");
+    	String reduceMemory = jobProps.getProperty("rmem", "");
+		String queueName = jobProps.getProperty("queue", "default");
+		String user = jobProps.getProperty("user", "hadoopqa");
+    	String numJobs = jobProps.getProperty("num_jobs", "1");
+    	
+    	String sleepJobJar = TSM.cluster.conf.getHadoopProp("HADOOP_SLEEP_JAR");
+    	String hadoopPath = TSM.cluster.conf.getHadoopProp("HADOOP_BIN");
+
+		//-Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
+		String strMapMemory = "";
+		String strReduceMemory = "";
+		if (!mapMemory.equals("")) {
+			strMapMemory = " -Dmapred.job.map.memory.mb=" + mapMemory;
+		}		
+		if (!reduceMemory.equals("")) {
+			strReduceMemory = " -Dmapred.job.reduce.memory.mb=" + reduceMemory;
+		}
+
+		/*
+		List<String> strlist = new ArrayList<String>();
+	    strlist.add("sdfs1");
+	    strlist.add("sdfs2");
+		String[] strarray = strlist.toArray(new String[0]);
+	    System.out.println(strarray);
+		*/
+		
+    	String[] cmd = { hadoopPath,
+    			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
+    			"-m", mappers, "-r", reducers, "-mt", mtime, "-rt", rtime, 
+    			"-Dmapred.job.queue.name=" + queueName, strMapMemory,
+    			strReduceMemory};
+    	
+    	return hadoop.runHadoopProcBuilder(cmd, user);
+		
+    }
+    
     // Putting this here temporary
     public String[] listJobs() {
     	String mapredPath = TSM.cluster.conf.getHadoopProp("MAPRED_BIN");
