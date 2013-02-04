@@ -15,20 +15,15 @@ public class FullyDistributedFailJob extends FullyDistributedJob {
 	private String CONFIG_BASE_DIR;
 	private String USER;
 	
-	private static TestSession TSM;
-	
 	/*
 	 * Class constructor.
 	 */
-	public FullyDistributedFailJob(TestSession testSession) {
-		super(testSession);
-		
-		TSM = testSession;
+	public FullyDistributedFailJob() {
 
-		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
-		USER = TSM.conf.getProperty("USER", "");
+		HADOOP_VERSION = TestSession.conf.getProperty("HADOOP_VERSION", "");
+		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
+		USER = TestSession.conf.getProperty("USER", "");
 	}
 	
 	/*
@@ -41,25 +36,26 @@ public class FullyDistributedFailJob extends FullyDistributedJob {
 		return this.submit(true, true);
 	}
 	
+	public String submit(int mappers, int reducers, int map_time,
+			int reduce_time, int numJobs, int map_memory, int reduce_memory) {
+		TestSession.logger.debug("submit(int, int, int, int, int, int) is unimplemented for FullyDistributedFailJob.");
+		return null;
+	}
+	
 	/*
-	 * Submit a sleep job to the cluster, while being able to specify the sleep job parameters.
+	 * Submit a fail job to the cluster, while being able to specify whether the mappers or reducers should fail.
 	 * 
-	 * @param mappers The "-m" param to the sleep job (number of mappers)
-	 * @param reducers The "-r" param to the sleep job (number of reducers)
-	 * @param mt_param The "-rt" param to the sleep job (map time)
-	 * @param rt_param The "-mt" param to the sleep job (reduce time)
-	 * @param numJobs The number of sleep jobs to run.
-	 * @param map_memory The memory assigned for map jobs.  If -1, it will use the default.
-	 * @param reduce_memory The memory assigned for reduce jobs.  If -1, it will use the default.
+	 * @param failMappers set to true if the mappers should fail
+	 * @param failReducers set to true if the reducers should fail
 	 * 
-	 * @return String the ID of the sleep job that was submitted to the pseudodistributed cluster.
+	 * @return String the ID of the sleep job that was submitted to the cluster.
 	 */
 	public String submit(boolean failMappers, boolean failReducers) {			
 		Process hadoopProc = null;
 		String jobID = "";
 
 		String hadoop_mapred_test_jar = HADOOP_INSTALL + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + HADOOP_VERSION + "-tests.jar";
-		String hadoop_exe = HADOOP_INSTALL + "/bin/hadoop";
+		String hadoop_exe = HADOOP_INSTALL + "share/hadoop/bin/hadoop";
 
 		String strFailMappers = "";
 		if (failMappers) {
@@ -77,7 +73,7 @@ public class FullyDistributedFailJob extends FullyDistributedJob {
 				+ " " + strFailMappers
 				+ " " + strFailReducers;
 
-		TSM.logger.debug("COMMAND: " + hadoopCmd);
+		TestSession.logger.debug("COMMAND: " + hadoopCmd);
 
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
@@ -89,13 +85,13 @@ public class FullyDistributedFailJob extends FullyDistributedJob {
 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 
 				Matcher jobMatcher = jobPattern.matcher(line);
 
 				if (jobMatcher.find()) {
 					jobID = jobMatcher.group(1);
-					TSM.logger.debug("JOB ID: " + jobID);
+					TestSession.logger.debug("JOB ID: " + jobID);
 					break;
 				}
 

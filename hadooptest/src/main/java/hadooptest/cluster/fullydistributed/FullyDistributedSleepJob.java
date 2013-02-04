@@ -20,8 +20,7 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 	/*
 	 * Class constructor.
 	 */
-	public FullyDistributedSleepJob(TestSession testSession) {
-		super(testSession);		
+	public FullyDistributedSleepJob() {
 	}
 	
 	/*
@@ -32,6 +31,11 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 	public String submit() {
 		//return this.submit(10, 10, 50000, 50000, 1);
 		return this.submit(5, 5, 500, 500, 1, -1, -1);
+	}
+	
+	public String submit(boolean failMappers, boolean failReducers) {
+		TestSession.logger.debug("submit(boolean, boolean) is unimplemented for FullyDistributedSleepJob.");
+		return null;
 	}
 	
 	/*
@@ -53,8 +57,8 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 		Process hadoopProc = null;
 		String jobID = "";
 		
-		String hadoop_mapred_test_jar = HADOOP_INSTALL + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + HADOOP_VERSION + "-tests.jar";
-		String hadoop_exe = HADOOP_INSTALL + "/bin/hadoop";
+		String hadoop_mapred_test_jar = HADOOP_INSTALL + "/share/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + HADOOP_VERSION + "-tests.jar";
+		String hadoop_exe = HADOOP_INSTALL + "share/hadoop/bin/hadoop";
 		
 		String strMapMemory = "";
 		if (map_memory != -1) {
@@ -73,36 +77,34 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 		}
 		
 		for (int i = 0; i < numJobs; i++) {			
-			String hadoopCmd = hadoop_exe + " --config " + CONFIG_BASE_DIR 
-					+ " jar " + hadoop_mapred_test_jar 
-					+ " sleep -Dmapreduce.job.user.name=" + USER
-					+ strQueue
-					+ strMapMemory
-					+ strReduceMemory
-					+ " -m " + mappers 
-					+ " -r " + reducers 
-					+ " -mt " + map_time 
-					+ " -rt " + reduce_time;
-			
-			TSM.logger.debug("COMMAND: " + hadoopCmd);
+			String[] hadoopCmd = { hadoop_exe, "--config", CONFIG_BASE_DIR,
+					"jar", hadoop_mapred_test_jar,
+					"sleep", "-Dmapreduce.job.user.name=" + USER,
+					strQueue,
+					strMapMemory,
+					strReduceMemory,
+					"-m", Integer.toString(mappers), 
+					"-r", Integer.toString(reducers), 
+					"-mt", Integer.toString(map_time), 
+					"-rt", Integer.toString(reduce_time) };
 			
 			String jobPatternStr = " Running job: (.*)$";
 			Pattern jobPattern = Pattern.compile(jobPatternStr);
 			
 			try {
-				hadoopProc = Runtime.getRuntime().exec(hadoopCmd);
+				hadoopProc = hadoop.runHadoopProcBuilderGetProc(hadoopCmd, USER);
 				BufferedReader reader=new BufferedReader(new InputStreamReader(hadoopProc.getInputStream())); 
 				String line=reader.readLine(); 
-				
+
 				while(line!=null) 
 				{ 
-					TSM.logger.debug(line);
+					TestSession.logger.debug(line);
 					
 					Matcher jobMatcher = jobPattern.matcher(line);
 					
 					if (jobMatcher.find()) {
 						jobID = jobMatcher.group(1);
-						TSM.logger.debug("JOB ID: " + jobID);
+						TestSession.logger.debug("JOB ID: " + jobID);
 						break;
 					}
 					
@@ -124,7 +126,7 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 	
     // Putting this here temporary
     public String[] runSleepJob() {
-		String user = TSM.conf.getProperty("USER", 
+		String user = TestSession.conf.getProperty("USER", 
 				System.getProperty("user.name"));		
 		return runSleepJob(user);
     }
@@ -146,9 +148,8 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 		String queueName = jobProps.getProperty("queue", "default");
 		String user = jobProps.getProperty("user", "hadoopqa");
     	String numJobs = jobProps.getProperty("num_jobs", "1");
-    	
-    	String sleepJobJar = TSM.cluster.conf.getHadoopProp("HADOOP_SLEEP_JAR");
-    	String hadoopPath = TSM.cluster.conf.getHadoopProp("HADOOP_BIN");
+    	String hadoopPath = TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN");
+    	String sleepJobJar = TestSession.cluster.getConf().getHadoopProp("HADOOP_SLEEP_JAR");
 
 		//-Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
 		String strMapMemory = "";
@@ -168,6 +169,7 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
 	    System.out.println(strarray);
 		*/
 		
+    	// -Dmapred.job.queue.name=default
     	String[] cmd = { hadoopPath,
     			"--config", CONFIG_BASE_DIR, "jar", sleepJobJar, "sleep", 
     			"-m", mappers, "-r", reducers, "-mt", mtime, "-rt", rtime, 
@@ -180,7 +182,7 @@ public class FullyDistributedSleepJob extends FullyDistributedJob {
     
     // Putting this here temporary
     public String[] listJobs() {
-    	String mapredPath = TSM.cluster.conf.getHadoopProp("MAPRED_BIN");
+    	String mapredPath = TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN");
     	String[] cmd = { mapredPath,
     			"--config", CONFIG_BASE_DIR, "job", "-list" };
 		return hadoop.runProcBuilder(cmd);   		

@@ -32,27 +32,25 @@ public abstract class FullyDistributedJob implements Job {
 	protected String HADOOP_INSTALL;
 	protected String CONFIG_BASE_DIR;
 	protected String CLUSTER_NAME;
-	protected static TestSession TSM;
-	protected FullyDistributedHadoop hadoop;
+	protected FullyDistributedExecutor hadoop;
 
 	/*
 	 * Class Constructor.
 	 */
-	public FullyDistributedJob(TestSession testSession) {
+	public FullyDistributedJob() {
 		super();
 		
-		TSM = testSession;
-		hadoop = new FullyDistributedHadoop(TSM);
+		hadoop = new FullyDistributedExecutor();
 
-		USER = TSM.conf.getProperty("USER", "");
+		USER = TestSession.conf.getProperty("USER", "");
 		
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 		
-		HADOOP_VERSION = TSM.conf.getProperty("HADOOP_VERSION", "");
-		HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
-		CLUSTER_NAME = TSM.conf.getProperty("CLUSTER_NAME", "");
+		HADOOP_VERSION = TestSession.conf.getProperty("HADOOP_VERSION", "");
+		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
+		CLUSTER_NAME = TestSession.conf.getProperty("CLUSTER_NAME", "");
 
 	}
 	
@@ -90,7 +88,7 @@ public abstract class FullyDistributedJob implements Job {
 	 */
 	public boolean verifyID() {
 		if (this.ID == "0") {
-			TSM.logger.error("JOB ID DID NOT MATCH FORMAT AND WAS ZERO");
+			TestSession.logger.error("JOB ID DID NOT MATCH FORMAT AND WAS ZERO");
 			return false;
 		}
 
@@ -100,12 +98,12 @@ public abstract class FullyDistributedJob implements Job {
 		Matcher jobMatcher = jobPattern.matcher(this.ID);
 		
 		if (jobMatcher.find()) {
-			TSM.logger.info("JOB ID MATCHED EXPECTED FORMAT");
-			TSM.logger.info("JOB ID: " + this.ID);
+			TestSession.logger.info("JOB ID MATCHED EXPECTED FORMAT");
+			TestSession.logger.info("JOB ID: " + this.ID);
 			return true;
 		}
 		else {
-			TSM.logger.error("JOB ID DID NOT MATCH FORMAT");
+			TestSession.logger.error("JOB ID DID NOT MATCH FORMAT");
 			return false;
 		}
 	}
@@ -119,11 +117,11 @@ public abstract class FullyDistributedJob implements Job {
 
 		Process mapredProc = null;
 		
-		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "share/hadoop/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -kill " + this.ID;
 
-		TSM.logger.debug(mapredCmd);
+		TestSession.logger.debug(mapredCmd);
 
 		String mapredPatternStr = "(.*)(Killed job " + this.ID + ")(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
@@ -134,12 +132,12 @@ public abstract class FullyDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					TSM.logger.info("JOB " + this.ID + " WAS KILLED");
+					TestSession.logger.info("JOB " + this.ID + " WAS KILLED");
 					return true;
 				}
 				
@@ -153,7 +151,7 @@ public abstract class FullyDistributedJob implements Job {
 			e.printStackTrace();
 		}
 		
-		TSM.logger.error("JOB " + this.ID + " WAS NOT KILLED");
+		TestSession.logger.error("JOB " + this.ID + " WAS NOT KILLED");
 		return false;
 	}
 	
@@ -201,11 +199,11 @@ public abstract class FullyDistributedJob implements Job {
 
 		Process mapredProc = null;
 		
-		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "share/hadoop/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -status " + this.ID;
 		
-		TSM.logger.debug(mapredCmd);
+		TestSession.logger.debug(mapredCmd);
 
 		String mapredPatternStr = "(.*)(Job state: FAILED)(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
@@ -218,12 +216,12 @@ public abstract class FullyDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					TSM.logger.info("JOB " + this.ID + " WAS FAILED");
+					TestSession.logger.info("JOB " + this.ID + " WAS FAILED");
 					return true;
 				}
 				
@@ -237,7 +235,7 @@ public abstract class FullyDistributedJob implements Job {
 			e.printStackTrace();
 		}
 
-		TSM.logger.error("JOB " + this.ID + " WAS NOT FAILED");
+		TestSession.logger.error("JOB " + this.ID + " WAS NOT FAILED");
 		return false; // job didn't fail
 	}
 	
@@ -262,11 +260,11 @@ public abstract class FullyDistributedJob implements Job {
 		// check for job success here
 		Process mapredProc = null;
 		
-		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "share/hadoop/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -status " + this.ID;
 		
-		TSM.logger.debug(mapredCmd);
+		TestSession.logger.debug(mapredCmd);
 
 		String mapredPatternStrSuccess = "(.*)(Job state: SUCCEEDED)(.*)";
 		Pattern mapredPatternSuccess = Pattern.compile(mapredPatternStrSuccess);
@@ -295,7 +293,7 @@ public abstract class FullyDistributedJob implements Job {
 				String line=reader.readLine(); 
 				while(line!=null) 
 				{ 
-					TSM.logger.debug(line);
+					TestSession.logger.debug(line);
 
 					Matcher mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
 					Matcher mapredMatcherAppStatusSuccess = mapredAppStatusPatternSuccess.matcher(line);
@@ -305,26 +303,26 @@ public abstract class FullyDistributedJob implements Job {
 					Matcher mapredMatcherRunning = mapredPatternRunning.matcher(line);
 
 					if (mapredMatcherSuccess.find()) {
-						TSM.logger.info("JOB " + this.ID + " SUCCEEDED");
+						TestSession.logger.info("JOB " + this.ID + " SUCCEEDED");
 						return true;
 					}
 					if (mapredMatcherAppStatusSuccess.find()) {
-						TSM.logger.info("JOB " + this.ID + " SUCCEEDED");
+						TestSession.logger.info("JOB " + this.ID + " SUCCEEDED");
 						return true;
 					}
 					else if (mapredMatcherFailed.find()) {
-						TSM.logger.error("JOB " + this.ID + " FAILED");
+						TestSession.logger.error("JOB " + this.ID + " FAILED");
 						return false;
 					}
 					else if (mapredMatcherKilled.find()) {
-						TSM.logger.error("JOB " + this.ID + " WAS KILLED");
+						TestSession.logger.error("JOB " + this.ID + " WAS KILLED");
 						return false;
 					}
 					else if (mapredMatcherPrep.find()) {
-						TSM.logger.info("JOB " + this.ID + " IS STILL IN PREP STATE");
+						TestSession.logger.info("JOB " + this.ID + " IS STILL IN PREP STATE");
 					}
 					else if (mapredMatcherRunning.find()) {
-						TSM.logger.info("JOB " + this.ID + " IS STILL RUNNING");
+						TestSession.logger.info("JOB " + this.ID + " IS STILL RUNNING");
 					}
 
 					line=reader.readLine();
@@ -340,7 +338,7 @@ public abstract class FullyDistributedJob implements Job {
 			Util.sleep(10);
 		}
 
-		TSM.logger.error("JOB " + this.ID + " didn't SUCCEED within the timeout window.");
+		TestSession.logger.error("JOB " + this.ID + " didn't SUCCEED within the timeout window.");
 		return false;
 	}
 
@@ -354,11 +352,11 @@ public abstract class FullyDistributedJob implements Job {
 		
 		Process mapredProc = null;
 		
-		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "share/hadoop/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -fail-task " + taskID;
 		
-		TSM.logger.debug(mapredCmd);
+		TestSession.logger.debug(mapredCmd);
 
 		String mapredPatternStr = "(.*)(Killed task " + taskID + " by failing it)(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
@@ -369,12 +367,12 @@ public abstract class FullyDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					TSM.logger.info("TASK ATTEMPT " + taskID + " WAS FAILED");
+					TestSession.logger.info("TASK ATTEMPT " + taskID + " WAS FAILED");
 					return true;
 				}
 				
@@ -388,14 +386,13 @@ public abstract class FullyDistributedJob implements Job {
 			e.printStackTrace();
 		}
 		
-		TSM.logger.error("TASK ATTEMPT " + taskID + " WAS NOT FAILED");
+		TestSession.logger.error("TASK ATTEMPT " + taskID + " WAS NOT FAILED");
 		return false;
 	}
 	
 	/*
 	 * Get the map task attempt ID associated with the specified job ID.
 	 * 
-	 * @param jobID The ID of the job to associate with the task attempt.
 	 * @return String The ID of the task attempt.
 	 */
 	public String getMapTaskAttemptID() {
@@ -411,7 +408,7 @@ public abstract class FullyDistributedJob implements Job {
 			taskID = "attempt" + taskIDMatcher.group(2) + "_m_00000_0";
 		}
 		
-		TSM.logger.info("MAP TASK ID = " + taskID);
+		TestSession.logger.info("MAP TASK ID = " + taskID);
 		
 		return taskID;
 	}
@@ -419,7 +416,6 @@ public abstract class FullyDistributedJob implements Job {
 	/*
 	 * Get the reduce task attempt ID associated with the specified job ID.
 	 * 
-	 * @param jobID The ID of the job to associate with the task attempt.
 	 * @return String The ID of the task attempt.
 	 */
 	public String getReduceTaskAttemptID() {
@@ -435,7 +431,7 @@ public abstract class FullyDistributedJob implements Job {
 			taskID = "attempt" + taskIDMatcher.group(2) + "_r_00000_0";
 		}
 		
-		TSM.logger.info("REDUCE TASK ID = " + taskID);
+		TestSession.logger.info("REDUCE TASK ID = " + taskID);
 		
 		return taskID;
 	}
@@ -443,18 +439,18 @@ public abstract class FullyDistributedJob implements Job {
 	/*
 	 * Kills the task attempt associated with the specified task ID.
 	 * 
-	 * @param jobID The ID of the job matching the task attempt.
+	 * @param taskID The ID of the task attempt to kill.
 	 * @return boolean Whether the task attempt was killed or not.
 	 */
 	public boolean killTaskAttempt(String taskID) {
 		
 		Process mapredProc = null;
 		
-		String mapred_exe = HADOOP_INSTALL + "/bin/mapred";
+		String mapred_exe = HADOOP_INSTALL + "share/hadoop/bin/mapred";
 		
 		String mapredCmd = mapred_exe + " --config " + CONFIG_BASE_DIR + " job -kill-task " + taskID;
 		
-		TSM.logger.debug(mapredCmd);
+		TestSession.logger.debug(mapredCmd);
 		
 		String mapredPatternStr = "(.*)(Killed task " + taskID + ")(.*)";
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
@@ -465,12 +461,12 @@ public abstract class FullyDistributedJob implements Job {
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				TSM.logger.debug(line);
+				TestSession.logger.debug(line);
 				
 				Matcher mapredMatcher = mapredPattern.matcher(line);
 				
 				if (mapredMatcher.find()) {
-					TSM.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
+					TestSession.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
 					return true;
 				}
 				
@@ -484,7 +480,7 @@ public abstract class FullyDistributedJob implements Job {
 			e.printStackTrace();
 		}
 
-		TSM.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
+		TestSession.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
 		return false;
 	}
 	
@@ -522,10 +518,10 @@ public abstract class FullyDistributedJob implements Job {
 				+ "(.*)";
 		Pattern infoPattern = Pattern.compile(patternStr);
 
-		TSM.logger.info("Sleeping for 200s to wait for the job summary info log to be updated.");
+		TestSession.logger.info("Sleeping for 200s to wait for the job summary info log to be updated.");
 		//Util.sleep(200);
 
-		String HADOOP_INSTALL = TSM.conf.getProperty("HADOOP_INSTALL", "");
+		String HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
 		FileInputStream summaryInfoFile = new FileInputStream(HADOOP_INSTALL + "/logs/hadoop-mapreduce.jobsummary.log");
 		DataInputStream in = new DataInputStream(summaryInfoFile);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -535,18 +531,18 @@ public abstract class FullyDistributedJob implements Job {
 		Boolean foundSummaryInfo = false;
 
 		while ((line = br.readLine()) != null)   {
-			TSM.logger.debug("JOB SUMMARY INFO: " + line);
+			TestSession.logger.debug("JOB SUMMARY INFO: " + line);
 			infoMatcher = infoPattern.matcher(line);
 			if (infoMatcher.find()) {
 				foundSummaryInfo = true; 
-				TSM.logger.info("Summary info for the job was found.");
+				TestSession.logger.info("Summary info for the job was found.");
 				}
 		}
 
 		in.close();
 
 		if (!foundSummaryInfo) {
-			TSM.logger.error("Job summary info was not found in the log file.");
+			TestSession.logger.error("Job summary info was not found in the log file.");
 		}
 		
 		return foundSummaryInfo;

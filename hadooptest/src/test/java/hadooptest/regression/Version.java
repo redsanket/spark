@@ -14,19 +14,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class Version {
-
-	private static TestSession testSession;
-	protected static TestSession TSM;
+public class Version extends TestSession {
 
 	/*
 	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
 	 */
 	@BeforeClass
 	public static void startCluster() throws IOException {
-		
-		testSession = new TestSession();
-		TSM = testSession;
+		TestSession.start();
 		// cluster.start();
 	}
 		
@@ -58,7 +53,7 @@ public class Version {
 	
 	@Test
 	public void printHadoopVersion() {
-		String version = TSM.cluster.getVersion();
+		String version = TestSession.cluster.getVersion();
 		System.out.println("Hadoop Version = <" + version + ">");
 		
 		// experimental

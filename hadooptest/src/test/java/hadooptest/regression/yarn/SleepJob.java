@@ -17,11 +17,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class SleepJob {
+public class SleepJob extends TestSession {
 
-	private static TestSession testSession;	
 	// private static FullyDistributedCluster cluster;
-	protected static TestSession TSM;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -30,8 +28,7 @@ public class SleepJob {
 	 */
 	@BeforeClass
 	public static void startCluster() throws FileNotFoundException, IOException{
-		testSession = new TestSession();
-		TSM = testSession;
+		TestSession.start();
 		// cluster.start();
 	}
 	
@@ -69,7 +66,7 @@ public class SleepJob {
 	 */
 	@Test
 	public void runSleepTest() throws IOException, FileNotFoundException {
-		FullyDistributedSleepJob job = new FullyDistributedSleepJob(testSession);
+		FullyDistributedSleepJob job = new FullyDistributedSleepJob();
 		job.runSleepJob();
 		job.runSleepJob("hadoop1");
 		
@@ -80,7 +77,7 @@ public class SleepJob {
 		job.runSleepJob( new Properties() {{ this.setProperty("user", "hadoop3"); }} );
 		
 		String[] output = job.listJobs();
-		TSM.logger.info("Job List:"+output[1]);
+		TestSession.logger.info("Job List:"+output[1]);
 	}
 	
 	/******************* END TESTS ***********************/	

@@ -21,8 +21,6 @@ import hadooptest.config.TestConfiguration;
 public class PseudoDistributedConfiguration extends TestConfiguration
 {	
 	private String CONFIG_BASE_DIR;
-	
-	private static TestSession TSM;
 
 	/*
 	 * Class constructor.
@@ -31,12 +29,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * configuration parameters for a pseudodistributed cluster under test.  Hadoop
 	 * default configuration is not used.
 	 */
-	public PseudoDistributedConfiguration(TestSession testSession) {
+	public PseudoDistributedConfiguration() {
 		super(false);
-
-		TSM = testSession;
 		
-		CONFIG_BASE_DIR = TSM.conf.getProperty("CONFIG_BASE_DIR", "");
+		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 		
 		this.initDefaults();
 	}
@@ -61,7 +57,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * Writes the pseudodistributed cluster configuration specified by the object out
 	 * to disk.
 	 */
-	public void write() throws IOException {
+	public void write() {
 		File outdir = new File(CONFIG_BASE_DIR);
 		outdir.mkdirs();
 		
@@ -75,42 +71,48 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		File yarn_site = new File(CONFIG_BASE_DIR + "yarn-site.xml");
 		File mapred_site = new File(CONFIG_BASE_DIR + "mapred-site.xml");		
 
-		if (core_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(core_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
+		try{
+			if (core_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(core_site);
 
-		if (hdfs_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(hdfs_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
 
-		if (yarn_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(yarn_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
+			if (hdfs_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(hdfs_site);
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
 
-		if (mapred_site.createNewFile()) {
-			FileOutputStream out = new FileOutputStream(mapred_site);
-			this.writeXml(out);
-		}
-		else {
-			TSM.logger.warn("Couldn't create the xml configuration output file.");
-		}
+			if (yarn_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(yarn_site);
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
 
-		FileWriter slaves_file = new FileWriter(CONFIG_BASE_DIR + "slaves");
-		BufferedWriter slaves = new BufferedWriter(slaves_file);
-		slaves.write("localhost");
-		slaves.close();
+			if (mapred_site.createNewFile()) {
+				FileOutputStream out = new FileOutputStream(mapred_site);
+				this.writeXml(out);
+			}
+			else {
+				TestSession.logger.warn("Couldn't create the xml configuration output file.");
+			}
+
+			FileWriter slaves_file = new FileWriter(CONFIG_BASE_DIR + "slaves");
+			BufferedWriter slaves = new BufferedWriter(slaves_file);
+			slaves.write("localhost");
+			slaves.close();
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem writing the hadoop configuration to disk.");
+		}
 	}
 
 	/*
@@ -133,6 +135,13 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		log4jProperties.delete();
 	}
 
+	
+	public String getHadoopProp(String key) {
+		TestSession.logger.error("Currently unimplemented for this cluster configuration");
+		
+		return null;
+	}
+	
 	/*
 	 * Initializes a set of default configuration properties that have been 
 	 * determined to be a reasonable set of defaults for running a pseudodistributed

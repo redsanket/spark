@@ -8,17 +8,21 @@
 
 package hadooptest.cluster.mini.hdfs;
 
+import hadooptest.TestSession;
 import hadooptest.cluster.mini.MiniCluster;
+import hadooptest.config.TestConfiguration;
 import hadooptest.config.testconfig.MiniclusterConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.hadoop.mapred.MiniMRClientCluster;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 public class HDFSMiniCluster extends MiniCluster {
 
    private MiniDFSCluster cluster;
 
+   protected Hashtable<String, String> paths = new Hashtable<String, String>();
+   
    public HDFSMiniCluster()
    {
       this.conf = new MiniclusterConfiguration(); 
@@ -35,22 +39,42 @@ public class HDFSMiniCluster extends MiniCluster {
 	   return this.cluster;
    }
    
-   public void startMiniClusterService(MiniclusterConfiguration conf) throws IOException
-   {
+   public void startMiniClusterService(MiniclusterConfiguration conf) {
       this.conf = conf;
       startMiniClusterService();
    }
 
-   public void stopMiniClusterService() throws IOException
-   {
+   public void stopMiniClusterService() {
       this.cluster.shutdown(); 
    }
 
-   protected void startMiniClusterService() throws IOException
-   {
+   protected void startMiniClusterService() {
 
-	   cluster = new MiniDFSCluster.Builder(this.conf).build();
-
+	   try {
+		   cluster = new MiniDFSCluster.Builder(this.conf).build();
+	   }
+	   catch (IOException ioe) {
+		   ioe.printStackTrace();
+		   TestSession.logger.error("There was a problem starting the mini cluster service.");
+	   }
+		   
    }
+   
+   public Hashtable<String, String> getPaths() {
+   	return paths;
+   }
+
+   public String getPaths(String key) {
+   	return paths.get(key).toString();
+   }
+
+	/*
+	 * Set a custom configuration for the pseudodistributed cluster instance.
+	 * 
+	 * @param conf The custom PseudoDistributedConfiguration
+	 */
+	public void setConf(TestConfiguration conf) {
+		this.conf = (MiniclusterConfiguration)conf;
+	}
 
 }
