@@ -8,6 +8,7 @@ import hadooptest.cluster.fullydistributed.FullyDistributedSleepJob;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -71,6 +72,12 @@ public class SleepJob {
 		FullyDistributedSleepJob job = new FullyDistributedSleepJob(testSession);
 		job.runSleepJob();
 		job.runSleepJob("hadoop1");
+		
+		Properties jobProps = new Properties();
+		jobProps.setProperty("user", "hadoop2");
+		job.runSleepJob(jobProps);
+
+		job.runSleepJob( new Properties() {{ this.setProperty("user", "hadoop3"); }} );
 		
 		String[] output = job.listJobs();
 		TSM.logger.info("Job List:"+output[1]);
