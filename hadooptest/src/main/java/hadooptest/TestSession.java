@@ -178,7 +178,8 @@ public abstract class TestSession {
 			exec = new PseudoDistributedExecutor();
 		}
 		else if (strClusterType.equals("hadooptest.cluster.standalone.StandaloneCluster")) {
-			exec = new StandaloneExecutor();		}
+			exec = new StandaloneExecutor();
+		}
 		else {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
 		}
