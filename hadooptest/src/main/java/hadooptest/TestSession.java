@@ -174,10 +174,10 @@ public abstract class TestSession {
 		if (strClusterType.equals("hadooptest.cluster.fullydistributed.FullyDistributedCluster")) {
 			exec = new FullyDistributedExecutor();
 		}
-		if (strClusterType.equals("hadooptest.cluster.pseudodistributed.PseudoDistributedCluster")) {
+		else if (strClusterType.equals("hadooptest.cluster.pseudodistributed.PseudoDistributedCluster")) {
 			exec = new PseudoDistributedExecutor();
 		}
-		if (strClusterType.equals("hadooptest.cluster.standalone.StandaloneCluster")) {
+		else if (strClusterType.equals("hadooptest.cluster.standalone.StandaloneCluster")) {
 			exec = new StandaloneExecutor();		}
 		else {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
