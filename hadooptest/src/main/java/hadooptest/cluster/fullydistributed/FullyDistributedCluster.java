@@ -149,6 +149,8 @@ public class FullyDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#reset()
 	 */
 	public void reset() {
+		
+		restartCluster();
 
 	}
 
@@ -361,7 +363,7 @@ public class FullyDistributedCluster implements Cluster {
 	            break;	    		
 	    	}
 	        
-	    	TestSession.logger.debug("Wait #" + count + " of " + maxWait + "for " +
+	    	TestSession.logger.debug("Wait #" + count + " of " + maxWait + " for " +
 	    			component + "daemon on " + Arrays.toString(daemonHost) + 
 	    			" hosts to be " + expStateStr + " in " + waitInterval +
 	    			"(s): total wait time = " + (count-1)*waitInterval +
@@ -462,7 +464,7 @@ public class FullyDistributedCluster implements Cluster {
 		String[] safemodeGetCmd = { this.conf.getHadoopProp("HDFS_BIN"),
 				"--config", this.conf.getHadoopProp("HADOOP_CONF_DIR"),
 				"dfsadmin", "-fs", fs, "-safemode", "get" };
-		String[] output = TestSession.exec.runProcBuilder(safemodeGetCmd);
+		String[] output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
 		boolean isSafemodeOff = 
 				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 		 
@@ -478,7 +480,7 @@ public class FullyDistributedCluster implements Cluster {
 	    		TestSession.logger.error("Encountered Interrupted Exception: " +
 	    				e.toString());
 	    	}
-	    	output = TestSession.exec.runProcBuilder(safemodeGetCmd);
+	    	output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
 	    	isSafemodeOff = 
 	    			(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 	        timeout = timeout - waitTime;
