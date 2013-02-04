@@ -10,11 +10,15 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
@@ -58,7 +62,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	public FullyDistributedConfiguration(TestSession testSession) {
 		super(false);
 		TSM = testSession;
-		this.initDefaults();		
+		this.initDefaults();
+		this.initConfFiles();
+		this.initClusterNodes();
+
 	}
 
 	/*
@@ -74,6 +81,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	public FullyDistributedConfiguration(boolean loadDefaults) {
 		super(loadDefaults); 
 		this.initDefaults();
+		this.initConfFiles();
+		this.initClusterNodes();
+
 	}
 
 	public Properties getHadoopProps() {
@@ -83,7 +93,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	public Hashtable<String, Properties> getHadoopConfFileProps() {
     	return hadoopConfFileProps;
     }
-
+	
 	public Hashtable<String, String[]> getClusterNodes() {
     	return clusterNodes;
     }
@@ -102,7 +112,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
     	}
     }
 
-	private String getHadoopConfFileProp(String component, String propName) {
+	public String getHadoopConfFileProp(String component, String propName) {
 		Properties prop = hadoopConfFileProps.get(component);
 		String propValue = prop.getProperty(propName);
 		return propValue;
@@ -118,6 +128,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		String HADOOP_ROOT="/home";  // /grid/0
 								
 		hadoopProps.setProperty("CLUSTER_NAME", TSM.conf.getProperty("CLUSTER_NAME", ""));
+		hadoopProps.setProperty("TMP_DIR", TSM.conf.getProperty("TMP_DIR", "/grid/0/tmp"));
 		hadoopProps.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
 		hadoopProps.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
 				hadoopProps.getProperty("CLUSTER_NAME"));
@@ -165,10 +176,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				HADOOP_VERSION + ".jar"); 
 		hadoopProps.setProperty("HADOOP_STREAMING_JAR", getHadoopProp("HADOOP_JAR_DIR") +
 				"/tools/lib/" + "hadoop-streaming-" + 
-				HADOOP_VERSION + ".jar"); 
-		
-		initConfFiles();
-		initClusterNodes();
+				HADOOP_VERSION + ".jar"); 		
 	}
 	    
 	private void initConfFiles() {
@@ -234,9 +242,52 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		} 	
 	}
 
+	// tmp_conf_dir
+	// gateway_conf
+	// backupConfDir (String hosts)
+	
+	public int backupConfDir (String component, String[] daemonHost) {
+		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
+	    df.setTimeZone(TimeZone.getTimeZone("CST"));  
+	    String tmpConfDir = this.getHadoopProp("TMP_DIR") + "/hadoop-conf-" +
+	    		df.format(new Date());
+		this.hadoopProps.setProperty("TMP_CONF_DIR", tmpConfDir);
+		
+		String cpCmd[] = {"/bin/cp", "-rf", 
+				this.getHadoopProp("HADOOP_CONF_DIR"), tmpConfDir};
+
+		if ((!component.equals("gateway")) && (daemonHost == null)) {
+			daemonHost = this.getClusterNodes(component); 
+		}
+
+		String[] cmd;
+		if (!component.equals("gateway")) {
+			TSM.logger.info("Backup the Hadoop configuration directory on " +
+					"the " + component + " host(s) of " + Arrays.toString(daemonHost));
+			String[] pdshCmd = { "/home/y/bin/pdsh", "-w",
+					StringUtils.join(daemonHost, ",") };			
+			ArrayList<String> temp = new ArrayList<String>();
+			temp.addAll(Arrays.asList(pdshCmd));
+			temp.addAll(Arrays.asList(cpCmd));
+			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length]);
+		}
+		else {
+			TSM.logger.info("Back up the Hadoop configuration directory on " +
+					"the gateway:");
+			cmd = cpCmd;
+		}		
+		String output[] = TSM.hadoop.runProcBuilder(cmd);
+		// resetConfDir
+
+		return Integer.parseInt(output[0]);
+	}
+
+	
 	private String[] getHostsFromList(String namenode, String file) {
-		String[] output = TSM.hadoop.runProcBuilder(new String[] {"ssh", namenode, "/bin/cat", file});
-		String[] nodes = output[1].split("\n");
+		String[] output = TSM.hadoop.runProcBuilder(
+						new String[] {"ssh", namenode, "/bin/cat", file});
+		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
+		TSM.logger.debug("Hosts are: " + Arrays.toString(nodes));
 		return nodes;
 	}
 	
