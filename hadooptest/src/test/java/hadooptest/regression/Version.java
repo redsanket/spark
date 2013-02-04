@@ -9,6 +9,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class Version {
 
@@ -56,6 +60,17 @@ public class Version {
 	public void printHadoopVersion() {
 		String version = TSM.cluster.getVersion();
 		System.out.println("Hadoop Version = <" + version + ">");
+		
+		// experimental
+		// TSM.cluster.stopCluster();
+		// TSM.cluster.startCluster();
+		// TSM.cluster.waitForSafemodeOff();
+		// TSM.cluster.isComponentUp("datanode");
+		//TSM.cluster.getClusterStatus();
+		/*
+		 DateFormat df = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");  
+		    df.setTimeZone(TimeZone.getTimeZone("PST"));  
+		    */
 	}
 	
 	
