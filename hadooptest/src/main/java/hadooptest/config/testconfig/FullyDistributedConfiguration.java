@@ -4,11 +4,7 @@
 
 package hadooptest.config.testconfig;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -38,15 +34,30 @@ import org.w3c.dom.NodeList;
  */
 public class FullyDistributedConfiguration extends TestConfiguration
 {
+	public static final String HADOOP_CONF_CORE = "core-site.xml";
+	public static final String HADOOP_CONF_HDFS = "hdfs-site.xml";
+	public static final String HADOOP_CONF_MAPRED = "mapred-site.xml";
+	public static final String HADOOP_CONF_YARN = "yarn-site.xml";
+	public static final String HADOOP_CONF_CAPACITY_SCHEDULER = "capacity-scheduler.xml";
+	public static final String HADOOP_CONF_FAIR_SCHEDULER = "fair-scheduler.xml";
+
+	public static final String NAMENODE = "namenode";
+	public static final String RESOURCE_MANAGER = "resourcemanager";
+	public static final String DATANODE = "datanode";
+	public static final String NODEMANAGER = "nodemanager";
+	public static final String GATEWAY = "gateway";
 
 	// General Hadoop configuration properties such as cluster name, 
 	// directory paths, etc.	
     protected Properties hadoopProps = new Properties();
-    
+
+    // Track Hadoop override configuration directories
+    protected Properties hadoopConfDir = new Properties();
+
     // Contains configuration properties loaded from the xml conf file for 
     // each Hadoop components
-	Hashtable<String, Properties> hadoopConfFileProps =
-			new Hashtable<String, Properties>();
+	Hashtable<String, Hashtable<String, Properties>> hadoopComponentConfFileProps =
+			new Hashtable<String, Hashtable<String, Properties>>();
 
 	// Contains the nodes on the cluster
 	Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
@@ -55,13 +66,14 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * Class constructor.
 	 * 
 	 * Calls the superclass constructor, and initializes the default
-	 * configuration parameters for a distributed cluster under test.  Hadoop
-	 * default configuration is not used.
+	 * configuration parameters for a distributed cluster under test.
+	 * Hadoop default configuration is not used.
 	 */
 	public FullyDistributedConfiguration() {
 		super(false);
 		this.initDefaults();
-		this.initConfFiles();
+		this.initComponentConfFiles(
+				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");	
 		this.initClusterNodes();
 	}
 
@@ -78,30 +90,39 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	public FullyDistributedConfiguration(boolean loadDefaults) {
 		super(loadDefaults);
 		this.initDefaults();
-		this.initConfFiles();
+		this.initComponentConfFiles(
+				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");
 		this.initClusterNodes();
 
 	}
 
 	public Properties getHadoopProps() {
-    	return hadoopProps;
+    	return this.hadoopProps;
+    }
+
+	public Properties getHadoopConfDirProps() {
+    	return this.hadoopConfDir;
     }
 
 	public Hashtable<String, Properties> getHadoopConfFileProps() {
-    	return hadoopConfFileProps;
+		return this.getHadoopConfFileProps("gateway");
+    }
+	
+	public Hashtable<String, Properties> getHadoopConfFileProps(String component) {
+		return this.hadoopComponentConfFileProps.get(component);
     }
 	
 	public Hashtable<String, String[]> getClusterNodes() {
-    	return clusterNodes;
+    	return this.clusterNodes;
     }
 	
 	public String[] getClusterNodes(String component) {
-    	return clusterNodes.get(component);
+    	return this.clusterNodes.get(component);
     }
 	
 	public String getHadoopProp(String key) {
     	if (!hadoopProps.getProperty(key).equals(null)) {
-    		return hadoopProps.getProperty(key);
+    		return this.hadoopProps.getProperty(key);
     	}
     	else {
 			TestSession.logger.error("Couldn't find value for key '" + key + "'.");
@@ -212,12 +233,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		*/
 	}
 	
-	public String getHadoopConfFileProp(String component, String propName) {
-		Properties prop = hadoopConfFileProps.get(component);
-		String propValue = prop.getProperty(propName);
-		return propValue;
-	}
-	
 	/*
 	 * Initializes a set of default configuration properties that have been 
 	 * determined to be a reasonable set of defaults for running a distributed
@@ -226,7 +241,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	private void initDefaults() {
 		String HADOOP_ROOT="/home";  // /grid/0								
 		hadoopProps.setProperty("CLUSTER_NAME", TestSession.conf.getProperty("CLUSTER_NAME", ""));
-		hadoopProps.setProperty("TMP_DIR", TestSession.conf.getProperty("TMP_DIR", "/grid/0/tmp"));
+		
+		// hadoopProps.setProperty("TMP_DIR", TestSession.conf.getProperty("TMP_DIR", "/grid/0/tmp"));
+		hadoopProps.setProperty("TMP_DIR", TestSession.conf.getProperty("TMP_DIR", "/homes/hadoopqa/tmp/hadooptest"));
+		
 		hadoopProps.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
 		hadoopProps.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
 				hadoopProps.getProperty("CLUSTER_NAME"));
@@ -236,18 +254,24 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		// Configuration directory and files
 		hadoopProps.setProperty("HADOOP_CONF_DIR", hadoopProps.getProperty("HADOOP_INSTALL") +
 				"/conf/hadoop");
+		hadoopProps.setProperty("HADOOP_DEFAULT_CONF_DIR",
+				hadoopProps.getProperty("HADOOP_CONF_DIR"));
+		
+		hadoopConfDir.setProperty("gateway",
+				hadoopProps.getProperty("HADOOP_CONF_DIR"));
+		
 		hadoopProps.setProperty("HADOOP_CONF_CORE",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/core-site.xml");
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_CORE);
 		hadoopProps.setProperty("HADOOP_CONF_HDFS",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/hdfs-site.xml");
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_HDFS);
 		hadoopProps.setProperty("HADOOP_CONF_MAPRED",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/mapred-site.xml");
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_MAPRED);
 		hadoopProps.setProperty("HADOOP_CONF_YARN",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/yarn-site.xml");
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_YARN);
 		hadoopProps.setProperty("HADOOP_CONF_CAPACITY_SCHEDULER",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/capacity-scheduler.xml");
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_CAPACITY_SCHEDULER);
 		hadoopProps.setProperty("HADOOP_CONF_FAIR_SCHEDULER",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/fair-scheduler.xml");
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_FAIR_SCHEDULER);
 
 		// Binaries
 		hadoopProps.setProperty("HADOOP_BIN_DIR", hadoopProps.getProperty("HADOOP_COMMON_HOME") + "/bin");
@@ -281,21 +305,34 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
     
 	private void initConfFiles() {
-		// Configuration
-		String[] confComponents = {
-				"HADOOP_CONF_CORE",
-				"HADOOP_CONF_HDFS",
-				"HADOOP_CONF_MAPRED",
-				"HADOOP_CONF_YARN",
-				"HADOOP_CONF_CAPACITY_SCHEDULER", 
-				"HADOOP_CONF_FAIR_SCHEDULER"
-				};
-		hadoopConfFileProps =
+		initConfFiles(null);
+	}
+
+	private Hashtable<String, Properties> initConfFiles(String confDir) {
+		// Contains configuration properties loaded from the xml conf file for 
+	    // each Hadoop components
+		Hashtable<String, Properties> hadoopConfFileProps =
 				new Hashtable<String, Properties>();
-		for (int i = 0; i < confComponents.length; i++) {
-			String confComponent = confComponents[i];
-			hadoopConfFileProps.put(confComponent,
-					this.parseHadoopConf(getHadoopProp(confComponent)));
+
+		if ((confDir == null) || confDir.isEmpty()) {
+			confDir = hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR");
+		}
+		
+		// Configuration Files
+		String[] confTypes = {
+				HADOOP_CONF_CORE,
+				HADOOP_CONF_HDFS,
+				HADOOP_CONF_MAPRED,
+				HADOOP_CONF_YARN,
+				HADOOP_CONF_CAPACITY_SCHEDULER, 
+				HADOOP_CONF_FAIR_SCHEDULER
+				};
+
+		for (int i = 0; i < confTypes.length; i++) {
+			String confType = confTypes[i];
+			hadoopConfFileProps.put(confType,
+					this.parseHadoopConf(confDir + "/" +
+							confType));
 		}
 
 		// Print the stored conf properties
@@ -303,13 +340,63 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		for (int i = 0; i < confComponents.length; i++) {
 			String confComponent = confComponents[i];
 			Properties prop = hadoopConfFileProps.get(confComponent);
-			TSM.logger.debug("Parsed Hadop configuration file for " + confComponent + ":");
+			TestSession.logger.debug("Parsed Hadop configuration file for " + confComponent + ":");
 			printProp(prop);
 		}
-		*/		
+		*/
+
+		return hadoopConfFileProps;
 	}
 
-	private void initClusterNodes() {
+	public void initComponentsConfFiles() {
+		initComponentsConfFiles(hadoopProps.getProperty("HADOOP_CONF_DIR"));
+	}
+	
+	public void initComponentsConfFiles(String confDir) {
+		  String[] components = {
+				  "gateway",
+				  "namenode", 
+				  "resourcemanager" };
+		  for (String component : components) {
+			  initComponentConfFiles(confDir, component);
+		  }
+	}
+
+	public void initComponentConfFiles(String confDir, String component) {
+		
+		String localConfDir = confDir;
+		if (!component.equals("gateway")) {
+			String componentHost = clusterNodes.get(component)[0];
+			DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
+			df.setTimeZone(TimeZone.getTimeZone("CST"));  
+			localConfDir = this.getHadoopProp("TMP_DIR") + "/hadoop-conf-" +	
+					component + "-" + df.format(new Date());
+			
+			if ((confDir == null) || confDir.isEmpty()) {
+				confDir = hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR");
+			}
+			String[] cmd = {"/usr/bin/scp", "-r", componentHost + ":" + confDir, localConfDir};
+			String[] output = TestSession.exec.runProcBuilder(cmd);
+		}
+
+		Hashtable<String, Properties> componentConfProps = initConfFiles(localConfDir);
+		Properties metadata = new Properties();
+		metadata.setProperty("path", confDir);
+		componentConfProps.put("metadata", metadata);
+		hadoopComponentConfFileProps.put(component, componentConfProps);
+		
+		Hashtable<String, Properties> configs = hadoopComponentConfFileProps.get(component);
+		Enumeration<String> enumKey = configs.keys();
+		while(enumKey.hasMoreElements()) {
+		    String key = enumKey.nextElement();
+		    Properties prop = configs.get(key);
+		    	TestSession.logger.debug("List hadoop config properties for config file " + key);
+				printProp(prop);
+		}
+	}		
+
+
+	public void initClusterNodes() {
 		// Nodes
 		
 		clusterNodes.put("ADMIN_HOST", new String[] {
@@ -317,14 +404,15 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				"adm103.blue.ygrid.yahoo.com"});
 
 		// Namenode
-		String namenode_addr = getHadoopConfFileProp("HADOOP_CONF_HDFS",
-				"dfs.namenode.https-address");
+		String namenode_addr = getHadoopConfFileProp("dfs.namenode.https-address",
+				HADOOP_CONF_HDFS);
 		String namenode = namenode_addr.split(":")[0];
 		clusterNodes.put("namenode", new String[] {namenode});		
 
 		// Resource Manager
-		String rm_addr = getHadoopConfFileProp("HADOOP_CONF_YARN",
-				"yarn.resourcemanager.resource-tracker.address");
+		String rm_addr = getHadoopConfFileProp(
+				"yarn.resourcemanager.resource-tracker.address",
+				HADOOP_CONF_YARN);
 		String rm = rm_addr.split(":")[0];
 		clusterNodes.put("resourcemanager", new String[] {rm});		
 		
@@ -343,46 +431,49 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		} 	
 	}
 
+	// Change specific property of xml files
+	
 	// tmp_conf_dir
 	// gateway_conf
 	// backupConfDir (String hosts)
-	
-	public int backupConfDir (String component, String[] daemonHost) {
-		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-	    df.setTimeZone(TimeZone.getTimeZone("CST"));  
-	    String tmpConfDir = this.getHadoopProp("TMP_DIR") + "/hadoop-conf-" +
-	    		df.format(new Date());
-		this.hadoopProps.setProperty("TMP_CONF_DIR", tmpConfDir);
-		
-		String cpCmd[] = {"/bin/cp", "-rf", 
-				this.getHadoopProp("HADOOP_CONF_DIR"), tmpConfDir};
 
-		if ((!component.equals("gateway")) && (daemonHost == null)) {
-			daemonHost = this.getClusterNodes(component); 
-		}
-
-		String[] cmd;
-		if (!component.equals("gateway")) {
-			TestSession.logger.info("Backup the Hadoop configuration directory on " +
-					"the " + component + " host(s) of " + Arrays.toString(daemonHost));
-			String[] pdshCmd = { "/home/y/bin/pdsh", "-w",
-					StringUtils.join(daemonHost, ",") };			
-			ArrayList<String> temp = new ArrayList<String>();
-			temp.addAll(Arrays.asList(pdshCmd));
-			temp.addAll(Arrays.asList(cpCmd));
-			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length]);
-		}
-		else {
-			TestSession.logger.info("Back up the Hadoop configuration directory on " +
-					"the gateway:");
-			cmd = cpCmd;
-		}		
-		String output[] = TestSession.exec.runProcBuilder(cmd);
-		// resetConfDir
-
-		return Integer.parseInt(output[0]);
+	public int copyToConfDir (String component, String sourceDir) {
+		return 0;
 	}
-
+	
+	public String getHadoopConfDir(String component) {
+		return this.hadoopConfDir.getProperty(component);
+	}
+	
+	
+	public void setHadoopConfProp (String propName, String propValue,
+			String component, String confType) {		
+	    setHadoopConfProp(propName, propValue, component, confType,
+	    		this.hadoopConfDir.getProperty(component));
+	}
+	
+	public void setHadoopConfProp (String propName, String propValue,
+			String confType, String component, String confDir) {
+		
+	}
+	
+	public String getHadoopConfFileProp(String propName, String confType, String component) {
+		Hashtable<String, Properties> hadoopConfFileProps = getHadoopConfFileProps(component);		
+		Properties prop = hadoopConfFileProps.get(confType);
+		Properties metadata = hadoopConfFileProps.get("metadata");
+		TestSession.logger.info("Get the Hadoop configuration property '" +
+				propName + "' from the configuration file '" + 
+				metadata.getProperty("path") +
+				"' on the '" + component + "' host: ");
+		
+		String propValue = prop.getProperty(propName);
+		return propValue;
+	}
+	
+	public String getHadoopConfFileProp(String propName, String confType) {
+		return getHadoopConfFileProp(propName, confType, "gateway");
+	}
+	
 	
 	private String[] getHostsFromList(String namenode, String file) {
 		String[] output = TestSession.exec.runProcBuilder(
@@ -408,11 +499,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		Properties props = new Properties();
 		try {
 			File xmlInputFile = new File(confFile);
+
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbFactory.newDocumentBuilder();
 			Document doc = db.parse(xmlInputFile);
 			doc.getDocumentElement().normalize();			
-			System.out.println("root of xml file: " + doc.getDocumentElement().getNodeName());			
+			// TestSession.logger.debug("root of xml file: " + doc.getDocumentElement().getNodeName());			
 			NodeList nodes = doc.getElementsByTagName("property");
 						
 			for (int index = 0; index < nodes.getLength(); index++) {
@@ -428,8 +520,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 								getValue("value", element));
 					}
 					catch (NullPointerException npe) {
-						TestSession.logger.warn("Value for property name " + propName + 
-								" is null");
+						// TestSession.logger.warn("Value for property name " + propName + 
+						//		" is null");
 					}
 				}
 			}
@@ -437,7 +529,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		catch (Exception exception)
 		{
 			exception.printStackTrace();
-		}			
+		}
 		return props;
 	}
 
@@ -448,4 +540,95 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return node.getNodeValue();
 	}
 	
+	// Setup a new temporary hadoop configuration directory where settings can
+	// be customized for testing.  This is necessary because tests are being 
+	// run as the headless user hadoopqa and do not not sudo permission to edit
+	// files in the default configuration directory. 
+	public int backupConfDir (String component) {
+		if (component.equals("gateway")) {
+			return backupConfDir(component, null);			
+		}
+		else {
+			return backupConfDir(component, this.getClusterNodes(component));
+		}
+	}
+	
+	// Setup a new temporary hadoop configuration directory where settings can
+	// be customized for testing.  This is necessary because tests are being 
+	// run as the headless user hadoopqa and do not not sudo permission to edit
+	// files in the default configuration directory. 
+	public int backupConfDir (String component, String[] daemonHost) {		
+		if (this.hadoopConfDir.getProperty(component) != null) {
+			TestSession.logger.warn("Override existing backup Hadoop " + 
+					"configuration directory '" +
+					this.hadoopConfDir.getProperty(component) + "':");
+		}
+		else {
+			TestSession.logger.warn("Override default Hadoop configuration " + 
+					"directory '" + this.getHadoopProp("HADOOP_CONF_DIR") +
+					"':");	
+		}
+		
+		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
+	    df.setTimeZone(TimeZone.getTimeZone("CST"));  
+	    String tmpConfDir = this.getHadoopProp("TMP_DIR") + "/hadoop-conf-" +
+	    		df.format(new Date());
+
+	    // Need to know what host/component is the tmp conf dir setup on?
+	    // this.hadoopProps.setProperty("TMP_CONF_DIR", tmpConfDir);
+	    this.hadoopConfDir.setProperty(component, tmpConfDir);
+	    
+		// Follow and dereference symlinks
+		String cpCmd[] = {"/bin/cp", "-rfL", 
+				this.getHadoopProp("HADOOP_CONF_DIR"), tmpConfDir};
+
+		if ((!component.equals("gateway")) && (daemonHost == null)) {
+			daemonHost = this.getClusterNodes(component); 
+		}
+
+		String[] cmd;
+		if (!component.equals("gateway")) {
+			TestSession.logger.info("Backup the Hadoop configuration directory on " +
+					"the " + component + " host(s) of " + Arrays.toString(daemonHost));
+			String[] pdshCmd = { "/home/y/bin/pdsh", "-w",
+					StringUtils.join(daemonHost, ",") };			
+			ArrayList<String> temp = new ArrayList<String>();
+			temp.addAll(Arrays.asList(pdshCmd));
+			temp.addAll(Arrays.asList(cpCmd));
+			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length]);
+		}
+		else {
+			TestSession.logger.info("Back up the Hadoop configuration directory on " +
+					"the gateway:");
+			cmd = cpCmd;
+		}		
+		String output[] = TestSession.exec.runProcBuilder(cmd);
+		
+		// ?? reset component
+		
+		// not here
+		// initComponentConfFiles(tmpConfDir, component);
+
+		
+		
+		// resetConfDir
+
+		
+		
+		// Change all the xml config files to have the proper permission so that
+		// they can be changed by the tests later.
+		// my @command = ('ssh', $target_host, 'chmod', '644',
+	//"$new_conf_dir/*.xml");
+		//    note("@command");
+		//    `@command`;
+
+		    
+		    
+		    
+		
+		
+		return Integer.parseInt(output[0]);
+	}
+
+
 }
