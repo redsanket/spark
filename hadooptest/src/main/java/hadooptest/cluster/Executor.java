@@ -79,7 +79,9 @@ public abstract class Executor {
 	        error = loadStream(proc.getErrorStream());
 	        
 	        rc = proc.waitFor();
-	        TestSession.logger.debug("Process ended with rc=" + rc);
+	        if (rc != 0) {
+	        	TestSession.logger.warn("Process ended with rc=" + rc);
+	        }
 	        // TSM.logger.debug("Process Stdout:" + output);
 	        // TSM.logger.debug("Process Stderr:" + error);
 		}
