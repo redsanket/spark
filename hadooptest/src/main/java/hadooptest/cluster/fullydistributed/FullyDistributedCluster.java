@@ -8,13 +8,13 @@ import java.util.regex.Pattern;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.Cluster;
-import hadooptest.cluster.Executor;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
 import hadooptest.config.TestConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -285,12 +285,18 @@ public class FullyDistributedCluster implements Cluster {
 	
 	public int hadoopDaemon(String action, String component, String hosts, String confDir) {
 		String[] daemonHost = this.conf.getClusterNodes(component);	
-		if (!action.equals("stop")) {
-			if ((confDir == null) || confDir.isEmpty()) {
-				confDir = this.conf.getHadoopProp("HADOOP_CONF_DIR");
+		if (action.equals("start")) {
+			if ((confDir == null) || confDir.isEmpty()) {				
+				// Check if the configuration property for the component has
+				// been set. If so, use it otherwise use the default Hadoop
+				// configuration directory. 
+				Properties hadoopConfDir = this.conf.getHadoopConfDirProps();
+				confDir = hadoopConfDir.getProperty(component,
+						this.conf.getHadoopProp("HADOOP_DEFAULT_CONF_DIR"));
 			}
 		}
 		else {
+			// Configuration directory is not needed for stopping the daemon.  
 			confDir = "";			
 		}
 		
@@ -308,18 +314,33 @@ public class FullyDistributedCluster implements Cluster {
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 		TestSession.logger.info(Arrays.toString(output));
 		
-		// When running as hadoopqa and using the yinst stop command to stop the
-		// jobtracker instead of calling hadoop-daemon.sh directly, there can be a
-		// delay before the job tracker is actually stopped. This is not ideal as it
-		// poses potential timing issue. Should investigate why yinst stop is existing
-		// before the job pid goes away.
-
-		// $return += $self->wait_for_daemon_state($operation, $component, $daemon_hosts);
-		
-		
 		int returnCode = Integer.parseInt(output[0]);
 		if (returnCode != 0) {
 			TestSession.logger.error("Operation '" + action + " " + component + "' failed!!!");
+			return returnCode;
+		}
+		else {
+			// When running as hadoopqa and using the yinst stop command to stop the
+			// jobtracker instead of calling hadoop-daemon.sh directly, there can be a
+			// delay before the job tracker is actually stopped. This is not ideal as it
+			// poses potential timing issue. Should investigate why yinst stop is existing
+			// before the job pid goes away.
+			waitForComponentState(action, component);
+					
+			// Reinitialize the hadooptest configuration object with the
+			// configuration directory if the action is start, and the
+			// configuration directory is not the default one (which cannot be
+			// modified due to root permission).  
+			// NOTE: this could still produce unnecessary re-initialization if
+			// the configurations are not changed. In the future, would be 
+			// better if we are able to determine this. 
+			if (action.equals("start")) {
+				Properties hadoopConfDir = this.conf.getHadoopConfDirProps();
+				confDir = hadoopConfDir.getProperty(component);
+				if ((confDir != null) && !confDir.isEmpty()) {
+					this.conf.initComponentConfFiles(confDir, component);
+				}
+			}
 		}
 		return returnCode;
 	}
@@ -445,19 +466,20 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 	public boolean waitForSafemodeOff() {
-		int timeout = 300;
-		String fs = this.conf.getHadoopConfFileProp(
-				"HADOOP_CONF_CORE", "fs.DefaultFS");
-		return waitForSafemodeOff(timeout, fs);
+		return waitForSafemodeOff(-1, null);
 	}
 		
 	public boolean waitForSafemodeOff(int timeout, String fs) {
-	    if (timeout == 0) {
-	    	timeout = 300;
+
+		if (timeout < 0) {
+			int defaultTimeout = 300;
+	    	timeout = defaultTimeout;
 	    }
-		if ((fs == null) || fs.isEmpty()) {
+
+	    if ((fs == null) || fs.isEmpty()) {
 	        fs = this.conf.getHadoopConfFileProp(
-	        		"HADOOP_CONF_CORE", "fs.defaultFS");
+	        		"fs.defaultFS",
+	        		FullyDistributedConfiguration.HADOOP_CONF_CORE);
 		}
 
 		String namenode = this.conf.getClusterNodes("namenode")[0];	
