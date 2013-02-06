@@ -229,10 +229,7 @@ public class FullyDistributedCluster implements Cluster {
 				  "resourcemanager",
 				  "nodemanager" };
 		  for (String component : components) {
-			  returnValue += this.hadoopDaemon(action, component);	
-			  if (returnValue == 0 ) {
-				  waitForComponentState(action, component);
-			  }
+			  returnValue += this.hadoopDaemon(action, component);
 		  }
 		  if (returnValue > 0) {
 			  TestSession.logger.error("Stop Cluster returned error exit code!!!");
@@ -254,9 +251,6 @@ public class FullyDistributedCluster implements Cluster {
 			  "namenode" };
 	  for (String component : components) {
 		  returnValue += this.hadoopDaemon(action, component);	
-		  if (returnValue == 0 ) {
-			  waitForComponentState(action, component);
-		  }
 	  }
 	  
 	  if (returnValue > 0) {
@@ -362,7 +356,6 @@ public class FullyDistributedCluster implements Cluster {
 	
 	public boolean waitForComponentState(String action, String component,
 			String[] daemonHost, int waitInterval, int maxWait) {
-	    boolean expectedToBeUp = action.equals("start") ? true : false;
 	    String expStateStr = action.equals("start") ? "started" : "stopped";
 
 		if (waitInterval == 0) {
@@ -379,12 +372,13 @@ public class FullyDistributedCluster implements Cluster {
 
 		int count = 1;
 	    while (count <= maxWait) {
-	    	if (isComponentUp(component) == expectedToBeUp) {
+	    	
+	    	if (isComponentFullyInExpectedState(action, component, daemonHost)) {
 	            TestSession.logger.debug("Daemon process for " + component + " is " +
 	            		expStateStr + ".");
-	            break;	    		
+	            break;	    			    		
 	    	}
-	        
+
 	    	TestSession.logger.debug("Wait #" + count + " of " + maxWait + " for " +
 	    			component + "daemon on " + Arrays.toString(daemonHost) + 
 	    			" hosts to be " + expStateStr + " in " + waitInterval +
@@ -417,7 +411,7 @@ public class FullyDistributedCluster implements Cluster {
 		boolean overallStatus = true;
 		boolean componentStatus = true;
 		for (String component : components) {
-			  componentStatus = this.isComponentUp(component);
+			  componentStatus = this.isComponentFullyUp(component);
 			  // $status->{uc($component)} = $hosts_status;
 			  TestSession.logger.info("Get Cluster Status: " + component + " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
@@ -428,11 +422,38 @@ public class FullyDistributedCluster implements Cluster {
 	    return overallStatus;
 	}
 	
-	public boolean isComponentUp(String component) {
-		return isComponentUp(component, null);
+	public boolean isComponentFullyUp(String component) {
+		return isComponentFullyUp(component, null);
 	}
 	
-	public boolean isComponentUp(String component, String[] daemonHost) {
+	public boolean isComponentFullyUp(String component, String[] daemonHost) {
+		return isComponentFullyInExpectedState("start", component, daemonHost);
+	}
+	
+	public boolean isComponentUpOnSingleHost(String component) {
+		return this.isComponentUpOnSingleHost(component, null);
+	}
+	
+	public boolean isComponentUpOnSingleHost(String component,
+			String daemonHost) {
+		return isComponentFullyUp(component, new String[] {daemonHost});		
+	}
+
+	public boolean isComponentFullyDown(String component) {
+		return isComponentFullyDown(component, null);
+	}	
+
+	public boolean isComponentFullyDown(String component, String[] daemonHost) {		
+		return isComponentFullyInExpectedState("stop", component, daemonHost);
+	}
+		
+	public boolean isComponentFullyInExpectedState(String action,
+			String component) {
+		return isComponentFullyInExpectedState(action, component, null);
+	}
+	
+	public boolean isComponentFullyInExpectedState(String action,
+			String component, String[] daemonHost) {
 		String adminHost = this.conf.getClusterNodes("admin")[0];
 		if (daemonHost == null) {
 			daemonHost = this.conf.getClusterNodes(component);	
@@ -446,28 +467,32 @@ public class FullyDistributedCluster implements Cluster {
 		        "\"", "|","grep -v grep -c" };		        
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 		
-		// For data node, there should be two jobs per host.
-		// One is started by root, and the other by hdfs.	
 		int numExpectedProcessPerHost = (component.equals("datanode")) ? 2 : 1;
-		TestSession.logger.trace("Daemon hosts for " + component + ": " + Arrays.toString(daemonHost));
-		int numExpectedProcess = numExpectedProcessPerHost * daemonHost.length;
+		TestSession.logger.trace("Daemon hosts for " + component + ": " +
+				Arrays.toString(daemonHost));
+		int numDaemonProcess = numExpectedProcessPerHost * daemonHost.length;
+
+		int numExpectedProcess =
+				(action.equals("start")) ? numDaemonProcess : 0;
+
 		int numActualProcess = Integer.parseInt(output[1].replace("\n",""));
 		
-		boolean isComponentUp = (numActualProcess == numExpectedProcess) ? true : false;
-		if (!isComponentUp) {
-			TestSession.logger.debug("Number of process up: " +
-					numActualProcess + "/" + numExpectedProcess);
-		}
-		return isComponentUp;
-	}
-	
-	public boolean isComponentUpOnSingleHost(String component) {
-		return this.isComponentUpOnSingleHost(component, null);
-	}
-	
-	public boolean isComponentUpOnSingleHost(String component,
-			String daemonHost) {
-		return isComponentUp(component, new String[] {daemonHost});		
+		boolean isComponentFullyInExpectedState =
+				(numActualProcess == numExpectedProcess) ? true : false;
+		// if (!isComponentFullyInExpectedState) {
+			if (action.equals("start")) {
+				TestSession.logger.debug("Number of " + component +
+						" process up: " + numActualProcess + "/" +
+						numDaemonProcess);
+			}
+			else {
+				TestSession.logger.debug("Number of " + component +
+						" process down: " +
+						(numDaemonProcess-numActualProcess) + "/" +
+						numDaemonProcess);
+			}
+		// }
+		return isComponentFullyInExpectedState;
 	}
 	
 	public boolean waitForSafemodeOff() {
