@@ -2,8 +2,10 @@ package hadooptest;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import java.lang.reflect.Constructor;
+import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
@@ -108,49 +110,57 @@ public abstract class TestSession {
 
 		try {
 			conf.load(conf_location);
+
+			Enumeration<Object> keys = conf.keys();
+			while (keys.hasMoreElements()) {
+			  String key = (String)keys.nextElement();
+			  String value = (String)conf.get(key);
+			  System.out.println(key + ": " + value);
+			}
 		} catch (IOException ioe) {
 			System.out.println("Could not load the framework configuration file.");
 		}
 	}
 	
 	/*
-	 * Initialize the framework logger.
+	 * Initialize the framework /.
 	 */
 	private static void initLogging() {
 		logger = Logger.getLogger(TestSession.class);
-		Level logLevel = Level.ALL;  // All logging is turned on by default
+		Level logLevel = Level.ALL;  // All logging is turned on by default	
 		
-		String strLogLevel = conf.getProperty("LOG_LEVEL");
+		String strLogLevel = conf.getProperty("LOG_LEVEL");		
 		
-		if (strLogLevel == "OFF") {
+		if (strLogLevel.equals("OFF")) {
 			logLevel = Level.OFF;
 		}
-		else if (strLogLevel == "ALL") {
+		else if (strLogLevel.equals("ALL")) {
 			logLevel = Level.ALL;
 		}
-		else if (strLogLevel == "DEBUG") {
+		else if (strLogLevel.equals("DEBUG")) {
 			logLevel = Level.DEBUG;
 		}
-		else if (strLogLevel == "ERROR") {
+		else if (strLogLevel.equals("ERROR")) {
 			logLevel = Level.ERROR;
 		}
-		else if (strLogLevel == "FATAL") {
+		else if (strLogLevel.equals("FATAL")) {
 			logLevel = Level.FATAL;
 		}
-		else if (strLogLevel == "INFO") {
+		else if (strLogLevel.equals("INFO")) {
 			logLevel = Level.INFO;
 		}
-		else if (strLogLevel == "TRACE") {
+		else if (strLogLevel.equals("TRACE")) {
 			logLevel = Level.TRACE;
 		}
-		else if (strLogLevel == "WARN") {
+		else if (strLogLevel.equals("WARN")) {
 			logLevel = Level.WARN;
 		}
 		else {
+			System.out.println("set to all ");
 			logLevel = Level.ALL;
 		}
-		
 		logger.setLevel(logLevel);
+		logger.trace("Set log level to " + logLevel);
 	}
 	
 	/*
