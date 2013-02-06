@@ -319,7 +319,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 		
 		// Configuration Files
-		String[] confTypes = {
+		String[] confFilenames = {
 				HADOOP_CONF_CORE,
 				HADOOP_CONF_HDFS,
 				HADOOP_CONF_MAPRED,
@@ -328,22 +328,21 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				HADOOP_CONF_FAIR_SCHEDULER
 				};
 
-		for (int i = 0; i < confTypes.length; i++) {
-			String confType = confTypes[i];
-			hadoopConfFileProps.put(confType,
+		for (int i = 0; i < confFilenames.length; i++) {
+			String confFilename = confFilenames[i];
+			hadoopConfFileProps.put(confFilename,
 					this.parseHadoopConf(confDir + "/" +
-							confType));
+							confFilename));
 		}
 
-		// Print the stored conf properties
-		/*
-		for (int i = 0; i < confComponents.length; i++) {
-			String confComponent = confComponents[i];
-			Properties prop = hadoopConfFileProps.get(confComponent);
-			TestSession.logger.debug("Parsed Hadop configuration file for " + confComponent + ":");
-			printProp(prop);
+		// Print the stored configuration properties
+		for (int i = 0; i < confFilenames.length; i++) {
+			String confFilename = confFilenames[i];
+			Properties prop = hadoopConfFileProps.get(confFilename);
+			TestSession.logger.trace("List the parsed Hadop configuration " + 
+					"properties for " + confFilename + ":");
+			traceProperties(prop);
 		}
-		*/
 
 		return hadoopConfFileProps;
 	}
@@ -390,8 +389,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		while(enumKey.hasMoreElements()) {
 		    String key = enumKey.nextElement();
 		    Properties prop = configs.get(key);
-		    	TestSession.logger.debug("List hadoop config properties for config file " + key);
-				printProp(prop);
+		    	TestSession.logger.trace("List hadoop config properties for config file " + key);
+		    	traceProperties(prop);
 		}
 	}		
 
@@ -399,7 +398,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	public void initClusterNodes() {
 		// Nodes
 		
-		clusterNodes.put("ADMIN_HOST", new String[] {
+		clusterNodes.put("admin", new String[] {
 				"adm102.blue.ygrid.yahoo.com",
 				"adm103.blue.ygrid.yahoo.com"});
 
@@ -424,6 +423,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		clusterNodes.put("nodemanager", clusterNodes.get("datanode"));		
 
 		// Show all balances in hash table. 
+		TestSession.logger.debug("-- listing cluster nodes --");
 		Enumeration<String> components = clusterNodes.keys(); 
 		while (components.hasMoreElements()) { 
 			String component = (String) components.nextElement(); 
@@ -447,31 +447,31 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	
 	
 	public void setHadoopConfProp (String propName, String propValue,
-			String component, String confType) {		
-	    setHadoopConfProp(propName, propValue, component, confType,
+			String component, String confFilename) {		
+	    setHadoopConfProp(propName, propValue, component, confFilename,
 	    		this.hadoopConfDir.getProperty(component));
 	}
 	
 	public void setHadoopConfProp (String propName, String propValue,
-			String confType, String component, String confDir) {
+			String confFilename, String component, String confDir) {
 		
 	}
 	
-	public String getHadoopConfFileProp(String propName, String confType, String component) {
+	public String getHadoopConfFileProp(String propName, String confFilename,
+			String component) {
 		Hashtable<String, Properties> hadoopConfFileProps = getHadoopConfFileProps(component);		
-		Properties prop = hadoopConfFileProps.get(confType);
+		Properties prop = hadoopConfFileProps.get(confFilename);
 		Properties metadata = hadoopConfFileProps.get("metadata");
-		TestSession.logger.info("Get the Hadoop configuration property '" +
-				propName + "' from the configuration file '" + 
-				metadata.getProperty("path") +
+		TestSession.logger.trace("Get property '" +
+				propName + "' defined in '" + 
+				metadata.getProperty("path") + "/" + confFilename +
 				"' on the '" + component + "' host: ");
-		
 		String propValue = prop.getProperty(propName);
 		return propValue;
 	}
 	
-	public String getHadoopConfFileProp(String propName, String confType) {
-		return getHadoopConfFileProp(propName, confType, "gateway");
+	public String getHadoopConfFileProp(String propName, String confFilename) {
+		return getHadoopConfFileProp(propName, confFilename, "gateway");
 	}
 	
 	
@@ -479,32 +479,36 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		String[] output = TestSession.exec.runProcBuilder(
 						new String[] {"ssh", namenode, "/bin/cat", file});
 		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
-		TestSession.logger.debug("Hosts are: " + Arrays.toString(nodes));
+		TestSession.logger.trace("Hosts in file are: " + Arrays.toString(nodes));
 		return nodes;
 	}
 	
-	private void printProp(Properties prop) {
-		PrintWriter writer = new PrintWriter(System.out);
-		prop.list(writer);
-		writer.flush();	      	
+	private void traceProperties(Properties prop) {
+		TestSession.logger.trace("-- listing properties --");
+		Enumeration<Object> keys = prop.keys();
+		while (keys.hasMoreElements()) {
+		  String key = (String)keys.nextElement();
+		  String value = (String)prop.get(key);
+		  TestSession.logger.trace(key + ": " + value);
+		}
 	}
-
 	
 	/*
 	 * Writes the distributed cluster configuration specified by the object out
 	 * to disk.
 	 */
-	public Properties parseHadoopConf(String confFile) {
-		TestSession.logger.info("Parse Hadoop configuration file: " + confFile);
+	public Properties parseHadoopConf(String confFilename) {
+		TestSession.logger.debug("Parse Hadoop configuration file: " +
+				confFilename);
 		Properties props = new Properties();
 		try {
-			File xmlInputFile = new File(confFile);
-
+			File xmlInputFile = new File(confFilename);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbFactory.newDocumentBuilder();
 			Document doc = db.parse(xmlInputFile);
-			doc.getDocumentElement().normalize();			
-			// TestSession.logger.debug("root of xml file: " + doc.getDocumentElement().getNodeName());			
+			doc.getDocumentElement().normalize();
+			TestSession.logger.trace("Root of xml file: " +
+					doc.getDocumentElement().getNodeName());			
 			NodeList nodes = doc.getElementsByTagName("property");
 						
 			for (int index = 0; index < nodes.getLength(); index++) {
@@ -514,14 +518,16 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 					String propName = getValue("name", element);
 					try {
-						// TSM.logger.debug("Property Name: " + getValue("name", element));
-						// TSM.logger.debug("Property Value: " + getValue("value", element));
+						TestSession.logger.trace("Config Property Name: " +
+								getValue("name", element));
+						TestSession.logger.trace("Config Property Value: " +
+								getValue("value", element));
 						props.put(getValue("name", element),
 								getValue("value", element));
 					}
 					catch (NullPointerException npe) {
-						// TestSession.logger.warn("Value for property name " + propName + 
-						//		" is null");
+						TestSession.logger.trace("Value for property name " + propName + 
+								" is null");
 					}
 				}
 			}
