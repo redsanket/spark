@@ -81,9 +81,12 @@ public abstract class Executor {
 	        rc = proc.waitFor();
 	        if (rc != 0) {
 	        	TestSession.logger.warn("Process ended with rc=" + rc);
+	        	TestSession.logger.debug("Captured stdout = " + output);
+	        	TestSession.logger.debug("Captured stderr = " + error);	        		    		
 	        }
-	        // TSM.logger.debug("Process Stdout:" + output);
-	        // TSM.logger.debug("Process Stderr:" + error);
+	        TestSession.logger.trace("Process Exit Code:" + rc);
+	        TestSession.logger.trace("Process Stdout:" + output);
+	        TestSession.logger.trace("Process Stderr:" + error);
 		}
 		catch (Exception e) {
 			if (proc != null) {
