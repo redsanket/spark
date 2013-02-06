@@ -5,6 +5,7 @@
 package hadooptest.config.testconfig;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -351,6 +352,13 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	private void initDefaults() {
 		String HADOOP_ROOT="/home";  // /grid/0								
 		hadoopProps.setProperty("CLUSTER_NAME", TestSession.conf.getProperty("CLUSTER_NAME", ""));
+
+		try {
+			hadoopProps.setProperty("GATEWAY", InetAddress.getLocalHost().getHostName());
+		}
+		catch (Exception e) {
+			TestSession.logger.warn("Hostname not found!!!");
+		}
 		
 		// hadoopProps.setProperty("TMP_DIR", TestSession.conf.getProperty("TMP_DIR", "/grid/0/tmp"));
 		hadoopProps.setProperty("TMP_DIR", TestSession.conf.getProperty("TMP_DIR", "/homes/hadoopqa/tmp/hadooptest"));
@@ -598,26 +606,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		  TestSession.logger.trace(key + ": " + value);
 		}
 	}
-	
-	
-	// Change specific property of xml files
-	// tmp_conf_dir
-	// gateway_conf
-	// backupConfDir (String hosts)
-	public int copyToConfDir (String component, String sourceDir) {
-		return 0;
-	}
-	
-	public void setHadoopConfProp (String propName, String propValue,
-			String component, String confFilename) {
-	    setHadoopConfProp(propName, propValue, component, confFilename,
-	    		this.getHadoopConfDirPath(component));
-	}
-	
-	public void setHadoopConfProp (String propName, String propValue,
-			String confFilename, String component, String confDir) {	
-	}
-	
+		
     /*
      * Parse Hadoop configuration file for a given filename.
      * 
@@ -682,6 +671,128 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return node.getNodeValue();
 	}
 	
+	
+	
+	
+	
+	// Change specific property of xml files
+	// tmp_conf_dir
+	// gateway_conf
+	// backupConfDir (String hosts)
+
+	
+	
+	
+    /*
+     * Set the Hadoop configuration file property for a given property name,
+     * property value, component, and file name. 
+     * 
+     * @param propName String of property name
+     * @param propValue String of property value
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param fileName String of the configuration file name.
+     * 
+     * @return int 0 for success, 1 for failure.
+     */
+	public void setHadoopConfProp (String propName, String propValue,
+			String component, String confFilename) {
+	    setHadoopConfProp(propName, propValue, component, confFilename,
+	    		this.getHadoopConfDirPath(component));
+	}
+	
+    /*
+     * Set the Hadoop configuration file property for a given property name,
+     * property value, component, file name, and configuration directory path.
+     * 
+     * @param propName String of property name
+     * @param propValue String of property value
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param fileName String of the configuration file name.
+     * @param confDir String of the configuration directory path.
+     * 
+     * @return int 0 for success, 1 for failure.
+     */
+	public void setHadoopConfProp (String propName, String propValue,
+			String component, String confFilename, String confDir) {
+
+		// Either
+		
+	}
+
+	
+    /*
+     * Copy files from a given Hadoop configuration directory to a Hadoop
+     * cluster component. This assumes that the cluster under test is already
+     * using a custom backup directory that is editable, by previously calling
+     * the backupConfDir() methdo. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param sourceDir source configuration directory to copy the files from
+     * 
+     * @return int 0 for success, 1 for failure.
+     */
+	public int copyFilesToConfDir (String component, String sourceDir) {
+		if (component.equals("gateway")) {
+			return copyFilesToConfDir(component, sourceDir, null);			
+		}
+		else {
+			return copyFilesToConfDir(component, sourceDir,
+					this.getClusterNodes(component));
+		}
+	}
+
+    /*
+     * Copy files from a given Hadoop configuration directory to a Hadoop
+     * cluster component. This assumes that the cluster under test is already
+     * using a custom backup directory that is editable, by previously calling
+     * the backupConfDir() methdo. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param sourceDir source configuration directory to copy the files from
+     * @param daemonHost String Array of component hostname(s).
+     * 
+     * @return int 0 for success, 1 for failure.
+     */
+	public int copyFilesToConfDir (String component, String sourceDir,
+			String[] daemonHost) {
+		
+		String confDir = this.getHadoopConfDirPath(component);
+		String cpCmd[] = { "/usr/bin/scp",
+				this.getHadoopProp("GATEWAY") + ":" + sourceDir + "/*",
+				confDir};
+				
+		if ((!component.equals("gateway")) && (daemonHost == null)) {
+			daemonHost = this.getClusterNodes(component); 
+		}
+
+		String[] cmd;
+		if (!component.equals("gateway")) {
+			TestSession.logger.info("Copy files to the Hadoop " +
+					"configuration directory " + confDir + " on " +
+					"the " + component + " host(s) of " +
+					Arrays.toString(daemonHost));
+			String[] pdshCmd = { "/home/y/bin/pdsh", "-w",
+					StringUtils.join(daemonHost, ",") };			
+			ArrayList<String> temp = new ArrayList<String>();
+			temp.addAll(Arrays.asList(pdshCmd));
+			temp.addAll(Arrays.asList(cpCmd));
+			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length]);
+		}
+		else {
+			TestSession.logger.info("Back up the Hadoop configuration directory on " +
+					"the gateway:");
+			cmd = cpCmd;
+		}		
+		String output[] = TestSession.exec.runProcBuilder(cmd);
+		TestSession.logger.trace(Arrays.toString(output));
+
+		return Integer.parseInt(output[0]);
+	}
+
     /*
      * Backup the Hadoop configuration directory for a given component.
      * This will setup a new temporary Hadoop configuration directory where
@@ -739,7 +850,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	    
 		// Follow and dereference symlinks
 		String cpCmd[] = {"/bin/cp", "-rfL", 
-				this.getHadoopProp("HADOOP_CONF_DIR"), tmpConfDir};
+				this.getHadoopProp("HADOOP_CONF_DIR"), tmpConfDir + ";"};
+
+		// Change all the xml config files to have the proper permission so that
+		// they can be changed by the tests later.
+		String[] chmodCmd = {"/bin/chmod", "644", tmpConfDir+"/*.xml"};
 
 		if ((!component.equals("gateway")) && (daemonHost == null)) {
 			daemonHost = this.getClusterNodes(component); 
@@ -747,14 +862,17 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 		String[] cmd;
 		if (!component.equals("gateway")) {
-			TestSession.logger.info("Backup the Hadoop configuration directory on " +
-					"the " + component + " host(s) of " + Arrays.toString(daemonHost));
+			TestSession.logger.info("Backup the Hadoop configuration directory to " +
+					tmpConfDir + " on " + "the " + component + " host(s) of " +
+					Arrays.toString(daemonHost));
 			String[] pdshCmd = { "/home/y/bin/pdsh", "-w",
-					StringUtils.join(daemonHost, ",") };			
+					StringUtils.join(daemonHost, ",") };
+
 			ArrayList<String> temp = new ArrayList<String>();
 			temp.addAll(Arrays.asList(pdshCmd));
 			temp.addAll(Arrays.asList(cpCmd));
-			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length]);
+			temp.addAll(Arrays.asList(chmodCmd));
+			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length+chmodCmd.length]);
 		}
 		else {
 			TestSession.logger.info("Back up the Hadoop configuration directory on " +
@@ -762,17 +880,14 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			cmd = cpCmd;
 		}		
 		String output[] = TestSession.exec.runProcBuilder(cmd);
-		
-		// Change all the xml config files to have the proper permission so that
-		// they can be changed by the tests later.
-		// cmd = {"ssh", $target_host, "chmod", "644", "$new_conf_dir/*.xml");
-
+		TestSession.logger.trace(Arrays.toString(output));
+				
 		// The setHadoopConfDirPath() will set the path to the new configuration
 		// directory. It is the responsibility for the test to call the 
 		// cluster.reset() to restart the component for the configuration change
 		// to take effect, and to reinitialize the configuration object (via
 		// initComponentConfFiles(tmpConfDir, component))
-				 
+
 		return Integer.parseInt(output[0]);
 	}
 
