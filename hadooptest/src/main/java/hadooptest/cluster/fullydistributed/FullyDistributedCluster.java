@@ -312,7 +312,8 @@ public class FullyDistributedCluster implements Cluster {
 		temp.addAll(Arrays.asList(cmd3));
 		String [] cmd = temp.toArray(new String[cmd1.length+cmd2.length+cmd3.length]);
 		String output[] = TestSession.exec.runProcBuilder(cmd);
-		TestSession.logger.info(Arrays.toString(output));
+
+		TestSession.logger.trace(Arrays.toString(output));
 		
 		int returnCode = Integer.parseInt(output[0]);
 		if (returnCode != 0) {
@@ -432,7 +433,7 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 	public boolean isComponentUp(String component, String[] daemonHost) {
-		String adminHost = this.conf.getClusterNodes("ADMIN_HOST")[0];
+		String adminHost = this.conf.getClusterNodes("admin")[0];
 		if (daemonHost == null) {
 			daemonHost = this.conf.getClusterNodes(component);	
 		}
@@ -448,12 +449,16 @@ public class FullyDistributedCluster implements Cluster {
 		// For data node, there should be two jobs per host.
 		// One is started by root, and the other by hdfs.	
 		int numExpectedProcessPerHost = (component.equals("datanode")) ? 2 : 1;
-		TestSession.logger.debug("Daemon hosts for " + component + ": " + Arrays.toString(daemonHost));
+		TestSession.logger.trace("Daemon hosts for " + component + ": " + Arrays.toString(daemonHost));
 		int numExpectedProcess = numExpectedProcessPerHost * daemonHost.length;
 		int numActualProcess = Integer.parseInt(output[1].replace("\n",""));
-		TestSession.logger.debug("Number of expected process: " + numExpectedProcess +
-				", Number of actual process: " + numActualProcess);
-		return (numActualProcess == numExpectedProcess) ? true : false;
+		
+		boolean isComponentUp = (numActualProcess == numExpectedProcess) ? true : false;
+		if (!isComponentUp) {
+			TestSession.logger.debug("Number of process up: " +
+					numActualProcess + "/" + numExpectedProcess);
+		}
+		return isComponentUp;
 	}
 	
 	public boolean isComponentUpOnSingleHost(String component) {
@@ -494,8 +499,7 @@ public class FullyDistributedCluster implements Cluster {
 	    int waitTime=30;
 	    int i=1;
 	    while ((timeout > 0) && (!isSafemodeOff)) {
-	    	TestSession.logger.debug("TRY #" + i);	        
-	    	TestSession.logger.info("WAIT " + waitTime + "s:" );
+	    	TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i + ": WAIT " + waitTime + "s:" );
 	    	try {
 	    		Thread.sleep(waitTime*1000);
 	    	} catch  (InterruptedException e) {
