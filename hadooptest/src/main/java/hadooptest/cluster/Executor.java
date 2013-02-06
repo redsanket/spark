@@ -169,7 +169,7 @@ public abstract class Executor {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) {
-        	TestSession.logger.debug(line);
+        	TestSession.logger.trace(line);
             sb.append(line).append("\n");
         }
         return sb.toString();
