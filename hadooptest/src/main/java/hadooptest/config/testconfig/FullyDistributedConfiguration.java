@@ -186,6 +186,47 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return this.hadoopComponentConfFileProps.get(component);
     }
 	
+	/*
+     * Returns the Hadoop configuration files property for a given property
+     * name and configuration filename on the gateway component. 
+     * 
+     * @param propname the Hadoop configuration property name
+     * @param confFilename the Hadoop configuration file name
+     * 
+     * @return String property value for the given property name and the
+     * configuration file on the gateway host.
+     * 
+     */
+	public String getHadoopConfFileProp(String propName, String confFilename) {
+		return getHadoopConfFileProp(propName, confFilename, "gateway");
+	}
+	
+	/*
+     * Returns the Hadoop configuration files property for a given property
+     * name, configuration filename, and component. 
+     * 
+     * @param propname the Hadoop configuration property name
+     * @param confFilename the Hadoop configuration file name
+     * @param component the Hadoop cluster component name
+     * 
+     * @return String property value for the given property name and the
+     * configuration file on the component host.
+     * 
+     */
+	public String getHadoopConfFileProp(String propName, String confFilename,
+			String component) {
+		Hashtable<String, Properties> hadoopConfFileProps =
+				getHadoopConfFileProps(component);		
+		Properties prop = hadoopConfFileProps.get(confFilename);
+		Properties metadata = hadoopConfFileProps.get("metadata");
+		TestSession.logger.trace("Get property '" +
+				propName + "' defined in '" + 
+				metadata.getProperty("path") + "/" + confFilename +
+				"' on the '" + component + "' host: ");
+		String propValue = prop.getProperty(propName);
+		return propValue;
+	}
+	
     /*
      * Returns the Hadoop cluster hostnames hashtable.
      * 
@@ -383,10 +424,24 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	}
 
     
+    /*
+     * Initialize the Hadoop configuration files. 
+     * 
+     * @return Hashtable of Properties for each of the configuration files.
+     * 
+     */
 	private void initConfFiles() {
 		initConfFiles(null);
 	}
-
+	
+    /*
+     * Initialize the Hadoop configuration files. 
+     * 
+     * @param confDir the configuration directory path.
+     * 
+     * @return hastable of Properties for each of the configuration files.
+     * 
+     */
 	private Hashtable<String, Properties> initConfFiles(String confDir) {
 		// Contains configuration properties loaded from the xml conf file for 
 	    // each Hadoop components
@@ -410,7 +465,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		for (int i = 0; i < confFilenames.length; i++) {
 			String confFilename = confFilenames[i];
 			hadoopConfFileProps.put(confFilename,
-					this.parseHadoopConf(confDir + "/" +
+					this.parseHadoopConfFile(confDir + "/" +
 							confFilename));
 		}
 
@@ -426,10 +481,20 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return hadoopConfFileProps;
 	}
 
+    /*
+     * Initialize the Hadoop configuration files for each components. 
+     * 
+     */
+
 	public void initComponentsConfFiles() {
 		initComponentsConfFiles(hadoopProps.getProperty("HADOOP_CONF_DIR"));
 	}
 	
+    /*
+     * Initialize the Hadoop configuration files for each components for the
+     * given configuration directory. 
+     * 
+     */
 	public void initComponentsConfFiles(String confDir) {
 		  String[] components = {
 				  "gateway",
@@ -440,6 +505,14 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		  }
 	}
 
+    /*
+     * Initialize the Hadoop configuation files for the given configuration
+     * directory and the given component. 
+     * 
+     * @param confDir the Hadoop configuration directory 
+     * @param component the cluster component name. 
+     * 
+     */
 	public void initComponentConfFiles(String confDir, String component) {
 		
 		String localConfDir = confDir;
@@ -473,10 +546,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 	}		
 
-
+    /*
+     * Initialize the cluster nodes hostnames for the namenode,
+     * resource manager, datanode, and nodemanager. 
+     * 
+     */
 	public void initClusterNodes() {
-		// Nodes
-		
 		clusterNodes.put("admin", new String[] {
 				"adm102.blue.ygrid.yahoo.com",
 				"adm103.blue.ygrid.yahoo.com"});
@@ -510,12 +585,43 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		} 	
 	}
 
-	// Change specific property of xml files
+    /*
+     * Parse the host names from a host name list on the namenode.
+     * 
+     * @param namenode the namenode hostname. 
+     * @param file the file name. 
+     * 
+     * @return String Array of host names.
+     */
+	private String[] getHostsFromList(String namenode, String file) {
+		String[] output = TestSession.exec.runProcBuilder(
+						new String[] {"ssh", namenode, "/bin/cat", file});
+		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
+		TestSession.logger.trace("Hosts in file are: " + Arrays.toString(nodes));
+		return nodes;
+	}
 	
+    /*
+     * Print logging for the given Properties object.
+     * 
+     * @param Properties a given Properties
+     * 
+     */
+	private void traceProperties(Properties prop) {
+		TestSession.logger.trace("-- listing properties --");
+		Enumeration<Object> keys = prop.keys();
+		while (keys.hasMoreElements()) {
+		  String key = (String)keys.nextElement();
+		  String value = (String)prop.get(key);
+		  TestSession.logger.trace(key + ": " + value);
+		}
+	}
+	
+	
+	// Change specific property of xml files
 	// tmp_conf_dir
 	// gateway_conf
 	// backupConfDir (String hosts)
-
 	public int copyToConfDir (String component, String sourceDir) {
 		return 0;
 	}
@@ -530,52 +636,21 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			String confFilename, String component, String confDir) {	
 	}
 	
-	public String getHadoopConfFileProp(String propName, String confFilename,
-			String component) {
-		Hashtable<String, Properties> hadoopConfFileProps = getHadoopConfFileProps(component);		
-		Properties prop = hadoopConfFileProps.get(confFilename);
-		Properties metadata = hadoopConfFileProps.get("metadata");
-		TestSession.logger.trace("Get property '" +
-				propName + "' defined in '" + 
-				metadata.getProperty("path") + "/" + confFilename +
-				"' on the '" + component + "' host: ");
-		String propValue = prop.getProperty(propName);
-		return propValue;
-	}
-	
-	public String getHadoopConfFileProp(String propName, String confFilename) {
-		return getHadoopConfFileProp(propName, confFilename, "gateway");
-	}
-	
-	
-	private String[] getHostsFromList(String namenode, String file) {
-		String[] output = TestSession.exec.runProcBuilder(
-						new String[] {"ssh", namenode, "/bin/cat", file});
-		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
-		TestSession.logger.trace("Hosts in file are: " + Arrays.toString(nodes));
-		return nodes;
-	}
-	
-	private void traceProperties(Properties prop) {
-		TestSession.logger.trace("-- listing properties --");
-		Enumeration<Object> keys = prop.keys();
-		while (keys.hasMoreElements()) {
-		  String key = (String)keys.nextElement();
-		  String value = (String)prop.get(key);
-		  TestSession.logger.trace(key + ": " + value);
-		}
-	}
-	
-	/*
-	 * Writes the distributed cluster configuration specified by the object out
-	 * to disk.
-	 */
-	public Properties parseHadoopConf(String confFilename) {
+    /*
+     * Parse Hadoop configuration file for a given filename.
+     * 
+     * @param filename Hadoop configuration file name such as core-site.xml,
+     * hdfs-site.xml, etc.
+     * 
+     * @return Properties for the given configuration files.
+     * 
+     */
+	public Properties parseHadoopConfFile(String filename) {
 		TestSession.logger.debug("Parse Hadoop configuration file: " +
-				confFilename);
+				filename);
 		Properties props = new Properties();
 		try {
-			File xmlInputFile = new File(confFilename);
+			File xmlInputFile = new File(filename);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbFactory.newDocumentBuilder();
 			Document doc = db.parse(xmlInputFile);
@@ -612,17 +687,33 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return props;
 	}
 
-	
+    /*
+     * Get the xml node value given a tag and an element. 
+     * 
+     * @param tag Tag name in the xml element
+     * @param element The xml element.
+     * 
+     * @return String node value.
+     * 
+     */
 	private static String getValue(String tag, Element element) {
 		NodeList nodes = element.getElementsByTagName(tag).item(0).getChildNodes();
 		Node node = (Node) nodes.item(0);
 		return node.getNodeValue();
 	}
 	
-	// Setup a new temporary hadoop configuration directory where settings can
-	// be customized for testing.  This is necessary because tests are being 
-	// run as the headless user hadoopqa and do not not sudo permission to edit
-	// files in the default configuration directory. 
+    /*
+     * Backup the Hadoop configuration directory for a given component.
+     * This will setup a new temporary Hadoop configuration directory where
+     * settings can be changed for testing. This is necessary because the
+     * default configuration directory is owned and writable only to root. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * 
+     * @return int 0 for success, 1 for failure.
+     * 
+     */
 	public int backupConfDir (String component) {
 		if (component.equals("gateway")) {
 			return backupConfDir(component, null);			
@@ -632,10 +723,19 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 	}
 	
-	// Setup a new temporary hadoop configuration directory where settings can
-	// be customized for testing.  This is necessary because tests are being 
-	// run as the headless user hadoopqa and do not not sudo permission to edit
-	// files in the default configuration directory. 
+    /*
+     * Backup the Hadoop configuration directory for a given component.
+     * This will setup a new temporary Hadoop configuration directory where
+     * settings can be changed for testing. This is necessary because the
+     * default configuration directory is owned and writable only to root. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param daemonHost String Array of component hostname(s).
+     * 
+     * @return int 0 for success, 1 for failure.
+     * 
+     */
 	public int backupConfDir (String component, String[] daemonHost) {
 		String componentHadoopConfDirPath =
 				this.getHadoopConfDirPath(component);
@@ -685,31 +785,17 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}		
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 		
-		// ?? reset component
-		
-		// not here
-		// initComponentConfFiles(tmpConfDir, component);
-
-		
-		
-		// resetConfDir
-
-		
-		
 		// Change all the xml config files to have the proper permission so that
 		// they can be changed by the tests later.
-		// my @command = ('ssh', $target_host, 'chmod', '644',
-	//"$new_conf_dir/*.xml");
-		//    note("@command");
-		//    `@command`;
+		// cmd = {"ssh", $target_host, "chmod", "644", "$new_conf_dir/*.xml");
 
-		    
-		    
-		    
-		
-		
+		// The setHadoopConfDirPath() will set the path to the new configuration
+		// directory. It is the responsibility for the test to call the 
+		// cluster.reset() to restart the component for the configuration change
+		// to take effect, and to reinitialize the configuration object (via
+		// initComponentConfFiles(tmpConfDir, component))
+				 
 		return Integer.parseInt(output[0]);
 	}
-
 
 }
