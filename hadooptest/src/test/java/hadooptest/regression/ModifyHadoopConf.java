@@ -67,7 +67,7 @@ public class ModifyHadoopConf extends TestSession {
 		
 		TestSession.cluster.reset();
 		cluster.waitForSafemodeOff();
-		cluster.getClusterStatus();
+		cluster.isClusterFullyUp();
 
 		/*
 		String confType = "HADOOP_CONF_CAPACITY_SCHEDULER";
