@@ -54,7 +54,7 @@ public class Version extends TestSession {
 	@Test
 	public void printHadoopVersion() {
 		String version = TestSession.cluster.getVersion();
-		System.out.println("Hadoop Version = <" + version + ">");
+		System.out.println("Hadoop Version = '" + version + "'");
 		
 		// experimental
 		// TSM.cluster.stopCluster();
