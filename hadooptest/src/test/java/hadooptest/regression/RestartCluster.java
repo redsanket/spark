@@ -59,7 +59,7 @@ public class RestartCluster extends TestSession {
 		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
 		cluster.waitForSafemodeOff();
-		cluster.getClusterStatus();
+		cluster.isClusterFullyUp();
 				
 	}
 	
