@@ -639,15 +639,15 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			File xmlInputFile = new File(filename);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbFactory.newDocumentBuilder();
-			Document doc = db.parse(xmlInputFile);
-			doc.getDocumentElement().normalize();
+			Document document = db.parse(xmlInputFile);
+			document.getDocumentElement().normalize();
 			TestSession.logger.trace("Root of xml file: " +
-					doc.getDocumentElement().getNodeName());			
+					document.getDocumentElement().getNodeName());			
 
 			/*
 			 * Write the properties key and value to a Java Properties Object.
 			 */
-			NodeList nodes = doc.getElementsByTagName("property");
+			NodeList nodes = document.getElementsByTagName("property");
 			for (int index = 0; index < nodes.getLength(); index++) {
 				Node node = nodes.item(index);
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -723,31 +723,28 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		// Get the document root
 		Element root = document.getDocumentElement();
 
-		// Create the line break text
-		Text lineBreak = document.createTextNode("\n");
-
 		// Create the property element
 		Element propertyElement = document.createElement("property");
 
 		// Constrcut the name element
-		Element nameElement = document.createElement("name");
+		Element nameElement = document.createElement(nameTag);
 		nameElement.appendChild(document.createTextNode(name));
-		nameElement.appendChild(lineBreak);
 				
 		// Construct the value element
-		Element valueElement = document.createElement("value");
+		Element valueElement = document.createElement(valueTag);
 		valueElement.appendChild(document.createTextNode(value));
-		valueElement.appendChild(lineBreak);
 
 		// Append the name and the value element to the property element
+		propertyElement.appendChild(document.createTextNode("\n"));
 		propertyElement.appendChild(nameElement);		
-		propertyElement.appendChild(lineBreak);
+		propertyElement.appendChild(document.createTextNode("\n"));
 		propertyElement.appendChild(valueElement);		
-		propertyElement.appendChild(lineBreak);
+		propertyElement.appendChild(document.createTextNode("\n"));
 
+		// Apend the property element to the root element
+		root.appendChild(document.createTextNode("\n"));
 		root.appendChild(propertyElement);
-		root.appendChild(lineBreak);
-		root.appendChild(lineBreak);	
+		root.appendChild(document.createTextNode("\n\n"));	
 	}
 
 	
@@ -834,16 +831,16 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			File xmlInputFile = new File(filename);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbFactory.newDocumentBuilder();
-			Document doc = db.parse(xmlInputFile);
-			doc.getDocumentElement().normalize();
+			Document document = db.parse(xmlInputFile);
+			document.getDocumentElement().normalize();
 			TestSession.logger.trace("Root of xml file: " +
-					doc.getDocumentElement().getNodeName());			
+					document.getDocumentElement().getNodeName());			
 		
 			/*
 			 * Write the properties key and value to a Java Properties Object.
 			 */
 			Element element = null;
-			NodeList nodes = doc.getElementsByTagName("property");
+			NodeList nodes = document.getElementsByTagName("property");
 			for (int index = 0; index < nodes.getLength(); index++) {
 				Node node = nodes.item(index);
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -874,13 +871,13 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 			if (foundPropName == false) {
 				insertValue("name", "value", element,
-						targetPropName, targetPropValue, doc);				
+						targetPropName, targetPropValue, document);				
 			}		
 
 			// Write the change to file
 			Transformer xformer = TransformerFactory.newInstance().newTransformer();
 			String outputFile = filename;
-			xformer.transform(new DOMSource(doc),
+			xformer.transform(new DOMSource(document),
 					new StreamResult(new File(outputFile)));
 		}
 		catch (Exception e) {
