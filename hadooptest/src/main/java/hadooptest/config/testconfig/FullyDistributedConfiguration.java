@@ -34,6 +34,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 /*
@@ -704,6 +705,52 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		node.setNodeValue(value);
 	}
 
+    /*
+     * Insert into the xml node name and value pair given a tag and an element. 
+     * 
+     * @param tag Tag name in the xml element
+     * @param element The xml element.
+     * @param value tag name value to insert.
+     * 
+     * @return String node value.
+     */
+	private static void insertValue(String nameTag, String valueTag,
+			Element element, String name, String value, Document document) {
+
+		// Example: 
+		// <property><name>yarn.admin.acl3</name><value>gridadmin,hadoop,hadoopqa,philips,foo</value></property>
+
+		// Get the document root
+		Element root = document.getDocumentElement();
+
+		// Create the line break text
+		Text lineBreak = document.createTextNode("\n");
+
+		// Create the property element
+		Element propertyElement = document.createElement("property");
+
+		// Constrcut the name element
+		Element nameElement = document.createElement("name");
+		nameElement.appendChild(document.createTextNode(name));
+		nameElement.appendChild(lineBreak);
+				
+		// Construct the value element
+		Element valueElement = document.createElement("value");
+		valueElement.appendChild(document.createTextNode(value));
+		valueElement.appendChild(lineBreak);
+
+		// Append the name and the value element to the property element
+		propertyElement.appendChild(nameElement);		
+		propertyElement.appendChild(lineBreak);
+		propertyElement.appendChild(valueElement);		
+		propertyElement.appendChild(lineBreak);
+
+		root.appendChild(propertyElement);
+		root.appendChild(lineBreak);
+		root.appendChild(lineBreak);	
+	}
+
+	
 	/*
      * Set the Hadoop configuration file property for a given property name,
      * property value, component, and file name. 
@@ -742,47 +789,26 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			confDir = this.getHadoopConfDirPath(component);
 			if ((confDir == null) || confDir.isEmpty()) {
 				/* Custom directory has not yet been set */
+				TestSession.logger.warn("Custom configuration directory not set!!!");
 			}
 		}
-		
-		boolean propNameExists = this.propNameExistsInHadoopConfFile(
-				propName, confFilename, component);
-		if (propNameExists) {
-			/* Check if the value is already set */
-			String currentValue =
-					this.getHadoopConfFileProp(
-							propName, confFilename, component);
-			if ((currentValue != null) && !currentValue.isEmpty()) {
-				if (currentValue.equals(propValue)) {
-					TestSession.logger.info("Propperty value for '" + propName +
-							"' is already set to '" + propValue + 
-							"' for component '" + component +
-							"' in the file '" + confFilename + "'.");
-					return;
-				}
-			}
-		}
-		
-		/* Set the property to the intenal Properties Object */
-		Hashtable<String, Properties> hadoopConfFileProps =
-				this.getHadoopConfFileProps(component);		
-		Properties prop = hadoopConfFileProps.get(confFilename);
-		prop.setProperty(propName, propValue);
 
-		/* Copy the file to local */
+		// We don't want to call propNameExistsInHadoopConfFile at this point
+		// because the HadoopConfFileProp may not have been initialized at. 
+		// It is only initialized when the component reset is called. 
+		
+		// We also don't want to set the property for the specified property
+		// name and value in the internal Properties object because again it
+		// may not exists yet.  This needs to be done when the component reset
+		// occurs. 
+		
+		/* Copy the file to local if component is not gateway */
 		String localConfDir = (component.equals("gateway")) ? confDir :
 			this.copyRemoteConfDirToLocal(confDir, component);
 
-		/* Write it out to file */
-		if (propNameExists) {
-			/* Replace existing value */
-			this.replaceXmlTag(localConfDir + "/" + confFilename,
-					propName, propValue);
-		}
-		else {
-			/* Insert a new tag */
-			this.insertXmlTag(localConfDir + "/" + confFilename);
-		}
+		/* Write to file */
+		this.updateXmlConfFile(localConfDir + "/" + confFilename,
+				propName, propValue);
 
 		/* Copy the directory back to the remote host*/
 		if (!component.equals("gateway")) {
@@ -791,11 +817,16 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	}
 	
     /*
-     * Replace tag in the xml file. 
+     * Insert or replace the property tag in the xml configuration file. 
      */
-	public void replaceXmlTag (String filename, String targetPropName,
+	public void updateXmlConfFile (String filename, String targetPropName,
 			String targetPropValue) {
 
+		TestSession.logger.info("Insert/Replace property '" +
+				targetPropName + "'='" + targetPropValue + "'.");
+		
+		boolean foundPropName = false;
+		
 		/*
 		 * Parse the XML configuration file using a DOM parser
 		 */		
@@ -811,22 +842,40 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			/*
 			 * Write the properties key and value to a Java Properties Object.
 			 */
+			Element element = null;
 			NodeList nodes = doc.getElementsByTagName("property");
 			for (int index = 0; index < nodes.getLength(); index++) {
 				Node node = nodes.item(index);
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					Element element = (Element) node;
+					element = (Element) node;
 
 					String propName = getValue("name", element);
+					String propValue = getValue("value", element);
+					
 					TestSession.logger.trace("Config Property Name: " +
 							getValue("name", element));
 					TestSession.logger.trace("Config Property Value: " +
 							getValue("value", element));
+					
 					if (propName.equals(targetPropName)) {
-						setValue("value", element, targetPropValue);
+						foundPropName = true;
+						if (propValue.equals(targetPropValue)) {
+							TestSession.logger.info("Propperty value for '" +
+									propName + "' is already set to '" + 
+									propValue + "'.");
+							return;
+						}
+						else {
+							setValue("value", element, targetPropValue);
+						}
 					}
 				}
 			}
+
+			if (foundPropName == false) {
+				insertValue("name", "value", element,
+						targetPropName, targetPropValue, doc);				
+			}		
 
 			// Write the change to file
 			Transformer xformer = TransformerFactory.newInstance().newTransformer();
@@ -838,15 +887,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			
 		}
 
-	}
-	
-    /*
-     * Replace tag in the xml file. 
-     */
-	public void insertXmlTag (String filename) {
-
-		
-		
 	}
 	
     /*
