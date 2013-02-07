@@ -25,17 +25,12 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.xml.sax.InputSource;
 
 /*
  * A class that represents a Hadoop Configuration for a distributed
@@ -43,19 +38,6 @@ import org.xml.sax.InputSource;
  */
 public class FullyDistributedConfiguration extends TestConfiguration
 {
-	public static final String HADOOP_CONF_CORE = "core-site.xml";
-	public static final String HADOOP_CONF_HDFS = "hdfs-site.xml";
-	public static final String HADOOP_CONF_MAPRED = "mapred-site.xml";
-	public static final String HADOOP_CONF_YARN = "yarn-site.xml";
-	public static final String HADOOP_CONF_CAPACITY_SCHEDULER = "capacity-scheduler.xml";
-	public static final String HADOOP_CONF_FAIR_SCHEDULER = "fair-scheduler.xml";
-
-	public static final String NAMENODE = "namenode";
-	public static final String RESOURCE_MANAGER = "resourcemanager";
-	public static final String DATANODE = "datanode";
-	public static final String NODEMANAGER = "nodemanager";
-	public static final String GATEWAY = "gateway";
-
 	// General Hadoop configuration properties such as cluster name, 
 	// directory paths, etc.	
     protected Properties hadoopProps = new Properties();
@@ -414,10 +396,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				"/conf/hadoop");
 		hadoopProps.setProperty("HADOOP_DEFAULT_CONF_DIR",
 				hadoopProps.getProperty("HADOOP_CONF_DIR"));
-		
 		this.setHadoopConfDirPath("gateway",
 				hadoopProps.getProperty("HADOOP_CONF_DIR"));
-		
 		hadoopProps.setProperty("HADOOP_CONF_CORE",
 				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_CORE);
 		hadoopProps.setProperty("HADOOP_CONF_HDFS",
