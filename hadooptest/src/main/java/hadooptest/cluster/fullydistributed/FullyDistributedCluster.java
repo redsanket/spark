@@ -8,13 +8,13 @@ import java.util.regex.Pattern;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.Cluster;
-import hadooptest.cluster.Executor;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
 import hadooptest.config.TestConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -149,6 +149,8 @@ public class FullyDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#reset()
 	 */
 	public void reset() {
+		
+		restartCluster();
 
 	}
 
@@ -208,6 +210,11 @@ public class FullyDistributedCluster implements Cluster {
 		CLUSTER_NAME = TestSession.conf.getProperty("CLUSTER_NAME", "");
 	}
 
+    /*
+     * Restart the cluster.
+     * 
+     * @return 0 for success or 1 for failure.
+     */
 	public int restartCluster() {
 		int returnValue = 0;
 		returnValue += stopCluster();
@@ -215,6 +222,11 @@ public class FullyDistributedCluster implements Cluster {
 		return returnValue;
 	}
 	
+    /*
+     * Start the cluster.
+     * 
+     * @return 0 for success or 1 for failure.
+     */
 	public int startCluster() {
 		  TestSession.logger.info("------------------ START CLUSTER " + 
 				  conf.getHadoopProp("CLUSTER_NAME") + 
@@ -227,10 +239,7 @@ public class FullyDistributedCluster implements Cluster {
 				  "resourcemanager",
 				  "nodemanager" };
 		  for (String component : components) {
-			  returnValue += this.hadoopDaemon(action, component);	
-			  if (returnValue == 0 ) {
-				  waitForComponentState(action, component);
-			  }
+			  returnValue += this.hadoopDaemon(action, component);
 		  }
 		  if (returnValue > 0) {
 			  TestSession.logger.error("Stop Cluster returned error exit code!!!");
@@ -238,6 +247,11 @@ public class FullyDistributedCluster implements Cluster {
 		  return returnValue;
 	}
 		  
+    /*
+     * Stop the cluster.
+     * 
+     * @return 0 for success or 1 for failure.
+     */	
 	public int stopCluster() {
 	  TestSession.logger.info("------------------ STOP CLUSTER " + 
 			  conf.getHadoopProp("CLUSTER_NAME") + 
@@ -252,9 +266,6 @@ public class FullyDistributedCluster implements Cluster {
 			  "namenode" };
 	  for (String component : components) {
 		  returnValue += this.hadoopDaemon(action, component);	
-		  if (returnValue == 0 ) {
-			  waitForComponentState(action, component);
-		  }
 	  }
 	  
 	  if (returnValue > 0) {
@@ -263,6 +274,11 @@ public class FullyDistributedCluster implements Cluster {
 	  return returnValue;
 	}
 
+    /*
+     * Get the sudoers for a given component.
+     * 
+     * @return String of the sudoer.
+     */
 	private String getSudoer(String component) {
 		String sudoer = "";
 	    if (component.equals("namenode")) {
@@ -277,18 +293,69 @@ public class FullyDistributedCluster implements Cluster {
 		return sudoer;
 	}
 	
+    /*
+     * Start or stop the Hadoop daemon processes.
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * 
+     * @return 0 for success or 1 for failure.
+     */
 	public int hadoopDaemon(String action, String component) {
 		return hadoopDaemon(action, component, null, null);
 	}
 	
-	public int hadoopDaemon(String action, String component, String hosts, String confDir) {
-		String[] daemonHost = this.conf.getClusterNodes(component);	
-		if (!action.equals("stop")) {
+	
+    /*
+     * Start or stop the Hadoop daemon processes.
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param hostnames The hostnames to perform the action on. 
+     * 
+     * @return 0 for success or 1 for failure.
+     */
+	public int hadoopDaemon(String action, String component, String[] daemonHost) {
+		return hadoopDaemon(action, component, daemonHost, null);
+	}
+	
+	
+    /*
+     * Start or stop the Hadoop daemon processes. The method will also wait for
+     * the daemons to fully start or stop depending on the expected state. 
+     * It will also reinitialize the hadooptest configuration object with the
+     * configuration directory if the action is start, and the configuration
+     * directory is not the default one (which cannot be modified due to root
+     * permission).  
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param confDir The configuration directory to perform the action with. 
+     * @param hosts The hostnacomponent The cluster component to perform the action on. 
+     * 
+     * @return 0 for success or 1 for failure.
+     */
+	public int hadoopDaemon(String action, String component, String[] daemonHost, String confDir) {
+		if (daemonHost == null) {				
+			daemonHost = this.conf.getClusterNodes(component);	
+		}
+		if (action.equals("start")) {
 			if ((confDir == null) || confDir.isEmpty()) {
-				confDir = this.conf.getHadoopProp("HADOOP_CONF_DIR");
+				/*
+				 * Check if the configuration property for the component has
+				 * been set. If so, use it otherwise use the default Hadoop
+				 * configuration directory.
+				 */
+				Properties hadoopConfDir = this.conf.getHadoopConfDirPaths();
+				confDir = hadoopConfDir.getProperty(component,
+						this.conf.getHadoopProp("HADOOP_DEFAULT_CONF_DIR"));
 			}
 		}
 		else {
+			// Configuration directory is not needed for stopping the daemon.  
 			confDir = "";			
 		}
 		
@@ -304,41 +371,90 @@ public class FullyDistributedCluster implements Cluster {
 		temp.addAll(Arrays.asList(cmd3));
 		String [] cmd = temp.toArray(new String[cmd1.length+cmd2.length+cmd3.length]);
 		String output[] = TestSession.exec.runProcBuilder(cmd);
-		TestSession.logger.info(Arrays.toString(output));
-		
-		// When running as hadoopqa and using the yinst stop command to stop the
-		// jobtracker instead of calling hadoop-daemon.sh directly, there can be a
-		// delay before the job tracker is actually stopped. This is not ideal as it
-		// poses potential timing issue. Should investigate why yinst stop is existing
-		// before the job pid goes away.
 
-		// $return += $self->wait_for_daemon_state($operation, $component, $daemon_hosts);
-		
+		TestSession.logger.trace(Arrays.toString(output));
 		
 		int returnCode = Integer.parseInt(output[0]);
 		if (returnCode != 0) {
 			TestSession.logger.error("Operation '" + action + " " + component + "' failed!!!");
+			return returnCode;
+		}
+		else {
+			/* When running as hadoopqa and using the yinst stop command to stop the
+			 * jobtracker instead of calling hadoop-daemon.sh directly, there can be a
+			 * delay before the job tracker is actually stopped. This is not ideal as it
+			 * poses potential timing issue. Should investigate why yinst stop is exiting
+			 * before the job PID goes away.
+			 */
+			waitForComponentState(action, component);
+					
+			/* Reinitialize the hadooptest configuration object with the
+			 * configuration directory if the action is start, and the
+			 * configuration directory is not the default one (which cannot be
+			 * modified due to root permission).
+			 *   
+			 * NOTE: this could still produce unnecessary re-initialization if
+			 * the configurations are not changed. In the future, would be 
+			 * better if we are able to determine this. 
+			 */
+			if (action.equals("start")) {
+				Properties hadoopConfDir = this.conf.getHadoopConfDirPaths();
+				confDir = hadoopConfDir.getProperty(component);
+				if ((confDir != null) && !confDir.isEmpty()) {
+					this.conf.initComponentConfFiles(confDir, component);
+				}
+			}
 		}
 		return returnCode;
 	}
 	
+    /*
+     * Wait for the component state for a given action and a given component.
+     *
+     * @param action The action correlating to the expected state on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * 
+     * @return boolean true for success or false for failure.
+     */
 	public boolean waitForComponentState(String action, String component) {
 		int waitInterval = 3;
 		int maxWait = 10;
-		String[] daemonHost = this.conf.getClusterNodes(component); 
-		return waitForComponentState(action, component,
-				daemonHost, waitInterval, maxWait);
+		return waitForComponentState(action, component, waitInterval, maxWait);
 	}
 	
+    /*
+     * Wait for the component state for a given action and a given component.
+     *
+     * @param action The action correlating to the expected state on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param int waitInterval the wait interval in seconds.
+     * @param int maxWait the maximum iteration to wait for
+     * 
+     * @return boolean true for success or false for failure.
+     */
 	public boolean waitForComponentState(String action, String component,
 			int waitInterval, int maxWait) {
 		return waitForComponentState(action, component,
-				this.conf.getClusterNodes(component), waitInterval, maxWait);
+				waitInterval, maxWait, this.conf.getClusterNodes(component));
 	}
-	
+		
+    /*
+     * Wait for the component state for a given action and a given component.
+     *
+     * @param action The action correlating to the expected state on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param int waitInterval the wait interval in seconds.
+     * @param int maxWait the maximum iteration to wait for
+     * @param daemonHost String Array of daemon host names
+     * 
+     * @return boolean true for success or false for failure.
+     */
 	public boolean waitForComponentState(String action, String component,
-			String[] daemonHost, int waitInterval, int maxWait) {
-	    boolean expectedToBeUp = action.equals("start") ? true : false;
+			int waitInterval, int maxWait, String[] daemonHost) {
+		
 	    String expStateStr = action.equals("start") ? "started" : "stopped";
 
 		if (waitInterval == 0) {
@@ -355,13 +471,14 @@ public class FullyDistributedCluster implements Cluster {
 
 		int count = 1;
 	    while (count <= maxWait) {
-	    	if (isComponentUp(component) == expectedToBeUp) {
+	    	
+	    	if (isComponentFullyInExpectedState(action, component, daemonHost)) {
 	            TestSession.logger.debug("Daemon process for " + component + " is " +
 	            		expStateStr + ".");
-	            break;	    		
+	            break;	    			    		
 	    	}
-	        
-	    	TestSession.logger.debug("Wait #" + count + " of " + maxWait + "for " +
+
+	    	TestSession.logger.debug("Wait #" + count + " of " + maxWait + " for " +
 	    			component + "daemon on " + Arrays.toString(daemonHost) + 
 	    			" hosts to be " + expStateStr + " in " + waitInterval +
 	    			"(s): total wait time = " + (count-1)*waitInterval +
@@ -384,7 +501,13 @@ public class FullyDistributedCluster implements Cluster {
 	    return true;
 	}
 	
-	public boolean getClusterStatus() {
+    /*
+     * Check if the cluster is fully up.
+     * 
+     * @return true if the cluster is fully up, false if the cluster is not
+     * fully up.
+     */
+	public boolean isClusterFullyUp() {
 		String[] components = {
 	                       "namenode",
 	                       "resourcemanager",
@@ -393,8 +516,7 @@ public class FullyDistributedCluster implements Cluster {
 		boolean overallStatus = true;
 		boolean componentStatus = true;
 		for (String component : components) {
-			  componentStatus = this.isComponentUp(component);
-			  // $status->{uc($component)} = $hosts_status;
+			  componentStatus = this.isComponentFullyUp(component);
 			  TestSession.logger.info("Get Cluster Status: " + component + " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
 			  if (componentStatus == false) {
@@ -404,12 +526,126 @@ public class FullyDistributedCluster implements Cluster {
 	    return overallStatus;
 	}
 	
-	public boolean isComponentUp(String component) {
-		return isComponentUp(component, null);
+    /*
+     * Check if the cluster is fully down.
+     * 
+     * @return true if the cluster is fully up, false if the cluster is not
+     * fully up.
+     */
+	public boolean isClusterFullyDown() {
+		String[] components = {
+	                       "namenode",
+	                       "resourcemanager",
+	                       "nodemanager",
+	                       "datanode" };
+		boolean overallStatus = true;
+		boolean componentStatus = true;
+		for (String component : components) {
+			  componentStatus = this.isComponentFullyDown(component);
+			  TestSession.logger.info("Get Cluster Status: " + component + " status is " +
+					  ((componentStatus == true) ? "up" : "down"));
+			  if (componentStatus == false) {
+				  overallStatus = false;
+			  }
+		}
+	    return overallStatus;
 	}
 	
-	public boolean isComponentUp(String component, String[] daemonHost) {
-		String adminHost = this.conf.getClusterNodes("ADMIN_HOST")[0];
+    /*
+     * Check if the cluster component is fully up.
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return true if the cluster is fully up, false if the cluster is not
+     * fully up.
+     */
+	public boolean isComponentFullyUp(String component) {
+		return isComponentFullyUp(component, null);
+	}
+	
+    /*
+     * Check if the cluster component is fully up for a given String Array of
+     * host names. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * @param daemon host names String Array of daemon host names,
+     * 
+     * @return true if the cluster is fully up, false if the cluster is not
+     * fully up.
+     */
+	public boolean isComponentFullyUp(String component, String[] daemonHost) {
+		return isComponentFullyInExpectedState("start", component, daemonHost);
+	}
+	
+    /*
+     * Check if the cluster component is up for a single given host name. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * @param daemon host name String of a single daemon host name,
+     * 
+     * @return true if the cluster is fully up, false if the cluster is not
+     * fully up.
+     */
+	public boolean isComponentUpOnSingleHost(String component,
+			String daemonHost) {
+		return isComponentFullyUp(component, new String[] {daemonHost});		
+	}
+
+    /*
+     * Check if the cluster component is fully down.
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return true if the cluster is fully down, false if the cluster is not
+     * fully down.
+     */
+	public boolean isComponentFullyDown(String component) {
+		return isComponentFullyDown(component, null);
+	}	
+
+    /*
+     * Check if the cluster component is fully down for a given String Array of
+     * host names. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * @param daemon host names String Array of daemon host names,
+     * 
+     * @return true if the cluster is fully down, false if the cluster is not
+     * fully down.
+     */
+	public boolean isComponentFullyDown(String component, String[] daemonHost) {		
+		return isComponentFullyInExpectedState("stop", component, daemonHost);
+	}
+		
+    /*
+     * Check if the cluster component is fully in a specified state associated
+     * with start or stop.
+     * 
+     * @param action the action associated with the expected state {"start", "stop"}
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return true if the cluster is fully in the expected state, false if the
+     * cluster is not fully in the expected state.
+     */
+	public boolean isComponentFullyInExpectedState(String action,
+			String component) {
+		return isComponentFullyInExpectedState(action, component, null);
+	}
+	
+    /*
+     * Check if the cluster component is fully in a specified state associated
+     * with start or stop.
+     * 
+     * @param action the action associated with the expected state {"start", "stop"}
+     * @param component cluster component such as gateway, namenode,
+     * @param daemon host names String Array of daemon host names,
+     * 
+     * @return true if the cluster is fully in the expected state, false if the
+     * cluster is not fully in the expected state.
+     */
+	public boolean isComponentFullyInExpectedState(String action,
+			String component, String[] daemonHost) {
+		String adminHost = this.conf.getClusterNodes("admin")[0];
 		if (daemonHost == null) {
 			daemonHost = this.conf.getClusterNodes(component);	
 		}
@@ -422,47 +658,67 @@ public class FullyDistributedCluster implements Cluster {
 		        "\"", "|","grep -v grep -c" };		        
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 		
-		// For data node, there should be two jobs per host.
-		// One is started by root, and the other by hdfs.	
 		int numExpectedProcessPerHost = (component.equals("datanode")) ? 2 : 1;
-		TestSession.logger.debug("Daemon hosts for " + component + ": " + Arrays.toString(daemonHost));
-		int numExpectedProcess = numExpectedProcessPerHost * daemonHost.length;
+		TestSession.logger.trace("Daemon hosts for " + component + ": " +
+				Arrays.toString(daemonHost));
+		int numDaemonProcess = numExpectedProcessPerHost * daemonHost.length;
+
+		int numExpectedProcess =
+				(action.equals("start")) ? numDaemonProcess : 0;
+
 		int numActualProcess = Integer.parseInt(output[1].replace("\n",""));
-		TestSession.logger.debug("Number of expected process: " + numExpectedProcess +
-				", Number of actual process: " + numActualProcess);
-		return (numActualProcess == numExpectedProcess) ? true : false;
+		
+		boolean isComponentFullyInExpectedState =
+				(numActualProcess == numExpectedProcess) ? true : false;
+			if (action.equals("start")) {
+				TestSession.logger.debug("Number of " + component +
+						" process up: " + numActualProcess + "/" +
+						numDaemonProcess);
+			}
+			else {
+				TestSession.logger.debug("Number of " + component +
+						" process down: " +
+						(numDaemonProcess-numActualProcess) + "/" +
+						numDaemonProcess);
+			}
+		return isComponentFullyInExpectedState;
 	}
 	
-	public boolean isComponentUpOnSingleHost(String component) {
-		return this.isComponentUpOnSingleHost(component, null);
-	}
-	
-	public boolean isComponentUpOnSingleHost(String component,
-			String daemonHost) {
-		return isComponentUp(component, new String[] {daemonHost});		
-	}
-	
+    /*
+     * Wait for the saefmode on the namenode to be OFF. 
+     * 
+     * @return true if safemode is OFF, or false if safemode is ON.
+     */
 	public boolean waitForSafemodeOff() {
-		int timeout = 300;
-		String fs = this.conf.getHadoopConfFileProp(
-				"HADOOP_CONF_CORE", "fs.DefaultFS");
-		return waitForSafemodeOff(timeout, fs);
+		return waitForSafemodeOff(-1, null);
 	}
 		
+    /*
+     * Wait for the saefmode on the namenode to be OFF. 
+     *
+     * @param int timeout 
+     * @param fs file system under test
+     * 
+     * @return true if safemode is OFF, or false if safemode is ON.
+     */
 	public boolean waitForSafemodeOff(int timeout, String fs) {
-	    if (timeout == 0) {
-	    	timeout = 300;
+
+		if (timeout < 0) {
+			int defaultTimeout = 300;
+	    	timeout = defaultTimeout;
 	    }
-		if ((fs == null) || fs.isEmpty()) {
+
+	    if ((fs == null) || fs.isEmpty()) {
 	        fs = this.conf.getHadoopConfFileProp(
-	        		"HADOOP_CONF_CORE", "fs.defaultFS");
+	        		"fs.defaultFS",
+	        		FullyDistributedConfiguration.HADOOP_CONF_CORE);
 		}
 
 		String namenode = this.conf.getClusterNodes("namenode")[0];	
 		String[] safemodeGetCmd = { this.conf.getHadoopProp("HDFS_BIN"),
 				"--config", this.conf.getHadoopProp("HADOOP_CONF_DIR"),
 				"dfsadmin", "-fs", fs, "-safemode", "get" };
-		String[] output = TestSession.exec.runProcBuilder(safemodeGetCmd);
+		String[] output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
 		boolean isSafemodeOff = 
 				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 		 
@@ -470,15 +726,14 @@ public class FullyDistributedCluster implements Cluster {
 	    int waitTime=30;
 	    int i=1;
 	    while ((timeout > 0) && (!isSafemodeOff)) {
-	    	TestSession.logger.debug("TRY #" + i);	        
-	    	TestSession.logger.info("WAIT " + waitTime + "s:" );
+	    	TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i + ": WAIT " + waitTime + "s:" );
 	    	try {
 	    		Thread.sleep(waitTime*1000);
 	    	} catch  (InterruptedException e) {
 	    		TestSession.logger.error("Encountered Interrupted Exception: " +
 	    				e.toString());
 	    	}
-	    	output = TestSession.exec.runProcBuilder(safemodeGetCmd);
+	    	output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
 	    	isSafemodeOff = 
 	    			(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 	        timeout = timeout - waitTime;

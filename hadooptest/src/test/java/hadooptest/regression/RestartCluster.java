@@ -1,6 +1,7 @@
 package hadooptest.regression;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -14,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class Version extends TestSession {
+public class RestartCluster extends TestSession {
 
 	/*
 	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
@@ -52,20 +53,14 @@ public class Version extends TestSession {
 	}
 	
 	@Test
-	public void printHadoopVersion() {
-		String version = TestSession.cluster.getVersion();
-		System.out.println("Hadoop Version = '" + version + "'");
+	public void restartCluster() {
+
+		TestSession.cluster.reset();
 		
-		// experimental
-		// TSM.cluster.stopCluster();
-		// TSM.cluster.startCluster();
-		// TSM.cluster.waitForSafemodeOff();
-		// TSM.cluster.isComponentUp("datanode");
-		//TSM.cluster.getClusterStatus();
-		/*
-		 DateFormat df = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");  
-		    df.setTimeZone(TimeZone.getTimeZone("PST"));  
-		    */
+		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		cluster.waitForSafemodeOff();
+		cluster.isClusterFullyUp();
+				
 	}
 	
 	

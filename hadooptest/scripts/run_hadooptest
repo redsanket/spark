@@ -26,6 +26,7 @@ HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
 
 DEFAULT_TESTS="\
 hadooptest.regression.Version \
+hadooptest.regression.RestartCluster \
 hadooptest.regression.yarn.SleepJob\
 "
 TESTS=${TESTS:="$DEFAULT_TESTS"}

@@ -79,9 +79,18 @@ public abstract class Executor {
 	        error = loadStream(proc.getErrorStream());
 	        
 	        rc = proc.waitFor();
-	        TestSession.logger.debug("Process ended with rc=" + rc);
-	        // TSM.logger.debug("Process Stdout:" + output);
-	        // TSM.logger.debug("Process Stderr:" + error);
+	        if (rc != 0) {
+	        	TestSession.logger.trace("Process ended with rc=" + rc);
+	        	if ((output != null) && !output.isEmpty()) {
+	        		TestSession.logger.trace("Captured stdout = " + output.trim());
+	        	}
+	        	if ((error != null) && !error.isEmpty()) {
+	        		TestSession.logger.trace("Captured stderr = " + error.trim());
+	        	}
+	        }
+	        TestSession.logger.trace("Process Exit Code:" + rc);
+	        TestSession.logger.trace("Process Stdout:" + output);
+	        TestSession.logger.trace("Process Stderr:" + error);
 		}
 		catch (Exception e) {
 			if (proc != null) {
@@ -167,7 +176,7 @@ public abstract class Executor {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) {
-        	TestSession.logger.debug(line);
+        	TestSession.logger.trace(line);
             sb.append(line).append("\n");
         }
         return sb.toString();
