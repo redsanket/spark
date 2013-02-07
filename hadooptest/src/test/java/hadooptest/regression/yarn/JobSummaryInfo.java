@@ -3,9 +3,8 @@ package hadooptest.regression.yarn;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.FailJobFactory;
-import hadooptest.cluster.Job;
-import hadooptest.cluster.SleepJobFactory;
+import hadooptest.job.FailJob;
+import hadooptest.job.SleepJob;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,8 +18,8 @@ import org.junit.Test;
 
 public class JobSummaryInfo extends TestSession {
 	
-	private Job sleepJob;
-	private Job failJob;
+	private SleepJob sleepJob;
+	private FailJob failJob;
 	
 	/******************* CLASS BEFORE/AFTER ***********************/
 	
@@ -88,8 +87,17 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoSuccess() throws IOException, FileNotFoundException {
-		sleepJob = SleepJobFactory.getSleepJob();
-		sleepJob.submit(10, 10, 500, 500, 1, -1, -1);
+		sleepJob = new SleepJob();
+
+		sleepJob.setNumMappers(10);
+		sleepJob.setNumReducers(10);
+		sleepJob.setMapDuration(500);
+		sleepJob.setReduceDuration(500);
+		
+		sleepJob.start();
+		
+		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+				sleepJob.waitForID(5));
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 		
@@ -107,8 +115,19 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoHighRAM() throws IOException, FileNotFoundException  {
-		sleepJob = SleepJobFactory.getSleepJob();
-		sleepJob.submit(10, 10, 500, 500, 1, 6144, 8192);
+		sleepJob = new SleepJob();
+	
+		sleepJob.setNumMappers(10);
+		sleepJob.setNumReducers(10);
+		sleepJob.setMapDuration(500);
+		sleepJob.setReduceDuration(500);
+		sleepJob.setMapMemory(6144);
+		sleepJob.setReduceMemory(8192);
+		
+		sleepJob.start();
+
+		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+				sleepJob.waitForID(5));
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 		
@@ -126,8 +145,15 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoMappersFailed() throws IOException, FileNotFoundException {
-		failJob = FailJobFactory.getFailJob();
-		failJob.submit(true, false);
+		failJob = new FailJob();
+		
+		failJob.setMappersFail(true);
+		failJob.setReducersFail(false);
+		
+		failJob.start();
+		
+		assertTrue("Fail job was not assigned an ID within 5 seconds.", 
+				failJob.waitForID(5));
 		assertTrue("Fail job ID is invalid.", 
 				failJob.verifyID());
 		
@@ -145,8 +171,15 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoReducersFailed() throws IOException, FileNotFoundException {
-		failJob = FailJobFactory.getFailJob();
-		failJob.submit(false, true);
+		failJob = new FailJob();
+		
+		failJob.setMappersFail(false);
+		failJob.setReducersFail(true);
+		
+		failJob.start();
+		
+		assertTrue("Fail job was not assigned an ID within 5 seconds.", 
+				failJob.waitForID(5));
 		assertTrue("Fail job ID is invalid.", 
 				failJob.verifyID());
 		
@@ -164,9 +197,18 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoDifferentUser() throws IOException, FileNotFoundException {
-		sleepJob = SleepJobFactory.getSleepJob();
+		sleepJob = new SleepJob();
+		
 		sleepJob.setUser("testuser");
-		sleepJob.submit();
+		sleepJob.setNumMappers(10);
+		sleepJob.setNumReducers(10);
+		sleepJob.setMapDuration(500);
+		sleepJob.setReduceDuration(500);
+		
+		sleepJob.start();
+
+		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+				sleepJob.waitForID(5));
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 
@@ -185,9 +227,18 @@ public class JobSummaryInfo extends TestSession {
 	@Test
 	public void JobSummaryInfoDifferentQueue() throws IOException, FileNotFoundException {
 		// Start sleep job with mapreduce.job.queuename=grideng 
-		sleepJob = SleepJobFactory.getSleepJob();
+		sleepJob = new SleepJob();
+		
 		sleepJob.setQueue("testQueue");
-		sleepJob.submit();
+		sleepJob.setNumMappers(10);
+		sleepJob.setNumReducers(10);
+		sleepJob.setMapDuration(500);
+		sleepJob.setReduceDuration(500);
+		
+		sleepJob.start();
+
+		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+				sleepJob.waitForID(5));
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 
@@ -205,8 +256,17 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoKilledJob() throws IOException, FileNotFoundException {
-		sleepJob = SleepJobFactory.getSleepJob();
-		sleepJob.submit();
+		sleepJob = new SleepJob();
+		
+		sleepJob.setNumMappers(10);
+		sleepJob.setNumReducers(10);
+		sleepJob.setMapDuration(500);
+		sleepJob.setReduceDuration(500);
+		
+		sleepJob.start();
+
+		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+				sleepJob.waitForID(5));
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 		

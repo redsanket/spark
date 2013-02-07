@@ -7,9 +7,8 @@ package hadooptest.regression.yarn;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.Job;
-import hadooptest.cluster.SleepJobFactory;
 import hadooptest.config.TestConfiguration;
+import hadooptest.job.SleepJob;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -22,7 +21,7 @@ import org.junit.Test;
  */
 public class MapredKillTask extends TestSession {
 	
-	private Job sleepJob;
+	private SleepJob sleepJob;
 	
 	private static final int MAPREDUCE_MAP_MAXATTEMPTS = 4;
 	private static final int MAPREDUCE_REDUCE_MAXATTEMPTS = 4;
@@ -59,9 +58,16 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Before
 	public void initTestJob() {
-		sleepJob = SleepJobFactory.getSleepJob();
+		sleepJob = new SleepJob();
 		
-		sleepJob.submit();
+		sleepJob.setNumMappers(5);
+		sleepJob.setNumReducers(5);
+		sleepJob.setMapDuration(500);
+		sleepJob.setReduceDuration(500);
+		
+		sleepJob.start();
+		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+				sleepJob.waitForID(5));
 		assertTrue("Sleep job ID is invalid.", 
 				sleepJob.verifyID());
 	}

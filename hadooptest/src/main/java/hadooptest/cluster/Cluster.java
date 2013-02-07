@@ -4,9 +4,6 @@
 
 package hadooptest.cluster;
 
-import java.io.IOException;
-import java.util.Hashtable;
-
 import hadooptest.config.TestConfiguration;
 
 /*
