@@ -2,6 +2,7 @@ package hadooptest.regression;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
+import hadooptest.config.TestConfiguration;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
 
 import org.junit.After;
@@ -36,7 +37,6 @@ public class ModifyHadoopConf extends TestSession {
 		// cluster.getConf().cleanup();
 	}
 	
-	
 	/*
 	 * Before each test, we much initialize any jobs.
 	 */
@@ -53,78 +53,61 @@ public class ModifyHadoopConf extends TestSession {
 
 	}
 	
-
-	
 	@Test
 	public void backupHadoopConf() {
-
-		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		String component = TestConfiguration.RESOURCE_MANAGER;
 
-		String component = "resourcemanager";
-		FullyDistributedConfiguration conf = cluster.getConf();
-		conf.backupConfDir(component);
-		
-		TestSession.cluster.reset();
-		cluster.waitForSafemodeOff();
-		cluster.isClusterFullyUp();
-
-		/*
-		String confType = "HADOOP_CONF_CAPACITY_SCHEDULER";
-		String propName = "yarn.scheduler.capacity.root.capacity";
-		String propValue = conf.getHadoopConfFileProp(confType, propName);
-		TestSession.logger.info("Yarn scheduler root capacity = " + propValue);
-		*/
-		
-		String confType = "HADOOP_CONF_CORE_SN";
-		String propName = "fs.trash.interval";
-		// String propValue = conf.getHadoopConfFileProp(propName, confType,
-		// "resourcemanager");
-		String propValue = conf.getHadoopConfFileProp(propName,
-				FullyDistributedConfiguration.HADOOP_CONF_CORE,
-				FullyDistributedConfiguration.RESOURCE_MANAGER);
-		TestSession.logger.info("Prop name '" + propName + "' = " + propValue);
+		// Backup the default configuration directory on the Resource Manager
+		// component host.
+		cluster.getConf().backupConfDir(component);		
 	}
 
-	/*
+	@Test
+	public void copyFilesToHadoopConf() {
+		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		String component = TestConfiguration.RESOURCE_MANAGER;
+
+		// Copy files to the custom configuration directory on the
+		// Resource Manager component host.
+		String sourceDir = "/homes/philips/svn/HadoopQEAutomation/branch-23/tests/Regression/YARN/CapacitySchedulerLimits/config/baseline/";
+		cluster.getConf().copyFilesToConfDir(component, sourceDir);
+	}
 
 	@Test
 	public void modifyHadoopConf() {
-
-		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		String component = TestConfiguration.RESOURCE_MANAGER;
+		String confFile = TestConfiguration.HADOOP_CONF_YARN;
 
-		String component = "resourcemanager";
-		String confType = "HADOOP_CONF_CAPACITY_SCHEDULER";
-		FullyDistributedConfiguration conf = cluster.getConf();
-		String propName = "";
-		String propValue = "";
-		conf.setHadoopConfProp(propName, propValue, component, confType, 
-				conf.getHadoopBackupConf(component));
-		
-		TestSession.cluster.reset();
-		cluster.waitForSafemodeOff();
-		cluster.getClusterStatus();
-				
+		// Insert a property to the yarn-site.xml configuration file on the
+		// Resource Manager component host.
+		cluster.getConf().setHadoopConfFileProp (
+				"yarn.admin.acl3",
+				"gridadmin,hadoop,hadoopqa,philips,foo",
+				component, confFile);
 	}
-	
+
 	@Test
-	public void replaceHadoopConf() {
-		
+	public void resetHadoopConf() {
+		// Restart the cluster
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
-
-		String component = "resourcemanager";
-		FullyDistributedConfiguration conf = cluster.getConf();
-		conf.backupConfDir(component);
-		String sourceDir = "";
-		conf.copyToConfDir(component, sourceDir);
-		
 		TestSession.cluster.reset();
 		cluster.waitForSafemodeOff();
-		cluster.getClusterStatus();
-				
+		cluster.isClusterFullyUp();
 	}
-	
-	*/
+
+	@Test
+	public void getHadoopConfProperty() {
+
+		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		String component = TestConfiguration.RESOURCE_MANAGER;
+		String propName = "fs.trash.interval";
+		String confFile = TestConfiguration.HADOOP_CONF_CORE;
+		
+		String propValue = cluster.getConf().getHadoopConfFileProp(
+				propName, confFile, component);
+		TestSession.logger.info("Prop name '" + propName + "' = " + propValue);
+	}
 	
 }
