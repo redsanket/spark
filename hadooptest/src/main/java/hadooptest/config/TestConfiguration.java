@@ -16,6 +16,19 @@ import org.apache.hadoop.conf.Configuration;
  */
 public abstract class TestConfiguration extends Configuration {
 
+	public static final String HADOOP_CONF_CORE = "core-site.xml";
+	public static final String HADOOP_CONF_HDFS = "hdfs-site.xml";
+	public static final String HADOOP_CONF_MAPRED = "mapred-site.xml";
+	public static final String HADOOP_CONF_YARN = "yarn-site.xml";
+	public static final String HADOOP_CONF_CAPACITY_SCHEDULER = "capacity-scheduler.xml";
+	public static final String HADOOP_CONF_FAIR_SCHEDULER = "fair-scheduler.xml";
+
+	public static final String NAMENODE = "namenode";
+	public static final String RESOURCE_MANAGER = "resourcemanager";
+	public static final String DATANODE = "datanode";
+	public static final String NODEMANAGER = "nodemanager";
+	public static final String GATEWAY = "gateway";
+
 	/* 
 	 * Class Constructor.
 	 * 
