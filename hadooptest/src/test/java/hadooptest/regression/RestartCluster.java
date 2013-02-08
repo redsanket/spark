@@ -55,12 +55,13 @@ public class RestartCluster extends TestSession {
 	@Test
 	public void restartCluster() {
 
+		// TestSession.cluster.stopCluster();
+		// TestSession.cluster.startCluster();
 		TestSession.cluster.reset();
 		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
 		cluster.waitForSafemodeOff();
-		cluster.isClusterFullyUp();
-				
+		cluster.isClusterFullyUp();		
 	}
 	
 	
