@@ -54,18 +54,7 @@ public class Version extends TestSession {
 	@Test
 	public void printHadoopVersion() {
 		String version = TestSession.cluster.getVersion();
-		System.out.println("Hadoop Version = '" + version + "'");
-		
-		// experimental
-		// TSM.cluster.stopCluster();
-		// TSM.cluster.startCluster();
-		// TSM.cluster.waitForSafemodeOff();
-		// TSM.cluster.isComponentUp("datanode");
-		//TSM.cluster.getClusterStatus();
-		/*
-		 DateFormat df = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");  
-		    df.setTimeZone(TimeZone.getTimeZone("PST"));  
-		    */
+		System.out.println("Hadoop Version = '" + version + "'");		
 	}
 	
 	
