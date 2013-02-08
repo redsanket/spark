@@ -78,8 +78,8 @@ public class MapredKillTask extends TestSession {
 	@After
 	public void resetClusterState() {
 		if (sleepJob != null) {
-			if (sleepJob.ID != "0" && sleepJob.kill()) {
-				logger.info("Cleaned up latent job by killing it: " + sleepJob.ID);
+			if (sleepJob.getID() != "0" && sleepJob.kill()) {
+				logger.info("Cleaned up latent job by killing it: " + sleepJob.getID());
 			}
 			else {
 				logger.info("Sleep job never started, no need to clean up.");

@@ -13,7 +13,6 @@ public class SleepJob extends Job {
 	private int numReducers = 1;
 	private int mapDuration = 500;
 	private int reduceDuration = 500;
-	private int numberOfJobs = 1;
 	private int mapMemory = -1;
 	private int reduceMemory = -1;
 	
@@ -33,10 +32,6 @@ public class SleepJob extends Job {
 		this.reduceDuration = reduceTime;
 	}
 	
-	public void setNumJobs(int numJobs) {
-		this.numberOfJobs = numJobs;
-	}
-	
 	public void setMapMemory(int memory) {
 		mapMemory = memory;
 	}
@@ -45,10 +40,51 @@ public class SleepJob extends Job {
 		reduceMemory = memory;
 	}
 	
-	public void submit() {			
-		Process hadoopProc = null;
-		String jobID = "";
-		
+	protected void submit() {
+		String jobPatternStr = " Running job: (.*)$";
+		Pattern jobPattern = Pattern.compile(jobPatternStr);
+
+		try {
+			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+			BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
+			String line=reader.readLine(); 
+
+			while(line!=null) 
+			{ 
+				TestSession.logger.debug(line);
+
+				Matcher jobMatcher = jobPattern.matcher(line);
+
+				if (jobMatcher.find()) {
+					this.ID = jobMatcher.group(1);
+					TestSession.logger.debug("JOB ID: " + this.ID);
+					break;
+				}
+
+				line=reader.readLine();
+			} 
+		}
+		catch (Exception e) {
+			if (this.process != null) {
+				this.process.destroy();
+			}
+			e.printStackTrace();
+		}
+	} 
+
+	protected void submitNoID() {
+		try {
+			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+		}
+		catch (Exception e) {
+			if (this.process != null) {
+				this.process.destroy();
+			}
+			e.printStackTrace();
+		}
+	} 
+
+	private String[] assembleCommand() {
 		String hadoop_mapred_test_jar = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + TestSession.conf.getProperty("HADOOP_VERSION", "") + "-tests.jar";
 		String hadoop_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/hadoop";
 		
@@ -67,52 +103,17 @@ public class SleepJob extends Job {
 		if (QUEUE != "") {
 			strQueue = " -Dmapreduce.job.queuename=" + this.QUEUE;
 		}
-		
-		for (int i = 0; i < this.numberOfJobs; i++) {			
-			String[] hadoopCmd = { hadoop_exe, "--config", 
-					TestSession.conf.getProperty("CONFIG_BASE_DIR", ""),
-					"jar", hadoop_mapred_test_jar,
-					"sleep", "-Dmapreduce.job.user.name=" + this.USER,
-					strQueue,
-					strMapMemory,
-					strReduceMemory,
-					"-m", Integer.toString(this.numMappers), 
-					"-r", Integer.toString(this.numReducers), 
-					"-mt", Integer.toString(this.mapDuration), 
-					"-rt", Integer.toString(this.reduceDuration) };
-			
-			String jobPatternStr = " Running job: (.*)$";
-			Pattern jobPattern = Pattern.compile(jobPatternStr);
-			
-			try {
-				hadoopProc = TestSession.exec.runHadoopProcBuilderGetProc(hadoopCmd, this.USER);
-				BufferedReader reader=new BufferedReader(new InputStreamReader(hadoopProc.getInputStream())); 
-				String line=reader.readLine(); 
 
-				while(line!=null) 
-				{ 
-					TestSession.logger.debug(line);
-					
-					Matcher jobMatcher = jobPattern.matcher(line);
-					
-					if (jobMatcher.find()) {
-						jobID = jobMatcher.group(1);
-						TestSession.logger.debug("JOB ID: " + jobID);
-						break;
-					}
-					
-					line=reader.readLine();
-				} 
-			}
-			catch (Exception e) {
-				if (hadoopProc != null) {
-					hadoopProc.destroy();
-				}
-				e.printStackTrace();
-			}
-		}
-		
-		this.ID = jobID;
-	} 
-	
+		return new String[] { hadoop_exe, "--config", 
+				TestSession.conf.getProperty("CONFIG_BASE_DIR", ""),
+				"jar", hadoop_mapred_test_jar,
+				"sleep", "-Dmapreduce.job.user.name=" + this.USER,
+				strQueue,
+				strMapMemory,
+				strReduceMemory,
+				"-m", Integer.toString(this.numMappers), 
+				"-r", Integer.toString(this.numReducers), 
+				"-mt", Integer.toString(this.mapDuration), 
+				"-rt", Integer.toString(this.reduceDuration) };
+	}
 }

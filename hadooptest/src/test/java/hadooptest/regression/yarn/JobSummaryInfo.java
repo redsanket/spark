@@ -53,8 +53,8 @@ public class JobSummaryInfo extends TestSession {
 	@After
 	public void resetClusterState() {
 		if (sleepJob != null) {
-			if (sleepJob.ID != "0" && sleepJob.kill()) {
-				logger.info("Cleaned up latent job by killing it: " + sleepJob.ID);
+			if (sleepJob.getID() != "0" && sleepJob.kill()) {
+				logger.info("Cleaned up latent job by killing it: " + sleepJob.getID());
 			}
 			else {
 				logger.info("Sleep job never started, no need to clean up.");
@@ -65,8 +65,8 @@ public class JobSummaryInfo extends TestSession {
 		}
 		
 		if (failJob != null) {
-			if (failJob.ID != "0" && failJob.kill()) {
-				logger.info("Cleaned up latent job by killing it: " + failJob.ID);
+			if (failJob.getID() != "0" && failJob.kill()) {
+				logger.info("Cleaned up latent job by killing it: " + failJob.getID());
 			}
 			else {
 				logger.info("Fail job never started, no need to clean up.");

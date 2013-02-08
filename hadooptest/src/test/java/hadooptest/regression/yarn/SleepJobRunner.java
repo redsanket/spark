@@ -1,7 +1,14 @@
 package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.job.SleepJob;
 
 import org.junit.AfterClass;
@@ -99,6 +106,59 @@ public class SleepJobRunner extends TestSession {
 		assertTrue("Job (user 1) did not succeed.", jobUser1.waitForSuccess(1));
 		assertTrue("Job (user 2) did not succeed.", jobUser2.waitForSuccess(1));
 		assertTrue("Job (user 3) did not succeed.", jobUser3.waitForSuccess(1));
+	}
+	
+	@Test
+	public void runSleepJobTestNoID() {
+		String ID = "0";
+		SleepJob sleepJob = new SleepJob();
+		
+		sleepJob.setNumMappers(1);
+		sleepJob.setNumReducers(1);
+		sleepJob.setMapDuration(100);
+		sleepJob.setReduceDuration(100);
+		sleepJob.setJobInitSetID(false);
+		
+		sleepJob.start();
+		Util.sleep(1);
+		
+		try {
+			String jobPatternStr = " Running job: (.*)$";
+			Pattern jobPattern = Pattern.compile(jobPatternStr);
+			
+			BufferedReader reader=new BufferedReader(new InputStreamReader(sleepJob.getProcess().getInputStream())); 
+			String line=reader.readLine(); 
+
+			while(line!=null) 
+			{ 
+				TestSession.logger.info(line);
+
+				Matcher jobMatcher = jobPattern.matcher(line);
+
+				if (jobMatcher.find()) {
+					ID = jobMatcher.group(1);
+					TestSession.logger.info("JOB ID: " + ID);
+					break;
+				}
+
+				line=reader.readLine();
+			} 
+		}
+		catch (Exception e) {
+			if (sleepJob.getProcess() != null) {
+				sleepJob.getProcess().destroy();
+			}
+			e.printStackTrace();
+		}
+		
+		assertTrue("The ID of the job was not set and is still 0.", ID != "0");
+
+		String jobPatternStr = "job_(.*)$";
+		Pattern jobPattern = Pattern.compile(jobPatternStr);
+		
+		Matcher jobMatcher = jobPattern.matcher(ID);
+		
+		assertTrue("Job ID did not match expected format.", jobMatcher.find());
 	}
 	
 	/******************* END TESTS ***********************/	

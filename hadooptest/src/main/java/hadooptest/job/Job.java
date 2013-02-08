@@ -28,17 +28,26 @@ public abstract class Job extends Thread {
 	 * 
 	 * @return String The job ID.
 	 */
-	public String ID = "0";
-	public String USER = TestSession.conf.getProperty("USER", System.getProperty("user.name")); // The user for the job.
-	public String QUEUE = ""; // The queue for the job.
-	public JobState state;
+	protected String ID = "0";
+	protected String USER = TestSession.conf.getProperty("USER", System.getProperty("user.name")); // The user for the job.
+	protected String QUEUE = ""; // The queue for the job.
+	protected JobState state;
+	protected Process process = null;
+	protected boolean jobInitSetID = true;
 	
 	/*
 	 * Submit the job to the cluster.
+	 */
+	protected abstract void submit();
+	
+	/*
+	 * Submit the job to the cluster, but don't wait to assign an ID to this Job.
+	 * Should only be intended for cases where you want to saturate a cluster
+	 * with Jobs, and don't care about the status or result of the Job.
 	 * 
 	 * @return String the ID of the job submitted.
 	 */
-	public abstract void submit();
+	protected abstract void submitNoID();
 	
 	/*
 	 * Returns the state of the job in the JobState format.
@@ -46,11 +55,30 @@ public abstract class Job extends Thread {
 	 * @return JobState The state of the job.
 	 */
 	public JobState state() {
-		return state;
+		return this.state;
 	}
 	
+	public Process getProcess() {
+		return this.process;
+	}
+	
+	public String getID() {
+		return this.ID;
+	}
+	
+	/*
+	 * Implements Thread.run().
+	 * 
+	 * (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	public void run() {
-		this.submit();
+		if (jobInitSetID) {
+			this.submit();
+		}
+		else {
+			this.submitNoID();
+		}
 	}
 	
 	/*
@@ -59,7 +87,7 @@ public abstract class Job extends Thread {
 	 * @param user The user to override the default user with.
 	 */
 	public void setUser(String user) {
-		USER = user;
+		this.USER = user;
 	}
 	
 	/*
@@ -68,7 +96,11 @@ public abstract class Job extends Thread {
 	 * @param queue The queue to override the default queue with.
 	 */
 	public void setQueue(String queue) {
-		QUEUE = queue;
+		this.QUEUE = queue;
+	}
+	
+	public void setJobInitSetID(boolean setID) {
+		this.jobInitSetID = setID;
 	}
 	
 	/*
