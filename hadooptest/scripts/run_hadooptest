@@ -25,9 +25,10 @@ PASSWORD_OPTION=${PASSWORD_OPTION:-"-password"}
 HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
 
 DEFAULT_TESTS="\
-hadooptest.regression.Version \
+hadooptest.regression.CheckVersion \
+hadooptest.regression.ChangeConf \
 hadooptest.regression.RestartCluster \
-hadooptest.regression.yarn.SleepJob\
+hadooptest.regression.yarn.SleepJobRunner\
 "
 TESTS=${TESTS:="$DEFAULT_TESTS"}
 
