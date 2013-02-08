@@ -1,6 +1,7 @@
 package hadooptest.job;
 
 import hadooptest.TestSession;
+import hadooptest.config.TestConfiguration;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -49,9 +50,6 @@ public class SleepJob extends Job {
 		Process hadoopProc = null;
 		String jobID = "";
 		
-		String hadoop_mapred_test_jar = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + TestSession.conf.getProperty("HADOOP_VERSION", "") + "-tests.jar";
-		String hadoop_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/hadoop";
-		
 		String strMapMemory = "";
 		if (this.mapMemory != -1) {
 			//-Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
@@ -69,9 +67,12 @@ public class SleepJob extends Job {
 		}
 		
 		for (int i = 0; i < this.numberOfJobs; i++) {			
-			String[] hadoopCmd = { hadoop_exe, "--config", 
-					TestSession.conf.getProperty("CONFIG_BASE_DIR", ""),
-					"jar", hadoop_mapred_test_jar,
+			String[] hadoopCmd = {
+					TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
+					"--config", 
+					TestSession.cluster.getConf().getHadoopConfDirPath(),
+					"jar",
+					TestSession.cluster.getConf().getHadoopProp("HADOOP_SLEEP_JAR"),
 					"sleep", "-Dmapreduce.job.user.name=" + this.USER,
 					strQueue,
 					strMapMemory,
