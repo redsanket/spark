@@ -113,6 +113,17 @@ public abstract class TestConfiguration extends Configuration {
     }
 
     /*
+     * Returns the Hadoop configuration directory path for the default gateway
+     * component.
+     * 
+     * @return String of the directory path name..
+     */
+	public String getHadoopConfDirPath() {
+		return this.getHadoopConfDirPaths().getProperty(null);
+	}
+	
+
+    /*
      * Returns the Hadoop configuration directory path for the given component.
      * 
      * @param component The hadoop component such as gateway, namenode,
@@ -121,10 +132,12 @@ public abstract class TestConfiguration extends Configuration {
      * @return String of the directory path name..
      */
 	public String getHadoopConfDirPath(String component) {
+		if ((component == null) || component.isEmpty()) {
+			component = TestConfiguration.GATEWAY;
+		}
 		return this.getHadoopConfDirPaths().getProperty(component);
 	}
 	
-
     /*
      * Set the Hadoop configuration directory path for the given component.
      * 
