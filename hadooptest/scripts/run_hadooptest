@@ -57,13 +57,15 @@ CLASSPATH="\
 $HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT.jar:\
 $HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT-tests.jar"
 
-for i in \
-/home/gs/gridre/yroot.$CLUSTER/var/yinst/packages/hadoopcoretree-*/share/hadoop-*/share/hadoop/common/lib/log4j*.jar:\
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/ \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common/ \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common/lib/ \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn/ \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn/lib/
+HADOOP_JAR_PATHS="
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib \
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common \
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common/lib \
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn \
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn/lib
+"
+
+for i in $HADOOP_JAR_PATHS
 do
   CLASSPATH=${CLASSPATH}:`echo -en ${i}`/*
 done
