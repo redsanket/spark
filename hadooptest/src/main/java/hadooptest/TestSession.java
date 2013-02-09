@@ -67,7 +67,7 @@ public abstract class TestSession {
 
 		// Log the classpath
     	String classpath = System.getProperty("java.class.path");
-		logger.info("CLASSPATH="+classpath);
+		logger.trace("CLASSPATH="+classpath);
 	}
 	
 	/*
