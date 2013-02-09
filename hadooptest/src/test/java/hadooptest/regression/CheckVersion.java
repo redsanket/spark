@@ -54,8 +54,8 @@ public class CheckVersion extends TestSession {
 	@Test
 	public void printHadoopVersion() {
 		String version = TestSession.cluster.getVersion();
-		System.out.println("Hadoop Version = '" + version + "'");		
+		TestSession.logger.info("Hadoop Version = '" + version + "'");		
 	}
-	
+
 	
 }

@@ -147,10 +147,9 @@ public abstract class Job extends Thread {
 
 		Process mapredProc = null;
 
-		String mapred_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/mapred";
-		
-		String[] mapredCmd = { mapred_exe, 
-				"--config", TestSession.conf.getProperty("CONFIG_BASE_DIR", ""),
+		String[] mapredCmd = { 
+				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
 				"job", "-status", this.ID };
 		
 		TestSession.logger.debug(mapredCmd);
@@ -198,10 +197,9 @@ public abstract class Job extends Thread {
 
 		Process mapredProc = null;
 		
-		String mapred_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/mapred";
-		
-		String[] mapredCmd = { mapred_exe, 
-				"--config", TestSession.conf.getProperty("CONFIG_BASE_DIR", ""), 
+		String[] mapredCmd = {
+				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
 				"job", "-kill", this.ID };
 
 		TestSession.logger.debug(mapredCmd);
@@ -348,10 +346,9 @@ public abstract class Job extends Thread {
 		// check for job success here
 		Process mapredProc = null;
 		
-		String mapred_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/mapred";
-		
-		String[] mapredCmd = { mapred_exe, 
-				"--config", TestSession.conf.getProperty("CONFIG_BASE_DIR", ""), 
+		String[] mapredCmd = {
+				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
 				"job", "-status", this.ID };
 		
 		TestSession.logger.debug(mapredCmd);
@@ -469,7 +466,7 @@ public abstract class Job extends Thread {
 		TestSession.logger.info("Sleeping for 200s to wait for the job summary info log to be updated.");
 		//Util.sleep(200);
 
-		String HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
+		String HADOOP_INSTALL = TestSession.cluster.getConf().getHadoopProp("HADOOP_INSTALL");
 		FileInputStream summaryInfoFile = new FileInputStream(HADOOP_INSTALL + "/logs/hadoop-mapreduce.jobsummary.log");
 		DataInputStream in = new DataInputStream(summaryInfoFile);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -507,10 +504,9 @@ public abstract class Job extends Thread {
 		
 		Process mapredProc = null;
 		
-		String mapred_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/mapred";
-		
-		String[] mapredCmd = { mapred_exe, 
-				"--config", TestSession.conf.getProperty("CONFIG_BASE_DIR", ""), 
+		String[] mapredCmd = {
+				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
 				"job", "-kill-task", taskID };
 		
 		TestSession.logger.debug(mapredCmd);
@@ -557,10 +553,9 @@ public abstract class Job extends Thread {
 		
 		Process mapredProc = null;
 		
-		String mapred_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/mapred";
-		
-		String[] mapredCmd = { mapred_exe, 
-				"--config", TestSession.conf.getProperty("CONFIG_BASE_DIR", ""),
+		String[] mapredCmd = {
+				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
 				"job", "-fail-task", taskID };
 
 		TestSession.logger.debug(mapredCmd);
