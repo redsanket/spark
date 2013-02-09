@@ -119,7 +119,7 @@ public abstract class TestConfiguration extends Configuration {
      * @return String of the directory path name..
      */
 	public String getHadoopConfDirPath() {
-		return this.getHadoopConfDirPaths().getProperty(null);
+		return this.getHadoopConfDirPath(null);
 	}
 	
 
