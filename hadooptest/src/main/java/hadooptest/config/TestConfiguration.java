@@ -150,6 +150,8 @@ public abstract class TestConfiguration extends Configuration {
 		this.getHadoopConfDirPaths().setProperty(component, path);
 	}
 
+	protected abstract void initDefaultsClusterSpecific();
+	
 	/*
 	 * Initializes a set of default configuration properties that have been 
 	 * determined to be a reasonable set of defaults for running a distributed
@@ -157,35 +159,7 @@ public abstract class TestConfiguration extends Configuration {
 	 */
 	private void initDefaults() {
 		
-		/*
-		 * NOTES: some of these properties will need to be initialized
-		 * differently for pseudo distributed configuration.
-		 */
-		
-		// Specific to fully distributed cluster configuration.
-		hadoopProps.setProperty("CLUSTER_NAME", TestSession.conf.getProperty("CLUSTER_NAME", ""));
-		try {
-			hadoopProps.setProperty("GATEWAY", InetAddress.getLocalHost().getHostName());
-		}
-		catch (Exception e) {
-			TestSession.logger.warn("Hostname not found!!!");
-		}
-	
-		// String defaultTmpDir = "/grid/0/tmp";
-		String defaultTmpDir = "/homes/hadoopqa/tmp/hadooptest";
-		hadoopProps.setProperty("TMP_DIR", 
-				TestSession.conf.getProperty("TMP_DIR", defaultTmpDir));
-		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-		df.setTimeZone(TimeZone.getTimeZone("CST"));  
-		String tmpDir = this.getHadoopProp("TMP_DIR") + "/hadooptest-" +	
-				df.format(new Date());
-		new File(tmpDir).mkdirs();
-		hadoopProps.setProperty("TMP_DIR", tmpDir);
-		
-		String HADOOP_ROOT="/home";  // /grid/0								
-		hadoopProps.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
-		hadoopProps.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
-				hadoopProps.getProperty("CLUSTER_NAME"));
+		this.initDefaultsClusterSpecific();
 
 		/* 
 		 * Properties beyond this point should be common across pseudo and fully
@@ -193,8 +167,6 @@ public abstract class TestConfiguration extends Configuration {
 		 */
 
 		// Configuration directory and files
-		hadoopProps.setProperty("HADOOP_COMMON_HOME", hadoopProps.getProperty("HADOOP_INSTALL") +
-				"/share/hadoop");
 		hadoopProps.setProperty("HADOOP_CONF_DIR", hadoopProps.getProperty("HADOOP_INSTALL") +
 				"/conf/hadoop");
 		hadoopProps.setProperty("HADOOP_DEFAULT_CONF_DIR",

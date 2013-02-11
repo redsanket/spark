@@ -177,5 +177,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 		System.out.println(this.get("hadoop.common.configuration.version"));
 
 	}
+	
+	protected void initDefaultsClusterSpecific() {}
 
 }
