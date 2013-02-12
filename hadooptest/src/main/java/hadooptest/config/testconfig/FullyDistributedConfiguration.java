@@ -450,10 +450,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			/*
 			 * Parse the XML configuration file using a DOM parser
 			 */
-			File xmlInputFile = new File(filename);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbFactory.newDocumentBuilder();
-			Document document = db.parse(xmlInputFile);
+			Document document = db.parse(filename);
 			document.getDocumentElement().normalize();
 			TestSession.logger.trace("Root of xml file: " +
 					document.getDocumentElement().getNodeName());			
@@ -642,10 +641,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		 * Parse the XML configuration file using a DOM parser
 		 */		
 		try {
-			File xmlInputFile = new File(filename);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbFactory.newDocumentBuilder();
-			Document document = db.parse(xmlInputFile);
+			Document document = db.parse(filename);
 			document.getDocumentElement().normalize();
 			TestSession.logger.trace("Root of xml file: " +
 					document.getDocumentElement().getNodeName());			
