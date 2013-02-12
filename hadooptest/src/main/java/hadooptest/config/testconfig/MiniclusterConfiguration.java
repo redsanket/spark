@@ -53,4 +53,6 @@ public class MiniclusterConfiguration extends TestConfiguration
 	   
    }
 
+	protected void initDefaultsClusterSpecific() {}
+   
 }

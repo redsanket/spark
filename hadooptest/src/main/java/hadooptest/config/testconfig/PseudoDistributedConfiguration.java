@@ -10,6 +10,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
@@ -19,8 +23,7 @@ import hadooptest.config.TestConfiguration;
  * Hadoop cluster under test.
  */
 public class PseudoDistributedConfiguration extends TestConfiguration
-{	
-	private String CONFIG_BASE_DIR;
+{
 
 	/*
 	 * Class constructor.
@@ -31,8 +34,6 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 */
 	public PseudoDistributedConfiguration() {
 		super(false);
-		
-		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 		
 		this.initDefaults();
 	}
@@ -53,59 +54,60 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		this.initDefaults();
 	}
 
+	protected void initDefaultsClusterSpecific() {
+		String defaultTmpDir = "/Users/" + System.getProperty("user.name") + "/hadooptest/tmp";
+		hadoopProps.setProperty("TMP_DIR", 
+				TestSession.conf.getProperty("TMP_DIR", defaultTmpDir));
+		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
+		df.setTimeZone(TimeZone.getTimeZone("CST"));  
+		String tmpDir = this.getHadoopProp("TMP_DIR") + "/hadooptest-" +	
+				df.format(new Date());
+		new File(tmpDir).mkdirs();
+		hadoopProps.setProperty("TMP_DIR", tmpDir);
+		hadoopProps.setProperty("HADOOP_INSTALL", TestSession.conf.getProperty("HADOOP_INSTALL", ""));
+		
+		hadoopProps.setProperty("HADOOP_COMMON_HOME", hadoopProps.getProperty("HADOOP_INSTALL"));
+	}
+	
 	/*
 	 * Writes the pseudodistributed cluster configuration specified by the object out
 	 * to disk.
 	 */
 	public void write() {
-		File outdir = new File(CONFIG_BASE_DIR);
+		String configurationDir = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/conf/hadoop/";
+		
+		File outdir = new File(configurationDir);
 		outdir.mkdirs();
 		
-		File historytmp = new File(CONFIG_BASE_DIR + "jobhistory/tmp");
+		File historytmp = new File(configurationDir + "jobhistory/tmp");
 		historytmp.mkdirs();
-		File historydone = new File(CONFIG_BASE_DIR + "jobhistory/done");
+		File historydone = new File(configurationDir + "jobhistory/done");
 		historydone.mkdirs();
 
-		File core_site = new File(CONFIG_BASE_DIR + "core-site.xml");
-		File hdfs_site = new File(CONFIG_BASE_DIR + "hdfs-site.xml");
-		File yarn_site = new File(CONFIG_BASE_DIR + "yarn-site.xml");
-		File mapred_site = new File(CONFIG_BASE_DIR + "mapred-site.xml");		
+		File core_site = new File(configurationDir + "core-site.xml");
+		File hdfs_site = new File(configurationDir + "hdfs-site.xml");
+		File yarn_site = new File(configurationDir + "yarn-site.xml");
+		File mapred_site = new File(configurationDir + "mapred-site.xml");		
 
 		try{
-			if (core_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(core_site);
+			core_site.createNewFile();
+			hdfs_site.createNewFile();
+			yarn_site.createNewFile();
+			mapred_site.createNewFile();
+			
+			FileOutputStream out = new FileOutputStream(core_site);
+			this.writeXml(out);
 
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
+			out = new FileOutputStream(hdfs_site);
+			this.writeXml(out);
 
-			if (hdfs_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(hdfs_site);
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
+			out = new FileOutputStream(yarn_site);
+			this.writeXml(out);
 
-			if (yarn_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(yarn_site);
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
+			out = new FileOutputStream(mapred_site);
+			this.writeXml(out);
 
-			if (mapred_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(mapred_site);
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
-
-			FileWriter slaves_file = new FileWriter(CONFIG_BASE_DIR + "slaves");
+			FileWriter slaves_file = new FileWriter(configurationDir + "slaves");
 			BufferedWriter slaves = new BufferedWriter(slaves_file);
 			slaves.write("localhost");
 			slaves.close();
@@ -120,12 +122,14 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * by the .write() of the object.
 	 */
 	public void cleanup() {
-		File core_site = new File(CONFIG_BASE_DIR + "core-site.xml");
-		File hdfs_site = new File(CONFIG_BASE_DIR + "hdfs-site.xml");
-		File yarn_site = new File(CONFIG_BASE_DIR + "yarn-site.xml");
-		File mapred_site = new File(CONFIG_BASE_DIR + "mapred-site.xml");	
-		File slaves = new File(CONFIG_BASE_DIR + "slaves");	
-		File log4jProperties = new File(CONFIG_BASE_DIR + "log4j.properties");
+		String configurationDir = TestSession.cluster.getConf().getHadoopConfDirPath();
+		
+		File core_site = new File(configurationDir + "/core-site.xml");
+		File hdfs_site = new File(configurationDir + "/hdfs-site.xml");
+		File yarn_site = new File(configurationDir + "/yarn-site.xml");
+		File mapred_site = new File(configurationDir + "/mapred-site.xml");	
+		File slaves = new File(configurationDir + "/slaves");	
+		File log4jProperties = new File(configurationDir + "/log4j.properties");
 
 		core_site.delete();
 		hdfs_site.delete();
@@ -134,13 +138,6 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		slaves.delete();
 		log4jProperties.delete();
 	}
-
-	
-	public String getHadoopProp(String key) {
-		TestSession.logger.error("Currently unimplemented for this cluster configuration");
-		
-		return null;
-	}
 	
 	/*
 	 * Initializes a set of default configuration properties that have been 
@@ -148,13 +145,15 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * cluster under test.
 	 */
 	private void initDefaults() {
+		String configurationDir = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/conf/hadoop/";
+		
 		set("fs.default.name", "hdfs://localhost/");
 		set("dfs.replication", "1");
 		set("mapreduce.framework.name", "yarn");
 		set("yarn.resourcemanager.address", "localhost:8032");
 		set("yarn.nodemanager.aux-services", "mapreduce.shuffle");
-		set("mapreduce.jobhistory.intermediate-done-dir", CONFIG_BASE_DIR + "jobhistory/tmp");
-		set("mapreduce.jobhistory.done-dir", CONFIG_BASE_DIR + "jobhistory/done");
+		set("mapreduce.jobhistory.intermediate-done-dir", configurationDir + "jobhistory/tmp");
+		set("mapreduce.jobhistory.done-dir", configurationDir + "jobhistory/done");
 	}
 
 }

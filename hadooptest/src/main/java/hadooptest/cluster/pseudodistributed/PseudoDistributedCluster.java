@@ -31,12 +31,6 @@ public class PseudoDistributedCluster implements Cluster {
 	// The state of the pseudodistributed cluster.
 	protected ClusterState cluster_state;
 	
-	// The version of the cluster.
-	protected String cluster_version = "";
-	
-	private String HADOOP_INSTALL;
-	private String CONFIG_BASE_DIR;
-	
 	/*
 	 * Class constructor.
 	 * 
@@ -45,8 +39,6 @@ public class PseudoDistributedCluster implements Cluster {
 	public PseudoDistributedCluster() throws IOException
 	{
 		this.conf = new PseudoDistributedConfiguration();
-		
-		this.initTestSessionConf();
 		
 		this.conf.write();
 	}
@@ -59,8 +51,6 @@ public class PseudoDistributedCluster implements Cluster {
 	public PseudoDistributedCluster(PseudoDistributedConfiguration conf)
 	{
 		this.conf = conf;
-		
-		this.initTestSessionConf();
 	}
 	
 	/*
@@ -79,10 +69,10 @@ public class PseudoDistributedCluster implements Cluster {
 	public void start() {
 
 		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
-		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
-		String start_yarn = HADOOP_INSTALL + "/sbin/start-yarn.sh --config " + CONFIG_BASE_DIR;
-		String start_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh start historyserver --config " + CONFIG_BASE_DIR;
-		String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
+		String start_dfs = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh --config " + TestSession.cluster.getConf().getHadoopConfDirPath();
+		String start_yarn = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-yarn.sh --config " + TestSession.cluster.getConf().getHadoopConfDirPath();
+		String start_historyserver = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh start historyserver --config " + TestSession.cluster.getConf().getHadoopConfDirPath();
+		String start_datanode = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh --config " + TestSession.cluster.getConf().getHadoopConfDirPath() + " start datanode";
 
 		//TSM.logger.info("FORMATTING DFS...");
 		//runProc(format_dfs);
@@ -116,10 +106,10 @@ public class PseudoDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#stop()
 	 */
 	public void stop() {
-		String stop_dfs = HADOOP_INSTALL + "/sbin/stop-dfs.sh";
-		String stop_yarn = HADOOP_INSTALL + "/sbin/stop-yarn.sh";
-		String stop_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
-		String stop_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh stop datanode";
+		String stop_dfs = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-dfs.sh";
+		String stop_yarn = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-yarn.sh";
+		String stop_historyserver = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
+		String stop_datanode = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh stop datanode";
 
 		runProc(stop_dfs);
 		runProc(stop_yarn);
@@ -180,15 +170,6 @@ public class PseudoDistributedCluster implements Cluster {
 	 */
 	public ClusterState getState() {
 		return this.cluster_state;
-	}
-	
-	/*
-	 * Initialize the test session configuration properties necessary to use the 
-	 * pseudo distributed cluster instance.
-	 */
-	private void initTestSessionConf() {
-		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 	}
 	
 	/*
@@ -265,7 +246,7 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 
 	public String getVersion() {
-		return this.cluster_version;
+    	return this.conf.getHadoopProp("HADOOP_VERSION");
 	}	
 
 }

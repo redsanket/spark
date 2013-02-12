@@ -50,4 +50,6 @@ public class MockConfiguration extends TestConfiguration
    {
    }
 
+	protected void initDefaultsClusterSpecific() {}
+   
 }

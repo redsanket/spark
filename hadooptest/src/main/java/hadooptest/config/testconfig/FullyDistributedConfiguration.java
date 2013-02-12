@@ -5,6 +5,7 @@
 package hadooptest.config.testconfig;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -77,6 +78,34 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	}
 
+	protected void initDefaultsClusterSpecific() {
+		hadoopProps.setProperty("CLUSTER_NAME", TestSession.conf.getProperty("CLUSTER_NAME", ""));
+		try {
+			hadoopProps.setProperty("GATEWAY", InetAddress.getLocalHost().getHostName());
+		}
+		catch (Exception e) {
+			TestSession.logger.warn("Hostname not found!!!");
+		}
+
+		String defaultTmpDir = "/homes/hadoopqa/tmp/hadooptest";
+		hadoopProps.setProperty("TMP_DIR", 
+				TestSession.conf.getProperty("TMP_DIR", defaultTmpDir));
+		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
+		df.setTimeZone(TimeZone.getTimeZone("CST"));  
+		String tmpDir = this.getHadoopProp("TMP_DIR") + "/hadooptest-" +	
+				df.format(new Date());
+		new File(tmpDir).mkdirs();
+		hadoopProps.setProperty("TMP_DIR", tmpDir);
+		
+		String HADOOP_ROOT="/home";  // /grid/0								
+		hadoopProps.setProperty("JAVA_HOME", HADOOP_ROOT+"/gs/java/jdk");
+		hadoopProps.setProperty("HADOOP_INSTALL", HADOOP_ROOT + "/gs/gridre/yroot." +
+				hadoopProps.getProperty("CLUSTER_NAME"));
+		
+		hadoopProps.setProperty("HADOOP_COMMON_HOME", hadoopProps.getProperty("HADOOP_INSTALL") +
+				"/share/hadoop");
+	}
+	
     /*
      * Returns the Hadoop configuration files properties hashtable for the
      * gateway.

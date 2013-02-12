@@ -9,10 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class Version extends TestSession {
 
@@ -22,7 +18,7 @@ public class Version extends TestSession {
 	@BeforeClass
 	public static void startCluster() throws IOException {
 		TestSession.start();
-		// cluster.start();
+		cluster.start();
 	}
 		
 	/*
@@ -30,8 +26,8 @@ public class Version extends TestSession {
 	 */
 	@AfterClass
 	public static void stopCluster() throws IOException {
-		// cluster.stop();
-		// cluster.getConf().cleanup();
+		cluster.stop();
+		cluster.getConf().cleanup();
 	}
 	
 	
@@ -54,7 +50,7 @@ public class Version extends TestSession {
 	@Test
 	public void printHadoopVersion() {
 		String version = TestSession.cluster.getVersion();
-		System.out.println("Hadoop Version = '" + version + "'");		
+		TestSession.logger.info("Hadoop Version = '" + version + "'");
 	}
 	
 	
