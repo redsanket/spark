@@ -4,15 +4,17 @@
 # run_hadooptest_remote -c <cluster name> [-g <gateway host>] [-n/-no-password] [-t/-transport-only]
 # run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -t
 # run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -n
+# run_hadooptest_remote -c theoden -g gwbl2005.blue.ygrid.yahoo.com -s /home/hadoopqa/git/hadooptest/hadooptest -t
 
 function usage {
-    echo 
+    echo
     echo "USAGE"
     echo "-----------------------------------------------------------------------------------"
     echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
 The options
         -c <cluster name> : cluster name
-        [ -g <gateway host> ] : gateway host 
+        [ -g <gateway host> ] : gateway host
+        [ -s <source root dir> ] : source root directory
         [ -n ] : no password prompt
         [ -t ] : transport packages to remote host only
         [ -h ] : help
@@ -22,15 +24,16 @@ The options
 
 GATEWAY=${GATEWAY:="gwbl2005.blue.ygrid.yahoo.com"}
 
-while getopts "c:g:nth" opt; do
-	case $opt in
-		c) CLUSTER=$OPTARG;;
-		g) GATEWAY=$OPTARG;;
-		n) PASSWORD_OPTION="-n";;
-		t) RUN_OPTION="transport-only";;
-		h) usage;;
-		*) usage;;
-	esac
+while getopts "c:g:s:nth" opt; do
+        case $opt in
+                c) CLUSTER=$OPTARG;;
+                g) GATEWAY=$OPTARG;;
+                s) SOURCE_ROOT=$OPTARG;;
+                n) PASSWORD_OPTION="-n";;
+                t) RUN_OPTION="transport-only";;
+                h) usage;;
+                *) usage;;
+        esac
 done
 
 if [ -z $CLUSTER ]; then
@@ -54,4 +57,3 @@ if [ "$RUN_OPTION" != "transport-only" ]; then
    ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest $PASSWORD_OPTION";
    set +x
 fi
-
