@@ -6,7 +6,6 @@ package hadooptest.job;
 
 import hadooptest.TestSession;
 import hadooptest.Util;
-import hadooptest.cluster.JobState;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -341,10 +340,14 @@ public abstract class Job extends Thread {
 	 * @param seconds The number of minutes to wait for the success state.
 	 */
 	public boolean waitForSuccess(int minutes) {
-		// Runs Hadoop to check for the SUCCEEDED state of the job 
-		
-		// check for job success here
 		Process mapredProc = null;
+
+		Matcher mapredMatcherSuccess;
+		Matcher mapredMatcherAppStatusSuccess;
+		Matcher mapredMatcherFailed;
+		Matcher mapredMatcherKilled;
+		Matcher mapredMatcherPrep;
+		Matcher mapredMatcherRunning;
 		
 		String[] mapredCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
@@ -382,18 +385,18 @@ public abstract class Job extends Thread {
 				{ 
 					TestSession.logger.debug(line);
 
-					Matcher mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
-					Matcher mapredMatcherAppStatusSuccess = mapredAppStatusPatternSuccess.matcher(line);
-					Matcher mapredMatcherFailed = mapredPatternFailed.matcher(line);
-					Matcher mapredMatcherKilled = mapredPatternKilled.matcher(line);
-					Matcher mapredMatcherPrep = mapredPatternPrep.matcher(line);
-					Matcher mapredMatcherRunning = mapredPatternRunning.matcher(line);
+					mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
+					mapredMatcherAppStatusSuccess = mapredAppStatusPatternSuccess.matcher(line);
+					mapredMatcherFailed = mapredPatternFailed.matcher(line);
+					mapredMatcherKilled = mapredPatternKilled.matcher(line);
+					mapredMatcherPrep = mapredPatternPrep.matcher(line);
+					mapredMatcherRunning = mapredPatternRunning.matcher(line);
 
 					if (mapredMatcherSuccess.find()) {
 						TestSession.logger.info("JOB " + this.ID + " SUCCEEDED");
 						return true;
 					}
-					if (mapredMatcherAppStatusSuccess.find()) {
+					else if (mapredMatcherAppStatusSuccess.find()) {
 						TestSession.logger.info("JOB " + this.ID + " SUCCEEDED");
 						return true;
 					}
@@ -426,6 +429,119 @@ public abstract class Job extends Thread {
 		}
 
 		TestSession.logger.error("JOB " + this.ID + " didn't SUCCEED within the timeout window.");
+		return false;
+	}
+	
+	/*
+	 * Waits for the specified number of minutes for the job to 
+	 * meet a specified state, and returns true for successfully reaching the state.
+	 * 
+	 * @param waitForState the job state to wait for
+	 * @param seconds The number of minutes to wait for the job state.
+	 */
+	public boolean waitFor(JobState waitForState, int seconds) {
+		Process mapredProc = null;
+		JobState currentState = null;
+
+		Matcher mapredMatcherSuccess = null;
+		Matcher mapredMatcherAppStatusSuccess = null;
+		Matcher mapredMatcherFailed = null;
+		Matcher mapredMatcherKilled = null;
+		Matcher mapredMatcherPrep = null;
+		Matcher mapredMatcherRunning = null;
+		
+		String[] mapredCmd = {
+				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"job", "-status", this.ID };
+		
+		TestSession.logger.debug(mapredCmd);
+
+		String mapredPatternStrSuccess = "(.*)(Job state: SUCCEEDED)(.*)";
+		Pattern mapredPatternSuccess = Pattern.compile(mapredPatternStrSuccess);
+		
+		String mapredAppStatusPatternStrSuccess = "(.*)(FinalApplicationStatus=SUCCEEDED)(.*)";
+		Pattern mapredAppStatusPatternSuccess = Pattern.compile(mapredAppStatusPatternStrSuccess);
+		
+		String mapredPatternStrFailed = "(.*)(Job state: FAILED)(.*)";
+		Pattern mapredPatternFailed = Pattern.compile(mapredPatternStrFailed);
+		
+		String mapredPatternStrKilled = "(.*)(Job state: KILLED)(.*)";
+		Pattern mapredPatternKilled = Pattern.compile(mapredPatternStrKilled);
+
+		String mapredPatternStrPrep = "(.*)(Job state: PREP)(.*)";
+		Pattern mapredPatternPrep = Pattern.compile(mapredPatternStrPrep);
+
+		String mapredPatternStrRunning = "(.*)(Job state: RUNNING)(.*)";
+		Pattern mapredPatternRunning = Pattern.compile(mapredPatternStrRunning);
+		
+		// Give the sleep job time to complete
+		for (int i = 0; i <= seconds; i = i + 10) {
+		
+			try {
+				mapredProc = TestSession.exec.runHadoopProcBuilderGetProc(mapredCmd, this.USER);
+				BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
+				String line=reader.readLine(); 
+				while(line!=null) 
+				{ 
+					TestSession.logger.debug(line);
+
+					mapredMatcherSuccess = mapredPatternSuccess.matcher(line);
+					mapredMatcherAppStatusSuccess = mapredAppStatusPatternSuccess.matcher(line);
+					mapredMatcherFailed = mapredPatternFailed.matcher(line);
+					mapredMatcherKilled = mapredPatternKilled.matcher(line);
+					mapredMatcherPrep = mapredPatternPrep.matcher(line);
+					mapredMatcherRunning = mapredPatternRunning.matcher(line);
+
+					if (mapredMatcherSuccess.find()) {
+						currentState = JobState.SUCCEEDED;
+						break;
+					}
+					else if (mapredMatcherAppStatusSuccess.find()) {
+						currentState = JobState.SUCCEEDED;
+						break;
+					}
+					else if (mapredMatcherFailed.find()) {
+						currentState = JobState.FAILED;
+						break;
+					}
+					else if (mapredMatcherKilled.find()) {
+						currentState = JobState.KILLED;
+						break;
+					}
+					else if (mapredMatcherPrep.find()) {
+						currentState = JobState.PREP;
+						break;
+					}
+					else if (mapredMatcherRunning.find()) {
+						currentState = JobState.RUNNING;
+						break;
+					}
+					else {
+						currentState = JobState.UNKNOWN;
+					}
+
+					line=reader.readLine();
+				} 
+			}
+			catch (Exception e) {
+				if (mapredProc != null) {
+					mapredProc.destroy();
+				}
+				e.printStackTrace();
+			}
+
+			TestSession.logger.info("Job " + this.ID + " is in state: " + currentState.toString());
+			
+			if (currentState.equals(waitForState)) {
+				TestSession.logger.info("Job state was successfully reached: " + waitForState.toString());
+				return true;
+			}
+			
+			Util.sleep(10);
+		}
+
+		TestSession.logger.error("JOB " + this.ID + " didn't meet the specified state within the timeout window: " + waitForState.toString());
 		return false;
 	}
 	

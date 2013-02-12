@@ -71,9 +71,6 @@ public class FailJob extends Job {
 	}
 
 	private String[] assembleCommand() {
-		String hadoop_mapred_test_jar = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-" + TestSession.conf.getProperty("HADOOP_VERSION", "") + "-tests.jar";
-		String hadoop_exe = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/bin/hadoop";
-
 		String strFailMappers = "";
 		if (failMappers) {
 			strFailMappers = "-failMappers";
@@ -84,10 +81,10 @@ public class FailJob extends Job {
 			strFailReducers = "-failReducers";
 		}
 		
-		return new String[] { hadoop_exe, 
-				"--config", TestSession.conf.getProperty("CONFIG_BASE_DIR", ""),
-				"jar", hadoop_mapred_test_jar,
-				"fail", "-Dmapreduce.job.user.name=" + USER, 
+		return new String[] { TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"), 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_SLEEP_JAR"),
+				"fail", "-Dmapreduce.job.user.name=" + this.USER, 
 				strFailMappers,
 				strFailReducers };
 	}
