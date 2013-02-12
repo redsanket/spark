@@ -54,6 +54,7 @@ set +x
 
 if [ "$RUN_OPTION" != "transport-only" ]; then
    set -x
-   ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest $PASSWORD_OPTION";
+   # ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest $PASSWORD_OPTION";
+   ssh -t $GATEWAY "$GATEWAY_DIR/run_hadooptest -c $CLUSTER -l $GATEWAY_DIR $PASSWORD_OPTION";
    set +x
 fi
