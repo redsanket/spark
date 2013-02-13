@@ -62,7 +62,9 @@ HADOOP_JAR_PATHS="
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common \
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common/lib \
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn/lib
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn/lib \
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/mapreduce \ 
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/hdfs
 "
 
 for i in $HADOOP_JAR_PATHS
