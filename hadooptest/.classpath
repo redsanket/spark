@@ -22,8 +22,16 @@
       <attribute value="jar:file:/Users/rbernota/.m2/repository/junit/junit/4.8.2/junit-4.8.2-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-common/0.23.4/hadoop-common-0.23.4.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-common/0.23.4/hadoop-common-0.23.4-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-annotations/0.23.4/hadoop-annotations-0.23.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-common/0.23.6/hadoop-common-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-common/0.23.6/hadoop-common-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-common/0.23.6/hadoop-common-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-annotations/0.23.6/hadoop-annotations-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-annotations/0.23.6/hadoop-annotations-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-annotations/0.23.6/hadoop-annotations-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/jdiff/jdiff/1.0.9/jdiff-1.0.9.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/google/guava/guava/11.0.2/guava-11.0.2.jar" sourcepath="M2_REPO/com/google/guava/guava/11.0.2/guava-11.0.2-sources.jar">
     <attributes>
@@ -177,20 +185,44 @@
       <attribute value="jar:file:/Users/rbernota/.m2/repository/com/google/protobuf/protobuf-java/2.4.0a/protobuf-java-2.4.0a-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-auth/0.23.4/hadoop-auth-0.23.4.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-auth/0.23.4/hadoop-auth-0.23.4-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-auth/0.23.6/hadoop-auth-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-auth/0.23.6/hadoop-auth-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-auth/0.23.6/hadoop-auth-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/com/googlecode/json-simple/json-simple/1.1/json-simple-1.1.jar" sourcepath="M2_REPO/com/googlecode/json-simple/json-simple/1.1/json-simple-1.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-common/0.23.4/hadoop-common-0.23.4-tests.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-common/0.23.4/hadoop-common-0.23.4-test-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.4/hadoop-hdfs-0.23.4.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.4/hadoop-hdfs-0.23.4-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-common/0.23.6/hadoop-common-0.23.6-tests.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-common/0.23.6/hadoop-common-0.23.6-test-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.6/hadoop-hdfs-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.6/hadoop-hdfs-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-hdfs/0.23.6/hadoop-hdfs-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/commons-daemon/commons-daemon/1.0.3/commons-daemon-1.0.3.jar" sourcepath="M2_REPO/commons-daemon/commons-daemon/1.0.3/commons-daemon-1.0.3-sources.jar">
     <attributes>
       <attribute value="jar:file:/Users/rbernota/.m2/repository/commons-daemon/commons-daemon/1.0.3/commons-daemon-1.0.3-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.4/hadoop-hdfs-0.23.4-tests.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.4/hadoop-hdfs-0.23.4-test-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-app/0.23.4/hadoop-mapreduce-client-app-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-common/0.23.4/hadoop-mapreduce-client-common-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-common/0.23.4/hadoop-yarn-common-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-api/0.23.4/hadoop-yarn-api-0.23.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.6/hadoop-hdfs-0.23.6-tests.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-hdfs/0.23.6/hadoop-hdfs-0.23.6-test-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-app/0.23.6/hadoop-mapreduce-client-app-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-app/0.23.6/hadoop-mapreduce-client-app-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-mapreduce-client-app/0.23.6/hadoop-mapreduce-client-app-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-common/0.23.6/hadoop-mapreduce-client-common-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-common/0.23.6/hadoop-mapreduce-client-common-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-mapreduce-client-common/0.23.6/hadoop-mapreduce-client-common-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-common/0.23.6/hadoop-yarn-common-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-yarn-common/0.23.6/hadoop-yarn-common-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-yarn-common/0.23.6/hadoop-yarn-common-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-api/0.23.6/hadoop-yarn-api-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-yarn-api/0.23.6/hadoop-yarn-api-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-yarn-api/0.23.6/hadoop-yarn-api-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/com/google/inject/extensions/guice-servlet/3.0/guice-servlet-3.0.jar" sourcepath="M2_REPO/com/google/inject/extensions/guice-servlet/3.0/guice-servlet-3.0-sources.jar">
     <attributes>
       <attribute value="jar:file:/Users/rbernota/.m2/repository/com/google/inject/extensions/guice-servlet/3.0/guice-servlet-3.0-javadoc.jar!/" name="javadoc_location"/>
@@ -257,20 +289,52 @@
       <attribute value="jar:file:/Users/rbernota/.m2/repository/com/sun/jersey/contribs/jersey-guice/1.8/jersey-guice-1.8-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-core/0.23.4/hadoop-mapreduce-client-core-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-common/0.23.4/hadoop-yarn-server-common-0.23.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-core/0.23.6/hadoop-mapreduce-client-core-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-core/0.23.6/hadoop-mapreduce-client-core-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-mapreduce-client-core/0.23.6/hadoop-mapreduce-client-core-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-common/0.23.6/hadoop-yarn-server-common-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-yarn-server-common/0.23.6/hadoop-yarn-server-common-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-yarn-server-common/0.23.6/hadoop-yarn-server-common-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/org/apache/zookeeper/zookeeper/3.4.2/zookeeper-3.4.2.jar" sourcepath="M2_REPO/org/apache/zookeeper/zookeeper/3.4.2/zookeeper-3.4.2-sources.jar">
     <attributes>
       <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/zookeeper/zookeeper/3.4.2/zookeeper-3.4.2-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/jline/jline/0.9.94/jline-0.9.94.jar" sourcepath="M2_REPO/jline/jline/0.9.94/jline-0.9.94-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-web-proxy/0.23.4/hadoop-yarn-server-web-proxy-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-shuffle/0.23.4/hadoop-mapreduce-client-shuffle-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-nodemanager/0.23.4/hadoop-yarn-server-nodemanager-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-hs/0.23.4/hadoop-mapreduce-client-hs-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-jobclient/0.23.4/hadoop-mapreduce-client-jobclient-0.23.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-jobclient/0.23.4/hadoop-mapreduce-client-jobclient-0.23.4-tests.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-tests/0.23.4/hadoop-yarn-server-tests-0.23.4-tests.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-resourcemanager/0.23.4/hadoop-yarn-server-resourcemanager-0.23.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-web-proxy/0.23.6/hadoop-yarn-server-web-proxy-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-yarn-server-web-proxy/0.23.6/hadoop-yarn-server-web-proxy-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-yarn-server-web-proxy/0.23.6/hadoop-yarn-server-web-proxy-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-shuffle/0.23.6/hadoop-mapreduce-client-shuffle-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-shuffle/0.23.6/hadoop-mapreduce-client-shuffle-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-mapreduce-client-shuffle/0.23.6/hadoop-mapreduce-client-shuffle-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-nodemanager/0.23.6/hadoop-yarn-server-nodemanager-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-yarn-server-nodemanager/0.23.6/hadoop-yarn-server-nodemanager-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-yarn-server-nodemanager/0.23.6/hadoop-yarn-server-nodemanager-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-hs/0.23.6/hadoop-mapreduce-client-hs-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-hs/0.23.6/hadoop-mapreduce-client-hs-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-mapreduce-client-hs/0.23.6/hadoop-mapreduce-client-hs-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-jobclient/0.23.6/hadoop-mapreduce-client-jobclient-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-jobclient/0.23.6/hadoop-mapreduce-client-jobclient-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-mapreduce-client-jobclient/0.23.6/hadoop-mapreduce-client-jobclient-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-client-jobclient/0.23.6/hadoop-mapreduce-client-jobclient-0.23.6-tests.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-tests/0.23.6/hadoop-yarn-server-tests-0.23.6-tests.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-resourcemanager/0.23.6/hadoop-yarn-server-resourcemanager-0.23.6.jar" sourcepath="M2_REPO/org/apache/hadoop/hadoop-yarn-server-resourcemanager/0.23.6/hadoop-yarn-server-resourcemanager-0.23.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/rbernota/.m2/repository/org/apache/hadoop/hadoop-yarn-server-resourcemanager/0.23.6/hadoop-yarn-server-resourcemanager-0.23.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
 </classpath>
