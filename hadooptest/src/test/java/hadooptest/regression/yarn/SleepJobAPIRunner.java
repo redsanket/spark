@@ -16,8 +16,8 @@ import org.junit.Test;
 
 import org.apache.hadoop.SleepJob;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.util.Tool;
 
 public class SleepJobAPIRunner extends TestSession {
 	
@@ -51,15 +51,27 @@ public class SleepJobAPIRunner extends TestSession {
 	@Test
 	public void runSleepTest() {
 		String[] args = { "-m", "1", "-r", "1", "-mt", "1", "-rt", "1"};
+		Configuration conf = TestSession.cluster.getConf();
+		
+		int rc;
 		try {
-		    int res = ToolRunner.run(new Configuration(), new SleepJob(), args);
+			SecurityUtil.login(conf, "keytab-hadoop1", "user-hadoop1");
+			rc = ToolRunner.run(new Configuration(), new SleepJob(), args);
+			if (rc != 0) {
+				TestSession.logger.error("Job failed!!!");
+			}
+
+			SecurityUtil.login(conf, "keytab-hadoopqa", "user-hadoopqa");
+		    rc = ToolRunner.run(new Configuration(), new SleepJob(), args);
+			if (rc != 0) {
+				TestSession.logger.error("Job failed!!!");
+			}
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Job failed!!!");
 			e.printStackTrace();
 		}
-	}
-	
-
+	}	
+	  
 	/******************* END TESTS ***********************/	
 }
