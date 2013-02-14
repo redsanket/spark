@@ -153,12 +153,40 @@ public abstract class TestConfiguration extends Configuration {
 	protected abstract void initDefaultsClusterSpecific();
 	
 	/*
+	 * Setup the Kerberos configuration for the given user name and keytab file
+	 * in the parent class Apache Hadoop Configuration object. This will be
+	 * needed later for tasks such as job submission. 
+	 */
+	private void setKerberosConf(String user) {
+		super.set("user-" + user, user + "@DEV.YGRID.YAHOO.COM");
+		super.set("keytab-" + user, "/homes/" + user + "/" + user + ".dev.headless.keytab");
+	}
+	
+	/*
+	 * Setup the Kerberos configuration for all headless users in the
+	 * parent class Apache Hadoop Configuration object. This will be
+	 * needed later for tasks such as job submission. 
+	 */
+	private void setKerberosConf() {
+		// Setup the headless users
+		String[] users = {"hadoopqa", "hdfs", "hdfsqa", "mapred", "mapredqa"};
+		for (String user : users ) {
+			this.setKerberosConf(user);
+		}
+		// Setup the headless users hadoop1 through hadoop20
+		for(int i = 0; i < 20; i++) {
+			this.setKerberosConf("hadoop" + i+1);
+		}
+	}
+	
+	/*
 	 * Initializes a set of default configuration properties that have been 
 	 * determined to be a reasonable set of defaults for running a distributed
 	 * cluster under test.
 	 */
 	private void initDefaults() {
-		
+
+		this.setKerberosConf();		
 		this.initDefaultsClusterSpecific();
 
 		/* 
