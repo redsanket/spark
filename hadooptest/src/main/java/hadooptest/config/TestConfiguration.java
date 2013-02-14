@@ -175,7 +175,7 @@ public abstract class TestConfiguration extends Configuration {
 		}
 		// Setup the headless users hadoop1 through hadoop20
 		for(int i = 0; i < 20; i++) {
-			this.setKerberosConf("hadoop" + i+1);
+			this.setKerberosConf("hadoop" + (i+1));
 		}
 	}
 	
@@ -186,7 +186,7 @@ public abstract class TestConfiguration extends Configuration {
 	 */
 	private void initDefaults() {
 
-		this.setKerberosConf();		
+		this.setKerberosConf();
 		this.initDefaultsClusterSpecific();
 
 		/* 
