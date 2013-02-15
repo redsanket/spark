@@ -22,8 +22,6 @@ The options
     exit 1
 }
 
-GATEWAY=${GATEWAY:="gwbl2005.blue.ygrid.yahoo.com"}
-
 while getopts "c:g:s:nth" opt; do
         case $opt in
                 c) CLUSTER=$OPTARG;;
@@ -40,6 +38,12 @@ if [ -z $CLUSTER ]; then
    echo "ERROR: Required CLUSTER value not defined!!!";
    exit 1;
 fi
+
+GATEWAY=${GATEWAY:="gwbl2005.blue.ygrid.yahoo.com"}
+#if [ -z $GATEWAY ]; then
+#   echo "WARN: Required GATEWAY value not defined!!!";
+#   exit 1;
+#fi
 
 USER=`whoami`
 GATEWAY_DIR=${GATEWAY_DIR:="/homes/$USER"}
