@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.VersionInfo;
 
 /* 
  * An abstract class that describes a base level Hadoop configuration to 
@@ -253,10 +254,27 @@ public abstract class TestConfiguration extends Configuration {
      * @see hadooptest.cluster.Cluster#getVersion()
      */
     public String getVersion() {
+		VersionInfo versionInfo = new VersionInfo();
+		String version = versionInfo.getVersion();
+		TestSession.logger.trace("Hadoop version = '" + versionInfo.getVersion() + "'");
+		TestSession.logger.trace("Hadoop build version = '" + versionInfo.getBuildVersion() + "'");
+		TestSession.logger.trace("Hadoop revision = '" + versionInfo.getRevision() + "'");
+		return version;
+    }
+
+	/*
+     * Returns the version of the fully distributed Hadoop cluster being used 
+     * via the command line interface.
+     * 
+     * @return String the Hadoop version for the fully distributed cluster.
+     * 
+     * (non-Javadoc)
+     * @see hadooptest.cluster.Cluster#getVersion()
+     */
+    public String getVersionViaCommandLine() {
     	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
     			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
     	String version = (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];
         return version.split(" ")[1];
     }
-
 }
