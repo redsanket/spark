@@ -68,7 +68,7 @@ public class HDFSMiniCluster extends MiniCluster {
    	return paths.get(key).toString();
    }
 
-	/*
+	/**
 	 * Set a custom configuration for the pseudodistributed cluster instance.
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration

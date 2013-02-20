@@ -19,6 +19,10 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+/**
+ * A properties class that allows for specifying key-value pairs of
+ * properties to the framework.
+ */
 public class ConfigProperties extends Properties
 {
 

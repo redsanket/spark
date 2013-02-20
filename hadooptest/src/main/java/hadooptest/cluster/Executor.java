@@ -19,7 +19,7 @@ public abstract class Executor {
 	protected String CONFIG_BASE_DIR;
 	protected String CLUSTER_NAME;
 	
-	/*
+	/**
 	 * Class constructor.
 	 */
 	public Executor() {
@@ -34,7 +34,7 @@ public abstract class Executor {
 	
 	public abstract Process runHadoopProcBuilderGetProc(String[] commandArray, String username);
 
-	/*
+	/**
 	 * Run a local system command.
 	 * 
 	 * @param command The system command to run.
@@ -43,7 +43,7 @@ public abstract class Executor {
 		return runProcBuilder(commandArray, null);
 	}
 
-	/*
+	/**
 	 * Run a system command with a ProcessBuilder, and get a 
 	 * Process handle in return.
 	 * 
@@ -55,7 +55,7 @@ public abstract class Executor {
 		return runProcBuilderGetProc(commandArray, null);
 	}
 	
-	/*
+	/**
 	 * Run a local system command.
 	 * 
 	 * @param command The system command to run.
@@ -102,7 +102,7 @@ public abstract class Executor {
 		return new String[] { Integer.toString(rc), output, error};
 	}
 	
-	/*
+	/**
 	 * Run a system command with a ProcessBuilder, and get a 
 	 * Process handle in return.  Additionally, specify environment
 	 * variables to be processed along with the system command.
@@ -137,7 +137,7 @@ public abstract class Executor {
 		return proc;
 	}
 	
-	/*
+	/**
 	 * Run a local system command.
 	 * 
 	 * @param command The system command to run.
@@ -148,7 +148,7 @@ public abstract class Executor {
 				System.getProperty("user.name"));
 	}
 	
-	/*
+	/**
 	 * Run a local system command.
 	 * 
 	 * @param command The system command to run.

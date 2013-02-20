@@ -16,13 +16,13 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/*
+/**
  * A class which should represent the base capability of any job
  * submitted to a cluster.
  */
 public abstract class Job extends Thread {
 
-	/*
+	/**
 	 * The ID of the job.
 	 * 
 	 * @return String The job ID.
@@ -34,12 +34,12 @@ public abstract class Job extends Thread {
 	protected Process process = null;
 	protected boolean jobInitSetID = true;
 	
-	/*
+	/**
 	 * Submit the job to the cluster.
 	 */
 	protected abstract void submit();
 	
-	/*
+	/**
 	 * Submit the job to the cluster, but don't wait to assign an ID to this Job.
 	 * Should only be intended for cases where you want to saturate a cluster
 	 * with Jobs, and don't care about the status or result of the Job.
@@ -48,7 +48,7 @@ public abstract class Job extends Thread {
 	 */
 	protected abstract void submitNoID();
 	
-	/*
+	/**
 	 * Returns the state of the job in the JobState format.
 	 * 
 	 * @return JobState The state of the job.
@@ -65,7 +65,7 @@ public abstract class Job extends Thread {
 		return this.ID;
 	}
 	
-	/*
+	/**
 	 * Implements Thread.run().
 	 * 
 	 * (non-Javadoc)
@@ -80,7 +80,7 @@ public abstract class Job extends Thread {
 		}
 	}
 	
-	/*
+	/**
 	 * Sets a user for the job other than the default.
 	 * 
 	 * @param user The user to override the default user with.
@@ -89,7 +89,7 @@ public abstract class Job extends Thread {
 		this.USER = user;
 	}
 	
-	/*
+	/**
 	 * Sets a queue for the job other than the default.
 	 * 
 	 * @param queue The queue to override the default queue with.
@@ -102,7 +102,7 @@ public abstract class Job extends Thread {
 		this.jobInitSetID = setID;
 	}
 	
-	/*
+	/**
 	 * Fails a job, assuming that a maximum of 1 map task attempts needs to
 	 * be failed to fail the job.
 	 * 
@@ -115,7 +115,7 @@ public abstract class Job extends Thread {
 		return fail(1);
 	}
 	
-	/*
+	/**
 	 * Fails the job.
 	 * 
 	 * @param max_attempts The maximum number of map task attempts to fail before 
@@ -187,7 +187,7 @@ public abstract class Job extends Thread {
 		return false; // job didn't fail
 	}
 	
-	/*
+	/**
 	 * Kills the job.
 	 * 
 	 * @return boolean Whether the job was successfully killed.
@@ -235,7 +235,7 @@ public abstract class Job extends Thread {
 		return false;
 	}
 	
-	/*
+	/**
 	 * Verifies that the job ID matches the expected format.
 	 * 
 	 * @return boolean Whether the job ID matches the expected format.
@@ -262,7 +262,7 @@ public abstract class Job extends Thread {
 		}
 	}
 	
-	/*
+	/**
 	 * Get the map task attempt ID associated with the specified job ID.
 	 * 
 	 * @return String The ID of the task attempt.
@@ -285,7 +285,7 @@ public abstract class Job extends Thread {
 		return taskID;
 	}
 	
-	/*
+	/**
 	 * Get the reduce task attempt ID associated with the specified job ID.
 	 * 
 	 * @param jobID The ID of the job to associate with the task attempt.
@@ -324,7 +324,7 @@ public abstract class Job extends Thread {
 		return false;
 	}
 	
-	/*
+	/**
 	 * Waits indefinitely for the job to succeed, and returns true for success.
 	 * 
 	 * @return boolean whether the job succeeded
@@ -333,7 +333,7 @@ public abstract class Job extends Thread {
 		return this.waitForSuccess(0);
 	}
 	
-	/*
+	/**
 	 * Waits for the specified number of minutes for the job to 
 	 * succeed, and returns true for success.
 	 * 
@@ -432,7 +432,7 @@ public abstract class Job extends Thread {
 		return false;
 	}
 	
-	/*
+	/**
 	 * Waits for the specified number of minutes for the job to 
 	 * meet a specified state, and returns true for successfully reaching the state.
 	 * 
@@ -545,7 +545,7 @@ public abstract class Job extends Thread {
 		return false;
 	}
 	
-	/*
+	/**
 	 * Finds whether the job summary info in the summary info log file exists.
 	 * 
 	 * @param status The status of the job
@@ -610,7 +610,7 @@ public abstract class Job extends Thread {
 	}
 	
 
-	/*
+	/**
 	 * Kills the task attempt associated with the specified task ID.
 	 * 
 	 * @param taskID The ID of the task attempt to kill.
@@ -659,7 +659,7 @@ public abstract class Job extends Thread {
 		return false;
 	}
 	
-	/*
+	/**
 	 * Fails the task attempt associated with the specified task ID.
 	 * 
 	 * @param jobID The ID of the job matching the task attempt.

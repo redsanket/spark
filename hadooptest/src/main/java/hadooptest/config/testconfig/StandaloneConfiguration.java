@@ -13,14 +13,14 @@ import java.io.IOException;
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
-/*
+/**
  * A class that represents a Hadoop Configuration for a standalone
  * Hadoop cluster under test.
  */
 public class StandaloneConfiguration extends TestConfiguration {
 	private String CONFIG_BASE_DIR;
 
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Calls the superclass constructor, and initializes the default
@@ -33,7 +33,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 		initDefaults();
 	}
 
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Loads the Hadoop default configuration if true is passed as a parameter, before the 
@@ -51,7 +51,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 		initDefaults();
 	}
 
-	/*
+	/**
 	 * Writes the standalone cluster configuration specified by the object out
 	 * to disk.
 	 */
@@ -112,7 +112,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 		}
 	}
 
-	/*
+	/**
 	 * Removes the configuration files from disk, that were written to disk
 	 * by the .write() of the object.
 	 */

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Vector;
 
-/*
+/**
  * A class which allows the framework to connect to a debuggable instance of
  * a Hadoop cluster.
  */
@@ -31,7 +31,7 @@ public class VMAttach {
 	
 	public Vector<VirtualMachine> listenerVMs;
 	
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Sets the debug port to attach to.
@@ -44,7 +44,7 @@ public class VMAttach {
 		listenerVMs = new Vector<VirtualMachine>(1);
 	}
 	
-	/*
+	/**
 	 * Connects to a JVM debug port and returns a VM.
 	 * 
 	 * @return VirtualMachine the VM hosting the debug port.
@@ -61,7 +61,7 @@ public class VMAttach {
 		}
 	}
 	
-	/*
+	/**
 	 * Listens to a host JVM debug port for a client to attach, and returns a VM.
 	 * 
 	 * @return VirtualMachine the VM hosting the debug port.
@@ -105,7 +105,7 @@ public class VMAttach {
 		//return vmList;
 	}
 
-	/*
+	/**
 	 * Gets the attaching connector for the debug session, which is
 	 * the JDI SocketAttach.
 	 * 
@@ -126,7 +126,7 @@ public class VMAttach {
 	}
 
 
-	/*
+	/**
 	 * Gets the listening connector for the debug session, which is
 	 * the JDI SocketListen.
 	 * 
@@ -146,7 +146,7 @@ public class VMAttach {
 		throw new IllegalStateException();
 	}
 	
-	/*
+	/**
 	 * Connects the debug session with the given attachingconnector and debug port.
 	 * 
 	 * @param connector the AttachingConnector for the debug session.

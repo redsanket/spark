@@ -6,12 +6,12 @@ package hadooptest.cluster.pseudodistributed;
 
 import hadooptest.cluster.Executor;
 
-/*
+/**
  * A class which represents a fully distributed hadoop command
  */
 public class PseudoDistributedExecutor extends Executor {
 
-	/*
+	/**
 	 * Run a local system command.
 	 * 
 	 * @param command The system command to run.
@@ -23,7 +23,7 @@ public class PseudoDistributedExecutor extends Executor {
 		return runProcBuilder(commandArray);			
 	}
 
-	/*
+	/**
 	 * Run a system command with a ProcessBuilder, and get a 
 	 * Process handle in return.  Additionally, specify a username to run the
 	 * command as, so the Kerberos security settings configuration can occur.

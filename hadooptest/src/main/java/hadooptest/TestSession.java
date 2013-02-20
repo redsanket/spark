@@ -2,7 +2,6 @@ package hadooptest;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import java.lang.reflect.Constructor;
 import java.util.Enumeration;
@@ -22,19 +21,19 @@ import hadooptest.cluster.standalone.StandaloneExecutor;
 
 public abstract class TestSession {
 
-	/* The Logger for the test session */
+	/** The Logger for the test session */
 	public static Logger logger;
 
-	/* The Cluster to use for the test session */
+	/** The Cluster to use for the test session */
 	public static Cluster cluster;
 	
-	/* The test session configuration properties */
+	/** The test session configuration properties */
 	public static ConfigProperties conf;
 	
-	/* The process executor for the test session */
+	/** The process executor for the test session */
 	public static Executor exec;
 	
-	/*
+	/**
 	 * Class constructor.  In the JUnit architecture,
 	 * this constructor will be called before every test
 	 * (per JUnit).  Therefore, it is better to leave the
@@ -52,7 +51,7 @@ public abstract class TestSession {
 	public TestSession() {
 	}
 	
-	/*
+	/**
 	 * Initializes the test session.
 	 */
 	public static void start() {
@@ -70,7 +69,7 @@ public abstract class TestSession {
 		logger.trace("CLASSPATH="+classpath);
 	}
 	
-	/*
+	/**
 	 * Get the cluster for the test session.
 	 * 
 	 * @return Cluster the cluster for the test session.
@@ -79,7 +78,7 @@ public abstract class TestSession {
 		return cluster;
 	}
 	
-	/*
+	/**
 	 * Initialize the framework configuration.
 	 */
 	private static void initConfiguration() {
@@ -122,8 +121,8 @@ public abstract class TestSession {
 		}
 	}
 	
-	/*
-	 * Initialize the framework /.
+	/**
+	 * Initialize the framework.
 	 */
 	private static void initLogging() {
 		logger = Logger.getLogger(TestSession.class);
@@ -163,7 +162,7 @@ public abstract class TestSession {
 		logger.trace("Set log level to " + logLevel);
 	}
 	
-	/*
+	/**
 	 * Initialize the cluster for the framework.
 	 */
 	private static void initCluster() {

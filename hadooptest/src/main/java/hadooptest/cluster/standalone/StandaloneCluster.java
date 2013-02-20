@@ -20,7 +20,7 @@ public class StandaloneCluster implements Cluster {
 
     protected Hashtable<String, String> paths = new Hashtable<String, String>();
 	
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
@@ -29,7 +29,7 @@ public class StandaloneCluster implements Cluster {
 		this.conf = new StandaloneConfiguration();
 	}
 
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Accepts a custom configuration, and assumed you will write it to disk.
@@ -69,7 +69,7 @@ public class StandaloneCluster implements Cluster {
 
 	}
 
-	/*
+	/**
 	 * Set a custom configuration for the pseudodistributed cluster instance.
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
@@ -78,7 +78,7 @@ public class StandaloneCluster implements Cluster {
 		this.conf = (StandaloneConfiguration)conf;
 	}
 
-	/*
+	/**
 	 * Gets the configuration for this pseudodistributed cluster instance.
 	 * 
 	 * @return PseudoDistributedConfiguration the configuration for the cluster instance.

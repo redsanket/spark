@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/* 
+/**
  * A class that is the base representation of any pseudodistributed cluster.
  */
 public class PseudoDistributedCluster implements Cluster {
@@ -31,7 +31,7 @@ public class PseudoDistributedCluster implements Cluster {
 	// The state of the pseudodistributed cluster.
 	protected ClusterState cluster_state;
 	
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
@@ -43,7 +43,7 @@ public class PseudoDistributedCluster implements Cluster {
 		this.conf.write();
 	}
 
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Accepts a custom configuration, and assumed you will write it to disk.
@@ -53,7 +53,7 @@ public class PseudoDistributedCluster implements Cluster {
 		this.conf = conf;
 	}
 	
-	/*
+	/**
 	 * Starts the pseudodistributed cluster instance by starting:
 	 *   - NameNode
 	 *   - SecondaryNameNode
@@ -98,7 +98,7 @@ public class PseudoDistributedCluster implements Cluster {
 		Util.sleep(30);
 	}
 
-	/* 
+	/**
 	 * Stops all daemons associated with the pseudodistributed cluster instance, and
 	 * verifies they have stopped with jps.
 	 * 
@@ -126,7 +126,7 @@ public class PseudoDistributedCluster implements Cluster {
 		assertFalse("The JobHistoryServer was not stopped.", verifyJpsProcRunning("JobHistoryServer"));
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#die()
 	 */
@@ -134,7 +134,7 @@ public class PseudoDistributedCluster implements Cluster {
 
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#reset()
 	 */
@@ -142,7 +142,7 @@ public class PseudoDistributedCluster implements Cluster {
 
 	}
 
-	/*
+	/**
 	 * Set a custom configuration for the pseudodistributed cluster instance.
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
@@ -151,7 +151,7 @@ public class PseudoDistributedCluster implements Cluster {
 		this.conf = (PseudoDistributedConfiguration)conf;
 	}
 
-	/*
+	/**
 	 * Gets the configuration for this pseudodistributed cluster instance.
 	 * 
 	 * @return PseudoDistributedConfiguration the configuration for the cluster instance.
@@ -160,7 +160,7 @@ public class PseudoDistributedCluster implements Cluster {
 		return this.conf;
 	}
 
-	/*
+	/**
 	 * Returns the state of the pseudodistributed cluster instance.
 	 * 
 	 * @return ClusterState the state of the cluster.
@@ -172,7 +172,7 @@ public class PseudoDistributedCluster implements Cluster {
 		return this.cluster_state;
 	}
 	
-	/*
+	/**
 	 * Run a local system command.
 	 * 
 	 * @param command The system command to run.
@@ -200,7 +200,7 @@ public class PseudoDistributedCluster implements Cluster {
 		}
 	}
 
-	/*
+	/**
 	 * Verifies, with jps, that a given process name is running.
 	 * 
 	 * @param process The String representing the name of the process to verify.

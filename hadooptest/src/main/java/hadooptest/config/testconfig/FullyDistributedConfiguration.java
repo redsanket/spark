@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/*
+/**
  * A class that represents a Hadoop Configuration for a distributed
  * Hadoop cluster under test.
  */
@@ -46,7 +46,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	// Contains the nodes on the cluster
 	Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
     
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Calls the superclass constructor, and initializes the default
@@ -60,7 +60,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		this.initClusterNodes();
 	}
 
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Loads the Hadoop default configuration if true is passed as a parameter, before the 
@@ -106,7 +106,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				"/share/hadoop");
 	}
 	
-    /*
+    /**
      * Returns the Hadoop configuration files properties hashtable for the
      * gateway.
      * 
@@ -117,7 +117,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return this.getHadoopConfFileProps("gateway");
     }
 	
-    /*
+    /**
      * Returns the Hadoop configuration files properties hashtable for the
      * given component.
      * 
@@ -139,7 +139,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		// return this.hadoopComponentConfFileProps.get(component);
     }
 	
-	/*
+	/**
      * Returns the Hadoop configuration files property for a given property
      * name and configuration filename on the gateway component. 
      * 
@@ -153,7 +153,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return getHadoopConfFileProp(propName, confFilename, "gateway");
 	}
 	
-	/*
+	/**
      * Returns the Hadoop configuration files property for a given property
      * name, configuration filename, and component. 
      * 
@@ -178,7 +178,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return propValue;
 	}
 	
-	/*
+	/**
      * Returns if the Hadoop configuration files property has a given property
      * defined for a given configuration filename and component. 
      * 
@@ -196,7 +196,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return prop.containsKey(propName);
 	}
 	
-    /*
+    /**
      * Returns the Hadoop cluster hostnames hashtable.
      * 
      * @return Hashtable of String Arrays hostnames for each of the cluster
@@ -206,7 +206,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
     	return this.clusterNodes;
     }
 	
-    /*
+    /**
      * Returns the cluster nodes hostnames for the given component.
      * 
      * @param component The hadoop component such as gateway, namenode,
@@ -218,7 +218,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
     	return this.clusterNodes.get(component);
     }
 	
-	/*
+	/**
 	 * Writes the distributed cluster configuration specified by the object out
 	 * to disk.
 	 */
@@ -282,7 +282,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		*/
 	}
 
-	/*
+	/**
 	 * Removes the configuration files from disk, that were written to disk
 	 * by the .write() of the object.
 	 */
@@ -305,14 +305,14 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		*/
 	}
 	
-    /*
+    /**
      * Initialize the Hadoop configuration files for each components. 
      */
 	public void initComponentsConfFiles() {
 		initComponentsConfFiles(null, null);
 	}
 	
-    /*
+    /**
      * Initialize the Hadoop configuration files for each components for the
      * given configuration directory. 
      */
@@ -320,7 +320,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		initComponentsConfFiles(confDir, null);
 	}
 
-    /*
+    /**
      * Initialize the Hadoop configuration files for each components for the
      * given configuration directory. 
      */
@@ -336,7 +336,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}	
 	}
 
-	/*
+	/**
      * Copy the remote configuration directory to local so that it can be
      * processed later. 
      * 
@@ -358,7 +358,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	}
 
 
-	/*
+	/**
      * Initialize the Hadoop configuation files for the given configuration
      * directory and the given component. 
      * 
@@ -404,7 +404,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 	}		
 
-    /*
+    /**
      * Initialize the Hadoop configuration files. 
      * 
      * @return Hashtable of Properties for each of the configuration files.
@@ -413,7 +413,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		initConfFiles(null);
 	}
 	
-    /*
+    /**
      * Initialize the Hadoop configuration files. 
      * 
      * @param confDir the configuration directory path.
@@ -463,7 +463,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return hadoopConfFileProps;
 	}
 
-    /*
+    /**
      * Parse the Hadoop XML configuration file for a given filename.
      * 
      * @param filename Hadoop configuration file name such as core-site.xml,
@@ -518,7 +518,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return props;
 	}
 
-    /*
+    /**
      * Get the xml node value given a tag and an element. 
      * 
      * @param tag Tag name in the xml element
@@ -532,7 +532,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return node.getNodeValue();
 	}
 	
-    /*
+    /**
      * Set the xml node value given a tag and an element. 
      * 
      * @param tag Tag name in the xml element
@@ -547,7 +547,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		node.setNodeValue(value);
 	}
 
-    /*
+    /**
      * Insert into the xml node name and value pair given a tag and an element. 
      * 
      * @param tag Tag name in the xml element
@@ -590,7 +590,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	}
 
 	
-	/*
+	/**
      * Set the Hadoop configuration file property for a given property name,
      * property value, component, and file name. 
      * 
@@ -608,7 +608,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	    		null);
 	}
 	
-    /*
+    /**
      * Set the Hadoop configuration file property for a given property name,
      * property value, component, file name, and configuration directory path.
      * 
@@ -655,7 +655,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 	}
 	
-    /*
+    /**
      * Insert or replace the property tag in the xml configuration file. 
      */
 	public void updateXmlConfFile (String filename, String targetPropName,
@@ -727,7 +727,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	}
 	
-    /*
+    /**
      * Initialize the cluster nodes hostnames for the namenode,
      * resource manager, datanode, and nodemanager. 
      */
@@ -765,7 +765,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		} 	
 	}
 	
-    /*
+    /**
      * Copy files from a given Hadoop configuration directory to a Hadoop
      * cluster component. This assumes that the cluster under test is already
      * using a custom backup directory that is editable, by previously calling
@@ -787,7 +787,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 	}
 
-    /*
+    /**
      * Copy files from a given Hadoop configuration directory to a Hadoop
      * cluster component. This assumes that the cluster under test is already
      * using a custom backup directory that is editable, by previously calling
@@ -836,7 +836,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return Integer.parseInt(output[0]);
 	}
 
-    /*
+    /**
      * Backup the Hadoop configuration directory for a given component.
      * This will setup a new temporary Hadoop configuration directory where
      * settings can be changed for testing. This is necessary because the
@@ -856,7 +856,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 	}
 	
-    /*
+    /**
      * Backup the Hadoop configuration directory for a given component.
      * This will setup a new temporary Hadoop configuration directory where
      * settings can be changed for testing. This is necessary because the
@@ -934,7 +934,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return Integer.parseInt(output[0]);
 	}
 
-    /*
+    /**
      * Parse the host names from a host name list on the namenode.
      * 
      * @param namenode the namenode hostname. 
@@ -950,7 +950,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return nodes;
 	}
 	
-    /*
+    /**
      * Print logging for the given Properties object.
      * 
      * @param Properties a given Properties

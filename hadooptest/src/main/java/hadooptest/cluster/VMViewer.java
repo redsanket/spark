@@ -45,7 +45,7 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.ModificationWatchpointRequest;
 
-/*
+/**
  * A class which allows for programmatic debugging of a debuggable instance
  * of a Hadoop cluster.  Currently can set a watch variable and method
  * breakpoints.
@@ -70,7 +70,7 @@ public class VMViewer {
 	
 	public Vector<VirtualMachine> listenerVMs;
 	
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Attaches to the default debug attach port of the suspended Hadoop VM.
@@ -79,7 +79,7 @@ public class VMViewer {
 		this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
 	}
 	
-	/*
+	/**
 	 * Class constructor
 	 * 
 	 * Attaches to a specified debug port of the suspended Hadoop VM.
@@ -128,7 +128,7 @@ public class VMViewer {
 		watcher.start();
 	}
 	
-	/*
+	/**
 	 * Sets a watch point on a variable name in a given class name, 
 	 * and dumps out the stack contents of the variable to stdout each
 	 * time it encounters the watch point.
@@ -171,7 +171,7 @@ public class VMViewer {
 		}
 	}
 	
-	/*
+	/**
 	 * Sets a breakpoint on a method name in a given class name, 
 	 * and dumps out the stack contents each time it encounters the breakpoint.
 	 * 
@@ -254,7 +254,7 @@ public class VMViewer {
 		}
 	}
 	
-	/*
+	/**
 	 * A recursive method that takes a stack value and prints some information
 	 * about it to stdout.
 	 * 
@@ -330,7 +330,7 @@ public class VMViewer {
 		}
 	}
 	
-	/*
+	/**
 	 * Adds a class viewer to the debug session.
 	 * 
 	 * @param the name of the class to view.
@@ -342,7 +342,7 @@ public class VMViewer {
 		classPrepareRequest.setEnabled(true);
 	}
 	
-	/*
+	/**
 	 * Adds a variable field viewer to the debug session
 	 * 
 	 * @param refType the reference type of the watch variable
@@ -355,7 +355,7 @@ public class VMViewer {
 		modificationWatchpointRequest.setEnabled(true);
 	}
 	
-	/*
+	/**
 	 * Adds a method breakpoint to the debug session
 	 * 
 	 * @param className the name of the class in which to set the breakpoint
@@ -372,7 +372,7 @@ public class VMViewer {
 		breakpointRequest.setEnabled(true);
 	}
 	
-	/*
+	/**
 	 * Adds a method breakpoint at a given line in the method for the debug session
 	 * 
 	 * @param className the name of the class in which to set the breakpoint
@@ -568,7 +568,7 @@ public class VMViewer {
 			classPrepareRequest.setEnabled(true);
 		}
 		
-		/*
+		/**
 		 * A recursive method that takes a stack value and prints some information
 		 * about it to stdout.
 		 * 

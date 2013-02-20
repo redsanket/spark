@@ -11,12 +11,12 @@ import java.util.Map;
 import hadooptest.TestSession;
 import hadooptest.cluster.Executor;
 
-/*
+/**
  * A class which represents a fully distributed hadoop command
  */
 public class FullyDistributedExecutor extends Executor {
 
-	/*
+	/**
 	 * Run a local system command.
 	 * 
 	 * @param command The system command to run.
@@ -32,7 +32,7 @@ public class FullyDistributedExecutor extends Executor {
 		}
 	}
 
-	/*
+	/**
 	 * Run a system command with a ProcessBuilder, and get a 
 	 * Process handle in return.  Additionally, specify a username to run the
 	 * command as, so the Kerberos security settings configuration can occur.

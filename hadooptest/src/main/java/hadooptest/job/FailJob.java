@@ -20,7 +20,7 @@ public class FailJob extends Job {
 		failReducers = state;
 	}
 	
-	/*
+	/**
 	 * Submit a fail job to the cluster, while being able to specify whether the mappers or reducers should fail.
 	 */
 	protected void submit() {
@@ -55,7 +55,7 @@ public class FailJob extends Job {
 		}
 	}
 
-	/*
+	/**
 	 * Submit a fail job to the cluster, while being able to specify whether the mappers or reducers should fail.
 	 */
 	protected void submitNoID() {
