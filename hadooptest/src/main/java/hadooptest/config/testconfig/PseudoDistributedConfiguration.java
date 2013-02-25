@@ -26,8 +26,6 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 {
 
 	/**
-	 * Class constructor.
-	 * 
 	 * Calls the superclass constructor, and initializes the default
 	 * configuration parameters for a pseudodistributed cluster under test.  Hadoop
 	 * default configuration is not used.
@@ -54,6 +52,9 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		this.initDefaults();
 	}
 
+	/**
+	 * Initializes cluster-specific properties defaults.
+	 */
 	protected void initDefaultsClusterSpecific() {
 		String defaultTmpDir = "/Users/" + System.getProperty("user.name") + "/hadooptest/tmp";
 		hadoopProps.setProperty("TMP_DIR", 

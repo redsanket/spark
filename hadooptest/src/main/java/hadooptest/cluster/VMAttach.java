@@ -23,6 +23,8 @@ import java.util.Vector;
 /**
  * A class which allows the framework to connect to a debuggable instance of
  * a Hadoop cluster.
+ * 
+ * This is currently an experimental class.
  */
 public class VMAttach {
 	
@@ -169,16 +171,28 @@ public class VMAttach {
 		return connector.attach(arguments);
 	}
 
+	/**
+	 * A listener thread for picking up new VMs that try to attach to the debugger.
+	 */
 	private class VMListenerThread extends Thread {
 
+		/** The Map of listeners attached to the debugger */
 		private Map<String, Argument> listenerMap;
+		
+		/** The connector for a new listener thread */
 		ListeningConnector VMConnector;
 		
+		/** 
+		 * Initializes the listener Map and attaching connector.
+		 */
 		public VMListenerThread(Map<String, Argument> map, ListeningConnector connector) {
 			listenerMap = map;
 			VMConnector = connector;
 		}
 		
+		/**
+		 * The thread runner.  Accepts new VMs and attaches them to the debugger.
+		 */
 		@Override
 		public void run() {
 			synchronized(this) {

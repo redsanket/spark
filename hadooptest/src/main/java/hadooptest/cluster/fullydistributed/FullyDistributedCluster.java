@@ -18,25 +18,26 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * A Cluster subclass that implements a Fully Distributed Hadoop cluster.
+ */
 public class FullyDistributedCluster implements Cluster {
 
-	// The base fully distributed configuration.
+	/** The base fully distributed configuration. */
 	protected FullyDistributedConfiguration conf;
 
-	// The state of the fully distributed cluster.
+	/** The state of the fully distributed cluster */
 	protected ClusterState clusterState;
 
-    // The Hadoop version on the fully distributed cluster.
+    /** The Hadoop version on the fully distributed cluster. */
     protected String clusterVersion = "";
 	
-	private String HADOOP_INSTALL;
-	private String CONFIG_BASE_DIR;
+    /** The name of the cluster */
 	private String CLUSTER_NAME;
 	
-	/*
-	 * Class constructor.
-	 * 
-	 * Creates a brand new default FullyDistributedConfiguration, and writes out the configuration to disk.
+	/**
+	 * Initializes the fully distributed cluster and sets up a new fully
+	 * distributed configuration.
 	 */
 	public FullyDistributedCluster() throws IOException
 	{
@@ -50,9 +51,10 @@ public class FullyDistributedCluster implements Cluster {
 	}
 
 	/**
-	 * Class constructor.
+	 * Initializes the fully distributed cluster and sets up the fully
+	 * distributed configuration using a passed-in FullyDistributedConfiguration.
 	 * 
-	 * Accepts a custom configuration, and assumed you will write it to disk.
+	 * @param conf a configuration to initialize the cluster with.
 	 */
 	public FullyDistributedCluster(FullyDistributedConfiguration conf)
 	{
@@ -61,17 +63,7 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 	/**
-	 * Starts the fully distributed cluster instance by starting:
-	 *   - NameNode
-	 *   - SecondaryNameNode
-	 *   - DataNode
-	 *   - ResourceManager
-	 *   - JobHistoryServer
-	 *   
-	 * Also verifies that the daemons have started by using jps.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#start()
+	 * Currently unimplemented for FullyDistributedCluster.
 	 */
 	public void start() {
 /*
@@ -107,11 +99,7 @@ public class FullyDistributedCluster implements Cluster {
 	}
 
 	/**
-	 * Stops all daemons associated with the fully distributed cluster instance, and
-	 * verifies they have stopped with jps.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#stop()
+	 * Currently unimplemented for FullyDistributedCluster.
 	 */
 	public void stop() {
 /*
@@ -137,27 +125,23 @@ public class FullyDistributedCluster implements Cluster {
 	}
 
 	/**
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#die()
+	 * Currently unimplemented for FullyDistributedCluster.
 	 */
 	public void die() {
 
 	}
 
 	/**
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#reset()
+	 * Restarts the fully distributed cluster.
 	 */
-	public void reset() {
-		
+	public void reset() {	
 		restartCluster();
-
 	}
 
 	/**
 	 * Set a custom configuration for the fully distributed cluster instance.
 	 * 
-	 * @param conf The custom FullyDistributedConfiguration
+	 * @param conf The custom configuration to set.
 	 */
 	public void setConf(TestConfiguration conf) {
 		this.conf = (FullyDistributedConfiguration)conf;
@@ -184,6 +168,11 @@ public class FullyDistributedCluster implements Cluster {
 		return this.clusterState;
 	}
 	
+	/**
+	 * Gets the name of the cluster instance.
+	 * 
+	 * @return String the name of the cluster
+	 */
 	public String getClusterName() {
 		return CLUSTER_NAME;
 	}
@@ -205,8 +194,6 @@ public class FullyDistributedCluster implements Cluster {
 	 * fully distributed cluster instance.
 	 */
 	private void initTestSessionConf() {
-		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 		CLUSTER_NAME = TestSession.conf.getProperty("CLUSTER_NAME", "");
 	}
 
@@ -752,6 +739,8 @@ public class FullyDistributedCluster implements Cluster {
 	 * Verifies, with jps, that a given process name is running.
 	 * 
 	 * @param process The String representing the name of the process to verify.
+	 * 
+	 * @return boolean whether the java process is running or not.
 	 */
 	private static boolean verifyJpsProcRunning(String process) {
 

@@ -7,7 +7,11 @@ package hadooptest.cluster.standalone;
 import hadooptest.cluster.Executor;
 
 /**
- * A class which represents a fully distributed hadoop command
+ * A class which represents an Executor for a standalone cluster.
+ * 
+ * Handles all system calls for standalone clusters.
+ * 
+ * This class is not finished and should not be used.
  */
 public class StandaloneExecutor extends Executor {
 

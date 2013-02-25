@@ -17,6 +17,11 @@ import org.apache.hadoop.hdfs.MiniDFSCluster;
 import java.io.IOException;
 import java.util.Hashtable;
 
+/**
+ * MiniCluster instance to represent a base HDFS mini cluster.
+ * 
+ * This is an unfinished class and should not yet be used.
+ */
 public class HDFSMiniCluster extends MiniCluster {
 
    private MiniDFSCluster cluster;

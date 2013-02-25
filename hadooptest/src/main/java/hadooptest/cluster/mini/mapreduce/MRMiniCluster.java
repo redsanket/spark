@@ -19,6 +19,11 @@ import org.apache.hadoop.mapred.MiniMRClientCluster;
 import java.io.IOException;
 import java.util.Hashtable;
 
+/**
+ * MiniCluster instance to represent a base MapReduce mini cluster.
+ * 
+ * This is an unfinished class and should not yet be used.
+ */
 public class MRMiniCluster extends MiniCluster {
 	
    private MiniMRClientCluster cluster;

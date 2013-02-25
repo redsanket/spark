@@ -7,39 +7,87 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * An instance of Job that represents a sleep job.
+ */
 public class SleepJob extends Job {
 
+	/** The number of mappers to use for the job */
 	private int numMappers = 1;
+	
+	/** The number of reducers to use for the job */
 	private int numReducers = 1;
+	
+	/** The duration of the sleep job map phase */
 	private int mapDuration = 500;
+	
+	/** The duration of the sleep job reduce phase */
 	private int reduceDuration = 500;
+	
+	/** The memory to use for the map phase */
 	private int mapMemory = -1;
+	
+	/** The memory to use for the reduce phase */
 	private int reduceMemory = -1;
 	
+	/**
+	 * Set the number of mappers to use for the sleep job.
+	 * 
+	 * @param mappers the number of mappers to use for the sleep job.
+	 */
 	public void setNumMappers(int mappers) {
 		this.numMappers = mappers;
 	}
 	
+	/**
+	 * Set the number of reducers to use for the sleep job.
+	 * 
+	 * @param reducers the number of reducers to use for the sleep job.
+	 */
 	public void setNumReducers(int reducers) {
 		this.numReducers = reducers;
 	}
 	
+	/**
+	 * Set the duration of the map phase.
+	 * 
+	 * @param mapTime the duration of the map phase.
+	 */
 	public void setMapDuration(int mapTime) {
 		this.mapDuration = mapTime;
 	}
-	
+
+	/**
+	 * Set the duration of the reduce phase.
+	 * 
+	 * @param reduceTime the duration of the reduce phase.
+	 */
 	public void setReduceDuration(int reduceTime) {
 		this.reduceDuration = reduceTime;
 	}
 	
+	/**
+	 * Set the memory to be used by the mappers.
+	 * 
+	 * @param memory the memory to be used by the mappers.
+	 */
 	public void setMapMemory(int memory) {
 		mapMemory = memory;
 	}
 	
+	/**
+	 * Set the memory to be used by the reducers.
+	 * 
+	 * @param memory the memory to be used by the reducers.
+	 */
 	public void setReduceMemory(int memory) {
 		reduceMemory = memory;
 	}
 
+	/**
+	 * Submit the job.  This should be done only by the Job.start() as Job should
+	 * remain threaded.
+	 */
 	protected void submit() {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
@@ -72,6 +120,10 @@ public class SleepJob extends Job {
 		}
 	} 
 
+	/**
+	 * Submit the job and don't wait for the ID.  This should be done only by the Job.start() as Job should
+	 * remain threaded.
+	 */
 	protected void submitNoID() {
 		try {
 			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
@@ -84,6 +136,11 @@ public class SleepJob extends Job {
 		}
 	} 
 
+	/**
+	 * Assemble the system command to launch the sleep job.
+	 * 
+	 * @return String[] the string array representation of the system command to launch the job.
+	 */
 	private String[] assembleCommand() {		
 		String strMapMemory = "";
 		if (this.mapMemory != -1) {

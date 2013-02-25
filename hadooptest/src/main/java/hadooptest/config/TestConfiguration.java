@@ -6,13 +6,7 @@ package hadooptest.config;
 
 import hadooptest.TestSession;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
-import java.util.TimeZone;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.VersionInfo;
@@ -23,32 +17,52 @@ import org.apache.hadoop.util.VersionInfo;
  */
 public abstract class TestConfiguration extends Configuration {
 
+	/** Filename of the core hadoop configuration xml file. */
 	public static final String HADOOP_CONF_CORE = "core-site.xml";
+	
+	/** Filename of the hdfs configuration xml file. */
 	public static final String HADOOP_CONF_HDFS = "hdfs-site.xml";
+	
+	/** Filename of the mapreduce configuration xml file. */
 	public static final String HADOOP_CONF_MAPRED = "mapred-site.xml";
+
+	/** Filename of the yarn configuration xml file. */
 	public static final String HADOOP_CONF_YARN = "yarn-site.xml";
+
+	/** Filename of the capacity scheduler configuration xml file. */
 	public static final String HADOOP_CONF_CAPACITY_SCHEDULER = "capacity-scheduler.xml";
+
+	/** Filename of the fair scheduler configuration xml file. */
 	public static final String HADOOP_CONF_FAIR_SCHEDULER = "fair-scheduler.xml";
 
+	/** String representing the name node. */
 	public static final String NAMENODE = "namenode";
+
+	/** String representing the resource manager. */
 	public static final String RESOURCE_MANAGER = "resourcemanager";
+
+	/** String representing the data node. */
 	public static final String DATANODE = "datanode";
+
+	/** String representing the node manager. */
 	public static final String NODEMANAGER = "nodemanager";
+
+	/** String representing the gateway. */
 	public static final String GATEWAY = "gateway";
 
-	// General Hadoop configuration properties such as cluster name, 
-	// directory paths, etc.	
+	/** General Hadoop configuration properties such as cluster name, 
+	 * directory paths, etc.
+	 */
     protected Properties hadoopProps = new Properties();
 
-    // Track Hadoop override configuration directories
+    /** Track Hadoop override configuration directories */
     protected Properties hadoopConfDirPaths = new Properties();
 
 	/** 
-	 * Class Constructor.
-	 * 
 	 * A generic constructor TestConfiguration that calls the Hadoop Configuration
 	 * with the false argument, so that you are not loading any default Hadoop
-	 * configuration properties.
+	 * configuration properties.  It then proceeds to initialize the default
+	 * configuration for the reflected cluster type.
 	 */
 	public TestConfiguration() {   
 		super(false);		
@@ -57,10 +71,13 @@ public abstract class TestConfiguration extends Configuration {
 	}
 
 	/**
-	 * Class Constructor.
-	 * 
 	 * A constructor that allows you to specify whether or not you would like
 	 * the Hadoop Configuration to load default Hadoop config properties.
+	 * It then proceeds to initialize the default configuration for the 
+	 * reflected cluster type.
+	 * 
+	 * @param loadDefaults whether or not to load the cluster configuration defaults
+	 * 						using the Configuration superclass constructor.
 	 */
 	public TestConfiguration(boolean loadDefaults) {
 		super(loadDefaults);
@@ -69,9 +86,9 @@ public abstract class TestConfiguration extends Configuration {
 	}
 
 	/**
-	 * Class constructor.
-	 * 
 	 * A constructor that allows you to specify a custom configuration.
+	 * 
+	 * @param other a custom Configuration.
 	 */
 	public TestConfiguration(Configuration other) {
 		super(other);

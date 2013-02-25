@@ -22,16 +22,22 @@ import java.util.regex.Pattern;
  */
 public abstract class Job extends Thread {
 
-	/**
-	 * The ID of the job.
-	 * 
-	 * @return String The job ID.
-	 */
+	/** The ID of the job. */
 	protected String ID = "0";
+	
+	/** The user the job will run under */
 	protected String USER = TestSession.conf.getProperty("USER", System.getProperty("user.name")); // The user for the job.
-	protected String QUEUE = ""; // The queue for the job.
+	
+	/** The queue the job will run under */
+	protected String QUEUE = "";
+	
+	/** The state of the job */
 	protected JobState state;
+	
+	/** The process handle for the job when it is run from a system call */
 	protected Process process = null;
+	
+	/** Whether the job should take time to wait for the job ID in the output before progressing */
 	protected boolean jobInitSetID = true;
 	
 	/**
@@ -57,10 +63,20 @@ public abstract class Job extends Thread {
 		return this.state;
 	}
 	
+	/**
+	 * Get the process handle for a job submitted from a system call.
+	 * 
+	 * @return Process the handle to the job process.
+	 */
 	public Process getProcess() {
 		return this.process;
 	}
 	
+	/**
+	 * Get the job ID.
+	 * 
+	 * @return String the job ID.
+	 */
 	public String getID() {
 		return this.ID;
 	}
@@ -98,6 +114,15 @@ public abstract class Job extends Thread {
 		this.QUEUE = queue;
 	}
 	
+	/**
+	 * Set whether the job should wait for the ID in the output before proceeding.
+	 * 
+	 * If false, an ID will not be set and many functions of Job will not work 
+	 * properly.  This should only be used when submitting many jobs to a cluster
+	 * and the resulting state of the job is irrelevant.
+	 * 
+	 * @param setID whether we should wait for the job to initialize the ID.
+	 */
 	public void setJobInitSetID(boolean setID) {
 		this.jobInitSetID = setID;
 	}
@@ -309,6 +334,13 @@ public abstract class Job extends Thread {
 		return taskID;
 	}
 	
+	/**
+	 * Sleep while waiting for a job ID.
+	 * 
+	 * @param seconds the number of seconds to wait for a job ID.
+	 * @return boolean whether an ID was found or not within the specified
+	 * 					time interval.
+	 */
 	public boolean waitForID(int seconds) {
 
 		// Give the job time to associate with a job ID

@@ -38,17 +38,17 @@ import org.w3c.dom.NodeList;
  */
 public class FullyDistributedConfiguration extends TestConfiguration
 {
-    // Contains configuration properties loaded from the xml conf file for 
-    // each Hadoop components
-	Hashtable<String, Hashtable<String, Properties>> hadoopComponentConfFileProps =
+	/**
+     * Contains configuration properties loaded from the xml conf file for 
+     * each Hadoop component
+     */
+	private Hashtable<String, Hashtable<String, Properties>> hadoopComponentConfFileProps =
 			new Hashtable<String, Hashtable<String, Properties>>();
 
-	// Contains the nodes on the cluster
-	Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
+	/** Contains the nodes on the cluster */
+	private Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
     
 	/**
-	 * Class constructor.
-	 * 
 	 * Calls the superclass constructor, and initializes the default
 	 * configuration parameters for a distributed cluster under test.
 	 * Hadoop default configuration is not used.
@@ -61,8 +61,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	}
 
 	/**
-	 * Class constructor.
-	 * 
 	 * Loads the Hadoop default configuration if true is passed as a parameter, before the 
 	 * distributed test cluster default configuration is initialized into the 
 	 * configuration.
@@ -77,7 +75,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		this.initClusterNodes();
 
 	}
-
+	
+	/**
+	 * Initializes cluster-specific properties defaults.
+	 */
 	protected void initDefaultsClusterSpecific() {
 		hadoopProps.setProperty("CLUSTER_NAME", TestSession.conf.getProperty("CLUSTER_NAME", ""));
 		try {
@@ -221,6 +222,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	/**
 	 * Writes the distributed cluster configuration specified by the object out
 	 * to disk.
+	 * 
+	 * Currently unimplemented for FullyDistributedConfiguration.
 	 */
 	public void write() {
 		/*
@@ -285,6 +288,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	/**
 	 * Removes the configuration files from disk, that were written to disk
 	 * by the .write() of the object.
+	 * 
+	 * Currently unimplemented for FullyDistributedConfiguration.
 	 */
 	public void cleanup() {
 		/*

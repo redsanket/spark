@@ -16,6 +16,8 @@ import hadooptest.config.TestConfiguration;
 /**
  * A class that represents a Hadoop Configuration for a standalone
  * Hadoop cluster under test.
+ * 
+ * This class is currently not finished and should not be used.
  */
 public class StandaloneConfiguration extends TestConfiguration {
 	private String CONFIG_BASE_DIR;

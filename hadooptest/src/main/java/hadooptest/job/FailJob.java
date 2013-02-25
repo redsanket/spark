@@ -1,3 +1,7 @@
+/*
+ * YAHOO!
+ */
+
 package hadooptest.job;
 
 import hadooptest.TestSession;
@@ -7,21 +11,38 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * An instance of Job that represents a fail job.
+ */
 public class FailJob extends Job {
-	
+
+	/** Whether or not to fail the mappers */
 	protected boolean failMappers = false;
+
+	/** Whether or not to fail the reducers */
 	protected boolean failReducers = false;
 	
+	/**
+	 * Set whether or not the mappers should fail.
+	 * 
+	 * @param state whether or not the mappers should fail.
+	 */
 	public void setMappersFail(boolean state) {
 		failMappers = state;
 	}
 	
+	/**
+	 * Set whether or not the reducers should fail.
+	 * 
+	 * @param state whether or not the reducers should fail.
+	 */
 	public void setReducersFail(boolean state) {
 		failReducers = state;
 	}
 	
 	/**
-	 * Submit a fail job to the cluster, while being able to specify whether the mappers or reducers should fail.
+	 * Submit a fail job to the cluster.  This should only be called 
+	 * by the Job.start() to keep the Job threaded.
 	 */
 	protected void submit() {
 		String jobPatternStr = " Running job: (.*)$";
@@ -56,7 +77,8 @@ public class FailJob extends Job {
 	}
 
 	/**
-	 * Submit a fail job to the cluster, while being able to specify whether the mappers or reducers should fail.
+	 * Submit a fail job to the cluster, and don't wait for the ID.  This should
+	 * only be called by the Job.start() to keep the Job threaded.
 	 */
 	protected void submitNoID() {
 		try {
@@ -70,6 +92,11 @@ public class FailJob extends Job {
 		}
 	}
 
+	/**
+	 * Assemble the system command to launch the fail job.
+	 * 
+	 * @return String[] the string array representation of the system command to launch the job.
+	 */
 	private String[] assembleCommand() {
 		String strFailMappers = "";
 		if (failMappers) {

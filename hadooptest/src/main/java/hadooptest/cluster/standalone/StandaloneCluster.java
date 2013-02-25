@@ -7,6 +7,11 @@ import hadooptest.config.TestConfiguration;
 
 import java.util.Hashtable;
 
+/**
+ * Cluster sublass representation of a Standalone Hadoop cluster.
+ * 
+ * This is an unfinished class and should not be used.
+ */
 public class StandaloneCluster implements Cluster {
 
 	// The base pseudodistributed configuration.

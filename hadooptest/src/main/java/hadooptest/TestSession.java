@@ -19,6 +19,23 @@ import hadooptest.cluster.fullydistributed.FullyDistributedExecutor;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedExecutor;
 import hadooptest.cluster.standalone.StandaloneExecutor;
 
+/**
+ * TestSession is the main driver for the automation framework.  It
+ * maintains a central logging framework, and central configuration
+ * for the framework.  Additionally, the TestSession maintains a
+ * common instance of the Hadoop cluster type specified in the 
+ * framework configuration file, as well as a process executor to match.
+ * 
+ * For each test based on the framework, TestSession should be the 
+ * superclass (a test class must extend TestSession).  TestSession will
+ * then provide that class with a logger, cluster instance, framework
+ * configuration reference, and an executor for system processes.
+ * 
+ * Additionally, for each test based on the framework, the test will need
+ * to call TestSession.start() exactly once for each instance of the test
+ * class.  TestSession.start() initializes all of the items that 
+ * TestSession provides.
+ */
 public abstract class TestSession {
 
 	/** The Logger for the test session */
@@ -34,7 +51,7 @@ public abstract class TestSession {
 	public static Executor exec;
 	
 	/**
-	 * Class constructor.  In the JUnit architecture,
+	 * In the JUnit architecture,
 	 * this constructor will be called before every test
 	 * (per JUnit).  Therefore, it is better to leave the
 	 * constructor here empty and use start() to initialize
@@ -52,7 +69,13 @@ public abstract class TestSession {
 	}
 	
 	/**
-	 * Initializes the test session.
+	 * Initializes the test session in the following order:
+	 * initilizes framework configuration, initializes the
+	 * centralized logger, initializes the cluster reference.
+	 * 
+	 * This method should be called once from every subclass
+	 * of TestSession, in order to initialize the 
+	 * TestSession for a test class.
 	 */
 	public static void start() {
 		// Initialize the framework configuration
@@ -70,9 +93,9 @@ public abstract class TestSession {
 	}
 	
 	/**
-	 * Get the cluster for the test session.
+	 * Get the cluster instance for the test session.
 	 * 
-	 * @return Cluster the cluster for the test session.
+	 * @return Cluster the cluster instance for the test session.
 	 */
 	public static Cluster getCluster() {
 		return cluster;
@@ -122,7 +145,7 @@ public abstract class TestSession {
 	}
 	
 	/**
-	 * Initialize the framework.
+	 * Initialize the framework logging.
 	 */
 	private static void initLogging() {
 		logger = Logger.getLogger(TestSession.class);
@@ -163,7 +186,7 @@ public abstract class TestSession {
 	}
 	
 	/**
-	 * Initialize the cluster for the framework.
+	 * Initialize the cluster instance for the framework.
 	 */
 	private static void initCluster() {
 		// The unknown class type for the cluster

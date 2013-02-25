@@ -21,20 +21,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A class that is the base representation of any pseudodistributed cluster.
+ * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.
  */
 public class PseudoDistributedCluster implements Cluster {
 
-	// The base pseudodistributed configuration.
+	/** The base pseudodistributed configuration. */
 	protected PseudoDistributedConfiguration conf;
 	
-	// The state of the pseudodistributed cluster.
+	/** The state of the pseudodistributed cluster. */
 	protected ClusterState cluster_state;
 	
 	/**
-	 * Class constructor.
-	 * 
-	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
+	 * Initializes the pseudodistributed cluster and sets up a new pseudo
+	 * distributed configuration.  Writes the configuration to disk for 
+	 * initializting the cluster.
 	 */
 	public PseudoDistributedCluster() throws IOException
 	{
@@ -44,9 +44,10 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 
 	/**
-	 * Class constructor.
+	 * Initializes the fully distributed cluster and sets up a pseudo
+	 * distributed configuration using the passed-in configuration.
 	 * 
-	 * Accepts a custom configuration, and assumed you will write it to disk.
+	 * @param conf the configuration to use for the cluster.
 	 */
 	public PseudoDistributedCluster(PseudoDistributedConfiguration conf)
 	{
@@ -127,6 +128,8 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 
 	/**
+	 * Currently unimplemented for PseudoDistributedCluster.
+	 * 
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#die()
 	 */
@@ -135,6 +138,8 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 
 	/**
+	 * Currently unimplemented for PseudoDistributedCluster.
+	 * 
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#reset()
 	 */
@@ -245,6 +250,11 @@ public class PseudoDistributedCluster implements Cluster {
 		return false;
 	}
 
+	/**
+	 * Gets the version of the Hadoop cluster instance.
+	 * 
+	 * @return String the version of the Hadoop cluster.
+	 */
 	public String getVersion() {
     	return this.conf.getHadoopProp("HADOOP_VERSION");
 	}	

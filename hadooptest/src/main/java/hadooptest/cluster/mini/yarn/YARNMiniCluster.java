@@ -16,6 +16,11 @@ import java.util.Hashtable;
 
 import org.apache.hadoop.yarn.server.MiniYARNCluster;
 
+/**
+ * MiniCluster instance to represent a base YARN mini cluster.
+ * 
+ * This is an unfinished class and should not yet be used.
+ */
 public class YARNMiniCluster extends MiniCluster {
 
    private MiniYARNCluster cluster;

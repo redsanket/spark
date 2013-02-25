@@ -13,6 +13,11 @@ package hadooptest.config.testconfig;
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
+/**
+ * Represents a configuration for a mock cluster.
+ * 
+ * This class is currently not finished and should not be used.
+ */
 public class MockConfiguration extends TestConfiguration
 {
 

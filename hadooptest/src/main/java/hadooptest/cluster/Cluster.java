@@ -8,7 +8,10 @@ import hadooptest.config.TestConfiguration;
 
 /**
  * An interface which should represent the base capability of any cluster
- * type in the framework.
+ * type in the framework.  This interface is also what should be commonly
+ * used to reference the common cluster instance maintained by the
+ * TestSession.  Subclasses of Cluster should implment a specific cluster
+ * type.
  */
 public interface Cluster {
 

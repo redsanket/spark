@@ -1,9 +1,5 @@
 /*
  * YAHOO!
- * 
- * An abstract class that is the base representation of any minicluster.
- * 
- * 2012.10.08 - Rick Bernotas - Initial version.
  */
 
 package hadooptest.cluster.mini;
@@ -14,6 +10,11 @@ import hadooptest.config.testconfig.MiniclusterConfiguration;
 
 import java.io.IOException;
 
+/**
+ * Cluster instance to represent a base mini cluster.
+ * 
+ * This is an unfinished class and should not yet be used.
+ */
 public abstract class MiniCluster implements Cluster {
 
    protected MiniclusterConfiguration conf;
