@@ -1,10 +1,4 @@
-#/bin/bash
-
-# Usage: 
-# run_hadooptest_remote -c <cluster name> [-g <gateway host>] [-n/-no-password] [-t/-transport-only]
-# run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -t
-# run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -n
-# run_hadooptest_remote -c theoden -g gwbl2005.blue.ygrid.yahoo.com -s /home/hadoopqa/git/hadooptest/hadooptest -t
+#!/bin/bash
 
 function usage {
     echo
@@ -12,23 +6,48 @@ function usage {
     echo "-----------------------------------------------------------------------------------"
     echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
 The options
-        -c <cluster name> : cluster name
-        [ -g <gateway host> ] : gateway host
-        [ -s <source root dir> ] : source root directory
-        [ -n ] : no password prompt
-        [ -t ] : transport packages to remote host only
-        [ -h ] : help
+        -c|--cluster <cluster name>          : cluster name
+        [ -s|--src       <source root dir> ] : source root directory
+        [ -g|--gateway   <gateway>         ] : gateway host
+        [ -n|--nopasswd                    ] : no password prompt
+        [ -m|--mvn                         ] : run tests via maven instead of via java directly
+        [ -i|--install                     ] : transport packages to remote host only
+        [ -t|--test      <test suite(s)    ] : test suite name(s)
+        [ -h|--help                        ] : help
+
+Example:
+$ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --install
+$ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --install
+$ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --test SleepJobRunner
+$ run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -i
+$ run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -n
+$ run_hadooptest_remote -c theoden -g gwbl2005.blue.ygrid.yahoo.com -s /home/hadoopqa/git/hadooptest/hadooptest -i
 "
     exit 1
 }
 
-while getopts "c:g:s:nth" opt; do
+for arg; do 
+    [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
+    if [ "${arg:0:2}" == "--" ]; 
+       then args="${args} -${arg:2:1}" 
+       else args="${args} ${delim}${arg}${delim}"
+    fi
+done
+
+# reset the incoming args
+eval set -- $args
+
+INSTALL_ONLY=0
+USE_MVN=0
+while getopts "c:g:s:t:nmih" opt; do
         case $opt in
                 c) CLUSTER=$OPTARG;;
                 g) GATEWAY=$OPTARG;;
                 s) SOURCE_ROOT=$OPTARG;;
+                t) TESTS=$OPTARG;;
                 n) PASSWORD_OPTION="-n";;
-                t) RUN_OPTION="transport-only";;
+                i) INSTALL_ONLY=1;;
+                m) USE_MVN=1;;
                 h) usage;;
                 *) usage;;
         esac
@@ -39,26 +58,50 @@ if [ -z $CLUSTER ]; then
    exit 1;
 fi
 
-GATEWAY=${GATEWAY:="gwbl2005.blue.ygrid.yahoo.com"}
-#if [ -z $GATEWAY ]; then
-#   echo "WARN: Required GATEWAY value not defined!!!";
-#   exit 1;
-#fi
+DEFAULT_GATEWAY="gwbl2005.blue.ygrid.yahoo.com"
+if [ -z $GATEWAY ]; then
+   echo "WARN: gateway not specified: using default gateway $DEFAULT_GATEWAY.";
+fi
+GATEWAY=${GATEWAY:=$DEFAULT_GATEWAY}
 
 USER=`whoami`
-GATEWAY_DIR=${GATEWAY_DIR:="/homes/$USER"}
+GW_TARGET_WORKSPACE=${GW_TARGET_WORKSPACE:="/tmp/$USER-hadooptest"}
+set -x
+ssh -t $GATEWAY "if [ -d $GW_TARGET_WORKSPACE ]; then /bin/rm -rf $GW_TARGET_WORKSPACE; fi";
+ssh -t $GATEWAY "/bin/mkdir -p $GW_TARGET_WORKSPACE";
+set +x
 
 SOURCE_ROOT=${SOURCE_ROOT:="/Users/$USER/git/hadooptest/hadooptest"}
 SOURCE_TARGET_DIR=${SOURCE_LIB:="$SOURCE_ROOT/target"}
-
-set -x
-scp $SOURCE_TARGET_DIR/*.jar $GATEWAY:$GATEWAY_DIR
-scp $SOURCE_ROOT/scripts/run_hadooptest $GATEWAY:$GATEWAY_DIR
-set +x
-
-if [ "$RUN_OPTION" != "transport-only" ]; then
+TGZ_SOURCE_DIR=/tmp
+TGZ_FILE=hadooptest.tgz
+if [ "$USE_MVN" -eq 1 ]; then
    set -x
-   # ssh -t $GATEWAY "CLUSTER=$CLUSTER HADOOPTEST_LIB=$GATEWAY_DIR $GATEWAY_DIR/run_hadooptest $PASSWORD_OPTION";
-   ssh -t $GATEWAY "$GATEWAY_DIR/run_hadooptest -c $CLUSTER -l $GATEWAY_DIR $PASSWORD_OPTION";
+   tar -zcf $TGZ_SOURCE_DIR/$TGZ_FILE --exclude='target' -C $SOURCE_ROOT .
+   scp $TGZ_SOURCE_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
+   ssh -t $GATEWAY "/bin/gtar fx $GW_TARGET_WORKSPACE/$TGZ_FILE -C $GW_TARGET_WORKSPACE";
    set +x
+else 
+     set -x
+     scp $SOURCE_TARGET_DIR/*.jar $GATEWAY:$GW_TARGET_WORKSPACE
+     set +x
+fi
+
+if [ -n $TESTS ]
+then
+    TESTS_PARAM="--test $TESTS"
+else
+    TESTS_PARAM=""
+fi
+
+if [ "$INSTALL_ONLY" -ne 1 ]; then
+   if [ "$USE_MVN" -eq 1 ]; then
+      set -x
+      ssh -t $GATEWAY "$GW_TARGET_WORKSPACE/script/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
+      set +x
+   else 
+      set -x
+      ssh -t $GATEWAY "$GW_TARGET_WORKSPACE/run_hadooptest --c $CLUSTER --workspace $GW_TARGET_WORKSPACE $PASSWORD_OPTION $TESTS_PARAM";
+   set +x
+   fi
 fi
