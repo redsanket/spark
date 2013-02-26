@@ -87,11 +87,11 @@ else
      set +x
 fi
 
-if [ -n $TESTS ]
+if [ -z $TESTS ]
 then
-    TESTS_PARAM="--test $TESTS"
-else
     TESTS_PARAM=""
+else
+    TESTS_PARAM="--test $TESTS"
 fi
 
 if [ "$INSTALL_ONLY" -ne 1 ]; then
