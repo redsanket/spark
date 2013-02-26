@@ -62,7 +62,7 @@ public abstract class Executor {
 	/**
 	 * Run a local system command using a ProcessBuilder.
 	 * 
-	 * @param command the command to run.  Each member of the string array should
+	 * @param commandArray the command to run.  Each member of the string array should
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
 	 */

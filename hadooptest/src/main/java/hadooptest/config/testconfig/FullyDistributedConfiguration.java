@@ -144,7 +144,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * Returns the Hadoop configuration files property for a given property
      * name and configuration filename on the gateway component. 
      * 
-     * @param propname the Hadoop configuration property name
+     * @param propName the Hadoop configuration property name
      * @param confFilename the Hadoop configuration file name
      * 
      * @return String property value for the given property name and the
@@ -158,7 +158,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * Returns the Hadoop configuration files property for a given property
      * name, configuration filename, and component. 
      * 
-     * @param propname the Hadoop configuration property name
+     * @param propName the Hadoop configuration property name
      * @param confFilename the Hadoop configuration file name
      * @param component the Hadoop cluster component name
      * 
@@ -183,7 +183,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * Returns if the Hadoop configuration files property has a given property
      * defined for a given configuration filename and component. 
      * 
-     * @param propname the Hadoop configuration property name
+     * @param propName the Hadoop configuration property name
      * @param confFilename the Hadoop configuration file name
      * @param component the Hadoop cluster component name
      * 
@@ -603,9 +603,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param propValue String of property value
      * @param component cluster component such as gateway, namenode,
      * resourcemanager, etc.
-     * @param fileName String of the configuration file name.
-     * 
-     * @return int 0 for success, 1 for failure.
+     * @param confFilename String of the configuration file name.
      */
 	public void setHadoopConfFileProp (String propName, String propValue,
 			String component, String confFilename) {
@@ -621,10 +619,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param propValue String of property value
      * @param component cluster component such as gateway, namenode,
      * resourcemanager, etc.
-     * @param fileName String of the configuration file name.
+     * @param confFilename String of the configuration file name.
      * @param confDir String of the configuration directory path.
-     * 
-     * @return int 0 for success, 1 for failure.
      */
 	public void setHadoopConfFileProp (String propName, String propValue,
 			String component, String confFilename, String confDir) {

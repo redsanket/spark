@@ -64,9 +64,7 @@ public class VMAttach {
 	}
 	
 	/**
-	 * Listens to a host JVM debug port for a client to attach, and returns a VM.
-	 * 
-	 * @return VirtualMachine the VM hosting the debug port.
+	 * Listens to a host JVM debug port for a client to attach
 	 */
 	public void listen() throws IOException {
 		ListeningConnector connector = getListeningConnector();

@@ -3,7 +3,7 @@
  */
 
 /**
- * Functionality specific to operating a Hadoop MapReduce minicluster
+ * Functionality specific to operating a Hadoop MapReduce minicluster.
  */
 
 package hadooptest.cluster.mini.mapreduce;

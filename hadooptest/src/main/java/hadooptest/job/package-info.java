@@ -3,7 +3,7 @@
  */
 
 /**
- * Functionality for running and inspecting Hadoop jobs
+ * Functionality for running and inspecting Hadoop jobs.
  */
 
 package hadooptest.job;

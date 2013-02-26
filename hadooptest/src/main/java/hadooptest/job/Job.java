@@ -49,8 +49,6 @@ public abstract class Job extends Thread {
 	 * Submit the job to the cluster, but don't wait to assign an ID to this Job.
 	 * Should only be intended for cases where you want to saturate a cluster
 	 * with Jobs, and don't care about the status or result of the Job.
-	 * 
-	 * @return String the ID of the job submitted.
 	 */
 	protected abstract void submitNoID();
 	
@@ -132,9 +130,6 @@ public abstract class Job extends Thread {
 	 * be failed to fail the job.
 	 * 
 	 * @return boolean Whether the job was successfully failed.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Job#fail()
 	 */
 	public boolean fail() {
 		return fail(1);
@@ -313,7 +308,6 @@ public abstract class Job extends Thread {
 	/**
 	 * Get the reduce task attempt ID associated with the specified job ID.
 	 * 
-	 * @param jobID The ID of the job to associate with the task attempt.
 	 * @return String The ID of the task attempt.
 	 */
 	public String getReduceTaskAttemptID() {
@@ -369,7 +363,9 @@ public abstract class Job extends Thread {
 	 * Waits for the specified number of minutes for the job to 
 	 * succeed, and returns true for success.
 	 * 
-	 * @param seconds The number of minutes to wait for the success state.
+	 * @param minutes The number of minutes to wait for the success state.
+	 * 
+	 * @return boolean true if the job was successful, false if it was not or the waitFor timed out.
 	 */
 	public boolean waitForSuccess(int minutes) {
 		Process mapredProc = null;
@@ -694,7 +690,7 @@ public abstract class Job extends Thread {
 	/**
 	 * Fails the task attempt associated with the specified task ID.
 	 * 
-	 * @param jobID The ID of the job matching the task attempt.
+	 * @param taskID The ID of the job matching the task attempt.
 	 * @return boolean Whether the task attempt was killed or not.
 	 */
 	protected boolean failTaskAttempt(String taskID) {

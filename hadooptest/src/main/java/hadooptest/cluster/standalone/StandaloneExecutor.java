@@ -18,7 +18,8 @@ public class StandaloneExecutor extends Executor {
 	/**
 	 * Run a local system command.
 	 * 
-	 * @param command The system command to run.
+	 * @param commandArray The system command to run.
+	 * @param username the user to run the command as.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
 		// The FullyDistributed package implements this to setup kerberos security,

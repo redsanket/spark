@@ -3,7 +3,7 @@
  */
 
 /**
- * Functionality specific to operating a fully distributed Hadoop cluster
+ * Functionality specific to operating a fully distributed Hadoop cluster.
  */
 
 package hadooptest.cluster.fullydistributed;

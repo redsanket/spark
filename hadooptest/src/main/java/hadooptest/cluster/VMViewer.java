@@ -207,7 +207,7 @@ public class VMViewer {
 	 * 
 	 * @param className the name of the class the watch variable resides in
 	 * 						(must include the package name).
-	 * @param variable the method to set the breakpoint on.
+	 * @param methodName the method to set the breakpoint on.
 	 */
 	public void breakpointMethod(String className, String methodName) 
 			throws IOException, 

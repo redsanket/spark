@@ -300,7 +300,7 @@ public class FullyDistributedCluster implements Cluster {
      * @param action The action to perform on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
-     * @param hostnames The hostnames to perform the action on. 
+     * @param daemonHost The hostnames to perform the action on. 
      * 
      * @return 0 for success or 1 for failure.
      */
@@ -320,8 +320,8 @@ public class FullyDistributedCluster implements Cluster {
      * @param action The action to perform on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
+     * @param daemonHost The hostnacomponent The cluster component to perform the action on. 
      * @param confDir The configuration directory to perform the action with. 
-     * @param hosts The hostnacomponent The cluster component to perform the action on. 
      * 
      * @return 0 for success or 1 for failure.
      */
@@ -416,8 +416,8 @@ public class FullyDistributedCluster implements Cluster {
      * @param action The action correlating to the expected state on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
-     * @param int waitInterval the wait interval in seconds.
-     * @param int maxWait the maximum iteration to wait for
+     * @param waitInterval the wait interval in seconds.
+     * @param maxWait the maximum iteration to wait for
      * 
      * @return boolean true for success or false for failure.
      */
@@ -433,8 +433,8 @@ public class FullyDistributedCluster implements Cluster {
      * @param action The action correlating to the expected state on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
-     * @param int waitInterval the wait interval in seconds.
-     * @param int maxWait the maximum iteration to wait for
+     * @param waitInterval the wait interval in seconds.
+     * @param maxWait the maximum iteration to wait for
      * @param daemonHost String Array of daemon host names
      * 
      * @return boolean true for success or false for failure.
@@ -555,9 +555,9 @@ public class FullyDistributedCluster implements Cluster {
      * host names. 
      * 
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host names String Array of daemon host names,
+     * @param daemonHost host names String Array of daemon host names,
      * 
-     * @return true if the cluster is fully up, false if the cluster is not
+     * @return boolean true if the cluster is fully up, false if the cluster is not
      * fully up.
      */
 	public boolean isComponentFullyUp(String component, String[] daemonHost) {
@@ -568,9 +568,9 @@ public class FullyDistributedCluster implements Cluster {
      * Check if the cluster component is up for a single given host name. 
      * 
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host name String of a single daemon host name,
+     * @param daemonHost host name String of a single daemon host name,
      * 
-     * @return true if the cluster is fully up, false if the cluster is not
+     * @return boolean true if the cluster is fully up, false if the cluster is not
      * fully up.
      */
 	public boolean isComponentUpOnSingleHost(String component,
@@ -583,7 +583,7 @@ public class FullyDistributedCluster implements Cluster {
      * 
      * @param component cluster component such as gateway, namenode,
      * 
-     * @return true if the cluster is fully down, false if the cluster is not
+     * @return boolean true if the cluster is fully down, false if the cluster is not
      * fully down.
      */
 	public boolean isComponentFullyDown(String component) {
@@ -595,9 +595,9 @@ public class FullyDistributedCluster implements Cluster {
      * host names. 
      * 
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host names String Array of daemon host names,
+     * @param daemonHost host names String Array of daemon host names,
      * 
-     * @return true if the cluster is fully down, false if the cluster is not
+     * @return boolean true if the cluster is fully down, false if the cluster is not
      * fully down.
      */
 	public boolean isComponentFullyDown(String component, String[] daemonHost) {		
@@ -611,7 +611,7 @@ public class FullyDistributedCluster implements Cluster {
      * @param action the action associated with the expected state {"start", "stop"}
      * @param component cluster component such as gateway, namenode,
      * 
-     * @return true if the cluster is fully in the expected state, false if the
+     * @return boolean true if the cluster is fully in the expected state, false if the
      * cluster is not fully in the expected state.
      */
 	public boolean isComponentFullyInExpectedState(String action,
@@ -625,9 +625,9 @@ public class FullyDistributedCluster implements Cluster {
      * 
      * @param action the action associated with the expected state {"start", "stop"}
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host names String Array of daemon host names,
+     * @param daemonHost host names String Array of daemon host names,
      * 
-     * @return true if the cluster is fully in the expected state, false if the
+     * @return boolean true if the cluster is fully in the expected state, false if the
      * cluster is not fully in the expected state.
      */
 	public boolean isComponentFullyInExpectedState(String action,
@@ -672,21 +672,21 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
     /**
-     * Wait for the saefmode on the namenode to be OFF. 
+     * Wait for the safemode on the namenode to be OFF. 
      * 
-     * @return true if safemode is OFF, or false if safemode is ON.
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
      */
 	public boolean waitForSafemodeOff() {
 		return waitForSafemodeOff(-1, null);
 	}
 		
     /**
-     * Wait for the saefmode on the namenode to be OFF. 
+     * Wait for the safemode on the namenode to be OFF. 
      *
-     * @param int timeout 
+     * @param timeout time to wait for safe mode to be off.
      * @param fs file system under test
      * 
-     * @return true if safemode is OFF, or false if safemode is ON.
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
      */
 	public boolean waitForSafemodeOff(int timeout, String fs) {
 

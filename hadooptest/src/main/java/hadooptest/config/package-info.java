@@ -3,7 +3,7 @@
  */
 
 /**
- * Base configuration for Hadoop clusters under test
+ * Base configuration for Hadoop clusters under test.
  */
 
 package hadooptest.config;

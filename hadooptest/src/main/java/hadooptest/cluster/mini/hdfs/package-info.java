@@ -3,7 +3,7 @@
  */
 
 /**
- * Functionality specific to operating a Hadoop HDFS minicluster
+ * Functionality specific to operating a Hadoop HDFS minicluster.
  */
 
 package hadooptest.cluster.mini.hdfs;

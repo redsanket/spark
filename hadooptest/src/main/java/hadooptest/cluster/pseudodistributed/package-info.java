@@ -3,7 +3,7 @@
  */
 
 /**
- * Functionality specific to operating a pseudodistributed Hadoop cluster
+ * Functionality specific to operating a pseudodistributed Hadoop cluster.
  */
 
 package hadooptest.cluster.pseudodistributed;
