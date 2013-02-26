@@ -1,11 +1,5 @@
 /*
  * YAHOO!
- * 
- * A class that adds convenience to java.util.Properties so that we can
- * specify key value pairs to the hadooptest framework for configuration
- * purposes.
- * 
- * 2012.10.08 - Rick Bernotas - Initial version.
  */
 
 package hadooptest;
@@ -19,15 +13,34 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+/**
+ * A properties class that allows for specifying key-value pairs of
+ * properties to the framework.  In effect, it represents the framework
+ * configuration file.
+ * 
+ * By default, the framework makes the assumption that this configuration file
+ * will reside in your user home directory, with the filename "hadooptest.conf".
+ * 
+ * To specify a different location and filename for the framework configuration
+ * file, set the system property "hadooptest.config" to be the filepath and file
+ * name of the configuration file you wish to use.  An example by calling
+ * the framework from the command line follows:
+ * 
+ * java -cp $CLASSPATH -Dhadooptest.config=/homes/rbernota/framework_config/framework.conf org.junit.runner.JUnitCore hadooptest.regression.yarn.MapredKillTask
+ */
 public class ConfigProperties extends Properties
 {
 
-   // A Vector to contain all of the configuration properties files that might be
-   // submitted to a ConfigProperties instance.
+   /** 
+    * A Vector to contain all of the configuration properties files that might be
+    *
+    * submitted to a ConfigProperties instance.
+    */
    private Vector properties_files_ = new Vector(1);
 
    /**
-    * Class constructor
+    * This no argument constructor is called from the TestSession.  It simply
+    * calls the superclass constructor for java.util.Properties.
     */
    public ConfigProperties()
    {

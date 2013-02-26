@@ -45,32 +45,40 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.ModificationWatchpointRequest;
 
-/*
+/**
  * A class which allows for programmatic debugging of a debuggable instance
  * of a Hadoop cluster.  Currently can set a watch variable and method
  * breakpoints.
+ * 
+ * This is currently an experimental class.
  */
 public class VMViewer {
 	
-	// Hadoop debug port to attach to.
+	/** Hadoop debug port to attach to. */
 	public static final int DEFAULT_DEBUG_ATTACH_PORT = 8008;
 	
-	// Hadoop default debug port to listen on.
+	/** Hadoop default debug port to listen on. */
 	public static final int DEFAULT_DEBUG_LISTEN_PORT = 8002;
 	
-	// Depth of recursion to prevent chasing circular references in the stack.
+	/** Depth of recursion to prevent chasing circular references in the stack. */
 	public static final int RECURSION_DEPTH_DEFAULT = 2;
 
-	// The attaching VM for the debug session.
+	/** The attaching VM for the debug session. */
 	private VirtualMachine vm;
 	
+	/** The name of the class to debug */
 	private String listenerClassName;
+	
+	/** The name of the variable to debug */
 	private String listenerVariable;
+	
+	/** The name of the method to debug */
 	private String listenerMethod;
 	
+	/** The Vector of VMs we are listening to */
 	public Vector<VirtualMachine> listenerVMs;
 	
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Attaches to the default debug attach port of the suspended Hadoop VM.
@@ -79,17 +87,28 @@ public class VMViewer {
 		this.vm = new VMAttach(DEFAULT_DEBUG_ATTACH_PORT).connect();
 	}
 	
-	/*
+	/**
 	 * Class constructor
 	 * 
 	 * Attaches to a specified debug port of the suspended Hadoop VM.
 	 * 
+	 * @param isListener whether the debugger is listening for VMs or not.
 	 * @param port the debug port to attach to.
 	 */
 	public VMViewer(boolean isListener, int port) throws IOException {
 		this.vm = new VMAttach(port).connect();
 	}
 
+	/**
+	 * Class constructor.
+	 * 
+	 * Listens for a VM to process a specific method or watch variable in a class.
+	 * 
+	 * @param actionType specifies whether to "WATCH" (watch variable) or "BREAK" (breakpoint)
+	 * @param className the class containing the specified debug target
+	 * @param debugTarget the method name or watch variable to debug
+	 * @throws IOException
+	 */
 	public VMViewer(String actionType, String className, String debugTarget) throws IOException {
 		this.listenerClassName = className;
 		
@@ -111,6 +130,17 @@ public class VMViewer {
 		}
 	}
 	
+	/**
+	 * Class constructor.
+	 * 
+	 * Attaches to a VM to process a specific method or watch variable in a class.
+	 * 
+	 * @param actionType specifies whether to "WATCH" (watch variable) or "BREAK" (breakpoint)
+	 * @param port the port of the VM to connect to.
+	 * @param className the class containing the specified debug target
+	 * @param debugTarget the method name or watch variable to debug
+	 * @throws IOException
+	 */
 	public VMViewer(String actionType, int port, String className, String debugTarget) throws IOException {
 		this.listenerClassName = className;
 
@@ -128,7 +158,7 @@ public class VMViewer {
 		watcher.start();
 	}
 	
-	/*
+	/**
 	 * Sets a watch point on a variable name in a given class name, 
 	 * and dumps out the stack contents of the variable to stdout each
 	 * time it encounters the watch point.
@@ -171,13 +201,13 @@ public class VMViewer {
 		}
 	}
 	
-	/*
+	/**
 	 * Sets a breakpoint on a method name in a given class name, 
 	 * and dumps out the stack contents each time it encounters the breakpoint.
 	 * 
 	 * @param className the name of the class the watch variable resides in
 	 * 						(must include the package name).
-	 * @param variable the method to set the breakpoint on.
+	 * @param methodName the method to set the breakpoint on.
 	 */
 	public void breakpointMethod(String className, String methodName) 
 			throws IOException, 
@@ -254,7 +284,7 @@ public class VMViewer {
 		}
 	}
 	
-	/*
+	/**
 	 * A recursive method that takes a stack value and prints some information
 	 * about it to stdout.
 	 * 
@@ -300,6 +330,13 @@ public class VMViewer {
 		}
 	}
 	
+	/**
+	 * Prints the value of a stack type.
+	 * 
+	 * @param val the stack value to process
+	 * @param tabIndent the string indentation to assign to the string prefix for
+	 * 						printing out the stack value.
+	 */
 	private void printValue(Value val, String tabIndent) {
 		if (val instanceof BooleanValue) {
 			System.out.println(tabIndent + "\tVALUE = " + ((BooleanValue)val).toString());
@@ -330,7 +367,7 @@ public class VMViewer {
 		}
 	}
 	
-	/*
+	/**
 	 * Adds a class viewer to the debug session.
 	 * 
 	 * @param the name of the class to view.
@@ -342,7 +379,7 @@ public class VMViewer {
 		classPrepareRequest.setEnabled(true);
 	}
 	
-	/*
+	/**
 	 * Adds a variable field viewer to the debug session
 	 * 
 	 * @param refType the reference type of the watch variable
@@ -355,7 +392,7 @@ public class VMViewer {
 		modificationWatchpointRequest.setEnabled(true);
 	}
 	
-	/*
+	/**
 	 * Adds a method breakpoint to the debug session
 	 * 
 	 * @param className the name of the class in which to set the breakpoint
@@ -372,7 +409,7 @@ public class VMViewer {
 		breakpointRequest.setEnabled(true);
 	}
 	
-	/*
+	/**
 	 * Adds a method breakpoint at a given line in the method for the debug session
 	 * 
 	 * @param className the name of the class in which to set the breakpoint
@@ -390,6 +427,9 @@ public class VMViewer {
 		breakpointRequest.setEnabled(true);
 	}
 	
+	/**
+	 * A thread for processing a VM as it attaches itself to the debugger.
+	 */
 	private class VMListenerVectorWatcher extends Thread {
 		
 		private VMAttach attacher;
@@ -568,7 +608,7 @@ public class VMViewer {
 			classPrepareRequest.setEnabled(true);
 		}
 		
-		/*
+		/**
 		 * A recursive method that takes a stack value and prints some information
 		 * about it to stdout.
 		 * 

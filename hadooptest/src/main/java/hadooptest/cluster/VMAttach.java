@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Vector;
 
-/*
+/**
  * A class which allows the framework to connect to a debuggable instance of
  * a Hadoop cluster.
+ * 
+ * This is currently an experimental class.
  */
 public class VMAttach {
 	
@@ -31,7 +33,7 @@ public class VMAttach {
 	
 	public Vector<VirtualMachine> listenerVMs;
 	
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Sets the debug port to attach to.
@@ -44,7 +46,7 @@ public class VMAttach {
 		listenerVMs = new Vector<VirtualMachine>(1);
 	}
 	
-	/*
+	/**
 	 * Connects to a JVM debug port and returns a VM.
 	 * 
 	 * @return VirtualMachine the VM hosting the debug port.
@@ -61,10 +63,8 @@ public class VMAttach {
 		}
 	}
 	
-	/*
-	 * Listens to a host JVM debug port for a client to attach, and returns a VM.
-	 * 
-	 * @return VirtualMachine the VM hosting the debug port.
+	/**
+	 * Listens to a host JVM debug port for a client to attach
 	 */
 	public void listen() throws IOException {
 		ListeningConnector connector = getListeningConnector();
@@ -105,7 +105,7 @@ public class VMAttach {
 		//return vmList;
 	}
 
-	/*
+	/**
 	 * Gets the attaching connector for the debug session, which is
 	 * the JDI SocketAttach.
 	 * 
@@ -126,7 +126,7 @@ public class VMAttach {
 	}
 
 
-	/*
+	/**
 	 * Gets the listening connector for the debug session, which is
 	 * the JDI SocketListen.
 	 * 
@@ -146,7 +146,7 @@ public class VMAttach {
 		throw new IllegalStateException();
 	}
 	
-	/*
+	/**
 	 * Connects the debug session with the given attachingconnector and debug port.
 	 * 
 	 * @param connector the AttachingConnector for the debug session.
@@ -169,16 +169,28 @@ public class VMAttach {
 		return connector.attach(arguments);
 	}
 
+	/**
+	 * A listener thread for picking up new VMs that try to attach to the debugger.
+	 */
 	private class VMListenerThread extends Thread {
 
+		/** The Map of listeners attached to the debugger */
 		private Map<String, Argument> listenerMap;
+		
+		/** The connector for a new listener thread */
 		ListeningConnector VMConnector;
 		
+		/** 
+		 * Initializes the listener Map and attaching connector.
+		 */
 		public VMListenerThread(Map<String, Argument> map, ListeningConnector connector) {
 			listenerMap = map;
 			VMConnector = connector;
 		}
 		
+		/**
+		 * The thread runner.  Accepts new VMs and attaches them to the debugger.
+		 */
 		@Override
 		public void run() {
 			synchronized(this) {

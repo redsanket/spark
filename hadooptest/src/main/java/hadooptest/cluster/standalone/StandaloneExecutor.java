@@ -6,15 +6,20 @@ package hadooptest.cluster.standalone;
 
 import hadooptest.cluster.Executor;
 
-/*
- * A class which represents a fully distributed hadoop command
+/**
+ * A class which represents an Executor for a standalone cluster.
+ * 
+ * Handles all system calls for standalone clusters.
+ * 
+ * This class is not finished and should not be used.
  */
 public class StandaloneExecutor extends Executor {
 
-	/*
+	/**
 	 * Run a local system command.
 	 * 
-	 * @param command The system command to run.
+	 * @param commandArray The system command to run.
+	 * @param username the user to run the command as.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
 		// The FullyDistributed package implements this to setup kerberos security,
@@ -23,7 +28,7 @@ public class StandaloneExecutor extends Executor {
 		return runProcBuilder(commandArray);			
 	}
 
-	/*
+	/**
 	 * Run a system command with a ProcessBuilder, and get a 
 	 * Process handle in return.  Additionally, specify a username to run the
 	 * command as, so the Kerberos security settings configuration can occur.

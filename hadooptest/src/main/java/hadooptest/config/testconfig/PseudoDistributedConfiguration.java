@@ -18,16 +18,14 @@ import java.util.TimeZone;
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
-/*
+/**
  * A class that represents a Hadoop Configuration for a pseudodistributed
  * Hadoop cluster under test.
  */
 public class PseudoDistributedConfiguration extends TestConfiguration
 {
 
-	/*
-	 * Class constructor.
-	 * 
+	/**
 	 * Calls the superclass constructor, and initializes the default
 	 * configuration parameters for a pseudodistributed cluster under test.  Hadoop
 	 * default configuration is not used.
@@ -38,7 +36,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		this.initDefaults();
 	}
 
-	/*
+	/**
 	 * Class constructor.
 	 * 
 	 * Loads the Hadoop default configuration if true is passed as a parameter, before the 
@@ -54,6 +52,9 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		this.initDefaults();
 	}
 
+	/**
+	 * Initializes cluster-specific properties defaults.
+	 */
 	protected void initDefaultsClusterSpecific() {
 		String defaultTmpDir = "/Users/" + System.getProperty("user.name") + "/hadooptest/tmp";
 		hadoopProps.setProperty("TMP_DIR", 
@@ -69,7 +70,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		hadoopProps.setProperty("HADOOP_COMMON_HOME", hadoopProps.getProperty("HADOOP_INSTALL"));
 	}
 	
-	/*
+	/**
 	 * Writes the pseudodistributed cluster configuration specified by the object out
 	 * to disk.
 	 */
@@ -117,7 +118,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		}
 	}
 
-	/*
+	/**
 	 * Removes the configuration files from disk, that were written to disk
 	 * by the .write() of the object.
 	 */
@@ -139,7 +140,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		log4jProperties.delete();
 	}
 	
-	/*
+	/**
 	 * Initializes a set of default configuration properties that have been 
 	 * determined to be a reasonable set of defaults for running a pseudodistributed
 	 * cluster under test.

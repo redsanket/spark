@@ -18,25 +18,26 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * A Cluster subclass that implements a Fully Distributed Hadoop cluster.
+ */
 public class FullyDistributedCluster implements Cluster {
 
-	// The base fully distributed configuration.
+	/** The base fully distributed configuration. */
 	protected FullyDistributedConfiguration conf;
 
-	// The state of the fully distributed cluster.
+	/** The state of the fully distributed cluster */
 	protected ClusterState clusterState;
 
-    // The Hadoop version on the fully distributed cluster.
+    /** The Hadoop version on the fully distributed cluster. */
     protected String clusterVersion = "";
 	
-	private String HADOOP_INSTALL;
-	private String CONFIG_BASE_DIR;
+    /** The name of the cluster */
 	private String CLUSTER_NAME;
 	
-	/*
-	 * Class constructor.
-	 * 
-	 * Creates a brand new default FullyDistributedConfiguration, and writes out the configuration to disk.
+	/**
+	 * Initializes the fully distributed cluster and sets up a new fully
+	 * distributed configuration.
 	 */
 	public FullyDistributedCluster() throws IOException
 	{
@@ -49,10 +50,11 @@ public class FullyDistributedCluster implements Cluster {
 		// this.conf.write();
 	}
 
-	/*
-	 * Class constructor.
+	/**
+	 * Initializes the fully distributed cluster and sets up the fully
+	 * distributed configuration using a passed-in FullyDistributedConfiguration.
 	 * 
-	 * Accepts a custom configuration, and assumed you will write it to disk.
+	 * @param conf a configuration to initialize the cluster with.
 	 */
 	public FullyDistributedCluster(FullyDistributedConfiguration conf)
 	{
@@ -60,18 +62,8 @@ public class FullyDistributedCluster implements Cluster {
 		this.initTestSessionConf();
 	}
 	
-	/*
-	 * Starts the fully distributed cluster instance by starting:
-	 *   - NameNode
-	 *   - SecondaryNameNode
-	 *   - DataNode
-	 *   - ResourceManager
-	 *   - JobHistoryServer
-	 *   
-	 * Also verifies that the daemons have started by using jps.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#start()
+	/**
+	 * Currently unimplemented for FullyDistributedCluster.
 	 */
 	public void start() {
 /*
@@ -106,12 +98,8 @@ public class FullyDistributedCluster implements Cluster {
 */
 	}
 
-	/* 
-	 * Stops all daemons associated with the fully distributed cluster instance, and
-	 * verifies they have stopped with jps.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#stop()
+	/**
+	 * Currently unimplemented for FullyDistributedCluster.
 	 */
 	public void stop() {
 /*
@@ -136,34 +124,30 @@ public class FullyDistributedCluster implements Cluster {
 */
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#die()
+	/**
+	 * Currently unimplemented for FullyDistributedCluster.
 	 */
 	public void die() {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#reset()
+	/**
+	 * Restarts the fully distributed cluster.
 	 */
-	public void reset() {
-		
+	public void reset() {	
 		restartCluster();
-
 	}
 
-	/*
+	/**
 	 * Set a custom configuration for the fully distributed cluster instance.
 	 * 
-	 * @param conf The custom FullyDistributedConfiguration
+	 * @param conf The custom configuration to set.
 	 */
 	public void setConf(TestConfiguration conf) {
 		this.conf = (FullyDistributedConfiguration)conf;
 	}
 
-	/*
+	/**
 	 * Gets the configuration for this fully distributed cluster instance.
 	 * 
 	 * @return FullyDistributedConfiguration the configuration for the cluster instance.
@@ -172,7 +156,7 @@ public class FullyDistributedCluster implements Cluster {
 		return this.conf;
 	}
 
-	/*
+	/**
 	 * Returns the state of the fully distributed cluster instance.
 	 * 
 	 * @return ClusterState the state of the cluster.
@@ -184,11 +168,16 @@ public class FullyDistributedCluster implements Cluster {
 		return this.clusterState;
 	}
 	
+	/**
+	 * Gets the name of the cluster instance.
+	 * 
+	 * @return String the name of the cluster
+	 */
 	public String getClusterName() {
 		return CLUSTER_NAME;
 	}
 	
-    /*
+    /**
      * Returns the version of the fully distributed hadoop cluster being used.
      * 
      * @return String the Hadoop version for the fully distributed cluster.
@@ -200,17 +189,15 @@ public class FullyDistributedCluster implements Cluster {
     	return this.conf.getHadoopProp("HADOOP_VERSION");
     }
 
-    /*
+    /**
 	 * Initialize the test session configuration properties necessary to use the 
 	 * fully distributed cluster instance.
 	 */
 	private void initTestSessionConf() {
-		HADOOP_INSTALL = TestSession.conf.getProperty("HADOOP_INSTALL", "");
-		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
 		CLUSTER_NAME = TestSession.conf.getProperty("CLUSTER_NAME", "");
 	}
 
-    /*
+    /**
      * Restart the cluster.
      * 
      * @return 0 for success or 1 for failure.
@@ -222,7 +209,7 @@ public class FullyDistributedCluster implements Cluster {
 		return returnValue;
 	}
 	
-    /*
+    /**
      * Start the cluster.
      * 
      * @return 0 for success or 1 for failure.
@@ -247,7 +234,7 @@ public class FullyDistributedCluster implements Cluster {
 		  return returnValue;
 	}
 		  
-    /*
+    /**
      * Stop the cluster.
      * 
      * @return 0 for success or 1 for failure.
@@ -274,7 +261,7 @@ public class FullyDistributedCluster implements Cluster {
 	  return returnValue;
 	}
 
-    /*
+    /**
      * Get the sudoers for a given component.
      * 
      * @return String of the sudoer.
@@ -293,7 +280,7 @@ public class FullyDistributedCluster implements Cluster {
 		return sudoer;
 	}
 	
-    /*
+    /**
      * Start or stop the Hadoop daemon processes.
      *
      * @param action The action to perform on the Hadoop daemon
@@ -307,13 +294,13 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 	
-    /*
+    /**
      * Start or stop the Hadoop daemon processes.
      *
      * @param action The action to perform on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
-     * @param hostnames The hostnames to perform the action on. 
+     * @param daemonHost The hostnames to perform the action on. 
      * 
      * @return 0 for success or 1 for failure.
      */
@@ -322,7 +309,7 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 	
-    /*
+    /**
      * Start or stop the Hadoop daemon processes. The method will also wait for
      * the daemons to fully start or stop depending on the expected state. 
      * It will also reinitialize the hadooptest configuration object with the
@@ -333,8 +320,8 @@ public class FullyDistributedCluster implements Cluster {
      * @param action The action to perform on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
+     * @param daemonHost The hostnacomponent The cluster component to perform the action on. 
      * @param confDir The configuration directory to perform the action with. 
-     * @param hosts The hostnacomponent The cluster component to perform the action on. 
      * 
      * @return 0 for success or 1 for failure.
      */
@@ -408,7 +395,7 @@ public class FullyDistributedCluster implements Cluster {
 		return returnCode;
 	}
 	
-    /*
+    /**
      * Wait for the component state for a given action and a given component.
      *
      * @param action The action correlating to the expected state on the Hadoop daemon
@@ -423,14 +410,14 @@ public class FullyDistributedCluster implements Cluster {
 		return waitForComponentState(action, component, waitInterval, maxWait);
 	}
 	
-    /*
+    /**
      * Wait for the component state for a given action and a given component.
      *
      * @param action The action correlating to the expected state on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
-     * @param int waitInterval the wait interval in seconds.
-     * @param int maxWait the maximum iteration to wait for
+     * @param waitInterval the wait interval in seconds.
+     * @param maxWait the maximum iteration to wait for
      * 
      * @return boolean true for success or false for failure.
      */
@@ -440,14 +427,14 @@ public class FullyDistributedCluster implements Cluster {
 				waitInterval, maxWait, this.conf.getClusterNodes(component));
 	}
 		
-    /*
+    /**
      * Wait for the component state for a given action and a given component.
      *
      * @param action The action correlating to the expected state on the Hadoop daemon
      * {"start", "stop"}
      * @param component The cluster component to perform the action on. 
-     * @param int waitInterval the wait interval in seconds.
-     * @param int maxWait the maximum iteration to wait for
+     * @param waitInterval the wait interval in seconds.
+     * @param maxWait the maximum iteration to wait for
      * @param daemonHost String Array of daemon host names
      * 
      * @return boolean true for success or false for failure.
@@ -501,7 +488,7 @@ public class FullyDistributedCluster implements Cluster {
 	    return true;
 	}
 	
-    /*
+    /**
      * Check if the cluster is fully up.
      * 
      * @return true if the cluster is fully up, false if the cluster is not
@@ -526,7 +513,7 @@ public class FullyDistributedCluster implements Cluster {
 	    return overallStatus;
 	}
 	
-    /*
+    /**
      * Check if the cluster is fully down.
      * 
      * @return true if the cluster is fully up, false if the cluster is not
@@ -551,7 +538,7 @@ public class FullyDistributedCluster implements Cluster {
 	    return overallStatus;
 	}
 	
-    /*
+    /**
      * Check if the cluster component is fully up.
      * 
      * @param component cluster component such as gateway, namenode,
@@ -563,27 +550,27 @@ public class FullyDistributedCluster implements Cluster {
 		return isComponentFullyUp(component, null);
 	}
 	
-    /*
+    /**
      * Check if the cluster component is fully up for a given String Array of
      * host names. 
      * 
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host names String Array of daemon host names,
+     * @param daemonHost host names String Array of daemon host names,
      * 
-     * @return true if the cluster is fully up, false if the cluster is not
+     * @return boolean true if the cluster is fully up, false if the cluster is not
      * fully up.
      */
 	public boolean isComponentFullyUp(String component, String[] daemonHost) {
 		return isComponentFullyInExpectedState("start", component, daemonHost);
 	}
 	
-    /*
+    /**
      * Check if the cluster component is up for a single given host name. 
      * 
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host name String of a single daemon host name,
+     * @param daemonHost host name String of a single daemon host name,
      * 
-     * @return true if the cluster is fully up, false if the cluster is not
+     * @return boolean true if the cluster is fully up, false if the cluster is not
      * fully up.
      */
 	public boolean isComponentUpOnSingleHost(String component,
@@ -591,40 +578,40 @@ public class FullyDistributedCluster implements Cluster {
 		return isComponentFullyUp(component, new String[] {daemonHost});		
 	}
 
-    /*
+    /**
      * Check if the cluster component is fully down.
      * 
      * @param component cluster component such as gateway, namenode,
      * 
-     * @return true if the cluster is fully down, false if the cluster is not
+     * @return boolean true if the cluster is fully down, false if the cluster is not
      * fully down.
      */
 	public boolean isComponentFullyDown(String component) {
 		return isComponentFullyDown(component, null);
 	}	
 
-    /*
+    /**
      * Check if the cluster component is fully down for a given String Array of
      * host names. 
      * 
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host names String Array of daemon host names,
+     * @param daemonHost host names String Array of daemon host names,
      * 
-     * @return true if the cluster is fully down, false if the cluster is not
+     * @return boolean true if the cluster is fully down, false if the cluster is not
      * fully down.
      */
 	public boolean isComponentFullyDown(String component, String[] daemonHost) {		
 		return isComponentFullyInExpectedState("stop", component, daemonHost);
 	}
 		
-    /*
+    /**
      * Check if the cluster component is fully in a specified state associated
      * with start or stop.
      * 
      * @param action the action associated with the expected state {"start", "stop"}
      * @param component cluster component such as gateway, namenode,
      * 
-     * @return true if the cluster is fully in the expected state, false if the
+     * @return boolean true if the cluster is fully in the expected state, false if the
      * cluster is not fully in the expected state.
      */
 	public boolean isComponentFullyInExpectedState(String action,
@@ -632,15 +619,15 @@ public class FullyDistributedCluster implements Cluster {
 		return isComponentFullyInExpectedState(action, component, null);
 	}
 	
-    /*
+    /**
      * Check if the cluster component is fully in a specified state associated
      * with start or stop.
      * 
      * @param action the action associated with the expected state {"start", "stop"}
      * @param component cluster component such as gateway, namenode,
-     * @param daemon host names String Array of daemon host names,
+     * @param daemonHost host names String Array of daemon host names,
      * 
-     * @return true if the cluster is fully in the expected state, false if the
+     * @return boolean true if the cluster is fully in the expected state, false if the
      * cluster is not fully in the expected state.
      */
 	public boolean isComponentFullyInExpectedState(String action,
@@ -684,22 +671,22 @@ public class FullyDistributedCluster implements Cluster {
 		return isComponentFullyInExpectedState;
 	}
 	
-    /*
-     * Wait for the saefmode on the namenode to be OFF. 
+    /**
+     * Wait for the safemode on the namenode to be OFF. 
      * 
-     * @return true if safemode is OFF, or false if safemode is ON.
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
      */
 	public boolean waitForSafemodeOff() {
 		return waitForSafemodeOff(-1, null);
 	}
 		
-    /*
-     * Wait for the saefmode on the namenode to be OFF. 
+    /**
+     * Wait for the safemode on the namenode to be OFF. 
      *
-     * @param int timeout 
+     * @param timeout time to wait for safe mode to be off.
      * @param fs file system under test
      * 
-     * @return true if safemode is OFF, or false if safemode is ON.
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
      */
 	public boolean waitForSafemodeOff(int timeout, String fs) {
 
@@ -748,10 +735,12 @@ public class FullyDistributedCluster implements Cluster {
 	}
 	
 
-	/*
+	/**
 	 * Verifies, with jps, that a given process name is running.
 	 * 
 	 * @param process The String representing the name of the process to verify.
+	 * 
+	 * @return boolean whether the java process is running or not.
 	 */
 	private static boolean verifyJpsProcRunning(String process) {
 
