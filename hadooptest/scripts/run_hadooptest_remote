@@ -10,6 +10,7 @@ The options
         [ -s|--source    <source root dir> ] : source root directory
         [ -g|--gateway   <gateway>         ] : gateway host
         [ -n|--nopasswd                    ] : no password prompt
+        [ -j|--java                        ] : run tests via java directly instead of via maven
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
         [ -i|--install                     ] : transport packages to remote host only
         [ -t|--test      <test suite(s)    ] : test suite name(s)
@@ -38,8 +39,8 @@ done
 eval set -- $args
 
 INSTALL_ONLY=0
-USE_MVN=0
-while getopts "c:g:s:t:nmih" opt; do
+USE_MVN=1
+while getopts "c:g:s:t:njmih" opt; do
         case $opt in
                 c) CLUSTER=$OPTARG;;
                 g) GATEWAY=$OPTARG;;
@@ -47,6 +48,7 @@ while getopts "c:g:s:t:nmih" opt; do
                 t) TESTS=$OPTARG;;
                 n) PASSWORD_OPTION="-n";;
                 i) INSTALL_ONLY=1;;
+                j) USE_MVN=0;;
                 m) USE_MVN=1;;
                 h) usage;;
                 *) usage;;
