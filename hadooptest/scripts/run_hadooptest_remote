@@ -97,7 +97,7 @@ fi
 if [ "$INSTALL_ONLY" -ne 1 ]; then
    if [ "$USE_MVN" -eq 1 ]; then
       set -x
-      ssh -t $GATEWAY "$GW_TARGET_WORKSPACE/script/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
+      ssh -t $GATEWAY "$GW_TARGET_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
       set +x
    else 
       set -x
