@@ -1,43 +1,49 @@
 #!/bin/bash
 
-# Usage: 
-# run_hadooptest -c <cluster name> [ -l <hadooptest lib directory> ]
-# run_hadooptest -c faramir
-# run_hadooptest -c faramir -t <test list>
-# run_hadooptest -c faramir -l <libpath1>:<libpath2>:...
-# run_hadooptest -c theoden -l /homes/philips -t hadooptest.regression.Version -n
-
 function usage {
     echo 
     echo "USAGE"
     echo "-----------------------------------------------------------------------------------"
     echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
 The options
-        -c <cluster name> : cluster name
-        [ -l <lib directory> ] : hadooptest lib directory 
-        [ -t <test list> ] : test list 
-        [ -n ] : no password prompt
+        -c|--cluster    <cluster name> : cluster name
+        [ -w|workspace  <workspace>        ] : workspace
+        [ -n|--nopasswd                    ] : no password prompt
+        [ -m|--mvn                         ] : run tests via maven instead of via java directly
+        [ -t|--test      <test suite(s)    ] : test suite name(s). use delimitor comma for mvn, and space for java
+        [ -h|--help                        ] : help
+
+Example:
+$ run_hadooptest --cluster theoden
+$ run_hadooptest --cluster theoden --test SleepJobRunner
+$ run_hadooptest --cluster theoden --mvn --test SleepJobRunner
+$ run_hadooptest -c theoden -t hadooptest.regression.CheckVersion -n
 "
     exit 1
 }
 
 PASSWORD_OPTION=${PASSWORD_OPTION:-"-password"}
-HADOOPTEST_LIB=${HADOOPTEST_LIB:="/home/y/etc/hadooptest/java/lib"}
+WORKSPACE=${WORKSPACE:="/home/y/etc/hadooptest/java/lib"}
 
-DEFAULT_TESTS="\
-hadooptest.regression.CheckVersion \
-hadooptest.regression.ChangeConf \
-hadooptest.regression.RestartCluster \
-hadooptest.regression.yarn.SleepJobRunner\
-"
-TESTS=${TESTS:="$DEFAULT_TESTS"}
+for arg; do 
+    [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
+    if [ "${arg:0:2}" == "--" ]; 
+       then args="${args} -${arg:2:1}" 
+       else args="${args} ${delim}${arg}${delim}"
+    fi
+done
 
-while getopts "c:l:t:nh" opt; do
+# reset the incoming args
+eval set -- $args
+
+USE_MVN=0
+while getopts "c:w:t:nmh" opt; do
 	case $opt in
 		c) CLUSTER=$OPTARG;;
-		l) HADOOPTEST_LIB=$OPTARG;;		
-		n) PASSWORD_OPTION="no-password";;
+		w) WORKSPACE=$OPTARG;;		
 		t) TESTS=$OPTARG;;
+		n) PASSWORD_OPTION="no-password";;
+                m) USE_MVN=1;;
 		h) usage;;
 		*) usage;;
 	esac
@@ -48,30 +54,41 @@ if [ -z $CLUSTER ]; then
    exit 1;
 fi
 
+DEFAULT_TESTS="\
+hadooptest.regression.CheckVersion,\
+hadooptest.regression.ChangeConf,\
+hadooptest.regression.RestartCluster,\
+hadooptest.regression.yarn.SleepJobRunner\
+"
+TESTS=${TESTS:="$DEFAULT_TESTS"}
 
 # Setup Hadoop Env Variables (e.g. HADOOP_COMMON_HOME, HADOOP_CONF_DIR, etc
 
 CLASSPATH="\
 /home/y/lib/jars/junit.jar:\
-/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/:\
-$HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT.jar:\
-$HADOOPTEST_LIB/hadooptest-1.0-SNAPSHOT-tests.jar"
+/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/:"
 
+if [ "$USE_MVN" -eq 0 ]; then
+    CLASSPATH="$CLASSPATH:\
+$WORKSPACE/hadooptest-1.0-SNAPSHOT.jar:\
+$WORKSPACE/hadooptest-1.0-SNAPSHOT-tests.jar"
+fi
+
+HADOOP_INSTALL="/home/gs/gridre/yroot.$CLUSTER"
 HADOOP_JAR_PATHS="
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/common/lib \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/yarn/lib \
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/mapreduce \ 
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/hdfs
+$HADOOP_INSTALL/share/hadoop/share/hadoop/common/lib \
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/common \
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/common/lib \
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/yarn \
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/yarn/lib \
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/mapreduce \ 
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/hdfs
 "
 
 for i in $HADOOP_JAR_PATHS
 do
   CLASSPATH=${CLASSPATH}:`echo -en ${i}`/*
 done
-
 echo "CLASSPATH=$CLASSPATH"
 
 # TODO: long term this should move into the java test framework
@@ -86,8 +103,16 @@ if [ "$PASSWORD_OPTION" != 'no-password' ]; then
    fi
 fi
 
-set -x
-/home/y/bin/java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
-set +x
-
-
+if [ "$USE_MVN" -eq 1 ]; then
+    set -x
+    CLUSTER=$CLUSTER \
+HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
+HADOOP_SHARE=/grid/0/gshome/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
+/home/y/bin/mvn -f pom-ci.xml clean test -Dtest=$TESTS
+    set +x
+else
+    # /home/y/bin/mvn clean package -Pdist -Dtar
+    set -x
+    /home/y/bin/java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
+    set +x
+fi
