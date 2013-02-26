@@ -7,7 +7,7 @@ function usage {
     echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
 The options
         -c|--cluster <cluster name>          : cluster name
-        [ -s|--src       <source root dir> ] : source root directory
+        [ -s|--source    <source root dir> ] : source root directory
         [ -g|--gateway   <gateway>         ] : gateway host
         [ -n|--nopasswd                    ] : no password prompt
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
