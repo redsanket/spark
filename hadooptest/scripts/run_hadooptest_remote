@@ -75,6 +75,9 @@ set +x
 
 SOURCE_ROOT=${SOURCE_ROOT:="/Users/$USER/git/hadooptest/hadooptest"}
 SOURCE_TARGET_DIR=${SOURCE_LIB:="$SOURCE_ROOT/target"}
+
+echo "SOURCE ROOT='$SOURCE_ROOT'"
+
 TGZ_SOURCE_DIR=/tmp
 TGZ_FILE=hadooptest.tgz
 if [ "$USE_MVN" -eq 1 ]; then
