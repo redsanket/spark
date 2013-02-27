@@ -25,7 +25,7 @@ public class SleepJobRunner extends TestSession {
 	@BeforeClass
 	public static void startCluster() {
 		TestSession.start();
-		cluster.start();
+		// cluster.start();
 	}
 	
 	/*
@@ -33,8 +33,8 @@ public class SleepJobRunner extends TestSession {
 	 */
 	@AfterClass
 	public static void stopCluster() {
-		cluster.stop();
-		cluster.getConf().cleanup();
+		// cluster.stop();
+		// cluster.getConf().cleanup();
 	}
 	
 	/******************* TESTS ***********************/	
