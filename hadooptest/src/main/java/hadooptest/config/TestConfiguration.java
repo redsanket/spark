@@ -288,7 +288,7 @@ public abstract class TestConfiguration extends Configuration {
      * (non-Javadoc)
      * @see hadooptest.cluster.Cluster#getVersion()
      */
-    public String getVersionViaCommandLine() {
+    public String getVersionViaCLI() {
     	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
     			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
     	String version = (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];

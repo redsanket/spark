@@ -1,5 +1,6 @@
 package hadooptest.regression;
 
+import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 
@@ -54,15 +55,11 @@ public class RestartCluster extends TestSession {
 	
 	@Test
 	public void restartCluster() {
-
-		// TestSession.cluster.stopCluster();
-		// TestSession.cluster.startCluster();
-		TestSession.cluster.reset();
+		assertTrue("Cluster reset failed", TestSession.cluster.reset());
 		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
-		cluster.waitForSafemodeOff();
-		cluster.isClusterFullyUp();		
-	}
-	
+		assertTrue("Cluster is not off of safemode after cluster reset", cluster.waitForSafemodeOff());
+		assertTrue("Cluster is not fully up after cluster reset", cluster.isClusterFullyUp());		
+	}	
 	
 }

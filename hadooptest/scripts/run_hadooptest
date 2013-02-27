@@ -9,6 +9,7 @@ The options
         -c|--cluster    <cluster name> : cluster name
         [ -w|workspace  <workspace>        ] : workspace
         [ -n|--nopasswd                    ] : no password prompt
+        [ -j|--java                        ] : run tests via java directly instead of via maven
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
         [ -t|--test      <test suite(s)    ] : test suite name(s). use delimitor comma for mvn, and space for java
         [ -h|--help                        ] : help
@@ -36,14 +37,15 @@ done
 # reset the incoming args
 eval set -- $args
 
-USE_MVN=0
-while getopts "c:w:t:nmh" opt; do
+USE_MVN=1
+while getopts "c:w:t:njmh" opt; do
 	case $opt in
 		c) CLUSTER=$OPTARG;;
 		w) WORKSPACE=$OPTARG;;		
 		t) TESTS=$OPTARG;;
 		n) PASSWORD_OPTION="no-password";;
-                m) USE_MVN=1;;
+        j) USE_MVN=0;;
+        m) USE_MVN=1;;
 		h) usage;;
 		*) usage;;
 	esac

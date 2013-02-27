@@ -10,6 +10,7 @@ The options
         [ -s|--source    <source root dir> ] : source root directory
         [ -g|--gateway   <gateway>         ] : gateway host
         [ -n|--nopasswd                    ] : no password prompt
+        [ -j|--java                        ] : run tests via java directly instead of via maven
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
         [ -i|--install                     ] : transport packages to remote host only
         [ -t|--test      <test suite(s)    ] : test suite name(s)
@@ -38,15 +39,16 @@ done
 eval set -- $args
 
 INSTALL_ONLY=0
-USE_MVN=0
-while getopts "c:g:s:t:nmih" opt; do
+USE_MVN=1
+while getopts "c:g:s:t:njmih" opt; do
         case $opt in
                 c) CLUSTER=$OPTARG;;
                 g) GATEWAY=$OPTARG;;
-                s) SOURCE_ROOT=$OPTARG;;
+                s) WORKSPACE=$OPTARG;;
                 t) TESTS=$OPTARG;;
                 n) PASSWORD_OPTION="-n";;
                 i) INSTALL_ONLY=1;;
+                j) USE_MVN=0;;
                 m) USE_MVN=1;;
                 h) usage;;
                 *) usage;;
@@ -71,19 +73,27 @@ ssh -t $GATEWAY "if [ -d $GW_TARGET_WORKSPACE ]; then /bin/rm -rf $GW_TARGET_WOR
 ssh -t $GATEWAY "/bin/mkdir -p $GW_TARGET_WORKSPACE";
 set +x
 
-SOURCE_ROOT=${SOURCE_ROOT:="/Users/$USER/git/hadooptest/hadooptest"}
-SOURCE_TARGET_DIR=${SOURCE_LIB:="$SOURCE_ROOT/target"}
-TGZ_SOURCE_DIR=/tmp
+WORKSPACE=${WORKSPACE:="/Users/$USER/git/hadooptest/hadooptest"}
+WORKSPACE_TARGET_DIR="$WORKSPACE/target"
+
+echo "CLUSTER='$CLUSTER'"
+echo "GATEWAY='$GATEWAY'"
+echo "WORKSPACE='$WORKSPACE'"
+echo "TESTS='$TESTS'"
+echo "USE_MVN='$USE_MVN'"
+echo "INSTALL_ONLY='$INSTALL_ONLY'"
+
+TGZ_DIR=/tmp
 TGZ_FILE=hadooptest.tgz
 if [ "$USE_MVN" -eq 1 ]; then
    set -x
-   tar -zcf $TGZ_SOURCE_DIR/$TGZ_FILE --exclude='target' -C $SOURCE_ROOT .
-   scp $TGZ_SOURCE_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
+   tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $WORKSPACE .
+   scp $TGZ_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
    ssh -t $GATEWAY "/bin/gtar fx $GW_TARGET_WORKSPACE/$TGZ_FILE -C $GW_TARGET_WORKSPACE";
    set +x
 else 
      set -x
-     scp $SOURCE_TARGET_DIR/*.jar $GATEWAY:$GW_TARGET_WORKSPACE
+     scp $WORKSPACE_TARGET_DIR/*.jar $GATEWAY:$GW_TARGET_WORKSPACE
      set +x
 fi
 
@@ -98,6 +108,8 @@ if [ "$INSTALL_ONLY" -ne 1 ]; then
    if [ "$USE_MVN" -eq 1 ]; then
       set -x
       ssh -t $GATEWAY "cd $GW_TARGET_WORKSPACE; $GW_TARGET_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
+      # copy the test results back
+      scp -r $GATEWAY:$GW_TARGET_WORKSPACE/target/surefire-reports $WORKSPACE_TARGET_DIR/
       set +x
    else 
       set -x

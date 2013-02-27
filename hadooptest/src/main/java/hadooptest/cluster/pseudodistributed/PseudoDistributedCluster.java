@@ -67,7 +67,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#start()
 	 */
-	public void start() {
+	public boolean start() {
 
 		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
 		String start_dfs = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh --config " + TestSession.cluster.getConf().getHadoopConfDirPath();
@@ -80,23 +80,34 @@ public class PseudoDistributedCluster implements Cluster {
 		
 		TestSession.logger.info("STARTING DFS...");
 		runProc(start_dfs);
-		assertTrue("The NameNode was not started.", verifyJpsProcRunning("NameNode"));
-		assertTrue("The SecondaryNameNode was not started.", verifyJpsProcRunning("SecondaryNameNode"));
-
+		
 		TestSession.logger.info("STARTING DATANODE...");
 		runProc(start_datanode);
-		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
 		
 		TestSession.logger.info("STARTING YARN");
 		runProc(start_yarn);
-		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
 
 		TestSession.logger.info("STARTING JOB HISTORY SERVER...");
 		runProc(start_historyserver);
-		assertTrue("The JobHistoryServer was not started.", verifyJpsProcRunning("JobHistoryServer"));
 		
 		TestSession.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
 		Util.sleep(30);
+
+		boolean isNameNodeRunning = verifyJpsProcRunning("NameNode");
+		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
+		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
+		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
+		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
+
+		assertTrue("The NameNode was not started.", isNameNodeRunning);
+		assertTrue("The SecondaryNameNode was not started.", isSecondaryNameNodeRunning);
+		assertTrue("The DataNode was not started.", isDataNodeRunning);
+		assertTrue("The ResourceManager was not started.", isResourceManagerRunning);
+		assertTrue("The JobHistoryServer was not started.", isJobHistoryServerRunning);		
+
+		return (isNameNodeRunning && isSecondaryNameNodeRunning && 
+				isDataNodeRunning && isResourceManagerRunning &&
+				isJobHistoryServerRunning);
 	}
 
 	/**
@@ -106,7 +117,7 @@ public class PseudoDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#stop()
 	 */
-	public void stop() {
+	public boolean stop() {
 		String stop_dfs = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-dfs.sh";
 		String stop_yarn = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-yarn.sh";
 		String stop_historyserver = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
@@ -120,11 +131,21 @@ public class PseudoDistributedCluster implements Cluster {
 		// Wait for 10 seconds to ensure that the daemons have had time to stop.
 		Util.sleep(10);
 
-		assertFalse("The NameNode was not stopped.", verifyJpsProcRunning("NameNode"));
-		assertFalse("The SecondaryNameNode was not stopped.", verifyJpsProcRunning("SecondaryNameNode"));
-		assertFalse("The DataNode was not stopped.", verifyJpsProcRunning("DataNode"));
-		assertFalse("The ResourceManager was not stopped.", verifyJpsProcRunning("ResourceManager"));
-		assertFalse("The JobHistoryServer was not stopped.", verifyJpsProcRunning("JobHistoryServer"));
+		boolean isNameNodeRunning = verifyJpsProcRunning("NameNode");
+		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
+		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
+		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
+		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
+
+		assertFalse("The NameNode was not stopped.", isNameNodeRunning);
+		assertFalse("The SecondaryNameNode was not stopped.", isSecondaryNameNodeRunning);
+		assertFalse("The DataNode was not stopped.", isDataNodeRunning);
+		assertFalse("The ResourceManager was not stopped.", isResourceManagerRunning);
+		assertFalse("The JobHistoryServer was not stopped.", isJobHistoryServerRunning);		
+
+		return !(isNameNodeRunning || isSecondaryNameNodeRunning || 
+				isDataNodeRunning || isResourceManagerRunning ||
+				isJobHistoryServerRunning);
 	}
 
 	/**
@@ -143,8 +164,10 @@ public class PseudoDistributedCluster implements Cluster {
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#reset()
 	 */
-	public void reset() {
-
+	public boolean reset() {
+		boolean stopped = stop();
+		boolean started = start();
+		return (stopped && started);
 	}
 
 	/**
@@ -184,7 +207,6 @@ public class PseudoDistributedCluster implements Cluster {
 	 */
 	private static void runProc(String command) {
 		Process proc = null;
-
 		TestSession.logger.debug(command);
 
 		try {

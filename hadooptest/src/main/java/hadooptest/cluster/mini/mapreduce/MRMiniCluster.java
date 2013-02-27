@@ -39,18 +39,20 @@ public class MRMiniCluster extends MiniCluster {
       this.conf = conf;
    }
    
-   public void startMiniClusterService(MiniclusterConfiguration conf) {
+   public boolean startMiniClusterService(MiniclusterConfiguration conf) {
       this.conf = conf;
-      startMiniClusterService();
+      return startMiniClusterService();
    }
 
-   public void stopMiniClusterService() { 
+   public boolean stopMiniClusterService() { 
 	   try {
 		   this.cluster.stop();
+		   return true;
 	   }
 	   catch (IOException ioe) {
 		   ioe.printStackTrace();
 		   TestSession.logger.error("There was a problem stopping the mini cluster service.");
+		   return false;
 	   }
    }
 
@@ -60,15 +62,17 @@ public class MRMiniCluster extends MiniCluster {
 	   return this.cluster;
    }
    
-   protected void startMiniClusterService() {
+   protected boolean startMiniClusterService() {
 	   int numNodeManagers = 1;
 	   
 	   try {
 		   this.cluster = MiniMRClientClusterFactory.create(MRMiniCluster.class, numNodeManagers, this.conf);
+		   return true;
 	   }
 	   catch (IOException ioe) {
 		   ioe.printStackTrace();
 		   TestSession.logger.error("There was a problem starting the mini cluster service.");
+		   return false;
 	   }
 	   
 	   //this.cluster.start();
