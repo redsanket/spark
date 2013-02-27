@@ -109,7 +109,7 @@ if [ "$INSTALL_ONLY" -ne 1 ]; then
       set -x
       ssh -t $GATEWAY "cd $GW_TARGET_WORKSPACE; $GW_TARGET_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
       # copy the test results back
-      scp $GATEWAY:$GW_TARGET_WORKSPACE/target/surefire-reports/* $WORKSPACE_TARGET_DIR/surefire-reports
+      scp -r $GATEWAY:$GW_TARGET_WORKSPACE/target/surefire-reports $WORKSPACE_TARGET_DIR/
       set +x
    else 
       set -x
