@@ -17,14 +17,18 @@ public interface Cluster {
 
    /**
     * Start the cluster from a stopped state.
+    *
+    * @return boolean true for success and false for failure.
     */
-   public void start();
+   public boolean start();
    
    /**
     * Stop the cluster, shut it down cleanly to a state from which
     * it can be restarted.
+    * 
+    * @return boolean true for success and false for failure.
     */
-   public void stop();
+   public boolean stop();
 
    /**
     * Kill the cluster irrespective of the state it is left in.
@@ -34,8 +38,10 @@ public interface Cluster {
    /**
     * Reset the cluster to a default state with the current 
     * configuration, without stopping or killing it.
+    * 
+    * @return boolean true for success and false for failure.
     */ 
-   public void reset();
+   public boolean reset();
    
    /**
     * Get the current state of the cluster.

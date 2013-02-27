@@ -62,66 +62,57 @@ public class FullyDistributedCluster implements Cluster {
 		this.initTestSessionConf();
 	}
 	
-	/**
-	 * Currently unimplemented for FullyDistributedCluster.
-	 */
-	public void start() {
-/*
-		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
-		String start_dfs = HADOOP_INSTALL + "/sbin/start-dfs.sh --config " + CONFIG_BASE_DIR;
-		String start_yarn = HADOOP_INSTALL + "/sbin/start-yarn.sh --config " + CONFIG_BASE_DIR;
-		String start_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh start historyserver --config " + CONFIG_BASE_DIR;
-		String start_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh --config " + CONFIG_BASE_DIR + " start datanode";
+    /**
+     * Start the cluster.
+     * 
+     * @return boolean true for success, false for failure.
+     */
+	public boolean start() {
+		TestSession.logger.info("------------------ START CLUSTER " + 
+				conf.getHadoopProp("CLUSTER_NAME") + 
+				" ---------------------------------");
+		int returnValue = 0;
+		String action = "start";		  
+		String[] components = { 
+				"namenode", 
+				"datanode", 
+				"resourcemanager",
+				"nodemanager" };
+		for (String component : components) {
+			returnValue += this.hadoopDaemon(action, component);
+		}
 
-		//TSM.logger.info("FORMATTING DFS...");
-		//runProc(format_dfs);
-		
-		TSM.logger.info("STARTING DFS...");
-		runProc(start_dfs);
-		assertTrue("The NameNode was not started.", verifyJpsProcRunning("NameNode"));
-		assertTrue("The SecondaryNameNode was not started.", verifyJpsProcRunning("SecondaryNameNode"));
-
-		TSM.logger.info("STARTING DATANODE...");
-		runProc(start_datanode);
-		assertTrue("The DataNode was not started.", verifyJpsProcRunning("DataNode"));
-		
-		TSM.logger.info("STARTING YARN");
-		runProc(start_yarn);
-		assertTrue("The ResourceManager was not started.", verifyJpsProcRunning("ResourceManager"));
-
-		TSM.logger.info("STARTING JOB HISTORY SERVER...");
-		runProc(start_historyserver);
-		assertTrue("The JobHistoryServer was not started.", verifyJpsProcRunning("JobHistoryServer"));
-		
-		TSM.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
-		Util.sleep(30);
-*/
+		if (returnValue > 0) {
+			TestSession.logger.error("Stop Cluster returned error exit code!!!");
+		}
+		return (returnValue == 0) ? true : false;
 	}
 
-	/**
-	 * Currently unimplemented for FullyDistributedCluster.
-	 */
-	public void stop() {
-/*
-		String stop_dfs = HADOOP_INSTALL + "/sbin/stop-dfs.sh";
-		String stop_yarn = HADOOP_INSTALL + "/sbin/stop-yarn.sh";
-		String stop_historyserver = HADOOP_INSTALL + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
-		String stop_datanode = HADOOP_INSTALL + "/sbin/hadoop-daemon.sh stop datanode";
+    /**
+     * Stop the cluster.
+     * 
+     * @return boolean true for success, false for failure.
+     */	
+	public boolean stop() {
+		TestSession.logger.info("------------------ STOP CLUSTER " + 
+				conf.getHadoopProp("CLUSTER_NAME") + 
+				" ---------------------------------");
+		int returnValue = 0;
+		String action = "stop";
 
-		runProc(stop_dfs);
-		runProc(stop_yarn);
-		runProc(stop_historyserver);
-		runProc(stop_datanode);
-
-		// Wait for 10 seconds to ensure that the daemons have had time to stop.
-		Util.sleep(10);
-
-		assertFalse("The NameNode was not stopped.", verifyJpsProcRunning("NameNode"));
-		assertFalse("The SecondaryNameNode was not stopped.", verifyJpsProcRunning("SecondaryNameNode"));
-		assertFalse("The DataNode was not stopped.", verifyJpsProcRunning("DataNode"));
-		assertFalse("The ResourceManager was not stopped.", verifyJpsProcRunning("ResourceManager"));
-		assertFalse("The JobHistoryServer was not stopped.", verifyJpsProcRunning("JobHistoryServer"));
-*/
+		String[] components = { 
+				"nodemanager", 
+				"resourcemanager", 
+				"datanode",
+				"namenode" };
+		for (String component : components) {
+			returnValue += this.hadoopDaemon(action, component);	
+		}
+		  
+		if (returnValue > 0) {
+			TestSession.logger.error("Stop Cluster returned error exit code!!!");
+		}
+		return (returnValue == 0) ? true : false;
 	}
 
 	/**
@@ -133,9 +124,14 @@ public class FullyDistributedCluster implements Cluster {
 
 	/**
 	 * Restarts the fully distributed cluster.
+	 * 
+	 * @return boolean true for success and false for failure.
 	 */
-	public void reset() {	
-		restartCluster();
+	public boolean reset() {
+		
+		boolean stopped = this.stop();
+		boolean started = this.start();
+		return (stopped && started);
 	}
 
 	/**
@@ -195,70 +191,6 @@ public class FullyDistributedCluster implements Cluster {
 	 */
 	private void initTestSessionConf() {
 		CLUSTER_NAME = TestSession.conf.getProperty("CLUSTER_NAME", "");
-	}
-
-    /**
-     * Restart the cluster.
-     * 
-     * @return 0 for success or 1 for failure.
-     */
-	public int restartCluster() {
-		int returnValue = 0;
-		returnValue += stopCluster();
-		returnValue += startCluster();
-		return returnValue;
-	}
-	
-    /**
-     * Start the cluster.
-     * 
-     * @return 0 for success or 1 for failure.
-     */
-	public int startCluster() {
-		  TestSession.logger.info("------------------ START CLUSTER " + 
-				  conf.getHadoopProp("CLUSTER_NAME") + 
-				  " ---------------------------------");
-		  int returnValue = 0;
-		  String action = "start";		  
-		  String[] components = { 
-				  "namenode", 
-				  "datanode", 
-				  "resourcemanager",
-				  "nodemanager" };
-		  for (String component : components) {
-			  returnValue += this.hadoopDaemon(action, component);
-		  }
-		  if (returnValue > 0) {
-			  TestSession.logger.error("Stop Cluster returned error exit code!!!");
-		  }
-		  return returnValue;
-	}
-		  
-    /**
-     * Stop the cluster.
-     * 
-     * @return 0 for success or 1 for failure.
-     */	
-	public int stopCluster() {
-	  TestSession.logger.info("------------------ STOP CLUSTER " + 
-			  conf.getHadoopProp("CLUSTER_NAME") + 
-			  " ---------------------------------");
-	  int returnValue = 0;
-	  String action = "stop";
-
-	  String[] components = { 
-			  "nodemanager", 
-			  "resourcemanager", 
-			  "datanode", 
-			  "namenode" };
-	  for (String component : components) {
-		  returnValue += this.hadoopDaemon(action, component);	
-	  }
-	  
-	  if (returnValue > 0) {
-		  TestSession.logger.error("Stop Cluster returned error exit code!!!");
-	  }
-	  return returnValue;
 	}
 
     /**

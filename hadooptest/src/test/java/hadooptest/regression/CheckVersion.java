@@ -63,9 +63,9 @@ public class CheckVersion extends TestSession {
 		TestSession.logger.info("Cluster Conf Obj: Hadoop Version (API) = '" + testConfVersionAPI + "'");		
 		TestSession.logger.info("Cluster Conf Obj: Hadoop Version (CLI) = '" + testConfVersionCLI + "'");		
 
-		assertTrue("Version has valid format", testConfVersionAPI.matches("\\d+[.\\d+]+"));
-		assertTrue("API and CLI versions match", testConfVersionAPI.equals(testConfVersionCLI));
-		assertTrue("Cluster Object version and Cluster Conf Object version match", clusterVersion.equals(testConfVersionAPI));
+		assertTrue("Version has invalid format!!!", testConfVersionAPI.matches("\\d+[.\\d+]+"));
+		assertTrue("API and CLI versions do not match!!!", testConfVersionAPI.equals(testConfVersionCLI));
+		assertTrue("Cluster Object version and Cluster Conf Object version do not match!!!", clusterVersion.equals(testConfVersionAPI));
 	}
 
 	

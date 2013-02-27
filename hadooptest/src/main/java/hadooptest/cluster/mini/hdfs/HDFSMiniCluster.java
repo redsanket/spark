@@ -44,23 +44,26 @@ public class HDFSMiniCluster extends MiniCluster {
 	   return this.cluster;
    }
    
-   public void startMiniClusterService(MiniclusterConfiguration conf) {
+   public boolean startMiniClusterService(MiniclusterConfiguration conf) {
       this.conf = conf;
-      startMiniClusterService();
+      return startMiniClusterService();
    }
 
-   public void stopMiniClusterService() {
-      this.cluster.shutdown(); 
+   public boolean stopMiniClusterService() {
+      this.cluster.shutdown();
+      return true;
    }
 
-   protected void startMiniClusterService() {
+   protected boolean startMiniClusterService() {
 
 	   try {
 		   cluster = new MiniDFSCluster.Builder(this.conf).build();
+		   return true;
 	   }
 	   catch (IOException ioe) {
 		   ioe.printStackTrace();
 		   TestSession.logger.error("There was a problem starting the mini cluster service.");
+		   return false;
 	   }
 		   
    }

@@ -21,30 +21,27 @@ public abstract class MiniCluster implements Cluster {
    protected ClusterState cluster_state;
    protected String cluster_version = "";
 
-   public void start() {
-
+   public boolean start() {
       this.conf = new MiniclusterConfiguration();
-      startMiniClusterService(this.conf);
+      return startMiniClusterService(this.conf);
 
    }
 
-   public void start(MiniclusterConfiguration conf) throws IOException {
-
-	      this.conf = conf;
-	      startMiniClusterService(conf);
-
+   public boolean start(MiniclusterConfiguration conf) throws IOException {
+	   this.conf = conf;
+	   return startMiniClusterService(conf);
    }
 
-   public void stop() {
-      stopMiniClusterService();
+   public boolean stop() {
+      return stopMiniClusterService();
    }
 
    public void die() {
 
    }
 
-   public void reset() {
-
+   public boolean reset() {
+	   return false;
    }
 
    public void setConf(MiniclusterConfiguration conf) {
@@ -63,8 +60,8 @@ public abstract class MiniCluster implements Cluster {
 	   	return this.cluster_version;
    }
 
-   protected abstract void startMiniClusterService(MiniclusterConfiguration conf);
+   protected abstract boolean startMiniClusterService(MiniclusterConfiguration conf);
 
-   protected abstract void stopMiniClusterService();
+   protected abstract boolean stopMiniClusterService();
 
 }

@@ -46,17 +46,21 @@ public class StandaloneCluster implements Cluster {
 
 	/**
 	 * Start the cluster from a stopped state.
+	 * 
+	 * @return boolean true for success and false for failure.
 	 **/
-	public void start() {
-
+	public boolean start() {
+		return false;
 	}
 
 	/**
 	 * Stop the cluster, shut it down cleanly to a state from which
 	 * it can be restarted.
+	 * 
+	 * @return boolean true for success and false for failure.
 	 **/
-	public void stop() {
-
+	public boolean stop() {
+		return false;
 	}
 
 	/**
@@ -69,9 +73,11 @@ public class StandaloneCluster implements Cluster {
 	/**
 	 * Reset the cluster to a default state with the current 
 	 * configuration, without stopping or killing it.
+	 * 
+	 * @return boolean true for success and false for failure.
 	 **/ 
-	public void reset() {
-
+	public boolean reset() {
+		return false;
 	}
 
 	/**

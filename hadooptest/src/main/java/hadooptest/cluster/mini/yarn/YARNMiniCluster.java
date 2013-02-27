@@ -35,20 +35,21 @@ public class YARNMiniCluster extends MiniCluster {
       this.conf = conf;
    }
 
-   public void startMiniClusterService(MiniclusterConfiguration conf) {
+   public boolean startMiniClusterService(MiniclusterConfiguration conf) {
       this.conf = conf;
-      startMiniClusterService();
+      return startMiniClusterService();
    }
 
-   public void stopMiniClusterService() {
+   public boolean stopMiniClusterService() {
 	   this.cluster.stop();
+	   return true;
    }
    
    public MiniYARNCluster getCluster() {
 	   return this.cluster;
    }
 
-   protected void startMiniClusterService() {
+   protected boolean startMiniClusterService() {
 	   String test_name = "hadooptest_YARN_minicluster";
 	   int numNodeManagers = 2;
 	   int numLocalDirs = 1;
@@ -58,6 +59,7 @@ public class YARNMiniCluster extends MiniCluster {
 	  
 	   this.cluster.init(this.conf);
 	   this.cluster.start();
+	   return true;
    }
    
    public Hashtable<String, String> getPaths() {
