@@ -4,6 +4,13 @@ import hadooptest.TestSession;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
+import hadooptest.SerialTests;
+import org.junit.experimental.categories.Category;
+
+/**
+ * Stops a cluster.
+ */
+@Category(SerialTests.class)
 public class ClusterStop extends TestSession {
 
 	@Test
