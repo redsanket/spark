@@ -68,27 +68,23 @@ public class PseudoDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#start()
 	 */
 	public boolean start() {
-
-		//String format_dfs = HADOOP_INSTALL + "/bin/hadoop --config " + CONFIG_BASE_DIR + " namenode -format";
-		String start_dfs = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh --config " + TestSession.cluster.getConf().getHadoopConfDirPath();
-		String start_yarn = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-yarn.sh --config " + TestSession.cluster.getConf().getHadoopConfDirPath();
-		String start_historyserver = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh start historyserver --config " + TestSession.cluster.getConf().getHadoopConfDirPath();
-		String start_datanode = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh --config " + TestSession.cluster.getConf().getHadoopConfDirPath() + " start datanode";
-
-		//TSM.logger.info("FORMATTING DFS...");
-		//runProc(format_dfs);
+		
+		String[] start_dfs = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh", "--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+		String[] start_yarn = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-yarn.sh", "--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+		String[] start_historyserver = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh", "start", "historyserver", "--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+		String[] start_datanode = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh", "--config", TestSession.cluster.getConf().getHadoopConfDirPath(), "start", "datanode" };
 		
 		TestSession.logger.info("STARTING DFS...");
-		runProc(start_dfs);
+		runProcess(start_dfs);
 		
 		TestSession.logger.info("STARTING DATANODE...");
-		runProc(start_datanode);
+		runProcess(start_datanode);
 		
 		TestSession.logger.info("STARTING YARN");
-		runProc(start_yarn);
+		runProcess(start_yarn);
 
 		TestSession.logger.info("STARTING JOB HISTORY SERVER...");
-		runProc(start_historyserver);
+		runProcess(start_historyserver);
 		
 		TestSession.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
 		Util.sleep(30);
@@ -118,15 +114,15 @@ public class PseudoDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#stop()
 	 */
 	public boolean stop() {
-		String stop_dfs = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-dfs.sh";
-		String stop_yarn = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-yarn.sh";
-		String stop_historyserver = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh stop historyserver";
-		String stop_datanode = this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh stop datanode";
+		String[] stop_dfs = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-dfs.sh" };
+		String[] stop_yarn = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-yarn.sh" };
+		String[] stop_historyserver = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh", "stop", "historyserver" };
+		String[] stop_datanode = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh", "stop", "datanode" };
 
-		runProc(stop_dfs);
-		runProc(stop_yarn);
-		runProc(stop_historyserver);
-		runProc(stop_datanode);
+		runProcess(stop_dfs);
+		runProcess(stop_yarn);
+		runProcess(stop_historyserver);
+		runProcess(stop_datanode);
 
 		// Wait for 10 seconds to ensure that the daemons have had time to stop.
 		Util.sleep(10);
@@ -201,29 +197,30 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 	
 	/**
-	 * Run a local system command.
+	 * Runs a process through the Executor ProcessBuilder, and applies a
+	 * BufferedReader to the output, to put the output in the logs.
 	 * 
-	 * @param command The system command to run.
+	 * @param cmd The string array of the command to process, where each element of the
+	 *                array is a whitespace-delimited element of the command string.
 	 */
-	private static void runProc(String command) {
+	private void runProcess(String[] cmd) {
 		Process proc = null;
-		TestSession.logger.debug(command);
-
+		
 		try {
-			proc = Runtime.getRuntime().exec(command);
+			proc = TestSession.exec.runHadoopProcBuilderGetProc(cmd, TestSession.conf.getProperty("USER", System.getProperty("user.name")));
 			BufferedReader reader=new BufferedReader(new InputStreamReader(proc.getInputStream())); 
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
-				TestSession.logger.debug(line); 				
+				TestSession.logger.debug(line);				
 				line=reader.readLine();
 			} 
 		}
-		catch (Exception e) {
+		catch (IOException ioe) {
 			if (proc != null) {
 				proc.destroy();
 			}
-			e.printStackTrace();
+			ioe.printStackTrace();
 		}
 	}
 
