@@ -21,7 +21,7 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.13</version>
           <configuration>
-            <!-- Skip the default running of this plug-in (or everything will run twice... see below)  -->
+            <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
             <skip>true</skip>
           </configuration>
           <executions>
