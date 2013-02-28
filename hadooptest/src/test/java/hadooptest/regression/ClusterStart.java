@@ -18,6 +18,5 @@ public class ClusterStart extends TestSession {
 		TestSession.start();
 		
 		assertTrue("The cluster did not successfully start.", cluster.start());
-	}
-	
+	}	
 }

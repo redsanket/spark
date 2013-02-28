@@ -10,6 +10,6 @@ package hadooptest.cluster;
  */
 public enum ClusterState {
 	
-	UP, DOWN
+	UP, DOWN, UNKNOWN
 
 }
