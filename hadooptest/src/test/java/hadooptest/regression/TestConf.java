@@ -15,7 +15,7 @@ import org.junit.experimental.categories.Category;
 import java.io.IOException;
 
 @Category(SerialTests.class)
-public class ChangeConf extends TestSession {
+public class TestConf extends TestSession {
 
 	@BeforeClass
 	public static void startTestSession() throws IOException {
