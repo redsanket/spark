@@ -15,17 +15,42 @@
   </properties>
   
   <build>
-    <pluginManagement>
       <plugins>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-surefire-plugin</artifactId>
-	  <version>2.5</version>
-	  <configuration>
-	    <parallel>methods</parallel>
-	  </configuration>
-	</plugin>
-        
+
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.13</version>
+          <configuration>
+            <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
+            <skip>true</skip>
+          </configuration>
+          <executions>
+            <execution>
+              <id>serial-tests</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <skip>false</skip>
+                <groups>hadooptest.SerialTests</groups>
+              </configuration>
+            </execution>
+            <execution>
+              <id>concurrent-tests</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <skip>false</skip>
+                <excludedGroups>hadooptest.SerialTests</excludedGroups>
+                <parallel>methods</parallel>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
@@ -53,7 +78,6 @@
 	</plugin>
 
       </plugins>
-    </pluginManagement>
   </build>
   
   <dependencies>
@@ -143,39 +167,5 @@
 
 
 
-================
 
-
-
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<groupId>hadooptest</groupId>
-	<artifactId>hadooptest</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
-
-	<name>hadooptest</name>
-	<url>http://maven.apache.org</url>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-
-  <build>
-      <pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.5</version>
-					<configuration>
-						<parallel>methods</parallel>
-					</configuration>
-				</plugin>
-				
-				
-			</plugins>
-		</pluginManagement>
-	</build>
 
