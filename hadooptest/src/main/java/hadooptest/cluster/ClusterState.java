@@ -5,9 +5,11 @@
 package hadooptest.cluster;
 
 /**
- * An interface that can represent the base cluster state of any cluster
+ * An enumerated type that can represent the cluster state of any cluster
  * type in the framework.
  */
-public interface ClusterState {
+public enum ClusterState {
+	
+	UP, DOWN
 
 }
