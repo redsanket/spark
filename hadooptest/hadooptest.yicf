@@ -15,8 +15,8 @@ PRODUCT_NAME = hadooptest_framework
 VERSION = `awk '/Version/ {print $2; exit}' README`
 SHORT_DESC = An automation framework for Hadoop.
 LONG_DESC = `cat README`
-CUSTODIAN = rbernota@yahoo-inc.com \
-  http://twiki.corp.yahoo.com/view/Main/RbernotaYahoo#hadooptest_Hadoop_Automation_Framework
+CUSTODIAN = champaign-hadoop-qe-team@yahoo-inc.com \
+  http://twiki.corp.yahoo.com/view/Grid/HadooptestAutomationFramework
 PACKAGE_OS_SPECIFIC = no 
 OWNER = root
 GROUP = wheel
