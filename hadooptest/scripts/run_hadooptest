@@ -116,7 +116,7 @@ if [ "$USE_MVN" -eq 1 ]; then
     CLUSTER=$CLUSTER \
 HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
 HADOOP_SHARE=/grid/0/gshome/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
-/home/y/bin/mvn -f pom-ci.xml clean test $TESTS_OPT
+/home/y/bin/mvn -f pom-ci.xml clean test -DfailIfNoTests=false $TESTS_OPT
     set +x
 else
     # /home/y/bin/mvn clean package -Pdist -Dtar
