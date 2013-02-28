@@ -1,18 +1,20 @@
 package hadooptest.regression;
 
 import hadooptest.TestSession;
+import hadooptest.SerialTests;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.TestConfiguration;
-import hadooptest.config.testconfig.FullyDistributedConfiguration;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 
+@Category(SerialTests.class)
 public class ChangeConf extends TestSession {
 
 	/*
