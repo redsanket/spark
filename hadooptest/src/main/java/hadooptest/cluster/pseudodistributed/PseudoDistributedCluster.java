@@ -28,9 +28,6 @@ public class PseudoDistributedCluster implements Cluster {
 	/** The base pseudodistributed configuration. */
 	protected PseudoDistributedConfiguration conf;
 	
-	/** The state of the pseudodistributed cluster. */
-	protected ClusterState cluster_state;
-	
 	/**
 	 * Initializes the pseudodistributed cluster and sets up a new pseudo
 	 * distributed configuration.  Writes the configuration to disk for 
@@ -165,17 +162,14 @@ public class PseudoDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#getState()
 	 */
 	public ClusterState getState() {
+		ClusterState clusterState = ClusterState.UNKNOWN;
 		if (this.isClusterFullyUp()) {
-			this.cluster_state = ClusterState.UP;
+			clusterState = ClusterState.UP;
 		}
 		else if (this.isClusterFullyDown()) {
-			this.cluster_state = ClusterState.DOWN;
+			clusterState = ClusterState.DOWN;
 		}
-		else {
-			this.cluster_state = ClusterState.UNKNOWN;
-		}
-		
-		return this.cluster_state;
+		return clusterState;
 	}
 
 	/**
