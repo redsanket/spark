@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.job.SleepJob;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -17,21 +16,10 @@ import java.io.IOException;
 public class JobClientAPI extends TestSession {
 
 	/******************* CLASS BEFORE/AFTER ***********************/
-	/*
-	 * Setup a cluster for the test.
-	 */
+
 	@BeforeClass
 	public static void startTestSession() {
 		TestSession.start();
-		cluster.start();
-	}
-	/*
-	 * Cluster cleanup that should happen after running tests in the class instance.
-	 */
-	@AfterClass
-	public static void stopCluster() {
-		cluster.stop();
-		cluster.getConf().cleanup();
 	}
 
 	/******************* TESTS ***********************/

@@ -1,14 +1,6 @@
 package hadooptest.regression.yarn;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import hadooptest.TestSession;
-import hadooptest.Util;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -21,27 +13,10 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class SleepJobAPIRunner extends TestSession {
 	
-	/******************* CLASS BEFORE/AFTER ***********************/
-	
-	/*
-	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
-	 */
 	@BeforeClass
-	public static void startCluster() {
+	public static void startTestSession() {
 		TestSession.start();
-		cluster.start();
 	}
-	
-	/*
-	 * Cluster cleanup that should happen after running tests in the class instance.
-	 */
-	@AfterClass
-	public static void stopCluster() {
-		cluster.stop();
-		cluster.getConf().cleanup();
-	}
-	
-	/******************* TESTS ***********************/	
 	
 	/*
 	 * A test for running a sleep job
@@ -72,6 +47,5 @@ public class SleepJobAPIRunner extends TestSession {
 			e.printStackTrace();
 		}
 	}	
-	  
-	/******************* END TESTS ***********************/	
+
 }

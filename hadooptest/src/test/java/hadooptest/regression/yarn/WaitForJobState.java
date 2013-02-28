@@ -6,7 +6,6 @@ import hadooptest.job.JobState;
 import hadooptest.job.SleepJob;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,25 +17,11 @@ public class WaitForJobState extends TestSession {
 	
 	private SleepJob sleepJob;
 
-	/******************* CLASS BEFORE/AFTER ***********************/
-	
 	@BeforeClass
 	public static void startTestSession() {
 		TestSession.start();
-		cluster.start();
 	}
-	
-	/*
-	 * Cluster cleanup that should happen after running tests in the class instance.
-	 */
-	@AfterClass
-	public static void stopCluster() {
-		cluster.stop();
-		cluster.getConf().cleanup();
-	}
-	
-	/******************* TEST BEFORE/AFTER ***********************/
-	
+
 	/*
 	 * Before each test, we much initialize the sleep job and verify that its job ID is valid.
 	 */
@@ -74,8 +59,6 @@ public class WaitForJobState extends TestSession {
 		}
 	}
 	
-	/******************* TESTS ***********************/
-	
 	@Test
 	public void waitForPrep() {
 		assertTrue("Job did not meet specified state:" + JobState.PREP.toString(),
@@ -101,7 +84,5 @@ public class WaitForJobState extends TestSession {
 				sleepJob.waitFor(JobState.KILLED, 180));
 		
 	}
-	
-	/******************* END TESTS ***********************/
 	
 }

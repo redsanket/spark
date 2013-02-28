@@ -10,8 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,30 +19,9 @@ public class JobSummaryInfo extends TestSession {
 	private SleepJob sleepJob;
 	private FailJob failJob;
 	
-	/******************* CLASS BEFORE/AFTER ***********************/
-	
 	@BeforeClass
 	public static void startTestSession() throws IOException {
 		TestSession.start();
-		cluster.start();
-	}
-	
-	/*
-	 * Cluster cleanup that should happen after running tests in the class instance.
-	 */
-	@AfterClass
-	public static void stopCluster() throws IOException {
-		cluster.stop();
-		cluster.getConf().cleanup();
-	}
-	
-	/******************* TEST BEFORE/AFTER ***********************/
-	
-	/*
-	 * Before each test.
-	 */
-	@Before
-	public void initTest() {
 	}
 	
 	/*
@@ -76,8 +53,6 @@ public class JobSummaryInfo extends TestSession {
 			logger.info("Job was already killed or never started, no need to clean up.");
 		}
 	}
-	
-	/******************* TESTS ***********************/	
 	
 	/*
 	 * A test to check the job summary information after successful job completion.
@@ -276,5 +251,4 @@ public class JobSummaryInfo extends TestSession {
 		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("KILLED", "Sleep\\sjob", conf.getProperty("USER"), "default"));
 	}
 
-	/******************* END TESTS ***********************/	
 }
