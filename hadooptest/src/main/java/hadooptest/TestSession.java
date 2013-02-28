@@ -253,8 +253,10 @@ public abstract class TestSession {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
 		}
 
-		if (cluster.getState() != ClusterState.UP) {
-			logger.error("Cluster is not fully up!!!");
+		ClusterState clusterState = cluster.getState();
+		if (clusterState != ClusterState.UP) {
+			logger.warn("Cluster is not fully up: cluster state='" +
+					clusterState.toString() + "'.'");
 		}
 	}
 	

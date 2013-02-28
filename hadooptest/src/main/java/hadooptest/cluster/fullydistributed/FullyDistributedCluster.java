@@ -26,9 +26,6 @@ public class FullyDistributedCluster implements Cluster {
 	/** The base fully distributed configuration. */
 	protected FullyDistributedConfiguration conf;
 
-	/** The state of the fully distributed cluster */
-	protected ClusterState clusterState;
-
     /** The Hadoop version on the fully distributed cluster. */
     protected String clusterVersion = "";
 	
@@ -161,7 +158,7 @@ public class FullyDistributedCluster implements Cluster {
 	 * @see hadooptest.cluster.Cluster#getState()
 	 */
 	public ClusterState getState() {
-		return this.clusterState;
+		return (this.isClusterFullyUp()) ? ClusterState.UP : ClusterState.DOWN;
 	}
 	
 	/**
