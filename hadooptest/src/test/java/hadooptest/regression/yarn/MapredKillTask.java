@@ -11,7 +11,6 @@ import hadooptest.config.TestConfiguration;
 import hadooptest.job.SleepJob;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,8 +25,6 @@ public class MapredKillTask extends TestSession {
 	private static final int MAPREDUCE_MAP_MAXATTEMPTS = 4;
 	private static final int MAPREDUCE_REDUCE_MAXATTEMPTS = 4;
 
-	/******************* CLASS BEFORE/AFTER ***********************/
-	
 	@BeforeClass
 	public static void startTestSession() {
 		TestSession.start();
@@ -39,20 +36,9 @@ public class MapredKillTask extends TestSession {
 		clusterConfig.write();
 		
 		cluster.setConf(clusterConfig);
-		cluster.start();
+		cluster.reset();
 	}
-	
-	/*
-	 * Cluster cleanup that should happen after running tests in the class instance.
-	 */
-	@AfterClass
-	public static void stopCluster() {
-		cluster.stop();
-		cluster.getConf().cleanup();
-	}
-	
-	/******************* TEST BEFORE/AFTER ***********************/
-	
+
 	/*
 	 * Before each test, we much initialize the sleep job and verify that its job ID is valid.
 	 */
@@ -89,8 +75,6 @@ public class MapredKillTask extends TestSession {
 			logger.info("Job was already killed or never started, no need to clean up.");
 		}
 	}
-	
-	/******************* TESTS ***********************/
 	
 	/*
 	 * A test which attempts to kill a running task from a sleep job.
@@ -135,8 +119,6 @@ public class MapredKillTask extends TestSession {
 		String taskID = sleepJob.getMapTaskAttemptID();
 		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
 	}
-	
-	/******************* END TESTS ***********************/
 
 	/*
 	 * A helper method to get the map task attempt ID, and kill the task attempt.

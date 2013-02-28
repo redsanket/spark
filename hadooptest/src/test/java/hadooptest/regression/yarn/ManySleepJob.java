@@ -10,7 +10,6 @@ import hadooptest.job.SleepJob;
 
 import java.util.Vector;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,27 +21,10 @@ public class ManySleepJob extends TestSession {
 	
 	private Vector<SleepJob> sleepJobVector;
 
-	/******************* CLASS BEFORE/AFTER ***********************/
-	
-	/*
-	 * Setup a cluster for the test.
-	 */
 	@BeforeClass
 	public static void startTestSession() {
 		TestSession.start();
-		cluster.start();
 	}
-	
-	/*
-	 * Cluster cleanup that should happen after running tests in the class instance.
-	 */
-	@AfterClass
-	public static void stopCluster() {
-		cluster.stop();
-		cluster.getConf().cleanup();
-	}
-	
-	/******************* TEST BEFORE/AFTER ***********************/
 	
 	/*
 	 * Before each test, we must initialize the sleep job Vector.
@@ -51,9 +33,7 @@ public class ManySleepJob extends TestSession {
 	public void initTestJob() {
 		this.sleepJobVector = new Vector<SleepJob>();
 	}
-	
-	/******************* TESTS ***********************/
-	
+
 	/*
 	 * A test which launches a number of threaded jobs in rapid succession,
 	 * and tests to see if the jobs were assigned an ID in a reasonable
@@ -89,7 +69,5 @@ public class ManySleepJob extends TestSession {
 					sleepJobVector.get(i).verifyID());
 		}
 	}
-	
-	/******************* END TESTS ***********************/
-	
+
 }

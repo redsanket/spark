@@ -11,34 +11,16 @@ import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.job.SleepJob;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SleepJobRunner extends TestSession {
 	
-	/******************* CLASS BEFORE/AFTER ***********************/
-	
-	/*
-	 * Configuration and cluster setup that should happen before running any of the tests in the class instance.
-	 */
 	@BeforeClass
-	public static void startCluster() {
+	public static void startTestSession() {
 		TestSession.start();
-		// cluster.start();
 	}
-	
-	/*
-	 * Cluster cleanup that should happen after running tests in the class instance.
-	 */
-	@AfterClass
-	public static void stopCluster() {
-		// cluster.stop();
-		// cluster.getConf().cleanup();
-	}
-	
-	/******************* TESTS ***********************/	
-	
+
 	/*
 	 * A test for running a sleep job
 	 * 
@@ -161,5 +143,4 @@ public class SleepJobRunner extends TestSession {
 		assertTrue("Job ID did not match expected format.", jobMatcher.find());
 	}
 	
-	/******************* END TESTS ***********************/	
 }
