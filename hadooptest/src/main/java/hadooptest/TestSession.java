@@ -1,5 +1,7 @@
 package hadooptest;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -14,6 +16,7 @@ import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.standalone.StandaloneCluster;
 import hadooptest.cluster.Cluster;
+import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.Executor;
 import hadooptest.cluster.fullydistributed.FullyDistributedExecutor;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedExecutor;
@@ -248,6 +251,10 @@ public abstract class TestSession {
 		}
 		else {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
+		}
+
+		if (cluster.getState() != ClusterState.UP) {
+			logger.error("Cluster is not fully up!!!");
 		}
 	}
 	
