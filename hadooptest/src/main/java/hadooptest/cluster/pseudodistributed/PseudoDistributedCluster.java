@@ -4,9 +4,6 @@
 
 package hadooptest.cluster.pseudodistributed;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
@@ -191,13 +188,7 @@ public class PseudoDistributedCluster implements Cluster {
 		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
 		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
 		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
-		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
-
-		assertTrue("The NameNode was not started.", isNameNodeRunning);
-		assertTrue("The SecondaryNameNode was not started.", isSecondaryNameNodeRunning);
-		assertTrue("The DataNode was not started.", isDataNodeRunning);
-		assertTrue("The ResourceManager was not started.", isResourceManagerRunning);
-		assertTrue("The JobHistoryServer was not started.", isJobHistoryServerRunning);		
+		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");	
 
 		return (isNameNodeRunning && isSecondaryNameNodeRunning && 
 				isDataNodeRunning && isResourceManagerRunning &&
@@ -214,13 +205,7 @@ public class PseudoDistributedCluster implements Cluster {
 		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
 		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
 		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
-		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
-
-		assertFalse("The NameNode was not stopped.", isNameNodeRunning);
-		assertFalse("The SecondaryNameNode was not stopped.", isSecondaryNameNodeRunning);
-		assertFalse("The DataNode was not stopped.", isDataNodeRunning);
-		assertFalse("The ResourceManager was not stopped.", isResourceManagerRunning);
-		assertFalse("The JobHistoryServer was not stopped.", isJobHistoryServerRunning);		
+		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");		
 
 		return !(isNameNodeRunning || isSecondaryNameNodeRunning || 
 				isDataNodeRunning || isResourceManagerRunning ||
