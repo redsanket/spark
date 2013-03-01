@@ -85,15 +85,24 @@ echo "INSTALL_ONLY='$INSTALL_ONLY'"
 
 TGZ_DIR=/tmp
 TGZ_FILE=hadooptest.tgz
-if [ "$USE_MVN" -eq 1 ]; then
-   set -x
-   tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $WORKSPACE .
-   scp $TGZ_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
-   ssh -t $GATEWAY "/bin/gtar fx $GW_TARGET_WORKSPACE/$TGZ_FILE -C $GW_TARGET_WORKSPACE";
-   set +x
-else 
+
+set -x
+tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $WORKSPACE .
+scp $TGZ_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
+ssh -t $GATEWAY "/bin/gtar fx $GW_TARGET_WORKSPACE/$TGZ_FILE -C $GW_TARGET_WORKSPACE";
+set +x
+
+#if [ "$USE_MVN" -eq 1 ]; then
+#   set -x
+#   tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $WORKSPACE .
+#   scp $TGZ_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
+#   ssh -t $GATEWAY "/bin/gtar fx $GW_TARGET_WORKSPACE/$TGZ_FILE -C $GW_TARGET_WORKSPACE";
+#   set +x
+#else 
+if [ "$USE_MVN" -ne 1 ]; then
      set -x
      scp $WORKSPACE_TARGET_DIR/*.jar $GATEWAY:$GW_TARGET_WORKSPACE
+     # scp $WORKSPACE/scripts/run_hadooptest $GATEWAY:$GW_TARGET_WORKSPACE
      set +x
 fi
 
