@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.Job.JobState;
 
 import java.io.IOException;
 
@@ -55,7 +56,7 @@ public class JobClientAPI extends TestSession {
 		RunningJob job = jobClient.getJob(jobID);
 		logger.info("API: JOB NAME = " + job.getJobName());
 		logger.info("API: JOB ID = " + job.getID());
-		logger.info("API: JOB STATUS = " + job.getJobState());
+		logger.info("API: JOB STATUS = " +  hadooptest.job.JobState.getState(job.getJobState()).toString());
 
 	}
 	/******************* END TESTS ***********************/
