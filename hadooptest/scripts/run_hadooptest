@@ -81,6 +81,8 @@ HADOOP_JAR_PATHS="
 $HADOOP_INSTALL/share/hadoop/share/hadoop/common/lib \
 $HADOOP_INSTALL/share/hadoop-*/share/hadoop/common \
 $HADOOP_INSTALL/share/hadoop-*/share/hadoop/common/lib \
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/hdfs \
+$HADOOP_INSTALL/share/hadoop-*/share/hadoop/hdfs/lib \
 $HADOOP_INSTALL/share/hadoop-*/share/hadoop/yarn \
 $HADOOP_INSTALL/share/hadoop-*/share/hadoop/yarn/lib \
 $HADOOP_INSTALL/share/hadoop-*/share/hadoop/mapreduce \ 
