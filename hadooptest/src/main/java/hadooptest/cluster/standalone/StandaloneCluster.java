@@ -5,7 +5,10 @@ import hadooptest.cluster.Cluster;
 import hadooptest.config.testconfig.StandaloneConfiguration;
 import hadooptest.config.TestConfiguration;
 
+import java.io.IOException;
 import java.util.Hashtable;
+
+import org.apache.hadoop.fs.FileSystem;
 
 /**
  * Cluster sublass representation of a Standalone Hadoop cluster.
@@ -88,6 +91,15 @@ public class StandaloneCluster implements Cluster {
 	public void setConf(TestConfiguration conf) {
 		this.conf = (StandaloneConfiguration)conf;
 	}
+
+	/**
+	 * Gets the file system for this cluster instance.
+	 * 
+	 * @return FileSystem for the cluster instance.
+	 */
+	public FileSystem getFS() throws IOException {
+		return FileSystem.get(this.conf);
+	}	
 
 	/**
 	 * Gets the configuration for this pseudodistributed cluster instance.

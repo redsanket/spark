@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.fs.FileSystem;
 
 /**
  * A Cluster subclass that implements a Fully Distributed Hadoop cluster.
@@ -40,11 +41,6 @@ public class FullyDistributedCluster implements Cluster {
 	{
 		this.initTestSessionConf();
 		this.conf = new FullyDistributedConfiguration();
-		
-		// stopCluster();
-		// startCluster();
-		
-		// this.conf.write();
 	}
 
 	/**
@@ -149,6 +145,15 @@ public class FullyDistributedCluster implements Cluster {
 		return this.conf;
 	}
 
+	/**
+	 * Gets the FileSystem object for this cluster instance.
+	 * 
+	 * @return FileSystem for the cluster instance.
+	 */
+	public FileSystem getFS() throws IOException {
+		return FileSystem.get(this.conf);
+	}
+	
 	/**
 	 * Returns the state of the fully distributed cluster instance.
 	 * 

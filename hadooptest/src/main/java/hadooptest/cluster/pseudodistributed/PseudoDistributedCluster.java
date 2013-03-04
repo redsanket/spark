@@ -4,9 +4,6 @@
 
 package hadooptest.cluster.pseudodistributed;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
@@ -20,6 +17,8 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.fs.FileSystem;
+
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.
  */
@@ -27,7 +26,7 @@ public class PseudoDistributedCluster implements Cluster {
 
 	/** The base pseudodistributed configuration. */
 	protected PseudoDistributedConfiguration conf;
-	
+
 	/**
 	 * Initializes the pseudodistributed cluster and sets up a new pseudo
 	 * distributed configuration.  Writes the configuration to disk for 
@@ -36,7 +35,6 @@ public class PseudoDistributedCluster implements Cluster {
 	public PseudoDistributedCluster() throws IOException
 	{
 		this.conf = new PseudoDistributedConfiguration();
-		
 		this.conf.write();
 	}
 
@@ -145,6 +143,15 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 
 	/**
+	 * Gets the file system for this cluster instance.
+	 * 
+	 * @return FileSystem for the cluster instance.
+	 */
+	public FileSystem getFS() throws IOException {
+		return FileSystem.get(this.conf);
+	}
+
+	/**
 	 * Gets the configuration for this pseudodistributed cluster instance.
 	 * 
 	 * @return PseudoDistributedConfiguration the configuration for the cluster instance.
@@ -193,12 +200,6 @@ public class PseudoDistributedCluster implements Cluster {
 		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
 		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
 
-		assertTrue("The NameNode was not started.", isNameNodeRunning);
-		assertTrue("The SecondaryNameNode was not started.", isSecondaryNameNodeRunning);
-		assertTrue("The DataNode was not started.", isDataNodeRunning);
-		assertTrue("The ResourceManager was not started.", isResourceManagerRunning);
-		assertTrue("The JobHistoryServer was not started.", isJobHistoryServerRunning);		
-
 		return (isNameNodeRunning && isSecondaryNameNodeRunning && 
 				isDataNodeRunning && isResourceManagerRunning &&
 				isJobHistoryServerRunning);
@@ -215,12 +216,6 @@ public class PseudoDistributedCluster implements Cluster {
 		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
 		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
 		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
-
-		assertFalse("The NameNode was not stopped.", isNameNodeRunning);
-		assertFalse("The SecondaryNameNode was not stopped.", isSecondaryNameNodeRunning);
-		assertFalse("The DataNode was not stopped.", isDataNodeRunning);
-		assertFalse("The ResourceManager was not stopped.", isResourceManagerRunning);
-		assertFalse("The JobHistoryServer was not stopped.", isJobHistoryServerRunning);		
 
 		return !(isNameNodeRunning || isSecondaryNameNodeRunning || 
 				isDataNodeRunning || isResourceManagerRunning ||
