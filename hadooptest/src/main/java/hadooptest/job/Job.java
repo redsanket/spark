@@ -16,6 +16,10 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobID;
+import org.apache.hadoop.mapred.RunningJob;
+
 /**
  * A class which should represent the base capability of any job
  * submitted to a cluster.
@@ -92,6 +96,56 @@ public abstract class Job extends Thread {
 		else {
 			this.submitNoID();
 		}
+	}
+	
+	/**
+	 * Get the status of the Job through the Hadoop API.
+	 * 
+	 * @return JobState the state of the Job.
+	 */
+	public JobState getJobStatus() {
+		JobState state = JobState.UNKNOWN;
+		
+		try {
+			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+			JobID jobID = new JobID();
+			jobID = JobID.forName(this.ID);
+			RunningJob job = jobClient.getJob(jobID);
+			
+			state = JobState.getState(job.getJobState());
+			TestSession.logger.debug("Job Status: " + state.toString());
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem getting the job status.");
+			ioe.printStackTrace();
+		}
+		
+		return state;
+	}
+	
+	/**
+	 * Get the name of the Job through the Hadoop API.
+	 * 
+	 * @return String the name of the job.
+	 */
+	public String getJobName() {
+		String name = "";
+		
+		try {
+			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+			JobID jobID = new JobID();
+			jobID = JobID.forName(this.ID);
+			RunningJob job = jobClient.getJob(jobID);
+			
+			name = job.getJobName();
+			TestSession.logger.debug("Job Name: " + name);
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem getting the job name.");
+			ioe.printStackTrace();
+		}
+		
+		return name;
 	}
 	
 	/**

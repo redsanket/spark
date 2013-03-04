@@ -48,16 +48,14 @@ public class JobClientAPI extends TestSession {
 				sleepJob.waitForID(10));
 		assertTrue("Sleep job ID for sleep job is invalid.", 
 				sleepJob.verifyID());
-
-		JobClient jobClient = new JobClient(cluster.getConf());
-
-		JobID jobID = new JobID();
-		jobID = JobID.forName(sleepJob.getID());
-		RunningJob job = jobClient.getJob(jobID);
-		logger.info("API: JOB NAME = " + job.getJobName());
-		logger.info("API: JOB ID = " + job.getID());
-		logger.info("API: JOB STATUS = " +  hadooptest.job.JobState.getState(job.getJobState()).toString());
-
+		
+		String name = sleepJob.getJobName();
+		String state = sleepJob.getJobStatus().toString();
+		logger.info("API: JOB NAME = " + name);
+		logger.info("API: JOB STATUS = " + state);
+		
+		assertTrue("Job name was not -Sleep job-.", name.equals("Sleep job"));
+		assertTrue("Job status was not -PREP-.", state.equals("PREP"));
 	}
 	/******************* END TESTS ***********************/
 }
