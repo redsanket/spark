@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.FileSystem;
  * 
  * This is an unfinished class and should not be used.
  */
-public class StandaloneCluster implements Cluster {
+public class StandaloneCluster extends Cluster {
 
 	// The base pseudodistributed configuration.
 	protected StandaloneConfiguration conf;
@@ -74,16 +74,6 @@ public class StandaloneCluster implements Cluster {
 	}
 
 	/**
-	 * Reset the cluster to a default state with the current 
-	 * configuration, without stopping or killing it.
-	 * 
-	 * @return boolean true for success and false for failure.
-	 **/ 
-	public boolean reset() {
-		return false;
-	}
-
-	/**
 	 * Set a custom configuration for the pseudodistributed cluster instance.
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
@@ -91,15 +81,6 @@ public class StandaloneCluster implements Cluster {
 	public void setConf(TestConfiguration conf) {
 		this.conf = (StandaloneConfiguration)conf;
 	}
-
-	/**
-	 * Gets the file system for this cluster instance.
-	 * 
-	 * @return FileSystem for the cluster instance.
-	 */
-	public FileSystem getFS() throws IOException {
-		return FileSystem.get(this.conf);
-	}	
 
 	/**
 	 * Gets the configuration for this pseudodistributed cluster instance.

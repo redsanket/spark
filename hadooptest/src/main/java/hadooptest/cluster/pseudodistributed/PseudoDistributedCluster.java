@@ -22,7 +22,7 @@ import org.apache.hadoop.fs.FileSystem;
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.
  */
-public class PseudoDistributedCluster implements Cluster {
+public class PseudoDistributedCluster extends Cluster {
 
 	/** The base pseudodistributed configuration. */
 	protected PseudoDistributedConfiguration conf;
@@ -122,33 +122,12 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 
 	/**
-	 * Currently unimplemented for PseudoDistributedCluster.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#reset()
-	 */
-	public boolean reset() {
-		boolean stopped = stop();
-		boolean started = start();
-		return (stopped && started);
-	}
-
-	/**
 	 * Set a custom configuration for the pseudodistributed cluster instance.
 	 * 
 	 * @param conf The custom PseudoDistributedConfiguration
 	 */
 	public void setConf(TestConfiguration conf) {
 		this.conf = (PseudoDistributedConfiguration)conf;
-	}
-
-	/**
-	 * Gets the file system for this cluster instance.
-	 * 
-	 * @return FileSystem for the cluster instance.
-	 */
-	public FileSystem getFS() throws IOException {
-		return FileSystem.get(this.conf);
 	}
 
 	/**
@@ -194,15 +173,17 @@ public class PseudoDistributedCluster implements Cluster {
 	 * @return boolean true if all cluster daemons are running.
 	 */
 	private boolean isClusterFullyUp() {
-		boolean isNameNodeRunning = verifyJpsProcRunning("NameNode");
-		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
-		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
-		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
-		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
-
-		return (isNameNodeRunning && isSecondaryNameNodeRunning && 
-				isDataNodeRunning && isResourceManagerRunning &&
-				isJobHistoryServerRunning);
+		String[] components = {
+                "NameNode",
+                "SecondaryNameNode",
+                "DataNode",
+                "ResourceManager",
+                "JobHistoryServer" };
+		boolean isFullyUp = true;
+		for (String component : components) {			
+			isFullyUp = (isFullyUp && verifyJpsProcRunning(component));
+		}
+		return isFullyUp;
 	}
 	
 	/**
@@ -211,15 +192,17 @@ public class PseudoDistributedCluster implements Cluster {
 	 * @return boolean true if all cluster daemons are stopped.
 	 */
 	private boolean isClusterFullyDown() {
-		boolean isNameNodeRunning = verifyJpsProcRunning("NameNode");
-		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
-		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
-		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
-		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");		
-
-		return !(isNameNodeRunning || isSecondaryNameNodeRunning || 
-				isDataNodeRunning || isResourceManagerRunning ||
-				isJobHistoryServerRunning);
+		String[] components = {
+                "NameNode",
+                "SecondaryNameNode",
+                "DataNode",
+                "ResourceManager",
+                "JobHistoryServer" };
+		boolean isFullyDown = true;
+		for (String component : components) {			
+			isFullyDown = (isFullyDown && !verifyJpsProcRunning(component));
+		}
+		return isFullyDown;
 	}
 	
 	/**

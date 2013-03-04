@@ -17,7 +17,7 @@ import org.apache.hadoop.fs.FileSystem;
  * 
  * This is an unfinished class and should not yet be used.
  */
-public abstract class MiniCluster implements Cluster {
+public abstract class MiniCluster extends Cluster {
 
 	protected MiniclusterConfiguration conf;
 	protected ClusterState clusterState;
@@ -42,16 +42,8 @@ public abstract class MiniCluster implements Cluster {
 
    }
 
-   public boolean reset() {
-	   return false;
-   }
-
    public void setConf(MiniclusterConfiguration conf) {
       this.conf = conf;
-   }
-
-   public FileSystem getFS() throws IOException {
-		return FileSystem.get(this.conf);
    }
 
    public MiniclusterConfiguration getConf() {
