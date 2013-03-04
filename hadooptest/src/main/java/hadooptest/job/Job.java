@@ -149,6 +149,28 @@ public abstract class Job extends Thread {
 	}
 	
 	/**
+	 * Get the Hadoop API RunningJob that is represented by this job.
+	 * 
+	 * @return RunningJob the Hadoop API job represented by this job.
+	 */
+	public RunningJob getHadoopJob() {
+		RunningJob job = null;
+		
+		try {
+			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+			JobID jobID = new JobID();
+			jobID = JobID.forName(this.ID);
+			job = jobClient.getJob(jobID);
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem getting the Hadoop job.");
+			ioe.printStackTrace();
+		}
+		
+		return job;
+	}
+	
+	/**
 	 * Sets a user for the job other than the default.
 	 * 
 	 * @param user The user to override the default user with.
