@@ -16,6 +16,10 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobID;
+import org.apache.hadoop.mapred.RunningJob;
+
 /**
  * A class which should represent the base capability of any job
  * submitted to a cluster.
@@ -30,9 +34,6 @@ public abstract class Job extends Thread {
 	
 	/** The queue the job will run under */
 	protected String QUEUE = "";
-	
-	/** The state of the job */
-	protected JobState state;
 	
 	/** The process handle for the job when it is run from a system call */
 	protected Process process = null;
@@ -51,15 +52,6 @@ public abstract class Job extends Thread {
 	 * with Jobs, and don't care about the status or result of the Job.
 	 */
 	protected abstract void submitNoID();
-	
-	/**
-	 * Returns the state of the job in the JobState format.
-	 * 
-	 * @return JobState The state of the job.
-	 */
-	public JobState state() {
-		return this.state;
-	}
 	
 	/**
 	 * Get the process handle for a job submitted from a system call.
@@ -92,6 +84,62 @@ public abstract class Job extends Thread {
 		else {
 			this.submitNoID();
 		}
+	}
+	
+	/**
+	 * Get the status of the Job through the Hadoop API.
+	 * 
+	 * @return JobState the state of the Job.
+	 */
+	public JobState getJobStatus() {
+		JobState state = JobState.UNKNOWN;
+		
+		try {			
+			state = JobState.getState(this.getHadoopJob().getJobState());
+			TestSession.logger.debug("Job Status: " + state.toString());
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem getting the job status.");
+			ioe.printStackTrace();
+		}
+		
+		return state;
+	}
+	
+	/**
+	 * Get the name of the Job through the Hadoop API.
+	 * 
+	 * @return String the name of the job.
+	 */
+	public String getJobName() {
+		String name = null;
+
+		name = this.getHadoopJob().getJobName();
+		TestSession.logger.debug("Job Name: " + name);
+		
+		return name;
+	}
+	
+	/**
+	 * Get the Hadoop API RunningJob that is represented by this job.
+	 * 
+	 * @return RunningJob the Hadoop API job represented by this job.
+	 */
+	public RunningJob getHadoopJob() {
+		RunningJob job = null;
+		
+		try {
+			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+			JobID jobID = new JobID();
+			jobID = JobID.forName(this.ID);
+			job = jobClient.getJob(jobID);
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem getting the Hadoop job.");
+			ioe.printStackTrace();
+		}
+		
+		return job;
 	}
 	
 	/**
@@ -352,6 +400,7 @@ public abstract class Job extends Thread {
 	
 	/**
 	 * Waits indefinitely for the job to succeed, and returns true for success.
+	 * Uses the Hadoop API to check status of the job.
 	 * 
 	 * @return boolean whether the job succeeded
 	 */
@@ -362,12 +411,66 @@ public abstract class Job extends Thread {
 	/**
 	 * Waits for the specified number of minutes for the job to 
 	 * succeed, and returns true for success.
+	 * Uses the Hadoop API to check status of the job.
 	 * 
 	 * @param minutes The number of minutes to wait for the success state.
 	 * 
 	 * @return boolean true if the job was successful, false if it was not or the waitFor timed out.
 	 */
 	public boolean waitForSuccess(int minutes) {
+
+		JobState currentState = JobState.UNKNOWN;
+		
+		// Give the sleep job time to complete
+		for (int i = 0; i <= (minutes * 6); i++) {
+
+			currentState = this.getJobStatus();
+			if (currentState.equals(JobState.SUCCEEDED)) {
+				TestSession.logger.info("JOB " + this.ID + " SUCCEEDED");
+				return true;
+			}
+			else if (currentState.equals(JobState.PREP)) {
+				TestSession.logger.error("JOB " + this.ID + " IS STILL IN PREP STATE");
+			}
+			else if (currentState.equals(JobState.RUNNING)) {
+				TestSession.logger.error("JOB " + this.ID + " IS STILL RUNNING");
+			}
+			else if (currentState.equals(JobState.FAILED)) {
+				TestSession.logger.error("JOB " + this.ID + " FAILED");
+				return false;
+			}
+			else if (currentState.equals(JobState.KILLED)) {
+				TestSession.logger.error("JOB " + this.ID + " WAS KILLED");
+				return false;
+			}
+
+			Util.sleep(10);
+		}
+
+		TestSession.logger.error("JOB " + this.ID + " didn't SUCCEED within the timeout window.");
+		return false;
+	}
+	
+	/**
+	 * Waits indefinitely for the job to succeed, and returns true for success.
+	 * Uses the Hadoop command line interface to check status of the job.
+	 * 
+	 * @return boolean whether the job succeeded
+	 */
+	public boolean waitForSuccessCLI() {
+		return this.waitForSuccessCLI(0);
+	}
+	
+	/**
+	 * Waits for the specified number of minutes for the job to 
+	 * succeed, and returns true for success.
+	 * Uses the Hadoop command line interface to check status of the job.
+	 * 
+	 * @param minutes The number of minutes to wait for the success state.
+	 * 
+	 * @return boolean true if the job was successful, false if it was not or the waitFor timed out.
+	 */
+	public boolean waitForSuccessCLI(int minutes) {
 		Process mapredProc = null;
 
 		Matcher mapredMatcherSuccess;
@@ -463,11 +566,13 @@ public abstract class Job extends Thread {
 	/**
 	 * Waits for the specified number of minutes for the job to 
 	 * meet a specified state, and returns true for successfully reaching the state.
+	 * waitForCLI uses the hadoop/mapred command line interface to check the
+	 * status of the job.
 	 * 
 	 * @param waitForState the job state to wait for
 	 * @param seconds The number of minutes to wait for the job state.
 	 */
-	public boolean waitFor(JobState waitForState, int seconds) {
+	public boolean waitForCLI(JobState waitForState, int seconds) {
 		Process mapredProc = null;
 		JobState currentState = null;
 
@@ -558,6 +663,36 @@ public abstract class Job extends Thread {
 				}
 				e.printStackTrace();
 			}
+
+			TestSession.logger.info("Job " + this.ID + " is in state: " + currentState.toString());
+			
+			if (currentState.equals(waitForState)) {
+				TestSession.logger.info("Job state was successfully reached: " + waitForState.toString());
+				return true;
+			}
+			
+			Util.sleep(10);
+		}
+
+		TestSession.logger.error("JOB " + this.ID + " didn't meet the specified state within the timeout window: " + waitForState.toString());
+		return false;
+	}
+	
+	/**
+	 * Waits for the specified number of minutes for the job to 
+	 * meet a specified state, and returns true for successfully reaching the state.
+	 * waitFor uses the Hadoop API to get the status of the job.
+	 * 
+	 * @param waitForState the job state to wait for
+	 * @param seconds The number of minutes to wait for the job state.
+	 */
+	public boolean waitFor(JobState waitForState, int seconds) {
+		JobState currentState = null;
+		
+		// Give the sleep job time to complete
+		for (int i = 0; i <= seconds; i = i + 10) {
+		
+			currentState = this.getJobStatus();
 
 			TestSession.logger.info("Job " + this.ID + " is in state: " + currentState.toString());
 			
