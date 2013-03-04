@@ -38,7 +38,6 @@ public class HDFSMiniCluster extends MiniCluster {
       this.conf = conf;
    }
 
-
    public MiniDFSCluster getCluster()
    {
 	   return this.cluster;
@@ -84,5 +83,5 @@ public class HDFSMiniCluster extends MiniCluster {
 	public void setConf(TestConfiguration conf) {
 		this.conf = (MiniclusterConfiguration)conf;
 	}
-
+	
 }

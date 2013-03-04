@@ -66,6 +66,38 @@ public abstract class Cluster {
     */
    public abstract ClusterState getState();
 
+	/**
+	 * Check to see if all of the cluster daemons are running.
+	 * 
+	 * @return boolean true if all cluster daemons are running.
+	 */
+	public abstract boolean isFullyUp();
+
+	/**
+	 * Check to see if all of the cluster daemons are stopped.
+	 * 
+	 * @return boolean true if all cluster daemons are stopped.
+	 */
+	public abstract boolean isFullyDown();
+
+	
+    /**
+     * Wait for the safemode on the namenode to be OFF. 
+     * 
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
+     */
+	public abstract boolean waitForSafemodeOff();
+
+    /**
+     * Wait for the safemode on the namenode to be OFF. 
+     *
+     * @param timeout time to wait for safe mode to be off.
+     * @param fs file system under test
+     * 
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
+     */
+	public abstract boolean waitForSafemodeOff(int timeout, String fs);
+
    /**
     * Get the current state of the cluster.
     * 

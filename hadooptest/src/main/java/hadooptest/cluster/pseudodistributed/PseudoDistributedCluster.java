@@ -84,7 +84,7 @@ public class PseudoDistributedCluster extends Cluster {
 		TestSession.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
 		Util.sleep(30);
 
-		return this.isClusterFullyUp();
+		return this.isFullyUp();
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class PseudoDistributedCluster extends Cluster {
 		// Wait for 10 seconds to ensure that the daemons have had time to stop.
 		Util.sleep(10);
 
-		return this.isClusterFullyDown();
+		return this.isFullyDown();
 	}
 
 	/**
@@ -149,10 +149,10 @@ public class PseudoDistributedCluster extends Cluster {
 	 */
 	public ClusterState getState() {
 		ClusterState clusterState = ClusterState.UNKNOWN;
-		if (this.isClusterFullyUp()) {
+		if (this.isFullyUp()) {
 			clusterState = ClusterState.UP;
 		}
-		else if (this.isClusterFullyDown()) {
+		else if (this.isFullyDown()) {
 			clusterState = ClusterState.DOWN;
 		}
 		return clusterState;
@@ -172,7 +172,7 @@ public class PseudoDistributedCluster extends Cluster {
 	 * 
 	 * @return boolean true if all cluster daemons are running.
 	 */
-	private boolean isClusterFullyUp() {
+	public boolean isFullyUp() {
 		String[] components = {
                 "NameNode",
                 "SecondaryNameNode",
@@ -191,7 +191,7 @@ public class PseudoDistributedCluster extends Cluster {
 	 * 
 	 * @return boolean true if all cluster daemons are stopped.
 	 */
-	private boolean isClusterFullyDown() {
+	public boolean isFullyDown() {
 		String[] components = {
                 "NameNode",
                 "SecondaryNameNode",
@@ -205,6 +205,27 @@ public class PseudoDistributedCluster extends Cluster {
 		return isFullyDown;
 	}
 	
+    /**
+     * Wait for the safemode on the namenode to be OFF. 
+     * 
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
+     */
+	public boolean waitForSafemodeOff() {
+		return waitForSafemodeOff(-1, null);
+	}
+		
+    /**
+     * Wait for the safemode on the namenode to be OFF. 
+     *
+     * @param timeout time to wait for safe mode to be off.
+     * @param fs file system under test
+     * 
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
+     */
+	public boolean waitForSafemodeOff(int timeout, String fs) {
+		return false;
+	}
+
 	/**
 	 * Runs a process through the Executor ProcessBuilder, and applies a
 	 * BufferedReader to the output, to put the output in the logs.

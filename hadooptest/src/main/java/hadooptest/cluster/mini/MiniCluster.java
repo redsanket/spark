@@ -58,6 +58,45 @@ public abstract class MiniCluster extends Cluster {
 	   	return this.clusterVersion;
    }
 
+	/**
+	 * Check to see if all of the cluster daemons are running.
+	 * 
+	 * @return boolean true if all cluster daemons are running.
+	 */
+	public boolean isFullyUp() {
+		return false;
+	}
+	
+	/**
+	 * Check to see if all of the cluster daemons are stopped.
+	 * 
+	 * @return boolean true if all cluster daemons are stopped.
+	 */
+	public boolean isFullyDown() {
+		return false;
+	}
+
+   /**
+    * Wait for the safemode on the namenode to be OFF. 
+    * 
+    * @return boolean true if safemode is OFF, or false if safemode is ON.
+    */
+	public boolean waitForSafemodeOff() {
+		return waitForSafemodeOff(-1, null);
+	}
+		
+   /**
+    * Wait for the safemode on the namenode to be OFF. 
+    *
+    * @param timeout time to wait for safe mode to be off.
+    * @param fs file system under test
+    * 
+    * @return boolean true if safemode is OFF, or false if safemode is ON.
+    */
+	public boolean waitForSafemodeOff(int timeout, String fs) {
+		return false;
+	}
+
    protected abstract boolean startMiniClusterService(MiniclusterConfiguration conf);
 
    protected abstract boolean stopMiniClusterService();

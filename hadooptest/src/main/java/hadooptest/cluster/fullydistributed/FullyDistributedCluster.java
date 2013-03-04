@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.fs.FileSystem;
 
 /**
  * A Cluster subclass that implements a Fully Distributed Hadoop cluster.
@@ -142,7 +141,7 @@ public class FullyDistributedCluster extends Cluster {
 	 * @see hadooptest.cluster.Cluster#getState()
 	 */
 	public ClusterState getState() {
-		return (this.isClusterFullyUp()) ? ClusterState.UP : ClusterState.DOWN;
+		return (this.isFullyUp()) ? ClusterState.UP : ClusterState.DOWN;
 	}
 	
 	/**
@@ -407,7 +406,7 @@ public class FullyDistributedCluster extends Cluster {
      * @return true if the cluster is fully up, false if the cluster is not
      * fully up.
      */
-	public boolean isClusterFullyUp() {
+	public boolean isFullyUp() {
 		String[] components = {
 	                       "namenode",
 	                       "resourcemanager",
@@ -432,7 +431,7 @@ public class FullyDistributedCluster extends Cluster {
      * @return true if the cluster is fully up, false if the cluster is not
      * fully up.
      */
-	public boolean isClusterFullyDown() {
+	public boolean isFullyDown() {
 		String[] components = {
 	                       "namenode",
 	                       "resourcemanager",
