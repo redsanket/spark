@@ -17,6 +17,8 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.fs.FileSystem;
+
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.
  */
@@ -24,7 +26,7 @@ public class PseudoDistributedCluster implements Cluster {
 
 	/** The base pseudodistributed configuration. */
 	protected PseudoDistributedConfiguration conf;
-	
+
 	/**
 	 * Initializes the pseudodistributed cluster and sets up a new pseudo
 	 * distributed configuration.  Writes the configuration to disk for 
@@ -33,7 +35,6 @@ public class PseudoDistributedCluster implements Cluster {
 	public PseudoDistributedCluster() throws IOException
 	{
 		this.conf = new PseudoDistributedConfiguration();
-		
 		this.conf.write();
 	}
 
@@ -142,6 +143,15 @@ public class PseudoDistributedCluster implements Cluster {
 	}
 
 	/**
+	 * Gets the file system for this cluster instance.
+	 * 
+	 * @return FileSystem for the cluster instance.
+	 */
+	public FileSystem getFS() throws IOException {
+		return FileSystem.get(this.conf);
+	}
+
+	/**
 	 * Gets the configuration for this pseudodistributed cluster instance.
 	 * 
 	 * @return PseudoDistributedConfiguration the configuration for the cluster instance.
@@ -188,7 +198,7 @@ public class PseudoDistributedCluster implements Cluster {
 		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
 		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
 		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
-		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");	
+		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
 
 		return (isNameNodeRunning && isSecondaryNameNodeRunning && 
 				isDataNodeRunning && isResourceManagerRunning &&

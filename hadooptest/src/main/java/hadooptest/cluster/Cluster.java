@@ -4,6 +4,10 @@
 
 package hadooptest.cluster;
 
+import java.io.IOException;
+
+import org.apache.hadoop.fs.FileSystem;
+
 import hadooptest.config.TestConfiguration;
 
 /**
@@ -70,5 +74,12 @@ public interface Cluster {
     * @param conf the Hadoop cluster configuration to set for the cluster.
     */
    public void setConf(TestConfiguration conf);
+
+   /**
+    * Get the cluster Hadoop file system.
+    * 
+    * @return FileSystem for the cluster instance.
+    */
+   public FileSystem getFS() throws IOException;
 
 }

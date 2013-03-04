@@ -10,6 +10,8 @@ import hadooptest.config.testconfig.MiniclusterConfiguration;
 
 import java.io.IOException;
 
+import org.apache.hadoop.fs.FileSystem;
+
 /**
  * Cluster instance to represent a base mini cluster.
  * 
@@ -17,9 +19,9 @@ import java.io.IOException;
  */
 public abstract class MiniCluster implements Cluster {
 
-   protected MiniclusterConfiguration conf;
-   protected ClusterState cluster_state;
-   protected String cluster_version = "";
+	protected MiniclusterConfiguration conf;
+	protected ClusterState clusterState;
+	protected String clusterVersion = "";
 
    public boolean start() {
       this.conf = new MiniclusterConfiguration();
@@ -48,16 +50,20 @@ public abstract class MiniCluster implements Cluster {
       this.conf = conf;
    }
 
+   public FileSystem getFS() throws IOException {
+		return FileSystem.get(this.conf);
+   }
+
    public MiniclusterConfiguration getConf() {
       return this.conf;
    }
 
    public ClusterState getState() {
-      return this.cluster_state;
+      return this.clusterState;
    }
    
    public String getVersion() {
-	   	return this.cluster_version;
+	   	return this.clusterVersion;
    }
 
    protected abstract boolean startMiniClusterService(MiniclusterConfiguration conf);

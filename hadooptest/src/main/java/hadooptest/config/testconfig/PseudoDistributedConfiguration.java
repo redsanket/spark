@@ -156,8 +156,6 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		set("mapreduce.jobhistory.intermediate-done-dir", configurationDir + "jobhistory/tmp");
 		set("mapreduce.jobhistory.done-dir", configurationDir + "jobhistory/done");
 		set("fs.AbstractFileSystem.hdfs.impl", "org.apache.hadoop.fs.Hdfs");
-		set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
-		set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
 	}
 
 }

@@ -9,6 +9,7 @@ import hadooptest.TestSession;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.VersionInfo;
 
 /** 
@@ -64,8 +65,8 @@ public abstract class TestConfiguration extends Configuration {
 	 * configuration properties.  It then proceeds to initialize the default
 	 * configuration for the reflected cluster type.
 	 */
-	public TestConfiguration() {   
-		super(false);		
+	public TestConfiguration() {
+		super(true);		
 		this.initDefaults();
 
 	}
@@ -206,12 +207,35 @@ public abstract class TestConfiguration extends Configuration {
 
 		this.setKerberosConf();
 		this.initDefaultsClusterSpecific();
-
+		
 		/* 
 		 * Properties beyond this point should be common across pseudo and fully
 		 * distributed cluster configuration.
 		 */
 
+		/*
+		 * core-default.xml contains the two required properties listed below
+		 * that must be defined in the Hadoop Configuration in order for the
+		 * test framework to interact with the Hadoop Classes and APIs. Since
+		 * we are loading core-default.xml as a whole, we will not need to set
+		 * these properties individually.
+		 * 
+		 * this.set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
+		 * this.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+		 * 
+		 * NOTE:
+		 * Consider whether to also load the other default xml files:
+		 * this.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
+		 * this.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
+		 * this.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
+		 * this.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
+		 * this.addResource(this.getClassLoader().getResourceAsStream("distcp-default.xml"));
+		 * this.addResource(this.getClassLoader().getResourceAsStream("httpfs-default.xml"));
+		 * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
+		 */
+		super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
+
+		
 		// Configuration directory and files
 		hadoopProps.setProperty("HADOOP_CONF_DIR", hadoopProps.getProperty("HADOOP_INSTALL") +
 				"/conf/hadoop");
@@ -260,6 +284,9 @@ public abstract class TestConfiguration extends Configuration {
 		hadoopProps.setProperty("HADOOP_STREAMING_JAR", getHadoopProp("HADOOP_JAR_DIR") +
 				"/tools/lib/" + "hadoop-streaming-" + 
 				HADOOP_VERSION + ".jar");
+
+		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_CORE")));
+		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_HDFS")));
 	}
 	
 	/**
