@@ -256,11 +256,11 @@ public abstract class Job extends Thread {
 	}
 	
 	/**
-	 * Kills the job.
+	 * Kills the job.  Uses mapred CLI to kill the job.
 	 * 
 	 * @return boolean Whether the job was successfully killed.
 	 */
-	public boolean kill() {
+	public boolean killCLI() {
 
 		Process mapredProc = null;
 		
@@ -299,6 +299,34 @@ public abstract class Job extends Thread {
 			e.printStackTrace();
 		}
 		
+		TestSession.logger.error("JOB " + this.ID + " WAS NOT KILLED");
+		return false;
+	}
+	
+	/**
+	 * Kills the job.  Uses hadoop API to kill the job.
+	 * 
+	 * @return boolean Whether the job was successfully killed.
+	 */
+	public boolean kill() {
+
+		RunningJob currentJob = this.getHadoopJob();
+		
+		try {
+			currentJob.killJob();
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was an exception when trying to kill the job through the Hadoop API.");
+			ioe.printStackTrace();
+		}
+		
+		JobState currentState = this.getJobStatus();
+		
+		if (currentState.equals(JobState.KILLED)) {
+			TestSession.logger.info("JOB " + this.ID + " WAS KILLED");
+			return true;
+		}
+
 		TestSession.logger.error("JOB " + this.ID + " WAS NOT KILLED");
 		return false;
 	}
