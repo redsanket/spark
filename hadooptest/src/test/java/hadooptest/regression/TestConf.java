@@ -63,7 +63,7 @@ public class TestConf extends TestSession {
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
 		TestSession.cluster.reset();
 		cluster.waitForSafemodeOff();
-		cluster.isClusterFullyUp();
+		cluster.isFullyUp();
 	}
 
 	@Test
