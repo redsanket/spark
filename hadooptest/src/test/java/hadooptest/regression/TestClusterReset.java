@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class RestartCluster extends TestSession {
+public class TestClusterReset extends TestSession {
 
 	@BeforeClass
 	public static void startTestSession() throws IOException {

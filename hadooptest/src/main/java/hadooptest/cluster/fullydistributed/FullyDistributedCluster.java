@@ -22,7 +22,7 @@ import org.apache.hadoop.fs.FileSystem;
 /**
  * A Cluster subclass that implements a Fully Distributed Hadoop cluster.
  */
-public class FullyDistributedCluster implements Cluster {
+public class FullyDistributedCluster extends Cluster {
 
 	/** The base fully distributed configuration. */
 	protected FullyDistributedConfiguration conf;
@@ -116,18 +116,6 @@ public class FullyDistributedCluster implements Cluster {
 	}
 
 	/**
-	 * Restarts the fully distributed cluster.
-	 * 
-	 * @return boolean true for success and false for failure.
-	 */
-	public boolean reset() {
-		
-		boolean stopped = this.stop();
-		boolean started = this.start();
-		return (stopped && started);
-	}
-
-	/**
 	 * Set a custom configuration for the fully distributed cluster instance.
 	 * 
 	 * @param conf The custom configuration to set.
@@ -145,15 +133,6 @@ public class FullyDistributedCluster implements Cluster {
 		return this.conf;
 	}
 
-	/**
-	 * Gets the FileSystem object for this cluster instance.
-	 * 
-	 * @return FileSystem for the cluster instance.
-	 */
-	public FileSystem getFS() throws IOException {
-		return FileSystem.get(this.conf);
-	}
-	
 	/**
 	 * Returns the state of the fully distributed cluster instance.
 	 * 

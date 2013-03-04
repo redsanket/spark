@@ -321,4 +321,16 @@ public abstract class TestConfiguration extends Configuration {
     	String version = (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];
         return version.split(" ")[1];
     }
+    
+    public String toString(String instance) {
+    	if (instance.equals("resources")) {
+    		return "Conf Resources: " + super.toString();
+    	} else if (instance.equals("props")) {
+        	return "Conf Props: " + super.getProps().toString();	        		
+    	}
+    	else {
+    		return "";
+    	}
+    }
+
 }
