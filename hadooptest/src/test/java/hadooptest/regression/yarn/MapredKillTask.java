@@ -108,10 +108,25 @@ public class MapredKillTask extends TestSession {
 	}
 	
 	/*
-	 * A test which attempts to kill a task from a sleep job which has already succeeded.
+	 * A test which attempts to kill a task from a sleep job which has already succeeded,
+	 * using the Hadoop CLI to check job state.
 	 */
 	@Test
-	public void killTaskOfAlreadyCompletedJob() {
+	public void killTaskOfAlreadyCompletedJobCLI() {
+		
+		assertTrue("Job did not succeed.",
+				sleepJob.waitForSuccessCLI(1));
+		
+		String taskID = sleepJob.getMapTaskAttemptID();
+		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
+	}
+
+	/*
+	 * A test which attempts to kill a task from a sleep job which has already succeeded,
+	 * using the Hadoop API to check job state.
+	 */
+	@Test
+	public void killTaskOfAlreadyCompletedJobAPI() {
 		
 		assertTrue("Job did not succeed.",
 				sleepJob.waitForSuccess(1));

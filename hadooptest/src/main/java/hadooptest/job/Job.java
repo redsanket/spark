@@ -400,6 +400,7 @@ public abstract class Job extends Thread {
 	
 	/**
 	 * Waits indefinitely for the job to succeed, and returns true for success.
+	 * Uses the Hadoop API to check status of the job.
 	 * 
 	 * @return boolean whether the job succeeded
 	 */
@@ -410,12 +411,66 @@ public abstract class Job extends Thread {
 	/**
 	 * Waits for the specified number of minutes for the job to 
 	 * succeed, and returns true for success.
+	 * Uses the Hadoop API to check status of the job.
 	 * 
 	 * @param minutes The number of minutes to wait for the success state.
 	 * 
 	 * @return boolean true if the job was successful, false if it was not or the waitFor timed out.
 	 */
 	public boolean waitForSuccess(int minutes) {
+
+		JobState currentState = JobState.UNKNOWN;
+		
+		// Give the sleep job time to complete
+		for (int i = 0; i <= (minutes * 6); i++) {
+
+			currentState = this.getJobStatus();
+			if (currentState.equals(JobState.SUCCEEDED)) {
+				TestSession.logger.info("JOB " + this.ID + " SUCCEEDED");
+				return true;
+			}
+			else if (currentState.equals(JobState.PREP)) {
+				TestSession.logger.error("JOB " + this.ID + " IS STILL IN PREP STATE");
+			}
+			else if (currentState.equals(JobState.RUNNING)) {
+				TestSession.logger.error("JOB " + this.ID + " IS STILL RUNNING");
+			}
+			else if (currentState.equals(JobState.FAILED)) {
+				TestSession.logger.error("JOB " + this.ID + " FAILED");
+				return false;
+			}
+			else if (currentState.equals(JobState.KILLED)) {
+				TestSession.logger.error("JOB " + this.ID + " WAS KILLED");
+				return false;
+			}
+
+			Util.sleep(10);
+		}
+
+		TestSession.logger.error("JOB " + this.ID + " didn't SUCCEED within the timeout window.");
+		return false;
+	}
+	
+	/**
+	 * Waits indefinitely for the job to succeed, and returns true for success.
+	 * Uses the Hadoop command line interface to check status of the job.
+	 * 
+	 * @return boolean whether the job succeeded
+	 */
+	public boolean waitForSuccessCLI() {
+		return this.waitForSuccessCLI(0);
+	}
+	
+	/**
+	 * Waits for the specified number of minutes for the job to 
+	 * succeed, and returns true for success.
+	 * Uses the Hadoop command line interface to check status of the job.
+	 * 
+	 * @param minutes The number of minutes to wait for the success state.
+	 * 
+	 * @return boolean true if the job was successful, false if it was not or the waitFor timed out.
+	 */
+	public boolean waitForSuccessCLI(int minutes) {
 		Process mapredProc = null;
 
 		Matcher mapredMatcherSuccess;
