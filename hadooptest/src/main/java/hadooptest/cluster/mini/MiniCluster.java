@@ -33,6 +33,22 @@ public abstract class MiniCluster extends Cluster {
 	   this.conf = conf;
 	   return startMiniClusterService(conf);
    }
+   
+	/**
+	 * Starts the cluster instance.
+	 * Also verifies that the daemons have started by using jps.
+	 * 
+	 * (non-Javadoc)
+	 * @see hadooptest.cluster.Cluster#start()
+	 * 
+	 * @param waitForSafemodeOff option to wait for safemode off after start.
+	 * Default value is true. 
+	 * 
+	 * @return boolean true for success, false for failure.
+	 */
+   public boolean start(boolean waitForSafemodeOff) {
+	   return false;
+   }
 
    public boolean stop() {
       return stopMiniClusterService();

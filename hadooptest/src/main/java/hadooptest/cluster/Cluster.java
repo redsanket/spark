@@ -26,7 +26,19 @@ public abstract class Cluster {
     *
     * @return boolean true for success and false for failure.
     */
-   public abstract boolean start();
+   public boolean start() {
+	   return start(true);
+   }
+
+   /**
+    * Start the cluster from a stopped state.
+    *
+    * @param waitForSafemodeOff to wait for safemode off after start.
+    * Default is true. 
+    * 
+    * @return boolean true for success and false for failure.
+    */
+   public abstract boolean start(boolean waitForSafemodeOff);
    
    /**
     * Stop the cluster, shut it down cleanly to a state from which
@@ -80,14 +92,15 @@ public abstract class Cluster {
 	 */
 	public abstract boolean isFullyDown();
 
-	
     /**
      * Wait for the safemode on the namenode to be OFF. 
      * 
      * @return boolean true if safemode is OFF, or false if safemode is ON.
      */
-	public abstract boolean waitForSafemodeOff();
-
+	public boolean waitForSafemodeOff() {
+		return waitForSafemodeOff(-1, null);
+	}
+		
     /**
      * Wait for the safemode on the namenode to be OFF. 
      *
@@ -96,8 +109,57 @@ public abstract class Cluster {
      * 
      * @return boolean true if safemode is OFF, or false if safemode is ON.
      */
-	public abstract boolean waitForSafemodeOff(int timeout, String fs);
+	public boolean waitForSafemodeOff(int timeout, String fs) {
 
+		if (timeout < 0) {
+			int defaultTimeout = 300;
+	    	timeout = defaultTimeout;
+	    }
+
+	    if ((fs == null) || fs.isEmpty()) {
+		    // TODO: check if this will still work if custom conf dir is used.
+	    	// fs = this.getConf().getHadoopConfFileProp(
+	        fs = this.getConf().get(
+	        		"fs.defaultFS",
+	        		TestConfiguration.HADOOP_CONF_CORE);
+		}
+
+	    // TODO: get the namenode regardless of cluster type
+	    // String namenode = this.getConf().getClusterNodes("namenode")[0];	
+		String[] safemodeGetCmd = { this.getConf().getHadoopProp("HDFS_BIN"),
+				"--config", this.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+				"dfsadmin", "-fs", fs, "-safemode", "get" };
+			
+		String[] output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
+		boolean isSafemodeOff = 
+				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
+		 
+	    // for the time out duration wait and see if the namenode comes out of safemode
+	    int waitTime=30;
+	    int i=1;
+	    while ((timeout > 0) && (!isSafemodeOff)) {
+	    	TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i + ": WAIT " + waitTime + "s:" );
+	    	try {
+	    		Thread.sleep(waitTime*1000);
+	    	} catch  (InterruptedException e) {
+	    		TestSession.logger.error("Encountered Interrupted Exception: " +
+	    				e.toString());
+	    	}
+	    	output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
+	    	isSafemodeOff = 
+	    			(output[1].trim().equals("Safe mode is OFF")) ? true : false;
+	        timeout = timeout - waitTime;
+	        i++;
+	    }
+	    
+	    if (!isSafemodeOff) {
+	    	// TestSession.logger.info("ALERT: NAMENODE " + namenode + " IS STILL IN SAFEMODE");
+	    	TestSession.logger.info("ALERT: NAMENODE IS STILL IN SAFEMODE");
+	    }
+	    
+	    return isSafemodeOff;
+	}
+	
    /**
     * Get the current state of the cluster.
     * 

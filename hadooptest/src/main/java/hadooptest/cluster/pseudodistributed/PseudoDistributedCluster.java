@@ -17,8 +17,6 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.fs.FileSystem;
-
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.
  */
@@ -61,13 +59,27 @@ public class PseudoDistributedCluster extends Cluster {
 	 * 
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#start()
+	 * 
+	 * @param waitForSafemodeOff option to wait for safemode off after start.
+	 * Default value is true. 
+	 * 
+	 * @return boolean true for success, false for failure.
 	 */
-	public boolean start() {
-		
-		String[] start_dfs = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh", "--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
-		String[] start_yarn = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-yarn.sh", "--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
-		String[] start_historyserver = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh", "start", "historyserver", "--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
-		String[] start_datanode = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh", "--config", TestSession.cluster.getConf().getHadoopConfDirPath(), "start", "datanode" };
+	public boolean start(boolean waitForSafemodeOff) {		
+		String[] start_dfs = {
+				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh", 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+		String[] start_yarn = {
+				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-yarn.sh", 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+		String[] start_historyserver = {
+				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh",
+				"start", "historyserver", 
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+		String[] start_datanode = {
+				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh",
+				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"start", "datanode" };
 		
 		TestSession.logger.info("STARTING DFS...");
 		runProcess(start_dfs);
@@ -81,10 +93,17 @@ public class PseudoDistributedCluster extends Cluster {
 		TestSession.logger.info("STARTING JOB HISTORY SERVER...");
 		runProcess(start_historyserver);
 		
-		TestSession.logger.info("Sleeping for 30s to wait for HDFS to get out of safe mode.");
-		Util.sleep(30);
+		boolean isFullyUp = this.isFullyUp();
+		TestSession.logger.info("isFullyUp=" + isFullyUp);
 
-		return this.isFullyUp();
+		boolean isSafeModeOff =false;
+		if (waitForSafemodeOff) {
+			TestSession.logger.info("Wait for HDFS to get out of safe mode.");
+			isSafeModeOff = this.waitForSafemodeOff();
+			TestSession.logger.info("waitForSafemodeOff=" + isSafeModeOff);
+		}
+		
+		return (waitForSafemodeOff) ? (isSafeModeOff && isFullyUp) : isFullyUp;
 	}
 
 	/**
@@ -205,27 +224,6 @@ public class PseudoDistributedCluster extends Cluster {
 		return isFullyDown;
 	}
 	
-    /**
-     * Wait for the safemode on the namenode to be OFF. 
-     * 
-     * @return boolean true if safemode is OFF, or false if safemode is ON.
-     */
-	public boolean waitForSafemodeOff() {
-		return waitForSafemodeOff(-1, null);
-	}
-		
-    /**
-     * Wait for the safemode on the namenode to be OFF. 
-     *
-     * @param timeout time to wait for safe mode to be off.
-     * @param fs file system under test
-     * 
-     * @return boolean true if safemode is OFF, or false if safemode is ON.
-     */
-	public boolean waitForSafemodeOff(int timeout, String fs) {
-		return false;
-	}
-
 	/**
 	 * Runs a process through the Executor ProcessBuilder, and applies a
 	 * BufferedReader to the output, to put the output in the logs.

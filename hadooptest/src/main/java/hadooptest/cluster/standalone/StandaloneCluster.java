@@ -48,11 +48,19 @@ public class StandaloneCluster extends Cluster {
 	}
 
 	/**
-	 * Start the cluster from a stopped state.
+	 * Starts the cluster instance:
+	 *   
+	 * Also verifies that the daemons have started by using jps.
 	 * 
-	 * @return boolean true for success and false for failure.
-	 **/
-	public boolean start() {
+	 * (non-Javadoc)
+	 * @see hadooptest.cluster.Cluster#start()
+	 * 
+	 * @param waitForSafemodeOff option to wait for safemode off after start.
+	 * Default value is true. 
+	 * 
+	 * @return boolean true for success, false for failure.
+	 */
+	public boolean start(boolean waitForSafemodeOff) {
 		return false;
 	}
 

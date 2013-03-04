@@ -57,9 +57,12 @@ public class FullyDistributedCluster extends Cluster {
     /**
      * Start the cluster.
      * 
+	 * @param waitForSafemodeOff option to wait for safemode off after start.
+	 * Default value is true. 
+	 * 
      * @return boolean true for success, false for failure.
      */
-	public boolean start() {
+	public boolean start(boolean waitForSafemodeOff) {		
 		TestSession.logger.info("------------------ START CLUSTER " + 
 				conf.getHadoopProp("CLUSTER_NAME") + 
 				" ---------------------------------");
@@ -77,7 +80,23 @@ public class FullyDistributedCluster extends Cluster {
 		if (returnValue > 0) {
 			TestSession.logger.error("Stop Cluster returned error exit code!!!");
 		}
-		return (returnValue == 0) ? true : false;
+
+		boolean foundNoErrors = (returnValue == 0) ? true : false;
+		TestSession.logger.info("return value has error=" + foundNoErrors);
+		
+		boolean isFullyUp = this.isFullyUp();
+		TestSession.logger.info("isFullyUp=" + isFullyUp);
+
+		boolean isSafeModeOff =false;
+		if (waitForSafemodeOff) {
+			TestSession.logger.info("Wait for HDFS to get out of safe mode.");
+			isSafeModeOff = this.waitForSafemodeOff();
+			TestSession.logger.info("waitForSafemodeOff=" + isSafeModeOff);
+		}
+		
+		return (waitForSafemodeOff) ?
+				(foundNoErrors && isSafeModeOff && isFullyUp) :
+				(foundNoErrors && isFullyUp);		
 	}
 
     /**
