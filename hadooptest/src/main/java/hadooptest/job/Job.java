@@ -210,47 +210,11 @@ public abstract class Job extends Thread {
 			}
 		}
 		
-		// Get job status
-
-		Process mapredProc = null;
-
-		String[] mapredCmd = { 
-				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
-				"job", "-status", this.ID };
-		
-		TestSession.logger.debug(mapredCmd);
-
-		String mapredPatternStr = "(.*)(Job state: FAILED)(.*)";
-		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
-		
-		// Greps the job status output to see if it failed the job 
-
-		try {
-			mapredProc = TestSession.exec.runHadoopProcBuilderGetProc(mapredCmd, this.USER);
-			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
-			String line=reader.readLine(); 
-			while(line!=null) 
-			{ 
-				TestSession.logger.debug(line);
-				
-				Matcher mapredMatcher = mapredPattern.matcher(line);
-				
-				if (mapredMatcher.find()) {
-					TestSession.logger.info("JOB " + this.ID + " WAS FAILED");
-					return true;
-				}
-				
-				line=reader.readLine();
-			} 
+		if (this.getJobStatus().equals(JobState.FAILED)) {
+			TestSession.logger.info("JOB " + this.ID + " WAS FAILED");
+			return true;
 		}
-		catch (Exception e) {
-			if (mapredProc != null) {
-				mapredProc.destroy();
-			}
-			e.printStackTrace();
-		}
-
+		
 		TestSession.logger.error("JOB " + this.ID + " WAS NOT FAILED");
 		return false; // job didn't fail
 	}
