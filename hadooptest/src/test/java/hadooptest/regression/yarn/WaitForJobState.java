@@ -60,28 +60,54 @@ public class WaitForJobState extends TestSession {
 	}
 	
 	@Test
-	public void waitForPrep() {
+	public void waitForPrepAPI() {
 		assertTrue("Job did not meet specified state:" + JobState.PREP.toString(),
 				sleepJob.waitFor(JobState.PREP, 60));
 	}
 	
 	@Test
-	public void waitForRunning() {
+	public void waitForRunningAPI() {
 		assertTrue("Job did not meet specified state:" + JobState.RUNNING.toString(),
 				sleepJob.waitFor(JobState.RUNNING, 120));
 	}
 	
 	@Test
-	public void waitForSucceeded() {
+	public void waitForSucceededAPI() {
 		assertTrue("Job did not meet specified state:" + JobState.SUCCEEDED.toString(),
 				sleepJob.waitFor(JobState.SUCCEEDED, 180));
 	}
 	
 	@Test
-	public void waitForKilled() {
+	public void waitForKilledAPI() {
 		sleepJob.kill();
 		assertTrue("Job did not meet specified state:" + JobState.KILLED.toString(),
 				sleepJob.waitFor(JobState.KILLED, 180));
+		
+	}
+	
+	@Test
+	public void waitForPrepCLI() {
+		assertTrue("Job did not meet specified state:" + JobState.PREP.toString(),
+				sleepJob.waitForCLI(JobState.PREP, 60));
+	}
+	
+	@Test
+	public void waitForRunningCLI() {
+		assertTrue("Job did not meet specified state:" + JobState.RUNNING.toString(),
+				sleepJob.waitForCLI(JobState.RUNNING, 120));
+	}
+	
+	@Test
+	public void waitForSucceededCLI() {
+		assertTrue("Job did not meet specified state:" + JobState.SUCCEEDED.toString(),
+				sleepJob.waitForCLI(JobState.SUCCEEDED, 180));
+	}
+	
+	@Test
+	public void waitForKilledCLI() {
+		sleepJob.kill();
+		assertTrue("Job did not meet specified state:" + JobState.KILLED.toString(),
+				sleepJob.waitForCLI(JobState.KILLED, 180));
 		
 	}
 	
