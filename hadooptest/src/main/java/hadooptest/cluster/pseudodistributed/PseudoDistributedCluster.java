@@ -215,7 +215,7 @@ public class PseudoDistributedCluster implements Cluster {
 		boolean isSecondaryNameNodeRunning = verifyJpsProcRunning("SecondaryNameNode");
 		boolean isDataNodeRunning = verifyJpsProcRunning("DataNode");
 		boolean isResourceManagerRunning = verifyJpsProcRunning("ResourceManager");
-		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");
+		boolean isJobHistoryServerRunning = verifyJpsProcRunning("JobHistoryServer");		
 
 		return !(isNameNodeRunning || isSecondaryNameNodeRunning || 
 				isDataNodeRunning || isResourceManagerRunning ||
