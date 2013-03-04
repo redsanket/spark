@@ -106,13 +106,8 @@ public abstract class Job extends Thread {
 	public JobState getJobStatus() {
 		JobState state = JobState.UNKNOWN;
 		
-		try {
-			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-			JobID jobID = new JobID();
-			jobID = JobID.forName(this.ID);
-			RunningJob job = jobClient.getJob(jobID);
-			
-			state = JobState.getState(job.getJobState());
+		try {			
+			state = JobState.getState(this.getHadoopJob().getJobState());
 			TestSession.logger.debug("Job Status: " + state.toString());
 		}
 		catch (IOException ioe) {
@@ -129,21 +124,10 @@ public abstract class Job extends Thread {
 	 * @return String the name of the job.
 	 */
 	public String getJobName() {
-		String name = "";
-		
-		try {
-			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-			JobID jobID = new JobID();
-			jobID = JobID.forName(this.ID);
-			RunningJob job = jobClient.getJob(jobID);
-			
-			name = job.getJobName();
-			TestSession.logger.debug("Job Name: " + name);
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem getting the job name.");
-			ioe.printStackTrace();
-		}
+		String name = null;
+
+		name = this.getHadoopJob().getJobName();
+		TestSession.logger.debug("Job Name: " + name);
 		
 		return name;
 	}
