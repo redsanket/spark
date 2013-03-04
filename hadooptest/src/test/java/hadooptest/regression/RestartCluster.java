@@ -25,9 +25,8 @@ public class RestartCluster extends TestSession {
 	
 	@Test
 	public void restartCluster() {
-		assertTrue("Cluster reset failed", TestSession.cluster.reset());
-		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		assertTrue("Cluster reset failed", cluster.reset());		
 		assertTrue("Cluster is not off of safemode after cluster reset", cluster.waitForSafemodeOff());
 		assertTrue("Cluster is not fully up after cluster reset", cluster.isClusterFullyUp());		
 	}	
