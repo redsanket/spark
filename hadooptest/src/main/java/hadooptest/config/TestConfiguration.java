@@ -234,27 +234,19 @@ public abstract class TestConfiguration extends Configuration {
 		 * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
 		 */
 		super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
-
 		
 		// Configuration directory and files
-		hadoopProps.setProperty("HADOOP_CONF_DIR", hadoopProps.getProperty("HADOOP_INSTALL") +
-				"/conf/hadoop");
-		hadoopProps.setProperty("HADOOP_DEFAULT_CONF_DIR",
-				hadoopProps.getProperty("HADOOP_CONF_DIR"));
-		this.setHadoopConfDirPath("gateway",
-				hadoopProps.getProperty("HADOOP_CONF_DIR"));
-		hadoopProps.setProperty("HADOOP_CONF_CORE",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_CORE);
-		hadoopProps.setProperty("HADOOP_CONF_HDFS",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_HDFS);
-		hadoopProps.setProperty("HADOOP_CONF_MAPRED",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_MAPRED);
-		hadoopProps.setProperty("HADOOP_CONF_YARN",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_YARN);
-		hadoopProps.setProperty("HADOOP_CONF_CAPACITY_SCHEDULER",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_CAPACITY_SCHEDULER);
-		hadoopProps.setProperty("HADOOP_CONF_FAIR_SCHEDULER",
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + "/" + HADOOP_CONF_FAIR_SCHEDULER);
+		String confDir=
+				hadoopProps.getProperty("HADOOP_INSTALL") + "/conf/hadoop";
+		hadoopProps.setProperty("HADOOP_CONF_DIR", confDir);
+		hadoopProps.setProperty("HADOOP_DEFAULT_CONF_DIR", confDir);
+		this.setHadoopConfDirPath("gateway",confDir);
+		hadoopProps.setProperty("HADOOP_CONF_CORE", confDir + "/" + HADOOP_CONF_CORE);
+		hadoopProps.setProperty("HADOOP_CONF_HDFS", confDir + "/" + HADOOP_CONF_HDFS);
+		hadoopProps.setProperty("HADOOP_CONF_MAPRED", confDir + "/" + HADOOP_CONF_MAPRED);
+		hadoopProps.setProperty("HADOOP_CONF_YARN", confDir + "/" + HADOOP_CONF_YARN);
+		hadoopProps.setProperty("HADOOP_CONF_CAPACITY_SCHEDULER", confDir + "/" + HADOOP_CONF_CAPACITY_SCHEDULER);
+		hadoopProps.setProperty("HADOOP_CONF_FAIR_SCHEDULER", confDir + "/" + HADOOP_CONF_FAIR_SCHEDULER);
 
 		// Binaries
 		hadoopProps.setProperty("HADOOP_BIN_DIR", hadoopProps.getProperty("HADOOP_COMMON_HOME") + "/bin");
