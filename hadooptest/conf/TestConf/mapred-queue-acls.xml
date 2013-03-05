@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- mapred-queue-acls.xml -->
+<configuration>
+
+
+<!-- queues keystone,sponsoredsearch,bt,sds,audience,atg_other,search,gridops,grid-dev,grideng,unfunded,default -->
+
+<!-- aliases -->
+
+  <property>
+    <name>alias.grid.ops</name>
+    <value>aroop,aw,bobliu,jimhuang,knoguchi,niteshp,nitinsb,rajive,rawk,sjaiswal,ssachin,theiger,tmary,vacharya,gadmin</value>
+  </property>
+
+  <property>
+    <name>alias.grid.team.members</name>
+    <value>aloks,amarrk,amarsri,amiry,aroop,arunc,aw,bobliu,borya,chansler,chrisdo,chzhang,ddas,eyang,gates,gmurry,gogate,gravi,gridperf,hadoopqa,hairong,htang,iyappans,jayantpm,jboulon,jhoman,jimhuang,jothipn,kan,karams,karthv,khaled,knoguchi,ltucker,macyang,mahadev,marco,milindb,ndaley,nitinsb,olgan,oom,peeyushb,peilin,pradeepk,rajive,rangadi,rawk,rksingh,robw,rphulari,rramya,sameerp,sapan,sharadag,shv,sjaiswal,slawande,sms,sradia,sreerama,sriksun,ssachin,sumanshg,sureshms,svenkat,tejas,theiger,tmary,tsz,vacharya,vinodkv,viraj,vivekr,yhemanth,mchiang,marchen,smilli,philips,jnaisbit,hadoop1,hadoop2,hadoop3,hadoop4,hadoop5,hadoop6,hadoop7,hadoop8,hadoop9,hadoop10,hadoop11,hadoop12,hadoop13,hadoop14,hadoop15,hadoop16,hadoop17,hadoop18,hadoop19,hadoop20</value>
+  </property>
+
+<!-- END aliases -->
+
+  <property>
+    <name>mapred.queue.audience.acl-submit-job</name>
+    <value>${alias.grid.team.members},anirban,aparnas,aphadke,beechun,bene,bhasker,chuwei,dagarwal,dcampbel,elango,gdas,gluedp,jbeatty,jpujara,kilian,liangzha,linares,raghav,rakeshag,sriniv,sudhish,tapham,uirmak,yfu,swei,cbrower,vchavan,sumitkum,reiner,santoshg,leewyang</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.audience.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+  <property>
+    <name>mapred.queue.bt.acl-submit-job</name>
+    <value>${alias.grid.team.members},abagher,abasu,adwaitr,ajoy,amlanh,anirudh,aparnas,apeter,apol,arapak,baeclley,bipin,btmp,congyu,deepa,dfl,eldo,ergin,eustache,fengshao,flavian,gsc,guolin,hemanths,jfbeau,jianzhou,jnovak,jparmar,juni,jwlee33,kamalt,karenlee,kkan,ksasaki,lokiah,mabasrai,madz,meltzer,minjui,ngmishra,niman,noronha,oleg,omid,pandeyab,parkst,prajwal,rwong,sdey,sg,suniljk,thatha,topher,ufm,vacharya,vibes,vnarayan,vtong,xiuyao,xuewu,ybelenky,yechen,bt3lz3,longji</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.bt.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+  <property>
+   <name>mapred.queue.grideng.state</name>
+   <value>RUNNING</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.grideng.acl-submit-job</name>
+    <value>${alias.grid.team.members},aloks,amiry,anandmad,arunc,chandec,eyang,gogate,gpe,hdfs,htang,milindb,peeyushb,ramsek,robw,rodgers2,shravanm,sriguru,viraj,tparveen,ramachan,cos,jab,arcilla</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.grideng.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.gridops.acl-submit-job</name>
+    <value>${alias.grid.team.members},aroop,bobliu,chilukus,dfsload,eldo,gadmin,gautamk,hadoopqa,heathr,jboulon,jimhuang,knoguchi,macyang,marco,nagios,ndaley,nitinsb,rajive,rawk,rphulari,smssanthosh,xinyang,gmon</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.gridops.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.keystone.acl-submit-job</name>
+    <value>${alias.grid.team.members},adamrae,akagian,alexroch,alpa,alvarop,amitm,amp,anirbanr,anithas,araceli,aravindr,arshadk,arunl,ashishin,ashwint,asuresh,balav,barf,benoitd,bholip,bliss,bnag,boies,bolong,borkur,bouchard,cdrome,cedricl,chap,charu,chenhui,chloris,chungh,ciemo,ciyaliao,ckang,ckunz,csriram,cui,cvdjob,daeho,dandec,dasdan,dhuang,diazf,digbuild,dkhor,dlevinso,dmitriev,dpavlov,dungjit,ecrestan,eldo,erenm,ergin,erich,eustache,ezhang,fli,gashok,gbatra,gdupret,gfoxman,gic,gilad,gilbert,gjq,goblinok,gopalraj,gossip,gsc,guyp,hailingj,hcyang,heewon,henryo,hkhattri,huihan,huiyu,i18nsndd,iamtuff,ian,inagakiy,ipf,iyang,jayshen,jchow,jeonghee,jerryye,jeyashan,jiangc,jianyun,jingbai,jingwen,jjying,jkao,jkistler,jl,jmeynet,jonesr,jordi,jsab,kanungo,karolina,kevinzhu,kfujii,kkalyan,kpapi,kpunera,krajiv,kwpark,kwryu,kykim,lamkhede,larrylai,laukik,lguo,linliu,liuling,lixu,lkj0201,lluis,longbin,mayumi,meckert,meghanak,mihais,miida,mingrui,mmshen,narayans,nileshg,nmotgi,nstroppa,paiement,pankajeg,pennac,pentney,pkrishna,pmika,popescul,ppantel,prakash,pranam,puday,qinwang,qp,qpham,raduk,raghum,rahuja,rahula,ramk,ran,ranjitan,raoshen,ravikuma,rgutsche,rkasper,rkwan,rlu,roelof,rohitc,romainr,romainv,ruiqiang,rupeshm,safiquem,saievani,sajjit,sandips,santanuk,sarveshd,sebastc,serakesh,sfarrar,sguo,shema,shihao,shiiva,shoji,shwetaa,sibil,sirisham,soomin,sqdu,sravanti,src1996,sriharir,sshinde,sulin,sunilyv,supreeth,suryarao,svadrevu,svelur,swseo,taesup,tanuja,tsaxena,umas,umut,varadan,varun,venus,vertex,vishnu,vkakade,vmurdock,vsankar,wai,wangd,wangn,wechin,wschang,xavierd,ximena,xinli,xl,xwei,xyj,yazhang,ychen,yenyu,yichang,ykim,ykko,ykonda,ysi_cnts,yumaol,yunxiao,ywchen,ziming,adil,ahujak,ajaysh,akrishna,alanlu,anandm,anands,anishn,asc,bartels,benjamir,bkaimal,chiac,chowdhur,chrismg,clark,damerdji,deshpa,dhillard,divy,donamuk,dsoti,ebax,eliot,erenm,erick,filali,gjw,gkosin,hari,hcheng,jaiswal,jharvey,jonwu,josephw,jpalli,kachan,krt,ksashank,liul,luvogt,mejran,mikeym,mitam,mmediano,mostrovs,mukunda,murthij,nagarajk,narayans,nctr,ngf,nimeesh,nmahajan,ocetin,psimpson,qbert,qchen,quad,qwu,raghavan,rajeeva,riedell,riyer,rshenoy,rupsha,sagarika,senthilr,sharper,shriramb,skrao,stefan,sudarsh,sudip,tejalk,vijen,vikas,vivek,weissj,yangyu,yaos,yinghe,ysm_kapp,zhbi,stamas,rparker,huihui,yhan,chihoon,lifshits,hideki,jsxlee,spark,torzecn,anlei,bundy,tliu,mikemat,mridulm,catbuild,anindya,jixu,shekarn,fuqiang,hewei,wangcm,chenh,gmavr,mbt</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.keystone.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+
+  <property>
+    <name>mapred.queue.sds.acl-submit-job</name>
+    <value>${alias.grid.team.members},adityaj,aradwan,avanti,aylook,bkeefe,chikkam,dp,fx0628,harrisy,jacquesw,jkibler,jtatsu,kirillov,ktw,kty,madhur,meganb,narayanb,rscheihi,ruish,rushi,shajick,shivams,strehl,vpsingh,wbrown,divyaj,aarun,ashokg,vineethc,gururaj,bansalm</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.sds.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.search.acl-submit-job</name>
+    <value>${alias.grid.team.members},adamrae,akagian,alexroch,alpa,alvarop,amitm,amp,anirbanr,anithas,araceli,aravindr,arshadk,arunl,ashishin,ashwint,asuresh,balav,barf,benoitd,bholip,bliss,bnag,boies,bolong,borkur,bouchard,cdrome,cedricl,chap,charu,chenhui,chloris,chungh,ciemo,ciyaliao,ckang,ckunz,csriram,cui,cvdjob,daeho,dandec,dasdan,dhuang,diazf,digbuild,dkhor,dlevinso,dmitriev,dpavlov,dungjit,ecrestan,eldo,erenm,ergin,erich,eustache,ezhang,fli,gashok,gbatra,gdupret,gfoxman,gic,gilad,gilbert,gjq,goblinok,gopalraj,gossip,gsc,guyp,hailingj,hcyang,heewon,henryo,hkhattri,huihan,huiyu,i18nsndd,iamtuff,ian,inagakiy,ipf,iyang,jayshen,jchow,jeonghee,jerryye,jeyashan,jiangc,jianyun,jingbai,jingwen,jjying,jkao,jkistler,jl,jmeynet,jonesr,jordi,jsab,kanungo,karolina,kevinzhu,kfujii,kkalyan,kpunera,kwpark,kwryu,kykim,lamkhede,larrylai,laukik,lguo,linliu,liuling,lixu,lkj0201,lluis,longbin,mayumi,meckert,meghanak,mihais,miida,mingrui,mmshen,narayans,nileshg,nmotgi,nstroppa,paiement,pankajeg,pennac,pentney,pkrishna,pmika,popescul,ppantel,prakash,pranam,puday,qinwang,qp,qpham,raduk,raghum,rahuja,rahula,ramk,ran,ranjitan,raoshen,ravikuma,rgutsche,rkasper,rkwan,rlu,roelof,rohitc,romainr,romainv,ruiqiang,rupeshm,safiquem,saievani,sajjit,sandips,santanuk,sarveshd,sebastc,serakesh,sfarrar,sguo,shema,shihao,shiiva,shoji,shwetaa,sibil,sirisham,soomin,sqdu,sravanti,src1996,sriharir,sshinde,sulin,sunilyv,supreeth,suryarao,svadrevu,svelur,swseo,taesup,tanuja,tsaxena,umas,umut,varadan,varun,venus,vertex,vishnu,vkakade,vmurdock,vsankar,wai,wangd,wangn,wechin,wschang,xavierd,ximena,xinli,xl,xwei,xyj,yazhang,ychen,yenyu,yichang,ykim,ykko,ykonda,ysi_cnts,yumaol,yunxiao,ywchen,ziming,adil,ahujak,ajaysh,akrishna,alanlu,anandm,anands,anishn,asc,bartels,benjamir,bkaimal,chiac,chowdhur,chrismg,clark,damerdji,deshpa,dhillard,divy,donamuk,dsoti,ebax,eliot,erenm,erick,filali,gjw,gkosin,hari,hcheng,jaiswal,jharvey,jonwu,josephw,jpalli,kachan,krt,ksashank,liul,luvogt,mejran,mikeym,mitam,mmediano,mostrovs,mukunda,murthij,nagarajk,narayans,nctr,ngf,nimeesh,nmahajan,ocetin,psimpson,qbert,qchen,quad,qwu,raghavan,rajeeva,riedell,riyer,rshenoy,rupsha,sagarika,senthilr,sharper,shriramb,skrao,stefan,sudarsh,sudip,tejalk,vijen,vikas,vivek,weissj,yangyu,yaos,yinghe,ysm_kapp,zhbi,stamas,rparker,huihui,yhan,chihoon,lifshits,hideki,jsxlee,spark,torzecn,anlei,bundy,tliu,mikemat,mridulm,catbuild,anindya,marcink,aitao,johnbl,mulyadi,pauran,rrabbat,zzkou,tholpadi</value>
+  </property>
+
+  <property>
+      <name>mapred.queue.search.acl-administer-jobs</name>
+      <value>*</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.sponsoredsearch.acl-submit-job</name>
+    <value>${alias.grid.team.members},adil,ahujak,ajaysh,akrishna,alanlu,anandm,anands,anishn,asc,bartels,benjamir,bkaimal,chiac,chowdhur,chrismg,clark,damerdji,deshpa,dhillard,divy,donamuk,dsoti,ebax,eliot,erenm,erick,filali,gjw,gkosin,hari,hcheng,jaiswal,jharvey,jonwu,josephw,jpalli,kachan,krt,ksashank,liul,luvogt,mejran,mikeym,mitam,mmediano,mostrovs,mukunda,murthij,nagarajk,narayans,nctr,ngf,nimeesh,nmahajan,ocetin,psimpson,qbert,qchen,quad,qwu,raghavan,rajeeva,riedell,riyer,rshenoy,rupsha,sagarika,senthilr,sharper,shriramb,skrao,stefan,sudarsh,sudip,tejalk,vijen,vikas,vivek,weissj,yangyu,yaos,yinghe,ysm_kapp,zhbi,slava,runke,shibm,shwetha,shetty,lis,ankurg,supratim,awad,arung,weiguo,hashiya,jimcheng,lubliner</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.sponsoredsearch.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+
+<!-- queue grid-dev -->
+
+  <property>
+    <name>mapred.queue.grid-dev.acl-submit-job</name>
+    <value>${alias.grid.team.members},merchia,terencek,subhakar,scr,rding,sbdmuser,gauravv</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.grid-dev.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+<!-- queue atg_other -->
+
+  <property>
+    <name>mapred.queue.atg_other.acl-submit-job</name>
+      <value>${alias.grid.team.members},riships,pjairath,chaiken,jbice,meka,nipunt,sachinoa,dean,sowmyak</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.atg_other.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+<!-- queue unfunded -->
+
+  <property>
+    <name>mapred.queue.unfunded.acl-submit-job</name>
+     <value>${alias.grid.team.members},ahanda,ahmedre,alexisa,amitavac,amitgaur,andrewhs,ankit,anupamas,ariffin,aruniyer,asher,aurora,bagavath,barla,bopang,brajesh,breed,china,ciccolo,daustin,devdatta,dgangal,eldo,evans,hagleitn,harishna,hbist,hofman,kirpal,lahaies,lalithas,lauc,maz,mkrish,motus,musthafa,mvnak,narayan,ncantelm,nkamal,obuli,olston,paulko,peng,pswami,ptarjan,rbush,rleiwang,rmadhu,rohanm,samp,senthil,sharatc,shubhamc,simon1,subhajit,suri,thiru,tmary,utkarsh,victor,vikasv,winteram,xiaopeng,yankov,yike,yyang,zhichen,zhiyong1,johnwri,zakeer,dayongh,chintala,akishore,vishnu,changal,gauras,sudipta,abela,kingdom,bclow,kentshi,ktang,svdixit,gmanish,lamadio,sriramg,pgaurav,subrah,shivapn,eyal,vinoth,aishp,naving,ioemen,zghua,ptheunis,junaid,leventet,arnabn,avr,eytan,goel,sampd,ech,feapaulo,gregl,jayapals,jcshaw,jdm,pshetty,rohitd,sl,youngnam,danescu</value>
+   </property>
+
+  <property>
+    <name>mapred.queue.unfunded.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+<!-- queue default -->
+
+  <property>
+    <name>mapred.queue.default.acl-submit-job</name>
+    <value>${alias.grid.team.members},hdfs,mapred,merchia,terencek,subhakar,scr,rding,sbdmuser,gauravv</value>
+  </property>
+
+  <property>
+    <name>mapred.queue.default.acl-administer-jobs</name>
+    <value>*</value>
+  </property>
+
+  <!-- END ACLs -->
+
+</configuration>
