@@ -8,7 +8,8 @@ function usage {
 The options
         -c|--cluster <cluster name>          : cluster name
         [ -s|--source    <source root dir> ] : source root directory
-        [ -g|--gateway   <gateway>         ] : gateway host
+        [ -g|--gateway   <aateway>         ] : remote gateway host
+        [ -u|--user      <remote user>     ] : remote user; e.g. hadoopqa
         [ -n|--nopasswd                    ] : no password prompt
         [ -j|--java                        ] : run tests via java directly instead of via maven
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
@@ -19,6 +20,8 @@ The options
 Example:
 $ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --install
 $ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --install
+$ run_hadooptest_remote --cluster theoden --java --install
+$ run_hadooptest_remote --cluster theoden --mvn --install -u hadoopqa
 $ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --test SleepJobRunner
 $ run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -i
 $ run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -n
@@ -40,12 +43,13 @@ eval set -- $args
 
 INSTALL_ONLY=0
 USE_MVN=1
-while getopts "c:g:s:t:njmih" opt; do
+while getopts "c:g:s:t:u:njmih" opt; do
         case $opt in
                 c) CLUSTER=$OPTARG;;
-                g) GATEWAY=$OPTARG;;
-                s) WORKSPACE=$OPTARG;;
+                g) REMOTE_HOST=$OPTARG;;
+                s) LOCAL_WORKSPACE=$OPTARG;;
                 t) TESTS=$OPTARG;;
+                u) REMOTE_USER=$OPTARG;;
                 n) PASSWORD_OPTION="-n";;
                 i) INSTALL_ONLY=1;;
                 j) USE_MVN=0;;
@@ -60,25 +64,38 @@ if [ -z $CLUSTER ]; then
    exit 1;
 fi
 
-DEFAULT_GATEWAY="gwbl2005.blue.ygrid.yahoo.com"
-if [ -z $GATEWAY ]; then
-   echo "WARN: gateway not specified: using default gateway $DEFAULT_GATEWAY.";
+DEFAULT_REMOTE_HOST="gwbl2005.blue.ygrid.yahoo.com"
+if [ -z $REMOTE_HOST ]; then
+   echo "WARN: gateway not specified: using default gateway $DEFAULT_REMOTE_HOST.";
 fi
-GATEWAY=${GATEWAY:=$DEFAULT_GATEWAY}
+REMOTE_HOST=${REMOTE_HOST:=$DEFAULT_REMOTE_HOST}
 
 USER=`whoami`
-GW_TARGET_WORKSPACE=${GW_TARGET_WORKSPACE:="/tmp/$USER-hadooptest"}
+REMOTE_USER=${REMOTE_USER:=`whoami`}
+REMOTE_WORKSPACE=${REMOTE_WORKSPACE:="/tmp/$REMOTE_USER-hadooptest"}
+
+if [ "$REMOTE_USER" == "hadoopqa" ]; then
+# 	ssh -t $REMOTE_HOST "sudo rm -rf $REMOTE_WORKSPACE;";
+	set -x
+	ssh -t $REMOTE_HOST "if [ -d $REMOTE_WORKSPACE ]; then sudo /bin/rm -rf $REMOTE_WORKSPACE; fi";
+	set +x
+else
+	set -x
+	ssh -t $REMOTE_HOST "if [ -d $REMOTE_WORKSPACE ]; then /bin/rm -rf $REMOTE_WORKSPACE; fi";
+	set +x
+fi
+
 set -x
-ssh -t $GATEWAY "if [ -d $GW_TARGET_WORKSPACE ]; then /bin/rm -rf $GW_TARGET_WORKSPACE; fi";
-ssh -t $GATEWAY "/bin/mkdir -p $GW_TARGET_WORKSPACE";
+ssh -t $REMOTE_HOST "/bin/mkdir -p $REMOTE_WORKSPACE";
 set +x
 
-WORKSPACE=${WORKSPACE:="/Users/$USER/git/hadooptest/hadooptest"}
-WORKSPACE_TARGET_DIR="$WORKSPACE/target"
+LOCAL_WORKSPACE=${WORKSPACE:="/Users/$USER/git/hadooptest/hadooptest"}
+LOCAL_WORKSPACE_TARGET_DIR="$LOCAL_WORKSPACE/target"
 
 echo "CLUSTER='$CLUSTER'"
-echo "GATEWAY='$GATEWAY'"
-echo "WORKSPACE='$WORKSPACE'"
+echo "LOCAL_WORKSPACE='$LOCAL_WORKSPACE'"
+echo "REMOTE_HOST='$REMOTE_HOST'"
+echo "REMOTE_WORKSPACE='$REMOTE_WORKSPACE'"
 echo "TESTS='$TESTS'"
 echo "USE_MVN='$USE_MVN'"
 echo "INSTALL_ONLY='$INSTALL_ONLY'"
@@ -87,22 +104,22 @@ TGZ_DIR=/tmp
 TGZ_FILE=hadooptest.tgz
 
 set -x
-tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $WORKSPACE .
-scp $TGZ_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
-ssh -t $GATEWAY "/bin/gtar fx $GW_TARGET_WORKSPACE/$TGZ_FILE -C $GW_TARGET_WORKSPACE";
+tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $LOCAL_WORKSPACE .
+scp $TGZ_DIR/$TGZ_FILE $REMOTE_HOST:$REMOTE_WORKSPACE
+ssh -t $REMOTE_HOST "/bin/gtar fx $REMOTE_WORKSPACE/$TGZ_FILE -C $REMOTE_WORKSPACE";
 set +x
 
 #if [ "$USE_MVN" -eq 1 ]; then
 #   set -x
-#   tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $WORKSPACE .
-#   scp $TGZ_DIR/$TGZ_FILE $GATEWAY:$GW_TARGET_WORKSPACE
-#   ssh -t $GATEWAY "/bin/gtar fx $GW_TARGET_WORKSPACE/$TGZ_FILE -C $GW_TARGET_WORKSPACE";
+#   tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $LOCAL_WORKSPACE .
+#   scp $TGZ_DIR/$TGZ_FILE $REMOTE_HOST:$REMOTE_WORKSPACE
+#   ssh -t $REMOTE_HOST "/bin/gtar fx $REMOTE_WORKSPACE/$TGZ_FILE -C $REMOTE_WORKSPACE";
 #   set +x
 #else 
 if [ "$USE_MVN" -ne 1 ]; then
      set -x
-     scp $WORKSPACE_TARGET_DIR/*.jar $GATEWAY:$GW_TARGET_WORKSPACE
-     # scp $WORKSPACE/scripts/run_hadooptest $GATEWAY:$GW_TARGET_WORKSPACE
+     scp $LOCAL_WORKSPACE_TARGET_DIR/*.jar $REMOTE_HOST:$REMOTE_WORKSPACE
+     # scp $LOCAL_WORKSPACE/scripts/run_hadooptest $REMOTE_HOST:$REMOTE_WORKSPACE
      set +x
 fi
 
@@ -113,16 +130,20 @@ else
     TESTS_PARAM="--test $TESTS"
 fi
 
+if [ "$REMOTE_USER" == "hadoopqa" ]; then
+	ssh -t $REMOTE_HOST "sudo chown -R hadoopqa $REMOTE_WORKSPACE;";
+fi
+
 if [ "$INSTALL_ONLY" -ne 1 ]; then
    if [ "$USE_MVN" -eq 1 ]; then
       set -x
-      ssh -t $GATEWAY "cd $GW_TARGET_WORKSPACE; $GW_TARGET_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
+      ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
       # copy the test results back
-      scp -r $GATEWAY:$GW_TARGET_WORKSPACE/target/surefire-reports $WORKSPACE_TARGET_DIR/
+      scp -r $REMOTE_HOST:$REMOTE_WORKSPACE/target/surefire-reports $LOCAL_WORKSPACE_TARGET_DIR/
       set +x
    else 
       set -x
-      ssh -t $GATEWAY "$GW_TARGET_WORKSPACE/run_hadooptest --c $CLUSTER --workspace $GW_TARGET_WORKSPACE $PASSWORD_OPTION $TESTS_PARAM";
+      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/run_hadooptest --c $CLUSTER --workspace $REMOTE_WORKSPACE $PASSWORD_OPTION $TESTS_PARAM";
    set +x
    fi
 fi
