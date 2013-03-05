@@ -319,7 +319,7 @@ public class FullyDistributedCluster extends Cluster {
 				Properties hadoopConfDir = this.conf.getHadoopConfDirPaths();
 				confDir = hadoopConfDir.getProperty(component);
 				if ((confDir != null) && !confDir.isEmpty()) {
-					this.conf.initComponentConfFiles(confDir, component);
+					this.conf.loadResourceForComponent(confDir, component);
 				}
 			}
 		}
@@ -627,7 +627,7 @@ public class FullyDistributedCluster extends Cluster {
 	    }
 
 	    if ((fs == null) || fs.isEmpty()) {
-	        fs = this.conf.getHadoopConfFileProp(
+	        fs = this.conf.getResourceProp(
 	        		"fs.defaultFS",
 	        		FullyDistributedConfiguration.HADOOP_CONF_CORE);
 		}

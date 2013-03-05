@@ -74,7 +74,7 @@ public class TestConf extends TestSession {
 		String propName = "fs.trash.interval";
 		String confFile = TestConfiguration.HADOOP_CONF_CORE;
 		
-		String propValue = cluster.getConf().getHadoopConfFileProp(
+		String propValue = cluster.getConf().getResourceProp(
 				propName, confFile, component);
 		TestSession.logger.info("Prop name '" + propName + "' = " + propValue);
 	}
