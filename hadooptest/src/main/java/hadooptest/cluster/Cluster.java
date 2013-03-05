@@ -135,7 +135,7 @@ public abstract class Cluster {
 				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 		 
 	    // for the time out duration wait and see if the namenode comes out of safemode
-	    int waitTime=30;
+	    int waitTime=5;
 	    int i=1;
 	    while ((timeout > 0) && (!isSafemodeOff)) {
 	    	TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i + ": WAIT " + waitTime + "s:" );
