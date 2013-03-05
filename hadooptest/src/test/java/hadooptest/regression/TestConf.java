@@ -39,7 +39,8 @@ public class TestConf extends TestSession {
 
 		// Copy files to the custom configuration directory on the
 		// Resource Manager component host.
-		String sourceDir = "/homes/philips/svn/HadoopQEAutomation/branch-23/tests/Regression/YARN/CapacitySchedulerLimits/config/baseline/";
+		// String sourceDir = "/homes/philips/svn/HadoopQEAutomation/branch-23/tests/Regression/YARN/CapacitySchedulerLimits/config/baseline/";
+		String sourceDir = "./conf/TestConf/";
 		cluster.getConf().copyFilesToConfDir(component, sourceDir);
 	}
 
