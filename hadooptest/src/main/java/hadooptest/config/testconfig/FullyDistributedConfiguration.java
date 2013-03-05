@@ -41,8 +41,13 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	/**
      * Contains configuration properties loaded from the xml conf file for 
      * each Hadoop component
+     * NOTE: this has some overlap with the Hadoop Configuration resources 
+     * properties. Here we are keeping track of resource instances on each
+     * Hadoop components (gateway, namenode, resourcemanager, etc. in case
+     * they diverge. We should evalaute though if this can eventually go away
+     * and just be replaced by the Hadoop Configuration resources. 
      */
-	private Hashtable<String, Hashtable<String, Properties>> hadoopComponentConfFileProps =
+	private Hashtable<String, Hashtable<String, Properties>> componentResourcesProps =
 			new Hashtable<String, Hashtable<String, Properties>>();
 
 	/** Contains the nodes on the cluster */
@@ -55,7 +60,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 */
 	public FullyDistributedConfiguration() {
 		super(false);
-		this.initComponentConfFiles(
+		this.loadResourceForComponent(
 				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");	
 		this.initClusterNodes();
 	}
@@ -70,7 +75,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 */
 	public FullyDistributedConfiguration(boolean loadDefaults) {
 		super(loadDefaults);
-		this.initComponentConfFiles(
+		this.loadResourceForComponent(
 				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");
 		this.initClusterNodes();
 
@@ -114,8 +119,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @return Hashtable of Properties for each configuration files on the
      * gateway.
      */
-	public Hashtable<String, Properties> getHadoopConfFileProps() {
-		return this.getHadoopConfFileProps("gateway");
+	public Hashtable<String, Properties> getResourceProps() {
+		return this.getResourceProps("gateway");
     }
 	
     /**
@@ -128,10 +133,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @return Hashtable of Properties for each configuration files on the
      * component host.
      */
-	public Hashtable<String, Properties> getHadoopConfFileProps(
+	public Hashtable<String, Properties> getResourceProps(
 			String component) {
 		Hashtable<String, Properties> hashtable =
-				this.hadoopComponentConfFileProps.get(component);
+				this.componentResourcesProps.get(component);
 		if (hashtable == null) {
 			TestSession.logger.warn("Hadoop Configuration File Properties " +
 					"for component '" + component + "' is null.");
@@ -150,8 +155,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @return String property value for the given property name and the
      * configuration file on the gateway host.
      */
-	public String getHadoopConfFileProp(String propName, String confFilename) {
-		return getHadoopConfFileProp(propName, confFilename, "gateway");
+	public String getResourceProp(String propName, String confFilename) {
+		return getResourceProp(propName, confFilename, "gateway");
 	}
 	
 	/**
@@ -165,10 +170,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @return String property value for the given property name and the
      * configuration file on the component host.
      */
-	public String getHadoopConfFileProp(String propName, String confFilename,
+	public String getResourceProp(String propName, String confFilename,
 			String component) {
 		Hashtable<String, Properties> hadoopConfFileProps =
-				this.getHadoopConfFileProps(component);		
+				this.getResourceProps(component);		
 		Properties prop = hadoopConfFileProps.get(confFilename);
 		Properties metadata = hadoopConfFileProps.get("metadata");
 		TestSession.logger.trace("Get property '" +
@@ -192,7 +197,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	public boolean propNameExistsInHadoopConfFile(String propName,
 			String confFilename, String component) {
 		Hashtable<String, Properties> hadoopConfFileProps =
-				this.getHadoopConfFileProps(component);		
+				this.getResourceProps(component);		
 		Properties prop = hadoopConfFileProps.get(confFilename);
 		return prop.containsKey(propName);
 	}
@@ -313,23 +318,23 @@ public class FullyDistributedConfiguration extends TestConfiguration
     /**
      * Initialize the Hadoop configuration files for each components. 
      */
-	public void initComponentsConfFiles() {
-		initComponentsConfFiles(null, null);
+	public void loadResourceForAllComponents() {
+		loadResourceForAllCopmonents(null, null);
 	}
 	
     /**
      * Initialize the Hadoop configuration files for each components for the
      * given configuration directory. 
      */
-	public void initComponentsConfFiles(String confDir) {
-		initComponentsConfFiles(confDir, null);
+	public void loadResourceForAllComponents(String confDir) {
+		loadResourceForAllCopmonents(confDir, null);
 	}
 
     /**
      * Initialize the Hadoop configuration files for each components for the
      * given configuration directory. 
      */
-	public void initComponentsConfFiles(String confDir, String[] components) {
+	public void loadResourceForAllCopmonents(String confDir, String[] components) {
 		if (components == null) {
 		  components = new String[] {
 				  "gateway",
@@ -337,7 +342,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				  "resourcemanager"};
 		}
 		for (String component : components) {
-			initComponentConfFiles(confDir, component);	
+			loadResourceForComponent(confDir, component);	
 		}	
 	}
 
@@ -370,7 +375,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param confDir the Hadoop configuration directory 
      * @param component the cluster component name. 
      */
-	public void initComponentConfFiles(String confDir, String component) {
+	public void loadResourceForComponent(String confDir, String component) {
 
 		/*
 		 *  For components on remote hosts (i.e. not gateway), we will need to
@@ -390,16 +395,16 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		 * origin configuration path on the remote host.
 		 */
 		Hashtable<String, Properties> componentConfProps =
-				initConfFiles(localConfDir);
+				loadResourceFiles(localConfDir);
 		Properties metadata = new Properties();
 		metadata.setProperty("path", confDir);
 		componentConfProps.put("metadata", metadata);
-		hadoopComponentConfFileProps.put(component, componentConfProps);
+		componentResourcesProps.put(component, componentConfProps);
 		
 		/*
 		 * Print out the hashtable of configuration properties for the component. 
 		 */
-		Hashtable<String, Properties> configs = hadoopComponentConfFileProps.get(component);
+		Hashtable<String, Properties> configs = componentResourcesProps.get(component);
 		Enumeration<String> enumKey = configs.keys();
 		while(enumKey.hasMoreElements()) {
 		    String key = enumKey.nextElement();
@@ -414,8 +419,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * 
      * @return Hashtable of Properties for each of the configuration files.
      */
-	private void initConfFiles() {
-		initConfFiles(null);
+	private void loadResourceFiles() {
+		loadResourceFiles(null);
 	}
 	
     /**
@@ -425,7 +430,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * 
      * @return hastable of Properties for each of the configuration files.
      */
-	private Hashtable<String, Properties> initConfFiles(String confDir) {
+	private Hashtable<String, Properties> loadResourceFiles(String confDir) {
 
 		if ((confDir == null) || confDir.isEmpty()) {
 			confDir = hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR");
@@ -452,7 +457,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		for (int i = 0; i < confFilenames.length; i++) {
 			String confFilename = confFilenames[i];
 			hadoopConfFileProps.put(confFilename,
-					this.parseHadoopConfFile(confDir + "/" +
+					this.parseResourceFile(confDir + "/" +
 							confFilename));
 		}
 
@@ -476,7 +481,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * 
      * @return Properties for the given configuration files.
      */
-	public Properties parseHadoopConfFile(String filename) {
+	public Properties parseResourceFile(String filename) {
 		TestSession.logger.debug("Parse Hadoop configuration file: " +
 				filename);
 		Properties props = new Properties();
@@ -738,13 +743,13 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				"adm103.blue.ygrid.yahoo.com"});
 
 		// Namenode
-		String namenode_addr = this.getHadoopConfFileProp("dfs.namenode.https-address",
+		String namenode_addr = this.getResourceProp("dfs.namenode.https-address",
 				HADOOP_CONF_HDFS);
 		String namenode = namenode_addr.split(":")[0];
 		clusterNodes.put("namenode", new String[] {namenode});		
 
 		// Resource Manager
-		String rm_addr = this.getHadoopConfFileProp(
+		String rm_addr = this.getResourceProp(
 				"yarn.resourcemanager.resource-tracker.address",
 				HADOOP_CONF_YARN);
 		String rm = rm_addr.split(":")[0];
