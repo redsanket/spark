@@ -277,8 +277,14 @@ public abstract class TestConfiguration extends Configuration {
 				"/tools/lib/" + "hadoop-streaming-" + 
 				HADOOP_VERSION + ".jar");
 
+		loadResource();
+	}
+	
+	protected void loadResource() {
 		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_CORE")));
 		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_HDFS")));
+		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_MAPRED")));
+		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_YARN")));	
 	}
 	
 	/**
