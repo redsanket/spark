@@ -9,6 +9,7 @@ The options
         -c|--cluster <cluster name>          : cluster name
         [ -s|--source    <source root dir> ] : source root directory
         [ -g|--gateway   <aateway>         ] : remote gateway host
+        [ -w|--workspace <workspace>       ] : remote workspace
         [ -u|--user      <remote user>     ] : remote user; e.g. hadoopqa
         [ -n|--nopasswd                    ] : no password prompt
         [ -j|--java                        ] : run tests via java directly instead of via maven
@@ -22,6 +23,7 @@ $ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.co
 $ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --install
 $ run_hadooptest_remote --cluster theoden --java --install
 $ run_hadooptest_remote --cluster theoden --mvn --install -u hadoopqa
+$ run_hadooptest_remote --cluster theoden --mvn --workspace /tmp/foo --install -u hadoopqa
 $ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --test SleepJobRunner
 $ run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -i
 $ run_hadooptest_remote -c theoden -g gwbl2003.blue.ygrid.yahoo.com -n
@@ -43,13 +45,14 @@ eval set -- $args
 
 INSTALL_ONLY=0
 USE_MVN=1
-while getopts "c:g:s:t:u:njmih" opt; do
+while getopts "c:g:s:t:u:w:njmih" opt; do
         case $opt in
                 c) CLUSTER=$OPTARG;;
                 g) REMOTE_HOST=$OPTARG;;
                 s) LOCAL_WORKSPACE=$OPTARG;;
                 t) TESTS=$OPTARG;;
                 u) REMOTE_USER=$OPTARG;;
+                w) REMOTE_WORKSPACE=$OPTARG;;
                 n) PASSWORD_OPTION="-n";;
                 i) INSTALL_ONLY=1;;
                 j) USE_MVN=0;;
