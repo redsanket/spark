@@ -9,7 +9,8 @@ The options
         -c|--cluster <cluster name>          : cluster name
         [ -s|--source    <source root dir> ] : source root directory
         [ -g|--gateway   <aateway>         ] : remote gateway host
-        [ -w|--workspace <workspace>       ] : remote workspace
+        [ -w|--workspace <workspace>       ] : remote workspace. Default remote workspace is 
+                                               "/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
         [ -u|--user      <remote user>     ] : remote user; e.g. hadoopqa
         [ -n|--nopasswd                    ] : no password prompt
         [ -j|--java                        ] : run tests via java directly instead of via maven
@@ -75,7 +76,7 @@ REMOTE_HOST=${REMOTE_HOST:=$DEFAULT_REMOTE_HOST}
 
 USER=`whoami`
 REMOTE_USER=${REMOTE_USER:=`whoami`}
-REMOTE_WORKSPACE=${REMOTE_WORKSPACE:="/tmp/$REMOTE_USER-hadooptest"}
+REMOTE_WORKSPACE=${REMOTE_WORKSPACE:="/tmp/hadooptest-$REMOTE_USER-$CLUSTER"}
 
 if [ "$REMOTE_USER" == "hadoopqa" ]; then
 # 	ssh -t $REMOTE_HOST "sudo rm -rf $REMOTE_WORKSPACE;";
