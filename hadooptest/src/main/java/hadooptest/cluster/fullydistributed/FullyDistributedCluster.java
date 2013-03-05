@@ -1,17 +1,12 @@
 package hadooptest.cluster.fullydistributed;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import hadooptest.TestSession;
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
 import hadooptest.config.TestConfiguration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
@@ -40,6 +35,7 @@ public class FullyDistributedCluster extends Cluster {
 	{
 		this.initTestSessionConf();
 		this.conf = new FullyDistributedConfiguration();
+		super.initNodes();
 	}
 
 	/**
@@ -52,6 +48,7 @@ public class FullyDistributedCluster extends Cluster {
 	{
 		this.conf = conf;
 		this.initTestSessionConf();
+		super.initNodes();
 	}
 	
     /**
@@ -258,7 +255,7 @@ public class FullyDistributedCluster extends Cluster {
      */
 	public int hadoopDaemon(String action, String component, String[] daemonHost, String confDir) {
 		if (daemonHost == null) {				
-			daemonHost = this.conf.getClusterNodes(component);	
+			daemonHost = this.getNodes(component);	
 		}
 		if (action.equals("start")) {
 			if ((confDir == null) || confDir.isEmpty()) {
@@ -355,7 +352,7 @@ public class FullyDistributedCluster extends Cluster {
 	public boolean waitForComponentState(String action, String component,
 			int waitInterval, int maxWait) {
 		return waitForComponentState(action, component,
-				waitInterval, maxWait, this.conf.getClusterNodes(component));
+				waitInterval, maxWait, this.getNodes(component));
 	}
 		
     /**
@@ -384,7 +381,7 @@ public class FullyDistributedCluster extends Cluster {
 		}
 		
 		if (daemonHost == null) {
-			daemonHost = this.conf.getClusterNodes(component);	
+			daemonHost = this.getNodes(component);	
 		}
 
 		int count = 1;
@@ -563,9 +560,9 @@ public class FullyDistributedCluster extends Cluster {
      */
 	public boolean isComponentFullyInExpectedState(String action,
 			String component, String[] daemonHost) {
-		String adminHost = this.conf.getClusterNodes("admin")[0];
+		String adminHost = this.getNodes("admin")[0];
 		if (daemonHost == null) {
-			daemonHost = this.conf.getClusterNodes(component);	
+			daemonHost = this.getNodes(component);	
 		}
 
 		// Get the number of running process(es) for a given component
@@ -600,117 +597,5 @@ public class FullyDistributedCluster extends Cluster {
 						numDaemonProcess);
 			}
 		return isComponentFullyInExpectedState;
-	}
-	
-    /**
-     * Wait for the safemode on the namenode to be OFF. 
-     * 
-     * @return boolean true if safemode is OFF, or false if safemode is ON.
-     */
-	public boolean waitForSafemodeOff() {
-		return waitForSafemodeOff(-1, null);
-	}
-		
-    /**
-     * Wait for the safemode on the namenode to be OFF. 
-     *
-     * @param timeout time to wait for safe mode to be off.
-     * @param fs file system under test
-     * 
-     * @return boolean true if safemode is OFF, or false if safemode is ON.
-     */
-	public boolean waitForSafemodeOff(int timeout, String fs) {
-
-		if (timeout < 0) {
-			int defaultTimeout = 300;
-	    	timeout = defaultTimeout;
-	    }
-
-	    if ((fs == null) || fs.isEmpty()) {
-	        fs = this.conf.getResourceProp(
-	        		"fs.defaultFS",
-	        		FullyDistributedConfiguration.HADOOP_CONF_CORE);
-		}
-
-		String namenode = this.conf.getClusterNodes("namenode")[0];	
-		String[] safemodeGetCmd = { this.conf.getHadoopProp("HDFS_BIN"),
-				"--config", this.conf.getHadoopProp("HADOOP_CONF_DIR"),
-				"dfsadmin", "-fs", fs, "-safemode", "get" };
-		String[] output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
-		boolean isSafemodeOff = 
-				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
-		 
-	    // for the time out duration wait and see if the namenode comes out of safemode
-	    int waitTime=30;
-	    int i=1;
-	    while ((timeout > 0) && (!isSafemodeOff)) {
-	    	TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i + ": WAIT " + waitTime + "s:" );
-	    	try {
-	    		Thread.sleep(waitTime*1000);
-	    	} catch  (InterruptedException e) {
-	    		TestSession.logger.error("Encountered Interrupted Exception: " +
-	    				e.toString());
-	    	}
-	    	output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
-	    	isSafemodeOff = 
-	    			(output[1].trim().equals("Safe mode is OFF")) ? true : false;
-	        timeout = timeout - waitTime;
-	        i++;
-	    }
-	    
-	    if (!isSafemodeOff) {
-	    	TestSession.logger.info("ALERT: NAMENODE " + namenode + " IS STILL IN SAFEMODE");
-	    }
-	    
-	    return isSafemodeOff;
-	}
-	
-
-	/**
-	 * Verifies, with jps, that a given process name is running.
-	 * 
-	 * @param process The String representing the name of the process to verify.
-	 * 
-	 * @return boolean whether the java process is running or not.
-	 */
-	private static boolean verifyJpsProcRunning(String process) {
-
-		Process jpsProc = null;
-
-		String jpsCmd = "jps";
-
-		TestSession.logger.debug(jpsCmd);
-
-		String jpsPatternStr = "(.*)(" + process + ")(.*)";
-		Pattern jpsPattern = Pattern.compile(jpsPatternStr);
-
-		try {
-			jpsProc = Runtime.getRuntime().exec(jpsCmd);
-			BufferedReader reader=new BufferedReader(new InputStreamReader(jpsProc.getInputStream())); 
-			String line=reader.readLine(); 
-			while(line!=null) 
-			{  
-				TestSession.logger.debug(line);
-
-				Matcher jpsMatcher = jpsPattern.matcher(line);
-
-				if (jpsMatcher.find()) {
-					TestSession.logger.debug("FOUND PROCESS: " + process);
-					return true;
-				}
-
-				line=reader.readLine();
-			} 
-		}
-		catch (Exception e) {
-			if (jpsProc != null) {
-				jpsProc.destroy();
-			}
-			e.printStackTrace();
-		}
-
-		TestSession.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);
-		return false;
-	}
-	
+	}	
 }

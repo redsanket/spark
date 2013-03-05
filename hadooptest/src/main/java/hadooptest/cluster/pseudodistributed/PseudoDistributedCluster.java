@@ -34,6 +34,7 @@ public class PseudoDistributedCluster extends Cluster {
 	{
 		this.conf = new PseudoDistributedConfiguration();
 		this.conf.write();
+		super.initNodes();
 	}
 
 	/**
@@ -45,6 +46,7 @@ public class PseudoDistributedCluster extends Cluster {
 	public PseudoDistributedCluster(PseudoDistributedConfiguration conf)
 	{
 		this.conf = conf;
+		super.initNodes();
 	}
 	
 	/**

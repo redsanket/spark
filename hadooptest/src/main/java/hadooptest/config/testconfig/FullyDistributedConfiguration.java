@@ -50,9 +50,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	private Hashtable<String, Hashtable<String, Properties>> componentResourcesProps =
 			new Hashtable<String, Hashtable<String, Properties>>();
 
-	/** Contains the nodes on the cluster */
-	private Hashtable<String, String[]> clusterNodes = new Hashtable<String, String[]>();
-    
+	
 	/**
 	 * Calls the superclass constructor, and initializes the default
 	 * configuration parameters for a distributed cluster under test.
@@ -62,7 +60,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		super(false);
 		this.loadResourceForComponent(
 				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");	
-		this.initClusterNodes();
 	}
 
 	/**
@@ -77,8 +74,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		super(loadDefaults);
 		this.loadResourceForComponent(
 				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");
-		this.initClusterNodes();
-
 	}
 	
 	/**
@@ -201,28 +196,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		Properties prop = hadoopConfFileProps.get(confFilename);
 		return prop.containsKey(propName);
 	}
-	
-    /**
-     * Returns the Hadoop cluster hostnames hashtable.
-     * 
-     * @return Hashtable of String Arrays hostnames for each of the cluster
-     * components.
-     */
-	public Hashtable<String, String[]> getClusterNodes() {
-    	return this.clusterNodes;
-    }
-	
-    /**
-     * Returns the cluster nodes hostnames for the given component.
-     * 
-     * @param component The hadoop component such as gateway, namenode,
-     * resourcemaanger, etc.
-     * 
-     * @return String Arrays for the cluster nodes hostnames.
-     */
-	public String[] getClusterNodes(String component) {
-    	return this.clusterNodes.get(component);
-    }
 	
 	/**
 	 * Writes the distributed cluster configuration specified by the object out
@@ -361,7 +334,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		df.setTimeZone(TimeZone.getTimeZone("CST"));  
 		String localConfDir = this.getHadoopProp("TMP_DIR") + "/hadoop-conf-" +	
 				component + "-" + df.format(new Date());	
-		String componentHost = clusterNodes.get(component)[0];
+		String componentHost = TestSession.cluster.getNodes(component)[0];
 		String[] cmd = {"/usr/bin/scp", "-r", componentHost + ":" + confDir, localConfDir};
 		String[] output = TestSession.exec.runProcBuilder(cmd);
 		return localConfDir;
@@ -734,44 +707,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	}
 	
     /**
-     * Initialize the cluster nodes hostnames for the namenode,
-     * resource manager, datanode, and nodemanager. 
-     */
-	public void initClusterNodes() {
-		clusterNodes.put("admin", new String[] {
-				"adm102.blue.ygrid.yahoo.com",
-				"adm103.blue.ygrid.yahoo.com"});
-
-		// Namenode
-		String namenode_addr = this.getResourceProp("dfs.namenode.https-address",
-				HADOOP_CONF_HDFS);
-		String namenode = namenode_addr.split(":")[0];
-		clusterNodes.put("namenode", new String[] {namenode});		
-
-		// Resource Manager
-		String rm_addr = this.getResourceProp(
-				"yarn.resourcemanager.resource-tracker.address",
-				HADOOP_CONF_YARN);
-		String rm = rm_addr.split(":")[0];
-		clusterNodes.put("resourcemanager", new String[] {rm});		
-		
-		// Datanode
-		clusterNodes.put("datanode", getHostsFromList(namenode,
-				getHadoopProp("HADOOP_CONF_DIR") + "/slaves"));		
-		
-		// Nodemanager
-		clusterNodes.put("nodemanager", clusterNodes.get("datanode"));		
-
-		// Show all balances in hash table. 
-		TestSession.logger.debug("-- listing cluster nodes --");
-		Enumeration<String> components = clusterNodes.keys(); 
-		while (components.hasMoreElements()) { 
-			String component = (String) components.nextElement(); 
-			TestSession.logger.debug(component + ": " + Arrays.toString(clusterNodes.get(component))); 
-		} 	
-	}
-	
-    /**
      * Copy files from a given Hadoop configuration directory to a Hadoop
      * cluster component. This assumes that the cluster under test is already
      * using a custom backup directory that is editable, by previously calling
@@ -789,7 +724,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		}
 		else {
 			return copyFilesToConfDir(component, sourceDir,
-					this.getClusterNodes(component));
+					TestSession.cluster.getNodes(component));
 		}
 	}
 
@@ -815,7 +750,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 				confDir};
 				
 		if ((!component.equals("gateway")) && (daemonHost == null)) {
-			daemonHost = this.getClusterNodes(component); 
+			daemonHost = TestSession.cluster.getNodes(component); 
 		}
 
 		String[] cmd;
@@ -858,7 +793,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			return backupConfDir(component, null);			
 		}
 		else {
-			return backupConfDir(component, this.getClusterNodes(component));
+			return backupConfDir(
+						component,
+						TestSession.cluster.getNodes(component));
 		}
 	}
 	
@@ -906,7 +843,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		String[] chmodCmd = {"/bin/chmod", "644", tmpConfDir+"/*.xml"};
 
 		if ((!component.equals("gateway")) && (daemonHost == null)) {
-			daemonHost = this.getClusterNodes(component); 
+			daemonHost = TestSession.cluster.getNodes(component); 
 		}
 
 		String[] cmd;
@@ -940,22 +877,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		return Integer.parseInt(output[0]);
 	}
 
-    /**
-     * Parse the host names from a host name list on the namenode.
-     * 
-     * @param namenode the namenode hostname. 
-     * @param file the file name. 
-     * 
-     * @return String Array of host names.
-     */
-	private String[] getHostsFromList(String namenode, String file) {
-		String[] output = TestSession.exec.runProcBuilder(
-						new String[] {"ssh", namenode, "/bin/cat", file});
-		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
-		TestSession.logger.trace("Hosts in file are: " + Arrays.toString(nodes));
-		return nodes;
-	}
-	
     /**
      * Print logging for the given Properties object.
      * 

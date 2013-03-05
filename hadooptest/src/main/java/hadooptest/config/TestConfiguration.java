@@ -281,6 +281,8 @@ public abstract class TestConfiguration extends Configuration {
 	}
 	
 	protected void loadResource() {
+		TestSession.logger.info("load hadoop resources from " +
+				hadoopProps.getProperty("HADOOP_CONF_DIR") + ":");
 		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_CORE")));
 		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_HDFS")));
 		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_MAPRED")));

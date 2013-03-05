@@ -35,6 +35,7 @@ public class StandaloneCluster extends Cluster {
 	 */
 	public StandaloneCluster() {
 		this.conf = new StandaloneConfiguration();
+		super.initNodes();
 	}
 
 	/**
@@ -45,6 +46,7 @@ public class StandaloneCluster extends Cluster {
 	public StandaloneCluster(StandaloneConfiguration conf)
 	{
 		this.conf = conf;
+		super.initNodes();
 	}
 
 	/**

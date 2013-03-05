@@ -29,13 +29,27 @@ public class FullyDistributedExecutor extends Executor {
 	 * @return String[] the output of running the system command.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
+		return runHadoopProcBuilder(commandArray, username, true);
+	}
+
+	/**
+	 * Returns the output of a system command, when given the command and a user to
+	 * run the command as.
+	 * 
+	 * @param commandArray the command to run.  Each member of the string array should
+	 * 						be an item in the command string that is otherwise
+	 * 						surrounded by whitespace.
+	 * @param username the system username to run the command under.
+	 * @return String[] the output of running the system command.
+	 */
+	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) {
 		if (this.isHeadless(username)) {
 			Map<String, String> newEnv = new HashMap<String, String>();
-			newEnv.put("KRB5CCNAME", this.obtainKerberosCache(username));
-			return runProcBuilder(commandArray, newEnv);
+			newEnv.put("KRB5CCNAME", this.obtainKerberosCache(username, verbose));
+			return runProcBuilder(commandArray, newEnv, verbose);
 		}
 		else {
-			return runProcBuilder(commandArray);			
+			return runProcBuilder(commandArray, verbose);			
 		}
 	}
 
@@ -64,10 +78,13 @@ public class FullyDistributedExecutor extends Executor {
 	 * Setup Kerberos authentication for a given user.
 	 * 
 	 * @param user the user to authenticate
+	 * @param verbose true for on, false for off.
 	 * @return String the Kerberos cache.
 	 */
-	private String obtainKerberosCache(String user) {
-		TestSession.logger.info("Setup Kerberos for user '"+user+"':");
+	private String obtainKerberosCache(String user, boolean verbose) {
+		if (verbose) {
+			TestSession.logger.info("Setup Kerberos for user '"+user+"':");
+		}
 		
 		String realUser = System.getProperty("user.name");	
 		String ticketDir = "/tmp/"+realUser+"/"+CLUSTER_NAME+"/kerberosTickets";		
@@ -86,8 +103,17 @@ public class FullyDistributedExecutor extends Executor {
 	    String[] cmd =
 	    		{ "/usr/kerberos/bin/kinit", "-c", cacheName, "-k","-t",
 	    		keytabFileDir+"/"+keytabFile, kinitUser};
-	    runProcBuilder(cmd);
+	    runProcBuilder(cmd, false);
 	    return cacheName;
 	}
 
+	/**
+	 * Setup Kerberos authentication for a given user.
+	 * 
+	 * @param user the user to authenticate
+	 * @return String the Kerberos cache.
+	 */
+	private String obtainKerberosCache(String user) {
+		return obtainKerberosCache(user, true);
+	}
 }

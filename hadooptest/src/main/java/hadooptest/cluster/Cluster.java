@@ -5,6 +5,9 @@
 package hadooptest.cluster;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
@@ -20,6 +23,114 @@ import hadooptest.config.TestConfiguration;
  * type.
  */
 public abstract class Cluster {
+
+	/** Contains the nodes on the cluster */
+	private Hashtable<String, String[]> nodes = new Hashtable<String, String[]>();
+    
+    /**
+     * Initialize the cluster nodes hostnames for the namenode,
+     * resource manager, datanode, and nodemanager. 
+     */
+	public void initNonFDCNodes() {
+    	String host = "localhost";        	      	  
+		String[] components = { 
+				"namenode", 
+				"datanode", 
+				"resourcemanager",
+				"nodemanager" };
+		for (String component : components) {
+        	nodes.put(component, new String[] {host});
+		}
+    	return;
+	}
+	
+	public void initFDCNodes() {
+       	nodes.put("admin", new String[] {
+		"adm102.blue.ygrid.yahoo.com",
+		"adm103.blue.ygrid.yahoo.com"});
+
+       	// Namenode
+       	String namenode_addr = this.getConf().get("dfs.namenode.https-address");
+       	String namenode = namenode_addr.split(":")[0];
+       	nodes.put("namenode", new String[] {namenode});		
+
+       	// Resource Manager
+       	String rm_addr =
+       			this.getConf().get("yarn.resourcemanager.resource-tracker.address");
+       	String rm = rm_addr.split(":")[0];
+       	nodes.put("resourcemanager", new String[] {rm});		
+
+       	// Datanode
+       	nodes.put("datanode", this.getHostsFromList(namenode,
+       			this.getConf().getHadoopProp("HADOOP_CONF_DIR") + "/slaves"));		
+
+       	// Nodemanager
+       	nodes.put("nodemanager", nodes.get("datanode"));		
+	}
+	
+	/**
+     * Initialize the cluster nodes hostnames for the namenode,
+     * resource manager, datanode, and nodemanager. 
+     */
+	public void initNodes() {
+		// Retrieve the cluster type from the framework configuration file.
+		// This should be in the format of package.package.class
+        String strClusterType = TestSession.conf.getProperty("CLUSTER_TYPE");
+        
+        // Initialize the nodes with the correct cluster type.
+        if (!strClusterType.equals("hadooptest.cluster.fullydistributed.FullyDistributedCluster")) {
+        	initNonFDCNodes();
+        }
+        else {
+           	initFDCNodes();
+        }
+        
+		// Show all balances in hash table. 
+		TestSession.logger.debug("-- listing cluster nodes --");
+		Enumeration<String> components = nodes.keys(); 
+		while (components.hasMoreElements()) { 
+			String component = (String) components.nextElement(); 
+			TestSession.logger.debug(component + ": " + Arrays.toString(nodes.get(component))); 
+		} 	
+	}
+	
+    /**
+     * Parse the host names from a host name list on the namenode.
+     * 
+     * @param namenode the namenode hostname. 
+     * @param file the file name. 
+     * 
+     * @return String Array of host names.
+     */
+	private String[] getHostsFromList(String namenode, String file) {
+		String[] output = TestSession.exec.runProcBuilder(
+						new String[] {"ssh", namenode, "/bin/cat", file});
+		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
+		TestSession.logger.trace("Hosts in file are: " + Arrays.toString(nodes));		
+		return nodes;
+	}
+
+    /**
+     * Returns the Hadoop cluster hostnames hashtable.
+     * 
+     * @return Hashtable of String Arrays hostnames for each of the cluster
+     * components.
+     */
+	public Hashtable<String, String[]> getNodes() {
+		return nodes;
+    }
+
+    /**
+     * Returns the cluster nodes hostnames for the given component.
+     * 
+     * @param component The hadoop component such as gateway, namenode,
+     * resourcemaanger, etc.
+     * 
+     * @return String Arrays for the cluster nodes hostnames.
+     */
+	public String[] getNodes(String component) {
+		return nodes.get(component);
+    }
 
    /**
     * Start the cluster from a stopped state.
@@ -110,6 +221,19 @@ public abstract class Cluster {
      * @return boolean true if safemode is OFF, or false if safemode is ON.
      */
 	public boolean waitForSafemodeOff(int timeout, String fs) {
+		return waitForSafemodeOff(timeout, fs, false);
+	}
+	
+	/**
+     * Wait for the safemode on the namenode to be OFF. 
+     *
+     * @param timeout time to wait for safe mode to be off.
+     * @param fs file system under test
+     * @param verbose true for on, false for off.
+     * 
+     * @return boolean true if safemode is OFF, or false if safemode is ON.
+     */
+	public boolean waitForSafemodeOff(int timeout, String fs, boolean verbose) {
 
 		if (timeout < 0) {
 			int defaultTimeout = 300;
@@ -117,20 +241,17 @@ public abstract class Cluster {
 	    }
 
 	    if ((fs == null) || fs.isEmpty()) {
-		    // TODO: check if this will still work if custom conf dir is used.
-	    	// fs = this.getConf().getHadoopConfFileProp(
 	        fs = this.getConf().get(
 	        		"fs.defaultFS",
 	        		TestConfiguration.HADOOP_CONF_CORE);
 		}
 
-	    // TODO: get the namenode regardless of cluster type
-	    // String namenode = this.getConf().getClusterNodes("namenode")[0];	
-		String[] safemodeGetCmd = { this.getConf().getHadoopProp("HDFS_BIN"),
+	    String namenode = nodes.get("namenode")[0];
+	    String[] safemodeGetCmd = { this.getConf().getHadoopProp("HDFS_BIN"),
 				"--config", this.getConf().getHadoopProp("HADOOP_CONF_DIR"),
 				"dfsadmin", "-fs", fs, "-safemode", "get" };
 			
-		String[] output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
+		String[] output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
 		boolean isSafemodeOff = 
 				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 		 
@@ -145,7 +266,7 @@ public abstract class Cluster {
 	    		TestSession.logger.error("Encountered Interrupted Exception: " +
 	    				e.toString());
 	    	}
-	    	output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd);
+	    	output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
 	    	isSafemodeOff = 
 	    			(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 	        timeout = timeout - waitTime;
@@ -153,8 +274,7 @@ public abstract class Cluster {
 	    }
 	    
 	    if (!isSafemodeOff) {
-	    	// TestSession.logger.info("ALERT: NAMENODE " + namenode + " IS STILL IN SAFEMODE");
-	    	TestSession.logger.info("ALERT: NAMENODE IS STILL IN SAFEMODE");
+	    	TestSession.logger.info("ALERT: NAMENODE '" + namenode + "' IS STILL IN SAFEMODE");
 	    }
 	    
 	    return isSafemodeOff;

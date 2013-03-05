@@ -48,6 +48,20 @@ public abstract class Executor {
 	public abstract String[] runHadoopProcBuilder(String[] commandArray, String username);
 	
 	/**
+	 * Run a local system command.
+	 * 
+	 * @param commandArray The system command to run.
+	 * @param username the user to run the command as.
+	 * @param verbose true for on, false for off.
+	 */
+	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) {
+		// The FullyDistributed package implements this to setup kerberos security,
+		// but for Standalone we can just pass this through right to runProcBuilder
+		// for now.
+		return runProcBuilder(commandArray, verbose);
+	}
+
+	/**
 	 * Returns the Process handle to a system command that is run, when a command and user
 	 * name to run the command is specified.
 	 * 
@@ -68,6 +82,18 @@ public abstract class Executor {
 	 */
 	public String[] runProcBuilder(String[] commandArray) {
 		return runProcBuilder(commandArray, null);
+	}
+
+	/**
+	 * Run a local system command using a ProcessBuilder.
+	 * 
+	 * @param commandArray the command to run.  Each member of the string array should
+	 * 						be an item in the command string that is otherwise
+	 * 						surrounded by whitespace.
+	 * @param verbose true for on, false for off.
+	 */
+	public String[] runProcBuilder(String[] commandArray, boolean verbose) {
+		return runProcBuilder(commandArray, null, verbose);
 	}
 
 	/**
@@ -93,9 +119,12 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 * @param newEnv a Map of environment variables and values to run as an environment
 	 * 						for the process to be run.
+	 * @param verbose true for on, false for off.
 	 */
-	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv) {
-		TestSession.logger.info(Arrays.toString(commandArray));
+	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv, boolean verbose) {
+		if (verbose) {
+			TestSession.logger.info(Arrays.toString(commandArray));
+		}
 		Process proc = null;
 		int rc = 0;
 		String output = null;
@@ -134,6 +163,20 @@ public abstract class Executor {
 		}
 		
 		return new String[] { Integer.toString(rc), output, error};
+	}
+	
+	/**
+	 * Run a local system command with a ProcessBuilder, and additionally specify
+	 * A set of environment variable definitions to run against the process.
+	 * 
+	 * @param commandArray the command to run.  Each member of the string array should
+	 * 						be an item in the command string that is otherwise
+	 * 						surrounded by whitespace.
+	 * @param newEnv a Map of environment variables and values to run as an environment
+	 * 						for the process to be run.
+	 */
+	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv) {
+		return runProcBuilder(commandArray, newEnv, true);
 	}
 	
 	/**
@@ -182,9 +225,22 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray) {
+		return runHadoopProcBuilder(commandArray, true);
+	}
+	
+	/**
+	 * Run a local system command.
+	 * 
+	 * @param commandArray the command to run.  Each member of the string array should
+	 * 						be an item in the command string that is otherwise
+	 * 						surrounded by whitespace.
+	 * @param verbose true for on, false for off.
+	 */
+	public String[] runHadoopProcBuilder(String[] commandArray, boolean verbose) {
 		return runHadoopProcBuilder(
 				commandArray,
-				System.getProperty("user.name"));
+				System.getProperty("user.name"),
+				verbose);
 	}
 	
 	/**

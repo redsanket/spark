@@ -32,7 +32,6 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 */
 	public PseudoDistributedConfiguration() {
 		super(false);
-		
 		this.initDefaults();
 	}
 
@@ -48,7 +47,6 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 */
 	public PseudoDistributedConfiguration(boolean loadDefaults) {
 		super(loadDefaults); 
-
 		this.initDefaults();
 	}
 
