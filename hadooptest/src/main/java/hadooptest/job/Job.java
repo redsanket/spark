@@ -19,6 +19,11 @@ import java.util.regex.Pattern;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapred.TaskAttemptID;
+import org.apache.hadoop.mapred.TaskReport;
+import org.apache.hadoop.mapreduce.TaskCompletionEvent;
+import org.apache.hadoop.mapred.TIPStatus;
+import org.apache.hadoop.security.SecurityUtil;
 
 /**
  * A class which should represent the base capability of any job
@@ -129,6 +134,7 @@ public abstract class Job extends Thread {
 		RunningJob job = null;
 		
 		try {
+			SecurityUtil.login(TestSession.cluster.getConf(), "keytab-hadoopqa", "user-hadoopqa");
 			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 			JobID jobID = new JobID();
 			jobID = JobID.forName(this.ID);
@@ -276,18 +282,24 @@ public abstract class Job extends Thread {
 
 		RunningJob currentJob = this.getHadoopJob();
 		
-		try {
-			currentJob.killJob();
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was an exception when trying to kill the job through the Hadoop API.");
-			ioe.printStackTrace();
-		}
+		if (currentJob != null) {
+			try {
+				currentJob.killJob();
+			}
+			catch (IOException ioe) {
+				TestSession.logger.error("There was an exception when trying to kill the job through the Hadoop API.");
+				ioe.printStackTrace();
+			}
 		
-		JobState currentState = this.getJobStatus();
+			JobState currentState = this.getJobStatus();
 		
-		if (currentState.equals(JobState.KILLED)) {
-			TestSession.logger.info("JOB " + this.ID + " WAS KILLED");
+			if (currentState.equals(JobState.KILLED)) {
+				TestSession.logger.info("JOB " + this.ID + " WAS KILLED");
+				return true;
+			}
+		}
+		else {
+			TestSession.logger.info("Running job no longer exists and cannot be killed.");
 			return true;
 		}
 
@@ -771,7 +783,7 @@ public abstract class Job extends Thread {
 	 * @param taskID The ID of the task attempt to kill.
 	 * @return boolean Whether the task attempt was killed or not.
 	 */
-	public boolean killTaskAttempt(String taskID) {
+	public boolean killTaskAttemptCLI(String taskID) {
 		
 		Process mapredProc = null;
 		
@@ -808,6 +820,69 @@ public abstract class Job extends Thread {
 				mapredProc.destroy();
 			}
 			e.printStackTrace();
+		}
+
+		TestSession.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
+		return false;
+	}
+	
+	public boolean killTaskAttempt(String taskID) {
+		try {
+
+			TaskAttemptID taskAttemptID = TaskAttemptID.forName(taskID);
+			
+			RunningJob job;
+
+			SecurityUtil.login(TestSession.cluster.getConf(), "keytab-hadoopqa", "user-hadoopqa");
+			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+			JobID jobID = new JobID();
+			jobID = JobID.forName(this.ID);
+			job = jobClient.getJob(jobID);
+			
+			job.killTask(taskAttemptID, true);
+			
+			TaskReport[] taskReports = jobClient.getMapTaskReports(jobID);
+			
+			TestSession.logger.info("DEBUG****************** taskReports size = " + taskReports.length);
+			
+			for (int i = 0; i < taskReports.length; i++) {
+				if (taskReports[i].getTaskID().equals(taskAttemptID)) {
+
+					TestSession.logger.info("DEBUG****************** FOUND TASK ID THAT MATCHES");
+					
+					if (taskReports[i].getCurrentStatus().equals(TIPStatus.KILLED)) {
+						TestSession.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
+						return true;
+					}
+					else {
+						break;
+					}
+				}
+			}
+			
+			
+			//TaskAttemptID taskAttemptID = TaskAttemptID.forName(taskID);
+
+			//this.getHadoopJob().killTask(taskAttemptID, true);
+
+			//TaskCompletionEvent[] tce = this.getHadoopJob().getTaskCompletionEvents(0);
+/*
+			for (int i = 0; i < tce.length; i++) {
+				if (taskAttemptID.equals(tce[i].getTaskAttemptId())) {
+					if (tce[i].getStatus().equals(TaskCompletionEvent.Status.KILLED)) {
+						TestSession.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
+						return true;
+					}
+					else {
+						break;
+					}
+				}
+			}
+			*/
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem killing the task.");
+			ioe.printStackTrace();
 		}
 
 		TestSession.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
