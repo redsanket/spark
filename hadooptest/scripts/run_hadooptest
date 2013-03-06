@@ -72,8 +72,8 @@ CLASSPATH="\
 
 if [ "$USE_MVN" -eq 0 ]; then
     CLASSPATH="$CLASSPATH:\
-$WORKSPACE/hadooptest-1.0-SNAPSHOT.jar:\
-$WORKSPACE/hadooptest-1.0-SNAPSHOT-tests.jar"
+$WORKSPACE/target/hadooptest-1.0-SNAPSHOT.jar:\
+$WORKSPACE/target/hadooptest-1.0-SNAPSHOT-tests.jar"
 fi
 
 HADOOP_INSTALL="/home/gs/gridre/yroot.$CLUSTER"

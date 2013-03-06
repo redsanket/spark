@@ -113,17 +113,10 @@ scp $TGZ_DIR/$TGZ_FILE $REMOTE_HOST:$REMOTE_WORKSPACE
 ssh -t $REMOTE_HOST "/bin/gtar fx $REMOTE_WORKSPACE/$TGZ_FILE -C $REMOTE_WORKSPACE";
 set +x
 
-#if [ "$USE_MVN" -eq 1 ]; then
-#   set -x
-#   tar -zcf $TGZ_DIR/$TGZ_FILE --exclude='target' -C $LOCAL_WORKSPACE .
-#   scp $TGZ_DIR/$TGZ_FILE $REMOTE_HOST:$REMOTE_WORKSPACE
-#   ssh -t $REMOTE_HOST "/bin/gtar fx $REMOTE_WORKSPACE/$TGZ_FILE -C $REMOTE_WORKSPACE";
-#   set +x
-#else 
 if [ "$USE_MVN" -ne 1 ]; then
      set -x
-     scp $LOCAL_WORKSPACE_TARGET_DIR/*.jar $REMOTE_HOST:$REMOTE_WORKSPACE
-     # scp $LOCAL_WORKSPACE/scripts/run_hadooptest $REMOTE_HOST:$REMOTE_WORKSPACE
+     ssh -t $REMOTE_HOST "/bin/mkdir -p $REMOTE_WORKSPACE/target";
+     scp $LOCAL_WORKSPACE_TARGET_DIR/*.jar $REMOTE_HOST:$REMOTE_WORKSPACE/target
      set +x
 fi
 
