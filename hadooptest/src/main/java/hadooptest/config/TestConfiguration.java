@@ -234,9 +234,9 @@ public abstract class TestConfiguration extends Configuration {
 		 * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
 		 */
 		super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
-		super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
-		super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
-		super.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
+		//super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
+		//super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
+		//super.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
 		
 		// Configuration directory and files
 		String confDir=

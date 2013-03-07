@@ -268,7 +268,7 @@ public abstract class Cluster {
 	    	}
 	    	output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
 	    	isSafemodeOff = 
-	    			(output[1].trim().equals("Safe mode is OFF")) ? true : false;
+	    			(output[1].trim().contains("Safe mode is OFF")) ? true : false;
 	        timeout = timeout - waitTime;
 	        i++;
 	    }

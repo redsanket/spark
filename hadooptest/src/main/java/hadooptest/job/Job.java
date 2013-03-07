@@ -828,7 +828,6 @@ public abstract class Job extends Thread {
 	
 	public boolean killTaskAttempt(String taskID) {
 		try {
-
 			TaskAttemptID taskAttemptID = TaskAttemptID.forName(taskID);
 			
 			RunningJob job;
@@ -839,16 +838,22 @@ public abstract class Job extends Thread {
 			jobID = JobID.forName(this.ID);
 			job = jobClient.getJob(jobID);
 			
+			do {
+				Util.sleep(1);
+			}
+			while (this.getJobStatus() != JobState.RUNNING 
+					&& this.getJobStatus() != JobState.FAILED 
+					&& this.getJobStatus() != JobState.KILLED);
+			
 			job.killTask(taskAttemptID, true);
 			
 			TaskReport[] taskReports = jobClient.getMapTaskReports(jobID);
 			
-			TestSession.logger.info("DEBUG****************** taskReports size = " + taskReports.length);
+
+			TestSession.logger.info("TASK REPORTS LENGTH IS: " + taskReports.length);
 			
 			for (int i = 0; i < taskReports.length; i++) {
 				if (taskReports[i].getTaskID().equals(taskAttemptID)) {
-
-					TestSession.logger.info("DEBUG****************** FOUND TASK ID THAT MATCHES");
 					
 					if (taskReports[i].getCurrentStatus().equals(TIPStatus.KILLED)) {
 						TestSession.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
@@ -859,7 +864,6 @@ public abstract class Job extends Thread {
 					}
 				}
 			}
-			
 			
 			//TaskAttemptID taskAttemptID = TaskAttemptID.forName(taskID);
 

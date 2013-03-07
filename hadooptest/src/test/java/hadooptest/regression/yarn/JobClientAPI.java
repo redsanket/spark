@@ -57,5 +57,31 @@ public class JobClientAPI extends TestSession {
 		assertTrue("Job name was not -Sleep job-.", name.equals("Sleep job"));
 		assertTrue("Job status was not -PREP-.", state.equals("PREP"));
 	}
+	
+	@Test
+	public void submitSleepJobThruAPI() {
+		SleepJob sleepJob = new SleepJob();
+		sleepJob.setNumMappers(5);
+		sleepJob.setNumReducers(5);
+		sleepJob.setMapDuration(500);
+		sleepJob.setReduceDuration(500);
+		
+		sleepJob.start();
+
+		// Validate the job ID
+		assertTrue("Sleep job was not assigned an ID within 10 seconds.", 
+				sleepJob.waitForID(10));
+		assertTrue("Sleep job ID for sleep job is invalid.", 
+				sleepJob.verifyID());
+		
+		String name = sleepJob.getJobName();
+		String state = sleepJob.getJobStatus().toString();
+		logger.info("API: JOB NAME = " + name);
+		logger.info("API: JOB STATUS = " + state);
+		
+		assertTrue("Job name was not -Sleep job-.", name.equals("Sleep job"));
+		assertTrue("Job status was not -PREP-.", state.equals("PREP"));
+	}
+	
 	/******************* END TESTS ***********************/
 }
