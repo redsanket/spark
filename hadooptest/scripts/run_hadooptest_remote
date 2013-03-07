@@ -8,6 +8,7 @@ function usage {
 The options
         -c|--cluster <cluster name>          : cluster name
         [ -s|--source    <source root dir> ] : source root directory
+        [ -f|            <conf file>       ] : hadooptest configuration file
         [ -g|--gateway   <aateway>         ] : remote gateway host
         [ -w|--workspace <workspace>       ] : remote workspace. Default remote workspace is 
                                                "/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
@@ -46,18 +47,19 @@ eval set -- $args
 
 INSTALL_ONLY=0
 USE_MVN=1
-while getopts "c:g:s:t:u:w:njmih" opt; do
+while getopts "c:f:g:s:t:u:w:ijmnh" opt; do
         case $opt in
                 c) CLUSTER=$OPTARG;;
+                f) CONF=$OPTARG;;
                 g) REMOTE_HOST=$OPTARG;;
+                i) INSTALL_ONLY=1;;
+                j) USE_MVN=0;;
+                m) USE_MVN=1;;
+                n) PASSWORD_OPTION="-n";;
                 s) LOCAL_WORKSPACE=$OPTARG;;
                 t) TESTS=$OPTARG;;
                 u) REMOTE_USER=$OPTARG;;
                 w) REMOTE_WORKSPACE=$OPTARG;;
-                n) PASSWORD_OPTION="-n";;
-                i) INSTALL_ONLY=1;;
-                j) USE_MVN=0;;
-                m) USE_MVN=1;;
                 h) usage;;
                 *) usage;;
         esac
@@ -125,6 +127,13 @@ else
     TESTS_PARAM="--test $TESTS"
 fi
 
+if [ -z $CONF ]
+then
+    CONF_PARAM=""
+else
+    CONF_PARAM="-f $CONF"
+fi
+
 if [ "$REMOTE_USER" == "hadoopqa" ]; then
 	ssh -t $REMOTE_HOST "sudo chown -R hadoopqa $REMOTE_WORKSPACE;";
 fi
@@ -132,13 +141,13 @@ fi
 if [ "$INSTALL_ONLY" -ne 1 ]; then
    if [ "$USE_MVN" -eq 1 ]; then
       set -x
-      ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $TESTS_PARAM";
+      ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $PASSWORD_OPTION $CONF_PARAM $TESTS_PARAM";
       # copy the test results back
       scp -r $REMOTE_HOST:$REMOTE_WORKSPACE/target/surefire-reports $LOCAL_WORKSPACE_TARGET_DIR/
       set +x
    else 
       set -x
-      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/run_hadooptest --c $CLUSTER --workspace $REMOTE_WORKSPACE $PASSWORD_OPTION $TESTS_PARAM";
+      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/run_hadooptest --c $CLUSTER --workspace $REMOTE_WORKSPACE $PASSWORD_OPTION $CONF_PARAM $TESTS_PARAM";
    set +x
    fi
 fi

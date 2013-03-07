@@ -7,21 +7,34 @@ function usage {
     echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
 The options
         -c|--cluster    <cluster name> : cluster name
-        [ -w|workspace  <workspace>        ] : workspace
-        [ -n|--nopasswd                    ] : no password prompt
+        [ -f|           <conf file>        ] : hadooptest configuration file
         [ -j|--java                        ] : run tests via java directly instead of via maven
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
+        [ -n|--nopasswd                    ] : no password prompt
         [ -t|--test      <test suite(s)    ] : test suite name(s). use delimitor comma for mvn, and space for java
+        [ -w|workspace  <workspace>        ] : workspace
         [ -h|--help                        ] : help
 
 Example:
 $ run_hadooptest --cluster theoden
 $ run_hadooptest --cluster theoden --test SleepJobRunner
 $ run_hadooptest --cluster theoden --mvn --test SleepJobRunner
+$ run_hadooptest --cluster theoden --mvn --test SleepJobRunner -f /homes/hadoopqa/hadooptest.conf
 $ run_hadooptest -c theoden -t hadooptest.regression.CheckVersion -n
 "
     exit 1
 }
+
+for arg; do 
+    [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
+    if [ "${arg:0:2}" == "--" ]; 
+       then args="${args} -${arg:2:1}" 
+       else args="${args} ${delim}${arg}${delim}"
+    fi
+done
+
+# reset the incoming args
+eval set -- $args
 
 PASSWORD_OPTION=${PASSWORD_OPTION:-"-password"}
 WORKSPACE=${WORKSPACE:="/home/y/etc/hadooptest/java/lib"}
@@ -38,14 +51,15 @@ done
 eval set -- $args
 
 USE_MVN=1
-while getopts "c:w:t:njmh" opt; do
+while getopts "c:f:t:w:jmnh" opt; do
 	case $opt in
 		c) CLUSTER=$OPTARG;;
-		w) WORKSPACE=$OPTARG;;		
-		t) TESTS=$OPTARG;;
-		n) PASSWORD_OPTION="no-password";;
+		f) CONF=$OPTARG;;
         j) USE_MVN=0;;
         m) USE_MVN=1;;
+		n) PASSWORD_OPTION="no-password";;
+		t) TESTS=$OPTARG;;
+		w) WORKSPACE=$OPTARG;;		
 		h) usage;;
 		*) usage;;
 	esac
@@ -55,6 +69,9 @@ if [ -z $CLUSTER ]; then
    echo "ERROR: Required CLUSTER value not defined!!!";
    exit 1;
 fi
+
+DEFAULT_CONF="~/hadooptest.conf"
+CONF=${CONF:="$DEFAULT_CONF"}
 
 DEFAULT_TESTS="\
 hadooptest.regression.CheckVersion,\
@@ -118,11 +135,11 @@ if [ "$USE_MVN" -eq 1 ]; then
     CLUSTER=$CLUSTER \
 HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
 HADOOP_SHARE=/grid/0/gshome/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
-/home/y/bin/mvn -f pom-ci.xml clean test -DfailIfNoTests=false $TESTS_OPT
+/home/y/bin/mvn -f pom-ci.xml clean test -DfailIfNoTests=false $TESTS_OPT -Dhadooptest.config=$CONF
     set +x
 else
     # /home/y/bin/mvn clean package -Pdist -Dtar
     set -x
-    /home/y/bin/java -cp $CLASSPATH org.junit.runner.JUnitCore $TESTS
+    /home/y/bin/java -cp $CLASSPATH -Dhadooptest.config=$CONF org.junit.runner.JUnitCore $TESTS
     set +x
 fi
