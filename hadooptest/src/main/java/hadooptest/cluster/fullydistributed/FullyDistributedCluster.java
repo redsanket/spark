@@ -9,6 +9,7 @@ import hadooptest.config.TestConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -553,48 +554,77 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @param action the action associated with the expected state {"start", "stop"}
      * @param component cluster component such as gateway, namenode,
-     * @param daemonHost host names String Array of daemon host names,
+     * @param daemonHosts host names String Array of daemon host names,
      * 
      * @return boolean true if the cluster is fully in the expected state, false if the
      * cluster is not fully in the expected state.
      */
 	public boolean isComponentFullyInExpectedState(String action,
-			String component, String[] daemonHost) {
+			String component, String[] daemonHosts) {
 		String adminHost = this.getNodes("admin")[0];
-		if (daemonHost == null) {
-			daemonHost = this.getNodes(component);	
+		if (daemonHosts == null) {
+			daemonHosts = this.getNodes(component);	
 		}
-
+		TestSession.logger.trace("Daemon hosts for " + component + ": " +
+				Arrays.toString(daemonHosts));		
+		
 		// Get the number of running process(es) for a given component
 		String prog = (component.equals("datanode")) ? "jsvc.exec" : "java";		    
 		String[] cmd = {"ssh", adminHost, "pdsh", "-w",
-				StringUtils.join(daemonHost, ","), 
+				StringUtils.join(daemonHosts, ","), 
 				"ps auxww", "|", "grep \"" + prog + " -Dproc_" + component +
-		        "\"", "|","grep -v grep -c" };		        
+		        "\"", "|", "/usr/bin/cut", "-d':'", "-f1" };		        
 		String output[] = TestSession.exec.runProcBuilder(cmd);
-		
-		int numExpectedProcessPerHost = (component.equals("datanode")) ? 2 : 1;
-		TestSession.logger.trace("Daemon hosts for " + component + ": " +
-				Arrays.toString(daemonHost));
-		int numDaemonProcess = numExpectedProcessPerHost * daemonHost.length;
 
-		int numExpectedProcess =
-				(action.equals("start")) ? numDaemonProcess : 0;
+		String[] daemonProcesses = output[1].split("\n");		
+		String domain = daemonHosts[0].substring(daemonHosts[0].indexOf("."));		
 
-		int numActualProcess = Integer.parseInt(output[1].replace("\n",""));
-		
+		// Get the number of processes reported per host
+		HashMap<String, Integer> processCounter = new HashMap<String, Integer>();
+        for (String daemonHost : daemonProcesses) {
+        	daemonHost = daemonHost + domain;
+        	TestSession.logger.trace("update counter for: " + daemonHost);
+            if (!processCounter.containsKey(daemonHost)) {
+                processCounter.put(daemonHost, 1);
+            } else {
+                processCounter.put(daemonHost, processCounter.get(daemonHost)+1);
+            }
+        }		
+
+        // Figure out expected versus actual number of processes
+		String expectedState = (action.equals("start")) ? "up" : "down";
+		int numCapableDaemonProcessesPerHost = (component.equals("datanode")) ?
+				2 : 1;
+		int numExpectedDaemonProcessesPerHost = (action.equals("start")) ?
+				numCapableDaemonProcessesPerHost : 0;
+	    for(String host : daemonHosts) {
+	    	// Check for the expected number of processes for each host
+	    	TestSession.logger.trace("Check against process counter for host " + host);
+	        if ((!processCounter.containsKey(host)) || 
+	        	(processCounter.get(host) != numExpectedDaemonProcessesPerHost)) {
+	        	String log = "/home/gs/var/log/hdfsqa/hadoop-hdfsqa-datanode-"+host+".log";
+	            TestSession.logger.info("Daemon on host " + host +
+	            		" is not in expected state of '" + expectedState + "'.");
+	            TestSession.logger.info("See log: " + host + ":"+ log);
+	    	}
+	    }
+
+		int numCapableDaemonProcesses = numCapableDaemonProcessesPerHost * daemonHosts.length;
+		int numExpectedDaemonProcesses = (action.equals("start")) ? numCapableDaemonProcesses : 0;		
+		int numActualDaemonProcesses = daemonProcesses.length;
+
 		boolean isComponentFullyInExpectedState =
-				(numActualProcess == numExpectedProcess) ? true : false;
+				(numActualDaemonProcesses == numExpectedDaemonProcesses) ? true : false;
 			if (action.equals("start")) {
 				TestSession.logger.debug("Number of " + component +
-						" process up: " + numActualProcess + "/" +
-						numDaemonProcess);
+						" process up: " + numActualDaemonProcesses + "/" +
+						numCapableDaemonProcesses);
 			}
 			else {
 				TestSession.logger.debug("Number of " + component +
 						" process down: " +
-						(numDaemonProcess-numActualProcess) + "/" +
-						numDaemonProcess);
+						(numCapableDaemonProcesses-numActualDaemonProcesses) + "/" +
+						numCapableDaemonProcesses);
 			}
 		return isComponentFullyInExpectedState;
 	}	
