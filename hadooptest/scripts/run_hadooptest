@@ -130,16 +130,18 @@ else
 	TESTS_OPT=""
 fi
 
+COMMON_ARGS="-DCLUSTER_NAME=$CLUSTER -DWORKSPACE=$WORKSPACE -Dhadooptest.config=$CONF"
+
 if [ "$USE_MVN" -eq 1 ]; then
     set -x
     CLUSTER=$CLUSTER \
 HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
 HADOOP_SHARE=/grid/0/gshome/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
-/home/y/bin/mvn -f pom-ci.xml clean test -DfailIfNoTests=false $TESTS_OPT -Dhadooptest.config=$CONF
+/home/y/bin/mvn -f pom-ci.xml clean test -DfailIfNoTests=false $TESTS_OPT $COMMON_ARGS
     set +x
 else
     # /home/y/bin/mvn clean package -Pdist -Dtar
     set -x
-    /home/y/bin/java -cp $CLASSPATH -Dhadooptest.config=$CONF org.junit.runner.JUnitCore $TESTS
+    /home/y/bin/java -cp $CLASSPATH $COMMON_ARGS org.junit.runner.JUnitCore $TESTS
     set +x
 fi
