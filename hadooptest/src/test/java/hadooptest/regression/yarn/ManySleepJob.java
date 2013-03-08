@@ -63,8 +63,8 @@ public class ManySleepJob extends TestSession {
 		
 		// Validate the job IDs
 		for (i = 0; i < sleepJobVector.size(); i++) {
-			assertTrue("Sleep job " + i + " was not assigned an ID within 10 seconds.", 
-					sleepJobVector.get(i).waitForID(10));
+			assertTrue("Sleep job " + i + " was not assigned an ID within 20 seconds.", 
+					sleepJobVector.get(i).waitForID(20));
 			assertTrue("Sleep job ID for sleep job " + i + " is invalid.", 
 					sleepJobVector.get(i).verifyID());
 		}

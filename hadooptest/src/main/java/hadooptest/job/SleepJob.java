@@ -123,33 +123,6 @@ public class SleepJob extends Job {
 			e.printStackTrace();
 		}
 	} 
-	
-	protected void submitAPI() {
-
-		String[] args = { "-m", 
-				Integer.toString(this.numMappers), 
-				"-r", 
-				Integer.toString(this.numReducers), 
-				"-mt", 
-				Integer.toString(this.mapDuration),
-				"-rt",
-				Integer.toString(this.reduceDuration) };
-		
-		Configuration conf = TestSession.cluster.getConf();
-		
-		int rc;
-		try {
-			SecurityUtil.login(conf, "keytab-hadoopqa", "user-hadoopqa");
-			rc = ToolRunner.run(conf, new org.apache.hadoop.SleepJob(), args);
-			if (rc != 0) {
-				TestSession.logger.error("Job failed to run.");
-			}
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Job failed to run.");
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * Submit the job and don't wait for the ID.  This should be done only by the Job.start() as Job should

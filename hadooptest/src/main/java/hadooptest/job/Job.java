@@ -19,10 +19,7 @@ import java.util.regex.Pattern;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.RunningJob;
-import org.apache.hadoop.mapred.TaskAttemptID;
 import org.apache.hadoop.mapred.TaskReport;
-import org.apache.hadoop.mapreduce.TaskCompletionEvent;
-import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.security.SecurityUtil;
 
 /**
@@ -47,7 +44,7 @@ public abstract class Job extends Thread {
 	protected boolean jobInitSetID = true;
 	
 	/**
-	 * Submit the job to the cluster.
+	 * Submit the job to the cluster through the Hadoop CLI.
 	 */
 	protected abstract void submit();
 	
@@ -55,6 +52,8 @@ public abstract class Job extends Thread {
 	 * Submit the job to the cluster, but don't wait to assign an ID to this Job.
 	 * Should only be intended for cases where you want to saturate a cluster
 	 * with Jobs, and don't care about the status or result of the Job.
+	 * 
+	 * Submit the job to the cluster through the Hadoop CLI.
 	 */
 	protected abstract void submitNoID();
 	
@@ -133,12 +132,10 @@ public abstract class Job extends Thread {
 	public RunningJob getHadoopJob() {
 		RunningJob job = null;
 		
+		JobClient jobClient = this.getHadoopAPIJobClient();
+			
 		try {
-			SecurityUtil.login(TestSession.cluster.getConf(), "keytab-hadoopqa", "user-hadoopqa");
-			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-			JobID jobID = new JobID();
-			jobID = JobID.forName(this.ID);
-			job = jobClient.getJob(jobID);
+			job = jobClient.getJob(this.getHadoopAPIJobID());
 		}
 		catch (IOException ioe) {
 			TestSession.logger.error("There was a problem getting the Hadoop job.");
@@ -783,7 +780,7 @@ public abstract class Job extends Thread {
 	 * @param taskID The ID of the task attempt to kill.
 	 * @return boolean Whether the task attempt was killed or not.
 	 */
-	public boolean killTaskAttemptCLI(String taskID) {
+	public boolean killTaskAttempt(String taskID) {
 		
 		Process mapredProc = null;
 		
@@ -826,71 +823,106 @@ public abstract class Job extends Thread {
 		return false;
 	}
 	
-	public boolean killTaskAttempt(String taskID) {
+	/**
+	 * Gets the JobClient from the Hadoop API.
+	 * 
+	 * @return JobClient a Hadoop API JobClient.
+	 */
+	public JobClient getHadoopAPIJobClient() {
+		JobClient jobClient = null;
+		
 		try {
-			TaskAttemptID taskAttemptID = TaskAttemptID.forName(taskID);
-			
-			RunningJob job;
-
 			SecurityUtil.login(TestSession.cluster.getConf(), "keytab-hadoopqa", "user-hadoopqa");
-			JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-			JobID jobID = new JobID();
-			jobID = JobID.forName(this.ID);
-			job = jobClient.getJob(jobID);
-			
-			do {
-				Util.sleep(1);
-			}
-			while (this.getJobStatus() != JobState.RUNNING 
-					&& this.getJobStatus() != JobState.FAILED 
-					&& this.getJobStatus() != JobState.KILLED);
-			
-			job.killTask(taskAttemptID, true);
-			
-			TaskReport[] taskReports = jobClient.getMapTaskReports(jobID);
-			
-
-			TestSession.logger.info("TASK REPORTS LENGTH IS: " + taskReports.length);
-			
-			for (int i = 0; i < taskReports.length; i++) {
-				if (taskReports[i].getTaskID().equals(taskAttemptID)) {
-					
-					if (taskReports[i].getCurrentStatus().equals(TIPStatus.KILLED)) {
-						TestSession.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
-						return true;
-					}
-					else {
-						break;
-					}
-				}
-			}
-			
-			//TaskAttemptID taskAttemptID = TaskAttemptID.forName(taskID);
-
-			//this.getHadoopJob().killTask(taskAttemptID, true);
-
-			//TaskCompletionEvent[] tce = this.getHadoopJob().getTaskCompletionEvents(0);
-/*
-			for (int i = 0; i < tce.length; i++) {
-				if (taskAttemptID.equals(tce[i].getTaskAttemptId())) {
-					if (tce[i].getStatus().equals(TaskCompletionEvent.Status.KILLED)) {
-						TestSession.logger.info("TASK ATTEMPT " + taskID + " WAS KILLED");
-						return true;
-					}
-					else {
-						break;
-					}
-				}
-			}
-			*/
+			jobClient = new JobClient(TestSession.cluster.getConf());
 		}
 		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem killing the task.");
+			TestSession.logger.error("There was a problem getting the JobClient from the Hadoop API.");
 			ioe.printStackTrace();
 		}
+		
+		return jobClient;
+	}
+	
+	/**
+	 * Gets the Hadoop API JobID object corresponding to the current job ID.
+	 * 
+	 * @return JobID the Hadoop API JobID object corresponding to the current job ID.
+	 */
+	public JobID getHadoopAPIJobID() {
+		JobID jobID = new JobID();
+		jobID = JobID.forName(this.ID);
+		return jobID;
+	}
+	
+	/**
+	 * Blocking call that waits until the current job is running, failed, or killed, before
+	 * proceeding.
+	 */
+	public void blockUntilRunning() {
+		TestSession.logger.info("Blocking until the job is running, failed, or killed.");
+		
+		do {
+			Util.sleep(1);
+		}
+		while (this.getJobStatus() != JobState.RUNNING 
+				&& this.getJobStatus() != JobState.FAILED 
+				&& this.getJobStatus() != JobState.KILLED);
+	}
+	
+	/**
+	 * Get an array of current mapper TaskReport statuses for the current Job.
+	 * 
+	 * @return TaskReport[] an array of TaskReport map task statuses.
+	 */
+	public TaskReport[] getMapTasksStatus() {
 
-		TestSession.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
-		return false;
+		TaskReport[] taskReports = null;
+
+		JobClient jobClient = this.getHadoopAPIJobClient();
+
+		// Block until the Job is either running, failed, or killed.
+		// The Hadoop API to get task status will return an empty
+		// TaskReport[] if the job is in the PREP state and has not
+		// yet started.
+		this.blockUntilRunning();
+
+		try {
+			taskReports = jobClient.getMapTaskReports(this.getHadoopAPIJobID());
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem getting the map tasks status.");
+			ioe.printStackTrace();
+		}
+		
+		return taskReports;
+	}
+	
+	/**
+	 * Get an array of current reducer TaskReport statuses for the current Job.
+	 * 
+	 * @return TaskReport[] an array of TaskReport reducer task statuses.
+	 */
+	public TaskReport[] getReduceTasksStatus() {
+		
+		TaskReport[] taskReports = null;
+		
+		JobClient jobClient = this.getHadoopAPIJobClient();
+			
+		// Block until the Job is either running, failed, or killed.
+		// The Hadoop API to get task status will return an empty
+		// TaskReport[] if the job is in the PREP state and has not
+		// yet started.
+		this.blockUntilRunning();
+
+		try {
+			taskReports = jobClient.getReduceTaskReports(this.getHadoopAPIJobID());
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("There was a problem getting the reduce tasks status.");
+			ioe.printStackTrace();
+		}
+		
+		return taskReports;
 	}
 	
 	/**

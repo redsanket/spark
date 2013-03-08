@@ -29,14 +29,14 @@ public class MapredKillTask extends TestSession {
 	public static void startTestSession() {
 		TestSession.start();
 		
-		//TestConfiguration clusterConfig = cluster.getConf();
+		TestConfiguration clusterConfig = cluster.getConf();
 		
-		//clusterConfig.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
-		//clusterConfig.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
-		//clusterConfig.write();
+		clusterConfig.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
+		clusterConfig.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
+		clusterConfig.write();
 		
-		//cluster.setConf(clusterConfig);
-		//cluster.reset();
+		cluster.setConf(clusterConfig);
+		cluster.reset();
 	}
 
 	/*
@@ -129,7 +129,7 @@ public class MapredKillTask extends TestSession {
 	public void killTaskOfAlreadyCompletedJobCLI() {
 		
 		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccessCLI(1));
+				sleepJob.waitForSuccessCLI(2));
 		
 		String taskID = sleepJob.getMapTaskAttemptID();
 		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
@@ -143,7 +143,7 @@ public class MapredKillTask extends TestSession {
 	public void killTaskOfAlreadyCompletedJobAPI() {
 		
 		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess(1));
+				sleepJob.waitForSuccess(2));
 		
 		String taskID = sleepJob.getMapTaskAttemptID();
 		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));

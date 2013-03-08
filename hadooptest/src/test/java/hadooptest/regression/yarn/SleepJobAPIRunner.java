@@ -2,7 +2,6 @@ package hadooptest.regression.yarn;
 
 import hadooptest.TestSession;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,13 +30,13 @@ public class SleepJobAPIRunner extends TestSession {
 		int rc;
 		try {
 			SecurityUtil.login(conf, "keytab-hadoop1", "user-hadoop1");
-			rc = ToolRunner.run(new Configuration(), new SleepJob(), args);
+			rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
 				TestSession.logger.error("Job failed!!!");
 			}
 
 			SecurityUtil.login(conf, "keytab-hadoopqa", "user-hadoopqa");
-		    rc = ToolRunner.run(new Configuration(), new SleepJob(), args);
+		    rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
 				TestSession.logger.error("Job failed!!!");
 			}
