@@ -70,7 +70,7 @@ if [ -z $CLUSTER ]; then
    exit 1;
 fi
 
-DEFAULT_CONF="~/hadooptest.conf"
+DEFAULT_CONF=`ls -d ~/`"/hadooptest.conf"
 CONF=${CONF:="$DEFAULT_CONF"}
 
 DEFAULT_TESTS="\
