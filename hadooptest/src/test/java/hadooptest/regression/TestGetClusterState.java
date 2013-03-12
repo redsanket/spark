@@ -12,7 +12,7 @@ import org.junit.experimental.categories.Category;
  * Checks to make sure that a cluster is running.
  */
 @Category(SerialTests.class)
-public class TestCheckClusterState extends TestSession {
+public class TestGetClusterState extends TestSession {
 
 	@Test
 	public void checkClusterState() {
