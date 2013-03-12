@@ -33,10 +33,8 @@ public class MapredKillTask extends TestSession {
 		
 		clusterConfig.set("mapreduce.map.maxattempts", Integer.toString(MAPREDUCE_MAP_MAXATTEMPTS));
 		clusterConfig.set("mapreduce.reduce.maxattempts", Integer.toString(MAPREDUCE_REDUCE_MAXATTEMPTS));
-		clusterConfig.write();
 		
 		cluster.setConf(clusterConfig);
-		cluster.reset();
 	}
 
 	/*

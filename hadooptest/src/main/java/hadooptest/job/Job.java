@@ -20,7 +20,6 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TaskReport;
-import org.apache.hadoop.security.SecurityUtil;
 
 /**
  * A class which should represent the base capability of any job
@@ -832,7 +831,6 @@ public abstract class Job extends Thread {
 		JobClient jobClient = null;
 		
 		try {
-			SecurityUtil.login(TestSession.cluster.getConf(), "keytab-hadoopqa", "user-hadoopqa");
 			jobClient = new JobClient(TestSession.cluster.getConf());
 		}
 		catch (IOException ioe) {

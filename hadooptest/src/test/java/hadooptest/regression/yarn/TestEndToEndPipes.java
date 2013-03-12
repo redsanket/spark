@@ -9,7 +9,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.hadoop.security.SecurityUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -109,9 +108,6 @@ public class TestEndToEndPipes extends TestSession {
 		
 		TestSession.logger.trace(TestSession.cluster.getConf().toString("resources"));
 		TestSession.logger.trace(TestSession.cluster.getConf().toString("props"));
-
-		SecurityUtil.login(TestSession.cluster.getConf(),
-        		"keytab-hadoopqa", "user-hadoopqa");
 
 		setupHdfsDir();
 		putLocalToHdfs(getResourceFullPath("resources/data/pipes/c++-examples/Linux-i386-32/bin/"), "pipes/");

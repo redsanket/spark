@@ -29,13 +29,13 @@ public class SleepJobAPIRunner extends TestSession {
 		
 		int rc;
 		try {
-			SecurityUtil.login(conf, "keytab-hadoop1", "user-hadoop1");
+			this.cluster.setSecurityAPI("keytab-hadoop1", "user-hadoop1");
 			rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
 				TestSession.logger.error("Job failed!!!");
 			}
 
-			SecurityUtil.login(conf, "keytab-hadoopqa", "user-hadoopqa");
+			this.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
 		    rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
 				TestSession.logger.error("Job failed!!!");

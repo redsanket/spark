@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
@@ -88,6 +89,8 @@ public abstract class TestSession {
 		// Initialize the cluster to be used in the framework
 		initCluster();
 
+		initSecurity();
+		
 		// Log the classpath
     	String classpath = System.getProperty("java.class.path");
 		logger.trace("CLASSPATH="+classpath);
@@ -273,6 +276,10 @@ public abstract class TestSession {
 			logger.warn("Cluster is not fully up: cluster state='" +
 					clusterState.toString() + "'.'");
 		}
+	}
+	
+	private static void initSecurity() {
+		cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
 	}
 	
 }
