@@ -18,7 +18,7 @@ import org.apache.hadoop.fs.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class EndToEndPipes extends TestSession {
+public class TestEndToEndPipes extends TestSession {
 	
 	@BeforeClass
 	public static void startTestSession() {
