@@ -143,6 +143,23 @@ public abstract class TestSession {
 		} catch (IOException ioe) {
 			System.out.println("Could not load the framework configuration file.");
 		}
+
+		/*
+		 * Check for system properties that if specified should override the
+		 * configuration file setting. For instance, For instance, user may use
+		 * a common configuration file but with a different CLUSTER_NAME and/or
+		 * WORKSPACE.
+		 */
+		String workspace = System.getProperty("WORKSPACE");
+		if (workspace != null && !workspace.isEmpty()) {
+			System.out.println("WORKSPACE: " + workspace);
+			conf.setProperty("WORKSPACE", workspace);
+		}
+		String clusterName = System.getProperty("CLUSTER_NAME");
+		if (clusterName != null && !clusterName.isEmpty()) {
+			System.out.println("CLUSTER_NAME: " + clusterName);
+			conf.setProperty("CLUSTER_NAME", clusterName);
+		}
 	}
 	
 	/**
