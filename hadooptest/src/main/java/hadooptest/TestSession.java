@@ -278,8 +278,14 @@ public abstract class TestSession {
 		}
 	}
 	
+	/**
+	 * Initialize Hadoop API security for the test session.
+	 */
 	private static void initSecurity() {
-		cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+		// Initialize API security for the FullyDistributedCluster type only.
+		if (cluster instanceof FullyDistributedCluster) {
+			cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+		}
 	}
 	
 }
