@@ -150,7 +150,7 @@ if [ "$INSTALL_ONLY" -ne 1 ]; then
       set +x
    else 
       set -x
-      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/run_hadooptest --c $CLUSTER --java --workspace $REMOTE_WORKSPACE $COMMON_ARGS";
+      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/scripts/run_hadooptest --c $CLUSTER --java --workspace $REMOTE_WORKSPACE $COMMON_ARGS";
    set +x
    fi
 fi
