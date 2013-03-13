@@ -32,6 +32,9 @@
           <configuration>
             <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
             <skip>true</skip>
+            <additionalClasspathElements>
+              <additionalClasspathElement>${basedir}</additionalClasspathElement>
+            </additionalClasspathElements>
           </configuration>
           <executions>
             <execution>
