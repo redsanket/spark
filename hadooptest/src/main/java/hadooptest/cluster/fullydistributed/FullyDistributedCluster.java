@@ -411,7 +411,7 @@ public class FullyDistributedCluster extends Cluster {
 	    
 	    if (count > maxWait) {
 	    	TestSession.logger.warn("Wait time expired before daemon can be " +
-	        		expStateStr + ":" );
+	        		expStateStr + "." );
 	        return false;
 	    }
 	    return true;
@@ -576,11 +576,15 @@ public class FullyDistributedCluster extends Cluster {
 		        "\"", "|", "/usr/bin/cut", "-d':'", "-f1" };		        
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 
-		String[] daemonProcesses = output[1].split("\n");		
+		String[] daemonProcesses = StringUtils.split(output[1].trim(), "\n");
+		TestSession.logger.trace("Daemon processes found = " +
+				Arrays.toString(daemonProcesses) + ", length=" +
+				daemonProcesses.length);
 		String domain = daemonHosts[0].substring(daemonHosts[0].indexOf("."));		
 
 		// Get the number of processes reported per host
 		HashMap<String, Integer> processCounter = new HashMap<String, Integer>();
+		
         for (String daemonHost : daemonProcesses) {
         	daemonHost = daemonHost + domain;
         	TestSession.logger.trace("update counter for: " + daemonHost);
@@ -600,32 +604,39 @@ public class FullyDistributedCluster extends Cluster {
 	    for(String host : daemonHosts) {
 	    	// Check for the expected number of processes for each host
 	    	TestSession.logger.trace("Check against process counter for host " + host);
-	        if ((!processCounter.containsKey(host)) || 
-	        	(processCounter.get(host) != numExpectedDaemonProcessesPerHost)) {
+	    	
+	        int numActualDaemonProcessesPerHost = (processCounter.containsKey(host)) ? processCounter.get(host) : 0;	        				
+			TestSession.logger.trace(
+					"actual daemon process per host=" + numActualDaemonProcessesPerHost +
+					", expected daemon process per host=" +  numExpectedDaemonProcessesPerHost);
+	        if (numActualDaemonProcessesPerHost != numExpectedDaemonProcessesPerHost) {
 	        	String log = "/home/gs/var/log/hdfsqa/hadoop-hdfsqa-datanode-"+host+".log";
-	            TestSession.logger.info("Daemon on host " + host +
+	            TestSession.logger.debug("Daemon on host " + host +
 	            		" is not in expected state of '" + expectedState + "'.");
-	            TestSession.logger.info("See log: " + host + ":"+ log);
+	            TestSession.logger.debug("See log: " + host + ":"+ log);
 	    	}
 	    }
 
 		int numCapableDaemonProcesses = numCapableDaemonProcessesPerHost * daemonHosts.length;
 		int numExpectedDaemonProcesses = (action.equals("start")) ? numCapableDaemonProcesses : 0;		
 		int numActualDaemonProcesses = daemonProcesses.length;
-
+		TestSession.logger.trace(
+				"actual daemon process=" + numActualDaemonProcesses +
+				", expected daemon process=" +  numExpectedDaemonProcesses);
 		boolean isComponentFullyInExpectedState =
 				(numActualDaemonProcesses == numExpectedDaemonProcesses) ? true : false;
-			if (action.equals("start")) {
-				TestSession.logger.debug("Number of " + component +
-						" process up: " + numActualDaemonProcesses + "/" +
-						numCapableDaemonProcesses);
-			}
-			else {
-				TestSession.logger.debug("Number of " + component +
-						" process down: " +
-						(numCapableDaemonProcesses-numActualDaemonProcesses) + "/" +
-						numCapableDaemonProcesses);
-			}
+		
+		if (action.equals("start")) {
+			TestSession.logger.debug("Number of " + component +
+					" process up: " + numActualDaemonProcesses + "/" +
+					numCapableDaemonProcesses);
+		}
+		else {
+			TestSession.logger.debug("Number of " + component +
+					" process down: " +
+					(numCapableDaemonProcesses-numActualDaemonProcesses) + "/" +
+					numCapableDaemonProcesses);
+		}
 		return isComponentFullyInExpectedState;
 	}	
 }
