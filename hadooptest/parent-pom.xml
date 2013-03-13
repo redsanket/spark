@@ -86,6 +86,7 @@
             <destDir>hadooptest-javadoc</destDir>
 	    <aggregate>true</aggregate>
 	    <quiet>true</quiet>
+	    <excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
 	  </configuration>
 	</plugin>
 
