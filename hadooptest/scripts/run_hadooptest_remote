@@ -70,9 +70,12 @@ if [ -z $CLUSTER ]; then
    exit 1;
 fi
 
-DEFAULT_REMOTE_HOST="gwbl2005.blue.ygrid.yahoo.com"
+# DEFAULT_REMOTE_HOST="gwbl2005.blue.ygrid.yahoo.com"
 if [ -z $REMOTE_HOST ]; then
-   echo "WARN: gateway not specified: using default gateway $DEFAULT_REMOTE_HOST.";
+   # echo "WARN: gateway not specified: using default gateway $DEFAULT_REMOTE_HOST.";
+   rolename="grid_re.clusters.$CLUSTER.gateway"
+   echo "gateway unspecified: fetch from igor role: $rolename";
+   DEFAULT_REMOTE_HOST=`/home/y/bin/igor fetch -members $rolename`
 fi
 REMOTE_HOST=${REMOTE_HOST:=$DEFAULT_REMOTE_HOST}
 
