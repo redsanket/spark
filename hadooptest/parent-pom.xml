@@ -35,6 +35,9 @@
             <additionalClasspathElements>
               <additionalClasspathElement>${basedir}</additionalClasspathElement>
             </additionalClasspathElements>
+            <excludes>
+              <exclude>**/TestEndToEndPipes.java</exclude>
+            </excludes>
           </configuration>
           <executions>
             <execution>
