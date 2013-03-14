@@ -32,22 +32,18 @@
           <configuration>
             <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
             <skip>true</skip>
-            <additionalClasspathElements>
-              <additionalClasspathElement>${basedir}</additionalClasspathElement>
-              <additionalClasspathElement>/home/gs/gridre/yroot.omegab/conf/hadoop/</additionalClasspathElement>
-            </additionalClasspathElements>
-            
             <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>excluded-artifact</artifactId>
-        </exclusion>
-      </exclusions>
-            
+              <exclusion>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>excluded-artifact</artifactId>
+              </exclusion>
+            </exclusions>
+
             <excludes>
               <exclude>**/TestEndToEndPipes.java</exclude>
             </excludes>
           </configuration>
+
           <executions>
             <execution>
               <id>serial-tests</id>
