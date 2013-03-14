@@ -34,7 +34,16 @@
             <skip>true</skip>
             <additionalClasspathElements>
               <additionalClasspathElement>${basedir}</additionalClasspathElement>
+              <additionalClasspathElement>/home/gs/gridre/yroot.omegab/conf/hadoop/</additionalClasspathElement>
             </additionalClasspathElements>
+            
+            <exclusions>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>excluded-artifact</artifactId>
+        </exclusion>
+      </exclusions>
+            
             <excludes>
               <exclude>**/TestEndToEndPipes.java</exclude>
             </excludes>
