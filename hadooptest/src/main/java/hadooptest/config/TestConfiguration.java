@@ -213,38 +213,8 @@ public abstract class TestConfiguration extends Configuration {
 		 * Properties beyond this point should be common across pseudo and fully
 		 * distributed cluster configuration.
 		 */
+		loadDefaultResource();
 
-		/*
-		 * core-default.xml contains at least two properties that must be
-		 * defined in the Hadoop Configuration instance in order for the
-		 * test framework to interact with the Hadoop Classes and APIs.
-		 * Therefore, we are loading core-default.xml here so they will be
-		 * defined.
-		 * 
-		 * Here are the two properties that must be defined:
-		 * this.set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
-		 * this.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
-		 * 
-		 * NOTE:
-		 * Consider whether to also load the other default xml files:
-		 * this.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
-		 * this.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
-		 * this.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
-		 * this.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
-		 * this.addResource(this.getClassLoader().getResourceAsStream("distcp-default.xml"));
-		 * this.addResource(this.getClassLoader().getResourceAsStream("httpfs-default.xml"));
-		 * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
-		 */
-        URL dirURL = this.getClass().getClassLoader().getResource("core-default.xml");
-        TestSession.logger.debug("Load hadoop default configurations via " +
-        		"URL path:");
-        TestSession.logger.debug("URL path: '" + dirURL.getPath() + "',...,etc.");
-        
-		super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
-		//super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
-		//super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
-		//super.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
-		
 		// Configuration directory and files
 		String confDir=
 				hadoopProps.getProperty("HADOOP_INSTALL") + "/conf/hadoop";
@@ -287,10 +257,42 @@ public abstract class TestConfiguration extends Configuration {
 				"/tools/lib/" + "hadoop-streaming-" + 
 				HADOOP_VERSION + ".jar");
 
-		loadResource();
+		loadClusterResource();
+	}
+
+	/*
+	 * core-default.xml contains at least two properties that must be
+	 * defined in the Hadoop Configuration instance in order for the
+	 * test framework to interact with the Hadoop Classes and APIs.
+	 * Therefore, we are loading core-default.xml here so they will be
+	 * defined.
+	 * 
+	 * Here are the two properties that must be defined:
+	 * this.set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
+	 * this.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+	 * 
+	 * NOTE:
+	 * Consider loading part or all of the following default xml files:
+	 * this.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
+	 * this.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
+	 * this.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
+	 * this.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
+	 * this.addResource(this.getClassLoader().getResourceAsStream("distcp-default.xml"));
+	 * this.addResource(this.getClassLoader().getResourceAsStream("httpfs-default.xml"));
+	 * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
+	 */
+	protected void loadDefaultResource() {
+        URL dirURL = this.getClass().getClassLoader().getResource("core-default.xml");
+        TestSession.logger.debug("Load hadoop default configurations via " +
+        		"URL path:");
+        TestSession.logger.debug("URL path: '" + dirURL.getPath() + "',...,etc.");
+		super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
+		super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
+		super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
+		super.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
 	}
 	
-	protected void loadResource() {
+	protected void loadClusterResource() {
 		TestSession.logger.info("load hadoop resources from " +
 				hadoopProps.getProperty("HADOOP_CONF_DIR") + ":");
 		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_CORE")));
