@@ -6,6 +6,7 @@ package hadooptest.config;
 
 import hadooptest.TestSession;
 
+import java.net.URL;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
@@ -214,12 +215,13 @@ public abstract class TestConfiguration extends Configuration {
 		 */
 
 		/*
-		 * core-default.xml contains the two required properties listed below
-		 * that must be defined in the Hadoop Configuration in order for the
-		 * test framework to interact with the Hadoop Classes and APIs. Since
-		 * we are loading core-default.xml as a whole, we will not need to set
-		 * these properties individually.
+		 * core-default.xml contains at least two properties that must be
+		 * defined in the Hadoop Configuration instance in order for the
+		 * test framework to interact with the Hadoop Classes and APIs.
+		 * Therefore, we are loading core-default.xml here so they will be
+		 * defined.
 		 * 
+		 * Here are the two properties that must be defined:
 		 * this.set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
 		 * this.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
 		 * 
@@ -233,6 +235,11 @@ public abstract class TestConfiguration extends Configuration {
 		 * this.addResource(this.getClassLoader().getResourceAsStream("httpfs-default.xml"));
 		 * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
 		 */
+        URL dirURL = this.getClass().getClassLoader().getResource("core-default.xml");
+        TestSession.logger.debug("Load hadoop default configurations via " +
+        		"URL path:");
+        TestSession.logger.debug("URL path: '" + dirURL.getPath() + "',...,etc.");
+        
 		super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
 		//super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
 		//super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
