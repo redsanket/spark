@@ -80,6 +80,10 @@ public abstract class TestSession {
 	 * TestSession for a test class.
 	 */
 	public static void start() {
+		// Log the classpath
+    	String classpath = System.getProperty("java.class.path");
+		logger.debug("CLASSPATH="+classpath);
+
 		// Initialize the framework configuration
 		initConfiguration();
 		
@@ -90,10 +94,6 @@ public abstract class TestSession {
 		initCluster();
 
 		initSecurity();
-		
-		// Log the classpath
-    	String classpath = System.getProperty("java.class.path");
-		logger.debug("CLASSPATH="+classpath);
 	}
 	
 	/**
