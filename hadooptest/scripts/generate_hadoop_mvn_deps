@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#
+# This script can be used to generated the maven dependencies for Hadoop that
+# need to go into pom-ci.xml for executing tests via maven. 
+#
+# Example:
+#
+#   <dependencies>
+#     <dependency>
+#       <groupId>system</groupId>
+#       <artifactId>system</artifactId>
+#       <version>0.9.2</version>
+#       <scope>system</scope>
+#       <systemPath>${HADOOP_SHARE}/common/hadoop-common-${HADOOP_VERSION}.jar</systemPath>
+#     </dependency>
+#   </dependencies>
+
+CLUSTER=$1
+if [[ -z $CLUSTER ]]; then
+   echo "ERROR: script required a CLUSTER parameter!!!"
+   exit 1;
+fi
+
+#FILES=`find /home/gs/gridre/yroot.$CLUSTER/share/hadoop-*/share/hadoop/{common,mapreduce,yarn,hdfs}* -name hadoop*.jar|grep -v "\-tests"|grep -v "\-sources"`
+FILES=`find /home/gs/gridre/yroot.$CLUSTER/share/* -name hadoop*.jar|grep -v "\-tests"|grep -v "\-sources"`
+prefix=`echo -en /home/gs/gridre/yroot.$CLUSTER/share/hadoop-[0-9]*`
+echo "prefix='$prefix'"
+version=`echo $prefix|cut -d"-" -f2`
+echo "version='$version'"
+
+for file in $FILES
+do
+   echo $file|sed "s|/home/gs/gridre/yroot.$CLUSTER/share/hadoop-0.23.6.0.1301071353/share/hadoop|\${HADOOP_SHARE}|g" | sed "s|${version}|\${HADOOP_VERSION}|g"
+done
+
+echo -n "
+   <dependencies>
+"
+
+
+# Generate the Hadoop maven dependencies 
+i=1
+for file in $FILES
+do
+echo -n "
+     <dependency>
+       <groupId>system</groupId>
+       <artifactId>system$i</artifactId>
+       <version>0.9.2</version>
+       <scope>system</scope>
+       <systemPath>"
+echo -n $file|sed "s|/home/gs/gridre/yroot.$CLUSTER/share/hadoop-0.23.6.0.1301071353/share/hadoop|\${HADOOP_SHARE}|g" | sed "s|${version}|\${HADOOP_VERSION}|g"
+echo "</systemPath>
+     </dependency>"
+i=$((i+1))
+done
+
+echo "
+   </dependencies>"
