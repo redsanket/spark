@@ -102,7 +102,7 @@ public class TestEndToEndPipes extends TestSession {
 	/*
 	 * A test for running a pipes wordcount job
 	 */
-	// @Test
+	@Test
 	public void runPipesTest() throws Exception {
 		TestSession.logger.info("Run EndToEnd Pipes Test");
 		
