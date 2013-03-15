@@ -61,7 +61,7 @@
               <configuration>
                 <skip>false</skip>
                 <excludedGroups>hadooptest.SerialTests</excludedGroups>
-                <parallel>methods</parallel>
+                <parallel>both</parallel>
               </configuration>
             </execution>
           </executions>
