@@ -38,10 +38,6 @@
                 <artifactId>excluded-artifact</artifactId>
               </exclusion>
             </exclusions>
-
-            <excludes>
-              <exclude>**/TestEndToEndPipes.java</exclude>
-            </excludes>
           </configuration>
 
           <executions>
