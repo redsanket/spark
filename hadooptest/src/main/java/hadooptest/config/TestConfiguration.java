@@ -244,7 +244,7 @@ public abstract class TestConfiguration extends Configuration {
 		// Jars
 		hadoopProps.setProperty("HADOOP_JAR_DIR", getHadoopProp("HADOOP_COMMON_HOME") +
 				"/share/hadoop");
-		hadoopProps.setProperty("HADOOP_SLEEP_JAR", getHadoopProp("HADOOP_JAR_DIR") + 
+		hadoopProps.setProperty("HADOOP_TEST_JAR", getHadoopProp("HADOOP_JAR_DIR") + 
 				"/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
 				HADOOP_VERSION + "-tests.jar"); 
 		hadoopProps.setProperty("HADOOP_EXAMPLE_JAR", getHadoopProp("HADOOP_JAR_DIR") +
