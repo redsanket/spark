@@ -21,6 +21,11 @@
             <additionalClasspathElement>${basedir}</additionalClasspathElement>
             <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
           </additionalClasspathElements>
+          
+            <excludes>
+              <exclude>**/TestEndToEndCompression.java</exclude>
+            </excludes>
+          
         </configuration>
       </plugin>
     </plugins>
