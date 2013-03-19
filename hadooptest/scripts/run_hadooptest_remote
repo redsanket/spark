@@ -146,18 +146,18 @@ if [ "$REMOTE_USER" == "hadoopqa" ]; then
 fi
 
 
-COMMON_ARGS="$PASSWORD_OPTION $CONF_PARAM $TESTS_PARAM"
+COMMON_ARGS="--cluster $CLUSTER --workspace $REMOTE_WORKSPACE $PASSWORD_OPTION $CONF_PARAM $TESTS_PARAM"
 
 if [ "$INSTALL_ONLY" -ne 1 ]; then
    if [ "$USE_MVN" -eq 1 ]; then
       set -x
-      ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --workspace $REMOTE_WORKSPACE --mvn $COMMON_ARGS";
+      ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --mvn $COMMON_ARGS";
       # copy the test results back
       scp -r $REMOTE_HOST:$REMOTE_WORKSPACE/target/surefire-reports $LOCAL_WORKSPACE_TARGET_DIR/
       set +x
    else 
       set -x
-      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/scripts/run_hadooptest --c $CLUSTER --java --workspace $REMOTE_WORKSPACE $COMMON_ARGS";
+      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/scripts/run_hadooptest --java $COMMON_ARGS";
    set +x
    fi
 fi
