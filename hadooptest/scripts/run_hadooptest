@@ -137,7 +137,7 @@ if [ "$USE_MVN" -eq 1 ]; then
     # RUN TESTS VIA MAVEN
     set -x
     if [[ ! -f /home/y/bin/mvn ]];then
-		/usr/local/bin/yinst install yjava_maven -br test
+		/usr/local/bin/yinst install yjava_maven -br test -yes
 	fi    
     
     CLUSTER=$CLUSTER \
