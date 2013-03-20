@@ -12,9 +12,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * An instance of Job that represents a sleep job.
+ * An instance of Job that represents a streaming job.
  */
-public class SleepJob extends Job {
+public class StreamingJob extends Job {
 
 	/** The number of mappers to use for the job */
 	private int numMappers = 1;
@@ -22,17 +22,26 @@ public class SleepJob extends Job {
 	/** The number of reducers to use for the job */
 	private int numReducers = 1;
 	
-	/** The duration of the sleep job map phase */
-	private int mapDuration = 500;
+	/** The name of the streaming job. */
+	private String name = "streamingJob";
 	
-	/** The duration of the sleep job reduce phase */
-	private int reduceDuration = 500;
+	/** The mapper for the streaming job. */
+	private String mapper;
 	
-	/** The memory to use for the map phase */
-	private int mapMemory = -1;
+	/** The reducer for the streaming job. */
+	private String reducer;
 	
-	/** The memory to use for the reduce phase */
-	private int reduceMemory = -1;
+	/** The input file for the streaming job. */
+	private String inputFile;
+	
+	/** The output path for the streaming job. */
+	private String outputPath;
+	
+	/** The cache archive path for the streaming job. */
+	private String cacheArchivePath;
+	
+	/** The yarn options for the streaming job. */
+	private String yarnOptions;
 	
 	/**
 	 * Set the number of mappers to use for the sleep job.
@@ -53,39 +62,66 @@ public class SleepJob extends Job {
 	}
 	
 	/**
-	 * Set the duration of the map phase.
+	 * Set the name of the streaming job.
 	 * 
-	 * @param mapTime the duration of the map phase.
+	 * @param jobName the name of the job.
 	 */
-	public void setMapDuration(int mapTime) {
-		this.mapDuration = mapTime;
+	public void setJobName(String jobName) {
+		this.name = jobName;
+	}
+	
+	/**
+	 * Set the mapper for the streaming job.
+	 * 
+	 * @param streamingMapper the mapper for the job.
+	 */
+	public void setMapper(String streamingMapper) {
+		this.mapper = streamingMapper;
 	}
 
 	/**
-	 * Set the duration of the reduce phase.
+	 * Set the reducer for the streaming job.
 	 * 
-	 * @param reduceTime the duration of the reduce phase.
+	 * @param streamingReducer the reducer for the job.
 	 */
-	public void setReduceDuration(int reduceTime) {
-		this.reduceDuration = reduceTime;
+	public void setReducer(String streamingReducer) {
+		this.reducer = streamingReducer;
 	}
 	
 	/**
-	 * Set the memory to be used by the mappers.
+	 * Set the input file for the streaming job.
 	 * 
-	 * @param memory the memory to be used by the mappers.
+	 * @param file the input file for the job.
 	 */
-	public void setMapMemory(int memory) {
-		mapMemory = memory;
+	public void setInputFile(String file) {
+		this.inputFile = file;
 	}
 	
 	/**
-	 * Set the memory to be used by the reducers.
+	 * Set the output path for the streaming job.
 	 * 
-	 * @param memory the memory to be used by the reducers.
+	 * @param path the output path for the job.
 	 */
-	public void setReduceMemory(int memory) {
-		reduceMemory = memory;
+	public void setOutputPath(String path) {
+		this.outputPath = path;
+	}
+	
+	/**
+	 * Set the cache archive path for the streaming job.
+	 * 
+	 * @param path the cache archive path for the job.
+	 */
+	public void setCacheArchivePath(String path) {
+		this.cacheArchivePath = path;
+	}
+	
+	/** 
+	 * Set the YARN options for the streaming job.
+	 * 
+	 * @param options the YARN options for the job.
+	 */
+	public void setYarnOptions(String options) {
+		this.yarnOptions = options;
 	}
 
 	/**
@@ -145,34 +181,21 @@ public class SleepJob extends Job {
 	 * 
 	 * @return String[] the string array representation of the system command to launch the job.
 	 */
-	private String[] assembleCommand() {		
-		String strMapMemory = "";
-		if (this.mapMemory != -1) {
-			//-Dmapred.job.map.memory.mb=6144 -Dmapred.job.reduce.memory.mb=8192 
-			strMapMemory = " -Dmapred.job.map.memory.mb=" + this.mapMemory;
-		}
-		
-		String strReduceMemory = "";
-		if (this.reduceMemory != -1) {
-			strReduceMemory = " -Dmapred.job.reduce.memory.mb=" + this.reduceMemory;
-		}
-		
-		String strQueue = "";
-		if (QUEUE != "") {
-			strQueue = " -Dmapreduce.job.queuename=" + this.QUEUE;
-		}
+	private String[] assembleCommand() {
 
 		return new String[] { TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"), 
 				"--config",
 				TestSession.cluster.getConf().getHadoopConfDirPath(),
-				"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_SLEEP_JAR"),
-				"sleep", "-Dmapreduce.job.user.name=" + this.USER,
-				strQueue,
-				strMapMemory,
-				strReduceMemory,
-				"-m", Integer.toString(this.numMappers), 
-				"-r", Integer.toString(this.numReducers), 
-				"-mt", Integer.toString(this.mapDuration), 
-				"-rt", Integer.toString(this.reduceDuration) };
+				"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_STREAMING_JAR"),
+				"-Dmapreduce.job.user.name=" + this.USER,
+				"-Dmapreduce.job.maps", Integer.toString(this.numMappers), 
+				"-Dmapreduce.job.reduces", Integer.toString(this.numReducers), 
+				"-Dmapreduce.job.name", this.name, 
+				this.yarnOptions,
+				"-mapper", this.mapper, 
+				"-reducer", this.reducer,
+				"-input", this.inputFile, 
+				"-output", this.outputPath,
+				"-cacheArchive", this.cacheArchivePath };
 	}
 }
