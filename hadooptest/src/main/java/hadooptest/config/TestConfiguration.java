@@ -310,11 +310,10 @@ public abstract class TestConfiguration extends Configuration {
      * @see hadooptest.cluster.Cluster#getVersion()
      */
     public String getVersion() {
-		VersionInfo versionInfo = new VersionInfo();
-		String version = versionInfo.getVersion();
-		TestSession.logger.trace("Hadoop version = '" + versionInfo.getVersion() + "'");
-		TestSession.logger.trace("Hadoop build version = '" + versionInfo.getBuildVersion() + "'");
-		TestSession.logger.trace("Hadoop revision = '" + versionInfo.getRevision() + "'");
+    	String version = VersionInfo.getVersion();
+		TestSession.logger.trace("Hadoop version = '" + VersionInfo.getVersion() + "'");
+		TestSession.logger.trace("Hadoop build version = '" + VersionInfo.getBuildVersion() + "'");
+		TestSession.logger.trace("Hadoop revision = '" + VersionInfo.getRevision() + "'");
 		return version;
     }
 
