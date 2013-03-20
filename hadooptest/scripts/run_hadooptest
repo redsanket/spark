@@ -131,15 +131,23 @@ else
 fi
 
 COMMON_ARGS="-DCLUSTER_NAME=$CLUSTER -DWORKSPACE=$WORKSPACE -Dhadooptest.config=$CONF"
+MVN_GLOBAL_SETTING="$WORKSPACE/resources/yjava_maven/settings.xml.gw"
 
 if [ "$USE_MVN" -eq 1 ]; then
+    # RUN TESTS VIA MAVEN
     set -x
+    if [[ ! -f /home/y/bin/mvn ]];then
+		/usr/local/bin/yinst install yjava_maven -br test -yes
+	fi    
+    
+# HADOOP_SHARE=/grid/0/gshome/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
     CLUSTER=$CLUSTER \
 HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
-HADOOP_SHARE=/grid/0/gshome/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
-/home/y/bin/mvn -f pom-ci.xml clean test -DfailIfNoTests=false $TESTS_OPT $COMMON_ARGS
+HADOOP_SHARE=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
+/home/y/bin/mvn -f pom-ci.xml -gs $MVN_GLOBAL_SETTING clean test -DfailIfNoTests=false $TESTS_OPT $COMMON_ARGS
     set +x
 else
+    # RUN TESTS VIA JAVA
     # /home/y/bin/mvn clean package -Pdist -Dtar
     set -x
     /home/y/bin/java -cp $CLASSPATH $COMMON_ARGS org.junit.runner.JUnitCore $TESTS

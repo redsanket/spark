@@ -165,7 +165,7 @@ public class SleepJob extends Job {
 		return new String[] { TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"), 
 				"--config",
 				TestSession.cluster.getConf().getHadoopConfDirPath(),
-				"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_SLEEP_JAR"),
+				"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"),
 				"sleep", "-Dmapreduce.job.user.name=" + this.USER,
 				strQueue,
 				strMapMemory,

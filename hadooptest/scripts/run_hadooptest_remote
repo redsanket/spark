@@ -72,9 +72,13 @@ fi
 
 # DEFAULT_REMOTE_HOST="gwbl2005.blue.ygrid.yahoo.com"
 if [ -z $REMOTE_HOST ]; then
-   rolename="grid_re.clusters.$CLUSTER.gateway"
-   echo "gateway unspecified: fetch host from igor role: $rolename";
-   DEFAULT_REMOTE_HOST=`/home/y/bin/igor fetch -members $rolename`
+	echo "gateway unspecified: fetch host from igor role: $rolename";
+	rolename="grid_re.clusters.$CLUSTER.gateway"
+	if [ -f /home/y/bin/igor ];then
+		DEFAULT_REMOTE_HOST=`/home/y/bin/igor fetch -members $rolename`
+	else
+		DEFAULT_REMOTE_HOST=`ssh re101.ygrid.corp.gq1.yahoo.com /home/y/bin/igor fetch -members $rolename`
+	fi
 fi
 REMOTE_HOST=${REMOTE_HOST:=$DEFAULT_REMOTE_HOST}
 echo "remote gateway host=$DEFAULT_REMOTE_HOST";
@@ -142,18 +146,19 @@ if [ "$REMOTE_USER" == "hadoopqa" ]; then
 fi
 
 
-COMMON_ARGS="$PASSWORD_OPTION $CONF_PARAM $TESTS_PARAM"
+COMMON_ARGS="--cluster $CLUSTER --workspace $REMOTE_WORKSPACE $PASSWORD_OPTION $CONF_PARAM $TESTS_PARAM"
 
 if [ "$INSTALL_ONLY" -ne 1 ]; then
    if [ "$USE_MVN" -eq 1 ]; then
       set -x
-      ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --cluster $CLUSTER --mvn $COMMON_ARGS";
+      rm -rf $LOCAL_WORKSPACE_TARGET_DIR/surefire-reports/
+      ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --mvn $COMMON_ARGS";
       # copy the test results back
       scp -r $REMOTE_HOST:$REMOTE_WORKSPACE/target/surefire-reports $LOCAL_WORKSPACE_TARGET_DIR/
       set +x
    else 
       set -x
-      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/scripts/run_hadooptest --c $CLUSTER --java --workspace $REMOTE_WORKSPACE $COMMON_ARGS";
+      ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/scripts/run_hadooptest --java $COMMON_ARGS";
    set +x
    fi
 fi
