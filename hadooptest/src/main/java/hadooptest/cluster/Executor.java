@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import hadooptest.TestSession;
 
 /**
@@ -123,7 +125,8 @@ public abstract class Executor {
 	 */
 	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv, boolean verbose) {
 		if (verbose) {
-			TestSession.logger.info(Arrays.toString(commandArray));
+			TestSession.logger.trace(Arrays.toString(commandArray));
+			TestSession.logger.info("cmd=" + StringUtils.join(commandArray, " "));
 		}
 		Process proc = null;
 		int rc = 0;
@@ -193,7 +196,8 @@ public abstract class Executor {
 	 * @return Process the process handle for the system command.
 	 */
 	public Process runProcBuilderGetProc(String[] commandArray, Map<String, String> newEnv) {
-		TestSession.logger.info(Arrays.toString(commandArray));
+		TestSession.logger.trace(Arrays.toString(commandArray));
+		TestSession.logger.info("cmd=" + StringUtils.join(commandArray, " "));
 		Process proc = null;
 
 		try {
