@@ -229,7 +229,8 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray) {
-		return runHadoopProcBuilder(commandArray, true);
+		boolean verbose = true;
+		return runHadoopProcBuilder(commandArray, verbose);
 	}
 	
 	/**
@@ -238,7 +239,7 @@ public abstract class Executor {
 	 * @param commandArray the command to run.  Each member of the string array should
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, boolean verbose) {
 		return runHadoopProcBuilder(
