@@ -126,7 +126,7 @@ public abstract class Executor {
 	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv, boolean verbose) {
 		if (verbose) {
 			TestSession.logger.trace(Arrays.toString(commandArray));
-			TestSession.logger.info("cmd=" + StringUtils.join(commandArray, " "));
+			TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
 		}
 		Process proc = null;
 		int rc = 0;
@@ -197,7 +197,7 @@ public abstract class Executor {
 	 */
 	public Process runProcBuilderGetProc(String[] commandArray, Map<String, String> newEnv) {
 		TestSession.logger.trace(Arrays.toString(commandArray));
-		TestSession.logger.info("cmd=" + StringUtils.join(commandArray, " "));
+		TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
 		Process proc = null;
 
 		try {
