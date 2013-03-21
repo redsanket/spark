@@ -146,17 +146,17 @@ public abstract class Executor {
 	        
 	        rc = proc.waitFor();
 	        if ((rc != 0) && (verbose)) {
-	        	TestSession.logger.info("Process ended with rc=" + rc);
+	        	TestSession.logger.info("Process ended with rc='" + rc + "'");
 	        	if ((output != null) && !output.isEmpty()) {
-	        		TestSession.logger.info("Captured stdout = " + output.trim());
+	        		TestSession.logger.info("Captured stdout = '" + output.trim() + "'");
 	        	}
 	        	if ((error != null) && !error.isEmpty()) {
-	        		TestSession.logger.info("Captured stderr = " + error.trim());
+	        		TestSession.logger.info("Captured stderr = '" + error.trim() + "'");
 	        	}
 	        }
-	        TestSession.logger.trace("Process Exit Code:" + rc);
-	        TestSession.logger.trace("Process Stdout:" + output);
-	        TestSession.logger.trace("Process Stderr:" + error);
+	        TestSession.logger.trace("Process Exit Code: '" + rc + "'");
+	        TestSession.logger.trace("Process Stdout: '" + output + "'");
+	        TestSession.logger.trace("Process Stderr: '" + error + "'");
 		}
 		catch (Exception e) {
 			if (proc != null) {
