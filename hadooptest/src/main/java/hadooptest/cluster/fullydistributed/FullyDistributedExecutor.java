@@ -29,7 +29,8 @@ public class FullyDistributedExecutor extends Executor {
 	 * @return String[] the output of running the system command.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
-		return runHadoopProcBuilder(commandArray, username, true);
+		boolean verbose = true;
+		return runHadoopProcBuilder(commandArray, username, verbose);
 	}
 
 	/**
@@ -40,6 +41,7 @@ public class FullyDistributedExecutor extends Executor {
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
 	 * @param username the system username to run the command under.
+	 * @param verbose true for on, false for off. Default value is false.
 	 * @return String[] the output of running the system command.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) {
@@ -78,10 +80,10 @@ public class FullyDistributedExecutor extends Executor {
 	 * Setup Kerberos authentication for a given user.
 	 * 
 	 * @param user the user to authenticate
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 * @return String the Kerberos cache.
 	 */
-	private String obtainKerberosCache(String user, boolean verbose) {
+	private String obtainKerberosCache(String user, boolean verbose) {		
 		if (verbose) {
 			TestSession.logger.info("Setup Kerberos for user '"+user+"':");
 		}
