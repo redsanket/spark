@@ -145,13 +145,13 @@ public abstract class Executor {
 	        error = loadStream(proc.getErrorStream());
 	        
 	        rc = proc.waitFor();
-	        if (rc != 0) {
-	        	TestSession.logger.trace("Process ended with rc=" + rc);
+	        if ((rc != 0) && (verbose)) {
+	        	TestSession.logger.debug("Process ended with rc=" + rc);
 	        	if ((output != null) && !output.isEmpty()) {
-	        		TestSession.logger.trace("Captured stdout = " + output.trim());
+	        		TestSession.logger.debug("Captured stdout = " + output.trim());
 	        	}
 	        	if ((error != null) && !error.isEmpty()) {
-	        		TestSession.logger.trace("Captured stderr = " + error.trim());
+	        		TestSession.logger.debug("Captured stderr = " + error.trim());
 	        	}
 	        }
 	        TestSession.logger.trace("Process Exit Code:" + rc);
