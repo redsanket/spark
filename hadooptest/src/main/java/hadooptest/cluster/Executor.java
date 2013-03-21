@@ -54,7 +54,7 @@ public abstract class Executor {
 	 * 
 	 * @param commandArray The system command to run.
 	 * @param username the user to run the command as.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) {
 		// The FullyDistributed package implements this to setup kerberos security,
@@ -92,7 +92,7 @@ public abstract class Executor {
 	 * @param commandArray the command to run.  Each member of the string array should
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runProcBuilder(String[] commandArray, boolean verbose) {
 		return runProcBuilder(commandArray, null, verbose);
@@ -121,7 +121,7 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 * @param newEnv a Map of environment variables and values to run as an environment
 	 * 						for the process to be run.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv, boolean verbose) {
 		if (verbose) {
