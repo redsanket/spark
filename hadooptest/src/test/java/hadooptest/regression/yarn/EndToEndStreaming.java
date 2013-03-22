@@ -31,7 +31,7 @@ public class EndToEndStreaming extends TestSession {
 		
 		String userName = System.getProperty("user.name");
 		
-		String[] publicPrivateCache = { "/tmp/Streaming", "/user/$USER_ID/Streaming" };
+		String[] publicPrivateCache = { "/tmp/streaming", "/user/$USER_ID/streaming" };
 		String[] archives = { ".jar", ".tar", ".tar.gz", ".tgz", ".zip" };
 		
 		int i, j;
@@ -47,22 +47,22 @@ public class EndToEndStreaming extends TestSession {
 				this.logger.info("Streaming-" + testcaseID + " - Test to check the -cacheArchive option for " + archives[j] + " file on " + publicPrivateCache[i]);
 				
 				this.putLocalToHdfs(
-						this.getResourceFullPath("resources/data/streaming-" + testcaseID + "/cachedir" + archives[j]), 
+						this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/cachedir" + archives[j]), 
 						cacheInCommand + "/cachedir" + archives[j]);
 				this.putLocalToHdfs(
-						this.getResourceFullPath("resources/data/streaming-" + testcaseID + "/input.txt"), 
-						"/tmp/Streaming/streaming-" + testcaseID + "/input.txt");
+						this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + "/input.txt");
 
 				StreamingJob job = new StreamingJob();
 				job.setNumMappers(1);
 				job.setNumReducers(1);
 				job.setName("streamingTest-" + testcaseID);
 				job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-				job.setInputFile("/tmp/Streaming/streaming-" + testcaseID + "/input.txt");
+				job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/input.txt");
 				job.setMapper("\"xargs cat\"");
 				job.setReducer("cat");
-				job.setOutputPath("/tmp/Streaming/streaming-" + testcaseID + "/Output");
-				job.setCacheArchivePath(TestSession.cluster.getNodes("namenode")[0] + cacheInCommand + "/cachedir" + archives[j] + "#testlink");
+				job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/Output");
+				job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + "/cachedir" + archives[j] + "#testlink");
 				
 				job.start();
 				
@@ -111,7 +111,7 @@ public class EndToEndStreaming extends TestSession {
 		try {
 			expectedOutputStr = FileUtils.readFileToString(
 					new File(getResourceFullPath("" +
-							"resources/data/streaming-" + testcaseID + "/expectedOutput")));
+							"data/streaming/streaming-" + testcaseID + "/expectedOutput")));
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -130,7 +130,7 @@ public class EndToEndStreaming extends TestSession {
 	private void putLocalToHdfs(String source, String target) {
 		try {
 			TestSession.logger.debug("target=" + target);
-			String targetDir = target.substring(0, target.lastIndexOf("/"));	    
+			String targetDir = target.substring(0, target.lastIndexOf("/"));	
 			TestSession.logger.debug("target path=" + targetDir);
 
 			FsShell fsShell = TestSession.cluster.getFsShell();
@@ -139,11 +139,12 @@ public class EndToEndStreaming extends TestSession {
 			String URL = "hdfs://" + TestSession.cluster.getNodes("namenode")[0] + "/";
 			String homeDir = URL + "user/" + System.getProperty("user.name");
 			String testDir = homeDir + "/" + targetDir;
+			String testTarget = homeDir + "/" + target;
 			if (!fs.exists(new Path(testDir))) {
 				fsShell.run(new String[] {"-mkdir", "-p", testDir});
 			}
-			TestSession.logger.debug("dfs -put " + source + " " + target);
-			fsShell.run(new String[] {"-put", source, target});
+			TestSession.logger.debug("dfs -put " + source + " " + testTarget);
+			fsShell.run(new String[] {"-put", source, testTarget});
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -167,8 +168,15 @@ public class EndToEndStreaming extends TestSession {
 		}
 	}
 	
-	private String getHdfsBaseUrl() throws Exception {
-		return "hdfs://" + TestSession.cluster.getNodes("namenode")[0];
+	private String getHdfsBaseUrl() {
+		try {
+			return "hdfs://" + TestSession.cluster.getNodes("namenode")[0];
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 	
 	private String getResourceFullPath(String relativePath) {
