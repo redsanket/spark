@@ -124,16 +124,18 @@ public abstract class Executor {
 	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv, boolean verbose) {
-		if (verbose) {
-			TestSession.logger.trace(Arrays.toString(commandArray));
-			TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
-		}
 		Process proc = null;
 		int rc = 0;
 		String output = null;
 		String error = null;
+		TestSession.logger.trace(Arrays.toString(commandArray));
 		try {
 			ProcessBuilder pb = new ProcessBuilder(commandArray);
+			
+			if (verbose) {
+				TestSession.logger.debug("ProcessBuilder cmd='" + pb.command() + "'");
+				TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
+			}
 			
 			Map<String, String> env = pb.environment();
 			if (newEnv != null) {
