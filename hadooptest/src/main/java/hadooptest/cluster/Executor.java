@@ -54,7 +54,7 @@ public abstract class Executor {
 	 * 
 	 * @param commandArray The system command to run.
 	 * @param username the user to run the command as.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) {
 		// The FullyDistributed package implements this to setup kerberos security,
@@ -92,7 +92,7 @@ public abstract class Executor {
 	 * @param commandArray the command to run.  Each member of the string array should
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runProcBuilder(String[] commandArray, boolean verbose) {
 		return runProcBuilder(commandArray, null, verbose);
@@ -121,19 +121,21 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 * @param newEnv a Map of environment variables and values to run as an environment
 	 * 						for the process to be run.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv, boolean verbose) {
-		if (verbose) {
-			TestSession.logger.trace(Arrays.toString(commandArray));
-			TestSession.logger.info("cmd=" + StringUtils.join(commandArray, " "));
-		}
 		Process proc = null;
 		int rc = 0;
 		String output = null;
 		String error = null;
+		TestSession.logger.trace(Arrays.toString(commandArray));
 		try {
 			ProcessBuilder pb = new ProcessBuilder(commandArray);
+			
+			if (verbose) {
+				TestSession.logger.debug("ProcessBuilder cmd='" + pb.command() + "'");
+				TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
+			}
 			
 			Map<String, String> env = pb.environment();
 			if (newEnv != null) {
@@ -145,18 +147,18 @@ public abstract class Executor {
 	        error = loadStream(proc.getErrorStream());
 	        
 	        rc = proc.waitFor();
-	        if (rc != 0) {
-	        	TestSession.logger.trace("Process ended with rc=" + rc);
+	        if ((rc != 0) && (verbose)) {
+	        	TestSession.logger.info("Process ended with rc='" + rc + "'");
 	        	if ((output != null) && !output.isEmpty()) {
-	        		TestSession.logger.trace("Captured stdout = " + output.trim());
+	        		TestSession.logger.info("Captured stdout = '" + output.trim() + "'");
 	        	}
 	        	if ((error != null) && !error.isEmpty()) {
-	        		TestSession.logger.trace("Captured stderr = " + error.trim());
+	        		TestSession.logger.info("Captured stderr = '" + error.trim() + "'");
 	        	}
 	        }
-	        TestSession.logger.trace("Process Exit Code:" + rc);
-	        TestSession.logger.trace("Process Stdout:" + output);
-	        TestSession.logger.trace("Process Stderr:" + error);
+	        TestSession.logger.trace("Process Exit Code: '" + rc + "'");
+	        TestSession.logger.trace("Process Stdout: '" + output + "'");
+	        TestSession.logger.trace("Process Stderr: '" + error + "'");
 		}
 		catch (Exception e) {
 			if (proc != null) {
@@ -197,7 +199,7 @@ public abstract class Executor {
 	 */
 	public Process runProcBuilderGetProc(String[] commandArray, Map<String, String> newEnv) {
 		TestSession.logger.trace(Arrays.toString(commandArray));
-		TestSession.logger.info("cmd=" + StringUtils.join(commandArray, " "));
+		TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
 		Process proc = null;
 
 		try {
@@ -229,7 +231,8 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray) {
-		return runHadoopProcBuilder(commandArray, true);
+		boolean verbose = true;
+		return runHadoopProcBuilder(commandArray, verbose);
 	}
 	
 	/**
@@ -238,7 +241,7 @@ public abstract class Executor {
 	 * @param commandArray the command to run.  Each member of the string array should
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
-	 * @param verbose true for on, false for off.
+	 * @param verbose true for on, false for off. Default value is false.
 	 */
 	public String[] runHadoopProcBuilder(String[] commandArray, boolean verbose) {
 		return runHadoopProcBuilder(
