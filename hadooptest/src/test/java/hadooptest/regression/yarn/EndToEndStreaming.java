@@ -97,7 +97,7 @@ public class EndToEndStreaming extends TestSession {
 		String[] catCmd = {
 				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN"),
 				"--config", TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
-				"dfs", "-cat", "/tmp/streaming/streaming-" + testcaseID + "/Output/*"				
+				"dfs", "-cat", this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/Output/*"				
 		};
 		
 		String[] catOutput = TestSession.exec.runHadoopProcBuilder(catCmd);
@@ -139,7 +139,7 @@ public class EndToEndStreaming extends TestSession {
 			String URL = "hdfs://" + TestSession.cluster.getNodes("namenode")[0] + "/";
 			String homeDir = URL + "user/" + System.getProperty("user.name");
 			String testDir = homeDir + "/" + targetDir;
-			String testTarget = homeDir + "/" + target;
+			String testTarget = URL + "/" + target;
 			if (!fs.exists(new Path(testDir))) {
 				fsShell.run(new String[] {"-mkdir", "-p", testDir});
 			}
@@ -155,7 +155,7 @@ public class EndToEndStreaming extends TestSession {
 		try{
 			FileSystem fs = TestSession.cluster.getFS();
 			FsShell fsShell = TestSession.cluster.getFsShell();		
-			String testDir = getHdfsBaseUrl() + "/user/" + System.getProperty("user.name") + "/streaming";
+			String testDir = getHdfsBaseUrl() + path;
 			if (fs.exists(new Path(testDir))) {
 				TestSession.logger.info("Delete existing test directory: " + testDir);
 				fsShell.run(new String[] {"-rm", "-r", testDir});			
