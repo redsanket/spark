@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.DFS;
+import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
+import hadooptest.config.TestConfiguration;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -69,10 +71,35 @@ public class TestEndToEndCompression extends TestSession {
 		opts.add("-Dmapreduce.reduce.memory.mb=4096");		
 		YARN_OPTS = opts.toArray(new String[0]);		
 
+		setupTestConf();
 		setupTestDir();
 		setupTestData();		
 	}
 
+	public static void setupTestConf() throws Exception {
+		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		String component = TestConfiguration.RESOURCE_MANAGER;
+
+		/* 
+		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
+		 * queue is already in place. If so, skip the following as to not waste
+		 *  time.
+		 */
+		
+		// Backup the default configuration directory on the Resource Manager
+		// component host.
+		cluster.getConf().backupConfDir(component);	
+
+		// Copy files to the custom configuration directory on the
+		// Resource Manager component host.
+		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
+				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
+		cluster.getConf().copyFileToConfDir(component, sourceFile,
+				"capacity-scheduler.xml");
+		cluster.hadoopDaemon("stop", component);
+		cluster.hadoopDaemon("start", component);
+	}
+	
 	public static void setupTestDir() throws Exception {
 		FileSystem fs = TestSession.cluster.getFS();
 		FsShell fsShell = TestSession.cluster.getFsShell();
