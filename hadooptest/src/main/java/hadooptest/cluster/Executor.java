@@ -123,7 +123,8 @@ public abstract class Executor {
 	 * 						for the process to be run.
 	 * @param verbose true for on, false for off. Default value is false.
 	 */
-	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv, boolean verbose) {
+	public String[] runProcBuilder(String[] commandArray,
+			Map<String, String> newEnv, boolean verbose) {
 		Process proc = null;
 		int rc = 0;
 		String output = null;
@@ -133,8 +134,10 @@ public abstract class Executor {
 			ProcessBuilder pb = new ProcessBuilder(commandArray);
 			
 			if (verbose) {
-				TestSession.logger.debug("ProcessBuilder cmd='" + pb.command() + "'");
-				TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
+				TestSession.logger.debug("ProcessBuilder cmd='" +
+						pb.command() + "'");
+				TestSession.logger.info("cmd='" +
+						StringUtils.join(commandArray, " ") + "'");
 			}
 			
 			Map<String, String> env = pb.environment();
@@ -147,8 +150,14 @@ public abstract class Executor {
 	        error = loadStream(proc.getErrorStream());
 	        
 	        rc = proc.waitFor();
-	        if ((rc != 0) && (verbose)) {
+	        // If the return code is non-zero, log it even if verbose is off.
+	        // if ((rc != 0) && (verbose)) {
+	        if ((rc != 0)) {
 	        	TestSession.logger.info("Process ended with rc='" + rc + "'");
+	        	TestSession.logger.debug("ProcessBuilder cmd ran='" +
+	        			pb.command() + "'");
+	        	TestSession.logger.info("cmd ran='" +
+	        			StringUtils.join(commandArray, " ") + "'");
 	        	if ((output != null) && !output.isEmpty()) {
 	        		TestSession.logger.info("Captured stdout = '" + output.trim() + "'");
 	        	}
