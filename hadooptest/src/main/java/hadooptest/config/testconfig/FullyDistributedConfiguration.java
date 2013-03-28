@@ -706,7 +706,65 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 	}
 	
+	/**
+     * Copy a single file from a given Hadoop configuration directory to a Hadoop
+     * cluster component. This assumes that the cluster under test is already
+     * using a custom backup directory that is editable, by previously calling
+     * the backupConfDir() methdo. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param sourceFile source configuration file to copy
+     * 
+     * @return boolean true for success, false for failure.
+     */
+	public boolean copyFileToConfDir (String component, String sourceFile) {
+		String targetFile = null;
+		String[] daemonHost = (component.equals("gateway")) ?
+				null : TestSession.cluster.getNodes(component);
+		return copyFileToConfDir(component, sourceFile, daemonHost, targetFile);	
+	}
+
+
+	/**
+     * Copy a single file from a given Hadoop configuration directory to a Hadoop
+     * cluster component. This assumes that the cluster under test is already
+     * using a custom backup directory that is editable, by previously calling
+     * the backupConfDir() methdo. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param sourceFile source configuration file to copy
+     * @param targetFile target configuration file to copy to
+     * 
+     * @return boolean true for success, false for failure.
+     */
+	public boolean copyFileToConfDir (String component, String sourceFile, String targetFile) {
+		String[] daemonHost = (component.equals("gateway")) ?
+				null : TestSession.cluster.getNodes(component);
+		return copyFileToConfDir(component, sourceFile, daemonHost, targetFile);			
+	}
+
     /**
+     * Copy a single file from a given Hadoop configuration directory to a Hadoop
+     * cluster component. This assumes that the cluster under test is already
+     * using a custom backup directory that is editable, by previously calling
+     * the backupConfDir() methdo. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param sourceFile source configuration file to copy
+     * @param daemonHost String Array of component hostname(s).
+     * @param target file name.
+     * 
+     * @return boolean true for success, false for failure.
+     */
+	public boolean copyFileToConfDir (String component, String sourceFile,
+			String[] daemonHost, String targetFile) {
+		return copyToConfDir(component, sourceFile, daemonHost, targetFile);			
+	}
+
+	/**
      * Copy files from a given Hadoop configuration directory to a Hadoop
      * cluster component. This assumes that the cluster under test is already
      * using a custom backup directory that is editable, by previously calling
@@ -716,16 +774,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * resourcemanager, etc.
      * @param sourceDir source configuration directory to copy the files from
      * 
-     * @return int 0 for success, 1 for failure.
+     * @return boolean true for success, false for failure.
      */
-	public int copyFilesToConfDir (String component, String sourceDir) {
-		if (component.equals("gateway")) {
-			return copyFilesToConfDir(component, sourceDir, null);			
-		}
-		else {
-			return copyFilesToConfDir(component, sourceDir,
-					TestSession.cluster.getNodes(component));
-		}
+	public boolean copyFilesToConfDir (String component, String sourceDir) {
+		String[] daemonHost = (component.equals("gateway")) ?
+				null : TestSession.cluster.getNodes(component);
+		return copyFilesToConfDir(component, sourceDir, daemonHost);	
 	}
 
     /**
@@ -739,15 +793,39 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param sourceDir source configuration directory to copy the files from
      * @param daemonHost String Array of component hostname(s).
      * 
-     * @return int 0 for success, 1 for failure.
+     * @return boolean true for success, false for failure.
      */
-	public int copyFilesToConfDir (String component, String sourceDir,
+	public boolean copyFilesToConfDir (String component, String sourceDir,
 			String[] daemonHost) {
-		
+		String targetFile = null;
+		return copyToConfDir(component, sourceDir + "/*", daemonHost, targetFile);
+	}
+
+    /**
+     * Copy file or files from a given Hadoop configuration directory to a Hadoop
+     * cluster component. This assumes that the cluster under test is already
+     * using a custom backup directory that is editable, by previously calling
+     * the backupConfDir() methdo. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * resourcemanager, etc.
+     * @param sourceFiles source configuration file or files to copy
+     * @param daemonHost String Array of component hostname(s).
+     * @param target file name
+     * 
+     * @return boolean true for success, false for failure.
+     */
+	private boolean copyToConfDir (String component, String sourceFile,
+			String[] daemonHost, String targetFile) {
+
 		String confDir = this.getHadoopConfDirPath(component);
+		String target =
+			((targetFile == null) || targetFile.isEmpty()) ?
+			confDir : confDir + "/" + targetFile;
+		
 		String cpCmd[] = { "/usr/bin/scp",
-				this.getHadoopProp("GATEWAY") + ":" + sourceDir + "/*",
-				confDir};
+				this.getHadoopProp("GATEWAY") + ":" + sourceFile,
+				target};
 				
 		if ((!component.equals("gateway")) && (daemonHost == null)) {
 			daemonHost = TestSession.cluster.getNodes(component); 
@@ -755,7 +833,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 		String[] cmd;
 		if (!component.equals("gateway")) {
-			TestSession.logger.info("Copy files to the Hadoop " +
+			TestSession.logger.info("Copy file(s) to the Hadoop " +
 					"configuration directory " + confDir + " on " +
 					"the " + component + " host(s) of " +
 					Arrays.toString(daemonHost));
@@ -774,10 +852,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 		TestSession.logger.trace(Arrays.toString(output));
 
-		return Integer.parseInt(output[0]);
+		return output[0].equals("0") ? true : false;
 	}
 
-    /**
+	/**
      * Backup the Hadoop configuration directory for a given component.
      * This will setup a new temporary Hadoop configuration directory where
      * settings can be changed for testing. This is necessary because the
@@ -786,9 +864,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param component cluster component such as gateway, namenode,
      * resourcemanager, etc.
      * 
-     * @return int 0 for success, 1 for failure.
+     * @return boolean true for success, false for failure.
      */
-	public int backupConfDir (String component) {
+	public boolean backupConfDir (String component) {
 		if (component.equals("gateway")) {
 			return backupConfDir(component, null);			
 		}
@@ -809,9 +887,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * resourcemanager, etc.
      * @param daemonHost String Array of component hostname(s).
      * 
-     * @return int 0 for success, 1 for failure.
+     * @return boolean true for success, false for failure.
      */
-	public int backupConfDir (String component, String[] daemonHost) {
+	public boolean backupConfDir (String component, String[] daemonHost) {
 		String componentHadoopConfDirPath =
 				this.getHadoopConfDirPath(component);
 		if (componentHadoopConfDirPath != null) {
@@ -874,7 +952,7 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		// to take effect, and to reinitialize the configuration object (via
 		// initComponentConfFiles(tmpConfDir, component))
 
-		return Integer.parseInt(output[0]);
+		return output[0].equals("0") ? true : false;
 	}
 
     /**
