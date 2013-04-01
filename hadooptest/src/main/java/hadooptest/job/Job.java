@@ -430,17 +430,17 @@ public abstract class Job extends Thread {
 				return true;
 			}
 			else if (currentState.equals(JobState.PREP)) {
-				TestSession.logger.error("JOB " + this.ID + " IS STILL IN PREP STATE");
+				TestSession.logger.info("JOB " + this.ID + " IS STILL IN PREP STATE");
 			}
 			else if (currentState.equals(JobState.RUNNING)) {
-				TestSession.logger.error("JOB " + this.ID + " IS STILL RUNNING");
+				TestSession.logger.info("JOB " + this.ID + " IS STILL RUNNING");
 			}
 			else if (currentState.equals(JobState.FAILED)) {
-				TestSession.logger.error("JOB " + this.ID + " FAILED");
+				TestSession.logger.info("JOB " + this.ID + " FAILED");
 				return false;
 			}
 			else if (currentState.equals(JobState.KILLED)) {
-				TestSession.logger.error("JOB " + this.ID + " WAS KILLED");
+				TestSession.logger.info("JOB " + this.ID + " WAS KILLED");
 				return false;
 			}
 
@@ -532,11 +532,11 @@ public abstract class Job extends Thread {
 						return true;
 					}
 					else if (mapredMatcherFailed.find()) {
-						TestSession.logger.error("JOB " + this.ID + " FAILED");
+						TestSession.logger.info("JOB " + this.ID + " FAILED");
 						return false;
 					}
 					else if (mapredMatcherKilled.find()) {
-						TestSession.logger.error("JOB " + this.ID + " WAS KILLED");
+						TestSession.logger.info("JOB " + this.ID + " WAS KILLED");
 						return false;
 					}
 					else if (mapredMatcherPrep.find()) {
