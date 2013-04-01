@@ -8,6 +8,7 @@ import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.TestConfiguration;
 import hadooptest.job.GenericJob;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,8 +27,6 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.IOException;
 
 public class TestEndToEndCompression extends TestSession {
 
