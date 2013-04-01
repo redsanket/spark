@@ -6,6 +6,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.DFS;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.TestConfiguration;
+import hadooptest.job.GenericJob;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -13,25 +14,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.util.Vector;
-import hadooptest.job.GenericJob;
-
-import org.apache.commons.lang.StringUtils;
-
-import sun.reflect.Reflection;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -205,10 +199,8 @@ public class TestEndToEndCompression extends TestSession {
 	// job codec = CODECS[0]
 	@Test public void testCompression01() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression02() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
-	
 	@Test public void testCompression03() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
 	@Test public void testCompression04() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
-
 	@Test public void testCompression05() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression06() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
 
@@ -225,14 +217,14 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression16() throws Exception{ testCompression(CODECS[0], CODECS[2], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression17() throws Exception{ testCompression(CODECS[0], CODECS[2], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression18() throws Exception{ testCompression(CODECS[0], CODECS[2], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
+
 	@Test public void testCompression19() throws Exception{ testCompression(CODECS[0], CODECS[3], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression20() throws Exception{ testCompression(CODECS[0], CODECS[3], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
 	@Test public void testCompression21() throws Exception{ testCompression(CODECS[0], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
 	@Test public void testCompression22() throws Exception{ testCompression(CODECS[0], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression23() throws Exception{ testCompression(CODECS[0], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression24() throws Exception{ testCompression(CODECS[0], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
+
 	// job codec = CODECS[1]
 	@Test public void testCompression25() throws Exception{ testCompression(CODECS[1], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression26() throws Exception{ testCompression(CODECS[1], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
@@ -240,7 +232,7 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression28() throws Exception{ testCompression(CODECS[1], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression29() throws Exception{ testCompression(CODECS[1], CODECS[0], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression30() throws Exception{ testCompression(CODECS[1], CODECS[0], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
+
 	@Test public void testCompression31() throws Exception{ testCompression(CODECS[1], CODECS[1], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression32() throws Exception{ testCompression(CODECS[1], CODECS[1], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
 	@Test public void testCompression33() throws Exception{ testCompression(CODECS[1], CODECS[1], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
@@ -269,7 +261,7 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression52() throws Exception{ testCompression(CODECS[2], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression53() throws Exception{ testCompression(CODECS[2], CODECS[0], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression54() throws Exception{ testCompression(CODECS[2], CODECS[0], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
+
 	@Test public void testCompression55() throws Exception{ testCompression(CODECS[2], CODECS[1], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression56() throws Exception{ testCompression(CODECS[2], CODECS[1], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
 	@Test public void testCompression57() throws Exception{ testCompression(CODECS[2], CODECS[1], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
@@ -283,14 +275,14 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression64() throws Exception{ testCompression(CODECS[2], CODECS[2], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression65() throws Exception{ testCompression(CODECS[2], CODECS[2], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression66() throws Exception{ testCompression(CODECS[2], CODECS[2], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
+
 	@Test public void testCompression67() throws Exception{ testCompression(CODECS[2], CODECS[3], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression68() throws Exception{ testCompression(CODECS[2], CODECS[3], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
 	@Test public void testCompression69() throws Exception{ testCompression(CODECS[2], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
 	@Test public void testCompression70() throws Exception{ testCompression(CODECS[2], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression71() throws Exception{ testCompression(CODECS[2], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression72() throws Exception{ testCompression(CODECS[2], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
+
 	// job codec = CODECS[3]
 	@Test public void testCompression73() throws Exception{ testCompression(CODECS[3], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression74() throws Exception{ testCompression(CODECS[3], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
@@ -312,15 +304,15 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression88() throws Exception{ testCompression(CODECS[3], CODECS[2], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression89() throws Exception{ testCompression(CODECS[3], CODECS[2], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression90() throws Exception{ testCompression(CODECS[3], CODECS[2], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
+
 	@Test public void testCompression91() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
 	@Test public void testCompression92() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
 	@Test public void testCompression93() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
 	@Test public void testCompression94() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression95() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression96() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-	
-	
+
+
 	public void testCompression(String jobCodec, String mapCodec,
 			String compressionType, String dataType) throws Exception {
 		
@@ -461,41 +453,17 @@ public class TestEndToEndCompression extends TestSession {
 		for (FileStatus element : elements) {
 			TestSession.logger.info("Checking part file: " + element.getPath());
 
+			TestConfiguration conf = TestSession.getCluster().getConf();
+
 			// Get Compression Type
-			
-			GenericJob job = new GenericJob();
-	        job.setJobJar(TestSession.conf.getProperty("WORKSPACE") + "/resources/lib/test-utils.jar");
-	        job.setJobName("com.yahoo.hadoop.SequenceFileUtil");
-	        ArrayList<String> jobArgs = new ArrayList<String>();
-			jobArgs.add("getCompressionType");
-			jobArgs.add(element.getPath().toString());
-			job.setJobArgs(jobArgs.toArray(new String[0]));
-			boolean verbose = false;
-			String[] typeOutput = job.submitUnthreaded(verbose);
-			String elementType = typeOutput[1].replaceAll("\n", "").trim();
-			/*
 			String elementType = getCompressionType(
-						TestSession.getCluster().getConf(), 
-						element.getPath()).toString();
-			*/
-			
+					conf, element.getPath()).toString();
+
 			// Get Compression Codec
-			job = new GenericJob();
-	        job.setJobJar(TestSession.conf.getProperty("WORKSPACE") + "/resources/lib/test-utils.jar");
-	        job.setJobName("com.yahoo.hadoop.SequenceFileUtil");
-	        ArrayList<String> jobArgs2 = new ArrayList<String>();
-			jobArgs2.add("getCompressionCodec");
-			jobArgs2.add(element.getPath().toString());
-			job.setJobArgs(jobArgs2.toArray(new String[0]));
-			String[] codecOutput = job.submitUnthreaded(verbose);
-			String elementCodec = codecOutput[1].replaceAll("\n", "").trim();	
-			/*
 			CompressionCodec codec = getCompressionCodec(
-					TestSession.getCluster().getConf(),
-					element.getPath());
+					conf, element.getPath());
 			String elementCodec = (codec != null) ? 
-					codec.getClass().getName().toString() : "";
-			*/
+					codec.getClass().getName().toString() : "";		
 
 			// Check expected and actual type matches.
 			assertEquals("Compression type does not match.", 
