@@ -86,10 +86,13 @@ public abstract class TestSession {
 		// Intitialize the framework logger
 		initLogging();
 		
-		// Log the classpath
-    	String classpath = System.getProperty("java.class.path");
-		logger.debug("CLASSPATH="+classpath);
-
+		// Log Java Properties
+		logger.debug("JAVA home ='" + System.getProperty("java.home") + "'");
+		logger.debug("JAVA version ='" + System.getProperty("java.version") + "'");
+		logger.debug("JVM bit size ='" + System.getProperty("sun.arch.data.model") + "'");
+		logger.debug("JAVA native library path='" + System.getProperty("java.library.path") + "'");
+		logger.debug("JAVA CLASSPATH='" + System.getProperty("java.class.path") + "'");
+		
 		// Initialize the cluster to be used in the framework
 		initCluster();
 
