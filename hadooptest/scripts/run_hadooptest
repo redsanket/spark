@@ -130,7 +130,12 @@ else
 	TESTS_OPT=""
 fi
 
-COMMON_ARGS="-DCLUSTER_NAME=$CLUSTER -DWORKSPACE=$WORKSPACE -Dhadooptest.config=$CONF"
+COMMON_ARGS="\
+-DCLUSTER_NAME=$CLUSTER \
+-DWORKSPACE=$WORKSPACE \
+-Dhadooptest.config=$CONF \
+-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/ \
+"
 MVN_GLOBAL_SETTING="$WORKSPACE/resources/yjava_maven/settings.xml.gw"
 
 if [ "$USE_MVN" -eq 1 ]; then
