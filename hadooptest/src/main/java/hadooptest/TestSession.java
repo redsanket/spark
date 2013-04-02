@@ -271,7 +271,14 @@ public abstract class TestSession {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
 		}
 
-		ClusterState clusterState = cluster.getState();
+		ClusterState clusterState = null;
+		try {
+			clusterState = cluster.getState();
+		}
+		catch (Exception e) {
+			logger.error("Failed to get the cluster state.", e);
+		}
+		
 		if (clusterState != ClusterState.UP) {
 			logger.warn("Cluster is not fully up: cluster state='" +
 					clusterState.toString() + "'.'");
@@ -282,9 +289,14 @@ public abstract class TestSession {
 	 * Initialize Hadoop API security for the test session.
 	 */
 	private static void initSecurity() {
+		try {
 		// Initialize API security for the FullyDistributedCluster type only.
 		if (cluster instanceof FullyDistributedCluster) {
 			cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+		}
+		}
+		catch (IOException ioe) {
+			logger.error("Failed to set the Hadoop API security.", ioe);
 		}
 	}
 	

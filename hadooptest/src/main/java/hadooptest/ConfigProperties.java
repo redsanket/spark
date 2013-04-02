@@ -54,7 +54,7 @@ public class ConfigProperties extends Properties
     * properties files that are not already supported by java.util.Properties.
     *
     * @param file The configuration properties file to load.
-    * @exception IOException If there was an input stream error or syntax error in the file.
+    * @throws IOException If there was an input stream error or syntax error in the file.
     */ 
    public void load(File file) throws IOException
    {
@@ -81,40 +81,37 @@ public class ConfigProperties extends Properties
     * @param file The contents of the configuration file.
     * @return The contents of any imported configuration files recursively added to the parent
     *         configuration file contents.
+    *         
+    * @throws IOException if the file can not be found or read from.
     */
-   private StringBuffer detectFileImports_(BufferedReader file)
+   private StringBuffer detectFileImports_(BufferedReader file) throws IOException
    {
-      String line, next_token;
-      StringBuffer output = new StringBuffer();
+	   String line, next_token;
+	   StringBuffer output = new StringBuffer();
 
-      try {
-    	  while ((line = file.readLine()) != null)
-    	  {
-    		  StringTokenizer tokens = new StringTokenizer(line);
+	   while ((line = file.readLine()) != null)
+	   {
+		   StringTokenizer tokens = new StringTokenizer(line);
 
-    		  if(tokens.countTokens() == 0)
-    		  {
-    			  output.append(line).append("\n");
-    			  continue;
-    		  }
+		   if(tokens.countTokens() == 0)
+		   {
+			   output.append(line).append("\n");
+			   continue;
+		   }
 
-    		  next_token = tokens.nextToken();
+		   next_token = tokens.nextToken();
 
-    		  if(!next_token.equals("import"))
-    		  {
-    			  output.append(line).append("\n");
-    			  continue;
-    		  }
+		   if(!next_token.equals("import"))
+		   {
+			   output.append(line).append("\n");
+			   continue;
+		   }
 
-    		  next_token = tokens.nextToken();
-    		  properties_files_.addElement(next_token);
-    		  output.append(detectFileImports_(new BufferedReader(new FileReader(next_token))));
-    	  }
-      }
-      catch (IOException ioe) {
-    	  // catch if you can't open the file
-      }
+		   next_token = tokens.nextToken();
+		   properties_files_.addElement(next_token);
+		   output.append(detectFileImports_(new BufferedReader(new FileReader(next_token))));
+	   }
 
-      return(output);
+	   return(output);
    }
 }

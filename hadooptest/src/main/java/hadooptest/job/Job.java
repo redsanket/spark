@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.RuntimeException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,8 +45,11 @@ public abstract class Job extends Thread {
 	
 	/**
 	 * Submit the job to the cluster through the Hadoop CLI.
+	 * 
+	 * @throws Exception if there is a fatal error running the job process.
 	 */
-	protected abstract void submit();
+	protected abstract void submit() 
+			throws Exception;
 	
 	/**
 	 * Submit the job to the cluster, but don't wait to assign an ID to this Job.
@@ -53,8 +57,11 @@ public abstract class Job extends Thread {
 	 * with Jobs, and don't care about the status or result of the Job.
 	 * 
 	 * Submit the job to the cluster through the Hadoop CLI.
+	 * 
+	 * @throws Exception if there is a fatal error running the job process.
 	 */
-	protected abstract void submitNoID();
+	protected abstract void submitNoID()
+			throws Exception;
 	
 	/**
 	 * Get the process handle for a job submitted from a system call.
@@ -79,13 +86,30 @@ public abstract class Job extends Thread {
 	 * 
 	 * (non-Javadoc)
 	 * @see java.lang.Thread#run()
+	 * 
+	 * @throws RuntimeException if there is a fatal runtime error when running the job thread.
 	 */
 	public void run() {
-		if (jobInitSetID) {
-			this.submit();
+		try {
+			if (jobInitSetID) {
+				this.submit();
+			}
+			else {
+				this.submitNoID();
+			}
 		}
-		else {
-			this.submitNoID();
+		catch (IOException ioe) {
+			TestSession.logger.error("IOException in Job.run() triggered RuntimeException.", ioe);
+			throw new RuntimeException(ioe.getMessage());
+		}
+		catch (InterruptedException ie) {
+			TestSession.logger.error("InterruptedException in Job.run() triggered RuntimeException.", ie);
+			throw new RuntimeException(ie.getMessage());
+		}
+		catch (Exception e) 
+		{
+			TestSession.logger.error("Exception in Job.run() triggered RuntimeException.", e);
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 	
@@ -93,19 +117,15 @@ public abstract class Job extends Thread {
 	 * Get the status of the Job through the Hadoop API.
 	 * 
 	 * @return JobState the state of the Job.
+	 * 
+	 * @throws IOException if there is a fatal error getting the job state.
 	 */
-	public JobState getJobStatus() {
+	public JobState getJobStatus() throws IOException {
 		JobState state = JobState.UNKNOWN;
-		
-		try {			
-			state = JobState.getState(this.getHadoopJob().getJobState());
-			TestSession.logger.debug("Job Status: " + state.toString());
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem getting the job status.");
-			ioe.printStackTrace();
-		}
-		
+
+		state = JobState.getState(this.getHadoopJob().getJobState());
+		TestSession.logger.debug("Job Status: " + state.toString());
+
 		return state;
 	}
 	
@@ -113,8 +133,10 @@ public abstract class Job extends Thread {
 	 * Get the name of the Job through the Hadoop API.
 	 * 
 	 * @return String the name of the job.
+	 * 
+	 * @throws IOException if there is a fatal error getting the job name.
 	 */
-	public String getJobName() {
+	public String getJobName() throws IOException {
 		String name = null;
 
 		name = this.getHadoopJob().getJobName();
@@ -127,20 +149,17 @@ public abstract class Job extends Thread {
 	 * Get the Hadoop API RunningJob that is represented by this job.
 	 * 
 	 * @return RunningJob the Hadoop API job represented by this job.
+	 * 
+	 * @throws IOException if there is a failure getting the Hadoop
+	 *         JobClient or Job.
 	 */
-	public RunningJob getHadoopJob() {
+	public RunningJob getHadoopJob() throws IOException {
 		RunningJob job = null;
-		
+
 		JobClient jobClient = this.getHadoopAPIJobClient();
-			
-		try {
-			job = jobClient.getJob(this.getHadoopAPIJobID());
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem getting the Hadoop job.");
-			ioe.printStackTrace();
-		}
-		
+
+		job = jobClient.getJob(this.getHadoopAPIJobID());
+
 		return job;
 	}
 	
@@ -181,7 +200,7 @@ public abstract class Job extends Thread {
 	 * 
 	 * @return boolean Whether the job was successfully failed.
 	 */
-	public boolean fail() {
+	public boolean fail() throws Exception {
 		return fail(1);
 	}
 	
@@ -192,8 +211,11 @@ public abstract class Job extends Thread {
 	 * 						assuming that the job should have failed.
 	 * 
 	 * @return boolean Whether the job was successfully failed.
+	 * 
+	 * @throws Exception if there is a fatal error failing the task attempt, or
+	 *         if there is a fatal error getting the job state.
 	 */
-	public boolean fail(int max_attempts) {
+	public boolean fail(int max_attempts) throws Exception {
 
 		String taskID;
 		
@@ -225,8 +247,10 @@ public abstract class Job extends Thread {
 	 * Kills the job.  Uses mapred CLI to kill the job.
 	 * 
 	 * @return boolean Whether the job was successfully killed.
+	 * 
+	 * @throws Exception if there is a fatal error killing the job.
 	 */
-	public boolean killCLI() {
+	public boolean killCLI() throws Exception {
 
 		Process mapredProc = null;
 		
@@ -262,7 +286,9 @@ public abstract class Job extends Thread {
 			if (mapredProc != null) {
 				mapredProc.destroy();
 			}
-			e.printStackTrace();
+			
+			TestSession.logger.error("Exception " + e.getMessage(), e);
+			throw e;
 		}
 		
 		TestSession.logger.error("JOB " + this.ID + " WAS NOT KILLED");
@@ -273,22 +299,18 @@ public abstract class Job extends Thread {
 	 * Kills the job.  Uses hadoop API to kill the job.
 	 * 
 	 * @return boolean Whether the job was successfully killed.
+	 * 
+	 * @throws IOException if there is a fatal error getting the job state.
 	 */
-	public boolean kill() {
+	public boolean kill() throws IOException {
 
 		RunningJob currentJob = this.getHadoopJob();
-		
+
 		if (currentJob != null) {
-			try {
-				currentJob.killJob();
-			}
-			catch (IOException ioe) {
-				TestSession.logger.error("There was an exception when trying to kill the job through the Hadoop API.");
-				ioe.printStackTrace();
-			}
-		
+			currentJob.killJob();
+
 			JobState currentState = this.getJobStatus();
-		
+
 			if (currentState.equals(JobState.KILLED)) {
 				TestSession.logger.info("JOB " + this.ID + " WAS KILLED");
 				return true;
@@ -302,7 +324,7 @@ public abstract class Job extends Thread {
 		TestSession.logger.error("JOB " + this.ID + " WAS NOT KILLED");
 		return false;
 	}
-	
+
 	/**
 	 * Verifies that the job ID matches the expected format.
 	 * 
@@ -382,8 +404,10 @@ public abstract class Job extends Thread {
 	 * @param seconds the number of seconds to wait for a job ID.
 	 * @return boolean whether an ID was found or not within the specified
 	 * 					time interval.
+	 *
+	 * @throws InterruptedException if there is a failure sleeping the current Thread. 
 	 */
-	public boolean waitForID(int seconds) {
+	public boolean waitForID(int seconds) throws InterruptedException {
 
 		// Give the job time to associate with a job ID
 		for (int i = 0; i <= seconds; i++) {
@@ -403,8 +427,12 @@ public abstract class Job extends Thread {
 	 * Uses the Hadoop API to check status of the job.
 	 * 
 	 * @return boolean whether the job succeeded
+	 * 
+	 * @throws InterruptedException if there is a failure sleeping the current Thread. 
+	 * @throws IOException if there is a fatal error waiting for the job state.
 	 */
-	public boolean waitForSuccess() {
+	public boolean waitForSuccess() 
+			throws InterruptedException, IOException {
 		return this.waitForSuccess(0);
 	}
 	
@@ -416,8 +444,12 @@ public abstract class Job extends Thread {
 	 * @param minutes The number of minutes to wait for the success state.
 	 * 
 	 * @return boolean true if the job was successful, false if it was not or the waitFor timed out.
+	 * 
+	 * @throws InterruptedException if there is a failure sleeping the current Thread. 
+	 * @throws IOException if there is a fatal error waiting for the job state.
 	 */
-	public boolean waitForSuccess(int minutes) {
+	public boolean waitForSuccess(int minutes) 
+			throws InterruptedException, IOException {
 
 		JobState currentState = JobState.UNKNOWN;
 		
@@ -456,8 +488,10 @@ public abstract class Job extends Thread {
 	 * Uses the Hadoop command line interface to check status of the job.
 	 * 
 	 * @return boolean whether the job succeeded
+	 * 
+	 * @throws Exception if there is a fatal error waiting for the job state.
 	 */
-	public boolean waitForSuccessCLI() {
+	public boolean waitForSuccessCLI() throws Exception {
 		return this.waitForSuccessCLI(0);
 	}
 	
@@ -469,8 +503,10 @@ public abstract class Job extends Thread {
 	 * @param minutes The number of minutes to wait for the success state.
 	 * 
 	 * @return boolean true if the job was successful, false if it was not or the waitFor timed out.
+	 * 
+	 * @throws Exception if there is a fatal error waiting for the job state.
 	 */
-	public boolean waitForSuccessCLI(int minutes) {
+	public boolean waitForSuccessCLI (int minutes) throws Exception {
 		Process mapredProc = null;
 
 		Matcher mapredMatcherSuccess;
@@ -553,7 +589,9 @@ public abstract class Job extends Thread {
 				if (mapredProc != null) {
 					mapredProc.destroy();
 				}
-				e.printStackTrace();
+				
+				TestSession.logger.error("Exception " + e.getMessage(), e);
+				throw e;
 			}
 
 			Util.sleep(10);
@@ -571,8 +609,10 @@ public abstract class Job extends Thread {
 	 * 
 	 * @param waitForState the job state to wait for
 	 * @param seconds The number of minutes to wait for the job state.
+	 * 
+	 * @throws Exception if there is a fatal error waiting for the job state.
 	 */
-	public boolean waitForCLI(JobState waitForState, int seconds) {
+	public boolean waitForCLI(JobState waitForState, int seconds) throws Exception {
 		Process mapredProc = null;
 		JobState currentState = null;
 
@@ -661,7 +701,9 @@ public abstract class Job extends Thread {
 				if (mapredProc != null) {
 					mapredProc.destroy();
 				}
-				e.printStackTrace();
+				
+				TestSession.logger.error("Exception " + e.getMessage(), e);
+				throw e;
 			}
 
 			TestSession.logger.info("Job " + this.ID + " is in state: " + currentState.toString());
@@ -685,8 +727,12 @@ public abstract class Job extends Thread {
 	 * 
 	 * @param waitForState the job state to wait for
 	 * @param seconds The number of minutes to wait for the job state.
+	 * 
+	 * @throws InterruptedException if there is a failure sleeping the current Thread. 
+	 * @throws IOException if there is a fatal error waiting for the job state.
 	 */
-	public boolean waitFor(JobState waitForState, int seconds) {
+	public boolean waitFor(JobState waitForState, int seconds) 
+			throws InterruptedException, IOException {
 		JobState currentState = null;
 		
 		// Give the sleep job time to complete
@@ -717,8 +763,12 @@ public abstract class Job extends Thread {
 	 * @param queue The queue for the job
 	 * 
 	 * @return boolean Whether the job summary info was found in the summary info log file or not
+	 * 
+	 * @throws FileNotFoundException if the job summary log can not be found
+	 * @throws IOException if the summary log can not be read
 	 */
-	public boolean findSummaryInfo(String status, String jobName, String user, String queue) throws FileNotFoundException, IOException {
+	public boolean findSummaryInfo(String status, String jobName, String user, String queue) 
+			throws FileNotFoundException, IOException {
 		// Build job summary info template
 		String numMaps = "10";
 		String numReduces = "10";
@@ -778,8 +828,10 @@ public abstract class Job extends Thread {
 	 * 
 	 * @param taskID The ID of the task attempt to kill.
 	 * @return boolean Whether the task attempt was killed or not.
+	 * 
+	 * @throws Exception if there is a fatal error running the process to kill the task attempt.
 	 */
-	public boolean killTaskAttempt(String taskID) {
+	public boolean killTaskAttempt(String taskID) throws Exception {
 		
 		Process mapredProc = null;
 		
@@ -815,7 +867,9 @@ public abstract class Job extends Thread {
 			if (mapredProc != null) {
 				mapredProc.destroy();
 			}
-			e.printStackTrace();
+			
+			TestSession.logger.error("Exception " + e.getMessage(), e);
+			throw e;
 		}
 
 		TestSession.logger.error("TASK ATTEMPT " + taskID + " WAS NOT KILLED");
@@ -826,18 +880,14 @@ public abstract class Job extends Thread {
 	 * Gets the JobClient from the Hadoop API.
 	 * 
 	 * @return JobClient a Hadoop API JobClient.
+	 * 
+	 * @throws IOException if there is a problem getting the Hadoop JobClient.
 	 */
-	public JobClient getHadoopAPIJobClient() {
+	public JobClient getHadoopAPIJobClient() throws IOException {
 		JobClient jobClient = null;
-		
-		try {
-			jobClient = new JobClient(TestSession.cluster.getConf());
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem getting the JobClient from the Hadoop API.");
-			ioe.printStackTrace();
-		}
-		
+
+		jobClient = new JobClient(TestSession.cluster.getConf());
+
 		return jobClient;
 	}
 	
@@ -855,8 +905,12 @@ public abstract class Job extends Thread {
 	/**
 	 * Blocking call that waits until the current job is running, failed, or killed, before
 	 * proceeding.
+	 * 
+	 * @throws InterruptedException if there is a problem sleeping the current Thread.
+	 * @throws IOException if there is a fatal error getting the job state.
 	 */
-	public void blockUntilRunning() {
+	public void blockUntilRunning() 
+			throws InterruptedException, IOException {
 		TestSession.logger.info("Blocking until the job is running, failed, or killed.");
 		
 		do {
@@ -871,8 +925,12 @@ public abstract class Job extends Thread {
 	 * Get an array of current mapper TaskReport statuses for the current Job.
 	 * 
 	 * @return TaskReport[] an array of TaskReport map task statuses.
+	 * 
+	 * @throws InterruptedException if there is a problem sleeping the current Thread.
+	 * @throws IOException if there is a fatal error getting the Hadoop JobClient.
 	 */
-	public TaskReport[] getMapTasksStatus() {
+	public TaskReport[] getMapTasksStatus() 
+			throws InterruptedException, IOException {
 
 		TaskReport[] taskReports = null;
 
@@ -884,14 +942,8 @@ public abstract class Job extends Thread {
 		// yet started.
 		this.blockUntilRunning();
 
-		try {
-			taskReports = jobClient.getMapTaskReports(this.getHadoopAPIJobID());
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem getting the map tasks status.");
-			ioe.printStackTrace();
-		}
-		
+		taskReports = jobClient.getMapTaskReports(this.getHadoopAPIJobID());
+
 		return taskReports;
 	}
 	
@@ -899,27 +951,25 @@ public abstract class Job extends Thread {
 	 * Get an array of current reducer TaskReport statuses for the current Job.
 	 * 
 	 * @return TaskReport[] an array of TaskReport reducer task statuses.
+	 * 
+	 * @throws InterruptedException if there is a problem sleeping the current Thread.
+	 * @throws IOException if there is a fatal error getting the Hadoop JobClient.
 	 */
-	public TaskReport[] getReduceTasksStatus() {
-		
+	public TaskReport[] getReduceTasksStatus() 
+			throws InterruptedException, IOException {
+
 		TaskReport[] taskReports = null;
-		
+
 		JobClient jobClient = this.getHadoopAPIJobClient();
-			
+
 		// Block until the Job is either running, failed, or killed.
 		// The Hadoop API to get task status will return an empty
 		// TaskReport[] if the job is in the PREP state and has not
 		// yet started.
 		this.blockUntilRunning();
 
-		try {
-			taskReports = jobClient.getReduceTaskReports(this.getHadoopAPIJobID());
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem getting the reduce tasks status.");
-			ioe.printStackTrace();
-		}
-		
+		taskReports = jobClient.getReduceTaskReports(this.getHadoopAPIJobID());
+
 		return taskReports;
 	}
 	
@@ -928,8 +978,10 @@ public abstract class Job extends Thread {
 	 * 
 	 * @param taskID The ID of the job matching the task attempt.
 	 * @return boolean Whether the task attempt was killed or not.
+	 * 
+	 * @throws Exception if there is a fatal error running the process to fail the task attempt.
 	 */
-	protected boolean failTaskAttempt(String taskID) {
+	protected boolean failTaskAttempt(String taskID) throws Exception {
 		
 		Process mapredProc = null;
 		
@@ -965,7 +1017,9 @@ public abstract class Job extends Thread {
 			if (mapredProc != null) {
 				mapredProc.destroy();
 			}
-			e.printStackTrace();
+			
+			TestSession.logger.error("Exception " + e.getMessage(), e);
+			throw e;
 		}
 		
 		TestSession.logger.error("TASK ATTEMPT " + taskID + " WAS NOT FAILED");

@@ -7,6 +7,7 @@ package hadooptest.job;
 import hadooptest.TestSession;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,61 +105,55 @@ public class GenericJob extends Job {
 	/**
 	 * Submit the job.  This should be done only by the Job.start() as Job should
 	 * remain threaded.
+	 * 
+	 * @throws Exception if there is a fatal error running the job process, or the 
+	 *         InputStream can not be read.
 	 */
-	protected void submit() {
+	protected void submit() 
+			throws Exception {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
-		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
-			BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
-			String line=reader.readLine(); 
+		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+		BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
+		String line=reader.readLine(); 
 
-			while(line!=null) 
-			{ 
-				TestSession.logger.debug(line);
+		while(line!=null) 
+		{ 
+			TestSession.logger.debug(line);
 
-				Matcher jobMatcher = jobPattern.matcher(line);
+			Matcher jobMatcher = jobPattern.matcher(line);
 
-				if (jobMatcher.find()) {
-					this.ID = jobMatcher.group(1);
-					TestSession.logger.debug("JOB ID: " + this.ID);
-					break;
-				}
-
-				line=reader.readLine();
-			} 
-		}
-		catch (Exception e) {
-			if (this.process != null) {
-				this.process.destroy();
+			if (jobMatcher.find()) {
+				this.ID = jobMatcher.group(1);
+				TestSession.logger.debug("JOB ID: " + this.ID);
+				break;
 			}
-			e.printStackTrace();
+
+			line=reader.readLine();
 		}
 	} 
 
 	/**
 	 * Submit the job and don't wait for the ID.  This should be done only by the Job.start() as Job should
 	 * remain threaded.
+	 * 
+	 * @throws Exception if there is a fatal error running the job process.
 	 */
-	protected void submitNoID() {
-		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
-		}
-		catch (Exception e) {
-			if (this.process != null) {
-				this.process.destroy();
-			}
-			e.printStackTrace();
-		}
+	protected void submitNoID() 
+			throws Exception {
+		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
 	} 
 
 	/**
 	 * Submit the job and wait until it is completed. 
 	 * Use this if you do not want the job run as threaded. 
 	 * This will block until the job has completed. 
+	 * 
+	 * @throws Exception if there is a fatal error funning the job process.
 	 */
-	public String[] submitUnthreaded() {
+	public String[] submitUnthreaded() 
+			throws Exception {
 		boolean verbose = true;
 		return submitUnthreaded(verbose);
 	}
@@ -167,18 +162,15 @@ public class GenericJob extends Job {
 	 * Submit the job and wait until it is completed. 
 	 * Use this if you do not want the job run as threaded. 
 	 * This will block until the job has completed. 
+	 * 
+	 * @throws Exception if there is a fatal error funning the job process.
 	 */
-	public String[] submitUnthreaded(boolean verbose) {
+	public String[] submitUnthreaded(boolean verbose) 
+			throws Exception {
 		String[] output = null;
-		try {
-			output = TestSession.exec.runHadoopProcBuilder(this.assembleCommand(), verbose);
-		}
-		catch (Exception e) {
-			if (this.process != null) {
-				this.process.destroy();
-			}
-			e.printStackTrace();
-		}
+		
+		output = TestSession.exec.runHadoopProcBuilder(this.assembleCommand(), verbose);
+
 		return output;
 	}
 

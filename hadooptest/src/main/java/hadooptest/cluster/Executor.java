@@ -7,6 +7,7 @@ package hadooptest.cluster;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -46,8 +47,11 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 * @param username the system username to run the command under.
 	 * @return String[] the output of running the system command.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public abstract String[] runHadoopProcBuilder(String[] commandArray, String username);
+	public abstract String[] runHadoopProcBuilder(String[] commandArray, String username)
+			throws Exception;
 	
 	/**
 	 * Run a local system command.
@@ -55,8 +59,11 @@ public abstract class Executor {
 	 * @param commandArray The system command to run.
 	 * @param username the user to run the command as.
 	 * @param verbose true for on, false for off. Default value is false.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) {
+	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) 
+			throws Exception {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for Standalone we can just pass this through right to runProcBuilder
 		// for now.
@@ -72,8 +79,11 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 * @param username the system username to run the command under.
 	 * @return String[] the output of running the system command.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public abstract Process runHadoopProcBuilderGetProc(String[] commandArray, String username);
+	public abstract Process runHadoopProcBuilderGetProc(String[] commandArray, String username)
+			throws Exception;
 
 	/**
 	 * Run a local system command using a ProcessBuilder.
@@ -81,8 +91,11 @@ public abstract class Executor {
 	 * @param commandArray the command to run.  Each member of the string array should
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runProcBuilder(String[] commandArray) {
+	public String[] runProcBuilder(String[] commandArray)
+		throws Exception {
 		return runProcBuilder(commandArray, null);
 	}
 
@@ -93,8 +106,11 @@ public abstract class Executor {
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
 	 * @param verbose true for on, false for off. Default value is false.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runProcBuilder(String[] commandArray, boolean verbose) {
+	public String[] runProcBuilder(String[] commandArray, boolean verbose) 
+			throws Exception {
 		return runProcBuilder(commandArray, null, verbose);
 	}
 
@@ -107,8 +123,11 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 * 
 	 * @return Process the process handle for the system command.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public Process runProcBuilderGetProc(String[] commandArray) {
+	public Process runProcBuilderGetProc(String[] commandArray) 
+			throws IOException {
 		return runProcBuilderGetProc(commandArray, null);
 	}
 	
@@ -122,9 +141,12 @@ public abstract class Executor {
 	 * @param newEnv a Map of environment variables and values to run as an environment
 	 * 						for the process to be run.
 	 * @param verbose true for on, false for off. Default value is false.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
 	public String[] runProcBuilder(String[] commandArray,
-			Map<String, String> newEnv, boolean verbose) {
+			Map<String, String> newEnv, boolean verbose) 
+					throws Exception {
 		Process proc = null;
 		int rc = 0;
 		String output = null;
@@ -169,11 +191,10 @@ public abstract class Executor {
 	        TestSession.logger.trace("Process Stdout: '" + output + "'");
 	        TestSession.logger.trace("Process Stderr: '" + error + "'");
 		}
-		catch (Exception e) {
+		finally {
 			if (proc != null) {
 				proc.destroy();
 			}
-			e.printStackTrace();
 		}
 		
 		return new String[] { Integer.toString(rc), output, error};
@@ -188,8 +209,11 @@ public abstract class Executor {
 	 * 						surrounded by whitespace.
 	 * @param newEnv a Map of environment variables and values to run as an environment
 	 * 						for the process to be run.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv) {
+	public String[] runProcBuilder(String[] commandArray, Map<String, String> newEnv)
+		throws Exception {
 		return runProcBuilder(commandArray, newEnv, true);
 	}
 	
@@ -205,30 +229,25 @@ public abstract class Executor {
 	 * 						for the process to be run.
 	 * 
 	 * @return Process the process handle for the system command.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public Process runProcBuilderGetProc(String[] commandArray, Map<String, String> newEnv) {
+	public Process runProcBuilderGetProc(String[] commandArray, Map<String, String> newEnv) 
+			throws IOException {
 		TestSession.logger.trace(Arrays.toString(commandArray));
 		TestSession.logger.info("cmd='" + StringUtils.join(commandArray, " ") + "'");
 		Process proc = null;
 
-		try {
-			ProcessBuilder pb = new ProcessBuilder(commandArray);
-			pb.redirectErrorStream(true);
-			
-			Map<String, String> env = pb.environment();
-			if (newEnv != null) {
-				env.putAll(newEnv);
-			}
-			
-	        proc = pb.start();
+		ProcessBuilder pb = new ProcessBuilder(commandArray);
+		pb.redirectErrorStream(true);
+
+		Map<String, String> env = pb.environment();
+		if (newEnv != null) {
+			env.putAll(newEnv);
 		}
-		catch (Exception e) {
-			if (proc != null) {
-				proc.destroy();
-			}
-			e.printStackTrace();
-		}
-		
+
+		proc = pb.start();
+
 		return proc;
 	}
 	
@@ -238,8 +257,11 @@ public abstract class Executor {
 	 * @param commandArray the command to run.  Each member of the string array should
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray) {
+	public String[] runHadoopProcBuilder(String[] commandArray)
+			throws Exception {
 		boolean verbose = true;
 		return runHadoopProcBuilder(commandArray, verbose);
 	}
@@ -251,8 +273,11 @@ public abstract class Executor {
 	 * 						be an item in the command string that is otherwise
 	 * 						surrounded by whitespace.
 	 * @param verbose true for on, false for off. Default value is false.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, boolean verbose) {
+	public String[] runHadoopProcBuilder(String[] commandArray, boolean verbose)
+			throws Exception {
 		return runHadoopProcBuilder(
 				commandArray,
 				System.getProperty("user.name"),
@@ -263,8 +288,11 @@ public abstract class Executor {
 	 * Run a local system command using runtime exec.
 	 * 
 	 * @param command The system command to run.
+	 * 
+	 * @throws Exception if the process can not be run.
 	 */
-	public static String runProc(String command) {
+	public static String runProc(String command) 
+			throws Exception {
 		Process proc = null;
 		TestSession.logger.info(command);
 		String output = null;
@@ -272,11 +300,10 @@ public abstract class Executor {
 			proc = Runtime.getRuntime().exec(command);
 	        output = loadStream(proc.getInputStream());
 		}
-		catch (Exception e) {
+		finally {
 			if (proc != null) {
 				proc.destroy();
 			}
-			e.printStackTrace();
 		}
 		return output;
 	}	
@@ -287,7 +314,8 @@ public abstract class Executor {
 	 * 
 	 * @param is the InputStream to process
 	 * @return String the string output of the BufferedReader
-	 * @throws Exception
+	 * 
+	 * @throws Exception if the stream can not be read.
 	 */
 	protected static String loadStream(InputStream is) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 

@@ -5,6 +5,7 @@
 package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.job.SleepJob;
 
@@ -41,32 +42,38 @@ public class ManySleepJob extends TestSession {
 	 */
 	@Test
 	public void runManySleepJobs() {
-		int i;
-		SleepJob sleepJob;
-		
-		// Configure the jobs
-		for (i = 0; i < 10; i++) {
-			sleepJob = new SleepJob();
-			
-			sleepJob.setNumMappers(5);
-			sleepJob.setNumReducers(5);
-			sleepJob.setMapDuration(500);
-			sleepJob.setReduceDuration(500);
-			
-			sleepJobVector.add(sleepJob);
+		try {
+			int i;
+			SleepJob sleepJob;
+
+			// Configure the jobs
+			for (i = 0; i < 10; i++) {
+				sleepJob = new SleepJob();
+
+				sleepJob.setNumMappers(5);
+				sleepJob.setNumReducers(5);
+				sleepJob.setMapDuration(500);
+				sleepJob.setReduceDuration(500);
+
+				sleepJobVector.add(sleepJob);
+			}
+
+			// Rapidly launch the jobs
+			for (i = 0; i < sleepJobVector.size(); i++) {
+				sleepJobVector.get(i).start();
+			}
+
+			// Validate the job IDs
+			for (i = 0; i < sleepJobVector.size(); i++) {
+				assertTrue("Sleep job " + i + " was not assigned an ID within 20 seconds.", 
+						sleepJobVector.get(i).waitForID(20));
+				assertTrue("Sleep job ID for sleep job " + i + " is invalid.", 
+						sleepJobVector.get(i).verifyID());
+			}
 		}
-		
-		// Rapidly launch the jobs
-		for (i = 0; i < sleepJobVector.size(); i++) {
-			sleepJobVector.get(i).start();
-		}
-		
-		// Validate the job IDs
-		for (i = 0; i < sleepJobVector.size(); i++) {
-			assertTrue("Sleep job " + i + " was not assigned an ID within 20 seconds.", 
-					sleepJobVector.get(i).waitForID(20));
-			assertTrue("Sleep job ID for sleep job " + i + " is invalid.", 
-					sleepJobVector.get(i).verifyID());
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
 		}
 	}
 

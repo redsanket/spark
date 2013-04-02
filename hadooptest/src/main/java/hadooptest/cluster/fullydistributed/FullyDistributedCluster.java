@@ -1,6 +1,7 @@
 package hadooptest.cluster.fullydistributed;
 
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.Cluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
@@ -31,9 +32,12 @@ public class FullyDistributedCluster extends Cluster {
 	/**
 	 * Initializes the fully distributed cluster and sets up a new fully
 	 * distributed configuration.
+	 * 
+	 * @throws Exception if the cluster configuration or cluster nodes
+	 *         can not be initialized.
 	 */
-	public FullyDistributedCluster() throws IOException
-	{
+	public FullyDistributedCluster() 
+			throws Exception {
 		this.initTestSessionConf();
 		this.conf = new FullyDistributedConfiguration();
 		super.initNodes();
@@ -44,9 +48,11 @@ public class FullyDistributedCluster extends Cluster {
 	 * distributed configuration using a passed-in FullyDistributedConfiguration.
 	 * 
 	 * @param conf a configuration to initialize the cluster with.
+	 * 
+	 * @throws Exception if the cluster nodes can not be initialized.
 	 */
 	public FullyDistributedCluster(FullyDistributedConfiguration conf)
-	{
+			throws Exception {
 		this.conf = conf;
 		this.initTestSessionConf();
 		super.initNodes();
@@ -59,8 +65,13 @@ public class FullyDistributedCluster extends Cluster {
 	 * Default value is true. 
 	 * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if a daemon node can not be started, if there
+     *         if a fatal error checking the state of the cluster, or if
+     *         there is a fatal error checking the dfs safe mode state.
      */
-	public boolean start(boolean waitForSafemodeOff) {		
+	public boolean start(boolean waitForSafemodeOff) 
+			throws Exception {	
 		TestSession.logger.info("------------------ START CLUSTER " + 
 				conf.getHadoopProp("CLUSTER_NAME") + 
 				" ---------------------------------");
@@ -101,8 +112,11 @@ public class FullyDistributedCluster extends Cluster {
      * Stop the cluster.
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error stopping a daemon node.
      */	
-	public boolean stop() {
+	public boolean stop() 
+			throws Exception {
 		TestSession.logger.info("------------------ STOP CLUSTER " + 
 				conf.getHadoopProp("CLUSTER_NAME") + 
 				" ---------------------------------");
@@ -122,13 +136,6 @@ public class FullyDistributedCluster extends Cluster {
 			TestSession.logger.error("Stop Cluster returned error exit code!!!");
 		}
 		return (returnValue == 0) ? true : false;
-	}
-
-	/**
-	 * Currently unimplemented for FullyDistributedCluster.
-	 */
-	public void die() {
-
 	}
 
 	/**
@@ -154,10 +161,13 @@ public class FullyDistributedCluster extends Cluster {
 	 * 
 	 * @return ClusterState the state of the cluster.
 	 * 
+	 * @throws Exception if there is a fatal error checking cluster state.
+	 * 
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#getState()
 	 */
-	public ClusterState getState() {
+	public ClusterState getState() 
+			throws Exception {
 		return (this.isFullyUp()) ? ClusterState.UP : ClusterState.DOWN;
 	}
 	
@@ -217,8 +227,12 @@ public class FullyDistributedCluster extends Cluster {
      * @param component The cluster component to perform the action on. 
      * 
      * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
      */
-	public int hadoopDaemon(String action, String component) {
+	public int hadoopDaemon(String action, String component) 
+			throws Exception {
 		return hadoopDaemon(action, component, null, null);
 	}
 	
@@ -232,8 +246,12 @@ public class FullyDistributedCluster extends Cluster {
      * @param daemonHost The hostnames to perform the action on. 
      * 
      * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
      */
-	public int hadoopDaemon(String action, String component, String[] daemonHost) {
+	public int hadoopDaemon(String action, String component, String[] daemonHost) 
+			throws Exception {
 		return hadoopDaemon(action, component, daemonHost, null);
 	}
 	
@@ -253,8 +271,12 @@ public class FullyDistributedCluster extends Cluster {
      * @param confDir The configuration directory to perform the action with. 
      * 
      * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
      */
-	public int hadoopDaemon(String action, String component, String[] daemonHost, String confDir) {
+	public int hadoopDaemon(String action, String component, String[] daemonHost, String confDir) 
+			throws Exception {
 		if (daemonHost == null) {				
 			daemonHost = this.getNodes(component);	
 		}
@@ -332,8 +354,11 @@ public class FullyDistributedCluster extends Cluster {
      * @param component The cluster component to perform the action on. 
      * 
      * @return boolean true for success or false for failure.
+     * 
+     * @throws Exception if there is a fatal error waiting for the component state.
      */
-	public boolean waitForComponentState(String action, String component) {
+	public boolean waitForComponentState(String action, String component) 
+			throws Exception {
 		int waitInterval = 3;
 		int maxWait = 10;
 		return waitForComponentState(action, component, waitInterval, maxWait);
@@ -349,9 +374,12 @@ public class FullyDistributedCluster extends Cluster {
      * @param maxWait the maximum iteration to wait for
      * 
      * @return boolean true for success or false for failure.
+     * 
+     * @throws Exception if there is a fatal error waiting for the component state.
      */
 	public boolean waitForComponentState(String action, String component,
-			int waitInterval, int maxWait) {
+			int waitInterval, int maxWait) 
+					throws Exception {
 		return waitForComponentState(action, component,
 				waitInterval, maxWait, this.getNodes(component));
 	}
@@ -367,9 +395,12 @@ public class FullyDistributedCluster extends Cluster {
      * @param daemonHost String Array of daemon host names
      * 
      * @return boolean true for success or false for failure.
+     * 
+     * @throws Exception if there is a fatal error checking the component state.
      */
 	public boolean waitForComponentState(String action, String component,
-			int waitInterval, int maxWait, String[] daemonHost) {
+			int waitInterval, int maxWait, String[] daemonHost) 
+					throws Exception {
 		
 	    String expStateStr = action.equals("start") ? "started" : "stopped";
 
@@ -400,12 +431,9 @@ public class FullyDistributedCluster extends Cluster {
 	    			"(s): total wait time = " + (count-1)*waitInterval +
 	    			"(s): ");
 	    		  
-	    	try {
-	    		Thread.sleep(waitInterval*1000);
-	    	} catch  (InterruptedException e) {
-	    		TestSession.logger.error("Encountered Interrupted Exception: " +
-	    				e.toString());
-	    	}
+
+	    	Util.sleep(waitInterval);
+	    		
 	        count++;
 	    }	
 	    
@@ -422,8 +450,12 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return true if the cluster is fully up, false if the cluster is not
      * fully up.
+     * 
+     * @throws Exception if there is a fatal error checking if a component
+     *         is fully up.
      */
-	public boolean isFullyUp() {
+	public boolean isFullyUp() 
+			throws Exception {
 		String[] components = {
 	                       "namenode",
 	                       "resourcemanager",
@@ -447,8 +479,11 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return true if the cluster is fully up, false if the cluster is not
      * fully up.
+     * 
+     * @throws Exception if there is a fatal error checking if a component is fully down.
      */
-	public boolean isFullyDown() {
+	public boolean isFullyDown() 
+			throws Exception {
 		String[] components = {
 	                       "namenode",
 	                       "resourcemanager",
@@ -474,8 +509,11 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return true if the cluster is fully up, false if the cluster is not
      * fully up.
+     * 
+     * @throws Exception if there is a fatal error checking if a component is up.
      */
-	public boolean isComponentFullyUp(String component) {
+	public boolean isComponentFullyUp(String component) 
+			throws Exception {
 		return isComponentFullyUp(component, null);
 	}
 	
@@ -488,8 +526,11 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return boolean true if the cluster is fully up, false if the cluster is not
      * fully up.
+     * 
+     * @throws Exception if there is a fatal error checking the state of a component.
      */
-	public boolean isComponentFullyUp(String component, String[] daemonHost) {
+	public boolean isComponentFullyUp(String component, String[] daemonHost) 
+			throws Exception {
 		return isComponentFullyInExpectedState("start", component, daemonHost);
 	}
 	
@@ -501,9 +542,12 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return boolean true if the cluster is fully up, false if the cluster is not
      * fully up.
+     * 
+     * @throws Exception if there is a fatal error checking if a component is up.
      */
 	public boolean isComponentUpOnSingleHost(String component,
-			String daemonHost) {
+			String daemonHost) 
+					throws Exception {
 		return isComponentFullyUp(component, new String[] {daemonHost});		
 	}
 
@@ -514,8 +558,11 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return boolean true if the cluster is fully down, false if the cluster is not
      * fully down.
+     * 
+     * @throws Exception if there is a failure checking if a component is down.
      */
-	public boolean isComponentFullyDown(String component) {
+	public boolean isComponentFullyDown(String component) 
+			throws Exception {
 		return isComponentFullyDown(component, null);
 	}	
 
@@ -528,8 +575,11 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return boolean true if the cluster is fully down, false if the cluster is not
      * fully down.
+     * 
+     * @throws Exception if there is a failure checking if a component is down.
      */
-	public boolean isComponentFullyDown(String component, String[] daemonHost) {		
+	public boolean isComponentFullyDown(String component, String[] daemonHost) 
+			throws Exception {		
 		return isComponentFullyInExpectedState("stop", component, daemonHost);
 	}
 		
@@ -542,9 +592,12 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return boolean true if the cluster is fully in the expected state, false if the
      * cluster is not fully in the expected state.
+     * 
+     * @throws Exception if there is a failure checking if a component is in the expected state.
      */
 	public boolean isComponentFullyInExpectedState(String action,
-			String component) {
+			String component) 
+					throws Exception {
 		return isComponentFullyInExpectedState(action, component, null);
 	}
 	
@@ -558,9 +611,12 @@ public class FullyDistributedCluster extends Cluster {
      * 
      * @return boolean true if the cluster is fully in the expected state, false if the
      * cluster is not fully in the expected state.
+     * 
+     * @throws Exception if there is a failure checking if a component is in the expected state.
      */
 	public boolean isComponentFullyInExpectedState(String action,
-			String component, String[] daemonHosts) {
+			String component, String[] daemonHosts) 
+					throws Exception {
 		String adminHost = this.getNodes("admin")[0];
 		if (daemonHosts == null) {
 			daemonHosts = this.getNodes(component);	

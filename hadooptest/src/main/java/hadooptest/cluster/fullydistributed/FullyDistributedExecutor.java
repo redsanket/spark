@@ -5,6 +5,7 @@
 package hadooptest.cluster.fullydistributed;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +28,11 @@ public class FullyDistributedExecutor extends Executor {
 	 * 						surrounded by whitespace.
 	 * @param username the system username to run the command under.
 	 * @return String[] the output of running the system command.
+	 * 
+	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
+	public String[] runHadoopProcBuilder(String[] commandArray, String username) 
+			throws Exception {
 		boolean verbose = true;
 		return runHadoopProcBuilder(commandArray, username, verbose);
 	}
@@ -43,8 +47,11 @@ public class FullyDistributedExecutor extends Executor {
 	 * @param username the system username to run the command under.
 	 * @param verbose true for on, false for off. Default value is false.
 	 * @return String[] the output of running the system command.
+	 * 
+	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) {
+	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) 
+			throws Exception {
 		if (this.isHeadless(username)) {
 			Map<String, String> newEnv = new HashMap<String, String>();
 			newEnv.put("KRB5CCNAME", this.obtainKerberosCache(username, verbose));
@@ -64,8 +71,11 @@ public class FullyDistributedExecutor extends Executor {
 	 * 						surrounded by whitespace.
 	 * @param username the system username to run the command under.
 	 * @return String[] the output of running the system command.
+	 * 
+	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) {
+	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) 
+			throws Exception {
 		if (this.isHeadless(username)) {
 			Map<String, String> newEnv = new HashMap<String, String>();
 			newEnv.put("KRB5CCNAME", this.obtainKerberosCache(username));
@@ -82,8 +92,11 @@ public class FullyDistributedExecutor extends Executor {
 	 * @param user the user to authenticate
 	 * @param verbose true for on, false for off. Default value is false.
 	 * @return String the Kerberos cache.
+	 * 
+	 * @throws Exception if there is a fatal error running the process.
 	 */
-	private String obtainKerberosCache(String user, boolean verbose) {		
+	private String obtainKerberosCache(String user, boolean verbose) 
+			throws Exception {		
 		if (verbose) {
 			TestSession.logger.info("Setup Kerberos for user '"+user+"':");
 		}
@@ -114,8 +127,11 @@ public class FullyDistributedExecutor extends Executor {
 	 * 
 	 * @param user the user to authenticate
 	 * @return String the Kerberos cache.
+	 * 
+	 * @throws Exception if there is a fatal error running the process.
 	 */
-	private String obtainKerberosCache(String user) {
+	private String obtainKerberosCache(String user) 
+			throws Exception {
 		return obtainKerberosCache(user, true);
 	}
 }

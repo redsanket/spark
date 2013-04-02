@@ -8,6 +8,7 @@ import hadooptest.TestSession;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,53 +44,44 @@ public class FailJob extends Job {
 	/**
 	 * Submit a fail job to the cluster.  This should only be called 
 	 * by the Job.start() to keep the Job threaded.
+	 * 
+	 * @throws Exception if there is a fatal error running the job process, or 
+	 *         the InputStream can not be read.
 	 */
-	protected void submit() {
+	protected void submit() 
+			throws Exception {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
-		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
-			BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
-			String line=reader.readLine(); 
+		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+		BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
+		String line=reader.readLine(); 
 
-			while(line!=null) 
-			{ 
-				TestSession.logger.debug(line);
+		while(line!=null) 
+		{ 
+			TestSession.logger.debug(line);
 
-				Matcher jobMatcher = jobPattern.matcher(line);
+			Matcher jobMatcher = jobPattern.matcher(line);
 
-				if (jobMatcher.find()) {
-					this.ID = jobMatcher.group(1);
-					TestSession.logger.debug("JOB ID: " + this.ID);
-					break;
-				}
-
-				line=reader.readLine();
-			} 
-		}
-		catch (Exception e) {
-			if (this.process != null) {
-				this.process.destroy();
+			if (jobMatcher.find()) {
+				this.ID = jobMatcher.group(1);
+				TestSession.logger.debug("JOB ID: " + this.ID);
+				break;
 			}
-			e.printStackTrace();
+
+			line=reader.readLine();
 		}
 	}
 
 	/**
 	 * Submit a fail job to the cluster, and don't wait for the ID.  This should
 	 * only be called by the Job.start() to keep the Job threaded.
+	 * 
+	 * @throws Exception if there is a fatal error running the job process.
 	 */
-	protected void submitNoID() {
-		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
-		}
-		catch (Exception e) {
-			if (this.process != null) {
-				this.process.destroy();
-			}
-			e.printStackTrace();
-		}
+	protected void submitNoID()
+			throws Exception {
+		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
 	}
 
 	/**

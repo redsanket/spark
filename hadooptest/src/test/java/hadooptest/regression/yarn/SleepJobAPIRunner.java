@@ -2,6 +2,8 @@ package hadooptest.regression.yarn;
 
 import hadooptest.TestSession;
 
+import static org.junit.Assert.fail;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,11 +26,11 @@ public class SleepJobAPIRunner extends TestSession {
 	 */
 	@Test
 	public void runSleepTest() {
-		String[] args = { "-m", "1", "-r", "1", "-mt", "1", "-rt", "1"};
-		Configuration conf = TestSession.cluster.getConf();
-		
-		int rc;
 		try {
+			String[] args = { "-m", "1", "-r", "1", "-mt", "1", "-rt", "1"};
+			Configuration conf = TestSession.cluster.getConf();
+
+			int rc;
 			this.cluster.setSecurityAPI("keytab-hadoop1", "user-hadoop1");
 			rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
@@ -36,14 +38,14 @@ public class SleepJobAPIRunner extends TestSession {
 			}
 
 			this.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
-		    rc = ToolRunner.run(conf, new SleepJob(), args);
+			rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
 				TestSession.logger.error("Job failed!!!");
 			}
 		}
 		catch (Exception e) {
-			TestSession.logger.error("Job failed!!!");
-			e.printStackTrace();
+			TestSession.logger.error("Job failed!!!", e);
+			fail();
 		}
 	}	
 

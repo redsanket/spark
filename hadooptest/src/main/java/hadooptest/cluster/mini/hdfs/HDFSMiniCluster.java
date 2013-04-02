@@ -15,6 +15,7 @@ import hadooptest.config.testconfig.MiniclusterConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Hashtable;
 
 /**
@@ -28,8 +29,7 @@ public class HDFSMiniCluster extends MiniCluster {
 
    protected Hashtable<String, String> paths = new Hashtable<String, String>();
    
-   public HDFSMiniCluster()
-   {
+   public HDFSMiniCluster() throws UnknownHostException {
       this.conf = new MiniclusterConfiguration(); 
    }
 

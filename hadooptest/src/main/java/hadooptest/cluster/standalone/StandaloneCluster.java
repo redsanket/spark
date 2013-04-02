@@ -33,7 +33,8 @@ public class StandaloneCluster extends Cluster {
 	 * 
 	 * Creates a brand new default PseudoDistributedConfiguration, and writes out the configuration to disk.
 	 */
-	public StandaloneCluster() {
+	public StandaloneCluster() 
+			throws InterruptedException, IOException, Exception {
 		this.conf = new StandaloneConfiguration();
 		super.initNodes();
 	}
@@ -44,7 +45,7 @@ public class StandaloneCluster extends Cluster {
 	 * Accepts a custom configuration, and assumed you will write it to disk.
 	 */
 	public StandaloneCluster(StandaloneConfiguration conf)
-	{
+			throws InterruptedException, IOException, Exception {
 		this.conf = conf;
 		super.initNodes();
 	}

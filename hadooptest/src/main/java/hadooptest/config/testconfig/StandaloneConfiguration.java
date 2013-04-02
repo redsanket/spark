@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
@@ -29,7 +30,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 	 * configuration parameters for a standalone cluster under test.  Hadoop
 	 * default configuration is not used.
 	 */
-	public StandaloneConfiguration() {
+	public StandaloneConfiguration() throws UnknownHostException {
 		super(false);
 
 		initDefaults();
@@ -45,7 +46,8 @@ public class StandaloneConfiguration extends TestConfiguration {
 	 * @param loadDefaults whether or not to load the default configuration parameters
 	 * specified by the Hadoop installation, before loading the class configuration defaults.
 	 */
-	public StandaloneConfiguration(boolean loadDefaults) {
+	public StandaloneConfiguration(boolean loadDefaults) 
+			throws UnknownHostException {
 		super(loadDefaults); 
 
 		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
@@ -57,7 +59,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 	 * Writes the standalone cluster configuration specified by the object out
 	 * to disk.
 	 */
-	public void write() {
+	public void write() throws IOException {
 		File outdir = new File(CONFIG_BASE_DIR);
 		outdir.mkdirs();
 
@@ -71,47 +73,42 @@ public class StandaloneConfiguration extends TestConfiguration {
 		File yarn_site = new File(CONFIG_BASE_DIR + "yarn-site.xml");
 		File mapred_site = new File(CONFIG_BASE_DIR + "mapred-site.xml");		
 
-		try{
-			if (core_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(core_site);
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
-
-			if (hdfs_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(hdfs_site);
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
-
-			if (yarn_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(yarn_site);
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
-
-			if (mapred_site.createNewFile()) {
-				FileOutputStream out = new FileOutputStream(mapred_site);
-				this.writeXml(out);
-			}
-			else {
-				TestSession.logger.warn("Couldn't create the xml configuration output file.");
-			}
-
-			FileWriter slaves_file = new FileWriter(CONFIG_BASE_DIR + "slaves");
-			BufferedWriter slaves = new BufferedWriter(slaves_file);
-			slaves.write("localhost");
-			slaves.close();
+		if (core_site.createNewFile()) {
+			FileOutputStream out = new FileOutputStream(core_site);
+			this.writeXml(out);
 		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem writing the hadoop configuration to disk.");
+		else {
+			TestSession.logger.warn("Couldn't create the xml configuration output file.");
 		}
+
+		if (hdfs_site.createNewFile()) {
+			FileOutputStream out = new FileOutputStream(hdfs_site);
+			this.writeXml(out);
+		}
+		else {
+			TestSession.logger.warn("Couldn't create the xml configuration output file.");
+		}
+
+		if (yarn_site.createNewFile()) {
+			FileOutputStream out = new FileOutputStream(yarn_site);
+			this.writeXml(out);
+		}
+		else {
+			TestSession.logger.warn("Couldn't create the xml configuration output file.");
+		}
+
+		if (mapred_site.createNewFile()) {
+			FileOutputStream out = new FileOutputStream(mapred_site);
+			this.writeXml(out);
+		}
+		else {
+			TestSession.logger.warn("Couldn't create the xml configuration output file.");
+		}
+
+		FileWriter slaves_file = new FileWriter(CONFIG_BASE_DIR + "slaves");
+		BufferedWriter slaves = new BufferedWriter(slaves_file);
+		slaves.write("localhost");
+		slaves.close();
 	}
 
 	/**

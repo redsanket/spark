@@ -127,8 +127,10 @@ public class StreamingJob extends Job {
 	/**
 	 * Submit the job.  This should be done only by the Job.start() as Job should
 	 * remain threaded.
+	 * 
+	 * @throws Exception if there is a fatal error running the process to submit the job.
 	 */
-	protected void submit() {
+	protected void submit() throws Exception {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
@@ -156,15 +158,19 @@ public class StreamingJob extends Job {
 			if (this.process != null) {
 				this.process.destroy();
 			}
-			e.printStackTrace();
+			
+			TestSession.logger.error("Exception " + e.getMessage(), e);
+			throw e;
 		}
 	} 
 
 	/**
 	 * Submit the job and don't wait for the ID.  This should be done only by the Job.start() as Job should
 	 * remain threaded.
+	 * 
+	 * @throws Exception if there is a fatal error running the process to submit the job.
 	 */
-	protected void submitNoID() {
+	protected void submitNoID() throws Exception {
 		try {
 			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
 		}
@@ -172,7 +178,9 @@ public class StreamingJob extends Job {
 			if (this.process != null) {
 				this.process.destroy();
 			}
-			e.printStackTrace();
+			
+			TestSession.logger.error("Exception " + e.getMessage(), e);
+			throw e;
 		}
 	} 
 

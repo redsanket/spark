@@ -1,6 +1,7 @@
 package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.job.FailJob;
@@ -29,28 +30,34 @@ public class JobSummaryInfo extends TestSession {
 	 */
 	@After
 	public void resetClusterState() {
-		if (sleepJob != null) {
-			if (sleepJob.getID() != "0" && sleepJob.kill()) {
-				logger.info("Cleaned up latent job by killing it: " + sleepJob.getID());
+		try {
+			if (sleepJob != null) {
+				if (sleepJob.getID() != "0" && sleepJob.kill()) {
+					logger.info("Cleaned up latent job by killing it: " + sleepJob.getID());
+				}
+				else {
+					logger.info("Sleep job never started, no need to clean up.");
+				}
 			}
 			else {
-				logger.info("Sleep job never started, no need to clean up.");
+				logger.info("Job was already killed or never started, no need to clean up.");
 			}
-		}
-		else {
-			logger.info("Job was already killed or never started, no need to clean up.");
-		}
-		
-		if (failJob != null) {
-			if (failJob.getID() != "0" && failJob.kill()) {
-				logger.info("Cleaned up latent job by killing it: " + failJob.getID());
+
+			if (failJob != null) {
+				if (failJob.getID() != "0" && failJob.kill()) {
+					logger.info("Cleaned up latent job by killing it: " + failJob.getID());
+				}
+				else {
+					logger.info("Fail job never started, no need to clean up.");
+				}
 			}
 			else {
-				logger.info("Fail job never started, no need to clean up.");
+				logger.info("Job was already killed or never started, no need to clean up.");
 			}
 		}
-		else {
-			logger.info("Job was already killed or never started, no need to clean up.");
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
 		}
 	}
 	
@@ -61,25 +68,31 @@ public class JobSummaryInfo extends TestSession {
 	 */
 	@Ignore("Known not working.")
 	@Test
-	public void JobSummaryInfoSuccess() throws IOException, FileNotFoundException {
-		sleepJob = new SleepJob();
+	public void JobSummaryInfoSuccess() {
+		try {
+			sleepJob = new SleepJob();
 
-		sleepJob.setNumMappers(10);
-		sleepJob.setNumReducers(10);
-		sleepJob.setMapDuration(500);
-		sleepJob.setReduceDuration(500);
-		
-		sleepJob.start();
-		
-		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
-				sleepJob.waitForID(5));
-		assertTrue("Sleep job ID is invalid.", 
-				sleepJob.verifyID());
-		
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess());
-		
-		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("SUCCEEDED", "Sleep\\sjob", conf.getProperty("USER"), "default"));
+			sleepJob.setNumMappers(10);
+			sleepJob.setNumReducers(10);
+			sleepJob.setMapDuration(500);
+			sleepJob.setReduceDuration(500);
+
+			sleepJob.start();
+
+			assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+					sleepJob.waitForID(5));
+			assertTrue("Sleep job ID is invalid.", 
+					sleepJob.verifyID());
+
+			assertTrue("Job did not succeed.",
+					sleepJob.waitForSuccess());
+
+			assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("SUCCEEDED", "Sleep\\sjob", conf.getProperty("USER"), "default"));
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -89,27 +102,34 @@ public class JobSummaryInfo extends TestSession {
 	 */
 	@Ignore("Known not working.")
 	@Test
-	public void JobSummaryInfoHighRAM() throws IOException, FileNotFoundException  {
-		sleepJob = new SleepJob();
-	
-		sleepJob.setNumMappers(10);
-		sleepJob.setNumReducers(10);
-		sleepJob.setMapDuration(500);
-		sleepJob.setReduceDuration(500);
-		sleepJob.setMapMemory(6144);
-		sleepJob.setReduceMemory(8192);
-		
-		sleepJob.start();
+	public void JobSummaryInfoHighRAM() {
+		try {
+			sleepJob = new SleepJob();
 
-		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
-				sleepJob.waitForID(5));
-		assertTrue("Sleep job ID is invalid.", 
-				sleepJob.verifyID());
-		
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess());
-		
-		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("SUCCEEDED", "Sleep\\sjob", conf.getProperty("USER"), "default"));
+			sleepJob.setNumMappers(10);
+			sleepJob.setNumReducers(10);
+			sleepJob.setMapDuration(500);
+			sleepJob.setReduceDuration(500);
+			sleepJob.setMapMemory(6144);
+			sleepJob.setReduceMemory(8192);
+
+			sleepJob.start();
+
+			assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+					sleepJob.waitForID(5));
+			assertTrue("Sleep job ID is invalid.", 
+					sleepJob.verifyID());
+
+			assertTrue("Job did not succeed.",
+					sleepJob.waitForSuccess());
+
+			assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("SUCCEEDED", "Sleep\\sjob", conf.getProperty("USER"), "default"));
+
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -119,23 +139,29 @@ public class JobSummaryInfo extends TestSession {
 	 */
 	@Ignore("Known not working.")
 	@Test
-	public void JobSummaryInfoMappersFailed() throws IOException, FileNotFoundException {
-		failJob = new FailJob();
-		
-		failJob.setMappersFail(true);
-		failJob.setReducersFail(false);
-		
-		failJob.start();
-		
-		assertTrue("Fail job was not assigned an ID within 5 seconds.", 
-				failJob.waitForID(5));
-		assertTrue("Fail job ID is invalid.", 
-				failJob.verifyID());
-		
-		assertFalse("Job did not fail.",
-				failJob.waitForSuccess());
-		
-		assertTrue("Did not find job summary info.", failJob.findSummaryInfo("FAILED", "Fail\\sjob", conf.getProperty("USER"), "default"));
+	public void JobSummaryInfoMappersFailed() {
+		try {
+			failJob = new FailJob();
+
+			failJob.setMappersFail(true);
+			failJob.setReducersFail(false);
+
+			failJob.start();
+
+			assertTrue("Fail job was not assigned an ID within 5 seconds.", 
+					failJob.waitForID(5));
+			assertTrue("Fail job ID is invalid.", 
+					failJob.verifyID());
+
+			assertFalse("Job did not fail.",
+					failJob.waitForSuccess());
+
+			assertTrue("Did not find job summary info.", failJob.findSummaryInfo("FAILED", "Fail\\sjob", conf.getProperty("USER"), "default"));
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -145,23 +171,29 @@ public class JobSummaryInfo extends TestSession {
 	 */
 	@Ignore("Known not working.")
 	@Test
-	public void JobSummaryInfoReducersFailed() throws IOException, FileNotFoundException {
-		failJob = new FailJob();
-		
-		failJob.setMappersFail(false);
-		failJob.setReducersFail(true);
-		
-		failJob.start();
-		
-		assertTrue("Fail job was not assigned an ID within 5 seconds.", 
-				failJob.waitForID(5));
-		assertTrue("Fail job ID is invalid.", 
-				failJob.verifyID());
-		
-		assertFalse("Job did not fail.",
-				failJob.waitForSuccess());
-		
-		assertTrue("Did not find job summary info.", failJob.findSummaryInfo("FAILED", "Fail\\sjob", conf.getProperty("USER"), "default"));	
+	public void JobSummaryInfoReducersFailed() {
+		try {
+			failJob = new FailJob();
+
+			failJob.setMappersFail(false);
+			failJob.setReducersFail(true);
+
+			failJob.start();
+
+			assertTrue("Fail job was not assigned an ID within 5 seconds.", 
+					failJob.waitForID(5));
+			assertTrue("Fail job ID is invalid.", 
+					failJob.verifyID());
+
+			assertFalse("Job did not fail.",
+					failJob.waitForSuccess());
+
+			assertTrue("Did not find job summary info.", failJob.findSummaryInfo("FAILED", "Fail\\sjob", conf.getProperty("USER"), "default"));	
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -171,26 +203,32 @@ public class JobSummaryInfo extends TestSession {
 	 */
 	@Ignore("Known not working.")
 	@Test
-	public void JobSummaryInfoDifferentUser() throws IOException, FileNotFoundException {
-		sleepJob = new SleepJob();
-		
-		sleepJob.setUser("testuser");
-		sleepJob.setNumMappers(10);
-		sleepJob.setNumReducers(10);
-		sleepJob.setMapDuration(500);
-		sleepJob.setReduceDuration(500);
-		
-		sleepJob.start();
+	public void JobSummaryInfoDifferentUser() {
+		try {
+			sleepJob = new SleepJob();
 
-		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
-				sleepJob.waitForID(5));
-		assertTrue("Sleep job ID is invalid.", 
-				sleepJob.verifyID());
+			sleepJob.setUser("testuser");
+			sleepJob.setNumMappers(10);
+			sleepJob.setNumReducers(10);
+			sleepJob.setMapDuration(500);
+			sleepJob.setReduceDuration(500);
 
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess());
-		
-		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("FAILED", "Sleep\\sjob", "testuser", "default"));	
+			sleepJob.start();
+
+			assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+					sleepJob.waitForID(5));
+			assertTrue("Sleep job ID is invalid.", 
+					sleepJob.verifyID());
+
+			assertTrue("Job did not succeed.",
+					sleepJob.waitForSuccess());
+
+			assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("FAILED", "Sleep\\sjob", "testuser", "default"));	
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -201,26 +239,32 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoDifferentQueue() throws IOException, FileNotFoundException {
-		// Start sleep job with mapreduce.job.queuename=grideng 
-		sleepJob = new SleepJob();
-		
-		sleepJob.setQueue("testQueue");
-		sleepJob.setNumMappers(10);
-		sleepJob.setNumReducers(10);
-		sleepJob.setMapDuration(500);
-		sleepJob.setReduceDuration(500);
-		
-		sleepJob.start();
+		try {
+			// Start sleep job with mapreduce.job.queuename=grideng 
+			sleepJob = new SleepJob();
 
-		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
-				sleepJob.waitForID(5));
-		assertTrue("Sleep job ID is invalid.", 
-				sleepJob.verifyID());
+			sleepJob.setQueue("testQueue");
+			sleepJob.setNumMappers(10);
+			sleepJob.setNumReducers(10);
+			sleepJob.setMapDuration(500);
+			sleepJob.setReduceDuration(500);
 
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess());
-		
-		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("FAILED", "Sleep\\sjob", conf.getProperty("USER"), "testQueue"));	
+			sleepJob.start();
+
+			assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+					sleepJob.waitForID(5));
+			assertTrue("Sleep job ID is invalid.", 
+					sleepJob.verifyID());
+
+			assertTrue("Job did not succeed.",
+					sleepJob.waitForSuccess());
+
+			assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("FAILED", "Sleep\\sjob", conf.getProperty("USER"), "testQueue"));	
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -231,24 +275,30 @@ public class JobSummaryInfo extends TestSession {
 	@Ignore("Known not working.")
 	@Test
 	public void JobSummaryInfoKilledJob() throws IOException, FileNotFoundException {
-		sleepJob = new SleepJob();
-		
-		sleepJob.setNumMappers(10);
-		sleepJob.setNumReducers(10);
-		sleepJob.setMapDuration(500);
-		sleepJob.setReduceDuration(500);
-		
-		sleepJob.start();
+		try {
+			sleepJob = new SleepJob();
 
-		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
-				sleepJob.waitForID(5));
-		assertTrue("Sleep job ID is invalid.", 
-				sleepJob.verifyID());
-		
-		assertTrue("Was not able to kill the job.", 
-				sleepJob.kill());
-		
-		assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("KILLED", "Sleep\\sjob", conf.getProperty("USER"), "default"));
+			sleepJob.setNumMappers(10);
+			sleepJob.setNumReducers(10);
+			sleepJob.setMapDuration(500);
+			sleepJob.setReduceDuration(500);
+
+			sleepJob.start();
+
+			assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+					sleepJob.waitForID(5));
+			assertTrue("Sleep job ID is invalid.", 
+					sleepJob.verifyID());
+
+			assertTrue("Was not able to kill the job.", 
+					sleepJob.kill());
+
+			assertTrue("Did not find job summary info.", sleepJob.findSummaryInfo("KILLED", "Sleep\\sjob", conf.getProperty("USER"), "default"));
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 
 }

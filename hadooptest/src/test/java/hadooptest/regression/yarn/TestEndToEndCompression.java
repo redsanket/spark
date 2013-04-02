@@ -151,7 +151,7 @@ public class TestEndToEndCompression extends TestSession {
         jobVector.get(1).waitForSuccess(3);
 	}
 		
-	public static String[] runHadoopExampleJar(String[] jarCmd) {
+	public static String[] runHadoopExampleJar(String[] jarCmd) throws Exception {
 		String[] jobCmd = {
 			TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
 			"--config",

@@ -26,6 +26,8 @@ public class DFS {
 	 * Performs a filesystem ls given a path, with no extra ls args.
 	 * 
 	 * @param path The filesystem path.
+	 * 
+	 * @throws Exception if the fs ls fails.
 	 */
 	public void fsls(String path) throws Exception {
 		fsls(path, null);
@@ -37,6 +39,8 @@ public class DFS {
 	 * 
 	 * @param path The filesystem path.
 	 * @param args Extra arguments to attach to the fs ls.
+	 * 
+	 * @throws Exception if the method can't get the FS shell.
 	 */
 	public void fsls(String path, String[] args) throws Exception {
 		TestSession.logger.debug("Show HDFS path: '" + path + "':");
@@ -62,6 +66,8 @@ public class DFS {
 	 * Form a base URL for an HDFS cluster.
 	 * 
 	 * @return String the base URL for the HDFS cluster.
+	 * 
+	 * @throws Exception if we can not get the cluster namenode.
 	 */
 	public String getBaseUrl() throws Exception {
 		return "hdfs://" + TestSession.cluster.getNodes("namenode")[0];
@@ -75,7 +81,7 @@ public class DFS {
 	 * 
 	 * @param path The new DFS path.
 	 * 
-	 * @throws Exception
+	 * @throws Exception if we can not make the new directory.
 	 */
 	public void mkdir(String path) throws Exception {
 		FileSystem fs = TestSession.cluster.getFS();

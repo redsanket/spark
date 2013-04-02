@@ -9,8 +9,7 @@ import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.MiniclusterConfiguration;
 
 import java.io.IOException;
-
-import org.apache.hadoop.fs.FileSystem;
+import java.net.UnknownHostException;
 
 /**
  * Cluster instance to represent a base mini cluster.
@@ -23,7 +22,7 @@ public abstract class MiniCluster extends Cluster {
 	protected ClusterState clusterState;
 	protected String clusterVersion = "";
 
-   public boolean start() {
+   public boolean start() throws UnknownHostException {
       this.conf = new MiniclusterConfiguration();
       return startMiniClusterService(this.conf);
 

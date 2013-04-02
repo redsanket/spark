@@ -10,6 +10,8 @@
 
 package hadooptest.config.testconfig;
 
+import java.net.UnknownHostException;
+
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
@@ -21,15 +23,13 @@ import hadooptest.config.TestConfiguration;
 public class MockConfiguration extends TestConfiguration
 {
 
-   public MockConfiguration()
-   {
+   public MockConfiguration() throws UnknownHostException {
       super(new StandaloneConfiguration());
 
       initDefaults();
    }
 
-   public MockConfiguration(boolean loadDefaults)
-   {
+   public MockConfiguration(boolean loadDefaults) throws UnknownHostException {
       super(new StandaloneConfiguration()); 
 
       initDefaults();

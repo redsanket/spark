@@ -1,6 +1,7 @@
 package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -26,55 +27,61 @@ public class EndToEndStreaming extends TestSession {
 	
 	@Test
 	public void testCacheArchives() {
-		int testcaseID = 10;
-		String testcaseName = "";
-		
-		String userName = System.getProperty("user.name");
-		
-		String[] publicPrivateCache = { "/tmp/streaming", "/user/$USER_ID/streaming" };
-		String[] archives = { ".jar", ".tar", ".tar.gz", ".tgz", ".zip" };
-		
-		int i, j;
-		for(i = 0; i < publicPrivateCache.length; i++) {
-			for(j = 0; j < archives.length; j++) {
-				this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-				this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-				this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-				this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + testcaseID);
-				
-				String cacheInCommand = publicPrivateCache[i] + "/" + testcaseID;
+		try {
+			int testcaseID = 10;
+			String testcaseName = "";
 
-				this.logger.info("Streaming-" + testcaseID + " - Test to check the -cacheArchive option for " + archives[j] + " file on " + publicPrivateCache[i]);
-				
-				this.putLocalToHdfs(
-						this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/cachedir" + archives[j]), 
-						cacheInCommand + "/cachedir" + archives[j]);
-				this.putLocalToHdfs(
-						this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + "/input.txt");
+			String userName = System.getProperty("user.name");
 
-				StreamingJob job = new StreamingJob();
-				job.setNumMappers(1);
-				job.setNumReducers(1);
-				job.setName("streamingTest-" + testcaseID);
-				job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-				job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/input.txt");
-				job.setMapper("\"xargs cat\"");
-				job.setReducer("cat");
-				job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/Output");
-				job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + "/cachedir" + archives[j] + "#testlink");
-				
-				job.start();
-				
-				assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-						job.waitForID(30));
-				assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-						job.verifyID());
-				
-				this.validateOutput(testcaseID);
+			String[] publicPrivateCache = { "/tmp/streaming", "/user/$USER_ID/streaming" };
+			String[] archives = { ".jar", ".tar", ".tar.gz", ".tgz", ".zip" };
 
-				testcaseID = testcaseID + 10;
+			int i, j;
+			for(i = 0; i < publicPrivateCache.length; i++) {
+				for(j = 0; j < archives.length; j++) {
+					this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+					this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+					this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+					this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + testcaseID);
+
+					String cacheInCommand = publicPrivateCache[i] + "/" + testcaseID;
+
+					this.logger.info("Streaming-" + testcaseID + " - Test to check the -cacheArchive option for " + archives[j] + " file on " + publicPrivateCache[i]);
+
+					this.putLocalToHdfs(
+							this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/cachedir" + archives[j]), 
+							cacheInCommand + "/cachedir" + archives[j]);
+					this.putLocalToHdfs(
+							this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/input.txt"), 
+							"/tmp/streaming/streaming-" + testcaseID + "/input.txt");
+
+					StreamingJob job = new StreamingJob();
+					job.setNumMappers(1);
+					job.setNumReducers(1);
+					job.setName("streamingTest-" + testcaseID);
+					job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+					job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/input.txt");
+					job.setMapper("\"xargs cat\"");
+					job.setReducer("cat");
+					job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/Output");
+					job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + "/cachedir" + archives[j] + "#testlink");
+
+					job.start();
+
+					assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
+							job.waitForID(30));
+					assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
+							job.verifyID());
+
+					this.validateOutput(testcaseID);
+
+					testcaseID = testcaseID + 10;
+				}
 			}
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
 		}
 	}
 	
@@ -93,7 +100,7 @@ public class EndToEndStreaming extends TestSession {
 		
 	}
 	
-	private void validateOutput(int testcaseID) {
+	private void validateOutput(int testcaseID) throws Exception {
 		String[] catCmd = {
 				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN"),
 				"--config", TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),

@@ -3,6 +3,7 @@ package hadooptest.regression;
 import hadooptest.TestSession;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import hadooptest.SerialTests;
 import org.junit.experimental.categories.Category;
@@ -15,9 +16,15 @@ public class ClusterReset extends TestSession {
 
 	@Test
 	public void resetCluster() {
-		TestSession.start();
-		
-		assertTrue("The cluster did not successfully reset.", cluster.reset());
+		try {
+			TestSession.start();
+
+			assertTrue("The cluster did not successfully reset.", cluster.reset());
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 }

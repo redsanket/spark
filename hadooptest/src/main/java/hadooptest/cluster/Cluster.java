@@ -14,6 +14,7 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.security.SecurityUtil;
 
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.config.TestConfiguration;
 
 /**
@@ -35,50 +36,55 @@ public abstract class Cluster {
 	 * Default is true. 
 	 * 
 	 * @return boolean true for success and false for failure.
+	 * 
+	 * @throws Exception if there is a fatal error in starting the cluster.
 	 */
-	public abstract boolean start(boolean waitForSafemodeOff);
+	public abstract boolean start(boolean waitForSafemodeOff) 
+			throws Exception;
 
 	/**
 	 * Stop the cluster, shut it down cleanly to a state from which
 	 * it can be restarted.
 	 * 
 	 * @return boolean true for success and false for failure.
-	 */
-	public abstract boolean stop();
-
-	/**
-	 * Kill the cluster irrespective of the state it is left in.
-	 */
-	public abstract void die();
-
-	/**
-	 * Reset the cluster to a default state with the current 
-	 * configuration, without stopping or killing it.
 	 * 
-	 * @return boolean true for success and false for failure.
-	 */ 
+	 * @throws Exception if there is a fatal error in starting the cluster.
+	 */
+	public abstract boolean stop() 
+			throws Exception;
 
 	/**
 	 * Get the current state of the cluster.
 	 * 
 	 * @return ClusterState the state of the cluster.
+	 * 
+	 * @throws Exception if there is a fatal error getting
+	 * 	       the cluster state.
 	 */
-	public abstract ClusterState getState();
+	public abstract ClusterState getState()
+			throws Exception;
 
 	/**
 	 * Check to see if all of the cluster daemons are running.
 	 * 
 	 * @return boolean true if all cluster daemons are running.
+	 * 
+	 * @throws Exception if there is a fatal error checking 
+	 *         cluster state.
 	 */
-	public abstract boolean isFullyUp();
+	public abstract boolean isFullyUp()
+			throws Exception;
 
 	/**
 	 * Check to see if all of the cluster daemons are stopped.
 	 * 
 	 * @return boolean true if all cluster daemons are stopped.
+	 * 
+	 * @throws Exception if there is a fatal error checking
+	 *         cluster state.
 	 */
-	public abstract boolean isFullyDown();
-
+	public abstract boolean isFullyDown()
+			throws Exception;
 
 	/**
 	 * Get the current state of the cluster.
@@ -107,18 +113,14 @@ public abstract class Cluster {
 	 * 
 	 * @param keytab the keytab (like "keytab-hadoopqa")
 	 * @param user the user (like "user-hadoopqa")
+	 * 
+	 * @throws IOException if cluster security can't be initialized.
 	 */
-	public void setSecurityAPI(String keytab, String user) {
-		try {
-			TestSession.logger.info("Initializing Hadoop security");
-			TestSession.logger.debug("Keytab = " + keytab);
-			TestSession.logger.debug("User = " + user);
-			SecurityUtil.login(TestSession.cluster.getConf(), keytab, user);
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("Could not initialize Hadoop Security.");
-			ioe.printStackTrace();
-		}
+	public void setSecurityAPI(String keytab, String user) throws IOException {
+		TestSession.logger.info("Initializing Hadoop security");
+		TestSession.logger.debug("Keytab = " + keytab);
+		TestSession.logger.debug("User = " + user);
+		SecurityUtil.login(TestSession.cluster.getConf(), keytab, user);
 	}
 	
 	/**
@@ -138,7 +140,13 @@ public abstract class Cluster {
 		return;
 	}
 
-	public void initFDCNodes() {
+	/**
+	 * Initializes FDC nodes.
+	 * 
+	 * @throws Exception if the datanode can not be initialized.
+	 */
+	public void initFDCNodes() 
+			throws Exception {
 		nodes.put("admin", new String[] {
 				"adm102.blue.ygrid.yahoo.com",
 		"adm103.blue.ygrid.yahoo.com"});
@@ -165,8 +173,11 @@ public abstract class Cluster {
 	/**
 	 * Initialize the cluster nodes hostnames for the namenode,
 	 * resource manager, datanode, and nodemanager. 
+	 * 
+	 * @throws Exception if the datanode can not be initialized.
 	 */
-	public void initNodes() {
+	public void initNodes() 
+			throws Exception {
 		// Retrieve the cluster type from the framework configuration file.
 		// This should be in the format of package.package.class
 		String strClusterType = TestSession.conf.getProperty("CLUSTER_TYPE");
@@ -195,8 +206,12 @@ public abstract class Cluster {
 	 * @param file the file name. 
 	 * 
 	 * @return String Array of host names.
+	 * 
+	 * @throws Exception if the ssh process to cat the namenode hostname
+	 *         file fails in a fatal manner.
 	 */
-	private String[] getHostsFromList(String namenode, String file) {
+	private String[] getHostsFromList(String namenode, String file) 
+			throws Exception {
 		String[] output = TestSession.exec.runProcBuilder(
 				new String[] {"ssh", namenode, "/bin/cat", file});
 		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
@@ -230,8 +245,11 @@ public abstract class Cluster {
 	 * Start the cluster from a stopped state.
 	 *
 	 * @return boolean true for success and false for failure.
+	 * 
+	 * @throws Exception if there is a fatal error starting the cluster.
 	 */
-	public boolean start() {
+	public boolean start() 
+			throws Exception {
 		return start(true);
 	}
 	
@@ -239,8 +257,12 @@ public abstract class Cluster {
 	 * Restart the cluster.
 	 * 
 	 * @return boolean true for success and false for failure.
+	 * 
+	 * @throws Exception if there is a fatal error stopping or
+	 *         starting the cluster.
 	 */
-	public boolean reset() {	
+	public boolean reset() 
+			throws Exception {	
 		boolean stopped = this.stop();
 		boolean started = this.start();
 		return (stopped && started);
@@ -250,6 +272,8 @@ public abstract class Cluster {
 	 * Get the cluster Hadoop file system.
 	 * 
 	 * @return FileSystem for the cluster instance.
+	 * 
+	 * @throws IOException if we can not get the Hadoop FS.
 	 */
 	public FileSystem getFS() throws IOException {
 		return FileSystem.get(this.getConf());
@@ -259,6 +283,8 @@ public abstract class Cluster {
 	 * Get the cluster Hadoop file system shell.
 	 * 
 	 * @return FS Shell for the cluster instance.
+	 * 
+	 * @throws IOException if we can not get the Hadoop FS shell.
 	 */
 	public FsShell getFsShell() throws IOException {
 		return new FsShell(this.getConf());
@@ -268,8 +294,12 @@ public abstract class Cluster {
 	 * Wait for the safemode on the namenode to be OFF. 
 	 * 
 	 * @return boolean true if safemode is OFF, or false if safemode is ON.
+	 * 
+	 * @throws Exception if there is a fatal error when waiting to turn
+	 *         safe mode off.
 	 */
-	public boolean waitForSafemodeOff() {
+	public boolean waitForSafemodeOff() 
+			throws Exception {
 		return waitForSafemodeOff(-1, null);
 	}
 
@@ -280,8 +310,12 @@ public abstract class Cluster {
 	 * @param fs file system under test
 	 * 
 	 * @return boolean true if safemode is OFF, or false if safemode is ON.
+	 * 
+	 * @throws Exception if there is a fatal error when waiting to turn
+	 *         safe mode off.
 	 */
-	public boolean waitForSafemodeOff(int timeout, String fs) {
+	public boolean waitForSafemodeOff(int timeout, String fs) 
+			throws Exception {
 		return waitForSafemodeOff(timeout, fs, false);
 	}
 
@@ -293,8 +327,12 @@ public abstract class Cluster {
 	 * @param verbose true for on, false for off.
 	 * 
 	 * @return boolean true if safemode is OFF, or false if safemode is ON.
+	 * 
+	 * @throws Exception if there is a fatal error in the process to 
+	 *         check safe mode state, or the thread is not able to sleep.
 	 */
-	public boolean waitForSafemodeOff(int timeout, String fs, boolean verbose) {
+	public boolean waitForSafemodeOff(int timeout, String fs, boolean verbose) 
+			throws Exception {
 
 		if (timeout < 0) {
 			int defaultTimeout = 300;
@@ -321,12 +359,9 @@ public abstract class Cluster {
 		int i=1;
 		while ((timeout > 0) && (!isSafemodeOff)) {
 			TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i + ": WAIT " + waitTime + "s:" );
-			try {
-				Thread.sleep(waitTime*1000);
-			} catch  (InterruptedException e) {
-				TestSession.logger.error("Encountered Interrupted Exception: " +
-						e.toString());
-			}
+
+			Util.sleep(waitTime);
+			
 			output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
 			isSafemodeOff = 
 					(output[1].trim().contains("Safe mode is OFF")) ? true : false;

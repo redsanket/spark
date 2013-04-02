@@ -5,6 +5,8 @@
 
 package hadooptest.config.testconfig;
 
+import java.net.UnknownHostException;
+
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 
@@ -16,15 +18,13 @@ import hadooptest.config.TestConfiguration;
 public class MiniclusterConfiguration extends TestConfiguration
 {
 
-   public MiniclusterConfiguration()
-   {
+   public MiniclusterConfiguration() throws UnknownHostException {
       super(new StandaloneConfiguration());
 
       initDefaults();
    }
 
-   public MiniclusterConfiguration(boolean loadDefaults)
-   {
+   public MiniclusterConfiguration(boolean loadDefaults) throws UnknownHostException {
       super(new StandaloneConfiguration()); 
 
       initDefaults();

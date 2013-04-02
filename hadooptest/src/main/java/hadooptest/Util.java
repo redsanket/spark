@@ -10,13 +10,10 @@ public class Util {
 	 * Sleeps the current thread for the specified number of seconds.
 	 * 
 	 * @param seconds the number of seconds to sleep the current thread.
+	 * 
+	 * @throws InterruptedException if it can not sleep the current Thread.
 	 */
-	public static void sleep(int seconds) {
-		try {
-			Thread.currentThread().sleep(seconds * 1000);
-		}
-		catch (InterruptedException ie) {
-			TestSession.logger.error("Couldn't sleep the current Thread.");
-		}
+	public static void sleep(int seconds) throws InterruptedException {
+		Thread.currentThread().sleep(seconds * 1000);
 	}
 }

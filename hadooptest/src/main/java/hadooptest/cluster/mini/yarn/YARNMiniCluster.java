@@ -12,6 +12,7 @@ import hadooptest.cluster.mini.MiniCluster;
 import hadooptest.config.TestConfiguration;
 import hadooptest.config.testconfig.MiniclusterConfiguration;
 
+import java.net.UnknownHostException;
 import java.util.Hashtable;
 
 import org.apache.hadoop.yarn.server.MiniYARNCluster;
@@ -27,7 +28,7 @@ public class YARNMiniCluster extends MiniCluster {
 
    protected Hashtable<String, String> paths = new Hashtable<String, String>();
    
-   public YARNMiniCluster() {
+   public YARNMiniCluster() throws UnknownHostException {
       this.conf = new MiniclusterConfiguration();
    }
 

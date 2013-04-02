@@ -6,6 +6,7 @@ package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.config.TestConfiguration;
 import hadooptest.job.SleepJob;
@@ -14,6 +15,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
 
 /*
  * A test suite used to exercise the ability to kill task attempts from a MapReduce sleep job.
@@ -42,18 +45,24 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Before
 	public void initTestJob() {
-		sleepJob = new SleepJob();
-		
-		sleepJob.setNumMappers(5);
-		sleepJob.setNumReducers(5);
-		sleepJob.setMapDuration(500);
-		sleepJob.setReduceDuration(500);
-		
-		sleepJob.start();
-		assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
-				sleepJob.waitForID(5));
-		assertTrue("Sleep job ID is invalid.", 
-				sleepJob.verifyID());
+		try{
+			sleepJob = new SleepJob();
+
+			sleepJob.setNumMappers(5);
+			sleepJob.setNumReducers(5);
+			sleepJob.setMapDuration(500);
+			sleepJob.setReduceDuration(500);
+
+			sleepJob.start();
+			assertTrue("Sleep job was not assigned an ID within 5 seconds.", 
+					sleepJob.waitForID(5));
+			assertTrue("Sleep job ID is invalid.", 
+					sleepJob.verifyID());
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -61,16 +70,22 @@ public class MapredKillTask extends TestSession {
 	 */
 	@After
 	public void resetClusterState() {
-		if (sleepJob != null) {
-			if (sleepJob.getID() != "0" && sleepJob.kill()) {
-				logger.info("Cleaned up latent job by killing it: " + sleepJob.getID());
+		try {
+			if (sleepJob != null) {
+				if (sleepJob.getID() != "0" && sleepJob.kill()) {
+					logger.info("Cleaned up latent job by killing it: " + sleepJob.getID());
+				}
+				else {
+					logger.info("Sleep job never started, no need to clean up.");
+				}
 			}
 			else {
-				logger.info("Sleep job never started, no need to clean up.");
+				logger.info("Job was already killed or never started, no need to clean up.");
 			}
 		}
-		else {
-			logger.info("Job was already killed or never started, no need to clean up.");
+		catch (IOException ioe) {
+			logger.error("Exception failure.", ioe);
+			fail();
 		}
 	}
 	
@@ -79,7 +94,13 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Test
 	public void killRunningTask() {	
-		this.killTask();
+		try{
+			this.killTask();
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -88,11 +109,16 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Test
 	public void killTaskOfAlreadyKilledJobCLI() {
-		
-		assertTrue("Was not able to kill the job.", 
-				sleepJob.killCLI());
-		
-		this.killTask();
+		try{
+			assertTrue("Was not able to kill the job.", 
+					sleepJob.killCLI());
+
+			this.killTask();
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 
 	/*
@@ -101,11 +127,16 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Test
 	public void killTaskOfAlreadyKilledJobAPI() {
-		
-		assertTrue("Was not able to kill the job.", 
-				sleepJob.kill());
-		
-		this.killTask();
+		try{
+			assertTrue("Was not able to kill the job.", 
+					sleepJob.kill());
+
+			this.killTask();
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -113,10 +144,16 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Test
 	public void killTaskOfAlreadyFailedJob() {
-		assertTrue("Was not able to fail the job.", 
-				sleepJob.fail(MAPREDUCE_MAP_MAXATTEMPTS));
+		try{
+			assertTrue("Was not able to fail the job.", 
+					sleepJob.fail(MAPREDUCE_MAP_MAXATTEMPTS));
 
-		this.killTask();
+			this.killTask();
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 	/*
@@ -125,12 +162,17 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Test
 	public void killTaskOfAlreadyCompletedJobCLI() {
-		
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccessCLI(2));
-		
-		String taskID = sleepJob.getMapTaskAttemptID();
-		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
+		try{
+			assertTrue("Job did not succeed.",
+					sleepJob.waitForSuccessCLI(2));
+
+			String taskID = sleepJob.getMapTaskAttemptID();
+			assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 
 	/*
@@ -139,21 +181,32 @@ public class MapredKillTask extends TestSession {
 	 */
 	@Test
 	public void killTaskOfAlreadyCompletedJobAPI() {
-		
-		assertTrue("Job did not succeed.",
-				sleepJob.waitForSuccess(2));
-		
-		String taskID = sleepJob.getMapTaskAttemptID();
-		assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
+		try{
+			assertTrue("Job did not succeed.",
+					sleepJob.waitForSuccess(2));
+
+			String taskID = sleepJob.getMapTaskAttemptID();
+			assertFalse("Killed task and we shouldn't have been able to.", sleepJob.killTaskAttempt(taskID));
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 
 	/*
 	 * A helper method to get the map task attempt ID, and kill the task attempt.
 	 */
 	private void killTask() {
-		String taskID = sleepJob.getMapTaskAttemptID();
-		assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
-				sleepJob.killTaskAttempt(taskID));
+		try{
+			String taskID = sleepJob.getMapTaskAttemptID();
+			assertTrue("Killed task message doesn't exist, we weren't able to kill the task.", 
+					sleepJob.killTaskAttempt(taskID));
+		}
+		catch (Exception e) {
+			logger.error("Exception failure.", e);
+			fail();
+		}
 	}
 	
 }

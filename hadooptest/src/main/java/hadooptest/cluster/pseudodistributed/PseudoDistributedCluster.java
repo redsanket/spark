@@ -29,9 +29,13 @@ public class PseudoDistributedCluster extends Cluster {
 	 * Initializes the pseudodistributed cluster and sets up a new pseudo
 	 * distributed configuration.  Writes the configuration to disk for 
 	 * initializting the cluster.
+	 * 
+	 * @throws Exception if the cluster configuration can not be initialized,
+	 *         if the configuration can not be written to disk, or if the 
+	 *         cluster nodes can not be initialized.
 	 */
-	public PseudoDistributedCluster() throws IOException
-	{
+	public PseudoDistributedCluster() 
+			throws Exception {
 		this.conf = new PseudoDistributedConfiguration();
 		this.conf.write();
 		super.initNodes();
@@ -42,9 +46,13 @@ public class PseudoDistributedCluster extends Cluster {
 	 * distributed configuration using the passed-in configuration.
 	 * 
 	 * @param conf the configuration to use for the cluster.
+	 * 
+	 * @throws Exception if the cluster configuration can not be initialized,
+	 *         if the configuration can not be written to disk, or if the 
+	 *         cluster nodes can not be initialized.
 	 */
 	public PseudoDistributedCluster(PseudoDistributedConfiguration conf)
-	{
+			throws Exception {
 		this.conf = conf;
 		super.initNodes();
 	}
@@ -66,8 +74,11 @@ public class PseudoDistributedCluster extends Cluster {
 	 * Default value is true. 
 	 * 
 	 * @return boolean true for success, false for failure.
+	 * 
+	 * @throws Exception if there is a fatal error running a process that starts a daemon node.
 	 */
-	public boolean start(boolean waitForSafemodeOff) {		
+	public boolean start(boolean waitForSafemodeOff) 
+			throws Exception {		
 		String[] start_dfs = {
 				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh", 
 				"--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
@@ -112,10 +123,13 @@ public class PseudoDistributedCluster extends Cluster {
 	 * Stops all daemons associated with the pseudodistributed cluster instance, and
 	 * verifies they have stopped with jps.
 	 * 
+	 * @throws Exceptoin if there is a fatal error running a process that stops a daemon node.
+	 * 
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#stop()
 	 */
-	public boolean stop() {
+	public boolean stop() 
+			throws Exception {
 		String[] stop_dfs = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-dfs.sh" };
 		String[] stop_yarn = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-yarn.sh" };
 		String[] stop_historyserver = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh", "stop", "historyserver" };
@@ -130,16 +144,6 @@ public class PseudoDistributedCluster extends Cluster {
 		Util.sleep(10);
 
 		return this.isFullyDown();
-	}
-
-	/**
-	 * Currently unimplemented for PseudoDistributedCluster.
-	 * 
-	 * (non-Javadoc)
-	 * @see hadooptest.cluster.Cluster#die()
-	 */
-	public void die() {
-
 	}
 
 	/**
@@ -165,10 +169,12 @@ public class PseudoDistributedCluster extends Cluster {
 	 * 
 	 * @return ClusterState the state of the cluster.
 	 * 
+	 * @throws IOException if there is a fatal error checking the state of the cluster.
+	 * 
 	 * (non-Javadoc)
 	 * @see hadooptest.cluster.Cluster#getState()
 	 */
-	public ClusterState getState() {
+	public ClusterState getState() throws IOException {
 		ClusterState clusterState = ClusterState.UNKNOWN;
 		if (this.isFullyUp()) {
 			clusterState = ClusterState.UP;
@@ -192,8 +198,11 @@ public class PseudoDistributedCluster extends Cluster {
 	 * Check to see if all of the cluster daemons are running.
 	 * 
 	 * @return boolean true if all cluster daemons are running.
+	 * 
+	 * @throws IOException if there is a fatal error checking the
+	 *         state of the cluster.
 	 */
-	public boolean isFullyUp() {
+	public boolean isFullyUp() throws IOException {
 		String[] components = {
                 "NameNode",
                 "SecondaryNameNode",
@@ -211,8 +220,11 @@ public class PseudoDistributedCluster extends Cluster {
 	 * Check to see if all of the cluster daemons are stopped.
 	 * 
 	 * @return boolean true if all cluster daemons are stopped.
+	 * 
+	 * @throws IOException if there is a fatal error checking the
+	 *         state of the cluster.
 	 */
-	public boolean isFullyDown() {
+	public boolean isFullyDown() throws IOException {
 		String[] components = {
                 "NameNode",
                 "SecondaryNameNode",
@@ -232,25 +244,29 @@ public class PseudoDistributedCluster extends Cluster {
 	 * 
 	 * @param cmd The string array of the command to process, where each element of the
 	 *                array is a whitespace-delimited element of the command string.
+	 *                
+	 * @throws Exception if there is a fatal error running the process, or if the 
+	 *         input stream can not be read.
 	 */
-	private void runProcess(String[] cmd) {
+	private void runProcess(String[] cmd) 
+			throws Exception {
 		Process proc = null;
-		
+
 		try {
 			proc = TestSession.exec.runHadoopProcBuilderGetProc(cmd, TestSession.conf.getProperty("USER", System.getProperty("user.name")));
 			BufferedReader reader=new BufferedReader(new InputStreamReader(proc.getInputStream())); 
+
 			String line=reader.readLine(); 
 			while(line!=null) 
 			{ 
 				TestSession.logger.debug(line);				
 				line=reader.readLine();
-			} 
+			}
 		}
-		catch (IOException ioe) {
+		finally {
 			if (proc != null) {
 				proc.destroy();
 			}
-			ioe.printStackTrace();
 		}
 	}
 
@@ -258,8 +274,13 @@ public class PseudoDistributedCluster extends Cluster {
 	 * Verifies, with jps, that a given process name is running.
 	 * 
 	 * @param process The String representing the name of the process to verify.
+	 * 
+	 * @throws IOException if there is a fatal error running the process to check
+	 *         the jps processes, or if the input stream from the process can not
+	 *         be read.
 	 */
-	private static boolean verifyJpsProcRunning(String process) {
+	private static boolean verifyJpsProcRunning(String process) 
+			throws IOException {
 
 		Process jpsProc = null;
 
@@ -286,13 +307,12 @@ public class PseudoDistributedCluster extends Cluster {
 				}
 
 				line=reader.readLine();
-			} 
+			}
 		}
-		catch (Exception e) {
+		finally {
 			if (jpsProc != null) {
 				jpsProc.destroy();
 			}
-			e.printStackTrace();
 		}
 
 		TestSession.logger.debug("PROCESS IS NO LONGER RUNNING: " + process);

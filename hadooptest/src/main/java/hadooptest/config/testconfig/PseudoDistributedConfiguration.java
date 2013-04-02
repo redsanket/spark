@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,8 +30,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * Calls the superclass constructor, and initializes the default
 	 * configuration parameters for a pseudodistributed cluster under test.  Hadoop
 	 * default configuration is not used.
+	 * 
+	 * @throws UnknownHostException if there is a fatal error initializing the default configuration.
 	 */
-	public PseudoDistributedConfiguration() {
+	public PseudoDistributedConfiguration() throws UnknownHostException {
 		super(false);
 		this.initDefaults();
 	}
@@ -44,8 +47,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * 
 	 * @param loadDefaults whether or not to load the default configuration parameters
 	 * specified by the Hadoop installation, before loading the class configuration defaults.
+	 * 
+	 * @throws UnknownHostException if there is a fatal error initializing the default configuration.
 	 */
-	public PseudoDistributedConfiguration(boolean loadDefaults) {
+	public PseudoDistributedConfiguration(boolean loadDefaults) throws UnknownHostException {
 		super(loadDefaults); 
 		this.initDefaults();
 	}
@@ -71,8 +76,10 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	/**
 	 * Writes the pseudodistributed cluster configuration specified by the object out
 	 * to disk.
+	 * 
+	 * @throws IOException if there is a problem writing configuration files to disk.
 	 */
-	public void write() {
+	public void write() throws IOException {
 		String configurationDir = TestSession.conf.getProperty("HADOOP_INSTALL", "") + "/conf/hadoop/";
 		
 		File outdir = new File(configurationDir);
@@ -88,32 +95,27 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 		File yarn_site = new File(configurationDir + "yarn-site.xml");
 		File mapred_site = new File(configurationDir + "mapred-site.xml");		
 
-		try{
-			core_site.createNewFile();
-			hdfs_site.createNewFile();
-			yarn_site.createNewFile();
-			mapred_site.createNewFile();
-			
-			FileOutputStream out = new FileOutputStream(core_site);
-			this.writeXml(out);
+		core_site.createNewFile();
+		hdfs_site.createNewFile();
+		yarn_site.createNewFile();
+		mapred_site.createNewFile();
 
-			out = new FileOutputStream(hdfs_site);
-			this.writeXml(out);
+		FileOutputStream out = new FileOutputStream(core_site);
+		this.writeXml(out);
 
-			out = new FileOutputStream(yarn_site);
-			this.writeXml(out);
+		out = new FileOutputStream(hdfs_site);
+		this.writeXml(out);
 
-			out = new FileOutputStream(mapred_site);
-			this.writeXml(out);
+		out = new FileOutputStream(yarn_site);
+		this.writeXml(out);
 
-			FileWriter slaves_file = new FileWriter(configurationDir + "slaves");
-			BufferedWriter slaves = new BufferedWriter(slaves_file);
-			slaves.write("localhost");
-			slaves.close();
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem writing the hadoop configuration to disk.");
-		}
+		out = new FileOutputStream(mapred_site);
+		this.writeXml(out);
+
+		FileWriter slaves_file = new FileWriter(configurationDir + "slaves");
+		BufferedWriter slaves = new BufferedWriter(slaves_file);
+		slaves.write("localhost");
+		slaves.close();
 	}
 
 	/**

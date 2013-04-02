@@ -4,6 +4,8 @@
 
 package hadooptest.cluster.pseudodistributed;
 
+import java.io.IOException;
+
 import hadooptest.cluster.Executor;
 
 /**
@@ -23,8 +25,11 @@ public class PseudoDistributedExecutor extends Executor {
 	 * 						surrounded by whitespace.
 	 * @param username the system username to run the command under.
 	 * @return String[] the output of running the system command.
+	 * 
+	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
+	public String[] runHadoopProcBuilder(String[] commandArray, String username) 
+			throws Exception {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for PseudoDistributed we can just pass this through right to runProcBuilder
 		// for now.
@@ -42,8 +47,11 @@ public class PseudoDistributedExecutor extends Executor {
 	 * @param username the user to run the command as.
 	 * 
 	 * @return Process the process handle for the system command.
+	 * 
+	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) {
+	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) 
+			throws IOException {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for PseudoDistributed we can just pass this through right to 
 		// runProcBuilderGetProc for now.

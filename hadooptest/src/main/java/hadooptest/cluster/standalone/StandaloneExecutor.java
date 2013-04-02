@@ -4,6 +4,8 @@
 
 package hadooptest.cluster.standalone;
 
+import java.io.IOException;
+
 import hadooptest.cluster.Executor;
 
 /**
@@ -21,7 +23,8 @@ public class StandaloneExecutor extends Executor {
 	 * @param commandArray The system command to run.
 	 * @param username the user to run the command as.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username) {
+	public String[] runHadoopProcBuilder(String[] commandArray, String username) 
+			throws InterruptedException, IOException, Exception {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for Standalone we can just pass this through right to runProcBuilder
 		// for now.
@@ -38,7 +41,8 @@ public class StandaloneExecutor extends Executor {
 	 * 
 	 * @return Process the process handle for the system command.
 	 */
-	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) {
+	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) 
+			throws InterruptedException, IOException, Exception {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for Standalone we can just pass this through right to 
 		// runProcBuilderGetProc for now.

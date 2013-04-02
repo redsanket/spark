@@ -5,7 +5,9 @@
 package hadooptest.config.testconfig;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,8 +23,11 @@ import hadooptest.config.TestConfiguration;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -31,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * A class that represents a Hadoop Configuration for a distributed
@@ -55,8 +61,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * Calls the superclass constructor, and initializes the default
 	 * configuration parameters for a distributed cluster under test.
 	 * Hadoop default configuration is not used.
+	 * 
+	 * @throws Exception if there is a fatal error loading a resource from the gateway.
 	 */
-	public FullyDistributedConfiguration() {
+	public FullyDistributedConfiguration() 
+			throws Exception {
 		super(false);
 		this.loadResourceForComponent(
 				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");	
@@ -69,8 +78,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * 
 	 * @param loadDefaults whether or not to load the default configuration parameters
 	 * specified by the Hadoop installation, before loading the class configuration defaults.
+	 * 
+	 * @throws Exception if there is a fatal error loading a resource from the gateway.
 	 */
-	public FullyDistributedConfiguration(boolean loadDefaults) {
+	public FullyDistributedConfiguration(boolean loadDefaults) 
+			throws Exception {
 		super(loadDefaults);
 		this.loadResourceForComponent(
 				hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR"), "gateway");
@@ -78,15 +90,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	
 	/**
 	 * Initializes cluster-specific properties defaults.
+	 * 
+	 * @throws UnknownHostException if we can not get the localhost
 	 */
-	protected void initDefaultsClusterSpecific() {
+	protected void initDefaultsClusterSpecific() throws UnknownHostException {
 		hadoopProps.setProperty("CLUSTER_NAME", TestSession.conf.getProperty("CLUSTER_NAME", ""));
-		try {
-			hadoopProps.setProperty("GATEWAY", InetAddress.getLocalHost().getHostName());
-		}
-		catch (Exception e) {
-			TestSession.logger.warn("Hostname not found!!!");
-		}
+		hadoopProps.setProperty("GATEWAY", InetAddress.getLocalHost().getHostName());
 
 		String defaultTmpDir = "/homes/hadoopqa/tmp/hadooptest";
 		hadoopProps.setProperty("TMP_DIR", 
@@ -202,8 +211,10 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	 * to disk.
 	 * 
 	 * Currently unimplemented for FullyDistributedConfiguration.
+	 * 
+	 * @throws IOException if there is a problem writing the configuration to disk.
 	 */
-	public void write() {
+	public void write() throws IOException {
 		/*
 		String confDir = this.getHadoopProp("HADOOP_CONF_DIR");
 		File outdir = new File(confDir);
@@ -219,7 +230,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		File yarn_site = new File(confDir + "yarn-site.xml");
 		File mapred_site = new File(confDir + "mapred-site.xml");		
 
-		try{
 			if (core_site.createNewFile()) {
 				FileOutputStream out = new FileOutputStream(core_site);
 				this.writeXml(out);
@@ -256,10 +266,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			BufferedWriter slaves = new BufferedWriter(slaves_file);
 			slaves.write("localhost");
 			slaves.close();
-		}
-		catch (IOException ioe) {
-			TestSession.logger.error("There was a problem writing the hadoop configuration to disk.");
-		}
 		*/
 	}
 
@@ -290,24 +296,33 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	
     /**
      * Initialize the Hadoop configuration files for each components. 
+     * 
+     * @throws Exception if there is a fatal error loading resources.
      */
-	public void loadResourceForAllComponents() {
-		loadResourceForAllCopmonents(null, null);
+	public void loadResourceForAllComponents() 
+			throws Exception {
+		loadResourceForAllComponents(null, null);
 	}
 	
     /**
      * Initialize the Hadoop configuration files for each components for the
      * given configuration directory. 
+     * 
+     * @throws Exception if there is a fatal error loading resources.
      */
-	public void loadResourceForAllComponents(String confDir) {
-		loadResourceForAllCopmonents(confDir, null);
+	public void loadResourceForAllComponents(String confDir) 
+			throws Exception {
+		loadResourceForAllComponents(confDir, null);
 	}
 
     /**
      * Initialize the Hadoop configuration files for each components for the
      * given configuration directory. 
+     * 
+     * @throws Exception if there is a fatal error loading resources.
      */
-	public void loadResourceForAllCopmonents(String confDir, String[] components) {
+	public void loadResourceForAllComponents(String confDir, String[] components) 
+			throws Exception {
 		if (components == null) {
 		  components = new String[] {
 				  "gateway",
@@ -327,8 +342,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param component the cluster component name. 
      * 
      * @return String of the local configuration directory. 
+     * 
+     * @throws Exception if there is a fatal error running the process to scp 
+     *          the remote conf dir.
      */
-	public String copyRemoteConfDirToLocal(String confDir, String component) {
+	public String copyRemoteConfDirToLocal(String confDir, String component) 
+			throws Exception {
 		/* Generate the localconfiguration filename */
 		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
 		df.setTimeZone(TimeZone.getTimeZone("CST"));  
@@ -347,8 +366,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * 
      * @param confDir the Hadoop configuration directory 
      * @param component the cluster component name. 
+     * 
+     * @throws Exception if there is a fatal error copying the remote configuration,
+     *         or loading the configuration resource files.
      */
-	public void loadResourceForComponent(String confDir, String component) {
+	public void loadResourceForComponent(String confDir, String component) 
+			throws Exception {
 
 		/*
 		 *  For components on remote hosts (i.e. not gateway), we will need to
@@ -391,8 +414,14 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * Initialize the Hadoop configuration files. 
      * 
      * @return Hashtable of Properties for each of the configuration files.
+     * 
+     * @throws IOException if the DocumentBuilder can not parse the filename
+     * @throws ParserConfigurationException if the DocumentBuilderFactory can
+     *         not retrieve a new DocumentBuilder
+     * @throws SAXException if the DocumentBuilder can not parse the filename
      */
-	private void loadResourceFiles() {
+	private void loadResourceFiles() 
+			throws IOException, ParserConfigurationException, SAXException {
 		loadResourceFiles(null);
 	}
 	
@@ -402,8 +431,14 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param confDir the configuration directory path.
      * 
      * @return hastable of Properties for each of the configuration files.
+     * 
+     * @throws IOException if the DocumentBuilder can not parse the filename
+     * @throws ParserConfigurationException if the DocumentBuilderFactory can
+     *         not retrieve a new DocumentBuilder
+     * @throws SAXException if the DocumentBuilder can not parse the filename
      */
-	private Hashtable<String, Properties> loadResourceFiles(String confDir) {
+	private Hashtable<String, Properties> loadResourceFiles(String confDir) 
+		throws IOException, ParserConfigurationException, SAXException {
 
 		if ((confDir == null) || confDir.isEmpty()) {
 			confDir = hadoopProps.getProperty("HADOOP_DEFAULT_CONF_DIR");
@@ -453,51 +488,54 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * hdfs-site.xml, etc.
      * 
      * @return Properties for the given configuration files.
+     * 
+     * @throws IOException if the DocumentBuilder can not parse the filename
+     * @throws ParserConfigurationException if the DocumentBuilderFactory can
+     *         not retrieve a new DocumentBuilder
+     * @throws SAXException if the DocumentBuilder can not parse the filename
      */
-	public Properties parseResourceFile(String filename) {
+	public Properties parseResourceFile(String filename) 
+			throws ParserConfigurationException, IOException, SAXException {
 		TestSession.logger.debug("Parse Hadoop configuration file: " +
 				filename);
 		Properties props = new Properties();
-		try {
-			/*
-			 * Parse the XML configuration file using a DOM parser
-			 */
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbFactory.newDocumentBuilder();
-			Document document = db.parse(filename);
-			document.getDocumentElement().normalize();
-			TestSession.logger.trace("Root of xml file: " +
-					document.getDocumentElement().getNodeName());			
 
-			/*
-			 * Write the properties key and value to a Java Properties Object.
-			 */
-			NodeList nodes = document.getElementsByTagName("property");
-			for (int index = 0; index < nodes.getLength(); index++) {
-				Node node = nodes.item(index);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					Element element = (Element) node;
+		/*
+		 * Parse the XML configuration file using a DOM parser
+		 */
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbFactory.newDocumentBuilder();
+		Document document = db.parse(filename);
+		document.getDocumentElement().normalize();
+		TestSession.logger.trace("Root of xml file: " +
+				document.getDocumentElement().getNodeName());			
 
-					String propName = getValue("name", element);
-					try {
-						TestSession.logger.trace("Config Property Name: " +
-								getValue("name", element));
-						TestSession.logger.trace("Config Property Value: " +
-								getValue("value", element));
-						props.put(getValue("name", element),
-								getValue("value", element));
-					}
-					catch (NullPointerException npe) {
-						TestSession.logger.trace("Value for property name " + propName + 
-								" is null");
-					}
+		/*
+		 * Write the properties key and value to a Java Properties Object.
+		 */
+		NodeList nodes = document.getElementsByTagName("property");
+		for (int index = 0; index < nodes.getLength(); index++) {
+			Node node = nodes.item(index);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				Element element = (Element) node;
+
+				String propName = getValue("name", element);
+
+				try {
+					TestSession.logger.trace("Config Property Name: " +
+							getValue("name", element));
+					TestSession.logger.trace("Config Property Value: " +
+							getValue("value", element));
+					props.put(getValue("name", element),
+							getValue("value", element));
+				}
+				catch (NullPointerException npe) {
+					TestSession.logger.trace("Value for property name " + propName + 
+							" is null");
 				}
 			}
-		}	
-		catch (Exception exception)
-		{
-			exception.printStackTrace();
 		}
+
 		return props;
 	}
 
@@ -582,9 +620,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param component cluster component such as gateway, namenode,
      * resourcemanager, etc.
      * @param confFilename String of the configuration file name.
+     * 
+     * @throws Exception if the configuration file property can not be set.
      */
 	public void setHadoopConfFileProp (String propName, String propValue,
-			String component, String confFilename) {
+			String component, String confFilename) 
+					throws Exception {
 	    setHadoopConfFileProp(propName, propValue, component, confFilename,
 	    		null);
 	}
@@ -599,9 +640,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * resourcemanager, etc.
      * @param confFilename String of the configuration file name.
      * @param confDir String of the configuration directory path.
+     * 
+     * @throws Exception if the configuration file property can not be set.
      */
 	public void setHadoopConfFileProp (String propName, String propValue,
-			String component, String confFilename, String confDir) {
+			String component, String confFilename, String confDir) 
+					throws Exception {
 
 		if ((confDir == null) || confDir.isEmpty()) {
 			confDir = this.getHadoopConfDirPath(component);
@@ -636,9 +680,22 @@ public class FullyDistributedConfiguration extends TestConfiguration
 	
     /**
      * Insert or replace the property tag in the xml configuration file. 
+     * 
+     * @param filename the xml configuration file
+     * @param targetPropName the target property tag
+     * @param targetPropValue the value to replace the property tag with
+     * 
+     * @throws ParseConfigurationException if the DocumentBuilderFactory can not get a new DocumentBuilder
+     * @throws SAXException if the DocumentBuilder can not parse the file
+     * @throws IOException if the DocumentBuilder can not parse the file
+     * @throws TransformerException if the Transformer can not transform the document
+     * @throws TransformerConfigurationException if the TransformerFactory can not provide a new Transformer instance
      */
 	public void updateXmlConfFile (String filename, String targetPropName,
-			String targetPropValue) {
+			String targetPropValue) 
+					throws ParserConfigurationException, SAXException, 
+					IOException, TransformerException, 
+					TransformerConfigurationException {
 
 		TestSession.logger.info("Insert/Replace property '" +
 				targetPropName + "'='" + targetPropValue + "'.");
@@ -647,62 +704,57 @@ public class FullyDistributedConfiguration extends TestConfiguration
 		
 		/*
 		 * Parse the XML configuration file using a DOM parser
-		 */		
-		try {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbFactory.newDocumentBuilder();
-			Document document = db.parse(filename);
-			document.getDocumentElement().normalize();
-			TestSession.logger.trace("Root of xml file: " +
-					document.getDocumentElement().getNodeName());			
-		
-			/*
-			 * Write the properties key and value to a Java Properties Object.
-			 */
-			Element element = null;
-			NodeList nodes = document.getElementsByTagName("property");
-			for (int index = 0; index < nodes.getLength(); index++) {
-				Node node = nodes.item(index);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					element = (Element) node;
+		 */	
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbFactory.newDocumentBuilder();
+		Document document = db.parse(filename);
+		document.getDocumentElement().normalize();
+		TestSession.logger.trace("Root of xml file: " +
+				document.getDocumentElement().getNodeName());			
 
-					String propName = getValue("name", element);
-					String propValue = getValue("value", element);
-					
-					TestSession.logger.trace("Config Property Name: " +
-							getValue("name", element));
-					TestSession.logger.trace("Config Property Value: " +
-							getValue("value", element));
-					
-					if (propName.equals(targetPropName)) {
-						foundPropName = true;
-						if (propValue.equals(targetPropValue)) {
-							TestSession.logger.info("Propperty value for '" +
-									propName + "' is already set to '" + 
-									propValue + "'.");
-							return;
-						}
-						else {
-							setValue("value", element, targetPropValue);
-						}
+		/*
+		 * Write the properties key and value to a Java Properties Object.
+		 */
+		Element element = null;
+		NodeList nodes = document.getElementsByTagName("property");
+		for (int index = 0; index < nodes.getLength(); index++) {
+			Node node = nodes.item(index);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				element = (Element) node;
+
+				String propName = getValue("name", element);
+				String propValue = getValue("value", element);
+
+				TestSession.logger.trace("Config Property Name: " +
+						getValue("name", element));
+				TestSession.logger.trace("Config Property Value: " +
+						getValue("value", element));
+
+				if (propName.equals(targetPropName)) {
+					foundPropName = true;
+					if (propValue.equals(targetPropValue)) {
+						TestSession.logger.info("Propperty value for '" +
+								propName + "' is already set to '" + 
+								propValue + "'.");
+						return;
+					}
+					else {
+						setValue("value", element, targetPropValue);
 					}
 				}
 			}
-
-			if (foundPropName == false) {
-				insertValue("name", "value", element,
-						targetPropName, targetPropValue, document);				
-			}		
-
-			// Write the change to file
-			Transformer xformer = TransformerFactory.newInstance().newTransformer();
-			String outputFile = filename;
-			xformer.transform(new DOMSource(document),
-					new StreamResult(new File(outputFile)));
 		}
-		catch (Exception e) {
-			
-		}
+
+		if (foundPropName == false) {
+			insertValue("name", "value", element,
+					targetPropName, targetPropValue, document);				
+		}		
+
+		// Write the change to file
+		Transformer xformer = TransformerFactory.newInstance().newTransformer();
+		String outputFile = filename;
+		xformer.transform(new DOMSource(document),
+				new StreamResult(new File(outputFile)));
 
 	}
 	
@@ -717,8 +769,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param sourceFile source configuration file to copy
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error copying the configuration file.
      */
-	public boolean copyFileToConfDir (String component, String sourceFile) {
+	public boolean copyFileToConfDir (String component, String sourceFile) 
+			throws Exception {
 		String targetFile = null;
 		String[] daemonHost = (component.equals("gateway")) ?
 				null : TestSession.cluster.getNodes(component);
@@ -738,8 +793,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param targetFile target configuration file to copy to
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error copying the configuration file.
      */
-	public boolean copyFileToConfDir (String component, String sourceFile, String targetFile) {
+	public boolean copyFileToConfDir (String component, String sourceFile, String targetFile) 
+			throws Exception {
 		String[] daemonHost = (component.equals("gateway")) ?
 				null : TestSession.cluster.getNodes(component);
 		return copyFileToConfDir(component, sourceFile, daemonHost, targetFile);			
@@ -758,9 +816,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param target file name.
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error copying the configuration file.
      */
 	public boolean copyFileToConfDir (String component, String sourceFile,
-			String[] daemonHost, String targetFile) {
+			String[] daemonHost, String targetFile) 
+					throws Exception {
 		return copyToConfDir(component, sourceFile, daemonHost, targetFile);			
 	}
 
@@ -775,8 +836,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param sourceDir source configuration directory to copy the files from
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error copying the configuration file.
      */
-	public boolean copyFilesToConfDir (String component, String sourceDir) {
+	public boolean copyFilesToConfDir (String component, String sourceDir) 
+			throws Exception {
 		String[] daemonHost = (component.equals("gateway")) ?
 				null : TestSession.cluster.getNodes(component);
 		return copyFilesToConfDir(component, sourceDir, daemonHost);	
@@ -794,9 +858,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param daemonHost String Array of component hostname(s).
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error copying the configuration file.
      */
 	public boolean copyFilesToConfDir (String component, String sourceDir,
-			String[] daemonHost) {
+			String[] daemonHost) 
+					throws Exception {
 		String targetFile = null;
 		return copyToConfDir(component, sourceDir + "/*", daemonHost, targetFile);
 	}
@@ -814,9 +881,12 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param target file name
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error copying the configuration file.
      */
 	private boolean copyToConfDir (String component, String sourceFile,
-			String[] daemonHost, String targetFile) {
+			String[] daemonHost, String targetFile) 
+					throws Exception {
 
 		String confDir = this.getHadoopConfDirPath(component);
 		String target =
@@ -865,8 +935,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * resourcemanager, etc.
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error backing up the configuration directory.
      */
-	public boolean backupConfDir (String component) {
+	public boolean backupConfDir (String component) 
+			throws Exception {
 		if (component.equals("gateway")) {
 			return backupConfDir(component, null);			
 		}
@@ -888,8 +961,11 @@ public class FullyDistributedConfiguration extends TestConfiguration
      * @param daemonHost String Array of component hostname(s).
      * 
      * @return boolean true for success, false for failure.
+     * 
+     * @throws Exception if there is a fatal error backing up the configuration directory.
      */
-	public boolean backupConfDir (String component, String[] daemonHost) {
+	public boolean backupConfDir (String component, String[] daemonHost) 
+			throws Exception {
 		String componentHadoopConfDirPath =
 				this.getHadoopConfDirPath(component);
 		if (componentHadoopConfDirPath != null) {

@@ -6,7 +6,9 @@ package hadooptest.config;
 
 import hadooptest.TestSession;
 
+import java.io.IOException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
@@ -65,8 +67,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * with the false argument, so that you are not loading any default Hadoop
 	 * configuration properties.  It then proceeds to initialize the default
 	 * configuration for the reflected cluster type.
+	 * 
+	 * @throws UnknownHostException if the default hosts can not be initialized.
 	 */
-	public TestConfiguration() {
+	public TestConfiguration() throws UnknownHostException {
 		super(true);		
 		this.initDefaults();
 
@@ -80,8 +84,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * 
 	 * @param loadDefaults whether or not to load the cluster configuration defaults
 	 * 						using the Configuration superclass constructor.
+	 * 
+	 * @throws UnknownHostException if the default hosts can not be initialized.
 	 */
-	public TestConfiguration(boolean loadDefaults) {
+	public TestConfiguration(boolean loadDefaults) throws UnknownHostException {
 		super(loadDefaults);
 		this.initDefaults();
 
@@ -91,8 +97,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * A constructor that allows you to specify a custom configuration.
 	 * 
 	 * @param other a custom Configuration.
+	 * 
+	 * @throws UnknownHostException if the default hosts can not be initialized.
 	 */
-	public TestConfiguration(Configuration other) {
+	public TestConfiguration(Configuration other) throws UnknownHostException {
 		super(other);
 		this.initDefaults();
 	}
@@ -104,8 +112,10 @@ public abstract class TestConfiguration extends Configuration {
 	
 	/**
 	 * Writes any test configuration to disk.
+	 * 
+	 * @throws IOException if the configuration can not be written to disk.
 	 */
-	public abstract void write();
+	public abstract void write() throws IOException;
 	
     /**
      * Returns the Hadoop general property value for a given property name.
@@ -170,7 +180,12 @@ public abstract class TestConfiguration extends Configuration {
 		this.getHadoopConfDirPaths().setProperty(component, path);
 	}
 
-	protected abstract void initDefaultsClusterSpecific();
+	/**
+	 * Initializes cluster specific defaults.
+	 * 
+	 * @throws UnknownHostException if the default hosts can not be initialized.
+	 */
+	protected abstract void initDefaultsClusterSpecific() throws UnknownHostException;
 	
 	/**
 	 * Setup the Kerberos configuration for the given user name and keytab file
@@ -203,8 +218,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * Initializes a set of default configuration properties that have been 
 	 * determined to be a reasonable set of defaults for running a distributed
 	 * cluster under test.
+	 * 
+	 * @throws UnknownHostException if the default hosts can not be initialized.
 	 */
-	private void initDefaults() {
+	private void initDefaults() throws UnknownHostException {
 
 		this.setKerberosConf();
 		this.initDefaultsClusterSpecific();
@@ -260,7 +277,7 @@ public abstract class TestConfiguration extends Configuration {
 		loadClusterResource();
 	}
 
-	/*
+	/**
 	 * core-default.xml contains at least two properties that must be
 	 * defined in the Hadoop Configuration instance in order for the
 	 * test framework to interact with the Hadoop Classes and APIs.
@@ -323,16 +340,26 @@ public abstract class TestConfiguration extends Configuration {
      * 
      * @return String the Hadoop version for the fully distributed cluster.
      * 
+     * @throws Exception if there is a fatal error running the process that gets the
+     *         version.
+     * 
      * (non-Javadoc)
      * @see hadooptest.cluster.Cluster#getVersion()
      */
-    public String getVersionViaCLI() {
+    public String getVersionViaCLI() 
+    		throws Exception {
     	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
     			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
     	String version = (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];
         return version.split(" ")[1];
     }
     
+    /**
+     * Converts the configuration instance resources and properties to a string.
+     * 
+     * @param instance the configuration instance.
+     * @return the configuration resources and properties.
+     */
     public String toString(String instance) {
     	if (instance.equals("resources")) {
     		return "Conf Resources: " + super.toString();

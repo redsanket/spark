@@ -13,11 +13,12 @@ import hadooptest.cluster.mini.MiniCluster;
 import hadooptest.config.TestConfiguration;
 import hadooptest.config.testconfig.MiniclusterConfiguration;
 
-import org.apache.hadoop.mapred.MiniMRClientClusterFactory;
-import org.apache.hadoop.mapred.MiniMRClientCluster;
-
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Hashtable;
+
+import org.apache.hadoop.mapred.MiniMRClientCluster;
+import org.apache.hadoop.mapred.MiniMRClientClusterFactory;
 
 /**
  * MiniCluster instance to represent a base MapReduce mini cluster.
@@ -31,7 +32,7 @@ public class MRMiniCluster extends MiniCluster {
    protected Hashtable<String, String> paths = new Hashtable<String, String>();
    
    public MRMiniCluster()
-   {
+		   throws UnknownHostException {
       this.conf = new MiniclusterConfiguration(); 
    }
 
