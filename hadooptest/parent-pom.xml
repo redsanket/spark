@@ -10,7 +10,6 @@
   <name>hadooptest</name>
   <url>http://maven.apache.org</url>
   
-  
   <profiles>
     <profile>
       <id>profile-0.23.6</id>
@@ -29,7 +28,8 @@
       <id>profile-0.23.7</id>
       <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>0.23.7.0.1304021723</hadoop.version.ut.1>
+        <hadoop.version.ut.1>0.23.7.0.1303281627</hadoop.version.ut.1>
+        <hadoop.version.ut.2>0.23.7.0.1304021723</hadoop.version.ut.2>
         <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
       </properties>
 
