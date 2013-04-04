@@ -32,7 +32,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		setupTestConf();
 	}
-	
+
 	@Test public void testCacheArchives10() throws Exception { fileOnCache(10, "/tmp/streaming", ".jar"); }
 	@Test public void testCacheArchives20() throws Exception { fileOnCache(20, "/tmp/streaming", ".tar"); }
 	@Test public void testCacheArchives30() throws Exception { fileOnCache(30, "/tmp/streaming", ".tar.gz"); }
@@ -44,8 +44,11 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testCacheArchives90() throws Exception { fileOnCache(90, "/user/" + userName + "/streaming", ".tgz"); }
 	@Test public void testCacheArchives100() throws Exception { fileOnCache(100, "/user/" + userName + "/streaming", ".zip"); }
 	
-	@Test public void testCacheArchives110() throws Exception { symlinkOnCache(110, "/tmp/streaming"); }
-	@Test public void testCacheArchives120() throws Exception { symlinkOnCache(120, "/user/" + userName + "/streaming"); }
+	@Test public void testCacheArchives110() throws Exception { symlinkOnBadCache(110, "/tmp/streaming"); }
+	@Test public void testCacheArchives120() throws Exception { symlinkOnBadCache(120, "/user/" + userName + "/streaming"); }
+
+	@Test public void testCacheArchives130() throws Exception { noSymlinkOnCache(130, "/tmp/streaming"); }
+	@Test public void testCacheArchives140() throws Exception { noSymlinkOnCache(140, "/user/" + userName + "/streaming"); }
 	
 	/*
 	@Test
@@ -63,8 +66,54 @@ public class TestEndToEndStreaming extends TestSession {
 		
 	}
 	*/
+
+	private void noSymlinkOnCache(int testcaseID, String publicPrivateCache) 
+			throws Exception {
+
+		String archive = "cachedir.zip";
+
+		this.logger.info("Streaming-" + testcaseID + " - Test to check the " + 
+				"-cacheArchive when no symlink is specified on " + 
+				publicPrivateCache);
+
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" +
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
+
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setCacheArchivePath(this.getHdfsBaseUrl() + publicPrivateCache + 
+				"/" + archive);
+
+		String[] output = job.submitUnthreaded();
+
+		boolean foundError = false;
+		for (int i = 0; i < output.length; i++) {
+			logger.debug("OUTPUT" + i + ": " + output[i]);
+			if (output[i].contains("You need to specify the uris as " + 
+					"scheme://path#linkname,Please specify a different " + 
+					"link name for all of your caching URIs")) {
+				foundError = true;
+				break;
+			}
+		}
+
+		assertTrue("Streaming job failure output string is not " + 
+				"correctly formed.", foundError);
+	}
 	
-	private void symlinkOnCache(int testcaseID, String publicPrivateCache) 
+	private void symlinkOnBadCache(int testcaseID, String publicPrivateCache) 
 			throws Exception {
 
 		String archive = "nonExistentcachedir.zip";
@@ -77,7 +126,7 @@ public class TestEndToEndStreaming extends TestSession {
 				this.getResourceFullPath("data/streaming/streaming-" +
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
-						"/input.txt");
+				"/input.txt");
 
 		StreamingJob job = new StreamingJob();
 		job.setNumMappers(1);
@@ -94,74 +143,74 @@ public class TestEndToEndStreaming extends TestSession {
 				"/" + archive + "#testlink");
 
 		String[] output = job.submitUnthreaded();
-		
+
 		boolean foundError = false;
 		for (int i = 0; i < output.length; i++) {
 			logger.debug("OUTPUT" + i + ": " + output[i]);
 			if (output[i].contains("Error launching job , bad input path : " +
-						"File does not exist:")) {
+					"File does not exist:")) {
 				foundError = true;
 				break;
 			}
 		}
-		
+
 		assertTrue("Streaming job failure output string is not " + 
 				"correctly formed.", foundError);
 	}
 	
-private void fileOnCache(int testcaseID, 
-		String publicPrivateCache, 
-		String archive) 
-				throws Exception {
-	
-	this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-	this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-	this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-	this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-			testcaseID);
+	private void fileOnCache(int testcaseID, 
+			String publicPrivateCache, 
+			String archive) 
+					throws Exception {
 
-	String cacheInCommand = publicPrivateCache + "/" + testcaseID;
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
 
-	this.logger.info("Streaming-" + testcaseID + 
-			" - Test to check the -cacheArchive option for " + archive + 
-			" file on " + publicPrivateCache);
+		String cacheInCommand = publicPrivateCache + "/" + testcaseID;
 
-	this.putLocalToHdfs(
-			this.getResourceFullPath("data/streaming/streaming-" + 
-					testcaseID + "/cachedir" + archive), 
-					cacheInCommand + "/cachedir" + archive);
-	this.putLocalToHdfs(
-			this.getResourceFullPath("data/streaming/streaming-" + 
-					testcaseID + "/input.txt"), 
-					"/tmp/streaming/streaming-" + testcaseID + 
-					"/input.txt");
+		this.logger.info("Streaming-" + testcaseID + 
+				" - Test to check the -cacheArchive option for " + archive + 
+				" file on " + publicPrivateCache);
 
-	StreamingJob job = new StreamingJob();
-	job.setNumMappers(1);
-	job.setNumReducers(1);
-	job.setName("streamingTest-" + testcaseID);
-	job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-	job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-			testcaseID + "/input.txt");
-	job.setMapper("\"xargs cat\"");
-	job.setReducer("cat");
-	job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-			testcaseID + "/Output");
-	job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + 
-			"/cachedir" + archive + "#testlink");
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/cachedir" + archive), 
+						cacheInCommand + "/cachedir" + archive);
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
 
-	job.start();
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + 
+				"/cachedir" + archive + "#testlink");
 
-	assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-			job.waitForID(30));
-	assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-			job.verifyID());
+		job.start();
 
-	assertTrue("Streaming job did not succeed", 
-			job.waitFor(JobState.SUCCEEDED, 240));
+		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
+				job.waitForID(30));
+		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
+				job.verifyID());
 
-	this.validateOutput(testcaseID);
-}
+		assertTrue("Streaming job did not succeed", 
+				job.waitFor(JobState.SUCCEEDED, 240));
+
+		this.validateOutput(testcaseID);
+	}
 	
 	private void validateOutput(int testcaseID) throws Exception {
 		FileSystem fs = TestSession.cluster.getFS();
