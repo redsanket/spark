@@ -185,6 +185,22 @@ public class StreamingJob extends Job {
 	} 
 
 	/**
+	 * Submit the job and wait until it is completed. 
+	 * Use this if you do not want the job run as threaded. 
+	 * This will block until the job has completed. 
+	 * 
+	 * @throws Exception if there is a fatal error running the job process.
+	 */
+	public String[] submitUnthreaded() 
+			throws Exception {
+		String[] output = null;
+		
+		output = TestSession.exec.runHadoopProcBuilder(this.assembleCommand(), true);
+
+		return output;
+	}
+
+	/**
 	 * Assemble the system command to launch the sleep job.
 	 * 
 	 * @return String[] the string array representation of the system command to launch the job.

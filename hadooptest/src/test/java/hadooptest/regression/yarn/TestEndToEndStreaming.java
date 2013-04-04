@@ -33,16 +33,19 @@ public class TestEndToEndStreaming extends TestSession {
 		setupTestConf();
 	}
 	
-	@Test public void testCacheArchives10() throws Exception { testCacheArchivesCore(10, "/tmp/streaming", ".jar"); }
-	@Test public void testCacheArchives20() throws Exception { testCacheArchivesCore(20, "/tmp/streaming", ".tar"); }
-	@Test public void testCacheArchives30() throws Exception { testCacheArchivesCore(30, "/tmp/streaming", ".tar.gz"); }
-	@Test public void testCacheArchives40() throws Exception { testCacheArchivesCore(40, "/tmp/streaming", ".tgz"); }
-	@Test public void testCacheArchives50() throws Exception { testCacheArchivesCore(50, "/tmp/streaming", ".zip"); }
-	@Test public void testCacheArchives60() throws Exception { testCacheArchivesCore(60, "/user/" + userName + "/streaming", ".jar"); }
-	@Test public void testCacheArchives70() throws Exception { testCacheArchivesCore(70, "/user/" + userName + "/streaming", ".tar"); }
-	@Test public void testCacheArchives80() throws Exception { testCacheArchivesCore(80, "/user/" + userName + "/streaming", ".tar.gz"); }
-	@Test public void testCacheArchives90() throws Exception { testCacheArchivesCore(90, "/user/" + userName + "/streaming", ".tgz"); }
-	@Test public void testCacheArchives100() throws Exception { testCacheArchivesCore(100, "/user/" + userName + "/streaming", ".zip"); }
+	@Test public void testCacheArchives10() throws Exception { fileOnCache(10, "/tmp/streaming", ".jar"); }
+	@Test public void testCacheArchives20() throws Exception { fileOnCache(20, "/tmp/streaming", ".tar"); }
+	@Test public void testCacheArchives30() throws Exception { fileOnCache(30, "/tmp/streaming", ".tar.gz"); }
+	@Test public void testCacheArchives40() throws Exception { fileOnCache(40, "/tmp/streaming", ".tgz"); }
+	@Test public void testCacheArchives50() throws Exception { fileOnCache(50, "/tmp/streaming", ".zip"); }
+	@Test public void testCacheArchives60() throws Exception { fileOnCache(60, "/user/" + userName + "/streaming", ".jar"); }
+	@Test public void testCacheArchives70() throws Exception { fileOnCache(70, "/user/" + userName + "/streaming", ".tar"); }
+	@Test public void testCacheArchives80() throws Exception { fileOnCache(80, "/user/" + userName + "/streaming", ".tar.gz"); }
+	@Test public void testCacheArchives90() throws Exception { fileOnCache(90, "/user/" + userName + "/streaming", ".tgz"); }
+	@Test public void testCacheArchives100() throws Exception { fileOnCache(100, "/user/" + userName + "/streaming", ".zip"); }
+	
+	@Test public void testCacheArchives110() throws Exception { symlinkOnCache(110, "/tmp/streaming"); }
+	@Test public void testCacheArchives120() throws Exception { symlinkOnCache(120, "/user/" + userName + "/streaming"); }
 	
 	/*
 	@Test
@@ -61,55 +64,109 @@ public class TestEndToEndStreaming extends TestSession {
 	}
 	*/
 	
-	private void testCacheArchivesCore(int testcaseID, String publicPrivateCache, String archive) {
-		try {
-			this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-			this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-			this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-			this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + testcaseID);
+	private void symlinkOnCache(int testcaseID, String publicPrivateCache) 
+			throws Exception {
 
-			String cacheInCommand = publicPrivateCache + "/" + testcaseID;
+		String archive = "nonExistentcachedir.zip";
 
-			this.logger.info("Streaming-" + testcaseID + " - Test to check the -cacheArchive option for " + archive + " file on " + publicPrivateCache);
+		this.logger.info("Streaming-" + testcaseID + " - Test to check the " + 
+				"-cacheArchive option for non existent symlink on " + 
+				publicPrivateCache);
 
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/cachedir" + archive), 
-					cacheInCommand + "/cachedir" + archive);
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + testcaseID + "/input.txt"), 
-					"/tmp/streaming/streaming-" + testcaseID + "/input.txt");
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" +
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+						"/input.txt");
 
-			StreamingJob job = new StreamingJob();
-			job.setNumMappers(1);
-			job.setNumReducers(1);
-			job.setName("streamingTest-" + testcaseID);
-			job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-			job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/input.txt");
-			job.setMapper("\"xargs cat\"");
-			job.setReducer("cat");
-			job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/Output");
-			job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + "/cachedir" + archive + "#testlink");
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setCacheArchivePath(this.getHdfsBaseUrl() + publicPrivateCache + 
+				"/" + archive + "#testlink");
 
-			job.start();
-
-			assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-					job.waitForID(30));
-			assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-					job.verifyID());
-
-			assertTrue("Streaming job did not succeed", job.waitFor(JobState.SUCCEEDED, 240));
-
-			this.validateOutput(testcaseID);
+		String[] output = job.submitUnthreaded();
+		
+		boolean foundError = false;
+		for (int i = 0; i < output.length; i++) {
+			logger.debug("OUTPUT" + i + ": " + output[i]);
+			if (output[i].contains("Error launching job , bad input path : " +
+						"File does not exist:")) {
+				foundError = true;
+				break;
+			}
 		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
+		
+		assertTrue("Streaming job failure output string is not " + 
+				"correctly formed.", foundError);
 	}
+	
+private void fileOnCache(int testcaseID, 
+		String publicPrivateCache, 
+		String archive) 
+				throws Exception {
+	
+	this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+	this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+	this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+	this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+			testcaseID);
+
+	String cacheInCommand = publicPrivateCache + "/" + testcaseID;
+
+	this.logger.info("Streaming-" + testcaseID + 
+			" - Test to check the -cacheArchive option for " + archive + 
+			" file on " + publicPrivateCache);
+
+	this.putLocalToHdfs(
+			this.getResourceFullPath("data/streaming/streaming-" + 
+					testcaseID + "/cachedir" + archive), 
+					cacheInCommand + "/cachedir" + archive);
+	this.putLocalToHdfs(
+			this.getResourceFullPath("data/streaming/streaming-" + 
+					testcaseID + "/input.txt"), 
+					"/tmp/streaming/streaming-" + testcaseID + 
+					"/input.txt");
+
+	StreamingJob job = new StreamingJob();
+	job.setNumMappers(1);
+	job.setNumReducers(1);
+	job.setName("streamingTest-" + testcaseID);
+	job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+	job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+			testcaseID + "/input.txt");
+	job.setMapper("\"xargs cat\"");
+	job.setReducer("cat");
+	job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+			testcaseID + "/Output");
+	job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + 
+			"/cachedir" + archive + "#testlink");
+
+	job.start();
+
+	assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
+			job.waitForID(30));
+	assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
+			job.verifyID());
+
+	assertTrue("Streaming job did not succeed", 
+			job.waitFor(JobState.SUCCEEDED, 240));
+
+	this.validateOutput(testcaseID);
+}
 	
 	private void validateOutput(int testcaseID) throws Exception {
 		FileSystem fs = TestSession.cluster.getFS();
-		FileStatus[] elements = fs.listStatus(new Path(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + testcaseID + "/Output"));
+		FileStatus[] elements = fs.listStatus(new Path(this.getHdfsBaseUrl() + 
+				"/tmp/streaming/streaming-" + testcaseID + "/Output"));
 		
 		String partFilePathStr = null;
 		for (FileStatus element : elements) {
@@ -122,19 +179,22 @@ public class TestEndToEndStreaming extends TestSession {
 		}
 		
 		if (partFilePathStr == null) {
-			TestSession.logger.error("Did not find the part file for the test.");
+			TestSession.logger.error("Did not find the part file for the " + 
+					"test.");
 			fail();
 		}
 
 		String[] catCmd = {
 				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN"),
-				"--config", TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+				"--config", 
+				TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
 				"dfs", "-cat", partFilePathStr	
 		};
 		
 		String[] catOutput = TestSession.exec.runHadoopProcBuilder(catCmd);
 		if (!catOutput[0].equals("0")) {
-			TestSession.logger.info("Got unexpected non-zero exit code: " + catOutput[0]);
+			TestSession.logger.info("Got unexpected non-zero exit code: " + 
+					catOutput[0]);
 			TestSession.logger.info("stdout" + catOutput[1]);
 			TestSession.logger.info("stderr" + catOutput[2]);			
 		}
@@ -143,16 +203,20 @@ public class TestEndToEndStreaming extends TestSession {
 		try {
 			expectedOutputStr = FileUtils.readFileToString(
 					new File(getResourceFullPath("" +
-							"data/streaming/streaming-" + testcaseID + "/expectedOutput")));
+							"data/streaming/streaming-" + testcaseID + 
+							"/expectedOutput")));
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 		
 		String actualOutputStr = catOutput[1];
-		TestSession.logger.debug("expected output str = \n'" + expectedOutputStr + "'");
-		TestSession.logger.debug("actual output str = \n'" + actualOutputStr + "'");
-		assertEquals("Actual output is different than expected ouput.", expectedOutputStr, actualOutputStr);
+		TestSession.logger.debug("expected output str = \n'" + 
+				expectedOutputStr + "'");
+		TestSession.logger.debug("actual output str = \n'" + 
+				actualOutputStr + "'");
+		assertEquals("Actual output is different than expected ouput.", 
+				expectedOutputStr, actualOutputStr);
 	}
 	
 	/*
@@ -168,7 +232,8 @@ public class TestEndToEndStreaming extends TestSession {
 			FsShell fsShell = TestSession.cluster.getFsShell();
 			FileSystem fs = TestSession.cluster.getFS();
 
-			String URL = "hdfs://" + TestSession.cluster.getNodes("namenode")[0] + "/";
+			String URL = "hdfs://" + 
+					TestSession.cluster.getNodes("namenode")[0] + "/";
 			String homeDir = URL + "user/" + System.getProperty("user.name");
 			String testDir = homeDir + "/" + targetDir;
 			String testTarget = URL + "/" + target;
@@ -189,7 +254,8 @@ public class TestEndToEndStreaming extends TestSession {
 			FsShell fsShell = TestSession.cluster.getFsShell();		
 			String testDir = getHdfsBaseUrl() + path;
 			if (fs.exists(new Path(testDir))) {
-				TestSession.logger.info("Delete existing test directory: " + testDir);
+				TestSession.logger.info("Delete existing test directory: " + 
+						testDir);
 				fsShell.run(new String[] {"-rm", "-r", testDir});			
 			}
 			TestSession.logger.info("Create new test directory: " + testDir);
@@ -215,7 +281,8 @@ public class TestEndToEndStreaming extends TestSession {
 		String fullPath = "";
 		
 		try {
-			URL url = this.getClass().getClassLoader().getResource(relativePath);
+			URL url = 
+					this.getClass().getClassLoader().getResource(relativePath);
 			fullPath = url.getPath();
 			TestSession.logger.debug("Resource URL path=" + fullPath);
 		}
@@ -227,7 +294,8 @@ public class TestEndToEndStreaming extends TestSession {
 	}
 	
 	private static void setupTestConf() throws Exception {
-		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		FullyDistributedCluster cluster = 
+				(FullyDistributedCluster) TestSession.cluster;
 		String component = TestConfiguration.RESOURCE_MANAGER;
 
 		/* 
