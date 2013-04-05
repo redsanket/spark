@@ -50,29 +50,95 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testCacheArchives130() throws Exception { noSymlinkOnCache(130, "/tmp/streaming"); }
 	@Test public void testCacheArchives140() throws Exception { noSymlinkOnCache(140, "/user/" + userName + "/streaming"); }
 	
-	/*
-	@Test
-	public void testArchives() {
-		
-	}
+	//@Test public void testArchives160() throws Exception { archivesFileOnFS(160, "/tmp/streaming", ".jar", "file://"); }
+	@Test public void testArchives170() throws Exception { archivesFileOnFS(170, "/tmp/streaming", ".jar", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives180() throws Exception { archivesFileOnFS(180, "/tmp/streaming", ".tar", "file://"); }
+	@Test public void testArchives190() throws Exception { archivesFileOnFS(190, "/tmp/streaming", ".tar", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives200() throws Exception { archivesFileOnFS(200, "/tmp/streaming", ".tar.gz", "file://"); }
+	@Test public void testArchives210() throws Exception { archivesFileOnFS(210, "/tmp/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives220() throws Exception { archivesFileOnFS(220, "/tmp/streaming", ".tgz", "file://"); }
+	@Test public void testArchives230() throws Exception { archivesFileOnFS(230, "/tmp/streaming", ".tgz", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives240() throws Exception { archivesFileOnFS(240, "/tmp/streaming", ".zip", "file://"); }
+	@Test public void testArchives250() throws Exception { archivesFileOnFS(250, "/tmp/streaming", ".zip", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives260() throws Exception { archivesFileOnFS(260, "/user/" + userName + "/streaming", ".jar", "file://"); }
+	@Test public void testArchives270() throws Exception { archivesFileOnFS(270, "/user/" + userName + "/streaming", ".jar", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives280() throws Exception { archivesFileOnFS(280, "/user/" + userName + "/streaming", ".tar", "file://"); }
+	@Test public void testArchives290() throws Exception { archivesFileOnFS(290, "/user/" + userName + "/streaming", ".tar", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives300() throws Exception { archivesFileOnFS(300, "/user/" + userName + "/streaming", ".tar.gz", "file://"); }
+	@Test public void testArchives310() throws Exception { archivesFileOnFS(310, "/user/" + userName + "/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives320() throws Exception { archivesFileOnFS(320, "/user/" + userName + "/streaming", ".tgz", "file://"); }
+	@Test public void testArchives330() throws Exception { archivesFileOnFS(330, "/user/" + userName + "/streaming", ".tgz", this.getHdfsBaseUrl()); }
+	//@Test public void testArchives340() throws Exception { archivesFileOnFS(340, "/user/" + userName + "/streaming", ".zip", "file://"); }
+	@Test public void testArchives350() throws Exception { archivesFileOnFS(350, "/user/" + userName + "/streaming", ".zip", this.getHdfsBaseUrl()); }
 	
-	@Test
-	public void testCacheFiles() {
+	private void archivesFileOnFS(int testcaseID, String publicPrivateCache,
+			String archive, String fileSystem) throws Exception {
+
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
 		
-	}
-	
-	@Test
-	public void testFiles() {
+		String cacheInCommand = publicPrivateCache;
+		if (fileSystem.equals("file://")) {
+			// make a local directory to store local fs
+			// cacheInCommand needs to be prepended by the local fs path
+			// put the input.txt and cachedir in the path
+			cacheInCommand = "/data/streaming-" + testcaseID;
+		}
+		else {
+			cacheInCommand = publicPrivateCache + "/" + testcaseID;
+
+			this.putLocalToHdfs(
+					this.getResourceFullPath("data/streaming/streaming-" + 
+							testcaseID + "/input.txt"), 
+							"/tmp/streaming/streaming-" + testcaseID + 
+					"/input.txt");
+			this.putLocalToHdfs(
+					this.getResourceFullPath("data/streaming/streaming-" + 
+							testcaseID + "/cachedir" + archive), 
+							cacheInCommand + "/cachedir" + archive);
+		}
 		
+		logger.info("Streaming-" + testcaseID + 
+				" - Test to check the -archive option for file on " + 
+				fileSystem + " in " + cacheInCommand + " for " + archive + 
+				" file.");
+
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setArchivePath(fileSystem + cacheInCommand + 
+				"/cachedir" + archive + "#testlink");
+
+		job.start();
+
+		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
+				job.waitForID(30));
+		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
+				job.verifyID());
+
+		assertTrue("Streaming job did not succeed", 
+				job.waitFor(JobState.SUCCEEDED, 240));
+
+		this.validateOutput(testcaseID);
 	}
-	*/
 
 	private void noSymlinkOnCache(int testcaseID, String publicPrivateCache) 
 			throws Exception {
 
 		String archive = "cachedir.zip";
 
-		this.logger.info("Streaming-" + testcaseID + " - Test to check the " + 
+		logger.info("Streaming-" + testcaseID + " - Test to check the " + 
 				"-cacheArchive when no symlink is specified on " + 
 				publicPrivateCache);
 
@@ -118,7 +184,7 @@ public class TestEndToEndStreaming extends TestSession {
 
 		String archive = "nonExistentcachedir.zip";
 
-		this.logger.info("Streaming-" + testcaseID + " - Test to check the " + 
+		logger.info("Streaming-" + testcaseID + " - Test to check the " + 
 				"-cacheArchive option for non existent symlink on " + 
 				publicPrivateCache);
 
@@ -171,7 +237,7 @@ public class TestEndToEndStreaming extends TestSession {
 
 		String cacheInCommand = publicPrivateCache + "/" + testcaseID;
 
-		this.logger.info("Streaming-" + testcaseID + 
+		logger.info("Streaming-" + testcaseID + 
 				" - Test to check the -cacheArchive option for " + archive + 
 				" file on " + publicPrivateCache);
 
@@ -219,7 +285,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		String partFilePathStr = null;
 		for (FileStatus element : elements) {
-			TestSession.logger.info("Checking part file: " + element.getPath());
+			logger.info("Checking part file: " + element.getPath());
 
 			if (element.getPath().toString().contains("part-")) {
 				partFilePathStr = element.getPath().toString();	
@@ -228,24 +294,24 @@ public class TestEndToEndStreaming extends TestSession {
 		}
 		
 		if (partFilePathStr == null) {
-			TestSession.logger.error("Did not find the part file for the " + 
+			logger.error("Did not find the part file for the " + 
 					"test.");
 			fail();
 		}
 
 		String[] catCmd = {
-				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN"),
+				cluster.getConf().getHadoopProp("HDFS_BIN"),
 				"--config", 
-				TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+				cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
 				"dfs", "-cat", partFilePathStr	
 		};
 		
 		String[] catOutput = TestSession.exec.runHadoopProcBuilder(catCmd);
 		if (!catOutput[0].equals("0")) {
-			TestSession.logger.info("Got unexpected non-zero exit code: " + 
+			logger.info("Got unexpected non-zero exit code: " + 
 					catOutput[0]);
-			TestSession.logger.info("stdout" + catOutput[1]);
-			TestSession.logger.info("stderr" + catOutput[2]);			
+			logger.info("stdout" + catOutput[1]);
+			logger.info("stderr" + catOutput[2]);			
 		}
 		
 		String expectedOutputStr = "";
@@ -260,9 +326,9 @@ public class TestEndToEndStreaming extends TestSession {
 		}
 		
 		String actualOutputStr = catOutput[1];
-		TestSession.logger.debug("expected output str = \n'" + 
+		logger.debug("expected output str = \n'" + 
 				expectedOutputStr + "'");
-		TestSession.logger.debug("actual output str = \n'" + 
+		logger.debug("actual output str = \n'" + 
 				actualOutputStr + "'");
 		assertEquals("Actual output is different than expected ouput.", 
 				expectedOutputStr, actualOutputStr);
@@ -274,22 +340,22 @@ public class TestEndToEndStreaming extends TestSession {
      */
 	private void putLocalToHdfs(String source, String target) {
 		try {
-			TestSession.logger.debug("target=" + target);
+			logger.debug("target=" + target);
 			String targetDir = target.substring(0, target.lastIndexOf("/"));	
-			TestSession.logger.debug("target path=" + targetDir);
+			logger.debug("target path=" + targetDir);
 
-			FsShell fsShell = TestSession.cluster.getFsShell();
-			FileSystem fs = TestSession.cluster.getFS();
+			FsShell fsShell = cluster.getFsShell();
+			FileSystem fs = cluster.getFS();
 
 			String URL = "hdfs://" + 
-					TestSession.cluster.getNodes("namenode")[0] + "/";
+					cluster.getNodes("namenode")[0] + "/";
 			String homeDir = URL + "user/" + System.getProperty("user.name");
 			String testDir = homeDir + "/" + targetDir;
 			String testTarget = URL + "/" + target;
 			if (!fs.exists(new Path(testDir))) {
 				fsShell.run(new String[] {"-mkdir", "-p", testDir});
 			}
-			TestSession.logger.debug("dfs -put " + source + " " + testTarget);
+			logger.debug("dfs -put " + source + " " + testTarget);
 			fsShell.run(new String[] {"-put", source, testTarget});
 		}
 		catch (Exception e) {
@@ -299,15 +365,15 @@ public class TestEndToEndStreaming extends TestSession {
 	
 	private void setupHdfsDir(String path) {
 		try{
-			FileSystem fs = TestSession.cluster.getFS();
-			FsShell fsShell = TestSession.cluster.getFsShell();		
+			FileSystem fs = cluster.getFS();
+			FsShell fsShell = cluster.getFsShell();		
 			String testDir = getHdfsBaseUrl() + path;
 			if (fs.exists(new Path(testDir))) {
-				TestSession.logger.info("Delete existing test directory: " + 
+				logger.info("Delete existing test directory: " + 
 						testDir);
 				fsShell.run(new String[] {"-rm", "-r", testDir});			
 			}
-			TestSession.logger.info("Create new test directory: " + testDir);
+			logger.info("Create new test directory: " + testDir);
 			fsShell.run(new String[] {"-mkdir", "-p", testDir});
 		}
 		catch (Exception e) {
@@ -317,7 +383,7 @@ public class TestEndToEndStreaming extends TestSession {
 	
 	private String getHdfsBaseUrl() {
 		try {
-			return "hdfs://" + TestSession.cluster.getNodes("namenode")[0];
+			return "hdfs://" + cluster.getNodes("namenode")[0];
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -359,7 +425,7 @@ public class TestEndToEndStreaming extends TestSession {
 
 		// Copy files to the custom configuration directory on the
 		// Resource Manager component host.
-		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
+		String sourceFile = conf.getProperty("WORKSPACE") +
 				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
 		cluster.getConf().copyFileToConfDir(component, sourceFile,
 				"capacity-scheduler.xml");

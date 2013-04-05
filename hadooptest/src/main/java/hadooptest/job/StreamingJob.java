@@ -38,7 +38,10 @@ public class StreamingJob extends Job {
 	private String outputPath;
 	
 	/** The cache archive path for the streaming job. */
-	private String cacheArchivePath;
+	private String cacheArchivePath = "";
+
+	/** The archive path for the streaming job. */
+	private String archivePath = "";
 	
 	/** The yarn options for the streaming job. */
 	private String yarnOptions;
@@ -113,6 +116,15 @@ public class StreamingJob extends Job {
 	 */
 	public void setCacheArchivePath(String path) {
 		this.cacheArchivePath = path;
+	}
+	
+	/**
+	 * Set the archive path for the streaming job.
+	 * 
+	 * @param path the cache archive path for the job.
+	 */
+	public void setArchivePath(String path) {
+		this.archivePath = path;
 	}
 	
 	/** 
@@ -207,19 +219,44 @@ public class StreamingJob extends Job {
 	 */
 	private String[] assembleCommand() {
 
-		return new String[] { TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"), 
-				"--config",
-				TestSession.cluster.getConf().getHadoopConfDirPath(),
-				"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_STREAMING_JAR"),
-				this.yarnOptions,
-				"-Dmapreduce.job.user.name=" + this.USER,
-				"-Dmapreduce.job.maps=" + Integer.toString(this.numMappers), 
-				"-Dmapreduce.job.reduces=" + Integer.toString(this.numReducers), 
-				"-Dmapreduce.job.name=" + this.name,
-				"-mapper", this.mapper, 
-				"-reducer", this.reducer,
-				"-input", this.inputFile, 
-				"-output", this.outputPath,
-				"-cacheArchive", this.cacheArchivePath };
+		String[] command = null;
+		String hadoopBin = TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN");
+		String config = "--config";
+		String confPath = TestSession.cluster.getConf().getHadoopConfDirPath();
+		String jar = "jar";
+		String jarPath = TestSession.cluster.getConf().getHadoopProp("HADOOP_STREAMING_JAR");
+		String yarnOpts = this.yarnOptions;
+		String MRusernameOpt = "-Dmapreduce.job.user.name=" + this.USER;
+		String MRMapsOpt = "-Dmapreduce.job.maps=" + Integer.toString(this.numMappers);
+		String MRReducesOpt = "-Dmapreduce.job.reduces=" + Integer.toString(this.numReducers);
+		String MRJobNameOpt = "-Dmapreduce.job.name=" + this.name;
+		String mapperOpt = "-mapper";
+		String mapperVal = this.mapper;
+		String reducerOpt = "-reducer";
+		String reducerVal = this.reducer;
+		String inputOpt = "-input";
+		String inputVal = this.inputFile;
+		String outputOpt = "-output";
+		String outputVal = this.outputPath;
+		
+		if (this.cacheArchivePath.equals("")) {			
+
+			command = new String[] { hadoopBin, config, confPath, jar, jarPath,
+					yarnOpts, MRusernameOpt, MRMapsOpt, MRReducesOpt, 
+					MRJobNameOpt, "-archives", this.archivePath,
+					mapperOpt, mapperVal, reducerOpt, reducerVal,
+					inputOpt, inputVal, outputOpt, outputVal };
+		}
+		
+		if (this.archivePath.equals("")) {
+
+			command = new String[] { hadoopBin, config, confPath, jar, jarPath, 
+					yarnOpts, MRusernameOpt, MRMapsOpt, MRReducesOpt, 
+					MRJobNameOpt, mapperOpt, mapperVal, reducerOpt, reducerVal,
+					inputOpt, inputVal, outputOpt, outputVal,
+					"-cacheArchive", this.cacheArchivePath };
+		}
+		
+		return command;
 	}
 }
