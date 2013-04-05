@@ -71,6 +71,74 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testArchives340() throws Exception { archivesFileOnFS(340, "/user/" + userName + "/streaming", ".zip", "file://"); }
 	@Test public void testArchives350() throws Exception { archivesFileOnFS(350, "/user/" + userName + "/streaming", ".zip", this.getHdfsBaseUrl()); }
 
+	@Test public void testArchives360() throws Exception { archivesSymlinkOnBadCache(360, "/tmp/streaming", "file://"); }
+	@Test public void testArchives370() throws Exception { archivesSymlinkOnBadCache(370, "/tmp/streaming", this.getHdfsBaseUrl()); }
+	@Test public void testArchives380() throws Exception { archivesSymlinkOnBadCache(380, "/user/" + userName + "/streaming", "file://"); }
+	@Test public void testArchives390() throws Exception { archivesSymlinkOnBadCache(390, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+	
+	private void archivesSymlinkOnBadCache(int testcaseID, 
+			String publicPrivateCache, String fileSystem) 
+					throws Exception {
+
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
+		
+		String archive = "nonExistentcachedir.zip";
+
+		String cacheInCommand = publicPrivateCache;
+		if (fileSystem.equals("file://")) {
+			String cachedirPath = this.getResourceFullPath(
+					"data/streaming/streaming-" + testcaseID + 
+					"/cachedir.zip");
+			cacheInCommand = 
+					cachedirPath.substring(0, cachedirPath.indexOf("cachedir"));
+		}
+		else {
+			cacheInCommand = publicPrivateCache + "/" + testcaseID;			
+		}
+
+		logger.info("Streaming-" + testcaseID + 
+				" - Test to check the -archives option for non existent " + 
+				"symlink on " + fileSystem + " in " + cacheInCommand + ".");
+
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
+		
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setArchivePath(fileSystem + cacheInCommand + 
+				"/" + archive + "#testlink");
+
+		String[] output = job.submitUnthreaded();
+		
+		boolean foundError = false;
+		for (int i = 0; i < output.length; i++) {
+			logger.debug("OUTPUT" + i + ": " + output[i]);
+			if (output[i].contains("java.io.FileNotFoundException")) {
+				foundError = true;
+				break;
+			}
+		}
+
+		assertTrue("Streaming job failure output string is not " + 
+				"correctly formed.", foundError);
+	}
+	
 	private void archivesFileOnFS(int testcaseID, String publicPrivateCache,
 			String archive, String fileSystem) throws Exception {
 
@@ -105,7 +173,7 @@ public class TestEndToEndStreaming extends TestSession {
 				"/input.txt");
 		
 		logger.info("Streaming-" + testcaseID + 
-				" - Test to check the -archive option for file on " + 
+				" - Test to check the -archives option for file on " + 
 				fileSystem + " in " + cacheInCommand + " for " + archive + 
 				" file.");
 
