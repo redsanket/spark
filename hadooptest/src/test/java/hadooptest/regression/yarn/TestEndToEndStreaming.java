@@ -50,27 +50,27 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testCacheArchives130() throws Exception { noSymlinkOnCache(130, "/tmp/streaming"); }
 	@Test public void testCacheArchives140() throws Exception { noSymlinkOnCache(140, "/user/" + userName + "/streaming"); }
 	
-	//@Test public void testArchives160() throws Exception { archivesFileOnFS(160, "/tmp/streaming", ".jar", "file://"); }
+	@Test public void testArchives160() throws Exception { archivesFileOnFS(160, "/tmp/streaming", ".jar", "file://"); }
 	@Test public void testArchives170() throws Exception { archivesFileOnFS(170, "/tmp/streaming", ".jar", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives180() throws Exception { archivesFileOnFS(180, "/tmp/streaming", ".tar", "file://"); }
+	@Test public void testArchives180() throws Exception { archivesFileOnFS(180, "/tmp/streaming", ".tar", "file://"); }
 	@Test public void testArchives190() throws Exception { archivesFileOnFS(190, "/tmp/streaming", ".tar", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives200() throws Exception { archivesFileOnFS(200, "/tmp/streaming", ".tar.gz", "file://"); }
+	@Test public void testArchives200() throws Exception { archivesFileOnFS(200, "/tmp/streaming", ".tar.gz", "file://"); }
 	@Test public void testArchives210() throws Exception { archivesFileOnFS(210, "/tmp/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives220() throws Exception { archivesFileOnFS(220, "/tmp/streaming", ".tgz", "file://"); }
+	@Test public void testArchives220() throws Exception { archivesFileOnFS(220, "/tmp/streaming", ".tgz", "file://"); }
 	@Test public void testArchives230() throws Exception { archivesFileOnFS(230, "/tmp/streaming", ".tgz", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives240() throws Exception { archivesFileOnFS(240, "/tmp/streaming", ".zip", "file://"); }
+	@Test public void testArchives240() throws Exception { archivesFileOnFS(240, "/tmp/streaming", ".zip", "file://"); }
 	@Test public void testArchives250() throws Exception { archivesFileOnFS(250, "/tmp/streaming", ".zip", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives260() throws Exception { archivesFileOnFS(260, "/user/" + userName + "/streaming", ".jar", "file://"); }
+	@Test public void testArchives260() throws Exception { archivesFileOnFS(260, "/user/" + userName + "/streaming", ".jar", "file://"); }
 	@Test public void testArchives270() throws Exception { archivesFileOnFS(270, "/user/" + userName + "/streaming", ".jar", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives280() throws Exception { archivesFileOnFS(280, "/user/" + userName + "/streaming", ".tar", "file://"); }
+	@Test public void testArchives280() throws Exception { archivesFileOnFS(280, "/user/" + userName + "/streaming", ".tar", "file://"); }
 	@Test public void testArchives290() throws Exception { archivesFileOnFS(290, "/user/" + userName + "/streaming", ".tar", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives300() throws Exception { archivesFileOnFS(300, "/user/" + userName + "/streaming", ".tar.gz", "file://"); }
+	@Test public void testArchives300() throws Exception { archivesFileOnFS(300, "/user/" + userName + "/streaming", ".tar.gz", "file://"); }
 	@Test public void testArchives310() throws Exception { archivesFileOnFS(310, "/user/" + userName + "/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives320() throws Exception { archivesFileOnFS(320, "/user/" + userName + "/streaming", ".tgz", "file://"); }
+	@Test public void testArchives320() throws Exception { archivesFileOnFS(320, "/user/" + userName + "/streaming", ".tgz", "file://"); }
 	@Test public void testArchives330() throws Exception { archivesFileOnFS(330, "/user/" + userName + "/streaming", ".tgz", this.getHdfsBaseUrl()); }
-	//@Test public void testArchives340() throws Exception { archivesFileOnFS(340, "/user/" + userName + "/streaming", ".zip", "file://"); }
+	@Test public void testArchives340() throws Exception { archivesFileOnFS(340, "/user/" + userName + "/streaming", ".zip", "file://"); }
 	@Test public void testArchives350() throws Exception { archivesFileOnFS(350, "/user/" + userName + "/streaming", ".zip", this.getHdfsBaseUrl()); }
-	
+
 	private void archivesFileOnFS(int testcaseID, String publicPrivateCache,
 			String archive, String fileSystem) throws Exception {
 
@@ -82,24 +82,27 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
-			// make a local directory to store local fs
-			// cacheInCommand needs to be prepended by the local fs path
-			// put the input.txt and cachedir in the path
-			cacheInCommand = "/data/streaming-" + testcaseID;
+			
+			String cachedirPath = this.getResourceFullPath(
+					"data/streaming/streaming-" + testcaseID + 
+					"/cachedir" + archive);
+			cacheInCommand = 
+					cachedirPath.substring(0, cachedirPath.indexOf("cachedir"));
 		}
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;
 
 			this.putLocalToHdfs(
 					this.getResourceFullPath("data/streaming/streaming-" + 
-							testcaseID + "/input.txt"), 
-							"/tmp/streaming/streaming-" + testcaseID + 
-					"/input.txt");
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/cachedir" + archive), 
 							cacheInCommand + "/cachedir" + archive);
 		}
+		
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
 		
 		logger.info("Streaming-" + testcaseID + 
 				" - Test to check the -archive option for file on " + 
