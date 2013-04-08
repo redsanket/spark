@@ -130,11 +130,11 @@ else
 	TESTS_OPT=""
 fi
 
+JAVA_LIB_PATH="-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/"
 COMMON_ARGS="\
 -DCLUSTER_NAME=$CLUSTER \
 -DWORKSPACE=$WORKSPACE \
 -Dhadooptest.config=$CONF \
--Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/ \
 "
 MVN_GLOBAL_SETTING="$WORKSPACE/resources/yjava_maven/settings.xml.gw"
 
@@ -155,6 +155,6 @@ else
     # RUN TESTS VIA JAVA
     # /home/y/bin/mvn clean package -Pdist -Dtar
     set -x
-    /home/y/bin/java -cp $CLASSPATH $COMMON_ARGS org.junit.runner.JUnitCore $TESTS
+    /home/y/bin/java -cp $CLASSPATH $COMMON_ARGS $JAVA_LIB_PATH org.junit.runner.JUnitCore $TESTS
     set +x
 fi
