@@ -274,7 +274,7 @@ public class StreamingJob extends Job {
 					yarnOpts, MRusernameOpt, MRMapsOpt, MRReducesOpt, 
 					MRJobNameOpt, mapperOpt, mapperVal, reducerOpt, reducerVal,
 					inputOpt, inputVal, outputOpt, outputVal,
-					"-cacheArchive", this.cacheFilePath };
+					"-cacheArchive", this.cacheArchivePath };
 		}
 		else if (!this.cacheFilePath.equals("")) {
 			command = new String[] { hadoopBin, config, confPath, jar, jarPath, 

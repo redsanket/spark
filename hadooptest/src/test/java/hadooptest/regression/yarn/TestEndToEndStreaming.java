@@ -97,13 +97,18 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testArchives580() throws Exception { archivesNoSymlinkOnCache(580, "/user/" + userName + "/streaming", ".zip", "file://"); }
 	@Test public void testArchives590() throws Exception { archivesNoSymlinkOnCache(590, "/user/" + userName + "/streaming", ".zip", this.getHdfsBaseUrl()); }
 	
-	@Test public void testCacheFiles610() throws Exception { cacheFilesFileOnFS(610, "/tmp/streaming", "InputFile", "file://"); }
+	/*
+	 * Tests 610, 630, 650, and 670 are currently commented out, because
+	 * -cacheFile is now deprecated and these cases are no longer supported by
+	 * Hadoop (at least as of 0.23.6).
+	 */
+	//@Test public void testCacheFiles610() throws Exception { cacheFilesFileOnFS(610, "/tmp/streaming", "InputFile", "file://"); }
 	@Test public void testCacheFiles620() throws Exception { cacheFilesFileOnFS(620, "/tmp/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testCacheFiles630() throws Exception { cacheFilesFileOnFS(630, "/tmp/streaming", "InputDir", "file://"); }
+	//@Test public void testCacheFiles630() throws Exception { cacheFilesFileOnFS(630, "/tmp/streaming", "InputDir", "file://"); }
 	@Test public void testCacheFiles640() throws Exception { cacheFilesFileOnFS(640, "/tmp/streaming", "InputDir", this.getHdfsBaseUrl()); }
-	@Test public void testCacheFiles650() throws Exception { cacheFilesFileOnFS(650, "/user/" + userName + "/streaming", "InputFile", "file://"); }
+	//@Test public void testCacheFiles650() throws Exception { cacheFilesFileOnFS(650, "/user/" + userName + "/streaming", "InputFile", "file://"); }
 	@Test public void testCacheFiles660() throws Exception { cacheFilesFileOnFS(660, "/user/" + userName + "/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testCacheFiles670() throws Exception { cacheFilesFileOnFS(670, "/user/" + userName + "/streaming", "InputDir", "file://"); }
+	//@Test public void testCacheFiles670() throws Exception { cacheFilesFileOnFS(670, "/user/" + userName + "/streaming", "InputDir", "file://"); }
 	@Test public void testCacheFiles680() throws Exception { cacheFilesFileOnFS(680, "/user/" + userName + "/streaming", "InputDir", this.getHdfsBaseUrl()); }
 	
 	private void cacheFilesFileOnFS(int testcaseID, String publicPrivateCache, 
