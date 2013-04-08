@@ -42,6 +42,9 @@ public class StreamingJob extends Job {
 
 	/** The archive path for the streaming job. */
 	private String archivePath = "";
+
+	/** The cacheFile path for the streaming job. */
+	private String cacheFilePath = "";
 	
 	/** The yarn options for the streaming job. */
 	private String yarnOptions;
@@ -126,6 +129,15 @@ public class StreamingJob extends Job {
 	public void setArchivePath(String path) {
 		this.archivePath = path;
 	}
+
+	/**
+	 * Set the cacheFile path for the streaming job.
+	 * 
+	 * @param path the cache archive path for the job.
+	 */
+	public void setCacheFilePath(String path) {
+		this.cacheFilePath = path;
+	}
 	
 	/** 
 	 * Set the YARN options for the streaming job.
@@ -137,18 +149,21 @@ public class StreamingJob extends Job {
 	}
 
 	/**
-	 * Submit the job.  This should be done only by the Job.start() as Job should
-	 * remain threaded.
+	 * Submit the job.  This should be done only by the Job.start() as Job 
+	 * should remain threaded.
 	 * 
-	 * @throws Exception if there is a fatal error running the process to submit the job.
+	 * @throws Exception if there is a fatal error running the process to 
+	 *         submit the job.
 	 */
 	protected void submit() throws Exception {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
 		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
-			BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
+			this.process = TestSession.exec.runHadoopProcBuilderGetProc(
+					this.assembleCommand(), this.USER);
+			BufferedReader reader=new BufferedReader(
+					new InputStreamReader(this.process.getInputStream())); 
 			String line=reader.readLine(); 
 
 			while(line!=null) 
@@ -177,14 +192,16 @@ public class StreamingJob extends Job {
 	} 
 
 	/**
-	 * Submit the job and don't wait for the ID.  This should be done only by the Job.start() as Job should
-	 * remain threaded.
+	 * Submit the job and don't wait for the ID.  This should be done only by 
+	 * the Job.start() as Job should remain threaded.
 	 * 
-	 * @throws Exception if there is a fatal error running the process to submit the job.
+	 * @throws Exception if there is a fatal error running the process to 
+	 *         submit the job.
 	 */
 	protected void submitNoID() throws Exception {
 		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+			this.process = TestSession.exec.runHadoopProcBuilderGetProc(
+					this.assembleCommand(), this.USER);
 		}
 		catch (Exception e) {
 			if (this.process != null) {
@@ -207,7 +224,8 @@ public class StreamingJob extends Job {
 			throws Exception {
 		String[] output = null;
 		
-		output = TestSession.exec.runHadoopProcBuilder(this.assembleCommand(), true);
+		output = TestSession.exec.runHadoopProcBuilder(this.assembleCommand(), 
+				true);
 
 		return output;
 	}
@@ -215,20 +233,25 @@ public class StreamingJob extends Job {
 	/**
 	 * Assemble the system command to launch the sleep job.
 	 * 
-	 * @return String[] the string array representation of the system command to launch the job.
+	 * @return String[] the string array representation of the system command 
+	 *         to launch the job.
 	 */
 	private String[] assembleCommand() {
 
 		String[] command = null;
-		String hadoopBin = TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN");
+		String hadoopBin = 
+				TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN");
 		String config = "--config";
 		String confPath = TestSession.cluster.getConf().getHadoopConfDirPath();
 		String jar = "jar";
-		String jarPath = TestSession.cluster.getConf().getHadoopProp("HADOOP_STREAMING_JAR");
+		String jarPath = TestSession.cluster.getConf().getHadoopProp(
+				"HADOOP_STREAMING_JAR");
 		String yarnOpts = this.yarnOptions;
 		String MRusernameOpt = "-Dmapreduce.job.user.name=" + this.USER;
-		String MRMapsOpt = "-Dmapreduce.job.maps=" + Integer.toString(this.numMappers);
-		String MRReducesOpt = "-Dmapreduce.job.reduces=" + Integer.toString(this.numReducers);
+		String MRMapsOpt = "-Dmapreduce.job.maps=" + 
+				Integer.toString(this.numMappers);
+		String MRReducesOpt = "-Dmapreduce.job.reduces=" + 
+				Integer.toString(this.numReducers);
 		String MRJobNameOpt = "-Dmapreduce.job.name=" + this.name;
 		String mapperOpt = "-mapper";
 		String mapperVal = this.mapper;
@@ -239,22 +262,26 @@ public class StreamingJob extends Job {
 		String outputOpt = "-output";
 		String outputVal = this.outputPath;
 		
-		if (this.cacheArchivePath.equals("")) {			
-
+		if (!this.archivePath.equals("")) {			
 			command = new String[] { hadoopBin, config, confPath, jar, jarPath,
 					yarnOpts, MRusernameOpt, MRMapsOpt, MRReducesOpt, 
 					MRJobNameOpt, "-archives", this.archivePath,
 					mapperOpt, mapperVal, reducerOpt, reducerVal,
 					inputOpt, inputVal, outputOpt, outputVal };
 		}
-		
-		if (this.archivePath.equals("")) {
-
+		else if (!this.cacheArchivePath.equals("")) {
 			command = new String[] { hadoopBin, config, confPath, jar, jarPath, 
 					yarnOpts, MRusernameOpt, MRMapsOpt, MRReducesOpt, 
 					MRJobNameOpt, mapperOpt, mapperVal, reducerOpt, reducerVal,
 					inputOpt, inputVal, outputOpt, outputVal,
-					"-cacheArchive", this.cacheArchivePath };
+					"-cacheArchive", this.cacheFilePath };
+		}
+		else if (!this.cacheFilePath.equals("")) {
+			command = new String[] { hadoopBin, config, confPath, jar, jarPath, 
+					yarnOpts, MRusernameOpt, MRMapsOpt, MRReducesOpt, 
+					MRJobNameOpt, mapperOpt, mapperVal, reducerOpt, reducerVal,
+					inputOpt, inputVal, outputOpt, outputVal,
+					"-cacheFile", this.cacheFilePath };
 		}
 		
 		return command;
