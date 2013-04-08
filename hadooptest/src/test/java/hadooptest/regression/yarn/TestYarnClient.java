@@ -3,10 +3,13 @@ package hadooptest.regression.yarn;
 import static org.junit.Assert.*;
 	
 import hadooptest.TestSession;
+import hadooptest.job.SleepJob;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
@@ -33,10 +36,13 @@ public class TestYarnClient extends TestSession {
 		yarnClient.start();
 
 		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
-        TestSession.logger.info("queues='" +
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
+		TestSession.logger.info("queues='" +
         	Arrays.toString(queues.toArray()) + "'");
- 
+        
         List<NodeReport>  nodeReports = yarnClient.getNodeReports();
+		assertNotNull("Expected reports for cluster node(s) not found!!!",
+				queues);		
         TestSession.logger.info("nodes='" +
         	Arrays.toString(nodeReports.toArray()) + "'");
         
@@ -49,3 +55,9 @@ public class TestYarnClient extends TestSession {
 	}
 	
 }
+
+/*
+assertTrue("Version has invalid format!!!", testConfVersionAPI.matches("\\d+[.\\d+]+"));
+assertTrue("API and CLI versions do not match!!!", testConfVersionAPI.equals(testConfVersionCLI));
+assertTrue("Cluster Object version and Cluster Conf Object version do not match!!!", clusterVersion.equals(testConfVersionAPI));
+*/
