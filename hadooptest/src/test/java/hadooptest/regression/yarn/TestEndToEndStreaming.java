@@ -22,6 +22,9 @@ import hadooptest.config.TestConfiguration;
 import hadooptest.job.StreamingJob;
 import hadooptest.job.JobState;
 
+/**
+ * YARN regression tests to exercise Hadoop streaming.
+ */
 public class TestEndToEndStreaming extends TestSession {
 	
 	private String userName = System.getProperty("user.name");
@@ -163,18 +166,14 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, "/tmp/streaming", this.getHdfsBaseUrl()); }
 	@Test public void testFiles1110() throws Exception { filesSymlinkSpecialCharsFail(1110, "/user/" + userName + "/streaming", "file://"); }
 	@Test public void testFiles1120() throws Exception { filesSymlinkSpecialCharsFail(1120, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
-
+	
 	private void filesSymlinkSpecialCharsFail(int testcaseID, 
 			String publicPrivateCache, String fileSystem) 
 					throws Exception {
 		
 		String file = "InputFile";
 		
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -192,46 +191,22 @@ public class TestEndToEndStreaming extends TestSession {
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
-		
+
 		logger.info("Streaming-" + testcaseID + 
 				" - Test to check the -files option for symlinks with " + 
 				"special characters such as ! @ $ & * ( ) - _ + = for " + 
 				"file on " + fileSystem + " in " + cacheInCommand + 
 				" for " + file + ".");
+		
+		this.putInputFileHDFS(testcaseID);
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
-
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setFilesPath(fileSystem + cacheInCommand + 
 				"/" + file + "#testlink#%^");
 
 		String[] output = job.submitUnthreaded();
 
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("java.lang.IllegalArgumentException")) {
-				foundError = true;
-				break;
-			}
-		}
-
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		this.checkForOutputError(output, "java.lang.IllegalArgumentException");
 	}
 	
 	private void filesSymlinkSpecialChars(int testcaseID, 
@@ -240,11 +215,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		String file = "InputFile";
 		
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -269,37 +240,14 @@ public class TestEndToEndStreaming extends TestSession {
 				"file on " + fileSystem + " in " + cacheInCommand + 
 				" for " + file + ".");
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
+		this.putInputFileHDFS(testcaseID);
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setFilesPath(fileSystem + cacheInCommand + 
 				"/" + file + "#testlink\'!@$&*()-_+=\'");
 
 		job.start();
-
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
-		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-				job.verifyID());
-
-		assertTrue("Streaming job did not succeed", 
-				job.waitFor(JobState.SUCCEEDED, 240));
-
-		this.validateOutput(testcaseID);
+		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 	
 	private void filesNonExistentInput(int testcaseID, 
@@ -308,11 +256,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		String archive = "nonExistentInput";
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -328,50 +272,22 @@ public class TestEndToEndStreaming extends TestSession {
 				"file/directory on " + fileSystem + " in " + 
 				cacheInCommand + ".");
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
-		
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		this.putInputFileHDFS(testcaseID);
+
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setFilesPath(fileSystem + cacheInCommand + 
 				"/" + archive);
 		
 		String[] output = job.submitUnthreaded();
 
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("java.io.FileNotFoundException")) {
-				foundError = true;
-				break;
-			}
-		}
-
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		this.checkForOutputError(output, "java.io.FileNotFoundException");
 	}
 	
 	private void filesNoSymlinkOnCache(int testcaseID, 
 			String publicPrivateCache, String file, String fileSystem) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -395,48 +311,21 @@ public class TestEndToEndStreaming extends TestSession {
 				"symlink for file on " + fileSystem + " in " + cacheInCommand + 
 				" for " + file + ".");
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
-		
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		this.putInputFileHDFS(testcaseID);
+
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setFilesPath(fileSystem + cacheInCommand + 
 				"/" + file);
 		
 		job.start();
-
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
-		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-				job.verifyID());
-
-		assertTrue("Streaming job did not succeed", 
-				job.waitFor(JobState.SUCCEEDED, 240));
-
-		this.validateOutput(testcaseID);
+		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 	
 	private void filesSymlinkOnBadCache(int testcaseID, 
 			String publicPrivateCache, String fileSystem) 
 					throws Exception {
 		
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String archive = "nonExistentInput";
 		String cacheInCommand = publicPrivateCache;
@@ -452,50 +341,22 @@ public class TestEndToEndStreaming extends TestSession {
 				" - Test to check the -files option for non existent " + 
 				"symlink on " + fileSystem + " in " + cacheInCommand);
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
+		this.putInputFileHDFS(testcaseID);
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setFilesPath(fileSystem + cacheInCommand + 
 				"/" + archive + "#testlink");
 		
 		String[] output = job.submitUnthreaded();
-
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("java.io.FileNotFoundException")) {
-				foundError = true;
-				break;
-			}
-		}
-
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		
+		this.checkForOutputError(output, "java.io.FileNotFoundException");
 	}
 	
 	private void filesFilesOnFS(int testcaseID, String publicPrivateCache, 
 			String file, String fileSystem) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -518,48 +379,21 @@ public class TestEndToEndStreaming extends TestSession {
 				" - Test to check the -files option for file on " + 
 				fileSystem + " in " + cacheInCommand + " for " + file + ".");
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
+		this.putInputFileHDFS(testcaseID);
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setFilesPath(fileSystem + cacheInCommand + 
 				"/" + file + "#testlink");
 		
 		job.start();
-
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
-		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-				job.verifyID());
-
-		assertTrue("Streaming job did not succeed", 
-				job.waitFor(JobState.SUCCEEDED, 240));
-
-		this.validateOutput(testcaseID);
+		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 	
 	private void cacheFilesNoSymlinkOnCache(int testcaseID, 
 			String publicPrivateCache, String file, String fileSystem) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -583,50 +417,22 @@ public class TestEndToEndStreaming extends TestSession {
 				"symlink for file on " + fileSystem + " in " + cacheInCommand + 
 				" for " + file + ".");
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
-		
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		this.putInputFileHDFS(testcaseID);
+
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setCacheFilePath(fileSystem + cacheInCommand + 
 				"/" + file);
 		
 		String[] output = job.submitUnthreaded();
 
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("You need to specify the uris as ")) {
-				foundError = true;
-				break;
-			}
-		}
-
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		this.checkForOutputError(output, "You need to specify the uris as ");
 	}
 	
 	private void cacheFilesSymlinkOnBadCache(int testcaseID, 
 			String publicPrivateCache, String fileSystem) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String archive = "nonExistentInput";
 		String cacheInCommand = publicPrivateCache;
@@ -642,50 +448,23 @@ public class TestEndToEndStreaming extends TestSession {
 				" - Test to check the -cacheFile option for non existent " + 
 				"symlink on " + fileSystem + " in " + cacheInCommand);
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
-		
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		this.putInputFileHDFS(testcaseID);
+
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setCacheFilePath(fileSystem + cacheInCommand + 
 				"/" + archive + "#testlink");
 		
 		String[] output = job.submitUnthreaded();
 
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("Error launching job , bad input path :")) {
-				foundError = true;
-				break;
-			}
-		}
-
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		this.checkForOutputError(output, 
+				"Error launching job , bad input path :");
 	}
 	
 	private void cacheFilesFileOnFS(int testcaseID, String publicPrivateCache, 
 			String file, String fileSystem) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -707,49 +486,22 @@ public class TestEndToEndStreaming extends TestSession {
 		logger.info("Streaming-" + testcaseID + 
 				" - Test to check the -cacheFile option for file on " + 
 				fileSystem + " in " + cacheInCommand + " for " + file + ".");
-		
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
-		
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+
+		this.putInputFileHDFS(testcaseID);
+
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setCacheFilePath(fileSystem + cacheInCommand + 
 				"/" + file + "#testlink");
 		
 		job.start();
-
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
-		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-				job.verifyID());
-
-		assertTrue("Streaming job did not succeed", 
-				job.waitFor(JobState.SUCCEEDED, 240));
-
-		this.validateOutput(testcaseID);
+		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 	
 	private void archivesNoSymlinkOnCache(int testcaseID, 
 			String publicPrivateCache, String archive, String fileSystem) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -773,48 +525,21 @@ public class TestEndToEndStreaming extends TestSession {
 				"symlink on " + fileSystem + " in " + cacheInCommand + 
 				" for " + archive + " file");
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
+		this.putInputFileHDFS(testcaseID);
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setArchivePath(fileSystem + cacheInCommand + 
 				"/cachedir" + archive);
 		
 		job.start();
-
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
-		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-				job.verifyID());
-
-		assertTrue("Streaming job did not succeed", 
-				job.waitFor(JobState.SUCCEEDED, 240));
-
-		this.validateOutput(testcaseID);
+		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 	
 	private void archivesSymlinkOnBadCache(int testcaseID, 
 			String publicPrivateCache, String fileSystem) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String archive = "nonExistentcachedir.zip";
 
@@ -834,49 +559,21 @@ public class TestEndToEndStreaming extends TestSession {
 				" - Test to check the -archives option for non existent " + 
 				"symlink on " + fileSystem + " in " + cacheInCommand + ".");
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
-		
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		this.putInputFileHDFS(testcaseID);
+
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setArchivePath(fileSystem + cacheInCommand + 
 				"/" + archive + "#testlink");
 
 		String[] output = job.submitUnthreaded();
-		
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("java.io.FileNotFoundException")) {
-				foundError = true;
-				break;
-			}
-		}
 
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		this.checkForOutputError(output, "java.io.FileNotFoundException");
 	}
 	
 	private void archivesFileOnFS(int testcaseID, String publicPrivateCache,
 			String archive, String fileSystem) throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
 		if (fileSystem.equals("file://")) {
@@ -895,43 +592,20 @@ public class TestEndToEndStreaming extends TestSession {
 							testcaseID + "/cachedir" + archive), 
 							cacheInCommand + "/cachedir" + archive);
 		}
-		
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
-						testcaseID + "/input.txt"), 
-						"/tmp/streaming/streaming-" + testcaseID + 
-				"/input.txt");
+
+		this.putInputFileHDFS(testcaseID);
 		
 		logger.info("Streaming-" + testcaseID + 
 				" - Test to check the -archives option for file on " + 
 				fileSystem + " in " + cacheInCommand + " for " + archive + 
 				" file.");
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setArchivePath(fileSystem + cacheInCommand + 
 				"/cachedir" + archive + "#testlink");
 
 		job.start();
-
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
-		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-				job.verifyID());
-
-		assertTrue("Streaming job did not succeed", 
-				job.waitFor(JobState.SUCCEEDED, 240));
-
-		this.validateOutput(testcaseID);
+		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 
 	private void noSymlinkOnCache(int testcaseID, String publicPrivateCache) 
@@ -949,35 +623,15 @@ public class TestEndToEndStreaming extends TestSession {
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setCacheArchivePath(this.getHdfsBaseUrl() + publicPrivateCache + 
 				"/" + archive);
 
 		String[] output = job.submitUnthreaded();
 
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("You need to specify the uris as " + 
-					"scheme://path#linkname,Please specify a different " + 
-					"link name for all of your caching URIs")) {
-				foundError = true;
-				break;
-			}
-		}
-
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		this.checkForOutputError(output, "You need to specify the uris as " + 
+				"scheme://path#linkname,Please specify a different " + 
+				"link name for all of your caching URIs");
 	}
 	
 	private void symlinkOnBadCache(int testcaseID, String publicPrivateCache) 
@@ -995,34 +649,15 @@ public class TestEndToEndStreaming extends TestSession {
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setCacheArchivePath(this.getHdfsBaseUrl() + publicPrivateCache + 
 				"/" + archive + "#testlink");
 
 		String[] output = job.submitUnthreaded();
 
-		boolean foundError = false;
-		for (int i = 0; i < output.length; i++) {
-			logger.debug("OUTPUT" + i + ": " + output[i]);
-			if (output[i].contains("Error launching job , bad input path : " +
-					"File does not exist:")) {
-				foundError = true;
-				break;
-			}
-		}
-
-		assertTrue("Streaming job failure output string is not " + 
-				"correctly formed.", foundError);
+		this.checkForOutputError(output, 
+				"Error launching job , bad input path : " +
+				"File does not exist:");
 	}
 	
 	private void fileOnCache(int testcaseID, 
@@ -1030,11 +665,7 @@ public class TestEndToEndStreaming extends TestSession {
 			String archive) 
 					throws Exception {
 
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
-				testcaseID);
+		this.setupHDFSTestDirs(testcaseID);
 
 		String cacheInCommand = publicPrivateCache + "/" + testcaseID;
 
@@ -1052,31 +683,12 @@ public class TestEndToEndStreaming extends TestSession {
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
 
-		StreamingJob job = new StreamingJob();
-		job.setNumMappers(1);
-		job.setNumReducers(1);
-		job.setName("streamingTest-" + testcaseID);
-		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/input.txt");
-		job.setMapper("\"xargs cat\"");
-		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
-				testcaseID + "/Output");
+		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
 		job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + 
 				"/cachedir" + archive + "#testlink");
 
 		job.start();
-
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
-		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-				job.verifyID());
-
-		assertTrue("Streaming job did not succeed", 
-				job.waitFor(JobState.SUCCEEDED, 240));
-
-		this.validateOutput(testcaseID);
+		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 	
 	private void validateOutput(int testcaseID) throws Exception {
@@ -1232,5 +844,66 @@ public class TestEndToEndStreaming extends TestSession {
 				"capacity-scheduler.xml");
 		cluster.hadoopDaemon("stop", component);
 		cluster.hadoopDaemon("start", component);
+	}
+	
+	private void setupHDFSTestDirs(int testcaseID) throws Exception {
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
+	}
+	
+	private void waitForSuccessAndValidate(int testcaseID, StreamingJob job) 
+			throws Exception {
+		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
+				job.waitForID(30));
+		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
+				job.verifyID());
+
+		assertTrue("Streaming job did not succeed", 
+				job.waitFor(JobState.SUCCEEDED, 240));
+
+		this.validateOutput(testcaseID);
+	}
+
+	private void checkForOutputError(String[] output, String error) 
+			throws Exception {
+		boolean foundError = false;
+		for (int i = 0; i < output.length; i++) {
+			logger.debug("OUTPUT" + i + ": " + output[i]);
+			if (output[i].contains(error)) {
+				foundError = true;
+				break;
+			}
+		}
+
+		assertTrue("Streaming job failure output string is not " + 
+				"correctly formed.", foundError);
+	}
+	
+	private void putInputFileHDFS(int testcaseID) throws Exception {
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
+	}
+	
+	private StreamingJob setupDefaultStreamingJob(int testcaseID) 
+			throws Exception {
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		
+		return job;
 	}
 }
