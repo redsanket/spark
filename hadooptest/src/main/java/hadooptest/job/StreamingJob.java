@@ -45,6 +45,9 @@ public class StreamingJob extends Job {
 
 	/** The cacheFile path for the streaming job. */
 	private String cacheFilePath = "";
+
+	/** The files path for the streaming job. */
+	private String filesPath = "";
 	
 	/** The yarn options for the streaming job. */
 	private String yarnOptions;
@@ -95,7 +98,7 @@ public class StreamingJob extends Job {
 	}
 	
 	/**
-	 * Set the input file for the streaming job.
+	 * Set the -input file for the streaming job.
 	 * 
 	 * @param file the input file for the job.
 	 */
@@ -104,7 +107,7 @@ public class StreamingJob extends Job {
 	}
 	
 	/**
-	 * Set the output path for the streaming job.
+	 * Set the -output path for the streaming job.
 	 * 
 	 * @param path the output path for the job.
 	 */
@@ -113,7 +116,7 @@ public class StreamingJob extends Job {
 	}
 	
 	/**
-	 * Set the cache archive path for the streaming job.
+	 * Set the -cacheArchive path for the streaming job.
 	 * 
 	 * @param path the cache archive path for the job.
 	 */
@@ -122,7 +125,7 @@ public class StreamingJob extends Job {
 	}
 	
 	/**
-	 * Set the archive path for the streaming job.
+	 * Set the -archive path for the streaming job.
 	 * 
 	 * @param path the cache archive path for the job.
 	 */
@@ -131,12 +134,21 @@ public class StreamingJob extends Job {
 	}
 
 	/**
-	 * Set the cacheFile path for the streaming job.
+	 * Set the -cacheFile path for the streaming job.
 	 * 
 	 * @param path the cache archive path for the job.
 	 */
 	public void setCacheFilePath(String path) {
 		this.cacheFilePath = path;
+	}
+
+	/**
+	 * Set the -files path for the streaming job.
+	 * 
+	 * @param path the cache archive path for the job.
+	 */
+	public void setFilesPath(String path) {
+		this.filesPath = path;
 	}
 	
 	/** 
@@ -282,6 +294,13 @@ public class StreamingJob extends Job {
 					MRJobNameOpt, mapperOpt, mapperVal, reducerOpt, reducerVal,
 					inputOpt, inputVal, outputOpt, outputVal,
 					"-cacheFile", this.cacheFilePath };
+		}
+		else if (!this.filesPath.equals("")) {
+			command = new String[] { hadoopBin, config, confPath, jar, jarPath, 
+					yarnOpts, MRusernameOpt, MRMapsOpt, MRReducesOpt, 
+					MRJobNameOpt, "-files", this.filesPath, mapperOpt, 
+					mapperVal, reducerOpt, reducerVal, inputOpt, inputVal, 
+					outputOpt, outputVal };
 		}
 		
 		return command;

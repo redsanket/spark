@@ -116,6 +116,151 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testCacheFiles710() throws Exception { cacheFilesSymlinkOnBadCache(710, "/user/" + userName + "/streaming", "file://"); }
 	@Test public void testCacheFiles720() throws Exception { cacheFilesSymlinkOnBadCache(720, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
 	
+	@Test public void testCacheFiles730() throws Exception { cacheFilesNoSymlinkOnCache(730, "/tmp/streaming", "InputFile", "file://"); }
+	@Test public void testCacheFiles740() throws Exception { cacheFilesNoSymlinkOnCache(740, "/tmp/streaming", "InputFile", this.getHdfsBaseUrl()); }
+	@Test public void testCacheFiles750() throws Exception { cacheFilesNoSymlinkOnCache(750, "/tmp/streaming", "InputDir", "file://"); }
+	@Test public void testCacheFiles760() throws Exception { cacheFilesNoSymlinkOnCache(760, "/tmp/streaming", "InputDir", this.getHdfsBaseUrl()); }
+	@Test public void testCacheFiles770() throws Exception { cacheFilesNoSymlinkOnCache(770, "/user/" + userName + "/streaming", "InputFile", "file://"); }
+	@Test public void testCacheFiles780() throws Exception { cacheFilesNoSymlinkOnCache(780, "/user/" + userName + "/streaming", "InputFile", this.getHdfsBaseUrl()); }
+	@Test public void testCacheFiles790() throws Exception { cacheFilesNoSymlinkOnCache(790, "/user/" + userName + "/streaming", "InputDir", "file://"); }
+	@Test public void testCacheFiles800() throws Exception { cacheFilesNoSymlinkOnCache(800, "/user/" + userName + "/streaming", "InputDir", this.getHdfsBaseUrl()); }
+
+	@Test public void testFiles810() throws Exception { filesFilesOnFS(810, "/tmp/streaming", "InputFile", "file://"); }
+	@Test public void testFiles820() throws Exception { filesFilesOnFS(820, "/tmp/streaming", "InputFile", this.getHdfsBaseUrl()); }
+	@Test public void testFiles830() throws Exception { filesFilesOnFS(830, "/tmp/streaming", "InputDir", "file://"); }
+	@Test public void testFiles840() throws Exception { filesFilesOnFS(840, "/tmp/streaming", "InputDir", this.getHdfsBaseUrl()); }
+	@Test public void testFiles850() throws Exception { filesFilesOnFS(850, "/user/" + userName + "/streaming", "InputFile", "file://"); }
+	@Test public void testFiles860() throws Exception { filesFilesOnFS(860, "/user/" + userName + "/streaming", "InputFile", this.getHdfsBaseUrl()); }
+	@Test public void testFiles870() throws Exception { filesFilesOnFS(870, "/user/" + userName + "/streaming", "InputDir", "file://"); }
+	@Test public void testFiles880() throws Exception { filesFilesOnFS(880, "/user/" + userName + "/streaming", "InputDir", this.getHdfsBaseUrl()); }
+	
+	private void filesFilesOnFS(int testcaseID, String publicPrivateCache, String file, String fileSystem) throws Exception {
+
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
+		
+		String cacheInCommand = publicPrivateCache;
+		if (fileSystem.equals("file://")) {
+			String cachedirPath = this.getResourceFullPath(
+					"data/streaming/streaming-" + testcaseID + 
+					"/input.txt");
+			cacheInCommand = 
+					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
+		}
+		else {
+			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
+			
+			this.putLocalToHdfs(
+					this.getResourceFullPath("data/streaming/streaming-" + 
+							testcaseID + "/" + file), 
+							cacheInCommand + "/" + file);		
+		}
+		
+		logger.info("Streaming-" + testcaseID + 
+				" - Test to check the -files option for file on " + 
+				fileSystem + " in " + cacheInCommand + " for " + file + ".");
+
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
+
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setFilesPath(fileSystem + cacheInCommand + 
+				"/" + file + "#testlink");
+		
+		job.start();
+
+		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
+				job.waitForID(30));
+		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
+				job.verifyID());
+
+		assertTrue("Streaming job did not succeed", 
+				job.waitFor(JobState.SUCCEEDED, 240));
+
+		this.validateOutput(testcaseID);
+	}
+	
+	private void cacheFilesNoSymlinkOnCache(int testcaseID, String publicPrivateCache, String file, String fileSystem) throws Exception {
+
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
+		
+		String cacheInCommand = publicPrivateCache;
+		if (fileSystem.equals("file://")) {
+			String cachedirPath = this.getResourceFullPath(
+					"data/streaming/streaming-" + testcaseID + 
+					"/input.txt");
+			cacheInCommand = 
+					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
+		}
+		else {
+			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
+			
+			this.putLocalToHdfs(
+					this.getResourceFullPath("data/streaming/streaming-" + 
+							testcaseID + "/" + file), 
+							cacheInCommand + "/" + file);		
+		}
+
+		logger.info("Streaming-" + testcaseID + 
+				" - Test to check the -cacheFile option without specifying " + 
+				"symlink for file on " + fileSystem + " in " + cacheInCommand + 
+				" for " + file + ".");
+
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
+		
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setCacheFilePath(fileSystem + cacheInCommand + 
+				"/" + file);
+		
+		String[] output = job.submitUnthreaded();
+
+		boolean foundError = false;
+		for (int i = 0; i < output.length; i++) {
+			logger.debug("OUTPUT" + i + ": " + output[i]);
+			if (output[i].contains("You need to specify the uris as ")) {
+				foundError = true;
+				break;
+			}
+		}
+
+		assertTrue("Streaming job failure output string is not " + 
+				"correctly formed.", foundError);
+	}
+	
 	private void cacheFilesSymlinkOnBadCache(int testcaseID, 
 			String publicPrivateCache, String fileSystem) 
 					throws Exception {
