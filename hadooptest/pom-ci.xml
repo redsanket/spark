@@ -59,6 +59,18 @@
             </configuration>
           </execution>
           <execution>
+            <id>parallel-class-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <groups>hadooptest.ParallelClassTests</groups>
+              <parallel>class</parallel>
+            </configuration>
+          </execution>
+          <execution>
             <id>parallel-class-and-method-tests</id>
             <phase>test</phase>
             <goals>
@@ -67,6 +79,7 @@
             <configuration>
               <skip>false</skip>
               <excludedGroups>hadooptest.SerialTests</excludedGroups>
+              <excludedGroups>hadooptest.ParallelClassTests</excludedGroups>
               <excludedGroups>hadooptest.ParallelMethodTests</excludedGroups>
               <parallel>both</parallel>
             </configuration>
