@@ -17,15 +17,61 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.13</version>
         <configuration>
-          <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-amd64-64/</argLine>  
+          <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
+          <skip>true</skip>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.hadoop</groupId>
+              <artifactId>excluded-artifact</artifactId>
+            </exclusion>
+          </exclusions>
+                    <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-amd64-64/</argLine>  
           <additionalClasspathElements>
             <additionalClasspathElement>${basedir}</additionalClasspathElement>
             <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
           </additionalClasspathElements>
           <excludes>
             <exclude>**/TestEndToEndCompression.java</exclude>
-          </excludes>
+          </excludes>          
         </configuration>
+        <executions>
+          <execution>
+            <id>serial-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <groups>hadooptest.SerialTests</groups>
+            </configuration>
+          </execution>
+          <execution>
+            <id>parallel-methods-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <groups>hadooptest.ParallelMethodTests</groups>
+              <parallel>methods</parallel>
+            </configuration>
+          </execution>
+          <execution>
+            <id>parallel-class-and-method-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <excludedGroups>hadooptest.SerialTests</excludedGroups>
+              <excludedGroups>hadooptest.ParallelMethodTests</excludedGroups>
+              <parallel>both</parallel>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
