@@ -86,10 +86,15 @@ public class TestSleepJobCLI extends TestSession {
 			assertTrue("Sleep job ID for sleep job (user 3) is invalid.", 
 					jobUser3.verifyID());
 
-			assertTrue("Job (default user) did not succeed.", jobUserDefault.waitForSuccess(1));
-			assertTrue("Job (user 1) did not succeed.", jobUser1.waitForSuccess(1));
-			assertTrue("Job (user 2) did not succeed.", jobUser2.waitForSuccess(1));
-			assertTrue("Job (user 3) did not succeed.", jobUser3.waitForSuccess(1));
+			int waitTime = 2;
+			assertTrue("Job (default user) did not succeed.",
+				jobUserDefault.waitForSuccess(waitTime));
+			assertTrue("Job (user 1) did not succeed.",
+				jobUser1.waitForSuccess(waitTime));
+			assertTrue("Job (user 2) did not succeed.",
+				jobUser2.waitForSuccess(waitTime));
+			assertTrue("Job (user 3) did not succeed.",
+				jobUser3.waitForSuccess(waitTime));
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
