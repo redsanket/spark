@@ -153,6 +153,155 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testFiles1030() throws Exception { filesNonExistentInput(1030, "/user/" + userName + "/streaming", "file://"); }
 	@Test public void testFiles1040() throws Exception { filesNonExistentInput(1040, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
 	
+	// Currently not working properly.  The special characters are failing task attempts.
+	//@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, "/tmp/streaming", "file://"); }
+	//@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, "/tmp/streaming", this.getHdfsBaseUrl()); }
+	//@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, "/user/" + userName + "/streaming", "file://"); }
+	//@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+
+	@Test public void testFiles1090() throws Exception { filesSymlinkSpecialCharsFail(1090, "/tmp/streaming", "file://"); }
+	@Test public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, "/tmp/streaming", this.getHdfsBaseUrl()); }
+	@Test public void testFiles1110() throws Exception { filesSymlinkSpecialCharsFail(1110, "/user/" + userName + "/streaming", "file://"); }
+	@Test public void testFiles1120() throws Exception { filesSymlinkSpecialCharsFail(1120, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+
+	private void filesSymlinkSpecialCharsFail(int testcaseID, 
+			String publicPrivateCache, String fileSystem) 
+					throws Exception {
+		
+		String file = "InputFile";
+		
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
+		
+		String cacheInCommand = publicPrivateCache;
+		if (fileSystem.equals("file://")) {
+			String cachedirPath = this.getResourceFullPath(
+					"data/streaming/streaming-" + testcaseID + 
+					"/input.txt");
+			cacheInCommand = 
+					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
+		}
+		else {
+			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
+			
+			this.putLocalToHdfs(
+					this.getResourceFullPath("data/streaming/streaming-" + 
+							testcaseID + "/" + file), 
+							cacheInCommand + "/" + file);		
+		}
+		
+		logger.info("Streaming-" + testcaseID + 
+				" - Test to check the -files option for symlinks with " + 
+				"special characters such as ! @ $ & * ( ) - _ + = for " + 
+				"file on " + fileSystem + " in " + cacheInCommand + 
+				" for " + file + ".");
+
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
+
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setFilesPath(fileSystem + cacheInCommand + 
+				"/" + file + "#testlink#%^");
+
+		String[] output = job.submitUnthreaded();
+
+		boolean foundError = false;
+		for (int i = 0; i < output.length; i++) {
+			logger.debug("OUTPUT" + i + ": " + output[i]);
+			if (output[i].contains("java.lang.IllegalArgumentException")) {
+				foundError = true;
+				break;
+			}
+		}
+
+		assertTrue("Streaming job failure output string is not " + 
+				"correctly formed.", foundError);
+	}
+	
+	private void filesSymlinkSpecialChars(int testcaseID, 
+			String publicPrivateCache, String fileSystem) 
+					throws Exception {
+		
+		String file = "InputFile";
+		
+		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
+		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+				testcaseID);
+		
+		String cacheInCommand = publicPrivateCache;
+		if (fileSystem.equals("file://")) {
+			String cachedirPath = this.getResourceFullPath(
+					"data/streaming/streaming-" + testcaseID + 
+					"/input.txt");
+			cacheInCommand = 
+					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
+		}
+		else {
+			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
+			
+			this.putLocalToHdfs(
+					this.getResourceFullPath("data/streaming/streaming-" + 
+							testcaseID + "/" + file), 
+							cacheInCommand + "/" + file);		
+		}
+		
+		logger.info("Streaming-" + testcaseID + 
+				" - Test to check the -files option for symlinks with " + 
+				"special characters such as ! @ $ & * ( ) - _ + = for " + 
+				"file on " + fileSystem + " in " + cacheInCommand + 
+				" for " + file + ".");
+
+		this.putLocalToHdfs(
+				this.getResourceFullPath("data/streaming/streaming-" + 
+						testcaseID + "/input.txt"), 
+						"/tmp/streaming/streaming-" + testcaseID + 
+				"/input.txt");
+
+		StreamingJob job = new StreamingJob();
+		job.setNumMappers(1);
+		job.setNumReducers(1);
+		job.setName("streamingTest-" + testcaseID);
+		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
+		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/input.txt");
+		job.setMapper("\"xargs cat\"");
+		job.setReducer("cat");
+		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+				testcaseID + "/Output");
+		job.setFilesPath(fileSystem + cacheInCommand + 
+				"/" + file + "#testlink\'!@$&*()-_+=\'");
+
+		job.start();
+
+		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
+				job.waitForID(30));
+		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
+				job.verifyID());
+
+		assertTrue("Streaming job did not succeed", 
+				job.waitFor(JobState.SUCCEEDED, 240));
+
+		this.validateOutput(testcaseID);
+	}
+	
 	private void filesNonExistentInput(int testcaseID, 
 			String publicPrivateCache, String fileSystem)
 					throws Exception {
