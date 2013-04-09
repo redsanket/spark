@@ -116,77 +116,36 @@
       </resource>
     </resources>
 		
-      <plugins>
+    <plugins>
 
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.13</version>
-          <configuration>
-            <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
-            <skip>true</skip>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>excluded-artifact</artifactId>
-              </exclusion>
-            </exclusions>
-          </configuration>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-          <executions>
-            <execution>
-              <id>serial-tests</id>
-              <phase>test</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-              <configuration>
-                <skip>false</skip>
-                <groups>hadooptest.SerialTests</groups>
-              </configuration>
-            </execution>
-            <execution>
-              <id>concurrent-tests</id>
-              <phase>test</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-              <configuration>
-                <skip>false</skip>
-                <excludedGroups>hadooptest.SerialTests</excludedGroups>
-                <parallel>methods</parallel>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-javadoc-plugin</artifactId>
+	    <version>2.9</version>
+	    <configuration>
+	      <outputDirectory>../..</outputDirectory>
+          <reportOutputDirectory>../..</reportOutputDirectory>
+          <destDir>hadooptest-javadoc</destDir>
+	      <aggregate>true</aggregate>
+	      <quiet>true</quiet>
+	      <excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
+	    </configuration>
+      </plugin>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>2.2</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>test-jar</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-javadoc-plugin</artifactId>
-	  <version>2.9</version>
-	  <configuration>
-	    <outputDirectory>../..</outputDirectory>
-            <reportOutputDirectory>../..</reportOutputDirectory>
-            <destDir>hadooptest-javadoc</destDir>
-	    <aggregate>true</aggregate>
-	    <quiet>true</quiet>
-	    <excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
-	  </configuration>
-	</plugin>
-
-      </plugins>
+    </plugins>
   </build>
 
   <dependencies>

@@ -2,6 +2,8 @@ package hadooptest.regression.yarn;
 
 import static org.junit.Assert.*;
 
+import hadooptest.ParallelMethodTests;
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.cluster.DFS;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
@@ -14,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -25,9 +28,14 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(ParallelMethodTests.class)
 public class TestEndToEndCompression extends TestSession {
 
 	private static final String[] CODECS = {
@@ -70,7 +78,8 @@ public class TestEndToEndCompression extends TestSession {
 	}
 
 	public static void setupTestConf() throws Exception {
-		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		FullyDistributedCluster cluster =
+				(FullyDistributedCluster) TestSession.cluster;
 		String component = TestConfiguration.RESOURCE_MANAGER;
 
 		/* 
@@ -78,6 +87,20 @@ public class TestEndToEndCompression extends TestSession {
 		 * queue is already in place. If so, skip the following as to not waste
 		 *  time.
 		 */
+		YarnClientImpl yarnClient = new YarnClientImpl();
+		yarnClient.init(TestSession.getCluster().getConf());
+		yarnClient.start();
+
+		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
+		TestSession.logger.info("queues='" +
+        	Arrays.toString(queues.toArray()) + "'");
+		if ((queues.size() == 1) &&
+			(Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
+				TestSession.logger.debug("Cluster is already setup properly." +
+						"Nothing to do.");
+				return;
+		}
 		
 		// Backup the default configuration directory on the Resource Manager
 		// component host.
@@ -197,6 +220,8 @@ public class TestEndToEndCompression extends TestSession {
 
 	// job codec = CODECS[0]
 	@Test public void testCompression01() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
+	
+	/*
 	@Test public void testCompression02() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
 	@Test public void testCompression03() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
 	@Test public void testCompression04() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
@@ -310,7 +335,7 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression94() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression95() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression96() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-
+*/
 
 	public void testCompression(String jobCodec, String mapCodec,
 			String compressionType, String dataType) throws Exception {
