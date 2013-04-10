@@ -15,8 +15,11 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
+import hadooptest.cluster.DFS;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.TestConfiguration;
 import hadooptest.job.StreamingJob;
@@ -25,158 +28,174 @@ import hadooptest.job.JobState;
 /**
  * YARN regression tests to exercise Hadoop streaming.
  */
+@Category(ParallelMethodTests.class)
 public class TestEndToEndStreaming extends TestSession {
 	
-	private String userName = System.getProperty("user.name");
+	private static final String USER_NAME = System.getProperty("user.name");
+	private static final String CACHE_TMP = "/tmp/streaming";
+	private static final String CACHE_USER = "/user/" + USER_NAME + "/streaming";
+	private static final String LOCALFS_BASE = "file://";
+	private static final String JAR = ".jar";
+	private static final String TAR = ".tar";
+	private static final String TARGZ = ".tar.gz";
+	private static final String TGZ = ".tgz";
+	private static final String ZIP = ".zip";
+	private static final String INPUTFILE = "InputFile";
+	private static final String INPUTDIR = "InputDir";
+
+	private static DFS hdfs;
+	private static String hdfsBaseURL;
 	
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
 		
+		hdfs = new DFS();
+		hdfsBaseURL = hdfs.getBaseUrl();
 		setupTestConf();
 	}
 
-	@Test public void testCacheArchives10() throws Exception { fileOnCache(10, "/tmp/streaming", ".jar"); }
-	@Test public void testCacheArchives20() throws Exception { fileOnCache(20, "/tmp/streaming", ".tar"); }
-	@Test public void testCacheArchives30() throws Exception { fileOnCache(30, "/tmp/streaming", ".tar.gz"); }
-	@Test public void testCacheArchives40() throws Exception { fileOnCache(40, "/tmp/streaming", ".tgz"); }
-	@Test public void testCacheArchives50() throws Exception { fileOnCache(50, "/tmp/streaming", ".zip"); }
-	@Test public void testCacheArchives60() throws Exception { fileOnCache(60, "/user/" + userName + "/streaming", ".jar"); }
-	@Test public void testCacheArchives70() throws Exception { fileOnCache(70, "/user/" + userName + "/streaming", ".tar"); }
-	@Test public void testCacheArchives80() throws Exception { fileOnCache(80, "/user/" + userName + "/streaming", ".tar.gz"); }
-	@Test public void testCacheArchives90() throws Exception { fileOnCache(90, "/user/" + userName + "/streaming", ".tgz"); }
-	@Test public void testCacheArchives100() throws Exception { fileOnCache(100, "/user/" + userName + "/streaming", ".zip"); }
+	@Test public void testCacheArchives10() throws Exception { cacheArchivesFileOnCache(10, CACHE_TMP, JAR); }
+	@Test public void testCacheArchives20() throws Exception { cacheArchivesFileOnCache(20, CACHE_TMP, TAR); }
+	@Test public void testCacheArchives30() throws Exception { cacheArchivesFileOnCache(30, CACHE_TMP, TARGZ); }
+	@Test public void testCacheArchives40() throws Exception { cacheArchivesFileOnCache(40, CACHE_TMP, TGZ); }
+	@Test public void testCacheArchives50() throws Exception { cacheArchivesFileOnCache(50, CACHE_TMP, ZIP); }
+	@Test public void testCacheArchives60() throws Exception { cacheArchivesFileOnCache(60, CACHE_USER, JAR); }
+	@Test public void testCacheArchives70() throws Exception { cacheArchivesFileOnCache(70, CACHE_USER, TAR); }
+	@Test public void testCacheArchives80() throws Exception { cacheArchivesFileOnCache(80, CACHE_USER, TARGZ); }
+	@Test public void testCacheArchives90() throws Exception { cacheArchivesFileOnCache(90, CACHE_USER, TGZ); }
+	@Test public void testCacheArchives100() throws Exception { cacheArchivesFileOnCache(100, CACHE_USER, ZIP); }
 	
-	@Test public void testCacheArchives110() throws Exception { symlinkOnBadCache(110, "/tmp/streaming"); }
-	@Test public void testCacheArchives120() throws Exception { symlinkOnBadCache(120, "/user/" + userName + "/streaming"); }
+	@Test public void testCacheArchives110() throws Exception { cacheArchivesSymlinkOnBadCache(110, CACHE_TMP); }
+	@Test public void testCacheArchives120() throws Exception { cacheArchivesSymlinkOnBadCache(120, CACHE_USER); }
 
-	@Test public void testCacheArchives130() throws Exception { noSymlinkOnCache(130, "/tmp/streaming"); }
-	@Test public void testCacheArchives140() throws Exception { noSymlinkOnCache(140, "/user/" + userName + "/streaming"); }
+	@Test public void testCacheArchives130() throws Exception { cacheArchivesNoSymlinkOnCache(130, CACHE_TMP); }
+	@Test public void testCacheArchives140() throws Exception { cacheArchivesNoSymlinkOnCache(140, CACHE_USER); }
 	
-	@Test public void testArchives160() throws Exception { archivesFileOnFS(160, "/tmp/streaming", ".jar", "file://"); }
-	@Test public void testArchives170() throws Exception { archivesFileOnFS(170, "/tmp/streaming", ".jar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives180() throws Exception { archivesFileOnFS(180, "/tmp/streaming", ".tar", "file://"); }
-	@Test public void testArchives190() throws Exception { archivesFileOnFS(190, "/tmp/streaming", ".tar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives200() throws Exception { archivesFileOnFS(200, "/tmp/streaming", ".tar.gz", "file://"); }
-	@Test public void testArchives210() throws Exception { archivesFileOnFS(210, "/tmp/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives220() throws Exception { archivesFileOnFS(220, "/tmp/streaming", ".tgz", "file://"); }
-	@Test public void testArchives230() throws Exception { archivesFileOnFS(230, "/tmp/streaming", ".tgz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives240() throws Exception { archivesFileOnFS(240, "/tmp/streaming", ".zip", "file://"); }
-	@Test public void testArchives250() throws Exception { archivesFileOnFS(250, "/tmp/streaming", ".zip", this.getHdfsBaseUrl()); }
-	@Test public void testArchives260() throws Exception { archivesFileOnFS(260, "/user/" + userName + "/streaming", ".jar", "file://"); }
-	@Test public void testArchives270() throws Exception { archivesFileOnFS(270, "/user/" + userName + "/streaming", ".jar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives280() throws Exception { archivesFileOnFS(280, "/user/" + userName + "/streaming", ".tar", "file://"); }
-	@Test public void testArchives290() throws Exception { archivesFileOnFS(290, "/user/" + userName + "/streaming", ".tar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives300() throws Exception { archivesFileOnFS(300, "/user/" + userName + "/streaming", ".tar.gz", "file://"); }
-	@Test public void testArchives310() throws Exception { archivesFileOnFS(310, "/user/" + userName + "/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives320() throws Exception { archivesFileOnFS(320, "/user/" + userName + "/streaming", ".tgz", "file://"); }
-	@Test public void testArchives330() throws Exception { archivesFileOnFS(330, "/user/" + userName + "/streaming", ".tgz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives340() throws Exception { archivesFileOnFS(340, "/user/" + userName + "/streaming", ".zip", "file://"); }
-	@Test public void testArchives350() throws Exception { archivesFileOnFS(350, "/user/" + userName + "/streaming", ".zip", this.getHdfsBaseUrl()); }
+	@Test public void testArchives160() throws Exception { archivesFileOnFS(160, CACHE_TMP, JAR, LOCALFS_BASE); }
+	@Test public void testArchives170() throws Exception { archivesFileOnFS(170, CACHE_TMP, JAR, hdfsBaseURL); }
+	@Test public void testArchives180() throws Exception { archivesFileOnFS(180, CACHE_TMP, TAR, LOCALFS_BASE); }
+	@Test public void testArchives190() throws Exception { archivesFileOnFS(190, CACHE_TMP, TAR, hdfsBaseURL); }
+	@Test public void testArchives200() throws Exception { archivesFileOnFS(200, CACHE_TMP, TARGZ, LOCALFS_BASE); }
+	@Test public void testArchives210() throws Exception { archivesFileOnFS(210, CACHE_TMP, TARGZ, hdfsBaseURL); }
+	@Test public void testArchives220() throws Exception { archivesFileOnFS(220, CACHE_TMP, TGZ, LOCALFS_BASE); }
+	@Test public void testArchives230() throws Exception { archivesFileOnFS(230, CACHE_TMP, TGZ, hdfsBaseURL); }
+	@Test public void testArchives240() throws Exception { archivesFileOnFS(240, CACHE_TMP, ZIP, LOCALFS_BASE); }
+	@Test public void testArchives250() throws Exception { archivesFileOnFS(250, CACHE_TMP, ZIP, hdfsBaseURL); }
+	@Test public void testArchives260() throws Exception { archivesFileOnFS(260, CACHE_USER, JAR, LOCALFS_BASE); }
+	@Test public void testArchives270() throws Exception { archivesFileOnFS(270, CACHE_USER, JAR, hdfsBaseURL); }
+	@Test public void testArchives280() throws Exception { archivesFileOnFS(280, CACHE_USER, TAR, LOCALFS_BASE); }
+	@Test public void testArchives290() throws Exception { archivesFileOnFS(290, CACHE_USER, TAR, hdfsBaseURL); }
+	@Test public void testArchives300() throws Exception { archivesFileOnFS(300, CACHE_USER, TARGZ, LOCALFS_BASE); }
+	@Test public void testArchives310() throws Exception { archivesFileOnFS(310, CACHE_USER, TARGZ, hdfsBaseURL); }
+	@Test public void testArchives320() throws Exception { archivesFileOnFS(320, CACHE_USER, TGZ, LOCALFS_BASE); }
+	@Test public void testArchives330() throws Exception { archivesFileOnFS(330, CACHE_USER, TGZ, hdfsBaseURL); }
+	@Test public void testArchives340() throws Exception { archivesFileOnFS(340, CACHE_USER, ZIP, LOCALFS_BASE); }
+	@Test public void testArchives350() throws Exception { archivesFileOnFS(350, CACHE_USER, ZIP, hdfsBaseURL); }
 
-	@Test public void testArchives360() throws Exception { archivesSymlinkOnBadCache(360, "/tmp/streaming", "file://"); }
-	@Test public void testArchives370() throws Exception { archivesSymlinkOnBadCache(370, "/tmp/streaming", this.getHdfsBaseUrl()); }
-	@Test public void testArchives380() throws Exception { archivesSymlinkOnBadCache(380, "/user/" + userName + "/streaming", "file://"); }
-	@Test public void testArchives390() throws Exception { archivesSymlinkOnBadCache(390, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+	@Test public void testArchives360() throws Exception { archivesSymlinkOnBadCache(360, CACHE_TMP, LOCALFS_BASE); }
+	@Test public void testArchives370() throws Exception { archivesSymlinkOnBadCache(370, CACHE_TMP, hdfsBaseURL); }
+	@Test public void testArchives380() throws Exception { archivesSymlinkOnBadCache(380, CACHE_USER, LOCALFS_BASE); }
+	@Test public void testArchives390() throws Exception { archivesSymlinkOnBadCache(390, CACHE_USER, hdfsBaseURL); }
 	
-	@Test public void testArchives400() throws Exception { archivesNoSymlinkOnCache(400, "/tmp/streaming", ".jar", "file://"); }
-	@Test public void testArchives410() throws Exception { archivesNoSymlinkOnCache(410, "/tmp/streaming", ".jar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives420() throws Exception { archivesNoSymlinkOnCache(420, "/tmp/streaming", ".tar", "file://"); }
-	@Test public void testArchives430() throws Exception { archivesNoSymlinkOnCache(430, "/tmp/streaming", ".tar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives440() throws Exception { archivesNoSymlinkOnCache(440, "/tmp/streaming", ".tar.gz", "file://"); }
-	@Test public void testArchives450() throws Exception { archivesNoSymlinkOnCache(450, "/tmp/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives460() throws Exception { archivesNoSymlinkOnCache(460, "/tmp/streaming", ".tgz", "file://"); }
-	@Test public void testArchives470() throws Exception { archivesNoSymlinkOnCache(470, "/tmp/streaming", ".tgz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives480() throws Exception { archivesNoSymlinkOnCache(480, "/tmp/streaming", ".zip", "file://"); }
-	@Test public void testArchives490() throws Exception { archivesNoSymlinkOnCache(490, "/tmp/streaming", ".zip", this.getHdfsBaseUrl()); }
-	@Test public void testArchives500() throws Exception { archivesNoSymlinkOnCache(500, "/user/" + userName + "/streaming", ".jar", "file://"); }
-	@Test public void testArchives510() throws Exception { archivesNoSymlinkOnCache(510, "/user/" + userName + "/streaming", ".jar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives520() throws Exception { archivesNoSymlinkOnCache(520, "/user/" + userName + "/streaming", ".tar", "file://"); }
-	@Test public void testArchives530() throws Exception { archivesNoSymlinkOnCache(530, "/user/" + userName + "/streaming", ".tar", this.getHdfsBaseUrl()); }
-	@Test public void testArchives540() throws Exception { archivesNoSymlinkOnCache(540, "/user/" + userName + "/streaming", ".tar.gz", "file://"); }
-	@Test public void testArchives550() throws Exception { archivesNoSymlinkOnCache(550, "/user/" + userName + "/streaming", ".tar.gz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives560() throws Exception { archivesNoSymlinkOnCache(560, "/user/" + userName + "/streaming", ".tgz", "file://"); }
-	@Test public void testArchives570() throws Exception { archivesNoSymlinkOnCache(570, "/user/" + userName + "/streaming", ".tgz", this.getHdfsBaseUrl()); }
-	@Test public void testArchives580() throws Exception { archivesNoSymlinkOnCache(580, "/user/" + userName + "/streaming", ".zip", "file://"); }
-	@Test public void testArchives590() throws Exception { archivesNoSymlinkOnCache(590, "/user/" + userName + "/streaming", ".zip", this.getHdfsBaseUrl()); }
+	@Test public void testArchives400() throws Exception { archivesNoSymlinkOnCache(400, CACHE_TMP, JAR, LOCALFS_BASE); }
+	@Test public void testArchives410() throws Exception { archivesNoSymlinkOnCache(410, CACHE_TMP, JAR, hdfsBaseURL); }
+	@Test public void testArchives420() throws Exception { archivesNoSymlinkOnCache(420, CACHE_TMP, TAR, LOCALFS_BASE); }
+	@Test public void testArchives430() throws Exception { archivesNoSymlinkOnCache(430, CACHE_TMP, TAR, hdfsBaseURL); }
+	@Test public void testArchives440() throws Exception { archivesNoSymlinkOnCache(440, CACHE_TMP, TARGZ, LOCALFS_BASE); }
+	@Test public void testArchives450() throws Exception { archivesNoSymlinkOnCache(450, CACHE_TMP, TARGZ, hdfsBaseURL); }
+	@Test public void testArchives460() throws Exception { archivesNoSymlinkOnCache(460, CACHE_TMP, TGZ, LOCALFS_BASE); }
+	@Test public void testArchives470() throws Exception { archivesNoSymlinkOnCache(470, CACHE_TMP, TGZ, hdfsBaseURL); }
+	@Test public void testArchives480() throws Exception { archivesNoSymlinkOnCache(480, CACHE_TMP, ZIP, LOCALFS_BASE); }
+	@Test public void testArchives490() throws Exception { archivesNoSymlinkOnCache(490, CACHE_TMP, ZIP, hdfsBaseURL); }
+	@Test public void testArchives500() throws Exception { archivesNoSymlinkOnCache(500, CACHE_USER, JAR, LOCALFS_BASE); }
+	@Test public void testArchives510() throws Exception { archivesNoSymlinkOnCache(510, CACHE_USER, JAR, hdfsBaseURL); }
+	@Test public void testArchives520() throws Exception { archivesNoSymlinkOnCache(520, CACHE_USER, TAR, LOCALFS_BASE); }
+	@Test public void testArchives530() throws Exception { archivesNoSymlinkOnCache(530, CACHE_USER, TAR, hdfsBaseURL); }
+	@Test public void testArchives540() throws Exception { archivesNoSymlinkOnCache(540, CACHE_USER, TARGZ, LOCALFS_BASE); }
+	@Test public void testArchives550() throws Exception { archivesNoSymlinkOnCache(550, CACHE_USER, TARGZ, hdfsBaseURL); }
+	@Test public void testArchives560() throws Exception { archivesNoSymlinkOnCache(560, CACHE_USER, TGZ, LOCALFS_BASE); }
+	@Test public void testArchives570() throws Exception { archivesNoSymlinkOnCache(570, CACHE_USER, TGZ, hdfsBaseURL); }
+	@Test public void testArchives580() throws Exception { archivesNoSymlinkOnCache(580, CACHE_USER, ZIP, LOCALFS_BASE); }
+	@Test public void testArchives590() throws Exception { archivesNoSymlinkOnCache(590, CACHE_USER, ZIP, hdfsBaseURL); }
 	
 	//
 	// Tests 610, 630, 650, and 670 are currently commented out, because
 	// -cacheFile is now deprecated and these cases are no longer supported by
 	// Hadoop (at least as of 0.23.6).
 	//
-	//@Test public void testCacheFiles610() throws Exception { cacheFilesFileOnFS(610, "/tmp/streaming", "InputFile", "file://"); }
-	@Test public void testCacheFiles620() throws Exception { cacheFilesFileOnFS(620, "/tmp/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	//@Test public void testCacheFiles630() throws Exception { cacheFilesFileOnFS(630, "/tmp/streaming", "InputDir", "file://"); }
-	@Test public void testCacheFiles640() throws Exception { cacheFilesFileOnFS(640, "/tmp/streaming", "InputDir", this.getHdfsBaseUrl()); }
-	//@Test public void testCacheFiles650() throws Exception { cacheFilesFileOnFS(650, "/user/" + userName + "/streaming", "InputFile", "file://"); }
-	@Test public void testCacheFiles660() throws Exception { cacheFilesFileOnFS(660, "/user/" + userName + "/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	//@Test public void testCacheFiles670() throws Exception { cacheFilesFileOnFS(670, "/user/" + userName + "/streaming", "InputDir", "file://"); }
-	@Test public void testCacheFiles680() throws Exception { cacheFilesFileOnFS(680, "/user/" + userName + "/streaming", "InputDir", this.getHdfsBaseUrl()); }
+	//@Test public void testCacheFiles610() throws Exception { cacheFilesFileOnFS(610, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testCacheFiles620() throws Exception { cacheFilesFileOnFS(620, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	//@Test public void testCacheFiles630() throws Exception { cacheFilesFileOnFS(630, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testCacheFiles640() throws Exception { cacheFilesFileOnFS(640, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	//@Test public void testCacheFiles650() throws Exception { cacheFilesFileOnFS(650, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testCacheFiles660() throws Exception { cacheFilesFileOnFS(660, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	//@Test public void testCacheFiles670() throws Exception { cacheFilesFileOnFS(670, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testCacheFiles680() throws Exception { cacheFilesFileOnFS(680, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 
-	@Test public void testCacheFiles690() throws Exception { cacheFilesSymlinkOnBadCache(690, "/tmp/streaming", "file://"); }
-	@Test public void testCacheFiles700() throws Exception { cacheFilesSymlinkOnBadCache(700, "/tmp/streaming", this.getHdfsBaseUrl()); }
-	@Test public void testCacheFiles710() throws Exception { cacheFilesSymlinkOnBadCache(710, "/user/" + userName + "/streaming", "file://"); }
-	@Test public void testCacheFiles720() throws Exception { cacheFilesSymlinkOnBadCache(720, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+	@Test public void testCacheFiles690() throws Exception { cacheFilesSymlinkOnBadCache(690, CACHE_TMP, LOCALFS_BASE); }
+	@Test public void testCacheFiles700() throws Exception { cacheFilesSymlinkOnBadCache(700, CACHE_TMP, hdfsBaseURL); }
+	@Test public void testCacheFiles710() throws Exception { cacheFilesSymlinkOnBadCache(710, CACHE_USER, LOCALFS_BASE); }
+	@Test public void testCacheFiles720() throws Exception { cacheFilesSymlinkOnBadCache(720, CACHE_USER, hdfsBaseURL); }
 	
-	@Test public void testCacheFiles730() throws Exception { cacheFilesNoSymlinkOnCache(730, "/tmp/streaming", "InputFile", "file://"); }
-	@Test public void testCacheFiles740() throws Exception { cacheFilesNoSymlinkOnCache(740, "/tmp/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testCacheFiles750() throws Exception { cacheFilesNoSymlinkOnCache(750, "/tmp/streaming", "InputDir", "file://"); }
-	@Test public void testCacheFiles760() throws Exception { cacheFilesNoSymlinkOnCache(760, "/tmp/streaming", "InputDir", this.getHdfsBaseUrl()); }
-	@Test public void testCacheFiles770() throws Exception { cacheFilesNoSymlinkOnCache(770, "/user/" + userName + "/streaming", "InputFile", "file://"); }
-	@Test public void testCacheFiles780() throws Exception { cacheFilesNoSymlinkOnCache(780, "/user/" + userName + "/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testCacheFiles790() throws Exception { cacheFilesNoSymlinkOnCache(790, "/user/" + userName + "/streaming", "InputDir", "file://"); }
-	@Test public void testCacheFiles800() throws Exception { cacheFilesNoSymlinkOnCache(800, "/user/" + userName + "/streaming", "InputDir", this.getHdfsBaseUrl()); }
+	@Test public void testCacheFiles730() throws Exception { cacheFilesNoSymlinkOnCache(730, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testCacheFiles740() throws Exception { cacheFilesNoSymlinkOnCache(740, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	@Test public void testCacheFiles750() throws Exception { cacheFilesNoSymlinkOnCache(750, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testCacheFiles760() throws Exception { cacheFilesNoSymlinkOnCache(760, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	@Test public void testCacheFiles770() throws Exception { cacheFilesNoSymlinkOnCache(770, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testCacheFiles780() throws Exception { cacheFilesNoSymlinkOnCache(780, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	@Test public void testCacheFiles790() throws Exception { cacheFilesNoSymlinkOnCache(790, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testCacheFiles800() throws Exception { cacheFilesNoSymlinkOnCache(800, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 
-	@Test public void testFiles810() throws Exception { filesFilesOnFS(810, "/tmp/streaming", "InputFile", "file://"); }
-	@Test public void testFiles820() throws Exception { filesFilesOnFS(820, "/tmp/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testFiles830() throws Exception { filesFilesOnFS(830, "/tmp/streaming", "InputDir", "file://"); }
-	@Test public void testFiles840() throws Exception { filesFilesOnFS(840, "/tmp/streaming", "InputDir", this.getHdfsBaseUrl()); }
-	@Test public void testFiles850() throws Exception { filesFilesOnFS(850, "/user/" + userName + "/streaming", "InputFile", "file://"); }
-	@Test public void testFiles860() throws Exception { filesFilesOnFS(860, "/user/" + userName + "/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testFiles870() throws Exception { filesFilesOnFS(870, "/user/" + userName + "/streaming", "InputDir", "file://"); }
-	@Test public void testFiles880() throws Exception { filesFilesOnFS(880, "/user/" + userName + "/streaming", "InputDir", this.getHdfsBaseUrl()); }
+	@Test public void testFiles810() throws Exception { filesFilesOnFS(810, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testFiles820() throws Exception { filesFilesOnFS(820, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	@Test public void testFiles830() throws Exception { filesFilesOnFS(830, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testFiles840() throws Exception { filesFilesOnFS(840, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	@Test public void testFiles850() throws Exception { filesFilesOnFS(850, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testFiles860() throws Exception { filesFilesOnFS(860, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	@Test public void testFiles870() throws Exception { filesFilesOnFS(870, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testFiles880() throws Exception { filesFilesOnFS(880, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 	
-	@Test public void testFiles890() throws Exception { filesSymlinkOnBadCache(890, "/tmp/streaming", "file://"); }
-	@Test public void testFiles900() throws Exception { filesSymlinkOnBadCache(900, "/tmp/streaming", this.getHdfsBaseUrl()); }
-	@Test public void testFiles910() throws Exception { filesSymlinkOnBadCache(910, "/user/" + userName + "/streaming", "file://"); }
-	@Test public void testFiles920() throws Exception { filesSymlinkOnBadCache(920, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+	@Test public void testFiles890() throws Exception { filesSymlinkOnBadCache(890, CACHE_TMP, LOCALFS_BASE); }
+	@Test public void testFiles900() throws Exception { filesSymlinkOnBadCache(900, CACHE_TMP, hdfsBaseURL); }
+	@Test public void testFiles910() throws Exception { filesSymlinkOnBadCache(910, CACHE_USER, LOCALFS_BASE); }
+	@Test public void testFiles920() throws Exception { filesSymlinkOnBadCache(920, CACHE_USER, hdfsBaseURL); }
 	
-	@Test public void testFiles930() throws Exception { filesNoSymlinkOnCache(930, "/tmp/streaming", "InputFile", "file://"); }
-	@Test public void testFiles940() throws Exception { filesNoSymlinkOnCache(940, "/tmp/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testFiles950() throws Exception { filesNoSymlinkOnCache(950, "/tmp/streaming", "InputDir", "file://"); }
-	@Test public void testFiles960() throws Exception { filesNoSymlinkOnCache(960, "/tmp/streaming", "InputDir", this.getHdfsBaseUrl()); }
-	@Test public void testFiles970() throws Exception { filesNoSymlinkOnCache(970, "/user/" + userName + "/streaming", "InputFile", "file://"); }
-	@Test public void testFiles980() throws Exception { filesNoSymlinkOnCache(980, "/user/" + userName + "/streaming", "InputFile", this.getHdfsBaseUrl()); }
-	@Test public void testFiles990() throws Exception { filesNoSymlinkOnCache(990, "/user/" + userName + "/streaming", "InputDir", "file://"); }
-	@Test public void testFiles1000() throws Exception { filesNoSymlinkOnCache(1000, "/user/" + userName + "/streaming", "InputDir", this.getHdfsBaseUrl()); }
+	@Test public void testFiles930() throws Exception { filesNoSymlinkOnCache(930, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testFiles940() throws Exception { filesNoSymlinkOnCache(940, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	@Test public void testFiles950() throws Exception { filesNoSymlinkOnCache(950, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testFiles960() throws Exception { filesNoSymlinkOnCache(960, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	@Test public void testFiles970() throws Exception { filesNoSymlinkOnCache(970, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test public void testFiles980() throws Exception { filesNoSymlinkOnCache(980, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	@Test public void testFiles990() throws Exception { filesNoSymlinkOnCache(990, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test public void testFiles1000() throws Exception { filesNoSymlinkOnCache(1000, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 	
-	@Test public void testFiles1010() throws Exception { filesNonExistentInput(1010, "/tmp/streaming", "file://"); }
-	@Test public void testFiles1020() throws Exception { filesNonExistentInput(1020, "/tmp/streaming", this.getHdfsBaseUrl()); }
-	@Test public void testFiles1030() throws Exception { filesNonExistentInput(1030, "/user/" + userName + "/streaming", "file://"); }
-	@Test public void testFiles1040() throws Exception { filesNonExistentInput(1040, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+	@Test public void testFiles1010() throws Exception { filesNonExistentInput(1010, CACHE_TMP, LOCALFS_BASE); }
+	@Test public void testFiles1020() throws Exception { filesNonExistentInput(1020, CACHE_TMP, hdfsBaseURL); }
+	@Test public void testFiles1030() throws Exception { filesNonExistentInput(1030, CACHE_USER, LOCALFS_BASE); }
+	@Test public void testFiles1040() throws Exception { filesNonExistentInput(1040, CACHE_USER, hdfsBaseURL); }
 	
 	// Currently not working properly.  The special characters are failing task attempts.
-	//@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, "/tmp/streaming", "file://"); }
-	//@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, "/tmp/streaming", this.getHdfsBaseUrl()); }
-	//@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, "/user/" + userName + "/streaming", "file://"); }
-	//@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+	//@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, CACHE_TMP, LOCALFS_BASE); }
+	//@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, CACHE_TMP, hdfsBaseURL); }
+	//@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, CACHE_USER, LOCALFS_BASE); }
+	//@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, CACHE_USER, hdfsBaseURL); }
 
-	@Test public void testFiles1090() throws Exception { filesSymlinkSpecialCharsFail(1090, "/tmp/streaming", "file://"); }
-	@Test public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, "/tmp/streaming", this.getHdfsBaseUrl()); }
-	@Test public void testFiles1110() throws Exception { filesSymlinkSpecialCharsFail(1110, "/user/" + userName + "/streaming", "file://"); }
-	@Test public void testFiles1120() throws Exception { filesSymlinkSpecialCharsFail(1120, "/user/" + userName + "/streaming", this.getHdfsBaseUrl()); }
+	@Test public void testFiles1090() throws Exception { filesSymlinkSpecialCharsFail(1090, CACHE_TMP, LOCALFS_BASE); }
+	@Test public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, CACHE_TMP, hdfsBaseURL); }
+	@Test public void testFiles1110() throws Exception { filesSymlinkSpecialCharsFail(1110, CACHE_USER, LOCALFS_BASE); }
+	@Test public void testFiles1120() throws Exception { filesSymlinkSpecialCharsFail(1120, CACHE_USER, hdfsBaseURL); }
 	
 	private void filesSymlinkSpecialCharsFail(int testcaseID, 
 			String publicPrivateCache, String fileSystem) 
 					throws Exception {
 		
-		String file = "InputFile";
+		String file = INPUTFILE;
 		
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -213,12 +232,12 @@ public class TestEndToEndStreaming extends TestSession {
 			String publicPrivateCache, String fileSystem) 
 					throws Exception {
 		
-		String file = "InputFile";
+		String file = INPUTFILE;
 		
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -259,7 +278,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -290,7 +309,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -329,7 +348,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		String archive = "nonExistentInput";
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -359,7 +378,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -396,7 +415,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -436,7 +455,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		String archive = "nonExistentInput";
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
@@ -467,7 +486,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/expectedOutput");
@@ -504,7 +523,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/cachedir" + archive);
@@ -544,7 +563,7 @@ public class TestEndToEndStreaming extends TestSession {
 		String archive = "nonExistentcachedir.zip";
 
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/cachedir.zip");
@@ -576,7 +595,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.setupHDFSTestDirs(testcaseID);
 		
 		String cacheInCommand = publicPrivateCache;
-		if (fileSystem.equals("file://")) {
+		if (fileSystem.equals(LOCALFS_BASE)) {
 			
 			String cachedirPath = this.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
@@ -608,7 +627,7 @@ public class TestEndToEndStreaming extends TestSession {
 		this.waitForSuccessAndValidate(testcaseID, job);
 	}
 
-	private void noSymlinkOnCache(int testcaseID, String publicPrivateCache) 
+	private void cacheArchivesNoSymlinkOnCache(int testcaseID, String publicPrivateCache) 
 			throws Exception {
 
 		String archive = "cachedir.zip";
@@ -624,7 +643,7 @@ public class TestEndToEndStreaming extends TestSession {
 				"/input.txt");
 
 		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
-		job.setCacheArchivePath(this.getHdfsBaseUrl() + publicPrivateCache + 
+		job.setCacheArchivePath(hdfsBaseURL + publicPrivateCache + 
 				"/" + archive);
 
 		String[] output = job.submitUnthreaded();
@@ -634,7 +653,7 @@ public class TestEndToEndStreaming extends TestSession {
 				"link name for all of your caching URIs");
 	}
 	
-	private void symlinkOnBadCache(int testcaseID, String publicPrivateCache) 
+	private void cacheArchivesSymlinkOnBadCache(int testcaseID, String publicPrivateCache) 
 			throws Exception {
 
 		String archive = "nonExistentcachedir.zip";
@@ -650,7 +669,7 @@ public class TestEndToEndStreaming extends TestSession {
 				"/input.txt");
 
 		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
-		job.setCacheArchivePath(this.getHdfsBaseUrl() + publicPrivateCache + 
+		job.setCacheArchivePath(hdfsBaseURL + publicPrivateCache + 
 				"/" + archive + "#testlink");
 
 		String[] output = job.submitUnthreaded();
@@ -660,7 +679,7 @@ public class TestEndToEndStreaming extends TestSession {
 				"File does not exist:");
 	}
 	
-	private void fileOnCache(int testcaseID, 
+	private void cacheArchivesFileOnCache(int testcaseID, 
 			String publicPrivateCache, 
 			String archive) 
 					throws Exception {
@@ -684,7 +703,7 @@ public class TestEndToEndStreaming extends TestSession {
 				"/input.txt");
 
 		StreamingJob job = this.setupDefaultStreamingJob(testcaseID);
-		job.setCacheArchivePath(this.getHdfsBaseUrl() + cacheInCommand + 
+		job.setCacheArchivePath(hdfsBaseURL + cacheInCommand + 
 				"/cachedir" + archive + "#testlink");
 
 		job.start();
@@ -693,7 +712,7 @@ public class TestEndToEndStreaming extends TestSession {
 	
 	private void validateOutput(int testcaseID) throws Exception {
 		FileSystem fs = TestSession.cluster.getFS();
-		FileStatus[] elements = fs.listStatus(new Path(this.getHdfsBaseUrl() + 
+		FileStatus[] elements = fs.listStatus(new Path(hdfsBaseURL + 
 				"/tmp/streaming/streaming-" + testcaseID + "/Output"));
 		
 		String partFilePathStr = null;
@@ -780,7 +799,7 @@ public class TestEndToEndStreaming extends TestSession {
 		try{
 			FileSystem fs = cluster.getFS();
 			FsShell fsShell = cluster.getFsShell();		
-			String testDir = getHdfsBaseUrl() + path;
+			String testDir = hdfsBaseURL + path;
 			if (fs.exists(new Path(testDir))) {
 				logger.info("Delete existing test directory: " + 
 						testDir);
@@ -792,17 +811,6 @@ public class TestEndToEndStreaming extends TestSession {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private String getHdfsBaseUrl() {
-		try {
-			return "hdfs://" + cluster.getNodes("namenode")[0];
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return null;
 	}
 	
 	private String getResourceFullPath(String relativePath) {
@@ -849,8 +857,8 @@ public class TestEndToEndStreaming extends TestSession {
 	private void setupHDFSTestDirs(int testcaseID) throws Exception {
 		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
 		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + userName + "/streaming/streaming-" + 
+		this.setupHdfsDir("/user/" + USER_NAME + "/streaming/" + testcaseID);
+		this.setupHdfsDir("/user/" + USER_NAME + "/streaming/streaming-" + 
 				testcaseID);
 	}
 	
@@ -897,11 +905,11 @@ public class TestEndToEndStreaming extends TestSession {
 		job.setNumReducers(1);
 		job.setName("streamingTest-" + testcaseID);
 		job.setYarnOptions("-Dmapreduce.job.acl-view-job=*");
-		job.setInputFile(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+		job.setInputFile(hdfsBaseURL + "/tmp/streaming/streaming-" + 
 				testcaseID + "/input.txt");
 		job.setMapper("\"xargs cat\"");
 		job.setReducer("cat");
-		job.setOutputPath(this.getHdfsBaseUrl() + "/tmp/streaming/streaming-" + 
+		job.setOutputPath(hdfsBaseURL + "/tmp/streaming/streaming-" + 
 				testcaseID + "/Output");
 		
 		return job;
