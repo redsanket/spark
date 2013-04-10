@@ -1,24 +1,28 @@
 package hadooptest.regression.yarn;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.DFS;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.TestConfiguration;
@@ -175,11 +179,10 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testFiles1030() throws Exception { filesNonExistentInput(1030, CACHE_USER, LOCALFS_BASE); }
 	@Test public void testFiles1040() throws Exception { filesNonExistentInput(1040, CACHE_USER, hdfsBaseURL); }
 	
-	// Currently not working properly.  The special characters are failing task attempts.
-	//@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, CACHE_TMP, LOCALFS_BASE); }
-	//@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, CACHE_TMP, hdfsBaseURL); }
-	//@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, CACHE_USER, LOCALFS_BASE); }
-	//@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, CACHE_USER, hdfsBaseURL); }
+	@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, CACHE_TMP, LOCALFS_BASE); }
+	@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, CACHE_TMP, hdfsBaseURL); }
+	@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, CACHE_USER, LOCALFS_BASE); }
+	@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, CACHE_USER, hdfsBaseURL); }
 
 	@Test public void testFiles1090() throws Exception { filesSymlinkSpecialCharsFail(1090, CACHE_TMP, LOCALFS_BASE); }
 	@Test public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, CACHE_TMP, hdfsBaseURL); }
@@ -191,12 +194,11 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 		
 		String file = INPUTFILE;
-		
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
@@ -205,8 +207,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -233,12 +235,11 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 		
 		String file = INPUTFILE;
-		
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
@@ -247,8 +248,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -274,12 +275,11 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 		
 		String archive = "nonExistentInput";
-
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
@@ -307,10 +307,10 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
@@ -319,8 +319,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -345,11 +345,11 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 		
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String archive = "nonExistentInput";
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = cachedirPath.substring(0, 
@@ -376,10 +376,10 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
@@ -388,8 +388,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -413,10 +413,10 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
@@ -425,8 +425,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -452,11 +452,11 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String archive = "nonExistentInput";
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/input.txt");
 			cacheInCommand = cachedirPath.substring(0, 
@@ -484,10 +484,10 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/expectedOutput");
 			cacheInCommand = 
@@ -496,8 +496,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -521,10 +521,10 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/cachedir" + archive);
 			cacheInCommand = 
@@ -533,8 +533,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/cachedir" + archive), 
 							cacheInCommand + "/cachedir" + archive);		
 		}
@@ -559,12 +559,11 @@ public class TestEndToEndStreaming extends TestSession {
 					throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String archive = "nonExistentcachedir.zip";
-
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/cachedir.zip");
 			cacheInCommand = 
@@ -593,11 +592,11 @@ public class TestEndToEndStreaming extends TestSession {
 			String archive, String fileSystem) throws Exception {
 
 		this.setupHDFSTestDirs(testcaseID);
-		
 		String cacheInCommand = publicPrivateCache;
+		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			
-			String cachedirPath = this.getResourceFullPath(
+			String cachedirPath = Util.getResourceFullPath(
 					"data/streaming/streaming-" + testcaseID + 
 					"/cachedir" + archive);
 			cacheInCommand = 
@@ -606,8 +605,8 @@ public class TestEndToEndStreaming extends TestSession {
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;
 
-			this.putLocalToHdfs(
-					this.getResourceFullPath("data/streaming/streaming-" + 
+			hdfs.putFileLocalToHdfs(
+					Util.getResourceFullPath("data/streaming/streaming-" + 
 							testcaseID + "/cachedir" + archive), 
 							cacheInCommand + "/cachedir" + archive);
 		}
@@ -636,8 +635,8 @@ public class TestEndToEndStreaming extends TestSession {
 				"-cacheArchive when no symlink is specified on " + 
 				publicPrivateCache);
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" +
+		hdfs.putFileLocalToHdfs(
+				Util.getResourceFullPath("data/streaming/streaming-" +
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
@@ -662,8 +661,8 @@ public class TestEndToEndStreaming extends TestSession {
 				"-cacheArchive option for non existent symlink on " + 
 				publicPrivateCache);
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" +
+		hdfs.putFileLocalToHdfs(
+				Util.getResourceFullPath("data/streaming/streaming-" +
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
@@ -692,12 +691,12 @@ public class TestEndToEndStreaming extends TestSession {
 				" - Test to check the -cacheArchive option for " + archive + 
 				" file on " + publicPrivateCache);
 
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
+		hdfs.putFileLocalToHdfs(
+				Util.getResourceFullPath("data/streaming/streaming-" + 
 						testcaseID + "/cachedir" + archive), 
 						cacheInCommand + "/cachedir" + archive);
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
+		hdfs.putFileLocalToHdfs(
+				Util.getResourceFullPath("data/streaming/streaming-" + 
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
@@ -749,7 +748,7 @@ public class TestEndToEndStreaming extends TestSession {
 		String expectedOutputStr = "";
 		try {
 			expectedOutputStr = FileUtils.readFileToString(
-					new File(getResourceFullPath("" +
+					new File(Util.getResourceFullPath("" +
 							"data/streaming/streaming-" + testcaseID + 
 							"/expectedOutput")));
 		}
@@ -766,79 +765,25 @@ public class TestEndToEndStreaming extends TestSession {
 				expectedOutputStr, actualOutputStr);
 	}
 	
-	/*
-	 *  Check for the destination directory and create it if
-     * is not present because 'dfs put' used to do that 
-     */
-	private void putLocalToHdfs(String source, String target) {
-		try {
-			logger.debug("target=" + target);
-			String targetDir = target.substring(0, target.lastIndexOf("/"));	
-			logger.debug("target path=" + targetDir);
-
-			FsShell fsShell = cluster.getFsShell();
-			FileSystem fs = cluster.getFS();
-
-			String URL = "hdfs://" + 
-					cluster.getNodes("namenode")[0] + "/";
-			String homeDir = URL + "user/" + System.getProperty("user.name");
-			String testDir = homeDir + "/" + targetDir;
-			String testTarget = URL + "/" + target;
-			if (!fs.exists(new Path(testDir))) {
-				fsShell.run(new String[] {"-mkdir", "-p", testDir});
-			}
-			logger.debug("dfs -put " + source + " " + testTarget);
-			fsShell.run(new String[] {"-put", source, testTarget});
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void setupHdfsDir(String path) {
-		try{
-			FileSystem fs = cluster.getFS();
-			FsShell fsShell = cluster.getFsShell();		
-			String testDir = hdfsBaseURL + path;
-			if (fs.exists(new Path(testDir))) {
-				logger.info("Delete existing test directory: " + 
-						testDir);
-				fsShell.run(new String[] {"-rm", "-r", testDir});			
-			}
-			logger.info("Create new test directory: " + testDir);
-			fsShell.run(new String[] {"-mkdir", "-p", testDir});
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private String getResourceFullPath(String relativePath) {
-		String fullPath = "";
-		
-		try {
-			URL url = 
-					this.getClass().getClassLoader().getResource(relativePath);
-			fullPath = url.getPath();
-			TestSession.logger.debug("Resource URL path=" + fullPath);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-        return fullPath;
-	}
-	
-	private static void setupTestConf() throws Exception {
-		FullyDistributedCluster cluster = 
+	public static void setupTestConf() throws Exception {
+		FullyDistributedCluster cluster =
 				(FullyDistributedCluster) TestSession.cluster;
 		String component = TestConfiguration.RESOURCE_MANAGER;
 
-		/* 
-		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
-		 * queue is already in place. If so, skip the following as to not waste
-		 *  time.
-		 */
+		YarnClientImpl yarnClient = new YarnClientImpl();
+		yarnClient.init(TestSession.getCluster().getConf());
+		yarnClient.start();
+
+		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
+		TestSession.logger.info("queues='" +
+        	Arrays.toString(queues.toArray()) + "'");
+		if ((queues.size() == 1) &&
+			(Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
+				TestSession.logger.debug("Cluster is already setup properly." +
+						"Nothing to do.");
+				return;
+		}
 		
 		// Backup the default configuration directory on the Resource Manager
 		// component host.
@@ -846,7 +791,7 @@ public class TestEndToEndStreaming extends TestSession {
 
 		// Copy files to the custom configuration directory on the
 		// Resource Manager component host.
-		String sourceFile = conf.getProperty("WORKSPACE") +
+		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
 				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
 		cluster.getConf().copyFileToConfDir(component, sourceFile,
 				"capacity-scheduler.xml");
@@ -855,10 +800,10 @@ public class TestEndToEndStreaming extends TestSession {
 	}
 	
 	private void setupHDFSTestDirs(int testcaseID) throws Exception {
-		this.setupHdfsDir("/tmp/streaming/" + testcaseID);
-		this.setupHdfsDir("/tmp/streaming/streaming-" + testcaseID);
-		this.setupHdfsDir("/user/" + USER_NAME + "/streaming/" + testcaseID);
-		this.setupHdfsDir("/user/" + USER_NAME + "/streaming/streaming-" + 
+		hdfs.mkdir("/tmp/streaming/" + testcaseID);
+		hdfs.mkdir("/tmp/streaming/streaming-" + testcaseID);
+		hdfs.mkdir("/user/" + USER_NAME + "/streaming/" + testcaseID);
+		hdfs.mkdir("/user/" + USER_NAME + "/streaming/streaming-" + 
 				testcaseID);
 	}
 	
@@ -891,8 +836,8 @@ public class TestEndToEndStreaming extends TestSession {
 	}
 	
 	private void putInputFileHDFS(int testcaseID) throws Exception {
-		this.putLocalToHdfs(
-				this.getResourceFullPath("data/streaming/streaming-" + 
+		hdfs.putFileLocalToHdfs(
+				Util.getResourceFullPath("data/streaming/streaming-" + 
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");

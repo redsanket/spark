@@ -57,7 +57,8 @@ public class DFS {
 			list.add(URL);
 			cmd = (String[]) list.toArray(new String[0]);
 		}
-		TestSession.logger.info(TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
+		TestSession.logger.info(
+				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
 					" dfs " + StringUtils.join(cmd, " "));
  		fsShell.run(cmd);
 	}
@@ -86,13 +87,44 @@ public class DFS {
 	public void mkdir(String path) throws Exception {
 		FileSystem fs = TestSession.cluster.getFS();
 		FsShell fsShell = TestSession.cluster.getFsShell();		
-		String dir = getBaseUrl() + "/user/" + System.getProperty("user.name") + "/" + path;
+		String dir = getBaseUrl() + path;
 		if (fs.exists(new Path(dir))) {
 			TestSession.logger.info("Delete existing directory: " + dir);
 			fsShell.run(new String[] {"-rm", "-r", dir});			
 		}
 		TestSession.logger.info("Create new directory: " + dir);
 		fsShell.run(new String[] {"-mkdir", "-p", dir});
+	}
+	
+	/**
+	 * Put a file from the local filesystem to the hdfs filesystem, given
+	 * a source file and a target file.
+	 * 
+	 * @param source the source file on the local filesystem.
+	 * @param target the target for the file on the hdfs filesystem.  Expects a
+	 *               correctly formed HDFS path.
+	 * 
+	 * @throws Exception if unable to get the fsShell, unable to get the 
+	 *                   cluster filesystem, unable to get the hdfs base URL,
+	 *                   the filesystem path does not exist, the new target
+	 *                   directory cannot be made, or the dfs put has a fatal
+	 *                   failure.
+	 */
+	public void putFileLocalToHdfs(String source, String target) 
+			throws Exception {
+		
+		TestSession.logger.debug("target=" + target);
+		String targetDir = target.substring(0, target.lastIndexOf("/"));	
+		TestSession.logger.debug("target path=" + targetDir);
+
+		FsShell fsShell = TestSession.cluster.getFsShell();
+		FileSystem fs = TestSession.cluster.getFS();
+
+		if (!fs.exists(new Path(targetDir))) {
+			fsShell.run(new String[] {"-mkdir", "-p", targetDir});
+		}
+		TestSession.logger.debug("dfs -put " + source + " " + target);
+		fsShell.run(new String[] {"-put", source, target});
 	}
 	
 }
