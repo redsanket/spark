@@ -78,9 +78,7 @@
             </goals>
             <configuration>
               <skip>false</skip>
-              <excludedGroups>hadooptest.SerialTests</excludedGroups>
-              <excludedGroups>hadooptest.ParallelClassTests</excludedGroups>
-              <excludedGroups>hadooptest.ParallelMethodTests</excludedGroups>
+              <excludedGroups>hadooptest.SerialTests,hadooptest.ParallelClassTests,hadooptest.ParallelMethodTests</excludedGroups>
               <parallel>both</parallel>
             </configuration>
           </execution>
