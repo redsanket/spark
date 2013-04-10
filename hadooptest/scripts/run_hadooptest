@@ -74,10 +74,8 @@ DEFAULT_CONF=`ls -d ~/`"/hadooptest.conf"
 CONF=${CONF:="$DEFAULT_CONF"}
 
 DEFAULT_TESTS="\
-hadooptest.regression.CheckVersion,\
-hadooptest.regression.ChangeConf,\
-hadooptest.regression.RestartCluster,\
-hadooptest.regression.yarn.SleepJobRunner\
+hadooptest.regression.TestVersion,\
+hadooptest.regression.yarn.TestSleepJobAPI\
 "
 # TESTS=${TESTS:="$DEFAULT_TESTS"}
 
@@ -130,13 +128,15 @@ else
 	TESTS_OPT=""
 fi
 
+POM_OPT="-f pom-ci.xml"
+MVN_SETTINGS_OPT="-gs $WORKSPACE/resources/yjava_maven/settings.xml.gw"
+CLOVER_OPT="-Pclover -Djava.awt.headless=true"
 JAVA_LIB_PATH="-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/"
 COMMON_ARGS="\
 -DCLUSTER_NAME=$CLUSTER \
 -DWORKSPACE=$WORKSPACE \
 -Dhadooptest.config=$CONF \
 "
-MVN_GLOBAL_SETTING="$WORKSPACE/resources/yjava_maven/settings.xml.gw"
 
 if [ "$USE_MVN" -eq 1 ]; then
     # RUN TESTS VIA MAVEN
@@ -149,7 +149,7 @@ if [ "$USE_MVN" -eq 1 ]; then
     CLUSTER=$CLUSTER \
 HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
 HADOOP_SHARE=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
-/home/y/bin/mvn -f pom-ci.xml -gs $MVN_GLOBAL_SETTING clean test -DfailIfNoTests=false $TESTS_OPT $COMMON_ARGS
+/home/y/bin/mvn $POM_OPT $MVN_SETTINGS_OPT $CLOVER_OPT clean test -DfailIfNoTests=false $TESTS_OPT $COMMON_ARGS
     set +x
 else
     # RUN TESTS VIA JAVA
