@@ -159,17 +159,20 @@ fi
 COMMON_ARGS="--cluster $CLUSTER --workspace $REMOTE_WORKSPACE $PASSWORD_OPTION $PROFILE_PARAM $CONF_PARAM $TESTS_PARAM"
 
 if [ "$INSTALL_ONLY" -ne 1 ]; then
-   if [ "$USE_MVN" -eq 1 ]; then
+    if [ "$USE_MVN" -eq 1 ]; then
       set -x
       rm -rf $LOCAL_WORKSPACE_TARGET_DIR/surefire-reports/
       ssh -t $REMOTE_HOST "cd $REMOTE_WORKSPACE; $REMOTE_WORKSPACE/scripts/run_hadooptest --mvn $COMMON_ARGS";
       # WE NEED TO COPY THE TEST RESULTS FROM THE GATEWAY BACK TO THE BUILD HOST
       scp -r $REMOTE_HOST:$REMOTE_WORKSPACE/target/surefire-reports $LOCAL_WORKSPACE_TARGET_DIR/
-      scp -r $REMOTE_HOST:$REMOTE_WORKSPACE/target/clover $LOCAL_WORKSPACE_TARGET_DIR/
+      if [ -n $PROFILE ]
+      then
+          scp -r $REMOTE_HOST:$REMOTE_WORKSPACE/target/clover $LOCAL_WORKSPACE_TARGET_DIR/
+      fi
       set +x
-   else 
+    else 
       set -x
       ssh -t $REMOTE_HOST "$REMOTE_WORKSPACE/scripts/run_hadooptest --java $COMMON_ARGS";
-   set +x
-   fi
+      set +x
+    fi
 fi
