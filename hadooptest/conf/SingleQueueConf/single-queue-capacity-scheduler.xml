@@ -52,6 +52,11 @@
 		 <name>yarn.scheduler.capacity.root.default.capacity</name>
 		 <value>100</value>
 	 </property>
+	 
+	 <property>
+         <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+         <value>1</value>
+     </property>
 
 
 </configuration>

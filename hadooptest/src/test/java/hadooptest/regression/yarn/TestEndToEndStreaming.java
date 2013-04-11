@@ -179,10 +179,10 @@ public class TestEndToEndStreaming extends TestSession {
 	@Test public void testFiles1030() throws Exception { filesNonExistentInput(1030, CACHE_USER, LOCALFS_BASE); }
 	@Test public void testFiles1040() throws Exception { filesNonExistentInput(1040, CACHE_USER, hdfsBaseURL); }
 	
-	@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, CACHE_TMP, LOCALFS_BASE); }
-	@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, CACHE_TMP, hdfsBaseURL); }
-	@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, CACHE_USER, LOCALFS_BASE); }
-	@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, CACHE_USER, hdfsBaseURL); }
+	//@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, CACHE_TMP, LOCALFS_BASE); }
+	//@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, CACHE_TMP, hdfsBaseURL); }
+	//@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, CACHE_USER, LOCALFS_BASE); }
+	//@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, CACHE_USER, hdfsBaseURL); }
 
 	@Test public void testFiles1090() throws Exception { filesSymlinkSpecialCharsFail(1090, CACHE_TMP, LOCALFS_BASE); }
 	@Test public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, CACHE_TMP, hdfsBaseURL); }
