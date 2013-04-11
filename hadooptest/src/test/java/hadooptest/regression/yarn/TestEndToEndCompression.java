@@ -3,7 +3,6 @@ package hadooptest.regression.yarn;
 import static org.junit.Assert.*;
 
 import hadooptest.ParallelMethodTests;
-import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.cluster.DFS;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
@@ -28,7 +27,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
@@ -167,7 +165,8 @@ public class TestEndToEndCompression extends TestSession {
         jobVector.get(1).waitForSuccess(3);
 	}
 		
-	public static String[] runHadoopExampleJar(String[] jarCmd) throws Exception {
+	public static String[] runHadoopExampleJar(String[] jarCmd)
+		throws Exception {
 		String[] jobCmd = {
 			TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
 			"--config",
@@ -220,8 +219,6 @@ public class TestEndToEndCompression extends TestSession {
 
 	// job codec = CODECS[0]
 	@Test public void testCompression01() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[0]); }
-	
-	/*
 	@Test public void testCompression02() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[0], DATA_TYPES[1]); }
 	@Test public void testCompression03() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[0]); }
 	@Test public void testCompression04() throws Exception{ testCompression(CODECS[0], CODECS[0], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
@@ -335,7 +332,6 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression94() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression95() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression96() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-*/
 
 	public void testCompression(String jobCodec, String mapCodec,
 			String compressionType, String dataType) throws Exception {
