@@ -809,8 +809,8 @@ public class TestEndToEndStreaming extends TestSession {
 	
 	private void waitForSuccessAndValidate(int testcaseID, StreamingJob job) 
 			throws Exception {
-		assertTrue("Streaming job was not assigned an ID within 30 seconds.", 
-				job.waitForID(30));
+		assertTrue("Streaming job was not assigned an ID within 150 seconds.", 
+				job.waitForID(150));
 		assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
 				job.verifyID());
 

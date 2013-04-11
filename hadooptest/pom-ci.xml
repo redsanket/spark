@@ -62,6 +62,7 @@
               <skip>false</skip>
               <groups>hadooptest.ParallelMethodTests</groups>
               <parallel>methods</parallel>
+              <threadCount>10</threadCount>
             </configuration>
           </execution>
           <execution>
