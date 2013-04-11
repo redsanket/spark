@@ -29,7 +29,7 @@ public class HDFSMiniCluster extends MiniCluster {
 
    protected Hashtable<String, String> paths = new Hashtable<String, String>();
    
-   public HDFSMiniCluster() throws UnknownHostException {
+   public HDFSMiniCluster() throws Exception {
       this.conf = new MiniclusterConfiguration(); 
    }
 

@@ -23,13 +23,13 @@ import hadooptest.config.TestConfiguration;
 public class MockConfiguration extends TestConfiguration
 {
 
-   public MockConfiguration() throws UnknownHostException {
+   public MockConfiguration() throws Exception {
       super(new StandaloneConfiguration());
 
       initDefaults();
    }
 
-   public MockConfiguration(boolean loadDefaults) throws UnknownHostException {
+   public MockConfiguration(boolean loadDefaults) throws Exception {
       super(new StandaloneConfiguration()); 
 
       initDefaults();

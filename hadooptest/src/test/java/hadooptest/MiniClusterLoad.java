@@ -26,7 +26,7 @@ import java.io.IOException;
 public class MiniClusterLoad {
 
    @Test
-   public void loadTestYARNMiniCluster() throws IOException {
+   public void loadTestYARNMiniCluster() throws Exception {
       //MRMiniCluster mapreduce_cluster = new MRMiniCluster();
       //HDFSMiniCluster hdfs_cluster = new HDFSMiniCluster();
       YARNMiniCluster yarn_cluster = new YARNMiniCluster();
@@ -54,7 +54,7 @@ public class MiniClusterLoad {
    }
    
    @Test
-   public void loadTestMapReduceMiniCluster() throws IOException {
+   public void loadTestMapReduceMiniCluster() throws Exception {
       MRMiniCluster mapreduce_cluster = new MRMiniCluster();
 
       mapreduce_cluster.start();
@@ -66,7 +66,7 @@ public class MiniClusterLoad {
    }
    
    @Test
-   public void loadTestHDFSMiniCluster() throws IOException {
+   public void loadTestHDFSMiniCluster() throws Exception {
 	   HDFSMiniCluster hdfs_cluster = new HDFSMiniCluster();
 	   
 	   hdfs_cluster.start();

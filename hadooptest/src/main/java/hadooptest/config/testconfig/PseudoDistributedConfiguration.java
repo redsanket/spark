@@ -33,7 +33,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * 
 	 * @throws UnknownHostException if there is a fatal error initializing the default configuration.
 	 */
-	public PseudoDistributedConfiguration() throws UnknownHostException {
+	public PseudoDistributedConfiguration() throws Exception {
 		super(false);
 		this.initDefaults();
 	}
@@ -50,7 +50,7 @@ public class PseudoDistributedConfiguration extends TestConfiguration
 	 * 
 	 * @throws UnknownHostException if there is a fatal error initializing the default configuration.
 	 */
-	public PseudoDistributedConfiguration(boolean loadDefaults) throws UnknownHostException {
+	public PseudoDistributedConfiguration(boolean loadDefaults) throws Exception {
 		super(loadDefaults); 
 		this.initDefaults();
 	}

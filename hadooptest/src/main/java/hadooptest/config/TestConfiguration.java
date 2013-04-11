@@ -5,6 +5,7 @@
 package hadooptest.config;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.fullydistributed.FullyDistributedExecutor;
 
 import java.io.IOException;
 import java.net.URL;
@@ -68,9 +69,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * configuration properties.  It then proceeds to initialize the default
 	 * configuration for the reflected cluster type.
 	 * 
-	 * @throws UnknownHostException if the default hosts can not be initialized.
+	 * @throws Exception if the default hosts can not be initialized, or there
+	 *                   is a problem getting the Hadoop version.
 	 */
-	public TestConfiguration() throws UnknownHostException {
+	public TestConfiguration() throws Exception {
 		super(true);		
 		this.initDefaults();
 
@@ -85,9 +87,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * @param loadDefaults whether or not to load the cluster configuration defaults
 	 * 						using the Configuration superclass constructor.
 	 * 
-	 * @throws UnknownHostException if the default hosts can not be initialized.
+	 * @throws Exception if the default hosts can not be initialized or there is
+	 *                   a problem getting the Hadoop version.
 	 */
-	public TestConfiguration(boolean loadDefaults) throws UnknownHostException {
+	public TestConfiguration(boolean loadDefaults) throws Exception {
 		super(loadDefaults);
 		this.initDefaults();
 
@@ -98,9 +101,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * 
 	 * @param other a custom Configuration.
 	 * 
-	 * @throws UnknownHostException if the default hosts can not be initialized.
+	 * @throws Exception if the default hosts can not be initialized or there
+	 *                   is a problem getting the Hadoop version.
 	 */
-	public TestConfiguration(Configuration other) throws UnknownHostException {
+	public TestConfiguration(Configuration other) throws Exception {
 		super(other);
 		this.initDefaults();
 	}
@@ -219,9 +223,10 @@ public abstract class TestConfiguration extends Configuration {
 	 * determined to be a reasonable set of defaults for running a distributed
 	 * cluster under test.
 	 * 
-	 * @throws UnknownHostException if the default hosts can not be initialized.
+	 * @throws Exception if the default hosts can not be initialized, or if
+	 *                   there is a fatal error getting the Hadoop version.
 	 */
-	private void initDefaults() throws UnknownHostException {
+	private void initDefaults() throws Exception {
 
 		this.setKerberosConf();
 		this.initDefaultsClusterSpecific();
@@ -255,7 +260,6 @@ public abstract class TestConfiguration extends Configuration {
 		// Version dependent environment variables
 		String HADOOP_VERSION = this.getVersion();
 
-		// String HADOOP_VERSION = "23.6";
 		hadoopProps.setProperty("HADOOP_VERSION", HADOOP_VERSION);
 		
 		// Jars
@@ -323,14 +327,32 @@ public abstract class TestConfiguration extends Configuration {
      * 
      * @return String the Hadoop version for the fully distributed cluster.
      * 
+     * @throws Exception if there is a fatal error getting the version via 
+     *                   the CLI for a pseudodistributed cluster.
+     * 
      * (non-Javadoc)
      * @see hadooptest.cluster.Cluster#getVersion()
      */
-    public String getVersion() {
-    	String version = VersionInfo.getVersion();
-		TestSession.logger.trace("Hadoop version = '" + VersionInfo.getVersion() + "'");
-		TestSession.logger.trace("Hadoop build version = '" + VersionInfo.getBuildVersion() + "'");
-		TestSession.logger.trace("Hadoop revision = '" + VersionInfo.getRevision() + "'");
+    public String getVersion() throws Exception {
+    	String version = null;
+    	
+		String strClusterType = TestSession.conf.getProperty("CLUSTER_TYPE");
+		
+		if (strClusterType.equals(
+				"hadooptest.cluster.pseudodistributed.PseudoDistributedCluster")) 
+		{
+			version = this.getVersionViaCLI();
+		}
+		else {
+			version = VersionInfo.getVersion();
+			TestSession.logger.trace("Hadoop version = '" + 
+					VersionInfo.getVersion() + "'");
+			TestSession.logger.trace("Hadoop build version = '" + 
+					VersionInfo.getBuildVersion() + "'");
+			TestSession.logger.trace("Hadoop revision = '" + 
+					VersionInfo.getRevision() + "'");
+		}
+		
 		return version;
     }
 

@@ -22,7 +22,7 @@ public abstract class MiniCluster extends Cluster {
 	protected ClusterState clusterState;
 	protected String clusterVersion = "";
 
-   public boolean start() throws UnknownHostException {
+   public boolean start() throws Exception {
       this.conf = new MiniclusterConfiguration();
       return startMiniClusterService(this.conf);
 

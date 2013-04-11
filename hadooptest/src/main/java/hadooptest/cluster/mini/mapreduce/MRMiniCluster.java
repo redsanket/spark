@@ -32,7 +32,7 @@ public class MRMiniCluster extends MiniCluster {
    protected Hashtable<String, String> paths = new Hashtable<String, String>();
    
    public MRMiniCluster()
-		   throws UnknownHostException {
+		   throws Exception {
       this.conf = new MiniclusterConfiguration(); 
    }
 

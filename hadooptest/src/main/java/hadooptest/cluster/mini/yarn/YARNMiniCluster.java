@@ -28,7 +28,7 @@ public class YARNMiniCluster extends MiniCluster {
 
    protected Hashtable<String, String> paths = new Hashtable<String, String>();
    
-   public YARNMiniCluster() throws UnknownHostException {
+   public YARNMiniCluster() throws Exception {
       this.conf = new MiniclusterConfiguration();
    }
 

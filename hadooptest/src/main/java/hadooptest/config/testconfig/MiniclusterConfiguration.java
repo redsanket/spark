@@ -18,13 +18,13 @@ import hadooptest.config.TestConfiguration;
 public class MiniclusterConfiguration extends TestConfiguration
 {
 
-   public MiniclusterConfiguration() throws UnknownHostException {
+   public MiniclusterConfiguration() throws Exception {
       super(new StandaloneConfiguration());
 
       initDefaults();
    }
 
-   public MiniclusterConfiguration(boolean loadDefaults) throws UnknownHostException {
+   public MiniclusterConfiguration(boolean loadDefaults) throws Exception {
       super(new StandaloneConfiguration()); 
 
       initDefaults();

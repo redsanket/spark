@@ -30,7 +30,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 	 * configuration parameters for a standalone cluster under test.  Hadoop
 	 * default configuration is not used.
 	 */
-	public StandaloneConfiguration() throws UnknownHostException {
+	public StandaloneConfiguration() throws Exception {
 		super(false);
 
 		initDefaults();
@@ -47,7 +47,7 @@ public class StandaloneConfiguration extends TestConfiguration {
 	 * specified by the Hadoop installation, before loading the class configuration defaults.
 	 */
 	public StandaloneConfiguration(boolean loadDefaults) 
-			throws UnknownHostException {
+			throws Exception {
 		super(loadDefaults); 
 
 		CONFIG_BASE_DIR = TestSession.conf.getProperty("CONFIG_BASE_DIR", "");
