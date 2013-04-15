@@ -9,7 +9,6 @@ import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.TestConfiguration;
 import hadooptest.job.GenericJob;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,9 +23,10 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.mapred.SortValidator;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
@@ -332,7 +332,7 @@ public class TestEndToEndCompression extends TestSession {
 	@Test public void testCompression94() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[1], DATA_TYPES[1]); }
 	@Test public void testCompression95() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[0]); }
 	@Test public void testCompression96() throws Exception{ testCompression(CODECS[3], CODECS[3], COMPRESSION_TYPES[2], DATA_TYPES[1]); }
-
+	
 	public void testCompression(String jobCodec, String mapCodec,
 			String compressionType, String dataType) throws Exception {
 		
@@ -389,7 +389,7 @@ public class TestEndToEndCompression extends TestSession {
 		job.setJobArgs(jobArgs.toArray(new String[0]));
         job.start();
         job.waitForID(600);
-		boolean isSuccessful = job.waitForSuccess(10);
+		boolean isSuccessful = job.waitForSuccess(20);
 		assertTrue(
 			"Unable to run SORT job for job codec " + jobCodec +
 			", map codec " + mapCodec + ", compression type " +
@@ -398,9 +398,11 @@ public class TestEndToEndCompression extends TestSession {
 		
 		// if (output[0].equals("0")) {
 		if (isSuccessful) {
+			/*
 			DFS dfs = new DFS();
 			dfs.fsls("/user/" + System.getProperty("user.name") + "/" + sortInput);
 			dfs.fsls("/user/" + System.getProperty("user.name") + "/" + sortOutput);
+			*/
 			validateSortResults(jobCodec, mapCodec,
 				compressionType, dataType, sortInput, sortOutput);
 		}
@@ -415,6 +417,26 @@ public class TestEndToEndCompression extends TestSession {
 		TestSession.logger.debug("Validate Sort Results : ");
 
 		// Submit a sort validate job
+
+		// API calls
+        ArrayList<String> jobArgs = new ArrayList<String>();
+		jobArgs.addAll(Arrays.asList(YARN_OPTS));
+		jobArgs.add("-sortInput");
+		jobArgs.add(sortInput);
+		jobArgs.add("-sortOutput");
+		jobArgs.add(sortOutput);
+		String[] args = jobArgs.toArray(new String[0]);
+		TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+		TestConfiguration conf = TestSession.getCluster().getConf();
+		int rc = ToolRunner.run(conf, new SortValidator(), args);
+		if (rc != 0) {
+			TestSession.logger.error("SortValidator failed!!!");
+		}
+		
+		
+		/*
+		// CLI call
+		
 		GenericJob job = new GenericJob();
         job.setJobJar(TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"));
         job.setJobName("testmapredsort");
@@ -425,37 +447,31 @@ public class TestEndToEndCompression extends TestSession {
 		jobArgs.add("-sortOutput");
 		jobArgs.add(sortOutput);
 		job.setJobArgs(jobArgs.toArray(new String[0]));
-        job.start();
+		job.start();
         job.waitForID(600);
-		boolean isSuccessful = job.waitForSuccess(10);
+		boolean isSuccessful = job.waitForSuccess(20);
+		*/
+
+		boolean isSuccessful = (rc == 0) ? true : false;
+		assertTrue(
+				"Unable to run SORT validation job for job codec " + jobCodec +
+				", map codec " + mapCodec + ", compression type " +
+				compressionType, isSuccessful);
+
+		/*
 		assertTrue(
 			"Unable to run SORT validation job for job codec " + jobCodec +
 			", map codec " + mapCodec + ", compression type " +
 			compressionType + ": cmd=" + StringUtils.join(job.getCommand(), " "), 
 			isSuccessful);
+		 */	
 		
-		// if (output[0].equals("0")) {
 		if (isSuccessful) {
 			validateCompression(compressionType, jobCodec, sortOutput);
 		}
 		
 	}
 	
-	private static CompressionCodec getCompressionCodec(Configuration conf,
-			Path path) throws IOException {
-		return getReader(conf, path).getCompressionCodec();
-	}
-
-	private static SequenceFile.CompressionType getCompressionType(
-			Configuration conf, Path path) throws IOException {
-		return getReader(conf, path).getCompressionType();
-	}
-
-	private static SequenceFile.Reader getReader(Configuration conf,
-			Path path) throws IOException {
-		return new SequenceFile.Reader(conf, SequenceFile.Reader.file(path));
-	}
-
 	/* 
 	 * Verify that the data is really compressed
 	 */
@@ -474,14 +490,12 @@ public class TestEndToEndCompression extends TestSession {
 			TestSession.logger.info("Checking part file: " + element.getPath());
 
 			TestConfiguration conf = TestSession.getCluster().getConf();
-
-			// Get Compression Type
-			String elementType = getCompressionType(
-					conf, element.getPath()).toString();
-
-			// Get Compression Codec
-			CompressionCodec codec = getCompressionCodec(
-					conf, element.getPath());
+			SequenceFile.Reader reader =
+				new SequenceFile.Reader(conf,
+						SequenceFile.Reader.file(element.getPath()));
+			// Get Compression Type and Codec
+			String elementType = reader.getCompressionType().toString();
+			CompressionCodec codec = reader.getCompressionCodec();
 			String elementCodec = (codec != null) ? 
 					codec.getClass().getName().toString() : "";		
 
