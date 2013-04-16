@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.SortValidator;
+import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
@@ -56,6 +57,8 @@ public class TestEndToEndCompression extends TestSession {
 	};	
 	private static String[] YARN_OPTS;
 	
+	private static int numReduces = 2;
+	
 	@BeforeClass
 	public static void startTestSession() throws Exception{
 		TestSession.start();
@@ -73,6 +76,10 @@ public class TestEndToEndCompression extends TestSession {
 		setupTestConf();
 		setupTestDir();
 		setupTestData();		
+
+		Cluster clusterInfo = TestSession.cluster.getClusterInfo();
+		int ttCount = clusterInfo.getClusterStatus().getTaskTrackerCount();
+		// numReduces = (int) ( ttCount* 0.5);
 	}
 
 	public static void setupTestConf() throws Exception {
@@ -386,6 +393,8 @@ public class TestEndToEndCompression extends TestSession {
 		}
 		jobArgs.add(sortInput);
 		jobArgs.add(sortOutput);
+		jobArgs.add("-r");
+		jobArgs.add(Integer.toString(numReduces));
 		job.setJobArgs(jobArgs.toArray(new String[0]));
         job.start();
         job.waitForID(600);
@@ -420,13 +429,12 @@ public class TestEndToEndCompression extends TestSession {
 
 		// API calls
         ArrayList<String> jobArgs = new ArrayList<String>();
-		jobArgs.addAll(Arrays.asList(YARN_OPTS));
+        jobArgs.addAll(Arrays.asList(YARN_OPTS));
 		jobArgs.add("-sortInput");
 		jobArgs.add(sortInput);
 		jobArgs.add("-sortOutput");
 		jobArgs.add(sortOutput);
 		String[] args = jobArgs.toArray(new String[0]);
-		TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
 		TestConfiguration conf = TestSession.getCluster().getConf();
 		int rc = ToolRunner.run(conf, new SortValidator(), args);
 		if (rc != 0) {
