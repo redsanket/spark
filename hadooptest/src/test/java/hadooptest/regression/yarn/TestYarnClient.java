@@ -30,11 +30,8 @@ public class TestYarnClient extends TestSession {
 	 */
 	@Test
 	public void runYarnClient() throws Exception {
-
-		YarnClientImpl yarnClient = new YarnClientImpl();
-		yarnClient.init(TestSession.getCluster().getConf());
-		yarnClient.start();
-
+		YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();
+		
 		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
 		TestSession.logger.info("queues='" +
