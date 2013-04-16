@@ -29,7 +29,7 @@ $ run_hadooptest -c theoden -p clover -m TestVersion
 
 for arg; do 
     [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
-    if [ "${arg:0:2}" == "--" ]; 
+    if [[ "${arg:0:2}" == "--" ]]; 
        then args="${args} -${arg:2:1}" 
        else args="${args} ${delim}${arg}${delim}"
     fi
@@ -43,7 +43,7 @@ WORKSPACE=${WORKSPACE:="/home/y/etc/hadooptest/java/lib"}
 
 for arg; do 
     [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
-    if [ "${arg:0:2}" == "--" ]; 
+    if [[ "${arg:0:2}" == "--" ]]; 
        then args="${args} -${arg:2:1}" 
        else args="${args} ${delim}${arg}${delim}"
     fi
@@ -68,7 +68,7 @@ while getopts "c:f:t:w:jmnp:h" opt; do
 	esac
 done
 
-if [ -z $CLUSTER ]; then
+if [[ -z $CLUSTER ]]; then
    echo "ERROR: Required CLUSTER value not defined!!!";
    exit 1;
 fi
@@ -88,7 +88,7 @@ CLASSPATH="\
 /home/y/lib/jars/junit.jar:\
 /home/gs/gridre/yroot.$CLUSTER/conf/hadoop/:"
 
-if [ "$USE_MVN" -eq 0 ]; then
+if [[ "$USE_MVN" -eq 0 ]]; then
     CLASSPATH="$CLASSPATH:\
 $WORKSPACE/target/hadooptest-1.0-SNAPSHOT.jar:\
 $WORKSPACE/target/hadooptest-1.0-SNAPSHOT-tests.jar"
@@ -114,9 +114,9 @@ done
 echo "CLASSPATH=$CLASSPATH"
 
 # TODO: long term this should move into the java test framework
-if [ "$PASSWORD_OPTION" != 'no-password' ]; then 
+if [[ "$PASSWORD_OPTION" != 'no-password' ]]; then 
    USER=`whoami`
-   if [ $USER == 'hadoopqa' ];then
+   if [[ $USER == 'hadoopqa' ]];then
       echo "Headless user 'hadoopqa' requires no password."
    else 
       stty -echo
@@ -125,15 +125,15 @@ if [ "$PASSWORD_OPTION" != 'no-password' ]; then
    fi
 fi
 
-if [ -n $TESTS ]; then
+if [[ -n $TESTS ]]; then
 	TESTS_OPT="-Dtest=$TESTS"
 else 
 	TESTS_OPT=""
 fi
 
 CLOVER_OPT="-Pclover -Djava.awt.headless=true"
-if [ -n $PROFILE ]; then
-    if [ $PROFILE == "clover" ]; then
+if [[ -n $PROFILE ]]; then
+    if [[ $PROFILE == "clover" ]]; then
       PROFILE_OPT=$CLOVER_OPT
     else
        PROFILE_OPT="-D$PROFILE"
@@ -151,7 +151,7 @@ COMMON_ARGS="\
 -Dhadooptest.config=$CONF \
 "
 
-if [ "$USE_MVN" -eq 1 ]; then
+if [[ "$USE_MVN" -eq 1 ]]; then
     # RUN TESTS VIA MAVEN
     set -x
     if [[ ! -f /home/y/bin/mvn ]];then
