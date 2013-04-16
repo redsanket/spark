@@ -4,34 +4,32 @@
 
 package hadooptest.cluster.mini;
 
-import hadooptest.cluster.Cluster;
+import hadooptest.cluster.TestCluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.MiniclusterConfiguration;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
 /**
  * Cluster instance to represent a base mini cluster.
  * 
  * This is an unfinished class and should not yet be used.
  */
-public abstract class MiniCluster extends Cluster {
+public abstract class MiniCluster extends TestCluster {
 
 	protected MiniclusterConfiguration conf;
 	protected ClusterState clusterState;
 	protected String clusterVersion = "";
 
-   public boolean start() throws Exception {
-      this.conf = new MiniclusterConfiguration();
-      return startMiniClusterService(this.conf);
+	public boolean start() throws Exception {
+		this.conf = new MiniclusterConfiguration();
+		return startMiniClusterService(this.conf);
+	}
 
-   }
-
-   public boolean start(MiniclusterConfiguration conf) throws IOException {
-	   this.conf = conf;
-	   return startMiniClusterService(conf);
-   }
+	public boolean start(MiniclusterConfiguration conf) throws IOException {
+		this.conf = conf;
+		return startMiniClusterService(conf);
+	}
    
 	/**
 	 * Starts the cluster instance.
