@@ -14,7 +14,7 @@ import hadooptest.ConfigProperties;
 import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.standalone.StandaloneCluster;
-import hadooptest.cluster.Cluster;
+import hadooptest.cluster.TestCluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.Executor;
 import hadooptest.cluster.fullydistributed.FullyDistributedExecutor;
@@ -44,7 +44,7 @@ public abstract class TestSession {
 	public static Logger logger;
 
 	/** The Cluster to use for the test session */
-	public static Cluster cluster;
+	public static TestCluster cluster;
 	
 	/** The test session configuration properties */
 	public static ConfigProperties conf;
@@ -104,7 +104,7 @@ public abstract class TestSession {
 	 * 
 	 * @return Cluster the cluster instance for the test session.
 	 */
-	public static Cluster getCluster() {
+	public static TestCluster getCluster() {
 		return cluster;
 	}
 	
@@ -285,6 +285,16 @@ public abstract class TestSession {
 		if (clusterState != ClusterState.UP) {
 			logger.warn("Cluster is not fully up: cluster state='" +
 					clusterState.toString() + "'.'");
+			/*
+			TODO: optionally restart the cluster. This could impact how the
+			tests are being run in parallel classes.
+			 
+			try {
+				cluster.reset();				
+			} catch (Exception e) {
+				logger.error("Failed to restart the cluster:", e);				
+			}
+			*/
 		}
 	}
 	
