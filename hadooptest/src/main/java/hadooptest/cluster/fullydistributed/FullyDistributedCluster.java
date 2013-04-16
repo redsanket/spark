@@ -2,7 +2,7 @@ package hadooptest.cluster.fullydistributed;
 
 import hadooptest.TestSession;
 import hadooptest.Util;
-import hadooptest.cluster.Cluster;
+import hadooptest.cluster.TestCluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
 import hadooptest.config.TestConfiguration;
@@ -18,7 +18,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * A Cluster subclass that implements a Fully Distributed Hadoop cluster.
  */
-public class FullyDistributedCluster extends Cluster {
+public class FullyDistributedCluster extends TestCluster {
 
 	/** The base fully distributed configuration. */
 	protected FullyDistributedConfiguration conf;
