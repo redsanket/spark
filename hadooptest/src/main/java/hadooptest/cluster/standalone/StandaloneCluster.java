@@ -1,7 +1,7 @@
 package hadooptest.cluster.standalone;
 
 import hadooptest.cluster.ClusterState;
-import hadooptest.cluster.Cluster;
+import hadooptest.cluster.TestCluster;
 import hadooptest.config.testconfig.StandaloneConfiguration;
 import hadooptest.config.TestConfiguration;
 
@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.FileSystem;
  * 
  * This is an unfinished class and should not be used.
  */
-public class StandaloneCluster extends Cluster {
+public class StandaloneCluster extends TestCluster {
 
 	// The base pseudodistributed configuration.
 	protected StandaloneConfiguration conf;
