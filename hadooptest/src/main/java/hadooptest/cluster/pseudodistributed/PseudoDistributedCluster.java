@@ -4,7 +4,7 @@
 
 package hadooptest.cluster.pseudodistributed;
 
-import hadooptest.cluster.Cluster;
+import hadooptest.cluster.TestCluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.PseudoDistributedConfiguration;
 import hadooptest.Util;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.
  */
-public class PseudoDistributedCluster extends Cluster {
+public class PseudoDistributedCluster extends TestCluster {
 
 	/** The base pseudodistributed configuration. */
 	protected PseudoDistributedConfiguration conf;
