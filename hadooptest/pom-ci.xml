@@ -11,6 +11,10 @@
   
   <artifactId>hadooptest-ci</artifactId>
   
+  <properties>
+    <thread.count>10</thread.count>
+  </properties>
+  
   <build>
     <plugins>
       <plugin>
@@ -36,6 +40,7 @@
             <additionalClasspathElement>${basedir}</additionalClasspathElement>
             <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
           </additionalClasspathElements>
+          <trimStackTrace>false</trimStackTrace>
           <excludes>
             <exclude>**/TestEndToEndCompression.java</exclude>
           </excludes>          
@@ -62,7 +67,7 @@
               <skip>false</skip>
               <groups>hadooptest.ParallelMethodTests</groups>
               <parallel>methods</parallel>
-              <threadCount>10</threadCount>
+              <threadCount>${thread.count}</threadCount>
             </configuration>
           </execution>
           <execution>
@@ -75,6 +80,7 @@
               <skip>false</skip>
               <groups>hadooptest.ParallelClassTests</groups>
               <parallel>class</parallel>
+              <threadCount>${thread.count}</threadCount>
             </configuration>
           </execution>
           <execution>
@@ -87,6 +93,7 @@
               <skip>false</skip>
               <excludedGroups>hadooptest.SerialTests,hadooptest.ParallelClassTests,hadooptest.ParallelMethodTests</excludedGroups>
               <parallel>both</parallel>
+              <threadCount>${thread.count}</threadCount>
             </configuration>
           </execution>
         </executions>
