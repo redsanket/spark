@@ -68,6 +68,10 @@ while getopts "c:f:g:s:t:u:w:ijmnp:h" opt; do
         esac
 done
 
+#shift $(($OPTIND - 1))
+#echo "Remaining arguments are: %s\n" "$*"
+#exit;
+
 if [ -z $CLUSTER ]; then
    echo "ERROR: Required CLUSTER value not defined!!!";
    exit 1;
@@ -75,8 +79,8 @@ fi
 
 # DEFAULT_REMOTE_HOST="gwbl2005.blue.ygrid.yahoo.com"
 if [ -z $REMOTE_HOST ]; then
-	echo "gateway unspecified: fetch host from igor role: $rolename";
 	rolename="grid_re.clusters.$CLUSTER.gateway"
+	echo "gateway unspecified: fetch host from igor role: $rolename";
 	if [ -f /home/y/bin/igor ];then
 		DEFAULT_REMOTE_HOST=`/home/y/bin/igor fetch -members $rolename`
 	else
