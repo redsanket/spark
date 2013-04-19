@@ -130,7 +130,7 @@ execute("ssh -t $remote_host \"/bin/mkdir -p $remote_workspace/target\"");
 execute("scp $local_workspace_target_dir/*.jar $remote_host:$remote_workspace/target");
 execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_workspace;\"") if ($remote_username eq "hadoopqa");
 
-my $user_mvn = (("-m" ~~ @ARGV ) || ( "-mvn" ~~ @ARGV ) || ( "--mvn" ~~ @ARGV )) ? 1 : 0;
+$use_mvn = (("-m" ~~ @ARGV ) || ( "-mvn" ~~ @ARGV ) || ( "--mvn" ~~ @ARGV )) ? 1 : 0;
 my $common_args = "--cluster $cluster --workspace $remote_workspace ".join(" ", @ARGV);
 unless ($install_only) {
     if ($use_mvn) {
