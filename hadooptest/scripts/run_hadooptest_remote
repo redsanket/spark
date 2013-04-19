@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# The script run_hadooptest_remote.pl uses "#!/usr/bin/env perl" to determine
+# the perl interpreter instance from the $PATH.
+# If running from the Mac environment, /usr/bin/perl will be picked up.
+# On the corporate hosts, this wrapper script defines the PATH such that it will
+# attempt to pick up the perl dispatcher /usr/local/bin/perl instead of the 
+# default perl interpreter in /usr/bin/perl.
+# For more information, see http://twiki.corp.yahoo.com/view/Devel/Perl510. 
+
+export PATH=/usr/local/bin/:$PATH
+bin=`dirname $0`
+$bin/run_hadooptest_remote.pl $@ 
+
