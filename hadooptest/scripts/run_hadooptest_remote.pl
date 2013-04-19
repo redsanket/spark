@@ -79,8 +79,8 @@ GetOptions(\%options,
     "install_only"       => \$install_only,
     "cluster|c=s"        => \$cluster,
     "remote_host=s"      => \$remote_host,
-    "local_workspace=s"  => \$local_workspace,
-    "remote_workspace=s" => \$remote_workspace,
+    "local_workspace|s=s"  => \$local_workspace,
+    "remote_workspace|w=s" => \$remote_workspace,
     "user|u=s"           => \$remote_username,
     "help|h|?"
     ) or usage(1);
