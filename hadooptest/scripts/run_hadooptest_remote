@@ -1,6 +1,7 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 
 use strict;
+use 5.010;
 use warnings;
 use FindBin qw($Bin $Script);
 use Test::More;
@@ -130,7 +131,7 @@ execute("ssh -t $remote_host \"/bin/mkdir -p $remote_workspace/target\"");
 execute("scp $local_workspace_target_dir/*.jar $remote_host:$remote_workspace/target");
 execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_workspace;\"") if ($remote_username eq "hadoopqa");
 
-$use_mvn = (("-m" ~~ @ARGV ) || ( "-mvn" ~~ @ARGV ) || ( "--mvn" ~~ @ARGV )) ? 1 : 0;
+$use_mvn = ( grep( /-j/, @ARGV ) ) ? 0 : 1;
 my $common_args = "--cluster $cluster --workspace $remote_workspace ".join(" ", @ARGV);
 unless ($install_only) {
     if ($use_mvn) {
