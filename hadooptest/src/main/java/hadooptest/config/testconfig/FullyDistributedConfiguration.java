@@ -915,8 +915,8 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length]);
 		}
 		else {
-			TestSession.logger.info("Back up the Hadoop configuration directory on " +
-					"the gateway:");
+			TestSession.logger.info("Copy files(s) to the Hadoop " + 
+					"configuraiton directory " + confDir + " on the gateway:");
 			cmd = cpCmd;
 		}		
 		String output[] = TestSession.exec.runProcBuilder(cmd);
