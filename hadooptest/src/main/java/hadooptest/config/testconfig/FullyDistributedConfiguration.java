@@ -1002,9 +1002,9 @@ public class FullyDistributedConfiguration extends TestConfiguration
 
 		String[] cmd;
 		if (!component.equals("gateway")) {
-			TestSession.logger.info("Backup the Hadoop configuration directory to " +
-					tmpConfDir + " on " + "the " + component + " host(s) of " +
-					Arrays.toString(daemonHost));
+			TestSession.logger.info("Back up the Hadoop configuration " +
+					"directory to " + tmpConfDir + " on " + "the " + 
+					component + " host(s) of " + Arrays.toString(daemonHost));
 			String[] pdshCmd = { "/home/y/bin/pdsh", "-w",
 					StringUtils.join(daemonHost, ",") };
 
