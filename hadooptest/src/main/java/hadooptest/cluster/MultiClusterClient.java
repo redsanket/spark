@@ -14,8 +14,14 @@ public class MultiClusterClient {
 		PrintWriter out = null;
 		BufferedReader in = null;
 
+		String serverHostName = "localhost";
+		for (String arg: args) {
+			serverHostName = arg;
+			break;
+		}
+		
 		try {
-			mcSocket = new Socket("gwbl2005", 4444);
+			mcSocket = new Socket(serverHostName, 4444);
 			out = new PrintWriter(mcSocket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(mcSocket.getInputStream()));
 		} catch (UnknownHostException e) {
