@@ -7,7 +7,6 @@ import hadooptest.cluster.ClusterState;
 import hadooptest.config.testconfig.FullyDistributedConfiguration;
 import hadooptest.config.TestConfiguration;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
