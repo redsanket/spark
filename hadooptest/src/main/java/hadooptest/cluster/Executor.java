@@ -172,19 +172,28 @@ public abstract class Executor {
 	        error = loadStream(proc.getErrorStream());
 	        
 	        rc = proc.waitFor();
-	        // If the return code is non-zero, log it even if verbose is off.
-	        // if ((rc != 0) && (verbose)) {
-	        if ((rc != 0)) {
-	        	TestSession.logger.info("Process ended with rc='" + rc + "'");
-	        	TestSession.logger.debug("ProcessBuilder cmd ran='" +
-	        			pb.command() + "'");
-	        	TestSession.logger.info("cmd ran='" +
-	        			StringUtils.join(commandArray, " ") + "'");
+	        /* If the return code is non-zero, or standard error is not empty,
+	         * then display logging.
+	         */
+	        if ((rc != 0) || (((error != null) && !error.isEmpty()))) {
+	        	if (rc != 0) {
+	        		TestSession.logger.warn("Process ended with rc='" + rc +
+	        				"'");
+	        	}
+	        	/* Print the command executed here only if verbose is false
+	        	 * because we don't want to print this out twice. 
+	        	 */
+	        	if (!verbose) {
+					TestSession.logger.debug("ProcessBuilder cmd='" +
+							pb.command() + "'");
+					TestSession.logger.info("cmd='" +
+							StringUtils.join(commandArray, " ") + "'");
+				}
 	        	if ((output != null) && !output.isEmpty()) {
-	        		TestSession.logger.info("Captured stdout = '" + output.trim() + "'");
+	        		TestSession.logger.warn("Captured stdout = '" + output.trim() + "'");
 	        	}
 	        	if ((error != null) && !error.isEmpty()) {
-	        		TestSession.logger.info("Captured stderr = '" + error.trim() + "'");
+	        		TestSession.logger.warn("Captured stderr = '" + error.trim() + "'");
 	        	}
 	        }
 	        TestSession.logger.trace("Process Exit Code: '" + rc + "'");
