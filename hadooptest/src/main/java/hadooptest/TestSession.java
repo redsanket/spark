@@ -17,6 +17,7 @@ import hadooptest.cluster.standalone.StandaloneCluster;
 import hadooptest.cluster.TestCluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.Executor;
+import hadooptest.cluster.MultiClusterServer;
 import hadooptest.cluster.fullydistributed.FullyDistributedExecutor;
 import hadooptest.cluster.pseudodistributed.PseudoDistributedExecutor;
 import hadooptest.cluster.standalone.StandaloneExecutor;
@@ -51,6 +52,11 @@ public abstract class TestSession {
 	
 	/** The process executor for the test session */
 	public static Executor exec;
+	
+	/** The multi-cluster server host thread **/
+	private static MultiClusterServer multiClusterServer;
+
+	private static int MULTI_CLUSTER_PORT = 4444;
 	
 	/**
 	 * In the JUnit architecture,
@@ -97,7 +103,15 @@ public abstract class TestSession {
 		initCluster();
 
 		initSecurity();
+		
+		//initMultiClusterServer();
 	}
+	
+	// stop() being implemented for multi-cluster support, so we can stop the
+	// multi-cluster server thread at the end of the test session.
+	//public static void stop() {
+	//	multiClusterServer.stopServer();
+	//}
 	
 	/**
 	 * Get the cluster instance for the test session.
@@ -311,6 +325,15 @@ public abstract class TestSession {
 		catch (IOException ioe) {
 			logger.error("Failed to set the Hadoop API security.", ioe);
 		}
+	}
+	
+	/**
+	 * Start listening for framework clients on other cluster gateways.
+	 */
+	private static void initMultiClusterServer() {
+		logger.info("Starting MultiClusterServer on port: " + MULTI_CLUSTER_PORT);
+		multiClusterServer = (new MultiClusterServer(MULTI_CLUSTER_PORT));
+		multiClusterServer.start();
 	}
 	
 }
