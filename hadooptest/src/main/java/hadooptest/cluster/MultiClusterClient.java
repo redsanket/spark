@@ -26,6 +26,10 @@ public class MultiClusterClient {
 			in = new BufferedReader(new InputStreamReader(mcSocket.getInputStream()));
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about hostname");
+			
+			
+			
+			
 			System.exit(1);
 		} catch (IOException e) {
 			System.err.println("Couldn't get I/O for the connection to hostname.");
