@@ -186,7 +186,7 @@ public abstract class HadoopCluster {
 		String strClusterType = TestSession.conf.getProperty("CLUSTER_TYPE");
 
 		// Initialize the nodes with the correct cluster type.
-		if (!strClusterType.equals("hadooptest.cluster.fullydistributed.FullyDistributedCluster")) {
+		if (!strClusterType.equals("hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster")) {
 			initNonFDCNodes();
 		}
 		else {
