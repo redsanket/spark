@@ -103,7 +103,7 @@ $remote_workspace = "/tmp/hadooptest-$remote_username-$cluster"
     unless ($remote_workspace);
 
 my $command;
-if ($remote_username eq "hadoopqa") {
+if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa")) {
     $command = "ssh -t $remote_host \"if [ -d $remote_workspace ]; then sudo /bin/rm -rf $remote_workspace; fi\"";
 } else {
     $command = "ssh -t $remote_host \"if [ -d $remote_workspace ]; then /bin/rm -rf $remote_workspace; fi\"";
@@ -143,6 +143,9 @@ unless ($install_only) {
 
         # execute("scp -r $remote_host:$remote_workspace/target/clover $local_workspace_target_dir/")
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
+
+        execute("scp -r $remote_host:$remote_workspace/target/site $local_workspace_target_dir/")
+	    if ( "jacoco" ~~ @ARGV );
     } else {
         execute("ssh -t $remote_host \"$remote_workspace/scripts/run_hadooptest $common_args\"");
     }
