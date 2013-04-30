@@ -145,7 +145,7 @@ unless ($install_only) {
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
 
         execute("scp -r $remote_host:$remote_workspace/target/site $local_workspace_target_dir/")
-	    if ( "jacoco" ~~ @ARGV );
+            if ( "jacoco" ~~ @ARGV );
     } else {
         execute("ssh -t $remote_host \"$remote_workspace/scripts/run_hadooptest $common_args\"");
     }
