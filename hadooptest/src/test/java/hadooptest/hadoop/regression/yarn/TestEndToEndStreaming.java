@@ -36,6 +36,7 @@ import hadooptest.workflow.hadoop.job.StreamingJob;
 public class TestEndToEndStreaming extends TestSession {
 	
 	private static final String USER_NAME = System.getProperty("user.name");
+	private static final String RESOURCES_BASE = "hadoop/data/streaming/streaming-";
 	private static final String CACHE_TMP = "/tmp/streaming";
 	private static final String CACHE_USER = "/user/" + USER_NAME + "/streaming";
 	private static final String LOCALFS_BASE = "file://";
@@ -199,7 +200,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
@@ -208,7 +209,7 @@ public class TestEndToEndStreaming extends TestSession {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(RESOURCES_BASE + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -240,7 +241,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
@@ -249,7 +250,7 @@ public class TestEndToEndStreaming extends TestSession {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(RESOURCES_BASE + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -280,7 +281,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
@@ -311,7 +312,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
@@ -320,7 +321,7 @@ public class TestEndToEndStreaming extends TestSession {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(RESOURCES_BASE + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -350,7 +351,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = cachedirPath.substring(0, 
 					cachedirPath.indexOf("input.txt"));
@@ -380,7 +381,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
@@ -389,7 +390,8 @@ public class TestEndToEndStreaming extends TestSession {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(
+							RESOURCES_BASE + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -417,16 +419,18 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = 
-					cachedirPath.substring(0, cachedirPath.indexOf("input.txt"));
+					cachedirPath.substring(0, 
+							cachedirPath.indexOf("input.txt"));
 		}
 		else {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(
+							RESOURCES_BASE + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -457,7 +461,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/input.txt");
 			cacheInCommand = cachedirPath.substring(0, 
 					cachedirPath.indexOf("input.txt"));
@@ -488,7 +492,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/expectedOutput");
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("expectedOutput"));
@@ -497,7 +501,8 @@ public class TestEndToEndStreaming extends TestSession {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(
+							RESOURCES_BASE + 
 							testcaseID + "/" + file), 
 							cacheInCommand + "/" + file);		
 		}
@@ -525,7 +530,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/cachedir" + archive);
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("cachedir"));
@@ -534,7 +539,8 @@ public class TestEndToEndStreaming extends TestSession {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;	
 			
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(
+							RESOURCES_BASE + 
 							testcaseID + "/cachedir" + archive), 
 							cacheInCommand + "/cachedir" + archive);		
 		}
@@ -564,7 +570,7 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/cachedir.zip");
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("cachedir"));
@@ -597,7 +603,7 @@ public class TestEndToEndStreaming extends TestSession {
 		if (fileSystem.equals(LOCALFS_BASE)) {
 			
 			String cachedirPath = Util.getResourceFullPath(
-					"data/streaming/streaming-" + testcaseID + 
+					RESOURCES_BASE + testcaseID + 
 					"/cachedir" + archive);
 			cacheInCommand = 
 					cachedirPath.substring(0, cachedirPath.indexOf("cachedir"));
@@ -606,7 +612,8 @@ public class TestEndToEndStreaming extends TestSession {
 			cacheInCommand = publicPrivateCache + "/" + testcaseID;
 
 			hdfs.putFileLocalToHdfs(
-					Util.getResourceFullPath("data/streaming/streaming-" + 
+					Util.getResourceFullPath(
+							RESOURCES_BASE + 
 							testcaseID + "/cachedir" + archive), 
 							cacheInCommand + "/cachedir" + archive);
 		}
@@ -636,7 +643,7 @@ public class TestEndToEndStreaming extends TestSession {
 				publicPrivateCache);
 
 		hdfs.putFileLocalToHdfs(
-				Util.getResourceFullPath("data/streaming/streaming-" +
+				Util.getResourceFullPath(RESOURCES_BASE +
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
@@ -662,7 +669,7 @@ public class TestEndToEndStreaming extends TestSession {
 				publicPrivateCache);
 
 		hdfs.putFileLocalToHdfs(
-				Util.getResourceFullPath("data/streaming/streaming-" +
+				Util.getResourceFullPath(RESOURCES_BASE +
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
@@ -692,11 +699,11 @@ public class TestEndToEndStreaming extends TestSession {
 				" file on " + publicPrivateCache);
 
 		hdfs.putFileLocalToHdfs(
-				Util.getResourceFullPath("data/streaming/streaming-" + 
+				Util.getResourceFullPath(RESOURCES_BASE + 
 						testcaseID + "/cachedir" + archive), 
 						cacheInCommand + "/cachedir" + archive);
 		hdfs.putFileLocalToHdfs(
-				Util.getResourceFullPath("data/streaming/streaming-" + 
+				Util.getResourceFullPath(RESOURCES_BASE + 
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");
@@ -749,7 +756,7 @@ public class TestEndToEndStreaming extends TestSession {
 		try {
 			expectedOutputStr = FileUtils.readFileToString(
 					new File(Util.getResourceFullPath("" +
-							"data/streaming/streaming-" + testcaseID + 
+							RESOURCES_BASE + testcaseID + 
 							"/expectedOutput")));
 		}
 		catch (IOException ioe) {
@@ -837,7 +844,7 @@ public class TestEndToEndStreaming extends TestSession {
 	
 	private void putInputFileHDFS(int testcaseID) throws Exception {
 		hdfs.putFileLocalToHdfs(
-				Util.getResourceFullPath("data/streaming/streaming-" + 
+				Util.getResourceFullPath(RESOURCES_BASE + 
 						testcaseID + "/input.txt"), 
 						"/tmp/streaming/streaming-" + testcaseID + 
 				"/input.txt");

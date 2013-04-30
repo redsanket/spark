@@ -110,15 +110,15 @@ public class TestEndToEndPipes extends TestSession {
 		TestSession.logger.trace(TestSession.cluster.getConf().toString("props"));
 
 		setupHdfsDir();
-		putLocalToHdfs(getResourceFullPath("resources/data/pipes/c++-examples/Linux-i386-32/bin/"), "pipes/");
-		putLocalToHdfs(getResourceFullPath("resources/data/pipes/input.txt"), "pipes/input.txt");
+		putLocalToHdfs(getResourceFullPath("resources/hadoop/data/pipes/c++-examples/Linux-i386-32/bin/"), "pipes/");
+		putLocalToHdfs(getResourceFullPath("resources/hadoop/data/pipes/input.txt"), "pipes/input.txt");
 		showHdfsDir();
 
 		String[] jobCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"),
 				"--config", TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
 				"pipes", 
-				"-conf", getResourceFullPath("resources/data/pipes/word.xml"),	
+				"-conf", getResourceFullPath("resources/hadoop/data/pipes/word.xml"),	
 				"-input", "pipes/input.txt",
 				"-output", "pipes/outputDir",	 
 				"-jobconf", "mapred.job.name=End2EndPipesTest",
@@ -145,7 +145,7 @@ public class TestEndToEndPipes extends TestSession {
 		
 		String expectedOutputStr = FileUtils.readFileToString(
 						new File(getResourceFullPath("" +
-								"resources/data/pipes/expectedOutput")));
+								"resources/hadoop/data/pipes/expectedOutput")));
 		String actualOutputStr = catOutput[1];
 		TestSession.logger.debug("expected output str = \n'" + expectedOutputStr + "'");
 		TestSession.logger.debug("actual output str = \n'" + actualOutputStr + "'");
