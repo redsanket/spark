@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import org.apache.hadoop.SleepJob;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.util.ToolRunner;
 
 public class TestSleepJobAPI extends TestSession {
@@ -33,13 +32,13 @@ public class TestSleepJobAPI extends TestSession {
 			Configuration conf = TestSession.cluster.getConf();
 
 			int rc;
-			this.cluster.setSecurityAPI("keytab-hadoop1", "user-hadoop1");
+			TestSession.cluster.setSecurityAPI("keytab-hadoop1", "user-hadoop1");
 			rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
 				TestSession.logger.error("Job failed!!!");
 			}
 
-			this.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+			TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
 			rc = ToolRunner.run(conf, new SleepJob(), args);
 			if (rc != 0) {
 				TestSession.logger.error("Job failed!!!");
