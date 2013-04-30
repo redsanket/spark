@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>hadooptest</groupId>
@@ -109,15 +109,14 @@
   <build>
     <resources>
       <resource>
-	<directory>src/main/resources</directory>
+        <directory>src/main/resources</directory>
       </resource>
       <resource>
-	<directory>resources</directory>
+        <directory>resources</directory>
       </resource>
     </resources>
-		
+                
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -131,21 +130,21 @@
         </executions>
       </plugin>
 
-	  <plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-javadoc-plugin</artifactId>
-	    <version>2.9</version>
-	    <configuration>
-	      <outputDirectory>../..</outputDirectory>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <outputDirectory>../..</outputDirectory>
           <reportOutputDirectory>../..</reportOutputDirectory>
           <destDir>hadooptest-javadoc</destDir>
-	      <aggregate>true</aggregate>
-	      <quiet>true</quiet>
-	      <excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
-	    </configuration>
+          <aggregate>true</aggregate>
+          <quiet>true</quiet>
+          <excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
+        </configuration>
       </plugin>
-
     </plugins>
+
   </build>
 
   <dependencies>
