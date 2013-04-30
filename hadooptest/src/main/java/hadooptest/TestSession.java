@@ -11,15 +11,16 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
 import hadooptest.ConfigProperties;
-import hadooptest.cluster.fullydistributed.FullyDistributedCluster;
-import hadooptest.cluster.pseudodistributed.PseudoDistributedCluster;
-import hadooptest.cluster.standalone.StandaloneCluster;
-import hadooptest.cluster.TestCluster;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.Executor;
-import hadooptest.cluster.fullydistributed.FullyDistributedExecutor;
-import hadooptest.cluster.pseudodistributed.PseudoDistributedExecutor;
-import hadooptest.cluster.standalone.StandaloneExecutor;
+import hadooptest.cluster.MultiClusterServer;
+import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
+import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster;
+import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
+import hadooptest.cluster.hadoop.standalone.StandaloneCluster;
+import hadooptest.cluster.hadoop.standalone.StandaloneExecutor;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -44,13 +45,18 @@ public abstract class TestSession {
 	public static Logger logger;
 
 	/** The Cluster to use for the test session */
-	public static TestCluster cluster;
+	public static HadoopCluster cluster;
 	
 	/** The test session configuration properties */
 	public static ConfigProperties conf;
 	
 	/** The process executor for the test session */
 	public static Executor exec;
+	
+	/** The multi-cluster server host thread **/
+	private static MultiClusterServer multiClusterServer;
+
+	private static int MULTI_CLUSTER_PORT = 4444;
 	
 	/**
 	 * In the JUnit architecture,
@@ -97,14 +103,22 @@ public abstract class TestSession {
 		initCluster();
 
 		initSecurity();
+		
+		//initMultiClusterServer();
 	}
+	
+	// stop() being implemented for multi-cluster support, so we can stop the
+	// multi-cluster server thread at the end of the test session.
+	//public static void stop() {
+	//	multiClusterServer.stopServer();
+	//}
 	
 	/**
 	 * Get the cluster instance for the test session.
 	 * 
 	 * @return Cluster the cluster instance for the test session.
 	 */
-	public static TestCluster getCluster() {
+	public static HadoopCluster getCluster() {
 		return cluster;
 	}
 	
@@ -227,13 +241,13 @@ public abstract class TestSession {
 		String strClusterType = conf.getProperty("CLUSTER_TYPE");
 		
 		// Initialize the test session executor instance with the correct cluster type.
-		if (strClusterType.equals("hadooptest.cluster.fullydistributed.FullyDistributedCluster")) {
+		if (strClusterType.equals("hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster")) {
 			exec = new FullyDistributedExecutor();
 		}
-		else if (strClusterType.equals("hadooptest.cluster.pseudodistributed.PseudoDistributedCluster")) {
+		else if (strClusterType.equals("hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster")) {
 			exec = new PseudoDistributedExecutor();
 		}
-		else if (strClusterType.equals("hadooptest.cluster.standalone.StandaloneCluster")) {
+		else if (strClusterType.equals("hadooptest.cluster.hadoop.standalone.StandaloneCluster")) {
 			exec = new StandaloneExecutor();
 		}
 		else {
@@ -311,6 +325,15 @@ public abstract class TestSession {
 		catch (IOException ioe) {
 			logger.error("Failed to set the Hadoop API security.", ioe);
 		}
+	}
+	
+	/**
+	 * Start listening for framework clients on other cluster gateways.
+	 */
+	private static void initMultiClusterServer() {
+		logger.info("Starting MultiClusterServer on port: " + MULTI_CLUSTER_PORT);
+		multiClusterServer = (new MultiClusterServer(MULTI_CLUSTER_PORT));
+		multiClusterServer.start();
 	}
 	
 }

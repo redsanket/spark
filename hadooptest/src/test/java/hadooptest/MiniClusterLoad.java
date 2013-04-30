@@ -8,9 +8,9 @@
 
 package hadooptest;
 
-import hadooptest.cluster.mini.yarn.YARNMiniCluster;
-import hadooptest.cluster.mini.hdfs.HDFSMiniCluster;
-import hadooptest.cluster.mini.mapreduce.MRMiniCluster;
+import hadooptest.cluster.hadoop.mini.hdfs.HDFSMiniCluster;
+import hadooptest.cluster.hadoop.mini.mapreduce.MRMiniCluster;
+import hadooptest.cluster.hadoop.mini.yarn.YARNMiniCluster;
 
 
 import org.junit.Test;
