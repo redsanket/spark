@@ -888,21 +888,48 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			String[] daemonHost, String targetFile) 
 					throws Exception {
 
+		/* pdcp doesn't always work because it needs to be available on all of
+		 * the Hadoop nodes and they are not installed by default. 
+		 * Alternative is use pdsh with scp copying from the gateway host to 
+		 * one or more of the target hosts. But this will require that the
+		 * source directory on the gateway be in the full path, and not in 
+		 * relative path.  If path is a relative path, it will be concatenated 
+		 * with the default root directory path of 
+		 * TestSession.conf.getProperty("WORKSPACE")  
+		 */
+		if (!sourceFile.startsWith("/")) {
+			sourceFile = TestSession.conf.getProperty("WORKSPACE") + "/" +
+					sourceFile;
+		}
+		
+		if (!component.equals("gateway")) {
+			sourceFile = this.getHadoopProp("GATEWAY") + ":" + sourceFile;
+		}
+		
+		/* target would either be the custom Hadoop configuration directory
+		 * where files are to be copied to, or the actual full path filename to
+		 * be copied to.
+		 */
 		String confDir = this.getHadoopConfDirPath(component);
 		String target =
 			((targetFile == null) || targetFile.isEmpty()) ?
 			confDir : confDir + "/" + targetFile;
-		
-		String cpCmd[] = { "/usr/bin/scp",
-				this.getHadoopProp("GATEWAY") + ":" + sourceFile,
-				target};
+
+		String cpBin = (component.equals("gateway")) ?
+			"/bin/cp" : "/usr/bin/scp";
+		String cpCmd[] = { cpBin, sourceFile, target};
 				
 		if ((!component.equals("gateway")) && (daemonHost == null)) {
 			daemonHost = TestSession.cluster.getNodes(component); 
 		}
 
 		String[] cmd;
-		if (!component.equals("gateway")) {
+		if (component.equals("gateway")) {
+			TestSession.logger.info("Copy files(s) to the Hadoop " + 
+					"configuraiton directory " + confDir + " on the gateway:");
+			cmd = cpCmd;			
+		}
+		else {
 			TestSession.logger.info("Copy file(s) to the Hadoop " +
 					"configuration directory " + confDir + " on " +
 					"the " + component + " host(s) of " +
@@ -914,11 +941,6 @@ public class FullyDistributedConfiguration extends TestConfiguration
 			temp.addAll(Arrays.asList(cpCmd));
 			cmd = temp.toArray(new String[pdshCmd.length+cpCmd.length]);
 		}
-		else {
-			TestSession.logger.info("Copy files(s) to the Hadoop " + 
-					"configuraiton directory " + confDir + " on the gateway:");
-			cmd = cpCmd;
-		}		
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 		TestSession.logger.trace(Arrays.toString(output));
 
