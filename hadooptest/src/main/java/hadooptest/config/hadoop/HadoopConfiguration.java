@@ -343,10 +343,10 @@ public abstract class HadoopConfiguration extends Configuration {
 	protected void loadClusterResource() {
 		TestSession.logger.info("load hadoop resources from " +
 				this.getHadoopConfDir() + ":");
-		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_CORE")));
-		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_HDFS")));
-		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_MAPRED")));
-		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_YARN")));	
+		super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_CORE)));
+		super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_HDFS)));
+		super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_MAPRED)));
+		super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_YARN)));	
 	}
 	
     /**
