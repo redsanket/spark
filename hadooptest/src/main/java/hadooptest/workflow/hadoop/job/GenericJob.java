@@ -23,7 +23,7 @@ public class GenericJob extends Job {
 	private String jobJar = null;
 
 	/** The config dir to use */
-	private String jobConf = TestSession.cluster.getConf().getHadoopConfDirPath();
+	private String jobConf = TestSession.cluster.getConf().getHadoopConfDir();
 	
 	/** The job name to run*/
 	private String jobName = null;

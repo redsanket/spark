@@ -286,9 +286,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 				 * been set. If so, use it otherwise use the default Hadoop
 				 * configuration directory.
 				 */
-				Properties hadoopConfDir = this.conf.getHadoopConfDirPaths();
-				confDir = hadoopConfDir.getProperty(component,
-						this.conf.getHadoopProp("HADOOP_DEFAULT_CONF_DIR"));
+				confDir = this.conf.getHadoopConfDir(component);
 			}
 		}
 		else {
@@ -335,7 +333,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 			 * better if we are able to determine this. 
 			 */
 			if (action.equals("start")) {
-				Properties hadoopConfDir = this.conf.getHadoopConfDirPaths();
+				Properties hadoopConfDir = this.conf.getHadoopConfDirProps();
 				confDir = hadoopConfDir.getProperty(component);
 				if ((confDir != null) && !confDir.isEmpty()) {
 					this.conf.loadResourceForComponent(confDir, component);

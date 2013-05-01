@@ -81,17 +81,17 @@ public class PseudoDistributedCluster extends HadoopCluster {
 			throws Exception {		
 		String[] start_dfs = {
 				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh", 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+				"--config", TestSession.cluster.getConf().getHadoopConfDir() };
 		String[] start_yarn = {
 				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-yarn.sh", 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+				"--config", TestSession.cluster.getConf().getHadoopConfDir() };
 		String[] start_historyserver = {
 				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh",
 				"start", "historyserver", 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath() };
+				"--config", TestSession.cluster.getConf().getHadoopConfDir() };
 		String[] start_datanode = {
 				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh",
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"start", "datanode" };
 		
 		TestSession.logger.info("STARTING DFS...");

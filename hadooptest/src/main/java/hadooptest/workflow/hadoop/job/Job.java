@@ -256,7 +256,7 @@ public abstract class Job extends Thread {
 		
 		String[] mapredCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"job", "-kill", this.ID };
 
 		TestSession.logger.debug(mapredCmd);
@@ -518,7 +518,7 @@ public abstract class Job extends Thread {
 		
 		String[] mapredCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"job", "-status", this.ID };
 		
 		TestSession.logger.debug(mapredCmd);
@@ -625,7 +625,7 @@ public abstract class Job extends Thread {
 		
 		String[] mapredCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"job", "-status", this.ID };
 		
 		TestSession.logger.debug(mapredCmd);
@@ -837,7 +837,7 @@ public abstract class Job extends Thread {
 		
 		String[] mapredCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"job", "-kill-task", taskID };
 		
 		TestSession.logger.debug(mapredCmd);
@@ -987,7 +987,7 @@ public abstract class Job extends Thread {
 		
 		String[] mapredCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"), 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"job", "-fail-task", taskID };
 
 		TestSession.logger.debug(mapredCmd);

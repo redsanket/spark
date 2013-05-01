@@ -123,7 +123,7 @@ public class PseudoDistributedConfiguration extends HadoopConfiguration
 	 * by the .write() of the object.
 	 */
 	public void cleanup() {
-		String configurationDir = TestSession.cluster.getConf().getHadoopConfDirPath();
+		String configurationDir = TestSession.cluster.getConf().getHadoopConfDir();
 		
 		File core_site = new File(configurationDir + "/core-site.xml");
 		File hdfs_site = new File(configurationDir + "/hdfs-site.xml");

@@ -101,7 +101,7 @@ public class FailJob extends Job {
 		}
 		
 		return new String[] { TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"), 
-				"--config", TestSession.cluster.getConf().getHadoopConfDirPath(),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"),
 				"fail", "-Dmapreduce.job.user.name=" + this.USER, 
 				strFailMappers,

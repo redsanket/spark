@@ -30,6 +30,8 @@ public class TestVersion extends TestSession {
 			assertTrue("Version has invalid format!!!", testConfVersionAPI.matches("\\d+[.\\d+]+"));
 			assertTrue("API and CLI versions do not match!!!", testConfVersionAPI.equals(testConfVersionCLI));
 			assertTrue("Cluster Object version and Cluster Conf Object version do not match!!!", clusterVersion.equals(testConfVersionAPI));
+			
+			TestSession.cluster.getConf().toString("resource");
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);

@@ -35,10 +35,12 @@ public abstract class HadoopConfiguration extends Configuration {
 	public static final String HADOOP_CONF_YARN = "yarn-site.xml";
 
 	/** Filename of the capacity scheduler configuration xml file. */
-	public static final String HADOOP_CONF_CAPACITY_SCHEDULER = "capacity-scheduler.xml";
+	public static final String HADOOP_CONF_CAPACITY_SCHEDULER =
+	        "capacity-scheduler.xml";
 
 	/** Filename of the fair scheduler configuration xml file. */
-	public static final String HADOOP_CONF_FAIR_SCHEDULER = "fair-scheduler.xml";
+	public static final String HADOOP_CONF_FAIR_SCHEDULER = 
+	        "fair-scheduler.xml";
 
 	/** String representing the name node. */
 	public static final String NAMENODE = "namenode";
@@ -55,27 +57,30 @@ public abstract class HadoopConfiguration extends Configuration {
 	/** String representing the gateway. */
 	public static final String GATEWAY = "gateway";
 
+	/** */
+	public static final String[] components = {
+	    "namenode", "resourcemanager", "datanode", "gateway", "nodemanager"};
+	
 	/** General Hadoop configuration properties such as cluster name, 
 	 * directory paths, etc.
 	 */
     protected Properties hadoopProps = new Properties();
 
     /** Track Hadoop override configuration directories */
-    protected Properties hadoopConfDirPaths = new Properties();
+    protected Properties hadoopConfDirProps = new Properties();
 
 	/** 
-	 * A generic constructor TestConfiguration that calls the Hadoop Configuration
-	 * with the false argument, so that you are not loading any default Hadoop
-	 * configuration properties.  It then proceeds to initialize the default
-	 * configuration for the reflected cluster type.
+	 * A generic constructor TestConfiguration that calls the Hadoop
+	 * Configuration with the false argument, so that you are not loading any
+	 * default Hadoop configuration properties.  It then proceeds to
+	 * initialize the default configuration for the reflected cluster type.
 	 * 
 	 * @throws Exception if the default hosts can not be initialized, or there
-	 *                   is a problem getting the Hadoop version.
+	 * is a problem getting the Hadoop version.
 	 */
 	public HadoopConfiguration() throws Exception {
 		super(true);		
 		this.initDefaults();
-
 	}
 
 	/**
@@ -84,16 +89,15 @@ public abstract class HadoopConfiguration extends Configuration {
 	 * It then proceeds to initialize the default configuration for the 
 	 * reflected cluster type.
 	 * 
-	 * @param loadDefaults whether or not to load the cluster configuration defaults
-	 * 						using the Configuration superclass constructor.
+	 * @param loadDefaults whether or not to load the cluster configuration
+	 * defaults using the Configuration superclass constructor.
 	 * 
 	 * @throws Exception if the default hosts can not be initialized or there is
-	 *                   a problem getting the Hadoop version.
+	 * a problem getting the Hadoop version.
 	 */
 	public HadoopConfiguration(boolean loadDefaults) throws Exception {
 		super(loadDefaults);
 		this.initDefaults();
-
 	}
 
 	/**
@@ -131,7 +135,8 @@ public abstract class HadoopConfiguration extends Configuration {
     		return this.hadoopProps.getProperty(key);
     	}
     	else {
-			TestSession.logger.error("Couldn't find value for key '" + key + "'.");
+			TestSession.logger.error(
+				"Couldn't find value for key '" + key + "'.");
 			return "";
     	}
     }
@@ -142,8 +147,8 @@ public abstract class HadoopConfiguration extends Configuration {
      * @return Properties the Hadoop configuration directory paths by
      * components.
      */
-	public Properties getHadoopConfDirPaths() {
-    	return this.hadoopConfDirPaths;
+	public Properties getHadoopConfDirProps() {
+    	return this.hadoopConfDirProps;
     }
 
     /**
@@ -152,8 +157,8 @@ public abstract class HadoopConfiguration extends Configuration {
      * 
      * @return String of the directory path name..
      */
-	public String getHadoopConfDirPath() {
-		return this.getHadoopConfDirPath(null);
+	public String getHadoopConfDir() {
+		return this.getHadoopConfDir(null);
 	}
 	
 
@@ -165,13 +170,26 @@ public abstract class HadoopConfiguration extends Configuration {
      * 
      * @return String of the directory path name..
      */
-	public String getHadoopConfDirPath(String component) {
+	public String getHadoopConfDir(String component) {
 		if ((component == null) || component.isEmpty()) {
 			component = HadoopConfiguration.GATEWAY;
 		}
-		return this.getHadoopConfDirPaths().getProperty(component);
+		return this.getHadoopConfDirProps().getProperty(component,
+				this.getHadoopProp("HADOOP_DEFAULT_CONF_DIR"));
 	}
 	
+    /**
+     * Set the Hadoop configuration directory path for all components.
+     * 
+     * @param path String of the directory path name.
+     * 
+     */
+	public void setHadoopConfDir(String path) {		
+		for (String component : components ) {
+			this.getHadoopConfDirProps().setProperty(component, path);
+		}
+	}
+
     /**
      * Set the Hadoop configuration directory path for the given component.
      * 
@@ -180,8 +198,8 @@ public abstract class HadoopConfiguration extends Configuration {
      * @param path String of the directory path name.
      * 
      */
-	public void setHadoopConfDirPath(String component, String path) {
-		this.getHadoopConfDirPaths().setProperty(component, path);
+	public void setHadoopConfDir(String component, String path) {
+		this.getHadoopConfDirProps().setProperty(component, path);
 	}
 
 	/**
@@ -189,7 +207,8 @@ public abstract class HadoopConfiguration extends Configuration {
 	 * 
 	 * @throws UnknownHostException if the default hosts can not be initialized.
 	 */
-	protected abstract void initDefaultsClusterSpecific() throws UnknownHostException;
+	protected abstract void initDefaultsClusterSpecific()
+	        throws UnknownHostException;
 	
 	/**
 	 * Setup the Kerberos configuration for the given user name and keytab file
@@ -198,7 +217,8 @@ public abstract class HadoopConfiguration extends Configuration {
 	 */
 	private void setKerberosConf(String user) {
 		super.set("user-" + user, user + "@DEV.YGRID.YAHOO.COM");
-		super.set("keytab-" + user, "/homes/" + user + "/" + user + ".dev.headless.keytab");
+		super.set("keytab-" + user, "/homes/" + user + "/" + user +
+		        ".dev.headless.keytab");
 	}
 	
 	/**
@@ -240,15 +260,22 @@ public abstract class HadoopConfiguration extends Configuration {
 		// Configuration directory and files
 		String confDir=
 				hadoopProps.getProperty("HADOOP_INSTALL") + "/conf/hadoop";
-		hadoopProps.setProperty("HADOOP_CONF_DIR", confDir);
 		hadoopProps.setProperty("HADOOP_DEFAULT_CONF_DIR", confDir);
-		this.setHadoopConfDirPath("gateway",confDir);
-		hadoopProps.setProperty("HADOOP_CONF_CORE", confDir + "/" + HADOOP_CONF_CORE);
-		hadoopProps.setProperty("HADOOP_CONF_HDFS", confDir + "/" + HADOOP_CONF_HDFS);
-		hadoopProps.setProperty("HADOOP_CONF_MAPRED", confDir + "/" + HADOOP_CONF_MAPRED);
-		hadoopProps.setProperty("HADOOP_CONF_YARN", confDir + "/" + HADOOP_CONF_YARN);
-		hadoopProps.setProperty("HADOOP_CONF_CAPACITY_SCHEDULER", confDir + "/" + HADOOP_CONF_CAPACITY_SCHEDULER);
-		hadoopProps.setProperty("HADOOP_CONF_FAIR_SCHEDULER", confDir + "/" + HADOOP_CONF_FAIR_SCHEDULER);
+				
+		// Initialize the active Hadoop conf dir properties
+        // hadoopProps.setProperty("HADOOP_CONF_DIR", confDir);
+		this.setHadoopConfDir(confDir);
+		
+		/*
+		 * Use this.getHadoopConfFile() instead because the configuration
+		 * directory may change.
+		 * hadoopProps.setProperty("HADOOP_CONF_CORE", confDir + "/" + HADOOP_CONF_CORE);
+		 * hadoopProps.setProperty("HADOOP_CONF_HDFS", confDir + "/" + HADOOP_CONF_HDFS);
+		 * hadoopProps.setProperty("HADOOP_CONF_MAPRED", confDir + "/" + HADOOP_CONF_MAPRED);
+		 * hadoopProps.setProperty("HADOOP_CONF_YARN", confDir + "/" + HADOOP_CONF_YARN);
+		 * hadoopProps.setProperty("HADOOP_CONF_CAPACITY_SCHEDULER", confDir + "/" + HADOOP_CONF_CAPACITY_SCHEDULER);
+		 * hadoopProps.setProperty("HADOOP_CONF_FAIR_SCHEDULER", confDir + "/" + HADOOP_CONF_FAIR_SCHEDULER);
+		*/
 
 		// Binaries
 		hadoopProps.setProperty("HADOOP_BIN_DIR", hadoopProps.getProperty("HADOOP_COMMON_HOME") + "/bin");
@@ -315,11 +342,18 @@ public abstract class HadoopConfiguration extends Configuration {
 	
 	protected void loadClusterResource() {
 		TestSession.logger.info("load hadoop resources from " +
-				hadoopProps.getProperty("HADOOP_CONF_DIR") + ":");
-		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_CORE")));
-		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_HDFS")));
-		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_MAPRED")));
-		super.addResource(new Path(hadoopProps.getProperty("HADOOP_CONF_YARN")));	
+				this.getHadoopConfDir() + ":");
+		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_CORE")));
+		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_HDFS")));
+		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_MAPRED")));
+		super.addResource(new Path(this.getHadoopConfFile("HADOOP_CONF_YARN")));	
+	}
+	
+    /**
+     * Get a given Hadoop configuration file path
+     */
+	public String getHadoopConfFile(String file) {
+        return this.getHadoopConfDir() + "/" + file;        
 	}
 	
 	/**
@@ -371,7 +405,7 @@ public abstract class HadoopConfiguration extends Configuration {
     public String getVersionViaCLI() 
     		throws Exception {
     	String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
-    			"--config", this.getHadoopProp("HADOOP_CONF_DIR"), "version" };	
+    			"--config", this.getHadoopConfDir(), "version" };	
     	String version = (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];
         return version.split(" ")[1];
     }

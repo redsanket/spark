@@ -167,7 +167,7 @@ public abstract class HadoopCluster {
 
 		// Datanode
 		nodes.put("datanode", this.getHostsFromList(namenode,
-				this.getConf().getHadoopProp("HADOOP_CONF_DIR") + "/slaves"));		
+				this.getConf().getHadoopConfDir() + "/slaves"));		
 
 		// Nodemanager
 		nodes.put("nodemanager", nodes.get("datanode"));		
@@ -198,7 +198,8 @@ public abstract class HadoopCluster {
 		Enumeration<String> components = nodes.keys(); 
 		while (components.hasMoreElements()) { 
 			String component = (String) components.nextElement(); 
-			TestSession.logger.debug(component + ": " + Arrays.toString(nodes.get(component))); 
+			TestSession.logger.debug(component + ": " +
+			        Arrays.toString(nodes.get(component))); 
 		} 	
 	}
 
@@ -369,28 +370,30 @@ public abstract class HadoopCluster {
 
 		if ((fs == null) || fs.isEmpty()) {
 			fs = this.getConf().get(
-					"fs.defaultFS",
-					HadoopConfiguration.HADOOP_CONF_CORE);
+					"fs.defaultFS", HadoopConfiguration.HADOOP_CONF_CORE);
 		}
 
 		String namenode = nodes.get("namenode")[0];
 		String[] safemodeGetCmd = { this.getConf().getHadoopProp("HDFS_BIN"),
-				"--config", this.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+				"--config", this.getConf().getHadoopConfDir(),
 				"dfsadmin", "-fs", fs, "-safemode", "get" };
 
-		String[] output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
+		String[] output =
+		        TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
 		boolean isSafemodeOff = 
 				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 
-		// for the time out duration wait and see if the namenode comes out of safemode
+		/* for the time out duration wait and see if the namenode comes out of
+		 * safemode
+		 */
 		int waitTime=5;
 		int i=1;
 		while ((timeout > 0) && (!isSafemodeOff)) {
-			TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i + ": WAIT " + waitTime + "s:" );
-
+			TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i +
+			        ": WAIT " + waitTime + "s:" );
 			Util.sleep(waitTime);
-			
-			output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
+			output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd,
+			        verbose);
 			isSafemodeOff = 
 					(output[1].trim().contains("Safe mode is OFF")) ? true : false;
 			timeout = timeout - waitTime;
@@ -398,7 +401,8 @@ public abstract class HadoopCluster {
 		}
 
 		if (!isSafemodeOff) {
-			TestSession.logger.info("ALERT: NAMENODE '" + namenode + "' IS STILL IN SAFEMODE");
+			TestSession.logger.info("ALERT: NAMENODE '" + namenode +
+			        "' IS STILL IN SAFEMODE");
 		}
 
 		return isSafemodeOff;
