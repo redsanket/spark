@@ -278,90 +278,8 @@
         </dependency>
       </dependencies>
     </profile>
-  </profiles>
-
-  <build>
-    <plugins>
-
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.13</version>
-        <configuration>
-          <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
-          <skip>true</skip>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.hadoop</groupId>
-              <artifactId>excluded-artifact</artifactId>
-            </exclusion>
-          </exclusions>
-                    <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-amd64-64/</argLine>  
-          <additionalClasspathElements>
-            <additionalClasspathElement>${basedir}</additionalClasspathElement>
-            <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
-          </additionalClasspathElements>
-          <trimStackTrace>false</trimStackTrace>
-          <excludes>
-            <exclude>**/TestEndToEndCompression.java</exclude>
-          </excludes>          
-        </configuration>
-        <executions>
-          <execution>
-            <id>serial-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>hadooptest.SerialTests</groups>
-            </configuration>
-          </execution>
-          <execution>
-            <id>parallel-methods-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>hadooptest.ParallelMethodTests</groups>
-              <parallel>methods</parallel>
-              <threadCount>${thread.count}</threadCount>
-            </configuration>
-          </execution>
-          <execution>
-            <id>parallel-class-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>hadooptest.ParallelClassTests</groups>
-              <parallel>class</parallel>
-              <threadCount>${thread.count}</threadCount>
-            </configuration>
-          </execution>
-          <execution>
-            <id>parallel-class-and-method-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <excludedGroups>hadooptest.SerialTests,hadooptest.ParallelClassTests,hadooptest.ParallelMethodTests</excludedGroups>
-              <parallel>both</parallel>
-              <threadCount>${thread.count}</threadCount>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-
-  </build>
-  
+    
+      
     <profile>
       <id>clover</id>
       <activation>
@@ -492,7 +410,90 @@
       </dependencies>
 
     </profile>
+    
   </profiles>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.13</version>
+        <configuration>
+          <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
+          <skip>true</skip>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.hadoop</groupId>
+              <artifactId>excluded-artifact</artifactId>
+            </exclusion>
+          </exclusions>
+                    <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-amd64-64/</argLine>  
+          <additionalClasspathElements>
+            <additionalClasspathElement>${basedir}</additionalClasspathElement>
+            <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
+          </additionalClasspathElements>
+          <trimStackTrace>false</trimStackTrace>
+          <excludes>
+            <exclude>**/TestEndToEndCompression.java</exclude>
+          </excludes>          
+        </configuration>
+        <executions>
+          <execution>
+            <id>serial-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <groups>hadooptest.SerialTests</groups>
+            </configuration>
+          </execution>
+          <execution>
+            <id>parallel-methods-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <groups>hadooptest.ParallelMethodTests</groups>
+              <parallel>methods</parallel>
+              <threadCount>${thread.count}</threadCount>
+            </configuration>
+          </execution>
+          <execution>
+            <id>parallel-class-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <groups>hadooptest.ParallelClassTests</groups>
+              <parallel>class</parallel>
+              <threadCount>${thread.count}</threadCount>
+            </configuration>
+          </execution>
+          <execution>
+            <id>parallel-class-and-method-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <excludedGroups>hadooptest.SerialTests,hadooptest.ParallelClassTests,hadooptest.ParallelMethodTests</excludedGroups>
+              <parallel>both</parallel>
+              <threadCount>${thread.count}</threadCount>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+  </build>
 
   <dependencies>
     <dependency>
