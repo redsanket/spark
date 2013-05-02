@@ -31,10 +31,10 @@ public class FullyDistributedExecutor extends Executor {
 	 * 
 	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username) 
+	public String[] runProcBuilderSecurity(String[] commandArray, String username) 
 			throws Exception {
 		boolean verbose = true;
-		return runHadoopProcBuilder(commandArray, username, verbose);
+		return runProcBuilderSecurity(commandArray, username, verbose);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class FullyDistributedExecutor extends Executor {
 	 * 
 	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) 
+	public String[] runProcBuilderSecurity(String[] commandArray, String username, boolean verbose) 
 			throws Exception {
 		if (this.isHeadless(username)) {
 			Map<String, String> newEnv = new HashMap<String, String>();
@@ -74,7 +74,7 @@ public class FullyDistributedExecutor extends Executor {
 	 * 
 	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) 
+	public Process runProcBuilderSecurityGetProc(String[] commandArray, String username) 
 			throws Exception {
 		if (this.isHeadless(username)) {
 			Map<String, String> newEnv = new HashMap<String, String>();

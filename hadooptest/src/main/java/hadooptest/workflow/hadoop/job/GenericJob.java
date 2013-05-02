@@ -114,7 +114,7 @@ public class GenericJob extends Job {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
-		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
 		BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
 		String line=reader.readLine(); 
 
@@ -142,7 +142,7 @@ public class GenericJob extends Job {
 	 */
 	protected void submitNoID() 
 			throws Exception {
-		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
 	} 
 
 	/**
@@ -169,7 +169,7 @@ public class GenericJob extends Job {
 			throws Exception {
 		String[] output = null;
 		
-		output = TestSession.exec.runHadoopProcBuilder(this.assembleCommand(), verbose);
+		output = TestSession.exec.runProcBuilderSecurity(this.assembleCommand(), verbose);
 
 		return output;
 	}

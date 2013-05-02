@@ -22,88 +22,125 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    
+    <repository>
+        <id>sonatype</id>
+        <url>http://oss.sonatype.org/content/groups/public/</url>
+    </repository>
+    <repository>
+        <id>clojars.org</id>
+        <url>http://clojars.org/repo</url>
+    </repository>
+    
   </repositories>
   
   <profiles>
-    <profile>
-      <id>profile-0.23.6</id>
-      <activation>
-      <activeByDefault>false</activeByDefault>
-      </activation>
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>0.23.6</hadoop.version.ut.1>
-        <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
-      </properties>
-    </profile>
+	<profile>
+		<id>profile-storm</id>
+		<activation>
+			<activeByDefault>false</activeByDefault>
+		</activation>
 
-    <profile>
-      <id>profile-0.23.7</id>
-      <activation>
-      <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>0.23.7.0.1304050633</hadoop.version.ut.1>
-        <hadoop.version.ut.2>0.23.7.0.1303281627</hadoop.version.ut.2>
-        <hadoop.version.ut.3>0.23.7.0.1304021723</hadoop.version.ut.3>
-        <hadoop.version.ut.4>0.23.7-SNAPSHOT</hadoop.version.ut.4>
-        <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
-      </properties>
+		<dependencies>
+			<dependency>
+				<groupId>yahoo.yinst.ystorm</groupId>
+				<artifactId>storm</artifactId>
+				<version>0.9.0_wip16.76</version>
+			</dependency>
+			<dependency>
+				<groupId>storm</groupId>
+				<artifactId>storm</artifactId>
+				<version>0.9.0-wip16</version>
+			</dependency>
+			<dependency>
+				<groupId>org.yaml</groupId>
+				<artifactId>snakeyaml</artifactId>
+				<version>1.9</version>
+			</dependency>
+		</dependencies>
+	</profile>
 
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-client</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
+	<profile>
+		<id>profile-0.23.6</id>
+		<activation>
+			<activeByDefault>false</activeByDefault>
+		</activation>
+		<properties>
+			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			<hadoop.version.ut.1>0.23.6</hadoop.version.ut.1>
+			<hadoop.version>${hadoop.version.ut.1}</hadoop.version>
+		</properties>
+	</profile>
 
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-server-nodemanager</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
-    
-    
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-   
-    <profile>
-      <id>profile-2.0</id>
-      <activation>
-      <activeByDefault>false</activeByDefault>
-      </activation>
-   
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>2.0.4.0.1304041432 </hadoop.version.ut.1>
-        <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
-      </properties>
+	<profile>
+		<id>profile-0.23.7</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+		</activation>
+		<properties>
+			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			<hadoop.version.ut.1>0.23.7.0.1304050633</hadoop.version.ut.1>
+			<hadoop.version.ut.2>0.23.7.0.1303281627</hadoop.version.ut.2>
+			<hadoop.version.ut.3>0.23.7.0.1304021723</hadoop.version.ut.3>
+			<hadoop.version.ut.4>0.23.7-SNAPSHOT</hadoop.version.ut.4>
+			<hadoop.version>${hadoop.version.ut.1}</hadoop.version>
+		</properties>
 
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-client</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
-    
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
-      </dependencies>
-    </profile> 
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.hadoop</groupId>
+				<artifactId>hadoop-yarn-client</artifactId>
+				<version>${hadoop.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.hadoop</groupId>
+				<artifactId>hadoop-yarn-server-nodemanager</artifactId>
+				<version>${hadoop.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.apache.hadoop</groupId>
+				<artifactId>hadoop-yarn-server-resourcemanager</artifactId>
+				<version>${hadoop.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+		</dependencies>
+
+	</profile>
+
+	<profile>
+		<id>profile-2.0</id>
+		<activation>
+			<activeByDefault>false</activeByDefault>
+		</activation>
+
+		<properties>
+			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			<hadoop.version.ut.1>2.0.4.0.1304041432 </hadoop.version.ut.1>
+			<hadoop.version>${hadoop.version.ut.1}</hadoop.version>
+		</properties>
+
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.hadoop</groupId>
+				<artifactId>hadoop-yarn-client</artifactId>
+				<version>${hadoop.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.hadoop</groupId>
+				<artifactId>hadoop-yarn-server-resourcemanager</artifactId>
+				<version>${hadoop.version}</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</profile> 
   </profiles>  
   
   <build>
@@ -144,6 +181,20 @@
 	      <excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
 	    </configuration>
       </plugin>
+
+
+	<plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<version>2.3.2</version>
+		<configuration>
+			<excludes>
+				<exclude>**/storm/*.java</exclude>
+				<exclude>**/storm/**/*.java</exclude>
+			</excludes>
+		</configuration>
+	</plugin>
+
 
     </plugins>
   </build>
@@ -230,6 +281,7 @@
       <type>test-jar</type>
       <scope>provided</scope>
     </dependency>
-  </dependencies>
+
+    </dependencies>
   
 </project>

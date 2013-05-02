@@ -185,7 +185,7 @@ public class TestEndToEndCompression extends TestSession {
 		temp.addAll(Arrays.asList(jobCmd));
 		temp.addAll(Arrays.asList(jarCmd));
 		String[] cmd = temp.toArray(new String[0]);
-		return TestSession.exec.runHadoopProcBuilder(cmd);
+		return TestSession.exec.runProcBuilderSecurity(cmd);
 	}
 
 	/*
