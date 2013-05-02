@@ -15,14 +15,274 @@
     <thread.count>10</thread.count>
   </properties>
   
+  <profiles>  
+
+    <profile>
+      <id>jacoco</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+          <jacoco.version.1>0.6.3-SNAPSHOT</jacoco.version.1>
+          <jacoco.version>0.6.2.201302030002</jacoco.version>
+      </properties>
+
+      <!-- This allows us to depend directly on SNAPSHOT -->
+      <repositories>
+	<repository>
+	  <id>jacoco-snapshots</id>
+	  <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+	  <releases>
+            <enabled>true</enabled>
+	  </releases>
+	  <snapshots>
+            <enabled>true</enabled>
+	  </snapshots>
+	</repository>
+      </repositories>
+  
+      <dependencies>
+        <!-- jacoco dependencies -->
+        <dependency>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jacoco</groupId>
+          <artifactId>org.jacoco.agent</artifactId>
+          <version>${jacoco.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jacoco</groupId>
+          <artifactId>org.jacoco.ant</artifactId>
+          <version>${jacoco.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jacoco</groupId>
+          <artifactId>org.jacoco.report</artifactId>
+          <version>${jacoco.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jacoco</groupId>
+          <artifactId>org.jacoco.core</artifactId>
+          <version>${jacoco.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-all</artifactId>
+          <version>4.1</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <plugins>
+
+          <!-- jacoco coverage report for Hadoop core -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.ant</artifactId>
+                <version>${jacoco.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>ant-contrib</groupId>
+                <artifactId>ant-contrib</artifactId>
+                <version>20020829</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>jacoco-report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <taskdef name="jacoco-report"
+                             classname="org.jacoco.ant.ReportTask"
+                             classpathref="maven.plugin.classpath" />
+                    <taskdef classpathref="maven.runtime.classpath"
+                             resource="net/sf/antcontrib/antcontrib.properties" />
+                    <available
+                       file="${project.basedir}/data/exec/resourcemanager.jacoco.exec"
+                       property="jacoco.exec.file.exists" />
+                    <if>
+                      <equals arg1="${jacoco.exec.file.exists}" arg2="true" />
+                      <then>
+                        <echo message="Found ${project.basedir}/data/exec/jacoco.exec" />
+                        <echo message="Executing jacoco report for Hadoop Core" />
+                        <trycatch>
+                          <try>
+                            <property name="hadoop.install" value="${HADOOP_INSTALL}" />
+                            <ant antfile="${project.basedir}/build.xml" target="clean" />
+                            <ant antfile="${project.basedir}/build.xml" target="merge" />
+                            <ant antfile="${project.basedir}/build.xml" target="report" />
+                          </try>
+                          <catch>
+                            <echo>skipping</echo>
+                          </catch>
+                        </trycatch>
+                      </then>
+                      <else>
+                        <echo message="No jacoco.exec file found." />
+                      </else>
+                    </if>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- jacoco coverage report for the java test framework -->
+          <!-- This requires ant merge to be run first in the previous section -->
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco.version}</version>
+            <configuration>
+              <!-- [DEBUG]   (f) dataFile = /tmp/hadooptest-hadoopqa-theoden/target/jacoco.exec -->
+              <destfile>${basedir}/data/exec/jacoco.exec</destfile>
+              <datafile>${basedir}/data/exec/jacoco.exec</datafile>
+              <outputDirectory>${basedir}/target/site/jacoco/hadooptest</outputDirectory>
+            </configuration>
+            <executions>
+              <execution>
+                <id>jacoco-initialize</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>jacoco-site</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>clover</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>clover</name>
+        </property>
+      </activation>
+      <properties>
+        <cloverLicenseLocation>/home/y/conf/clover/clover.license</cloverLicenseLocation>
+        <cloverDatabase>${project.build.directory}/clover/hadoop-coverage.db</cloverDatabase>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.atlassian.maven.plugins</groupId>
+            <artifactId>maven-clover2-plugin</artifactId>
+            <version>3.0.5</version>
+            <configuration>
+              <includesAllSourceRoots>true</includesAllSourceRoots>
+              <includesTestSourceRoots>true</includesTestSourceRoots>
+              <licenseLocation>${cloverLicenseLocation}</licenseLocation>
+              <cloverDatabase>${cloverDatabase}</cloverDatabase>
+              <targetPercentage>50%</targetPercentage>
+              <outputDirectory>${project.build.directory}/clover</outputDirectory>
+              <generateHtml>true</generateHtml>
+              <generateXml>true</generateXml>
+            </configuration>
+            <executions>
+              <execution>
+                <id>clover-setup</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>setup</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>clover</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>clover</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>profile-0.23.7</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system41</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
+
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system42</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
+    
+    <profile>
+      <id>profile-2.0</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system40</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-client-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
+
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system41</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
+
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system42</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
   <build>
     <plugins>
-      <plugin>
-        <groupId>com.atlassian.maven.plugins</groupId>
-        <artifactId>maven-clover2-plugin</artifactId>
-        <version>3.0.5</version>
-      </plugin>
-    
+
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.13</version>
@@ -99,9 +359,8 @@
         </executions>
       </plugin>
     </plugins>
-  </build>
 
-  <profiles>
+  </build>
   
     <profile>
       <id>clover</id>
@@ -246,14 +505,6 @@
     
     <dependency>
       <groupId>system</groupId>
-      <artifactId>system33</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/lib/hadoop-simon-0.20.201.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
       <artifactId>system34</artifactId>
       <version>0.9.2</version>
       <scope>system</scope>
@@ -266,14 +517,6 @@
       <version>0.9.2</version>
       <scope>system</scope>
       <systemPath>${HADOOP_SHARE}/common/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system36</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/hadoop-gpl-compression.jar</systemPath>
     </dependency>
     
     <dependency>
@@ -494,34 +737,10 @@
 
     <dependency>
       <groupId>system</groupId>
-      <artifactId>system27</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-mapreduce-test.jar</systemPath>
-    </dependency>
-
-    <dependency>
-      <groupId>system</groupId>
       <artifactId>system28</artifactId>
       <version>0.9.2</version>
       <scope>system</scope>
       <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-rumen-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system29</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix.jar</systemPath>
-    </dependency>
-
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system30</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming.jar</systemPath>
     </dependency>
 
     <dependency>
@@ -547,6 +766,8 @@
       <scope>system</scope>
       <systemPath>${HADOOP_SHARE}/common/lib/snappy-java-1.0.3.2.jar</systemPath>
     </dependency>
+
+
   </dependencies>
   
 </project>

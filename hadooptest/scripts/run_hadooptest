@@ -30,7 +30,7 @@ Pass Through options
         [ -P<profile>                       ] : maven profile
         [ -Pclover -Djava.awt.headless=true ]: activate clover profile
         [ -Dthread.count=<threadcount>      ] : maven thread count
-	[ -Dtest=<test>...                  ] : test suite name(s). use delimitor comma for mvn, and space for java
+        [ -Dtest=<test>...                  ] : test suite name(s). use delimitor comma for mvn, and space for java
 
 Example:
 \$ run_hadooptest --cluster theoden
@@ -38,7 +38,8 @@ Example:
 \$ run_hadooptest --cluster theoden --mvn -Dtest=TestSleepJobCLI
 \$ run_hadooptest --cluster theoden --mvn -f /homes/hadoopqa/hadooptest.conf -Dtest=TestSleepJobCLI 
 \$ run_hadooptest -c theoden -j -n -Dtest=hadooptest.regression.TestVersion
-\$ run_hadooptest -c theoden -m -Pclover -Djava.awt.headless=true -Dtest=TestVersion
+\$ run_hadooptest -c theoden -m -P jacoco -Dtest=TestVersion
+\$ run_hadooptest -c theoden -m -P clover -Djava.awt.headless=true -Dtest=TestVersion
         
 EOF
     die($err_msg) if ($err_msg);
@@ -147,6 +148,7 @@ if ($use_mvn) {
 
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version ".
+            "HADOOP_INSTALL=$hadoop_install ".
             "HADOOP_SHARE=/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/ ".
             "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean test -DfailIfNoTests=false ".
             join(" ", @common_args)." ".

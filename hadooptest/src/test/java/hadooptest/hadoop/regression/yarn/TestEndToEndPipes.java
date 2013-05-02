@@ -47,8 +47,9 @@ public class TestEndToEndPipes extends TestSession {
 			list.add(URL);
 			cmd = (String[]) list.toArray(new String[0]);
 		}
-		TestSession.logger.info(TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
-					" dfs " + StringUtils.join(cmd, " "));
+		TestSession.logger.info(
+		        TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
+				" dfs " + StringUtils.join(cmd, " "));
  		fsShell.run(cmd);
 	}
 
@@ -60,7 +61,9 @@ public class TestEndToEndPipes extends TestSession {
 	public void setupHdfsDir() throws Exception {
 		FileSystem fs = TestSession.cluster.getFS();
 		FsShell fsShell = TestSession.cluster.getFsShell();		
-		String testDir = getHdfsBaseUrl() + "/user/" + System.getProperty("user.name") + "/pipes";
+		String testDir =
+		        getHdfsBaseUrl() + "/user/" + System.getProperty("user.name") +
+		        "/pipes";
 		if (fs.exists(new Path(testDir))) {
 			TestSession.logger.info("Delete existing test directory: " + testDir);
 			fsShell.run(new String[] {"-rm", "-r", testDir});			
@@ -82,7 +85,8 @@ public class TestEndToEndPipes extends TestSession {
 	    FsShell fsShell = TestSession.cluster.getFsShell();
 		FileSystem fs = TestSession.cluster.getFS();
 
-		String URL = "hdfs://" + TestSession.cluster.getNodes("namenode")[0] + "/";
+		String URL =
+		        "hdfs://" + TestSession.cluster.getNodes("namenode")[0] + "/";
 		String homeDir = URL + "user/" + System.getProperty("user.name");
 		String testDir = homeDir + "/" + targetDir;
 		if (!fs.exists(new Path(testDir))) {
@@ -116,7 +120,7 @@ public class TestEndToEndPipes extends TestSession {
 
 		String[] jobCmd = {
 				TestSession.cluster.getConf().getHadoopProp("MAPRED_BIN"),
-				"--config", TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"pipes", 
 				"-conf", getResourceFullPath("resources/hadoop/data/pipes/word.xml"),	
 				"-input", "pipes/input.txt",
@@ -133,7 +137,7 @@ public class TestEndToEndPipes extends TestSession {
 
 		String[] catCmd = {
 				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN"),
-				"--config", TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"dfs", "-cat", "pipes/outputDir/*"				
 		};
 		String[] catOutput = TestSession.exec.runProcBuilderSecurity(catCmd);
@@ -149,7 +153,8 @@ public class TestEndToEndPipes extends TestSession {
 		String actualOutputStr = catOutput[1];
 		TestSession.logger.debug("expected output str = \n'" + expectedOutputStr + "'");
 		TestSession.logger.debug("actual output str = \n'" + actualOutputStr + "'");
-		assertEquals("Actual output is different than expected ouput.", expectedOutputStr, actualOutputStr);
+		assertEquals("Actual output is different than expected ouput.",
+		        expectedOutputStr, actualOutputStr);
 	}
 
 }

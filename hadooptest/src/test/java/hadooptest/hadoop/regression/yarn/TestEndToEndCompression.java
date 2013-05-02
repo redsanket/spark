@@ -177,7 +177,7 @@ public class TestEndToEndCompression extends TestSession {
 		String[] jobCmd = {
 			TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
 			"--config",
-			TestSession.cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+			TestSession.cluster.getConf().getHadoopConfDir(),
 			"jar",
 			TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"),
 		};

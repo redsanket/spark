@@ -740,7 +740,7 @@ public class TestEndToEndStreaming extends TestSession {
 		String[] catCmd = {
 				cluster.getConf().getHadoopProp("HDFS_BIN"),
 				"--config", 
-				cluster.getConf().getHadoopProp("HADOOP_CONF_DIR"),
+				cluster.getConf().getHadoopConfDir(),
 				"dfs", "-cat", partFilePathStr	
 		};
 		

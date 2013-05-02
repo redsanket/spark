@@ -254,7 +254,7 @@ public class StreamingJob extends Job {
 		String hadoopBin = 
 				TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN");
 		String config = "--config";
-		String confPath = TestSession.cluster.getConf().getHadoopConfDirPath();
+		String confPath = TestSession.cluster.getConf().getHadoopConfDir();
 		String jar = "jar";
 		String jarPath = TestSession.cluster.getConf().getHadoopProp(
 				"HADOOP_STREAMING_JAR");
