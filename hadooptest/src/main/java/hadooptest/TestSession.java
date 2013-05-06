@@ -44,7 +44,7 @@ public abstract class TestSession {
 	/** The Logger for the test session */
 	public static Logger logger;
 
-	/** The Cluster to use for the test session */
+	/** The Hadoop Cluster to use for the test session */
 	public static HadoopCluster cluster;
 	
 	/** The test session configuration properties */
@@ -114,9 +114,9 @@ public abstract class TestSession {
 	//}
 	
 	/**
-	 * Get the cluster instance for the test session.
+	 * Get the Hadoop cluster instance for the test session.
 	 * 
-	 * @return Cluster the cluster instance for the test session.
+	 * @return HadoopCluster the Hadoop cluster instance for the test session.
 	 */
 	public static HadoopCluster getCluster() {
 		return cluster;
@@ -288,27 +288,29 @@ public abstract class TestSession {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
 		}
 
-		ClusterState clusterState = null;
-		try {
-			clusterState = cluster.getState();
-		}
-		catch (Exception e) {
-			logger.error("Failed to get the cluster state.", e);
-		}
-		
-		if (clusterState != ClusterState.UP) {
-			logger.warn("Cluster is not fully up: cluster state='" +
-					clusterState.toString() + "'.'");
-			/*
+		if (cluster != null) {
+			ClusterState clusterState = null;
+			try {
+				clusterState = cluster.getState();
+			}
+			catch (Exception e) {
+				logger.error("Failed to get the cluster state.", e);
+			}
+
+			if (clusterState != ClusterState.UP) {
+				logger.warn("Cluster is not fully up: cluster state='" +
+						clusterState.toString() + "'.'");
+				/*
 			TODO: optionally restart the cluster. This could impact how the
 			tests are being run in parallel classes.
-			 
+
 			try {
 				cluster.reset();				
 			} catch (Exception e) {
 				logger.error("Failed to restart the cluster:", e);				
 			}
-			*/
+				 */
+			}
 		}
 	}
 	
@@ -316,14 +318,16 @@ public abstract class TestSession {
 	 * Initialize Hadoop API security for the test session.
 	 */
 	private static void initSecurity() {
-		try {
-		// Initialize API security for the FullyDistributedCluster type only.
-		if (cluster instanceof FullyDistributedCluster) {
-			cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
-		}
-		}
-		catch (IOException ioe) {
-			logger.error("Failed to set the Hadoop API security.", ioe);
+		if (cluster != null) {
+			try {
+				// Initialize API security for the FullyDistributedCluster type only.
+				if (cluster instanceof FullyDistributedCluster) {
+					cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+				}
+			}
+			catch (IOException ioe) {
+				logger.error("Failed to set the Hadoop API security.", ioe);
+			}
 		}
 	}
 	
