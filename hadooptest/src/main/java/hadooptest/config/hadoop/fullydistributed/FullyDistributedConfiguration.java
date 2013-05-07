@@ -690,7 +690,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration
 
 		/* Copy the directory back to the remote host*/
 		if (!component.equals("gateway")) {
-			this.copyFilesToConfDir(component, localConfDir);
+			this.copyFilesToConfDir(localConfDir, component);
 		}
 	}
 	
