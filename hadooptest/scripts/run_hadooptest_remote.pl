@@ -76,12 +76,12 @@ use Getopt::Long;
 &Getopt::Long::Configure( 'pass_through');
 my $result = 
 GetOptions(\%options,
-    "install_only"       => \$install_only,
-    "cluster|c=s"        => \$cluster,
-    "remote_host=s"      => \$remote_host,
+    "install_only"         => \$install_only,
+    "cluster|c=s"          => \$cluster,
+    "remote_host|r=s"      => \$remote_host,
     "local_workspace|s=s"  => \$local_workspace,
     "remote_workspace|w=s" => \$remote_workspace,
-    "user|u=s"           => \$remote_username,
+    "user|u=s"             => \$remote_username,
     "help|h|?"
     ) or usage(1);
 usage() if $options{help};
