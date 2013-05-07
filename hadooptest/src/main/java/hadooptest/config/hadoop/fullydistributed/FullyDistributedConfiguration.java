@@ -981,15 +981,15 @@ public class FullyDistributedConfiguration extends HadoopConfiguration
 		String[] cmd;
 		if (component.equals("gateway")) {
 			TestSession.logger.info("Copy files(s) to the Hadoop " + 
-					"configuraiton directory " + confDir + " on the gateway:");
+					"configuraiton directory '" + confDir + "' on the gateway:");
             String[] cpCmd_ = { "/bin/sh", "-c",
                     cpBin + " " +  sourceFile + " " +  target};
             cmd = cpCmd_;
 		}
 		else {
 			TestSession.logger.info("Copy file(s) to the Hadoop " +
-					"configuration directory " + confDir + " on " +
-					"the " + component + " host(s) of " +
+					"configuration directory '" + confDir + "' on " +
+					"the '" + component + "' component host(s) of " +
 					Arrays.toString(daemonHost));
 			
 			/*
