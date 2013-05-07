@@ -165,6 +165,7 @@ public abstract class TestSession {
 		}
 
 		/*
+		 * SYSTEM PROPERTY OVERRIDE:
 		 * Check for system properties that if specified should override the
 		 * configuration file setting. For instance, For instance, user may use
 		 * a common configuration file but with a different CLUSTER_NAME and/or
@@ -180,6 +181,11 @@ public abstract class TestSession {
 			System.out.println("CLUSTER_NAME: " + clusterName);
 			conf.setProperty("CLUSTER_NAME", clusterName);
 		}
+        String logLevel = System.getProperty("LOG_LEVEL");
+        if (logLevel != null && !logLevel.isEmpty()) {
+            System.out.println("LOG_LEVEL: " + logLevel);
+            conf.setProperty("LOG_LEVEL", logLevel);
+        }
 	}
 	
 	/**
@@ -189,7 +195,7 @@ public abstract class TestSession {
 		logger = Logger.getLogger(TestSession.class);
 		Level logLevel = Level.ALL;  // All logging is turned on by default	
 		
-		String strLogLevel = conf.getProperty("LOG_LEVEL");		
+		String strLogLevel = conf.getProperty("LOG_LEVEL");
 		
 		if (strLogLevel.equals("OFF")) {
 			logLevel = Level.OFF;
