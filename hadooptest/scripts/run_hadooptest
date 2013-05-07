@@ -138,6 +138,23 @@ my $test_opt = ($use_mvn) ?
     "-Dtest=".join(",",@tests) :
     join(" ", @tests);
 
+# TODO: investigate merging this in build.xml.
+if ( grep( /^jacoco$/, @ARGV ) ) {
+    # raw results directory
+    my $jacoco_result_dir="/homes/hadoopqa/jacoco/results/latest";
+    execute("rm -f $jacoco_result_dir/*");
+
+    # final results directory
+    my $jacoco_result_filer="$workspace/target/jacoco.exec";
+    execute("rm -f $jacoco_result_file");
+
+    # misc results directory: 
+    # $jacoco_result_dir="$workspace/data/exec";
+    # execute("rm -f $jacoco_result_dir/*");
+    # $jacoco_result_dir="$workspace/data/exec/jacoco.exec";
+    # execute("rm -f $jacoco_result_dir");
+}
+
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
