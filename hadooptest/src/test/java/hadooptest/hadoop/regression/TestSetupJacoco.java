@@ -33,102 +33,85 @@ public class TestSetupJacoco extends TestSession {
 	}
 	
 	@Test
-	public void setupJacocoConf() {
-		try {
-			FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
-			// String component = HadoopConfiguration.RESOURCE_MANAGER;
+	public void setupJacocoConf() throws Exception {
+	    FullyDistributedCluster cluster =
+	            (FullyDistributedCluster) TestSession.cluster;
 
-			// Backup the default configuration directory
-	        for (String component : HadoopCluster.components ) {
-	            cluster.getConf().backupConfDir(component);
-	            String customConfDir = 
-	                    cluster.getConf().getHadoopConfDir(component);
-	            cluster.getConf().setHadoopDefaultConfDir(
-	                    customConfDir, component);
+	    // Backup the default configuration directory
+	    for (String component : HadoopCluster.components ) {
+	        cluster.getConf().backupConfDir(component);
+	        String customConfDir = 
+	                cluster.getConf().getHadoopConfDir(component);
+	        cluster.getConf().setHadoopDefaultConfDir(
+	                customConfDir, component);
 
-	            // Copy file to the custom configuration directory
-                String sourceFile = "conf/jacoco/jacoco-env.sh";
-                assertTrue("Copy jacoco config to Hadoop configuration " + 
-                        "directory for component '" + component + "' failed.",
-                        cluster.getConf().copyFileToConfDir(
-                                sourceFile, component));
+	        // Copy file to the custom configuration directory
+	        String sourceFile = "conf/jacoco/jacoco-env.sh";
+	        assertTrue("Copy jacoco config to Hadoop configuration " + 
+	                "directory for component '" + component + "' failed.",
+	                cluster.getConf().copyFileToConfDir(
+	                        sourceFile, component));
 	            
-	            // Copy files to the custom configuration directory
-	            /*
-	            String sourceDir = "conf/jacoco";
-	            assertTrue("Copy jacoco settings to Hadoop configuration " + 
-	                    "directory for component '" + component + "' failed.",
-	                    cluster.getConf().copyFilesToConfDir(
-	                            sourceDir, component));
-	                            */
-
-                String matchStr = null;
-                String appendStr = null;
-                String targetFile = null;
+	        String matchStr = null;
+	        String appendStr = null;
+	        String targetFile = null;
                 
-                // hadoop-env.sh - NN, DN
-                matchStr = "The java implementation to use.  Required.";
-                appendStr = ". " + customConfDir + "/jacoco-env.sh";
-                targetFile = customConfDir + "/hadoop-env.sh";                
-                cluster.getConf().insertBlock(component, matchStr, appendStr,
-                        targetFile, "\n", "\n");
+	        // hadoop-env.sh - NN, DN
+	        matchStr = "The java implementation to use.  Required.";
+	        appendStr = ". " + customConfDir + "/jacoco-env.sh";
+	        targetFile = customConfDir + "/hadoop-env.sh";                
+	        cluster.getConf().insertBlock(component, matchStr, appendStr,
+	                targetFile, "\n", "\n");
+	        
+	        // hadoop-env.sh - NN
+	        matchStr = "-Xms14000m";
+	        appendStr = "-Xms14000m \\$\\{JACOCO_NN_OPT\\}";
+	        cluster.getConf().replaceBlock(component, matchStr, appendStr,
+	                targetFile, "", "");
 
-                // hadoop-env.sh - NN
-                matchStr = "-Xms14000m";
-                appendStr = "-Xms14000m \\$\\{JACOCO_NN_OPT\\}";
-                cluster.getConf().replaceBlock(component, matchStr, appendStr,
-                        targetFile, "", "");
-
-                // hadoop-env.sh - DN
-                /*
+	        // hadoop-env.sh - DN
+	        /*
                 matchStr = "ERROR,DRFAS";
-                appendStr = "ERROR,DRFAS \\$\\{JACOCO_DN_OPT\\}";
+                    appendStr = "ERROR,DRFAS \\$\\{JACOCO_DN_OPT\\}";
                 cluster.getConf().replaceBlock(component, matchStr, appendStr,
                         targetFile, "", "");
-                */
+	         */
                 
-                // did not generate a coverage file
-                matchStr = "-Xmx3G";
-                appendStr = "-Xmx3G \\$\\{JACOCO_BAL_OPT\\}";
-                cluster.getConf().replaceBlock(component, matchStr, appendStr,
-                        targetFile, "", "");
+	        // did not generate a coverage file
+	        matchStr = "-Xmx3G";
+	        appendStr = "-Xmx3G \\$\\{JACOCO_BAL_OPT\\}";
+	        cluster.getConf().replaceBlock(component, matchStr, appendStr,
+	                targetFile, "", "");
                 
-                
-                // yarn-env.sh - RM, NM
-                matchStr = "limitations under the License.";
-                appendStr = ". " + customConfDir + "/jacoco-env.sh";
-                targetFile = customConfDir + "/yarn-env.sh";                
-	            cluster.getConf().insertBlock(component, matchStr, appendStr,
-	                    targetFile, "\n", "\n");
+	        // yarn-env.sh - RM, NM
+	        matchStr = "limitations under the License.";
+	        appendStr = ". " + customConfDir + "/jacoco-env.sh";
+	        targetFile = customConfDir + "/yarn-env.sh";                
+	        cluster.getConf().insertBlock(component, matchStr, appendStr,
+	                targetFile, "\n", "\n");
 
-	            // matchStr = "$YARN_RESOURCEMANAGER_OPTS -Dyarn.rm.audit.logger=${YARN_RM_AUDIT_LOGGER:-INFO,RMAUDIT}";
-                matchStr = "RMAUDIT}";
-                appendStr = "RMAUDIT} \\$\\{JACOCO_RM_OPT\\}";
-                cluster.getConf().replaceBlock(component, matchStr, appendStr,
-                        targetFile, "", "");
+	        // matchStr = "$YARN_RESOURCEMANAGER_OPTS -Dyarn.rm.audit.logger=${YARN_RM_AUDIT_LOGGER:-INFO,RMAUDIT}";
+	        matchStr = "RMAUDIT}";
+	        appendStr = "RMAUDIT} \\$\\{JACOCO_RM_OPT\\}";
+	        cluster.getConf().replaceBlock(component, matchStr, appendStr,
+	                targetFile, "", "");
 	            
-                matchStr = "YARN_NM_AUDIT_LOGGER:-INFO,NMAUDIT}";
-                appendStr = "YARN_NM_AUDIT_LOGGER:-INFO,NMAUDIT}} \\$\\{JACOCO_NM_OPT\\}";
-                cluster.getConf().replaceBlock(component, matchStr, appendStr,
-                        targetFile, "", "");
+	        matchStr = "YARN_NM_AUDIT_LOGGER:-INFO,NMAUDIT}";
+	        appendStr = "YARN_NM_AUDIT_LOGGER:-INFO,NMAUDIT}} \\$\\{JACOCO_NM_OPT\\}";
+	        cluster.getConf().replaceBlock(component, matchStr, appendStr,
+	                targetFile, "", "");
                 
-                // did not generage a coverage file ?
-                matchStr = "HADOOP_JHS_GC_OPTS}";
-                appendStr = "HADOOP_JHS_GC_OPTS} \\$\\{JACOCO_JHS_OPT\\}";
-                cluster.getConf().replaceBlock(component, matchStr, appendStr,
-                        targetFile, "", "");
-                
-	        }
+	        // did not generage a coverage file ?
+	        matchStr = "HADOOP_JHS_GC_OPTS}";
+	        appendStr = "HADOOP_JHS_GC_OPTS} \\$\\{JACOCO_JHS_OPT\\}";
+	        cluster.getConf().replaceBlock(component, matchStr, appendStr,
+	                targetFile, "", "");                
+	    }
 
-            // Restart the cluster
-            TestSession.cluster.reset();
-            cluster.waitForSafemodeOff();
-            cluster.isFullyUp();			
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
+	    // Restart the cluster
+	    TestSession.cluster.reset();
+	    cluster.waitForSafemodeOff();
+	    cluster.isFullyUp();			
 	}
 
 	// @Test
