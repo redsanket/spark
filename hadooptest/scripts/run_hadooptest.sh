@@ -39,7 +39,8 @@ done
 eval set -- $args
 
 PASSWORD_OPTION=${PASSWORD_OPTION:-"-password"}
-WORKSPACE=${WORKSPACE:="/home/y/etc/hadooptest/java/lib"}
+DEFAULT_WS=`dirname $0`"/.."
+WORKSPACE=${WORKSPACE:=$DEFAULT_WS"}
 
 for arg; do 
     [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
