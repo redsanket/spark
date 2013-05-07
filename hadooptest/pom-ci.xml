@@ -23,8 +23,11 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
-          <jacoco.version.1>0.6.3-SNAPSHOT</jacoco.version.1>
-          <jacoco.version>0.6.2.201302030002</jacoco.version>
+        <jacoco.version.1>0.6.3-SNAPSHOT</jacoco.version.1>
+        <jacoco.version>0.6.2.201302030002</jacoco.version>
+        <jacoco.raw.dir>/homes/hadoopqa/jacoco/results/latest</jacoco.raw.dir>	
+        <jacoco.raw.file>${jacoco.raw.dir}/resourcemanager.jacoco.exec</jacoco.raw.file>
+	<jacoco.report.dir>${project.basedir}/target/site/jacoco/hadooptest</jacoco.report.dir>
       </properties>
 
       <!-- This allows us to depend directly on SNAPSHOT -->
@@ -110,12 +113,12 @@
                     <taskdef classpathref="maven.runtime.classpath"
                              resource="net/sf/antcontrib/antcontrib.properties" />
                     <available
-                       file="${project.basedir}/data/exec/resourcemanager.jacoco.exec"
+                       file="${jacoco.raw.file}"
                        property="jacoco.exec.file.exists" />
                     <if>
                       <equals arg1="${jacoco.exec.file.exists}" arg2="true" />
                       <then>
-                        <echo message="Found ${project.basedir}/data/exec/jacoco.exec" />
+                        <echo message="Found ${jacoco.raw.file}" />
                         <echo message="Executing jacoco report for Hadoop Core" />
                         <trycatch>
                           <try>
@@ -147,9 +150,10 @@
             <version>${jacoco.version}</version>
             <configuration>
               <!-- [DEBUG]   (f) dataFile = /tmp/hadooptest-hadoopqa-theoden/target/jacoco.exec -->
+	      <!-- this plugin is searching for the jacoco.exec file in the ../target directory -->
               <destfile>${basedir}/data/exec/jacoco.exec</destfile>
               <datafile>${basedir}/data/exec/jacoco.exec</datafile>
-              <outputDirectory>${basedir}/target/site/jacoco/hadooptest</outputDirectory>
+              <outputDirectory>${jacoco.report.dir}</outputDirectory>
             </configuration>
             <executions>
               <execution>
@@ -305,7 +309,21 @@
             <exclude>**/TestEndToEndCompression.java</exclude>
           </excludes>          
         </configuration>
+
         <executions>
+
+          <execution>
+            <id>setup-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <groups>hadooptest.SetupTests</groups>
+            </configuration>
+          </execution>
+
           <execution>
             <id>serial-tests</id>
             <phase>test</phase>
@@ -317,6 +335,7 @@
               <groups>hadooptest.SerialTests</groups>
             </configuration>
           </execution>
+
           <execution>
             <id>parallel-methods-tests</id>
             <phase>test</phase>
@@ -330,6 +349,7 @@
               <threadCount>${thread.count}</threadCount>
             </configuration>
           </execution>
+
           <execution>
             <id>parallel-class-tests</id>
             <phase>test</phase>
@@ -343,6 +363,7 @@
               <threadCount>${thread.count}</threadCount>
             </configuration>
           </execution>
+
           <execution>
             <id>parallel-class-and-method-tests</id>
             <phase>test</phase>
@@ -356,12 +377,14 @@
               <threadCount>${thread.count}</threadCount>
             </configuration>
           </execution>
+
         </executions>
       </plugin>
     </plugins>
 
   </build>
 
+  <!-- This dependency aginst the hadoop deployment -->
   <dependencies>
     <dependency>
       <groupId>system</groupId>
