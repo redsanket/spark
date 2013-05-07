@@ -145,7 +145,7 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
     execute("rm -f $jacoco_result_dir/*");
 
     # final results directory
-    my $jacoco_result_filer="$workspace/target/jacoco.exec";
+    my $jacoco_result_file="$workspace/target/jacoco.exec";
     execute("rm -f $jacoco_result_file");
 
     # misc results directory: 
