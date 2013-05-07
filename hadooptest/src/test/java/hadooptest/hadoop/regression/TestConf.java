@@ -58,7 +58,7 @@ public class TestConf extends TestSession {
 			// Resource Manager component host.
 			// String sourceDir = "/homes/philips/svn/HadoopQEAutomation/branch-23/tests/Regression/YARN/CapacitySchedulerLimits/config/baseline/";
 			String sourceDir = "./conf/TestConf/";
-			cluster.getConf().copyFilesToConfDir(component, sourceDir);
+			cluster.getConf().copyFilesToConfDir(sourceDir, component);
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
