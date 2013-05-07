@@ -99,7 +99,7 @@ public class SleepJob extends Job {
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
 		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+			this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
 			BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
 			String line=reader.readLine(); 
 
@@ -136,7 +136,7 @@ public class SleepJob extends Job {
 	 */
 	protected void submitNoID() throws Exception {
 		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+			this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
 		}
 		catch (Exception e) {
 			if (this.process != null) {

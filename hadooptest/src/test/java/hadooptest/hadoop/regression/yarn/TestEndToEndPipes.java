@@ -128,7 +128,7 @@ public class TestEndToEndPipes extends TestSession {
 				"-jobconf", "mapred.job.name=End2EndPipesTest",
 				"-jobconf", "mapreduce.job.acl-view-job=*"
 		 };
-		String[] jobOutput = TestSession.exec.runHadoopProcBuilder(jobCmd);
+		String[] jobOutput = TestSession.exec.runProcBuilderSecurity(jobCmd);
 		if (!jobOutput[0].equals("0")) {
 			TestSession.logger.info("Got unexpected non-zero exit code: " + jobOutput[0]);
 			TestSession.logger.info("stdout" + jobOutput[1]);
@@ -140,7 +140,7 @@ public class TestEndToEndPipes extends TestSession {
 				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
 				"dfs", "-cat", "pipes/outputDir/*"				
 		};
-		String[] catOutput = TestSession.exec.runHadoopProcBuilder(catCmd);
+		String[] catOutput = TestSession.exec.runProcBuilderSecurity(catCmd);
 		if (!catOutput[0].equals("0")) {
 			TestSession.logger.info("Got unexpected non-zero exit code: " + catOutput[0]);
 			TestSession.logger.info("stdout" + catOutput[1]);

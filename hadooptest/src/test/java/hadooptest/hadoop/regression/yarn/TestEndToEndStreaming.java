@@ -744,7 +744,7 @@ public class TestEndToEndStreaming extends TestSession {
 				"dfs", "-cat", partFilePathStr	
 		};
 		
-		String[] catOutput = TestSession.exec.runHadoopProcBuilder(catCmd);
+		String[] catOutput = TestSession.exec.runProcBuilderSecurity(catCmd);
 		if (!catOutput[0].equals("0")) {
 			logger.info("Got unexpected non-zero exit code: " + 
 					catOutput[0]);

@@ -253,7 +253,7 @@ public class PseudoDistributedCluster extends HadoopCluster {
 		Process proc = null;
 
 		try {
-			proc = TestSession.exec.runHadoopProcBuilderGetProc(cmd, TestSession.conf.getProperty("USER", System.getProperty("user.name")));
+			proc = TestSession.exec.runProcBuilderSecurityGetProc(cmd, TestSession.conf.getProperty("USER", System.getProperty("user.name")));
 			BufferedReader reader=new BufferedReader(new InputStreamReader(proc.getInputStream())); 
 
 			String line=reader.readLine(); 

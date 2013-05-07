@@ -172,7 +172,7 @@ public class StreamingJob extends Job {
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
 		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(
+			this.process = TestSession.exec.runProcBuilderSecurityGetProc(
 					this.assembleCommand(), this.USER);
 			BufferedReader reader=new BufferedReader(
 					new InputStreamReader(this.process.getInputStream())); 
@@ -212,7 +212,7 @@ public class StreamingJob extends Job {
 	 */
 	protected void submitNoID() throws Exception {
 		try {
-			this.process = TestSession.exec.runHadoopProcBuilderGetProc(
+			this.process = TestSession.exec.runProcBuilderSecurityGetProc(
 					this.assembleCommand(), this.USER);
 		}
 		catch (Exception e) {
@@ -236,7 +236,7 @@ public class StreamingJob extends Job {
 			throws Exception {
 		String[] output = null;
 		
-		output = TestSession.exec.runHadoopProcBuilder(this.assembleCommand(), 
+		output = TestSession.exec.runProcBuilderSecurity(this.assembleCommand(), 
 				true);
 
 		return output;

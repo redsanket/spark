@@ -50,7 +50,7 @@ public abstract class Executor {
 	 * 
 	 * @throws Exception if the process can not be run.
 	 */
-	public abstract String[] runHadoopProcBuilder(String[] commandArray, String username)
+	public abstract String[] runProcBuilderSecurity(String[] commandArray, String username)
 			throws Exception;
 	
 	/**
@@ -62,7 +62,7 @@ public abstract class Executor {
 	 * 
 	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username, boolean verbose) 
+	public String[] runProcBuilderSecurity(String[] commandArray, String username, boolean verbose) 
 			throws Exception {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for Standalone we can just pass this through right to runProcBuilder
@@ -82,7 +82,7 @@ public abstract class Executor {
 	 * 
 	 * @throws Exception if the process can not be run.
 	 */
-	public abstract Process runHadoopProcBuilderGetProc(String[] commandArray, String username)
+	public abstract Process runProcBuilderSecurityGetProc(String[] commandArray, String username)
 			throws Exception;
 
 	/**
@@ -269,10 +269,10 @@ public abstract class Executor {
 	 * 
 	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray)
+	public String[] runProcBuilderSecurity(String[] commandArray)
 			throws Exception {
 		boolean verbose = true;
-		return runHadoopProcBuilder(commandArray, verbose);
+		return runProcBuilderSecurity(commandArray, verbose);
 	}
 	
 	/**
@@ -285,9 +285,9 @@ public abstract class Executor {
 	 * 
 	 * @throws Exception if the process can not be run.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, boolean verbose)
+	public String[] runProcBuilderSecurity(String[] commandArray, boolean verbose)
 			throws Exception {
-		return runHadoopProcBuilder(
+		return runProcBuilderSecurity(
 				commandArray,
 				System.getProperty("user.name"),
 				verbose);

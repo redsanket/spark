@@ -53,7 +53,7 @@ public class FailJob extends Job {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
-		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
 		BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
 		String line=reader.readLine(); 
 
@@ -81,7 +81,7 @@ public class FailJob extends Job {
 	 */
 	protected void submitNoID()
 			throws Exception {
-		this.process = TestSession.exec.runHadoopProcBuilderGetProc(this.assembleCommand(), this.USER);
+		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
 	}
 
 	/**

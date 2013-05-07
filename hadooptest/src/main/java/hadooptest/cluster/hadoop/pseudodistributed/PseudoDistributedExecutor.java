@@ -28,7 +28,7 @@ public class PseudoDistributedExecutor extends Executor {
 	 * 
 	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public String[] runHadoopProcBuilder(String[] commandArray, String username) 
+	public String[] runProcBuilderSecurity(String[] commandArray, String username) 
 			throws Exception {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for PseudoDistributed we can just pass this through right to runProcBuilder
@@ -50,7 +50,7 @@ public class PseudoDistributedExecutor extends Executor {
 	 * 
 	 * @throws Exception if there is a fatal error running the process.
 	 */
-	public Process runHadoopProcBuilderGetProc(String[] commandArray, String username) 
+	public Process runProcBuilderSecurityGetProc(String[] commandArray, String username) 
 			throws IOException {
 		// The FullyDistributed package implements this to setup kerberos security,
 		// but for PseudoDistributed we can just pass this through right to 

@@ -382,8 +382,8 @@ public abstract class HadoopCluster {
 				"--config", this.getConf().getHadoopConfDir(),
 				"dfsadmin", "-fs", fs, "-safemode", "get" };
 
-		String[] output =
-		        TestSession.exec.runHadoopProcBuilder(safemodeGetCmd, verbose);
+		String[] output = TestSession.exec.runProcBuilderSecurity(safemodeGetCmd, verbose);
+
 		boolean isSafemodeOff = 
 				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
 
@@ -396,8 +396,9 @@ public abstract class HadoopCluster {
 			TestSession.logger.info("Wait for safemode to be OFF: TRY #" + i +
 			        ": WAIT " + waitTime + "s:" );
 			Util.sleep(waitTime);
-			output = TestSession.exec.runHadoopProcBuilder(safemodeGetCmd,
-			        verbose);
+
+			output = TestSession.exec.runProcBuilderSecurity(safemodeGetCmd, verbose);
+
 			isSafemodeOff = 
 					(output[1].trim().contains("Safe mode is OFF")) ? true : false;
 			timeout = timeout - waitTime;

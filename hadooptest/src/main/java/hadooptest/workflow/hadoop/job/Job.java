@@ -265,7 +265,7 @@ public abstract class Job extends Thread {
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
 		
 		try {
-			mapredProc = TestSession.exec.runHadoopProcBuilderGetProc(mapredCmd, this.USER);
+			mapredProc = TestSession.exec.runProcBuilderSecurityGetProc(mapredCmd, this.USER);
 			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
 			String line=reader.readLine(); 
 			while(line!=null) 
@@ -545,7 +545,7 @@ public abstract class Job extends Thread {
 		for (int i = 0; i <= (minutes * 6); i++) {
 		
 			try {
-				mapredProc = TestSession.exec.runHadoopProcBuilderGetProc(mapredCmd, this.USER);
+				mapredProc = TestSession.exec.runProcBuilderSecurityGetProc(mapredCmd, this.USER);
 				BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
 				String line=reader.readLine(); 
 				while(line!=null) 
@@ -652,7 +652,7 @@ public abstract class Job extends Thread {
 		for (int i = 0; i <= seconds; i = i + 10) {
 		
 			try {
-				mapredProc = TestSession.exec.runHadoopProcBuilderGetProc(mapredCmd, this.USER);
+				mapredProc = TestSession.exec.runProcBuilderSecurityGetProc(mapredCmd, this.USER);
 				BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
 				String line=reader.readLine(); 
 				while(line!=null) 
@@ -846,7 +846,7 @@ public abstract class Job extends Thread {
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
 		
 		try {
-			mapredProc = TestSession.exec.runHadoopProcBuilderGetProc(mapredCmd, this.USER);
+			mapredProc = TestSession.exec.runProcBuilderSecurityGetProc(mapredCmd, this.USER);
 			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
 			String line=reader.readLine(); 
 			while(line!=null) 
@@ -996,7 +996,7 @@ public abstract class Job extends Thread {
 		Pattern mapredPattern = Pattern.compile(mapredPatternStr);
 		
 		try {
-			mapredProc = TestSession.exec.runHadoopProcBuilderGetProc(mapredCmd, this.USER);
+			mapredProc = TestSession.exec.runProcBuilderSecurityGetProc(mapredCmd, this.USER);
 			BufferedReader reader=new BufferedReader(new InputStreamReader(mapredProc.getInputStream())); 
 			String line=reader.readLine(); 
 			while(line!=null) 
