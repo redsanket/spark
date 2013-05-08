@@ -384,7 +384,7 @@
 
   </build>
 
-  <!-- This dependency aginst the hadoop deployment -->
+  <!-- Dependency based on the hadoop deployment -->
   <dependencies>
     <dependency>
       <groupId>system</groupId>
@@ -408,6 +408,14 @@
       <version>0.9.2</version>
       <scope>system</scope>
       <systemPath>${HADOOP_SHARE}/common/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>system</groupId>
+      <artifactId>system36</artifactId>
+      <version>0.9.2</version>
+      <scope>system</scope>
+      <systemPath>${HADOOP_SHARE}/common/hadoop-gpl-compression.jar</systemPath>
     </dependency>
     
     <dependency>
@@ -628,10 +636,34 @@
 
     <dependency>
       <groupId>system</groupId>
+      <artifactId>system27</artifactId>
+      <version>0.9.2</version>
+      <scope>system</scope>
+      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-mapreduce-test.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>system</groupId>
       <artifactId>system28</artifactId>
       <version>0.9.2</version>
       <scope>system</scope>
       <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-rumen-${HADOOP_VERSION}.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>system</groupId>
+      <artifactId>system29</artifactId>
+      <version>0.9.2</version>
+      <scope>system</scope>
+      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix.jar</systemPath>
+    </dependency>
+
+    <dependency>
+      <groupId>system</groupId>
+      <artifactId>system30</artifactId>
+      <version>0.9.2</version>
+      <scope>system</scope>
+      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming.jar</systemPath>
     </dependency>
 
     <dependency>
