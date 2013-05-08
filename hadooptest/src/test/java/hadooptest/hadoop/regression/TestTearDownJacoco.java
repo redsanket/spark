@@ -28,23 +28,17 @@ import java.io.IOException;
 public class TestTearDownJacoco extends TestSession {
 
 	@Test
-	public void resetHadoopConf() {
-		try {
-            // Reset Hadoop configuration directory to the installed default
-			FullyDistributedCluster cluster =
-			        (FullyDistributedCluster) TestSession.cluster;
-			cluster.getConf().resetHadoopDefaultConfDir();
-			cluster.getConf().resetHadoopConfDir();
+	public void resetHadoopConf() throws Exception {
+	    // Reset Hadoop configuration directory to the installed default
+	    FullyDistributedCluster cluster =
+	            (FullyDistributedCluster) TestSession.cluster;
+	    cluster.getConf().resetHadoopDefaultConfDir();
+	    cluster.getConf().resetHadoopConfDir();
 
-			// Restart the cluster
-			TestSession.cluster.reset();
-			cluster.waitForSafemodeOff();
-			cluster.isFullyUp();
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
+	    // Restart the cluster
+	    TestSession.cluster.reset();
+	    cluster.waitForSafemodeOff();
+	    cluster.isFullyUp();
 	}
 
 }
