@@ -27,6 +27,11 @@ import java.io.IOException;
 @Category(TearDownTests.class)
 public class TestTearDownJacoco extends TestSession {
 
+    @BeforeClass
+    public static void startTestSession() throws IOException {
+        TestSession.start(    );
+    }
+    
 	@Test
 	public void resetHadoopConf() throws Exception {
 	    // Reset Hadoop configuration directory to the installed default
