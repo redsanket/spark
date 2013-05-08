@@ -25,25 +25,25 @@
       <properties>
         <jacoco.version.1>0.6.3-SNAPSHOT</jacoco.version.1>
         <jacoco.version>0.6.2.201302030002</jacoco.version>
-        <jacoco.raw.dir>/homes/hadoopqa/jacoco/results/latest</jacoco.raw.dir>	
+        <jacoco.raw.dir>/homes/hadoopqa/jacoco/results/latest</jacoco.raw.dir>  
         <jacoco.raw.file>${jacoco.raw.dir}/resourcemanager.jacoco.exec</jacoco.raw.file>
-	<jacoco.report.dir>${project.basedir}/target/site/jacoco/hadooptest</jacoco.report.dir>
+        <jacoco.report.dir>${project.basedir}/target/site/jacoco/hadooptest</jacoco.report.dir>
       </properties>
 
       <!-- This allows us to depend directly on SNAPSHOT -->
       <repositories>
-    <repository>
-      <id>jacoco-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases>
+        <repository>
+          <id>jacoco-snapshots</id>
+          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+          <releases>
             <enabled>true</enabled>
-      </releases>
-      <snapshots>
+          </releases>
+          <snapshots>
             <enabled>true</enabled>
-      </snapshots>
-    </repository>
+          </snapshots>
+        </repository>
       </repositories>
-  
+      
       <dependencies>
         <!-- jacoco dependencies -->
         <dependency>
@@ -150,7 +150,7 @@
             <version>${jacoco.version}</version>
             <configuration>
               <!-- [DEBUG]   (f) dataFile = /tmp/hadooptest-hadoopqa-theoden/target/jacoco.exec -->
-	      <!-- this plugin is searching for the jacoco.exec file in the ../target directory -->
+              <!-- this plugin is searching for the jacoco.exec file in the ../target directory -->
               <destfile>${basedir}/data/exec/jacoco.exec</destfile>
               <datafile>${basedir}/data/exec/jacoco.exec</datafile>
               <outputDirectory>${jacoco.report.dir}</outputDirectory>
@@ -225,63 +225,63 @@
       </build>
     </profile>
 
-	<profile>
-		<id>profile-0.23.7</id>
-		<activation>
-			<activeByDefault>true</activeByDefault>
-		</activation>
+    <profile>
+      <id>profile-0.23.7</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
 
-		<dependencies>
-			<dependency>
-				<groupId>system</groupId>
-				<artifactId>system41</artifactId>
-				<version>0.9.2</version>
-				<scope>system</scope>
-				<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
-			</dependency>
+      <dependencies>
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system41</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
 
-			<dependency>
-				<groupId>system</groupId>
-				<artifactId>system42</artifactId>
-				<version>0.9.2</version>
-				<scope>system</scope>
-				<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
-			</dependency>
-		</dependencies>
-	</profile>
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system42</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
 
-	<profile>
-		<id>profile-2.0</id>
-		<activation>
-			<activeByDefault>false</activeByDefault>
-		</activation>
+    <profile>
+      <id>profile-2.0</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
 
-		<dependencies>
-			<dependency>
-				<groupId>system</groupId>
-				<artifactId>system40</artifactId>
-				<version>0.9.2</version>
-				<scope>system</scope>
-				<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-client-${HADOOP_VERSION}.jar</systemPath>
-			</dependency>
+      <dependencies>
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system40</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-client-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
 
-			<dependency>
-				<groupId>system</groupId>
-				<artifactId>system41</artifactId>
-				<version>0.9.2</version>
-				<scope>system</scope>
-				<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
-			</dependency>
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system41</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
 
-			<dependency>
-				<groupId>system</groupId>
-				<artifactId>system42</artifactId>
-				<version>0.9.2</version>
-				<scope>system</scope>
-				<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
-			</dependency>
-		</dependencies>
-	</profile>
+        <dependency>
+          <groupId>system</groupId>
+          <artifactId>system42</artifactId>
+          <version>0.9.2</version>
+          <scope>system</scope>
+          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 
   <build>
@@ -294,15 +294,15 @@
           <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
           <skip>true</skip>
           <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
-	  <!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
-	  <testFailureIgnore>true</testFailureIgnore>
+          <!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
+          <testFailureIgnore>true</testFailureIgnore>
           <exclusions>
             <exclusion>
               <groupId>org.apache.hadoop</groupId>
               <artifactId>excluded-artifact</artifactId>
             </exclusion>
           </exclusions>
-                    <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-amd64-64/</argLine>  
+          <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-amd64-64/</argLine>  
           <additionalClasspathElements>
             <additionalClasspathElement>${basedir}</additionalClasspathElement>
             <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
