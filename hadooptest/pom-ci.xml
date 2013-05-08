@@ -293,6 +293,9 @@
         <configuration>
           <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
           <skip>true</skip>
+          <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
+	  <!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
+	  <testFailureIgnore>true</testFailureIgnore>
           <exclusions>
             <exclusion>
               <groupId>org.apache.hadoop</groupId>
