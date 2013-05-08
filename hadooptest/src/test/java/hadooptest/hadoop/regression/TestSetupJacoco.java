@@ -95,12 +95,15 @@ public class TestSetupJacoco extends TestSession {
 	        appendStr = "RMAUDIT} \\$\\{JACOCO_RM_OPT\\}";
 	        cluster.getConf().replaceBlock(component, matchStr, appendStr,
 	                targetFile, "", "");
-	            
+
+	        // NOTE: jacoco does not support concurrent write
+	        /*
 	        matchStr = "YARN_NM_AUDIT_LOGGER:-INFO,NMAUDIT}";
 	        appendStr = "YARN_NM_AUDIT_LOGGER:-INFO,NMAUDIT}} \\$\\{JACOCO_NM_OPT\\}";
 	        cluster.getConf().replaceBlock(component, matchStr, appendStr,
 	                targetFile, "", "");
-                
+            */
+	        
 	        // did not generage a coverage file ?
 	        matchStr = "HADOOP_JHS_GC_OPTS}";
 	        appendStr = "HADOOP_JHS_GC_OPTS} \\$\\{JACOCO_JHS_OPT\\}";
