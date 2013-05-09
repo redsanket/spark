@@ -4,14 +4,17 @@
     Ant build file for generating JaCoCo coverage report.
   </description>
   
-  <property name="src.dir" location="${basedir}/data/src/" />
-  <property name="result.dir" location="./target" />
-  <property name="result.dir.report" location="${result.dir}/site/jacoco/hadoop" />
-  <property name="result.exec.file" location="${result.dir}/jacoco.exec" />
-  <property name="m2.repo" location="${user.home}/.m2/repository" />
   <property name="jacoco.version" value="0.6.2.201302030002" />
-  <property name="hadoop.install" value="/Users/philips/hadoop-0.23.6" />
-  <!--property name="hadoop.install" value="/home/gs/gridre/yroot.theoden/" /-->
+  <property name="m2.repo" location="${user.home}/.m2/repository" />
+
+  <property name="src.dir" location="${basedir}/data/src/" />
+  <property name="result.raw.dir" location="/homes/hadoopqa/jacoco/results/latest/" />
+  <property name="result.final.dir" location="${basedir}/target" />
+  <property name="result.exec.file" location="${result.final.dir}/jacoco.exec" />
+  <property name="result.report.dir" location="${result.final.dir}/site/jacoco/hadoop" />
+
+  <property name="hadoop.install" value="/home/gs/gridre/yroot.theoden/" />
+  <!--property name="hadoop.install" value="/Users/<username>/hadoop-0.23.6" /-->
 
   <!-- Import JaCoCo Ant tasks -->
   <!-- antlib.xml is in org.jacoco.ant-0.6.2-SNAPSHOT.jar -->
@@ -23,18 +26,19 @@
   </taskdef>
   
   <target name="clean">
-    <delete dir="${result.dir.report}" />
+    <!-- Clean up coverage and report files from the previous execution -->
+    <delete dir="${result.report.dir}" />
   </target>
   
   <target name="merge">
-    <jacoco:merge destfile="target/jacoco.exec">
-      <fileset dir="data" includes="*.jacoco.exec"/>
+    <!-- Merge the coverage files for each Hadoop components -->
+    <jacoco:merge destfile="${result.exec.file}">
+      <fileset dir="${result.raw.dir}" includes="*.jacoco.exec"/>
     </jacoco:merge>
   </target>
   
   <target name="report" >
     <!-- Create coverage report -->
-
     <echo message="Extracting source files from ${hadoop.install} to ${src.dir}"/>
     <unjar dest="${src.dir}">
       <fileset dir="${hadoop.install}/" includes="**/hadoop-*sources.jar" followsymlinks="false"/>
@@ -43,31 +47,30 @@
     <jacoco:report>
       <!-- This task needs the collected execution data and ... -->
       <executiondata>
-	<file file="data/exec/resourcemanager.jacoco.exec" />
+        <file file="${result.exec.file}" />
       </executiondata>
       
       <!-- the class files and optional source files ... -->
       <structure name="HadoopCore">
-	<classfiles>
-	  <fileset dir="${hadoop.install}/" followsymlinks="false">
-	    <include name="**/hadoop*.jar"/>
-	    <exclude name="**/*-test*.jar"/>
-	    <!-- symlink target is missing -->
-	    <exclude name="**/hadoop-gpl-compression.jar"/>
+        <classfiles>
+          <fileset dir="${hadoop.install}/" followsymlinks="false">
+            <include name="**/hadoop*.jar"/>
+            <exclude name="**/*-test*.jar"/>
+            <!-- symlink target is missing -->
+            <exclude name="**/hadoop-gpl-compression.jar"/>
           </fileset>
-	</classfiles>
-	<sourcefiles encoding="UTF-8">
-	  <fileset dir="${src.dir}"/>
-	</sourcefiles>
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="${src.dir}"/>
+        </sourcefiles>
       </structure>
       
       <!-- to produce reports in different formats. -->
-      <html destdir="${result.dir.report}" />
-      <xml destfile="${result.dir.report}/report.xml" />
-      <csv destfile="${result.dir.report}/report.csv" />
+      <html destdir="${result.report.dir}" />
+      <xml destfile="${result.report.dir}/report.xml" />
+      <csv destfile="${result.report.dir}/report.csv" />
     </jacoco:report>
   </target>
   
 </project>
 
-<!-- wikiui-01.dt.corp.gq1.yahoo.com Wed Apr 24 17:59:57 UTC 2013 -->

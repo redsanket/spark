@@ -800,7 +800,7 @@ public class TestEndToEndStreaming extends TestSession {
 		// Resource Manager component host.
 		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
 				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
-		cluster.getConf().copyFileToConfDir(component, sourceFile,
+		cluster.getConf().copyFileToConfDir(sourceFile, component,
 				"capacity-scheduler.xml");
 		cluster.hadoopDaemon("stop", component);
 		cluster.hadoopDaemon("start", component);

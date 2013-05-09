@@ -10,19 +10,14 @@ The options
         [ -f|           <conf file>        ] : hadooptest configuration file
         [ -j|--java                        ] : run tests via java directly instead of via maven
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
-        [ -n|--nopasswd                    ] : no password prompt
-        [ -p|--profile                     ] : maven profile
-        [ -t|--test      <test suite(s)    ] : test suite name(s). use delimitor comma for mvn, and space for java
         [ -w|workspace  <workspace>        ] : workspace
         [ -h|--help                        ] : help
 
 Example:
-$ run_hadooptest --cluster theoden
-$ run_hadooptest --cluster theoden --test TestSleepJobCLI
-$ run_hadooptest --cluster theoden --mvn --test TestSleepJobCLI
-$ run_hadooptest --cluster theoden --mvn --test TestSleepJobCLI -f /homes/hadoopqa/hadooptest.conf
-$ run_hadooptest -c theoden -j -t hadooptest.regression.TestVersion -n
-$ run_hadooptest -c theoden -p clover -m TestVersion
+$ restart_cluster --cluster theoden
+$ restart_cluster --cluster theoden --mvn 
+$ restart_cluster --cluster theoden --mvn  -f /homes/hadoopqa/hadooptest.conf
+$ restart_cluster -c theoden -j -n
 "
     exit 1
 }
@@ -30,8 +25,8 @@ $ run_hadooptest -c theoden -p clover -m TestVersion
 for arg; do 
     [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
     if [[ "${arg:0:2}" == "--" ]]; 
-       then args="${args} -${arg:2:1}" 
-       else args="${args} ${delim}${arg}${delim}"
+    then args="${args} -${arg:2:1}" 
+    else args="${args} ${delim}${arg}${delim}"
     fi
 done
 
@@ -39,14 +34,15 @@ done
 eval set -- $args
 
 PASSWORD_OPTION=${PASSWORD_OPTION:-"-password"}
+
 DEFAULT_WS=`dirname $0`"/.."
-WORKSPACE=${WORKSPACE:=$DEFAULT_WS"}
+WORKSPACE=${WORKSPACE:="$DEFAULT_WS"}
 
 for arg; do 
     [[ "${arg:0:1}" == "-" ]] && delim="" || delim="\""
     if [[ "${arg:0:2}" == "--" ]]; 
-       then args="${args} -${arg:2:1}" 
-       else args="${args} ${delim}${arg}${delim}"
+    then args="${args} -${arg:2:1}" 
+    else args="${args} ${delim}${arg}${delim}"
     fi
 done
 
@@ -55,33 +51,27 @@ eval set -- $args
 
 USE_MVN=1
 while getopts "c:f:t:w:jmnp:h" opt; do
-	case $opt in
-		c) CLUSTER=$OPTARG;;
-		f) CONF=$OPTARG;;
+    case $opt in
+        c) CLUSTER=$OPTARG;;
+        f) CONF=$OPTARG;;
         j) USE_MVN=0;;
         m) USE_MVN=1;;
-		n) PASSWORD_OPTION="no-password";;
+        n) PASSWORD_OPTION="no-password";;
         p) PROFILE=$OPTARG;;
-		t) TESTS=$OPTARG;;
-		w) WORKSPACE=$OPTARG;;		
-		h) usage;;
-		*) usage;;
-	esac
+        w) WORKSPACE=$OPTARG;;          
+        h) usage;;
+        *) usage;;
+    esac
 done
 
 if [[ -z $CLUSTER ]]; then
-   echo "ERROR: Required CLUSTER value not defined!!!";
-   exit 1;
+    echo "ERROR: Required CLUSTER value not defined!!!";
+    exit 1;
 fi
 
 DEFAULT_CONF=`ls -d ~/`"/hadooptest.conf"
 CONF=${CONF:="$DEFAULT_CONF"}
-
-DEFAULT_TESTS="\
-hadooptest.regression.TestVersion,\
-hadooptest.regression.yarn.TestSleepJobAPI\
-"
-# TESTS=${TESTS:="$DEFAULT_TESTS"}
+TESTS="hadooptest.hadoop.regression.TestClusterReset"
 
 # Setup Hadoop Env Variables (e.g. HADOOP_COMMON_HOME, HADOOP_CONF_DIR, etc
 
@@ -110,37 +100,26 @@ $HADOOP_INSTALL/share/hadoop-*/share/hadoop/hdfs
 
 for i in $HADOOP_JAR_PATHS
 do
-  CLASSPATH=${CLASSPATH}:`echo -en ${i}`/*
+    CLASSPATH=${CLASSPATH}:`echo -en ${i}`/*
 done
 echo "CLASSPATH=$CLASSPATH"
 
 # TODO: long term this should move into the java test framework
 if [[ "$PASSWORD_OPTION" != 'no-password' ]]; then 
-   USER=`whoami`
-   if [[ $USER == 'hadoopqa' ]];then
-      echo "Headless user 'hadoopqa' requires no password."
-   else 
-      stty -echo
-      /usr/kerberos/bin/kinit $USER@DS.CORP.YAHOO.COM
-      stty echo
-   fi
+    USER=`whoami`
+    if [[ $USER == 'hadoopqa' ]];then
+        echo "Headless user 'hadoopqa' requires no password."
+    else 
+        stty -echo
+        /usr/kerberos/bin/kinit $USER@DS.CORP.YAHOO.COM
+        stty echo
+    fi
 fi
 
 if [[ -n $TESTS ]]; then
-	TESTS_OPT="-Dtest=$TESTS"
+    TESTS_OPT="-Dtest=$TESTS"
 else 
-	TESTS_OPT=""
-fi
-
-CLOVER_OPT="-Pclover -Djava.awt.headless=true"
-if [[ -n $PROFILE ]]; then
-    if [[ $PROFILE == "clover" ]]; then
-      PROFILE_OPT=$CLOVER_OPT
-    else
-       PROFILE_OPT="-D$PROFILE"
-    fi
-else 
-    PROFILE_OPT=""
+    TESTS_OPT=""
 fi
 
 POM_OPT="-f pom-ci.xml"
@@ -156,14 +135,13 @@ if [[ "$USE_MVN" -eq 1 ]]; then
     # RUN TESTS VIA MAVEN
     set -x
     if [[ ! -f /home/y/bin/mvn ]];then
-		/usr/local/bin/yinst install yjava_maven -br test -yes
-	fi    
+        /usr/local/bin/yinst install yjava_maven -br test -yes
+    fi    
     
-# HADOOP_SHARE=/grid/0/gshome/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
     CLUSTER=$CLUSTER \
-HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
-HADOOP_SHARE=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
-/home/y/bin/mvn $POM_OPT $MVN_SETTINGS_OPT $PROFILE_OPT clean test -DfailIfNoTests=false $TESTS_OPT $COMMON_ARGS
+        HADOOP_VERSION=`ls -l /home/gs/gridre/yroot.${CLUSTER}/share/hadoop|cut -d">" -f2|cut -d"-" -f2` \
+        HADOOP_SHARE=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop-${HADOOP_VERSION}/share/hadoop/ \
+        /home/y/bin/mvn $POM_OPT $MVN_SETTINGS_OPT $PROFILE_OPT clean test -DfailIfNoTests=false $TESTS_OPT $COMMON_ARGS
     set +x
 else
     # RUN TESTS VIA JAVA

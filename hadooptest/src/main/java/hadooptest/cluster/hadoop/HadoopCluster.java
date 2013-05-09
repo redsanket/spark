@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.mapreduce.Cluster;
@@ -28,6 +29,10 @@ import hadooptest.config.hadoop.HadoopConfiguration;
  * type.
  */
 public abstract class HadoopCluster {
+
+    /** Cluster components */
+    public static final String[] components = {
+        "namenode", "resourcemanager", "datanode", "nodemanager", "gateway"};
 
 	/** Contains the nodes on the cluster */
 	private Hashtable<String, String[]> nodes = new Hashtable<String, String[]>();
@@ -131,13 +136,8 @@ public abstract class HadoopCluster {
 	 * resource manager, datanode, and nodemanager. 
 	 */
 	public void initNonFDCNodes() {
-		String host = "localhost";        	      	  
-		String[] components = { 
-				"namenode", 
-				"datanode", 
-				"resourcemanager",
-		"nodemanager" };
-		for (String component : components) {
+		String host = "localhost";
+		for (String component : HadoopCluster.components) {
 			nodes.put(component, new String[] {host});
 		}
 		return;
@@ -151,23 +151,27 @@ public abstract class HadoopCluster {
 	public void initFDCNodes() 
 			throws Exception {
 		nodes.put("admin", new String[] {
-				"adm102.blue.ygrid.yahoo.com",
-		"adm103.blue.ygrid.yahoo.com"});
+		        "adm102.blue.ygrid.yahoo.com",
+		        "adm103.blue.ygrid.yahoo.com"});
 
 		// Namenode
 		String namenode_addr = this.getConf().get("dfs.namenode.https-address");
 		String namenode = namenode_addr.split(":")[0];
+		TestSession.logger.debug("init nodes: namenode = " + namenode);
 		nodes.put("namenode", new String[] {namenode});		
 
 		// Resource Manager
 		String rm_addr =
 				this.getConf().get("yarn.resourcemanager.resource-tracker.address");
 		String rm = rm_addr.split(":")[0];
+        TestSession.logger.debug("init nodes: resourcemanager = " + rm);
 		nodes.put("resourcemanager", new String[] {rm});		
 
 		// Datanode
 		nodes.put("datanode", this.getHostsFromList(namenode,
 				this.getConf().getHadoopConfDir() + "/slaves"));		
+        TestSession.logger.debug("init nodes: datanode / nodemanager = " + 
+				StringUtils.join(nodes.get("datanode"), ","));
 
 		// Nodemanager
 		nodes.put("nodemanager", nodes.get("datanode"));		
