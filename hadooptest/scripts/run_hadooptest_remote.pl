@@ -112,6 +112,7 @@ execute($command);
 
 execute("ssh -t $remote_host \"/bin/mkdir -p $remote_workspace\"");
 
+$use_mvn = ( grep( /-j/, @ARGV ) ) ? 0 : 1;
 $local_workspace = "/Users/$username/git/hadooptest/hadooptest" unless ($local_workspace);
 my $local_workspace_target_dir="$local_workspace/target";
 my $tgz_dir="/tmp";
@@ -124,6 +125,7 @@ note("remote_workspace='$remote_workspace'");
 note("use_mvn='$use_mvn'");
 note("install_only='$install_only'");
 
+execute("mvn clean") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file --exclude='target' -C $local_workspace .");
 execute("scp $tgz_dir/$tgz_file $remote_host:$remote_workspace");
 execute("ssh -t $remote_host \"/bin/gtar fx $remote_workspace/$tgz_file -C $remote_workspace\"");
@@ -131,7 +133,6 @@ execute("ssh -t $remote_host \"/bin/mkdir -p $remote_workspace/target\"");
 execute("scp $local_workspace_target_dir/*.jar $remote_host:$remote_workspace/target");
 execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_workspace;\"") if ($remote_username eq "hadoopqa");
 
-$use_mvn = ( grep( /-j/, @ARGV ) ) ? 0 : 1;
 my $common_args = "--cluster $cluster --workspace $remote_workspace ".join(" ", @ARGV);
 unless ($install_only) {
     if ($use_mvn) {
