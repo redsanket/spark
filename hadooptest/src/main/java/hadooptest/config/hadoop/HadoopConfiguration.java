@@ -113,183 +113,6 @@ public abstract class HadoopConfiguration extends Configuration {
         this.initDefaults();
     }
 
-    /**
-     * Cleans up any test configuration written to disk.
-     */
-    public abstract void cleanup();
-        
-    /**
-     * Writes any test configuration to disk.
-     * 
-     * @throws IOException if the configuration can not be written to disk.
-     */
-    public abstract void write() throws IOException;
-
-    /**
-     * Returns the Hadoop general property value for a given property name.
-     * 
-     * @return String property value such as cluster name, directory paths, etc. 
-     */
-    public String getHadoopProp(String key) {
-        if (!hadoopProps.getProperty(key).equals(null)) {
-            return this.hadoopProps.getProperty(key);
-        }
-        else {
-            TestSession.logger.error(
-                    "Couldn't find value for key '" + key + "'.");
-            return "";
-        }
-    }
-
-    /** 
-     * 
-     * GET HADOOP DEFAULT & CUSTOM CONF DIR FOR A COMPONENT
-     * 
-     * /
-
-     /**
-     * Returns the Hadoop default configuration directory path.
-     * 
-     * @return String of the directory path name..
-     */
-    public String getDefaultHadoopConfDir() {
-        String confDir = this.defaultHadoopConfDir;
-        if ((confDir == null) || (confDir.isEmpty())) {
-            TestSession.logger.error("Default Hadoop conf dir for '" +
-                    this.component + "' host '" +
-                    this.hostname + "' is undefined!!!");
-        } else {
-            TestSession.logger.debug("Default Hadoop conf dir for '" +
-                    this.component + "' host '" +
-                    this.hostname + "'='" + confDir + "'.");    
-        }
-        return confDir;
-    }
-    
-    
-    /**
-     * Returns the Hadoop configuration directory path.
-     * 
-     * @return String of the directory path name..
-     */
-    public String getHadoopConfDir() {
-        String confDir = this.hadoopConfDir;
-        if ((confDir == null) || (confDir.isEmpty())) {
-            confDir = this.hadoopProps.getProperty("HADOOP_INSTALL_CONF_DIR");
-            TestSession.logger.error("Hadoop conf dir for '" +
-                    this.component + "' host '" +
-                    this.hostname + "' is undefined!!!. Use installed " +
-                    "conf dir '" + confDir + "'.");
-        } else {
-            TestSession.logger.debug("Hadoop conf dir for '" +
-                    this.component + "' host '" +
-                    this.hostname + "'='" + confDir + "'.");
-        }
-        return confDir;
-    }
-
-    /** 
-     * 
-     * SET HADOOP DEFAULT & CUSTOM CONF DIR FOR A COMPONENT
-     * 
-     * /
-
-    /**
-     * Set the Hadoop configuration directory path.
-     * 
-     * @param path String of the directory path name.
-     */
-    public void setHadoopConfDir(String confDir) {
-        this.hadoopConfDir = confDir;
-    }
-
-    /**
-     *  Reset Hadoop configuration directory to the installed default
-     */
-    public void resetHadoopConfDir() throws IOException {
-        String installedConfiDir = 
-                this.hadoopProps.getProperty("HADOOP_INSTALL_CONF_DIR");
-        this.setHadoopConfDir(installedConfiDir);
-    }
-
-     /**
-     * Set the default Hadoop configuration directory path.
-     * 
-     * @param path String of the directory path name.
-     */
-    public void setDefaultHadoopConfDir(String confDir) throws IOException {        
-        TestSession.logger.info("Set custom default Hadoop conf dir to '" +
-                confDir + "'.");
-        this.defaultHadoopConfDir = confDir;
-        
-        /* Enable persistence across TestSession instances:
-         * Allow default Hadoop conf dir to be override by subsequent tests by
-         * saving the custom default Hadoop conf dir path in a place holder
-         * file. 
-         */
-        String customDefaultConfSettingsFile =
-                HadoopCluster.getDefaultConfSettingsFile(
-                        this.component, this.hostname);                
-        TestSession.logger.info("Set custom default Hadoop conf dir " +
-                "persistent tag='" + customDefaultConfSettingsFile + "'.");
-        FileUtils.writeStringToFile(
-                new File(customDefaultConfSettingsFile), confDir);
-    }
-
-    /**
-     *  Reset default Hadoop configuration directory to the installed default
-     */
-    public void resetHadoopDefaultConfDir() throws IOException {
-        String installedConfiDir = 
-                this.hadoopProps.getProperty("HADOOP_INSTALL_CONF_DIR");
-        this.setDefaultHadoopConfDir(installedConfiDir);
-        
-        // Remove the persistent default conf dir override file.
-        String customDefaultConfDir = 
-                HadoopCluster.getDefaultConfSettingsFile(
-                        this.component, this.hostname);
-        TestSession.logger.info("Remove custom default Hadoop conf dir " + 
-                "persistent tag from '" + customDefaultConfDir + "'.");
-        TestSession.logger.info("Re-set custom default Hadoop conf dir " +
-                "back to installed conf dir: '" + installedConfiDir + "'.");
-        File file = new File(customDefaultConfDir);
-        file.delete();
-    }
-
-    /** 
-     * 
-     * Security
-     * 
-     * /
-
-    /**
-     * Setup the Kerberos configuration for the given user name and keytab file
-     * in the parent class Apache Hadoop Configuration object. This will be
-     * needed later for tasks such as job submission. 
-     */
-    private void setKerberosConf(String user) {
-        super.set("user-" + user, user + "@DEV.YGRID.YAHOO.COM");
-        super.set("keytab-" + user, "/homes/" + user + "/" + user +
-                  ".dev.headless.keytab");
-    }
-        
-    /**
-     * Setup the Kerberos configuration for all headless users in the
-     * parent class Apache Hadoop Configuration object. This will be
-     * needed later for tasks such as job submission. 
-     */
-    private void setKerberosConf() {
-        // Setup the headless users
-        String[] users = {"hadoopqa", "hdfs", "hdfsqa", "mapred", "mapredqa"};
-        for (String user : users ) {
-            this.setKerberosConf(user);
-        }
-        // Setup the headless users hadoop1 through hadoop20
-        for(int i = 0; i < 20; i++) {
-            this.setKerberosConf("hadoop" + (i+1));
-        }
-    }
-
     
     /** 
      * 
@@ -314,7 +137,8 @@ public abstract class HadoopConfiguration extends Configuration {
      *                   there is a fatal error getting the Hadoop version.
      */
     private void initDefaults() throws Exception {
-        initDefaults(null, null, null);
+        initDefaults(TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"),
+                null, null);
     }
     
     /**
@@ -332,6 +156,8 @@ public abstract class HadoopConfiguration extends Configuration {
     private void initDefaults(String defaultHadoopConfDir, String hostname, 
             String component) throws Exception {
         
+        TestSession.logger.info("Init defaults: default conf dir='" +
+                defaultHadoopConfDir + "'");
         // Initialize the configuration class attributes.
         this.defaultHadoopConfDir = defaultHadoopConfDir;
         this.hadoopConfDir = defaultHadoopConfDir;
@@ -339,6 +165,7 @@ public abstract class HadoopConfiguration extends Configuration {
         this.component = component;
 
         this.setKerberosConf();
+        
         this.initDefaultsClusterSpecific();
                 
         /* 
@@ -360,7 +187,7 @@ public abstract class HadoopConfiguration extends Configuration {
          */
 
         // Binaries
-        hadoopProps.setProperty("HADOOP_BIN_DIR", hadoopProps.getProperty("HADOOP_COMMON_HOME") + "/bin");
+        hadoopProps.setProperty("HADOOP_BIN_DIR", TestSession.conf.getProperty("HADOOP_COMMON_HOME") + "/bin");
         hadoopProps.setProperty("HADOOP_BIN", hadoopProps.getProperty("HADOOP_BIN_DIR") + "/hadoop");
         hadoopProps.setProperty("HDFS_BIN", hadoopProps.getProperty("HADOOP_BIN_DIR") + "/hdfs");
         hadoopProps.setProperty("MAPRED_BIN", hadoopProps.getProperty("HADOOP_BIN_DIR") + "/mapred");
@@ -372,8 +199,9 @@ public abstract class HadoopConfiguration extends Configuration {
         hadoopProps.setProperty("HADOOP_VERSION", HADOOP_VERSION);
                 
         // Jars
-        hadoopProps.setProperty("HADOOP_JAR_DIR", getHadoopProp("HADOOP_COMMON_HOME") +
-                                "/share/hadoop");
+        hadoopProps.setProperty("HADOOP_JAR_DIR",
+                TestSession.conf.getProperty("HADOOP_COMMON_HOME") +
+                "/share/hadoop");        
         hadoopProps.setProperty("HADOOP_TEST_JAR", getHadoopProp("HADOOP_JAR_DIR") + 
                                 "/mapreduce/" + "hadoop-mapreduce-client-jobclient-" +
                                 HADOOP_VERSION + "-tests.jar"); 
@@ -440,6 +268,188 @@ public abstract class HadoopConfiguration extends Configuration {
         super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
         super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
         super.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
+    }
+
+    
+    /**
+     * Cleans up any test configuration written to disk.
+     */
+    public abstract void cleanup();
+        
+    /**
+     * Writes any test configuration to disk.
+     * 
+     * @throws IOException if the configuration can not be written to disk.
+     */
+    public abstract void write() throws IOException;
+
+    /**
+     * Returns the Hadoop general property value for a given property name.
+     * 
+     * @return String property value such as cluster name, directory paths, etc. 
+     */
+    public String getHadoopProp(String key) {
+        String errorMsg = "Couldn't find value for key '" + key + "'.";
+        try {
+            if (!hadoopProps.getProperty(key).equals(null)) {
+                return this.hadoopProps.getProperty(key);
+            }
+            else {
+                throw new NullPointerException(errorMsg);
+            }
+        } catch (Exception e) {
+            TestSession.logger.error(errorMsg);
+            throw new NullPointerException(errorMsg);
+        }
+    }
+
+    /** 
+     * 
+     * GET HADOOP DEFAULT & CUSTOM CONF DIR FOR A COMPONENT
+     * 
+     * /
+
+     /**
+     * Returns the Hadoop default configuration directory path.
+     * 
+     * @return String of the directory path name..
+     */
+    public String getDefaultHadoopConfDir() {
+        String confDir = this.defaultHadoopConfDir;
+        if ((confDir == null) || (confDir.isEmpty())) {
+            TestSession.logger.error("Default Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "' is undefined!!!");
+        } else {
+            TestSession.logger.debug("Default Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "'='" + confDir + "'.");    
+        }
+        return confDir;
+    }
+    
+    
+    /**
+     * Returns the Hadoop configuration directory path.
+     * 
+     * @return String of the directory path name..
+     */
+    public String getHadoopConfDir() {
+        String confDir = this.hadoopConfDir;
+        if ((confDir == null) || (confDir.isEmpty())) {
+            confDir = TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR");
+            TestSession.logger.error("Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "' is undefined!!!. Use installed " +
+                    "conf dir '" + confDir + "'.");
+        } else {
+            TestSession.logger.debug("Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "'='" + confDir + "'.");
+        }
+        return confDir;
+    }
+
+    /** 
+     * 
+     * SET HADOOP DEFAULT & CUSTOM CONF DIR FOR A COMPONENT
+     * 
+     * /
+
+    /**
+     * Set the Hadoop configuration directory path.
+     * 
+     * @param path String of the directory path name.
+     */
+    public void setHadoopConfDir(String confDir) {
+        this.hadoopConfDir = confDir;
+    }
+
+    /**
+     *  Reset Hadoop configuration directory to the installed default
+     */
+    public void resetHadoopConfDir() throws IOException {
+        String installedConfiDir = 
+                TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR");
+        this.setHadoopConfDir(installedConfiDir);
+    }
+
+     /**
+     * Set the default Hadoop configuration directory path.
+     * 
+     * @param path String of the directory path name.
+     */
+    public void setDefaultHadoopConfDir(String confDir) throws IOException {        
+        TestSession.logger.info("Set custom default Hadoop conf dir to '" +
+                confDir + "'.");
+        this.defaultHadoopConfDir = confDir;
+        
+        /* Enable persistence across TestSession instances:
+         * Allow default Hadoop conf dir to be override by subsequent tests by
+         * saving the custom default Hadoop conf dir path in a place holder
+         * file. 
+         */
+        String customDefaultConfSettingsFile =
+                HadoopCluster.getDefaultConfSettingsFile(
+                        this.component, this.hostname);                
+        TestSession.logger.info("Set custom default Hadoop conf dir " +
+                "persistent tag='" + customDefaultConfSettingsFile + "'.");
+        FileUtils.writeStringToFile(
+                new File(customDefaultConfSettingsFile), confDir);
+    }
+
+    /**
+     *  Reset default Hadoop configuration directory to the installed default
+     */
+    public void resetHadoopDefaultConfDir() throws IOException {
+        String installedConfiDir = 
+                TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR");
+        this.setDefaultHadoopConfDir(installedConfiDir);
+        
+        // Remove the persistent default conf dir override file.
+        String customDefaultConfDir = 
+                HadoopCluster.getDefaultConfSettingsFile(
+                        this.component, this.hostname);
+        TestSession.logger.info("Remove custom default Hadoop conf dir " + 
+                "persistent tag from '" + customDefaultConfDir + "'.");
+        TestSession.logger.info("Re-set custom default Hadoop conf dir " +
+                "back to installed conf dir: '" + installedConfiDir + "'.");
+        File file = new File(customDefaultConfDir);
+        file.delete();
+    }
+
+    /** 
+     * 
+     * Security
+     * 
+     * /
+
+    /**
+     * Setup the Kerberos configuration for the given user name and keytab file
+     * in the parent class Apache Hadoop Configuration object. This will be
+     * needed later for tasks such as job submission. 
+     */
+    private void setKerberosConf(String user) {
+        super.set("user-" + user, user + "@DEV.YGRID.YAHOO.COM");
+        super.set("keytab-" + user, "/homes/" + user + "/" + user +
+                  ".dev.headless.keytab");
+    }
+        
+    /**
+     * Setup the Kerberos configuration for all headless users in the
+     * parent class Apache Hadoop Configuration object. This will be
+     * needed later for tasks such as job submission. 
+     */
+    private void setKerberosConf() {
+        // Setup the headless users
+        String[] users = {"hadoopqa", "hdfs", "hdfsqa", "mapred", "mapredqa"};
+        for (String user : users ) {
+            this.setKerberosConf(user);
+        }
+        // Setup the headless users hadoop1 through hadoop20
+        for(int i = 0; i < 20; i++) {
+            this.setKerberosConf("hadoop" + (i+1));
+        }
     }
 
     
