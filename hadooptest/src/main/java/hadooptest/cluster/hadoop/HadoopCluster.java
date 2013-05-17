@@ -201,6 +201,8 @@ public abstract class HadoopCluster {
 	        TestSession.logger.debug("Initialize '" + component + "' " +
 	                "component host '" + host + "' [" + index++ + "/" +
 	                compHostsSize + "].");
+	        
+	        // Initialize the component node.
 	        if (clusterType.equals(HadoopCluster.FD_CLUSTER_TYPE)) {
 	            cNodes.put(host, new FullyDistributedNode(host, component));
 	        } else {
