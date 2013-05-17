@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.workflow.hadoop.job.GenericJob;
@@ -85,7 +86,7 @@ public class TestEndToEndCompression extends TestSession {
 	public static void setupTestConf() throws Exception {
 		FullyDistributedCluster cluster =
 				(FullyDistributedCluster) TestSession.cluster;
-		String component = HadoopConfiguration.RESOURCE_MANAGER;
+		String component = HadoopCluster.RESOURCE_MANAGER;
 
 		/* 
 		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
@@ -109,13 +110,13 @@ public class TestEndToEndCompression extends TestSession {
 		
 		// Backup the default configuration directory on the Resource Manager
 		// component host.
-		cluster.getConf().backupConfDir(component);	
+		cluster.getConf(component).backupConfDir();	
 
 		// Copy files to the custom configuration directory on the
 		// Resource Manager component host.
 		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
 				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
-		cluster.getConf().copyFileToConfDir(sourceFile, component,
+		cluster.getConf(component).copyFileToConfDir(sourceFile,
 				"capacity-scheduler.xml");
 		cluster.hadoopDaemon("stop", component);
 		cluster.hadoopDaemon("start", component);
