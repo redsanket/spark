@@ -71,7 +71,8 @@ public class DFS {
 	 * @throws Exception if we can not get the cluster namenode.
 	 */
 	public String getBaseUrl() throws Exception {
-		return "hdfs://" + TestSession.cluster.getNodes("namenode")[0];
+		return "hdfs://" +
+		        TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
 	}
 	
 	/**
