@@ -26,7 +26,8 @@
         <jacoco.version.1>0.6.3-SNAPSHOT</jacoco.version.1>
         <jacoco.version>0.6.2.201302030002</jacoco.version>
         <jacoco.raw.dir>/homes/hadoopqa/jacoco/results/latest</jacoco.raw.dir>  
-        <jacoco.raw.file>${jacoco.raw.dir}/resourcemanager.jacoco.exec</jacoco.raw.file>
+        <!--jacoco.raw.file>${jacoco.raw.dir}/resourcemanager.jacoco.exec</jacoco.raw.file-->
+        <jacoco.raw.file>${jacoco.raw.dir}</jacoco.raw.file>
         <jacoco.report.dir>${project.basedir}/target/site/jacoco/hadooptest</jacoco.report.dir>
       </properties>
 
