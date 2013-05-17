@@ -3,13 +3,11 @@ package hadooptest.hadoop.regression;
 import static org.junit.Assert.*;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
 
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
@@ -25,7 +23,8 @@ public class TestFS extends TestSession {
 	}
 
 	public String getHdfsBaseUrl() throws Exception {
-		return "hdfs://" + TestSession.cluster.getNodes("namenode")[0];
+		return "hdfs://" + 
+		        TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
 	}
 	
 	public void fsls(String path) throws Exception {
@@ -41,7 +40,7 @@ public class TestFS extends TestSession {
 		if (args == null) {
 			cmd = new String[] {"-ls", URL};
 		} else {
-			ArrayList list = new ArrayList();
+			ArrayList<String> list = new ArrayList<String>();
 			list.add("-ls");
 			list.addAll(Arrays.asList(args));
 			list.add(URL);
