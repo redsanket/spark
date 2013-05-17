@@ -4,10 +4,8 @@
 
 package hadooptest.config.hadoop;
 
-import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,55 +24,31 @@ import org.apache.hadoop.util.VersionInfo;
  */
 public abstract class HadoopConfiguration extends Configuration {
 
-    /** Filename of the core hadoop configuration xml file. */
+    /** Filenames for the hadoop configuration files. */
     public static final String HADOOP_CONF_CORE = "core-site.xml";
-        
-    /** Filename of the hdfs configuration xml file. */
     public static final String HADOOP_CONF_HDFS = "hdfs-site.xml";
-        
-    /** Filename of the mapreduce configuration xml file. */
     public static final String HADOOP_CONF_MAPRED = "mapred-site.xml";
-
-    /** Filename of the yarn configuration xml file. */
     public static final String HADOOP_CONF_YARN = "yarn-site.xml";
-
-    /** Filename of the capacity scheduler configuration xml file. */
     public static final String HADOOP_CONF_CAPACITY_SCHEDULER =
         "capacity-scheduler.xml";
-
-    /** Filename of the fair scheduler configuration xml file. */
     public static final String HADOOP_CONF_FAIR_SCHEDULER = 
         "fair-scheduler.xml";
 
-    /** String representing the name node. */
-    public static final String NAMENODE = "namenode";
-
-    /** String representing the resource manager. */
-    public static final String RESOURCE_MANAGER = "resourcemanager";
-
-    /** String representing the data node. */
-    public static final String DATANODE = "datanode";
-
-    /** String representing the node manager. */
-    public static final String NODEMANAGER = "nodemanager";
-
-    /** String representing the gateway. */
-    public static final String GATEWAY = "gateway";
-
+    /** Configuration class attributes 
+     */
+    protected String hostname;
+    protected String component;
+    protected String hadoopConfDir;
+    protected String defaultHadoopConfDir;
+    
     /** General Hadoop configuration properties such as cluster name, 
      * directory paths, etc.
      */
     protected Properties hadoopProps = new Properties();
 
-    /** Track Hadoop default configuration directories */
-    protected Properties hadoopDefaultConfDirProps = new Properties();
-
-    /** Track Hadoop custom configuration directories */
-    protected Properties hadoopConfDirProps = new Properties();
-
     /** 
      * A generic constructor TestConfiguration that calls the Hadoop
-     * Configuration with the false argument, so that you are not loading any
+     * Configuration with the true argument, that you are loading
      * default Hadoop configuration properties.  It then proceeds to
      * initialize the default configuration for the reflected cluster type.
      * 
@@ -82,7 +56,22 @@ public abstract class HadoopConfiguration extends Configuration {
      * is a problem getting the Hadoop version.
      */
     public HadoopConfiguration() throws Exception {
-        super(true);            
+        super(true);
+        this.initDefaults();
+    }
+
+    /** 
+     * A generic constructor TestConfiguration that calls the Hadoop
+     * Configuration with the given load defaults option. A value of true will 
+     * load the default Hadoop configuration properties, while a value of false
+     * will not.  It then proceeds to initialize the default configuration for
+     * the reflected cluster type.
+     * 
+     * @throws Exception if the default hosts can not be initialized, or there
+     * is a problem getting the Hadoop version.
+     */
+    public HadoopConfiguration(boolean loadDefaults) throws Exception {
+        super(loadDefaults);
         this.initDefaults();
     }
 
@@ -98,9 +87,17 @@ public abstract class HadoopConfiguration extends Configuration {
      * @throws Exception if the default hosts can not be initialized or there is
      * a problem getting the Hadoop version.
      */
-    public HadoopConfiguration(boolean loadDefaults) throws Exception {
+    public HadoopConfiguration(boolean loadDefaults,
+            String defaultHadoopConfDir, String hostname, String component)
+                    throws Exception {
         super(loadDefaults);
-        this.initDefaults();
+        this.initDefaults(defaultHadoopConfDir, hostname, component);
+    }
+
+    public HadoopConfiguration(boolean loadDefaults,
+            String hostname, String component) throws Exception {
+        super(loadDefaults);
+        this.initDefaults(null, hostname, component);
     }
 
     /**
@@ -139,35 +136,9 @@ public abstract class HadoopConfiguration extends Configuration {
         }
         else {
             TestSession.logger.error(
-                                     "Couldn't find value for key '" + key + "'.");
+                    "Couldn't find value for key '" + key + "'.");
             return "";
         }
-    }
-        
-    /** 
-     * 
-     * GET HADOOP DEFAULT & CUSTOM CONF DIR PROPERTIES
-     * 
-     * /
-        
-     /**
-     * Returns the Hadoop default configuration directory paths.
-     * 
-     * @return Properties the Hadoop default configuration directory paths by
-     * components.
-     */
-    public Properties getHadoopDefaultConfDirProps() {
-        return this.hadoopDefaultConfDirProps;
-    }
-
-    /**
-     * Returns the Hadoop configuration directory paths.
-     * 
-     * @return Properties the Hadoop configuration directory paths by
-     * components.
-     */
-    public Properties getHadoopConfDirProps() {
-        return this.hadoopConfDirProps;
     }
 
     /** 
@@ -177,65 +148,42 @@ public abstract class HadoopConfiguration extends Configuration {
      * /
 
      /**
-     * Returns the Hadoop default configuration directory path for the default
-     * gateway component.
+     * Returns the Hadoop default configuration directory path.
      * 
      * @return String of the directory path name..
      */
-    public String getHadoopDefaultConfDir() {
-        return this.getHadoopDefaultConfDir(null);
+    public String getDefaultHadoopConfDir() {
+        String confDir = this.defaultHadoopConfDir;
+        if ((confDir == null) || (confDir.isEmpty())) {
+            TestSession.logger.error("Default Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "' is undefined!!!");
+        } else {
+            TestSession.logger.debug("Default Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "'='" + confDir + "'.");    
+        }
+        return confDir;
     }
-
+    
+    
     /**
-     * Returns the Hadoop configuration directory path for the default gateway
-     * component.
+     * Returns the Hadoop configuration directory path.
      * 
      * @return String of the directory path name..
      */
     public String getHadoopConfDir() {
-        return this.getHadoopConfDir(null);
-    }
-
-    /**
-     * Returns the Hadoop default configuration directory path for the given
-     * component.
-     * 
-     * @param component The hadoop component such as gateway, namenode,
-     * resourcemaanger, etc.
-     * 
-     * @return String of the directory path name..
-     */
-    public String getHadoopDefaultConfDir(String component) {
-        if ((component == null) || component.isEmpty()) {
-            component = HadoopConfiguration.GATEWAY;
-        }
-        String confDir = this.getHadoopDefaultConfDirProps().getProperty(
-                                                                         component, this.getHadoopProp("HADOOP_INSTALLED_CONF_DIR"));
+        String confDir = this.hadoopConfDir;
         if ((confDir == null) || (confDir.isEmpty())) {
-            TestSession.logger.error("Default Hadoop configuration directory " +
-                                     "for component '" + component + "'is undefined!!!");
-        }
-        return confDir;
-    }
-
-    /**
-     * Returns the Hadoop configuration directory path for the given component.
-     * 
-     * @param component The hadoop component such as gateway, namenode,
-     * resourcemaanger, etc.
-     * 
-     * @return String of the directory path name..
-     */
-    public String getHadoopConfDir(String component) {
-        if ((component == null) || component.isEmpty()) {
-            component = HadoopConfiguration.GATEWAY;
-        }
-        String confDir = this.getHadoopConfDirProps().getProperty(
-                                                                  component,
-                                                                  this.getHadoopProp("HADOOP_INSTALLED_CONF_DIR"));
-        if ((confDir == null) || (confDir.isEmpty())) {
-            TestSession.logger.error("Hadoop configuration directory " +
-                                     "for component '" + component + "'is undefined!!!");
+            confDir = this.hadoopProps.getProperty("HADOOP_INSTALL_CONF_DIR");
+            TestSession.logger.error("Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "' is undefined!!!. Use installed " +
+                    "conf dir '" + confDir + "'.");
+        } else {
+            TestSession.logger.debug("Hadoop conf dir for '" +
+                    this.component + "' host '" +
+                    this.hostname + "'='" + confDir + "'.");
         }
         return confDir;
     }
@@ -246,87 +194,68 @@ public abstract class HadoopConfiguration extends Configuration {
      * 
      * /
 
-     /**
-     * Set the Hadoop default configuration directory path for the given 
-     * component.
-     * 
-     * @param path String of the directory path name.
-     */
-    public void setHadoopDefaultConfDir(String confDir) throws IOException {
-        this.setHadoopDefaultConfDir(confDir, null);
-    }
-
     /**
-     * Set the Hadoop configuration directory path for the given component.
+     * Set the Hadoop configuration directory path.
      * 
      * @param path String of the directory path name.
      */
     public void setHadoopConfDir(String confDir) {
-        this.setHadoopConfDir(confDir, null);
+        this.hadoopConfDir = confDir;
     }
 
     /**
-     * Set the Hadoop default configuration directory path for the given 
-     * component.
+     *  Reset Hadoop configuration directory to the installed default
+     */
+    public void resetHadoopConfDir() throws IOException {
+        String installedConfiDir = 
+                this.hadoopProps.getProperty("HADOOP_INSTALL_CONF_DIR");
+        this.setHadoopConfDir(installedConfiDir);
+    }
+
+     /**
+     * Set the default Hadoop configuration directory path.
      * 
      * @param path String of the directory path name.
-     * @param component The hadoop component such as gateway, namenode,
-     * resourcemaanger, etc.
      */
-    public void setHadoopDefaultConfDir(String confDir, String component)
-        throws IOException {
-        if ((component == null) || component.isEmpty()) {
-            component = HadoopConfiguration.GATEWAY;
-        }
-        this.getHadoopDefaultConfDirProps().setProperty(component, confDir);
-                
-        // Enable persistence across TestSession instances
-        String customDefaultHadoopConfDir =
-            hadoopProps.getProperty("HADOOP_CUSTOM_DEFAULT_CONF_DIR") +
-            "/" + component;         
+    public void setDefaultHadoopConfDir(String confDir) throws IOException {        
+        TestSession.logger.info("Set custom default Hadoop conf dir to '" +
+                confDir + "'.");
+        this.defaultHadoopConfDir = confDir;
+        
+        /* Enable persistence across TestSession instances:
+         * Allow default Hadoop conf dir to be override by subsequent tests by
+         * saving the custom default Hadoop conf dir path in a place holder
+         * file. 
+         */
+        String customDefaultConfSettingsFile =
+                HadoopCluster.getDefaultConfSettingsFile(
+                        this.component, this.hostname);                
+        TestSession.logger.info("Set custom default Hadoop conf dir " +
+                "persistent tag='" + customDefaultConfSettingsFile + "'.");
         FileUtils.writeStringToFile(
-                                    new File(customDefaultHadoopConfDir), confDir);
-    }
-
-    /**
-     * Set the Hadoop configuration directory path for the given component.
-     * 
-     * @param path String of the directory path name.
-     * @param component The hadoop component such as gateway, namenode,
-     * resourcemaanger, etc.
-     */
-    public void setHadoopConfDir(String confDir, String component) {
-        if ((component == null) || component.isEmpty()) {
-            component = HadoopConfiguration.GATEWAY;
-        }
-        this.getHadoopConfDirProps().setProperty(component, confDir);
+                new File(customDefaultConfSettingsFile), confDir);
     }
 
     /**
      *  Reset default Hadoop configuration directory to the installed default
      */
     public void resetHadoopDefaultConfDir() throws IOException {
-        for (String component : HadoopCluster.components ) {
-            String installedConfiDir = 
-                this.hadoopProps.getProperty("HADOOP_INSTALLED_CONF_DIR");
-            this.setHadoopDefaultConfDir(installedConfiDir, component);
-        }
-        String customDefaultConfDir = 
-            hadoopProps.getProperty("HADOOP_CUSTOM_DEFAULT_CONF_DIR");
-        FileUtils.deleteDirectory(new File(customDefaultConfDir));
-    }
+        String installedConfiDir = 
+                this.hadoopProps.getProperty("HADOOP_INSTALL_CONF_DIR");
+        this.setDefaultHadoopConfDir(installedConfiDir);
         
-    /**
-     *  Reset Hadoop configuration directory to the installed default
-     */
-    public void resetHadoopConfDir() throws IOException {
-        for (String component : HadoopCluster.components ) {
-            String installedConfiDir = 
-                this.hadoopProps.getProperty("HADOOP_INSTALLED_CONF_DIR");
-            this.setHadoopConfDir(installedConfiDir, component);
-        }
+        // Remove the persistent default conf dir override file.
+        String customDefaultConfDir = 
+                HadoopCluster.getDefaultConfSettingsFile(
+                        this.component, this.hostname);
+        TestSession.logger.info("Remove custom default Hadoop conf dir " + 
+                "persistent tag from '" + customDefaultConfDir + "'.");
+        TestSession.logger.info("Re-set custom default Hadoop conf dir " +
+                "back to installed conf dir: '" + installedConfiDir + "'.");
+        File file = new File(customDefaultConfDir);
+        file.delete();
     }
-    
+
     /** 
      * 
      * Security
@@ -360,8 +289,13 @@ public abstract class HadoopConfiguration extends Configuration {
             this.setKerberosConf("hadoop" + (i+1));
         }
     }
-        
 
+    
+    /** 
+     * 
+     * Initializations
+     * 
+     * /
 
     /**
      * Initializes cluster specific defaults.
@@ -370,35 +304,6 @@ public abstract class HadoopConfiguration extends Configuration {
      */
     protected abstract void initDefaultsClusterSpecific()
         throws UnknownHostException;
-        
-    /**
-     * Initializes the default or custom default Hadoop configuration directory.
-     * 
-     * @throws Exception if the default hosts can not be initialized, or if
-     *                   there is a fatal error getting the Hadoop version.
-     */
-    private void initDefaultConfDir() throws Exception {
-        String installedHadoopConfDir =
-            hadoopProps.getProperty("HADOOP_INSTALL") + "/conf/hadoop";
-        hadoopProps.setProperty("HADOOP_INSTALLED_CONF_DIR",
-                                installedHadoopConfDir);
-        
-        hadoopProps.setProperty("HADOOP_CUSTOM_DEFAULT_CONF_DIR",
-                                TestSession.conf.getProperty("WORKSPACE") +
-                                "/customDefaultHadoopConf");         
-
-        for (String component : HadoopCluster.components ) {
-            String customDefaultHadoopConfDir =
-                hadoopProps.getProperty("HADOOP_CUSTOM_DEFAULT_CONF_DIR") +
-                "/" + component;
-            File customDefaultConfFile = new File(customDefaultHadoopConfDir);
-            String defaultHadoopConfDir = (customDefaultConfFile.exists()) ?
-                FileUtils.readFileToString(customDefaultConfFile) : 
-                installedHadoopConfDir;        
-            this.setHadoopDefaultConfDir(defaultHadoopConfDir, component);
-        }
-    }
-    
     
     /**
      * Initializes a set of default configuration properties that have been 
@@ -409,6 +314,29 @@ public abstract class HadoopConfiguration extends Configuration {
      *                   there is a fatal error getting the Hadoop version.
      */
     private void initDefaults() throws Exception {
+        initDefaults(null, null, null);
+    }
+    
+    /**
+     * Initializes a set of default configuration properties that have been 
+     * determined to be a reasonable set of defaults for running a distributed
+     * cluster under test.
+     * 
+     * @param default hadoop configuration directory path.
+     * @param configuraiton hostname.
+     * @param configuration host component.
+     * 
+     * @throws Exception if the default hosts can not be initialized, or if
+     *                   there is a fatal error getting the Hadoop version.
+     */
+    private void initDefaults(String defaultHadoopConfDir, String hostname, 
+            String component) throws Exception {
+        
+        // Initialize the configuration class attributes.
+        this.defaultHadoopConfDir = defaultHadoopConfDir;
+        this.hadoopConfDir = defaultHadoopConfDir;
+        this.hostname = hostname;
+        this.component = component;
 
         this.setKerberosConf();
         this.initDefaultsClusterSpecific();
@@ -419,13 +347,10 @@ public abstract class HadoopConfiguration extends Configuration {
          */
         loadDefaultResource();
 
-        // Configuration directory and files
-        this.initDefaultConfDir();
-                
         /*
          * Use this.getHadoopConfFile() instead because the configuration
          * directory may change.
-	 *
+         *
          * hadoopProps.setProperty("HADOOP_CONF_CORE", confDir + "/" + HADOOP_CONF_CORE);
          * hadoopProps.setProperty("HADOOP_CONF_HDFS", confDir + "/" + HADOOP_CONF_HDFS);
          * hadoopProps.setProperty("HADOOP_CONF_MAPRED", confDir + "/" + HADOOP_CONF_MAPRED);
@@ -466,6 +391,25 @@ public abstract class HadoopConfiguration extends Configuration {
     }
 
     /**
+     * Get the Hadoop configuration full file path.
+     */
+    public String getHadoopConfFile(String file) {
+        return this.getHadoopConfDir() + "/" + file;        
+    }
+        
+    /**
+     *  Load the cluster resources in the parent Hadoop Configuration class.
+     */
+    public void loadClusterResource() {
+        TestSession.logger.info("load hadoop resources from '" +
+                                this.getHadoopConfDir() + "':");
+        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_CORE)));
+        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_HDFS)));
+        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_MAPRED)));
+        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_YARN)));  
+    }
+        
+    /**
      * core-default.xml contains at least two properties that must be
      * defined in the Hadoop Configuration instance in order for the
      * test framework to interact with the Hadoop Classes and APIs.
@@ -487,7 +431,8 @@ public abstract class HadoopConfiguration extends Configuration {
      * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
      */
     protected void loadDefaultResource() {
-        URL dirURL = this.getClass().getClassLoader().getResource("core-default.xml");
+        URL dirURL = this.getClass().getClassLoader().getResource(
+                "core-default.xml");
         TestSession.logger.debug("Load hadoop default configurations via " +
                                  "URL path:");
         TestSession.logger.debug("URL path: '" + dirURL.getPath() + "',...,etc.");
@@ -496,23 +441,8 @@ public abstract class HadoopConfiguration extends Configuration {
         super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
         super.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
     }
-        
-    protected void loadClusterResource() {
-        TestSession.logger.info("load hadoop resources from " +
-                                this.getHadoopConfDir() + ":");
-        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_CORE)));
-        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_HDFS)));
-        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_MAPRED)));
-        super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_YARN)));  
-    }
-        
-    /**
-     * Get a given Hadoop configuration file path
-     */
-    public String getHadoopConfFile(String file) {
-        return this.getHadoopConfDir() + "/" + file;        
-    }
-        
+
+    
     /**
      * Returns the version of the fully distributed Hadoop cluster being used.
      * 
@@ -529,12 +459,9 @@ public abstract class HadoopConfiguration extends Configuration {
         
         String strClusterType = TestSession.conf.getProperty("CLUSTER_TYPE");
                 
-        if (strClusterType.equals(
-                                  "hadooptest.cluster.pseudodistributed.PseudoDistributedCluster")) 
-            {
-                version = this.getVersionViaCLI();
-            }
-        else {
+        if (strClusterType.equals(HadoopCluster.PD_CLUSTER_TYPE)) {
+            version = this.getVersionViaCLI();
+        } else {
             version = VersionInfo.getVersion();
             TestSession.logger.trace("Hadoop version = '" + 
                                      VersionInfo.getVersion() + "'");
@@ -563,7 +490,8 @@ public abstract class HadoopConfiguration extends Configuration {
         throws Exception {
         String[] cmd = { this.getHadoopProp("HADOOP_BIN"),
                          "--config", this.getHadoopConfDir(), "version" };      
-        String version = (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];
+        String version =
+                (TestSession.exec.runProcBuilder(cmd))[1].split("\n")[0];
         return version.split(" ")[1];
     }
     
