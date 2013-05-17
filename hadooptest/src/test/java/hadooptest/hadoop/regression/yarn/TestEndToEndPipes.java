@@ -3,6 +3,8 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.*;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.config.hadoop.HadoopConfiguration;
 
 import java.io.File;
 import java.net.URL;
@@ -29,7 +31,8 @@ public class TestEndToEndPipes extends TestSession {
 	}
 
 	public String getHdfsBaseUrl() throws Exception {
-		return "hdfs://" + TestSession.cluster.getNodes("namenode")[0];
+		return "hdfs://" +
+		        TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
 	}
 	
 	public void fsls(String path, String[] args) throws Exception {
@@ -41,7 +44,7 @@ public class TestEndToEndPipes extends TestSession {
 		if (args == null) {
 			cmd = new String[] {"-ls", URL};
 		} else {
-			ArrayList list = new ArrayList();
+			ArrayList<String> list = new ArrayList<String>();
 			list.add("-ls");
 			list.addAll(Arrays.asList(args));
 			list.add(URL);
@@ -86,7 +89,9 @@ public class TestEndToEndPipes extends TestSession {
 		FileSystem fs = TestSession.cluster.getFS();
 
 		String URL =
-		        "hdfs://" + TestSession.cluster.getNodes("namenode")[0] + "/";
+		        "hdfs://" +
+		        TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0] +
+		        "/";
 		String homeDir = URL + "user/" + System.getProperty("user.name");
 		String testDir = homeDir + "/" + targetDir;
 		if (!fs.exists(new Path(testDir))) {
