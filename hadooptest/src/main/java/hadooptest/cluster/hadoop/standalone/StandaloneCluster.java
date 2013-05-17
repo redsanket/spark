@@ -36,7 +36,8 @@ public class StandaloneCluster extends HadoopCluster {
 	public StandaloneCluster() 
 			throws InterruptedException, IOException, Exception {
 		this.conf = new StandaloneConfiguration();
-		super.initNodes();
+		// TODO: implement initNodes()
+		// super.initNodes();
 	}
 
 	/**
@@ -47,7 +48,8 @@ public class StandaloneCluster extends HadoopCluster {
 	public StandaloneCluster(StandaloneConfiguration conf)
 			throws InterruptedException, IOException, Exception {
 		this.conf = conf;
-		super.initNodes();
+        // TODO: implement initNodes()
+		// super.initNodes();
 	}
 
 	/**
