@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
-import hadooptest.config.hadoop.HadoopConfiguration;
 
 import java.io.File;
 import java.net.URL;
