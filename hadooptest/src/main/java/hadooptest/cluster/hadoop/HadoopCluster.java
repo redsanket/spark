@@ -77,7 +77,7 @@ public abstract class HadoopCluster {
     /* Get the custom default settings filename. If the file exists, the content
      * is the full path name of the custom default hadoop config directory. 
      */
-    public static String getCustomDefaultSettingsFilename(String component,
+    public static String getDefaultConfSettingsFile(String component,
             String hostname) {
         return TestSession.conf.getProperty("HADOOP_CUSTOM_DEFAULT_CONF_DIR") +
                 "/" + component + "-" + hostname;        
