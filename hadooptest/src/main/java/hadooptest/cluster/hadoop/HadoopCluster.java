@@ -6,8 +6,8 @@ package hadooptest.cluster.hadoop;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -19,6 +19,9 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.ClusterState;
+import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
+import hadooptest.node.hadoop.pseudodistributed.PseudoDistributedNode;
 import hadooptest.config.hadoop.HadoopConfiguration;
 
 /**
@@ -30,12 +33,55 @@ import hadooptest.config.hadoop.HadoopConfiguration;
  */
 public abstract class HadoopCluster {
 
-    /** Cluster components */
-    public static final String[] components = {
-        "namenode", "resourcemanager", "datanode", "nodemanager", "gateway"};
+    /** String representing the cluster components. */
+    public static final String NAMENODE = "namenode";
+    public static final String RESOURCE_MANAGER = "resourcemanager";
+    public static final String DATANODE = "datanode";
+    public static final String NODEMANAGER = "nodemanager";
+    public static final String GATEWAY = "gateway";
+    
+    // Admin hosts
+    public static final String ADMIN = "adm102.blue.ygrid.yahoo.com";
 
-	/** Contains the nodes on the cluster */
-	private Hashtable<String, String[]> nodes = new Hashtable<String, String[]>();
+    /** String representing the cluster type. */
+    public static final String FD_CLUSTER_TYPE =
+            "hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster";
+    public static final String PD_CLUSTER_TYPE =
+            "hadooptest.cluster.pseudodistributed.PseudoDistributedCluster";
+    
+    /** String array for the cluster components */
+    public static final String[] components = {
+        HadoopCluster.NAMENODE,
+        HadoopCluster.RESOURCE_MANAGER,
+        HadoopCluster.DATANODE,
+        HadoopCluster.NODEMANAGER,
+        HadoopCluster.GATEWAY
+        };
+
+    /** Container for storing the Hadoop cluster node objects by components */
+    protected Hashtable<String, Hashtable<String, HadoopNode>> hadoopNodes =
+            new Hashtable<String, Hashtable<String, HadoopNode>>();
+
+    public String getProp(String key) {
+        // TODO: should maintain its own cluster level properties
+        // return this.clusterProps.getProperty(key);
+        return TestSession.conf.getProperty(key);
+    }
+
+    public void setProp(String key, String value) {
+        // TODO: should maintain its own cluster level properties
+        // this.clusterProps.setProperty(key, value);
+        TestSession.conf.setProperty(key, value);
+    }
+
+    /* Get the custom default settings filename. If the file exists, the content
+     * is the full path name of the custom default hadoop config directory. 
+     */
+    public static String getCustomDefaultSettingsFilename(String component,
+            String hostname) {
+        return TestSession.conf.getProperty("HADOOP_CUSTOM_DEFAULT_CONF_DIR") +
+                "/" + component + "-" + hostname;        
+    }
 
 	/**
 	 * Start the cluster from a stopped state.
@@ -95,7 +141,7 @@ public abstract class HadoopCluster {
 			throws Exception;
 
 	/**
-	 * Get the current state of the cluster.
+	 * Get the current version of the cluster.
 	 * 
 	 * @return ClusterState the state of the cluster.
 	 */
@@ -115,7 +161,7 @@ public abstract class HadoopCluster {
 	 */
 	public abstract void setConf(HadoopConfiguration conf);
 
-	/**
+    /**
 	 * Sets the keytab and user and initializes Hadoop security through
 	 * the Hadoop API.
 	 * 
@@ -130,83 +176,55 @@ public abstract class HadoopCluster {
 		TestSession.logger.debug("User = " + user);
 		SecurityUtil.login(TestSession.cluster.getConf(), keytab, user);
 	}
+
+    /**
+     * Initialize the Hadoop component nodes for a give component type.
+     * 
+     * @param component String.
+     * @param hosts String Array.
+     * 
+     * @throws IOException if nodes can't be initialized.
+     */
+	protected void initComponentNodes(String component, String[] hosts)
+	        throws Exception {
+        String clusterType = TestSession.conf.getProperty("CLUSTER_TYPE");
+	    TestSession.logger.debug("Initialize cluster nodes for component '" +
+	        component + "', hosts '" + StringUtils.join(hosts, ",") + "', " +
+	            "cluster type '" +
+	            clusterType.substring(clusterType.lastIndexOf(".")+1) + "'.");
+
+	    Hashtable<String, HadoopNode> cNodes =
+	            new Hashtable<String, HadoopNode>();
+	    String compHostsSize = Integer.toString(hosts.length);
+	    int index=1;
+	    for (String host : hosts) {
+	        TestSession.logger.debug("Initialize '" + component + "' " +
+	                "component host '" + host + "' [" + index++ + "/" +
+	                compHostsSize + "].");
+	        if (clusterType.equals(HadoopCluster.FD_CLUSTER_TYPE)) {
+	            cNodes.put(host, new FullyDistributedNode(host, component));
+	        } else {
+	            cNodes.put(host, new PseudoDistributedNode(host, component));
+	        }
+	            
+	        // Verify the instantiated node.
+	        TestSession.logger.debug("Verify the instantiated node:");
+	        HadoopNode node = cNodes.get(host);	        
+	        TestSession.logger.debug("Node init'd: name='" +
+	                node.getHostname() + "', " +
+	                "default conf='" + node.getDefaultConfDir() + "', " +
+	                "conf='" + node.getConfDir() + "'.");	        
+	        HadoopConfiguration conf = node.getConf();
+	        if (conf == null) {
+	            TestSession.logger.error("Node conf object is null!!!");
+	        }
+            TestSession.logger.debug("Node initialized: conf object: " + 
+                    "default conf dir='" + conf.getDefaultHadoopConfDir() +
+                    "', conf dir='" + conf.getHadoopConfDir() + "'");
+	    }
+	    hadoopNodes.put(component, cNodes);
+	}
 	
-	/**
-	 * Initialize the cluster nodes hostnames for the namenode,
-	 * resource manager, datanode, and nodemanager. 
-	 */
-	public void initNonFDCNodes() {
-		String host = "localhost";
-		for (String component : HadoopCluster.components) {
-			nodes.put(component, new String[] {host});
-		}
-		return;
-	}
-
-	/**
-	 * Initializes FDC nodes.
-	 * 
-	 * @throws Exception if the datanode can not be initialized.
-	 */
-	public void initFDCNodes() 
-			throws Exception {
-		nodes.put("admin", new String[] {
-		        "adm102.blue.ygrid.yahoo.com",
-		        "adm103.blue.ygrid.yahoo.com"});
-
-		// Namenode
-		String namenode_addr = this.getConf().get("dfs.namenode.https-address");
-		String namenode = namenode_addr.split(":")[0];
-		TestSession.logger.debug("init nodes: namenode = " + namenode);
-		nodes.put("namenode", new String[] {namenode});		
-
-		// Resource Manager
-		String rm_addr =
-				this.getConf().get("yarn.resourcemanager.resource-tracker.address");
-		String rm = rm_addr.split(":")[0];
-        TestSession.logger.debug("init nodes: resourcemanager = " + rm);
-		nodes.put("resourcemanager", new String[] {rm});		
-
-		// Datanode
-		nodes.put("datanode", this.getHostsFromList(namenode,
-				this.getConf().getHadoopConfDir() + "/slaves"));		
-        TestSession.logger.debug("init nodes: datanode / nodemanager = " + 
-				StringUtils.join(nodes.get("datanode"), ","));
-
-		// Nodemanager
-		nodes.put("nodemanager", nodes.get("datanode"));		
-	}
-
-	/**
-	 * Initialize the cluster nodes hostnames for the namenode,
-	 * resource manager, datanode, and nodemanager. 
-	 * 
-	 * @throws Exception if the datanode can not be initialized.
-	 */
-	public void initNodes() 
-			throws Exception {
-		// Retrieve the cluster type from the framework configuration file.
-		// This should be in the format of package.package.class
-		String strClusterType = TestSession.conf.getProperty("CLUSTER_TYPE");
-
-		// Initialize the nodes with the correct cluster type.
-		if (!strClusterType.equals("hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster")) {
-			initNonFDCNodes();
-		}
-		else {
-			initFDCNodes();
-		}
-
-		// Show all balances in hash table. 
-		TestSession.logger.debug("-- listing cluster nodes --");
-		Enumeration<String> components = nodes.keys(); 
-		while (components.hasMoreElements()) { 
-			String component = (String) components.nextElement(); 
-			TestSession.logger.debug(component + ": " +
-			        Arrays.toString(nodes.get(component))); 
-		} 	
-	}
-
 	/**
 	 * Parse the host names from a host name list on the namenode.
 	 * 
@@ -218,7 +236,7 @@ public abstract class HadoopCluster {
 	 * @throws Exception if the ssh process to cat the namenode hostname
 	 *         file fails in a fatal manner.
 	 */
-	private String[] getHostsFromList(String namenode, String file) 
+	protected String[] getHostsFromList(String namenode, String file) 
 			throws Exception {
 		String[] output = TestSession.exec.runProcBuilder(
 				new String[] {"ssh", namenode, "/bin/cat", file});
@@ -233,8 +251,8 @@ public abstract class HadoopCluster {
 	 * @return Hashtable of String Arrays hostnames for each of the cluster
 	 * components.
 	 */
-	public Hashtable<String, String[]> getNodes() {
-		return nodes;
+	public Hashtable<String, Hashtable<String, HadoopNode>> getNodes() {
+		return hadoopNodes;
 	}
 
 	/**
@@ -245,10 +263,49 @@ public abstract class HadoopCluster {
 	 * 
 	 * @return String Arrays for the cluster nodes hostnames.
 	 */
-	public String[] getNodes(String component) {
-		return nodes.get(component);
+	public Hashtable<String, HadoopNode> getNodes(String component) {
+		return hadoopNodes.get(component);
 	}
 
+    /**
+     * Returns the first cluster node instance for the gateway component.
+     * 
+     * @return HadoopNode object.
+     */
+    public HadoopNode getNode() {
+        return this.getNode(null);
+    }    
+    
+    /**
+     * Returns the first cluster node instance for the given component.
+     * 
+     * @param component The hadoop component such as gateway, namenode,
+     * resourcemaanger, etc.
+     * 
+     * @return HadoopNode object.
+     */
+    public HadoopNode getNode(String component) {
+        if ((component == null) || component.isEmpty()) {
+            component = HadoopCluster.GATEWAY;
+        }
+        Hashtable<String, HadoopNode> cNodes = hadoopNodes.get(component);
+        return cNodes.elements().nextElement();
+    }    
+	
+    /**
+     * Returns the cluster nodes hostnames for the given component.
+     * 
+     * @param component The hadoop component such as gateway, namenode,
+     * resourcemaanger, etc.
+     * 
+     * @return String Arrays for the cluster nodes hostnames.
+     */
+    public String[] getNodeNames(String component) {
+        Hashtable<String, HadoopNode> nodes = this.getNodes(component);
+        Set<String> keys = nodes.keySet();
+        return keys.toArray(new String[0]);
+    }
+	    
 	/**
 	 * Start the cluster from a stopped state.
 	 *
@@ -377,7 +434,7 @@ public abstract class HadoopCluster {
 					"fs.defaultFS", HadoopConfiguration.HADOOP_CONF_CORE);
 		}
 
-		String namenode = nodes.get("namenode")[0];
+        String namenode = this.getNodeNames(HadoopCluster.NAMENODE)[0];
 		String[] safemodeGetCmd = { this.getConf().getHadoopProp("HDFS_BIN"),
 				"--config", this.getConf().getHadoopConfDir(),
 				"dfsadmin", "-fs", fs, "-safemode", "get" };
