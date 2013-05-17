@@ -24,6 +24,7 @@ import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.workflow.hadoop.job.JobState;
@@ -36,9 +37,11 @@ import hadooptest.workflow.hadoop.job.StreamingJob;
 public class TestEndToEndStreaming extends TestSession {
 	
 	private static final String USER_NAME = System.getProperty("user.name");
-	private static final String RESOURCES_BASE = "hadoop/data/streaming/streaming-";
+	private static final String RESOURCES_BASE =
+	        "hadoop/data/streaming/streaming-";
 	private static final String CACHE_TMP = "/tmp/streaming";
-	private static final String CACHE_USER = "/user/" + USER_NAME + "/streaming";
+	private static final String CACHE_USER =
+	        "/user/" + USER_NAME + "/streaming";
 	private static final String LOCALFS_BASE = "file://";
 	private static final String JAR = ".jar";
 	private static final String TAR = ".tar";
@@ -775,7 +778,7 @@ public class TestEndToEndStreaming extends TestSession {
 	public static void setupTestConf() throws Exception {
 		FullyDistributedCluster cluster =
 				(FullyDistributedCluster) TestSession.cluster;
-		String component = HadoopConfiguration.RESOURCE_MANAGER;
+		String component = HadoopCluster.RESOURCE_MANAGER;
 
 		YarnClientImpl yarnClient = new YarnClientImpl();
 		yarnClient.init(TestSession.getCluster().getConf());
@@ -794,14 +797,14 @@ public class TestEndToEndStreaming extends TestSession {
 		
 		// Backup the default configuration directory on the Resource Manager
 		// component host.
-		cluster.getConf().backupConfDir(component);	
+		cluster.getConf(component).backupConfDir();	
 
 		// Copy files to the custom configuration directory on the
 		// Resource Manager component host.
 		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
 				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
-		cluster.getConf().copyFileToConfDir(sourceFile, component,
-				"capacity-scheduler.xml");
+		cluster.getConf(component).copyFileToConfDir(sourceFile,
+		        "capacity-scheduler.xml");
 		cluster.hadoopDaemon("stop", component);
 		cluster.hadoopDaemon("start", component);
 	}
