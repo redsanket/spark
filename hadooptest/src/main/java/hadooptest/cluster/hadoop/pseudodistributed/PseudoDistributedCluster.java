@@ -8,22 +8,28 @@ import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.config.hadoop.pseudodistributed.PseudoDistributedConfiguration;
+import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.Util;
 import hadooptest.TestSession;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.
  */
 public class PseudoDistributedCluster extends HadoopCluster {
-
-	/** The base pseudodistributed configuration. */
-	protected PseudoDistributedConfiguration conf;
 
 	/**
 	 * Initializes the pseudodistributed cluster and sets up a new pseudo
@@ -34,29 +40,104 @@ public class PseudoDistributedCluster extends HadoopCluster {
 	 *         if the configuration can not be written to disk, or if the 
 	 *         cluster nodes can not be initialized.
 	 */
-	public PseudoDistributedCluster() 
-			throws Exception {
-		this.conf = new PseudoDistributedConfiguration();
-		this.conf.write();
-		super.initNodes();
+	public PseudoDistributedCluster() throws Exception {
+	    this.initDefault();
+		this.initNodes();
 	}
 
-	/**
-	 * Initializes the fully distributed cluster and sets up a pseudo
-	 * distributed configuration using the passed-in configuration.
-	 * 
-	 * @param conf the configuration to use for the cluster.
-	 * 
-	 * @throws Exception if the cluster configuration can not be initialized,
-	 *         if the configuration can not be written to disk, or if the 
-	 *         cluster nodes can not be initialized.
-	 */
-	public PseudoDistributedCluster(PseudoDistributedConfiguration conf)
-			throws Exception {
-		this.conf = conf;
-		super.initNodes();
-	}
+    /**
+     * Initialize the cluster nodes hostnames for the namenode,
+     * resource manager, datanode, and nodemanager. 
+     * 
+     * @throws Exception if the datanode can not be initialized.
+     */
+    protected void initDefault() throws Exception {
+        // Initialize the Hadoop install conf directory for PDCluster.
+        TestSession.conf.setProperty("HADOOP_INSTALL_CONF_DIR",
+                TestSession.conf.getProperty("HADOOP_INSTALL", "") +
+                "/conf/hadoop/");
+        TestSession.conf.setProperty("HADOOP_COMMON_HOME",
+                TestSession.conf.getProperty("HADOOP_INSTALL"));
+
+        // Initialized temp dir
+        String defaultTmpDir =
+                "/Users/" + System.getProperty("user.name") + "/hadooptest/tmp";
+        TestSession.conf.setProperty("TMP_DIR", 
+                TestSession.conf.getProperty("TMP_DIR", defaultTmpDir));
+        DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
+        df.setTimeZone(TimeZone.getTimeZone("CST"));  
+        String tmpDir = TestSession.conf.getProperty("TMP_DIR") +
+                "/hadooptest-" + df.format(new Date());
+        new File(tmpDir).mkdirs();
+        TestSession.conf.setProperty("TMP_DIR", tmpDir);
+
+    }
+
+    /**
+     * Initialize the cluster nodes hostnames for the namenode,
+     * resource manager, datanode, and nodemanager. 
+     * 
+     * @throws Exception if the datanode can not be initialized.
+     */
+    public void initNodes() throws Exception {
+        // Gateway
+        TestSession.logger.info("Initialize the gateway client node:");
+        initComponentNodes(HadoopCluster.GATEWAY, new String[] {"localhost"});
+        
+        // Namenode
+        TestSession.logger.info("Initialize the namenode node(s):");
+        initComponentNodes(HadoopCluster.NAMENODE, new String[] {"localhost"});
+        
+        // Resource Manager
+        TestSession.logger.info("Initialize the resource manager node(s):");
+        initComponentNodes(HadoopCluster.RESOURCE_MANAGER,
+                new String[] {"localhost"});
+
+        // Datanode
+        initComponentNodes(HadoopCluster.DATANODE, new String[] {"localhost"});
+        
+        // Nodemanager
+        TestSession.logger.info("Initialize the nodemanager node(s):");
+        initComponentNodes(HadoopCluster.NODEMANAGER,
+                new String[] {"localhost"});
+       
+        // Show all balances in hash table. 
+        TestSession.logger.debug("-- listing cluster nodes --");
+        Enumeration<String> components = hadoopNodes.keys(); 
+        while (components.hasMoreElements()) { 
+            String component = (String) components.nextElement(); 
+            Enumeration<HadoopNode> iterator = hadoopNodes.get(component).elements();
+            while(iterator.hasMoreElements()) {
+              HadoopNode node = (HadoopNode)iterator.nextElement();
+              TestSession.logger.info("component '" + component + "' node='" +
+                      node.getHostname() + "'.");
+            }
+        }   
+
+    }
 	
+    /**
+     * Gets the gateway client node configuration for this pseudo distributed 
+     * cluster instance.
+     * 
+     * @return PseudoDistributedConfiguration the gateway client component node
+     * configuration for the cluster instance.
+     */
+    public PseudoDistributedConfiguration getConf() {
+        return (PseudoDistributedConfiguration) getNode().getConf();
+    }
+
+    /**
+     * Gets the component node configuration for this pseudo distributed cluster
+     * instance.
+     * 
+     * @return PseudoDistributedConfiguration the component node configuration
+     * for the cluster instance.
+     */
+    public PseudoDistributedConfiguration getConf(String component) {
+        return (PseudoDistributedConfiguration) getNode(component).getConf();
+    }
+    
 	/**
 	 * Starts the pseudodistributed cluster instance by starting:
 	 *   - NameNode
@@ -80,30 +161,38 @@ public class PseudoDistributedCluster extends HadoopCluster {
 	public boolean start(boolean waitForSafemodeOff) 
 			throws Exception {		
 		String[] start_dfs = {
-				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-dfs.sh", 
-				"--config", TestSession.cluster.getConf().getHadoopConfDir() };
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/start-dfs.sh", "--config",
+		        TestSession.cluster.getConf().getHadoopConfDir() };
 		String[] start_yarn = {
-				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/start-yarn.sh", 
-				"--config", TestSession.cluster.getConf().getHadoopConfDir() };
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/start-yarn.sh", "--config",
+		        TestSession.cluster.getConf().getHadoopConfDir() };
 		String[] start_historyserver = {
-				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh",
-				"start", "historyserver", 
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/mr-jobhistory-daemon.sh", "start", "historyserver", 
 				"--config", TestSession.cluster.getConf().getHadoopConfDir() };
 		String[] start_datanode = {
-				this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh",
-				"--config", TestSession.cluster.getConf().getHadoopConfDir(),
-				"start", "datanode" };
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/hadoop-daemon.sh", "--config",
+		        TestSession.cluster.getConf().getHadoopConfDir(), "start",
+		        "datanode" };
 		
-		TestSession.logger.info("STARTING DFS...");
+		TestSession.logger.info("STARTING DFS..." +
+		        StringUtils.join(start_dfs, ","));
 		runProcess(start_dfs);
 		
-		TestSession.logger.info("STARTING DATANODE...");
+		TestSession.logger.info(
+		        "STARTING DATANODE: " + StringUtils.join(start_datanode, ","));
 		runProcess(start_datanode);
 		
-		TestSession.logger.info("STARTING YARN");
+		TestSession.logger.info(
+		        "STARTING YARN: " + StringUtils.join(start_yarn, ","));
 		runProcess(start_yarn);
 
-		TestSession.logger.info("STARTING JOB HISTORY SERVER...");
+		TestSession.logger.info(
+		        "STARTING JOB HISTORY SERVER: " +
+		                StringUtils.join(start_historyserver, ","));
 		runProcess(start_historyserver);
 		
 		boolean isFullyUp = this.isFullyUp();
@@ -130,10 +219,22 @@ public class PseudoDistributedCluster extends HadoopCluster {
 	 */
 	public boolean stop() 
 			throws Exception {
-		String[] stop_dfs = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-dfs.sh" };
-		String[] stop_yarn = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/stop-yarn.sh" };
-		String[] stop_historyserver = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/mr-jobhistory-daemon.sh", "stop", "historyserver" };
-		String[] stop_datanode = { this.getConf().getHadoopProp("HADOOP_INSTALL") + "/sbin/hadoop-daemon.sh", "stop", "datanode" };
+		String[] stop_dfs = {
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/stop-dfs.sh"
+		        };
+		String[] stop_yarn = {
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/stop-yarn.sh"
+		        };
+		String[] stop_historyserver = {
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/mr-jobhistory-daemon.sh", "stop", "historyserver"
+		        };
+		String[] stop_datanode = {
+		        TestSession.conf.getProperty("HADOOP_INSTALL") +
+		        "/sbin/hadoop-daemon.sh", "stop", "datanode"
+		        };
 
 		runProcess(stop_dfs);
 		runProcess(stop_yarn);
@@ -152,16 +253,7 @@ public class PseudoDistributedCluster extends HadoopCluster {
 	 * @param conf The custom PseudoDistributedConfiguration
 	 */
 	public void setConf(HadoopConfiguration conf) {
-		this.conf = (PseudoDistributedConfiguration)conf;
-	}
-
-	/**
-	 * Gets the configuration for this pseudodistributed cluster instance.
-	 * 
-	 * @return PseudoDistributedConfiguration the configuration for the cluster instance.
-	 */
-	public PseudoDistributedConfiguration getConf() {
-		return this.conf;
+	    getNode().setConf(conf);
 	}
 
 	/**
@@ -191,7 +283,9 @@ public class PseudoDistributedCluster extends HadoopCluster {
 	 * @return String the version of the Hadoop cluster.
 	 */
 	public String getVersion() {
-    	return this.conf.getHadoopProp("HADOOP_VERSION");
+        PseudoDistributedConfiguration conf =
+                (PseudoDistributedConfiguration) getNode().getConf();
+        return conf.getHadoopProp("HADOOP_VERSION");
 	}	
 	
 	/**
