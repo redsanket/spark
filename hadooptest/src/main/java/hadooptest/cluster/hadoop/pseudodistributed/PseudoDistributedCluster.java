@@ -79,41 +79,12 @@ public class PseudoDistributedCluster extends HadoopCluster {
      * 
      * @throws Exception if the datanode can not be initialized.
      */
-    public void initNodes() throws Exception {
-        // Gateway
-        TestSession.logger.info("Initialize the gateway client node:");
-        initComponentNodes(HadoopCluster.GATEWAY, new String[] {"localhost"});
-        
-        // Namenode
-        TestSession.logger.info("Initialize the namenode node(s):");
-        initComponentNodes(HadoopCluster.NAMENODE, new String[] {"localhost"});
-        
-        // Resource Manager
-        TestSession.logger.info("Initialize the resource manager node(s):");
-        initComponentNodes(HadoopCluster.RESOURCE_MANAGER,
-                new String[] {"localhost"});
-
-        // Datanode
-        initComponentNodes(HadoopCluster.DATANODE, new String[] {"localhost"});
-        
-        // Nodemanager
-        TestSession.logger.info("Initialize the nodemanager node(s):");
-        initComponentNodes(HadoopCluster.NODEMANAGER,
-                new String[] {"localhost"});
-       
-        // Show all balances in hash table. 
-        TestSession.logger.debug("-- listing cluster nodes --");
-        Enumeration<String> components = hadoopNodes.keys(); 
-        while (components.hasMoreElements()) { 
-            String component = (String) components.nextElement(); 
-            Enumeration<HadoopNode> iterator = hadoopNodes.get(component).elements();
-            while(iterator.hasMoreElements()) {
-              HadoopNode node = (HadoopNode)iterator.nextElement();
-              TestSession.logger.info("component '" + component + "' node='" +
-                      node.getHostname() + "'.");
-            }
-        }   
-
+    public void initNodes() throws Exception {        
+        String[] gwHosts = new String[] {"localhost"};
+        String[] nnHosts = new String[] {"localhost"};
+        String[] rmHosts = new String[] {"localhost"};
+        String[] dnHosts = new String[] {"localhost"};       
+        super.initNodes(gwHosts, nnHosts, rmHosts, dnHosts);
     }
 	
     /**
