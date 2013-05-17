@@ -6,6 +6,7 @@ package hadooptest.cluster.hadoop;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.ClusterState;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
 import hadooptest.node.hadoop.pseudodistributed.PseudoDistributedNode;
@@ -62,17 +64,9 @@ public abstract class HadoopCluster {
     protected Hashtable<String, Hashtable<String, HadoopNode>> hadoopNodes =
             new Hashtable<String, Hashtable<String, HadoopNode>>();
 
-    public String getProp(String key) {
-        // TODO: should maintain its own cluster level properties
-        // return this.clusterProps.getProperty(key);
-        return TestSession.conf.getProperty(key);
-    }
-
-    public void setProp(String key, String value) {
-        // TODO: should maintain its own cluster level properties
-        // this.clusterProps.setProperty(key, value);
-        TestSession.conf.setProperty(key, value);
-    }
+    /* TODO: Consider maintaining a cluster level properties for tracking
+     * cluster level paths and settings. 
+     */
 
     /* Get the custom default settings filename. If the file exists, the content
      * is the full path name of the custom default hadoop config directory. 
@@ -177,6 +171,74 @@ public abstract class HadoopCluster {
 		SecurityUtil.login(TestSession.cluster.getConf(), keytab, user);
 	}
 
+    public void initNodes () throws Exception {
+        initNodes(null, null, null, null);
+    }
+    
+    public void initNodes (String[] gwHosts, String[] nnHosts, String[] rmHosts,
+            String[] dnHosts) throws Exception {
+        // Gateway
+        TestSession.logger.info("Initialize the gateway client node:");
+        if (gwHosts == null || gwHosts.length == 0) {
+            gwHosts = new String[] {"localhost"};
+        }
+        initComponentNodes(HadoopCluster.GATEWAY, gwHosts);
+        
+        // Namenode
+        TestSession.logger.info("Initialize the namenode node(s):");
+        if (nnHosts == null || nnHosts.length == 0) {
+            String namenode_addr =
+                    this.getConf().get("dfs.namenode.https-address");
+            String namenode = namenode_addr.split(":")[0];
+            nnHosts = new String[] {namenode};
+        }
+        initComponentNodes(HadoopCluster.NAMENODE, nnHosts);
+        
+        // Resource Manager
+        TestSession.logger.info("Initialize the resource manager node(s):");
+        if (rmHosts == null || rmHosts.length == 0) {
+            String rm_addr = this.getConf().get(
+                    "yarn.resourcemanager.resource-tracker.address");
+            String rm = rm_addr.split(":")[0];
+            rmHosts = new String[] {rm};
+        }
+        initComponentNodes(HadoopCluster.RESOURCE_MANAGER, rmHosts);
+
+        // Datanode
+        TestSession.logger.info("Initialize the datanode node(s):");
+        if (dnHosts == null || dnHosts.length == 0) {
+            // The slave file must come from the namenode. They have different
+            // values on other nodes. This will require that the namenode node and 
+            // configuration class be initialized beforehand.         
+            FullyDistributedCluster fdcluster = (FullyDistributedCluster) this;
+            dnHosts = this.getHostsFromList(
+                    nnHosts[0],
+                    fdcluster.getConf(HadoopCluster.NAMENODE).getHadoopConfDir() +
+                    "/slaves");            
+        }
+        initComponentNodes(HadoopCluster.DATANODE, dnHosts);
+        
+        // Nodemanager
+        TestSession.logger.info("Initialize the nodemanager node(s):");
+        initComponentNodes(HadoopCluster.NODEMANAGER, dnHosts);
+
+        // Show all balances in hash table. 
+        TestSession.logger.debug("-- listing cluster nodes --");
+        Enumeration<String> components = hadoopNodes.keys(); 
+        while (components.hasMoreElements()) { 
+            String component = (String) components.nextElement(); 
+            Enumeration<HadoopNode> iterator =
+                    hadoopNodes.get(component).elements();
+            while(iterator.hasMoreElements()) {
+              HadoopNode node = (HadoopNode)iterator.nextElement();
+              TestSession.logger.info("component '" + component + "' node='" +
+                      node.getHostname() + "'.");
+            }
+        }   
+    }
+
+    
+    
     /**
      * Initialize the Hadoop component nodes for a give component type.
      * 
@@ -441,7 +503,8 @@ public abstract class HadoopCluster {
 				"--config", this.getConf().getHadoopConfDir(),
 				"dfsadmin", "-fs", fs, "-safemode", "get" };
 
-		String[] output = TestSession.exec.runProcBuilderSecurity(safemodeGetCmd, verbose);
+		String[] output = TestSession.exec.runProcBuilderSecurity(
+		        safemodeGetCmd, verbose);
 
 		boolean isSafemodeOff = 
 				(output[1].trim().equals("Safe mode is OFF")) ? true : false;
