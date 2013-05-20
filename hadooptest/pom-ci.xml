@@ -303,7 +303,7 @@
               <artifactId>excluded-artifact</artifactId>
             </exclusion>
           </exclusions>
-          <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-amd64-64/</argLine>  
+          <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-i386-32/</argLine>  
           <additionalClasspathElements>
             <additionalClasspathElement>${basedir}</additionalClasspathElement>
             <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
