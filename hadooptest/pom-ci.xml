@@ -12,7 +12,7 @@
   <artifactId>hadooptest-ci</artifactId>
   
   <properties>
-    <thread.count>10</thread.count>
+    <thread.count>8</thread.count>
   </properties>
   
   <profiles>  
