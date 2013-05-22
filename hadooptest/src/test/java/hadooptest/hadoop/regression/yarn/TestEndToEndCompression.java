@@ -122,21 +122,27 @@ public class TestEndToEndCompression extends TestSession {
 		cluster.hadoopDaemon("start", component);
 	}
 	
-	public static void setupTestDir() throws Exception {
-		FileSystem fs = TestSession.cluster.getFS();
-		FsShell fsShell = TestSession.cluster.getFsShell();
-		DFS dfs = new DFS();
-		String testDir = dfs.getBaseUrl() + "/user/" +
-			System.getProperty("user.name") + "/Compression";
-		if (fs.exists(new Path(testDir))) {
-			TestSession.logger.info("Delete existing test directory: " +
-				testDir);
-			fsShell.run(new String[] {"-rm", "-r", testDir});			
-		}
-		TestSession.logger.info("Create new test directory: " + testDir);
-		fsShell.run(new String[] {"-mkdir", "-p", testDir});
-	}
+    public static void setupTestDir() throws Exception {
+        // Define the test directory
+        DFS dfs = new DFS();
+        String testDir = dfs.getBaseUrl() + "/user/" +
+            System.getProperty("user.name") + "/Compression";
 
+        // Delete it existing test directory if exists
+        FileSystem fs = TestSession.cluster.getFS();
+        FsShell fsShell = TestSession.cluster.getFsShell();
+        if (fs.exists(new Path(testDir))) {
+            TestSession.logger.info("Delete existing test directory: " +
+                testDir);
+            fsShell.run(new String[] {"-rm", "-r", testDir});
+        }
+        
+        // Create or re-create the test directory.
+        TestSession.logger.info("Create new test directory: " + testDir);
+        fsShell.run(new String[] {"-mkdir", "-p", testDir});
+    }
+
+	
 	public static void setupTestData() throws Exception {
 		Vector<GenericJob> jobVector = new Vector<GenericJob>();
         GenericJob job;
