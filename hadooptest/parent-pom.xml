@@ -239,6 +239,24 @@
       <scope>provided</scope>
     </dependency>
 
-  </dependencies>
+    <!-- This is temporarily disabled due to 
+         Bugzilla Ticket 6204559 - Hadoop internal dist package
+         hadoop_mvn_yarn is missing the hadoop-yarn-client.jar
+         dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-mapreduce-examples</artifactId>
+      <version>${hadoop.version}</version>
+      <type>test-jar</type>
+      <scope>provided</scope>
+    </dependency-->
 
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-mapreduce-examples</artifactId>
+      <version>0.23.7</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+  
 </project>
