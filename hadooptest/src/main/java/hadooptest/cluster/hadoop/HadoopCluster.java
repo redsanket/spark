@@ -4,6 +4,13 @@
 
 package hadooptest.cluster.hadoop;
 
+import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.config.hadoop.HadoopConfiguration;
+import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
+import hadooptest.node.hadoop.pseudodistributed.PseudoDistributedNode;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -17,14 +24,8 @@ import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 
-import hadooptest.TestSession;
-import hadooptest.Util;
-import hadooptest.cluster.ClusterState;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.node.hadoop.HadoopNode;
-import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
-import hadooptest.node.hadoop.pseudodistributed.PseudoDistributedNode;
-import hadooptest.config.hadoop.HadoopConfiguration;
+import coretest.Util;
+import coretest.cluster.ClusterState;
 
 /**
  * An interface which should represent the base capability of any cluster

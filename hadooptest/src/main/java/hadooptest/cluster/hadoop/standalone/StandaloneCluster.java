@@ -1,6 +1,5 @@
 package hadooptest.cluster.hadoop.standalone;
 
-import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.config.hadoop.standalone.StandaloneConfiguration;
@@ -8,7 +7,7 @@ import hadooptest.config.hadoop.standalone.StandaloneConfiguration;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.apache.hadoop.fs.FileSystem;
+import coretest.cluster.ClusterState;
 
 /**
  * Cluster sublass representation of a Standalone Hadoop cluster.

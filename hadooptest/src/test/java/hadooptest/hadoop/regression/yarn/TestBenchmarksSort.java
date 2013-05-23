@@ -1,8 +1,7 @@
 package hadooptest.hadoop.regression.yarn;
 
-import static org.junit.Assert.*;
-
-import hadooptest.ParallelMethodTests;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
@@ -19,13 +18,14 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.SortValidator;
-import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import coretest.ParallelMethodTests;
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksSort extends TestSession {

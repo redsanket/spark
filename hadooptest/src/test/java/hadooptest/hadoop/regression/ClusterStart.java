@@ -1,12 +1,13 @@
 package hadooptest.hadoop.regression;
 
-import hadooptest.TestSession;
-import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import hadooptest.TestSession;
 
-import hadooptest.SerialTests;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import coretest.SerialTests;
 
 /**
  * Starts a cluster.

@@ -2,8 +2,14 @@ package hadooptest.hadoop.regression.yarn;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.workflow.hadoop.job.JobState;
+import hadooptest.workflow.hadoop.job.StreamingJob;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,15 +26,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import hadooptest.ParallelMethodTests;
-import hadooptest.TestSession;
-import hadooptest.Util;
-import hadooptest.cluster.hadoop.DFS;
-import hadooptest.cluster.hadoop.HadoopCluster;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.config.hadoop.HadoopConfiguration;
-import hadooptest.workflow.hadoop.job.JobState;
-import hadooptest.workflow.hadoop.job.StreamingJob;
+import coretest.ParallelMethodTests;
+import coretest.Util;
 
 /**
  * YARN regression tests to exercise Hadoop streaming.

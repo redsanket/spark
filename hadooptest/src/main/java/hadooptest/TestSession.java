@@ -1,19 +1,5 @@
 package hadooptest;
 
-import java.io.File;
-import java.io.IOException;
-
-import java.lang.reflect.Constructor;
-import java.util.Enumeration;
-
-import org.apache.hadoop.security.SecurityUtil;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-
-import hadooptest.ConfigProperties;
-import hadooptest.cluster.ClusterState;
-import hadooptest.cluster.Executor;
-import hadooptest.cluster.MultiClusterServer;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
@@ -21,6 +7,13 @@ import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
 import hadooptest.cluster.hadoop.standalone.StandaloneCluster;
 import hadooptest.cluster.hadoop.standalone.StandaloneExecutor;
+
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+
+import coretest.TestSessionCore;
+import coretest.cluster.ClusterState;
+import coretest.cluster.MultiClusterServer;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -39,42 +32,15 @@ import hadooptest.cluster.hadoop.standalone.StandaloneExecutor;
  * class.  TestSession.start() initializes all of the items that 
  * TestSession provides.
  */
-public abstract class TestSession {
-
-	/** The Logger for the test session */
-	public static Logger logger;
+public abstract class TestSession extends TestSessionCore {
 
 	/** The Hadoop Cluster to use for the test session */
 	public static HadoopCluster cluster;
-	
-	/** The test session configuration properties */
-	public static ConfigProperties conf;
-	
-	/** The process executor for the test session */
-	public static Executor exec;
 	
 	/** The multi-cluster server host thread **/
 	private static MultiClusterServer multiClusterServer;
 
 	private static int MULTI_CLUSTER_PORT = 4444;
-	
-	/**
-	 * In the JUnit architecture,
-	 * this constructor will be called before every test
-	 * (per JUnit).  Therefore, it is better to leave the
-	 * constructor here empty and use start() to initialize
-	 * the test session instead.
-	 * 
-	 * We can also use the TestSession constructor to execute
-	 * instructions before each test, so the user doesn't have
-	 * to code these instructions into every test.  However,
-	 * this can be dangerous with JUnit as exceptions that occur
-	 * in the TestSession constructor won't be caught by JUnit
-	 * (and thus it won't run the @After for the test which
-	 * triggers the exception).
-	 */
-	public TestSession() {
-	}
 	
 	/**
 	 * Initializes the test session in the following order:
@@ -86,6 +52,10 @@ public abstract class TestSession {
 	 * TestSession for a test class.
 	 */
 	public static void start() {
+
+		// Initialize the framework name
+		initFrameworkName();
+		
 		// Initialize the framework configuration
 		initConfiguration();
 		
@@ -93,11 +63,7 @@ public abstract class TestSession {
 		initLogging();
 		
 		// Log Java Properties
-		logger.debug("JAVA home ='" + System.getProperty("java.home") + "'");
-		logger.debug("JAVA version ='" + System.getProperty("java.version") + "'");
-		logger.debug("JVM bit size ='" + System.getProperty("sun.arch.data.model") + "'");
-		logger.debug("JAVA native library path='" + System.getProperty("java.library.path") + "'");
-		logger.debug("JAVA CLASSPATH='" + System.getProperty("java.class.path") + "'");
+		initLogJavaProperties();
 		
 		// Initialize the cluster to be used in the framework
 		initCluster();
@@ -123,110 +89,10 @@ public abstract class TestSession {
 	}
 	
 	/**
-	 * Initialize the framework configuration.
+	 * Initialize the framework name.
 	 */
-	private static void initConfiguration() {
-		File conf_location = null;
-		conf = new ConfigProperties();
-		
-		String osName = System.getProperty("os.name");
-		System.out.println("Operating System: " + osName);
-		
-		String userHome = System.getProperty("user.home");
-		System.out.println("User home: " + userHome);
-		
-		String userName = System.getProperty("user.name");
-		System.out.println("User name: " + userName);
-		
-		if (osName.contains("Mac OS X") || osName.contains("Linux")) {
-			System.out.println("Detected OS is supported by framework.");
-		}
-		else {
-			System.out.println("OS is not supported by framework: "  + osName);
-		}
-		
-		String strFrameworkConfig = System.getProperty("hadooptest.config", userHome + "/hadooptest.conf");
-		System.out.println("Framework configuration file location: " + strFrameworkConfig);
-		System.out.println("To specify a different location, use -Dhadooptest.config=");
-		
-		conf_location = new File(strFrameworkConfig);
-
-		try {
-			conf.load(conf_location);
-
-			Enumeration<Object> keys = conf.keys();
-			while (keys.hasMoreElements()) {
-			  String key = (String)keys.nextElement();
-			  String value = (String)conf.get(key);
-			  System.out.println(key + ": " + value);
-			}
-		} catch (IOException ioe) {
-			System.out.println("Could not load the framework configuration file.");
-		}
-
-		/*
-		 * SYSTEM PROPERTY OVERRIDE:
-		 * Check for system properties that if specified should override the
-		 * configuration file setting. For instance, For instance, user may use
-		 * a common configuration file but with a different CLUSTER_NAME and/or
-		 * WORKSPACE.
-		 */
-		String workspace = System.getProperty("WORKSPACE");
-		if (workspace != null && !workspace.isEmpty()) {
-			System.out.println("WORKSPACE: " + workspace);
-			conf.setProperty("WORKSPACE", workspace);
-		}
-		String clusterName = System.getProperty("CLUSTER_NAME");
-		if (clusterName != null && !clusterName.isEmpty()) {
-			System.out.println("CLUSTER_NAME: " + clusterName);
-			conf.setProperty("CLUSTER_NAME", clusterName);
-		}
-        String logLevel = System.getProperty("LOG_LEVEL");
-        if (logLevel != null && !logLevel.isEmpty()) {
-            System.out.println("LOG_LEVEL: " + logLevel);
-            conf.setProperty("LOG_LEVEL", logLevel);
-        }
-	}
-	
-	/**
-	 * Initialize the framework logging.
-	 */
-	private static void initLogging() {
-		logger = Logger.getLogger(TestSession.class);
-		Level logLevel = Level.ALL;  // All logging is turned on by default	
-		
-		String strLogLevel = conf.getProperty("LOG_LEVEL");
-		
-		if (strLogLevel.equals("OFF")) {
-			logLevel = Level.OFF;
-		}
-		else if (strLogLevel.equals("ALL")) {
-			logLevel = Level.ALL;
-		}
-		else if (strLogLevel.equals("DEBUG")) {
-			logLevel = Level.DEBUG;
-		}
-		else if (strLogLevel.equals("ERROR")) {
-			logLevel = Level.ERROR;
-		}
-		else if (strLogLevel.equals("FATAL")) {
-			logLevel = Level.FATAL;
-		}
-		else if (strLogLevel.equals("INFO")) {
-			logLevel = Level.INFO;
-		}
-		else if (strLogLevel.equals("TRACE")) {
-			logLevel = Level.TRACE;
-		}
-		else if (strLogLevel.equals("WARN")) {
-			logLevel = Level.WARN;
-		}
-		else {
-			System.out.println("set to all ");
-			logLevel = Level.ALL;
-		}
-		logger.setLevel(logLevel);
-		logger.trace("Set log level to " + logLevel);
+	private static void initFrameworkName() {
+		frameworkName = "hadooptest";
 	}
 	
 	/**

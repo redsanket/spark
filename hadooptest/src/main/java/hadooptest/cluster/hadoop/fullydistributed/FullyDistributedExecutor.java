@@ -4,13 +4,13 @@
 
 package hadooptest.cluster.hadoop.fullydistributed;
 
+import hadooptest.TestSession;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import hadooptest.TestSession;
-import hadooptest.cluster.Executor;
+import coretest.cluster.Executor;
 
 /**
  * A class which represents an Executor for a fully distributed cluster.
