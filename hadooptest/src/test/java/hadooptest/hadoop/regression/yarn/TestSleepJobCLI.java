@@ -2,18 +2,18 @@ package hadooptest.hadoop.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import hadooptest.TestSession;
+import hadooptest.workflow.hadoop.job.SleepJob;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import hadooptest.TestSession;
-import hadooptest.Util;
-import hadooptest.workflow.hadoop.job.SleepJob;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import coretest.Util;
 
 public class TestSleepJobCLI extends TestSession {
 	

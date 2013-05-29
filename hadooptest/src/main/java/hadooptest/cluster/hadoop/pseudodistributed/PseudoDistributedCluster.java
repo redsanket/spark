@@ -4,13 +4,10 @@
 
 package hadooptest.cluster.hadoop.pseudodistributed;
 
-import hadooptest.cluster.ClusterState;
+import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.config.hadoop.pseudodistributed.PseudoDistributedConfiguration;
-import hadooptest.node.hadoop.HadoopNode;
-import hadooptest.Util;
-import hadooptest.TestSession;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,12 +16,14 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+
+import coretest.Util;
+import coretest.cluster.ClusterState;
 
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.

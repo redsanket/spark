@@ -1,20 +1,9 @@
 package hadooptest.node.hadoop.pseudodistributed;
 
 import hadooptest.TestSession;
-import hadooptest.Util;
-import hadooptest.cluster.ClusterState;
-import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
-import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
 import hadooptest.config.hadoop.pseudodistributed.PseudoDistributedConfiguration;
 import hadooptest.node.hadoop.HadoopNode;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * A Cluster subclass that implements a Fully Distributed Hadoop cluster.

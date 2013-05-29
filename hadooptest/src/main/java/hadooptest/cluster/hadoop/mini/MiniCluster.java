@@ -4,11 +4,12 @@
 
 package hadooptest.cluster.hadoop.mini;
 
-import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.config.hadoop.minicluster.MiniclusterConfiguration;
 
 import java.io.IOException;
+
+import coretest.cluster.ClusterState;
 
 /**
  * Cluster instance to represent a base mini cluster.

@@ -1,8 +1,6 @@
 package hadooptest.cluster.hadoop.fullydistributed;
 
 import hadooptest.TestSession;
-import hadooptest.Util;
-import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
@@ -18,6 +16,9 @@ import java.util.HashMap;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
+
+import coretest.Util;
+import coretest.cluster.ClusterState;
 
 /**
  * A Cluster subclass that implements a Fully Distributed Hadoop cluster.

@@ -1,20 +1,17 @@
 package hadooptest.hadoop.regression;
 
-import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.SerialTests;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.IOException;
+import coretest.SerialTests;
 
 @Category(SerialTests.class)
 public class TestConf extends TestSession {

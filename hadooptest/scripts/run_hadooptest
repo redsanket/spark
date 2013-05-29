@@ -93,7 +93,8 @@ my @tests = ($test) ? split(",", $test) :
 
 my @classpath= (
     "/home/y/lib/jars/junit.jar",
-    "/home/gs/gridre/yroot.$cluster/conf/hadoop/"
+    "/home/gs/gridre/yroot.$cluster/conf/hadoop/",
+    "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar"
     );
 
 unless ($use_mvn) {
@@ -158,6 +159,7 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
+    execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live");
 
     my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
     note($cmd);

@@ -6,7 +6,7 @@ package hadooptest.cluster.hadoop.pseudodistributed;
 
 import java.io.IOException;
 
-import hadooptest.cluster.Executor;
+import coretest.cluster.Executor;
 
 /**
  * A class which represents an Executor for a pseudodistributed cluster.
