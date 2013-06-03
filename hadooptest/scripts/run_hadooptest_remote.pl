@@ -144,6 +144,8 @@ unless ($install_only) {
 
         # execute("scp -r $remote_host:$remote_workspace/target/clover $local_workspace_target_dir/")
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
+        execute("scp -r $remote_host:$remote_workspace/target/clover $local_workspace_target_dir/")
+            if ( "clover" ~~ @ARGV );
 
         execute("scp -r $remote_host:$remote_workspace/target/site $local_workspace_target_dir/")
             if ( "jacoco" ~~ @ARGV );
