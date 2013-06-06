@@ -50,7 +50,7 @@ public abstract class HadoopCluster {
     public static final String FD_CLUSTER_TYPE =
             "hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster";
     public static final String PD_CLUSTER_TYPE =
-            "hadooptest.cluster.pseudodistributed.PseudoDistributedCluster";
+            "hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster";
     
     /** String array for the cluster components */
     public static final String[] components = {

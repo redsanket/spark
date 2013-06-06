@@ -82,10 +82,7 @@
       </activation>
       <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>0.23.7.0.1304050633</hadoop.version.ut.1>
-        <hadoop.version.ut.2>0.23.7.0.1303281627</hadoop.version.ut.2>
-        <hadoop.version.ut.3>0.23.7.0.1304021723</hadoop.version.ut.3>
-        <hadoop.version.ut.4>0.23.7-SNAPSHOT</hadoop.version.ut.4>
+        <hadoop.version.ut.1>0.23.7</hadoop.version.ut.1>
         <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
       </properties>
 
