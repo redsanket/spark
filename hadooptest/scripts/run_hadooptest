@@ -57,7 +57,7 @@ sub execute {
 my $cluster;
 my $conf = glob("~/hadooptest.conf");
 my $use_mvn = 1;
-my $build_coretest=0;
+my $build_coretest = 0;
 my $workspace = "$Bin/..";
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
