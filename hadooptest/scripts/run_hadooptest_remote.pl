@@ -26,6 +26,7 @@ The options
         [ -s|--local_ws <source root dir>  ] : local source root directory
         [ -w|--remote_ws <workspace>       ] : remote workspace. Default remote workspace is 
                                                "/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
+        [ -build_coretest                  ] : build coretest
         [ -h|--help                        ] : help
 
 Pass Through options
@@ -35,7 +36,6 @@ Pass Through options
         [ -t|--test      <test suite(s)    ] : test suite name(s)
         [ -j|--java                        ] : run tests via java directly instead of via maven
         [ -m|--mvn                         ] : run tests via maven instead of via java directly
-        [ -build_coretest                  ] : build coretest
         [ -n|--nopasswd                    ] : no password prompt
 
 Example:
@@ -65,6 +65,7 @@ my $cluster;
 my $remote_host;
 my $install_only = 0;
 my $use_mvn = 1;
+my $build_coretest = 0;
 my ($local_ws_ht, $local_ws_ct);
 my ($remote_ws, $remote_ws_ht, $remote_ws_ct);
 my $username = getpwuid($<);
@@ -78,6 +79,7 @@ use Getopt::Long;
 my $result = 
 GetOptions(\%options,
     "install_only"         => \$install_only,
+    "build_coretest"       => \$build_coretest,
     "cluster|c=s"          => \$cluster,
     "remote_host|r=s"      => \$remote_host,
     "local_ws|s=s"         => \$local_ws_ht,
@@ -143,19 +145,23 @@ execute("scp $tgz_dir/$tgz_file_ht $remote_host:$remote_ws_ht");
 execute("ssh -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
 execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
 execute("scp $local_ws_ht/target/*.jar $remote_host:$remote_ws_ht/target");
-execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_ws_ht;\"") if ($remote_username eq "hadoopqa");
 
 # INSTALL CORETEST FRAMEWORK 
-execute("cd $local_ws_ct; $mvn clean") if ($use_mvn);
-execute("tar -zcf $tgz_dir/$tgz_file_ct --exclude='target' -C $local_ws_ct .");
-execute("scp $tgz_dir/$tgz_file_ct $remote_host:$remote_ws_ct");
-execute("ssh -t $remote_host \"/bin/gtar fx $remote_ws_ct/$tgz_file_ct -C $remote_ws_ct\"");
-execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ct/target\"");
-execute("scp $local_ws_ct/target_dir/*.jar $remote_host:$remote_ws_ct/target");
-execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_ws_ct;\"") if ($remote_username eq "hadoopqa");
+if ($build_coretest) {
+    execute("cd $local_ws_ct; $mvn clean") if ($use_mvn);
+    execute("tar -zcf $tgz_dir/$tgz_file_ct --exclude='target' -C $local_ws_ct .");
+    execute("scp $tgz_dir/$tgz_file_ct $remote_host:$remote_ws_ct");
+    execute("ssh -t $remote_host \"/bin/gtar fx $remote_ws_ct/$tgz_file_ct -C $remote_ws_ct\"");
+    execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ct/target\"");
+    execute("scp $local_ws_ct/target_dir/*.jar $remote_host:$remote_ws_ct/target");
+}
+
+execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"") if ($remote_username eq "hadoopqa");
 
 # EXECUTE TESTS
-my $common_args = "--cluster $cluster --workspace $remote_ws_ht ".join(" ", @ARGV);
+my $common_args = "--cluster $cluster --workspace $remote_ws_ht";
+$common_args .= " --build_coretest" if ($build_coretest);
+$common_args .= " ".join(" ", @ARGV);
 unless ($install_only) {
     if ($use_mvn) {
         execute("rm -rf $local_ws_ct/target/surefire-reports/");
