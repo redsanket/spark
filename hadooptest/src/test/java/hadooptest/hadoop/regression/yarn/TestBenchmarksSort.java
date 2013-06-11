@@ -25,7 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.ParallelMethodTests;
+import hadooptest.ParallelMethodTests;
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksSort extends TestSession {
@@ -178,6 +178,9 @@ public class TestBenchmarksSort extends TestSession {
     public void testSort() throws Exception{
         String tcDesc = "Runs hadoop sort on random data and verifies that " + 
                 "the data is properly sorted";
+        TestSession.logger.info("Run test: " + tcDesc);
+        
+        setupTestDir();
         
         DFS dfs = new DFS();
         String testDir = dfs.getBaseUrl() + "/user/" +
