@@ -134,7 +134,7 @@ public class TestBenchmarksSort extends TestSession {
         
         job.setJobArgs(jobArgs.toArray(new String[0]));
         job.start();
-        job.waitForID(600);
+        job.waitForID(1800);
         boolean isSuccessful = job.waitForSuccess(20);
         assertTrue("Unable to run SORT job: cmd=" + 
                 StringUtils.join(job.getCommand(), " "), isSuccessful);        
