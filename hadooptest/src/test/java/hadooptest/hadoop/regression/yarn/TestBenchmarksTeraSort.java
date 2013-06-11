@@ -25,7 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.ParallelMethodTests;
+import hadooptest.ParallelMethodTests;
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksTeraSort extends TestSession {
@@ -190,7 +190,8 @@ public class TestBenchmarksTeraSort extends TestSession {
     public void testSort() throws Exception{
         String tcDesc = "Runs hadoop terasort and verifies that " + 
                 "the data is properly sorted";
-        
+        TestSession.logger.info("Run test: " + tcDesc);
+
         DFS dfs = new DFS();
         String testDir = dfs.getBaseUrl() + "/user/" +
                 System.getProperty("user.name") + "/terasort";
