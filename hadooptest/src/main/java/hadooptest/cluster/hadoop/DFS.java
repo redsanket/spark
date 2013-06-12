@@ -2,14 +2,17 @@ package hadooptest.cluster.hadoop;
 
 import hadooptest.TestSession;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
-import java.io.IOException;
 
 /**
  * A class which handles common test funcions of a DFS.
@@ -142,6 +145,57 @@ public class DFS {
 	public void copyLocalToHdfs(String src, String dest) throws IOException {
 		TestSession.cluster.getFS().copyFromLocalFile(
 				new Path(src), new Path(dest));
+	}
+	
+	/**
+	 * Copies a file from an HDFS in one cluster to an HDFS in another cluster.
+	 * The clusters must currently use the same gateway.  This can also be used
+	 * to copy/move data within a single HDFS.  Uses the Hadoop API.
+	 * 
+	 * This method will delete any prior instance of the destination file
+	 * before it attempts the copy.
+	 * 
+	 * @param srcClusterBasePath The base URI for your source HDFS.
+	 * @param srcPath The relative path in your source HDFS to copy from.
+	 * @param destClusterBasePath The base URI for your destination HDFS.
+	 * @param destPath The relative path in your destination HDFS to copy to.
+	 * 
+	 * @return boolean whether the copy was successful or not.
+	 * 
+	 * @throws IOException if the copy fails to find the source or destination
+	 * 						HDFS paths.
+	 */
+	public boolean copyHdfsToHdfs(String srcClusterBasePath,
+			String srcPath, 
+			String destClusterBasePath,
+			String destPath) throws IOException {
+		
+		String srcURL = srcClusterBasePath + "/" + srcPath;
+		TestSession.logger.info("SRC_PATH = " + srcClusterBasePath);
+		
+		String destURL = destClusterBasePath + "/" + destPath;
+		TestSession.logger.info("DEST_PATH = " + destClusterBasePath);
+		
+		Configuration srcClusterConf = new Configuration();
+		srcClusterConf.set("fs.default.name", srcClusterBasePath);
+		
+		Configuration destClusterConf = new Configuration();
+		destClusterConf.set("fs.default.name", destClusterBasePath);
+
+		FileSystem srcFS = FileSystem.get(URI.create(srcURL), srcClusterConf);
+		TestSession.logger.info("SRC_FILESYSTEM = " + srcFS.toString());
+		
+		FileSystem destFS = FileSystem.get(URI.create(destURL), destClusterConf);
+		TestSession.logger.info("DEST_FILESYSTEM = " + destFS.toString());
+
+		// remove any instance of the target file.
+		TestSession.logger.info("Deleting any prior instance file in target location....");
+		destFS.delete(new Path(destURL), false);
+		
+		TestSession.logger.info("Copying data...");
+		
+		return FileUtil.copy(srcFS, new Path(srcURL), destFS, 
+				new Path(destURL), false, (Configuration)(TestSession.cluster.getConf()));
 	}
 	
 }
