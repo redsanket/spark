@@ -12,7 +12,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.FsShell;
+import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RemoteIterator;
 
 /**
  * A class which handles common test funcions of a DFS.
@@ -232,4 +234,65 @@ public class DFS {
 		return fs.delete(new Path(path), recursive);
 	}
 	
+	/**
+	 * Gets an iterator of files in a DFS path through the Hadoop API, for the
+	 * primary cluster filesystem.
+	 * 
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @return RemoteIterator<LocatedFileStatus> an iterator of file statuses.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public RemoteIterator<LocatedFileStatus> getFsLs(String basePath, 
+			boolean recursive) throws Exception {
+		return this.getFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+	}
+	
+	/**
+	 * Gets an iterator of files in a DFS path through the Hadoop API, for a 
+	 * remote DFS.
+	 * 
+	 * @param fs The filesystem to perform the ls on.
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @return RemoteIterator<LocatedFileStatus> an iterator of file statuses.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public RemoteIterator<LocatedFileStatus> getFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws IOException {
+		return fs.listFiles(new Path(basePath), recursive);
+	}
+	
+	/**
+	 * Print the list of all files in the primary cluster DFS at a given path.
+	 * 
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public void printFsLs(String basePath, boolean recursive) throws Exception {
+		this.printFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+	}
+	
+	/**
+	 * Print the list of all files in a remote cluster DFS at a given path.
+	 * 
+	 * @param fs the FileSystem to perform the ls on.
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public void printFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws Exception {
+		RemoteIterator<LocatedFileStatus> iter = this.getFsLsRemote(fs, basePath, recursive);
+
+		while(iter.hasNext()) {
+			TestSession.logger.info(
+					((LocatedFileStatus)(iter.next())).getPath().toString());
+		}
+	}
 }
