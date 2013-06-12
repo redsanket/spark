@@ -148,24 +148,24 @@ public class DFS {
 	}
 	
 	/**
-	 * Copies a file from an HDFS in one cluster to an HDFS in another cluster.
+	 * Copies a file from an DFS in one cluster to a DFS in another cluster.
 	 * The clusters must currently use the same gateway.  This can also be used
-	 * to copy/move data within a single HDFS.  Uses the Hadoop API.
+	 * to copy/move data within a single DFS.  Uses the Hadoop API.
 	 * 
 	 * This method will delete any prior instance of the destination file
 	 * before it attempts the copy.
 	 * 
-	 * @param srcClusterBasePath The base URI for your source HDFS.
-	 * @param srcPath The relative path in your source HDFS to copy from.
-	 * @param destClusterBasePath The base URI for your destination HDFS.
-	 * @param destPath The relative path in your destination HDFS to copy to.
+	 * @param srcClusterBasePath The base URI for your source DFS.
+	 * @param srcPath The relative path in your source DFS to copy from.
+	 * @param destClusterBasePath The base URI for your destination DFS.
+	 * @param destPath The relative path in your destination DFS to copy to.
 	 * 
 	 * @return boolean whether the copy was successful or not.
 	 * 
 	 * @throws IOException if the copy fails to find the source or destination
-	 * 						HDFS paths.
+	 * 						DFS paths.
 	 */
-	public boolean copyHdfsToHdfs(String srcClusterBasePath,
+	public boolean copyDfsToDfs(String srcClusterBasePath,
 			String srcPath, 
 			String destClusterBasePath,
 			String destPath) throws IOException {
