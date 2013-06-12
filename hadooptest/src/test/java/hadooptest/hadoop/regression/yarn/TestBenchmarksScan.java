@@ -6,7 +6,6 @@ import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.workflow.hadoop.job.GenericJob;
 
 import java.util.ArrayList;
@@ -14,11 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.examples.terasort.TeraValidate;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
@@ -28,7 +25,7 @@ import org.junit.experimental.categories.Category;
 import hadooptest.ParallelMethodTests;
 
 @Category(ParallelMethodTests.class)
-public class TestBenchmarksTeraSort extends TestSession {
+public class TestBenchmarksScan extends TestSession {
 
     @BeforeClass
     public static void startTestSession() throws Exception{
@@ -75,12 +72,12 @@ public class TestBenchmarksTeraSort extends TestSession {
         cluster.hadoopDaemon("stop", component);
         cluster.hadoopDaemon("start", component);
     }
-
+    
     public static void setupTestDir() throws Exception {
         // Define the test directory
         DFS dfs = new DFS();
         String testDir = dfs.getBaseUrl() + "/user/" +
-            System.getProperty("user.name") + "/terasort";
+            System.getProperty("user.name") + "/scan";
         
         // Delete it existing test directory if exists
         FileSystem fs = TestSession.cluster.getFS();
@@ -96,48 +93,45 @@ public class TestBenchmarksTeraSort extends TestSession {
         fsShell.run(new String[] {"-mkdir", "-p", testDir});
     }
     
-    // Create test data
-    private void createData(String outputDir) throws Exception {
-
-        String jobName = "teragen";
-        String jar =
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR");
-        String dataSize = "2";
-
+    // Run a randomwriter job to generate Random Byte Data
+    private void runRandomWriterJob(String outputDir) throws Exception {
         GenericJob job = new GenericJob();
-        job.setJobJar(jar);
-        job.setJobName(jobName);
+        job.setJobJar(
+                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+        job.setJobName("randomwriter");
         ArrayList<String> jobArgs = new ArrayList<String>();
         jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add(dataSize);
         jobArgs.add(outputDir);
         job.setJobArgs(jobArgs.toArray(new String[0]));
         job.start();
         job.waitForID(600);
         boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run job '" + jobName + "': cmd='" +
+        assertTrue("Unable to run randomwriter: cmd='" +
                 StringUtils.join(job.getCommand(), " ") + "'.", isSuccessful);
     }
     
 
-    // Run a sort job
-    private void runSortJob(String sortInput, String sortOutput)
-            throws Exception {
-
-        String jobName = "terasort";
-        String jar =
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR");
-
+    // Run a loadgen job
+    private void runScanJob(String scanInput) throws Exception {
         GenericJob job;
         job = new GenericJob();
-        job.setJobJar(jar);
-        job.setJobName(jobName);
+        job.setJobJar(
+                TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"));
+        job.setJobName("loadgen");
         ArrayList<String> jobArgs = new ArrayList<String>();
         jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add("-Dmapreduce.reduce.input.limit=-1");
-        jobArgs.add(sortInput);
-        jobArgs.add(sortOutput);
         
+        jobArgs.add("-m");
+        jobArgs.add("18");
+        jobArgs.add("-r");
+        jobArgs.add("0");
+        jobArgs.add("-outKey");
+        jobArgs.add("org.apache.hadoop.io.Text");
+        jobArgs.add("-outValue");
+        jobArgs.add("org.apache.hadoop.io.Text");
+        jobArgs.add("-indir");
+        jobArgs.add(scanInput);
+                
         /*
         int numReduces = 2;
         jobArgs.add("-r");
@@ -148,66 +142,26 @@ public class TestBenchmarksTeraSort extends TestSession {
         job.start();
         job.waitForID(600);
         boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run SORT job: cmd=" + 
+        assertTrue("Unable to run SCAN job: cmd=" + 
                 StringUtils.join(job.getCommand(), " "), isSuccessful);        
     }
-
-    
-    /* 
-     * validate sort was successful
-     */
-    public void validateSortResults(String sortOutput, String sortReport)
-            throws Exception {
-        TestSession.logger.debug("Validate Sort Results : ");
-
-        /* Submit a sort validate job: 
-         * 
-         * CLI:
-         * CMD="$HADOOP_COMMON_CMD --config $HADOOP_CONF_DIR 
-         * jar $HADOOP_MAPRED_TEST_JAR testmapredsort
-         *  ${YARN_OPTIONS} -sortInput sortInputDir -sortOutput sortOutputDir"
-         *  
-         *  API Call:
-         */                
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add("-Dmapreduce.reduce.input.limit=-1");
-        jobArgs.add(sortOutput);
-        jobArgs.add(sortReport);
-        String[] args = jobArgs.toArray(new String[0]);
-        HadoopConfiguration conf = TestSession.getCluster().getConf();
-        int rc = ToolRunner.run(conf, new TeraValidate(), args);
-        if (rc != 0) {
-            TestSession.logger.error("SortValidator failed!!!");
-        }
-        
-        boolean isSuccessful = (rc == 0) ? true : false;
-        assertTrue("Unable to run terasort validation job.", isSuccessful);
-    }
-
     
     @Test 
-    public void testSort() throws Exception{
-        String tcDesc = "Runs hadoop terasort and verifies that " + 
-                "the data is properly sorted";
+    public void testScan() throws Exception{
+        String tcDesc = "Runs hadoop scan";
         TestSession.logger.info("Run test: " + tcDesc);
-
+        
         DFS dfs = new DFS();
         String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/terasort";
+                System.getProperty("user.name") + "/scan";
         
-        // Generate sort data
-        String dataDir = testDir + "/teraInputDir";
-        createData(dataDir);
+        // Generate scan data
+        String dataDir = testDir + "/rwOutputDir";
+        runRandomWriterJob(dataDir);
         
-        // Sort the data
-        String sortInputDir = dataDir;
-        String sortOutputDir = testDir + "/teraOutputDir";
-        runSortJob(sortInputDir, sortOutputDir);
-
-        // Validate the data
-        String sortReport = testDir + "/teraReport";
-        validateSortResults(sortOutputDir, sortReport);
+        // Scan the data
+        String scanInputDir = dataDir;
+        runScanJob(scanInputDir);
     }
 
 }

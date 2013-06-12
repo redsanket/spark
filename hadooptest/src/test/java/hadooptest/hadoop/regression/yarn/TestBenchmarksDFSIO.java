@@ -23,7 +23,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.ParallelMethodTests;
+import hadooptest.ParallelMethodTests;
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksDFSIO extends TestSession {

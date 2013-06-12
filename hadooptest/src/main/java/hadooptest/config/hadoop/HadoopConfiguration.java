@@ -155,8 +155,7 @@ public abstract class HadoopConfiguration extends Configuration {
      */
     private void initDefaults(String defaultHadoopConfDir, String hostname, 
             String component) throws Exception {
-        
-        TestSession.logger.info("Init defaults: default conf dir='" +
+        TestSession.logger.trace("Init default Hadoop conf dir='" +
                 defaultHadoopConfDir + "'");
         // Initialize the configuration class attributes.
         this.defaultHadoopConfDir = defaultHadoopConfDir;
@@ -229,7 +228,7 @@ public abstract class HadoopConfiguration extends Configuration {
      *  Load the cluster resources in the parent Hadoop Configuration class.
      */
     public void loadClusterResource() {
-        TestSession.logger.info("load hadoop resources from '" +
+        TestSession.logger.trace("load hadoop resources from '" +
                                 this.getHadoopConfDir() + "':");
         super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_CORE)));
         super.addResource(new Path(this.getHadoopConfFile(HADOOP_CONF_HDFS)));
@@ -259,11 +258,12 @@ public abstract class HadoopConfiguration extends Configuration {
      * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
      */
     protected void loadDefaultResource() {
-        URL dirURL = this.getClass().getClassLoader().getResource(
-                "core-default.xml");
-        TestSession.logger.debug("Load hadoop default configurations via " +
-                                 "URL path:");
-        TestSession.logger.debug("URL path: '" + dirURL.getPath() + "',...,etc.");
+        if (TestSession.logger.isTraceEnabled()) {
+            URL dirURL = this.getClass().getClassLoader().getResource(
+                    "core-default.xml");
+            TestSession.logger.trace("Load hadoop default configurations via " +
+                    "URL path: '" + dirURL.getPath() + "'.");            
+        }
         super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
         super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
         super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
@@ -321,7 +321,7 @@ public abstract class HadoopConfiguration extends Configuration {
                     this.component + "' host '" +
                     this.hostname + "' is undefined!!!");
         } else {
-            TestSession.logger.debug("Default Hadoop conf dir for '" +
+            TestSession.logger.trace("Default Hadoop conf dir for '" +
                     this.component + "' host '" +
                     this.hostname + "'='" + confDir + "'.");    
         }
@@ -343,7 +343,7 @@ public abstract class HadoopConfiguration extends Configuration {
                     this.hostname + "' is undefined!!!. Use installed " +
                     "conf dir '" + confDir + "'.");
         } else {
-            TestSession.logger.debug("Hadoop conf dir for '" +
+            TestSession.logger.trace("Hadoop conf dir for '" +
                     this.component + "' host '" +
                     this.hostname + "'='" + confDir + "'.");
         }

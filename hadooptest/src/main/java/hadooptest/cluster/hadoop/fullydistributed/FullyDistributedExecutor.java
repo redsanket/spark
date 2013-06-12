@@ -115,10 +115,13 @@ public class FullyDistributedExecutor extends Executor {
 		
 		// e.g. kinit -c /tmp/hadoopqe/kerberosTickets/hadoop1.kerberos.ticket
 		// -k -t /homes/hdfsqa/etc/keytabs/hadoop1.dev.headless.keytab hadoop1
+        Map<String, String> newEnv = new HashMap<String, String>();
+        newEnv.put("PATH", System.getenv("PATH") + 
+                ":/usr/kerberos/bin/:/usr/local/bin:/usr/bin");
 	    String[] cmd =
-	    		{ "/usr/kerberos/bin/kinit", "-c", cacheName, "-k","-t",
+	    		{ "kinit", "-c", cacheName, "-k","-t",
 	    		keytabFileDir+"/"+keytabFile, kinitUser};
-	    runProcBuilder(cmd, false);
+	    runProcBuilder(cmd, newEnv, false);
 	    return cacheName;
 	}
 

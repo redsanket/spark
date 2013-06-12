@@ -273,19 +273,21 @@ public abstract class HadoopCluster {
 	        }
 	            
 	        // Verify the instantiated node.
-	        TestSession.logger.debug("Verify the instantiated node:");
-	        HadoopNode node = cNodes.get(host);	        
-	        TestSession.logger.debug("Node init'd: name='" +
-	                node.getHostname() + "', " +
-	                "default conf='" + node.getDefaultConfDir() + "', " +
-	                "conf='" + node.getConfDir() + "'.");	        
-	        HadoopConfiguration conf = node.getConf();
-	        if (conf == null) {
-	            TestSession.logger.error("Node conf object is null!!!");
+	        if (TestSession.logger.isTraceEnabled()) {
+	            TestSession.logger.trace("Verify instantiated cluster nodes:");
+	            HadoopNode node = cNodes.get(host);         
+	            TestSession.logger.trace("Instantiated node name='" +
+	                    node.getHostname() + "': " + "default conf='" +
+	                    node.getDefaultConfDir() + "', " + "conf='" +
+	                    node.getConfDir() + "'.");           
+	            HadoopConfiguration conf = node.getConf();
+	            if (conf == null) {
+	                TestSession.logger.error("Node conf object is null!!!");
+	            }
+	            TestSession.logger.trace("Instantiated node conf object: " + 
+	                    "default conf dir='" + conf.getDefaultHadoopConfDir() +
+	                    "', conf dir='" + conf.getHadoopConfDir() + "'");
 	        }
-            TestSession.logger.debug("Node initialized: conf object: " + 
-                    "default conf dir='" + conf.getDefaultHadoopConfDir() +
-                    "', conf dir='" + conf.getHadoopConfDir() + "'");
 	    }
 	    hadoopNodes.put(component, cNodes);
 	}

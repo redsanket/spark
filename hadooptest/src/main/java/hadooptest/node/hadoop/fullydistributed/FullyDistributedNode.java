@@ -47,12 +47,11 @@ public class FullyDistributedNode extends HadoopNode {
 	 *  Initialize the node configuration object.
 	 */
 	protected void initDefault(String defaultHadoopConfDir) throws Exception {
-	    TestSession.logger.info("Initialize FDNode:");
-        TestSession.logger.info("Initialize FDConf: conf dir='" +
+	    TestSession.logger.info("Init FDNode: Init FDConf: default conf dir='" +
                 defaultHadoopConfDir + "'");
         this.conf = new FullyDistributedConfiguration(
                 defaultHadoopConfDir, this.hostname, this.component);        
-        TestSession.logger.info("Init'd FDConf");
+        TestSession.logger.trace("Init'd FDConf");
 	}
 	
     private String getDefaultHadoopConfDir() throws IOException {
@@ -66,9 +65,9 @@ public class FullyDistributedNode extends HadoopNode {
             TestSession.logger.info("Found existing custom default " +
                     "Hadoop conf dir: '" + customDefaultHadoopConfDir );
         } else {
-            TestSession.logger.info("Did not find existing custom default " +
+            TestSession.logger.trace("Did not find custom default " +
                     "Hadoop conf dir: '" + customDefaultHadoopConfDir + "'.");            
-            TestSession.logger.info("Use installed default " +
+            TestSession.logger.trace("Use installed default " +
                     "Hadoop conf dir: '" +
                     TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR") +
                     "'.");
