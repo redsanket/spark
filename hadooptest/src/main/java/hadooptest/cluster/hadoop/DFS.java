@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
+import java.io.IOException;
 
 /**
  * A class which handles common test funcions of a DFS.
@@ -99,7 +100,8 @@ public class DFS {
 	
 	/**
 	 * Put a file from the local filesystem to the hdfs filesystem, given
-	 * a source file and a target file.
+	 * a source file and a target file.  Uses hadoop dfs command line
+	 * interface.
 	 * 
 	 * @param source the source file on the local filesystem.
 	 * @param target the target for the file on the hdfs filesystem.  Expects a
@@ -126,6 +128,20 @@ public class DFS {
 		}
 		TestSession.logger.debug("dfs -put " + source + " " + target);
 		fsShell.run(new String[] {"-put", source, target});
+	}
+	
+	/**
+	 * Copies a file from a local system filepath to a HDFS destination, using
+	 * the Hadoop API.
+	 * 
+	 * @param src The local filepath and filename.
+	 * @param dest The HDFS destination path.
+	 * 
+	 * @throws IOException if the copy does not succeed.
+	 */
+	public void copyLocalToHdfs(String src, String dest) throws IOException {
+		TestSession.cluster.getFS().copyFromLocalFile(
+				new Path(src), new Path(dest));
 	}
 	
 }
