@@ -190,12 +190,46 @@ public class DFS {
 
 		// remove any instance of the target file.
 		TestSession.logger.info("Deleting any prior instance file in target location....");
-		destFS.delete(new Path(destURL), false);
+		this.deleteFromFS(destFS, destURL, true);
 		
 		TestSession.logger.info("Copying data...");
-		
 		return FileUtil.copy(srcFS, new Path(srcURL), destFS, 
 				new Path(destURL), false, (Configuration)(TestSession.cluster.getConf()));
+	}
+	
+	/**
+	 * Delete a path from the primary cluster DFS using the Hadoop API.
+	 * 
+	 * @param path The path to delete.
+	 * @param recursive Whether the delete should be recursive or not.
+	 * 
+	 * @return boolean Whether the delete was successful or not.
+	 * 
+	 * @throws IOException if the target path cannot be formed.
+	 */
+	public boolean delete(String path, boolean recursive) throws IOException {
+		TestSession.logger.info("Deleting: " + path);
+		TestSession.logger.info("Recursive delete is: "  + recursive);
+		return TestSession.cluster.getFS().delete(new Path(path), recursive);
+	}
+	
+	/**
+	 * Delete a path from an accessible DFS on any cluster using the Hadoop API.
+	 * 
+	 * @param fs The target FileSystem.
+	 * @param path The path to delete.
+	 * @param recursive Whether the delete should be recursive or not.
+	 * 
+	 * @return boolean Whether the delete was successful or not.
+	 * 
+	 * @throws IOException if the target path cannot be formed or the target
+	 * 						FileSystem cannot be reached.
+	 */
+	public boolean deleteFromFS(FileSystem fs, String path, boolean recursive) 
+			throws IOException {
+		TestSession.logger.info("Deleting: " + path);
+		TestSession.logger.info("Recursive delete is: "  + recursive);
+		return fs.delete(new Path(path), recursive);
 	}
 	
 }
