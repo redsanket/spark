@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "This script has been depreciated. Please use run_hadooptest_remote instead !!!"
+exit;
+
 function usage {
     echo
     echo "USAGE"
