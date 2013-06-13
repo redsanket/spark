@@ -12,7 +12,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.FsShell;
+import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RemoteIterator;
 
 /**
  * A class which handles common test funcions of a DFS.
@@ -162,13 +164,13 @@ public class DFS {
 	 * 
 	 * @return boolean whether the copy was successful or not.
 	 * 
-	 * @throws IOException if the copy fails to find the source or destination
+	 * @throws Exception if the copy fails to find the source or destination
 	 * 						DFS paths.
 	 */
 	public boolean copyDfsToDfs(String srcClusterBasePath,
 			String srcPath, 
 			String destClusterBasePath,
-			String destPath) throws IOException {
+			String destPath) throws Exception {
 		
 		String srcURL = srcClusterBasePath + "/" + srcPath;
 		TestSession.logger.info("SRC_PATH = " + srcClusterBasePath);
@@ -188,9 +190,14 @@ public class DFS {
 		FileSystem destFS = FileSystem.get(URI.create(destURL), destClusterConf);
 		TestSession.logger.info("DEST_FILESYSTEM = " + destFS.toString());
 
-		// remove any instance of the target file.
-		TestSession.logger.info("Deleting any prior instance file in target location....");
-		this.deleteFromFS(destFS, destURL, true);
+		if (this.fileExistsRemote(destFS, destURL)) {
+			// remove any instance of the target file.
+			TestSession.logger.info("Deleting a prior instance file in target location....");
+			this.deleteFromFS(destFS, destURL, true);
+		}
+		else {
+			TestSession.logger.info("Target file doesn't exist yet, no need to clean up.");
+		}
 		
 		TestSession.logger.info("Copying data...");
 		return FileUtil.copy(srcFS, new Path(srcURL), destFS, 
@@ -232,4 +239,109 @@ public class DFS {
 		return fs.delete(new Path(path), recursive);
 	}
 	
+	/**
+	 * Gets an iterator of files in a DFS path through the Hadoop API, for the
+	 * primary cluster filesystem.
+	 * 
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @return RemoteIterator<LocatedFileStatus> an iterator of file statuses.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public RemoteIterator<LocatedFileStatus> getFsLs(String basePath, 
+			boolean recursive) throws Exception {
+		return this.getFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+	}
+	
+	/**
+	 * Gets an iterator of files in a DFS path through the Hadoop API, for a 
+	 * remote DFS.
+	 * 
+	 * @param fs The filesystem to perform the ls on.
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @return RemoteIterator<LocatedFileStatus> an iterator of file statuses.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public RemoteIterator<LocatedFileStatus> getFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws IOException {
+		return fs.listFiles(new Path(basePath), recursive);
+	}
+	
+	/**
+	 * Print the list of all files in the primary cluster DFS at a given path.
+	 * 
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public void printFsLs(String basePath, boolean recursive) throws Exception {
+		this.printFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+	}
+	
+	/**
+	 * Print the list of all files in a remote cluster DFS at a given path.
+	 * 
+	 * @param fs the FileSystem to perform the ls on.
+	 * @param basePath The base directory path to perform the ls.
+	 * @param recursive Whether the ls should be recursive or not.
+	 * 
+	 * @throws Exception if there is a problem performing the ls.
+	 */
+	public void printFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws Exception {
+		RemoteIterator<LocatedFileStatus> iter = this.getFsLsRemote(fs, basePath, recursive);
+
+		while(iter.hasNext()) {
+			TestSession.logger.info(
+					((LocatedFileStatus)(iter.next())).getPath().toString());
+		}
+	}
+	
+	/**
+	 * Check whether a path exists in the DFS on the primary cluster.
+	 * 
+	 * @param path The path to verify.
+	 * 
+	 * @return Whether the path exists or not.
+	 * 
+	 * @throws IOException if there is a problem setting the path.
+	 */
+	public boolean fileExists(String path) throws IOException {
+		return this.fileExistsRemote(TestSession.cluster.getFS(), path);
+	}
+	
+	/**
+	 * Check whether a path exists in the DFS on a remote file system.
+	 * 
+	 * @param fs The filesystem which should contain the path.
+	 * @param path The path to verify.
+	 * 
+	 * @return Whether the path exists or not.
+	 * 
+	 * @throws IOException if there is a problem setting the path.
+	 */
+	public boolean fileExistsRemote(FileSystem fs, String path) throws IOException {
+		return fs.exists(new Path(path));
+	}
+	
+	/**
+	 * Gets a FileSystem reference via a string URI representing the file
+	 * system in question.  The filesystem string should look similar to:
+	 * "hdfs://hostname:port".
+	 * 
+	 * @param filesystem a string representing the filesystem base URI.
+	 * 
+	 * @return a FileSystem representing the passed-in URI.
+	 * 
+	 * @throws IOException if the FileSystem cannot be found.
+	 */
+	public FileSystem getFileSystemFromURI(String filesystem) throws IOException {
+		Configuration destClusterConf = new Configuration();
+		destClusterConf.set("fs.default.name", filesystem);
+		return FileSystem.get(URI.create(filesystem), destClusterConf);
+	}
 }
