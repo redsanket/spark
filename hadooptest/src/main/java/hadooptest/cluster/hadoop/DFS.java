@@ -164,13 +164,13 @@ public class DFS {
 	 * 
 	 * @return boolean whether the copy was successful or not.
 	 * 
-	 * @throws IOException if the copy fails to find the source or destination
+	 * @throws Exception if the copy fails to find the source or destination
 	 * 						DFS paths.
 	 */
 	public boolean copyDfsToDfs(String srcClusterBasePath,
 			String srcPath, 
 			String destClusterBasePath,
-			String destPath) throws IOException {
+			String destPath) throws Exception {
 		
 		String srcURL = srcClusterBasePath + "/" + srcPath;
 		TestSession.logger.info("SRC_PATH = " + srcClusterBasePath);
@@ -190,9 +190,14 @@ public class DFS {
 		FileSystem destFS = FileSystem.get(URI.create(destURL), destClusterConf);
 		TestSession.logger.info("DEST_FILESYSTEM = " + destFS.toString());
 
-		// remove any instance of the target file.
-		TestSession.logger.info("Deleting any prior instance file in target location....");
-		this.deleteFromFS(destFS, destURL, true);
+		if (this.fileExistsRemote(destFS, destURL)) {
+			// remove any instance of the target file.
+			TestSession.logger.info("Deleting a prior instance file in target location....");
+			this.deleteFromFS(destFS, destURL, true);
+		}
+		else {
+			TestSession.logger.info("Target file doesn't exist yet, no need to clean up.");
+		}
 		
 		TestSession.logger.info("Copying data...");
 		return FileUtil.copy(srcFS, new Path(srcURL), destFS, 
@@ -321,5 +326,22 @@ public class DFS {
 	 */
 	public boolean fileExistsRemote(FileSystem fs, String path) throws IOException {
 		return fs.exists(new Path(path));
+	}
+	
+	/**
+	 * Gets a FileSystem reference via a string URI representing the file
+	 * system in question.  The filesystem string should look similar to:
+	 * "hdfs://hostname:port".
+	 * 
+	 * @param filesystem a string representing the filesystem base URI.
+	 * 
+	 * @return a FileSystem representing the passed-in URI.
+	 * 
+	 * @throws IOException if the FileSystem cannot be found.
+	 */
+	public FileSystem getFileSystemFromURI(String filesystem) throws IOException {
+		Configuration destClusterConf = new Configuration();
+		destClusterConf.set("fs.default.name", filesystem);
+		return FileSystem.get(URI.create(filesystem), destClusterConf);
 	}
 }
