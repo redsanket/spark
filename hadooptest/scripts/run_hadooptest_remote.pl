@@ -39,12 +39,12 @@ Pass Through options
         [ -n|--nopasswd                    ] : no password prompt
 
 Example:
-\$ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --install
-\$ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --install
+\$ run_hadooptest_remote --cluster theoden --remote_host gwbl2003.blue.ygrid.yahoo.com --install
+\$ run_hadooptest_remote --cluster theoden --remote_host gwbl2003.blue.ygrid.yahoo.com --mvn --install
 \$ run_hadooptest_remote --cluster theoden --java --install
 \$ run_hadooptest_remote --cluster theoden --mvn --install -u hadoopqa
 \$ run_hadooptest_remote --cluster theoden --mvn --workspace /tmp/foo --install -u hadoopqa
-\$ run_hadooptest_remote --cluster theoden --gateway gwbl2003.blue.ygrid.yahoo.com --mvn --test SleepJobRunner
+\$ run_hadooptest_remote -c theoden -r gwbl2003.blue.ygrid.yahoo.com -m -t SleepJobRunner
 \$ run_hadooptest_remote -c theoden -i
 \$ run_hadooptest_remote -c theoden -n
 \$ run_hadooptest_remote -c theoden -s /home/hadoopqa/git/hadooptest/hadooptest -i
