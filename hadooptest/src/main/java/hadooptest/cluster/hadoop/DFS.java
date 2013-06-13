@@ -295,4 +295,31 @@ public class DFS {
 					((LocatedFileStatus)(iter.next())).getPath().toString());
 		}
 	}
+	
+	/**
+	 * Check whether a path exists in the DFS on the primary cluster.
+	 * 
+	 * @param path The path to verify.
+	 * 
+	 * @return Whether the path exists or not.
+	 * 
+	 * @throws IOException if there is a problem setting the path.
+	 */
+	public boolean fileExists(String path) throws IOException {
+		return this.fileExistsRemote(TestSession.cluster.getFS(), path);
+	}
+	
+	/**
+	 * Check whether a path exists in the DFS on a remote file system.
+	 * 
+	 * @param fs The filesystem which should contain the path.
+	 * @param path The path to verify.
+	 * 
+	 * @return Whether the path exists or not.
+	 * 
+	 * @throws IOException if there is a problem setting the path.
+	 */
+	public boolean fileExistsRemote(FileSystem fs, String path) throws IOException {
+		return fs.exists(new Path(path));
+	}
 }
