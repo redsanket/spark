@@ -190,10 +190,10 @@ public class DFS {
 		FileSystem destFS = FileSystem.get(URI.create(destURL), destClusterConf);
 		TestSession.logger.info("DEST_FILESYSTEM = " + destFS.toString());
 
-		if (this.fileExistsRemote(destFS, destURL)) {
+		if (this.fileExists(destFS, destURL)) {
 			// remove any instance of the target file.
 			TestSession.logger.info("Deleting a prior instance file in target location....");
-			this.deleteFromFS(destFS, destURL, true);
+			this.delete(destFS, destURL, true);
 		}
 		else {
 			TestSession.logger.info("Target file doesn't exist yet, no need to clean up.");
@@ -232,7 +232,7 @@ public class DFS {
 	 * @throws IOException if the target path cannot be formed or the target
 	 * 						FileSystem cannot be reached.
 	 */
-	public boolean deleteFromFS(FileSystem fs, String path, boolean recursive) 
+	public boolean delete(FileSystem fs, String path, boolean recursive) 
 			throws IOException {
 		TestSession.logger.info("Deleting: " + path);
 		TestSession.logger.info("Recursive delete is: "  + recursive);
@@ -252,7 +252,7 @@ public class DFS {
 	 */
 	public RemoteIterator<LocatedFileStatus> getFsLs(String basePath, 
 			boolean recursive) throws Exception {
-		return this.getFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+		return this.getFsLs(TestSession.cluster.getFS(), basePath, recursive);
 	}
 	
 	/**
@@ -267,7 +267,8 @@ public class DFS {
 	 * 
 	 * @throws Exception if there is a problem performing the ls.
 	 */
-	public RemoteIterator<LocatedFileStatus> getFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws IOException {
+	public RemoteIterator<LocatedFileStatus> getFsLs(FileSystem fs, 
+			String basePath, boolean recursive) throws IOException {
 		return fs.listFiles(new Path(basePath), recursive);
 	}
 	
@@ -280,7 +281,7 @@ public class DFS {
 	 * @throws Exception if there is a problem performing the ls.
 	 */
 	public void printFsLs(String basePath, boolean recursive) throws Exception {
-		this.printFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+		this.printFsLs(TestSession.cluster.getFS(), basePath, recursive);
 	}
 	
 	/**
@@ -292,8 +293,10 @@ public class DFS {
 	 * 
 	 * @throws Exception if there is a problem performing the ls.
 	 */
-	public void printFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws Exception {
-		RemoteIterator<LocatedFileStatus> iter = this.getFsLsRemote(fs, basePath, recursive);
+	public void printFsLs(FileSystem fs, String basePath, boolean recursive) 
+			throws Exception {
+		RemoteIterator<LocatedFileStatus> iter = 
+				this.getFsLs(fs, basePath, recursive);
 
 		while(iter.hasNext()) {
 			TestSession.logger.info(
@@ -311,7 +314,7 @@ public class DFS {
 	 * @throws IOException if there is a problem setting the path.
 	 */
 	public boolean fileExists(String path) throws IOException {
-		return this.fileExistsRemote(TestSession.cluster.getFS(), path);
+		return this.fileExists(TestSession.cluster.getFS(), path);
 	}
 	
 	/**
@@ -324,7 +327,7 @@ public class DFS {
 	 * 
 	 * @throws IOException if there is a problem setting the path.
 	 */
-	public boolean fileExistsRemote(FileSystem fs, String path) throws IOException {
+	public boolean fileExists(FileSystem fs, String path) throws IOException {
 		return fs.exists(new Path(path));
 	}
 	
