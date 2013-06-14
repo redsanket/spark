@@ -98,24 +98,28 @@ public class TestBenchmarksScan extends TestSession {
         fsShell.run(new String[] {"-mkdir", "-p", testDir});
     }
     
-    @Test 
-    public void testScan() throws Exception{
-        String tcDesc = "Runs hadoop scan";
-        TestSession.logger.info("Run test: " + tcDesc);
-        
-        // Generate scan data
-        // runRandomWriterJob(dataDir);
-        DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/randomwriter";        
-        String dataDir = testDir + "/rwOutputDir";        
+    // Run a randomwriter job to generate Random Byte Data
+    private void runRandomWriterJob(String outputDir) throws Exception {
         RandomWriterJob rwJob = new RandomWriterJob();
-        rwJob.setOutputDir(dataDir);
+        rwJob.setOutputDir(outputDir);
         rwJob.start();
         rwJob.waitForID(600);
         boolean isSuccessful = rwJob.waitForSuccess(20);
         assertTrue("Unable to run randomwriter job: cmd=" +
-                StringUtils.join(rwJob.getCommand(), " "), isSuccessful);        
+                StringUtils.join(rwJob.getCommand(), " "), isSuccessful);    
+    }
+
+    @Test 
+    public void testScan() throws Exception{
+        String tcDesc = "Runs hadoop scan";
+        TestSession.logger.info("Run test: " + tcDesc);
+
+        // Generate sort data
+        DFS dfs = new DFS();
+        String testDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/randomwriter";        
+        String dataDir = testDir + "/rwOutputDir";
+        runRandomWriterJob(dataDir);        
         
         // Scan the data
         LoadgenJob loadgenJob = new LoadgenJob();
@@ -125,7 +129,7 @@ public class TestBenchmarksScan extends TestSession {
         loadgenJob.start();
 
         loadgenJob.waitForID(600);
-        isSuccessful = loadgenJob.waitForSuccess(20);
+        boolean isSuccessful = loadgenJob.waitForSuccess(20);
         assertTrue("Unable to run scan job: cmd=" + 
                 StringUtils.join(loadgenJob.getCommand(), " "), isSuccessful);
     }
