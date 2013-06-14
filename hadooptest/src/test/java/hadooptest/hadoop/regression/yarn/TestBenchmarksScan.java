@@ -6,9 +6,9 @@ import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.workflow.hadoop.job.GenericJob;
+import hadooptest.workflow.hadoop.job.LoadgenJob;
+import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +23,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
+
+/*
+ *  Runs the loadgen test. Takes about 11 minutes to run
+ *  (6 min for generating test data via randomwriter).
+ */
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksScan extends TestSession {
@@ -93,75 +98,36 @@ public class TestBenchmarksScan extends TestSession {
         fsShell.run(new String[] {"-mkdir", "-p", testDir});
     }
     
-    // Run a randomwriter job to generate Random Byte Data
-    private void runRandomWriterJob(String outputDir) throws Exception {
-        GenericJob job = new GenericJob();
-        job.setJobJar(
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
-        job.setJobName("randomwriter");
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add(outputDir);
-        job.setJobArgs(jobArgs.toArray(new String[0]));
-        job.start();
-        job.waitForID(600);
-        boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run randomwriter: cmd='" +
-                StringUtils.join(job.getCommand(), " ") + "'.", isSuccessful);
-    }
-    
-
-    // Run a loadgen job
-    private void runScanJob(String scanInput) throws Exception {
-        GenericJob job;
-        job = new GenericJob();
-        job.setJobJar(
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"));
-        job.setJobName("loadgen");
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        
-        jobArgs.add("-m");
-        jobArgs.add("18");
-        jobArgs.add("-r");
-        jobArgs.add("0");
-        jobArgs.add("-outKey");
-        jobArgs.add("org.apache.hadoop.io.Text");
-        jobArgs.add("-outValue");
-        jobArgs.add("org.apache.hadoop.io.Text");
-        jobArgs.add("-indir");
-        jobArgs.add(scanInput);
-                
-        /*
-        int numReduces = 2;
-        jobArgs.add("-r");
-        jobArgs.add(Integer.toString(numReduces));
-        */
-        
-        job.setJobArgs(jobArgs.toArray(new String[0]));
-        job.start();
-        job.waitForID(600);
-        boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run SCAN job: cmd=" + 
-                StringUtils.join(job.getCommand(), " "), isSuccessful);        
-    }
-    
     @Test 
     public void testScan() throws Exception{
         String tcDesc = "Runs hadoop scan";
         TestSession.logger.info("Run test: " + tcDesc);
         
+        // Generate scan data
+        // runRandomWriterJob(dataDir);
         DFS dfs = new DFS();
         String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/scan";
-        
-        // Generate scan data
-        String dataDir = testDir + "/rwOutputDir";
-        runRandomWriterJob(dataDir);
+                System.getProperty("user.name") + "/randomwriter";        
+        String dataDir = testDir + "/rwOutputDir";        
+        RandomWriterJob rwJob = new RandomWriterJob();
+        rwJob.setOutputDir(dataDir);
+        rwJob.start();
+        rwJob.waitForID(600);
+        boolean isSuccessful = rwJob.waitForSuccess(20);
+        assertTrue("Unable to run randomwriter job: cmd=" +
+                StringUtils.join(rwJob.getCommand(), " "), isSuccessful);        
         
         // Scan the data
-        String scanInputDir = dataDir;
-        runScanJob(scanInputDir);
+        LoadgenJob loadgenJob = new LoadgenJob();
+        loadgenJob.setNumMappers(18);
+        loadgenJob.setNumReducers(0);
+        loadgenJob.setInputDir(dataDir);
+        loadgenJob.start();
+
+        loadgenJob.waitForID(600);
+        isSuccessful = loadgenJob.waitForSuccess(20);
+        assertTrue("Unable to run scan job: cmd=" + 
+                StringUtils.join(loadgenJob.getCommand(), " "), isSuccessful);
     }
 
 }
