@@ -27,6 +27,10 @@ import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
 
+/*
+ *  Runs the teragen and terasort test. Takes about 2 minutes to run.
+ */
+
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksTeraSort extends TestSession {
 
