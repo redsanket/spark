@@ -25,7 +25,7 @@ import org.junit.experimental.categories.Category;
 import hadooptest.ParallelMethodTests;
 
 /*
- *  Runs the loadgen test. Takes about 11 minutes to run
+ *  Runs the loadgen test. Takes about 10 minutes to run
  *  (6 min for generating test data via randomwriter).
  */
 
