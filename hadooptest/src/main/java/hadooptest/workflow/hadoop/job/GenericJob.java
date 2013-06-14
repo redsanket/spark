@@ -20,20 +20,21 @@ import java.util.regex.Pattern;
 public class GenericJob extends Job {
 
 	/** The jar file path to use */
-	private String jobJar = null;
+	protected String jobJar =
+	        TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR");
 
 	/** The config dir to use */
-	private String jobConf = TestSession.cluster.getConf().getHadoopConfDir();
+	protected String jobConf = TestSession.cluster.getConf().getHadoopConfDir();
 	
-	/** The job name to run*/
-	private String jobName = null;
-
 	/** The job args to use*/
-	private String[] jobArgs = null;
+	protected String[] jobArgs = null;
 
 	/** The job command*/
-	private String[] command = null;
+	protected String[] command = null;
 	
+    /** The job name to run*/
+    private String jobName = null;
+
 	/**
 	 * Get the job jar file path.
 	 * 
@@ -179,7 +180,7 @@ public class GenericJob extends Job {
 	 * 
 	 * @return String[] the string array representation of the system command to launch the job.
 	 */
-	private String[] assembleCommand() {
+	protected String[] assembleCommand() {
 		ArrayList<String> cmd = new ArrayList<String>();	
 		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
 		cmd.add("--config");
