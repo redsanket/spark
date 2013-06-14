@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
@@ -23,6 +24,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
+
+/*
+ *  Runs the mrbench test. Takes about 2 minutes to run.
+ */
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksSmallJobs extends TestSession {
@@ -74,14 +79,17 @@ public class TestBenchmarksSmallJobs extends TestSession {
     }
     
     public static void setupTestDir() throws Exception {
-        // Define the test directory
+        // Define the test directory        
+        TestSession.cluster.setSecurityAPI("keytab-hdfsqa", "user-hdfsqa");
+
         DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-            System.getProperty("user.name") + "/smalljobs";
+        // String testDir = dfs.getBaseUrl() + "/user/" +
+        // System.getProperty("user.name") + "/smalljobs";
+        String testDir = dfs.getBaseUrl() + "/benchmarks";
         
         // Delete it existing test directory if exists
         FileSystem fs = TestSession.cluster.getFS();
-        FsShell fsShell = TestSession.cluster.getFsShell();                
+        FsShell fsShell = TestSession.cluster.getFsShell();
         if (fs.exists(new Path(testDir))) {
             TestSession.logger.info("Delete existing test directory: " +
                 testDir);
@@ -91,52 +99,61 @@ public class TestBenchmarksSmallJobs extends TestSession {
         // Create or re-create the test directory.
         TestSession.logger.info("Create new test directory: " + testDir);
         fsShell.run(new String[] {"-mkdir", "-p", testDir});
+        fsShell.run(new String[] {"-chmod", "777", testDir});
+        dfs.fsls(testDir, new String[] {"-d"});
+        
+        TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
     }
     
-    // Run a randomwriter job to generate Random Byte Data
-    private void runRandomWriterJob(String outputDir) throws Exception {
-        GenericJob job = new GenericJob();
-        job.setJobJar(
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
-        job.setJobName("randomwriter");
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add(outputDir);
-        job.setJobArgs(jobArgs.toArray(new String[0]));
-        job.start();
-        job.waitForID(600);
-        boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run randomwriter: cmd='" +
-                StringUtils.join(job.getCommand(), " ") + "'.", isSuccessful);
-    }
-    
+    @Test 
+    public void testSmallJobs() throws Exception{
+        String tcDesc = "Runs hadoop small jobs";
+        TestSession.logger.info("Run test: " + tcDesc);
 
-    // Run a loadgen job
-    private void runSmallJobsJob(String smallJobsInput) throws Exception {
         GenericJob job;
         job = new GenericJob();
         job.setJobJar(
                 TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"));
-        job.setJobName("loadgen");
+        job.setJobName("mrbench");
         ArrayList<String> jobArgs = new ArrayList<String>();
         jobArgs.add("-Dmapreduce.job.acl-view-job=*");
         
-        jobArgs.add("-m");
-        jobArgs.add("18");
-        jobArgs.add("-r");
-        jobArgs.add("0");
-        jobArgs.add("-outKey");
-        jobArgs.add("org.apache.hadoop.io.Text");
-        jobArgs.add("-outValue");
-        jobArgs.add("org.apache.hadoop.io.Text");
-        jobArgs.add("-indir");
-        jobArgs.add(smallJobsInput);
-                
-        /*
-        int numReduces = 2;
-        jobArgs.add("-r");
-        jobArgs.add(Integer.toString(numReduces));
-        */
+        String numRuns = "30";
+        String lines = "10000";        
+        Cluster clusterInfo = TestSession.cluster.getClusterInfo();
+        int ttCount = clusterInfo.getActiveTaskTrackers().length;
+        TestSession.logger.info("tasktracker count = " +
+                Integer.toString(ttCount));
+        int mapper = ttCount * 90 / 100 * 2;
+        int reducer = ttCount * 90 / 100;
+
+        /* NOTE:
+         * 
+         * -baseDir <base DFS path. default is /becnhmarks/NNBench.
+         * This is not mandatory>
+         * 
+         * There is a known bug MAPREDUCE-2398 tracking the issue that the
+         * “-baseDir“ parameter has no effect. This means that multiple 
+         * parallel “MRBench“ runs might interfere with each other.  Also, the
+         * /benchmarks on the QE Cluster is writable to only hdfs, so this will
+         * also cause the test to fail if thi directory does not exists. 
+         * 
+         */        
+        DFS dfs = new DFS();
+        String testDir = dfs.getBaseUrl() + "/benchmarks";
+        jobArgs.add("-baseDir");
+        jobArgs.add(testDir);
+        
+        jobArgs.add("-numRuns");
+        jobArgs.add(numRuns);
+        jobArgs.add("-maps");
+        jobArgs.add(Integer.toString(mapper));
+        jobArgs.add("-reduces");
+        jobArgs.add(Integer.toString(reducer));
+        jobArgs.add("-inputLines");
+        jobArgs.add(lines);
+        jobArgs.add("-inputType");
+        jobArgs.add("ascending");
         
         job.setJobArgs(jobArgs.toArray(new String[0]));
         job.start();
@@ -145,23 +162,4 @@ public class TestBenchmarksSmallJobs extends TestSession {
         assertTrue("Unable to run small jobs job: cmd=" + 
                 StringUtils.join(job.getCommand(), " "), isSuccessful);        
     }
-    
-    @Test 
-    public void testSmallJobs() throws Exception{
-        String tcDesc = "Runs hadoop small jobs";
-        TestSession.logger.info("Run test: " + tcDesc);
-
-        DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/smalljobs";
-        
-        // Generate sort data
-        String dataDir = testDir + "/rwOutputDir";
-        runRandomWriterJob(dataDir);
-        
-        // Sort the data
-        String sortInputDir = dataDir;
-        runSmallJobsJob(sortInputDir);
-    }
-
 }

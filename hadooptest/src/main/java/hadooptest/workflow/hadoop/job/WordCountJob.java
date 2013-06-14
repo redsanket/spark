@@ -4,6 +4,8 @@ import hadooptest.TestSession;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -103,27 +105,21 @@ public class WordCountJob extends Job {
 	 * 
 	 * @return String[] the string array representation of the system command to launch the job.
 	 */
-	private String[] assembleCommand() {		
-
+	private String[] assembleCommand() {
 		// set up the cmd
-		if(this.QUEUE == "") {
-			return new String[] { TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"), 
-					"--config",
-					TestSession.cluster.getConf().getHadoopConfDir(),
-					"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"),
-					"wordcount",
-					this.inputFile,
-					this.outputPath };
-			
-		} else { 	
-			return new String[] { TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"), 
-					"--config",
-					TestSession.cluster.getConf().getHadoopConfDir(),
-					"jar", TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"),
-					"wordcount",
-					"-Dmapred.job.queue.name=" + this.QUEUE,
-					this.inputFile,
-					this.outputPath };	
-		}
+		ArrayList<String> cmd = new ArrayList<String>();    
+		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
+		cmd.add("--config");
+		cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
+		cmd.add("jar");
+		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+		cmd.add("wordcount");
+        if (this.QUEUE != "") {
+            cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
+        }
+        cmd.add(this.inputFile);
+        cmd.add(this.outputPath);
+        String[] command = cmd.toArray(new String[0]);
+		return command;        
 	}
 }

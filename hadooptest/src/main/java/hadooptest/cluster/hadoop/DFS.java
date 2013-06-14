@@ -39,6 +39,18 @@ public class DFS {
 		fsls(path, null);
 	}
 	
+    /**
+     * Form a base URL for an HDFS cluster.
+     * 
+     * @return String the base URL for the HDFS cluster.
+     * 
+     * @throws Exception if we can not get the cluster namenode.
+     */
+    public String getBaseUrl() throws Exception {
+        return "hdfs://" +
+                TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
+    }
+    
 	/**
 	 * Performs a filesystem ls given a path and any extra arguments
 	 * to run on the fs ls.
@@ -49,37 +61,25 @@ public class DFS {
 	 * @throws Exception if the method can't get the FS shell.
 	 */
 	public void fsls(String path, String[] args) throws Exception {
-		TestSession.logger.debug("Show HDFS path: '" + path + "':");
-		FsShell fsShell = TestSession.cluster.getFsShell();
-		String URL = getBaseUrl() + path;
- 
-		String[] cmd;
-		if (args == null) {
-			cmd = new String[] {"-ls", URL};
-		} else {
-			ArrayList list = new ArrayList();
-			list.add("-ls");
-			list.addAll(Arrays.asList(args));
-			list.add(URL);
-			cmd = (String[]) list.toArray(new String[0]);
-		}
-		TestSession.logger.info(
-				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
-					" dfs " + StringUtils.join(cmd, " "));
- 		fsShell.run(cmd);
-	}
-	
-	/**
-	 * Form a base URL for an HDFS cluster.
-	 * 
-	 * @return String the base URL for the HDFS cluster.
-	 * 
-	 * @throws Exception if we can not get the cluster namenode.
-	 */
-	public String getBaseUrl() throws Exception {
-		return "hdfs://" +
-		        TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
-	}
+	    TestSession.logger.debug("Show HDFS path: '" + path + "':");
+	    FsShell fsShell = TestSession.cluster.getFsShell();
+	    String URL = path.startsWith("hdfs://") ? path : getBaseUrl() + path;
+	 
+	    String[] cmd;
+	    if (args == null) {	        
+            cmd = new String[] {"-ls", URL};
+	    } else {
+	        ArrayList<String> list = new ArrayList<String>();
+	        list.add("-ls");
+            list.addAll(Arrays.asList(args));
+            list.add(URL);
+            cmd = (String[]) list.toArray(new String[0]);
+        }
+        TestSession.logger.info(
+                TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
+                    " dfs " + StringUtils.join(cmd, " "));
+        fsShell.run(cmd);
+    }
 	
 	/**
 	 * Creates a new directory in the DFS.  If the directory already exists, it 
