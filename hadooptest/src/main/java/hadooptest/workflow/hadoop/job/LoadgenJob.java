@@ -99,9 +99,11 @@ public class LoadgenJob extends Job {
         Pattern jobPattern = Pattern.compile(jobPatternStr);
 
         this.process =
-                TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
+                TestSession.exec.runProcBuilderSecurityGetProc(
+                        this.assembleCommand(), this.USER);
         BufferedReader reader =
-                new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
+                new BufferedReader(
+                        new InputStreamReader(this.process.getInputStream())); 
         String line=reader.readLine(); 
 
         while(line!=null) 
