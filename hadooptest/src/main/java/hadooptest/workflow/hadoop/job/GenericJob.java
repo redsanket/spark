@@ -104,19 +104,22 @@ public class GenericJob extends Job {
 	}	
 	
 	/**
-	 * Submit the job.  This should be done only by the Job.start() as Job should
-	 * remain threaded.
+	 * Submit the job.  This should be done only by the Job.start() as Job 
+	 * should remain threaded.
 	 * 
-	 * @throws Exception if there is a fatal error running the job process, or the 
-	 *         InputStream can not be read.
+	 * @throws Exception if there is a fatal error running the job process,
+	 * or the InputStream can not be read.
 	 */
-	protected void submit() 
-			throws Exception {
+	protected void submit() throws Exception {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
-		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
-		BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
+		this.process =
+		        TestSession.exec.runProcBuilderSecurityGetProc(
+		                this.assembleCommand(), this.USER);
+		BufferedReader reader =
+		        new BufferedReader(new InputStreamReader(
+		                this.process.getInputStream())); 
 		String line=reader.readLine(); 
 
 		while(line!=null) 
@@ -136,14 +139,15 @@ public class GenericJob extends Job {
 	} 
 
 	/**
-	 * Submit the job and don't wait for the ID.  This should be done only by the Job.start() as Job should
-	 * remain threaded.
+	 * Submit the job and don't wait for the ID.  This should be done only by
+	 * the Job.start() as Job should remain threaded.
 	 * 
 	 * @throws Exception if there is a fatal error running the job process.
 	 */
-	protected void submitNoID() 
-			throws Exception {
-		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
+	protected void submitNoID() throws Exception {
+		this.process =
+		        TestSession.exec.runProcBuilderSecurityGetProc(
+		                this.assembleCommand(), this.USER);
 	} 
 
 	/**
@@ -153,8 +157,7 @@ public class GenericJob extends Job {
 	 * 
 	 * @throws Exception if there is a fatal error funning the job process.
 	 */
-	public String[] submitUnthreaded() 
-			throws Exception {
+	public String[] submitUnthreaded() throws Exception {
 		boolean verbose = true;
 		return submitUnthreaded(verbose);
 	}
@@ -166,19 +169,18 @@ public class GenericJob extends Job {
 	 * 
 	 * @throws Exception if there is a fatal error funning the job process.
 	 */
-	public String[] submitUnthreaded(boolean verbose) 
-			throws Exception {
+	public String[] submitUnthreaded(boolean verbose) throws Exception {
 		String[] output = null;
-		
-		output = TestSession.exec.runProcBuilderSecurity(this.assembleCommand(), verbose);
-
+		output = TestSession.exec.runProcBuilderSecurity(
+		        this.assembleCommand(), verbose);
 		return output;
 	}
 
 	/**
 	 * Assemble the system command to launch the job.
 	 * 
-	 * @return String[] the string array representation of the system command to launch the job.
+	 * @return String[] the string array representation of the system command to
+	 * launch the job.
 	 */
 	protected String[] assembleCommand() {
 		ArrayList<String> cmd = new ArrayList<String>();	
@@ -196,7 +198,8 @@ public class GenericJob extends Job {
 	/**
 	 * Get the system command for launching the job.
 	 * 
-	 * @return String[] the string array representation of the system command to launch the job.
+	 * @return String[] the string array representation of the system command to
+	 *  launch the job.
 	 */
 	public String[] getCommand() {
 		return this.command;		
