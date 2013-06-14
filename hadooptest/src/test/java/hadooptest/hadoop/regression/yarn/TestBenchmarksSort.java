@@ -8,6 +8,7 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.workflow.hadoop.job.GenericJob;
+import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
+
+/*
+ *  Runs the loadgen test. Takes about 30 minutes to run
+ *  (6 min for generating test data via randomwriter).
+ */
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksSort extends TestSession {
@@ -94,28 +100,11 @@ public class TestBenchmarksSort extends TestSession {
         // Create or re-create the test directory.
         TestSession.logger.info("Create new test directory: " + testDir);
         fsShell.run(new String[] {"-mkdir", "-p", testDir});
-    }
-    
-    // Run a randomwriter job to generate Random Byte Data
-    private void runRandomWriterJob(String outputDir) throws Exception {
-        GenericJob job = new GenericJob();
-        job.setJobJar(
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
-        job.setJobName("randomwriter");
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add(outputDir);
-        job.setJobArgs(jobArgs.toArray(new String[0]));
-        job.start();
-        job.waitForID(600);
-        boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run randomwriter: cmd='" +
-                StringUtils.join(job.getCommand(), " ") + "'.", isSuccessful);
-    }
-    
+    }    
 
     // Run a sort job
-    private void runSortJob(String sortInput, String sortOutput) throws Exception {
+    private void runSortJob(String sortInput, String sortOutput)
+            throws Exception {
         GenericJob job;
         job = new GenericJob();
         job.setJobJar(
@@ -173,6 +162,33 @@ public class TestBenchmarksSort extends TestSession {
         assertTrue("Unable to run SORT validation job.", isSuccessful);
     }
 
+    // Run a randomwriter job to generate Random Byte Data
+    private void runRandomWriterJob(String outputDir) throws Exception {
+        
+        
+        // Define the test directory
+        // Delete it existing test directory if exists
+        FileSystem fs = TestSession.cluster.getFS();
+        FsShell fsShell = TestSession.cluster.getFsShell();                
+        if (fs.exists(new Path(outputDir))) {
+            TestSession.logger.info("Data directory '" + outputDir + 
+                    "' already exists.");
+            // fsShell.run(new String[] {"-rm", "-r", testDir});
+            return;
+        }
+        
+        // Create or re-create the test directory.
+        TestSession.logger.info("Create new test directory: " + outputDir);
+        fsShell.run(new String[] {"-mkdir", "-p", outputDir});
+        
+        RandomWriterJob rwJob = new RandomWriterJob();
+        rwJob.setOutputDir(outputDir);
+        rwJob.start();
+        rwJob.waitForID(600);
+        boolean isSuccessful = rwJob.waitForSuccess(20);
+        assertTrue("Unable to run randomwriter job: cmd=" +
+                StringUtils.join(rwJob.getCommand(), " "), isSuccessful);    
+    }
     
     @Test 
     public void testSort() throws Exception{
@@ -180,13 +196,10 @@ public class TestBenchmarksSort extends TestSession {
                 "the data is properly sorted";
         TestSession.logger.info("Run test: " + tcDesc);
         
-        setupTestDir();
-        
+        // Generate sort data
         DFS dfs = new DFS();
         String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/sort";
-        
-        // Generate sort data
+                System.getProperty("user.name") + "/randomwriter";        
         String dataDir = testDir + "/rwOutputDir";
         runRandomWriterJob(dataDir);
         
