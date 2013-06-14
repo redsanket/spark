@@ -25,6 +25,10 @@ import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
 
+/*
+ *  Runs the TestDFSIO test. Takes about 5 minutes to run.
+ */
+
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksDFSIO extends TestSession {
 
