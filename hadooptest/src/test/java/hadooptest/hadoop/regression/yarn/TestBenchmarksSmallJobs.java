@@ -125,6 +125,10 @@ public class TestBenchmarksSmallJobs extends TestSession {
         int ttCount = clusterInfo.getClusterStatus().getTaskTrackerCount();
         TestSession.logger.info("tasktracker count = " +
                 Integer.toString(ttCount));
+        if (ttCount == 0) {
+            TestSession.logger.error(
+                    "mrbench job requires a non-zero tasktracker count");
+        }
         int mapper = ttCount * 90 / 100 * 2;
         int reducer = ttCount * 90 / 100;
 
