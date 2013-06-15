@@ -198,11 +198,14 @@ public class TestBenchmarksSort extends TestSession {
         
         // Generate sort data
         DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/randomwriter";        
-        String dataDir = testDir + "/rwOutputDir";
+        
+        String dataDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/benchmark/rwOutputDir";
         runRandomWriterJob(dataDir);
         
+        String testDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/sort";
+
         // Sort the data
         String sortInputDir = dataDir;
         String sortOutputDir = testDir + "/sortOutputDir";
