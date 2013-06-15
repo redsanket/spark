@@ -121,7 +121,8 @@ public class TestBenchmarksSmallJobs extends TestSession {
         String numRuns = "30";
         String lines = "10000";        
         Cluster clusterInfo = TestSession.cluster.getClusterInfo();
-        int ttCount = clusterInfo.getActiveTaskTrackers().length;
+        // int ttCount = clusterInfo.getActiveTaskTrackers().length;
+        int ttCount = clusterInfo.getClusterStatus().getTaskTrackerCount();
         TestSession.logger.info("tasktracker count = " +
                 Integer.toString(ttCount));
         int mapper = ttCount * 90 / 100 * 2;
