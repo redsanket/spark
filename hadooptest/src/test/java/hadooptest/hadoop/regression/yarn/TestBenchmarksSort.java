@@ -164,12 +164,12 @@ public class TestBenchmarksSort extends TestSession {
 
     // Run a randomwriter job to generate Random Byte Data
     private void runRandomWriterJob(String outputDir) throws Exception {
-        
-        
         // Define the test directory
         // Delete it existing test directory if exists
         FileSystem fs = TestSession.cluster.getFS();
-        FsShell fsShell = TestSession.cluster.getFsShell();                
+        FsShell fsShell = TestSession.cluster.getFsShell();
+        DFS dfs = new DFS();
+        dfs.fsls(outputDir, new String[] {"-d"});
         if (fs.exists(new Path(outputDir))) {
             TestSession.logger.info("Data directory '" + outputDir + 
                     "' already exists.");
