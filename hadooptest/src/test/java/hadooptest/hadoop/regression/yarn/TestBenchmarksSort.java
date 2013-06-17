@@ -36,6 +36,8 @@ import hadooptest.ParallelMethodTests;
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksSort extends TestSession {
 
+    private String dataDir;
+    
     @BeforeClass
     public static void startTestSession() throws Exception{
         TestSession.start();
@@ -163,26 +165,31 @@ public class TestBenchmarksSort extends TestSession {
     }
 
     // Run a randomwriter job to generate Random Byte Data
-    private void runRandomWriterJob(String outputDir) throws Exception {
+    private void runRandomWriterJob() throws Exception {
         // Define the test directory
+        
+        DFS dfs = new DFS();        
+        dataDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/randomwriter";
+        
         // Delete it existing test directory if exists
         FileSystem fs = TestSession.cluster.getFS();
         FsShell fsShell = TestSession.cluster.getFsShell();
-        DFS dfs = new DFS();
-        dfs.fsls(outputDir, new String[] {"-d"});
-        if (fs.exists(new Path(outputDir))) {
-            TestSession.logger.info("Data directory '" + outputDir + 
+        dfs.fsls(dataDir, new String[] {"-d"});
+        if (fs.exists(new Path(dataDir))) {
+            TestSession.logger.info("Data directory '" + dataDir + 
                     "' already exists.");
             // fsShell.run(new String[] {"-rm", "-r", testDir});
             return;
         }
         
         // Create or re-create the test directory.
-        TestSession.logger.info("Create new test directory: " + outputDir);
-        fsShell.run(new String[] {"-mkdir", "-p", outputDir});
+        TestSession.logger.info("Create new test directory: " + dataDir);
+        fsShell.run(new String[] {"-mkdir", "-p", dataDir});
         
+        dataDir += "/rwOutputDir";
         RandomWriterJob rwJob = new RandomWriterJob();
-        rwJob.setOutputDir(outputDir);
+        rwJob.setOutputDir(dataDir);
         rwJob.start();
         rwJob.waitForID(600);
         boolean isSuccessful = rwJob.waitForSuccess(20);
@@ -197,12 +204,9 @@ public class TestBenchmarksSort extends TestSession {
         TestSession.logger.info("Run test: " + tcDesc);
         
         // Generate sort data
-        DFS dfs = new DFS();
+        runRandomWriterJob();
         
-        String dataDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/benchmark/rwOutputDir";
-        runRandomWriterJob(dataDir);
-        
+        DFS dfs = new DFS();        
         String testDir = dfs.getBaseUrl() + "/user/" +
                 System.getProperty("user.name") + "/sort";
 
