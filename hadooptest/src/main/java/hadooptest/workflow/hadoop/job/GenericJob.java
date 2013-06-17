@@ -20,20 +20,21 @@ import java.util.regex.Pattern;
 public class GenericJob extends Job {
 
 	/** The jar file path to use */
-	private String jobJar = null;
+	protected String jobJar =
+	        TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR");
 
 	/** The config dir to use */
-	private String jobConf = TestSession.cluster.getConf().getHadoopConfDir();
+	protected String jobConf = TestSession.cluster.getConf().getHadoopConfDir();
 	
-	/** The job name to run*/
-	private String jobName = null;
-
 	/** The job args to use*/
-	private String[] jobArgs = null;
+	protected String[] jobArgs = null;
 
 	/** The job command*/
-	private String[] command = null;
+	protected String[] command = null;
 	
+    /** The job name to run*/
+    private String jobName = null;
+
 	/**
 	 * Get the job jar file path.
 	 * 
@@ -103,19 +104,22 @@ public class GenericJob extends Job {
 	}	
 	
 	/**
-	 * Submit the job.  This should be done only by the Job.start() as Job should
-	 * remain threaded.
+	 * Submit the job.  This should be done only by the Job.start() as Job 
+	 * should remain threaded.
 	 * 
-	 * @throws Exception if there is a fatal error running the job process, or the 
-	 *         InputStream can not be read.
+	 * @throws Exception if there is a fatal error running the job process,
+	 * or the InputStream can not be read.
 	 */
-	protected void submit() 
-			throws Exception {
+	protected void submit() throws Exception {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
 
-		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
-		BufferedReader reader=new BufferedReader(new InputStreamReader(this.process.getInputStream())); 
+		this.process =
+		        TestSession.exec.runProcBuilderSecurityGetProc(
+		                this.assembleCommand(), this.USER);
+		BufferedReader reader =
+		        new BufferedReader(new InputStreamReader(
+		                this.process.getInputStream())); 
 		String line=reader.readLine(); 
 
 		while(line!=null) 
@@ -135,14 +139,15 @@ public class GenericJob extends Job {
 	} 
 
 	/**
-	 * Submit the job and don't wait for the ID.  This should be done only by the Job.start() as Job should
-	 * remain threaded.
+	 * Submit the job and don't wait for the ID.  This should be done only by
+	 * the Job.start() as Job should remain threaded.
 	 * 
 	 * @throws Exception if there is a fatal error running the job process.
 	 */
-	protected void submitNoID() 
-			throws Exception {
-		this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
+	protected void submitNoID() throws Exception {
+		this.process =
+		        TestSession.exec.runProcBuilderSecurityGetProc(
+		                this.assembleCommand(), this.USER);
 	} 
 
 	/**
@@ -152,8 +157,7 @@ public class GenericJob extends Job {
 	 * 
 	 * @throws Exception if there is a fatal error funning the job process.
 	 */
-	public String[] submitUnthreaded() 
-			throws Exception {
+	public String[] submitUnthreaded() throws Exception {
 		boolean verbose = true;
 		return submitUnthreaded(verbose);
 	}
@@ -165,21 +169,20 @@ public class GenericJob extends Job {
 	 * 
 	 * @throws Exception if there is a fatal error funning the job process.
 	 */
-	public String[] submitUnthreaded(boolean verbose) 
-			throws Exception {
+	public String[] submitUnthreaded(boolean verbose) throws Exception {
 		String[] output = null;
-		
-		output = TestSession.exec.runProcBuilderSecurity(this.assembleCommand(), verbose);
-
+		output = TestSession.exec.runProcBuilderSecurity(
+		        this.assembleCommand(), verbose);
 		return output;
 	}
 
 	/**
 	 * Assemble the system command to launch the job.
 	 * 
-	 * @return String[] the string array representation of the system command to launch the job.
+	 * @return String[] the string array representation of the system command to
+	 * launch the job.
 	 */
-	private String[] assembleCommand() {
+	protected String[] assembleCommand() {
 		ArrayList<String> cmd = new ArrayList<String>();	
 		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
 		cmd.add("--config");
@@ -195,7 +198,8 @@ public class GenericJob extends Job {
 	/**
 	 * Get the system command for launching the job.
 	 * 
-	 * @return String[] the string array representation of the system command to launch the job.
+	 * @return String[] the string array representation of the system command to
+	 *  launch the job.
 	 */
 	public String[] getCommand() {
 		return this.command;		

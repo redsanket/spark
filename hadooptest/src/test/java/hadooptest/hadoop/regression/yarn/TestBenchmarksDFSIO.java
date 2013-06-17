@@ -25,6 +25,10 @@ import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
 
+/*
+ *  Runs the TestDFSIO test. Takes about 5 minutes to run.
+ */
+
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksDFSIO extends TestSession {
 
@@ -92,7 +96,7 @@ public class TestBenchmarksDFSIO extends TestSession {
         FsShell fsShell = TestSession.cluster.getFsShell();
         DFS dfs = new DFS();
         String testDir = dfs.getBaseUrl() + "/user/" +
-            System.getProperty("user.name") + "/benchmarks";
+            System.getProperty("user.name") + "/benchmarks_dfsio";
         if (fs.exists(new Path(testDir))) {
             TestSession.logger.info("Delete existing test directory: " +
                 testDir);
@@ -131,7 +135,7 @@ public class TestBenchmarksDFSIO extends TestSession {
         DFS dfs = new DFS();
         String outputDir = 
                 dfs.getBaseUrl() + "/user/" + System.getProperty("user.name") + 
-                "/benchmarks/" + percentage;
+                "/benchmarks_dfsio/" + percentage;
         jobArgs.add("-D");
         jobArgs.add("test.build.data=" + outputDir);
         

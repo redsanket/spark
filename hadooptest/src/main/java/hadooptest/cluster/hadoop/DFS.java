@@ -39,6 +39,18 @@ public class DFS {
 		fsls(path, null);
 	}
 	
+    /**
+     * Form a base URL for an HDFS cluster.
+     * 
+     * @return String the base URL for the HDFS cluster.
+     * 
+     * @throws Exception if we can not get the cluster namenode.
+     */
+    public String getBaseUrl() throws Exception {
+        return "hdfs://" +
+                TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
+    }
+    
 	/**
 	 * Performs a filesystem ls given a path and any extra arguments
 	 * to run on the fs ls.
@@ -49,37 +61,25 @@ public class DFS {
 	 * @throws Exception if the method can't get the FS shell.
 	 */
 	public void fsls(String path, String[] args) throws Exception {
-		TestSession.logger.debug("Show HDFS path: '" + path + "':");
-		FsShell fsShell = TestSession.cluster.getFsShell();
-		String URL = getBaseUrl() + path;
- 
-		String[] cmd;
-		if (args == null) {
-			cmd = new String[] {"-ls", URL};
-		} else {
-			ArrayList list = new ArrayList();
-			list.add("-ls");
-			list.addAll(Arrays.asList(args));
-			list.add(URL);
-			cmd = (String[]) list.toArray(new String[0]);
-		}
-		TestSession.logger.info(
-				TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
-					" dfs " + StringUtils.join(cmd, " "));
- 		fsShell.run(cmd);
-	}
-	
-	/**
-	 * Form a base URL for an HDFS cluster.
-	 * 
-	 * @return String the base URL for the HDFS cluster.
-	 * 
-	 * @throws Exception if we can not get the cluster namenode.
-	 */
-	public String getBaseUrl() throws Exception {
-		return "hdfs://" +
-		        TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
-	}
+	    TestSession.logger.debug("Show HDFS path: '" + path + "':");
+	    FsShell fsShell = TestSession.cluster.getFsShell();
+	    String URL = path.startsWith("hdfs://") ? path : getBaseUrl() + path;
+	 
+	    String[] cmd;
+	    if (args == null) {	        
+            cmd = new String[] {"-ls", URL};
+	    } else {
+	        ArrayList<String> list = new ArrayList<String>();
+	        list.add("-ls");
+            list.addAll(Arrays.asList(args));
+            list.add(URL);
+            cmd = (String[]) list.toArray(new String[0]);
+        }
+        TestSession.logger.info(
+                TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
+                    " dfs " + StringUtils.join(cmd, " "));
+        fsShell.run(cmd);
+    }
 	
 	/**
 	 * Creates a new directory in the DFS.  If the directory already exists, it 
@@ -164,13 +164,13 @@ public class DFS {
 	 * 
 	 * @return boolean whether the copy was successful or not.
 	 * 
-	 * @throws IOException if the copy fails to find the source or destination
+	 * @throws Exception if the copy fails to find the source or destination
 	 * 						DFS paths.
 	 */
 	public boolean copyDfsToDfs(String srcClusterBasePath,
 			String srcPath, 
 			String destClusterBasePath,
-			String destPath) throws IOException {
+			String destPath) throws Exception {
 		
 		String srcURL = srcClusterBasePath + "/" + srcPath;
 		TestSession.logger.info("SRC_PATH = " + srcClusterBasePath);
@@ -190,9 +190,14 @@ public class DFS {
 		FileSystem destFS = FileSystem.get(URI.create(destURL), destClusterConf);
 		TestSession.logger.info("DEST_FILESYSTEM = " + destFS.toString());
 
-		// remove any instance of the target file.
-		TestSession.logger.info("Deleting any prior instance file in target location....");
-		this.deleteFromFS(destFS, destURL, true);
+		if (this.fileExists(destFS, destURL)) {
+			// remove any instance of the target file.
+			TestSession.logger.info("Deleting a prior instance file in target location....");
+			this.delete(destFS, destURL, true);
+		}
+		else {
+			TestSession.logger.info("Target file doesn't exist yet, no need to clean up.");
+		}
 		
 		TestSession.logger.info("Copying data...");
 		return FileUtil.copy(srcFS, new Path(srcURL), destFS, 
@@ -227,7 +232,7 @@ public class DFS {
 	 * @throws IOException if the target path cannot be formed or the target
 	 * 						FileSystem cannot be reached.
 	 */
-	public boolean deleteFromFS(FileSystem fs, String path, boolean recursive) 
+	public boolean delete(FileSystem fs, String path, boolean recursive) 
 			throws IOException {
 		TestSession.logger.info("Deleting: " + path);
 		TestSession.logger.info("Recursive delete is: "  + recursive);
@@ -247,7 +252,7 @@ public class DFS {
 	 */
 	public RemoteIterator<LocatedFileStatus> getFsLs(String basePath, 
 			boolean recursive) throws Exception {
-		return this.getFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+		return this.getFsLs(TestSession.cluster.getFS(), basePath, recursive);
 	}
 	
 	/**
@@ -262,7 +267,8 @@ public class DFS {
 	 * 
 	 * @throws Exception if there is a problem performing the ls.
 	 */
-	public RemoteIterator<LocatedFileStatus> getFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws IOException {
+	public RemoteIterator<LocatedFileStatus> getFsLs(FileSystem fs, 
+			String basePath, boolean recursive) throws IOException {
 		return fs.listFiles(new Path(basePath), recursive);
 	}
 	
@@ -275,7 +281,7 @@ public class DFS {
 	 * @throws Exception if there is a problem performing the ls.
 	 */
 	public void printFsLs(String basePath, boolean recursive) throws Exception {
-		this.printFsLsRemote(TestSession.cluster.getFS(), basePath, recursive);
+		this.printFsLs(TestSession.cluster.getFS(), basePath, recursive);
 	}
 	
 	/**
@@ -287,8 +293,10 @@ public class DFS {
 	 * 
 	 * @throws Exception if there is a problem performing the ls.
 	 */
-	public void printFsLsRemote(FileSystem fs, String basePath, boolean recursive) throws Exception {
-		RemoteIterator<LocatedFileStatus> iter = this.getFsLsRemote(fs, basePath, recursive);
+	public void printFsLs(FileSystem fs, String basePath, boolean recursive) 
+			throws Exception {
+		RemoteIterator<LocatedFileStatus> iter = 
+				this.getFsLs(fs, basePath, recursive);
 
 		while(iter.hasNext()) {
 			TestSession.logger.info(
@@ -306,7 +314,7 @@ public class DFS {
 	 * @throws IOException if there is a problem setting the path.
 	 */
 	public boolean fileExists(String path) throws IOException {
-		return this.fileExistsRemote(TestSession.cluster.getFS(), path);
+		return this.fileExists(TestSession.cluster.getFS(), path);
 	}
 	
 	/**
@@ -319,7 +327,24 @@ public class DFS {
 	 * 
 	 * @throws IOException if there is a problem setting the path.
 	 */
-	public boolean fileExistsRemote(FileSystem fs, String path) throws IOException {
+	public boolean fileExists(FileSystem fs, String path) throws IOException {
 		return fs.exists(new Path(path));
+	}
+	
+	/**
+	 * Gets a FileSystem reference via a string URI representing the file
+	 * system in question.  The filesystem string should look similar to:
+	 * "hdfs://hostname:port".
+	 * 
+	 * @param filesystem a string representing the filesystem base URI.
+	 * 
+	 * @return a FileSystem representing the passed-in URI.
+	 * 
+	 * @throws IOException if the FileSystem cannot be found.
+	 */
+	public FileSystem getFileSystemFromURI(String filesystem) throws IOException {
+		Configuration destClusterConf = new Configuration();
+		destClusterConf.set("fs.default.name", filesystem);
+		return FileSystem.get(URI.create(filesystem), destClusterConf);
 	}
 }
