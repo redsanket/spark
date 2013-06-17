@@ -24,7 +24,8 @@ import org.junit.Test;
 public class TestTokenRenewal_existingUgi_webhdfs extends TestSession {
 	
     static Configuration conf;
-    static Cluster cluster;
+    static Cluster cluster; 
+    
     static FileSystem fs;
     static Credentials creds = new Credentials();
     
