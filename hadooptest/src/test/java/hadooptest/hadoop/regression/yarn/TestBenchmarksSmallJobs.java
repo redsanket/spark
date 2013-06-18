@@ -23,13 +23,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import coretest.SerialTests;
 import hadooptest.ParallelMethodTests;
 
 /*
  *  Runs the mrbench test. Takes about 2 minutes to run.
  */
 
-@Category(ParallelMethodTests.class)
+@Category(SerialTests.class)
 public class TestBenchmarksSmallJobs extends TestSession {
 
     @BeforeClass
