@@ -167,7 +167,6 @@ public class TestBenchmarksSort extends TestSession {
     // Run a randomwriter job to generate Random Byte Data
     private void runRandomWriterJob() throws Exception {
         // Define the test directory
-        
         DFS dfs = new DFS();        
         dataDir = dfs.getBaseUrl() + "/user/" +
                 System.getProperty("user.name") + "/randomwriter";
@@ -179,15 +178,15 @@ public class TestBenchmarksSort extends TestSession {
         if (fs.exists(new Path(dataDir))) {
             TestSession.logger.info("Data directory '" + dataDir + 
                     "' already exists.");
-            // fsShell.run(new String[] {"-rm", "-r", testDir});
-            return;
+            fsShell.run(new String[] {"-rm", "-r", dataDir});
+            // return;
         }
         
         // Create or re-create the test directory.
-        TestSession.logger.info("Create new test directory: " + dataDir);
-        fsShell.run(new String[] {"-mkdir", "-p", dataDir});
+        // TestSession.logger.info("Create new test directory: " + dataDir);
+        // fsShell.run(new String[] {"-mkdir", "-p", dataDir});
         
-        dataDir += "/rwOutputDir";
+        // dataDir += "/rwOutputDir";
         RandomWriterJob rwJob = new RandomWriterJob();
         rwJob.setOutputDir(dataDir);
         rwJob.start();
