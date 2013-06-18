@@ -81,7 +81,38 @@ public class DFS {
         fsShell.run(cmd);
     }
 	
-	/**
+    /**
+     * Performs a filesystem ls given a path and any extra arguments
+     * to run on the fs ls.
+     * 
+     * @param path The filesystem path.
+     * @param args Extra arguments to attach to the fs ls.
+     * 
+     * @throws Exception if the method can't get the FS shell.
+     */
+    public void fsdu(String path, String[] args) throws Exception {
+        TestSession.logger.debug("Show HDFS disk uage for path: '" +
+                path + "':");
+        FsShell fsShell = TestSession.cluster.getFsShell();
+        String URL = path.startsWith("hdfs://") ? path : getBaseUrl() + path;
+     
+        String[] cmd;
+        if (args == null) {         
+            cmd = new String[] {"-du", URL};
+        } else {
+            ArrayList<String> list = new ArrayList<String>();
+            list.add("-du");
+            list.addAll(Arrays.asList(args));
+            list.add(URL);
+            cmd = (String[]) list.toArray(new String[0]);
+        }
+        TestSession.logger.info(
+                TestSession.cluster.getConf().getHadoopProp("HDFS_BIN") +
+                    " dfs " + StringUtils.join(cmd, " "));
+        fsShell.run(cmd);
+    }
+
+    /**
 	 * Creates a new directory in the DFS.  If the directory already exists, it 
 	 * will delete the existing directory before creating the new one.
 	 * 
