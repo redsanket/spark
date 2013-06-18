@@ -7,8 +7,8 @@ import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
+import hadooptest.workflow.hadoop.data.TestData;
 import hadooptest.workflow.hadoop.job.GenericJob;
-import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,8 +35,6 @@ import hadooptest.ParallelMethodTests;
 
 @Category(ParallelMethodTests.class)
 public class TestBenchmarksSort extends TestSession {
-
-    private String dataDir;
     
     @BeforeClass
     public static void startTestSession() throws Exception{
@@ -164,38 +162,6 @@ public class TestBenchmarksSort extends TestSession {
         assertTrue("Unable to run SORT validation job.", isSuccessful);
     }
 
-    // Run a randomwriter job to generate Random Byte Data
-    private void runRandomWriterJob() throws Exception {
-        // Define the test directory
-        DFS dfs = new DFS();        
-        dataDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/randomwriter";
-        
-        // Delete it existing test directory if exists
-        FileSystem fs = TestSession.cluster.getFS();
-        FsShell fsShell = TestSession.cluster.getFsShell();
-        dfs.fsls(dataDir, new String[] {"-d"});
-        if (fs.exists(new Path(dataDir))) {
-            TestSession.logger.info("Data directory '" + dataDir + 
-                    "' already exists.");
-            fsShell.run(new String[] {"-rm", "-r", dataDir});
-            // return;
-        }
-        
-        // Create or re-create the test directory.
-        // TestSession.logger.info("Create new test directory: " + dataDir);
-        // fsShell.run(new String[] {"-mkdir", "-p", dataDir});
-        
-        // dataDir += "/rwOutputDir";
-        RandomWriterJob rwJob = new RandomWriterJob();
-        rwJob.setOutputDir(dataDir);
-        rwJob.start();
-        rwJob.waitForID(600);
-        boolean isSuccessful = rwJob.waitForSuccess(20);
-        assertTrue("Unable to run randomwriter job: cmd=" +
-                StringUtils.join(rwJob.getCommand(), " "), isSuccessful);    
-    }
-    
     @Test 
     public void testSort() throws Exception{
         String tcDesc = "Runs hadoop sort on random data and verifies that " + 
@@ -203,13 +169,14 @@ public class TestBenchmarksSort extends TestSession {
         TestSession.logger.info("Run test: " + tcDesc);
         
         // Generate sort data
-        runRandomWriterJob();
-        
-        DFS dfs = new DFS();        
-        String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/sort";
+        TestData data = new TestData();
+        String dataDir = data.getDataDir();
+        data.createIfEmpty();
 
         // Sort the data
+        DFS dfs = new DFS();
+        String testDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/sort";
         String sortInputDir = dataDir;
         String sortOutputDir = testDir + "/sortOutputDir";
         runSortJob(sortInputDir, sortOutputDir);
