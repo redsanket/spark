@@ -6,8 +6,8 @@ import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.workflow.hadoop.data.TestData;
 import hadooptest.workflow.hadoop.job.LoadgenJob;
-import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,8 +25,9 @@ import org.junit.experimental.categories.Category;
 import hadooptest.ParallelMethodTests;
 
 /*
- *  Runs the loadgen test. Takes about 10 minutes to run
- *  (6 min for generating test data via randomwriter).
+ *  Runs the loadgen test. Takes about 4 minutes to run with existing data, 
+ *  and 10 minutes to run without existing data (6 min to generate test data
+ *  via randomwriter).
  */
 
 @Category(ParallelMethodTests.class)
@@ -98,28 +99,15 @@ public class TestBenchmarksScan extends TestSession {
         fsShell.run(new String[] {"-mkdir", "-p", testDir});
     }
     
-    // Run a randomwriter job to generate Random Byte Data
-    private void runRandomWriterJob(String outputDir) throws Exception {
-        RandomWriterJob rwJob = new RandomWriterJob();
-        rwJob.setOutputDir(outputDir);
-        rwJob.start();
-        rwJob.waitForID(600);
-        boolean isSuccessful = rwJob.waitForSuccess(20);
-        assertTrue("Unable to run randomwriter job: cmd=" +
-                StringUtils.join(rwJob.getCommand(), " "), isSuccessful);    
-    }
-
     @Test 
     public void testScan() throws Exception{
         String tcDesc = "Runs hadoop scan";
         TestSession.logger.info("Run test: " + tcDesc);
 
         // Generate sort data
-        DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/randomwriter";        
-        String dataDir = testDir + "/rwOutputDir";
-        runRandomWriterJob(dataDir);        
+        TestData data = new TestData();
+        String dataDir = data.getDataDir();
+        data.createIfEmpty();
         
         // Scan the data
         LoadgenJob loadgenJob = new LoadgenJob();
