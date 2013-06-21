@@ -13,7 +13,6 @@ import java.lang.reflect.Constructor;
 
 import coretest.TestSessionCore;
 import coretest.cluster.ClusterState;
-import coretest.cluster.MultiClusterServer;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -36,11 +35,6 @@ public abstract class TestSession extends TestSessionCore {
 
 	/** The Hadoop Cluster to use for the test session */
 	public static HadoopCluster cluster;
-	
-	/** The multi-cluster server host thread **/
-	private static MultiClusterServer multiClusterServer;
-
-	private static int MULTI_CLUSTER_PORT = 4444;
 	
 	/**
 	 * Initializes the test session in the following order:
@@ -70,14 +64,8 @@ public abstract class TestSession extends TestSessionCore {
 
 		initSecurity();
 		
-		//initMultiClusterServer();
+		initMultiCluster();
 	}
-	
-	// stop() being implemented for multi-cluster support, so we can stop the
-	// multi-cluster server thread at the end of the test session.
-	//public static void stop() {
-	//	multiClusterServer.stopServer();
-	//}
 	
 	/**
 	 * Get the Hadoop cluster instance for the test session.
@@ -201,15 +189,6 @@ public abstract class TestSession extends TestSessionCore {
 				logger.error("Failed to set the Hadoop API security.", ioe);
 			}
 		}
-	}
-	
-	/**
-	 * Start listening for framework clients on other cluster gateways.
-	 */
-	private static void initMultiClusterServer() {
-		logger.info("Starting MultiClusterServer on port: " + MULTI_CLUSTER_PORT);
-		multiClusterServer = (new MultiClusterServer(MULTI_CLUSTER_PORT));
-		multiClusterServer.start();
 	}
 	
 }
