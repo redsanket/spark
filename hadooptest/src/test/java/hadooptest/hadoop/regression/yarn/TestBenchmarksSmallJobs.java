@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import coretest.SerialTests;
+import coretest.Util;
 import hadooptest.ParallelMethodTests;
 
 /*
@@ -106,6 +107,15 @@ public class TestBenchmarksSmallJobs extends TestSession {
         TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
     }
     
+    private int getTaskTrackerCount() throws Exception {
+        Cluster clusterInfo = TestSession.cluster.getClusterInfo();
+        // int ttCount = clusterInfo.getActiveTaskTrackers().length;
+        int ttCount = clusterInfo.getClusterStatus().getTaskTrackerCount();
+        TestSession.logger.info("tasktracker count = " +
+                Integer.toString(ttCount));
+        return ttCount;
+    }
+    
     @Test 
     public void testSmallJobs() throws Exception{
         String tcDesc = "Runs hadoop small jobs";
@@ -120,16 +130,18 @@ public class TestBenchmarksSmallJobs extends TestSession {
         jobArgs.add("-Dmapreduce.job.acl-view-job=*");
         
         String numRuns = "30";
-        String lines = "10000";        
-        Cluster clusterInfo = TestSession.cluster.getClusterInfo();
-        // int ttCount = clusterInfo.getActiveTaskTrackers().length;
-        int ttCount = clusterInfo.getClusterStatus().getTaskTrackerCount();
-        TestSession.logger.info("tasktracker count = " +
-                Integer.toString(ttCount));
-        if (ttCount == 0) {
+        String lines = "10000";
+        
+        int ttCount = this.getTaskTrackerCount();
+        int retry = 3;
+        while ((ttCount == 0) && (retry > 0)) {
             TestSession.logger.error(
                     "mrbench job requires a non-zero tasktracker count");
+            Util.sleep(60);
+            ttCount = this.getTaskTrackerCount();
+            retry = retry - 1;
         }
+        
         int mapper = ttCount * 90 / 100 * 2;
         int reducer = ttCount * 90 / 100;
 
