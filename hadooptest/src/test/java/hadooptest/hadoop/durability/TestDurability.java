@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,6 +36,12 @@ public class TestDurability extends TestSession {
 	private static String outputFile = "wc_output_new";
 	
 	/****************************************************************
+	 *          Please give the string for the input file           *
+	 ****************************************************************/
+	
+	private static String input_string = "Hello world, and run Durability Test";
+	
+	/****************************************************************
 	 *  Configure the total file number that you want to generate   *
 	 *                       in the HDFS                            *
 	 ****************************************************************/
@@ -43,7 +50,7 @@ public class TestDurability extends TestSession {
 	/****************************************************************
 	 *                  Configure the total runtime                 *
 	 ****************************************************************/
-	private static long runTimeMin = 5; 
+	private static long runTimeMin = 2; 
 	private static long runTimeHour = 0;
 	private static long runTimeDay = 0;
 	
@@ -111,6 +118,21 @@ public class TestDurability extends TestSession {
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
+		
+		// create local input file
+		File inputFile = new File(localDir + localFile);
+		try{
+			if(inputFile.delete()){
+				TestSession.logger.info("Input file already exists from previous test, delete it!");
+			} else {
+				TestSession.logger.info("Input path clear, creating new input file!");
+			}
+			
+			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);
+		
+		} catch (Exception e) {
+			TestSession.logger.error(e);
+		}
 		
 		// Check the valid of the input directory in HDFS
 		// check if path exists and if so remove it 
@@ -185,7 +207,7 @@ public class TestDurability extends TestSession {
 			try {
 				WordCountJob jobUserDefault = new WordCountJob();
 				
-			    System.out.println("\n" + "Time remaining : " +  (endTime - System.currentTimeMillis())/1000 + " sec" + "\n");
+			    System.out.println("============> Time remaining : " + (endTime - System.currentTimeMillis())/1000 + " sec <============");
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(myNum) + ".txt";
 				TestSession.logger.info("Randomly choosed input file is: " + inputFile + "\n");
