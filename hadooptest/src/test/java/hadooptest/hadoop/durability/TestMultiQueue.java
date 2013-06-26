@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -41,6 +42,12 @@ public class TestMultiQueue extends TestSession {
 	private static String outputFile = "wc_output_new";
 	
 	/****************************************************************
+	 *          Please give the string for the input file           *
+	 ****************************************************************/
+	
+	private static String input_string = "Hello world! Really???? Are you sure?";
+	
+	/****************************************************************
 	 *  Configure the total file number that you want to generate   *
 	 *                       in the HDFS                            *
 	 ****************************************************************/
@@ -49,7 +56,7 @@ public class TestMultiQueue extends TestSession {
 	/****************************************************************
 	 *                  Configure the total runtime                 *
 	 ****************************************************************/
-	private static long runTimeMin = 5; 
+	private static long runTimeMin = 2; 
 	private static long runTimeHour = 0;
 	private static long runTimeDay = 0;
 	
@@ -128,7 +135,7 @@ public class TestMultiQueue extends TestSession {
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
 		// show the input and output path
-		localDir = "/user/" + System.getProperty("user.name") + "/";
+		localDir = "/home/" + System.getProperty("user.name") + "/";
 		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
 		
 		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
@@ -136,6 +143,21 @@ public class TestMultiQueue extends TestSession {
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
+		
+		// create local input file
+		File inputFile = new File(localDir + localFile);
+		try{
+			if(inputFile.delete()){
+				TestSession.logger.info("Input file already exists from previous test, delete it!");
+			} else {
+				TestSession.logger.info("Input path clear, creating new input file!");
+			}
+			
+			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);
+		
+		} catch (Exception e) {
+			TestSession.logger.error(e);
+		}
 		
 		// Check the valid of the input directory in HDFS
 		// check if path exists and if so remove it 
@@ -184,6 +206,7 @@ public class TestMultiQueue extends TestSession {
 		// Delete the file, if it exists in the same directory
 		TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
 	}
+	
 
 	/*
 	 * A test for running a Wordcount job
@@ -210,7 +233,7 @@ public class TestMultiQueue extends TestSession {
 			try {
 				WordCountJob jobUserDefault = new WordCountJob();
 				
-			    System.out.println("Time remaining : " + (endTime - System.currentTimeMillis())/1000 + " sec");
+			    System.out.println("============> Time remaining : " + (endTime - System.currentTimeMillis())/1000 + " sec <============");
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 				logger.info("Randomly choosed input file is: " + inputFile);
