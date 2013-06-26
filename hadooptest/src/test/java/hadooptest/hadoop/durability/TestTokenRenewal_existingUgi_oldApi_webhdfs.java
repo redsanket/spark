@@ -1,9 +1,13 @@
 package hadooptest.hadoop.durability;
 
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+
 import hadooptest.TestSession;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -30,6 +34,8 @@ public class TestTokenRenewal_existingUgi_oldApi_webhdfs extends TestSession {
 	// NOTE: this is the name node of your cluster that you currently test your code on
 	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
 	private static String webhdfsAddr;
+	private static String input_string = "Hello world! Really???? Are you sure?";
+
 	
 	// location information 
 	private static String outputDir = null;
@@ -52,6 +58,21 @@ public class TestTokenRenewal_existingUgi_oldApi_webhdfs extends TestSession {
 		// show the input and output path
 		localDir = "/home/" + System.getProperty("user.name") + "/";
 		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
+		
+		// create local input file
+		File inputFile = new File(localDir + localFile);
+		try{
+			if(inputFile.delete()){
+				TestSession.logger.info("Input file already exists from previous test, delete it!");
+			} else {
+				TestSession.logger.info("Input path clear, creating new input file!");
+			}
+					
+			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);	
+		} catch (Exception e) {
+				TestSession.logger.error(e);
+		}
+		
 		
 		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
 		logger.info("Target Directory is: " + outputDir + localFile+ "Target File is: " + outputDir + outputFile);
