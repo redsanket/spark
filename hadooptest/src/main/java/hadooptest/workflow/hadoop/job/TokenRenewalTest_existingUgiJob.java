@@ -5,13 +5,14 @@ import hadooptest.TestSession;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * An instance of Job that represents a sleep job.
  */
-public class WordCountJob extends Job {
+public class TokenRenewalTest_existingUgiJob extends Job {
 	
 	/** The input path for the wordcount job */
 	private String inputFile;
@@ -107,17 +108,37 @@ public class WordCountJob extends Job {
 	private String[] assembleCommand() {
 		// set up the cmd
 		ArrayList<String> cmd = new ArrayList<String>();    
-		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
-		cmd.add("--config");
-		cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
-		cmd.add("jar");
-		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
-		cmd.add("wordcount");
-        if (this.QUEUE != "") {
-            cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
-        }
-        cmd.add(this.inputFile);
-        cmd.add(this.outputPath);
+//		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
+//		cmd.add("--config");
+//		cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
+//		cmd.add("jar");
+//		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+//		cmd.add("wordcount");
+//        if (this.QUEUE != "") {
+//            cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
+//        }
+//        cmd.add(this.inputFile);
+//        cmd.add(this.outputPath);
+		
+		cmd.add("mkdir /tmp/hadooptest-hadoopqa-faramir/temp/hadoopoutTokenRenewalTest_existingUgi;");
+		
+		
+//		cmd.add("javac -Xlint:deprecation -Xlint:unchecked  -cp  '");
+//		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
+//		cmd.add("--config");
+//		cmd.add(TestSession.cluster.getConf().getHadoopConfDir());		
+//		cmd.add("classpath` " + 
+//				"-d /tmp/hadooptest-hadoopqa-faramir/temp/hadoopoutTokenRenewalTest_existingUgioutTokenRenewalTest_existingUgi " +
+//				"TokenRenewalTest_existingUgi.java; ");
+//		
+//		cmd.add("jar -cvf TokenRenewalTest_existingUgi.jar -C outTokenRenewalTest_existingUgi .; ");
+//		
+//		
+//		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
+//		cmd.add("--config");
+//		cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
+//		cmd.add("jar");	
+//		cmd.add(" /tmp/hadooptest-hadoopqa-faramir/temp/hadoopoutTokenRenewalTest_existingUgi/TokenRenewalTest_existingUgi.jar TokenRenewalTest_existingUgi");
         String[] command = cmd.toArray(new String[0]);
 		return command;        
 	}

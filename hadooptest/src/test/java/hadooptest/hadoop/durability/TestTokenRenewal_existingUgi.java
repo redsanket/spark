@@ -16,7 +16,7 @@ import org.junit.Test;
 
 
 
-public class TestTokenRenewal_existingUgi_webhdfs extends TestSession {
+public class TestTokenRenewal_existingUgi extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -25,9 +25,6 @@ public class TestTokenRenewal_existingUgi_webhdfs extends TestSession {
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
-	// NOTE: this is the name node of your cluster that you currently test your code on
-	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
-	private static String webhdfsAddr;
 
 	
 	// location information 
@@ -53,11 +50,7 @@ public class TestTokenRenewal_existingUgi_webhdfs extends TestSession {
 		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
 		
 		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
-		logger.info("Target Directory is: " + outputDir + localFile+ "Target File is: " + outputDir + outputFile);
-		
-	    webhdfsAddr = "webhdfs://" + hdfsNode + ":" + outputDir + localFile;
-	    
-		logger.info("Target Directory is: " + webhdfsAddr);
+		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 				
 		TestSession.cluster.getFS().delete(new Path(outputDir+localFile), true);
 	    
@@ -86,8 +79,8 @@ public class TestTokenRenewal_existingUgi_webhdfs extends TestSession {
 	    Cluster cluster = new Cluster(conf);
 	    FileSystem fs = FileSystem.get(conf);
 	    WordCountJob Job1 = new WordCountJob();
-	    
-		Job1.setInputFile(webhdfsAddr);
+	     
+		Job1.setInputFile(outputDir + localFile);
 		Job1.setOutputPath(outputDir + outputFile +"/job1");
 		 
 	    // list out our config prop change, should be 60 (seconds)
@@ -167,7 +160,7 @@ public class TestTokenRenewal_existingUgi_webhdfs extends TestSession {
 	     
 	    WordCountJob Job2 = new WordCountJob();
 	     
-		Job2.setInputFile(webhdfsAddr);
+		Job2.setInputFile(outputDir + localFile);
 		Job2.setOutputPath(outputDir + outputFile +"/job2");
 		 
 		TestSession.logger.info("Trying to submit job2...");

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ $# -ne 1 ];then
+  echo "Error: need the CLUSTER name to compile against"
+  exit 1
+fi
+CLUSTER=$1
+echo "Info: building against $CLUSTER"
+
+
+if [ ! -d outTokenTest_NestedJob ]
+then
+  mkdir outTokenTest_NestedJob
+fi 
+
+javac -Xlint:deprecation -Xlint:unchecked  -cp  `/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop  --config /home/gs/gridre/yroot.$CLUSTER/conf/hadoop  classpath` -d outTokenTest_NestedJob TokenTest_NestedJob.java
+if [ $? -ne 0 ]
+then
+   echo "Error compiling"
+   exit 1
+fi
+
+jar -cvf TokenTest_NestedJob.jar -C outTokenTest_NestedJob .
+if [ $? -ne 0 ]
+then
+   echo "Error packaging jar"
+   exit 1
+fi
+
+echo "RUNME: /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.$CLUSTER/conf/hadoop/ jar `pwd`/TokenTest_NestedJob.jar TokenTest_NestedJob" 
+
