@@ -37,7 +37,6 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 	private static String outputFile = "TTR_output";
 	// NOTE: this is the name node of your cluster that you currently test your code on
 	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
-	private static String webhdfsAddr;
 	
 	/****************************************************************
 	 *       Please set up how long you want EACH test to run       *
@@ -52,6 +51,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 	private static String localDir = null;
 	private static int jobcount = 0;
 	private static long runTimeSec = 0;
+	private static String webhdfsAddr;
 	
 	/*
 	 *  Before running the test.
