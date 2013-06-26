@@ -64,7 +64,7 @@ public abstract class TestSession extends TestSessionCore {
 
 		initSecurity();
 		
-		initMultiCluster();
+//		initMultiCluster();
 	}
 	
 	/**
