@@ -25,6 +25,12 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ * 
+ * Setup Durability.runMin,Durability.runHour,Durability.runDay in runtime 
+ * as -DDurability.runMin=1 -DDurability.runHour=2 -DDurability.runDay=3
+ *
+ */
 public class TestDurability extends TestSession {
 	
 	/****************************************************************
@@ -193,12 +199,13 @@ public class TestDurability extends TestSession {
 	    long startTime = System.currentTimeMillis();
 	    TestSession.logger.info("Current time is: " + startTime/1000);
 		
-	    logger.info("============================ runMin: "+System.getProperty("runMin") 
-	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
+	    int runMin  = Integer.parseInt(System.getProperty("Durability.runMin"));
+	    int runHour = Integer.parseInt(System.getProperty("Durability.runHour"));
+	    int runDay  = Integer.parseInt(System.getProperty("Durability.runDay"));
+	    logger.info("============================ runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
 
-	    long endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
-	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
-
+	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
+	    
 	    TestSession.logger.info("End time is: " + endTime/1000);
 	    
 		while(endTime > System.currentTimeMillis()) {
