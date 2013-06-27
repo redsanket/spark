@@ -161,6 +161,7 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
     # execute("rm -f $jacoco_result_dir");
 }
 
+my $hadoop_version;
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
@@ -174,7 +175,7 @@ if ($use_mvn) {
 
     my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
     note($cmd);
-    chomp(my $hadoop_version = `$cmd`);
+    chomp($hadoop_version = `$cmd`);
 
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version ".
