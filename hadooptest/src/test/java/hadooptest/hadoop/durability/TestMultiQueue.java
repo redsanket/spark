@@ -26,13 +26,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 /**
  * 
- * Setup runMin,runHour,runDay in runtime 
- * 
+ * Setup MultiQueue.runMin,MultiQueue.runHour,MultiQueue.runDay in runtime 
+ * as -DMultiQueue.runMin=1 -DMultiQueue.runHour=2 -DMultiQueue.runDay=3
  *
  */
-
-
-
 public class TestMultiQueue extends TestSession {
 	
 	/****************************************************************
@@ -69,7 +66,6 @@ public class TestMultiQueue extends TestSession {
 	private static String outputDir = null;
 	private static String localDir = null;
 	private static String []qname;
-	
 	
 	/*
 	 *  Before running the test.
@@ -228,11 +224,12 @@ public class TestMultiQueue extends TestSession {
 	    long startTime = System.currentTimeMillis();
 	    logger.info("Current time is: " + startTime/1000);
 		
-	    logger.info("============================ runMin: "+System.getProperty("runMin") 
-	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
+		int runMin  = Integer.parseInt(System.getProperty("MultiQueue.runMin"));
+	    int runHour = Integer.parseInt(System.getProperty("MultiQueue.runHour"));
+	    int runDay  = Integer.parseInt(System.getProperty("MultiQueue.runDay"));
+	    logger.info("============================ runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
 
-	    long endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
-	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
+	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
 	    
 		while(endTime > System.currentTimeMillis()) {
 		
