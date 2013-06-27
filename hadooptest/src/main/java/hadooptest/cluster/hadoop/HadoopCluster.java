@@ -396,7 +396,13 @@ public abstract class HadoopCluster {
 	public boolean reset() 
 			throws Exception {	
 		boolean stopped = this.stop();
+		if (!stopped) {
+			TestSession.logger.error("cluster did not stop!!!");
+		}
 		boolean started = this.start();
+		if (!started) {
+			TestSession.logger.error("cluster did not start!!!");
+		}
 		return (stopped && started);
 	}
 	

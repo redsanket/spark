@@ -218,21 +218,25 @@ public class DFS {
 		FileSystem srcFS = FileSystem.get(URI.create(srcURL), srcClusterConf);
 		TestSession.logger.info("SRC_FILESYSTEM = " + srcFS.toString());
 		
-		FileSystem destFS = FileSystem.get(URI.create(destURL), destClusterConf);
+		FileSystem destFS = FileSystem.get(URI.create(destURL), 
+				destClusterConf);
 		TestSession.logger.info("DEST_FILESYSTEM = " + destFS.toString());
 
 		if (this.fileExists(destFS, destURL)) {
 			// remove any instance of the target file.
-			TestSession.logger.info("Deleting a prior instance file in target location....");
+			TestSession.logger.info(
+					"Deleting a prior instance file in target location....");
 			this.delete(destFS, destURL, true);
 		}
 		else {
-			TestSession.logger.info("Target file doesn't exist yet, no need to clean up.");
+			TestSession.logger.info(
+					"Target file doesn't exist yet, no need to clean up.");
 		}
 		
 		TestSession.logger.info("Copying data...");
 		return FileUtil.copy(srcFS, new Path(srcURL), destFS, 
-				new Path(destURL), false, (Configuration)(TestSession.cluster.getConf()));
+				new Path(destURL), 
+				false, (Configuration)(TestSession.cluster.getConf()));
 	}
 	
 	/**
@@ -373,9 +377,60 @@ public class DFS {
 	 * 
 	 * @throws IOException if the FileSystem cannot be found.
 	 */
-	public FileSystem getFileSystemFromURI(String filesystem) throws IOException {
+	public FileSystem getFileSystemFromURI(String filesystem) 
+			throws IOException {
 		Configuration destClusterConf = new Configuration();
 		destClusterConf.set("fs.default.name", filesystem);
 		return FileSystem.get(URI.create(filesystem), destClusterConf);
 	}
+	
+	/**
+	 * Returns the default DFS HTTP port.
+	 * 
+	 * @return String the default DFS HTTP port.
+	 */
+	public String getHTTPDefaultPort() {
+		return TestSession.cluster.getConf().get("dfs.http.address");
+	}
+	
+	/**
+	 * Verifies whether webhdfs is enabled on a cluster DFS.
+	 * 
+	 * @return whether webhdfs is enabled on the cluster DFS.
+	 */
+	public boolean isWebhdfsEnabled() {
+		String isEnabled = TestSession.cluster.getConf().get(
+				"dfs.webhdfs.enabled");
+		
+		if (isEnabled.equals("true")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Gets the configuration value for 
+	 * dfs.web.authentication.kerberos.principal
+	 * 
+	 * @return the configuration value for 
+	 * 				dfs.web.authentication.kerberos.principal
+	 */
+	public String getWebhdfsKerberosAuthPrincipal() {
+		return TestSession.cluster.getConf().get(
+				"dfs.web.authentication.kerberos.principal");
+	}
+	
+	/**
+	 * Gets the configuration value for dfs.web.authentication.kerberos.keytab
+	 * 
+	 * @return the configuration value for 
+	 * 			dfs.web.authentication.kerberos.keytab
+	 */
+	public String getWebhdfsKerberosAuthKeytab() {
+		return TestSession.cluster.getConf().get(
+				"dfs.web.authentication.kerberos.keytab");
+	}
+
 }

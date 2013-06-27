@@ -20,8 +20,13 @@ public class TestMultiClusterCopy extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
-
+		
 		dfs = new DFS();
+		
+		logger.info("HTTP DEFAULT PORT: " + dfs.getHTTPDefaultPort());
+		logger.info("WEBHDFS ENABLED: " + dfs.isWebhdfsEnabled());
+		logger.info("WEBHDFS KERBEROS AUTH PRINCIPAL: " + dfs.getWebhdfsKerberosAuthPrincipal());
+		logger.info("WEBHDFS KERBEROS AUTH KEYTAB: " + dfs.getWebhdfsKerberosAuthKeytab());
 		
 		logger.info("COPYING FROM LOCAL FILE");
 		dfs.copyLocalToHdfs("/homes/hadoopqa/hadooptest.conf", dfs.getBaseUrl() + "/user/hadoopqa/" + "hadooptest.conf");
