@@ -206,6 +206,7 @@ public class TestDurability extends TestSession {
 			
 			try {
 				WordCountJob jobUserDefault = new WordCountJob();
+				
 				long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
 			    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
 				

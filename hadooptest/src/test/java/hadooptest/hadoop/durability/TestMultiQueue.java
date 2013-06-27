@@ -239,7 +239,7 @@ public class TestMultiQueue extends TestSession {
 				String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 				logger.info("Randomly choosed input file is: " + inputFile);
 				
-				String output = "/" + Integer.toString(file_count);
+				String output = "/" + Integer.toString(file_count); 
 				logger.info("Output file is: " + outputDir + outputFile + output);
 				
 				jobUserDefault.setInputFile(inputFile);
