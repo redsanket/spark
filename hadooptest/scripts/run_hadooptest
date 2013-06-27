@@ -196,7 +196,7 @@ if ($use_mvn) {
 
 # Write test results in TAP format to /homes/hadoopqa
 my $result_root_dir = "/homes/hadoopqa/hudson_artifacts/";
-$result_root_dir .= ($HADOOP_VERSION =~ /^0.23/) ? "hudson_artifacts-0.23" : "hudson_artifacts-2.0";
+$result_root_dir .= ($hadoop_version =~ /^0.23/) ? "hudson_artifacts-0.23" : "hudson_artifacts-2.0";
 my $fingerprint = $result_root_dir."artifacts.stamp";
 
 if (-e $fingerprint) {
