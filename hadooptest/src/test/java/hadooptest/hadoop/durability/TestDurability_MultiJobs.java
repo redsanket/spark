@@ -191,7 +191,6 @@ public class TestDurability_MultiJobs extends TestSession {
 	 */
 	@Test
 	public void runTestDurability() {
-		Random myRan = new Random();
 		
 	    // get current time
 	    long startTime = System.currentTimeMillis();
@@ -209,9 +208,6 @@ public class TestDurability_MultiJobs extends TestSession {
 	    int jobNum = Integer.parseInt(System.getProperty("jobNum"));
 	    
 		while(endTime > System.currentTimeMillis()) {
-		
-			myNum = myRan.nextInt(TotalFileNum);
-			
 			try {
 			    WordCountJob[] Jobs = new WordCountJob[jobNum];
 			    
@@ -235,6 +231,10 @@ public class TestDurability_MultiJobs extends TestSession {
 	}
 	
 	private void startJobs(WordCountJob jobUserDefault, int i){
+		
+		Random myRan = new Random();
+		myNum = myRan.nextInt(TotalFileNum);
+		
 		try{
 			long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
 		    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
