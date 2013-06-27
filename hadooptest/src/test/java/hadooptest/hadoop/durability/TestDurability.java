@@ -50,9 +50,6 @@ public class TestDurability extends TestSession {
 	/****************************************************************
 	 *                  Configure the total runtime                 *
 	 ****************************************************************/
-	private static long runTimeMin = 0; 
-	private static long runTimeHour = 12;
-	private static long runTimeDay = 0;
 	
 	// location information 
 	private static Path inpath = null;
@@ -196,8 +193,12 @@ public class TestDurability extends TestSession {
 	    long startTime = System.currentTimeMillis();
 	    TestSession.logger.info("Current time is: " + startTime/1000);
 		
-	    long endTime = startTime + runTimeMin*60*1000 + runTimeHour*60*60*1000 + runTimeDay*24*60*60*1000 ;
-	    
+	    logger.info("============================ runMin: "+System.getProperty("runMin") 
+	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
+
+	    long endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
+	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
+
 	    TestSession.logger.info("End time is: " + endTime/1000);
 	    
 		while(endTime > System.currentTimeMillis()) {

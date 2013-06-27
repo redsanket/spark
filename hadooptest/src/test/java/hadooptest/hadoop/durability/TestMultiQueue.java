@@ -24,6 +24,13 @@ import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
+/**
+ * 
+ * Setup runMin,runHour,runDay in runtime 
+ * 
+ *
+ */
+
 
 
 public class TestMultiQueue extends TestSession {
@@ -56,9 +63,6 @@ public class TestMultiQueue extends TestSession {
 	/****************************************************************
 	 *                  Configure the total runtime                 *
 	 ****************************************************************/
-	private static long runTimeMin = 0; 
-	private static long runTimeHour = 1;
-	private static long runTimeDay = 0;
 	
 	// location information 
 	private static Path inpath = null;
@@ -224,7 +228,11 @@ public class TestMultiQueue extends TestSession {
 	    long startTime = System.currentTimeMillis();
 	    logger.info("Current time is: " + startTime/1000);
 		
-	    long endTime = startTime + runTimeMin*60*1000 + runTimeHour*60*60*1000 + runTimeDay*24*60*60*1000 ;
+	    logger.info("============================ runMin: "+System.getProperty("runMin") 
+	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
+
+	    long endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
+	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
 	    
 		while(endTime > System.currentTimeMillis()) {
 		
