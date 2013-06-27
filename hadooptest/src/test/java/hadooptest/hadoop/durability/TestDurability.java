@@ -50,8 +50,8 @@ public class TestDurability extends TestSession {
 	/****************************************************************
 	 *                  Configure the total runtime                 *
 	 ****************************************************************/
-	private static long runTimeMin = 0; 
-	private static long runTimeHour = 12;
+	private static long runTimeMin = 5; 
+	private static long runTimeHour = 0;
 	private static long runTimeDay = 0;
 	
 	// location information 
