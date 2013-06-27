@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use FindBin qw($Bin $Script);
 use Test::More;
+use File::Copy;
 
 my %options=();
 
@@ -191,5 +192,15 @@ if ($use_mvn) {
             "$java_lib_path ".
             "org.junit.runner.JUnitCore ".
             $test_opt);
+}
+
+# Write test results in TAP format to /homes/hadoopqa
+my $result_root_dir = "/homes/hadoopqa/hudson_artifacts/"
+$result_root_dir .= ($HADOOP_VERSION =~ /^0.23/) ? "hudson_artifacts-0.23" : "hudson_artifacts-2.0";
+my $fingerprint = $result_root_dir."artifacts.stamp";
+
+if (-e $fingerprint) {
+    note("copy fingerprint file '$fingerprint' to workspace '$workspace':");
+    copy($fingerprint,"$workspace/artifacts.stamp");
 }
 
