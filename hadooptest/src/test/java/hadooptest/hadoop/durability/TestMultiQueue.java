@@ -135,10 +135,10 @@ public class TestMultiQueue extends TestSession {
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
 		// show the input and output path
-		localDir = "/home/" + System.getProperty("user.name") + "/";
+		localDir = System.getProperty("user.home") + "/";
 		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
 		
-		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
+		outputDir = TestSession.getCluster().getFS().getHomeDirectory() + "/";
 		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
@@ -222,7 +222,7 @@ public class TestMultiQueue extends TestSession {
 		
 	    // get current time
 	    long startTime = System.currentTimeMillis();
-	    System.out.println("Current time is: " + startTime/1000);
+	    logger.info("Current time is: " + startTime/1000);
 		
 	    long endTime = startTime + runTimeMin*60*1000 + runTimeHour*60*60*1000 + runTimeDay*24*60*60*1000 ;
 	    
@@ -233,7 +233,8 @@ public class TestMultiQueue extends TestSession {
 			try {
 				WordCountJob jobUserDefault = new WordCountJob();
 				
-			    System.out.println("============> Time remaining : " + (endTime - System.currentTimeMillis())/1000 + " sec <============");
+				long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
+			    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 				logger.info("Randomly choosed input file is: " + inputFile);

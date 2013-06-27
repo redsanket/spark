@@ -206,8 +206,8 @@ public class TestDurability extends TestSession {
 			
 			try {
 				WordCountJob jobUserDefault = new WordCountJob();
-				
-			    System.out.println("============> Time remaining : " + (endTime - System.currentTimeMillis())/1000 + " sec <============");
+				long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
+			    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(myNum) + ".txt";
 				TestSession.logger.info("Randomly choosed input file is: " + inputFile + "\n");
