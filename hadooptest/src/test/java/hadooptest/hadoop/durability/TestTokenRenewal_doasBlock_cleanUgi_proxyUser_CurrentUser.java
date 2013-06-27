@@ -4,8 +4,10 @@ import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
+import java.io.File;
 import java.security.PrivilegedExceptionAction;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,7 +32,12 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser extends T
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
-
+	
+	/****************************************************************
+	 *          Please give the string for the input file           *
+	 ****************************************************************/
+	
+	private static String input_string = "Hello world! Run doasBlock cleanUgi ProxyUser CurrentUser!";
 	
 	// location information 
 	private static String outputDir = null;
@@ -56,6 +63,20 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser extends T
 		
 		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
 		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
+		
+		// create local input file
+		File inputFile = new File(localDir + localFile);
+		try{
+			if(inputFile.delete()){
+				TestSession.logger.info("Input file already exists from previous test, delete it!");
+			} else {
+				TestSession.logger.info("Input path clear, creating new input file!");
+			}
+					
+			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);	
+		} catch (Exception e) {
+				TestSession.logger.error(e);
+		}
 				
 		TestSession.cluster.getFS().delete(new Path(outputDir+localFile), true);
 	    

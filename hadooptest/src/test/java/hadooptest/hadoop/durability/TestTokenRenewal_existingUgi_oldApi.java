@@ -31,6 +31,7 @@ public class TestTokenRenewal_existingUgi_oldApi extends TestSession {
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
+	
 	private static String input_string = "Hello world! Really???? Are you sure?";
 
 	

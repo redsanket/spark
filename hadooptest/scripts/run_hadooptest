@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use FindBin qw($Bin $Script);
 use Test::More;
+use File::Copy;
 
 my %options=();
 
@@ -160,6 +161,7 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
     # execute("rm -f $jacoco_result_dir");
 }
 
+my $hadoop_version;
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
@@ -173,7 +175,7 @@ if ($use_mvn) {
 
     my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
     note($cmd);
-    chomp(my $hadoop_version = `$cmd`);
+    chomp($hadoop_version = `$cmd`);
 
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version ".
@@ -191,5 +193,18 @@ if ($use_mvn) {
             "$java_lib_path ".
             "org.junit.runner.JUnitCore ".
             $test_opt);
+}
+
+# Write test results in TAP format to /homes/hadoopqa
+my $result_root_dir = "/homes/hadoopqa/hudson_artifacts/";
+# my $result_root_dir = "/home/y/var/builds/workspace/NightlyHadoopQEAutomation-23
+$result_root_dir .= ($hadoop_version =~ /^0.23/) ? "hudson_artifacts-0.23" : "hudson_artifacts-2.0";
+my $fingerprint = $result_root_dir."/artifacts.stamp";
+
+if (-e $fingerprint) {
+    note("copy fingerprint file '$fingerprint' to workspace '$workspace':");
+    copy($fingerprint,"$workspace/artifacts.stamp");
+} else {
+    note("unable to find upstream fingerprint file '$fingerprint' to copy to workspace '$workspace':");
 }
 

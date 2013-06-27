@@ -54,6 +54,7 @@ public class TestTokenRenewal_existingUgi extends TestSession {
 		// show the input and output path
 		localDir = "/home/" + System.getProperty("user.name") + "/";
 		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
+		
 		// create local input file
 		File inputFile = new File(localDir + localFile);
 		try{
