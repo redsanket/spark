@@ -27,7 +27,7 @@ import org.junit.Test;
 
 
 
-public class TestMultiQueue_runParallel_Durability extends TestSession {
+public class TestMultiQueue_Durability extends TestSession {
 	
 	/****************************************************************
 	 *Please set the number of queues that you want to submit job to*
@@ -295,7 +295,7 @@ public class TestMultiQueue_runParallel_Durability extends TestSession {
 		}
 	}
 	
-	private void assertJobs(WordCountJob jobUserDefault){
+	private void assertJobs(WordCountJob jobUserDefault){	
 		try{
 		assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
 				jobUserDefault.waitForID(10));
