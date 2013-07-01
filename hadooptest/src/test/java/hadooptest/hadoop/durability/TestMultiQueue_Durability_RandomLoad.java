@@ -278,7 +278,7 @@ public class TestMultiQueue_Durability_RandomLoad extends TestSession {
 			String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 			logger.info("Randomly choosed input file is: " + inputFile);
 			
-			String output = "/" + Integer.toString(i); 
+			String output = "/" + Integer.toString(i) + "_" + file_count; 
 			logger.info("Output file is: " + outputDir + outputFile + output);
 			
 			jobUserDefault.setInputFile(inputFile);
@@ -301,8 +301,8 @@ public class TestMultiQueue_Durability_RandomLoad extends TestSession {
 	
 	private void assertJobs(WordCountJob jobUserDefault){	
 		try{
-		assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-				jobUserDefault.waitForID(10));
+		assertTrue("WordCount job (default user) was not assigned an ID within 120 seconds.", 
+				jobUserDefault.waitForID(120));
 		assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
 				jobUserDefault.verifyID());
 		int waitTime = 2;
