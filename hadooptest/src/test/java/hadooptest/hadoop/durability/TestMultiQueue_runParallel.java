@@ -289,8 +289,8 @@ public class TestMultiQueue_runParallel extends TestSession {
 	
 	private void assertJobs(WordCountJob jobUserDefault){
 		try{
-		assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-				jobUserDefault.waitForID(10));
+		assertTrue("WordCount job (default user) was not assigned an ID within 120 seconds.", 
+				jobUserDefault.waitForID(120));
 		assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
 				jobUserDefault.verifyID());
 		int waitTime = 2;

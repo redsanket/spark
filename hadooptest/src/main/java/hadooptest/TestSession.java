@@ -5,8 +5,6 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
-import hadooptest.cluster.hadoop.standalone.StandaloneCluster;
-import hadooptest.cluster.hadoop.standalone.StandaloneExecutor;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -107,9 +105,6 @@ public abstract class TestSession extends TestSessionCore {
 		else if (strClusterType.equals("hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster")) {
 			exec = new PseudoDistributedExecutor();
 		}
-		else if (strClusterType.equals("hadooptest.cluster.hadoop.standalone.StandaloneCluster")) {
-			exec = new StandaloneExecutor();
-		}
 		else {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
 		}
@@ -140,9 +135,6 @@ public abstract class TestSession extends TestSessionCore {
 		}
 		else if (clusterObject instanceof PseudoDistributedCluster) {
 			cluster = (PseudoDistributedCluster)clusterObject;
-		}
-		else if (clusterObject instanceof StandaloneCluster) {
-			cluster = (StandaloneCluster)clusterObject;
 		}
 		else {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
