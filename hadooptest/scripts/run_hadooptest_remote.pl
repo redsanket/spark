@@ -170,6 +170,9 @@ unless ($install_only) {
         # WE NEED TO COPY THE TEST RESULTS FROM THE GATEWAY BACK TO THE BUILD HOST
         execute("scp -r $remote_host:$remote_ws_ht/target/surefire-reports $local_ws_ht/target/");
 
+	# copy back the fingerprint file if one exists.
+	execute("scp -r $remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
+
         # execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
         execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")

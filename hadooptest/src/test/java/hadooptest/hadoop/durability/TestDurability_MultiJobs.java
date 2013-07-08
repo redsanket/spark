@@ -24,18 +24,8 @@ import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
-/**
- * 
- * Setup MultiQueue.runMin,MultiQueue.runHour,MultiQueue.runDay in runtime 
- * as -DMultiQueue.runMin=1 -DMultiQueue.runHour=2 -DMultiQueue.runDay=3
- *
- */
-public class TestMultiQueue extends TestSession {
-	
-	/****************************************************************
-	 *Please set the number of queues that you want to submit job to*
-	 ****************************************************************/
-	private static int qnum = 2;
+
+public class TestDurability_MultiJobs extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -49,7 +39,7 @@ public class TestMultiQueue extends TestSession {
 	 *          Please give the string for the input file           *
 	 ****************************************************************/
 	
-	private static String input_string = "Hello world! Really???? Are you sure?";
+	private static String input_string = "Hello world, and run Durability Test";
 	
 	/****************************************************************
 	 *  Configure the total file number that you want to generate   *
@@ -58,14 +48,20 @@ public class TestMultiQueue extends TestSession {
 	private static int TotalFileNum = 20;
 		
 	/****************************************************************
-	 *                  Configure the total runtime                 *
+	 *                  parameters from cmd line                    *
 	 ****************************************************************/
+	/*
+	 * ===========> runSec, runHour, runDay, jobNum <===============
+	 */
+	
 	
 	// location information 
 	private static Path inpath = null;
 	private static String outputDir = null;
 	private static String localDir = null;
-	private static String []qname;
+	int fileCount = 0;
+	int myNum;
+	long endTime;
 	
 	/*
 	 *  Before running the test.
@@ -79,7 +75,6 @@ public class TestMultiQueue extends TestSession {
 	public static void startTestSession() throws Exception {
 		TestSession.start();
 		setupTestConf();
-		getQueneInfo();
 		setupTestDir();
 	}
 	
@@ -113,33 +108,17 @@ public class TestMultiQueue extends TestSession {
 		}
 	}
 	
-	public static void getQueneInfo() throws Exception {
-		
-		qname = new String[qnum];
-		
-		YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();
-		
-		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
-		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
-		logger.info("queues='" +
-        	Arrays.toString(queues.toArray()) + "'");
-		qnum = Math.min(qnum,queues.size());
-		for(int i = 0; i < qnum; i++) {
-			qname[i] = queues.get(i).getQueueName();
-			logger.info("Queue " + i +" name is :" + qname[i]);
-		}
-	}
-	
 	public static void setupTestDir() throws Exception {
 		
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
 		// show the input and output path
-		localDir = System.getProperty("user.home") + "/";
-		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
+	    // the localDir might be different, check if "/user/", "//Users", or "/home/"
+		localDir = "/home/" + System.getProperty("user.name") + "/";
+		TestSession.logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
 		
-		outputDir = TestSession.getCluster().getFS().getHomeDirectory() + "/";
-		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
+		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
+		TestSession.logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
@@ -164,27 +143,26 @@ public class TestMultiQueue extends TestSession {
 	    try {
 	       if ( myFs.isDirectory(inpath) ) {
 	         myFs.delete(inpath, true);
-	         logger.info("INFO: deleted input path: " + inpath );
+	         TestSession.logger.info("INFO: deleted input path: " + inpath );
 	       }
 	    }
 	    catch (Exception e) {
 	        System.err.println("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
-	        logger.error("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    // make the input directory
 	    try {
 	    	 if ( myFs.mkdirs(inpath) ) {
-	    		 logger.info("INFO: created input path: " + inpath );
+	    		 TestSession.logger.info("INFO: created input path: " + inpath );
 	      }
 	    }
 	    catch (Exception e) {
 	         System.err.println("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
-	         logger.error("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    
 	    // Read the local input file
         String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
-        logger.info("Input string is: "+s);  
+        TestSession.logger.info("Input string is: "+s);  
+		
 		
 		for(int fileNum = 0; fileNum < TotalFileNum; fileNum ++)
 		{
@@ -200,13 +178,11 @@ public class TestMultiQueue extends TestSession {
 		         dostream.close();
 		    } catch (IOException ioe) {
 		        	System.err.println("FAIL: can't create input file for wordcount: " + ioe);
-		        	logger.error("FAIL: can't create input file for wordcount: " + ioe);
 		    }
 		}
 		// Delete the file, if it exists in the same directory
 		TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
 	}
-	
 
 	/*
 	 * A test for running a Wordcount job
@@ -214,64 +190,89 @@ public class TestMultiQueue extends TestSession {
 	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void runWordCountTest() {
-		
-		int file_count = 0;
-		int input_index;
-		Random random = new Random();
+	public void runTestDurability() {
 		
 	    // get current time
 	    long startTime = System.currentTimeMillis();
-	    logger.info("Current time is: " + startTime/1000);
+	    TestSession.logger.info("Current time is: " + startTime/1000);
 		
-		int runMin  = Integer.parseInt(System.getProperty("MultiQueue.runMin"));
-	    int runHour = Integer.parseInt(System.getProperty("MultiQueue.runHour"));
-	    int runDay  = Integer.parseInt(System.getProperty("MultiQueue.runDay"));
-	    logger.info("============================ runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+	    logger.info("============================ runMin: "+System.getProperty("runMin") 
+	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
 
-	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
+	     endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
+	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
+
+	    TestSession.logger.info("End time is: " + endTime/1000);
+	    
+	    // make Job array for testing
+	    int jobNum = Integer.parseInt(System.getProperty("jobNum"));
 	    
 		while(endTime > System.currentTimeMillis()) {
-		
-			input_index = random.nextInt(TotalFileNum);
-			
 			try {
-				WordCountJob jobUserDefault = new WordCountJob();
+			    WordCountJob[] Jobs = new WordCountJob[jobNum];
+			    
+			    for(int i = 0; i < jobNum; i++){
+			    	Jobs[i] = new WordCountJob();
+			    }
+			    
+				for (int i = 0; i < jobNum; i++){
+					startJobs(Jobs[i], i);
+				}
 				
-				long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
-			    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
-				
-				String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
-				logger.info("Randomly choosed input file is: " + inputFile);
-				
-				String output = "/" + Integer.toString(file_count); 
-				logger.info("Output file is: " + outputDir + outputFile + output);
-				
-				jobUserDefault.setInputFile(inputFile);
-				jobUserDefault.setOutputPath(outputDir + outputFile + output);
-				
-				logger.info("Queue index = " + file_count%qnum);
-				
-				// switch between queues
-				jobUserDefault.setQueue(qname[file_count%qnum]);
-	
-				jobUserDefault.start();
-	
-				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-						jobUserDefault.waitForID(10));
-				assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
-						jobUserDefault.verifyID());
-	
-				int waitTime = 2;
-				assertTrue("Job (default user) did not succeed.",
-					jobUserDefault.waitForSuccess(waitTime));
-
+				for (int i = 0; i < jobNum; i++){
+					assertJobs(Jobs[i]);
+				}
 			}
 			catch (Exception e) {
 				TestSession.logger.error("Exception failure.", e);
 				fail();
 			}
-			file_count++;
+		}
+	}
+	
+	private void startJobs(WordCountJob jobUserDefault, int i){
+		
+		Random myRan = new Random();
+		myNum = myRan.nextInt(TotalFileNum);
+		
+		try{
+			long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
+		    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
+			
+			String inputFile = inpath.toString() + "/" + Integer.toString(myNum) + ".txt";
+			TestSession.logger.info("Randomly choosed input file is: " + inputFile + "\n");
+			
+			String output = "/" + Integer.toString(fileCount);
+			TestSession.logger.info("Randomly choosed output file is: " + outputDir + outputFile + output + "\n");
+			jobUserDefault.setUser("Hadoop_user_"+Integer.toString(i));
+			fileCount++;
+			
+			jobUserDefault.setInputFile(inputFile);
+			jobUserDefault.setOutputPath(outputDir + outputFile + output);
+			
+			TestSession.logger.info("===============> Start Job " + Integer.toString(fileCount) + "<===============");
+			TestSession.logger.info("===============> BY: Hadoop User" + Integer.toString(i) + "<==============");
+	
+			jobUserDefault.start();
+			
+		} catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
+	}
+	
+	private void assertJobs(WordCountJob jobUserDefault){
+		try{
+		assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
+				jobUserDefault.waitForID(10));
+		assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
+				jobUserDefault.verifyID());
+		int waitTime = 2;
+		assertTrue("Job (default user) did not succeed.",
+			jobUserDefault.waitForSuccess(waitTime));
+		} catch (Exception e){
+			TestSession.logger.error("Exception failure.", e);
+			fail();
 		}
 	}
 }

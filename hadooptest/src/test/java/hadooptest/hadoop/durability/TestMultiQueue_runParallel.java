@@ -24,18 +24,16 @@ import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
-/**
- * 
- * Setup MultiQueue.runMin,MultiQueue.runHour,MultiQueue.runDay in runtime 
- * as -DMultiQueue.runMin=1 -DMultiQueue.runHour=2 -DMultiQueue.runDay=3
- *
- */
-public class TestMultiQueue extends TestSession {
+
+
+
+
+public class TestMultiQueue_runParallel extends TestSession {
 	
 	/****************************************************************
 	 *Please set the number of queues that you want to submit job to*
 	 ****************************************************************/
-	private static int qnum = 2;
+	private static int qnum;
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -58,14 +56,21 @@ public class TestMultiQueue extends TestSession {
 	private static int TotalFileNum = 20;
 		
 	/****************************************************************
-	 *                  Configure the total runtime                 *
+	 *       		 Parameters from cmd line input	                *
 	 ****************************************************************/
+	/**
+	 * Setup runMin,runHour,runDay in runtime, queueNum
+	 */
 	
 	// location information 
 	private static Path inpath = null;
 	private static String outputDir = null;
 	private static String localDir = null;
 	private static String []qname;
+	private int file_count = 0;
+	private int input_index;
+	private long endTime;
+	
 	
 	/*
 	 *  Before running the test.
@@ -115,6 +120,7 @@ public class TestMultiQueue extends TestSession {
 	
 	public static void getQueneInfo() throws Exception {
 		
+		qnum = Integer.parseInt(System.getProperty("queueNum"));
 		qname = new String[qnum];
 		
 		YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();
@@ -123,7 +129,7 @@ public class TestMultiQueue extends TestSession {
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
 		logger.info("queues='" +
         	Arrays.toString(queues.toArray()) + "'");
-		qnum = Math.min(qnum,queues.size());
+		qnum = Math.min(qnum, queues.size());
 		for(int i = 0; i < qnum; i++) {
 			qname[i] = queues.get(i).getQueueName();
 			logger.info("Queue " + i +" name is :" + qname[i]);
@@ -216,62 +222,83 @@ public class TestMultiQueue extends TestSession {
 	@Test
 	public void runWordCountTest() {
 		
-		int file_count = 0;
-		int input_index;
-		Random random = new Random();
-		
 	    // get current time
 	    long startTime = System.currentTimeMillis();
 	    logger.info("Current time is: " + startTime/1000);
 		
-		int runMin  = Integer.parseInt(System.getProperty("MultiQueue.runMin"));
-	    int runHour = Integer.parseInt(System.getProperty("MultiQueue.runHour"));
-	    int runDay  = Integer.parseInt(System.getProperty("MultiQueue.runDay"));
-	    logger.info("============================ runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+	    logger.info("============================ runMin: "+System.getProperty("runMin") 
+	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
 
-	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
+	    endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
+	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
 	    
 		while(endTime > System.currentTimeMillis()) {
-		
-			input_index = random.nextInt(TotalFileNum);
 			
 			try {
-				WordCountJob jobUserDefault = new WordCountJob();
+			    WordCountJob[] Jobs = new WordCountJob[qnum];
+			    
+			    for(int i = 0; i < qnum; i++){
+			    	Jobs[i] = new WordCountJob();
+			    }
+			    
+				for (int i = 0; i < qnum; i++){
+					startJobs(Jobs[i]);
+				}
 				
-				long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
-			    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
-				
-				String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
-				logger.info("Randomly choosed input file is: " + inputFile);
-				
-				String output = "/" + Integer.toString(file_count); 
-				logger.info("Output file is: " + outputDir + outputFile + output);
-				
-				jobUserDefault.setInputFile(inputFile);
-				jobUserDefault.setOutputPath(outputDir + outputFile + output);
-				
-				logger.info("Queue index = " + file_count%qnum);
-				
-				// switch between queues
-				jobUserDefault.setQueue(qname[file_count%qnum]);
-	
-				jobUserDefault.start();
-	
-				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-						jobUserDefault.waitForID(10));
-				assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
-						jobUserDefault.verifyID());
-	
-				int waitTime = 2;
-				assertTrue("Job (default user) did not succeed.",
-					jobUserDefault.waitForSuccess(waitTime));
-
+				for (int i = 0; i < qnum; i++){
+					assertJobs(Jobs[i]);
+				}
 			}
 			catch (Exception e) {
 				TestSession.logger.error("Exception failure.", e);
 				fail();
 			}
-			file_count++;
 		}
 	}
+	
+	private void startJobs(WordCountJob jobUserDefault){
+		try{
+			Random random = new Random();
+			input_index = random.nextInt(TotalFileNum);
+			
+			long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
+		    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours, "+timeLeftSec/60%60+" mins, "+ timeLeftSec%60%60+" secs<============");
+			
+			String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
+			logger.info("Randomly choosed input file is: " + inputFile);
+			
+			String output = "/" + Integer.toString(file_count); 
+			logger.info("Output file is: " + outputDir + outputFile + output);
+			
+			jobUserDefault.setInputFile(inputFile);
+			jobUserDefault.setOutputPath(outputDir + outputFile + output);
+			
+			logger.info("Queue index = " + file_count%qnum);
+			
+			// switch between queues
+			jobUserDefault.setQueue(qname[file_count%qnum]);
+			file_count++;
+
+			jobUserDefault.start();
+			
+		} catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
+	}
+	
+	private void assertJobs(WordCountJob jobUserDefault){
+		try{
+		assertTrue("WordCount job (default user) was not assigned an ID within 120 seconds.", 
+				jobUserDefault.waitForID(120));
+		assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
+				jobUserDefault.verifyID());
+		int waitTime = 2;
+		assertTrue("Job (default user) did not succeed.",
+			jobUserDefault.waitForSuccess(waitTime));
+		} catch (Exception e){
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
+	}	
 }
