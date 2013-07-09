@@ -105,7 +105,7 @@ public class WordCountAPIJob extends Configured implements Tool {
 	        FileOutputFormat.setOutputPath(job[i], new Path(args[2] + "/" + Integer.toString(i)));
 	        job[i].setJobName(args[3]);
 	        
-	        job[i].setJarByClass(WordCountAPIJob_tmp.class);
+	        job[i].setJarByClass(WordCountAPIJob.class);
 	
 	        job[i].submit();
 	        
@@ -114,9 +114,7 @@ public class WordCountAPIJob extends Configured implements Tool {
         for (int i = 0; i < jobNum; i++){
         	job[i].waitForCompletion(true);
         }
-        
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!Check point 4");
-        
+                
         return 0;
     }
 
