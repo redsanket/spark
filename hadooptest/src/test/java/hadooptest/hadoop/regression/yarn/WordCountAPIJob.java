@@ -1,14 +1,19 @@
 package hadooptest.hadoop.regression.yarn;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.StringTokenizer;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.examples.WordCount.IntSumReducer;
 import org.apache.hadoop.examples.WordCount.TokenizerMapper;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -20,12 +25,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.StringTokenizer;
-
 public class WordCountAPIJob extends Configured implements Tool {
-
     public static class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
         private HashMap<String,Integer> buffer;
 
@@ -78,43 +78,58 @@ public class WordCountAPIJob extends Configured implements Tool {
     }
 
     public int run(String[] args) throws Exception {
-    	int jobNum = Integer.parseInt(args[0]);
+    	int file_count = 0;
+    	Random random = new Random();
     	
-//    	System.out.println("args[1] = "+args[1]);
-//    	System.out.println("args[2] = "+args[2]);
-//    	System.out.println("args[3] = "+args[3]);
+    	for (int i = 0; i < args.length; i++){
+    		System.out.println("API side ----- args["+Integer.toString(i) + "]: " + args[i]);
+    	}
+    	int jobNum = Integer.parseInt(args[2]);
+    	int qNum = Integer.parseInt(args[3]);
     	
-        Job [] job= new Job[jobNum];
+    	JobConf [] conf = new JobConf[qNum];   	
+    	for (int i = 0; i < qNum; i++){
+    		conf[i] = new JobConf();
+    		conf[i].setQueueName(args[4+i]);
+    	}
+    	
+        Job [][] job = new Job[qNum][jobNum];
         
-        
-        for (int i = 0; i < jobNum; i++){
-        	System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!Running Job"+i+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        	job[i] = new Job();
-	        job[i].setOutputKeyClass(Text.class);
-	        job[i].setOutputValueClass(IntWritable.class);
-	        
-	
-	        job[i].setMapperClass(TokenizerMapper.class);
-	        job[i].setCombinerClass(IntSumReducer.class);
-	        job[i].setReducerClass(IntSumReducer.class);
-	        	        
-	        job[i].setInputFormatClass(TextInputFormat.class);
-	        job[i].setOutputFormatClass(TextOutputFormat.class);
-	
-	        FileInputFormat.setInputPaths(job[i], new Path(args[1]));
-	        FileOutputFormat.setOutputPath(job[i], new Path(args[2] + "/" + Integer.toString(i)));
-	        job[i].setJobName(args[3]);
-	        
-	        job[i].setJarByClass(WordCountAPIJob.class);
-	
-	        job[i].submit();
-	        
+        for (int q = 0; q < qNum; q++){
+	        for (int i = 0; i < jobNum; i++){
+	        	System.out.println("============= Submitting Job["+i+"] to Queue["+q+"] =================");
+	        	
+	        	job[q][i] = new Job();
+	        	job[q][i] = Job.getInstance(conf[q]);
+	        	
+	        	job[q][i].setOutputKeyClass(Text.class);
+	        	job[q][i].setOutputValueClass(IntWritable.class);	        
+		
+	        	job[q][i].setMapperClass(TokenizerMapper.class);
+	        	job[q][i].setCombinerClass(IntSumReducer.class);
+	        	job[q][i].setReducerClass(IntSumReducer.class);
+		        	        
+	        	job[q][i].setInputFormatClass(TextInputFormat.class);
+	        	job[q][i].setOutputFormatClass(TextOutputFormat.class);
+		
+	        	int randNum = random.nextInt(20);
+	        	System.out.println("============ Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt =================");
+		        FileInputFormat.setInputPaths(job[q][i], new Path(args[0]+"/"+Integer.toString((randNum))+".txt"));
+		        FileOutputFormat.setOutputPath(job[q][i], new Path(args[1] + "/" + Integer.toString(file_count)));
+		        job[q][i].setJobName("word count");
+		        
+		        job[q][i].setJarByClass(WordCountAPIJob.class);
+		
+		        job[q][i].submit();
+		        file_count++;
+	        }
         }
-        
-        for (int i = 0; i < jobNum; i++){
-        	job[i].waitForCompletion(true);
-        }
-                
+		
+        for(int q = 0; q < qNum; q++){
+	        for (int i = 0; i < jobNum; i++){
+	        	job[q][i].waitForCompletion(true);
+	        }
+        }        
         return 0;
     }
 
