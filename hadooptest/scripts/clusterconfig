@@ -201,27 +201,31 @@ then
                 # ssh -t $host "sudo /bin/gtar fx /tmp/tmp5/keys2.tgz";
                 # ssh -t $host ls -l /tmp/tmp5/;
 
-                scp -p $HOST_BACKUP_DIR/keys.tgz $host:$LOCAL_KEYTABS_DIR;
-                ssh -t $host "sudo /bin/gtar fx $LOCAL_KEYTABS_DIR/keys.tgz";
+                set -x
+                scp -p $HOST_BACKUP_DIR/keys.tgz $host:/tmp;
+                ssh -t $host "sudo /bin/mv /tmp/keys.tgz $LOCAL_KEYTABS_DIR/";
+                ssh -t $host "sudo /bin/gtar fx $LOCAL_KEYTABS_DIR/keys.tgz -C $LOCAL_KEYTABS_DIR";
                 ssh -t $host ls -l $LOCAL_KEYTABS_DIR;
+                set +x
 
-                for file in `ls $HOST_BACKUP_DIR/*.keytab`; do
-                    basename=`basename $file`
-                    mf=`grep $basename $HOST_BACKUP_DIR/keytabs.mf`
-                    owner=`echo $mf|cut -d' ' -f3`
-                    group=`echo $mf|cut -d' ' -f4`
-                    echo "file=$basename, owner=$owner, group=$group"
-                    echo "scp -p $file $host:/tmp/"
-                    scp -p $file $host:/tmp/
-                    echo "ssh -t $host sudo chown $owner /tmp/$basename"
-                    ssh -t $host sudo chown $owner /tmp/$basename
-                    echo "ssh -t $host sudo chgrp $group /tmp/$basename"
-                    ssh -t $host sudo chgrp $group /tmp/$basename
-                    echo "ssh -t $host ls -l /tmp/$basename"
-                    ssh -t $host ls -l /tmp/$basename
-                    echo "ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/"
-                    ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/
-                done
+                # for file in `ls $HOST_BACKUP_DIR/*.keytab`; do
+                #     basename=`basename $file`
+                #     mf=`grep $basename $HOST_BACKUP_DIR/keytabs.mf`
+                #     owner=`echo $mf|cut -d' ' -f3`
+                #     group=`echo $mf|cut -d' ' -f4`
+                #     echo "file=$basename, owner=$owner, group=$group"
+                #     echo "scp -p $file $host:/tmp/"
+                #     scp -p $file $host:/tmp/
+                #     echo "ssh -t $host sudo chown $owner /tmp/$basename"
+                #     ssh -t $host sudo chown $owner /tmp/$basename
+                #     echo "ssh -t $host sudo chgrp $group /tmp/$basename"
+                #     ssh -t $host sudo chgrp $group /tmp/$basename
+                #     echo "ssh -t $host ls -l /tmp/$basename"
+                #     ssh -t $host ls -l /tmp/$basename
+                #     echo "ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/"
+                #     ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/
+                # done
+
                 echo "ssh -t $host ls -l $LOCAL_KEYTABS_DIR/"
                 ssh -t $host ls -l $LOCAL_KEYTABS_DIR/
             fi
