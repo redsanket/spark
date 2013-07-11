@@ -241,6 +241,7 @@ for host in `cat $UPGRADE_NODES_FILE`; do
         OS_VERSION="6.4.1"
         # OS_VERSION="6.x"
         # "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --modify ysa_profile=ygrid_dn "
+        echo "Update opsdb for host $host:";
         stty -echo
         ssh adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
         stty echo
@@ -259,6 +260,7 @@ done
 #################################################################################
 if [[ $IMAGE == 1 ]]; then
     for host in `cat $UPGRADE_NODES_FILE`; do
+        echo "Reboot host $host:";
         stty -echo
 
         # "ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host"
