@@ -7,9 +7,11 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 
 import org.apache.commons.io.FileUtils;
@@ -113,13 +115,25 @@ public class TestWordCountAPI_Durability extends TestSession {
 	}
 
 	public static void getParameters() throws Exception {
-		runMin  = Integer.parseInt(System.getProperty("runMin"));
-	    runHour = Integer.parseInt(System.getProperty("runHour"));
-	    runDay  = Integer.parseInt(System.getProperty("runDay"));
-	    logger.info("====>>>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
-	    jobNum = Integer.parseInt(System.getProperty("jobNum"));
-	    qNum = Integer.parseInt(System.getProperty("queueNum"));
-	    logger.info("====>>>> Job #:: "+jobNum+", Queue #: "+ qNum); 
+		
+		String workingDir = System.getProperty("user.dir");
+		
+		Properties prop = new Properties();
+		 
+    	try {
+            //load a properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/TestWordCountAPIJob_Durability.properties"));
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+
+		runMin  = Integer.parseInt(prop.getProperty("runMin"));
+	    runHour = Integer.parseInt(prop.getProperty("runHour"));
+	    runDay  = Integer.parseInt(prop.getProperty("runDay"));
+	    logger.info("============>>>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+	    jobNum = Integer.parseInt(prop.getProperty("jobNum"));
+	    qNum = Integer.parseInt(prop.getProperty("queueNum"));
+	    logger.info("============>>>> Job #:: "+jobNum+", Queue #: "+ qNum); 
 	}
 	
 	public static void getQueneInfo() throws Exception {
