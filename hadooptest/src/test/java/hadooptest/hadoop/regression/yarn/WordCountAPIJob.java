@@ -1,5 +1,9 @@
 package hadooptest.hadoop.regression.yarn;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import hadooptest.TestSession;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
@@ -82,7 +86,7 @@ public class WordCountAPIJob extends Configured implements Tool {
     	Random random = new Random();
     	
     	for (int i = 0; i < args.length; i++){
-    		System.out.println("API side ----- args["+Integer.toString(i) + "]: " + args[i]);
+    		TestSession.logger.info("API side ----- args["+Integer.toString(i) + "]: " + args[i]);
     	}
     	int jobNum = Integer.parseInt(args[2]);
     	int qNum = Integer.parseInt(args[3]);
@@ -97,7 +101,7 @@ public class WordCountAPIJob extends Configured implements Tool {
         
         for (int q = 0; q < qNum; q++){
 	        for (int i = 0; i < jobNum; i++){
-	        	System.out.println("============= Submitting Job["+i+"] to Queue["+q+"] =================");
+	        	TestSession.logger.info("============== Submitting Job["+i+"] to Queue["+q+"] ==================");
 	        	
 	        	job[q][i] = new Job();
 	        	job[q][i] = Job.getInstance(conf[q]);
@@ -113,7 +117,7 @@ public class WordCountAPIJob extends Configured implements Tool {
 	        	job[q][i].setOutputFormatClass(TextOutputFormat.class);
 		
 	        	int randNum = random.nextInt(20);
-	        	System.out.println("============ Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt =================");
+	        	TestSession.logger.info("============ Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt =================");
 		        FileInputFormat.setInputPaths(job[q][i], new Path(args[0]+"/"+Integer.toString((randNum))+".txt"));
 		        FileOutputFormat.setOutputPath(job[q][i], new Path(args[1] + "/" + Integer.toString(file_count)));
 		        job[q][i].setJobName("word count");
@@ -124,12 +128,18 @@ public class WordCountAPIJob extends Configured implements Tool {
 		        file_count++;
 	        }
         }
-		
-        for(int q = 0; q < qNum; q++){
-	        for (int i = 0; i < jobNum; i++){
-	        	job[q][i].waitForCompletion(true);
+		try{
+	        for(int q = 0; q < qNum; q++){
+		        for (int i = 0; i < jobNum; i++){
+		        	TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Checking Job["+q+"]["+i+"]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		    		assertTrue("Job["+q+"]["+i+"] failed",
+		    				job[q][i].waitForCompletion(true));
+		        	}
 	        }
-        }        
+		} catch(Exception e){
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
         return 0;
     }
 
