@@ -11,6 +11,8 @@ import java.lang.reflect.Constructor;
 
 import coretest.TestSessionCore;
 import coretest.cluster.ClusterState;
+import hadooptest.cluster.MultiClusterClient;
+import hadooptest.cluster.MultiClusterServer;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -33,6 +35,12 @@ public abstract class TestSession extends TestSessionCore {
 
 	/** The Hadoop Cluster to use for the test session */
 	public static HadoopCluster cluster;
+	
+	/** The multi-cluster server host thread **/
+	public static MultiClusterServer multiClusterServer;
+
+	/** The multi-cluster client thread **/
+	public static MultiClusterClient multiClusterClient;
 	
 	/**
 	 * Initializes the test session in the following order:
@@ -62,7 +70,14 @@ public abstract class TestSession extends TestSessionCore {
 
 		initSecurity();
 		
-//		initMultiCluster();
+		initMultiCluster();
+	}
+	
+	// stop() being implemented for multi-cluster support, so we can stop the
+	// multi-cluster server thread at the end of the test session.
+	public static void stop() {
+		multiClusterServer.stopServer();
+		multiClusterClient.stopClient();
 	}
 	
 	/**
@@ -179,6 +194,45 @@ public abstract class TestSession extends TestSessionCore {
 			}
 			catch (IOException ioe) {
 				logger.error("Failed to set the Hadoop API security.", ioe);
+			}
+		}
+	}
+	
+	/**
+	 * Start listening for framework clients on other cluster gateways.
+	 */
+	public static void initMultiCluster() {
+		String multiClusterType = conf.getProperty("MULTI_CLUSTER");
+
+		int multiClusterPort;
+		String multiClusterServerName;
+
+		if (multiClusterType == null) {
+			logger.debug("MULTI_CLUSTER is not defined in the config file.");
+		} else {
+			if (multiClusterType.equalsIgnoreCase("server")) {
+				multiClusterPort = Integer.parseInt(
+						conf.getProperty("MULTI_CLUSTER_PORT"));
+
+				logger.info("Starting MultiClusterServer on port: "
+						+ multiClusterPort);
+				multiClusterServer = (new MultiClusterServer(multiClusterPort));
+				multiClusterServer.start();
+			} else if (multiClusterType.equalsIgnoreCase("client")) {
+				multiClusterPort = Integer.parseInt(
+						conf.getProperty("MULTI_CLUSTER_PORT"));
+				multiClusterServerName = 
+						conf.getProperty("MULTI_CLUSTER_SERVER");
+
+				logger.info("Starting MultiClusterClient");
+				multiClusterClient = (new MultiClusterClient(multiClusterPort,
+						multiClusterServerName));
+				multiClusterClient.start();
+			} else {
+				logger.debug("MULTI_CLUSTER type is not supported: "
+						+ multiClusterType);
+				logger.debug("Types supported for MULTI_CLUSTER configuration: "
+						+ "client, server");
 			}
 		}
 	}
