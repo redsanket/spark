@@ -3,6 +3,7 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.workflow.hadoop.job.JobState;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -28,6 +30,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import coretest.Util;
 
 public class WordCountAPIJob extends Configured implements Tool {
     public static class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
@@ -128,12 +132,13 @@ public class WordCountAPIJob extends Configured implements Tool {
 		        file_count++;
 	        }
         }
+
 		try{
 	        for(int q = 0; q < qNum; q++){
 		        for (int i = 0; i < jobNum; i++){
-		        	TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Checking Job["+q+"]["+i+"]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//		        	TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Checking Job["+q+"]["+i+"]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		    		assertTrue("Job["+q+"]["+i+"] failed",
-		    				job[q][i].waitForCompletion(true));
+		    				waitForSuccess(5, job[q][i]));
 		        	}
 	        }
 		} catch(Exception e){
@@ -141,6 +146,40 @@ public class WordCountAPIJob extends Configured implements Tool {
 			fail();
 		}
         return 0;
+    }
+    
+    public boolean waitForSuccess(int minute, Job job) 
+			throws InterruptedException, IOException {
+
+		State currentState = null;
+		
+		// Give the sleep job time to complete
+		for (int i = 0; i <= (minute * 6); i++) {
+
+			currentState = job.getJobState();
+			if (currentState.equals(State.SUCCEEDED)) {
+				TestSession.logger.info("JOB " + job.getJobID() + " SUCCEEDED");
+				return true;
+			}
+			else if (currentState.equals(State.PREP)) {
+				TestSession.logger.info("JOB " + job.getJobID() + " IS STILL IN PREP STATE");
+			}
+			else if (currentState.equals(State.RUNNING)) {
+				TestSession.logger.info("JOB " + job.getJobID() + " IS STILL RUNNING");
+			}
+			else if (currentState.equals(State.FAILED)) {
+				TestSession.logger.info("JOB " + job.getJobID() + " FAILED");
+				return false;
+			}
+			else if (currentState.equals(State.KILLED)) {
+				TestSession.logger.info("JOB " + job.getJobID() + " WAS KILLED");
+				return false;
+			}
+			Util.sleep(10);
+		}
+
+		TestSession.logger.error("JOB " + job.getJobID() + " didn't SUCCEED within the timeout window.");
+		return false;
     }
 
     public static void main(String[] args) throws Exception {
