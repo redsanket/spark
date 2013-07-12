@@ -1,0 +1,312 @@
+#!/bin/bash
+
+# clusterconfig -c wigeon -u -s 
+# clusterconfig -c wigeon -i
+# clusterconfig -c wigeon -v
+# clusterconfig -w /tmp -c theoden 
+
+ALWAYS_FETCH_NODES=0
+ALWAYS_BACKUP=0
+UPDATE_OPSDB=0
+SHOW_OPSDB=0
+IMAGE=0;
+VALIDATE=0;
+FETCH_NODES_ONLY=0;
+RESTORE=0;
+WORKSPACE_ROOT="$HOME"
+
+# while getopts "c:pfirbsujrvh" opt; do
+#     case $opt in
+#         c) CLUSTER=$OPTARG;;
+#         b) BACKUP_KEYTABS=1;;
+# 
+#         f) FETCH_NODES_ONLY=1;;
+#         a) ALWAYS_FETCH=1;;
+#         u) UPDATE_OPSDB=1;;
+#         s) SHOW_OPSDB=1;;
+#         i) IMAGE=1;;
+#         v) VALIDATE=1;;
+#         p) PUT_BACK=1;;
+#         h) usage;;
+#         *) usage;;
+#     esac
+# done
+
+function usage
+{
+    cat <<EOF
+usage: $0  --cluster|-c <cluster name>
+          [-workspace|-w <workspace directory]
+          [--help][--version]
+
+--cluster            Name of the cluster
+--always_fetch_nodes Always fetch nodes from igor (default is false, i.e. don't re-fetch)
+--always_backup      Always backup the keytab files (default is false, i.e. don't backup if it's already been done)
+--no_backup_keytab   Don't back up the keytab files on the cluster nodes (default is false, i.e. backup keytab files)
+--update_opsdb       Update node configuration in opsdb for cluster nodes (default is false)
+--show_opsdb         Display node configurations in opsdb for cluster nodes (default is false)
+--image_cluster      Image the cluster nodes (default is false)
+--restore            Restore backup files (default is false)
+--validate           Validate the cluster nodes (default is false)
+
+EOF
+}
+
+# --fetch_nodes_only  Only fetch the cluster nodes from igor
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -c | --cluster )          shift
+                                  CLUSTER=$1
+                                  ;;
+        -f | --fetch_nodes_only ) FETCH_NODES_ONLY=1
+                                  ;;
+        -a | --always_fetch_nodes ) ALWAYS_FETCH_NODES=1
+                                  ;;
+        -b | --always_backup )    ALWAYS_BACKUP=1
+                                  ;;
+        -u | --update_opsdb )     UPDATE_OPSDB=1
+                                  ;;
+        -s | --show_opsdb )       SHOW_OPSDB=1
+                                  ;;
+        -i | --image_cluster )    IMAGE=1
+                                  ;;
+        -r | --restore )          RESTORE=1
+                                  ;;
+        -v | --validate )         VALIDATE=1
+                                  ;;
+        -w | --workspace )        shift
+                                  WORKSPACE_ROOT=$1
+                                  ;;
+        -h | --help )             usage
+                                  exit
+                                  ;;
+        * )                       usage
+                                  exit 1
+    esac
+    shift
+done
+
+
+if [[ -z $CLUSTER ]]; then
+   echo "ERROR: Required CLUSTER value not defined!!!";
+   exit 1;
+fi
+
+#################################################################################
+# Fetch the cluster nodes
+#################################################################################
+
+WORKSPACE="$WORKSPACE_ROOT/grid-keytabs/$CLUSTER"
+`/bin/mkdir -p $WORKSPACE`
+
+CLUSTER_NODES="$WORKSPACE/cluster_nodes"
+if ([[ ! -f $CLUSTER_NODES ]] || [[ $ALWAYS_FETCH_NODES == 1 ]]); then
+    echo "Fetch and create the cluster node list file '$CLUSTER_NODES'"
+    `igor fetch -members grid_re.clusters.$CLUSTER > "$CLUSTER_NODES" 2> /dev/null`
+else 
+    echo "Use existing cluster node list file '$CLUSTER_NODES'"
+fi
+
+UPGRADE_NODES_FILE="$WORKSPACE/cluster_nodes.upgrade"
+FETCH_UPGRADE_NODES=0
+if [[ ! -f $UPGRADE_NODES_FILE ]]
+then 
+    FETCH_UPGRADE_NODES=1;
+else
+    if [[ $ALWAYS_FETCH_NODES == 1 ]]
+    then
+        FETCH_UPGRADE_NODES=1
+        echo -n "" > $UPGRADE_NODES_FILE
+    fi
+fi 
+
+if [[ $FETCH_UPGRADE_NODES == 1 ]]
+then
+    echo "Fetch and create the upgrade node list file '$UPGRADE_NODES_FILE'"
+    for host in `cat $CLUSTER_NODES`;do
+        echo -n "$host: ";
+        ver=`/usr/bin/ssh -o "StrictHostKeyChecking no" $host cat /etc/redhat-release`;
+        ver_req="6\.";
+        if (! [[ $ver =~ /$ver_req/ ]]); then
+            echo "$ver ** need upgrade **"; 
+            echo "$host" >> $UPGRADE_NODES_FILE
+        else echo "$ver";
+        fi ; 
+    done
+else
+    echo "*****************************************************************"
+    echo "Use existing upgrade node list file '$UPGRADE_NODES_FILE'"
+    cat $UPGRADE_NODES_FILE
+    echo "*****************************************************************"
+fi
+
+#################################################################################
+# Backup keytabs
+#################################################################################
+
+BACKUP_KEYTABS=0
+NUM_TGZ_FILES=`find $WORKSPACE -name \*.tgz|wc -l`;
+if [[ $NUM_TGZ_FILES == 0 ]]
+then 
+    BACKUP_KEYTABS=1
+else
+    if [[ $ALWAYS_BACKUP == 1 ]]
+    then
+        BACKUP_KEYTABS=1
+    fi
+fi 
+
+if [[ $BACKUP_KEYTABS == 1 ]];
+then 
+    LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
+    for host in `cat $UPGRADE_NODES_FILE`; do
+
+        HOST_BACKUP_DIR="$WORKSPACE/$host"
+        `/bin/mkdir -p $HOST_BACKUP_DIR`
+        echo "Backup keytab files from cluster node '$host' to localhost '$HOST_BACKUP_DIR'";
+
+        # create a manifest
+        set -x
+        ssh $host ls -l /etc/grid-keytabs/ > $HOST_BACKUP_DIR/keytabs.mf
+        ssh -t $host "sudo tar -zcf /tmp/keys.tgz -C $LOCAL_KEYTABS_DIR .";
+        scp -p $host:/tmp/keys.tgz $HOST_BACKUP_DIR;
+        set +x
+    done
+fi
+
+
+#################################################################################
+# Restore keytabs
+#################################################################################
+if [[ $RESTORE == 1 ]];
+then
+    LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
+    for host in `cat $UPGRADE_NODES_FILE`; do
+        HOST_BACKUP_DIR=$WORKSPACE/$host
+        if [[ -d $HOST_BACKUP_DIR ]]; then
+
+            # check if the host is accessible
+            # ver=`/usr/bin/ssh -o "StrictHostKeyChecking no" $host cat /etc/redhat-release`;
+            # if [[ $ver =~ "6\." ]]; then
+            /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
+            rc=$?
+            if [[ rc -eq 0 ]]; then
+                # echo "***** ver = $ver ***********"
+                echo "--> Restore keytab files for host '$host'"
+
+                # ssh -t $host mkdir -p /tmp/tmp5;
+                # scp -p $HOST_BACKUP_DIR/keys.tgz $host:/tmp/tmp5/keys2.tgz;
+                # ssh -t $host ls -l /tmp/tmp5/keys2.tgz;
+                # ssh -t $host "sudo /bin/gtar fx /tmp/tmp5/keys2.tgz";
+                # ssh -t $host ls -l /tmp/tmp5/;
+
+                set -x
+                scp -p $HOST_BACKUP_DIR/keys.tgz $host:/tmp;
+                ssh -t $host "sudo /bin/mv /tmp/keys.tgz $LOCAL_KEYTABS_DIR/";
+                ssh -t $host "sudo /bin/gtar fx $LOCAL_KEYTABS_DIR/keys.tgz -C $LOCAL_KEYTABS_DIR";
+                ssh -t $host ls -l $LOCAL_KEYTABS_DIR;
+                set +x
+
+                # for file in `ls $HOST_BACKUP_DIR/*.keytab`; do
+                #     basename=`basename $file`
+                #     mf=`grep $basename $HOST_BACKUP_DIR/keytabs.mf`
+                #     owner=`echo $mf|cut -d' ' -f3`
+                #     group=`echo $mf|cut -d' ' -f4`
+                #     echo "file=$basename, owner=$owner, group=$group"
+                #     echo "scp -p $file $host:/tmp/"
+                #     scp -p $file $host:/tmp/
+                #     echo "ssh -t $host sudo chown $owner /tmp/$basename"
+                #     ssh -t $host sudo chown $owner /tmp/$basename
+                #     echo "ssh -t $host sudo chgrp $group /tmp/$basename"
+                #     ssh -t $host sudo chgrp $group /tmp/$basename
+                #     echo "ssh -t $host ls -l /tmp/$basename"
+                #     ssh -t $host ls -l /tmp/$basename
+                #     echo "ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/"
+                #     ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/
+                # done
+
+                echo "ssh -t $host ls -l $LOCAL_KEYTABS_DIR/"
+                ssh -t $host ls -l $LOCAL_KEYTABS_DIR/
+            fi
+        fi
+    done
+fi
+
+
+#################################################################################
+# Update OPSDB
+#
+# Requires opsdb_client
+# Requires flubber_conutil_wrapper-0.1.1
+#################################################################################
+for host in `cat $UPGRADE_NODES_FILE`; do
+    if [[ $UPDATE_OPSDB == 1 ]]; then
+        OS_VERSION="6.4.1"
+        # OS_VERSION="6.x"
+        # "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --modify ysa_profile=ygrid_dn "
+        echo "Update opsdb for host $host:";
+        stty -echo
+        ssh adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
+        stty echo
+    fi
+
+    if [[ $SHOW_OPSDB == 1 ]]; then
+        set -x 
+        /home/y/bin/opsdb --getentry ysa_os_name,ysa_os_version,ysa_os_arch,ysa_profile --host $host
+        set +x
+    fi
+done
+
+
+#################################################################################
+# IMAGE THE HOSTS
+#################################################################################
+if [[ $IMAGE == 1 ]]; then
+    for host in `cat $UPGRADE_NODES_FILE`; do
+        echo "Reboot host $host:";
+        stty -echo
+
+        # "ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host"
+        ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
+
+        # echo "ssh $host sudo reboot"
+        # ssh -t $host "sudo reboot"
+        stty echo
+    done
+fi
+
+#################################################################################
+# VALIDATE THE HOSTS
+#################################################################################
+if [[ $VALIDATE == 1 ]]; then
+    for host in `cat $UPGRADE_NODES_FILE`; do
+        echo "--> Validate host status for host '$host': ";
+
+        /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
+        rc=$?
+        if [[ rc -eq 0 ]]; then
+            ver=`/usr/bin/ssh -o "StrictHostKeyChecking no" $host cat /etc/redhat-release 2>/dev/null`;
+            if (! [[ $ver =~ "6\." ]]); then
+                echo "Host is up but running version '$ver' ** need upgrade **"; 
+            else 
+                echo "Host is up running $ver";
+
+                echo "Expected keytab files (from saved keytab manifest):"
+                HOST_BACKUP_DIR=$WORKSPACE/$host
+                cat $HOST_BACKUP_DIR/keytabs.mf
+
+                echo "Actual keytab files (on host $host):"
+                LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
+                ssh -t $host ls -l $LOCAL_KEYTABS_DIR/
+            fi ; 
+        else
+            echo "Host is down";
+        fi
+
+    # /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 fsbl295n32.blue.ygrid.yahoo.com 22
+    # nc: connection failed, SOCKS error 5
+    # [philips@noiseround:4517 ~]$ nc -w 5 -x socks-ssh.corp.yahoo.com:1080 fsbl294n32.blue.ygrid.yahoo.com 22
+    # SSH-2.0-OpenSSH_5.3
+    done
+fi
