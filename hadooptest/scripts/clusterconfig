@@ -220,9 +220,27 @@ then
         scp -p $host:/tmp/keys.tgz $HOST_BACKUP_DIR;
         set +x
 
+        # TODO:
         # Backup local Hadoop config directory
         LOCAL_HADOOP_CONF_DIR="/home/gs/conf/local";
 
+        # $ ls -l /home/gs/conf/local/
+        # total 48
+        # -rw-r--r-- 1 root root 230 Jul 14 09:18 dfs.data.dir.xml
+        # -rw-r--r-- 1 root root 239 Jul 14 09:18 dfs.datanode.data.dir.xml
+        # lrwxrwxrwx 1 root root  31 Jul 14 09:18 health_check -> /usr/local/libexec/health_check*
+        # -rw-r--r-- 1 root root 113 Jul 14 09:18 local-mapred-site.xml
+        # -rw-r--r-- 1 root root 116 Jul 14 09:18 local-superuser-conf.xml
+        # -rw-r--r-- 1 root root 218 Jul 14 09:18 mapred.local.dir.xml
+        # -rw-r--r-- 1 root root 140 Jul 14 09:18 mapred.tasktracker.map.tasks.maximum.xml
+        # -rw-r--r-- 1 root root 143 Jul 14 09:18 mapred.tasktracker.reduce.tasks.maximum.xml
+        # -rw-r--r-- 1 root root 165 Jul 14 09:18 mapred.temp.dir.xml
+        # -rw-r--r-- 1 root root 229 Jul 14 09:18 mapreduce.cluster.local.dir.xml
+        # lrwxrwxrwx 1 root root  34 Jul 14 09:18 nm_health_check -> /usr/local/libexec/nm_health_check*
+        # lrwxrwxrwx 1 root root  34 Jul 14 09:18 rs_health_check -> /usr/local/libexec/rs_health_check*
+        # -rw-r--r-- 1 root root 221 Jul 14 09:18 yarn.nodemanager.local-dirs.xml
+        # -rw-r--r-- 1 root root 215 Jul 14 09:18 yarn.nodemanager.log-dirs.xml
+        # -rw-r--r-- 1 root root 143 Jul 14 09:18 yarn.nodemanager.resource.memory-mb.xml
 
     done
 fi
