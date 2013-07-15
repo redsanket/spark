@@ -197,6 +197,7 @@ fi
 #################################################################################
 if [[ $RESTORE == 1 ]];
 then
+    VALIDATE=1;
     LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
     for host in `cat $UPGRADE_NODES_FILE`; do
         HOST_BACKUP_DIR=$WORKSPACE/$host
@@ -208,19 +209,10 @@ then
             /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
             rc=$?
             if [[ rc -eq 0 ]]; then
-                # echo "***** ver = $ver ***********"
                 echo "--> Restore keytab files for host '$host'"
-
-                # ssh -t $host mkdir -p /tmp/tmp5;
-                # scp -p $HOST_BACKUP_DIR/keys.tgz $host:/tmp/tmp5/keys2.tgz;
-                # ssh -t $host ls -l /tmp/tmp5/keys2.tgz;
-                # ssh -t $host "sudo /bin/gtar fx /tmp/tmp5/keys2.tgz";
-                # ssh -t $host ls -l /tmp/tmp5/;
-
                 set -x
                 scp -p $HOST_BACKUP_DIR/keys.tgz $host:/tmp;
-                ssh -t $host "sudo /bin/mv /tmp/keys.tgz $LOCAL_KEYTABS_DIR/";
-                ssh -t $host "sudo /bin/gtar fx $LOCAL_KEYTABS_DIR/keys.tgz -C $LOCAL_KEYTABS_DIR";
+                ssh -t $host "sudo /bin/gtar fx /tmp/keys.tgz -C $LOCAL_KEYTABS_DIR";
                 ssh -t $host ls -l $LOCAL_KEYTABS_DIR;
                 set +x
 
@@ -241,9 +233,6 @@ then
                 #     echo "ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/"
                 #     ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/
                 # done
-
-                echo "ssh -t $host ls -l $LOCAL_KEYTABS_DIR/"
-                ssh -t $host ls -l $LOCAL_KEYTABS_DIR/
             fi
         fi
     done
@@ -316,10 +305,12 @@ if [[ $VALIDATE == 1 ]]; then
                 LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
                 # echo "ssh -t $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual"
                 echo "ssh $host ls -l $LOCAL_KEYTABS_DIR/*.keytab > $HOST_BACKUP_DIR/keytabs.actual"
-                ssh $host ls -l $LOCAL_KEYTABS_DIR/|grep -v keys.tgz > $HOST_BACKUP_DIR/keytabs.actual
+                # ssh $host ls -l $LOCAL_KEYTABS_DIR/|grep -v keys.tgz > $HOST_BACKUP_DIR/keytabs.actual
+                ssh $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual
 
-                echo "Diff between expected and actual keytab files (on host $host):"
-                diff -b -I '^total' $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual 
+                echo "Checking for diff between expected and actual keytab files on host $host:"
+                # diff -b -I '^total' $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual 
+                diff -b $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual 
 
             fi ; 
         else
@@ -334,6 +325,8 @@ if [[ $VALIDATE == 1 ]]; then
 fi
 
 # Clean up temporary file
-if [ -f $NODE_FILE ]; then 
-    rm $NODE_FILE
+if [[ -f $NODE_FILE ]]; then 
+    set -x
+    /bin/rm $NODE_FILE
+    set +x
 fi
