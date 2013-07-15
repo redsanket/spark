@@ -1,9 +1,20 @@
 #!/bin/bash
 
-# clusterconfig -c wigeon -u -s 
-# clusterconfig -c wigeon -i
-# clusterconfig -c wigeon -v
+# 1) expecter -n -v ./clusterconfig -c mallard
+# 2) expecter -n -v ./clusterconfig -c mallard --update_opsdb
+# 3) expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
+# 4) expecter -n -v ./clusterconfig -c mallard --image_cluster
+# 5) expecter -n -v ./clusterconfig -c mallard --validate
+# 6) expecter -n -v ./clusterconfig -c mallard --restore
+# 7) expecter -n -v ./clusterconfig -c mallard --validate
+
 # clusterconfig -w /tmp -c theoden 
+
+# http://opsdb.ops.yahoo.com/user_groups.php?action=view&id=551101
+# User group: ygrid_devtools
+
+# $ yinst ls -files expecter
+# yinst: /home/y/bin/expecter                             expecter-1.0.2
 
 ALWAYS_FETCH_NODES=0
 ALWAYS_BACKUP=0
@@ -37,12 +48,20 @@ function usage
     cat <<EOF
 usage: $0  --cluster|-c <cluster name>
           [-workspace|-w <workspace directory]
+          [--always_fetch_nodes]
+          [--always_backup]
+          [--nodes <file containing list of nodes>]
+          [--update_opsdb]
+          [--show_opsdb]
+          [--image_cluster]
+          [--restore]
+          [--validate]
           [--help][--version]
 
 --cluster            Name of the cluster
 --always_fetch_nodes Always fetch nodes from igor (default is false, i.e. don't re-fetch)
 --always_backup      Always backup the keytab files (default is false, i.e. don't backup if it's already been done)
---no_backup_keytab   Don't back up the keytab files on the cluster nodes (default is false, i.e. backup keytab files)
+--nodes              Use temporary alternative nodes list (e.g. to restore specific nodes after hardware fixes)
 --update_opsdb       Update node configuration in opsdb for cluster nodes (default is false)
 --show_opsdb         Display node configurations in opsdb for cluster nodes (default is false)
 --image_cluster      Image the cluster nodes (default is false)
@@ -74,6 +93,9 @@ while [ "$1" != "" ]; do
         -r | --restore )          RESTORE=1
                                   ;;
         -v | --validate )         VALIDATE=1
+                                  ;;
+        -n | --nodes )            shift
+                                  UPGRADE_NODES_FILE=$1
                                   ;;
         -w | --workspace )        shift
                                   WORKSPACE_ROOT=$1
@@ -108,7 +130,9 @@ else
     echo "Use existing cluster node list file '$CLUSTER_NODES'"
 fi
 
-UPGRADE_NODES_FILE="$WORKSPACE/cluster_nodes.upgrade"
+UPGRADE_NODES_FILE=${UPGRADE_NODES_FILE:="$WORKSPACE/cluster_nodes.upgrade"}
+# UPGRADE_NODES_FILE="$WORKSPACE/cluster_nodes.upgrade"
+
 FETCH_UPGRADE_NODES=0
 if [[ ! -f $UPGRADE_NODES_FILE ]]
 then 
@@ -292,13 +316,18 @@ if [[ $VALIDATE == 1 ]]; then
             else 
                 echo "Host is up running $ver";
 
-                echo "Expected keytab files (from saved keytab manifest):"
+                # echo "Expected keytab files (from saved keytab manifest):"
                 HOST_BACKUP_DIR=$WORKSPACE/$host
-                cat $HOST_BACKUP_DIR/keytabs.mf
+                # cat $HOST_BACKUP_DIR/keytabs.mf
 
-                echo "Actual keytab files (on host $host):"
+                # echo "Actual keytab files (on host $host):"
                 LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
-                ssh -t $host ls -l $LOCAL_KEYTABS_DIR/
+                # echo "ssh -t $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual"
+                ssh -t $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual
+
+                echo "Diff between actual and expected keytab files (on host $host):"
+                diff $HOST_BACKUP_DIR/keytabs.actual $HOST_BACKUP_DIR/keytabs.mf
+
             fi ; 
         else
             echo "Host is down";
