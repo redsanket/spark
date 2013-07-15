@@ -323,10 +323,11 @@ if [[ $VALIDATE == 1 ]]; then
                 # echo "Actual keytab files (on host $host):"
                 LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
                 # echo "ssh -t $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual"
-                ssh -t $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual
+                echo "ssh $host ls -l $LOCAL_KEYTABS_DIR/*.keytab > $HOST_BACKUP_DIR/keytabs.actual"
+                ssh $host ls -l $LOCAL_KEYTABS_DIR/|grep -v keys.tgz > $HOST_BACKUP_DIR/keytabs.actual
 
-                echo "Diff between actual and expected keytab files (on host $host):"
-                diff $HOST_BACKUP_DIR/keytabs.actual $HOST_BACKUP_DIR/keytabs.mf
+                echo "Diff between expected and actual keytab files (on host $host):"
+                diff -b -I '^total' $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual 
 
             fi ; 
         else
