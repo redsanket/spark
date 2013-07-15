@@ -1,12 +1,19 @@
 package hadooptest.hadoop.regression.yarn;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.workflow.hadoop.job.JobState;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
-
-import hadooptest.TestSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -14,8 +21,9 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,23 +50,111 @@ public class TestWordCountAPI_Durability extends TestSession {
 	private static int TotalFileNum = 20;
 		
 	/****************************************************************
-	 *                  Configure the total runtime                 *
+	 *                  parameters from cmd line	                *
 	 ****************************************************************/
+	// queueNum, jobNum, runMin, runHour, runDay
+	
 	
 	// location information 
 	private static Path inpath = null;
 	private static String outputDir = null;
 	private static String localDir = null;
+	private static String []qName;
+	private static int qNum;
+	private static int jobNum;
 	
-	int jobNum = 1000;
+	private static int runMin;
+	private static int runHour;
+	private static int runDay;
 	
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
+//		setupTestConf();
+		getParameters();
+		getQueneInfo();
 		setupTestDir();
 	}
 	
-public static void setupTestDir() throws Exception {
+	public static void setupTestConf() throws Exception {
+		FullyDistributedCluster cluster =
+				(FullyDistributedCluster) TestSession.cluster;
+		String component = HadoopCluster.RESOURCE_MANAGER;
+
+		/* 
+		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
+		 * queue is already in place. If so, skip the following as to not waste
+		 *  time.
+		 */
+		YarnClientImpl yarnClient = new YarnClientImpl();
+		yarnClient.init(TestSession.getCluster().getConf());
+		yarnClient.start();
+
+		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
+		TestSession.logger.info("queues='" +
+        	Arrays.toString(queues.toArray()) + "'");
+		if ((queues.size() == 1) &&
+			(Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
+				TestSession.logger.debug("Cluster is already setup properly." +
+						"Nothing to do.");
+				return;
+		}
+		
+		// Backup the default configuration directory on the Resource Manager
+		// component host.
+		cluster.getConf(component).backupConfDir();	
+
+		// Copy files to the custom configuration directory on the
+		// Resource Manager component host.
+		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
+				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
+		cluster.getConf(component).copyFileToConfDir(sourceFile,
+				"capacity-scheduler.xml");
+		cluster.hadoopDaemon("stop", component);
+		cluster.hadoopDaemon("start", component);
+	}
+
+	public static void getParameters() throws Exception {
+		
+		String workingDir = System.getProperty("user.dir");
+		
+		Properties prop = new Properties();
+		 
+    	try {
+            //load a properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/TestWordCountAPIJob_Durability.properties"));
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+
+		runMin  = Integer.parseInt(prop.getProperty("runMin"));
+	    runHour = Integer.parseInt(prop.getProperty("runHour"));
+	    runDay  = Integer.parseInt(prop.getProperty("runDay"));
+	    logger.info("============>>>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+	    jobNum = Integer.parseInt(prop.getProperty("jobNum"));
+	    qNum = Integer.parseInt(prop.getProperty("queueNum"));
+	    logger.info("============>>>> Job #:: "+jobNum+", Queue #: "+ qNum); 
+	}
+	
+	public static void getQueneInfo() throws Exception {
+		
+		qName = new String[qNum];
+		
+		YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();
+		
+		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
+		logger.info("queues='" +
+	    	Arrays.toString(queues.toArray()) + "'");
+		qNum = Math.min(qNum,queues.size());
+		for(int i = 0; i < qNum; i++) {
+			qName[i] = queues.get(i).getQueueName();
+			logger.info("Queue " + i +" name is :" + qName[i]);
+		}
+	}
+
+	public static void setupTestDir() throws Exception {
 		
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
@@ -110,8 +206,8 @@ public static void setupTestDir() throws Exception {
 	    }
 	    
 	    // Read the local input file
-        String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
-        TestSession.logger.info("Input string is: "+s);  
+	    String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
+	    TestSession.logger.info("Input string is: "+s);  
 		
 		
 		for(int fileNum = 0; fileNum < TotalFileNum; fileNum ++)
@@ -141,21 +237,45 @@ public static void setupTestDir() throws Exception {
 	 */
 	@Test
 	public void runWordCountTest() {
-		try {
-			String[] args = {Integer.toString(jobNum), "hdfs://gsbl90628.blue.ygrid.yahoo.com:8020/user/hadoopqa/wc_input_foo/1.txt", outputDir + outputFile, "wc_foo"};
-//			String[] args = {"-in", outputDir + localFile, "-out", outputDir + outputFile, "-name", "HEHE"};
-			Configuration conf = TestSession.cluster.getConf();
+		
+	    long startTime = System.currentTimeMillis();
+	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
+	    int run_times = 1;
+	    
+	    logger.info("Current time is: " + startTime/1000);
 
-			int rc;
-			TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
-			rc = ToolRunner.run(conf, new WordCountAPIJob(), args);
-			if (rc != 0) {
-				TestSession.logger.error("Job failed!!!");
+		while(endTime > System.currentTimeMillis()) {
+			try {
+			    logger.info("Number of run rounds is " + run_times);
+				String[] args = {inpath.toString(), outputDir + outputFile+"/"+Integer.toString(run_times), Integer.toString(jobNum), Integer.toString(qNum)};
+				for (int i = 0; i < qNum ; i++){
+					args = append(args, qName[i]);
+				}
+				
+		    	for (int i = 0; i < args.length; i++){
+		    		TestSession.logger.info("args["+Integer.toString(i) + "]: " + args[i]);
+		    	}
+				Configuration conf = TestSession.cluster.getConf();
+	
+				int rc;
+				TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+				rc = ToolRunner.run(conf, new WordCountAPIJob(), args);
+				if (rc != 0) {
+					TestSession.logger.error("Job failed!!!");
+				}
+				run_times ++;
+			}
+			catch (Exception e) {
+				TestSession.logger.error("Exception failure.", e);
+				fail();
 			}
 		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
+	}
+	
+	static <T> T[] append(T[] arr, T element) {
+	    final int N = arr.length;
+	    arr = Arrays.copyOf(arr, N + 1);
+	    arr[N] = element;
+	    return arr;
 	}
 }
