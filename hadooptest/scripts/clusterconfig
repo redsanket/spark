@@ -8,6 +8,8 @@
 # 6) expecter -n -v ./clusterconfig -c mallard --restore
 # 7) expecter -n -v ./clusterconfig -c mallard --validate
 
+# expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
+# expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
 # clusterconfig -w /tmp -c theoden 
 
 # http://opsdb.ops.yahoo.com/user_groups.php?action=view&id=551101
@@ -26,41 +28,26 @@ FETCH_NODES_ONLY=0;
 RESTORE=0;
 WORKSPACE_ROOT="$HOME"
 
-# while getopts "c:pfirbsujrvh" opt; do
-#     case $opt in
-#         c) CLUSTER=$OPTARG;;
-#         b) BACKUP_KEYTABS=1;;
-# 
-#         f) FETCH_NODES_ONLY=1;;
-#         a) ALWAYS_FETCH=1;;
-#         u) UPDATE_OPSDB=1;;
-#         s) SHOW_OPSDB=1;;
-#         i) IMAGE=1;;
-#         v) VALIDATE=1;;
-#         p) PUT_BACK=1;;
-#         h) usage;;
-#         *) usage;;
-#     esac
-# done
-
 function usage
 {
     cat <<EOF
-usage: $0  --cluster|-c <cluster name>
-          [-workspace|-w <workspace directory]
-          [--always_fetch_nodes]
-          [--always_backup]
-          [--nodes <file containing list of nodes>]
-          [--update_opsdb]
-          [--show_opsdb]
-          [--image_cluster]
-          [--restore]
-          [--validate]
-          [--help][--version]
+usage: $0  --cluster             |-c <cluster name>
+          [--workspace           |-w <workspace directory ]
+          [--always_fetch_nodes  |-a ]
+          [--always_backup       |-b ]
+          [--node                |-n <node name>]
+          [--nodes                   <file containing list of nodes> ]
+          [--update_opsdb        |-u ]
+          [--show_opsdb          |-s ]
+          [--image_cluster       |-i ]
+          [--restore             |-r ]
+          [--validate            |-v ]
+          [--help                |-h ]
 
 --cluster            Name of the cluster
 --always_fetch_nodes Always fetch nodes from igor (default is false, i.e. don't re-fetch)
 --always_backup      Always backup the keytab files (default is false, i.e. don't backup if it's already been done)
+--node               Use a temporary alternative node (e.g. to restore a specific node after hardware fixes)
 --nodes              Use temporary alternative nodes list (e.g. to restore specific nodes after hardware fixes)
 --update_opsdb       Update node configuration in opsdb for cluster nodes (default is false)
 --show_opsdb         Display node configurations in opsdb for cluster nodes (default is false)
@@ -94,7 +81,12 @@ while [ "$1" != "" ]; do
                                   ;;
         -v | --validate )         VALIDATE=1
                                   ;;
-        -n | --nodes )            shift
+        -n | --node )             shift
+                                  NODE_FILE=/tmp/node.$$;
+                                  echo $1 > $NODE_FILE;
+                                  UPGRADE_NODES_FILE=$NODE_FILE;
+                                  ;;
+        --nodes )                 shift
                                   UPGRADE_NODES_FILE=$1
                                   ;;
         -w | --workspace )        shift
@@ -339,4 +331,9 @@ if [[ $VALIDATE == 1 ]]; then
     # [philips@noiseround:4517 ~]$ nc -w 5 -x socks-ssh.corp.yahoo.com:1080 fsbl294n32.blue.ygrid.yahoo.com 22
     # SSH-2.0-OpenSSH_5.3
     done
+fi
+
+# Clean up temporary file
+if [ -f $NODE_FILE ]; then 
+    rm $NODE_FILE
 fi
