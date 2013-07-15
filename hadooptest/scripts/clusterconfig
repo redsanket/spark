@@ -123,7 +123,6 @@ else
 fi
 
 UPGRADE_NODES_FILE=${UPGRADE_NODES_FILE:="$WORKSPACE/cluster_nodes.upgrade"}
-# UPGRADE_NODES_FILE="$WORKSPACE/cluster_nodes.upgrade"
 
 FETCH_UPGRADE_NODES=0
 if [[ ! -f $UPGRADE_NODES_FILE ]]
@@ -202,10 +201,7 @@ then
     for host in `cat $UPGRADE_NODES_FILE`; do
         HOST_BACKUP_DIR=$WORKSPACE/$host
         if [[ -d $HOST_BACKUP_DIR ]]; then
-
             # check if the host is accessible
-            # ver=`/usr/bin/ssh -o "StrictHostKeyChecking no" $host cat /etc/redhat-release`;
-            # if [[ $ver =~ "6\." ]]; then
             /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
             rc=$?
             if [[ rc -eq 0 ]]; then
@@ -248,7 +244,6 @@ fi
 for host in `cat $UPGRADE_NODES_FILE`; do
     if [[ $UPDATE_OPSDB == 1 ]]; then
         OS_VERSION="6.4.1"
-        # OS_VERSION="6.x"
         # "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --modify ysa_profile=ygrid_dn "
         echo "Update opsdb for host $host:";
         stty -echo
@@ -271,12 +266,7 @@ if [[ $IMAGE == 1 ]]; then
     for host in `cat $UPGRADE_NODES_FILE`; do
         echo "Reboot host $host:";
         stty -echo
-
-        # "ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host"
         ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
-
-        # echo "ssh $host sudo reboot"
-        # ssh -t $host "sudo reboot"
         stty echo
     done
 fi
@@ -297,21 +287,16 @@ if [[ $VALIDATE == 1 ]]; then
             else 
                 echo "Host is up running $ver";
 
-                # echo "Expected keytab files (from saved keytab manifest):"
                 HOST_BACKUP_DIR=$WORKSPACE/$host
-                # cat $HOST_BACKUP_DIR/keytabs.mf
-
-                # echo "Actual keytab files (on host $host):"
                 LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
-                # echo "ssh -t $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual"
-                echo "ssh $host ls -l $LOCAL_KEYTABS_DIR/*.keytab > $HOST_BACKUP_DIR/keytabs.actual"
-                # ssh $host ls -l $LOCAL_KEYTABS_DIR/|grep -v keys.tgz > $HOST_BACKUP_DIR/keytabs.actual
                 ssh $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual
-
-                echo "Checking for diff between expected and actual keytab files on host $host:"
-                # diff -b -I '^total' $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual 
-                diff -b $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual 
-
+                DIFF=`diff -b $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual`
+                if [[ -n $DIFF ]]; then
+                    # echo "Checking for diff between expected and actual keytab files on host $host:"
+                    echo "Expected and actual keytab files differs on host $host: $DIFF"
+                else 
+                    echo "Expected and actual keytab files match on host $host."
+                fi
             fi ; 
         else
             echo "Host is down";
