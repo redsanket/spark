@@ -27,6 +27,7 @@ VALIDATE=0;
 FETCH_NODES_ONLY=0;
 RESTORE=0;
 WORKSPACE_ROOT="$HOME"
+SSH="/usr/bin/ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function usage
 {
@@ -141,7 +142,7 @@ then
     echo "Fetch and create the upgrade node list file '$UPGRADE_NODES_FILE'"
     for host in `cat $CLUSTER_NODES`;do
         echo -n "$host: ";
-        ver=`/usr/bin/ssh -o "StrictHostKeyChecking no" $host cat /etc/redhat-release`;
+        ver=`$SSH $host cat /etc/redhat-release`;
         ver_req="6\.";
         if (! [[ $ver =~ /$ver_req/ ]]); then
             echo "$ver ** need upgrade **"; 
@@ -208,8 +209,8 @@ then
                 echo "--> Restore keytab files for host '$host'"
                 set -x
                 scp -p $HOST_BACKUP_DIR/keys.tgz $host:/tmp;
-                ssh -t $host "sudo /bin/gtar fx /tmp/keys.tgz -C $LOCAL_KEYTABS_DIR";
-                ssh -t $host ls -l $LOCAL_KEYTABS_DIR;
+                $SSH -t $host "sudo /bin/gtar fx /tmp/keys.tgz -C $LOCAL_KEYTABS_DIR";
+                $SSH -t $host ls -l $LOCAL_KEYTABS_DIR;
                 set +x
 
                 # for file in `ls $HOST_BACKUP_DIR/*.keytab`; do
@@ -281,7 +282,7 @@ if [[ $VALIDATE == 1 ]]; then
         /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
         rc=$?
         if [[ rc -eq 0 ]]; then
-            ver=`/usr/bin/ssh -o "StrictHostKeyChecking no" $host cat /etc/redhat-release 2>/dev/null`;
+            ver=`$SSH $host cat /etc/redhat-release 2>/dev/null`;
             if (! [[ $ver =~ "6\." ]]); then
                 echo "Host is up but running version '$ver' ** need upgrade **"; 
             else 
@@ -289,10 +290,9 @@ if [[ $VALIDATE == 1 ]]; then
 
                 HOST_BACKUP_DIR=$WORKSPACE/$host
                 LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
-                ssh $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual
+                $SSH $host ls -l $LOCAL_KEYTABS_DIR/ > $HOST_BACKUP_DIR/keytabs.actual
                 DIFF=`diff -b $HOST_BACKUP_DIR/keytabs.mf $HOST_BACKUP_DIR/keytabs.actual`
                 if [[ -n $DIFF ]]; then
-                    # echo "Checking for diff between expected and actual keytab files on host $host:"
                     echo "Expected and actual keytab files differs on host $host: $DIFF"
                 else 
                     echo "Expected and actual keytab files match on host $host."
