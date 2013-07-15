@@ -123,17 +123,17 @@ public class TestWordCountAPI_Durability extends TestSession {
 		 
     	try {
             //load a properties file
-    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/TestWordCountAPIJob_Durability.properties"));
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
     	} catch (IOException ex) {
     		ex.printStackTrace();
         }
 
-		runMin  = Integer.parseInt(prop.getProperty("runMin"));
-	    runHour = Integer.parseInt(prop.getProperty("runHour"));
-	    runDay  = Integer.parseInt(prop.getProperty("runDay"));
+		runMin  = Integer.parseInt(prop.getProperty("wordcountAPI.runMin"));
+	    runHour = Integer.parseInt(prop.getProperty("wordcountAPI.runHour"));
+	    runDay  = Integer.parseInt(prop.getProperty("wordcountAPI.runDay"));
 	    logger.info("============>>>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
-	    jobNum = Integer.parseInt(prop.getProperty("jobNum"));
-	    qNum = Integer.parseInt(prop.getProperty("queueNum"));
+	    jobNum = Integer.parseInt(prop.getProperty("wordcountAPI.jobNum"));
+	    qNum = Integer.parseInt(prop.getProperty("wordcountAPI.queueNum"));
 	    logger.info("============>>>> Job #:: "+jobNum+", Queue #: "+ qNum); 
 	}
 	

@@ -9,9 +9,11 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -198,11 +200,21 @@ public class TestDurability extends TestSession {
 	    // get current time
 	    long startTime = System.currentTimeMillis();
 	    TestSession.logger.info("Current time is: " + startTime/1000);
+	    String workingDir = System.getProperty("user.dir");
 		
-	    int runMin  = Integer.parseInt(System.getProperty("Durability.runMin"));
-	    int runHour = Integer.parseInt(System.getProperty("Durability.runHour"));
-	    int runDay  = Integer.parseInt(System.getProperty("Durability.runDay"));
-	    logger.info("============================ runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+		Properties prop = new Properties();
+		 
+    	try {
+            //load a properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+
+		int runMin  = Integer.parseInt(prop.getProperty("Durability.runMin"));
+	    int runHour = Integer.parseInt(prop.getProperty("Durability.runHour"));
+	    int runDay  = Integer.parseInt(prop.getProperty("Durability.runDay"));
+	    logger.info("============>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
 
 	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
 	    
@@ -228,6 +240,8 @@ public class TestDurability extends TestSession {
 				jobUserDefault.setOutputPath(outputDir + outputFile + output);
 	
 				jobUserDefault.start();
+				
+				Thread.sleep(60000);
 	
 				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
 						jobUserDefault.waitForID(10));

@@ -9,9 +9,11 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -49,7 +51,7 @@ public class TestMultiQueue extends TestSession {
 	 *          Please give the string for the input file           *
 	 ****************************************************************/
 	
-	private static String input_string = "Hello world! Really???? Are you sure?";
+	private static String input_string = "Hello world! Test MultiQueue!";
 	
 	/****************************************************************
 	 *  Configure the total file number that you want to generate   *
@@ -224,10 +226,20 @@ public class TestMultiQueue extends TestSession {
 	    long startTime = System.currentTimeMillis();
 	    logger.info("Current time is: " + startTime/1000);
 		
-		int runMin  = Integer.parseInt(System.getProperty("MultiQueue.runMin"));
-	    int runHour = Integer.parseInt(System.getProperty("MultiQueue.runHour"));
-	    int runDay  = Integer.parseInt(System.getProperty("MultiQueue.runDay"));
-	    logger.info("============================ runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+	    String workingDir = System.getProperty("user.dir");	
+		Properties prop = new Properties();
+		 
+    	try {
+            //load a properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+
+		int runMin  = Integer.parseInt(prop.getProperty("Multiqueue.runMin"));
+	    int runHour = Integer.parseInt(prop.getProperty("Multiqueue.runHour"));
+	    int runDay  = Integer.parseInt(prop.getProperty("Multiqueue.runDay"));
+	    logger.info("============>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
 
 	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
 	    
