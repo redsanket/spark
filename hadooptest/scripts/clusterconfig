@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#################################################################################
+# USAGE
+#################################################################################
 # 1) expecter -n -v ./clusterconfig -c mallard
 # 2) expecter -n -v ./clusterconfig -c mallard --update_opsdb
 # 3) expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
@@ -12,11 +15,22 @@
 # expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
 # clusterconfig -w /tmp -c theoden 
 
-# http://opsdb.ops.yahoo.com/user_groups.php?action=view&id=551101
-# User group: ygrid_devtools
-
+#################################################################################
+# Dependent dist package for handling passwords:
+#################################################################################
 # $ yinst ls -files expecter
 # yinst: /home/y/bin/expecter                             expecter-1.0.2
+
+#################################################################################
+# Documentation
+#################################################################################
+# In order to udpate opsdb, you need to be in the opsdb User Group 'ygrid_devtools'
+# http://opsdb.ops.yahoo.com/user_groups.php?action=view&id=551101
+#
+# http://twiki.corp.yahoo.com/view/Grid/SelfHelpBreakfix
+#
+# File tickets for site-ops on bad nodes
+# http://portal.ops.yahoo.com:9999/srv_repRequest.php
 
 ALWAYS_FETCH_NODES=0
 ALWAYS_BACKUP=0
@@ -55,6 +69,23 @@ usage: $0  --cluster             |-c <cluster name>
 --image_cluster      Image the cluster nodes (default is false)
 --restore            Restore backup files (default is false)
 --validate           Validate the cluster nodes (default is false)
+
+Example:
+$ expecter -n -v ./clusterconfig -c mallard
+$ expecter -n -v ./clusterconfig -c mallard --update_opsdb
+$ expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
+$ expecter -n -v ./clusterconfig -c mallard --image_cluster
+$ expecter -n -v ./clusterconfig -c mallard --validate
+$ expecter -n -v ./clusterconfig -c mallard --restore
+$ expecter -n -v ./clusterconfig -c mallard --validate
+
+$ expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
+$ expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
+$ clusterconfig -w /tmp -c theoden 
+
+Expecter is a wrapper application that provides expect functions
+$ yinst ls -files expecter
+yinst: /home/y/bin/expecter                             expecter-1.0.2
 
 EOF
 }
@@ -188,6 +219,11 @@ then
         ssh -t $host "sudo tar -zcf /tmp/keys.tgz -C $LOCAL_KEYTABS_DIR .";
         scp -p $host:/tmp/keys.tgz $HOST_BACKUP_DIR;
         set +x
+
+        # Backup local Hadoop config directory
+        LOCAL_HADOOP_CONF_DIR="/home/gs/conf/local";
+
+
     done
 fi
 
