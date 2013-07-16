@@ -14,7 +14,7 @@
   <properties>
     <thread.count>8</thread.count>
   </properties>
-  
+    
   <profiles>  
     <profile>
       <id>jacoco</id>
@@ -286,6 +286,25 @@
 
   <build>
     <plugins>
+      
+      <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-jar-plugin</artifactId>
+		  <configuration>
+          	<outputDirectory>${basedir}/target</outputDirectory>
+          	<finalName>RandomWriter</finalName>
+          </configuration>
+		  <executions>
+		  <execution>
+		    <phase>test</phase>
+		    <goals>
+		       <goal>test-jar</goal>
+		    </goals>
+		  </execution>
+		</executions>
+	  </plugin>
+
+      
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -305,7 +324,9 @@
           <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-i386-32/</argLine>  
           <additionalClasspathElements>
             <additionalClasspathElement>${basedir}</additionalClasspathElement>
-            <additionalClasspathElement>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</additionalClasspathElement>
+            <additionalClasspathElement>/tmp/RandomWriter-tests.jar</additionalClasspathElement>
+            <additionalClasspathElement>/tmp/hadooptest-hadoopqa-betty/target/hadooptest-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
+	    	<additionalClasspathElement>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</additionalClasspathElement>
             <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
           </additionalClasspathElements>
           <trimStackTrace>false</trimStackTrace>
