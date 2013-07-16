@@ -1,4 +1,4 @@
-package hadooptest.hadoop.regression.yarn;
+package hadooptest.workflow.hadoop.job;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -96,10 +96,10 @@ public class WordCountAPIJob extends Configured implements Tool {
     	int qNum = Integer.parseInt(args[3]);
     	
     	JobConf [] conf = new JobConf[qNum];   	
-    	for (int i = 0; i < qNum; i++){
-    		conf[i] = new JobConf();
-    		conf[i].setQueueName(args[4+i]);
-    	}
+//    	for (int i = 0; i < qNum; i++){
+//    		conf[i] = new JobConf();
+//    		conf[i].setQueueName(args[4+i]);
+//    	}
     	
         Job [][] job = new Job[qNum][jobNum];
         
@@ -107,7 +107,9 @@ public class WordCountAPIJob extends Configured implements Tool {
 	        for (int i = 0; i < jobNum; i++){
 	        	TestSession.logger.info("============== Submitting Job["+i+"] to Queue["+q+"] ==================");
 	        	
-	        	job[q][i] = new Job();
+//	        	job[q][i] = new Job();
+	        	conf[q] = new JobConf();
+	        	conf[q].setQueueName(args[4+q]);
 	        	job[q][i] = Job.getInstance(conf[q]);
 	        	
 	        	job[q][i].setOutputKeyClass(Text.class);
@@ -136,7 +138,7 @@ public class WordCountAPIJob extends Configured implements Tool {
 		try{
 	        for(int q = 0; q < qNum; q++){
 		        for (int i = 0; i < jobNum; i++){
-//		        	TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Checking Job["+q+"]["+i+"]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		        	TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Checking Job["+q+"]["+i+"]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		    		assertTrue("Job["+q+"]["+i+"] failed",
 		    				waitForSuccess(5, job[q][i]));
 		        	}

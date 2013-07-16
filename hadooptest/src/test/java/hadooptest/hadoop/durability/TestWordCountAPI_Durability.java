@@ -1,4 +1,4 @@
-package hadooptest.hadoop.regression.yarn;
+package hadooptest.hadoop.durability;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -6,6 +6,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.JobState;
+import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 
 import java.io.File;
 import java.io.FileInputStream;
