@@ -3,7 +3,6 @@ package hadooptest.workflow.hadoop.job;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.workflow.hadoop.job.JobState;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -89,25 +88,17 @@ public class WordCountAPIJob extends Configured implements Tool {
     	int file_count = 0;
     	Random random = new Random();
     	
-    	for (int i = 0; i < args.length; i++){
-    		TestSession.logger.info("API side ----- args["+Integer.toString(i) + "]: " + args[i]);
-    	}
     	int jobNum = Integer.parseInt(args[2]);
     	int qNum = Integer.parseInt(args[3]);
     	
     	JobConf [] conf = new JobConf[qNum];   	
-//    	for (int i = 0; i < qNum; i++){
-//    		conf[i] = new JobConf();
-//    		conf[i].setQueueName(args[4+i]);
-//    	}
     	
         Job [][] job = new Job[qNum][jobNum];
         
         for (int q = 0; q < qNum; q++){
 	        for (int i = 0; i < jobNum; i++){
-	        	TestSession.logger.info("============== Submitting Job["+i+"] to Queue["+q+"] ==================");
+	        	TestSession.logger.info("=== Submitting Job["+i+"] to Queue["+q+"] ===");
 	        	
-//	        	job[q][i] = new Job();
 	        	conf[q] = new JobConf();
 	        	conf[q].setQueueName(args[4+q]);
 	        	job[q][i] = Job.getInstance(conf[q]);
@@ -122,8 +113,8 @@ public class WordCountAPIJob extends Configured implements Tool {
 	        	job[q][i].setInputFormatClass(TextInputFormat.class);
 	        	job[q][i].setOutputFormatClass(TextOutputFormat.class);
 		
-	        	int randNum = random.nextInt(20);
-	        	TestSession.logger.info("============ Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt =================");
+	        	int randNum = 10 + random.nextInt(10);
+	        	TestSession.logger.info("=== Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt ===");
 		        FileInputFormat.setInputPaths(job[q][i], new Path(args[0]+"/"+Integer.toString((randNum))+".txt"));
 		        FileOutputFormat.setOutputPath(job[q][i], new Path(args[1] + "/" + Integer.toString(file_count)));
 		        job[q][i].setJobName("word count");
@@ -138,7 +129,7 @@ public class WordCountAPIJob extends Configured implements Tool {
 		try{
 	        for(int q = 0; q < qNum; q++){
 		        for (int i = 0; i < jobNum; i++){
-		        	TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Checking Job["+q+"]["+i+"]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		        	TestSession.logger.info("=== Checking Job["+q+"]["+i+"] ===");
 		    		assertTrue("Job["+q+"]["+i+"] failed",
 		    				waitForSuccess(5, job[q][i]));
 		        	}

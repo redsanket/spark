@@ -324,7 +324,7 @@
           <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop//lib/native/Linux-i386-32/</argLine>  
           <additionalClasspathElements>
             <additionalClasspathElement>${basedir}</additionalClasspathElement>
-            <additionalClasspathElement>/tmp/RandomWriter-tests.jar</additionalClasspathElement>
+            <additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
             <additionalClasspathElement>/tmp/hadooptest-hadoopqa-betty/target/hadooptest-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
 	    	<additionalClasspathElement>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</additionalClasspathElement>
             <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>

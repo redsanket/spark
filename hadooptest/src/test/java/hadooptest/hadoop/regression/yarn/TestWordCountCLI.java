@@ -16,7 +16,7 @@ public class TestWordCountCLI extends TestSession {
 	 *  Please set up input and output directory and file name here *
 	 ****************************************************************/
 	private static String localDir = null; 
-	private static String localFile = "wc_input.txt";
+	private static String localFile = "wc_input_new.txt";
 	private static String outputDir = null; 
 	private static String outputFile = "wc_output";
 	
