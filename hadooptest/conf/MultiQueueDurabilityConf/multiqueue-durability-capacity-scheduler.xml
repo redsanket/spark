@@ -1,0 +1,326 @@
+<?xml version="1.0"?>
+
+<!-- local-capacity-scheduler.xml -->
+<configuration>
+
+  <!-- <property>
+    <name>mapred.scheduler.capacity.queue.atg_other.capacity</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.atg_other.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.atg_other.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.atg_other.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.keystone.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.keystone.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.keystone.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.keystone.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property> -->
+  
+  <property>
+    <name>mapred.scheduler.capacity.queue.sponsoredsearch.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.sponsoredsearch.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.sponsoredsearch.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.sponsoredsearch.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.hehe.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.hehe.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.hehe.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.hehe.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.scheduler.capacity.queue.sds.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.sds.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.sds.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.sds.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.audience.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.audience.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.audience.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.audience.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+   <property>
+    <name>mapred.scheduler.capacity.queue.search.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.search.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.search.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.search.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.unfunded.capacity</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.unfunded.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.unfunded.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.unfunded.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.grid-dev.capacity</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.grid-dev.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.grid-dev.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.grid-dev.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.capacity</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.init-worker-threads</name>
+    <value>10</value>
+    <description>Number of worker threads which would be used by
+    Initialization poller to initialize jobs in a set of queue.
+    If number mentioned in property is equal to number of job queues
+    then a single thread would initialize jobs in a queue. If lesser
+    then a thread would get a set of queues assigned. If the number
+    is greater then number of threads would be equal to number of
+    job queues.
+    </description>
+  </property>
+  
+  <!-- YARN CAPACITY SCHEDULER PROPERTIES BEGINS HERE -->
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.queues</name>
+                 <value>sponsoredsearch,hehe,sds,audience,search,gridops,grid-dev,grideng,unfunded,default</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.capacity</name>
+                 <value>100</value>
+         </property>
+
+<!--          <property>
+                 <name>yarn.scheduler.capacity.root.keystone.capacity</name>
+                 <value>10</value>
+         </property> -->
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.sponsoredsearch.capacity</name>
+                 <value>10</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.hehe.capacity</name>
+                 <value>10</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.sds.capacity</name>
+                 <value>10</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.audience.capacity</name>
+                 <value>10</value>
+         </property>
+
+<!--          <property>
+                 <name>yarn.scheduler.capacity.root.atg_other.capacity</name>
+                 <value>10</value>
+         </property> -->
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.search.capacity</name>
+                 <value>10</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.gridops.capacity</name>
+                 <value>10</value>
+         </property>
+         
+         <property>
+                 <name>yarn.scheduler.capacity.root.grid-dev.capacity</name>
+                 <value>10</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.grideng.capacity</name>
+                 <value>10</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.unfunded.capacity</name>
+                 <value>10</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.default.capacity</name>
+                 <value>10</value>
+         </property>
+
+
+</configuration>
+         
+  
+  
+  
