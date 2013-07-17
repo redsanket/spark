@@ -9,9 +9,11 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -39,7 +41,7 @@ public class TestDurability_MultiJobs extends TestSession {
 	 *          Please give the string for the input file           *
 	 ****************************************************************/
 	
-	private static String input_string = "Hello world, and run Durability Test";
+	private static String input_string = "Hello world, and run Durability Test with multiJobs!";
 	
 	/****************************************************************
 	 *  Configure the total file number that you want to generate   *
@@ -48,10 +50,10 @@ public class TestDurability_MultiJobs extends TestSession {
 	private static int TotalFileNum = 20;
 		
 	/****************************************************************
-	 *                  parameters from cmd line                    *
+	 *             parameters from properties file                  *
 	 ****************************************************************/
 	/*
-	 * ===========> runSec, runHour, runDay, jobNum <===============
+	 * ===========> runMin, runHour, runDay, jobNum <===============
 	 */
 	
 	
@@ -195,17 +197,27 @@ public class TestDurability_MultiJobs extends TestSession {
 	    // get current time
 	    long startTime = System.currentTimeMillis();
 	    TestSession.logger.info("Current time is: " + startTime/1000);
+	    
+	    String workingDir = System.getProperty("user.dir");
 		
-	    logger.info("============================ runMin: "+System.getProperty("runMin") 
-	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
+		Properties prop = new Properties();
+		 
+    	try {
+            //load a properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
 
-	     endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
-	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
+		int runMin  = Integer.parseInt(prop.getProperty("Durability.runMin"));
+	    int runHour = Integer.parseInt(prop.getProperty("Durability.runHour"));
+	    int runDay  = Integer.parseInt(prop.getProperty("Durability.runDay"));
+	    int jobNum = Integer.parseInt(prop.getProperty("Durability.jobNum"));
+	    logger.info("===> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay+" <===");
+
+	    endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
 
 	    TestSession.logger.info("End time is: " + endTime/1000);
-	    
-	    // make Job array for testing
-	    int jobNum = Integer.parseInt(System.getProperty("jobNum"));
 	    
 		while(endTime > System.currentTimeMillis()) {
 			try {
@@ -216,7 +228,7 @@ public class TestDurability_MultiJobs extends TestSession {
 			    }
 			    
 				for (int i = 0; i < jobNum; i++){
-					startJobs(Jobs[i], i);
+					startJobs(Jobs[i]);
 				}
 				
 				for (int i = 0; i < jobNum; i++){
@@ -230,30 +242,27 @@ public class TestDurability_MultiJobs extends TestSession {
 		}
 	}
 	
-	private void startJobs(WordCountJob jobUserDefault, int i){
+	private void startJobs(WordCountJob job){
 		
 		Random myRan = new Random();
 		myNum = myRan.nextInt(TotalFileNum);
 		
 		try{
 			long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
-		    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
+		    logger.info("===> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs <===");
 			
 			String inputFile = inpath.toString() + "/" + Integer.toString(myNum) + ".txt";
-			TestSession.logger.info("Randomly choosed input file is: " + inputFile + "\n");
+			TestSession.logger.info("Randomly choosed input file is: " + inputFile);
 			
 			String output = "/" + Integer.toString(fileCount);
-			TestSession.logger.info("Randomly choosed output file is: " + outputDir + outputFile + output + "\n");
-			jobUserDefault.setUser("Hadoop_user_"+Integer.toString(i));
+			TestSession.logger.info("Randomly choosed output file is: " + outputDir + outputFile + output);
 			fileCount++;
 			
-			jobUserDefault.setInputFile(inputFile);
-			jobUserDefault.setOutputPath(outputDir + outputFile + output);
+			job.setInputFile(inputFile);
+			job.setOutputPath(outputDir + outputFile + output);
 			
-			TestSession.logger.info("===============> Start Job " + Integer.toString(fileCount) + "<===============");
-			TestSession.logger.info("===============> BY: Hadoop User" + Integer.toString(i) + "<==============");
-	
-			jobUserDefault.start();
+			TestSession.logger.info("===> Start Job [" + Integer.toString(fileCount) + "] <===");	
+			job.start();
 			
 		} catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
@@ -263,13 +272,13 @@ public class TestDurability_MultiJobs extends TestSession {
 	
 	private void assertJobs(WordCountJob jobUserDefault){
 		try{
-		assertTrue("WordCount job (default user) was not assigned an ID within 120 seconds.", 
-				jobUserDefault.waitForID(120));
-		assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
-				jobUserDefault.verifyID());
-		int waitTime = 2;
-		assertTrue("Job (default user) did not succeed.",
-			jobUserDefault.waitForSuccess(waitTime));
+			assertTrue("WordCount job (default user) was not assigned an ID within 20 seconds.", 
+					jobUserDefault.waitForID(20));
+			assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
+					jobUserDefault.verifyID());
+			int waitTime = 2;
+			assertTrue("Job (default user) did not succeed.",
+				jobUserDefault.waitForSuccess(waitTime));
 		} catch (Exception e){
 			TestSession.logger.error("Exception failure.", e);
 			fail();
