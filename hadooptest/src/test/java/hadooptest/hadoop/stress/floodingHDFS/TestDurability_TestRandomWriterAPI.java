@@ -70,16 +70,16 @@ public class TestDurability_TestRandomWriterAPI extends TestSession {
     @Test 
     public void TestRandomWriterAPI(){
     	//<out-dir> <level> <jobNum><MAPS_PER_HOST_VAL><BYTES_PER_MAP_VAL>
-		String TargetLevel = System.getProperty("TargetLevel");
+		String TargetLevel = System.getProperty("RandomWriterAPI.TargetLevel");
 		if(TargetLevel == null) TargetLevel = "";
 		
-		String JobNum = System.getProperty("JobNum");
+		String JobNum = System.getProperty("RandomWriterAPI.JobNum");
 		if(JobNum == null) JobNum = "";
 		
-		String MAPS_PER_HOST = System.getProperty("MAPS_PER_HOST");
+		String MAPS_PER_HOST = System.getProperty("RandomWriterAPI.MAPS_PER_HOST");
 		if(MAPS_PER_HOST == null) MAPS_PER_HOST = "";
 		
-		String BYTES_PER_MAP = System.getProperty("BYTES_PER_MAP");
+		String BYTES_PER_MAP = System.getProperty("RandomWriterAPI.BYTES_PER_MAP");
 		if(BYTES_PER_MAP == null) BYTES_PER_MAP = "";
 
     	try {
