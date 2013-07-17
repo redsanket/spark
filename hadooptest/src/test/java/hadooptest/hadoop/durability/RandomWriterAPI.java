@@ -264,10 +264,10 @@ public class RandomWriterAPI extends Configured implements Tool {
     
     // 	  0		   1		2	   		3					4
 	//<out-dir> <level> <jobNum><MAPS_PER_HOST_VAL><BYTES_PER_MAP_VAL>
-    double targetLevel = (args[1] == "")?0:Double.parseDouble(args[1]);
-    long jobNum = (args[2]=="")?0:Long.parseLong(args[2]);
-    int MAPS_PER_HOST_VAL = (args[3]=="")?10:Integer.parseInt(args[3]);
-    long BYTES_PER_MAP_VAL = (args[4]=="")?1024:Long.parseLong(args[4]);
+    double 	targetLevel = (args[1] == "")?0:Double.parseDouble(args[1]);
+    long 	jobNum = (args[2]=="")?0:Long.parseLong(args[2]);
+    int 	MAPS_PER_HOST_VAL = (args[3]=="")?10:Integer.parseInt(args[3]);
+    long 	BYTES_PER_MAP_VAL = (args[4]=="")?1024:Long.parseLong(args[4]);
 
     TestSession.logger.info("======== targetLevel = "+targetLevel+" ========");
     TestSession.logger.info("======== jobNum = "+jobNum+" ========");
@@ -292,7 +292,7 @@ public class RandomWriterAPI extends Configured implements Tool {
 
     if (numBytesToWritePerMap == 0) {
     	TestSession.logger.error("Cannot have" + BYTES_PER_MAP + " set to 0");
-      return -2;
+    	return -2;
     }
     int numMaps = (int) (totalBytesToWrite / numBytesToWritePerMap);
     if (numMaps == 0 && totalBytesToWrite > 0) {
@@ -300,7 +300,9 @@ public class RandomWriterAPI extends Configured implements Tool {
       conf.setLong(BYTES_PER_MAP, totalBytesToWrite);
     }
     conf.setInt(MRJobConfig.NUM_MAPS, numMaps);
+	TestSession.logger.info("Running " + numMaps + " maps.");
 
+    
     int ret = 0;
 	DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
     int jobCounter = 0;
@@ -314,9 +316,9 @@ public class RandomWriterAPI extends Configured implements Tool {
 		long remain = status.getRemaining();
 		double DFSUsedLevel = (double)status.getUsed()/(double)capacity;
 
-		TestSession.logger.info("RemainingLevel = "+((double)remain/(double)capacity));
-	    TestSession.logger.info("DFSUsedLevel   = "+ DFSUsedLevel);
-	    TestSession.logger.info("TargetLevel = "+targetLevel);
+		TestSession.logger.info("Remaining	Level = "+((double)remain/(double)capacity));
+	    TestSession.logger.info("DFSUsed	Level = "+DFSUsedLevel);
+	    TestSession.logger.info("Target		Level = "+targetLevel);
 	    	
 	    DecimalFormat twoDForm = new DecimalFormat("###.###");
 		while(DFSUsedLevel < targetLevel){//Double.valueOf(twoDForm.format(DFSUsedLevel*100))
@@ -336,8 +338,6 @@ public class RandomWriterAPI extends Configured implements Tool {
 			job.setMapperClass(RandomMapper.class);        
 			job.setReducerClass(Reducer.class);
 			job.setOutputFormatClass(SequenceFileOutputFormat.class);
-	      
-			TestSession.logger.info("Running " + numMaps + " maps.");
 	      
 			// reducer NONE
 			job.setNumReduceTasks(0);
@@ -367,8 +367,6 @@ public class RandomWriterAPI extends Configured implements Tool {
     		job.setMapperClass(RandomMapper.class);        
     		job.setReducerClass(Reducer.class);
     		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-    	      
-    		TestSession.logger.info("Running " + numMaps + " maps.");
     	      
     		job.setNumReduceTasks(0);
     		job.submit();
