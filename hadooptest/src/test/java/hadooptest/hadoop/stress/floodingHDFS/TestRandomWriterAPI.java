@@ -1,21 +1,26 @@
 package hadooptest.hadoop.stress.floodingHDFS;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FsStatus;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestDurability_TestHdfsUsage extends TestSession {
+public class TestRandomWriterAPI extends TestSession {
 	
 	@BeforeClass
     public static void startTestSession() throws Exception{
@@ -63,17 +68,38 @@ public class TestDurability_TestHdfsUsage extends TestSession {
     }
     
     @Test 
-    public void testFillDFS() throws Exception{
-    	FileSystem fs = TestSession.cluster.getFS();
-    	FsStatus status  =fs.getStatus();
-    	long capacity = status.getCapacity();
-    	long remain = status.getRemaining();
-    	long used = status.getUsed();
-    	logger.info("getCapacity ="+capacity);
-    	logger.info("getRemaining ="+remain);
-    	logger.info("getUsed ="+used);
-    	logger.info("remain/capacity = "+((double)remain/(double)capacity));
-    	logger.info("used/capacity   = "+((double)used/(double)capacity));
+    public void TestRandomWriterAPI(){
+    	//<out-dir> <level> <jobNum><MAPS_PER_HOST_VAL><BYTES_PER_MAP_VAL>
+		String TargetLevel = System.getProperty("RandomWriterAPI.TargetLevel");
+		if(TargetLevel == null) TargetLevel = "";
+		
+		String JobNum = System.getProperty("RandomWriterAPI.JobNum");
+		if(JobNum == null) JobNum = "";
+		
+		String MAPS_PER_HOST = System.getProperty("RandomWriterAPI.MAPS_PER_HOST");
+		if(MAPS_PER_HOST == null) MAPS_PER_HOST = "";
+		
+		String BYTES_PER_MAP = System.getProperty("RandomWriterAPI.BYTES_PER_MAP");
+		if(BYTES_PER_MAP == null) BYTES_PER_MAP = "";
+
+    	try {
+			Configuration conf = TestSession.cluster.getConf();
+			TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+
+			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss");
+			Date date = new Date();
+	    	String outdir = new DFS().getBaseUrl() + "/user/" + System.getProperty("user.name") + "/LargeFile/"+dateFormat.format(date).toString();
+	    	TestSession.logger.info("outdir = "+outdir);
+			String[] args = {outdir,TargetLevel,JobNum,MAPS_PER_HOST,BYTES_PER_MAP };
+				
+			int rc = ToolRunner.run(conf, new RandomWriterAPI(), args);
+			if (rc != 0) 
+				TestSession.logger.error("Job failed!!!");
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
     }
 }
 

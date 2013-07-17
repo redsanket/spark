@@ -21,7 +21,7 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestDurability_MultiRandomWriteJobMultiQueue extends TestSession {
+public class MultiRandomWriteJobMultiQueue extends TestSession {
 	
 	static List<QueueInfo> queues;
 	
