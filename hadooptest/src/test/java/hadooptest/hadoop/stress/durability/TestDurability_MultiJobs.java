@@ -1,4 +1,4 @@
-package hadooptest.hadoop.durability;
+package hadooptest.hadoop.stress.durability;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -60,7 +60,7 @@ public class TestDurability_MultiJobs extends TestSession {
 	private static String outputDir = null;
 	private static String localDir = null;
 	int fileCount = 0;
-	int myNum;
+	int myNum = 20;
 	long endTime;
 	
 	/*
@@ -263,8 +263,8 @@ public class TestDurability_MultiJobs extends TestSession {
 	
 	private void assertJobs(WordCountJob jobUserDefault){
 		try{
-		assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-				jobUserDefault.waitForID(10));
+		assertTrue("WordCount job (default user) was not assigned an ID within 120 seconds.", 
+				jobUserDefault.waitForID(120));
 		assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
 				jobUserDefault.verifyID());
 		int waitTime = 2;

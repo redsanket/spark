@@ -3,6 +3,7 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import org.apache.hadoop.fs.Path;

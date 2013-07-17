@@ -99,8 +99,8 @@ my @tests = ($test) ? split(",", $test) :
 my @classpath= (
     "/home/y/lib/jars/junit.jar",
     "/home/gs/gridre/yroot.$cluster/conf/hadoop/",
-    "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar"
-    );
+    "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar",
+    "/tmp/RandomWriter.jar"    );
 
 unless ($use_mvn) {
     push(@classpath, "$workspace/target/hadooptest-1.0-SNAPSHOT.jar");
