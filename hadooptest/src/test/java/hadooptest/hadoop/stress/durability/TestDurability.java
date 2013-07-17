@@ -240,8 +240,6 @@ public class TestDurability extends TestSession {
 				jobUserDefault.setOutputPath(outputDir + outputFile + output);
 	
 				jobUserDefault.start();
-				
-				Thread.sleep(60000);
 	
 				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
 						jobUserDefault.waitForID(10));
