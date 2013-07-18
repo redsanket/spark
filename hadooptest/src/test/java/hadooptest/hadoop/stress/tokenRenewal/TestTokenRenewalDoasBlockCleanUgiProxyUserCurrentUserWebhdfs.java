@@ -21,8 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-
-public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
+public class TestTokenRenewalDoasBlockCleanUgiProxyUserCurrentUserWebhdfs extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -31,11 +30,14 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
+	// NOTE: this is the name node of your cluster that you currently test your code on
+	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
+	private static String webhdfsAddr;
 	
 	/****************************************************************
 	 *          Please give the string for the input file           *
-	 ****************************************************************/	
-	private static String input_string = "Hello world! Run doasBlock cleanUgi proxyuser!";
+	 ****************************************************************/
+	private static String input_string = "Hello world! Run token renewal tests!";
 
 	
 	// location information 
@@ -61,8 +63,10 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
 		
 		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
-		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
+		logger.info("Target Directory is: " + outputDir + localFile+ "Target File is: " + outputDir + outputFile);
 		
+	    webhdfsAddr = "webhdfs://" + hdfsNode + ":" + outputDir + localFile;
+	    
 		// create local input file
 		File inputFile = new File(localDir + localFile);
 		try{
@@ -76,6 +80,8 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 		} catch (Exception e) {
 				TestSession.logger.error(e);
 		}
+	    
+		logger.info("Target Directory is: " + webhdfsAddr);
 				
 		TestSession.cluster.getFS().delete(new Path(outputDir+localFile), true);
 	    
@@ -91,13 +97,13 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 
 	@Test
 	public void runTestTokenRenewal1() throws Exception {
-		Configuration conf = TestSession.cluster.getConf();//new Configuration();
+		Configuration conf = new Configuration();
 	    Cluster cluster = new Cluster(conf);
 //	    DFSClient dfs = new DFSClient(conf);
 	    FileSystem fs = FileSystem.get(conf);
 
 	    // list out our config prop change, should be 60 (seconds)
-	    System.out.println("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
+	    TestSession.logger.info("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
 	    // don't cancel our tokens so we can use them in second
 	    conf.setBoolean("mapreduce.job.complete.cancel.delegation.tokens", false);
 
@@ -121,15 +127,15 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 	    Token<?> myTokenHdfsFs = fs.addDelegationTokens("mapredqa", creds)[0];
 
 	    // let's see what we got...
-	    System.out.println("myTokenRm: " + myTokenRm.getIdentifier());
-	    System.out.println("myTokenRm kind: " + myTokenRm.getKind() + "\n");
-	    System.out.println("myTokenHdfsFs: " + myTokenHdfsFs.getIdentifier());
-	    System.out.println("myTokenHdfsFs kind: " + myTokenHdfsFs.getKind() + "\n");
+	    TestSession.logger.info("myTokenRm: " + myTokenRm.getIdentifier());
+	    TestSession.logger.info("myTokenRm kind: " + myTokenRm.getKind() + "\n");
+	    TestSession.logger.info("myTokenHdfsFs: " + myTokenHdfsFs.getIdentifier());
+	    TestSession.logger.info("myTokenHdfsFs kind: " + myTokenHdfsFs.getKind() + "\n");
 
 	    // add creds to UGI, this adds the two RM tokens, the HDFS token was added already as part
 	    // of the addDelegationTokens()
 	    ugiOrig.addCredentials(creds);
-	    System.out.println("From OriginalUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + creds.numberOfTokens() + " tokens");
+	    TestSession.logger.info("From OriginalUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + creds.numberOfTokens() + " tokens");
 
 	    // write our tokenfile
 	    //creds.writeTokenStorageFile(new Path("/tmp/tokenfile_orig"), conf);
@@ -138,27 +144,27 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 	    // we can't renew them, since renewers don't match 
 
 	    long renewTimeHdfs = 0, renewTimeRm = 0;
-	    System.out.println("\nLet's try to renew our tokens, should fail since renewers don't match...");
-	    System.out.println("First our HDFS_DELEGATION_TOKEN: ");
+	    TestSession.logger.info("\nLet's try to renew our tokens, should fail since renewers don't match...");
+	    TestSession.logger.info("First our HDFS_DELEGATION_TOKEN: ");
 	    try { renewTimeHdfs = myTokenHdfsFs.renew(conf); }
-	    catch (Exception e) { System.out.println("Success, renew failed as expected since we're not the priv user"); }
+	    catch (Exception e) { TestSession.logger.info("Success, renew failed as expected since we're not the priv user"); }
 	    if (renewTimeHdfs > 1357252344100L)  
 	    {
-	      System.out.println("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeHdfs we got back is: " + renewTimeHdfs);
+	      TestSession.logger.info("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeHdfs we got back is: " + renewTimeHdfs);
 	    }
 
-	    System.out.println("\nOur first RM_DELEGATION_TOKEN: ");
+	    TestSession.logger.info("\nOur first RM_DELEGATION_TOKEN: ");
 	    try { renewTimeRm = myTokenRm.renew(conf); }
-	    catch (Exception e) { System.out.println("Success, renew failed as expected since we're not the priv user"); }
+	    catch (Exception e) { TestSession.logger.info("Success, renew failed as expected since we're not the priv user"); }
 	    if (renewTimeRm > 1357252344100L) 
 	    {
-	      System.out.println("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeRm we got back is:  " + renewTimeRm + "\n");
+	      TestSession.logger.info("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeRm we got back is:  " + renewTimeRm + "\n");
 	    }
 
 	    int numTokens = ugiOrig.getCredentials().numberOfTokens();
-	    System.out.println("We have a total of " + numTokens  + " tokens");
-	    System.out.println("Dump all tokens currently in our Credentials:");
-	    System.out.println(ugiOrig.getCredentials().getAllTokens() + "\n");
+	    TestSession.logger.info("We have a total of " + numTokens  + " tokens");
+	    TestSession.logger.info("Dump all tokens currently in our Credentials:");
+	    TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
 
 	    // instantiate a seperate object to use for submitting jobs, but don't use
 	    // the tokens we got since they won't work in the doAs due to mismatching
@@ -168,9 +174,9 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 
 	    // back to our original context, our two doAs jobs should have ran as the specified
 	    // proxy user, dump our existing credentials 
-	    System.out.println("Back from the doAs block to original context... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + creds.numberOfTokens() + " tokens");
-	    System.out.println("\nDump all tokens currently in our Credentials:");
-	    System.out.println(ugiOrig.getCredentials().getAllTokens() + "\n");
+	    TestSession.logger.info("Back from the doAs block to original context... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + creds.numberOfTokens() + " tokens");
+	    TestSession.logger.info("\nDump all tokens currently in our Credentials:");
+	    TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
 
 	}
 	
@@ -190,20 +196,14 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 	    // constructor - nothing is passed in, just use the doAs block to get 
 	    // a new UGI (new security context)
 	    DoasUser () throws Exception {
-	      // DO NOT instantiate objects here either, dummy, gotta be in the doas run method to getƒ
+	      // DO NOT instantiate objects here either, dummy, gotta be in the doas run method to get
 	      // proxy user's context
 
 	      // get a proxy UGI for hadoopqa, since no creds are passed in we have to get tokens
 	      // using the TGT fallback for the login user
-	      try { ugi = UserGroupInformation.createProxyUser("mapredqa@DEV.YGRID.YAHOO.COM", UserGroupInformation.getLoginUser()); 
-//	    		System.out.println("!!!!!!!!!!!!!!!!!!!!!ugi info!!!!!!!!!!!!!!!!!!!\n" +  
-//							ugi.getCredentials().getAllTokens() + "\n" +  
-//							ugi.getCredentials().numberOfTokens() + "\n"+  
-//							ugi.getCredentials().getAllTokens());
-    		
-	      }
+	      try { ugi = UserGroupInformation.createProxyUser("mapredqa@DEV.YGRID.YAHOO.COM", UserGroupInformation.getCurrentUser()); }
 	      //tryCurrentUser    try { ugi = UserGroupInformation.createProxyUser("hadoopqa@DEV.YGRID.YAHOO.COM", UserGroupInformation.getLoginUser()); }
-	      catch (Exception e) { System.out.println("Failed, couldn't get UGI object for proxy user: " + e); }
+	      catch (Exception e) { TestSession.logger.info("Failed, couldn't get UGI object for proxy user: " + e); }
 	    }
 
 	    //constructor - ugi to use is passed in, uses existing creds that come in with said ugi
@@ -226,50 +226,33 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 	            doasCluster = new Cluster(doasConf);
 	            doasCreds = new Credentials();
 	            doasFs = FileSystem.get(doasConf);
-	            
-//	      		System.out.println("!!!!!!!!!!!!!!!!!!!!!Token!!!!!!!!!!!!!!!!!!!\n" +  	      				
-//						"All tokens = " + ugi.getCredentials().getAllTokens() + "\n" +  
-//						"Number of tokens = " + ugi.getCredentials().numberOfTokens() + "\n"+
-//						"Login users = " + UserGroupInformation.getLoginUser() + "\n");
 
 	            // get RM and HDFS token within our proxy ugi context, these we should be able to use
 	            // renewer is not valid, shouldn't matter now after 23.6 design change for renewer
 	            Token<?> doasRmToken = doasCluster.getDelegationToken(new Text("GARBAGE1_mapredqa"));
-	            
-//	      		System.out.println("!!!!!!!!!!!!!!!!!!!!!Token!!!!!!!!!!!!!!!!!!!\n" +  
-//	      							"Encode to String = " + doasRmToken.encodeToUrlString() +   "\n" +  
-//	      							"Token Kind = " + doasRmToken.getKind() + "\n"+  
-//	      							"Ident = " + doasRmToken.getIdentifier() + "\n"+ 
-//	      							"Get service = " + doasRmToken.getService());
 
 	            doasCreds.addToken(new Text("MyDoasTokenAliasRM"), doasRmToken);
-
-//	      		System.out.println("!!!!!!!!!!!!!!!!!!!!!ugi info0000!!!!!!!!!!!!!!!!!!!\n" +  
-//	      							ugi.getCredentials().getAllTokens() + "\n" +  
-//	      							ugi.getCredentials().numberOfTokens() + "\n"+  
-//	      							ugi.getCredentials().getAllTokens());
-
 
 	            // TODO: should capture this list and iterate over it, not grab first element...
 	            Token<?> doasHdfsToken = doasFs.addDelegationTokens("mapredqa", doasCreds)[0];
 
 	            // let's see what we got...
-	            System.out.println("doasRmToken: " + doasRmToken.getIdentifier());
-	            System.out.println("doasRmToken kind: " + doasRmToken.getKind() + "\n");
-	            System.out.println("doasHdfsToken: " + doasHdfsToken.getIdentifier());
-	            System.out.println("doasHdfsToken kind: " + doasHdfsToken.getKind() + "\n");
+	            TestSession.logger.info("doasRmToken: " + doasRmToken.getIdentifier());
+	            TestSession.logger.info("doasRmToken kind: " + doasRmToken.getKind() + "\n");
+	            TestSession.logger.info("doasHdfsToken: " + doasHdfsToken.getIdentifier());
+	            TestSession.logger.info("doasHdfsToken kind: " + doasHdfsToken.getKind() + "\n");
 
 	            // add creds to UGI, this adds the two RM tokens, the HDFS token was added already as part
 	            // of the addDelegationTokens()
 	            ugi.addCredentials(doasCreds);
-	            System.out.println("From DoasProxyUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + doasCreds.numberOfTokens() + " tokens");
+	            TestSession.logger.info("From DoasProxyUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + doasCreds.numberOfTokens() + " tokens");
 
 	           
 	             // setup and run a wordcount job, this should use the tokens passed into
 	             // this doAs block, job should succeed
 	            WordCountJob Job1 = new WordCountJob();
 		  	     
-		   		Job1.setInputFile(outputDir + localFile);
+		   		Job1.setInputFile(webhdfsAddr);
 		   		Job1.setOutputPath(outputDir + outputFile +"/job1");
 		   		 
 		   		TestSession.logger.info("Trying to submit job1...");
@@ -284,36 +267,36 @@ public class TestTokenRenewal_doasBlock_cleanUgi_proxyUser extends TestSession {
 		   		assertTrue("Job1 did not succeed.",
 		   					Job1.waitForSuccess(waitTime));
 
-	             System.out.println("\nAfter doasUser first job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
+	             TestSession.logger.info("\nAfter doasUser first job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
 	             
 	             // setup and run another wordcount job, this should exceed the token renewal time of 60 seconds
 	             // and cause all of our passed-in tokens to be renewed, job should also succeed
 	             WordCountJob Job2 = new WordCountJob();
 		  	     
-			   		Job2.setInputFile(outputDir + localFile);
-			   		Job2.setOutputPath(outputDir + outputFile +"/job2");
+			   	 Job2.setInputFile(webhdfsAddr);
+			   	 Job2.setOutputPath(outputDir + outputFile +"/job2");
 			   		 
-			   		TestSession.logger.info("Trying to submit job2...");
-			   		Job2.start();
+			   	 TestSession.logger.info("Trying to submit job2...");
+			   	 Job2.start();
 			   		 
-			   		assertTrue("Job2  was not assigned an ID within 10 seconds.", 
-			   					Job2.waitForID(10));
-			   		assertTrue("Job2 is invalid.", 
-			   					Job2.verifyID());
+			   	 assertTrue("Job2  was not assigned an ID within 10 seconds.", 
+			   				Job2.waitForID(10));
+			   	 assertTrue("Job2 is invalid.", 
+			   				Job2.verifyID());
 		
-			   		waitTime = 2;
-			   		assertTrue("Job2 did not succeed.",
-			   					Job2.waitForSuccess(waitTime));
+			   	 waitTime = 2;
+			   	 assertTrue("Job2 did not succeed.",
+			   				Job2.waitForSuccess(waitTime));
 
-	             System.out.println("\nAfter doasUser second job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
-	             System.out.println("\nDump all tokens currently in our Credentials:");
-	             System.out.println(ugi.getCredentials().getAllTokens() + "\n");
+	             TestSession.logger.info("\nAfter doasUser second job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
+	             TestSession.logger.info("\nDump all tokens currently in our Credentials:");
+	             TestSession.logger.info(ugi.getCredentials().getAllTokens() + "\n");
 
 	             return "This is the doAs block";
 	            }
 	          });
 	        
-	       System.out.println(retVal);
+	        TestSession.logger.info(retVal);
 	        // back out of the go() method, no longer running as the doAs proxy user
 
 	        // write out our tokens back out of doas scope

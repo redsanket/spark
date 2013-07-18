@@ -211,7 +211,7 @@ public class TestTokenRenewalDoasBlockCleanUgi extends TestSession {
 	    public void go() throws Exception {
 
 	    	// run as the original user
-	      ugi.doAs(new PrivilegedExceptionAction<String>() {
+	    	String retVal = ugi.doAs(new PrivilegedExceptionAction<String>() {
 	        public String run() throws Exception {
 	           // this fails with expired token before Tom's fix on top of Sid's token renewal patch in 23.6 
 	           ugi.addCredentials(doasCreds);
@@ -275,7 +275,7 @@ public class TestTokenRenewalDoasBlockCleanUgi extends TestSession {
 	          }
 	        });
 	      // back out of the go() method, no longer running as the doAs proxy user
-
+		  TestSession.logger.info(retVal);
 	      // write out our tokens back out of doas scope
 	      //doasCreds.writeTokenStorageFile(new Path("/tmp/tokenfile_doas_out"), doasConf);
 	     }

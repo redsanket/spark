@@ -100,30 +100,30 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //		existingUgi_oldApi(null);
 //		existingUgi_oldApi("webhdfs");
 //		
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		doasBlock_cleanUgi(null);
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		doasBlock_cleanUgi("webhdfs");
 //		
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_oldApi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_oldApi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		doasBlock_cleanUgi_oldApi(null);
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_oldApi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_oldApi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		doasBlock_cleanUgi_oldApi("webhdfs");
 //		
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		doasBlock_cleanUgi_proxyUser(null, null);
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");		
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");		
 //		doasBlock_cleanUgi_proxyUser("webhdfs", null);
 //
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_CurrentUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_CurrentUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		doasBlock_cleanUgi_proxyUser(null, "CurrentUser");
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		doasBlock_cleanUgi_proxyUser("webhdfs", "CurrentUser");	
 //	}
 	
 //	@Test
 //	public void TestTokenRenewal_existingUgi() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			existingUgi(null);
@@ -132,7 +132,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //	
 //	@Test
 //	public void TestTokenRenewal_existingUgi_webhdfs() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			existingUgi("webhdfs");
@@ -141,7 +141,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 	
 	@Test
 	public void TestTokenRenewal_existingUgi_oldApi() throws Exception{
-		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi_oldApi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi_oldApi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 		long endTime = runTimeSec + System.currentTimeMillis();
 		while(endTime > System.currentTimeMillis()){
 			existingUgi(null);
@@ -150,7 +150,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 	
 	@Test
 	public void TestTokenRenewal_existingUgi_oldApi_webhdfs() throws Exception{
-		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_existingUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 		long endTime = runTimeSec + System.currentTimeMillis();
 		while(endTime > System.currentTimeMillis()){
 			existingUgi("webhdfs");
@@ -159,7 +159,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi(null);
@@ -168,7 +168,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi_webhdfs() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi("webhdfs");
@@ -177,7 +177,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi_oldApi() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_oldApi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_oldApi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi_oldApi(null);
@@ -186,7 +186,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi_oldApi_webhdfs() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_oldApi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_oldApi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi_oldApi("webhdfs");
@@ -195,7 +195,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi_proxyUser() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi_proxyUser(null, null);
@@ -204,7 +204,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi_proxyUser_webhdfs() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi_proxyUser("webhdfs", null);
@@ -213,7 +213,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi_proxyUser(null, "CurrentUser");
@@ -222,7 +222,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 //	
 //	@Test
 //	public void TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs() throws Exception{
-//		System.out.println("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TestTokenRenewal_doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
 //		long endTime = runTimeSec + System.currentTimeMillis();
 //		while(endTime > System.currentTimeMillis()){
 //			doasBlock_cleanUgi_proxyUser("webhdfs", "CurrentUser");
@@ -246,12 +246,12 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 		Job1.setOutputPath(outputDir + outputFile +"/job" + Integer.toString(jobcount));
 		jobcount++;
 		
-//		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" +
+//		TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" +
 //							"jobcount = " + jobcount + "\n" +
 //							"Path = " + outputDir + outputFile +"/job" + Integer.toString(jobcount));
 		
 	    // list out our config prop change, should be 60 (seconds)
-	    System.out.println("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
+	    TestSession.logger.info("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
 
 	     // don't cancel out tokens so we can use them in job2
 	    conf.setBoolean("mapreduce.job.complete.cancel.delegation.tokens", false);
@@ -679,7 +679,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 
 
 	    // list out our config prop change, should be 60 (seconds)
-	    System.out.println("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
+	    TestSession.logger.info("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
 	    // don't cancel our tokens so we can use them in second
 	    conf.setBoolean("mapreduce.job.complete.cancel.delegation.tokens", false);
 
@@ -696,48 +696,48 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 
 	    // let's see what we got...
 	    // MR token
-	    System.out.println("mrdt: " + mrdt.getIdentifier());
-	    System.out.println("mrdt kind: " + mrdt.getKind());
-	      //private method        System.out.println("mrdt Renewer: " + mrdt.getRenewer() + "\n");
-	    System.out.println("mrdt isManaged: " + mrdt.isManaged());
-	    System.out.println("mrdt URL safe string is: " + mrdt.encodeToUrlString() + "\n");
+	    TestSession.logger.info("mrdt: " + mrdt.getIdentifier());
+	    TestSession.logger.info("mrdt kind: " + mrdt.getKind());
+	      //private method        TestSession.logger.info("mrdt Renewer: " + mrdt.getRenewer() + "\n");
+	    TestSession.logger.info("mrdt isManaged: " + mrdt.isManaged());
+	    TestSession.logger.info("mrdt URL safe string is: " + mrdt.encodeToUrlString() + "\n");
 	    // HDFS token
-	    System.out.println("myTokenHdfsFs: " + myTokenHdfsFs.getIdentifier());
-	    System.out.println("myTokenHdfsFs kind: " + myTokenHdfsFs.getKind());
-	      //private method        System.out.println("myTokenHdfsFs Renewer: " + myTokenHdfsFs.getRenewer() + "\n");
-	    System.out.println("myTokenHdfsFs isManaged: " + myTokenHdfsFs.isManaged());
-	    System.out.println("myTokenHdfsFs URL safe string is: " + myTokenHdfsFs.encodeToUrlString() + "\n");
+	    TestSession.logger.info("myTokenHdfsFs: " + myTokenHdfsFs.getIdentifier());
+	    TestSession.logger.info("myTokenHdfsFs kind: " + myTokenHdfsFs.getKind());
+	      //private method        TestSession.logger.info("myTokenHdfsFs Renewer: " + myTokenHdfsFs.getRenewer() + "\n");
+	    TestSession.logger.info("myTokenHdfsFs isManaged: " + myTokenHdfsFs.isManaged());
+	    TestSession.logger.info("myTokenHdfsFs URL safe string is: " + myTokenHdfsFs.encodeToUrlString() + "\n");
 
 	    // add creds to UGI, this adds the RM token, the HDFS token was added already as part
 	    // of the addDelegationTokens()
 	    ugiOrig.addCredentials(creds);
-	    System.out.println("From OriginalUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + creds.numberOfTokens() + " tokens");
+	    TestSession.logger.info("From OriginalUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + creds.numberOfTokens() + " tokens");
 
 	     // we have 2 tokens now, 1 HDFS_DELEGATION_TOKEN and 1 RM_DELEGATION_TOKEN
 	     // This should fail, let's try to renew as ourselves 
 	     long renewTimeHdfs = 0, renewTimeRm = 0;
-	     System.out.println("\nLet's try to renew our tokens...");
-	     System.out.println("First our HDFS_DELEGATION_TOKEN: ");
+	     TestSession.logger.info("\nLet's try to renew our tokens...");
+	     TestSession.logger.info("First our HDFS_DELEGATION_TOKEN: ");
 	     try { renewTimeHdfs = myTokenHdfsFs.renew(conf); }
-	     catch (Exception e) { System.out.println("Success, renew failed as expected since we're not the priv user"); }
+	     catch (Exception e) { TestSession.logger.info("Success, renew failed as expected since we're not the priv user"); }
 	    if (renewTimeHdfs > 1357252344100L)
 	    {
-	      System.out.println("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeHdfs we got back is: " + renewTimeHdfs);
+	      TestSession.logger.info("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeHdfs we got back is: " + renewTimeHdfs);
 	    }
 
 
-	     System.out.println("\nAnd our RM_DELEGATION_TOKEN: ");
+	     TestSession.logger.info("\nAnd our RM_DELEGATION_TOKEN: ");
 	     try { renewTimeRm = mrdt.renew(conf); }
-	     catch (Exception e) { System.out.println("Success, renew failed as expected since we're not the priv user"); }
+	     catch (Exception e) { TestSession.logger.info("Success, renew failed as expected since we're not the priv user"); }
 	    if (renewTimeRm > 1357252344100L)
 	    {
-	      System.out.println("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeRm we got back is:  " + renewTimeRm + "\n");
+	      TestSession.logger.info("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeRm we got back is:  " + renewTimeRm + "\n");
 	    }
 
 	     int numTokens = ugiOrig.getCredentials().numberOfTokens();
-	     System.out.println("We have a total of " + numTokens  + " tokens");
-	     System.out.println("Dump all tokens currently in our Credentials:");
-	     System.out.println(ugiOrig.getCredentials().getAllTokens() + "\n");
+	     TestSession.logger.info("We have a total of " + numTokens  + " tokens");
+	     TestSession.logger.info("Dump all tokens currently in our Credentials:");
+	     TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
 
 
 	    // instantiate a seperate object to use for submitting jobs, using
@@ -747,9 +747,9 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 
 	    // back to our original context, our two doAs jobs should have ran as the specified
 	    // proxy user, dump our existing credentials 
-	    System.out.println("Back from the doAs block to original context... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + creds.numberOfTokens() + " tokens");
-	    System.out.println("\nDump all tokens currently in our Credentials:");
-	    System.out.println(ugiOrig.getCredentials().getAllTokens() + "\n");
+	    TestSession.logger.info("Back from the doAs block to original context... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + creds.numberOfTokens() + " tokens");
+	    TestSession.logger.info("\nDump all tokens currently in our Credentials:");
+	    TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
 	}
 	
 	 
@@ -851,7 +851,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 		    FileSystem fs = FileSystem.get(conf);
 
 		    // list out our config prop change, should be 60 (seconds)
-		    System.out.println("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
+		    TestSession.logger.info("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
 		    // don't cancel our tokens so we can use them in second
 		    conf.setBoolean("mapreduce.job.complete.cancel.delegation.tokens", false);
 
@@ -875,15 +875,15 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 		    Token<?> myTokenHdfsFs = fs.addDelegationTokens("mapredqa", creds)[0];
 
 		    // let's see what we got...
-		    System.out.println("myTokenRm: " + myTokenRm.getIdentifier());
-		    System.out.println("myTokenRm kind: " + myTokenRm.getKind() + "\n");
-		    System.out.println("myTokenHdfsFs: " + myTokenHdfsFs.getIdentifier());
-		    System.out.println("myTokenHdfsFs kind: " + myTokenHdfsFs.getKind() + "\n");
+		    TestSession.logger.info("myTokenRm: " + myTokenRm.getIdentifier());
+		    TestSession.logger.info("myTokenRm kind: " + myTokenRm.getKind() + "\n");
+		    TestSession.logger.info("myTokenHdfsFs: " + myTokenHdfsFs.getIdentifier());
+		    TestSession.logger.info("myTokenHdfsFs kind: " + myTokenHdfsFs.getKind() + "\n");
 
 		    // add creds to UGI, this adds the two RM tokens, the HDFS token was added already as part
 		    // of the addDelegationTokens()
 		    ugiOrig.addCredentials(creds);
-		    System.out.println("From OriginalUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + creds.numberOfTokens() + " tokens");
+		    TestSession.logger.info("From OriginalUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + creds.numberOfTokens() + " tokens");
 
 		    // write our tokenfile
 		    //creds.writeTokenStorageFile(new Path("/tmp/tokenfile_orig"), conf);
@@ -892,27 +892,27 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 		    // we can't renew them, since renewers don't match 
 
 		    long renewTimeHdfs = 0, renewTimeRm = 0;
-		    System.out.println("\nLet's try to renew our tokens, should fail since renewers don't match...");
-		    System.out.println("First our HDFS_DELEGATION_TOKEN: ");
+		    TestSession.logger.info("\nLet's try to renew our tokens, should fail since renewers don't match...");
+		    TestSession.logger.info("First our HDFS_DELEGATION_TOKEN: ");
 		    try { renewTimeHdfs = myTokenHdfsFs.renew(conf); }
-		    catch (Exception e) { System.out.println("Success, renew failed as expected since we're not the priv user"); }
+		    catch (Exception e) { TestSession.logger.info("Success, renew failed as expected since we're not the priv user"); }
 		    if (renewTimeHdfs > 1357252344100L)  
 		    {
-		      System.out.println("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeHdfs we got back is: " + renewTimeHdfs);
+		      TestSession.logger.info("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeHdfs we got back is: " + renewTimeHdfs);
 		    }
 
-		    System.out.println("\nOur first RM_DELEGATION_TOKEN: ");
+		    TestSession.logger.info("\nOur first RM_DELEGATION_TOKEN: ");
 		    try { renewTimeRm = myTokenRm.renew(conf); }
-		    catch (Exception e) { System.out.println("Success, renew failed as expected since we're not the priv user"); }
+		    catch (Exception e) { TestSession.logger.info("Success, renew failed as expected since we're not the priv user"); }
 		    if (renewTimeRm > 1357252344100L) 
 		    {
-		      System.out.println("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeRm we got back is:  " + renewTimeRm + "\n");
+		      TestSession.logger.info("FAILED! We were allowed to renew a token as ourselves when renewer is priv user.\nThe renewTimeRm we got back is:  " + renewTimeRm + "\n");
 		    }
 
 		    int numTokens = ugiOrig.getCredentials().numberOfTokens();
-		    System.out.println("We have a total of " + numTokens  + " tokens");
-		    System.out.println("Dump all tokens currently in our Credentials:");
-		    System.out.println(ugiOrig.getCredentials().getAllTokens() + "\n");
+		    TestSession.logger.info("We have a total of " + numTokens  + " tokens");
+		    TestSession.logger.info("Dump all tokens currently in our Credentials:");
+		    TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
 
 		    // instantiate a seperate object to use for submitting jobs, but don't use
 		    // the tokens we got since they won't work in the doAs due to mismatching
@@ -922,9 +922,9 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 
 		    // back to our original context, our two doAs jobs should have ran as the specified
 		    // proxy user, dump our existing credentials 
-		    System.out.println("Back from the doAs block to original context... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + creds.numberOfTokens() + " tokens");
-		    System.out.println("\nDump all tokens currently in our Credentials:");
-		    System.out.println(ugiOrig.getCredentials().getAllTokens() + "\n");
+		    TestSession.logger.info("Back from the doAs block to original context... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + creds.numberOfTokens() + " tokens");
+		    TestSession.logger.info("\nDump all tokens currently in our Credentials:");
+		    TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
 
 		}
 		
@@ -958,7 +958,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 		    }
 		    //tryCurrentUser    try { ugi = UserGroupInformation.createProxyUser("hadoopqa@DEV.YGRID.YAHOO.COM", UserGroupInformation.getLoginUser()); }
 		    catch (Exception e) { 
-		    	System.out.println("Failed, couldn't get UGI object for proxy user: " + e); }
+		    	TestSession.logger.info("Failed, couldn't get UGI object for proxy user: " + e); }
 		    }
 
 		    //constructor - ugi to use is passed in, uses existing creds that come in with said ugi
@@ -991,15 +991,15 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 			            Token<?> doasHdfsToken = doasFs.addDelegationTokens("mapredqa", doasCreds)[0];
 	
 			            // let's see what we got...
-			            System.out.println("doasRmToken: " + doasRmToken.getIdentifier());
-			            System.out.println("doasRmToken kind: " + doasRmToken.getKind() + "\n");
-			            System.out.println("doasHdfsToken: " + doasHdfsToken.getIdentifier());
-			            System.out.println("doasHdfsToken kind: " + doasHdfsToken.getKind() + "\n");
+			            TestSession.logger.info("doasRmToken: " + doasRmToken.getIdentifier());
+			            TestSession.logger.info("doasRmToken kind: " + doasRmToken.getKind() + "\n");
+			            TestSession.logger.info("doasHdfsToken: " + doasHdfsToken.getIdentifier());
+			            TestSession.logger.info("doasHdfsToken kind: " + doasHdfsToken.getKind() + "\n");
 	
 			            // add creds to UGI, this adds the two RM tokens, the HDFS token was added already as part
 			            // of the addDelegationTokens()
 			            ugi.addCredentials(doasCreds);
-			            System.out.println("From DoasProxyUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + doasCreds.numberOfTokens() + " tokens");
+			            TestSession.logger.info("From DoasProxyUser... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I have " + doasCreds.numberOfTokens() + " tokens");
 	
 			           
 			            // setup and run a wordcount job, this should use the tokens passed into
@@ -1025,7 +1025,7 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 				   		assertTrue("Job1 did not succeed.",
 				   					Job1.waitForSuccess(waitTime));
 	
-			            System.out.println("\nAfter doasUser first job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
+			            TestSession.logger.info("\nAfter doasUser first job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
 			             
 			            // setup and run another wordcount job, this should exceed the token renewal time of 60 seconds
 			            // and cause all of our passed-in tokens to be renewed, job should also succeed
@@ -1050,9 +1050,9 @@ public class TestTokenRenewal_runEachStress extends TestSession {
 					   	assertTrue("Job2 did not succeed.",
 					   				Job2.waitForSuccess(waitTime));
 	
-			            System.out.println("\nAfter doasUser second job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
-			            System.out.println("\nDump all tokens currently in our Credentials:");
-			            System.out.println(ugi.getCredentials().getAllTokens() + "\n");
+			            TestSession.logger.info("\nAfter doasUser second job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
+			            TestSession.logger.info("\nDump all tokens currently in our Credentials:");
+			            TestSession.logger.info(ugi.getCredentials().getAllTokens() + "\n");
 	
 			            return "This is the doAs block";
 		            }

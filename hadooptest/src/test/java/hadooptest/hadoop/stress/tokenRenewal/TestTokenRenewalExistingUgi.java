@@ -95,7 +95,7 @@ public class TestTokenRenewalExistingUgi extends TestSession {
 		Job1.setOutputPath(outputDir + outputFile +"/job1");
 		 
 	    // list out our config prop change, should be 60 (seconds)
-	    System.out.println("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
+	    TestSession.logger.info("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
 
 	     // don't cancel out tokens so we can use them in job2
 	    conf.setBoolean("mapreduce.job.complete.cancel.delegation.tokens", false);
