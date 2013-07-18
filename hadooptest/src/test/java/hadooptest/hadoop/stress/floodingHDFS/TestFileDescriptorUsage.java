@@ -8,8 +8,12 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -86,13 +90,19 @@ public class TestFileDescriptorUsage extends TestSession {
 
 		queues =  yarnClient.getAllQueues(); 
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
-		TestSession.logger.info("================= queues ='" +
-        	Arrays.toString(queues.toArray()) + "'");
+		TestSession.logger.info("================= queues ='" + Arrays.toString(queues.toArray()) + "'");
 		
-		// we need to detect whether there are two queues running
-		while (queues.size() < 2){
-    			cluster.hadoopDaemon("stop", component);
-    			cluster.hadoopDaemon("start", component);
+		if (queues.size() != 1){
+			// Backup the default configuration directory on the Resource Manager
+			// component host.
+			cluster.getConf(component).backupConfDir();	
+			// Copy files to the custom configuration directory on the
+			// Resource Manager component host.
+			String sourceFile = TestSession.conf.getProperty("WORKSPACE") + "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
+			cluster.getConf(component).copyFileToConfDir(sourceFile, "capacity-scheduler.xml");
+			cluster.hadoopDaemon("stop", component);
+			cluster.hadoopDaemon("start", component);
+			cluster.waitForComponentState("start", component);
 		}
 	}
 	
@@ -172,27 +182,26 @@ public class TestFileDescriptorUsage extends TestSession {
 		TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
 	}
 
-	/*
-	 * A test for running a Wordcount job
-	 * 
-	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
-	 */
 	@Test
-	public void runTestDurability() throws IOException, InterruptedException {
+	public void FileDescriptorUsage() throws IOException, InterruptedException {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
 		Random rand = new Random();
-		WordCountJob[] jobs = new WordCountJob[1];
+		WordCountJob[] jobs = new WordCountJob[Integer.parseInt(System.getProperty("jobNum"))];
+		TestSession.logger.info("=============== jobs.length = "+jobs.length);
+
 		try {
 			for(int i = 0; i < jobs.length; i++){
 				jobs[i] = new WordCountJob();
+				TestSession.logger.info("======== job "+ i+" =========");
+
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(rand.nextInt(TotalFileNum)) + ".txt";
 				TestSession.logger.info("Randomly choosed input file is: " + inputFile);
 				
 				Date date = new Date();
 				String output = "/" +dateFormat.format(date).toString()+ Integer.toString(i);
-				TestSession.logger.info("===== Output file is: " + outputDir + outputFile + output);
+				TestSession.logger.info("Output file is: " + outputDir + outputFile + output);
 				
 				jobs[i].setInputFile(inputFile);
 				jobs[i].setOutputPath(outputDir + outputFile + output);
@@ -200,27 +209,55 @@ public class TestFileDescriptorUsage extends TestSession {
 				
 				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", jobs[i].waitForID(10));
 				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", jobs[i].verifyID());
-				checkFileLeak(jobs[i]);
-				Thread.sleep(10000);
+
+				Process process = jobs[i].getProcess();
+				TestSession.logger.debug("process == null? "+(process == null));
+				
+				int pid = getUnixPID(process);
+				TestSession.logger.debug("======== job "+ i+" pid = "+pid+"=========");
+				
+				CheckProcessInfo(pid);
+				int of = countOpenFile(Integer.toString(pid));
+				TestSession.logger.info("======== Initialy, job "+ i+" opened file # = "+of+"=========");
+//				PrintOpenFiles(pid);
+			}
+			
+			for(int i = 0; i < jobs.length; i++){
+				int pid = getUnixPID(jobs[i].getProcess());
+				assertTrue("Job did not succeed.",jobs[i].waitForSuccess(20));
+				int of = countOpenFile(Integer.toString(pid));
+				TestSession.logger.info("======== After completion, job "+ i+" opened file # = "+of+"=========");
+				assertTrue("WordCount job["+ i+"] has "+of+" files left open.", (of == 0));
 			}
 		}catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
 			fail();
 		}
 	}
-	
-	public void checkFileLeak(WordCountJob job) throws IOException, InterruptedException{
-		String pid = curPID().trim();
-		logger.info(this.getClass().getName()+" PID is "+pid);
-		int nofile = countOpenFile(pid);
-		logger.info("=============== Initially Total number of file opened by "+pid+" is "+nofile);
+	public void PrintOpenFiles(int pid){
+		try {
+	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "lsof -p "+pid});
+	        InputStream is = proc.getInputStream();
+	        InputStreamReader isr = new InputStreamReader(is);
+	        BufferedReader br = new BufferedReader(isr);
+	        String line;
 
-		assertTrue("Job did not succeed.",job.waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
-
-		nofile = countOpenFile(pid);
-		logger.info("=============== Finally Total number of file opened by "+pid+" is "+nofile);
-//		assertTrue(this.getClass().getName()+" did not clean up all the opened files, "+nofile+" are left opened.",(nofile == 0));
+	        while ((line = br.readLine()) != null)
+	        	System.out.println(line);
+	    } catch (IOException e) {
+	    	TestSession.logger.error(e.getMessage());
+	    }
 	}
+	public int getUnixPID(Process process) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {  
+        if (process.getClass().getName().equals("java.lang.UNIXProcess")) {  
+            Field field = process.getClass().getDeclaredField("pid");  
+            field.setAccessible(true);  
+            Object pid = field.get(process);  
+            return (Integer) pid;  
+        } else {  
+            throw new IllegalArgumentException("Not a UNIXProcess");  
+        }  
+    }  
 	public int countOpenFile(String pid) throws IOException {
 		byte[] bo = new byte[100];
 		String[] cmd = {"bash", "-c"," lsof -p "+pid+" | wc -l"};
@@ -228,12 +265,37 @@ public class TestFileDescriptorUsage extends TestSession {
 		p.getInputStream().read(bo);
 		return Integer.parseInt(new String(bo).trim());
 	}
-	public String curPID() throws IOException {
+	public void CheckProcessInfo(int pid){
+	    try {
+	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "ps "+pid});
+	        InputStream is = proc.getInputStream();
+	        InputStreamReader isr = new InputStreamReader(is);
+	        BufferedReader br = new BufferedReader(isr);
+	        String line;
 
-		byte[] bo = new byte[100];
-		String[] cmd = {"bash", "-c", "echo $PPID"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.getInputStream().read(bo);
-		return new String(bo);
+	        while ((line = br.readLine()) != null)
+	        	TestSession.logger.info(line);
+	    } catch (IOException e) {
+	    	TestSession.logger.error(e.getMessage());
+	    }
 	}
+//	public String curPID() throws IOException {
+//
+//		byte[] bo = new byte[100];
+//		String[] cmd = {"bash", "-c", "echo $PPID"};
+//		Process p = Runtime.getRuntime().exec(cmd);
+//		p.getInputStream().read(bo);
+//		return new String(bo);
+//	}
+//	public void checkFileLeak(WordCountJob job) throws IOException, InterruptedException{
+//		String pid = curPID().trim();
+//		logger.info(this.getClass().getName()+" PID is "+pid);
+//		int nofile = countOpenFile(pid);
+//		logger.info("=============== Initially Total number of file opened by "+pid+" is "+nofile);
+//
+//		assertTrue("Job did not succeed.",job.waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
+//
+//		nofile = countOpenFile(pid);
+//		logger.info("=============== Finally Total number of file opened by "+pid+" is "+nofile);
+//	}
 }
