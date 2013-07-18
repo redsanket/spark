@@ -1,11 +1,19 @@
+/*
+ *  [ATTENTION!]
+ *  There is a race condition for this test.
+ *  This test may succeed or, fail on the "Redirecting to job history server" ERROR
+ *  Waiting for the bug fixed in Hadoop core.
+ */
 package hadooptest.hadoop.stress.tokenRenewal;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
+import java.io.File;
 import java.security.PrivilegedExceptionAction;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -20,7 +28,7 @@ import org.junit.Test;
 
 
 
-public class TestTokenRenewal_doasBlock_cleanUgi_oldApi_webhdfs extends TestSession {
+public class TestTokenRenewalDoasBlockCleanUgiOldApi extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -29,12 +37,8 @@ public class TestTokenRenewal_doasBlock_cleanUgi_oldApi_webhdfs extends TestSess
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
-	// NOTE: this is the name node of your cluster that you currently test your code on
-	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
-	private static String webhdfsAddr;
-	
-	
-	
+	private static String input_string = "Hello world! Run token renewal tests!";
+
 	// location information 
 	private static String outputDir = null;
 	private static String localDir = null;
@@ -57,18 +61,29 @@ public class TestTokenRenewal_doasBlock_cleanUgi_oldApi_webhdfs extends TestSess
 		localDir = "/home/" + System.getProperty("user.name") + "/";
 		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
 		
-		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
-		logger.info("Target Directory is: " + outputDir + localFile+ "Target File is: " + outputDir + outputFile);
+		// create local input file
+		File inputFile = new File(localDir + localFile);
+		try{
+			if(inputFile.delete()){
+				TestSession.logger.info("Input file already exists from previous test, delete it!");
+			} else {
+				TestSession.logger.info("Input path clear, creating new input file!");
+			}
+					
+			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);	
+		} catch (Exception e) {
+				TestSession.logger.error(e);
+		}
 		
-	    webhdfsAddr = "webhdfs://" + hdfsNode + ":" + outputDir + localFile;
-	    
-		logger.info("Target Directory is: " + webhdfsAddr);
+		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
+		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 				
 		TestSession.cluster.getFS().delete(new Path(outputDir+localFile), true);
 	    
 		TestSession.cluster.getFS().copyFromLocalFile(new Path(localDir + localFile), new Path(outputDir + localFile)); 
 		TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
 	}
+
 
 	/*
 	 * A test for running a TestTokenRenewal job
