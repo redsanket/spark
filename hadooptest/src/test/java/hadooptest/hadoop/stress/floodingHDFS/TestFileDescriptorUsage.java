@@ -1,15 +1,20 @@
 package hadooptest.hadoop.stress.floodingHDFS;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -18,10 +23,12 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ManyJobsOneQueue extends TestSession {
+public class TestFileDescriptorUsage extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -51,6 +58,7 @@ public class ManyJobsOneQueue extends TestSession {
 	private static Path inpath = null;
 	private static String outputDir = null;
 	private static String localDir = null;
+	static List<QueueInfo> queues;
 	
 	/*
 	 *  Before running the test.
@@ -63,7 +71,29 @@ public class ManyJobsOneQueue extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
+		setupQueue();
 		setupTestDir();
+	}
+	public static void setupQueue() throws Exception  {
+		
+		FullyDistributedCluster cluster =
+				(FullyDistributedCluster) TestSession.cluster;
+		String component = HadoopCluster.RESOURCE_MANAGER;
+
+		YarnClientImpl yarnClient = new YarnClientImpl();
+		yarnClient.init(TestSession.getCluster().getConf());
+		yarnClient.start();
+
+		queues =  yarnClient.getAllQueues(); 
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
+		TestSession.logger.info("================= queues ='" +
+        	Arrays.toString(queues.toArray()) + "'");
+		
+		// we need to detect whether there are two queues running
+		while (queues.size() < 2){
+    			cluster.hadoopDaemon("stop", component);
+    			cluster.hadoopDaemon("start", component);
+		}
 	}
 	
 	public static void setupTestDir() throws Exception {
@@ -152,10 +182,9 @@ public class ManyJobsOneQueue extends TestSession {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
 		Random rand = new Random();
-		WordCountJob[] jobs = new WordCountJob[5];
+		WordCountJob[] jobs = new WordCountJob[1];
 		try {
 			for(int i = 0; i < jobs.length; i++){
-				
 				jobs[i] = new WordCountJob();
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(rand.nextInt(TotalFileNum)) + ".txt";
@@ -169,23 +198,24 @@ public class ManyJobsOneQueue extends TestSession {
 				jobs[i].setOutputPath(outputDir + outputFile + output);
 				jobs[i].start();
 				
-				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", 
-						jobs[i].waitForID(10));
-				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", 
-						jobs[i].verifyID());
+				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", jobs[i].waitForID(10));
+				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", jobs[i].verifyID());
+				checkFileLeak(jobs[i]);
+				Thread.sleep(10000);
 			}
 		}catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
 			fail();
 		}
-		
+	}
+	
+	public void checkFileLeak(WordCountJob job) throws IOException, InterruptedException{
 		String pid = curPID().trim();
 		logger.info(this.getClass().getName()+" PID is "+pid);
 		int nofile = countOpenFile(pid);
 		logger.info("=============== Initially Total number of file opened by "+pid+" is "+nofile);
 
-		for(int i = 0; i < jobs.length; i++)
-			assertTrue("Job "+i+" did not succeed.",jobs[i].waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
+		assertTrue("Job did not succeed.",job.waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
 
 		nofile = countOpenFile(pid);
 		logger.info("=============== Finally Total number of file opened by "+pid+" is "+nofile);
