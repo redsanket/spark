@@ -25,7 +25,7 @@ import org.junit.Test;
 
 
 
-public class TestTokenRenewal_runAll extends TestSession {
+public class TestTokenRenewalAll extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -41,9 +41,8 @@ public class TestTokenRenewal_runAll extends TestSession {
 	 *          Please give the string for the input file           *
 	 ****************************************************************/
 	
-	private static String input_string = "Hello world! Really???? Start to run ALL!";
+	private static String input_string = "Hello world! Let's run all the token renewal tests!";
 
-	
 	// location information 
 	private static String outputDir = null;
 	private static String localDir = null;
@@ -104,32 +103,55 @@ public class TestTokenRenewal_runAll extends TestSession {
 	@Test
 	public void TestTokenRenewal() throws Exception{
 		
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> ExistingUgi <===");
 		existingUgi(null);
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> ExistingUgi_webhdfs <===");
 		existingUgi("webhdfs");
 		
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> ExistingUgi_oldApi <===");
 		existingUgi_oldApi(null);
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> ExistingUgi_oldApi_webhdfs <===");
 		existingUgi_oldApi("webhdfs");
 		
-//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-//		doasBlock_cleanUgi(null);
-//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-//		doasBlock_cleanUgi("webhdfs");
 		
-//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_oldApi!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-//		doasBlock_cleanUgi_oldApi(null);
-//		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_oldApi_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-//		doasBlock_cleanUgi_oldApi("webhdfs");
+		/*
+		 *  [ATTENTION!]
+		 *  There are race conditions for these tests.
+		 *  These 4 tests may successfully pass or fail on the "Redirecting to job history server" ERROR,
+		 *  waiting for the bug fixed in Hadoop core.
+		 */
+/*		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi <===");
+		doasBlock_cleanUgi(null);
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi_webhdfs <===");
+		doasBlock_cleanUgi("webhdfs");
 		
-		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi_oldApi <===");
+		doasBlock_cleanUgi_oldApi(null);
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi_oldApi_webhdfs <===");
+		doasBlock_cleanUgi_oldApi("webhdfs");
+*/
+		
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser <===");
 		doasBlock_cleanUgi_proxyUser(null, null);
-		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");		
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser_webhdfs <===");
 		doasBlock_cleanUgi_proxyUser("webhdfs", null);
-
-		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_CurrentUser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-		doasBlock_cleanUgi_proxyUser(null, "CurrentUser");
-		TestSession.logger.info("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-		doasBlock_cleanUgi_proxyUser("webhdfs", "CurrentUser");
 		
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser_CurrentUser <===");
+		doasBlock_cleanUgi_proxyUser(null, "CurrentUser");
+		TestSession.logger.info("Trying to run the test:");
+		TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs <===");
+		doasBlock_cleanUgi_proxyUser("webhdfs", "CurrentUser");
 	}
 	
 	
@@ -148,10 +170,6 @@ public class TestTokenRenewal_runAll extends TestSession {
 			Job1.setInputFile(outputDir + localFile);
 		Job1.setOutputPath(outputDir + outputFile +"/job" + Integer.toString(jobcount));
 		jobcount++;
-		
-//		TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" +
-//							"jobcount = " + jobcount + "\n" +
-//							"Path = " + outputDir + outputFile +"/job" + Integer.toString(jobcount));
 		
 	    // list out our config prop change, should be 60 (seconds)
 	    TestSession.logger.info("Check the renew property setting, yarn.resourcemanager.delegation.token.renew-interval: " + conf.get("yarn.resourcemanager.delegation.token.renew-interval"));

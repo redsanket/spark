@@ -3,6 +3,9 @@ package hadooptest.hadoop.stress.tokenRenewal;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import hadooptest.TestSession;
 import hadooptest.workflow.hadoop.job.WordCountJob;
@@ -32,7 +35,7 @@ public class TestTokenRenewalExistingUgiOldApiWebhdfs extends TestSession {
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
 	// NOTE: this is the name node of your cluster that you currently test your code on
-	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
+	private static String hdfsNode;
 	private static String webhdfsAddr;
 	private static String input_string = "Hello world! Run token renewal tests!";
 
@@ -54,6 +57,18 @@ public class TestTokenRenewalExistingUgiOldApiWebhdfs extends TestSession {
 	}
 	
 	public static void setupTestDir() throws Exception {
+		// get webhdfs node addr from the properties file
+		String workingDir = System.getProperty("user.dir");	
+		Properties prop = new Properties();	 
+    	try {
+            //load a properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+		
+	    hdfsNode = prop.getProperty("TokenRenewal.hdfsNode");
+	    logger.info("===> HDFS node addr.: "+ hdfsNode + " <===");
 		
 		// show the input and output path
 		localDir = "/home/" + System.getProperty("user.name") + "/";
