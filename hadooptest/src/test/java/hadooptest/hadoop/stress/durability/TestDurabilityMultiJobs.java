@@ -62,7 +62,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 	private static String outputDir = null;
 	private static String localDir = null;
 	int fileCount = 0;
-	int myNum = 20;
+	int index = 20;
 	long endTime;
 	
 	/*
@@ -245,13 +245,13 @@ public class TestDurabilityMultiJobs extends TestSession {
 	private void startJobs(WordCountJob job){
 		
 		Random myRan = new Random();
-		myNum = myRan.nextInt(TotalFileNum);
+		index = myRan.nextInt(TotalFileNum);
 		
 		try{
 			long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
 		    logger.info("===> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs <===");
 			
-			String inputFile = inpath.toString() + "/" + Integer.toString(myNum) + ".txt";
+			String inputFile = inpath.toString() + "/" + Integer.toString(index) + ".txt";
 			TestSession.logger.info("Randomly choosed input file is: " + inputFile);
 			
 			String output = "/" + Integer.toString(fileCount);

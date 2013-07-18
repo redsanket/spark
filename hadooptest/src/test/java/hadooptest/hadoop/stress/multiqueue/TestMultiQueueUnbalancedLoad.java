@@ -9,9 +9,11 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -27,12 +29,12 @@ import org.junit.Test;
 
 
 
-public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
+public class TestMultiQueueUnbalancedLoad extends TestSession {
 	
 	/****************************************************************
 	 *Please set the number of queues that you want to submit job to*
 	 ****************************************************************/
-	private static int qnum;
+	private static int qNum;
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -69,6 +71,10 @@ public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
 	private int file_count = 0;
 	private int input_index;
 	private long endTime;
+	private static int runMin;
+	private static int runHour;
+	private static int runDay;
+	private static int jobNum;
 	
 	
 	/*
@@ -82,9 +88,32 @@ public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
+		getParameters();
 		setupTestConf();
 		getQueneInfo();
 		setupTestDir();
+	}
+	
+	public static void getParameters() throws Exception {
+		
+		String workingDir = System.getProperty("user.dir");
+		
+		Properties prop = new Properties();
+		 
+    	try {
+            //load a properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+
+		runMin  = Integer.parseInt(prop.getProperty("Multiqueue.runMin"));
+	    runHour = Integer.parseInt(prop.getProperty("Multiqueue.runHour"));
+	    runDay  = Integer.parseInt(prop.getProperty("Multiqueue.runDay"));
+	    logger.info("===> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay + " <===");
+	    qNum = Integer.parseInt(prop.getProperty("Multiqueue.queueNum"));
+		jobNum = Integer.parseInt(prop.getProperty("Multiqueue.jobNum"));
+	    logger.info("===> Queue #: "+ qNum + "Job # per queue: " + jobNum + " <==="); 
 	}
 	
 	public static void setupTestConf() throws Exception  {
@@ -119,8 +148,7 @@ public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
 	
 	public static void getQueneInfo() throws Exception {
 		
-		qnum = Integer.parseInt(System.getProperty("queueNum"));
-		qname = new String[qnum];
+		qname = new String[qNum];
 		
 		YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();
 		
@@ -128,8 +156,8 @@ public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
 		logger.info("queues='" +
         	Arrays.toString(queues.toArray()) + "'");
-		qnum = Math.min(qnum, queues.size());
-		for(int i = 0; i < qnum; i++) {
+		qNum = Math.min(qNum, queues.size());
+		for(int i = 0; i < qNum; i++) {
 			qname[i] = queues.get(i).getQueueName();
 			logger.info("Queue " + i +" name is :" + qname[i]);
 		}
@@ -221,40 +249,37 @@ public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
 	@Test
 	public void runWordCountTest() {
 		
-		int jobNum = Integer.parseInt(System.getProperty("jobNum"));
-		int unit_jobNum = jobNum/qnum;
+
+		int unit_jobNum = jobNum/qNum;
+	
 		int cur_jobNum;
 		
 	    // get current time
 	    long startTime = System.currentTimeMillis();
 	    logger.info("Current time is: " + startTime/1000);
-		
-	    logger.info("============================ runMin: "+System.getProperty("runMin") 
-	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay"));
 
-	    endTime = startTime + Integer.parseInt(System.getProperty("runMin"))*60*1000 
-	    		+ Integer.parseInt(System.getProperty("runHour"))*60*60*1000 + Integer.parseInt(System.getProperty("runDay"))*24*60*60*1000 ;
+	    endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
 	    
 		while(endTime > System.currentTimeMillis()) {
 			
 			try {
-			    WordCountJob[][] Jobs = new WordCountJob[qnum][jobNum];
+			    WordCountJob[][] Jobs = new WordCountJob[qNum][jobNum];
 			    
-			    for(int i = 0; i < qnum; i++){
+			    for(int i = 0; i < qNum; i++){
 					cur_jobNum = jobNum - i*unit_jobNum;
 			    	for (int j = 0; j < cur_jobNum; j++){
 			    		Jobs[i][j] = new WordCountJob();
 			    	}
 			    }
 			    
-			    for(int i = 0; i < qnum; i++){
+			    for(int i = 0; i < qNum; i++){
 					cur_jobNum = jobNum - i*unit_jobNum;
 			    	for (int j = 0; j < cur_jobNum; j++){
 			    		startJobs(Jobs[i][j], i);
 			    	}
 			    }
 				
-			    for(int i = 0; i < qnum; i++){
+			    for(int i = 0; i < qNum; i++){
 					cur_jobNum = jobNum - i*unit_jobNum;
 			    	for (int j = 0; j < cur_jobNum; j++){
 			    		assertJobs(Jobs[i][j]);
@@ -274,7 +299,7 @@ public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
 			input_index = random.nextInt(TotalFileNum);
 			
 			long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
-		    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours, "+timeLeftSec/60%60+" mins, "+ timeLeftSec%60%60+" secs<============");
+		    logger.info("===> Time remaining : " + timeLeftSec/60/60 + " hours, "+timeLeftSec/60%60+" mins, "+ timeLeftSec%60%60+" secs <===");
 			
 			String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 			logger.info("Randomly choosed input file is: " + inputFile);
@@ -302,13 +327,13 @@ public class TestMultiQueue_Durability_UnbalancedLoad extends TestSession {
 	
 	private void assertJobs(WordCountJob jobUserDefault){	
 		try{
-		assertTrue("WordCount job (default user) was not assigned an ID within 120 seconds.", 
-				jobUserDefault.waitForID(120));
-		assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
-				jobUserDefault.verifyID());
-		int waitTime = 2;
-		assertTrue("Job (default user) did not succeed.",
-			jobUserDefault.waitForSuccess(waitTime));
+			assertTrue("WordCount job (default user) was not assigned an ID within 120 seconds.", 
+					jobUserDefault.waitForID(120));
+			assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
+					jobUserDefault.verifyID());
+			int waitTime = 2;
+			assertTrue("Job (default user) did not succeed.",
+				jobUserDefault.waitForSuccess(waitTime));
 		} catch (Exception e){
 			TestSession.logger.error("Exception failure.", e);
 			fail();
