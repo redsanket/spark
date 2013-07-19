@@ -73,22 +73,29 @@ public class TestSystemAndJVMUsage extends TestSession {
     
     @Test 
     public void TestRandomWriterAPI(){
+    	long mb = 1024*1024;
+		long kb = 1024;
     	TestSession.logger.info("================== System level stats ======================");
     	OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
     	for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
     		method.setAccessible(true);
 		    if (method.getName().startsWith("get") && Modifier.isPublic(method.getModifiers())) {
-		            Object value;
+		        Object value;
 		        try {
 		            value = method.invoke(operatingSystemMXBean);
 		        } catch (Exception e) {
 		            value = e;
 		        }
-		        TestSession.logger.info(method.getName() + " = " + value);
-		    }
+		        Long v = (Long)value;
+		        if(v > mb)
+		        	TestSession.logger.info(method.getName() + " = " + v/mb +"M");
+		        else if(v > kb)
+		        	TestSession.logger.info(method.getName() + " = " + v/kb +"K");
+		        else
+		        	TestSession.logger.info(method.getName() + " = " + value);		    }
     	}
+    	
     	TestSession.logger.info("================== JVM level stats ======================");
-    	int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
         TestSession.logger.info("##### Heap utilization statistics [MB] #####");
         TestSession.logger.info("Used Memory:"+ (runtime.totalMemory() - runtime.freeMemory()) / mb);
