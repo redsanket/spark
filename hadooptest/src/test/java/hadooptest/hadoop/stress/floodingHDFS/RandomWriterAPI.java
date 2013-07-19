@@ -257,7 +257,7 @@ public class RandomWriterAPI extends Configured implements Tool {
    */
   public int run(String[] args) throws Exception {    
     if (args.length == 0) {
-      System.out.println("Usage: writer <out-dir> <TOTAL_BYTES_VAL> <level> <jobNum>");
+      TestSession.logger.info("Usage: writer <out-dir> <TOTAL_BYTES_VAL> <level> <jobNum>");
       ToolRunner.printGenericCommandUsage(System.out);
       return 2;
     }
@@ -353,6 +353,7 @@ public class RandomWriterAPI extends Configured implements Tool {
     	while(jobCounter < jobNum){
     	  	
     		TestSession.logger.info("======= Job "+jobCounter+" =======");
+    		MemoryUsage();
     		Job job = new Job(conf);
     	      
     		Date date = new Date();
@@ -379,6 +380,17 @@ public class RandomWriterAPI extends Configured implements Tool {
     	TestSession.logger.info("====================== Error Mode ======================");
     return ret;
   }
+  // log the current jvm mem usage
+  public static void MemoryUsage() {
+      int mb = 1024*1024;
+      Runtime runtime = Runtime.getRuntime();
+      TestSession.logger.info("##### Heap utilization statistics [MB] #####");
+      TestSession.logger.info("Used Memory:"+ (runtime.totalMemory() - runtime.freeMemory()) / mb);
+      TestSession.logger.info("Free Memory:"+ runtime.freeMemory() / mb);
+      TestSession.logger.info("Total Memory:" + runtime.totalMemory() / mb);
+      TestSession.logger.info("Max Memory:" + runtime.maxMemory() / mb);
+  }
+  
   
   public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(new Configuration(), new RandomWriterAPI(), args);
