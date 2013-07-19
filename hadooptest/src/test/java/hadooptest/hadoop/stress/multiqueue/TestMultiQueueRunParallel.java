@@ -27,48 +27,20 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-
-
 public class TestMultiQueueRunParallel extends TestSession {
 	
-	/****************************************************************
-	 *Please set the number of queues that you want to submit job to*
-	 ****************************************************************/
-	private static int qNum;
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
-	// NOTE: the file should appear in you home directory
-	private static String localFile = "wc_input_new.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "wc_output_new";
 	
-	/****************************************************************
-	 *          Please give the string for the input file           *
-	 ****************************************************************/
+	private static String input_string = "Hello world! Run MultiQueue Tests!";
 	
-	private static String input_string = "Hello world! Really???? Are you sure?";
-	
-	/****************************************************************
-	 *  Configure the total file number that you want to generate   *
-	 *                       in the HDFS                            *
-	 ****************************************************************/
 	private static int TotalFileNum = 20;
-		
-	/****************************************************************
-	 *       		 Parameters from .properties	                *
-	 ****************************************************************/
-	/**
-	 * Setup runMin,runHour,runDay in runtime, queueNum
-	 */
 	
 	// location information 
 	private static Path inpath = null;
 	private static String outputDir = null;
-	private static String localDir = null;
 	private static String []qname;
+	private static int qNum;
 	private int file_count = 0;
 	private int input_index;
 	private long endTime;
@@ -109,9 +81,9 @@ public class TestMultiQueueRunParallel extends TestSession {
 		runMin  = Integer.parseInt(prop.getProperty("Durability.runMin"));
 	    runHour = Integer.parseInt(prop.getProperty("Durability.runHour"));
 	    runDay  = Integer.parseInt(prop.getProperty("Durability.runDay"));
-	    logger.info("============>>>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+	    logger.info("===> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay+"<===");
 	    qNum = Integer.parseInt(prop.getProperty("Durability.queueNum"));
-	    logger.info("============>>>> Queue #: "+ qNum); 
+	    logger.info("===> Queue #: "+ qNum + " <==="); 
 	}
 	
 	public static void setupTestConf() throws Exception  {
@@ -161,62 +133,44 @@ public class TestMultiQueueRunParallel extends TestSession {
 		}
 	}
 	
+	/*
+	 *  This function generate input files, and assemble the output path
+	 */
 	public static void setupTestDir() throws Exception {
 		
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
-		// show the input and output path
-		localDir = System.getProperty("user.home") + "/";
-		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
-		
-		outputDir = TestSession.getCluster().getFS().getHomeDirectory() + "/";
-		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
+		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
+		TestSession.logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
-		
-		// create local input file
-		File inputFile = new File(localDir + localFile);
-		try{
-			if(inputFile.delete()){
-				TestSession.logger.info("Input file already exists from previous test, delete it!");
-			} else {
-				TestSession.logger.info("Input path clear, creating new input file!");
-			}
-			
-			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);
-		
-		} catch (Exception e) {
-			TestSession.logger.error(e);
-		}
 		
 		// Check the valid of the input directory in HDFS
 		// check if path exists and if so remove it 
 	    try {
 	       if ( myFs.isDirectory(inpath) ) {
 	         myFs.delete(inpath, true);
-	         logger.info("INFO: deleted input path: " + inpath );
+	         TestSession.logger.info("INFO: deleted input path: " + inpath );
 	       }
 	    }
 	    catch (Exception e) {
 	        System.err.println("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
-	        logger.error("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    // make the input directory
 	    try {
 	    	 if ( myFs.mkdirs(inpath) ) {
-	    		 logger.info("INFO: created input path: " + inpath );
+	    		 TestSession.logger.info("INFO: created input path: " + inpath );
 	      }
 	    }
 	    catch (Exception e) {
 	         System.err.println("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
-	         logger.error("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    
-	    // Read the local input file
-        String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
-        logger.info("Input string is: "+s);  
+	    // Print input string
+        TestSession.logger.info("Input string is: "+ input_string);  
 		
+		// Generate different input files for submission later on
 		for(int fileNum = 0; fileNum < TotalFileNum; fileNum ++)
 		{
 			try {
@@ -224,14 +178,13 @@ public class TestMultiQueueRunParallel extends TestSession {
 		         FSDataOutputStream dostream = FileSystem.create(myFs, infile, new FsPermission("644")); 
 		          
 		         // generate a set of different input files
-		         for(int i= 0; i < 25*fileNum; i++)
-		         		dostream.writeChars(s);
+		         for(int i= 0; i < 2500*fileNum; i++)
+		         		dostream.writeChars(input_string);
 		          	
 		         dostream.flush();
 		         dostream.close();
 		    } catch (IOException ioe) {
 		        	System.err.println("FAIL: can't create input file for wordcount: " + ioe);
-		        	logger.error("FAIL: can't create input file for wordcount: " + ioe);
 		    }
 		}
 		// Delete the file, if it exists in the same directory
@@ -252,8 +205,7 @@ public class TestMultiQueueRunParallel extends TestSession {
 	    logger.info("Current time is: " + startTime/1000);
 		
 	    logger.info("===> runMin: "+System.getProperty("runMin") 
-	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay") + "<===");
-	    
+	    		+",runHour: "+System.getProperty("runHour")+", runDay: "+System.getProperty("runDay") + "<===");    
 
 	    endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
 	    
@@ -287,7 +239,7 @@ public class TestMultiQueueRunParallel extends TestSession {
 			input_index = random.nextInt(TotalFileNum);
 			
 			long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
-		    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours, "+timeLeftSec/60%60+" mins, "+ timeLeftSec%60%60+" secs<============");
+		    logger.info("===> Time remaining : " + timeLeftSec/60/60 + " hours, "+timeLeftSec/60%60+" mins, "+ timeLeftSec%60%60+" sec <====");
 			
 			String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 			logger.info("Randomly choosed input file is: " + inputFile);

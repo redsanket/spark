@@ -1,7 +1,7 @@
 /*
  *  [ATTENTION!]
- *  There is a race condition for this test.
- *  This test may succeed or, fail on the "Redirecting to job history server" ERROR
+ *  There is a race condition problem for this test.
+ *  This test may succeed normally, or fail on the "Redirecting to job history server" error
  *  Waiting for the bug fixed in Hadoop core.
  */
 package hadooptest.hadoop.stress.tokenRenewal;

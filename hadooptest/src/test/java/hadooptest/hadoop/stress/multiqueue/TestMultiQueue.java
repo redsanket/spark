@@ -8,16 +8,13 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Scanner;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -26,48 +23,20 @@ import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
-/**
- * 
- * Setup MultiQueue.runMin,MultiQueue.runHour,MultiQueue.runDay in runtime 
- * as -DMultiQueue.runMin=1 -DMultiQueue.runHour=2 -DMultiQueue.runDay=3
- *
- */
+
 public class TestMultiQueue extends TestSession {
-	
-	/****************************************************************
-	 *Please set the number of queues that you want to submit job to*
-	 ****************************************************************/
-	private static int qnum = 2;
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
-	// NOTE: the file should appear in you home directory
-	private static String localFile = "wc_input_new.txt";
+		
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "wc_output_new";
-	
-	/****************************************************************
-	 *          Please give the string for the input file           *
-	 ****************************************************************/
-	
-	private static String input_string = "Hello world! Test MultiQueue!";
-	
-	/****************************************************************
-	 *  Configure the total file number that you want to generate   *
-	 *                       in the HDFS                            *
-	 ****************************************************************/
+	private static String input_string = "Hello world! Start to test MultiQueue!";	
 	private static int TotalFileNum = 20;
-		
-	/****************************************************************
-	 *                  Configure the total runtime                 *
-	 ****************************************************************/
 	
-	// location information 
+	// Test configuration global parameter
 	private static Path inpath = null;
 	private static String outputDir = null;
-	private static String localDir = null;
 	private static String []qname;
+	private static int qnum = 2;
+
 	
 	/*
 	 *  Before running the test.
@@ -115,6 +84,9 @@ public class TestMultiQueue extends TestSession {
 		}
 	}
 	
+	/*
+	 * This function is used for load target queue name to the qname[] array
+	 */
 	public static void getQueneInfo() throws Exception {
 		
 		qname = new String[qnum];
@@ -132,62 +104,44 @@ public class TestMultiQueue extends TestSession {
 		}
 	}
 	
+	/*
+	 *  This function generate input files, and assemble the output path
+	 */
 	public static void setupTestDir() throws Exception {
 		
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
-		// show the input and output path
-		localDir = System.getProperty("user.home") + "/";
-		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
-		
-		outputDir = TestSession.getCluster().getFS().getHomeDirectory() + "/";
-		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
+		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
+		TestSession.logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
-		
-		// create local input file
-		File inputFile = new File(localDir + localFile);
-		try{
-			if(inputFile.delete()){
-				TestSession.logger.info("Input file already exists from previous test, delete it!");
-			} else {
-				TestSession.logger.info("Input path clear, creating new input file!");
-			}
-			
-			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);
-		
-		} catch (Exception e) {
-			TestSession.logger.error(e);
-		}
 		
 		// Check the valid of the input directory in HDFS
 		// check if path exists and if so remove it 
 	    try {
 	       if ( myFs.isDirectory(inpath) ) {
 	         myFs.delete(inpath, true);
-	         logger.info("INFO: deleted input path: " + inpath );
+	         TestSession.logger.info("INFO: deleted input path: " + inpath );
 	       }
 	    }
 	    catch (Exception e) {
 	        System.err.println("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
-	        logger.error("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    // make the input directory
 	    try {
 	    	 if ( myFs.mkdirs(inpath) ) {
-	    		 logger.info("INFO: created input path: " + inpath );
+	    		 TestSession.logger.info("INFO: created input path: " + inpath );
 	      }
 	    }
 	    catch (Exception e) {
 	         System.err.println("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
-	         logger.error("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    
-	    // Read the local input file
-        String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
-        logger.info("Input string is: "+s);  
+	    // Print input string
+        TestSession.logger.info("Input string is: "+ input_string);  
 		
+		// Generate different input files for submission later on
 		for(int fileNum = 0; fileNum < TotalFileNum; fileNum ++)
 		{
 			try {
@@ -195,14 +149,13 @@ public class TestMultiQueue extends TestSession {
 		         FSDataOutputStream dostream = FileSystem.create(myFs, infile, new FsPermission("644")); 
 		          
 		         // generate a set of different input files
-		         for(int i= 0; i < 25*fileNum; i++)
-		         		dostream.writeChars(s);
+		         for(int i= 0; i < 2500*fileNum; i++)
+		         		dostream.writeChars(input_string);
 		          	
 		         dostream.flush();
 		         dostream.close();
 		    } catch (IOException ioe) {
 		        	System.err.println("FAIL: can't create input file for wordcount: " + ioe);
-		        	logger.error("FAIL: can't create input file for wordcount: " + ioe);
 		    }
 		}
 		// Delete the file, if it exists in the same directory
@@ -211,9 +164,7 @@ public class TestMultiQueue extends TestSession {
 	
 
 	/*
-	 * A test for running a Wordcount job
-	 * 
-	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
+	 * A test for submitting word count jobs alternately to two queue one by one.
 	 */
 	@Test
 	public void runWordCountTest() {
@@ -239,7 +190,7 @@ public class TestMultiQueue extends TestSession {
 		int runMin  = Integer.parseInt(prop.getProperty("Multiqueue.runMin"));
 	    int runHour = Integer.parseInt(prop.getProperty("Multiqueue.runHour"));
 	    int runDay  = Integer.parseInt(prop.getProperty("Multiqueue.runDay"));
-	    logger.info("============>> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay);
+	    logger.info("===>> runMin: " + runMin + ",runHour: " + runHour + ", runDay: " + runDay + " <===");
 
 	    long endTime = startTime + runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000 ;
 	    
@@ -251,7 +202,7 @@ public class TestMultiQueue extends TestSession {
 				WordCountJob jobUserDefault = new WordCountJob();
 				
 				long timeLeftSec = (endTime - System.currentTimeMillis())/1000;
-			    logger.info("============> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<============");
+			    logger.info("===> Time remaining : " + timeLeftSec/60/60 + " hours "+timeLeftSec/60%60+" mins "+ timeLeftSec%60%60+" secs<===");
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 				logger.info("Randomly choosed input file is: " + inputFile);
@@ -269,11 +220,11 @@ public class TestMultiQueue extends TestSession {
 	
 				jobUserDefault.start();
 	
+				// check job status
 				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
 						jobUserDefault.waitForID(10));
 				assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
-						jobUserDefault.verifyID());
-	
+						jobUserDefault.verifyID());	
 				int waitTime = 2;
 				assertTrue("Job (default user) did not succeed.",
 					jobUserDefault.waitForSuccess(waitTime));

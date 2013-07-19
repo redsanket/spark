@@ -1,3 +1,13 @@
+/*
+ * [ATTENTION!]
+ * This test will pass successfully, when submitting a small number of jobs to the cluster
+ * (For cluster eomer, the limitation is total < 80 jobs)
+ * 		Since this test submits jobs via CLI, therefore, if it starts too many jobs,
+ * 		there will be many JVM running at the same time, and same jobs will not be successfully submitted 
+ * 		to the cluster, but the console will not show the error at the first place. The check job status part
+ * 		will find the error later by showing "Job xxx is not assign an ID in xx sec".
+ * For submitting large number of jobs at the same time, please use the TestFloodingQueues in the floodingqueues pacage.
+ */
 package hadooptest.hadoop.stress.multiqueue;
 
 import static org.junit.Assert.assertNotNull;
@@ -27,47 +37,20 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-
 public class TestMultiQueueUnbalancedLoad extends TestSession {
-	
-	/****************************************************************
-	 *Please set the number of queues that you want to submit job to*
-	 ****************************************************************/
-	private static int qNum;
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
-	// NOTE: the file should appear in you home directory
-	private static String localFile = "wc_input_new.txt";
+
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "wc_output_new";
 	
-	/****************************************************************
-	 *          Please give the string for the input file           *
-	 ****************************************************************/
-	
-	private static String input_string = "Hello world! Really???? Are you sure?";
-	
-	/****************************************************************
-	 *  Configure the total file number that you want to generate   *
-	 *                       in the HDFS                            *
-	 ****************************************************************/
+	private static String input_string = "Hello world! Run MultiQueue Tests!";
+
 	private static int TotalFileNum = 20;
 		
-	/****************************************************************
-	 *       		 Parameters from cmd line input	                *
-	 ****************************************************************/
-	/**
-	 *  runMin,runHour,runDay in runtime, queueNum, jobNum
-	 */
-	
 	// location information 
 	private static Path inpath = null;
 	private static String outputDir = null;
-	private static String localDir = null;
 	private static String []qname;
+	private static int qNum;
 	private int file_count = 0;
 	private int input_index;
 	private long endTime;
@@ -75,7 +58,6 @@ public class TestMultiQueueUnbalancedLoad extends TestSession {
 	private static int runHour;
 	private static int runDay;
 	private static int jobNum;
-	
 	
 	/*
 	 *  Before running the test.
@@ -163,62 +145,44 @@ public class TestMultiQueueUnbalancedLoad extends TestSession {
 		}
 	}
 	
+	/*
+	 *  This function generate input files, and assemble the output path
+	 */
 	public static void setupTestDir() throws Exception {
 		
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
-		// show the input and output path
-		localDir = System.getProperty("user.home") + "/";
-		logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
-		
-		outputDir = TestSession.getCluster().getFS().getHomeDirectory() + "/";
-		logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
+		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
+		TestSession.logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
-		
-		// create local input file
-		File inputFile = new File(localDir + localFile);
-		try{
-			if(inputFile.delete()){
-				TestSession.logger.info("Input file already exists from previous test, delete it!");
-			} else {
-				TestSession.logger.info("Input path clear, creating new input file!");
-			}
-			
-			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);
-		
-		} catch (Exception e) {
-			TestSession.logger.error(e);
-		}
 		
 		// Check the valid of the input directory in HDFS
 		// check if path exists and if so remove it 
 	    try {
 	       if ( myFs.isDirectory(inpath) ) {
 	         myFs.delete(inpath, true);
-	         logger.info("INFO: deleted input path: " + inpath );
+	         TestSession.logger.info("INFO: deleted input path: " + inpath );
 	       }
 	    }
 	    catch (Exception e) {
 	        System.err.println("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
-	        logger.error("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    // make the input directory
 	    try {
 	    	 if ( myFs.mkdirs(inpath) ) {
-	    		 logger.info("INFO: created input path: " + inpath );
+	    		 TestSession.logger.info("INFO: created input path: " + inpath );
 	      }
 	    }
 	    catch (Exception e) {
 	         System.err.println("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
-	         logger.error("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    
-	    // Read the local input file
-        String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
-        logger.info("Input string is: "+s);  
+	    // Print input string
+        TestSession.logger.info("Input string is: "+ input_string);  
 		
+		// Generate different input files for submission later on
 		for(int fileNum = 0; fileNum < TotalFileNum; fileNum ++)
 		{
 			try {
@@ -226,14 +190,13 @@ public class TestMultiQueueUnbalancedLoad extends TestSession {
 		         FSDataOutputStream dostream = FileSystem.create(myFs, infile, new FsPermission("644")); 
 		          
 		         // generate a set of different input files
-		         for(int i= 0; i < 25*fileNum; i++)
-		         		dostream.writeChars(s);
+		         for(int i= 0; i < 2500*fileNum; i++)
+		         		dostream.writeChars(input_string);
 		          	
 		         dostream.flush();
 		         dostream.close();
 		    } catch (IOException ioe) {
 		        	System.err.println("FAIL: can't create input file for wordcount: " + ioe);
-		        	logger.error("FAIL: can't create input file for wordcount: " + ioe);
 		    }
 		}
 		// Delete the file, if it exists in the same directory

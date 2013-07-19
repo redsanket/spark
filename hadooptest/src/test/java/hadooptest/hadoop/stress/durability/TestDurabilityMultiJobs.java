@@ -8,16 +8,13 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Scanner;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -29,38 +26,19 @@ import org.junit.Test;
 
 public class TestDurabilityMultiJobs extends TestSession {
 	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
-	// NOTE: the file should appear in you home directory
-	private static String localFile = "wc_input_new.txt";
-	// NOTE: this is a directory and will appear in your home directory in the HDFS
-	private static String outputFile = "wc_output_new";
-	
-	/****************************************************************
-	 *          Please give the string for the input file           *
-	 ****************************************************************/
-	
+	// the output folder name on HDFS
+	private static String outputFile = "wc_output";
+	// input string
 	private static String input_string = "Hello world, and run Durability Test with multiJobs!";
-	
-	/****************************************************************
-	 *  Configure the total file number that you want to generate   *
-	 *                       in the HDFS                            *
-	 ****************************************************************/
+	// the number of input files
 	private static int TotalFileNum = 20;
 		
-	/****************************************************************
-	 *             parameters from properties file                  *
-	 ****************************************************************/
-	/*
-	 * ===========> runMin, runHour, runDay, jobNum <===============
-	 */
-	
-	
-	// location information 
+	// the parameter get from the .properties file
+	// ===> runMin, runHour, runDay, jobNum <===
+	 	
+	// path and counter, etc global variables
 	private static Path inpath = null;
 	private static String outputDir = null;
-	private static String localDir = null;
 	int fileCount = 0;
 	int index = 20;
 	long endTime;
@@ -114,31 +92,11 @@ public class TestDurabilityMultiJobs extends TestSession {
 		
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
-		// show the input and output path
-	    // the localDir might be different, check if "/user/", "//Users", or "/home/"
-		localDir = "/home/" + System.getProperty("user.name") + "/";
-		TestSession.logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
-		
 		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
 		TestSession.logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
-		
-		// create local input file
-		File inputFile = new File(localDir + localFile);
-		try{
-			if(inputFile.delete()){
-				TestSession.logger.info("Input file already exists from previous test, delete it!");
-			} else {
-				TestSession.logger.info("Input path clear, creating new input file!");
-			}
-			
-			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);
-		
-		} catch (Exception e) {
-			TestSession.logger.error(e);
-		}
 		
 		// Check the valid of the input directory in HDFS
 		// check if path exists and if so remove it 
@@ -161,11 +119,10 @@ public class TestDurabilityMultiJobs extends TestSession {
 	         System.err.println("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    
-	    // Read the local input file
-        String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
-        TestSession.logger.info("Input string is: "+s);  
+	    // Print input string
+        TestSession.logger.info("Input string is: "+ input_string);  
 		
-		
+		// Generate different input files for submission later on
 		for(int fileNum = 0; fileNum < TotalFileNum; fileNum ++)
 		{
 			try {
@@ -173,8 +130,8 @@ public class TestDurabilityMultiJobs extends TestSession {
 		         FSDataOutputStream dostream = FileSystem.create(myFs, infile, new FsPermission("644")); 
 		          
 		         // generate a set of different input files
-		         for(int i= 0; i < 25*fileNum; i++)
-		         		dostream.writeChars(s);
+		         for(int i= 0; i < 2500*fileNum; i++)
+		         		dostream.writeChars(input_string);
 		          	
 		         dostream.flush();
 		         dostream.close();
