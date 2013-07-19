@@ -141,7 +141,6 @@ public class TestDurability extends TestSession {
 		// Delete the file, if it exists in the same directory
 		TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
 	}
-
 	/*
 	 * A test for running a word count job in a certain time period
 	 */

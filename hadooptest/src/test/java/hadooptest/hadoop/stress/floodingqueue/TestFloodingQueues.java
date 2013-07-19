@@ -5,18 +5,14 @@ import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.workflow.hadoop.job.JobState;
 import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.Scanner;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -29,37 +25,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestFloodingQueues extends TestSession {
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
-	// NOTE: the file should appear in you home directory
-	private static String localFile = "wc_input_new.txt";
+
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "wc_output_new";
 	
-	/****************************************************************
-	 *          Please give the string for the input file           *
-	 ****************************************************************/
-	
 	private static String input_string = "Hello world, and run Durability Test";
-	
-	/****************************************************************
-	 *  Configure the total file number that you want to generate   *
-	 *                       in the HDFS                            *
-	 ****************************************************************/
+
 	private static int TotalFileNum = 20;
-		
-	/****************************************************************
-	 *             parameters from .properties file	                *
-	 ****************************************************************/
-	// queueNum, jobNum, runMin, runHour, runDay
-	
-	
-	// location information 
+
 	private static Path inpath = null;
 	private static String outputDir = null;
-	private static String localDir = null;
 	private static String []qName;
 	private static int qNum;
 	private static int jobNum;
@@ -77,16 +52,12 @@ public class TestFloodingQueues extends TestSession {
 		setupTestDir();
 	}
 	
-	public static void setupTestConf() throws Exception {
+public static void setupTestConf() throws Exception  {
+		
 		FullyDistributedCluster cluster =
 				(FullyDistributedCluster) TestSession.cluster;
 		String component = HadoopCluster.RESOURCE_MANAGER;
 
-		/* 
-		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
-		 * queue is already in place. If so, skip the following as to not waste
-		 *  time.
-		 */
 		YarnClientImpl yarnClient = new YarnClientImpl();
 		yarnClient.init(TestSession.getCluster().getConf());
 		yarnClient.start();
@@ -95,25 +66,20 @@ public class TestFloodingQueues extends TestSession {
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
 		TestSession.logger.info("queues='" +
         	Arrays.toString(queues.toArray()) + "'");
-		if ((queues.size() == 1) &&
-			(Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
-				TestSession.logger.debug("Cluster is already setup properly." +
-						"Nothing to do.");
-				return;
-		}
 		
-		// Backup the default configuration directory on the Resource Manager
-		// component host.
-		cluster.getConf(component).backupConfDir();	
-
-		// Copy files to the custom configuration directory on the
-		// Resource Manager component host.
-		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
-				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
-		cluster.getConf(component).copyFileToConfDir(sourceFile,
-				"capacity-scheduler.xml");
-		cluster.hadoopDaemon("stop", component);
-		cluster.hadoopDaemon("start", component);
+		// we need to detect whether there are two queues running
+		if (queues.size() >= 2) {
+				TestSession.logger.debug("Cluster is already setup properly." 
+							+ "Multi-queues are Running." + "Nothing to do.");
+				return;
+		} else {
+				// set up TestSession to default queue numbers, which should be more than 2 queue
+				// restart the cluster to get default queue setting
+    			cluster.hadoopDaemon("stop", component);
+    			cluster.hadoopDaemon("start", component);
+ 
+        		return;        		
+		}
 	}
 
 	public static void getParameters() throws Exception {
@@ -159,31 +125,11 @@ public class TestFloodingQueues extends TestSession {
 		
 	    FileSystem myFs = TestSession.cluster.getFS();
 		
-		// show the input and output path
-	    // the localDir might be different, check if "/user/", "//Users", or "/home/"
-		localDir = "/home/" + System.getProperty("user.name") + "/";
-		TestSession.logger.info("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
-		
 		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
 		TestSession.logger.info("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		inpath = new Path(outputDir+"/"+"wc_input_foo");
 		Path infile = null;
-		
-		// create local input file
-		File inputFile = new File(localDir + localFile);
-		try{
-			if(inputFile.delete()){
-				TestSession.logger.info("Input file already exists from previous test, delete it!");
-			} else {
-				TestSession.logger.info("Input path clear, creating new input file!");
-			}
-			
-			FileUtils.writeStringToFile(new File(localDir + localFile), input_string);
-		
-		} catch (Exception e) {
-			TestSession.logger.error(e);
-		}
 		
 		// Check the valid of the input directory in HDFS
 		// check if path exists and if so remove it 
@@ -206,11 +152,10 @@ public class TestFloodingQueues extends TestSession {
 	         System.err.println("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
 	    }
 	    
-	    // Read the local input file
-	    String s = new Scanner(new File(localDir+localFile) ).useDelimiter("\\A").next();
-	    TestSession.logger.info("Input string is: "+s);  
+	    // Print input string
+        TestSession.logger.info("Input string is: "+ input_string);  
 		
-		
+		// Generate different input files for submission later on
 		for(int fileNum = 0; fileNum < TotalFileNum; fileNum ++)
 		{
 			try {
@@ -218,8 +163,8 @@ public class TestFloodingQueues extends TestSession {
 		         FSDataOutputStream dostream = FileSystem.create(myFs, infile, new FsPermission("644")); 
 		          
 		         // generate a set of different input files
-		         for(int i= 0; i < 25*fileNum; i++)
-		         		dostream.writeChars(s);
+		         for(int i= 0; i < 2500*fileNum; i++)
+		         		dostream.writeChars(input_string);
 		          	
 		         dostream.flush();
 		         dostream.close();
