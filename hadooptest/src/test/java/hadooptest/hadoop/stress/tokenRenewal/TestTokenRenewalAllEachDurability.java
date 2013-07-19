@@ -26,13 +26,8 @@ import org.apache.hadoop.security.token.TokenIdentifier;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-
 public class TestTokenRenewalAllEachDurability extends TestSession {
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
+
 	// NOTE: the file should appear in you home directory
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
@@ -40,17 +35,10 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 	// NOTE: this is the name node of your cluster that you currently test your code on
 	private static String hdfsNode;
 
-	/****************************************************************
-	 *      Please set up how long you want ALL tests to run        *
-	 ****************************************************************/
+	// parameters from .properties file
 	private static long runMin; 
 	private static long runHour;
-	private static long runDay;
-	
-	/****************************************************************
-	 *          Please give the string for the input file           *
-	 ****************************************************************/
-	
+	private static long runDay;	
 	private static String input_string;
 
 	// location information 

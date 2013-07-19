@@ -22,14 +22,8 @@ import org.apache.hadoop.security.token.TokenIdentifier;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-
-
 public class TestTokenRenewalExistingUgiOldApiWebhdfs extends TestSession {
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
+
 	// NOTE: the file should appear in you home directory
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS

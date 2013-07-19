@@ -29,13 +29,8 @@ import org.apache.hadoop.security.token.Token;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-
 public class TestTokenRenewalDoasBlockCleanUgiOldApiWebhdfs extends TestSession {
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
+
 	// NOTE: the file should appear in you home directory
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
@@ -45,7 +40,6 @@ public class TestTokenRenewalDoasBlockCleanUgiOldApiWebhdfs extends TestSession 
 	private static String webhdfsAddr;
 	private static String input_string = "Hello world! Run token renewal tests!";
 
-	
 	// location information 
 	private static String outputDir = null;
 	private static String localDir = null;

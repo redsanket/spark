@@ -23,23 +23,14 @@ import org.apache.hadoop.security.token.TokenIdentifier;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-
 public class TestTokenRenewalAll extends TestSession {
-	
-	/****************************************************************
-	 *  Please set up input and output directory and file name here *
-	 ****************************************************************/
+
 	// NOTE: the file should appear in you home directory
 	private static String localFile = "TTR_input.txt";
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
 	// NOTE: this is the name node of your cluster that you currently test your code on
 	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
-
-	/****************************************************************
-	 *          Please give the string for the input file           *
-	 ****************************************************************/
 	
 	private static String input_string = "Hello world! Let's run all the token renewal tests!";
 
