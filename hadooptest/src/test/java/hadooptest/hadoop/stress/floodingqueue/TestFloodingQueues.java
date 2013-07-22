@@ -52,7 +52,7 @@ public class TestFloodingQueues extends TestSession {
 		setupTestDir();
 	}
 	
-public static void setupTestConf() throws Exception  {
+	public static void setupTestConf() throws Exception  {
 		
 		FullyDistributedCluster cluster =
 				(FullyDistributedCluster) TestSession.cluster;
