@@ -42,7 +42,7 @@ public class TestMultiRandomWriteJobMultiQueue extends TestSession {
 
 		queues =  yarnClient.getAllQueues(); 
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
-		TestSession.logger.info("================= queues ='" +	Arrays.toString(queues.toArray()) + "'");
+
 		// we need to detect whether there are two queues running
 		if (queues.size() >= 2) {
 			TestSession.logger.debug("Cluster is already setup properly." 
@@ -51,16 +51,14 @@ public class TestMultiRandomWriteJobMultiQueue extends TestSession {
 			cluster.hadoopDaemon("stop", component);
 			cluster.hadoopDaemon("start", component);
 		}
-		TestSession.logger.info("================= queues ='" +	Arrays.toString(queues.toArray()) + "'");
-
+		TestSession.logger.info("queues ='" +	Arrays.toString(queues.toArray()) + "'");
 	}
-	
 
 	@Test
-	public void runTestDurability() throws IOException, InterruptedException {
+	public void MultiRandomWriteJobMultiQueue() throws IOException, InterruptedException {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
-		RandomWriterJob[] jobs = new RandomWriterJob[3];
+		RandomWriterJob[] jobs = new RandomWriterJob[Integer.parseInt(System.getProperty("JobNum"))];
 		int queueIndex = 0;
 		try {
 			for(int i = 0; i < jobs.length; i++){
@@ -73,11 +71,10 @@ public class TestMultiRandomWriteJobMultiQueue extends TestSession {
 				Date date = new Date();
 				String outputDir = new DFS().getBaseUrl() + "/user/" + System.getProperty("user.name") + "/LargeFile/"+
 		    			dateFormat.format(date).toString()+ Integer.toString(i);
-				logger.info("=============== outputDir = "+outputDir);
+				logger.info("outputDir = "+outputDir);
 				jobs[i].setOutputDir(outputDir);
-			}
-			for(int i = 0; i < jobs.length; i++){	
 				jobs[i].start();
+
 				assertTrue("jobs["+i+"] was not assigned an ID within 10 seconds.", 
 						jobs[i].waitForID(60));
 				assertTrue("job ID for WordCount jobs["+i+"] is invalid.", 
@@ -87,5 +84,7 @@ public class TestMultiRandomWriteJobMultiQueue extends TestSession {
 			TestSession.logger.error("Exception failure.", e);
 			fail();
 		}
+		for(int i = 0; i < jobs.length; i++)
+			assertTrue("Job "+i+" did not succeed.",jobs[i].waitForSuccess(20));
 	}
 }

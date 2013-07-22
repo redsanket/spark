@@ -3,6 +3,7 @@ package hadooptest.hadoop.stress.floodingHDFS;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestManyJobsOneQueue extends TestSession {
+public class TestManyWordCountJobsOneQueue extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -147,11 +148,11 @@ public class TestManyJobsOneQueue extends TestSession {
 	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
 	 */
 	@Test
-	public void runTestDurability() throws IOException, InterruptedException {
+	public void ManyJobsOneQueue() throws IOException, InterruptedException {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
 		Random rand = new Random();
-		WordCountJob[] jobs = new WordCountJob[5];
+		WordCountJob[] jobs = new WordCountJob[Integer.parseInt(System.getProperty("JobNum"))];
 		try {
 			for(int i = 0; i < jobs.length; i++){
 				
@@ -162,7 +163,7 @@ public class TestManyJobsOneQueue extends TestSession {
 				
 				Date date = new Date();
 				String output = "/" +dateFormat.format(date).toString()+ Integer.toString(i);
-				TestSession.logger.info("===== Output file is: " + outputDir + outputFile + output);
+				TestSession.logger.info("Output file is: " + outputDir + outputFile + output);
 				
 				jobs[i].setInputFile(inputFile);
 				jobs[i].setOutputPath(outputDir + outputFile + output);

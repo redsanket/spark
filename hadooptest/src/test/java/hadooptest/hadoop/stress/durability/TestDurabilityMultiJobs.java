@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,8 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-
-import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -107,7 +106,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 	       }
 	    }
 	    catch (Exception e) {
-	        System.err.println("FAIL: can not remove the input path, can't run wordcount jobs. Exception is: " + e);
+	        System.err.println("FAIL: can not remove the input path, can't run WordCountJob jobs. Exception is: " + e);
 	    }
 	    // make the input directory
 	    try {
@@ -116,7 +115,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 	      }
 	    }
 	    catch (Exception e) {
-	         System.err.println("FAIL: can not create the input path, can't run wordcount jobs. Exception is: " + e);
+	         System.err.println("FAIL: can not create the input path, can't run WordCountJob jobs. Exception is: " + e);
 	    }
 	    
 	    // Print input string
@@ -136,7 +135,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 		         dostream.flush();
 		         dostream.close();
 		    } catch (IOException ioe) {
-		        	System.err.println("FAIL: can't create input file for wordcount: " + ioe);
+		        	System.err.println("FAIL: can't create input file for WordCountJob: " + ioe);
 		    }
 		}
 		// Delete the file, if it exists in the same directory
@@ -144,7 +143,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 	}
 
 	/*
-	 * A test for running a Wordcount job
+	 * A test for running a WordCountJob job
 	 * 
 	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
 	 */
@@ -178,10 +177,10 @@ public class TestDurabilityMultiJobs extends TestSession {
 	    
 		while(endTime > System.currentTimeMillis()) {
 			try {
-			    WordCount[] Jobs = new WordCount[jobNum];
+			    WordCountJob[] Jobs = new WordCountJob[jobNum];
 			    
 			    for(int i = 0; i < jobNum; i++){
-			    	Jobs[i] = new WordCount();
+			    	Jobs[i] = new WordCountJob();
 			    }
 			    
 				for (int i = 0; i < jobNum; i++){
@@ -199,7 +198,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 		}
 	}
 	
-	private void startJobs(WordCount job){
+	private void startJobs(WordCountJob job){
 		
 		Random myRan = new Random();
 		index = myRan.nextInt(TotalFileNum);
@@ -227,11 +226,11 @@ public class TestDurabilityMultiJobs extends TestSession {
 		}
 	}
 	
-	private void assertJobs(WordCount jobUserDefault){
+	private void assertJobs(WordCountJob jobUserDefault){
 		try{
-			assertTrue("WordCount job (default user) was not assigned an ID within 20 seconds.", 
+			assertTrue("WordCountJob job (default user) was not assigned an ID within 20 seconds.", 
 					jobUserDefault.waitForID(20));
-			assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
+			assertTrue("WordCountJob job ID for WordCountJob job (default user) is invalid.", 
 					jobUserDefault.verifyID());
 			int waitTime = 2;
 			assertTrue("Job (default user) did not succeed.",
