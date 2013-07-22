@@ -67,10 +67,10 @@ public class TestSingleRandomWriteJobSingleQueue extends TestSession {
     }
     
     @Test 
-    public void testFillDFS() throws Exception{
-    	int jobnum = 1;
+    public void SingleRandomWriteJobSingleQueue() throws Exception{
+    	
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
-		RandomWriterJob[] rwJob = new RandomWriterJob[jobnum];
+		RandomWriterJob[] rwJob = new RandomWriterJob[Integer.parseInt(System.getProperty("JobNum"))];
 		for(int i = 0; i < rwJob.length; i++){
 			rwJob[i] = new RandomWriterJob();
 			Date date = new Date();

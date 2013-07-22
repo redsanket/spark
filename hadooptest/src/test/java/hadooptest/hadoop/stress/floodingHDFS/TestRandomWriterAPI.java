@@ -68,7 +68,7 @@ public class TestRandomWriterAPI extends TestSession {
     }
     
     @Test 
-    public void TestRandomWriterAPI(){
+    public void RandomWriterAPI(){
     	//<out-dir> <level> <jobNum><MAPS_PER_HOST_VAL><BYTES_PER_MAP_VAL>
 		String TargetLevel = System.getProperty("RandomWriterAPI.TargetLevel");
 		if(TargetLevel == null) TargetLevel = "";

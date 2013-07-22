@@ -86,11 +86,11 @@ public class TestManyWordCountJobMultiQueue extends TestSession {
 
 		queues =  yarnClient.getAllQueues(); 
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
-		TestSession.logger.info("================= queues ='" +
+		TestSession.logger.info("queues ='" +
         	Arrays.toString(queues.toArray()) + "'");
 		
 		// we need to detect whether there are two queues running
-		while (queues.size() < 2){
+		if (queues.size() < 2){
     			cluster.hadoopDaemon("stop", component);
     			cluster.hadoopDaemon("start", component);
 		}
@@ -182,7 +182,7 @@ public class TestManyWordCountJobMultiQueue extends TestSession {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
 		Random rand = new Random();
-		WordCountJob[] jobs = new WordCountJob[100];
+		WordCountJob[] jobs = new WordCountJob[Integer.parseInt(System.getProperty("JobNum"))];
 		int queueIndex = 0;
 		try {
 			for(int i = 0; i < jobs.length; i++){
@@ -197,50 +197,22 @@ public class TestManyWordCountJobMultiQueue extends TestSession {
 				
 				Date date = new Date();
 				String output = "/" +dateFormat.format(date).toString()+ Integer.toString(i);
-				TestSession.logger.info("===== Output file is: " + outputDir + outputFile + output);
+				TestSession.logger.info("Output file is: " + outputDir + outputFile + output);
 				
 				jobs[i].setInputFile(inputFile);
 				jobs[i].setOutputPath(outputDir + outputFile + output);
 				jobs[i].start();
 				
-//				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", 
-//						jobs[i].waitForID(10));
-//				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", 
-//						jobs[i].verifyID());
+				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", 
+						jobs[i].waitForID(10));
+				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", 
+						jobs[i].verifyID());
 			}
 		}catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
 			fail();
 		}
-		checkFileLeak(jobs);
-	}
-	
-	public void checkFileLeak(WordCountJob[] jobs) throws IOException, InterruptedException{
-		String pid = curPID().trim();
-		logger.info(this.getClass().getName()+" PID is "+pid);
-		int nofile = countOpenFile(pid);
-		logger.info("=============== Initially Total number of file opened by "+pid+" is "+nofile);
-
 		for(int i = 0; i < jobs.length; i++)
-			assertTrue("Job "+i+" did not succeed.",jobs[i].waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
-
-		nofile = countOpenFile(pid);
-		logger.info("=============== Finally Total number of file opened by "+pid+" is "+nofile);
-//		assertTrue(this.getClass().getName()+" did not clean up all the opened files, "+nofile+" are left opened.",(nofile == 0));
-	}
-	public int countOpenFile(String pid) throws IOException {
-		byte[] bo = new byte[100];
-		String[] cmd = {"bash", "-c"," lsof -p "+pid+" | wc -l"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.getInputStream().read(bo);
-		return Integer.parseInt(new String(bo).trim());
-	}
-	public String curPID() throws IOException {
-
-		byte[] bo = new byte[100];
-		String[] cmd = {"bash", "-c", "echo $PPID"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.getInputStream().read(bo);
-		return new String(bo);
+			assertTrue("Job "+i+" did not succeed.",jobs[i].waitForSuccess(20));
 	}
 }

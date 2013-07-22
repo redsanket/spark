@@ -63,17 +63,17 @@ public class TestHdfsUsage extends TestSession {
     }
     
     @Test 
-    public void testFillDFS() throws Exception{
+    public void HdfsUsage() throws Exception{
     	FileSystem fs = TestSession.cluster.getFS();
     	FsStatus status  =fs.getStatus();
     	long capacity = status.getCapacity();
     	long remain = status.getRemaining();
     	long used = status.getUsed();
-    	logger.info("getCapacity ="+capacity);
-    	logger.info("getRemaining ="+remain);
-    	logger.info("getUsed ="+used);
-    	logger.info("remain/capacity = "+((double)remain/(double)capacity));
-    	logger.info("used/capacity   = "+((double)used/(double)capacity));
+    	TestSession.logger.info("getCapacity	= "+capacity);
+    	TestSession.logger.info("getRemaining	= "+remain);
+    	TestSession.logger.info("getUsed		= "+used);
+    	TestSession.logger.info("remain/capacity	= "+((double)remain/(double)capacity));
+    	TestSession.logger.info("used/capacity	= "+((double)used/(double)capacity));
     }
 }
 
