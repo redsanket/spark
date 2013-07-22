@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
+import org.apache.hadoop.examples.WordCount;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -178,10 +178,10 @@ public class TestDurabilityMultiJobs extends TestSession {
 	    
 		while(endTime > System.currentTimeMillis()) {
 			try {
-			    WordCountJob[] Jobs = new WordCountJob[jobNum];
+			    WordCount[] Jobs = new WordCount[jobNum];
 			    
 			    for(int i = 0; i < jobNum; i++){
-			    	Jobs[i] = new WordCountJob();
+			    	Jobs[i] = new WordCount();
 			    }
 			    
 				for (int i = 0; i < jobNum; i++){
@@ -199,7 +199,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 		}
 	}
 	
-	private void startJobs(WordCountJob job){
+	private void startJobs(WordCount job){
 		
 		Random myRan = new Random();
 		index = myRan.nextInt(TotalFileNum);
@@ -227,7 +227,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 		}
 	}
 	
-	private void assertJobs(WordCountJob jobUserDefault){
+	private void assertJobs(WordCount jobUserDefault){
 		try{
 			assertTrue("WordCount job (default user) was not assigned an ID within 20 seconds.", 
 					jobUserDefault.waitForID(20));

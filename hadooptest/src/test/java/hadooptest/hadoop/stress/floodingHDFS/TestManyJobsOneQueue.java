@@ -3,7 +3,6 @@ package hadooptest.hadoop.stress.floodingHDFS;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
 import java.io.IOException;
@@ -179,31 +178,7 @@ public class TestManyJobsOneQueue extends TestSession {
 			fail();
 		}
 		
-		String pid = curPID().trim();
-		logger.info(this.getClass().getName()+" PID is "+pid);
-		int nofile = countOpenFile(pid);
-		logger.info("=============== Initially Total number of file opened by "+pid+" is "+nofile);
-
 		for(int i = 0; i < jobs.length; i++)
-			assertTrue("Job "+i+" did not succeed.",jobs[i].waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
-
-		nofile = countOpenFile(pid);
-		logger.info("=============== Finally Total number of file opened by "+pid+" is "+nofile);
-//		assertTrue(this.getClass().getName()+" did not clean up all the opened files, "+nofile+" are left opened.",(nofile == 0));
-	}
-	public int countOpenFile(String pid) throws IOException {
-		byte[] bo = new byte[100];
-		String[] cmd = {"bash", "-c"," lsof -p "+pid+" | wc -l"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.getInputStream().read(bo);
-		return Integer.parseInt(new String(bo).trim());
-	}
-	public String curPID() throws IOException {
-
-		byte[] bo = new byte[100];
-		String[] cmd = {"bash", "-c", "echo $PPID"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.getInputStream().read(bo);
-		return new String(bo);
+			assertTrue("Job "+i+" did not succeed.",jobs[i].waitForSuccess(20));
 	}
 }
