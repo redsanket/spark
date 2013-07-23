@@ -31,7 +31,11 @@
 # This can be installed by running: yinst install expecter 
 # $ yinst ls -files expecter
 # yinst: /home/y/bin/expecter                             expecter-1.0.2
-
+#
+# 4) The script can be run from a blessed machine on the corp side. For example,
+# your personal linux box will work.  However, it will not work running from
+# machines on the colo side (E.g. grid machines: gateway host, adm102, etc.
+#
 #################################################################################
 # USAGE
 #################################################################################
