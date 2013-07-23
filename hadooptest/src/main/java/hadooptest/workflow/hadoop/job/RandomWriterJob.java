@@ -111,6 +111,9 @@ public class RandomWriterJob extends Job {
         cmd.add("jar");
         cmd.add(this.jobJar);
         cmd.add(this.jobName);
+        if (this.QUEUE != "") {
+            cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
+        }
         
         ArrayList<String> jobArgs = new ArrayList<String>();
         jobArgs.add("-Dmapreduce.job.acl-view-job=*");

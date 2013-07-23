@@ -1,0 +1,108 @@
+#!/bin/bash
+
+#################################################################################
+# This script is inteded to provide test related information for a Hadoop QE
+# Cluster.
+#################################################################################
+
+VERBOSE=0
+GET_RYOOT=0
+FORCE=0
+
+function usage
+{
+    cat <<EOF
+usage: $0  --cluster             |-c <cluster name>
+          [--role                |-r <igor role> ]
+          [--yroot               |-y ]
+          [--force               |-f ]
+          [--verbose             |-v ]
+          [--help                |-h ]
+
+--cluster            Name of the cluster
+--role               Name of the igor role
+--yroot              Display yroot
+--force              Force fetching from igor instead of using cache file
+--verbose            Use verbose
+--help               Display usage
+
+Example:
+
+$ clustertestconfig -c mallard -r hdfsproxy
+$ clustertestconfig -c mallard -r hdfsproxy --yroot 
+$ clustertestconfig -c mallard -r gateway --force
+$ clustertestconfig -c mallard -r gateway
+$ clustertestconfig -c mallard -r gateway --yroot
+
+EOF
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -c | --cluster )          shift
+                                  CLUSTER=$1
+                                  ;;
+        -r | --role )             shift
+                                  ROLE=$1
+                                  ;;
+        -y | --yroot )            shift
+                                  GET_YROOT=1
+                                  ;;
+        -f | --force )            shift
+                                  FORCE=1
+                                  ;;
+        -v | --verbose )          VERBOSE=1
+                                  ;;
+        -h | --help )             usage
+                                  exit
+                                  ;;
+        * )                       usage
+                                  exit 1
+    esac
+    shift
+done
+
+
+ROLES_FILE=/tmp/grid_re.cluster.$CLUSTER
+
+if ([[ ! -f $ROLES_FILE ]] || [[ $FORCE == 1 ]])
+then 
+    echo "--> Get roles from igor"
+    igor list -roles grid_re.clusters.$CLUSTER.* > $ROLES_FILE
+else
+    echo "--> Get roles using existing file '$ROLES_FILE'"
+fi
+if [[ $VERBOSE == 1 ]]; then
+    cat $ROLES_FILE;
+fi
+
+MEMBERS_FILE=/tmp/grid_re.cluster.$CLUSTER.members
+if ([[ ! -f $MEMBERS_FILE ]] || [[ $FORCE == 1 ]])
+then 
+    # for host in `igor list -roles grid_re.clusters.$CLUSTER.*`;do 
+    echo "--> Get host member from igor"
+    touch $MEMBERS_FILE
+    for host in `cat $ROLES_FILE`;do 
+        echo -n "host $host " >> $MEMBERS_FILE; 
+        igor fetch -member $host >> $MEMBERS_FILE;
+        tail -1 $MEMBERS_FILE
+    done;
+else
+    echo "--> Get host members using existing file '$MEMBERS_FILE'"
+fi
+if [[ $VERBOSE == 1 ]]; then
+    cat $MEMBERS_FILE;
+fi
+
+if [[ -n $ROLE ]]; then
+    echo "--> Get host for role '$ROLE'"
+    grep -w $ROLE $MEMBERS_FILE
+    HOST=`grep -w $ROLE $MEMBERS_FILE|cut -d' ' -f3`
+fi
+
+if [[ -n $GET_YROOT ]]; then
+    # [--date] [--sort_time|-st] [--sort_reverse|-sr]
+    ssh $HOST yroot -list --sort_time --date
+fi
+
+

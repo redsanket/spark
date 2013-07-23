@@ -3,6 +3,7 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import org.apache.hadoop.fs.Path;
@@ -15,7 +16,7 @@ public class TestWordCountCLI extends TestSession {
 	 *  Please set up input and output directory and file name here *
 	 ****************************************************************/
 	private static String localDir = null; 
-	private static String localFile = "wc_input.txt";
+	private static String localFile = "wc_input_new.txt";
 	private static String outputDir = null; 
 	private static String outputFile = "wc_output";
 	
@@ -29,10 +30,10 @@ public class TestWordCountCLI extends TestSession {
 		
 		TestSession.cluster.getFS();	
 		
-		localDir = "/user/" + System.getProperty("user.name") + "/";
+		localDir = "/home/" + System.getProperty("user.name") + "/";
 		System.out.println("Target local Directory is: "+ localDir + "\n" + "Target File Name is: " + localFile);
 		
-		outputDir = "/user/" + TestSession.conf.getProperty("USER") + "/"; 
+		outputDir = "/home/" + TestSession.conf.getProperty("USER") + "/"; 
 		System.out.println("Target HDFS Directory is: "+ outputDir + "\n" + "Target File Name is: " + outputFile);
 		
 		TestSession.cluster.getFS().copyFromLocalFile(new Path(localDir + localFile), new Path(outputDir + localFile));
