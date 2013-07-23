@@ -2,6 +2,8 @@ package hadooptest.cluster;
 
 import coretest.TestSessionCore;
 
+import hadooptest.TestSession;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +16,8 @@ public class MultiClusterServer extends Thread {
 	private static int SERVER_PORT;
 	
 	private boolean runServer = true;
+	
+	private PrintWriter out;
 	
 	public MultiClusterServer(int port) {
 		super("MultiClusterServer");
@@ -39,7 +43,7 @@ public class MultiClusterServer extends Thread {
 
 		try {
 			while (runServer) {
-				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+				out = new PrintWriter(socket.getOutputStream(), true);
 				BufferedReader in = new BufferedReader(
 						new InputStreamReader(
 								socket.getInputStream()));
@@ -49,10 +53,35 @@ public class MultiClusterServer extends Thread {
 				outputLine = mcp.processInput(null);
 				TestSessionCore.logger.info(outputLine);
 
+				String clientVersion = "";
+				String clientDFSName = "";
+
 				while ((inputLine = in.readLine()) != null) {
 					TestSessionCore.logger.info("Client: " + inputLine);
 					outputLine = mcp.processInput(inputLine);
 					out.println(outputLine);
+					
+					if (inputLine.contains("CLIENT HADOOP VERSION = ")) {
+						clientVersion = inputLine;
+					}
+					
+					if (clientVersion.equals("")) {
+						out.println("RETURN_VERSION");
+					}
+					
+					if (clientDFSName.equals("")) {
+						out.println("DFS_GET_DEFAULT_NAME");
+					}
+					
+					if (inputLine.contains("CLIENT DFS DEFAULT NAME = ")) {
+						clientDFSName = inputLine.substring(inputLine.indexOf("= ") + 2);
+						TestSession.logger.info("Client DFS Name response is: " + clientDFSName);
+					}
+					
+					if (!clientDFSName.equals("")) {
+						out.println("DFS_COPY " + clientDFSName + " srcPath " + TestSession.cluster.getConf().get("fs.defaultFS") + " destPath");
+					}
+					
 					if (!runServer)
 						break;
 				}
@@ -73,5 +102,9 @@ public class MultiClusterServer extends Thread {
 			TestSessionCore.logger.error("Unable to close the multi cluster server socket.", ioe);
 			throw new RuntimeException(ioe);
 		}
+	}
+	
+	public void getClientDFSName() {
+		out.println("DFS_GET_DEFAULT_NAME");
 	}
 }

@@ -56,10 +56,16 @@ public class MultiClusterClient extends Thread {
 				TestSession.logger.info("Server: " + fromServer);
 				if (fromServer.equals("Bye."))
 					break;
+				else if (fromServer.equals("RETURN_VERSION")) {
+					out.println("CLIENT HADOOP VERSION = " + TestSession.cluster.getVersion());
+				}
 				else if (fromServer.equals("CLUSTER_STOP")) {
 					// Stop the cluster here
 					out.println("I got the request to stop the cluster.");
 				}
+				else if (fromServer.contains("DFS_GET_DEFAULT_NAME")) {
+	        		out.println("CLIENT DFS DEFAULT NAME = " + TestSession.cluster.getConf().get("fs.defaultFS"));
+	        	}
 
 				if (!runClient)
 					break;
