@@ -1,6 +1,36 @@
 #!/bin/bash
 
 #################################################################################
+# This is a script that automates the process for backup and re-imaging a Hadoop
+# cluster for the purpose of Hadoop QE. 
+#################################################################################
+#
+# The manual instruction can be found at:
+# http://twiki.corp.yahoo.com/view/Grid/SelfHelpBreakfix
+#
+# The script is store on github at: 
+# https://git.corp.yahoo.com/HadoopQE/hadooptest/blob/master/hadooptest/scripts/clusterconfig 
+# You can clone the git repository of hadooptest to your local machine by
+# running the following command:
+# $ yinst install git -br test
+# $ cd <your local directory here you want to clone the git repository>
+# $ git clone git@git.corp.yahoo.com:HadoopQE/hadooptest.git
+#
+# 1) In order to update the opsdb database, you will need to be in the opsdb
+# User Group 'ygrid_devtools'.
+# See http://opsdb.ops.yahoo.com/user_groups.php?action=view&id=551101
+#
+# 2) After cluster nodes are re-imaged, if they fail to come up, particulary due
+# to disk issues, file ticket against site-ops for bad nodes (one ticket per
+# node as per site-ops policy) at: 
+# http://portal.ops.yahoo.com:9999/srv_repRequest.php
+# 
+# 3) This script depends on the dist package 'expecter' for handling passwords.
+# This can be installed by running: yinst install expecter 
+# $ yinst ls -files expecter
+# yinst: /home/y/bin/expecter                             expecter-1.0.2
+
+#################################################################################
 # USAGE
 #################################################################################
 # 1) expecter -n -v ./clusterconfig -c mallard
@@ -16,23 +46,6 @@
 # expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
 # expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
 # clusterconfig -w /tmp -c theoden 
-
-#################################################################################
-# Dependent dist package for handling passwords:
-#################################################################################
-# $ yinst ls -files expecter
-# yinst: /home/y/bin/expecter                             expecter-1.0.2
-
-#################################################################################
-# Documentation
-#################################################################################
-# In order to udpate opsdb, you need to be in the opsdb User Group 'ygrid_devtools'
-# http://opsdb.ops.yahoo.com/user_groups.php?action=view&id=551101
-#
-# http://twiki.corp.yahoo.com/view/Grid/SelfHelpBreakfix
-#
-# File tickets for site-ops on bad nodes
-# http://portal.ops.yahoo.com:9999/srv_repRequest.php
 
 
 ###########################################
@@ -249,56 +262,8 @@ if [[ $BACKUP_KEYTABS == 1 ]];
 then 
     # LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
     for host in `cat $UPGRADE_NODES_FILE`; do
-
 	backupHostDir $host $BU_SRC_KT_DIR "$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
 	backupHostDir $host $BU_SRC_LC_DIR "$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
-
-	# # BACKUP KEYTABS
-        # HOST_BACKUP_DIR="$WORKSPACE/$host/keytabs"
-        # `/bin/mkdir -p $HOST_BACKUP_DIR`
-        # echo "Backup keytab files from cluster node '$host' to localhost '$HOST_BACKUP_DIR'";
-	# 
-        # # create a manifest
-        # set -x
-        # ssh $host ls -l /etc/grid-keytabs/ > $HOST_BACKUP_DIR/keytabs.mf
-	# TAR_FILE="/tmp/keys.tgz"
-        # ssh -t $host "sudo tar -zcf $TAR_FILE -C $LOCAL_KEYTABS_DIR .";
-        # scp -p $host:$TAR_FILE $HOST_BACKUP_DIR;
-        # set +x
-	# 
-	# # TODO: BACKUP LOCAL CONF
-        # # Backup local Hadoop config directory
-        # LOCAL_HADOOP_CONF_DIR="/home/gs/conf/local";
-        # HOST_BACKUP_DIR="$WORKSPACE/$host/localconf"
-        # `/bin/mkdir -p $HOST_BACKUP_DIR`
-        # echo "Backup local conf files from cluster node '$host' to localhost '$HOST_BACKUP_DIR'";
-	# 
-        # # create a manifest
-        # set -x
-        # ssh $host ls -l "$LOCAL_HADOOP_CONF_DIR/" > $HOST_BACKUP_DIR/localconf.mf
-	# TAR_FILE="/tmp/localconf.tgz"
-        # ssh -t $host "sudo tar -zcf $TAR_FILE -C $LOCAL_KEYTABS_DIR .";
-        # scp -p $host:$TAR_FILE $HOST_BACKUP_DIR;
-        # set +x
-
-        # $ ls -l /home/gs/conf/local/
-        # total 48
-        # -rw-r--r-- 1 root root 230 Jul 14 09:18 dfs.data.dir.xml
-        # -rw-r--r-- 1 root root 239 Jul 14 09:18 dfs.datanode.data.dir.xml
-        # lrwxrwxrwx 1 root root  31 Jul 14 09:18 health_check -> /usr/local/libexec/health_check*
-        # -rw-r--r-- 1 root root 113 Jul 14 09:18 local-mapred-site.xml
-        # -rw-r--r-- 1 root root 116 Jul 14 09:18 local-superuser-conf.xml
-        # -rw-r--r-- 1 root root 218 Jul 14 09:18 mapred.local.dir.xml
-        # -rw-r--r-- 1 root root 140 Jul 14 09:18 mapred.tasktracker.map.tasks.maximum.xml
-        # -rw-r--r-- 1 root root 143 Jul 14 09:18 mapred.tasktracker.reduce.tasks.maximum.xml
-        # -rw-r--r-- 1 root root 165 Jul 14 09:18 mapred.temp.dir.xml
-        # -rw-r--r-- 1 root root 229 Jul 14 09:18 mapreduce.cluster.local.dir.xml
-        # lrwxrwxrwx 1 root root  34 Jul 14 09:18 nm_health_check -> /usr/local/libexec/nm_health_check*
-        # lrwxrwxrwx 1 root root  34 Jul 14 09:18 rs_health_check -> /usr/local/libexec/rs_health_check*
-        # -rw-r--r-- 1 root root 221 Jul 14 09:18 yarn.nodemanager.local-dirs.xml
-        # -rw-r--r-- 1 root root 215 Jul 14 09:18 yarn.nodemanager.log-dirs.xml
-        # -rw-r--r-- 1 root root 143 Jul 14 09:18 yarn.nodemanager.resource.memory-mb.xml
-
     done
 fi
 
@@ -309,8 +274,6 @@ fi
 if [[ $RESTORE == 1 ]];
 then
     VALIDATE=1;
-    # LOCAL_KEYTABS_DIR=$BU_SRC_KT_DIR;
-    # LOCAL_CONF_DIR=$BU_SRC_LC_DIR;
     for host in `cat $UPGRADE_NODES_FILE`; do
         HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
         HOST_BACKUP_DIR2="$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
@@ -332,24 +295,6 @@ then
                 $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
                 $SSH -t $host ls -l $BU_SRC_LC_DIR;
                 set +x
-
-                # for file in `ls $HOST_BACKUP_DIR/*.keytab`; do
-                #     basename=`basename $file`
-                #     mf=`grep $basename $HOST_BACKUP_DIR/keytabs.mf`
-                #     owner=`echo $mf|cut -d' ' -f3`
-                #     group=`echo $mf|cut -d' ' -f4`
-                #     echo "file=$basename, owner=$owner, group=$group"
-                #     echo "scp -p $file $host:/tmp/"
-                #     scp -p $file $host:/tmp/
-                #     echo "ssh -t $host sudo chown $owner /tmp/$basename"
-                #     ssh -t $host sudo chown $owner /tmp/$basename
-                #     echo "ssh -t $host sudo chgrp $group /tmp/$basename"
-                #     ssh -t $host sudo chgrp $group /tmp/$basename
-                #     echo "ssh -t $host ls -l /tmp/$basename"
-                #     ssh -t $host ls -l /tmp/$basename
-                #     echo "ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/"
-                #     ssh -t $host sudo mv /tmp/$basename $LOCAL_KEYTABS_DIR/
-                # done
             fi
         fi
     done
@@ -407,7 +352,6 @@ if [[ $VALIDATE == 1 ]]; then
                 echo "Host is up but running version '$ver' ** need upgrade **"; 
             else 
                 echo "Host is up running $ver";
-
                 if [[ $VALIDATE_BACKUP == 1 ]]; then
 
                     # Validate keytab files
