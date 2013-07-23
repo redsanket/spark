@@ -15,6 +15,8 @@
 # $ yinst install git -br test
 # $ cd <your local directory here you want to clone the git repository>
 # $ git clone git@git.corp.yahoo.com:HadoopQE/hadooptest.git
+# After clone the git repo to your local macchine, the script can be found in
+# the directory <local git repo dir>/hadooptest/scripts
 #
 # 1) In order to update the opsdb database, you will need to be in the opsdb
 # User Group 'ygrid_devtools'.
