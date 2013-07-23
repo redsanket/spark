@@ -39,19 +39,33 @@
 #################################################################################
 # USAGE
 #################################################################################
-# 1) expecter -n -v ./clusterconfig -c mallard
-# 2) expecter -n -v ./clusterconfig -c mallard --update_opsdb
-# 3) expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
-# 4) expecter -n -v ./clusterconfig -c mallard --image_cluster
-# 5) expecter -n -v ./clusterconfig -c mallard --validate
-# 6) expecter -n -v ./clusterconfig -c mallard --restore
-# 7) expecter -n -v ./clusterconfig -c mallard --validate_backup
+# 1) Backup the keytab and local config directory
+#    $ expecter -n -v ./clusterconfig -c mallard
+# 2) Update opsdb to configure the OS fields for the cluster nodes 
+#    $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
+# 3) Display the information from opsdb for the updated cluster nodes
+#    $ expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
+# 4) After a few minutes, image the cluster nodes
+#    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
+# 5) After a few minutes, check on the status of the cluster nodes
+#    $ expecter -n -v ./clusterconfig -c mallard --validate
+# 6) Restore the cluster nodes with the backed up keytab and local config
+#    $ expecter -n -v ./clusterconfig -c mallard --restore
+# 7) Validate the restore backup files
+#    $expecter -n -v ./clusterconfig -c mallard --validate_backup
 
-# expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
-# expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
-# expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
-# expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
-# clusterconfig -w /tmp -c theoden 
+# For one off nodes (e.g. after problem nodes are repaired), use the --node or
+# --nodes arguments to run commands on specific node or a list of defined nodes.
+#
+# $ expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
+# $ expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
+#
+# $ expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
+# $ expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
+#
+# Override the cache directory by using the -w argument. 
+# $ ./clusterconfig -w /tmp -c theoden 
+
 
 
 ###########################################
