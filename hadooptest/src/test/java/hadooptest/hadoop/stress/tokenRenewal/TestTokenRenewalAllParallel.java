@@ -37,7 +37,7 @@ public class TestTokenRenewalAllParallel extends TestSession {
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
 	// NOTE: this is the name node of your cluster that you currently test your code on
-	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
+	private static String hdfsNode;
 	
 	private static String input_string = "Hello world! Let's run all the token renewal tests!";
 
@@ -81,7 +81,7 @@ public class TestTokenRenewalAllParallel extends TestSession {
 		// Copy files to the custom configuration directory on the
 		// Resource Manager component host.
 		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
-				"/conf/MultiQueueConf/multiqueue-multithread-capacity-scheduler.xml";
+				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
 		cluster.getConf(component).copyFileToConfDir(sourceFile,
 				"capacity-scheduler.xml");
 		cluster.hadoopDaemon("stop", component);
@@ -110,6 +110,8 @@ public class TestTokenRenewalAllParallel extends TestSession {
 		} catch (Exception e) {
 				TestSession.logger.error(e);
 		}
+		
+		hdfsNode = TestSession.cluster.getNode(HadoopCluster.NAMENODE).getHostname();
 		
 	    webhdfsAddr = "webhdfs://" + hdfsNode + ":" + outputDir + localFile;
 	    

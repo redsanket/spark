@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import org.apache.commons.io.FileUtils;
@@ -61,7 +62,7 @@ public class TestTokenRenewalExistingUgiWebhdfs extends TestSession {
     		ex.printStackTrace();
         }
 		
-	    hdfsNode = prop.getProperty("TokenRenewal.hdfsNode");
+		hdfsNode = TestSession.cluster.getNode(HadoopCluster.NAMENODE).getHostname();
 	    logger.info("===> HDFS node addr.: "+ hdfsNode + " <===");
 	    
 		// show the input and output path
