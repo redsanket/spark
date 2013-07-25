@@ -49,7 +49,7 @@ public class TestMultiQueue extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
-		setupTestConf();
+//		setupTestConf();
 		getQueneInfo();
 		setupTestDir();
 	}
@@ -221,8 +221,8 @@ public class TestMultiQueue extends TestSession {
 				jobUserDefault.start();
 	
 				// check job status
-				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-						jobUserDefault.waitForID(10));
+				assertTrue("WordCount job (default user) was not assigned an ID within 30 seconds.", 
+						jobUserDefault.waitForID(30));
 				assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
 						jobUserDefault.verifyID());	
 				int waitTime = 2;

@@ -1,17 +1,12 @@
 package hadooptest.hadoop.stress.durability;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.HadoopCluster;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
@@ -19,8 +14,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -53,38 +46,7 @@ public class TestDurability extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
-		setupTestConf();
 		setupTestDir();
-	}
-	
-	public static void setupTestConf() throws Exception  {
-		
-		FullyDistributedCluster cluster =
-				(FullyDistributedCluster) TestSession.cluster;
-		String component = HadoopCluster.RESOURCE_MANAGER;
-
-		YarnClientImpl yarnClient = new YarnClientImpl();
-		yarnClient.init(TestSession.getCluster().getConf());
-		yarnClient.start();
-
-		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
-		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
-		TestSession.logger.info("queues='" +
-        	Arrays.toString(queues.toArray()) + "'");
-		
-		// we need to detect whether there are two queues running
-		if (queues.size() >= 2) {
-				TestSession.logger.debug("Cluster is already setup properly." 
-							+ "Multi-queues are Running." + "Nothing to do.");
-				return;
-		} else {
-				// set up TestSession to default queue numbers, which should be more than 2 queue
-				// restart the cluster to get default queue setting
-    			cluster.hadoopDaemon("stop", component);
-    			cluster.hadoopDaemon("start", component);
- 
-        		return;        		
-		}
 	}
 	
 	public static void setupTestDir() throws Exception {
@@ -200,8 +162,8 @@ public class TestDurability extends TestSession {
 				jobUserDefault.start();
 				
 				// check the status of the job
-				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-						jobUserDefault.waitForID(10));
+				assertTrue("WordCount job (default user) was not assigned an ID within 30 seconds.", 
+						jobUserDefault.waitForID(30));
 				assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
 						jobUserDefault.verifyID());	
 				int waitTime = 2;

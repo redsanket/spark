@@ -30,10 +30,8 @@ import org.junit.experimental.categories.Category;
 public class TestFloodingQueuesFullCapacity extends TestSession {
 
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
-	private static String outputFile = "wc_output_new";
-	
+	private static String outputFile = "wc_output_new";	
 	private static String input_string = "Hello world, and run Durability Test";
-
 	private static int TotalFileNum = 20;
 
 	private static Path inpath = null;

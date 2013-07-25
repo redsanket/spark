@@ -2,6 +2,7 @@ package hadooptest.hadoop.stress.tokenRenewal;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
@@ -78,7 +79,7 @@ public class TestTokenRenewalAllDurability extends TestSession {
 	    runHour = Integer.parseInt(prop.getProperty("TokenRenewal.runHour"));
 	    runDay  = Integer.parseInt(prop.getProperty("TokenRenewal.runDay"));
 	    logger.info("===> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay + " <===");
-	    hdfsNode = prop.getProperty("TokenRenewal.hdfsNode");
+		hdfsNode = TestSession.cluster.getNode(HadoopCluster.NAMENODE).getHostname();
 	    input_string = prop.getProperty("TokenRenewal.input_string");
 	    logger.info("===> HDFS node addr.: "+ hdfsNode + " <===");
 	    logger.info("===> The input string is '" + input_string + "' <==="); 

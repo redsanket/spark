@@ -2,6 +2,7 @@ package hadooptest.hadoop.stress.tokenRenewal;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
@@ -30,7 +31,7 @@ public class TestTokenRenewalAll extends TestSession {
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
 	private static String outputFile = "TTR_output";
 	// NOTE: this is the name node of your cluster that you currently test your code on
-	private static String hdfsNode = "gsbl90628.blue.ygrid.yahoo.com";
+	private static String hdfsNode;
 	
 	private static String input_string = "Hello world! Let's run all the token renewal tests!";
 
@@ -74,6 +75,8 @@ public class TestTokenRenewalAll extends TestSession {
 		} catch (Exception e) {
 				TestSession.logger.error(e);
 		}
+		
+		hdfsNode = TestSession.cluster.getNode(HadoopCluster.NAMENODE).getHostname();
 		
 	    webhdfsAddr = "webhdfs://" + hdfsNode + ":" + outputDir + localFile;
 	    
@@ -217,8 +220,8 @@ public class TestTokenRenewalAll extends TestSession {
 	     
 	    Job1.start();
 	     
-		assertTrue("Job1  was not assigned an ID within 10 seconds.", 
-					Job1.waitForID(10));
+		assertTrue("Job1  was not assigned an ID within 30 seconds.", 
+					Job1.waitForID(30));
 		assertTrue("Job1 is invalid.", 
 					Job1.verifyID());
 
@@ -249,8 +252,8 @@ public class TestTokenRenewalAll extends TestSession {
 		TestSession.logger.info("Trying to submit job2...");
 		Job2.start();
 		 
-		assertTrue("Job2  was not assigned an ID within 10 seconds.", 
-					Job2.waitForID(10));
+		assertTrue("Job2  was not assigned an ID within 30 seconds.", 
+					Job2.waitForID(30));
 		assertTrue("Job2 is invalid.", 
 					Job2.verifyID());
 
@@ -338,8 +341,8 @@ public class TestTokenRenewalAll extends TestSession {
 	     
 	    Job1.start();
 
-	    assertTrue("Job1  was not assigned an ID within 10 seconds.", 
-					Job1.waitForID(10));
+	    assertTrue("Job1  was not assigned an ID within 30 seconds.", 
+					Job1.waitForID(30));
 	    assertTrue("Job1 is invalid.", 
 					Job1.verifyID());
 
@@ -367,8 +370,8 @@ public class TestTokenRenewalAll extends TestSession {
 
 		Job2.start();
 		 
-		assertTrue("Job2  was not assigned an ID within 10 seconds.", 
-					Job2.waitForID(10));
+		assertTrue("Job2  was not assigned an ID within 30 seconds.", 
+					Job2.waitForID(30));
 		assertTrue("Job2 is invalid.", 
 					Job2.verifyID());
 
@@ -533,8 +536,8 @@ public class TestTokenRenewalAll extends TestSession {
 			   		TestSession.logger.info("Trying to submit job1...");
 			   		Job1.start();
 			   		 
-			   		assertTrue("Job1  was not assigned an ID within 10 seconds.", 
-			   					Job1.waitForID(10));
+			   		assertTrue("Job1  was not assigned an ID within 30 seconds.", 
+			   					Job1.waitForID(30));
 			   		assertTrue("Job1 is invalid.", 
 			   					Job1.verifyID());
 		
@@ -560,8 +563,8 @@ public class TestTokenRenewalAll extends TestSession {
 			   		
 			   		Job2.start();
 			   		 
-			   		assertTrue("Job2  was not assigned an ID within 10 seconds.", 
-			   					Job2.waitForID(10));
+			   		assertTrue("Job2  was not assigned an ID within 30 seconds.", 
+			   					Job2.waitForID(30));
 			   		assertTrue("Job2 is invalid.", 
 			   					Job2.verifyID());
 		
@@ -710,8 +713,8 @@ public class TestTokenRenewalAll extends TestSession {
 			   		TestSession.logger.info("Trying to submit job1...");
 			   		Job1.start();
 			   		 
-			   		assertTrue("Job1  was not assigned an ID within 10 seconds.", 
-			   					Job1.waitForID(10));
+			   		assertTrue("Job1  was not assigned an ID within 30 seconds.", 
+			   					Job1.waitForID(30));
 			   		assertTrue("Job1 is invalid.", 
 			   					Job1.verifyID());
 		
@@ -735,8 +738,8 @@ public class TestTokenRenewalAll extends TestSession {
 			   		TestSession.logger.info("Trying to submit job2...");
 			   		Job2.start();
 			   		 
-			   		assertTrue("Job2  was not assigned an ID within 10 seconds.", 
-			   					Job2.waitForID(10));
+			   		assertTrue("Job2  was not assigned an ID within 30 seconds.", 
+			   					Job2.waitForID(30));
 			   		assertTrue("Job2 is invalid.", 
 			   					Job2.verifyID());
 		
@@ -928,8 +931,8 @@ public class TestTokenRenewalAll extends TestSession {
 				   		TestSession.logger.info("Trying to submit job1...");
 				   		Job1.start();
 				   		 
-				   		assertTrue("Job1  was not assigned an ID within 10 seconds.", 
-				   					Job1.waitForID(10));
+				   		assertTrue("Job1  was not assigned an ID within 30 seconds.", 
+				   					Job1.waitForID(30));
 				   		assertTrue("Job1 is invalid.", 
 				   					Job1.verifyID());
 			
@@ -953,8 +956,8 @@ public class TestTokenRenewalAll extends TestSession {
 					   	TestSession.logger.info("Trying to submit job2...");
 					   	Job2.start();
 					   		 
-					   	assertTrue("Job2  was not assigned an ID within 10 seconds.", 
-					   				Job2.waitForID(10));
+					   	assertTrue("Job2  was not assigned an ID within 30 seconds.", 
+					   				Job2.waitForID(30));
 					   	assertTrue("Job2 is invalid.", 
 					   				Job2.verifyID());
 				

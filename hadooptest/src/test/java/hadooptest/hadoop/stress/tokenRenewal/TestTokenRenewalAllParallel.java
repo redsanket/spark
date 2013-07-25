@@ -1,15 +1,14 @@
 package hadooptest.hadoop.stress.tokenRenewal;
 
 import static org.junit.Assert.assertTrue;
+import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -24,10 +23,14 @@ import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
+import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class TestTokenRenewalAllEachDurability extends TestSession {
+
+@Category(ParallelMethodTests.class)
+public class TestTokenRenewalAllParallel extends TestSession {
 
 	// NOTE: the file should appear in you home directory
 	private static String localFile = "TTR_input.txt";
@@ -35,20 +38,14 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 	private static String outputFile = "TTR_output";
 	// NOTE: this is the name node of your cluster that you currently test your code on
 	private static String hdfsNode;
-
-	// parameters from .properties file
-	private static long runMin; 
-	private static long runHour;
-	private static long runDay;	
-	private static String input_string;
+	
+	private static String input_string = "Hello world! Let's run all the token renewal tests!";
 
 	// location information 
 	private static String outputDir = null;
 	private static String localDir = null;
 	private static int jobcount = 0;
 	private static String webhdfsAddr;
-	private static long runTime;
-	private static long endTime;
 	
 	/*
 	 *  Before running the test.
@@ -59,31 +56,36 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
-		getParameters();
+		setupTestConf();
 		setupTestDir();		
 	}
+	
+	public static void setupTestConf() throws Exception {
+		FullyDistributedCluster cluster =
+				(FullyDistributedCluster) TestSession.cluster;
+		String component = HadoopCluster.RESOURCE_MANAGER;
 
-	public static void getParameters() throws Exception {
+		/* 
+		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
+		 * queue is already in place. If so, skip the following as to not waste
+		 *  time.
+		 */
+		YarnClientImpl yarnClient = new YarnClientImpl();
+		yarnClient.init(TestSession.getCluster().getConf());
+		yarnClient.start();
 		
-		String workingDir = System.getProperty("user.dir");
+		// Backup the default configuration directory on the Resource Manager
+		// component host.
+		cluster.getConf(component).backupConfDir();	
 		
-		Properties prop = new Properties();
-		 
-    	try {
-            //load a properties file
-    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
-    	} catch (IOException ex) {
-    		ex.printStackTrace();
-        }
-
-		runMin  = Integer.parseInt(prop.getProperty("TokenRenewal.each.runMin"));
-	    runHour = Integer.parseInt(prop.getProperty("TokenRenewal.each.runHour"));
-	    runDay  = Integer.parseInt(prop.getProperty("TokenRenewal.each.runDay"));
-	    logger.info("===> runMin: "+runMin+",runHour: "+runHour+", runDay: "+runDay + " <===");
-		hdfsNode = TestSession.cluster.getNode(HadoopCluster.NAMENODE).getHostname();
-	    input_string = prop.getProperty("TokenRenewal.input_string");
-	    logger.info("===> HDFS node addr.: "+ hdfsNode + " <===");
-	    logger.info("===> The input string is '" + input_string + "' <==="); 
+		// Copy files to the custom configuration directory on the
+		// Resource Manager component host.
+		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
+				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
+		cluster.getConf(component).copyFileToConfDir(sourceFile,
+				"capacity-scheduler.xml");
+		cluster.hadoopDaemon("stop", component);
+		cluster.hadoopDaemon("start", component);
 	}
 	
 	public static void setupTestDir() throws Exception {
@@ -109,6 +111,8 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 				TestSession.logger.error(e);
 		}
 		
+		hdfsNode = TestSession.cluster.getNode(HadoopCluster.NAMENODE).getHostname();
+		
 	    webhdfsAddr = "webhdfs://" + hdfsNode + ":" + outputDir + localFile;
 	    
 		logger.info("Target Directory is: " + webhdfsAddr);
@@ -125,124 +129,25 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
 	 */
 
-	@Test
-	public void TestTokenRenewal() throws Exception{
+	@Test public void TestExistingUgi() throws Exception{existingUgi(null); }
+	@Test public void ExistingUgi_webhdfs() throws Exception{existingUgi("webhdfs"); }
+	@Test public void ExistingUgi_oldApi() throws Exception{existingUgi_oldApi(null); }
+	@Test public void ExistingUgi_oldApi_webhdfs() throws Exception{existingUgi_oldApi("webhdfs"); }
+	/*
+	 *  [ATTENTION!]
+	 *  There are race conditions for these tests.
+	 *  These 4 tests may successfully pass or fail on the "Redirecting to job history server" ERROR,
+	 *  waiting for the bug fixed in Hadoop core.
+	 */
+//	@Test public void doasBlock_cleanUgi() throws Exception{doasBlock_cleanUgi(null); }
+//	@Test public void doasBlock_cleanUgi_webhdfs() throws Exception{doasBlock_cleanUgi("webhdfs"); }
+//	@Test public void doasBlock_cleanUgi_oldApi() throws Exception{doasBlock_cleanUgi_oldApi(null); }
+//	@Test public void doasBlock_cleanUgi_oldApi_webhdfs() throws Exception{doasBlock_cleanUgi_oldApi("webhdfs"); }
 		
-		runTime = runMin*60*1000 + runHour*60*60*1000 + runDay*24*60*60*1000;
-	    
-	    update_endtime();		
-		while(endTime > System.currentTimeMillis()) {	
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> ExistingUgi <===");
-			existingUgi(null);
-		}
-		
-	    update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> ExistingUgi_webhdfs <===");
-			existingUgi("webhdfs");
-		}	
-		
-	    update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> ExistingUgi_oldApi <===");
-			existingUgi_oldApi(null);
-		}
-		
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> ExistingUgi_oldApi_webhdfs <===");
-			existingUgi_oldApi("webhdfs");
-		}			
-			
-		/*
-		 *  [ATTENTION!]
-		 *  There are race conditions for these tests.
-		 *  These 4 tests may successfully pass or fail on the "Redirecting to job history server" ERROR,
-		 *  waiting for the bug fixed in Hadoop core.
-		 */
-/*			
-	 	update_endtime();		
-		while(endTime > System.currentTimeMillis()) {	
-			get_remain_time();
-	 		TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi <===");
-			doasBlock_cleanUgi(null);
-		}
-		
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi_webhdfs <===");
-			doasBlock_cleanUgi("webhdfs");
-		}
-		
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi_oldApi <===");
-			doasBlock_cleanUgi_oldApi(null);
-		}
-		
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi_oldApi_webhdfs <===");
-			doasBlock_cleanUgi_oldApi("webhdfs");
-		}
-*/			
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser <===");
-			doasBlock_cleanUgi_proxyUser(null, null);
-		}
-		
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser_webhdfs <===");
-			doasBlock_cleanUgi_proxyUser("webhdfs", null);
-		}
-		
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser_CurrentUser <===");
-			doasBlock_cleanUgi_proxyUser(null, "CurrentUser");
-		}
-		update_endtime();		
-		while(endTime > System.currentTimeMillis()) {
-			get_remain_time();
-			TestSession.logger.info("Trying to run the test:");
-			TestSession.logger.info("===> doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs <===");
-			doasBlock_cleanUgi_proxyUser("webhdfs", "CurrentUser");
-		}
-		
-	}
-
-	private void update_endtime() throws Exception{
-		endTime = System.currentTimeMillis() + runTime;
-		TestSession.logger.info("===> The End time is: " + endTime/1000 + " <===");
-	}
-	
-	private void get_remain_time() throws Exception{
-		TestSession.logger.info("===> Time remain: " + (endTime - System.currentTimeMillis())/1000 + " sec <===");
-	}
-	
+	@Test public void doasBlock_cleanUgi_proxyUser() throws Exception{doasBlock_cleanUgi_proxyUser(null, null); }
+	@Test public void doasBlock_cleanUgi_proxyUser_webhdfs() throws Exception{doasBlock_cleanUgi_proxyUser("webhdfs", null); }
+	@Test public void doasBlock_cleanUgi_proxyUser_CurrentUser() throws Exception{doasBlock_cleanUgi_proxyUser(null, "CurrentUser"); }
+	@Test public void doasBlock_cleanUgi_proxyUser_CurrentUser_webhdfs() throws Exception{doasBlock_cleanUgi_proxyUser("webhdfs", "CurrentUser"); }
 	
 	public void existingUgi(String type) throws Exception {
 		// existing ugi
@@ -639,13 +544,13 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 			   		int waitTime = 2;
 			   		assertTrue("Job1 did not succeed.",
 			   					Job1.waitForSuccess(waitTime));
-	 
-		            TestSession.logger.info("After doasUser first job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
+	
+		           TestSession.logger.info("After doasUser first job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
 	
 		           
-		            // setup and run another wordcount job, this should exceed the token renewal time of 60 seconds
-		            // and cause all of our passed-in tokens to be renewed, job should also succeed
-		            WordCountJob Job2 = new WordCountJob();
+		           // setup and run another wordcount job, this should exceed the token renewal time of 60 seconds
+		           // and cause all of our passed-in tokens to be renewed, job should also succeed
+		           WordCountJob Job2 = new WordCountJob();
 		  	     
 			   	    if(_type == "webhdfs")
 			    		Job2.setInputFile(webhdfsAddr);
@@ -667,11 +572,11 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 			   		assertTrue("Job2 did not succeed.",
 			   					Job2.waitForSuccess(waitTime));
 	
-		            TestSession.logger.info("After doasUser second job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
-		            TestSession.logger.info("\nDump all tokens currently in our Credentials:");
-		            TestSession.logger.info(ugi.getCredentials().getAllTokens() + "\n");
+		           TestSession.logger.info("After doasUser second job... my Creds say i'm: " + UserGroupInformation.getCurrentUser() + " and I now have " + doasCreds.numberOfTokens() + " tokens");
+		           TestSession.logger.info("\nDump all tokens currently in our Credentials:");
+		           TestSession.logger.info(ugi.getCredentials().getAllTokens() + "\n");
 	
-		            return "This is the doAs block";
+		           return "This is the doAs block";
 		          }
 		        });
 	      // back out of the go() method, no longer running as the doAs proxy user
@@ -938,9 +843,9 @@ public class TestTokenRenewalAllEachDurability extends TestSession {
 
 		}
 		
-		  // class DoasUser
-		  // this is used create a new UGI (new security context) for running wordcount jobs
-		  // using the credentials passed into said ugi
+	  // class DoasUser
+	  // this is used create a new UGI (new security context) for running wordcount jobs
+	  // using the credentials passed into said ugi
 	 public class DoasUser_cleanUgi_proxyUser {
 		    // DO NOT instantiate objects here, dummy, declare for scope but don't snag 'em yet
 		    // gotta be in the doas run method to get proxy user's context
