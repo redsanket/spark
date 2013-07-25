@@ -49,7 +49,7 @@ public class TestMultiQueue extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
-		setupTestConf();
+//		setupTestConf();
 		getQueneInfo();
 		setupTestDir();
 	}
