@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
 
 public class MultiClusterClient extends Thread {
 
@@ -65,6 +66,38 @@ public class MultiClusterClient extends Thread {
 				}
 				else if (fromServer.contains("DFS_GET_DEFAULT_NAME")) {
 	        		out.println("CLIENT DFS DEFAULT NAME = " + TestSession.cluster.getConf().get("fs.defaultFS"));
+	        	}
+				else if (fromServer.contains("DFS_COPY_LOCAL ")) {
+					try {
+						DFS dfs = new DFS();
+						
+						String[] fromServerSplit = fromServer.split(" ");
+						String src = fromServerSplit[1];
+						String dest = fromServerSplit[2];
+						
+						dfs.copyLocalToHdfs(src, dest);
+						dfs.printFsLs(dest, true);
+						out.println("DFS_COPY_LOCAL_RESULT = true" );
+					}
+					catch (Exception e) {
+						out.println("DFS_COPY_LOCAL_RESULT = EXCEPTION: " + e.getMessage());
+					}
+				}
+				else if (fromServer.contains("DFS_COPY ")) {
+	        		try {
+	        			DFS dfs = new DFS();
+	        			
+	        			String[] fromServerSplit = fromServer.split(" ");
+	        			String srcClusterBasePath = fromServerSplit[1];
+	        			String srcPath = fromServerSplit[2];
+	        			String destClusterBasePath = fromServerSplit[3];
+	        			String destPath = fromServerSplit[4];
+	        		
+	        			out.println("DFS_COPY_RESULT = " + dfs.copyDfsToDfs(srcClusterBasePath, srcPath, destClusterBasePath, destPath));
+	        		}
+	        		catch (Exception e) {
+	        			out.println("DFS_COPY_RESULT = EXCEPTION: " + e.getMessage());
+	        		}
 	        	}
 
 				if (!runClient)

@@ -1,6 +1,7 @@
 package hadooptest.cluster;
 
 import coretest.TestSessionCore;
+import coretest.Util;
 
 import hadooptest.TestSession;
 
@@ -79,7 +80,14 @@ public class MultiClusterServer extends Thread {
 					}
 					
 					if (!clientDFSName.equals("")) {
-						out.println("DFS_COPY " + clientDFSName + " srcPath " + TestSession.cluster.getConf().get("fs.defaultFS") + " destPath");
+						out.println("DFS_COPY_LOCAL /homes/hadoopqa/hadooptest.conf " + clientDFSName + "/user/hadoopqa/hadooptest.conf");
+						
+						try {
+							Util.sleep(15);
+						}
+						catch (InterruptedException ie) {}
+						
+						out.println("DFS_COPY " + clientDFSName + " /user/hadoopqa/hadooptest.conf " + TestSession.cluster.getConf().get("fs.defaultFS") + " /user/hadoopqa/hadooptest.conf.test.1");
 					}
 					
 					if (!runServer)
