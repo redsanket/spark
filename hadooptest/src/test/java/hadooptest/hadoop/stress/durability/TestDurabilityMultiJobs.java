@@ -228,8 +228,8 @@ public class TestDurabilityMultiJobs extends TestSession {
 	
 	private void assertJobs(WordCountJob jobUserDefault){
 		try{
-			assertTrue("WordCountJob job (default user) was not assigned an ID within 20 seconds.", 
-					jobUserDefault.waitForID(20));
+			assertTrue("WordCountJob job (default user) was not assigned an ID within 30 seconds.", 
+					jobUserDefault.waitForID(30));
 			assertTrue("WordCountJob job ID for WordCountJob job (default user) is invalid.", 
 					jobUserDefault.verifyID());
 			int waitTime = 2;

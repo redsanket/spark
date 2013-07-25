@@ -6,7 +6,6 @@ import hadooptest.TestSession;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -30,8 +29,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.client.YarnClientImpl;
+
 
 import coretest.Util;
 
@@ -140,9 +138,7 @@ public class WordCountAPIFullCapacityJob extends Configured implements Tool {
 		    			waitForSuccess(5, job[i%jobNum]));
 		    	if(System.currentTimeMillis() <= endTime){
 		    		TestSession.logger.info("=== Submitting Job["+(i+jobNum)+"] to Queue["+qIndex+"] ===");
-		        	
-//			        waitForSubmission(jobNum, qIndex);
-		    		
+		        			    		
 			        JobConf conf = new JobConf();
 			        conf.setQueueName(args[4]);
 			        job[i%jobNum] = Job.getInstance(conf);
@@ -179,23 +175,6 @@ public class WordCountAPIFullCapacityJob extends Configured implements Tool {
         return 0;
     }
     
-    public void waitForSubmission(int capacity, int i) throws IOException, InterruptedException{
-		YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();		
-		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
-		TestSession.logger.info("!!!!!!!!!!!!!!waiting for submitting jobs!!!!!!!!!!!!!");
-    	int wait = 0;
-    	while (wait < 2){
-    		if (queues.get(i).getApplications().size() < capacity){
-    			TestSession.logger.info("!!!!!!!!!!!!!!"+queues.get(i).getApplications() +"<"+capacity+"!!!!!!!!!!!!!");
-    			return;
-    		}
-    		wait++;
-    		Thread.sleep(10000);
-    	}
-    	TestSession.logger.info("Wait to submit timeout for 20 sec");
-    	fail(); 	
-    }
-    
     public boolean waitForSuccess(int minute, Job job) 
 			throws InterruptedException, IOException {
 
@@ -203,7 +182,7 @@ public class WordCountAPIFullCapacityJob extends Configured implements Tool {
 		
 		// Give the sleep job time to complete
 		for (int i = 0; i <= (minute * 6); i++) {
-
+			
 			currentState = job.getJobState();
 			if (currentState.equals(State.SUCCEEDED)) {
 				TestSession.logger.info("JOB " + job.getJobID() + " SUCCEEDED");
@@ -229,7 +208,8 @@ public class WordCountAPIFullCapacityJob extends Configured implements Tool {
 		TestSession.logger.error("JOB " + job.getJobID() + " didn't SUCCEED within the timeout window.");
 		return false;
     }
-
+    
+    // input: args[] ~ <input path>, <output path>, <capacity>, <queue index>, <queue name>, <runtime>.
     public static void main(String[] args) throws Exception {
         Configuration configuration = new Configuration();
         String[] otherArgs = new GenericOptionsParser(configuration, args).getRemainingArgs();

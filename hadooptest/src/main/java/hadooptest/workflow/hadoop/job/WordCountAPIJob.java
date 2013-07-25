@@ -83,7 +83,8 @@ public class WordCountAPIJob extends Configured implements Tool {
             super.cleanup(context);
         }
     }
-
+    
+    // input: args[] ~ <input path>, <output path>, <job number>, <queue number>, <queue0 name>, <queue1 name>....
     public int run(String[] args) throws Exception {
     	int file_count = 0;
     	Random random = new Random();
