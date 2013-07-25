@@ -90,7 +90,7 @@ public class TestFileDescriptorUsage extends TestSession {
 
 		queues =  yarnClient.getAllQueues(); 
 		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
-		TestSession.logger.info("================= queues ='" + Arrays.toString(queues.toArray()) + "'");
+		TestSession.logger.info("queues ='" + Arrays.toString(queues.toArray()) + "'");
 		
 		if (queues.size() != 1){
 			// Backup the default configuration directory on the Resource Manager
@@ -187,8 +187,7 @@ public class TestFileDescriptorUsage extends TestSession {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
 		Random rand = new Random();
-		WordCountJob[] jobs = new WordCountJob[Integer.parseInt(System.getProperty("jobNum"))];
-		TestSession.logger.info("=============== jobs.length = "+jobs.length);
+		WordCountJob[] jobs = new WordCountJob[Integer.parseInt(System.getProperty("JobNum"))];
 
 		try {
 			for(int i = 0; i < jobs.length; i++){
@@ -214,19 +213,18 @@ public class TestFileDescriptorUsage extends TestSession {
 				TestSession.logger.debug("process == null? "+(process == null));
 				
 				int pid = getUnixPID(process);
-				TestSession.logger.debug("======== job "+ i+" pid = "+pid+"=========");
+				TestSession.logger.debug("job "+ i+" pid = "+pid);
 				
 				CheckProcessInfo(pid);
 				int of = countOpenFile(Integer.toString(pid));
-				TestSession.logger.info("======== Initialy, job "+ i+" opened file # = "+of+"=========");
-//				PrintOpenFiles(pid);
+				TestSession.logger.debug("Initialy, job "+ i+" opened file # = "+of);
 			}
 			
 			for(int i = 0; i < jobs.length; i++){
 				int pid = getUnixPID(jobs[i].getProcess());
 				assertTrue("Job did not succeed.",jobs[i].waitForSuccess(20));
 				int of = countOpenFile(Integer.toString(pid));
-				TestSession.logger.info("======== After completion, job "+ i+" opened file # = "+of+"=========");
+				TestSession.logger.debug("After completion, job "+ i+" opened file # = "+of);
 				assertTrue("WordCount job["+ i+"] has "+of+" files left open.", (of == 0));
 			}
 		}catch (Exception e) {
@@ -234,20 +232,7 @@ public class TestFileDescriptorUsage extends TestSession {
 			fail();
 		}
 	}
-	public void PrintOpenFiles(int pid){
-		try {
-	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "lsof -p "+pid});
-	        InputStream is = proc.getInputStream();
-	        InputStreamReader isr = new InputStreamReader(is);
-	        BufferedReader br = new BufferedReader(isr);
-	        String line;
-
-	        while ((line = br.readLine()) != null)
-	        	System.out.println(line);
-	    } catch (IOException e) {
-	    	TestSession.logger.error(e.getMessage());
-	    }
-	}
+	
 	public int getUnixPID(Process process) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {  
         if (process.getClass().getName().equals("java.lang.UNIXProcess")) {  
             Field field = process.getClass().getDeclaredField("pid");  
@@ -258,6 +243,8 @@ public class TestFileDescriptorUsage extends TestSession {
             throw new IllegalArgumentException("Not a UNIXProcess");  
         }  
     }  
+	
+	// count the open file num of process pid
 	public int countOpenFile(String pid) throws IOException {
 		byte[] bo = new byte[100];
 		String[] cmd = {"bash", "-c"," lsof -p "+pid+" | wc -l"};
@@ -265,6 +252,7 @@ public class TestFileDescriptorUsage extends TestSession {
 		p.getInputStream().read(bo);
 		return Integer.parseInt(new String(bo).trim());
 	}
+	
 	public void CheckProcessInfo(int pid){
 	    try {
 	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "ps "+pid});
@@ -279,23 +267,28 @@ public class TestFileDescriptorUsage extends TestSession {
 	    	TestSession.logger.error(e.getMessage());
 	    }
 	}
-//	public String curPID() throws IOException {
-//
-//		byte[] bo = new byte[100];
-//		String[] cmd = {"bash", "-c", "echo $PPID"};
-//		Process p = Runtime.getRuntime().exec(cmd);
-//		p.getInputStream().read(bo);
-//		return new String(bo);
-//	}
-//	public void checkFileLeak(WordCountJob job) throws IOException, InterruptedException{
-//		String pid = curPID().trim();
-//		logger.info(this.getClass().getName()+" PID is "+pid);
-//		int nofile = countOpenFile(pid);
-//		logger.info("=============== Initially Total number of file opened by "+pid+" is "+nofile);
-//
-//		assertTrue("Job did not succeed.",job.waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
-//
-//		nofile = countOpenFile(pid);
-//		logger.info("=============== Finally Total number of file opened by "+pid+" is "+nofile);
-//	}
+	
+	public void PrintOpenFiles(int pid){
+		try {
+	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "lsof -p "+pid});
+	        InputStream is = proc.getInputStream();
+	        InputStreamReader isr = new InputStreamReader(is);
+	        BufferedReader br = new BufferedReader(isr);
+	        String line;
+
+	        while ((line = br.readLine()) != null)
+	        	TestSession.logger.debug(line);
+	    } catch (IOException e) {
+	    	TestSession.logger.error(e.getMessage());
+	    }
+	}
+	
+	public String curPID() throws IOException {
+
+		byte[] bo = new byte[100];
+		String[] cmd = {"bash", "-c", "echo $PPID"};
+		Process p = Runtime.getRuntime().exec(cmd);
+		p.getInputStream().read(bo);
+		return new String(bo);
+	}
 }
