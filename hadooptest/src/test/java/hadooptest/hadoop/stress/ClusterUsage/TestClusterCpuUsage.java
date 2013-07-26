@@ -23,7 +23,7 @@ public class TestClusterCpuUsage extends TestSession {
 	}
 	
 	@Test
-	public void ClusterUsage() throws Exception {
+	public void ClusterCpuUsage() throws Exception {
 		
 		Hashtable<String, HadoopNode> allDNs = TestSession.getCluster().getNodes("datanode");
 		if(allDNs.isEmpty()||allDNs.size() == 0){
@@ -56,7 +56,8 @@ public class TestClusterCpuUsage extends TestSession {
 			 * so these initial values are the percentages since boot.
 			 * So we need to run it twice to get the instantaneous CPU usage
 			 */
-			String[] cpuCmd  = {"bash", "-c", "pdsh -w "+dnsInStr+" top -b -n2 -d"+Double.parseDouble(System.getProperty("TestClusterCpuUsage.topInterval"))};
+			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+Integer.parseInt(System.getProperty("TestClusterCpuUsage.timeOutSec"))
+					+" -w "+dnsInStr+" top -b -n2 -d"+Double.parseDouble(System.getProperty("TestClusterCpuUsage.topInterval"))};
 
 			/*
 			 * Doing pdsh on hosts separately would greatly increase running time
@@ -77,9 +78,9 @@ public class TestClusterCpuUsage extends TestSession {
 			}
 			
 			TestSession.logger.info("Cluster has "+livednNum+" live node(s).");
-			TestSession.logger.debug("Cluster has "+dnsDomainMapCopy.keySet().size()+" dead node(s).");
+			TestSession.logger.debug("Cluster has "+dnsDomainMapCopy.keySet().size()+" busy or dead node(s).");
 			for(String deaddn : dnsDomainMapCopy.keySet())
-				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is dead.");
+				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
 				
 			if(livednNum != 0)
 				TestSession.logger.info("Average cpu usage is "+ new DecimalFormat("##.##").format(100-idleSum/(double)livednNum)+"%.");

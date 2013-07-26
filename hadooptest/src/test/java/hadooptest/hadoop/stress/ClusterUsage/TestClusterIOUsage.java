@@ -6,9 +6,7 @@ import hadooptest.node.hadoop.HadoopNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DecimalFormat;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -23,7 +21,7 @@ public class TestClusterIOUsage extends TestSession {
 	}
 	
 	@Test
-	public void ClusterUsage() throws Exception {
+	public void ClusterIOUsage() throws Exception {
 		
 		Hashtable<String, HadoopNode> allDNs = TestSession.getCluster().getNodes("datanode");
 		if(allDNs.isEmpty()||allDNs.size() == 0){
@@ -56,8 +54,7 @@ public class TestClusterIOUsage extends TestSession {
 			 * so these initial values are the percentages since boot.
 			 * So we need to run it twice to get the instantaneous device IO usage
 			 */
-			
-			String[] cpuCmd  = {"bash", "-c", "pdsh -w "+dnsInStr+" iostat -d 1 2"};
+			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+Integer.parseInt(System.getProperty("TestClusterIOUsage.timeOutSec"))+" -w "+dnsInStr+" iostat -d 1 2"};
 
 			HashMap<String, Double> Read = new HashMap<String, Double>();
 			HashMap<String, Double> Write = new HashMap<String,Double>();
@@ -65,9 +62,8 @@ public class TestClusterIOUsage extends TestSession {
 			 * Doing pdsh on hosts separately would greatly increase running time
 			 */
 			GetIOUsage(cpuCmd,Read,Write);
-
-			HashMap<String,String> dnsDomainMapCopy = new HashMap<String,String>(dnsDomainMap);
 			
+			HashMap<String,String> dnsDomainMapCopy = new HashMap<String,String>(dnsDomainMap);
 			Double ReadSum = 0.0,WriteSum = 0.0;
 			for(String hostname : Read.keySet()){
 				
@@ -81,12 +77,12 @@ public class TestClusterIOUsage extends TestSession {
 			}
 			
 			TestSession.logger.info("Cluster has "+Read.size()+" live node(s).");
-			TestSession.logger.debug("Cluster has "+dnsDomainMapCopy.keySet().size()+" dead node(s).");
+			TestSession.logger.debug("Cluster has "+dnsDomainMapCopy.keySet().size()+" busy or dead node(s).");
 			for(String deaddn : dnsDomainMapCopy.keySet())
-				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is dead.");
+				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
 			
-			TestSession.logger.info("Total Read rate "+ReadSum);
-			TestSession.logger.info("Total Write rate "+WriteSum);
+			TestSession.logger.info("Total Read rate "+ReadSum+"/s.");
+			TestSession.logger.info("Total Write rate "+WriteSum+"/s.");
 			Thread.sleep(refreshRate*1000-(System.currentTimeMillis()-start) > 0 ? refreshRate*1000-(System.currentTimeMillis()-start):0);
 			TestSession.logger.info("============= One Loop use "+(System.currentTimeMillis()-start)/1000F+" secs. =============");
 		}
@@ -102,6 +98,7 @@ public class TestClusterIOUsage extends TestSession {
 		int Blk_wrtn = 0;
 		int Device = 0;
 		while ((line = r.readLine()) != null){
+			
 			StringTokenizer st = new StringTokenizer(line);
 			String hostname = st.nextToken();
 //			System.out.println(line);
@@ -147,5 +144,7 @@ public class TestClusterIOUsage extends TestSession {
 				}
 			}//else System.out.println("----------- Ignore -----------");
 		}
+		r.close();
+		p.destroy();
 	}
 }
