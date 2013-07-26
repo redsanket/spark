@@ -1,4 +1,4 @@
-package hadooptest.hadoop.stress.floodingHDFS;
+package hadooptest.hadoop.stress.ClusterUsage;
 
 import hadooptest.TestSession;
 import hadooptest.node.hadoop.HadoopNode;
@@ -69,6 +69,9 @@ public class TestClusterCpuUsage extends TestSession {
 			HashMap<String,String> dnsDomainMapCopy = new HashMap<String,String>(dnsDomainMap);
 			for(String dnsBotLevelDomainName : dnsCpuUsage.keySet()){
 				idleSum += dnsCpuUsage.get(dnsBotLevelDomainName);
+				TestSession.logger.debug(dnsBotLevelDomainName+dnsDomainMapCopy.get(dnsBotLevelDomainName)
+						+" CPU usage is "+ new DecimalFormat("##.##").format(100-dnsCpuUsage.get(dnsBotLevelDomainName))+"%.");
+
 				if(dnsDomainMapCopy.containsKey(dnsBotLevelDomainName))
 					dnsDomainMapCopy.remove(dnsBotLevelDomainName);
 			}
@@ -79,7 +82,7 @@ public class TestClusterCpuUsage extends TestSession {
 				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is dead.");
 				
 			if(livednNum != 0)
-				TestSession.logger.info("Average cpu usage is "+ new DecimalFormat("##.##").format(100-idleSum/(double)livednNum)+"%");
+				TestSession.logger.info("Average cpu usage is "+ new DecimalFormat("##.##").format(100-idleSum/(double)livednNum)+"%.");
 			
 			Thread.sleep(refreshRate*1000-(System.currentTimeMillis()-start) > 0 ? refreshRate*1000-(System.currentTimeMillis()-start):0);
 			TestSession.logger.info("============= One Loop use "+(System.currentTimeMillis()-start)/1000F+" secs. =============");

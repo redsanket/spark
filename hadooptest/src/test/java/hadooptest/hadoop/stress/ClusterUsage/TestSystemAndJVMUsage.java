@@ -1,4 +1,4 @@
-package hadooptest.hadoop.stress.floodingHDFS;
+package hadooptest.hadoop.stress.ClusterUsage;
 
 import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
