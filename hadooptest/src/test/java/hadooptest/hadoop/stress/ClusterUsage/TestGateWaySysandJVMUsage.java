@@ -1,4 +1,4 @@
-package hadooptest.hadoop.stress.floodingHDFS;
+package hadooptest.hadoop.stress.ClusterUsage;
 
 import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
@@ -17,7 +17,7 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestSystemAndJVMUsage extends TestSession {
+public class TestGateWaySysandJVMUsage extends TestSession {
 	
 	@BeforeClass
     public static void startTestSession() throws Exception{

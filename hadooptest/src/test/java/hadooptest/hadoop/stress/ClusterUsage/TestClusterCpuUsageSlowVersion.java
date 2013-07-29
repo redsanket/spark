@@ -1,4 +1,4 @@
-package hadooptest.hadoop.stress.floodingHDFS;
+package hadooptest.hadoop.stress.ClusterUsage;
 
 import hadooptest.TestSession;
 import hadooptest.node.hadoop.HadoopNode;

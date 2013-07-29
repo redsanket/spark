@@ -32,7 +32,7 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestFileDescriptorUsage extends TestSession {
+public class TestFileDescriptorLeakage extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *

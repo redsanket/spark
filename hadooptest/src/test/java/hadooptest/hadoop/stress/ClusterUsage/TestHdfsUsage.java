@@ -1,4 +1,4 @@
-package hadooptest.hadoop.stress.floodingHDFS;
+package hadooptest.hadoop.stress.ClusterUsage;
 
 import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
@@ -72,8 +72,8 @@ public class TestHdfsUsage extends TestSession {
     	TestSession.logger.info("getCapacity	= "+capacity);
     	TestSession.logger.info("getRemaining	= "+remain);
     	TestSession.logger.info("getUsed		= "+used);
-    	TestSession.logger.info("remain/capacity	= "+((double)remain/(double)capacity));
-    	TestSession.logger.info("used/capacity	= "+((double)used/(double)capacity));
+    	TestSession.logger.info("DFS Remaining	= "+((double)remain/(double)capacity));
+    	TestSession.logger.info("DFS Used	= "+((double)used/(double)capacity));
     }
 }
 
