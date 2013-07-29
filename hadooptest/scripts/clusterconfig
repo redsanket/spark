@@ -244,8 +244,8 @@ then
     for host in `cat $CLUSTER_NODES`;do
         echo -n "$host: ";
         ver=`$SSH $host cat /etc/redhat-release`;
-        ver_req="6\.";
-        if (! [[ $ver =~ /$ver_req/ ]]); then
+        ver_req="release 6\.";
+        if (! [[ $ver =~ $ver_req ]]); then
             echo "$ver ** need upgrade **"; 
             echo "$host" >> $UPGRADE_NODES_FILE
         else echo "$ver";
