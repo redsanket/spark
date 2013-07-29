@@ -1,7 +1,6 @@
 package hadooptest.cluster;
 
 import coretest.TestSessionCore;
-import coretest.Util;
 
 import hadooptest.TestSession;
 
@@ -43,6 +42,8 @@ public class MultiClusterServer extends Thread {
 		}
 
 		try {
+			MultiClusterProtocol mcp = new MultiClusterProtocol();
+			
 			while (runServer) {
 				out = new PrintWriter(socket.getOutputStream(), true);
 				BufferedReader in = new BufferedReader(
@@ -50,46 +51,36 @@ public class MultiClusterServer extends Thread {
 								socket.getInputStream()));
 
 				String inputLine, outputLine;
-				MultiClusterProtocol mcp = new MultiClusterProtocol();
 				outputLine = mcp.processInput(null);
 				TestSessionCore.logger.info(outputLine);
 
-				String clientVersion = "";
-				String clientDFSName = "";
-
+				boolean requestedVersion = false;
+				boolean requestedDFSName = false;
+				boolean requestedLocalCopy = false;
+				boolean requestedDFSCopy = false;
 				while ((inputLine = in.readLine()) != null) {
+
+					if (!requestedVersion) {
+						requestedVersion = true;
+						out.println("RETURN_VERSION");
+					}
+					else if (!requestedDFSName) {
+						requestedDFSName = true;
+						out.println("DFS_GET_DEFAULT_NAME");
+					}
+					else if (!requestedLocalCopy && !mcp.clientDFSName.equals("")) {
+						requestedLocalCopy = true;
+						out.println(mcp.processInput("DFS_REMOTE_LOCAL_COPY"));
+					}
+					else if (!requestedDFSCopy && !mcp.clientDFSName.equals("")) {
+						requestedDFSCopy = true;
+						out.println(mcp.processInput("DFS_REMOTE_DFS_COPY"));
+					}
+					
 					TestSessionCore.logger.info("Client: " + inputLine);
 					outputLine = mcp.processInput(inputLine);
 					out.println(outputLine);
-					
-					if (inputLine.contains("CLIENT HADOOP VERSION = ")) {
-						clientVersion = inputLine;
-					}
-					
-					if (clientVersion.equals("")) {
-						out.println("RETURN_VERSION");
-					}
-					
-					if (clientDFSName.equals("")) {
-						out.println("DFS_GET_DEFAULT_NAME");
-					}
-					
-					if (inputLine.contains("CLIENT DFS DEFAULT NAME = ")) {
-						clientDFSName = inputLine.substring(inputLine.indexOf("= ") + 2);
-						TestSession.logger.info("Client DFS Name response is: " + clientDFSName);
-					}
-					
-					if (!clientDFSName.equals("")) {
-						out.println("DFS_COPY_LOCAL /homes/hadoopqa/hadooptest.conf " + clientDFSName + "/user/hadoopqa/hadooptest.conf");
 						
-						try {
-							Util.sleep(15);
-						}
-						catch (InterruptedException ie) {}
-						
-						out.println("DFS_COPY " + clientDFSName + " /user/hadoopqa/hadooptest.conf " + TestSession.cluster.getConf().get("fs.defaultFS") + " /user/hadoopqa/hadooptest.conf.test.1");
-					}
-					
 					if (!runServer)
 						break;
 				}
