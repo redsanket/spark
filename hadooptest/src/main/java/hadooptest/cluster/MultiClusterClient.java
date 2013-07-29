@@ -49,15 +49,21 @@ public class MultiClusterClient extends Thread {
 			throw new RuntimeException(e);
 		}
 
-		String fromServer;
+		String fromServer, outputLine;
 
 		try {
 			MultiClusterProtocol mcp = new MultiClusterProtocol();
 			
 			while ((fromServer = in.readLine()) != null) {
 				TestSession.logger.info("Server: " + fromServer);
-				out.println(mcp.processInput(fromServer));
-
+				outputLine = mcp.processInput(fromServer);
+				if (outputLine != null) {
+					out.println(outputLine);
+				}	
+				else {
+					out.println("CLIENT_READY");
+				}
+					
 				if (!runClient)
 					break;
 			}

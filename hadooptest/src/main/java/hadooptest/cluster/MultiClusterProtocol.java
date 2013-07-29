@@ -25,10 +25,12 @@ public class MultiClusterProtocol {
         	}
         	else if (theInput.contains("CLIENT HADOOP VERSION = ")) {
 				clientVersion = theInput;
+				theOutput = "Thanks, I got your Hadoop version number.";
 			}
         	else if (theInput.contains("CLIENT DFS DEFAULT NAME = ")) {
 				clientDFSName = theInput.substring(theInput.indexOf("= ") + 2);
 				TestSession.logger.info("Client DFS Name response is: " + clientDFSName);
+				theOutput = "Thanks, I got your DFS Name.";
 			}
         	else if (theInput.contains("DFS_REMOTE_LOCAL_COPY")) {
 				theOutput = "DFS_COPY_LOCAL /homes/hadoopqa/hadooptest.conf " + clientDFSName + "/user/hadoopqa/hadooptest.conf";

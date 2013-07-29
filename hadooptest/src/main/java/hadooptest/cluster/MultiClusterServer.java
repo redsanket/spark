@@ -79,7 +79,9 @@ public class MultiClusterServer extends Thread {
 					
 					TestSessionCore.logger.info("Client: " + inputLine);
 					outputLine = mcp.processInput(inputLine);
-					out.println(outputLine);
+					if(outputLine != null) {
+						out.println(outputLine);
+					}
 						
 					if (!runServer)
 						break;
