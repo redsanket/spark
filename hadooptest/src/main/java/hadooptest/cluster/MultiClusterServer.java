@@ -1,6 +1,7 @@
 package hadooptest.cluster;
 
 import coretest.TestSessionCore;
+import coretest.Util;
 
 import hadooptest.TestSession;
 
@@ -18,11 +19,14 @@ public class MultiClusterServer extends Thread {
 	private boolean runServer = true;
 	
 	private PrintWriter out;
+	private MultiClusterProtocol mcp;
 	
 	public MultiClusterServer(int port) {
 		super("MultiClusterServer");
 		
 		SERVER_PORT = port;
+		
+		mcp = new MultiClusterProtocol();
 	}
 	
 	public void stopServer() {
@@ -42,8 +46,6 @@ public class MultiClusterServer extends Thread {
 		}
 
 		try {
-			MultiClusterProtocol mcp = new MultiClusterProtocol();
-			
 			while (runServer) {
 				out = new PrintWriter(socket.getOutputStream(), true);
 				BufferedReader in = new BufferedReader(
@@ -55,27 +57,27 @@ public class MultiClusterServer extends Thread {
 				TestSessionCore.logger.info(outputLine);
 
 				boolean requestedVersion = false;
-				boolean requestedDFSName = false;
-				boolean requestedLocalCopy = false;
-				boolean requestedDFSCopy = false;
+				//boolean requestedDFSName = false;
+				//boolean requestedLocalCopy = false;
+				//boolean requestedDFSCopy = false;
 				while ((inputLine = in.readLine()) != null) {
 
 					if (!requestedVersion) {
 						requestedVersion = true;
 						out.println("RETURN_VERSION");
 					}
-					else if (!requestedDFSName) {
-						requestedDFSName = true;
-						out.println("DFS_GET_DEFAULT_NAME");
-					}
-					else if (!requestedLocalCopy && !mcp.clientDFSName.equals("")) {
-						requestedLocalCopy = true;
-						out.println(mcp.processInput("DFS_REMOTE_LOCAL_COPY"));
-					}
-					else if (!requestedDFSCopy && !mcp.clientDFSName.equals("")) {
-						requestedDFSCopy = true;
-						out.println(mcp.processInput("DFS_REMOTE_DFS_COPY"));
-					}
+					//else if (!requestedDFSName) {
+					//	requestedDFSName = true;
+					//	out.println("DFS_GET_DEFAULT_NAME");
+					//}
+					//else if (!requestedLocalCopy && !mcp.clientDFSName.equals("")) {
+					//	requestedLocalCopy = true;
+					//	out.println(mcp.processInput("DFS_REMOTE_LOCAL_COPY"));
+					//}
+					//else if (!requestedDFSCopy && !mcp.clientDFSName.equals("")) {
+					//	requestedDFSCopy = true;
+					//	out.println(mcp.processInput("DFS_REMOTE_DFS_COPY"));
+					//}
 					
 					TestSessionCore.logger.info("Client: " + inputLine);
 					outputLine = mcp.processInput(inputLine);
@@ -105,7 +107,23 @@ public class MultiClusterServer extends Thread {
 		}
 	}
 	
-	public void getClientDFSName() {
+	public String getClientDFSName(int timeout) throws InterruptedException {
+		mcp.clientDFSName = "";
 		out.println("DFS_GET_DEFAULT_NAME");
+		
+		while (mcp.clientDFSName == "") {
+			Util.sleep(1);
+			timeout--;
+			TestSession.logger.info("Waiting for client DFS Name response.");
+			
+			if (timeout <= 0) { 
+				TestSession.logger.debug("Waited for the client DFS name " + 
+						"response for " + timeout + " seconds, and there " + 
+						"was no reponse.  Timing out.");
+				break; 
+			}
+		}
+		
+		return mcp.clientDFSName;
 	}
 }
