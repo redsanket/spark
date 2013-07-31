@@ -13,6 +13,12 @@ import java.util.StringTokenizer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
+/*
+ * TestClusterIOUsage.timeOutSec:	Integer. Time limit for waiting for reply
+ * TestClusterIOUsage.refreshRate: 	Integer. The longest refresh rate to get IO status. 
+ * 	if it is shorter than minimum time consuming, it just do it as fast as possible
+ */
 public class TestClusterIOUsage extends TestSession {
 	
 	@BeforeClass
@@ -43,7 +49,9 @@ public class TestClusterIOUsage extends TestSession {
 		dnsInStr = dnsInStr.substring(0,dnsInStr.length()-1);
 		TestSession.logger.info("datanodes in string = "+dnsInStr);
 		
-		int refreshRate = Integer.parseInt(System.getProperty("TestClusterIOUsage.refreshRate"));
+		int refreshRate = System.getProperty("TestClusterIOUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterIOUsage.refreshRate"));
+		int timeOut = System.getProperty("TestClusterIOUsage.timeOutSec") == null? 10 : Integer.parseInt(System.getProperty("TestClusterIOUsage.timeOutSec"));
+		
 		
 		while(true){
 			long start = System.currentTimeMillis();
@@ -54,7 +62,7 @@ public class TestClusterIOUsage extends TestSession {
 			 * so these initial values are the percentages since boot.
 			 * So we need to run it twice to get the instantaneous device IO usage
 			 */
-			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+Integer.parseInt(System.getProperty("TestClusterIOUsage.timeOutSec"))+" -w "+dnsInStr+" iostat -d 1 2"};
+			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+timeOut+" -w "+dnsInStr+" iostat -d 1 2"};
 
 			HashMap<String, Double> Read = new HashMap<String, Double>();
 			HashMap<String, Double> Write = new HashMap<String,Double>();
@@ -101,7 +109,6 @@ public class TestClusterIOUsage extends TestSession {
 			
 			StringTokenizer st = new StringTokenizer(line);
 			String hostname = st.nextToken();
-//			System.out.println(line);
 
 			if(line.contains("Device")&&!dnsMap.containsKey(hostname)){// deveice line first time
 				dnsMap.put(hostname, false);
@@ -114,7 +121,6 @@ public class TestClusterIOUsage extends TestSession {
 					Blk_wrtn = cur.contains("Blk_wrtn/s")?index:Blk_wrtn;
 					Device   = cur.contains("Device:")?index:Device;
 				}
-//				System.out.println("------------ Device: = "+Device+",Blk_read = "+Blk_read+", Blk_wrtn = "+Blk_wrtn+" ---------------");
 			}else if(line.contains("Device")&&dnsMap.containsKey(hostname)){// device line second time
 				dnsMap.put(hostname,true);
 			}else if(dnsMap.containsKey(hostname)&&(dnsMap.get(hostname) == true)){
@@ -130,21 +136,15 @@ public class TestClusterIOUsage extends TestSession {
 							Read.put(hostname, Double.parseDouble(cur));
 						else
 							Read.put(hostname, Read.get(hostname)+Double.parseDouble(cur));
-//						System.out.print("\tRead cur device = "+Double.parseDouble(cur));
-//						System.out.print("\t Read all device = "+Read.get(hostname));
 					}
 					else if(index == Blk_wrtn){
 						if(!Write.containsKey(hostname))
 							Write.put(hostname,Double.parseDouble(cur));
 						else
 							Write.put(hostname, Write.get(hostname)+Double.parseDouble(cur));
-//						System.out.print("\tWrite cur device= "+Double.parseDouble(cur));
-//						System.out.println("\tWrite all device = "+Write.get(hostname));
 					}
 				}
-			}//else System.out.println("----------- Ignore -----------");
+			}
 		}
-		r.close();
-		p.destroy();
 	}
 }
