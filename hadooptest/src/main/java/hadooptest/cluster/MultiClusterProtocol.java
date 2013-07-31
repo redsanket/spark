@@ -33,10 +33,20 @@ public class MultiClusterProtocol {
 				theOutput = "Thanks, I got your DFS Name.";
 			}
         	else if (theInput.contains("DFS_REMOTE_LOCAL_COPY")) {
-				theOutput = "DFS_COPY_LOCAL /homes/hadoopqa/hadooptest.conf " + clientDFSName + "/user/hadoopqa/hadooptest.conf";
+        		String[] fromInputSplit = theInput.split(" ");
+        		String src = fromInputSplit[1];
+        		String dest = fromInputSplit[2];
+        		
+				theOutput = "DFS_COPY_LOCAL " + src + " " + dest;
         	}
         	else if (theInput.contains("DFS_REMOTE_DFS_COPY")) {
-				theOutput = "DFS_COPY " + clientDFSName + " /user/hadoopqa/hadooptest.conf " + TestSession.cluster.getConf().get("fs.defaultFS") + " /user/hadoopqa/hadooptest.conf.test.1";
+        		String[] fromInputSplit = theInput.split(" ");
+        		String srcDfs = fromInputSplit[1];
+        		String srcFile = fromInputSplit[2];
+        		String destDfs = fromInputSplit[3];
+        		String destFile = fromInputSplit[4];
+        		
+				theOutput = "DFS_COPY " + srcDfs + " " + srcFile + " " + destDfs + " " + destFile;
 			}
         	
         	/* Client response protocols */

@@ -57,27 +57,13 @@ public class MultiClusterServer extends Thread {
 				TestSessionCore.logger.info(outputLine);
 
 				boolean requestedVersion = false;
-				//boolean requestedDFSName = false;
-				//boolean requestedLocalCopy = false;
-				//boolean requestedDFSCopy = false;
+
 				while ((inputLine = in.readLine()) != null) {
 
 					if (!requestedVersion) {
 						requestedVersion = true;
 						out.println("RETURN_VERSION");
 					}
-					//else if (!requestedDFSName) {
-					//	requestedDFSName = true;
-					//	out.println("DFS_GET_DEFAULT_NAME");
-					//}
-					//else if (!requestedLocalCopy && !mcp.clientDFSName.equals("")) {
-					//	requestedLocalCopy = true;
-					//	out.println(mcp.processInput("DFS_REMOTE_LOCAL_COPY"));
-					//}
-					//else if (!requestedDFSCopy && !mcp.clientDFSName.equals("")) {
-					//	requestedDFSCopy = true;
-					//	out.println(mcp.processInput("DFS_REMOTE_DFS_COPY"));
-					//}
 					
 					TestSessionCore.logger.info("Client: " + inputLine);
 					outputLine = mcp.processInput(inputLine);
@@ -125,5 +111,13 @@ public class MultiClusterServer extends Thread {
 		}
 		
 		return mcp.clientDFSName;
+	}
+	
+	public void requestClientDfsRemoteLocalCopy(String src, String dest) {
+		out.println(mcp.processInput("DFS_REMOTE_LOCAL_COPY " + src + " " + dest));
+	}
+
+	public void requestClientDfsRemoteDfsCopy(String srcDfs, String srcFile, String destDfs, String destFile) {
+		out.println(mcp.processInput("DFS_REMOTE_DFS_COPY " + srcDfs + " " + srcFile + " " + destDfs + " " + destFile));
 	}
 }

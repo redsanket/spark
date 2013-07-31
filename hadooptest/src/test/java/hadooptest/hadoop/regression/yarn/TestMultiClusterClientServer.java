@@ -42,14 +42,16 @@ public class TestMultiClusterClientServer extends TestSession {
 		logger.info("Client DFS name is: " + clientDfsName);
 		
 		// Trigger the local copy of a file into the HDFS on the client instance of HTF
-		//TestSession.multiClusterServer.
+		TestSession.multiClusterServer.requestClientDfsRemoteLocalCopy("/homes/hadoopqa/hadooptest.conf", clientDfsName + "/user/hadoopqa/hadooptest.conf");
 		
 		// Perform a fs ls on the client instance of HTF to verify
+		// 1. verify we recieved the local copy result of true
+		// 2. check for the file in the fs ls
 		//TestSession.multiClusterServer.
 		
 		// Trigger the cluster-to-cluster copy of the file from the client instance of HTF
 		// DFS, to this instance of HTF DFS.
-		//TestSession.multiClusterServer.
+		TestSession.multiClusterServer.requestClientDfsRemoteDfsCopy(clientDfsName, "/user/hadoopqa/hadooptest.conf", TestSession.cluster.getConf().get("fs.defaultFS"), "/user/hadoopqa/hadooptest.conf.test.1");
 		
 		// Perform a fs ls on this instance of HTF DFS to verify that the file was
 		// copied to this DFS.
