@@ -15,6 +15,13 @@ import java.util.StringTokenizer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
+/*
+ * TestClusterCpuUsage.refreshRate	Integer.	The longest refresh rate to get IO status. Default to 0 sec.
+ * 	if it is shorter than minimum time consuming, it just do it as fast as possible. Default 1 sec.
+ * TestClusterCpuUsage.timeOutSec	Integer.	Time limit for waiting for reply.
+ * TestClusterCpuUsage.topInterval: Double.		The interval to average cpu usage. Default to 1 sec.
+ */
 public class TestClusterCpuUsage extends TestSession {
 	
 	@BeforeClass
@@ -45,8 +52,10 @@ public class TestClusterCpuUsage extends TestSession {
 		dnsInStr = dnsInStr.substring(0,dnsInStr.length()-1);
 		TestSession.logger.info("datanodes in string = "+dnsInStr);
 		
-		int refreshRate = Integer.parseInt(System.getProperty("TestClusterCpuUsage.refreshRate"));
-		
+		int refreshRate = System.getProperty("TestClusterCpuUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.refreshRate"));
+		int timeOut = System.getProperty("TestClusterCpuUsage.timeOutSec") == null? 10 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.timeOutSec"));
+		double topInterval = System.getProperty("TestClusterCpuUsage.topInterval") == null? 1.0 : Double.parseDouble(System.getProperty("TestClusterCpuUsage.topInterval"));
+
 		while(true){
 			long start = System.currentTimeMillis();
 			
@@ -56,8 +65,7 @@ public class TestClusterCpuUsage extends TestSession {
 			 * so these initial values are the percentages since boot.
 			 * So we need to run it twice to get the instantaneous CPU usage
 			 */
-			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+Integer.parseInt(System.getProperty("TestClusterCpuUsage.timeOutSec"))
-					+" -w "+dnsInStr+" top -b -n2 -d"+Double.parseDouble(System.getProperty("TestClusterCpuUsage.topInterval"))};
+			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+ timeOut +" -w "+dnsInStr+" top -b -n2 -d"+topInterval};
 
 			/*
 			 * Doing pdsh on hosts separately would greatly increase running time

@@ -106,6 +106,9 @@ FETCH_NODES_ONLY=0;
 RESTORE=0;
 WORKSPACE_ROOT="$HOME"
 SSH="/usr/bin/ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+OS_VERSION="6.4.1"
+REQ_OS="6.4";
+
 
 function usage
 {
@@ -244,11 +247,12 @@ then
     for host in `cat $CLUSTER_NODES`;do
         echo -n "$host: ";
         ver=`$SSH $host cat /etc/redhat-release`;
-        ver_req="release 6\.";
-        if (! [[ $ver =~ $ver_req ]]); then
-            echo "$ver ** need upgrade **"; 
+        CURRENT_OS_STR="current os='$ver'";
+        if (! [[ $ver =~ $REQ_OS ]]); then
+            echo "$CURRENT_OS_STR --> need upgrade to '$REQ_OS'"; 
             echo "$host" >> $UPGRADE_NODES_FILE
-        else echo "$ver";
+        else 
+            echo "$CURRENT_OS_STR";
         fi ; 
     done
 else
@@ -329,7 +333,6 @@ fi
 #################################################################################
 for host in `cat $UPGRADE_NODES_FILE`; do
     if [[ $UPDATE_OPSDB == 1 ]]; then
-        OS_VERSION="6.4.1"
         # "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --modify ysa_profile=ygrid_dn "
         echo "--> Update opsdb for host $host:";
         stty -echo
@@ -367,11 +370,13 @@ if [[ $VALIDATE == 1 ]]; then
         /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
         rc=$?
         if [[ rc -eq 0 ]]; then
+
             ver=`$SSH $host cat /etc/redhat-release 2>/dev/null`;
-            if (! [[ $ver =~ "6\." ]]); then
-                echo "Host is up but running version '$ver' ** need upgrade **"; 
+            CURRENT_OS_STR="current os='$ver'";
+            if (! [[ $ver =~ $REQ_OS ]]); then
+                echo "Host is up: $CURRENT_OS_STR --> need upgrade to '$REQ_OS'"; 
             else 
-                echo "Host is up running $ver";
+                echo "Host is up: $CURRENT_OS_STR";
                 if [[ $VALIDATE_BACKUP == 1 ]]; then
 
                     # Validate keytab files
