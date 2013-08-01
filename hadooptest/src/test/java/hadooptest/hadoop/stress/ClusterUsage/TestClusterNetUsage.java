@@ -13,6 +13,11 @@ import java.util.StringTokenizer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/*
+ * refreshRate	: Info print frequency
+ * NodeMode		: Print out Single node info
+ * timeOut		: Time limit to print info
+ */
 public class TestClusterNetUsage extends TestSession {
 	
 	@BeforeClass

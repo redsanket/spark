@@ -15,9 +15,9 @@ import org.junit.Test;
 
 
 /*
- * TestClusterIOUsage.timeOutSec:	Integer. Time limit for waiting for reply
- * TestClusterIOUsage.refreshRate: 	Integer. The longest refresh rate to get IO status. 
- * 	if it is shorter than minimum time consuming, it just do it as fast as possible
+ * refreshRate	: Info print frequency
+ * NodeMode		: Print out Single node info
+ * timeOut		: Time limit to print info
  */
 public class TestClusterIOUsage extends TestSession {
 	
@@ -52,7 +52,6 @@ public class TestClusterIOUsage extends TestSession {
 		int refreshRate = System.getProperty("TestClusterIOUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterIOUsage.refreshRate"));
 		int timeOut = System.getProperty("TestClusterIOUsage.timeOutSec") == null? 10 : Integer.parseInt(System.getProperty("TestClusterIOUsage.timeOutSec"));
 		boolean NodeMode = Boolean.parseBoolean(System.getProperty("TestClusterIOUsage.NodeMode"));
-
 		
 		while(true){
 			long start = System.currentTimeMillis();

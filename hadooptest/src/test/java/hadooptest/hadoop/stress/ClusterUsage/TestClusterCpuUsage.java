@@ -15,12 +15,10 @@ import java.util.StringTokenizer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 /*
- * TestClusterCpuUsage.refreshRate	Integer.	The longest refresh rate to get IO status. Default to 0 sec.
- * 	if it is shorter than minimum time consuming, it just do it as fast as possible. Default 1 sec.
- * TestClusterCpuUsage.timeOutSec	Integer.	Time limit for waiting for reply.
- * TestClusterCpuUsage.topInterval: Double.		The interval to average cpu usage. Default to 1 sec.
+ * refreshRate	: Info print frequency
+ * NodeMode		: Print out Single node info
+ * timeOut		: Time limit to print info
  */
 public class TestClusterCpuUsage extends TestSession {
 	
@@ -54,7 +52,6 @@ public class TestClusterCpuUsage extends TestSession {
 		
 		int refreshRate = System.getProperty("TestClusterCpuUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.refreshRate"));
 		int timeOut = System.getProperty("TestClusterCpuUsage.timeOutSec") == null? 10 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.timeOutSec"));
-		double topInterval = System.getProperty("TestClusterCpuUsage.topInterval") == null? 1.0 : Double.parseDouble(System.getProperty("TestClusterCpuUsage.topInterval"));
 		boolean NodeMode = Boolean.parseBoolean(System.getProperty("TestClusterCpuUsage.NodeMode"));
 
 		while(true){
@@ -66,7 +63,7 @@ public class TestClusterCpuUsage extends TestSession {
 			 * so these initial values are the percentages since boot.
 			 * So we need to run it twice to get the instantaneous CPU usage
 			 */
-			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+ timeOut +" -w "+dnsInStr+" top -b -n2 -d"+topInterval};
+			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+ timeOut +" -w "+dnsInStr+" top -b -n2 -d 1"};
 
 			/*
 			 * Doing pdsh on hosts separately would greatly increase running time
