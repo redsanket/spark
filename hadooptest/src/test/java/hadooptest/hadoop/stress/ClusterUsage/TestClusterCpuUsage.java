@@ -15,12 +15,10 @@ import java.util.StringTokenizer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 /*
- * TestClusterCpuUsage.refreshRate	Integer.	The longest refresh rate to get IO status. Default to 0 sec.
- * 	if it is shorter than minimum time consuming, it just do it as fast as possible. Default 1 sec.
- * TestClusterCpuUsage.timeOutSec	Integer.	Time limit for waiting for reply.
- * TestClusterCpuUsage.topInterval: Double.		The interval to average cpu usage. Default to 1 sec.
+ * refreshRate	: Info print frequency
+ * NodeMode		: Print out Single node info
+ * timeOut		: Time limit to print info
  */
 public class TestClusterCpuUsage extends TestSession {
 	
@@ -54,7 +52,7 @@ public class TestClusterCpuUsage extends TestSession {
 		
 		int refreshRate = System.getProperty("TestClusterCpuUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.refreshRate"));
 		int timeOut = System.getProperty("TestClusterCpuUsage.timeOutSec") == null? 10 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.timeOutSec"));
-		double topInterval = System.getProperty("TestClusterCpuUsage.topInterval") == null? 1.0 : Double.parseDouble(System.getProperty("TestClusterCpuUsage.topInterval"));
+		boolean NodeMode = Boolean.parseBoolean(System.getProperty("TestClusterCpuUsage.NodeMode"));
 
 		while(true){
 			long start = System.currentTimeMillis();
@@ -65,7 +63,7 @@ public class TestClusterCpuUsage extends TestSession {
 			 * so these initial values are the percentages since boot.
 			 * So we need to run it twice to get the instantaneous CPU usage
 			 */
-			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+ timeOut +" -w "+dnsInStr+" top -b -n2 -d"+topInterval};
+			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+ timeOut +" -w "+dnsInStr+" top -b -n2 -d 1"};
 
 			/*
 			 * Doing pdsh on hosts separately would greatly increase running time
@@ -78,7 +76,8 @@ public class TestClusterCpuUsage extends TestSession {
 			HashMap<String,String> dnsDomainMapCopy = new HashMap<String,String>(dnsDomainMap);
 			for(String dnsBotLevelDomainName : dnsCpuUsage.keySet()){
 				idleSum += dnsCpuUsage.get(dnsBotLevelDomainName);
-				TestSession.logger.debug(dnsBotLevelDomainName+dnsDomainMapCopy.get(dnsBotLevelDomainName)
+				if(NodeMode)
+					TestSession.logger.debug(dnsBotLevelDomainName+dnsDomainMapCopy.get(dnsBotLevelDomainName)
 						+" CPU usage is "+ new DecimalFormat("##.##").format(100-dnsCpuUsage.get(dnsBotLevelDomainName))+"%.");
 
 				if(dnsDomainMapCopy.containsKey(dnsBotLevelDomainName))
@@ -87,8 +86,9 @@ public class TestClusterCpuUsage extends TestSession {
 			
 			TestSession.logger.info("Cluster has "+livednNum+" live node(s).");
 			TestSession.logger.debug("Cluster has "+dnsDomainMapCopy.keySet().size()+" busy or dead node(s).");
-			for(String deaddn : dnsDomainMapCopy.keySet())
-				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
+			if(NodeMode)
+				for(String deaddn : dnsDomainMapCopy.keySet())
+					TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
 				
 			if(livednNum != 0)
 				TestSession.logger.info("Average cpu usage is "+ new DecimalFormat("##.##").format(100-idleSum/(double)livednNum)+"%.");

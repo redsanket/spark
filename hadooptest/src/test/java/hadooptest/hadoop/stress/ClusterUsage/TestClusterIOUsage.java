@@ -15,9 +15,9 @@ import org.junit.Test;
 
 
 /*
- * TestClusterIOUsage.timeOutSec:	Integer. Time limit for waiting for reply
- * TestClusterIOUsage.refreshRate: 	Integer. The longest refresh rate to get IO status. 
- * 	if it is shorter than minimum time consuming, it just do it as fast as possible
+ * refreshRate	: Info print frequency
+ * NodeMode		: Print out Single node info
+ * timeOut		: Time limit to print info
  */
 public class TestClusterIOUsage extends TestSession {
 	
@@ -51,7 +51,7 @@ public class TestClusterIOUsage extends TestSession {
 		
 		int refreshRate = System.getProperty("TestClusterIOUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterIOUsage.refreshRate"));
 		int timeOut = System.getProperty("TestClusterIOUsage.timeOutSec") == null? 10 : Integer.parseInt(System.getProperty("TestClusterIOUsage.timeOutSec"));
-		
+		boolean NodeMode = Boolean.parseBoolean(System.getProperty("TestClusterIOUsage.NodeMode"));
 		
 		while(true){
 			long start = System.currentTimeMillis();
@@ -64,21 +64,23 @@ public class TestClusterIOUsage extends TestSession {
 			 */
 			String[] cpuCmd  = {"bash", "-c", "pdsh -u "+timeOut+" -w "+dnsInStr+" iostat -d 1 2"};
 
-			HashMap<String, Double> Read = new HashMap<String, Double>();
-			HashMap<String, Double> Write = new HashMap<String,Double>();
+			HashMap<String, Float> Read = new HashMap<String, Float>();
+			HashMap<String, Float> Write = new HashMap<String,Float>();
 			/*
 			 * Doing pdsh on hosts separately would greatly increase running time
 			 */
 			GetIOUsage(cpuCmd,Read,Write);
 			
 			HashMap<String,String> dnsDomainMapCopy = new HashMap<String,String>(dnsDomainMap);
-			Double ReadSum = 0.0,WriteSum = 0.0;
+			float ReadSum = 0,WriteSum = 0;
 			for(String hostname : Read.keySet()){
 				
 				ReadSum += Read.get(hostname);
 				WriteSum += Write.get(hostname);
-				TestSession.logger.info(hostname.substring(0,hostname.length()-1)+" read rate "+Read.get(hostname)+"/s");
-				TestSession.logger.info(hostname.substring(0,hostname.length()-1)+" write rate "+Write.get(hostname)+"/s");
+				if(NodeMode){
+					TestSession.logger.info(hostname.substring(0,hostname.length()-1)+" read rate "+ConvertUnit.convertUnit(Read.get(hostname))+"/s");
+					TestSession.logger.info(hostname.substring(0,hostname.length()-1)+" write rate "+ConvertUnit.convertUnit(Write.get(hostname))+"/s");
+				}
 				
 				if(dnsDomainMapCopy.containsKey(hostname.substring(0,hostname.length()-1)))
 					dnsDomainMapCopy.remove(hostname.substring(0,hostname.length()-1));
@@ -86,17 +88,18 @@ public class TestClusterIOUsage extends TestSession {
 			
 			TestSession.logger.info("Cluster has "+Read.size()+" live node(s).");
 			TestSession.logger.debug("Cluster has "+dnsDomainMapCopy.keySet().size()+" busy or dead node(s).");
-			for(String deaddn : dnsDomainMapCopy.keySet())
-				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
+			if(NodeMode)
+				for(String deaddn : dnsDomainMapCopy.keySet())
+					TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
 			
-			TestSession.logger.info("Total Read rate "+ReadSum+"/s.");
-			TestSession.logger.info("Total Write rate "+WriteSum+"/s.");
+			TestSession.logger.info("Total Read rate "+ConvertUnit.convertUnit(ReadSum)+"/s.");
+			TestSession.logger.info("Total Write rate "+ConvertUnit.convertUnit(WriteSum)+"/s.");
 			Thread.sleep(refreshRate*1000-(System.currentTimeMillis()-start) > 0 ? refreshRate*1000-(System.currentTimeMillis()-start):0);
 			TestSession.logger.info("============= One Loop use "+(System.currentTimeMillis()-start)/1000F+" secs. =============");
 		}
 	}
 	
-	public void GetIOUsage(String[] cmd,HashMap<String, Double> Read,HashMap<String, Double> Write) throws IOException {
+	public void GetIOUsage(String[] cmd,HashMap<String, Float> Read,HashMap<String, Float> Write) throws IOException {
 		
 		Process p = Runtime.getRuntime().exec(cmd);
 		HashMap<String,Boolean> dnsMap = new HashMap<String,Boolean>();
@@ -133,15 +136,15 @@ public class TestClusterIOUsage extends TestSession {
 						if((cur.charAt(cur.length()-1) >='0') && (cur.charAt(cur.length()-1) <= '9'))	break;
 					}else if(index == Blk_read){
 						if(!Read.containsKey(hostname))
-							Read.put(hostname, Double.parseDouble(cur));
+							Read.put(hostname, Float.parseFloat(cur));
 						else
-							Read.put(hostname, Read.get(hostname)+Double.parseDouble(cur));
+							Read.put(hostname, Read.get(hostname)+Float.parseFloat(cur));
 					}
 					else if(index == Blk_wrtn){
 						if(!Write.containsKey(hostname))
-							Write.put(hostname,Double.parseDouble(cur));
+							Write.put(hostname,Float.parseFloat(cur));
 						else
-							Write.put(hostname, Write.get(hostname)+Double.parseDouble(cur));
+							Write.put(hostname, Write.get(hostname)+Float.parseFloat(cur));
 					}
 				}
 			}

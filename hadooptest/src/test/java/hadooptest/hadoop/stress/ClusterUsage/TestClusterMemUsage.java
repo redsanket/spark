@@ -16,10 +16,6 @@ import org.junit.Test;
 
 public class TestClusterMemUsage extends TestSession {
 	
-	final long kilo = 1024;
-	final long mega = kilo*1024;
-	final long giga = mega*1024;
-	final long tera = giga*1024;
 	
 	@BeforeClass
 	public static void startTestSession() {
@@ -36,11 +32,15 @@ public class TestClusterMemUsage extends TestSession {
 				for(String s : nodes.get(str).keySet())
 					rmaddr = s;
 		
-		int refreshRate = System.getProperty("TestClusterMemUsage.refreshRate") == null? 2 : Integer.parseInt(System.getProperty("TestClusterMemUsage.refreshRate"));
+		int refreshRate = System.getProperty("TestClusterMemUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterMemUsage.refreshRate"));
+		boolean NodeMode = Boolean.parseBoolean(System.getProperty("TestClusterMemUsage.NodeMode"));
+
 		while(true){
 			long start = System.currentTimeMillis();
 		
-			GetClusterNodesMem(rmaddr);
+			if(NodeMode)
+				GetClusterNodesMem(rmaddr);
+			
 			GetClusterMem(rmaddr);
 			
 			Thread.sleep(refreshRate*1000-(System.currentTimeMillis()-start) > 0 ? refreshRate*1000-(System.currentTimeMillis()-start):0);
@@ -79,7 +79,6 @@ public class TestClusterMemUsage extends TestSession {
 		    throw new IOException(conn.getResponseMessage());
 		
 		long availableMem = 0, allocatedMem = 0,totalMem = 0;
-		// Buffer the result into a string
 		BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		String line;
 		while ((line = rd.readLine()) != null) {
@@ -89,29 +88,16 @@ public class TestClusterMemUsage extends TestSession {
 				int index = cur.indexOf(':');
 
 				if(cur.contains("availableMB"))
-					availableMem = Long.parseLong(cur.substring(index+1))*mega;
+					availableMem = Long.parseLong(cur.substring(index+1))*ConvertUnit.mega;
 				if(cur.contains("allocatedMB"))
-					allocatedMem = Long.parseLong(cur.substring(index+1))*mega;
+					allocatedMem = Long.parseLong(cur.substring(index+1))*ConvertUnit.mega;
 				if(cur.contains("totalMB"))
-					totalMem = Long.parseLong(cur.substring(index+1))*mega;
+					totalMem = Long.parseLong(cur.substring(index+1))*ConvertUnit.mega;
 			}
 		}
-		TestSession.logger.info("Cluster Summary : availableMem = "+convertUnit(availableMem)
-				+",allocatedMem = "+convertUnit(allocatedMem)+",totalMem = "+convertUnit(totalMem));
+		TestSession.logger.info("Cluster Summary : availableMem = "+ConvertUnit.convertUnit(availableMem)
+				+",allocatedMem = "+ConvertUnit.convertUnit(allocatedMem)+",totalMem = "+ConvertUnit.convertUnit(totalMem));
 		rd.close();
 		conn.disconnect();
-	}
-	
-	public String convertUnit(long input){
-		String mem = Long.toString(input);
-		if(input > tera)
-			mem = Float.toString((float)input/(float)tera) + 'T';
-		else if (input > giga)
-			mem = Float.toString((float)input/(float)giga) + 'G';
-		else if (input > mega)
-			mem = Float.toString((float)input/(float)mega) + 'M';
-		else if (input > kilo)
-			mem = Float.toString((float)input/(float)kilo) + 'K';
-		return mem;
 	}
 }
