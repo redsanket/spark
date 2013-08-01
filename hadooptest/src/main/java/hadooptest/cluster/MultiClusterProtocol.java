@@ -1,14 +1,15 @@
 package hadooptest.cluster;
 
-import coretest.Util;
-import hadooptest.TestSession;
+import java.io.IOException;
 
+import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 
 public class MultiClusterProtocol {
 	 
 	public String clientVersion = "";
 	public String clientDFSName = "";
+	public boolean fileExists = false;
 	
     public String processInput(String theInput) {
         String theOutput = null;
@@ -39,6 +40,22 @@ public class MultiClusterProtocol {
         		
 				theOutput = "DFS_COPY_LOCAL " + src + " " + dest;
         	}
+        	else if (theInput.contains("DFS_REMOTE_DFS_LS_FILE_EXISTS")) {
+        		fileExists = false;
+        		String [] fromInputSplit = theInput.split(" ");
+        		String path = fromInputSplit[1];
+        		
+        		theOutput = "DFS_LS_FILE_EXISTS " + path;
+        	}
+        	else if (theInput.contains("DFS_LS_FILE_EXISTS_CLIENT_RESPONSE")) {
+        		String [] fromInputSplit = theInput.split(" ");
+        		if (fromInputSplit[2].contains("true")) {
+        			fileExists = true;
+        		}
+        		else {
+        			fileExists = false;
+        		}
+        	}
         	else if (theInput.contains("DFS_REMOTE_DFS_COPY")) {
         		String[] fromInputSplit = theInput.split(" ");
         		String srcDfs = fromInputSplit[1];
@@ -60,6 +77,22 @@ public class MultiClusterProtocol {
 			else if (theInput.contains("DFS_GET_DEFAULT_NAME")) {
         		theOutput = "CLIENT DFS DEFAULT NAME = " + TestSession.cluster.getConf().get("fs.defaultFS");
         	}
+			else if (theInput.contains("DFS_LS_FILE_EXISTS")) {
+				String[] fromServerSplit = theInput.split(" ");
+				String path = fromServerSplit[1];
+				
+				DFS dfs = new DFS();
+				
+				try {
+					boolean response = dfs.fileExists(path);
+					
+					theOutput = "DFS_LS_FILE_EXISTS_CLIENT_RESPONSE = " + response;
+				}
+				catch (IOException ioe) {
+					theOutput = "DFS_LS_FILE_EXISTS_CLIENT_RESPONSE = false " + 
+								"- EXCEPTION: " + ioe.getMessage();
+				}
+			}
 			else if (theInput.contains("DFS_COPY_LOCAL ")) {
 				try {
 					DFS dfs = new DFS();

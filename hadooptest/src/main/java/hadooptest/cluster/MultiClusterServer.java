@@ -105,7 +105,7 @@ public class MultiClusterServer extends Thread {
 			if (timeout <= 0) { 
 				TestSession.logger.debug("Waited for the client DFS name " + 
 						"response for " + timeout + " seconds, and there " + 
-						"was no reponse.  Timing out.");
+						"was no response.  Timing out.");
 				break; 
 			}
 		}
@@ -119,5 +119,29 @@ public class MultiClusterServer extends Thread {
 
 	public void requestClientDfsRemoteDfsCopy(String srcDfs, String srcFile, String destDfs, String destFile) {
 		out.println(mcp.processInput("DFS_REMOTE_DFS_COPY " + srcDfs + " " + srcFile + " " + destDfs + " " + destFile));
+	}
+
+	public boolean requestClientDfsLs(String path, int timeout) throws InterruptedException {
+		out.println(mcp.processInput("DFS_REMOTE_DFS_LS_FILE_EXISTS " + path));
+		
+		while (mcp.fileExists == false) {
+			Util.sleep(1);
+			timeout--;
+			TestSession.logger.info("Waiting for client DFS FS LS file exists response.");
+			
+			if (mcp.fileExists == true) {
+				return true;
+			}
+			
+			if (timeout <= 0) {
+				TestSession.logger.debug("Waited for the client DFS LS file exists " + 
+								"response for " + timeout + " seconds, and there " +
+								"was no response.  Timing out.");
+				break;
+			}
+			
+		}
+		
+		return false;
 	}
 }
