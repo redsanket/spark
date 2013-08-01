@@ -19,6 +19,7 @@ echo "Number of clusters in $IGOR_NS = '$NUM_CLUSTERS'"
 
 printf "%-25s%-28s%s\n" "cluster" "os" "comment"
 printf "%-25s%-28s%s\n" "=======" "==" "======="
+OPSDB="opsdb_"
 for cluster in `cat $CLUSTERS_FILE|cut -d "." -f3`; do
     NEED_UPGRADE=0
     NODES=`igor fetch -members $IGOR_NS.$cluster`;
@@ -28,7 +29,7 @@ for cluster in `cat $CLUSTERS_FILE|cut -d "." -f3`; do
     CURRENT_OS="";
     if [[ -n $NODES ]]; then
         NODES_=`echo -e -n $NODES|tr ' ' ','|sed 's/[ \t]*$//'|sed 's/\s/,/g'`
-        CURRENT_OS=`opsdb-exp --getentry ysa_os_version --host $NODES_ 2> /dev/null |cut -d" " -f4|sort -u`
+        CURRENT_OS=`$OPSDB --getentry ysa_os_version --host $NODES_ 2> /dev/null |cut -d" " -f4|sort -u`
         CURRENT_OS=`echo -e -n $CURRENT_OS|sort -u|tr '\n' ' '|sed 's/[ \t]*$//'|sed 's/\s/, /g'`;
         if ([[ $CURRENT_OS != "6.4.1" ]]); then
              NEED_UPGRADE=1
