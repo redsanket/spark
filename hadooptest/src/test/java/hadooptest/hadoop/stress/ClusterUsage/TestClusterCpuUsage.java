@@ -55,6 +55,7 @@ public class TestClusterCpuUsage extends TestSession {
 		int refreshRate = System.getProperty("TestClusterCpuUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.refreshRate"));
 		int timeOut = System.getProperty("TestClusterCpuUsage.timeOutSec") == null? 10 : Integer.parseInt(System.getProperty("TestClusterCpuUsage.timeOutSec"));
 		double topInterval = System.getProperty("TestClusterCpuUsage.topInterval") == null? 1.0 : Double.parseDouble(System.getProperty("TestClusterCpuUsage.topInterval"));
+		boolean NodeMode = Boolean.parseBoolean(System.getProperty("TestClusterCpuUsage.NodeMode"));
 
 		while(true){
 			long start = System.currentTimeMillis();
@@ -78,7 +79,8 @@ public class TestClusterCpuUsage extends TestSession {
 			HashMap<String,String> dnsDomainMapCopy = new HashMap<String,String>(dnsDomainMap);
 			for(String dnsBotLevelDomainName : dnsCpuUsage.keySet()){
 				idleSum += dnsCpuUsage.get(dnsBotLevelDomainName);
-				TestSession.logger.debug(dnsBotLevelDomainName+dnsDomainMapCopy.get(dnsBotLevelDomainName)
+				if(NodeMode)
+					TestSession.logger.debug(dnsBotLevelDomainName+dnsDomainMapCopy.get(dnsBotLevelDomainName)
 						+" CPU usage is "+ new DecimalFormat("##.##").format(100-dnsCpuUsage.get(dnsBotLevelDomainName))+"%.");
 
 				if(dnsDomainMapCopy.containsKey(dnsBotLevelDomainName))
@@ -87,8 +89,9 @@ public class TestClusterCpuUsage extends TestSession {
 			
 			TestSession.logger.info("Cluster has "+livednNum+" live node(s).");
 			TestSession.logger.debug("Cluster has "+dnsDomainMapCopy.keySet().size()+" busy or dead node(s).");
-			for(String deaddn : dnsDomainMapCopy.keySet())
-				TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
+			if(NodeMode)
+				for(String deaddn : dnsDomainMapCopy.keySet())
+					TestSession.logger.debug(deaddn+dnsDomainMapCopy.get(deaddn)+" is busy or dead.");
 				
 			if(livednNum != 0)
 				TestSession.logger.info("Average cpu usage is "+ new DecimalFormat("##.##").format(100-idleSum/(double)livednNum)+"%.");
