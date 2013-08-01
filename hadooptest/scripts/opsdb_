@@ -1,0 +1,1659 @@
+#!/usr/local/bin/perl -w
+
+=head1 NAME
+
+opsdb - command line client for the OpsDB web API.
+
+=head1 EXAMPLES
+
+List all hosts in the SPA colo:
+
+    opsdb --field site=spa --field type=host
+
+Detailed information about all hosts in the SPA colo:
+
+    opsdb --getentry --field site=spa --field type=host
+
+Detailed information about one host:
+
+    opsdb --getentry --fqdn sa2ac4.ysm.ac4.yahoo.com
+    
+List all hosts in the media.base role that have their clone flag turned on:
+
+    opsdb --role media.base --field ysa_clone=1
+
+Rebuild the machine "ybiip03.ops.stg.test.sp2.yahoo.com":
+
+    opsdb --fqdn ybiip03.ops.stg.test.sp2.yahoo.com --modify ysa_clone=1 \
+          --modify ysa_os_name=RHEL --modify ysa_os_version=4u8
+
+Group metadata for "systems_admins":
+
+    opsdb --usergroups --name systems_admins --getent
+
+List all users in the group "systems_admins":
+
+    opsdb --users --group systems_admins
+
+Detailed information about "dmitry":
+
+    opsdb --users --name dmitry --getent
+
+List of usergroups that "dmitry" is in:
+
+    opsdb --users --name dmitry --getgroups
+
+Show information for the subnet "67.195.20.0/24":
+
+    opsdb --subnet --cidr 67.195.20.0/24 --getent
+
+Show information for the site "ne1":
+
+    opsdb --site --name ne1 --getent
+
+Show contacts for the property "messenger.us":
+
+    opsdb --contacts --entity property:messenger.us
+
+Check if "dmitry" is an administrator for the property "messenger.us":
+
+    opsdb --contacts --entity property:messenger.us --level admin --check dmitry
+
+=head1 DESCRIPTION
+
+This is a wrapper around the Yahoo::OpsDB::Client perl module, which you should
+have received from the same source that you got this perl script from. If
+you would like to use the API directly in your own program, consult its POD
+using:
+
+    perldoc Yahoo::OpsDB::Client
+    
+The Yahoo::OpsDB::Client module, and by extension this program, ultimately call
+the OpsDB HTTP API. More information about that service is available at:
+
+    http://twiki.corp.yahoo.com/view/Opstools/Opsdb_api
+
+The basic workflow of this tool is a three-step process:
+
+=over
+
+=item 1. Establish a connection
+
+The connection to OpsDB requires three parameters: a webservice URL,
+a username, and a password. These can be supplied on the command line
+or through a configuration file.
+
+If you do not provide any of these details, the default is to attempt Bouncer
+authentication against the production OpsDB API using your current login name.
+
+=item 2. Build a list of objects
+
+A list of hostnames or user names is gathered from OpsDB, RolesDB, standard input, 
+a file, and/or the command line. B<hostnames> are the default object; you can switch
+to alternative modes using C<--users>, C<--usergroups>, C<--subnets>, or C<--dictionary>.
+See below for more information.
+
+=item 3. Perform an action
+
+The default action, if none is specified, is to list the objects that
+were gathered in step 2. If another action is specified, it will take 
+precedence.
+
+=back
+
+=head1 OPTIONS
+
+opsdb [OPTIONS]
+
+=head2 Connection Details
+
+=over
+
+=item --ws-url
+
+OpsDB webservice URL (default: http://api.opsdb.ops.yahoo.com:4080/)
+
+=item --username
+
+The username to use when authenticating to OpsDB. If not specified defaults 
+to the current user.
+
+=item --password
+
+The password to use. This can be the literal password or the name of a KeyDB
+key. If using KeyDB, write it like "keydb://keyns.keyname".
+
+=item --cf
+
+A configuration file that contains API account information. The default is
+"~/.opsdbcli". See the next section for format information.
+
+=item --use-proxy
+
+Use the Yahoo! SOCKS proxy, socks.yahoo.com:1080.
+
+=item --debug
+
+Enable debugging, which will show the request and response to and from OpsDB.
+
+=back
+
+=head2 Host List Generation
+
+=over
+
+=item --field
+
+Search criteria, for example:
+
+    --field site=ac4
+    --field type=host
+
+Multiple criteria can be entered, for example:
+
+    --field site=ac4
+    --field property=ysm.us
+
+If multiple fields are specified, only hosts that match all fields will be
+returned. Hostnames are always matched as regular expressions.
+
+Searching is done through Nodes.Find, so valid fields are anything 
+recognized by that method. See:
+
+    http://twiki.corp.yahoo.com/view/Opstools/Opsdb_V3_Nodes_Find
+
+For compatibility with the centcom client, it is acceptable to use the 
+following substitutes:
+
+"facilityalias" instead of "site"
+
+"hostname" instead of "name"
+
+"macaddr" instead of "mac"
+
+=item --hostname
+
+Adds the specified hostnames, matched as regular expressions. This is mostly
+equivalent to "--field hostname=XXX", with the primary difference being that
+it can be specified multiple times. If this is done, one independent search
+will be run for each instance of --hostname, each one done including all
+--field options specified. The results of each search will be added together.
+
+=item --fqdn
+
+Fully qualified hostname, no regex matching. These hosts are added to the
+list generated by --field and --hostname. This is much faster than using
+--hostname since no regular expression matching or searching is performed.
+
+=item --fqdnfile
+
+Read FQDNs from the specified file:
+
+    --fqdnfile myhostfile.txt
+
+If this is "-", standard input will be used. These hosts are added to the
+list generated by --field and --hostname. This option is equivalent to
+specifying "--fqdn" multiple times.
+
+=item --role
+
+Only show hosts that belong to this role in RolesDB. This option may be
+specified multiple times. Requires roles_client to be installed. If --field,
+--hostname, --fdqn, or --fqdnfile are specified, this acts as a filter. If
+none of those are given, the final list of hosts will be all hosts that are
+members of every role specified.
+
+If you only use this option, --fqdn, and --fdqnfile (not --field or
+--hostname) then you do not need OpsDB access.
+
+You may not be able to access RolesDB from production without going through a
+dist mirror. This is currently unsupported by this client, although the
+roles_client API allows it.
+
+=item --customfield
+
+Get hosts with a particular custom field set to any value:
+
+    --customfield AdvApps-Display.Environment
+
+Or to a particular value:
+
+    --customfield AdvApps-Display.Environment=staging
+
+This is backed by the API call C</V3/CustomField.Find>.
+
+=item --nodegroup
+
+Select hosts that are members of a particular nodegroup. The nodegroup name must
+be fully qualified with its property, for example:
+
+    --nodegroup ybiip_test_clients.ops.us
+
+This is backed by the API call C</V3/NodeGroup.GetMembers>. See
+L<http://twiki.corp.yahoo.com/view/Opstools/Opsdb_V3_NodeGroup_GetMembers>.
+
+=item --samebp
+
+Find nodes on the same backplane as the host provided
+
+    --role ybiip.bootserver --samebp web200.ysm.ac2.yahoo.com
+  
+This is the same as using --field backplane=BACKPLANE and --field site=SITE,
+where BACKPLANE and SITE are the values for the host in question.
+
+=back
+
+=head2 Host Actions
+
+=over
+
+=item --getentry
+
+Get details instead of simply returning a list of hosts:
+
+    --fqdn web10jp1.ysm.jp1.yahoo.com --getentry
+  
+This will show all fields. If you wish to filter the output, specify desired fields as
+a comma-separated list without whitespace after --getentry, like:
+
+    --getentry mac,console
+
+If OpsDB does not have one of the fields you asked for, an error will be emitted and the
+program will exit unsuccessfully.
+
+This is backed by the API call C</V3/Node.Get>.
+
+=item --csv
+
+Build a CSV file with data for these nodes. Without any arguments, this will just report
+the node ID and node name:
+
+    opsdb --field site=spa --csv
+
+With arguments, extra fields will be added. The specific field names you can use are the same
+as those supported by Nodes.Find; see L<http://twiki.corp.yahoo.com/view/Opstools/Opsdb_V3_Nodes_Find>.
+For example, to show property and model fields:
+
+    opsdb --field site=spa --csv property,model
+
+This is backed by the API call C</V3/Nodes.Find>.
+
+=item --tsv
+
+Like C<--csv>, but tab-separated instead of comma-separated.
+
+=item --getnetwork
+
+Get subnet details for hosts instead of simply returning a list:
+   
+    --fqdn web10jp1.ysm.jp1.yahoo.com --getnetwork
+
+This will show all fields. If you wish to filter the output, specify desired fields as
+a comma-separated list without whitespace after --getnetwork, like:
+
+    --getnetwork ip,vlan
+
+If OpsDB does not have one of the fields you asked for, an error will be emitted and the
+program will exit unsuccessfully.
+
+This is backed by the API call C</V3/Subnet.Get>.
+
+=item --getallcontacts
+
+Returns node contacts according to YNOC escalation procedures (includes nodegroup and 
+property contacts):
+
+    --fqdn web10jp1.ysm.jp1.yahoo.com --getallcontacts
+
+This is backed by the API call C</V3/Contact.NodeEscalations>.
+
+=item --getcontacts
+
+Get individual node contacts (does not include nodegroup and property contacts):
+   
+    --fqdn web10jp1.ysm.jp1.yahoo.com --getcontacts
+
+This is backed by the API call C</V3/Contact.Get>.
+
+=item --getgroups
+
+Get a list of node groups for each node.
+
+    --fqdn web10jp1.ysm.jp1.yahoo.com --getgroups
+
+This is backed by the API call C</V3/NodeGroup.List>.
+
+=item --cfget
+
+Get custom fields for hosts instead of simply returning a list:
+
+    --fqdn web10jp1.ysm.jp1.yahoo.com --cfget
+
+If you wish to filter the output, specify desired fields as a comma-separated
+list without whitespace, in the format "ns.key". For example, to fetch the fields
+"x" and "y" in the namespace "test":
+
+    --cfget test.x,test.y
+
+This is backed by the API call C</V3/CustomField.Get>. For more information about custom
+fields, see L<http://twiki.corp.yahoo.com/view/Opstools/OpsDB_Custom_Fields>.
+
+=item --cfset
+
+Set the custom field value for a host:
+
+    --fqdn web10jp1.ysm.jp1.yahoo.com --cfset test.foo=bar
+
+This is backed by the API call C</V3/CustomField.Set>. For more information about custom
+fields, see L<http://twiki.corp.yahoo.com/view/Opstools/OpsDB_Custom_Fields>.
+
+=item --cfadd
+
+Add a value to a particular custom field. This adds the value "bar" to the key "foo"
+in the namespace "test":
+
+    --fqdn web10jp1.ysm.jp1.yahoo.com --cfadd test.foo=bar
+
+This is backed by the API call C</V3/CustomField.Add>. For more information about custom
+fields, see L<http://twiki.corp.yahoo.com/view/Opstools/OpsDB_Custom_Fields>.
+
+=item --cfremove
+
+Remove a value from a particular custom field. This removes the value "bar" from the key "foo"
+in the namespace "test":
+
+    --fqdn web10jp1.ysm.jp1.yahoo.com --cfremove test.foo=bar
+
+This is backed by the API call C</V3/CustomField.Remove>. For more information about custom
+fields, see L<http://twiki.corp.yahoo.com/view/Opstools/OpsDB_Custom_Fields>.
+  
+=item --modify
+
+Interface to Node.Update. This option may be provided repeatedly, and all
+changes will be made to all hosts. This option will be ignored if --getentry
+is given. A list of hosts that were successfully modified will be provided
+over STDOUT, while error messages will be printed on STDERR.
+
+Since Node.Update requires a valid Yahoo! user name and not just an OpsDB API
+user, this will send the value of the environment variable $LOGNAME.
+
+Normally, you cannot use this to assign unresolvable hostnames. If you want
+to override this, add '--force'.
+
+    --fqdn sa1ac4.ysm.ac4.yahoo.com --modify ysa_clone=1
+
+=item --build
+
+Interface to Node.Update, designed to provide an easy way to change the ysa_*
+fields. Separate the values you want with spaces, commas, or colons, and it
+will attempt to figure out what you want. It should be pretty good at doing
+so. You can also just provide '--build' by itself, and it will turn on the
+clone flag but change nothing else.
+
+=item --getnr [short]
+
+B<Experimental> interface to the NodeReg host.dump API. The implementation of
+this option may change in a future version.
+
+C<--getnr> directly translates JSON from the API into YAML  for on-screen display,
+since it's somewhat easier to read that way. C<--getnr short> attempts to display
+the data hwconfig-style, although still indexed by hostname.
+
+=back
+
+For more information about the NodeReg API, see L<http://twiki.corp.yahoo.com/view/Opstools/NodregAPI>.
+
+=head2 Users Mode
+
+To trigger this mode (dealing with users instead of hosts), pass the 
+C<--users> option.
+
+To select users, you can use C<--name foo> (exact usernames), C<--group bar>
+(users in a particular usergroup), or C<--group_id 1234> (users in a particular
+usergroup, by ID).
+
+The default action is to simply list all matching users. Other actions are
+C<--getentry> (show full details of matching users) and C<--getgroups> (show
+details for usergroups that the matching users are in).
+
+For example, to view all users in the group "systems_admins", run:
+
+    opsdb --users --group systems_admins
+
+To view detailed information for those users:
+
+    opsdb --users --group systems_admins --getent
+
+=head2 Usergroups Mode
+
+To trigger this mode (dealing with usergroups instead of hosts), pass the 
+C<--usergroups> option.
+
+To select usergroups, you can use C<--name foo> (exact usergroup name), 
+C<--type bar> (usergroups of a particular usergroup), or C<--id 1234> (exact
+usergroup ID). You may combine these options.
+
+When searching on C<--name>, you may also additionally specify a C<--match_type>
+to search by regex or like pattern instead of exact name (e.g. C<--match_type rlike>
+or C<--match_type like>).
+
+The default action is to simply list all matching usergroups. To see full
+usergroup details, pass C<--getentry>.
+
+For example, to see full usergroup details of "systems_admins", run:
+
+    opsdb --usergroups --name systems_admins --getent
+
+=head2 Subnets Mode
+
+To trigger this mode (dealing with subnets instead of hosts), pass the 
+C<--subnets> option.
+
+To select subnets, you can use C<--ip 1.2.3.4> (subnets containing an IP),
+C<--cidr 1.2.3.0/24> (subnets containing a CIDR), or C<--hostname foo> (subnets
+containing a hostname, based on the API server's resolver). You may also
+select all subnets matching a site or backplane by passing C<--site foo>
+or C<--backplane bar> (you may mix these options).
+
+By default, only one subnet per ip/cidr/hostname is selected. If you want to
+select its parents as well, pass C<--parents> in addition to one of those options.
+To see its children, pass C<--children>.
+
+By default, all subnets are shown (including inactive ones). To select only active
+subnets, pass C<--active>.
+
+The default action is to simply list all matching CIDRs. To see full
+subnet details, pass C<--getentry>.
+
+For example, to see details for the subnet "209.131.50.18/32":
+
+    opsdb --subnets --cidr 209.131.50.18/32 --getent
+
+To see every network containing "ybiip02.ops.stg.test.sp2.yahoo.com":
+
+    opsdb --subnets --fqdn ybiip02.ops.stg.test.sp2.yahoo.com --parents
+
+To list out subnets in the BF1 colo on backplane 1-CLD:
+
+    opsdb --subnets --site bf1 --backplane 1-cld
+
+=head2 Dictionary Mode
+
+The dictionary is an internal OpsDB structure used for runtime-editable enumerations
+like ybiip profiles, contact types, etc. To trigger this mode (dealing with dictionary
+entries instead of hosts), pass the  C<--dictionary> option.
+
+To select dictionary entries, you may use C<--id foo> (entries by ID), C<--name bar>
+(entries by name), or C<--parent qux> (entries with a particular parent; the dictionary
+table is hierarchical).
+
+The default action is to simply list all matching entries. To see full details, 
+pass C<--getentry>.
+
+For example, to list all selectable install profiles:
+
+    opsdb --dictionary --parent profile
+
+=head2 Sites Mode
+
+Sites, a.k.a. colos, a.k.a. datacenters, have information about them stored in OpsDB.
+To trigger this mode (dealing with site entries instead of hosts), pass the
+C<--sites> option.
+
+To select sites, you may use C<--id foo> (sites by ID), C<--name bar>
+(sites by name), C<--country qux> (sites by country code), C<--region NAM> (sites by
+region), or C<--type xxx> (sites by type).
+
+Valid types include "datacenter", "office", "pop", and possibly others.
+
+You may also pass C<--all> to get a list of all sites.
+
+The default action is to simply list all matching sites. To see full details, 
+pass C<--getentry>.
+
+For example, to list all sites in the United States:
+
+    opsdb --site --country US
+
+To get detailed info for "ne1":
+
+    opsdb --site --name ne1 --getent
+
+By default, inactive sites are filtered out, even if you pass C<--all>. To include
+inactive sites, pass C<--inactive>.
+
+=head2 Contacts Mode
+
+OpsDB entities (properties, nodes, roles, etc) generally have contacts attached to
+them, which are used for determining administrative access and escalation points. To
+trigger contacts mode, use the C<--contacts> option.
+
+Valid options in contacts mode include:
+
+=over
+
+=item --entity <type>:<name>
+
+Required. This should be something like C<--entity property:ops.us> or
+C<--entity role:messenger.all>. See L<http://twiki.corp.yahoo.com/view/Opstools/Opsdb_V3_Contact_Get>
+for a list of entity types.
+
+=item --level <level>
+
+Optional. This should be something like C<admin>, C<creator>, C<paranoid>, etc. If left off,
+the OpsDB API will return all flavors of contacts. See L<http://twiki.corp.yahoo.com/view/Opstools/Opsdb_V3_Contact_Get>
+for a list of contact flavors.
+
+=item --expand
+
+Normally, if a user group is attached as a contact, you will be shown the name of the user 
+group. If C<--expand> is provided, the CLI will attempt to expand user groups into a list 
+of users. Not compatible with C<--check>.
+
+=item --check <username>
+
+Normally, the CLI will list all contacts. If <--check> is provided, it will instead ask OpsDB if
+C<username> is a valid contact for the entity and level provided. Not compatible with C<--expand>.
+
+=back
+
+For example, to list all admin contacts for the property C<ops.us>:
+
+    opsdb -contacts -level admin -entity property:ops.us
+
+To check if "dmitry" is an admin contact:
+
+    opsdb -contacts -level admin -entity property:ops.us -check dmitry
+
+To find contacts for a node:
+
+    opsdb -contacts -entity node:zwei101.atl.msg.sp2.yahoo.com
+
+Contacts mode is backed by the API calls C</V3/Contact.Get> and C</V3/Contact.IsContact>.
+
+=head2 Merge Mode
+
+Merges two node entries in OpsDB. For documentation on the OpsDB merge functionality, see
+L<http://twiki.corp.yahoo.com/view/Opstools/Opsdb_V3_Node_Merge>.
+
+Valid options in merge mode include:
+
+=over
+
+=item -f, --file
+
+Name of a CSV file to take input from. Each line must have two fields, which will be sent to OpsDB
+as C<node1> and C<node2> (refer to OpsDB documentation for the meaning of these fields). If the file
+is C<->, STDIN will be used. Processing will stop if any OpsDB errors are encountered. Badly formatted
+lines will trigger warnings and then be ignored.
+
+This option is not allowed together with the C<--from> and C<--to> options.
+
+=item --from
+
+Name of the C<node1> to send to OpsDB (refer to OpsDB documentation for the meaning of this field).
+
+This option should be used with the C<--to> option. It is not allowed together with the
+C<--file> option.
+
+=item --to
+
+Name of the C<node2> to send to OpsDB (refer to OpsDB documentation for the meaning of this field).
+
+This option should be used with the C<--from> option. It is not allowed together with the
+C<--file> option.
+
+=item --field
+
+Name of a field that should be merged. Can be specified multiple times.
+
+=back
+
+For example, to merge nodes from C<merge.csv>:
+
+    opsdb -merge -file merge.csv
+
+To merge C<foo.yahoo.com> and C<bar.yahoo.com>:
+
+    opsdb -merge -from foo.yahoo.com -to bar.yahoo.com
+
+To merge fields C<property> and C<name> for nodes in C<merge.csv>:
+
+    opsdb -merge -file merge.csv -field property -field name
+
+=head1 CONFIGURATION FILES
+
+No configuration file is necessary, but if one is present it can store the
+API account information you wish to use. The format should be something like:
+
+    WebService  http://api.opsdb.ops.yahoo.com:4080/
+    User        my_user_name
+    Password    keydb://my_keydb_keyname
+    UseProxy    no
+
+If any of those lines are not present, the default will be used. Values 
+specified in the configuration file will be overridden by command line 
+arguments.
+
+The default location to look for this file is "~/.opsdbcli". This can be
+overridden by the command line option "--cf".
+
+=head1 ENVIRONMENT
+
+No opsdb-specific environment variables are used, but $HOME is used to find
+the location of the default configuration file, and $SUDO_USER or $LOGNAME
+is used as the default API user if none is specified.
+
+$SUDO_USER or $LOGNAME is also sent as the Yahoo! user for Node.Update.
+
+=head1 BUGS
+
+http://bug.corp.yahoo.com/products/opsdb
+
+Use the "client" component.
+
+=head1 AUTHORS
+
+Gian Merlino (merlino@yahoo-inc.com)
+
+=head1 HISTORY
+
+This program traces its heritage to the centcom_client written at YSM.
+
+=cut
+
+use 5.008;
+use strict;
+use warnings;
+use Yahoo::OpsDB::Client;
+use Yahoo::OpsDB::CLI;
+use Yahoo::OpsDB::CLI::Contacts;
+use Yahoo::OpsDB::CLI::Dictionary;
+use Yahoo::OpsDB::CLI::NodeMerge;
+use Yahoo::OpsDB::CLI::Sites;
+use Yahoo::OpsDB::CLI::Subnets;
+use Yahoo::OpsDB::CLI::UserGroups;
+use Yahoo::OpsDB::CLI::Users;
+use Getopt::Long;
+use JSON ();
+use LWP::UserAgent ();
+use URI::Escape ();
+use YAML::Tiny ();
+
+# check if we can use roles_client
+my $USE_ROLES;
+eval {
+    require Yahoo::Roles::Client;
+    import Yahoo::Roles::Client;
+};
+unless( $@ ) {
+    $USE_ROLES = 1;
+}
+
+# Disallowed query fields.
+my @META_FIELDS = qw(page per_page fields without_pagination);
+
+# Field name aliases for Centcom client compatibility.
+my %CENTCOM_COMPAT = (
+    "facilityalias" => "site",
+    "hostname"      => "name",
+    "macaddr"       => "mac",
+);
+
+# Usage message, in case we need to die for some reason.
+my $USAGE = <<EOT;
+Usage: opsdb [SELECTORS] [ACTIONS]
+
+Common selectors:
+
+    --fqdn <hostname>
+    --fqdnfile ( <filename> | - )
+    --role <role.name>
+    --customfield <field.name[=value]>
+    --nodegroup <nodegroup.property.country_code> (e.g. opsdb_slaves.ops.us)
+    --field <key>=<value> (e.g. site=sk1, property=ops.us)
+    --users --name <username>
+    --users --group <usergroup>
+    --subnet ( --fqdn <hostname> | --cidr <a.b.c.d/nn> ) [ --parents | --children ]
+    --site --name <site>
+    --contacts --entity <type>:<name> (e.g. property:ops.us, role:messenger.all)
+
+Common actions:
+
+      [nothing] (just list selected objects)
+    --getentry (full details of selected objects)
+    --getgroups (fetch user/node groups containing selected objects)
+    --csv, --csv <fields> (details in CSV format; only supported for nodes)
+    --tsv, --tsv <fields> (details in TSV format; only supported for nodes)
+
+See 'man opsdb' for many more options and examples.
+
+This utility is part of opsdb_client, version $Yahoo::OpsDB::Client::VERSION.
+EOT
+
+# Create OpsDB API object.
+my $opsdb;
+my $ops_error;
+
+eval { $opsdb = Yahoo::OpsDB::CLI->opsdb; };
+if( $@ ) {
+    chomp( my $err = $@ );
+    die "$0: $err\n";
+}
+
+# Check if we're in --users mode, if so it's handled by another package.
+{
+    my %opt_mode;
+    
+    my $go = Getopt::Long::Parser->new;
+    $go->configure( "pass_through" );
+    $go->getoptions( \%opt_mode, "contacts", "users", "subnets", "dictionary", "usergroups", "sites:s@", "merge" );
+
+    if( $opt_mode{'subnets'} && $opt_mode{'sites'} ) {
+        # bz 3865383: special case, this means subnet mode. --site is a valid argument to subnet mode.
+        # this is also the reason "sites:s" has the ":s" above.
+        push @ARGV, map {+ "--site", $_ } grep { $_ ne '' } @{ delete $opt_mode{'sites'} };
+    } elsif( $opt_mode{'sites'} ) {
+        # we're actually in sites mode! undo some of the options parsing we've done
+        push @ARGV, grep { $_ ne '' } @{ $opt_mode{'sites'} };
+        $opt_mode{'sites'} = 1;
+    }
+
+    if( keys %opt_mode > 1 ) {
+        die "$0: Only one of --users, --subnets, --sites, --contacts, --dictionary, or --merge options may be used\n";
+    } elsif ( defined $opt_mode{'users'} ) {
+        my $cli = Yahoo::OpsDB::CLI::Users->new( argv => \@ARGV, c => $opsdb, usage => $USAGE );
+        $cli->run;
+        exit 0;
+    } elsif( defined $opt_mode{'subnets'} ) {
+        my $cli = Yahoo::OpsDB::CLI::Subnets->new( argv => \@ARGV, c => $opsdb, usage => $USAGE );
+        $cli->run;
+        exit 0;
+    } elsif( defined $opt_mode{'dictionary'} ) {
+        my $cli = Yahoo::OpsDB::CLI::Dictionary->new( argv => \@ARGV, c => $opsdb, usage => $USAGE );
+        $cli->run;
+        exit 0;
+    } elsif( defined $opt_mode{'usergroups'} ) {
+        my $cli = Yahoo::OpsDB::CLI::UserGroups->new( argv => \@ARGV, c => $opsdb, usage => $USAGE );
+        $cli->run;
+        exit 0;
+    } elsif( defined $opt_mode{'sites'} ) {
+        my $cli = Yahoo::OpsDB::CLI::Sites->new( argv => \@ARGV, c => $opsdb, usage => $USAGE );
+        $cli->run;
+        exit 0;
+    } elsif( defined $opt_mode{'contacts'} ) {
+        my $cli = Yahoo::OpsDB::CLI::Contacts->new( argv => \@ARGV, c => $opsdb, usage => $USAGE );
+        $cli->run;
+        exit 0;
+    } elsif( defined $opt_mode{'merge'} ) {
+        my $cli = Yahoo::OpsDB::CLI::NodeMerge->new( argv => \@ARGV, c => $opsdb, usage => $USAGE );
+        $cli->run;
+        exit 0;
+    }
+}
+
+# If we are filtering based on roles, the good hosts will go in here.
+my @roles_fqdns;
+
+# Do we have arguments?
+my $no_args = ( scalar @ARGV == 0 );
+
+# Command-line options
+my %fields      = ();
+my @hostnames   = ();
+my @roles       = ();
+my @fqdns       = ();
+my $customfield = undef;
+my $nodegroup   = undef;
+my $fqdnfile    = undef;
+my $samebp      = undef;
+
+my $opt_remove = undef;
+
+my $getentry       = undef;
+my $getnr          = undef;
+my $csv            = undef;
+my $tsv            = undef;
+my $getnetwork     = undef;
+my $getcontacts    = undef;
+my $getgroups      = undef;
+my $getallcontacts = undef;
+my %modify         = ();
+my $opt_force      = undef;
+
+my $allow_unsupported_os = 0;
+
+my $cf_get    = undef;
+my %cf_set    = ();
+my %cf_add    = ();
+my %cf_remove = ();
+
+my $os_create = undef;
+my $os_remove = undef;
+my $os_find   = undef;
+
+my $opt_build = undef;
+
+my $cf = undef;
+
+my $debug = undef;
+
+my $help = 0;
+
+my $rc = GetOptions(
+    "field=s"    => \%fields,
+    "hostname=s" => \@hostnames,
+    "role=s"     => \@roles,
+    "fqdn=s"     => \@fqdns,
+    "fqdnfile=s" => \$fqdnfile,
+    "samebp=s"   => \$samebp,
+    "customfield=s" => \$customfield,
+    "nodegroup=s"   => \$nodegroup,
+
+    "getnetwork:s@"  => \$getnetwork,
+    "getentry:s@"    => \$getentry,
+    "getnr:s"        => \$getnr,
+    "csv:s@"         => \$csv,
+    "tsv:s@"         => \$tsv,
+    "getcontacts:s@" => \$getcontacts,
+    "getgroups"      => \$getgroups,
+    "getallcontacts" => \$getallcontacts,
+    "modify=s"       => \%modify,
+    "remove"         => \$opt_remove,
+    "force"          => \$opt_force,
+
+    "allow-unsupported-os" => \$allow_unsupported_os,
+
+    "cfget:s@"   => \$cf_get,
+    "cfset=s"    => \%cf_set,
+    "cfadd=s"    => \%cf_add,
+    "cfremove=s" => \%cf_remove,
+
+    "oscreate=s" => \$os_create,
+    "osremove=s" => \$os_remove,
+    "osfind=s"   => \$os_find,
+
+    "build:s" => \$opt_build,
+
+    "debug" => \$debug,
+    "help"  => \$help,
+);
+
+# Die if anything is left in ARGV.
+die "$0: Please fix dangling arguments: " . ( join " ", @ARGV ) . "\n" if @ARGV;
+
+if( $help || $no_args || !$rc ) {
+    warn $USAGE;
+    exit( 1 );
+}
+
+# Allow comma-separated as well as multiple options for get* (except getallcontacts)
+@$getentry = split( /,/, join( ",", @$getentry ) ) if $getentry;
+@$csv = split( /,/, join( ",", @$csv ) ) if $csv;
+@$tsv = split( /,/, join( ",", @$tsv ) ) if $tsv;
+@$getnetwork = split( /,/, join( ",", @$getnetwork ) ) if $getnetwork;
+@$getcontacts = split( /,/, join( ",", @$getcontacts ) ) if $getcontacts;
+@$cf_get = split( /,/, join( ",", @$cf_get ) ) if $cf_get;
+
+# Except --getnr, which takes zero or one "style" options
+if( defined $getnr && $getnr eq '' ) {
+    # no style provided. default all.
+    $getnr = 'all';
+} elsif( defined $getnr && ! grep { $getnr eq $_ } qw/all short/ ) {
+    die "$0: --getnr style should be 'all' or 'short'!\n";
+}
+
+# Respect 'debug'.
+if( $debug ) {
+    $opsdb->debug( 1 );
+}
+
+# Check for incompatible options.
+{
+    my $count_options = 0;
+    $count_options++ if $getentry;
+    $count_options++ if $getnr;
+    $count_options++ if $csv;
+    $count_options++ if $tsv;
+    $count_options++ if $getnetwork;
+    $count_options++ if $getcontacts;
+    $count_options++ if $getgroups;
+    $count_options++ if $getallcontacts;
+    $count_options++ if %modify || defined $opt_build;
+    $count_options++ if $opt_remove;
+    $count_options++ if $os_create;
+    $count_options++ if $os_remove;
+    $count_options++ if $os_find;
+    $count_options++ if $cf_get || %cf_set || %cf_add || %cf_remove;
+
+    if( $count_options > 1 ) {
+        die <<EOT
+$0: Only one of these options may be used:
+    --getentry, --csv, --tsv, --getnetwork, --getcontacts, --getgroups,
+    --getnr, --getallcontacts, --modify, --remove, --cfXXX, --osXXX
+EOT
+    }
+}
+
+# If $opt_build was set, figure out what the user wanted and add it to --modify.
+if( defined $opt_build ) {
+    my %build;
+
+    # set ysa_clone
+    $build{ysa_clone} = 1;
+    
+    foreach my $b ( split /[\s:,]+/, $opt_build ) {
+        $b = "FreeBSD" if lc $b eq "bsd";
+        $b = "RHEL" if lc $b eq "linux";
+        
+        if( $b eq "32" || $b eq "64" ) {
+            $build{ysa_os_arch} = $b;
+        } elsif( $b =~ /^\d/ ) {
+            $build{ysa_os_version} = $b;
+        } elsif( grep { $_ eq lc $b } qw/freebsd rhel windows esx/ ) {
+            $build{ysa_os_name} = $b;
+        } else {
+            $build{ysa_profile} = $b;
+        }
+    }
+    
+    if( $build{ysa_os_version} && !$build{ysa_os_name} ) {
+        my @os = $opsdb->OSFind( without_pagination => 1, supported => 1, deprecated => 0, version => $build{ysa_os_version} );
+        $build{ysa_os_name} = $os[0]->{name} if @os;
+    } elsif( $build{ysa_os_name} && !$build{ysa_os_version} ) {
+        my @os =
+          sort { $b->{_version} <=> $a->{_version} }
+          map { $_->{_version} = $_->{version}; $_->{_version} =~ s/\D/\./g; $_->{_version} =~ s/\.\..*//g; $_; }
+          $opsdb->OSFind( without_pagination => 1, supported => 1, deprecated => 0, name => $build{ysa_os_name} );
+        $build{ysa_os_version} = $os[0]->{version} if @os;
+    }
+    
+    $modify{$_} = $build{$_} foreach keys %build;
+    warn "Assuming you wanted: " . join( " ", map { "--modify $_=" . $build{$_} } keys %build ) . "\n";
+}
+
+# This eval block is for the purpose of generating the @final_fqdns array, of
+# all hosts we are interested in.
+
+my @final_fqdns;
+my %cache_nodeid;
+
+# keep track of whether anything has been searched for yet
+my $final_fqdns_started;
+
+eval {
+    # If we are filtering based on roles, we must first get the list of hosts in
+    # the requested roles. The idea is to put the intersection of all hosts in @roles
+    # into the array @fqdns.
+
+    if( @roles ) {
+        # Create a RolesDB object, if we can.
+        if( $USE_ROLES ) {
+            my $roles_client = Yahoo::Roles::Client->new;
+
+            foreach my $role ( @roles ) {
+                # @role_fqdns is the list of hosts in this particular role.
+                my $roles_result = $roles_client->role( $role, "members" );
+                my @role_fqdns = @{ $roles_result->{members} };
+                add_fqdns( \@final_fqdns, \@role_fqdns, \$final_fqdns_started );
+            }
+        } else {
+            die "Yahoo::Roles::Client is not installed (try \"yinst install roles_client\")\n";
+        }
+    }
+
+    if( $customfield ) {
+        # The user wants to find nodes with a particular custom field set.
+        # Use CustomField.Find and filter whatever we have got so far.
+
+        my ( $namespace, $tag_key, $tag_value ) = $customfield =~ /^([^\.]+)\.([^=]+)(?:=(.*)|)/
+          or die "please use --customfield tag.name=value or --customfield tag.name\n";
+
+        my @customfield_search = ( namespace => $namespace, tag_key => $tag_key );
+        push @customfield_search, tag_value => $tag_value if defined $tag_value;
+
+        my @customfield_nodes = map { $_->{name} } $opsdb->CustomFieldFind( @customfield_search );
+        add_fqdns( \@final_fqdns, \@customfield_nodes, \$final_fqdns_started );
+    }
+
+    if( $nodegroup ) {
+        # The user wants to find nodes in a particular nodegroup.
+        # Use NodeGroup.GetMembers and filter whatever we have got so far.
+
+        my ( $ngname, $ngproperty, $ngcountry ) = $nodegroup =~ /^((?:[\w\d][^\.\s]*\.?)+)\.([\w\d\-]+)\.([\w\d\-]+)$/
+          or die "please use --nodegroup group_name.property_name.country_code\n";
+
+        my @nodegroup_nodes = map { $_->{node} } $opsdb->NodeGroupGetMembers(
+            name     => $ngname,
+            property => $ngproperty,
+            country  => $ngcountry,
+        );
+
+        add_fqdns( \@final_fqdns, \@nodegroup_nodes, \$final_fqdns_started );
+    }
+
+    # At this point we have processed all search options other than --fqdn, --fqdnfile, --hostname, and --field
+    # These should be added to each other, except --hostname, which has special behavior (see POD above)
+
+    if( $fqdnfile ) {
+        # The user has FQDNs in a text file. Read them in and add them to @fqdns
+        # (These options are treated equivalently)
+
+        my %fqdns_index = map { $_ => 1 } @fqdns;
+
+        if( $fqdnfile eq "-" ) {
+            # Reading from standard input.
+
+            while( <STDIN> ) {
+                next if( /^\s*#/ );    # Skip comments
+                next if( /^\s*$/ );    # Skip blank lines
+                chomp;
+
+                push @fqdns, $_ if !$fqdns_index{$_};
+            }
+        } else {
+            # Reading from an actual file.
+
+            open( my $FQDNFILE, '<', $fqdnfile ) or die "open $fqdnfile: $!";
+            while( <$FQDNFILE> ) {
+                next if( /^\s*#/ );    # Skip comments
+                next if( /^\s*$/ );    # Skip blank lines
+                chomp;
+
+                push @fqdns, $_ if !$fqdns_index{$_};
+            }
+
+            close $FQDNFILE;
+        }
+    }
+
+    # If we're trying to find hosts on the same backplane and site (--samebp), modify the %fields hash
+    if( $samebp ) {
+        my $node_details = $opsdb->NodeGet( name => $samebp );
+        if( %$node_details ) {
+            $fields{backplane} = $node_details->{backplane};
+            $fields{site}      = $node_details->{site};
+        }
+    }
+
+    # If we're trying to find hosts with names matching a pattern (--hostname), modify the %fields hash
+    if( @hostnames ) {
+        # Allow the user to specify multiple hostnames as comma-seperated as
+        # an alternative to specifying them via multiple instances of the
+        # command line option
+        @hostnames = split /,/, join ',', @hostnames;
+        $fields{name} = \@hostnames;
+        $fields{match_type} ||= 'RLIKE';
+    }
+
+    if( %fields ) {
+        # The user specified some form of OpsDB filter that requires a Nodes.Find search.
+
+        # Pre-processing: substitue Centcom-compatibility synonyms.
+        foreach my $compat ( keys %CENTCOM_COMPAT ) {
+            if( $fields{$compat} ) {
+                $fields{ $CENTCOM_COMPAT{$compat} } = $fields{$compat};
+                delete $fields{$compat};
+            }
+        }
+
+        # Pre-processing: filter out known meta fields.
+        foreach my $field ( keys %fields ) {
+            delete $fields{$field} if grep $_ eq $field, @META_FIELDS;
+        }
+
+        # Normally, we run Nodes.Find on %fields and intersect this result with @final_fqdns
+        # If $final_fqdns_started is true, and this is a big search, we can search for nodes by name instead of using %fields
+
+        my $search_is_big;
+        if( $final_fqdns_started ) {
+            # Check if the search is "big" by doing a test search
+            my $test_search = $opsdb->NodesFind( %fields, per_page => 10 );
+            if( $test_search->{meta}{total} > scalar @final_fqdns ) {
+                $search_is_big = 1;
+            }
+        }
+
+        # Run the search
+        my @results;
+        if( $search_is_big ) {
+            @results = nodes_find_names( \@final_fqdns, %fields );
+        } else {
+            @results = $opsdb->NodesFindAll( %fields, per_page => 5000 );
+        }
+
+        # Merge results into @fqdns
+        add_fqdns( \@fqdns, [map { $_->{name} } @results] );
+        $cache_nodeid{ $_->{name} } ||= $_->{id} foreach ( @results );
+    }
+
+    # Combine @fqdns into @final_fqdns.
+    # Do this inside an if block because we don't want $final_fqdns_started set needlessly
+    if( @fqdns || %fields || $fqdnfile ) {
+        add_fqdns( \@final_fqdns, \@fqdns, \$final_fqdns_started );
+    }
+};
+if( $@ ) {
+    die "$0: Error compiling host list: $@";
+}
+
+# Sort the final list of fqdns.
+@final_fqdns = sort @final_fqdns;
+
+# Exit code to use
+my $exit_code = 0;
+
+if( $getentry || $getnetwork || $getcontacts ) {
+    my $getfields = $getentry || $getnetwork || $getcontacts;
+    my $method;
+    my @search;
+    
+    if( $getentry ) {
+        $method = "NodeGet";
+        @search = ( "name" );
+    } elsif( $getnetwork ) {
+        $method = "SubnetGet";
+        @search = ( "hostname" );
+    } elsif( $getcontacts ) {
+        $method = "ContactGet";
+        @search = ( "type" => "node", "name" );
+    }
+    
+    # The user wanted more details on these hosts.
+    my %getfields_lookup;
+    if( @$getfields ) {
+        $getfields_lookup{ "hostname" } = 1;
+        $getfields_lookup{ lc $_ } = 1 foreach ( @$getfields );
+    } else {
+        $getfields_lookup{ "all" } = 1;
+    }
+    
+    my $first;
+    foreach my $fqdn ( @final_fqdns ) {
+        eval {
+            my $entry = $opsdb->$method( @search, $fqdn );
+            my $yaml = YAML::Tiny->new;
+
+            foreach my $detail ( keys %$entry ) {
+                $yaml->[0]{$fqdn}{$detail} = $entry->{$detail} if $getfields_lookup{"all"} || $getfields_lookup{$detail};
+            }
+
+            my $yaml_str = $yaml->write_string;
+            $yaml_str =~ s/^---\n//g;
+            $yaml_str =~ s/\n//g;
+            $yaml_str.= "\n";
+            
+            # print "---" unless $first++;
+            # print "\n$yaml_str";
+            print "$yaml_str";
+
+            # if any fields were missing, emit an error.
+            if( my @missing_fields = grep { $_ ne 'all' && ! exists $entry->{$_} } @$getfields ) {
+                warn "$0: node $fqdn does not have requested fields [@missing_fields] (typo or nonexistent fields?)\n";
+                $exit_code = 1;
+            }
+        };
+        if( $@ ) {
+            warn "$0: error calling $method on $fqdn: $@";
+            $exit_code = 1;
+        }
+    }
+} elsif( $getnr ) {
+    # Use the NodeReg API to get info about these nodes
+
+    my $ua = LWP::UserAgent->new( timeout => 10 );
+
+    my $first;
+    foreach my $fqdn ( @final_fqdns ) {
+        my $rsp =
+          $ua->get( "http://api.nodereg.ops.yahoo.com:4080/v1/host.dump?hostname="
+              . URI::Escape::uri_escape( $fqdn )
+              . "&output=json" );
+
+        if( $rsp->is_success ) {
+            my $data = JSON::decode_json($rsp->decoded_content);
+
+            my $yaml = YAML::Tiny->new;
+
+            if( $getnr eq 'short' ) {
+                if( $data->{'data'}{'host_summary'} ) {
+                    # because a host may have multiple values per key (e.g. "Disk")
+                    my %host_summary_keycount;
+
+                    foreach my $datum ( @{ $data->{'data'}{'host_summary'} } ) {
+                        my $label =
+                          ++$host_summary_keycount{ $datum->{'property'} } > 1
+                          ? "$datum->{property}-$host_summary_keycount{ $datum->{property} }"
+                          : "$datum->{property}";
+
+                        $yaml->[0]{$fqdn}{$label} = $datum->{'data'};
+                    }
+
+                    $yaml->[0]{$fqdn}{'Timestamp'} = $data->{'data'}{'host_r_time'};
+                } else {
+                    $yaml->[0]{$fqdn} = undef;
+                }
+            } else {
+                $yaml->[0]{$fqdn} = $data;
+            }
+
+            my $yaml_str = $yaml->write_string;
+            $yaml_str =~ s/^---\n//g;
+
+            print "---" unless $first++;
+            print "\n$yaml_str";
+        } else {
+            warn "$0: error contacting nodereg api for $fqdn: " . $rsp->message;
+            $exit_code = 1;
+        }
+    }
+} elsif( $csv || $tsv ) {
+    # Use /V3/Nodes.Find to get extra information about these nodes
+    my @nodes_found = nodes_find_names( \@final_fqdns, fields => ( $csv || $tsv ) );
+    my $sep = $csv ? "," : "\t";
+
+    # fill this when we figure out what the header will be (it's based on what opsdb returns)
+    my @header;
+
+    my $format_field = $csv ? sub {
+        # CSV - designed for use with excel
+        # excel likes doubled quotes, and it likes everything else unmolested. give it what it wants.
+        my $f = shift;
+        $f =~ s/"/""/g;
+        return "\"$f\"";
+    } : sub {
+        # TSV - designed for use with cut
+        # "escape" internal tabs
+        my $f = shift;
+        $f =~ s/\t/\\t/g;
+        return $f;
+    };
+
+    foreach my $node_found ( sort { $a->{name} cmp $b->{name} } @nodes_found ) {
+        if( !@header ) {
+            # we always want "id" and "name" first. after that, just sort alphabetically
+            # also remove the 'tag' key since we don't support it very well (it looks super weird)
+            @header = ( "id", "name", sort grep { !/^(name|id|tag)$/ } keys %$node_found );
+
+            # excel likes doubled quotes, and it likes everything else unmolested. give it what it wants.
+            my @header_quoted = map { $format_field->($_) } @header;
+            print join $sep, @header_quoted;
+            print "\n";
+        }
+
+        my @row_quoted = @{$node_found}{@header};
+
+        for( my $i = 0 ; $i < @row_quoted ; $i++ ) {
+            # opsdb gui csv export flattens arrays using pipes. copy this here.
+            if( ref $row_quoted[$i] eq 'ARRAY' ) {
+                # opsdb gui csv export also flattens hashes to the 'name' element.
+                $row_quoted[$i] = join "|", map { ref $_ eq 'HASH' ? $_->{name} || '' : $_ } @{ $row_quoted[$i] };
+            }
+        }
+
+        @row_quoted = map { $format_field->($_) } @row_quoted;
+        print join $sep, @row_quoted;
+        print "\n";
+    }
+} elsif( $getgroups ) {
+    # Use /V3/NodeGroup.List to get a list of nodegroups for this node
+    
+    my $first;
+    foreach my $fqdn ( @final_fqdns ) {
+        eval {
+            my @nodegroups = map { "$_->{name}.$_->{property}.$_->{country}" } $opsdb->NodeGroupList( node => $fqdn );
+            my $yaml = YAML::Tiny->new;
+            $yaml->[0]{$fqdn} = \@nodegroups;
+            
+            my $yaml_str = $yaml->write_string;
+            $yaml_str =~ s/^---\n//g;
+            
+            print "---" unless $first++;
+            print "\n$yaml_str";
+        };
+        if( $@ ) {
+            warn "$0: error calling NodeGroupList on $fqdn: $@";
+            $exit_code = 1;
+        }
+    }
+} elsif( $getallcontacts ) {
+    # Use /V3/Contacts.NodeEscalations to get all contacts for the node, its nodegroups, and its properties
+    
+    my $first;
+    foreach my $fqdn ( @final_fqdns ) {
+        eval {
+            my $escalations = $opsdb->ContactsNodeEscalations( node => $fqdn );
+            my $yaml = YAML::Tiny->new;            
+            $yaml->[0]{$fqdn} = $escalations;
+            
+            my $yaml_str = $yaml->write_string;
+            $yaml_str =~ s/^---\n//g;
+            
+            print "---" unless $first++;
+            print "\n$yaml_str";
+        };
+        if( $@ ) {
+            warn "$0: error calling ContactsNodeEscalations on $fqdn: $@";
+            $exit_code = 1;
+        }
+    }
+} elsif( %modify ) {
+    # The user wanted to modify a node.
+    $modify{mode}     = "commit";
+    $modify{force}    = $opt_force ? "1" : "0";
+    $modify{employee} = $ENV{SUDO_USER} || $ENV{LOGNAME};
+
+    if( $modify{ysa_os_version} ) {
+        # warn if the os version is unsupported
+        my @found_os = eval {
+            $opsdb->OSFind(
+                without_pagination => 1,
+                version            => $modify{ysa_os_version},
+                ( $modify{ysa_os_name} ? ( name => $modify{ysa_os_name} ) : () )
+            );
+        };
+
+        if( @found_os and my ($found_os_badone) = grep { $_->{'deprecated'} || !$_->{'supported'} } @found_os ) {
+            my $prefix = $allow_unsupported_os ? 'WARNING' : 'ERROR';
+
+            warn "$prefix>\n";
+            warn "$prefix> The OS you have selected ($found_os_badone->{name} $found_os_badone->{version}) is UNSUPPORTED!\n";
+            warn "$prefix>\n";
+
+            if( !$allow_unsupported_os ) {
+                warn "$prefix> If this is what you want, please run this command again with\n";
+                warn "$prefix> --allow-unsupported-os added to the command line.\n";
+                warn "$prefix>\n";
+                exit 1;
+            }
+        }
+    }
+
+    foreach my $fqdn ( @final_fqdns ) {
+        eval {
+            if( !( $modify{id} = $cache_nodeid{$fqdn} ) )
+            {
+                my $node = $opsdb->NodeGet( name => $fqdn );
+                $modify{id} = $node->{id};
+            }
+
+            die "could not find node ID" unless $modify{id} && $modify{id} =~ /^\d+$/;
+
+            $opsdb->NodeUpdate( %modify );
+            print "$fqdn\n";
+        };
+        if( $@ ) {
+            warn "$0: Could not update $fqdn: $@";
+            $exit_code = 1;
+        }
+    }
+} elsif( $opt_remove ) {
+    # The user wants to remove nodes.
+
+    foreach my $fqdn ( @final_fqdns ) {
+        eval {
+            $opsdb->NodeRemove( name => $fqdn, mode => "commit", force => ( $opt_force ? "1" : "0" ), );
+            print "$fqdn\n";
+        };
+        if( $@ ) {
+            warn "$0: Could not remove $fqdn: $@";
+            $exit_code = 1;
+        }
+    }
+} elsif( $cf_get || %cf_set || %cf_add || %cf_remove ) {
+    # we are doing stuff with custom fields
+    # it's ok to do a lot of things in one CLI run, we just do them in an order that makes sense
+    # ( remove, add, get )
+
+    # for --cfget x,y,z
+    my %getfields_lookup = ( all => 1 );
+    if( $cf_get && @$cf_get ) {
+        %getfields_lookup = ();
+        $getfields_lookup{ $_ } = 1 foreach ( @$cf_get );
+    }
+    
+    my $first;
+    foreach my $fqdn ( @final_fqdns ) {
+        eval {
+            
+            if( %cf_remove ) { # CustomField.Remove
+                my @fields = convert_cf_fields(\%cf_remove);
+                
+                $opsdb->CustomFieldRemove(
+                    entity => {
+                        indicator  => "name",
+                        identifier => $fqdn,
+                        type       => "node",
+                        fields     => \@fields,
+                    }
+                ) if @fields;
+            }
+            
+            if( %cf_set ) { # CustomField.Set
+                my @fields = convert_cf_fields(\%cf_set);
+                
+                $opsdb->CustomFieldSet(
+                    entity => {
+                        indicator  => "name",
+                        identifier => $fqdn,
+                        type       => "node",
+                        fields     => \@fields,
+                    }
+                ) if @fields;
+            }
+            
+            if( %cf_add ) { # CustomField.Add
+                my @fields = convert_cf_fields(\%cf_add);
+                
+                $opsdb->CustomFieldAdd(
+                    entity => {
+                        indicator  => "name",
+                        identifier => $fqdn,
+                        type       => "node",
+                        fields     => \@fields,
+                    }
+                ) if @fields;
+            }
+            
+            if( $cf_get ) { # CustomField.Get
+                
+                my $entry = $opsdb->CustomFieldGet(
+                    entity => {
+                        indicator  => "name",
+                        identifier => $fqdn,
+                        type       => "node",
+                    }
+                );
+                
+                my @fields = $entry->{fields} ? @{ $entry->{fields} } : ();
+                
+                my $yaml = YAML::Tiny->new;
+
+                $yaml->[0]{$fqdn} = {};
+                foreach my $field ( @fields ) {
+                    my $f = "$field->{namespace}.$field->{key}";
+                    
+                    push @{$yaml->[0]{$fqdn}{$f}}, $field->{value}
+                      if $getfields_lookup{"all"} || $getfields_lookup{$f};
+                }
+
+                my $yaml_str = $yaml->write_string;
+                $yaml_str =~ s/^---\n//g;
+
+                print "---" unless $first++;
+                print "\n$yaml_str";
+            } else { # Not using --cfget
+                print "$fqdn\n";
+            }
+        };
+        if( $@ ) {
+            warn "$0: Could not process $fqdn: $@";
+            $exit_code = 1;
+        }
+    }
+    
+} elsif( $os_create || $os_remove || $os_find ) {
+    # we are performing an OS operation
+
+    # make sure only one OS action is specified
+    if(    $os_find && ( $os_create || $os_remove )
+        or ( $os_create && ( $os_find || $os_remove ) )
+        or ( $os_remove && ( $os_find || $os_create ) ) )
+    {
+        die "$0: Only one of --osfind, --oscreate and --osremove may be specified\n";
+    }
+
+    my @pairs = split ",", $os_find || $os_create || $os_remove;
+    my %os = ();
+    foreach my $pair ( @pairs ) {
+        $pair =~ m/([^=]+)=([^=]+)/;
+        $os{$1} = $2;
+    }
+
+    # help maintain capitalization standards
+    if( defined $os{name} ) {
+        if( lc $os{name} eq "rhel" ) {
+            $os{name} = "RHEL";
+        } elsif( lc $os{name} eq "freebsd" ) {
+            $os{name} = "FreeBSD";
+        }
+    }
+
+    if( $os_create ) {
+        if( not exists $os{name} or not exists $os{version} ) {
+
+            # must specify at least these two parameters
+            die "$0: Must specify OS name and version for creation.\n";
+        }
+
+        my $res = $opsdb->OSCreate(
+            name       => $os{name},
+            version    => $os{version},
+            supported  => $os{supported},
+            deprecated => $os{deprecated},
+        );
+
+        print "Result:\n";
+        print "$res\n";
+
+    } elsif( $os_remove ) {
+        if( not exists $os{id} ) {
+            die "$0: Must specify ID of OS to remove.\n";
+        }
+
+        my $res = $opsdb->OSRemove( id => $os{id} );
+
+        print "Result:\n";
+        print "$res\n";
+
+    } elsif( $os_find ) {
+
+        my @oses;
+        @oses = $opsdb->OSFind( %os, without_pagination => "yes" );
+
+        if( @oses > 0 ) {
+            foreach my $os ( @oses ) {
+                print "\n";
+                print "Id: ",         $os->{id},         "\n";
+                print "Name: ",       $os->{name},       "\n";
+                print "Version: ",    $os->{version},    "\n";
+                print "Supported: ",  $os->{supported},  "\n";
+                print "Deprecated: ", $os->{deprecated}, "\n";
+            }
+        } else {
+            die "No OSes found that match given criteria.\n";
+        }
+    }
+
+} else {
+    # If the user did not specify an action then print all selected hostnames.
+
+    if( $final_fqdns_started ) {
+        foreach my $fqdn ( @final_fqdns ) {
+            print "$fqdn\n";
+        }
+    } else {
+        die "Nothing to do! Try 'opsdb --help' or 'man opsdb'.\n";
+    }
+}
+
+exit $exit_code;
+
+# fqdns_old: reference to old array. will be modified
+# fqdns_new: reference to new array. will not be modified
+# final_fqdns_started: true if we should intersect, false if we should just add
+sub add_fqdns {
+    my ( $fqdns_old, $fqdns_new, $final_fqdns_started_ref ) = @_;
+
+    # if $final_fqdns_started_ref is not provided, just make it a ref we won't care about
+    # this means that if you don't provide $final_fqdns_started_ref, it will be like it's 0
+    $final_fqdns_started_ref ||= \do{ my $anon = 0 };
+
+    if( $$final_fqdns_started_ref ) {
+        # need to intersect
+        my %fqdns_new_index = map { $_ => 1 } @$fqdns_new;
+        @$fqdns_old = grep { $fqdns_new_index{$_} } @$fqdns_old;
+    } else {
+        # just add them all
+        my %fqdns_old_index = map { $_ => 1 } @$fqdns_old;
+        push @$fqdns_old, grep { !$fqdns_old_index{$_} } @$fqdns_new;
+    }
+    # set $final_fqdns_started_ref, since if it hasn't yet, well we just did
+    $$final_fqdns_started_ref = 1;
+
+    return;
+}
+
+# Call Nodes.Find in batches by hostname
+sub nodes_find_names {
+    my ( $nodes_to_find, %params ) = @_;
+
+    # results go in here
+    my @nodes_found;
+
+    # number of names to send at once
+    my $batch_size = 1000;
+
+    for( my $start = 0 ; $start < @$nodes_to_find ; $start += $batch_size ) {
+        my $end = $start + $batch_size - 1;
+        $end = @$nodes_to_find - 1 if $end >= @$nodes_to_find;
+
+        eval {
+            push @nodes_found, $opsdb->NodesFind(
+                name               => [ @{$nodes_to_find}[ $start .. $end ] ],
+                without_pagination => 1,
+                %params,
+            );
+
+            1;
+        } or do {
+            # the "ok" error is if these hosts are not found in opsdb, which may happen.
+            # try to fail in other cases.
+
+            unless( "$@" =~ /No Node/ && $opsdb->http_error->code == 404 ) {
+                die "$@\n";
+            }
+        };
+    }
+
+    return @nodes_found;
+}
+
+sub convert_cf_fields {
+    my $cf_xxx = shift;
+    
+    my @fields;
+    
+    foreach my $field (keys %$cf_xxx) { # --cfxxx ns.key=value
+        my ( $field_ns, $field_key ) = $field =~ /^([^\.]+)\.(.+)$/;
+        die "expected ns.key, got $field\n" unless $field_ns && $field_key;
+        
+        push @fields, {
+            namespace => $field_ns,
+            key => $field_key,
+            value => $cf_xxx->{$field},
+        };
+    }
+    
+    return @fields;
+}
