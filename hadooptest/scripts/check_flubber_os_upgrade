@@ -1,0 +1,46 @@
+#!/bin/bash
+
+ALWAYS_FETCH=0
+WORKSPACE_ROOT="/tmp"
+WORKSPACE="$WORKSPACE_ROOT/flubber"
+`/bin/mkdir -p $WORKSPACE`
+
+CLUSTERS_FILE="$WORKSPACE/clusters"
+IGOR_NS="grid_re.clusters"
+if ([[ ! -f $CLUSTERS_FILE ]] || [[ $ALWAYS_FETCH == 1 ]]); then
+    echo "Fetch igor $IGOR_NS roles and create the clusters list file '$CLUSTERS_FILE'."
+    `igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$ > $CLUSTERS_FILE 2> /dev/null`
+else 
+    echo "Use existing cached file '$CLUSTERS_FILE' containing the igor $IGOR_NS roles"
+fi
+
+NUM_CLUSTERS=`cat $CLUSTERS_FILE|wc -l`
+echo "Number of clusters in $IGOR_NS = '$NUM_CLUSTERS'"
+
+printf "%-25s%-28s%s\n" "cluster" "os" "comment"
+printf "%-25s%-28s%s\n" "=======" "==" "======="
+for cluster in `cat $CLUSTERS_FILE|cut -d "." -f3`; do
+    NEED_UPGRADE=0
+    NODES=`igor fetch -members $IGOR_NS.$cluster`;
+    NUM_NODES=`echo $NODES|wc -w`
+    printf "%-25s" "$cluster ($NUM_NODES),"
+
+    CURRENT_OS="";
+    if [[ -n $NODES ]]; then
+        NODES_=`echo -e -n $NODES|tr ' ' ','|sed 's/[ \t]*$//'|sed 's/\s/,/g'`
+        CURRENT_OS=`opsdb-exp --getentry ysa_os_version --host $NODES_ 2> /dev/null |cut -d" " -f4|sort -u`
+        CURRENT_OS=`echo -e -n $CURRENT_OS|sort -u|tr '\n' ' '|sed 's/[ \t]*$//'|sed 's/\s/, /g'`;
+        if ([[ $CURRENT_OS != "6.4.1" ]]); then
+             NEED_UPGRADE=1
+        fi
+    fi
+    printf "%-28s" "\"$CURRENT_OS\","
+    if [[ -z $NODES ]]; then
+        printf "%s\n" "** NO NODE MEMBERS **"
+    elif [[ $NEED_UPGRADE == 1 ]]; then
+        printf "%s\n" "** NEED UPGRADE **"
+    else 
+        printf "\n"
+    fi
+done
+
