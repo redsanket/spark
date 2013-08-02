@@ -27,7 +27,7 @@ import org.junit.Test;
 public class TestMultiQueue extends TestSession {
 		
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
-	private static String outputFile = "wc_output_new";
+	private static String outputFile = "TestMultiQueue_output";
 	private static String input_string = "Hello world! Start to test MultiQueue!";	
 	private static int TotalFileNum = 20;
 	
@@ -49,7 +49,7 @@ public class TestMultiQueue extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
-//		setupTestConf();
+		setupTestConf();
 		getQueneInfo();
 		setupTestDir();
 	}
