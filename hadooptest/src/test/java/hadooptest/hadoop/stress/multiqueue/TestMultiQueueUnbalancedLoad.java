@@ -18,16 +18,13 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Scanner;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -40,7 +37,7 @@ import org.junit.Test;
 public class TestMultiQueueUnbalancedLoad extends TestSession {
 
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
-	private static String outputFile = "wc_output_new";
+	private static String outputFile = "TestMultiQueueUnbalancedLoad_output";
 	
 	private static String input_string = "Hello world! Run MultiQueue Tests!";
 
@@ -267,7 +264,7 @@ public class TestMultiQueueUnbalancedLoad extends TestSession {
 			String inputFile = inpath.toString() + "/" + Integer.toString(input_index) + ".txt";
 			logger.info("Randomly choosed input file is: " + inputFile);
 			
-			String output = "/" + Integer.toString(i); 
+			String output = "/" + Integer.toString(i) + "_" + file_count;  
 			logger.info("Output file is: " + outputDir + outputFile + output);
 			
 			jobUserDefault.setInputFile(inputFile);

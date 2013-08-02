@@ -40,7 +40,7 @@ public class TestMultiQueueDurability extends TestSession {
 
 	
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
-	private static String outputFile = "wc_output_new";	
+	private static String outputFile = "TestMultiQueueDurability_output";	
 	private static String input_string = "Hello world! Run durablity test!";	
 	private static int TotalFileNum = 20;
 
