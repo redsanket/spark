@@ -2,6 +2,7 @@
 package hadooptest.hadoop.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 
 import org.junit.BeforeClass;
@@ -28,9 +29,19 @@ public class TestMultiClusterClientServer extends TestSession {
 		// *********************** stage the client instance of HTF on another gateway for another cluster
 		
 		// Wait for the client to connect to the server.
-		logger.info("Waiting 30s for client to connect to server.");
-		Util.sleep(30);
-		
+		String strTimeout = TestSession.conf.getProperty(
+				"MULTI_CLUSTER_SERVER_SESSION_TIMEOUT");
+		int timeout = Integer.parseInt(strTimeout);
+		while (!TestSession.multiClusterServer.isClientConnected()) {
+			logger.info("Waiting for client to connect to server.");
+			Util.sleep(1);
+			timeout--;
+			if (timeout <= 0) {
+				logger.error("The multi cluster client did not connect to the server within " + strTimeout + " seconds.");
+				fail();
+			}
+		}
+			
 		// Trigger getting the DFS name of the client instance of HTF
 		String clientDfsName = TestSession.multiClusterServer.getClientDFSName(30);
 		logger.info("Client DFS name is: " + clientDfsName);

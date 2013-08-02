@@ -61,6 +61,8 @@ public class MultiClusterServer extends Thread {
 
 				while ((inputLine = in.readLine()) != null) {
 					
+					clientConnected = true;
+					
 					if (!runServer) {
 						break;
 					}
