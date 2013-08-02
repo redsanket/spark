@@ -54,7 +54,10 @@ public class MultiClusterClient extends Thread {
 		try {
 			MultiClusterProtocol mcp = new MultiClusterProtocol();
 			
-			while ((fromServer = in.readLine()) != null) {
+			while ((fromServer = in.readLine()) != null) {					
+				if (!runClient)
+					break;
+				
 				TestSession.logger.info("Server: " + fromServer);
 				outputLine = mcp.processInput(fromServer);
 				if (outputLine != null) {
@@ -63,9 +66,6 @@ public class MultiClusterClient extends Thread {
 				else {
 					out.println("CLIENT_READY");
 				}
-					
-				if (!runClient)
-					break;
 			}
 
 			out.close();

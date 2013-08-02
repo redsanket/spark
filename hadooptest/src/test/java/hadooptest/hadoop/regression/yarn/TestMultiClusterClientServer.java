@@ -25,15 +25,11 @@ public class TestMultiClusterClientServer extends TestSession {
 	public void copyWithinClusterHDFS() throws Exception {
 		DFS localDfs = new DFS();
 		
-		// stage the client instance of HTF on another gateway for another cluster
+		// *********************** stage the client instance of HTF on another gateway for another cluster
 		
 		// Wait for the client to connect to the server.
 		logger.info("Waiting 30s for client to connect to server.");
 		Util.sleep(30);
-		
-		// Perform a fs ls on this instance of HTF DFS
-		//logger.info("Listing the contents of the local DFS.");
-		//localDfs.printFsLs(getFSDefaultName() + "/user/hadoopqa/", true);
 		
 		// Trigger getting the DFS name of the client instance of HTF
 		String clientDfsName = TestSession.multiClusterServer.getClientDFSName(30);
@@ -45,7 +41,8 @@ public class TestMultiClusterClientServer extends TestSession {
 		// Perform a fs ls on the client instance of HTF to verify
 		// 1. verify we recieved the local copy result of true
 		// 2. check for the file in the fs ls
-		TestSession.multiClusterServer.requestClientDfsLs(clientDfsName + "/user/hadoopqa/hadooptest.conf", 30);
+		assertTrue("Local file on client was not successfully copied to client DFS.", 
+				TestSession.multiClusterServer.requestClientDfsLs(clientDfsName + "/user/hadoopqa/hadooptest.conf", 30));
 		
 		// Trigger the cluster-to-cluster copy of the file from the client instance of HTF
 		// DFS, to this instance of HTF DFS.
@@ -53,14 +50,20 @@ public class TestMultiClusterClientServer extends TestSession {
 		
 		// Wait about 15s for the file to copy
 		Util.sleep(15);
+
+		// Stop the client.
+		logger.info("Stopping multi cluster client...");
+		TestSession.multiClusterServer.requestClientStop();
+		
+		// Stop the server.
+		logger.info("Stopping multi cluster server...");
+		TestSession.multiClusterServer.stopServer();
 		
 		// Perform a fs ls on this instance of HTF DFS to verify that the file was
 		// copied to this DFS.
 		logger.info("Checking to see if the file was copied from DFS to DFS.");
-		//localDfs.printFsLs(getFSDefaultName() + "/user/hadoopqa/", true);
 		assertTrue("File was not successfully copied between DFS systems.", localDfs.fileExists(getFSDefaultName() + "/user/hadoopqa/hadooptest.conf.test.1"));
 		
-		// Disconnect the client from the server.
 	}
 
 	private String getFSDefaultName() throws Exception {

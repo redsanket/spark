@@ -67,6 +67,9 @@ public class MultiClusterProtocol {
 			}
         	
         	/* Client response protocols */
+        	else if (theInput.equals("CLIENT_STOP")) {
+        		TestSession.multiClusterClient.stopClient();
+        	}
         	else if (theInput.equals("RETURN_VERSION")) {
 				theOutput = "CLIENT HADOOP VERSION = " + TestSession.cluster.getVersion();
 			}

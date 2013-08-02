@@ -13,13 +13,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class MultiClusterServer extends Thread {
-
+	
 	private static int SERVER_PORT;
 	
 	private boolean runServer = true;
 	
 	private PrintWriter out;
 	private MultiClusterProtocol mcp;
+	private boolean clientConnected = false;
 	
 	public MultiClusterServer(int port) {
 		super("MultiClusterServer");
@@ -59,7 +60,11 @@ public class MultiClusterServer extends Thread {
 				boolean requestedVersion = false;
 
 				while ((inputLine = in.readLine()) != null) {
-
+					
+					if (!runServer) {
+						break;
+					}
+				
 					if (!requestedVersion) {
 						requestedVersion = true;
 						out.println("RETURN_VERSION");
@@ -70,9 +75,7 @@ public class MultiClusterServer extends Thread {
 					if(outputLine != null) {
 						out.println(outputLine);
 					}
-						
-					if (!runServer)
-						break;
+
 				}
 				out.close();
 				in.close();
@@ -143,5 +146,13 @@ public class MultiClusterServer extends Thread {
 		}
 		
 		return false;
+	}
+	
+	public boolean isClientConnected() {
+		return clientConnected;
+	}
+	
+	public void requestClientStop() {
+		out.println("CLIENT_STOP");
 	}
 }
