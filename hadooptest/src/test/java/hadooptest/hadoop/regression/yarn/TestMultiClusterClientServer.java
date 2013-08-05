@@ -29,7 +29,7 @@ public class TestMultiClusterClientServer extends TestSession {
 		// Stage the client instance of HTF on another gateway for another cluster
 		TestSession.multiClusterServer.remoteStartMultiClusterClient(
 				"gwbl2005.blue.ygrid.yahoo.com", "omegab", "hadoopqa", 
-				"/homes/hadoopqa/hadooptest_rbernota/hadooptest_client.conf");
+				"/homes/hadoopqa/hadooptest_multicluster_configs/hadooptest_client.conf");
 		
 		// Wait for the client to connect to the server.
 		String strTimeout = TestSession.conf.getProperty(
