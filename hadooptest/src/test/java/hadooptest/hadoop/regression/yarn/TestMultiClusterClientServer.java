@@ -26,16 +26,19 @@ public class TestMultiClusterClientServer extends TestSession {
 	public void copyWithinClusterHDFS() throws Exception {
 		DFS localDfs = new DFS();
 		
-		// *********************** stage the client instance of HTF on another gateway for another cluster
+		// Stage the client instance of HTF on another gateway for another cluster
+		logger.info("Starting the multicluster client on the remote gateway...");
+		String[] clientInitCmd = { "/home/y/bin/pdsh", "-w", "gwbl2005.blue.ygrid.yahoo.com", "pushd /tmp/hadooptest-hadoopqa-omegab/hadooptest/;/tmp/hadooptest-hadoopqa-omegab/hadooptest/scripts/run_hadooptest -c omegab -f /homes/hadoopqa/hadooptest_rbernota/hadooptest_client.conf -m -n -w /tmp/hadooptest-hadoopqa-omegab/hadooptest/ -t TestMultiClusterClientConnection" };
+		exec.runProcBuilderGetProc(clientInitCmd);
 		
 		// Wait for the client to connect to the server.
 		String strTimeout = TestSession.conf.getProperty(
 				"MULTI_CLUSTER_SERVER_SESSION_TIMEOUT");
 		int timeout = Integer.parseInt(strTimeout);
 		while (!TestSession.multiClusterServer.isClientConnected()) {
-			logger.info("Waiting for client to connect to server.");
-			Util.sleep(1);
-			timeout--;
+			logger.info("Waiting for client to connect to server...");
+			Util.sleep(5);
+			timeout = timeout - 5;
 			if (timeout <= 0) {
 				logger.error("The multi cluster client did not connect to the server within " + strTimeout + " seconds.");
 				fail();
