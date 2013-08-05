@@ -17,7 +17,7 @@ import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestGateWaySysandJVMUsage extends TestSession {
+public class TestGatewayandJVMUsage extends TestSession {
 	
 	@BeforeClass
     public static void startTestSession() throws Exception{
