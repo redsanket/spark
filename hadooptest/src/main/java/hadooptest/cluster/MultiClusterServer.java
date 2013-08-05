@@ -157,4 +157,28 @@ public class MultiClusterServer extends Thread {
 	public void requestClientStop() {
 		out.println("CLIENT_STOP");
 	}
+	
+	public void remoteStartMultiClusterClient(String gateway, 
+			String cluster, String user, String clientFrameworkConf) 
+					throws IOException {
+		
+		TestSession.logger.info(
+				"Starting the multicluster client on the remote gateway...");
+		TestSession.logger.info("MultiCluster client gateway is: " + gateway);
+		TestSession.logger.info("MultiCluster client cluster is: " + cluster);
+		TestSession.logger.info("MultiCluster client user is: " + user);
+		TestSession.logger.info(
+				"MultiCluster client framework configuration file is: " + 
+						clientFrameworkConf);
+		
+		String[] clientInitCmd = { "/home/y/bin/pdsh", "-w", 
+				gateway, "pushd /tmp/hadooptest-" + user + "-" + cluster + 
+				"/hadooptest/;/tmp/hadooptest-" + user + "-" + cluster + 
+				"/hadooptest/scripts/run_hadooptest -c " + cluster + " -f " + 
+				clientFrameworkConf + " -m -n -w /tmp/hadooptest-" + user + 
+				"-" + cluster + 
+				"/hadooptest/ -t TestMultiClusterClientConnection" };
+		
+		TestSession.exec.runProcBuilderGetProc(clientInitCmd);
+	}
 }

@@ -27,9 +27,9 @@ public class TestMultiClusterClientServer extends TestSession {
 		DFS localDfs = new DFS();
 		
 		// Stage the client instance of HTF on another gateway for another cluster
-		logger.info("Starting the multicluster client on the remote gateway...");
-		String[] clientInitCmd = { "/home/y/bin/pdsh", "-w", "gwbl2005.blue.ygrid.yahoo.com", "pushd /tmp/hadooptest-hadoopqa-omegab/hadooptest/;/tmp/hadooptest-hadoopqa-omegab/hadooptest/scripts/run_hadooptest -c omegab -f /homes/hadoopqa/hadooptest_rbernota/hadooptest_client.conf -m -n -w /tmp/hadooptest-hadoopqa-omegab/hadooptest/ -t TestMultiClusterClientConnection" };
-		exec.runProcBuilderGetProc(clientInitCmd);
+		TestSession.multiClusterServer.remoteStartMultiClusterClient(
+				"gwbl2005.blue.ygrid.yahoo.com", "omegab", "hadoopqa", 
+				"/homes/hadoopqa/hadooptest_rbernota/hadooptest_client.conf");
 		
 		// Wait for the client to connect to the server.
 		String strTimeout = TestSession.conf.getProperty(
