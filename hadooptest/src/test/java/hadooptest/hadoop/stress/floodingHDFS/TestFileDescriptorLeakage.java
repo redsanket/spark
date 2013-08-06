@@ -253,6 +253,7 @@ public class TestFileDescriptorLeakage extends TestSession {
 		return Integer.parseInt(new String(bo).trim());
 	}
 	
+	// Helper to detect process info
 	public void CheckProcessInfo(int pid){
 	    try {
 	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "ps "+pid});
@@ -268,6 +269,7 @@ public class TestFileDescriptorLeakage extends TestSession {
 	    }
 	}
 	
+	// Helper to detect process info
 	public void PrintOpenFiles(int pid){
 		try {
 	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "lsof -p "+pid});
@@ -281,14 +283,5 @@ public class TestFileDescriptorLeakage extends TestSession {
 	    } catch (IOException e) {
 	    	TestSession.logger.error(e.getMessage());
 	    }
-	}
-	
-	public String curPID() throws IOException {
-
-		byte[] bo = new byte[100];
-		String[] cmd = {"bash", "-c", "echo $PPID"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.getInputStream().read(bo);
-		return new String(bo);
 	}
 }
