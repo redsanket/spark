@@ -4,6 +4,7 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,8 +13,9 @@ import org.junit.experimental.categories.Category;
 import coretest.SerialTests;
 import coretest.Util;
 
-import hadooptest.cluster.hadoop.DFS;
-
+/**
+ * Tests to exercise the multi-cluster functionality in the framework.
+ */
 @Category(SerialTests.class)
 public class TestMultiClusterClientServer extends TestSession {
 	
@@ -22,6 +24,10 @@ public class TestMultiClusterClientServer extends TestSession {
 		TestSession.start();
 	}
 
+	/**
+	 * The test stages a copy from DFS to DFS when the initiating cluster
+	 * is on another gateway.
+	 */
 	@Test
 	public void copyWithinClusterHDFS() throws Exception {
 		DFS localDfs = new DFS();
@@ -53,8 +59,6 @@ public class TestMultiClusterClientServer extends TestSession {
 		TestSession.multiClusterServer.requestClientDfsRemoteLocalCopy("/homes/hadoopqa/hadooptest.conf", clientDfsName + "/user/hadoopqa/hadooptest.conf");
 		
 		// Perform a fs ls on the client instance of HTF to verify
-		// 1. verify we recieved the local copy result of true
-		// 2. check for the file in the fs ls
 		assertTrue("Local file on client was not successfully copied to client DFS.", 
 				TestSession.multiClusterServer.requestClientDfsLs(clientDfsName + "/user/hadoopqa/hadooptest.conf", 30));
 		
@@ -80,6 +84,12 @@ public class TestMultiClusterClientServer extends TestSession {
 		
 	}
 
+	/**
+	 * Get the default FS name of the host cluster.
+	 * 
+	 * @return String the name of the cluster.
+	 * @throws Exception if there is a fatal error getting the cluster name.
+	 */
 	private String getFSDefaultName() throws Exception {
 		String fsDefaultName = null;
 		

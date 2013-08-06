@@ -9,13 +9,28 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * A class which represents the client in the multi-cluster capability of the
+ * framework.
+ */
 public class MultiClusterClient extends Thread {
 
+	/** The server port to connect to. **/
 	private static int SERVER_PORT;
+	
+	/** The server hostname to connect to. **/
 	private static String SERVER_HOSTNAME;
 
+	/** Whether the client is currently running or not. **/
 	private boolean runClient = true;
 	
+	/**
+	 * Class constructor.  Initializes the thread and sets server hostname and 
+	 * port.
+	 * 
+	 * @param port the server port to connect to.
+	 * @param hostname the server hostname to connect to.
+	 */
 	public MultiClusterClient(int port, String hostname) {
 		super("MultiClusterClient");
 		
@@ -23,10 +38,17 @@ public class MultiClusterClient extends Thread {
 		SERVER_HOSTNAME = hostname;
 	}
 	
+	/**
+	 * Stop the multi cluster client.
+	 */
 	public void stopClient() {
 		runClient = false;
 	}
 
+	/**
+	 * The thread for the client.  Connects to the multi cluster server
+	 * and converses with the server through the multi cluster protocol.
+	 */
 	public void run() {
 
 		Socket mcSocket = null;

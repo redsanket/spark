@@ -1,16 +1,34 @@
 package hadooptest.cluster;
 
-import java.io.IOException;
-
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 
+import java.io.IOException;
+
+/**
+ * The protocol for the multi cluster functionality in the framework.
+ * 
+ * Used by the MultiClusterServer and MultiClusterClient to converse
+ * between one another.
+ */
 public class MultiClusterProtocol {
 	 
+	/** The Hadoop version of the client. **/
 	public String clientVersion = "";
+	
+	/** The DFS name of the client **/
 	public String clientDFSName = "";
+	
+	/** Whether a file exists or not when doing a DFS ls on the client **/
 	public boolean fileExists = false;
 	
+	/**
+	 * Process the input from either the client or the server.
+	 * 
+	 * @param theInput the input from either the client or server.
+	 * 
+	 * @return the response from the client or server.
+	 */
     public String processInput(String theInput) {
         String theOutput = null;
         
