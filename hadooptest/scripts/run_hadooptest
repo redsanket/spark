@@ -168,7 +168,8 @@ if ($use_mvn) {
 
     if ($build_coretest) {
         execute("cd $workspace/../coretest; /home/y/bin/mvn package -DskipTests ");
-        execute("cd $workspace/../coretest; /home/y/bin/mvn install");
+        # execute("cd $workspace/../coretest; /home/y/bin/mvn install");
+        execute("cd $workspace/../coretest; rm -f coretest_jar*.tgz; /home/y/bin/yinst_create -t nightly; yinst i coretest_jar*.tgz");
     } else {
         execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live");
     }
