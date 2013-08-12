@@ -339,7 +339,7 @@ public class RandomWriterAPI extends Configured implements Tool {
 			job.setReducerClass(Reducer.class);
 			job.setOutputFormatClass(SequenceFileOutputFormat.class);
 	      
-			// reducer NONE
+		    TestSession.logger.info("Running " + numMaps + " maps.");
 			job.setNumReduceTasks(0);
 		    ret += job.waitForCompletion(true) ? 0 : 1;
 			jobCounter++;
@@ -369,6 +369,7 @@ public class RandomWriterAPI extends Configured implements Tool {
     		job.setReducerClass(Reducer.class);
     		job.setOutputFormatClass(SequenceFileOutputFormat.class);
     	      
+		    TestSession.logger.info("Running " + numMaps + " maps.");
     		job.setNumReduceTasks(0);
     		job.submit();
     		rwjobs.add(job);

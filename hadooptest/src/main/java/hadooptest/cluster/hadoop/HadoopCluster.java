@@ -31,7 +31,7 @@ import coretest.cluster.ClusterState;
  * An interface which should represent the base capability of any cluster
  * type in the framework.  This interface is also what should be commonly
  * used to reference the common cluster instance maintained by the
- * TestSession.  Subclasses of Cluster should implment a specific cluster
+ * TestSession.  Subclasses of Cluster should implement a specific cluster
  * type.
  */
 public abstract class HadoopCluster {

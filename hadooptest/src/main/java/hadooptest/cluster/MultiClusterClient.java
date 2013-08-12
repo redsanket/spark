@@ -1,24 +1,36 @@
 package hadooptest.cluster;
 
+import hadooptest.TestSession;
+
 import java.io.BufferedReader;
-
-import java.lang.RuntimeException;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import hadooptest.TestSession;
-
+/**
+ * A class which represents the client in the multi-cluster capability of the
+ * framework.
+ */
 public class MultiClusterClient extends Thread {
 
+	/** The server port to connect to. **/
 	private static int SERVER_PORT;
+	
+	/** The server hostname to connect to. **/
 	private static String SERVER_HOSTNAME;
 
+	/** Whether the client is currently running or not. **/
 	private boolean runClient = true;
 	
+	/**
+	 * Class constructor.  Initializes the thread and sets server hostname and 
+	 * port.
+	 * 
+	 * @param port the server port to connect to.
+	 * @param hostname the server hostname to connect to.
+	 */
 	public MultiClusterClient(int port, String hostname) {
 		super("MultiClusterClient");
 		
@@ -26,10 +38,17 @@ public class MultiClusterClient extends Thread {
 		SERVER_HOSTNAME = hostname;
 	}
 	
+	/**
+	 * Stop the multi cluster client.
+	 */
 	public void stopClient() {
 		runClient = false;
 	}
 
+	/**
+	 * The thread for the client.  Connects to the multi cluster server
+	 * and converses with the server through the multi cluster protocol.
+	 */
 	public void run() {
 
 		Socket mcSocket = null;
@@ -49,20 +68,23 @@ public class MultiClusterClient extends Thread {
 			throw new RuntimeException(e);
 		}
 
-		String fromServer;
+		String fromServer, outputLine;
 
 		try {
-			while ((fromServer = in.readLine()) != null) {
-				TestSession.logger.info("Server: " + fromServer);
-				if (fromServer.equals("Bye."))
-					break;
-				else if (fromServer.equals("CLUSTER_STOP")) {
-					// Stop the cluster here
-					out.println("I got the request to stop the cluster.");
-				}
-
+			MultiClusterProtocol mcp = new MultiClusterProtocol();
+			
+			while ((fromServer = in.readLine()) != null) {					
 				if (!runClient)
 					break;
+				
+				TestSession.logger.info("Server: " + fromServer);
+				outputLine = mcp.processInput(fromServer);
+				if (outputLine != null) {
+					out.println(outputLine);
+				}	
+				else {
+					out.println("CLIENT_READY");
+				}
 			}
 
 			out.close();

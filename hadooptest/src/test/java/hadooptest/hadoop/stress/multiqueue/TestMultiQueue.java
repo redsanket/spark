@@ -27,7 +27,7 @@ import org.junit.Test;
 public class TestMultiQueue extends TestSession {
 		
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
-	private static String outputFile = "wc_output_new";
+	private static String outputFile = "TestMultiQueue_output";
 	private static String input_string = "Hello world! Start to test MultiQueue!";	
 	private static int TotalFileNum = 20;
 	
@@ -221,8 +221,8 @@ public class TestMultiQueue extends TestSession {
 				jobUserDefault.start();
 	
 				// check job status
-				assertTrue("WordCount job (default user) was not assigned an ID within 10 seconds.", 
-						jobUserDefault.waitForID(10));
+				assertTrue("WordCount job (default user) was not assigned an ID within 30 seconds.", 
+						jobUserDefault.waitForID(30));
 				assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
 						jobUserDefault.verifyID());	
 				int waitTime = 2;

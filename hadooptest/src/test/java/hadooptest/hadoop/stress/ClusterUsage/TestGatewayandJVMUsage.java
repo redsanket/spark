@@ -1,9 +1,7 @@
-package hadooptest.hadoop.stress.floodingHDFS;
+package hadooptest.hadoop.stress.ClusterUsage;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
@@ -11,20 +9,15 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestSystemAndJVMUsage extends TestSession {
+public class TestGatewayandJVMUsage extends TestSession {
 	
 	@BeforeClass
     public static void startTestSession() throws Exception{
@@ -50,29 +43,14 @@ public class TestSystemAndJVMUsage extends TestSession {
         assertNotNull("Expected cluster queue(s) not found!!!", queues);        
         TestSession.logger.info("queues='" +
             Arrays.toString(queues.toArray()) + "'");
-        if ((queues.size() == 1) &&
-            (Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
-                TestSession.logger.debug("Cluster is already setup properly." +
-                        "Nothing to do.");
-                return;
+        if (queues.size() < 1){
+			cluster.hadoopDaemon("stop", component);
+			cluster.hadoopDaemon("start", component);
         }
-        
-        // Backup the default configuration directory on the Resource Manager
-        // component host.
-        cluster.getConf(component).backupConfDir(); 
-
-        // Copy files to the custom configuration directory on the
-        // Resource Manager component host.
-        String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
-                "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
-        cluster.getConf(component).copyFileToConfDir(sourceFile,
-                "capacity-scheduler.xml");
-        cluster.hadoopDaemon("stop", component);
-        cluster.hadoopDaemon("start", component);
     }
     
     @Test 
-    public void TestRandomWriterAPI(){
+    public void SystemAndJVMUsage(){
     	long mb = 1024*1024;
 		long kb = 1024;
     	TestSession.logger.info("================== System level stats ======================");

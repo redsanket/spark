@@ -1,25 +1,21 @@
-package hadooptest.hadoop.stress.floodingHDFS;
+package hadooptest.hadoop.stress.ClusterUsage;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FsStatus;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestSingleRandomWriteJobSingleQueue extends TestSession {
+public class TestHdfsUsage extends TestSession {
 	
 	@BeforeClass
     public static void startTestSession() throws Exception{
@@ -67,20 +63,17 @@ public class TestSingleRandomWriteJobSingleQueue extends TestSession {
     }
     
     @Test 
-    public void testFillDFS() throws Exception{
-    	int jobnum = 1;
-		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
-		RandomWriterJob[] rwJob = new RandomWriterJob[jobnum];
-		for(int i = 0; i < rwJob.length; i++){
-			rwJob[i] = new RandomWriterJob();
-			Date date = new Date();
-			rwJob[i].setOutputDir(new DFS().getBaseUrl() + "/user/" + System.getProperty("user.name") + "/LargeFile/"+
-	    			dateFormat.format(date).toString()+ Integer.toString(i));
-			rwJob[i].start();
-			rwJob[i].waitForID(60);
-		}
-		for(int i = 0; i < rwJob.length; i++)
-			assertTrue("Job "+i+" did not succeed.",rwJob[i].waitForSuccess(20));
+    public void HdfsUsage() throws Exception{
+    	FileSystem fs = TestSession.cluster.getFS();
+    	FsStatus status  =fs.getStatus();
+    	long capacity = status.getCapacity();
+    	long remain = status.getRemaining();
+    	long used = status.getUsed();
+    	TestSession.logger.info("getCapacity	= "+capacity);
+    	TestSession.logger.info("getRemaining	= "+remain);
+    	TestSession.logger.info("getUsed		= "+used);
+    	TestSession.logger.info("DFS Remaining	= "+((double)remain/(double)capacity));
+    	TestSession.logger.info("DFS Used	= "+((double)used/(double)capacity));
     }
 }
 

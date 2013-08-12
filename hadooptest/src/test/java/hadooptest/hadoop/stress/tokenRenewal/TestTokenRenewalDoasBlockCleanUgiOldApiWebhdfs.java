@@ -8,6 +8,7 @@ package hadooptest.hadoop.stress.tokenRenewal;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
@@ -67,7 +68,7 @@ public class TestTokenRenewalDoasBlockCleanUgiOldApiWebhdfs extends TestSession 
     		ex.printStackTrace();
         }
 		
-	    hdfsNode = prop.getProperty("TokenRenewal.hdfsNode");
+		hdfsNode = TestSession.cluster.getNode(HadoopCluster.NAMENODE).getHostname();
 	    logger.info("===> HDFS node addr.: "+ hdfsNode + " <===");
 		
 		// show the input and output path

@@ -1,15 +1,24 @@
 package hadooptest.hadoop.stress.floodingHDFS;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -18,10 +27,12 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestManyJobsOneQueue extends TestSession {
+public class TestFileDescriptorLeakage extends TestSession {
 	
 	/****************************************************************
 	 *  Please set up input and output directory and file name here *
@@ -51,6 +62,7 @@ public class TestManyJobsOneQueue extends TestSession {
 	private static Path inpath = null;
 	private static String outputDir = null;
 	private static String localDir = null;
+	static List<QueueInfo> queues;
 	
 	/*
 	 *  Before running the test.
@@ -63,7 +75,35 @@ public class TestManyJobsOneQueue extends TestSession {
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
+		setupQueue();
 		setupTestDir();
+	}
+	public static void setupQueue() throws Exception  {
+		
+		FullyDistributedCluster cluster =
+				(FullyDistributedCluster) TestSession.cluster;
+		String component = HadoopCluster.RESOURCE_MANAGER;
+
+		YarnClientImpl yarnClient = new YarnClientImpl();
+		yarnClient.init(TestSession.getCluster().getConf());
+		yarnClient.start();
+
+		queues =  yarnClient.getAllQueues(); 
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
+		TestSession.logger.info("queues ='" + Arrays.toString(queues.toArray()) + "'");
+		
+		if (queues.size() != 1){
+			// Backup the default configuration directory on the Resource Manager
+			// component host.
+			cluster.getConf(component).backupConfDir();	
+			// Copy files to the custom configuration directory on the
+			// Resource Manager component host.
+			String sourceFile = TestSession.conf.getProperty("WORKSPACE") + "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
+			cluster.getConf(component).copyFileToConfDir(sourceFile, "capacity-scheduler.xml");
+			cluster.hadoopDaemon("stop", component);
+			cluster.hadoopDaemon("start", component);
+			cluster.waitForComponentState("start", component);
+		}
 	}
 	
 	public static void setupTestDir() throws Exception {
@@ -142,55 +182,69 @@ public class TestManyJobsOneQueue extends TestSession {
 		TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
 	}
 
-	/*
-	 * A test for running a Wordcount job
-	 * 
-	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
-	 */
 	@Test
-	public void runTestDurability() throws IOException, InterruptedException {
+	public void FileDescriptorUsage() throws IOException, InterruptedException {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
 		Random rand = new Random();
-		WordCountJob[] jobs = new WordCountJob[5];
+		WordCountJob[] jobs = new WordCountJob[Integer.parseInt(System.getProperty("JobNum"))];
+
 		try {
 			for(int i = 0; i < jobs.length; i++){
-				
 				jobs[i] = new WordCountJob();
+				TestSession.logger.info("======== job "+ i+" =========");
+
 				
 				String inputFile = inpath.toString() + "/" + Integer.toString(rand.nextInt(TotalFileNum)) + ".txt";
 				TestSession.logger.info("Randomly choosed input file is: " + inputFile);
 				
 				Date date = new Date();
 				String output = "/" +dateFormat.format(date).toString()+ Integer.toString(i);
-				TestSession.logger.info("===== Output file is: " + outputDir + outputFile + output);
+				TestSession.logger.info("Output file is: " + outputDir + outputFile + output);
 				
 				jobs[i].setInputFile(inputFile);
 				jobs[i].setOutputPath(outputDir + outputFile + output);
 				jobs[i].start();
 				
-				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", 
-						jobs[i].waitForID(10));
-				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", 
-						jobs[i].verifyID());
+				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", jobs[i].waitForID(10));
+				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", jobs[i].verifyID());
+
+				Process process = jobs[i].getProcess();
+				TestSession.logger.debug("process == null? "+(process == null));
+				
+				int pid = getUnixPID(process);
+				TestSession.logger.debug("job "+ i+" pid = "+pid);
+				
+				CheckProcessInfo(pid);
+				int of = countOpenFile(Integer.toString(pid));
+				TestSession.logger.debug("Initialy, job "+ i+" opened file # = "+of);
+			}
+			
+			for(int i = 0; i < jobs.length; i++){
+				int pid = getUnixPID(jobs[i].getProcess());
+				assertTrue("Job did not succeed.",jobs[i].waitForSuccess(20));
+				int of = countOpenFile(Integer.toString(pid));
+				TestSession.logger.debug("After completion, job "+ i+" opened file # = "+of);
+				assertTrue("WordCount job["+ i+"] has "+of+" files left open.", (of == 0));
 			}
 		}catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
 			fail();
 		}
-		
-		String pid = curPID().trim();
-		logger.info(this.getClass().getName()+" PID is "+pid);
-		int nofile = countOpenFile(pid);
-		logger.info("=============== Initially Total number of file opened by "+pid+" is "+nofile);
-
-		for(int i = 0; i < jobs.length; i++)
-			assertTrue("Job "+i+" did not succeed.",jobs[i].waitForSuccess(20));//waitForSuccess() wait until it finally success is not working as supposed so!
-
-		nofile = countOpenFile(pid);
-		logger.info("=============== Finally Total number of file opened by "+pid+" is "+nofile);
-//		assertTrue(this.getClass().getName()+" did not clean up all the opened files, "+nofile+" are left opened.",(nofile == 0));
 	}
+	
+	public int getUnixPID(Process process) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {  
+        if (process.getClass().getName().equals("java.lang.UNIXProcess")) {  
+            Field field = process.getClass().getDeclaredField("pid");  
+            field.setAccessible(true);  
+            Object pid = field.get(process);  
+            return (Integer) pid;  
+        } else {  
+            throw new IllegalArgumentException("Not a UNIXProcess");  
+        }  
+    }  
+	
+	// count the open file num of process pid
 	public int countOpenFile(String pid) throws IOException {
 		byte[] bo = new byte[100];
 		String[] cmd = {"bash", "-c"," lsof -p "+pid+" | wc -l"};
@@ -198,12 +252,36 @@ public class TestManyJobsOneQueue extends TestSession {
 		p.getInputStream().read(bo);
 		return Integer.parseInt(new String(bo).trim());
 	}
-	public String curPID() throws IOException {
+	
+	// Helper to detect process info
+	public void CheckProcessInfo(int pid){
+	    try {
+	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "ps "+pid});
+	        InputStream is = proc.getInputStream();
+	        InputStreamReader isr = new InputStreamReader(is);
+	        BufferedReader br = new BufferedReader(isr);
+	        String line;
 
-		byte[] bo = new byte[100];
-		String[] cmd = {"bash", "-c", "echo $PPID"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.getInputStream().read(bo);
-		return new String(bo);
+	        while ((line = br.readLine()) != null)
+	        	TestSession.logger.info(line);
+	    } catch (IOException e) {
+	    	TestSession.logger.error(e.getMessage());
+	    }
+	}
+	
+	// Helper to detect process info
+	public void PrintOpenFiles(int pid){
+		try {
+	        Process proc = Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", "lsof -p "+pid});
+	        InputStream is = proc.getInputStream();
+	        InputStreamReader isr = new InputStreamReader(is);
+	        BufferedReader br = new BufferedReader(isr);
+	        String line;
+
+	        while ((line = br.readLine()) != null)
+	        	TestSession.logger.debug(line);
+	    } catch (IOException e) {
+	    	TestSession.logger.error(e.getMessage());
+	    }
 	}
 }

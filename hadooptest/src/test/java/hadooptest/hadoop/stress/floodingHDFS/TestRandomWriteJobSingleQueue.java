@@ -1,21 +1,25 @@
 package hadooptest.hadoop.stress.floodingHDFS;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FsStatus;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.YarnClientImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestHdfsUsage extends TestSession {
+public class TestRandomWriteJobSingleQueue extends TestSession {
 	
 	@BeforeClass
     public static void startTestSession() throws Exception{
@@ -63,17 +67,20 @@ public class TestHdfsUsage extends TestSession {
     }
     
     @Test 
-    public void testFillDFS() throws Exception{
-    	FileSystem fs = TestSession.cluster.getFS();
-    	FsStatus status  =fs.getStatus();
-    	long capacity = status.getCapacity();
-    	long remain = status.getRemaining();
-    	long used = status.getUsed();
-    	logger.info("getCapacity ="+capacity);
-    	logger.info("getRemaining ="+remain);
-    	logger.info("getUsed ="+used);
-    	logger.info("remain/capacity = "+((double)remain/(double)capacity));
-    	logger.info("used/capacity   = "+((double)used/(double)capacity));
+    public void SingleRandomWriteJobSingleQueue() throws Exception{
+    	
+		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
+		RandomWriterJob[] rwJob = new RandomWriterJob[Integer.parseInt(System.getProperty("JobNum"))];
+		for(int i = 0; i < rwJob.length; i++){
+			rwJob[i] = new RandomWriterJob();
+			Date date = new Date();
+			rwJob[i].setOutputDir(new DFS().getBaseUrl() + "/user/" + System.getProperty("user.name") + "/LargeFile/"+
+	    			dateFormat.format(date).toString()+ Integer.toString(i));
+			rwJob[i].start();
+			rwJob[i].waitForID(60);
+		}
+		for(int i = 0; i < rwJob.length; i++)
+			assertTrue("Job "+i+" did not succeed.",rwJob[i].waitForSuccess(20));
     }
 }
 

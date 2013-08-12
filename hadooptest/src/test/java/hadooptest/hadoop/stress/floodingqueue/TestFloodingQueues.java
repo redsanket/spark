@@ -27,10 +27,8 @@ import org.junit.Test;
 public class TestFloodingQueues extends TestSession {
 
 	// NOTE: this is a directory and will appear in your home directory in the HDFS
-	private static String outputFile = "wc_output_new";
-	
+	private static String outputFile = "wc_output_new";	
 	private static String input_string = "Hello world, and run Durability Test";
-
 	private static int TotalFileNum = 20;
 
 	private static Path inpath = null;
@@ -52,7 +50,7 @@ public class TestFloodingQueues extends TestSession {
 		setupTestDir();
 	}
 	
-public static void setupTestConf() throws Exception  {
+	public static void setupTestConf() throws Exception  {
 		
 		FullyDistributedCluster cluster =
 				(FullyDistributedCluster) TestSession.cluster;
@@ -176,11 +174,6 @@ public static void setupTestConf() throws Exception  {
 		TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
 	}
 
-	/*
-	 * A test for running a Wordcount job
-	 * 
-	 * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
-	 */
 	@Test
 	public void runWordCountTest() {
 		

@@ -68,7 +68,7 @@ public class TestRandomWriterAPI extends TestSession {
     }
     
     @Test 
-    public void TestRandomWriterAPI(){
+    public void RandomWriterAPI(){
     	//<out-dir> <level> <jobNum><MAPS_PER_HOST_VAL><BYTES_PER_MAP_VAL>
 		String TargetLevel = System.getProperty("RandomWriterAPI.TargetLevel");
 		if(TargetLevel == null) TargetLevel = "";
@@ -91,7 +91,7 @@ public class TestRandomWriterAPI extends TestSession {
 	    	String outdir = new DFS().getBaseUrl() + "/user/" + System.getProperty("user.name") + "/LargeFile/"+dateFormat.format(date).toString();
 	    	TestSession.logger.info("outdir = "+outdir);
 			String[] args = {outdir,TargetLevel,JobNum,MAPS_PER_HOST,BYTES_PER_MAP };
-				
+
 			int rc = ToolRunner.run(conf, new RandomWriterAPI(), args);
 			if (rc != 0) 
 				TestSession.logger.error("Job failed!!!");

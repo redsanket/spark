@@ -30,9 +30,10 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+
 import coretest.Util;
 
-public class WordCountAPIJob extends Configured implements Tool {
+public class WordCountAPIFullCapacityJob extends Configured implements Tool {
     public static class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
         private HashMap<String,Integer> buffer;
 
@@ -83,57 +84,89 @@ public class WordCountAPIJob extends Configured implements Tool {
             super.cleanup(context);
         }
     }
-    
-    // input: args[] ~ <input path>, <output path>, <job number>, <queue number>, <queue0 name>, <queue1 name>....
+
     public int run(String[] args) throws Exception {
-    	int file_count = 0;
+    	int fileCount = 0;
+    	int jobCount;
     	Random random = new Random();
     	
-    	int jobNum = Integer.parseInt(args[2]);
-    	int qNum = Integer.parseInt(args[3]);
-    	
-    	JobConf [] conf = new JobConf[qNum];   	
-    	
-        Job [][] job = new Job[qNum][jobNum];
+    	int jobNum = Integer.parseInt(args[2]) - 1;
+    	int qIndex = Integer.parseInt(args[3]);
+    	    	
+        Job [] job = new Job[jobNum];
         
-        for (int q = 0; q < qNum; q++){
-	        for (int i = 0; i < jobNum; i++){
-	        	TestSession.logger.info("=== Submitting Job["+i+"] to Queue["+q+"] ===");
+	    for (int i = 0; i < jobNum; i++){
+	        TestSession.logger.info("=== Submitting Job["+i+"] to Queue["+qIndex+"] ===");
+	        
+	        JobConf conf = new JobConf();
+	        conf.setQueueName(args[4]);
+	        job[i] = Job.getInstance(conf);
 	        	
-	        	conf[q] = new JobConf();
-	        	conf[q].setQueueName(args[4+q]);
-	        	job[q][i] = Job.getInstance(conf[q]);
-	        	
-	        	job[q][i].setOutputKeyClass(Text.class);
-	        	job[q][i].setOutputValueClass(IntWritable.class);	        
+	        job[i].setOutputKeyClass(Text.class);
+	        job[i].setOutputValueClass(IntWritable.class);	        
 		
-	        	job[q][i].setMapperClass(TokenizerMapper.class);
-	        	job[q][i].setCombinerClass(IntSumReducer.class);
-	        	job[q][i].setReducerClass(IntSumReducer.class);
+	        job[i].setMapperClass(TokenizerMapper.class);
+	        job[i].setCombinerClass(IntSumReducer.class);
+	        job[i].setReducerClass(IntSumReducer.class);
 		        	        
-	        	job[q][i].setInputFormatClass(TextInputFormat.class);
-	        	job[q][i].setOutputFormatClass(TextOutputFormat.class);
+	        job[i].setInputFormatClass(TextInputFormat.class);
+	        job[i].setOutputFormatClass(TextOutputFormat.class);
 		
-	        	int randNum = 10 + random.nextInt(10);
-	        	TestSession.logger.info("=== Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt ===");
-		        FileInputFormat.setInputPaths(job[q][i], new Path(args[0]+"/"+Integer.toString((randNum))+".txt"));
-		        FileOutputFormat.setOutputPath(job[q][i], new Path(args[1] + "/" + Integer.toString(file_count)));
-		        job[q][i].setJobName("word count");
+	        int randNum = random.nextInt(20);
+	        TestSession.logger.info("=== Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt ===");
+		    FileInputFormat.setInputPaths(job[i], new Path(args[0]+"/"+Integer.toString((randNum))+".txt"));
+		    FileOutputFormat.setOutputPath(job[i], new Path(args[1] + "/" + Integer.toString(qIndex) + "/" + Integer.toString(fileCount)));
+		    job[i].setJobName("word count");
 		        
-		        job[q][i].setJarByClass(WordCountAPIJob.class);
+		    job[i].setJarByClass(WordCountAPIFullCapacityJob.class);
 		
-		        job[q][i].submit();
-		        file_count++;
-	        }
+		    job[i].submit();
+		    fileCount++;
         }
+	    jobCount = jobNum;
+	    
+	    long startTime = System.currentTimeMillis();
+	    long endTime = startTime + Long.parseLong(args[5]);
+	    TestSession.logger.info("Current time is: " + startTime/1000);
+	    TestSession.logger.info("End time is: " + endTime/1000);
 
 		try{
-	        for(int q = 0; q < qNum; q++){
-		        for (int i = 0; i < jobNum; i++){
-		        	TestSession.logger.info("=== Checking Job["+q+"]["+i+"] ===");
-		    		assertTrue("Job["+q+"]["+i+"] failed",
-		    				waitForSuccess(5, job[q][i]));
-		        	}
+			int i = 0;
+		    while(i < jobCount){
+		        TestSession.logger.info("===> Checking Job["+qIndex+"]["+i+"] <===");
+		    	assertTrue("Job["+qIndex+"]["+i+"] failed",
+		    			waitForSuccess(5, job[i%jobNum]));
+		    	if(System.currentTimeMillis() <= endTime){
+		    		TestSession.logger.info("=== Submitting Job["+(i+jobNum)+"] to Queue["+qIndex+"] ===");
+		        			    		
+			        JobConf conf = new JobConf();
+			        conf.setQueueName(args[4]);
+			        job[i%jobNum] = Job.getInstance(conf);
+			        	
+			        job[i%jobNum].setOutputKeyClass(Text.class);
+			        job[i%jobNum].setOutputValueClass(IntWritable.class);	        
+				
+			        job[i%jobNum].setMapperClass(TokenizerMapper.class);
+			        job[i%jobNum].setCombinerClass(IntSumReducer.class);
+			        job[i%jobNum].setReducerClass(IntSumReducer.class);
+				        	        
+			        job[i%jobNum].setInputFormatClass(TextInputFormat.class);
+			        job[i%jobNum].setOutputFormatClass(TextOutputFormat.class);
+				
+			        int randNum = random.nextInt(20);
+			        TestSession.logger.info("===> Load input file "+args[0]+"/"+Integer.toString((randNum))+".txt <===");
+				    FileInputFormat.setInputPaths(job[i], new Path(args[0]+"/"+Integer.toString((randNum))+".txt"));
+			        TestSession.logger.info("===> Load input file "+args[1]+"/"+Integer.toString((fileCount))+" <===");
+				    FileOutputFormat.setOutputPath(job[i], new Path(args[1] + "/" + Integer.toString(fileCount)));
+				    job[i%jobNum].setJobName("word count");
+				        
+				    job[i%jobNum].setJarByClass(WordCountAPIFullCapacityJob.class);
+				
+				    job[i%jobNum].submit();
+				    fileCount++;
+				    jobCount++;
+		    	}
+		    	i++;
 	        }
 		} catch(Exception e){
 			TestSession.logger.error("Exception failure.", e);
@@ -149,7 +182,7 @@ public class WordCountAPIJob extends Configured implements Tool {
 		
 		// Give the sleep job time to complete
 		for (int i = 0; i <= (minute * 6); i++) {
-
+			
 			currentState = job.getJobState();
 			if (currentState.equals(State.SUCCEEDED)) {
 				TestSession.logger.info("JOB " + job.getJobID() + " SUCCEEDED");
@@ -175,10 +208,11 @@ public class WordCountAPIJob extends Configured implements Tool {
 		TestSession.logger.error("JOB " + job.getJobID() + " didn't SUCCEED within the timeout window.");
 		return false;
     }
-
+    
+    // input: args[] ~ <input path>, <output path>, <capacity>, <queue index>, <queue name>, <runtime>.
     public static void main(String[] args) throws Exception {
         Configuration configuration = new Configuration();
         String[] otherArgs = new GenericOptionsParser(configuration, args).getRemainingArgs();
-        ToolRunner.run(new WordCountAPIJob(), otherArgs);
+        ToolRunner.run(new WordCountAPIFullCapacityJob(), otherArgs);
     }
 }
