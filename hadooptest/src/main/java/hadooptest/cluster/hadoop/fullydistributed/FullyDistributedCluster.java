@@ -12,7 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
@@ -113,10 +115,9 @@ public class FullyDistributedCluster extends HadoopCluster {
 				conf.getHadoopProp("CLUSTER_NAME") + 
 				" ---------------------------------");
 		int returnValue = 0;
-		String action = "start";
 		for (String component : HadoopCluster.components) {
 		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
-			returnValue += this.hadoopDaemon(action, component);
+			returnValue += this.hadoopDaemon(Action.START, component);
 		}
 
 		if (returnValue > 0) {
@@ -156,11 +157,9 @@ public class FullyDistributedCluster extends HadoopCluster {
 				conf.getHadoopProp("CLUSTER_NAME") + 
 				" ---------------------------------");
 		int returnValue = 0;
-		String action = "stop";
-
 		for (String component : HadoopCluster.components) {
 		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
-			returnValue += this.hadoopDaemon(action, component);	
+			returnValue += this.hadoopDaemon(Action.STOP, component);	
 		}
 		  
 		if (returnValue > 0) {
@@ -278,7 +277,7 @@ public class FullyDistributedCluster extends HadoopCluster {
      * @throws Exception if there is a fatal error starting or stopping
      *         a daemon node.
      */
-	public int hadoopDaemon(String action, String component) 
+	public int hadoopDaemon(Action action, String component) 
 			throws Exception {
 		return hadoopDaemon(action, component, null, null);
 	}
@@ -297,7 +296,7 @@ public class FullyDistributedCluster extends HadoopCluster {
      * @throws Exception if there is a fatal error starting or stopping
      *         a daemon node.
      */
-	public int hadoopDaemon(String action, String component, String[] daemonHost) 
+	public int hadoopDaemon(Action action, String component, String[] daemonHost) 
 			throws Exception {
 		return hadoopDaemon(action, component, daemonHost, null);
 	}
@@ -322,12 +321,12 @@ public class FullyDistributedCluster extends HadoopCluster {
      * @throws Exception if there is a fatal error starting or stopping
      *         a daemon node.
      */
-	public int hadoopDaemon(String action, String component,
+	public int hadoopDaemon(Action action, String component,
 	        String[] daemonHost, String confDir) throws Exception {
 		if (daemonHost == null) {
 			daemonHost = this.getNodeNames(component);	
 		}
-		if (action.equals("start")) {
+		if (action.equals(Action.START)) {
 			if ((confDir == null) || confDir.isEmpty()) {
 				/*
 				 * Check if the configuration property for the component has
@@ -342,6 +341,9 @@ public class FullyDistributedCluster extends HadoopCluster {
 			confDir = "";			
 		}
 		
+		String actionStr =
+		        (action == Action.START) ?
+		                HadoopCluster.START : HadoopCluster.STOP;
 		FullyDistributedConfiguration conf =
 		        (FullyDistributedConfiguration) getNode(component).getConf();
 		String[] cmd1 = { "/home/y/bin/pdsh", "-w",
@@ -350,7 +352,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 		        "set", "-root", conf.getHadoopProp("HADOOP_INSTALL"),
 				"hadoop_qa_restart_config.HADOOP_CONF_DIR="+confDir, ";" };
 		String[] cmd3 = { "/usr/bin/sudo", "/usr/local/bin/yinst",
-		        action, "-root", conf.getHadoopProp("HADOOP_INSTALL"),
+		        actionStr, "-root", conf.getHadoopProp("HADOOP_INSTALL"),
 		        component };
 		ArrayList<String> temp = new ArrayList<String>();
 		temp.addAll(Arrays.asList(cmd1));
@@ -387,7 +389,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 			 * the configurations are not changed. In the future, would be 
 			 * better if we are able to determine this. 
 			 */
-			if (action.equals("start")) {
+			if (action.equals(Action.START)) {
 			    // TODO: Load default resource for all the conf objects
 			    conf.loadClusterResource();
 			}
@@ -407,7 +409,7 @@ public class FullyDistributedCluster extends HadoopCluster {
      * @throws Exception if there is a fatal error waiting for the component 
      * state.
      */
-	public boolean waitForComponentState(String action, String component) 
+	public boolean waitForComponentState(Action action, String component) 
 			throws Exception {
 		int waitInterval = 3;
 		int maxWait = 10;
@@ -428,7 +430,7 @@ public class FullyDistributedCluster extends HadoopCluster {
      * @throws Exception if there is a fatal error waiting for the component 
      * state.
      */
-	public boolean waitForComponentState(String action, String component,
+	public boolean waitForComponentState(Action action, String component,
 			int waitInterval, int maxWait) 
 					throws Exception {
 		return waitForComponentState(action, component,
@@ -449,11 +451,12 @@ public class FullyDistributedCluster extends HadoopCluster {
      * 
      * @throws Exception if there is a fatal error checking the component state.
      */
-	public boolean waitForComponentState(String action, String component,
+	public boolean waitForComponentState(Action action, String component,
 			int waitInterval, int maxWait, String[] daemonHost)
 			        throws Exception {
 		
-	    String expStateStr = action.equals("start") ? "started" : "stopped";
+	    String expStateStr =
+	            action.equals(Action.START) ? "started" : "stopped";
 
 		if (waitInterval == 0) {
 			waitInterval = 3;
@@ -508,16 +511,38 @@ public class FullyDistributedCluster extends HadoopCluster {
 	public boolean isFullyUp() throws Exception {
 		boolean overallStatus = true;
 		boolean componentStatus = true;
+
+	    /** Container for storing the Hadoop cluster node objects by components */
+	    Hashtable<String, Boolean> compState =
+	            new Hashtable<String, Boolean>();
+
 		for (String component : HadoopCluster.components) {
 		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
 			  componentStatus = this.isComponentFullyUp(component);
 			  TestSession.logger.info("Get Cluster Status: " + component +
 			          " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
+			  compState.put(component, Boolean.valueOf(componentStatus));
 			  if (componentStatus == false) {
 				  overallStatus = false;
 			  }
 		}
+		
+		// Show cluster state summary		
+		String comp;
+	    Enumeration<String> comps = compState.keys();
+	    TestSession.logger.info("--> Cluster Component Status Summary:");
+        TestSession.logger.info("******************************");
+	    while(comps.hasMoreElements()) {
+	         comp = (String) comps.nextElement();
+	         componentStatus = compState.get(comp);
+	         TestSession.logger.info(
+	                 comp + ": " +
+	                 ((componentStatus == true) ? "up" : "down") +
+	                 " (" + compStats.get(comp) + ")");
+	    }	      
+        TestSession.logger.info("******************************");
+		
 	    return overallStatus;
 	}
 	
@@ -577,7 +602,8 @@ public class FullyDistributedCluster extends HadoopCluster {
      */
 	public boolean isComponentFullyUp(String component, String[] daemonHost) 
 			throws Exception {
-		return isComponentFullyInExpectedState("start", component, daemonHost);
+		return isComponentFullyInExpectedState(Action.START,
+		        component, daemonHost);
 	}
 	
     /**
@@ -626,7 +652,8 @@ public class FullyDistributedCluster extends HadoopCluster {
      */
 	public boolean isComponentFullyDown(String component, String[] daemonHost) 
 			throws Exception {		
-		return isComponentFullyInExpectedState("stop", component, daemonHost);
+		return isComponentFullyInExpectedState(Action.STOP,
+		        component, daemonHost);
 	}
 		
     /**
@@ -643,7 +670,7 @@ public class FullyDistributedCluster extends HadoopCluster {
      * @throws Exception if there is a failure checking if a component is in 
      * the expected state.
      */
-	public boolean isComponentFullyInExpectedState(String action,
+	public boolean isComponentFullyInExpectedState(Action action,
 			String component) 
 					throws Exception {
 		return isComponentFullyInExpectedState(action, component, null);
@@ -664,7 +691,7 @@ public class FullyDistributedCluster extends HadoopCluster {
      * @throws Exception if there is a failure checking if a component is in 
      * the expected state.
      */
-	public boolean isComponentFullyInExpectedState(String action,
+	public boolean isComponentFullyInExpectedState(Action action,
 			String component, String[] daemonHosts) 
 					throws Exception {
 	    String adminHost = HadoopCluster.ADMIN;  
@@ -704,16 +731,17 @@ public class FullyDistributedCluster extends HadoopCluster {
         }		
 
         // Figure out expected versus actual number of processes
-		String expectedState = (action.equals("start")) ? "up" : "down";
+		String expectedState =
+		        (action.equals(Action.START)) ? "up" : "down";
 		int numCapableDaemonProcessesPerHost = (component.equals("datanode")) ?
 				2 : 1;
-		int numExpectedDaemonProcessesPerHost = (action.equals("start")) ?
+		int numExpectedDaemonProcessesPerHost =
+		        (action.equals(Action.START)) ?
 				numCapableDaemonProcessesPerHost : 0;
 	    for(String host : daemonHosts) {
 	    	// Check for the expected number of processes for each host
 	    	TestSession.logger.trace("Check against process counter for host " +
 	    	        host);
-	    	
 	        int numActualDaemonProcessesPerHost =
 	                (processCounter.containsKey(host)) ?
 	                        processCounter.get(host) : 0;	        				
@@ -734,7 +762,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 
 		int numCapableDaemonProcesses =
 		        numCapableDaemonProcessesPerHost * daemonHosts.length;
-		int numExpectedDaemonProcesses = (action.equals("start")) ?
+		int numExpectedDaemonProcesses = (action.equals(Action.START)) ?
 		        numCapableDaemonProcesses : 0;		
 		int numActualDaemonProcesses = daemonProcesses.length;
 		TestSession.logger.trace(
@@ -744,17 +772,17 @@ public class FullyDistributedCluster extends HadoopCluster {
 				(numActualDaemonProcesses == numExpectedDaemonProcesses) ?
 				        true : false;
 		
-		if (action.equals("start")) {
-			TestSession.logger.debug("Number of " + component +
-					" process up: " + numActualDaemonProcesses + "/" +
-					numCapableDaemonProcesses);
-		}
-		else {
-			TestSession.logger.debug("Number of " + component +
-					" process down: " +
-					(numCapableDaemonProcesses-numActualDaemonProcesses) + "/" +
-					numCapableDaemonProcesses);
-		}
+		int numRelativeActualDaemonProcesses =
+		        (action.equals(Action.START)) ? 
+		        numActualDaemonProcesses : 
+		        (numCapableDaemonProcesses-numActualDaemonProcesses);	
+		TestSession.logger.debug("Number of " + component +
+		        " process " + expectedState + ": " +
+		        numRelativeActualDaemonProcesses + "/" +
+		        numCapableDaemonProcesses);
+		compStats.put(component, numRelativeActualDaemonProcesses + "/" +
+                numCapableDaemonProcesses);
+		
 		return isComponentFullyInExpectedState;
 	}	
 }
