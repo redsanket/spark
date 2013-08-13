@@ -158,6 +158,7 @@ public abstract class TestSession extends TestSessionCore {
 		if (cluster != null) {
 			ClusterState clusterState = null;
 			try {
+			    TestSession.logger.info("Get cluster state: ");
 				clusterState = cluster.getState();
 			}
 			catch (Exception e) {
