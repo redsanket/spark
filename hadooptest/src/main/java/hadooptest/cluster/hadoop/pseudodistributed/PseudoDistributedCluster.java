@@ -217,6 +217,66 @@ public class PseudoDistributedCluster extends HadoopCluster {
 		return this.isFullyDown();
 	}
 
+    /**
+     * Start or stop the Hadoop daemon processes.
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * 
+     * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
+     */
+    public int hadoopDaemon(Action action, String component) 
+            throws Exception {
+        throw new Exception("Method not implemented!!!");
+    }
+        
+    /**
+     * Start or stop the Hadoop daemon processes.
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param daemonHost The hostnames to perform the action on. 
+     * 
+     * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
+     */
+    public int hadoopDaemon(Action action, String component,
+            String[] daemonHost) throws Exception {
+        throw new Exception("Method not implemented!!!");
+    }
+    
+    /**
+     * Start or stop the Hadoop daemon processes. The method will also wait for
+     * the daemons to fully start or stop depending on the expected state. 
+     * It will also reinitialize the hadooptest configuration object with the
+     * configuration directory if the action is start, and the configuration
+     * directory is not the default one (which cannot be modified due to root
+     * permission).  
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param daemonHost The hostnacomponent The cluster component to perform the action on. 
+     * @param confDir The configuration directory to perform the action with. 
+     * 
+     * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
+     */
+    public int hadoopDaemon(Action action, String component,
+            String[] daemonHost, String confDir) throws Exception {
+        throw new Exception("Method not implemented!!!");
+    }
+    
+
 	/**
 	 * Set a custom configuration for the pseudodistributed cluster instance.
 	 * 
@@ -302,6 +362,115 @@ public class PseudoDistributedCluster extends HadoopCluster {
 		return isFullyDown;
 	}
 	
+    /**
+     * Check if the cluster component is fully up.
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return true if the cluster is fully up, false if the cluster is not
+     * fully up.
+     * 
+     * @throws Exception if there is a fatal error checking if a component is
+     * up.
+     */
+    public boolean isComponentFullyUp(String component) 
+            throws Exception {
+        return isComponentFullyUp(component, null);
+    }
+    
+    /**
+     * Check if the cluster component is fully up for a given String Array of
+     * host names. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * @param daemonHost host names String Array of daemon host names,
+     * 
+     * @return boolean true if the cluster is fully up, false if the cluster is 
+     * not fully up.
+     * 
+     * @throws Exception if there is a fatal error checking the state of a 
+     * component.
+     */
+    public boolean isComponentFullyUp(String component, String[] daemonHost) 
+            throws Exception {
+        return isComponentFullyInExpectedState(Action.START,
+                component, daemonHost);
+    }
+    
+
+    /**
+     * Check if the cluster component is fully down.
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return boolean true if the cluster is fully down, false if the cluster 
+     * is not fully down.
+     * 
+     * @throws Exception if there is a failure checking if a component is down.
+     */
+    public boolean isComponentFullyDown(String component) 
+            throws Exception {
+        throw new Exception("Method not implemented!!!");
+    }   
+
+    /**
+     * Check if the cluster component is fully down for a given String Array of
+     * host names. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * @param daemonHost host names String Array of daemon host names,
+     * 
+     * @return boolean true if the cluster is fully down, false if the cluster
+     * is not fully down.
+     * 
+     * @throws Exception if there is a failure checking if a component is down.
+     */
+    public boolean isComponentFullyDown(String component, String[] daemonHost) 
+            throws Exception {      
+        return isComponentFullyInExpectedState(Action.STOP,
+                component, daemonHost);
+    }
+        
+    /**
+     * Check if the cluster component is fully in a specified state associated
+     * with start or stop.
+     * 
+     * @param action the action associated with the expected state
+     * {"start", "stop"}
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return boolean true if the cluster is fully in the expected state,
+     * false if the cluster is not fully in the expected state.
+     * 
+     * @throws Exception if there is a failure checking if a component is in 
+     * the expected state.
+     */
+    public boolean isComponentFullyInExpectedState(Action action,
+            String component) 
+                    throws Exception {
+        return isComponentFullyInExpectedState(action, component, null);
+    }
+    
+    /**
+     * Check if the cluster component is fully in a specified state associated
+     * with start or stop.
+     * 
+     * @param action the action associated with the expected state 
+     * {"start", "stop"}
+     * @param component cluster component such as gateway, namenode,
+     * @param daemonHosts host names String Array of daemon host names,
+     * 
+     * @return boolean true if the cluster is fully in the expected state,
+     * false if the cluster is not fully in the expected state.
+     * 
+     * @throws Exception if there is a failure checking if a component is in 
+     * the expected state.
+     */
+    public boolean isComponentFullyInExpectedState(Action action,
+            String component, String[] daemonHosts) throws Exception {
+        throw new Exception("Method not implemented!!!");
+    }   
+
 	/**
 	 * Runs a process through the Executor ProcessBuilder, and applies a
 	 * BufferedReader to the output, to put the output in the logs.
