@@ -41,6 +41,7 @@ public abstract class HadoopCluster {
     public static final String RESOURCE_MANAGER = "resourcemanager";
     public static final String DATANODE = "datanode";
     public static final String NODEMANAGER = "nodemanager";
+    public static final String HISTORYSERVER = "historyserver";
     public static final String GATEWAY = "gateway";
     
     // Admin hosts
@@ -56,14 +57,26 @@ public abstract class HadoopCluster {
     public static final String[] components = {
         HadoopCluster.NAMENODE,
         HadoopCluster.RESOURCE_MANAGER,
+        HadoopCluster.HISTORYSERVER,
         HadoopCluster.DATANODE,
         HadoopCluster.NODEMANAGER,
         HadoopCluster.GATEWAY
         };
 
-    /** Container for storing the Hadoop cluster node objects by components */
+    public static final String START = "start";
+    public static final String STOP = "stop";
+    public static enum Action {
+        START, STOP }
+    
+    /**
+     * Container for storing the Hadoop cluster node objects by components
+     * Each component contains a hash table of key hostname and
+     * value HadoopNode */
     protected Hashtable<String, Hashtable<String, HadoopNode>> hadoopNodes =
             new Hashtable<String, Hashtable<String, HadoopNode>>();
+
+    protected Hashtable<String, String> compStats =
+            new Hashtable<String, String>();
 
     /* TODO: Consider maintaining a cluster level properties for tracking
      * cluster level paths and settings. 
@@ -102,6 +115,59 @@ public abstract class HadoopCluster {
 	public abstract boolean stop() 
 			throws Exception;
 
+    /**
+     * Start or stop the Hadoop daemon processes.
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * 
+     * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
+     */
+    public abstract int hadoopDaemon(Action action, String component) 
+            throws Exception;
+        
+    /**
+     * Start or stop the Hadoop daemon processes.
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param daemonHost The hostnames to perform the action on. 
+     * 
+     * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
+     */
+    public abstract int hadoopDaemon(Action action, String component,
+            String[] daemonHost) throws Exception;
+    
+    /**
+     * Start or stop the Hadoop daemon processes. The method will also wait for
+     * the daemons to fully start or stop depending on the expected state. 
+     * It will also reinitialize the hadooptest configuration object with the
+     * configuration directory if the action is start, and the configuration
+     * directory is not the default one (which cannot be modified due to root
+     * permission).  
+     *
+     * @param action The action to perform on the Hadoop daemon
+     * {"start", "stop"}
+     * @param component The cluster component to perform the action on. 
+     * @param daemonHost The hostnacomponent The cluster component to perform the action on. 
+     * @param confDir The configuration directory to perform the action with. 
+     * 
+     * @return 0 for success or 1 for failure.
+     * 
+     * @throws Exception if there is a fatal error starting or stopping
+     *         a daemon node.
+     */
+    public abstract int hadoopDaemon(Action action, String component,
+            String[] daemonHost, String confDir) throws Exception;
+    
 	/**
 	 * Get the current state of the cluster.
 	 * 
@@ -135,6 +201,99 @@ public abstract class HadoopCluster {
 	public abstract boolean isFullyDown()
 			throws Exception;
 
+    /**
+     * Check if the cluster component is fully up.
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return true if the cluster is fully up, false if the cluster is not
+     * fully up.
+     * 
+     * @throws Exception if there is a fatal error checking if a component is
+     * up.
+     */
+    public abstract boolean isComponentFullyUp(String component) 
+            throws Exception;
+    
+    /**
+     * Check if the cluster component is fully up for a given String Array of
+     * host names. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * @param daemonHost host names String Array of daemon host names,
+     * 
+     * @return boolean true if the cluster is fully up, false if the cluster is 
+     * not fully up.
+     * 
+     * @throws Exception if there is a fatal error checking the state of a 
+     * component.
+     */
+    public abstract boolean isComponentFullyUp(String component,
+            String[] daemonHost) throws Exception;
+    
+    /**
+     * Check if the cluster component is fully down.
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return boolean true if the cluster is fully down, false if the cluster 
+     * is not fully down.
+     * 
+     * @throws Exception if there is a failure checking if a component is down.
+     */
+    public abstract boolean isComponentFullyDown(String component) 
+            throws Exception; 
+
+    /**
+     * Check if the cluster component is fully down for a given String Array of
+     * host names. 
+     * 
+     * @param component cluster component such as gateway, namenode,
+     * @param daemonHost host names String Array of daemon host names,
+     * 
+     * @return boolean true if the cluster is fully down, false if the cluster
+     * is not fully down.
+     * 
+     * @throws Exception if there is a failure checking if a component is down.
+     */
+    public abstract boolean isComponentFullyDown(String component,
+            String[] daemonHost) throws Exception;
+        
+    /**
+     * Check if the cluster component is fully in a specified state associated
+     * with start or stop.
+     * 
+     * @param action the action associated with the expected state
+     * {"start", "stop"}
+     * @param component cluster component such as gateway, namenode,
+     * 
+     * @return boolean true if the cluster is fully in the expected state,
+     * false if the cluster is not fully in the expected state.
+     * 
+     * @throws Exception if there is a failure checking if a component is in 
+     * the expected state.
+     */
+    public abstract boolean isComponentFullyInExpectedState(Action action,
+            String component) throws Exception;
+    
+    /**
+     * Check if the cluster component is fully in a specified state associated
+     * with start or stop.
+     * 
+     * @param action the action associated with the expected state 
+     * {"start", "stop"}
+     * @param component cluster component such as gateway, namenode,
+     * @param daemonHosts host names String Array of daemon host names,
+     * 
+     * @return boolean true if the cluster is fully in the expected state,
+     * false if the cluster is not fully in the expected state.
+     * 
+     * @throws Exception if there is a failure checking if a component is in 
+     * the expected state.
+     */
+    public abstract boolean isComponentFullyInExpectedState(Action action,
+            String component, String[] daemonHosts) throws Exception;
+    	
 	/**
 	 * Get the current version of the cluster.
 	 * 
@@ -204,6 +363,10 @@ public abstract class HadoopCluster {
             rmHosts = new String[] {rm};
         }
         initComponentNodes(HadoopCluster.RESOURCE_MANAGER, rmHosts);
+
+        // History Server
+        TestSession.logger.info("Initialize the history server node:");
+        initComponentNodes(HadoopCluster.HISTORYSERVER, rmHosts);
 
         // Datanode
         TestSession.logger.info("Initialize the datanode node(s):");
