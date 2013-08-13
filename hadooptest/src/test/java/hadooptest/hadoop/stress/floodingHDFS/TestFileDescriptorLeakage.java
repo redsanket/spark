@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
@@ -100,9 +101,9 @@ public class TestFileDescriptorLeakage extends TestSession {
 			// Resource Manager component host.
 			String sourceFile = TestSession.conf.getProperty("WORKSPACE") + "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
 			cluster.getConf(component).copyFileToConfDir(sourceFile, "capacity-scheduler.xml");
-			cluster.hadoopDaemon("stop", component);
-			cluster.hadoopDaemon("start", component);
-			cluster.waitForComponentState("start", component);
+			cluster.hadoopDaemon(Action.STOP, component);
+			cluster.hadoopDaemon(Action.START, component);
+			cluster.waitForComponentState(Action.START, component);
 		}
 	}
 	

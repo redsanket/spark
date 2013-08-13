@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
@@ -48,8 +49,8 @@ public class TestRandomWriteJobMultiQueue extends TestSession {
 			TestSession.logger.debug("Cluster is already setup properly." 
 									+ "Multi-queues are Running." + "Nothing to do.");
 		} else {
-			cluster.hadoopDaemon("stop", component);
-			cluster.hadoopDaemon("start", component);
+			cluster.hadoopDaemon(Action.STOP, component);
+			cluster.hadoopDaemon(Action.START, component);
 		}
 		TestSession.logger.info("queues ='" +	Arrays.toString(queues.toArray()) + "'");
 	}

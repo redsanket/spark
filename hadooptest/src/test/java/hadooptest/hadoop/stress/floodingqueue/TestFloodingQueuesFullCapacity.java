@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.WordCountAPIFullCapacityJob;
 
@@ -77,8 +78,8 @@ public class TestFloodingQueuesFullCapacity extends TestSession {
 		} else {
 				// set up TestSession to default queue numbers, which should be more than 2 queue
 				// restart the cluster to get default queue setting
-    			cluster.hadoopDaemon("stop", component);
-    			cluster.hadoopDaemon("start", component);
+    			cluster.hadoopDaemon(Action.STOP, component);
+    			cluster.hadoopDaemon(Action.START, component);
  
         		return;        		
 		}

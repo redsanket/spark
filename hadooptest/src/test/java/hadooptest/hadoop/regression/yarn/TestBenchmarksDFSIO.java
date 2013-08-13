@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.GenericJob;
 
@@ -87,8 +88,8 @@ public class TestBenchmarksDFSIO extends TestSession {
                 "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
         cluster.getConf(component).copyFileToConfDir(sourceFile,
                 "capacity-scheduler.xml");
-        cluster.hadoopDaemon("stop", component);
-        cluster.hadoopDaemon("start", component);
+        cluster.hadoopDaemon(Action.STOP, component);
+        cluster.hadoopDaemon(Action.START, component);
     }
     
     public static void setupTestDir() throws Exception {

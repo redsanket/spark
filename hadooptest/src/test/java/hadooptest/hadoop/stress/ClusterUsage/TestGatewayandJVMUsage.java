@@ -3,6 +3,7 @@ package hadooptest.hadoop.stress.ClusterUsage;
 import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
 import java.lang.management.ManagementFactory;
@@ -44,8 +45,8 @@ public class TestGatewayandJVMUsage extends TestSession {
         TestSession.logger.info("queues='" +
             Arrays.toString(queues.toArray()) + "'");
         if (queues.size() < 1){
-			cluster.hadoopDaemon("stop", component);
-			cluster.hadoopDaemon("start", component);
+			cluster.hadoopDaemon(Action.STOP, component);
+			cluster.hadoopDaemon(Action.START, component);
         }
     }
     
