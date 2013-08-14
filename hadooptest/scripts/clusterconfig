@@ -66,7 +66,20 @@
 # Override the cache directory by using the -w argument. 
 # $ ./clusterconfig -w /tmp -c theoden 
 
-
+ALWAYS_FETCH_NODES=0
+ALWAYS_BACKUP=0
+UPDATE_OPSDB=0
+SHOW_OPSDB=0
+IMAGE=0;
+VALIDATE=0;
+VALIDATE_BACKUP=0;
+FETCH_NODES_ONLY=0;
+RESTORE=0;
+WORKSPACE_ROOT="$HOME"
+SSH="/usr/bin/ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SCP="/usr/bin/scp -p -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+OS_VERSION="6.4.1"
+REQ_OS="6.4";
 
 ###########################################
 # Function to backup cluster node content
@@ -86,29 +99,13 @@ function backupHostDir {
     echo "--> Backup files from cluster node '$host' '$sourceDir' to localhost '$targetDir'";
 
     # create a manifest
-    set -x
-    ssh $host ls -l "$sourceDir/" > $targetDir/files.mf
+    $SSH $host ls -l "$sourceDir/" > $targetDir/files.mf
     TAR_FILE="/tmp/files.tgz"
-    ssh -t $host "sudo tar -zcf $TAR_FILE -C $sourceDir .";
-    scp -p $host:$TAR_FILE $targetDir;
+    set -x
+    $SSH -t $host "sudo tar -zcf $TAR_FILE -C $sourceDir .";
+    $SCP -p $host:$TAR_FILE $targetDir;
     set +x
 }
-
-
-ALWAYS_FETCH_NODES=0
-ALWAYS_BACKUP=0
-UPDATE_OPSDB=0
-SHOW_OPSDB=0
-IMAGE=0;
-VALIDATE=0;
-VALIDATE_BACKUP=0;
-FETCH_NODES_ONLY=0;
-RESTORE=0;
-WORKSPACE_ROOT="$HOME"
-SSH="/usr/bin/ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-OS_VERSION="6.4.1"
-REQ_OS="6.4";
-
 
 function usage
 {
@@ -308,14 +305,14 @@ then
             if [[ rc -eq 0 ]]; then
                 echo "--> Restore keytab files for host '$host'"
                 set -x
-                scp -p $HOST_BACKUP_DIR/files.tgz $host:/tmp;
+                $SCP -p $HOST_BACKUP_DIR/files.tgz $host:/tmp;
                 $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_KT_DIR";
                 $SSH -t $host ls -l $BU_SRC_KT_DIR;
                 set +x
 
                 echo "--> Restore local conf files for host '$host'"
                 set -x
-                scp -p $HOST_BACKUP_DIR2/files.tgz $host:/tmp;
+                $SCP -p $HOST_BACKUP_DIR2/files.tgz $host:/tmp;
                 $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
                 $SSH -t $host ls -l $BU_SRC_LC_DIR;
                 set +x
@@ -336,7 +333,7 @@ for host in `cat $UPGRADE_NODES_FILE`; do
         # "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --modify ysa_profile=ygrid_dn "
         echo "--> Update opsdb for host $host:";
         stty -echo
-        ssh -t adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
+        $SSH -t adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
         stty echo
     fi
 
@@ -355,7 +352,7 @@ if [[ $IMAGE == 1 ]]; then
     for host in `cat $UPGRADE_NODES_FILE`; do
         echo "--> Reboot host $host:";
         stty -echo
-        ssh -t adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
+        $SSH -t adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
         stty echo
     done
 fi
