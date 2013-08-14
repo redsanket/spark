@@ -96,7 +96,7 @@ function backupHostDir {
     local targetDir=$3
 
     `/bin/mkdir -p $targetDir`
-    echo "--> Backup files from cluster node '$host' '$sourceDir' to localhost '$targetDir'";
+    echo "---> Backup files from cluster node '$host' in '$sourceDir' to localhost '$targetDir'";
 
     # create a manifest
     $SSH $host ls -l "$sourceDir/" > $targetDir/files.mf
@@ -259,6 +259,9 @@ else
     echo "*****************************************************************"
 fi
 
+NUM_UPGRADE_NODES=`cat $UPGRADE_NODES_FILE|wc -l`
+echo "Number of nodes to upgrade for cluster '$CLUSTER'='$NUM_UPGRADE_NODES'"
+
 #################################################################################
 # Backup keytabs
 #################################################################################
@@ -281,8 +284,11 @@ fi
 
 if [[ $BACKUP_KEYTABS == 1 ]];
 then 
+    index=0
     # LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
     for host in `cat $UPGRADE_NODES_FILE`; do
+        index=$((index+1))
+        echo "--> Backup cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
 	backupHostDir $host $BU_SRC_KT_DIR "$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
 	backupHostDir $host $BU_SRC_LC_DIR "$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
     done
