@@ -44,7 +44,7 @@
 # 2) Update opsdb to configure the OS fields for the cluster nodes 
 #    $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
 # 3) Display the information from opsdb for the updated cluster nodes
-#    $ expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
+#    $ expecter -n -v ./clusterconfig -c mallard --show_opsdb
 # 4) After a few minutes, image the cluster nodes
 #    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
 # 5) After a few minutes, check on the status of the cluster nodes
@@ -137,9 +137,24 @@ usage: $0  --cluster             |-c <cluster name>
 --validate_backup    Validate the backup files for the cluster nodes (default is false)
 
 Example:
+# 1) Backup the keytab and local config directory
+#    $ expecter -n -v ./clusterconfig -c mallard
+# 2) Update opsdb to configure the OS fields for the cluster nodes 
+#    $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
+# 3) Display the information from opsdb for the updated cluster nodes
+#    $ expecter -n -v ./clusterconfig -c mallard --show_opsdb
+# 4) After a few minutes, image the cluster nodes
+#    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
+# 5) After a few minutes, check on the status of the cluster nodes
+#    $ expecter -n -v ./clusterconfig -c mallard --validate
+# 6) Restore the cluster nodes with the backed up keytab and local config
+#    $ expecter -n -v ./clusterconfig -c mallard --restore
+# 7) Validate the restore backup files
+#    $ expecter -n -v ./clusterconfig -c mallard --validate_backup
+
 $ expecter -n -v ./clusterconfig -c mallard
 $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
-$ expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
+$ expecter -n -v ./clusterconfig -c mallard --show_opsdb
 $ expecter -n -v ./clusterconfig -c mallard --image_cluster
 $ expecter -n -v ./clusterconfig -c mallard --validate
 $ expecter -n -v ./clusterconfig -c mallard --restore
@@ -292,41 +307,9 @@ then
 	backupHostDir $host $BU_SRC_KT_DIR "$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
 	backupHostDir $host $BU_SRC_LC_DIR "$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
     done
+    # show tree
+    echo "run /usr/bin/tree $WORKSPACE to verify files have been properly backed up"
 fi
-
-
-#################################################################################
-# Restore keytabs
-#################################################################################
-if [[ $RESTORE == 1 ]];
-then
-    VALIDATE=1;
-    for host in `cat $UPGRADE_NODES_FILE`; do
-        HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
-        HOST_BACKUP_DIR2="$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
-        if [[ -d $HOST_BACKUP_DIR ]]; then
-            # check if the host is accessible
-            /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
-            rc=$?
-            if [[ rc -eq 0 ]]; then
-                echo "--> Restore keytab files for host '$host'"
-                set -x
-                $SCP -p $HOST_BACKUP_DIR/files.tgz $host:/tmp;
-                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_KT_DIR";
-                $SSH -t $host ls -l $BU_SRC_KT_DIR;
-                set +x
-
-                echo "--> Restore local conf files for host '$host'"
-                set -x
-                $SCP -p $HOST_BACKUP_DIR2/files.tgz $host:/tmp;
-                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
-                $SSH -t $host ls -l $BU_SRC_LC_DIR;
-                set +x
-            fi
-        fi
-    done
-fi
-
 
 #################################################################################
 # Update OPSDB
@@ -334,10 +317,16 @@ fi
 # Requires opsdb_client
 # Requires flubber_conutil_wrapper-0.1.1
 #################################################################################
+index=0
 for host in `cat $UPGRADE_NODES_FILE`; do
+    index=$((index+1))
     if [[ $UPDATE_OPSDB == 1 ]]; then
         # "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --modify ysa_profile=ygrid_dn "
-        echo "--> Update opsdb for host $host:";
+        echo "--> Update opsdb for cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
+        # update will prompt user to wait up to 30 min
+        # http://ybiip1-1-grd.ops.gq1.yahoo.com:9999/wrong.pl?h=gsbl90524.blue.ygrid.yahoo.com
+        # http://ybiip1-1-grd.ops.gq1.yahoo.com:9999/wrong.pl?h=$hostname
+        date
         stty -echo
         $SSH -t adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
         stty echo
@@ -350,13 +339,14 @@ for host in `cat $UPGRADE_NODES_FILE`; do
     fi
 done
 
-
 #################################################################################
 # IMAGE THE HOSTS
 #################################################################################
 if [[ $IMAGE == 1 ]]; then
+    index=0
     for host in `cat $UPGRADE_NODES_FILE`; do
-        echo "--> Reboot host $host:";
+        index=$((index+1))
+        echo "--> Reboot cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
         stty -echo
         $SSH -t adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
         stty echo
@@ -364,11 +354,49 @@ if [[ $IMAGE == 1 ]]; then
 fi
 
 #################################################################################
+# Restore keytabs
+#################################################################################
+if [[ $RESTORE == 1 ]];
+then
+    VALIDATE=1;
+    index=0
+    for host in `cat $UPGRADE_NODES_FILE`; do
+        index=$((index+1))
+        echo "--> Restore cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
+        HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
+        HOST_BACKUP_DIR2="$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
+        if [[ -d $HOST_BACKUP_DIR ]]; then
+            # check if the host is accessible
+            /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
+            rc=$?
+            if [[ rc -eq 0 ]]; then
+                echo "---> Restore keytab files for host '$host'"
+                set -x
+                $SCP -p $HOST_BACKUP_DIR/files.tgz $host:/tmp;
+                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_KT_DIR";
+                $SSH -t $host ls -l $BU_SRC_KT_DIR;
+                set +x
+
+                echo "---> Restore local conf files for host '$host'"
+                set -x
+                $SCP -p $HOST_BACKUP_DIR2/files.tgz $host:/tmp;
+                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
+                $SSH -t $host ls -l $BU_SRC_LC_DIR;
+                set +x
+            fi
+        fi
+    done
+fi
+
+
+#################################################################################
 # VALIDATE THE HOSTS
 #################################################################################
 if [[ $VALIDATE == 1 ]]; then
+    index=0
     for host in `cat $UPGRADE_NODES_FILE`; do
-        echo "--> Validate host status for host '$host': ";
+        index=$((index+1))
+        echo "--> Validate host status for cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
 
         /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
         rc=$?
