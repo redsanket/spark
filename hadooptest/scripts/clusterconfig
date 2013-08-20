@@ -372,7 +372,7 @@ if [[ $VALIDATE == 1 ]]; then
     index=0
     for host in `cat $UPGRADE_NODES_FILE`; do
         index=$((index+1))
-        echo "--> Validate host status for cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
+        echo -n "--> Validate node ($index/$NUM_UPGRADE_NODES) '$host': ";
 
         /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
         rc=$?
@@ -440,19 +440,42 @@ then
             rc=$?
             if [[ rc -eq 0 ]]; then
                 echo "---> Restore keytab files for host '$host'"
-                set -x
-                $SCP -p $HOST_BACKUP_DIR/files.tgz $host:/tmp;
-                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_KT_DIR";
-                $SSH -t $host ls -l $BU_SRC_KT_DIR;
-                set +x
-
+                BU_TAR_FILE=$HOST_BACKUP_DIR/files.tgz
+                if [[ -f $BU_TAR_FILE ]]; then
+                    set -x
+                    $SCP -p $BU_TAR_FILE $host:/tmp;
+                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_KT_DIR";
+                    $SSH -t $host ls -l $BU_SRC_KT_DIR;
+                    set +x
+                else 
+                    echo "WARNING: keytab backup file '$BU_TAR_FILE' does not exists!!!!"
+                fi
+ 
                 echo "---> Restore local conf files for host '$host'"
-                set -x
-                $SCP -p $HOST_BACKUP_DIR2/files.tgz $host:/tmp;
-                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
-                $SSH -t $host ls -l $BU_SRC_LC_DIR;
-                set +x
+                BU_TAR_FILE=$HOST_BACKUP_DIR2/files.tgz
+                if [[ -f $BU_TAR_FILE ]]; then
+                    set -x
+                    $SCP -p $BU_TAR_FILE $host:/tmp;
+                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
+                    $SSH -t $host ls -l $BU_SRC_LC_DIR;
+                    set +x
+                 else
+                    echo "WARNING: local conf backup file '$BU_TAR_FILE' does not exists!!!!"
+                 fi
+
+                # Fix the health check issue. This should be commented out after ticket is resolved. 
+                # Bugzilla Ticket 6481091 - mapreqa user needs whitelist in health check scripts
+                WORKAROUND=1
+                if [[ $WORKAROUND -eq 1 ]]; then
+                    echo "---> Fix health check script for host '$host'"
+                    HC_SCRIPT="/usr/local/libexec/nm_health_check"
+                    set -x
+                    $SSH -t $host "sudo perl -pi -e \"s/'mapred'/'mapredqa'/g\" $HC_SCRIPT"
+                    set +x
+                fi
             fi
+        else 
+           echo "Backup directory '$HOST_BACKUP_DIR' does not exist!!!"
         fi
     done
 fi
