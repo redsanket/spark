@@ -39,32 +39,7 @@
 #################################################################################
 # USAGE
 #################################################################################
-# 1) Backup the keytab and local config directory
-#    $ expecter -n -v ./clusterconfig -c mallard
-# 2) Update opsdb to configure the OS fields for the cluster nodes 
-#    $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
-# 3) Display the information from opsdb for the updated cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --show_opsdb
-# 4) After a few minutes, image the cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
-# 5) After a few minutes, check on the status of the cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --validate
-# 6) Restore the cluster nodes with the backed up keytab and local config
-#    $ expecter -n -v ./clusterconfig -c mallard --restore
-# 7) Validate the restore backup files
-#    $expecter -n -v ./clusterconfig -c mallard --validate_restore
-
-# For one off nodes (e.g. after problem nodes are repaired), use the --node or
-# --nodes arguments to run commands on specific node or a list of defined nodes.
-#
-# $ expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
-# $ expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
-#
-# $ expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
-# $ expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
-#
-# Override the cache directory by using the -w argument. 
-# $ ./clusterconfig -w /tmp -c theoden 
+# <See usage function below>
 
 ALWAYS_FETCH_NODES=0
 ALWAYS_BACKUP=0
@@ -141,40 +116,35 @@ usage: $0  --cluster             |-c <cluster name> or --noneclustermode
 --validate           Validate the cluster nodes (default is false)
 --validate_restore   Validate the backup files for the cluster nodes have been restored (default is false)
 
-Example:
-# 1) Backup the keytab and local config directory
-#    $ expecter -n -v ./clusterconfig -c mallard
-# 2) Update opsdb to configure the OS fields for the cluster nodes 
-#    $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
-# 3) Display the information from opsdb for the updated cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --show_opsdb
-# 4) After a few minutes, image the cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
-# 5) After a few minutes, check on the status of the cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --validate
-# 6) Restore the cluster nodes with the backed up keytab and local config
-#    $ expecter -n -v ./clusterconfig -c mallard --restore
-# 7) Validate the restore backup files
-#    $ expecter -n -v ./clusterconfig -c mallard --validate_restore
+Example of a typical sequence for upgrade a cluster:
+1) Back up the keytab and local config directory: $ expecter -n -v ./clusterconfig -c mallard
+2) Update opsdb OS fields for cluster nodes:      $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
+3) Validate updated entries from opsdb:           $ expecter -n -v ./clusterconfig -c mallard --show_opsdb
+4) After few minutes, image the cluster nodes:    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
+5) After few minutes, check node status:          $ expecter -n -v ./clusterconfig -c mallard --validate
+6) Restore backup files to cluster nodes:         $ expecter -n -v ./clusterconfig -c mallard --restore
+7) Validate restore ran successfully:             $ expecter -n -v ./clusterconfig -c mallard --validate_restore
 
-$ expecter -n -v ./clusterconfig -c mallard
-$ expecter -n -v ./clusterconfig -c mallard --update_opsdb
-$ expecter -n -v ./clusterconfig -c mallard --show_opsdb
-$ expecter -n -v ./clusterconfig -c mallard --image_cluster
-$ expecter -n -v ./clusterconfig -c mallard --validate
-$ expecter -n -v ./clusterconfig -c mallard --restore
-$ expecter -n -v ./clusterconfig -c mallard --validate_restore
+For one off nodes (e.g. after problem nodes are repaired), use the --node or
+--nodes arguments to run commands on specific node or a list of defined nodes.
 
-# expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
-# expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
+$ expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
+$ expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
+
 $ expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
 $ expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
-$ clusterconfig -w /tmp -c theoden 
 
+Override the cache directory by using the -w argument. 
+$ ./clusterconfig -w /tmp -c theoden 
+
+Run script for a gateway host in none cluster mode
 # expecter -n -v ./clusterconfig --node gwbl2003.blue.ygrid.yahoo.com --noneclustermode
+
+Run script for all gateway hosts in gateway mode
 # expecter -n -v ./clusterconfig --gatewaymode
 
-Expecter is a wrapper application that provides expect functions
+This script depends on the dist package 'expecter' for handling passwords.
+This can be installed by running: yinst install expecter 
 $ yinst ls -files expecter
 yinst: /home/y/bin/expecter                             expecter-1.0.2
 
