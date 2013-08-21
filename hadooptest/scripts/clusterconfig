@@ -256,6 +256,9 @@ fi
 if [[ $FETCH_UPGRADE_NODES == 1 ]]
 then
     echo "Fetch and create the upgrade node list file '$UPGRADE_NODES_FILE'"
+    # Create the upgrade node file as a record in case there are no nodes that
+    # need to be upgraded.
+    touch $UPGRADE_NODES_FILE
     for host in `cat $CLUSTER_NODES`;do
         echo -n "$host: ";
         ver=`$SSH $host cat /etc/redhat-release`;
