@@ -85,8 +85,7 @@ function backupHostDir {
     set +x
 }
 
-function usage
-{
+function usage {
     cat <<EOF
 usage: $0  --cluster             |-c <cluster name> or --noneclustermode
           [--workspace           |-w <workspace directory ]
@@ -325,10 +324,10 @@ fi
 #################################################################################
 # Backup keytabs
 #################################################################################
-BU_SRC_KT_DIR="/etc/grid-keytabs"
-BU_SRC_LC_DIR="/home/gs/conf/local" 
-BU_TGT_KT_BSNAME="keytabs"
-BU_TGT_LC_BSNAME="localconf"
+KT_DIR="/etc/grid-keytabs"
+LC_DIR="/home/gs/conf/local" 
+BU_KT_NAME="keytabs"
+BU_LC_NAME="localconf"
 
 BACKUP_KEYTABS=0
 NUM_TGZ_FILES=`find $WORKSPACE -name \*.tgz|wc -l`;
@@ -349,8 +348,8 @@ then
     for host in `cat $UPGRADE_NODES_FILE`; do
         index=$((index+1))
         echo "--> Backup cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
-	backupHostDir $host $BU_SRC_KT_DIR "$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
-	backupHostDir $host $BU_SRC_LC_DIR "$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
+	backupHostDir $host $KT_DIR "$WORKSPACE/$host/$BU_KT_NAME"
+	backupHostDir $host $LC_DIR "$WORKSPACE/$host/$BU_LC_NAME"
     done
     # show tree
     echo "run /usr/bin/tree $WORKSPACE to verify files have been properly backed up"
@@ -410,6 +409,20 @@ if [[ $IMAGE == 1 ]]; then
     done
 fi
 
+function val_restore {
+    local host=$1
+    local type=$2
+    local type_dir=$3
+    BU_TYPE_DIR="$WORKSPACE/$host/$type"
+    $SSH $host ls -l $type_dir/ > $BU_TYPE_DIR/files.actual
+    DIFF=`diff -b $BU_TYPE_DIR/files.mf $BU_TYPE_DIR/files.actual`
+    if [[ -n $DIFF ]]; then
+        echo "Expected and actual $type files differs on host $host: $DIFF"
+    else 
+        echo "Expected and actual $type files match on host $host."
+    fi
+}
+
 #################################################################################
 # VALIDATE THE HOSTS
 #################################################################################
@@ -433,27 +446,8 @@ if [[ $VALIDATE == 1 ]]; then
                 # Validate that the back up files are restored properly.
                 # Compare it against the manifest file that was saged originaly.
                 if [[ $VALIDATE_RESTORE == 1 ]]; then
-
-                    # Validate keytab files
-                    HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
-                    $SSH $host ls -l $BU_SRC_KT_DIR/ > $HOST_BACKUP_DIR/files.actual
-                    DIFF=`diff -b $HOST_BACKUP_DIR/files.mf $HOST_BACKUP_DIR/files.actual`
-                    if [[ -n $DIFF ]]; then
-                        echo "Expected and actual keytab files differs on host $host: $DIFF"
-                    else 
-                        echo "Expected and actual keytab files match on host $host."
-                    fi
-
-                    # Validate local conf files
-                    HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
-                    # LOCAL_CONF_DIR=$BU_SRC_LC_DIR;
-                    $SSH $host ls -l $BU_SRC_LC_DIR/ > $HOST_BACKUP_DIR/files.actual
-                    DIFF=`diff -b $HOST_BACKUP_DIR/files.mf $HOST_BACKUP_DIR/files.actual`
-                    if [[ -n $DIFF ]]; then
-                        echo "Expected and actual local conf files differs on host $host: $DIFF"
-                    else 
-                        echo "Expected and actual local conf files match on host $host."
-                    fi
+                    val_restore $host $BU_KT_NAME $KT_DIR
+                    val_restore $host $BU_LC_NAME $LC_DIR
                 fi;
             fi ; 
         else
@@ -477,8 +471,8 @@ then
     for host in `cat $UPGRADE_NODES_FILE`; do
         index=$((index+1))
         echo "--> Restore cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
-        HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
-        HOST_BACKUP_DIR2="$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
+        HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_KT_NAME"
+        HOST_BACKUP_DIR2="$WORKSPACE/$host/$BU_LC_NAME"
         if [[ -d $HOST_BACKUP_DIR ]]; then
             # check if the host is accessible
             /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
@@ -489,9 +483,11 @@ then
                 if [[ -f $BU_TAR_FILE ]]; then
                     set -x
                     $SCP -p $BU_TAR_FILE $host:/tmp;
-                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_KT_DIR";
-                    $SSH -t $host ls -l $BU_SRC_KT_DIR;
+                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $KT_DIR";
+                    $SSH -t $host /bin/rm -f /tmp/files.tgz
                     set +x
+                    # Validate keytab files
+                    val_restore $host $BU_KT_NAME $KT_DIR
                 else 
                     echo "WARNING: keytab backup file '$BU_TAR_FILE' does not exists!!!!"
                 fi
@@ -501,9 +497,11 @@ then
                 if [[ -f $BU_TAR_FILE ]]; then
                     set -x
                     $SCP -p $BU_TAR_FILE $host:/tmp;
-                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
-                    $SSH -t $host ls -l $BU_SRC_LC_DIR;
+                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $LC_DIR";
+                    $SSH -t $host /bin/rm -f /tmp/files.tgz
                     set +x
+                    # Validate local conf files
+                    val_restore $host $BU_LC_NAME $LC_DIR
                  else
                     echo "WARNING: local conf backup file '$BU_TAR_FILE' does not exists!!!!"
                  fi
@@ -528,6 +526,6 @@ fi
 # Clean up temporary file
 if [[ -f $NODE_FILE ]]; then 
     set -x
-    /bin/rm $NODE_FILE
+    /bin/rm -f $NODE_FILE
     set +x
 fi
