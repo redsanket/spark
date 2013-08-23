@@ -333,6 +333,7 @@ BACKUP_KEYTABS=0
 NUM_TGZ_FILES=`find $WORKSPACE -name \*.tgz|wc -l`;
 if [[ $NUM_TGZ_FILES == 0 ]]
 then 
+    echo "No backup files found. Proceed with backup:"
     BACKUP_KEYTABS=1
 else
     if [[ $ALWAYS_BACKUP == 1 ]]
@@ -358,8 +359,7 @@ fi
 # Check backup
 #    echo "run /usr/bin/tree $WORKSPACE to verify files have been properly backed up"
 echo "Backed up files:"
-find $WORKSPACE -type f | xargs ls -l 
-
+find $WORKSPACE -type f -name \*.tgz| xargs ls -l
 
 #################################################################################
 # Update OPSDB
