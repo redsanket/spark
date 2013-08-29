@@ -293,10 +293,10 @@ public class TestMultiQueueDurability extends TestSession {
 	private void assertJobs(WordCountJob jobUserDefault, int i, int j){	
 		try{
 			assertTrue("WordCount job (default user) was not assigned an ID within 60 seconds." + "i = " + i +", j = " + j, 
-					jobUserDefault.waitForID(60));
+					jobUserDefault.waitForID(300));
 			assertTrue("WordCount job ID for WordCount job (default user) is invalid.", 
 					jobUserDefault.verifyID());
-			int waitTime = 5;
+			int waitTime = 30;
 			assertTrue("[!!!!]Job (default user) did not succeed."+ "i = " + i +", j = " + j,
 				jobUserDefault.waitForSuccess(waitTime));
 			TestSession.logger.info("===> Job(" +i+","+j+")"+"successed! <===");
