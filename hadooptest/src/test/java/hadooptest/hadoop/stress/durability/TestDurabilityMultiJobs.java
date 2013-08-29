@@ -232,7 +232,7 @@ public class TestDurabilityMultiJobs extends TestSession {
 					jobUserDefault.waitForID(30));
 			assertTrue("WordCountJob job ID for WordCountJob job (default user) is invalid.", 
 					jobUserDefault.verifyID());
-			int waitTime = 5;
+			int waitTime = 15;
 			assertTrue("Job (default user) did not succeed.",
 				jobUserDefault.waitForSuccess(waitTime));
 		} catch (Exception e){
