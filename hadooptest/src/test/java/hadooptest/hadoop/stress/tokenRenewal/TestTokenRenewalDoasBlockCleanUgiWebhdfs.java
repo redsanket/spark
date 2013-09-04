@@ -247,8 +247,8 @@ public class TestTokenRenewalDoasBlockCleanUgiWebhdfs extends TestSession {
 		   		TestSession.logger.info("Trying to submit job1...");
 		   		Job1.start();
 		   		 
-		   		assertTrue("Job1  was not assigned an ID within 10 seconds.", 
-		   					Job1.waitForID(10));
+		   		assertTrue("Job1  was not assigned an ID within 120 seconds.", 
+		   					Job1.waitForID(120));
 		   		assertTrue("Job1 is invalid.", 
 		   					Job1.verifyID());
 	

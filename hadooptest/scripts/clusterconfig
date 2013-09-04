@@ -39,34 +39,25 @@
 #################################################################################
 # USAGE
 #################################################################################
-# 1) Backup the keytab and local config directory
-#    $ expecter -n -v ./clusterconfig -c mallard
-# 2) Update opsdb to configure the OS fields for the cluster nodes 
-#    $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
-# 3) Display the information from opsdb for the updated cluster nodes
-#    $ expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
-# 4) After a few minutes, image the cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
-# 5) After a few minutes, check on the status of the cluster nodes
-#    $ expecter -n -v ./clusterconfig -c mallard --validate
-# 6) Restore the cluster nodes with the backed up keytab and local config
-#    $ expecter -n -v ./clusterconfig -c mallard --restore
-# 7) Validate the restore backup files
-#    $expecter -n -v ./clusterconfig -c mallard --validate_backup
+# <See usage function below>
 
-# For one off nodes (e.g. after problem nodes are repaired), use the --node or
-# --nodes arguments to run commands on specific node or a list of defined nodes.
-#
-# $ expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
-# $ expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
-#
-# $ expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
-# $ expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
-#
-# Override the cache directory by using the -w argument. 
-# $ ./clusterconfig -w /tmp -c theoden 
-
-
+ALWAYS_FETCH_NODES=0
+ALWAYS_BACKUP=0
+NONE_CLUSTER_MODE=0
+GATEWAY_MODE=0
+UPDATE_OPSDB=0
+SHOW_OPSDB=0
+IMAGE=0;
+VALIDATE=0;
+VALIDATE_RESTORE=0;
+FETCH_NODES_ONLY=0;
+RESTORE=0;
+WORKSPACE_ROOT="$HOME"
+SINGLE_HOST=""
+SSH="/usr/bin/ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SCP="/usr/bin/scp -p -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+OS_VERSION="6.4.1"
+REQ_OS="6.4";
 
 ###########################################
 # Function to backup cluster node content
@@ -83,37 +74,20 @@ function backupHostDir {
     local targetDir=$3
 
     `/bin/mkdir -p $targetDir`
-    echo "--> Backup files from cluster node '$host' '$sourceDir' to localhost '$targetDir'";
+    echo "---> Backup files from cluster node '$host' in '$sourceDir' to localhost '$targetDir'";
 
     # create a manifest
-    set -x
-    ssh $host ls -l "$sourceDir/" > $targetDir/files.mf
+    $SSH $host ls -l "$sourceDir/" > $targetDir/files.mf
     TAR_FILE="/tmp/files.tgz"
-    ssh -t $host "sudo tar -zcf $TAR_FILE -C $sourceDir .";
-    scp -p $host:$TAR_FILE $targetDir;
+    set -x
+    $SSH -t $host "sudo tar -zcf $TAR_FILE -C $sourceDir .";
+    $SCP -p $host:$TAR_FILE $targetDir;
     set +x
 }
 
-
-ALWAYS_FETCH_NODES=0
-ALWAYS_BACKUP=0
-UPDATE_OPSDB=0
-SHOW_OPSDB=0
-IMAGE=0;
-VALIDATE=0;
-VALIDATE_BACKUP=0;
-FETCH_NODES_ONLY=0;
-RESTORE=0;
-WORKSPACE_ROOT="$HOME"
-SSH="/usr/bin/ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-OS_VERSION="6.4.1"
-REQ_OS="6.4";
-
-
-function usage
-{
+function usage {
     cat <<EOF
-usage: $0  --cluster             |-c <cluster name>
+usage: $0  --cluster             |-c <cluster name> or --noneclustermode
           [--workspace           |-w <workspace directory ]
           [--always_fetch_nodes  |-a ]
           [--always_backup       |-b ]
@@ -124,12 +98,14 @@ usage: $0  --cluster             |-c <cluster name>
           [--image_cluster       |-i ]
           [--restore             |-r ]
           [--validate            |-v ]
-          [--validate_backup         ]
+          [--validate_restore        ]
           [--help                |-h ]
 
 --cluster            Name of the cluster
 --always_fetch_nodes Always fetch nodes from igor (default is false, i.e. don't re-fetch)
 --always_backup      Always backup the keytab files (default is false, i.e. don't backup if it's already been done)
+--noneclustermode    Run script for one off node that is not part of a cluster (e.g. gateway). Requires --node <value>
+--gatewaymode        Run script for all of the flubber cluster gateways.
 --node               Use a temporary alternative node (e.g. to restore a specific node after hardware fixes)
 --nodes              Use temporary alternative nodes list (e.g. to restore specific nodes after hardware fixes)
 --update_opsdb       Update node configuration in opsdb for cluster nodes (default is false)
@@ -137,24 +113,37 @@ usage: $0  --cluster             |-c <cluster name>
 --image_cluster      Image the cluster nodes (default is false)
 --restore            Restore backup files (default is false)
 --validate           Validate the cluster nodes (default is false)
---validate_backup    Validate the backup files for the cluster nodes (default is false)
+--validate_restore   Validate the backup files for the cluster nodes have been restored (default is false)
 
-Example:
-$ expecter -n -v ./clusterconfig -c mallard
-$ expecter -n -v ./clusterconfig -c mallard --update_opsdb
-$ expecter -l -n -v ./clusterconfig -c mallard --show_opsdb
-$ expecter -n -v ./clusterconfig -c mallard --image_cluster
-$ expecter -n -v ./clusterconfig -c mallard --validate
-$ expecter -n -v ./clusterconfig -c mallard --restore
-$ expecter -n -v ./clusterconfig -c mallard --validate_backup
+Example of a typical sequence for upgrade a cluster:
+1) Back up the keytab and local config directory: $ expecter -n -v ./clusterconfig -c mallard
+2) Update opsdb OS fields for cluster nodes:      $ expecter -n -v ./clusterconfig -c mallard --update_opsdb
+3) Validate updated entries from opsdb:           $ expecter -n -v ./clusterconfig -c mallard --show_opsdb
+4) After few minutes, image the cluster nodes:    $ expecter -n -v ./clusterconfig -c mallard --image_cluster
+5) After few minutes, check node status:          $ expecter -n -v ./clusterconfig -c mallard --validate
+6) Restore backup files to cluster nodes:         $ expecter -n -v ./clusterconfig -c mallard --restore
+7) Validate restore ran successfully:             $ expecter -n -v ./clusterconfig -c mallard --validate_restore
 
-# expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
-# expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
+For one off nodes (e.g. after problem nodes are repaired), use the --node or
+--nodes arguments to run commands on specific node or a list of defined nodes.
+
+$ expecter -n -v ./clusterconfig -c mallard --restore --node fsbl295n19.blue.ygrid.yahoo.com
+$ expecter -n -v ./clusterconfig -c mallard --restore --nodes /tmp/nodes
+
 $ expecter -n -v ./clusterconfig -c mallard --validate --node fsbl295n19.blue.ygrid.yahoo.com
 $ expecter -n -v ./clusterconfig -c mallard --validate --nodes /tmp/nodes
-$ clusterconfig -w /tmp -c theoden 
 
-Expecter is a wrapper application that provides expect functions
+Override the cache directory by using the -w argument. 
+$ ./clusterconfig -w /tmp -c theoden 
+
+Run script for a gateway host in none cluster mode
+# expecter -n -v ./clusterconfig --node gwbl2003.blue.ygrid.yahoo.com --noneclustermode
+
+Run script for all gateway hosts in gateway mode
+# expecter -n -v ./clusterconfig --gatewaymode
+
+This script depends on the dist package 'expecter' for handling passwords.
+This can be installed by running: yinst install expecter 
 $ yinst ls -files expecter
 yinst: /home/y/bin/expecter                             expecter-1.0.2
 
@@ -174,6 +163,10 @@ while [ "$1" != "" ]; do
                                   ;;
         -b | --always_backup )    ALWAYS_BACKUP=1
                                   ;;
+        --noneclustermode )       NONE_CLUSTER_MODE=1
+                                  ;;
+        --gatewaymode )           GATEWAY_MODE=1;
+                                  ;;
         -u | --update_opsdb )     UPDATE_OPSDB=1
                                   ;;
         -s | --show_opsdb )       SHOW_OPSDB=1
@@ -184,10 +177,11 @@ while [ "$1" != "" ]; do
                                   ;;
         -v | --validate )         VALIDATE=1
                                   ;;
-        --validate_backup )       VALIDATE_BACKUP=1; VALIDATE=1;
+        --validate_restore )      VALIDATE_RESTORE=1; VALIDATE=1;
                                   ;;
         -n | --node )             shift
                                   NODE_FILE=/tmp/node.$$;
+                                  SINGLE_HOST=$1;
                                   echo $1 > $NODE_FILE;
                                   UPGRADE_NODES_FILE=$NODE_FILE;
                                   ;;
@@ -206,26 +200,71 @@ while [ "$1" != "" ]; do
     shift
 done
 
+if [[ $NONE_CLUSTER_MODE == 1 ]]; then
+    echo "WARNING: CLUSTER value is not defined. Running in none cluster, single host mode:";
+    if [[ -z $SINGLE_HOST ]]; then
+        echo "ERROR: Required --node value not defined for running with option --noneclustermode!!!";
+        exit 1;
+    fi
+    WORKSPACE="$WORKSPACE_ROOT/cluster-reimage-backup/$SINGLE_HOST"
+else
+    if [[ $GATEWAY_MODE == 1 ]]; then
+        CLUSTER="gateway";
+    fi
 
-if [[ -z $CLUSTER ]]; then
-   echo "ERROR: Required CLUSTER value not defined!!!";
-   exit 1;
+    if [[ -z $CLUSTER ]]; then
+        echo "ERROR: Required CLUSTER value not defined!!!";
+        exit 1;
+    fi
+
+    WORKSPACE="$WORKSPACE_ROOT/cluster-reimage-backup/$CLUSTER"
 fi
 
 #################################################################################
 # Fetch the cluster nodes
 #################################################################################
+if ([[ $ALWAYS_FETCH_NODES == 1 ]] || [[ $ALWAYS_BACKUP == 1 ]]); then
+    set -x
+    rm -rf $WORKSPACE
+    set +x
+fi 
 
-WORKSPACE="$WORKSPACE_ROOT/cluster-reimage-backup/$CLUSTER"
-`/bin/mkdir -p $WORKSPACE`
+set -x
+/bin/mkdir -p $WORKSPACE
+set +x
 
-CLUSTER_NODES="$WORKSPACE/cluster_nodes"
-if ([[ ! -f $CLUSTER_NODES ]] || [[ $ALWAYS_FETCH_NODES == 1 ]]); then
-    echo "Fetch and create the cluster node list file '$CLUSTER_NODES'"
-    `igor fetch -members grid_re.clusters.$CLUSTER > "$CLUSTER_NODES" 2> /dev/null`
-else 
-    echo "Use existing cluster node list file '$CLUSTER_NODES'"
-fi
+# Check cluster backup if CLUSTER is defined
+if [[ -n $CLUSTER ]]; then
+    CLUSTER_NODES="$WORKSPACE/cluster_nodes"
+    if ([[ ! -f $CLUSTER_NODES ]] || [[ $ALWAYS_FETCH_NODES == 1 ]]); then
+        echo "Fetch and create the cluster node list file '$CLUSTER_NODES'"
+        if [[ $GATEWAY_MODE == 1 ]]; then
+            touch $CLUSTER_NODES
+
+            # file=/tmp/gateways; touch $file; for host in `igor list -roles grid_re.clusters.*.gateway`;do echo -n "$host " >> $file; igor fetch -member $host >> $file ; done; 
+            # for gateway in `cut -d" " -f2 /tmp/gateways |sort -u`;do if [[ -z $gateway ]];then continue; fi; echo -n "$gateway "; grep $gateway /tmp/gateways |cut -d"." -f3|tr '\n' ' ';echo;done
+            for host in `igor list -roles grid_re.clusters.*.gateway`;do 
+                echo -n "$host " >> $CLUSTER_NODES ;
+                igor fetch -member $host >> $CLUSTER_NODES ;
+            done;
+        else
+            `igor fetch -members grid_re.clusters.$CLUSTER > "$CLUSTER_NODES" 2> /dev/null`
+        fi
+    else 
+        echo "Use existing cluster node list file '$CLUSTER_NODES'"
+    fi
+
+    if [[ $GATEWAY_MODE == 1 ]]; then
+        for gateway in `cut -d" " -f2 $CLUSTER_NODES |sort -u`;do 
+            if [[ -z $gateway ]];then 
+                continue; 
+            fi;
+            echo -n "$gateway --> ";
+            grep $gateway $CLUSTER_NODES |cut -d"." -f3|tr '\n' ' ';
+            echo;
+        done
+    fi   
+fi 
 
 UPGRADE_NODES_FILE=${UPGRADE_NODES_FILE:="$WORKSPACE/cluster_nodes.upgrade"}
 
@@ -243,8 +282,18 @@ fi
 
 if [[ $FETCH_UPGRADE_NODES == 1 ]]
 then
+    if [[ $GATEWAY_MODE == 1 ]]; then
+        NODES=`cut -d" " -f2 $CLUSTER_NODES |sort -u|sed '/^$/d'`;
+    else
+        NODES=`cat $CLUSTER_NODES`;
+    fi
+
     echo "Fetch and create the upgrade node list file '$UPGRADE_NODES_FILE'"
-    for host in `cat $CLUSTER_NODES`;do
+    # Create the upgrade node file as a record in case there are no nodes that
+    # need to be upgraded.
+    touch $UPGRADE_NODES_FILE
+    # for host in `cat $CLUSTER_NODES`;do
+    for host in $NODES;do
         echo -n "$host: ";
         ver=`$SSH $host cat /etc/redhat-release`;
         CURRENT_OS_STR="current os='$ver'";
@@ -262,18 +311,29 @@ else
     echo "*****************************************************************"
 fi
 
+NUM_UPGRADE_NODES=`cat $UPGRADE_NODES_FILE|wc -l`
+
+if [[ $NONE_CLUSTER_MODE == 1 ]]; then
+    echo "Number of nodes to upgrade='$NUM_UPGRADE_NODES'"
+elif [[ $GATEWAY_MODE == 1 ]]; then
+    echo "Number of nodes to upgrade for flubber gateways='$NUM_UPGRADE_NODES'"
+else
+    echo "Number of nodes to upgrade for cluster '$CLUSTER'='$NUM_UPGRADE_NODES'"
+fi 
+
 #################################################################################
 # Backup keytabs
 #################################################################################
-BU_SRC_KT_DIR="/etc/grid-keytabs"
-BU_SRC_LC_DIR="/home/gs/conf/local" 
-BU_TGT_KT_BSNAME="keytabs"
-BU_TGT_LC_BSNAME="localconf"
+KT_DIR="/etc/grid-keytabs"
+LC_DIR="/home/gs/conf/local" 
+BU_KT_NAME="keytabs"
+BU_LC_NAME="localconf"
 
 BACKUP_KEYTABS=0
 NUM_TGZ_FILES=`find $WORKSPACE -name \*.tgz|wc -l`;
 if [[ $NUM_TGZ_FILES == 0 ]]
 then 
+    echo "No backup files found. Proceed with backup:"
     BACKUP_KEYTABS=1
 else
     if [[ $ALWAYS_BACKUP == 1 ]]
@@ -284,46 +344,22 @@ fi
 
 if [[ $BACKUP_KEYTABS == 1 ]];
 then 
+    index=0
     # LOCAL_KEYTABS_DIR="/etc/grid-keytabs";
     for host in `cat $UPGRADE_NODES_FILE`; do
-	backupHostDir $host $BU_SRC_KT_DIR "$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
-	backupHostDir $host $BU_SRC_LC_DIR "$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
+        index=$((index+1))
+        echo "--> Backup cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
+	backupHostDir $host $KT_DIR "$WORKSPACE/$host/$BU_KT_NAME"
+	backupHostDir $host $LC_DIR "$WORKSPACE/$host/$BU_LC_NAME"
     done
+    # show tree
+    echo "run /usr/bin/tree $WORKSPACE to verify files have been properly backed up"
 fi
 
-
-#################################################################################
-# Restore keytabs
-#################################################################################
-if [[ $RESTORE == 1 ]];
-then
-    VALIDATE=1;
-    for host in `cat $UPGRADE_NODES_FILE`; do
-        HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
-        HOST_BACKUP_DIR2="$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
-        if [[ -d $HOST_BACKUP_DIR ]]; then
-            # check if the host is accessible
-            /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
-            rc=$?
-            if [[ rc -eq 0 ]]; then
-                echo "--> Restore keytab files for host '$host'"
-                set -x
-                scp -p $HOST_BACKUP_DIR/files.tgz $host:/tmp;
-                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_KT_DIR";
-                $SSH -t $host ls -l $BU_SRC_KT_DIR;
-                set +x
-
-                echo "--> Restore local conf files for host '$host'"
-                set -x
-                scp -p $HOST_BACKUP_DIR2/files.tgz $host:/tmp;
-                $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $BU_SRC_LC_DIR";
-                $SSH -t $host ls -l $BU_SRC_LC_DIR;
-                set +x
-            fi
-        fi
-    done
-fi
-
+# Check backup
+#    echo "run /usr/bin/tree $WORKSPACE to verify files have been properly backed up"
+echo "Backed up files:"
+find $WORKSPACE -type f -name \*.tgz| xargs ls -l
 
 #################################################################################
 # Update OPSDB
@@ -331,12 +367,18 @@ fi
 # Requires opsdb_client
 # Requires flubber_conutil_wrapper-0.1.1
 #################################################################################
+index=0
 for host in `cat $UPGRADE_NODES_FILE`; do
+    index=$((index+1))
     if [[ $UPDATE_OPSDB == 1 ]]; then
         # "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --modify ysa_profile=ygrid_dn "
-        echo "--> Update opsdb for host $host:";
+        echo "--> Update opsdb for cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
+        # update will prompt user to wait up to 30 min
+        # http://ybiip1-1-grd.ops.gq1.yahoo.com:9999/wrong.pl?h=gsbl90524.blue.ygrid.yahoo.com
+        # http://ybiip1-1-grd.ops.gq1.yahoo.com:9999/wrong.pl?h=$hostname
+        date
         stty -echo
-        ssh -t adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
+        $SSH -t adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
         stty echo
     fi
 
@@ -347,25 +389,48 @@ for host in `cat $UPGRADE_NODES_FILE`; do
     fi
 done
 
-
 #################################################################################
 # IMAGE THE HOSTS
 #################################################################################
 if [[ $IMAGE == 1 ]]; then
+    index=0
     for host in `cat $UPGRADE_NODES_FILE`; do
-        echo "--> Reboot host $host:";
+        index=$((index+1))
+        echo "--> Reboot cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
         stty -echo
-        ssh -t adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
+        set -x
+        $SSH -t adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
+
+        # If console is not working
+        # $SSH -t $host "sudo reboot"
+
+        set +x
         stty echo
     done
 fi
+
+function val_restore {
+    local host=$1
+    local type=$2
+    local type_dir=$3
+    BU_TYPE_DIR="$WORKSPACE/$host/$type"
+    $SSH $host ls -l $type_dir/ > $BU_TYPE_DIR/files.actual
+    DIFF=`diff -b $BU_TYPE_DIR/files.mf $BU_TYPE_DIR/files.actual`
+    if [[ -n $DIFF ]]; then
+        echo "Expected and actual $type files differs on host $host: $DIFF"
+    else 
+        echo "Expected and actual $type files match on host $host."
+    fi
+}
 
 #################################################################################
 # VALIDATE THE HOSTS
 #################################################################################
 if [[ $VALIDATE == 1 ]]; then
+    index=0
     for host in `cat $UPGRADE_NODES_FILE`; do
-        echo "--> Validate host status for host '$host': ";
+        index=$((index+1))
+        echo -n "--> Validate node ($index/$NUM_UPGRADE_NODES) '$host': ";
 
         /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
         rc=$?
@@ -377,28 +442,12 @@ if [[ $VALIDATE == 1 ]]; then
                 echo "Host is up: $CURRENT_OS_STR --> need upgrade to '$REQ_OS'"; 
             else 
                 echo "Host is up: $CURRENT_OS_STR";
-                if [[ $VALIDATE_BACKUP == 1 ]]; then
 
-                    # Validate keytab files
-                    HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_KT_BSNAME"
-                    $SSH $host ls -l $BU_SRC_KT_DIR/ > $HOST_BACKUP_DIR/files.actual
-                    DIFF=`diff -b $HOST_BACKUP_DIR/files.mf $HOST_BACKUP_DIR/files.actual`
-                    if [[ -n $DIFF ]]; then
-                        echo "Expected and actual keytab files differs on host $host: $DIFF"
-                    else 
-                        echo "Expected and actual keytab files match on host $host."
-                    fi
-
-                    # Validate local conf files
-                    HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_TGT_LC_BSNAME"
-                    # LOCAL_CONF_DIR=$BU_SRC_LC_DIR;
-                    $SSH $host ls -l $BU_SRC_LC_DIR/ > $HOST_BACKUP_DIR/files.actual
-                    DIFF=`diff -b $HOST_BACKUP_DIR/files.mf $HOST_BACKUP_DIR/files.actual`
-                    if [[ -n $DIFF ]]; then
-                        echo "Expected and actual local conf files differs on host $host: $DIFF"
-                    else 
-                        echo "Expected and actual local conf files match on host $host."
-                    fi
+                # Validate that the back up files are restored properly.
+                # Compare it against the manifest file that was saged originaly.
+                if [[ $VALIDATE_RESTORE == 1 ]]; then
+                    val_restore $host $BU_KT_NAME $KT_DIR
+                    val_restore $host $BU_LC_NAME $LC_DIR
                 fi;
             fi ; 
         else
@@ -413,9 +462,70 @@ if [[ $VALIDATE == 1 ]]; then
     done
 fi
 
+#################################################################################
+# Restore keytabs
+#################################################################################
+if [[ $RESTORE == 1 ]];
+then
+    index=0
+    for host in `cat $UPGRADE_NODES_FILE`; do
+        index=$((index+1))
+        echo "--> Restore cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
+        HOST_BACKUP_DIR="$WORKSPACE/$host/$BU_KT_NAME"
+        HOST_BACKUP_DIR2="$WORKSPACE/$host/$BU_LC_NAME"
+        if [[ -d $HOST_BACKUP_DIR ]]; then
+            # check if the host is accessible
+            /usr/bin/nc -w 5 -x socks-ssh.corp.yahoo.com:1080 $host 22 > /dev/null
+            rc=$?
+            if [[ rc -eq 0 ]]; then
+                echo "---> Restore keytab files for host '$host'"
+                BU_TAR_FILE=$HOST_BACKUP_DIR/files.tgz
+                if [[ -f $BU_TAR_FILE ]]; then
+                    set -x
+                    $SCP -p $BU_TAR_FILE $host:/tmp;
+                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $KT_DIR";
+                    $SSH -t $host /bin/rm -f /tmp/files.tgz
+                    set +x
+                    # Validate keytab files
+                    val_restore $host $BU_KT_NAME $KT_DIR
+                else 
+                    echo "WARNING: keytab backup file '$BU_TAR_FILE' does not exists!!!!"
+                fi
+ 
+                echo "---> Restore local conf files for host '$host'"
+                BU_TAR_FILE=$HOST_BACKUP_DIR2/files.tgz
+                if [[ -f $BU_TAR_FILE ]]; then
+                    set -x
+                    $SCP -p $BU_TAR_FILE $host:/tmp;
+                    $SSH -t $host "sudo /bin/gtar fx /tmp/files.tgz -C $LC_DIR";
+                    $SSH -t $host /bin/rm -f /tmp/files.tgz
+                    set +x
+                    # Validate local conf files
+                    val_restore $host $BU_LC_NAME $LC_DIR
+                 else
+                    echo "WARNING: local conf backup file '$BU_TAR_FILE' does not exists!!!!"
+                 fi
+
+                # Fix the health check issue. This should be commented out after ticket is resolved. 
+                # Bugzilla Ticket 6481091 - mapreqa user needs whitelist in health check scripts
+                WORKAROUND=1
+                if [[ $WORKAROUND -eq 1 ]]; then
+                    echo "---> Fix health check script for host '$host'"
+                    HC_SCRIPT="/usr/local/libexec/nm_health_check"
+                    set -x
+                    $SSH -t $host "sudo perl -pi -e \"s/'mapred'/'mapredqa'/g\" $HC_SCRIPT"
+                    set +x
+                fi
+            fi
+        else 
+           echo "Backup directory '$HOST_BACKUP_DIR' does not exist!!!"
+        fi
+    done
+fi
+
 # Clean up temporary file
 if [[ -f $NODE_FILE ]]; then 
     set -x
-    /bin/rm $NODE_FILE
+    /bin/rm -f $NODE_FILE
     set +x
 fi

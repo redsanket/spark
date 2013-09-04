@@ -7,6 +7,7 @@ import hadooptest.cluster.hadoop.DFS;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -23,13 +24,14 @@ public class TestMultiClusterCopy extends TestSession {
 		
 		dfs = new DFS();
 		
-		logger.info("HTTP DEFAULT PORT: " + dfs.getHTTPDefaultPort());
-		logger.info("WEBHDFS ENABLED: " + dfs.isWebhdfsEnabled());
-		logger.info("WEBHDFS KERBEROS AUTH PRINCIPAL: " + dfs.getWebhdfsKerberosAuthPrincipal());
-		logger.info("WEBHDFS KERBEROS AUTH KEYTAB: " + dfs.getWebhdfsKerberosAuthKeytab());
+		//logger.info("HTTP DEFAULT PORT: " + dfs.getHTTPDefaultPort());
+		//logger.info("WEBHDFS ENABLED: " + dfs.isWebhdfsEnabled());
+		//logger.info("WEBHDFS KERBEROS AUTH PRINCIPAL: " + dfs.getWebhdfsKerberosAuthPrincipal());
+		//logger.info("WEBHDFS KERBEROS AUTH KEYTAB: " + dfs.getWebhdfsKerberosAuthKeytab());
 		
 		logger.info("COPYING FROM LOCAL FILE");
-		dfs.copyLocalToHdfs("/homes/hadoopqa/hadooptest.conf", dfs.getBaseUrl() + "/user/hadoopqa/" + "hadooptest.conf");
+		logger.info("DFS Base URL = " + dfs.getBaseUrl());
+		dfs.copyLocalToHdfs("/homes/hadoopqa/hadooptest.conf", getFSDefaultName() + "/user/hadoopqa/" + "hadooptest.conf");
 		logger.info("FINISHED COPYING FROM LOCAL FILE");
 	}
 
@@ -56,7 +58,8 @@ public class TestMultiClusterCopy extends TestSession {
 		
 		assertTrue("File was not successfully copied to remote DFS.", dfs.fileExists(destFS, strDestFS + "/user/hadoopqa/hadooptest.conf.2"));
 	}
-	 
+	
+	@Ignore
 	@Test
 	public void copyBetweenClustersSameGatewayWEBHDFS() throws Exception {
 		String strSrcFS = "webhdfs://gsbl90760.blue.ygrid.yahoo.com:1006";
@@ -70,7 +73,8 @@ public class TestMultiClusterCopy extends TestSession {
 		
 		assertTrue("File was not successfully copied to remote DFS.", dfs.fileExists(destFS, strDestFS + "/user/hadoopqa/hadooptest.conf.2"));
 	}
-	
+
+	@Ignore
 	@Test
 	public void copyBetweenClustersSameGatewayHFTP() throws Exception {
 		String strSrcFS = "hftp://gsbl90760";
@@ -85,10 +89,12 @@ public class TestMultiClusterCopy extends TestSession {
 		assertTrue("File was not successfully copied to remote DFS.", dfs.fileExists(destFS, strDestFS + "/user/hadoopqa/hadooptest.conf.2"));
 	}
 
-	private String getFSDefaultName() throws Exception {
+	private static String getFSDefaultName() throws Exception {
 		String fsDefaultName = null;
 		
 		fsDefaultName = cluster.getConf().get("fs.defaultFS");
+		
+		logger.debug("FS Default Name = " + fsDefaultName);
 		
 		return fsDefaultName;
 	}
