@@ -430,9 +430,17 @@ public abstract class HadoopConfiguration extends Configuration {
      * needed later for tasks such as job submission. 
      */
     private void setKerberosConf(String user) {
-        super.set("user-" + user, user + "@DEV.YGRID.YAHOO.COM");
-        super.set("keytab-" + user, "/homes/" + user + "/" + user +
-                  ".dev.headless.keytab");
+        String userName = "user-" + user;
+        String userValue = user + "@DEV.YGRID.YAHOO.COM";
+        String keytabName = "keytab-" + user;
+        String keytabValue = "/homes/" + user + "/" + user +
+                ".dev.headless.keytab";
+        TestSession.logger.trace("User name/value = " + userName + "/" +
+                userValue); 
+        TestSession.logger.trace("Keytab name/value = " + keytabName + "/" +
+                keytabValue);
+        super.set(userName, userValue);
+        super.set(keytabName, keytabValue);
     }
         
     /**
