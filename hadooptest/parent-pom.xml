@@ -43,6 +43,13 @@
                 <scope>system</scope>
                 <systemPath>${coretest.jar.dir}/coretest-1.0-SNAPSHOT.jar</systemPath>
             </dependency>
+            
+            <!--  GDM automation dependency for yjava auth -->
+            <dependency>
+                <groupId>yahoo.yinst.yjava_byauth</groupId>
+                <artifactId>yjava_byauth</artifactId>
+                <version>0.6.0</version>
+            </dependency>
         </dependencies>
     </profile>
     
