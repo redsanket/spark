@@ -71,6 +71,13 @@
 	  <scope>provided</scope>
 	</dependency>
 
+    <!--  GDM automation dependency for yjava auth -->
+    <dependency>
+        <groupId>yahoo.yinst.yjava_byauth</groupId>
+        <artifactId>yjava_byauth</artifactId>
+        <version>0.6.0</version>
+    </dependency>
+
       </dependencies>
     </profile>
 
@@ -213,12 +220,6 @@
         <artifactId>json-lib</artifactId>
         <version>2.4</version>
         <classifier>jdk15</classifier>
-    </dependency>
-    <!--  GDM automation dependency for yjava auth -->
-    <dependency>
-        <groupId>yahoo.yinst.yjava_byauth</groupId>
-        <artifactId>yjava_byauth</artifactId>
-        <version>0.6.0</version>
     </dependency>
     
     <dependency>
