@@ -188,7 +188,13 @@ public class TestFileDescriptorLeakage extends TestSession {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
 		Random rand = new Random();
-		WordCountJob[] jobs = new WordCountJob[Integer.parseInt(System.getProperty("JobNum"))];
+		
+		int jobNum = 20;
+		if(System.getProperty("JobNum") != null) {
+			jobNum = Integer.parseInt(System.getProperty("JobNum"));
+		}
+		
+		WordCountJob[] jobs = new WordCountJob[jobNum];
 
 		try {
 			for(int i = 0; i < jobs.length; i++){
@@ -207,7 +213,7 @@ public class TestFileDescriptorLeakage extends TestSession {
 				jobs[i].setOutputPath(outputDir + outputFile + output);
 				jobs[i].start();
 				
-				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 10 seconds.", jobs[i].waitForID(10));
+				assertTrue("WordCount jobs["+i+"] was not assigned an ID within 120 seconds.", jobs[i].waitForID(120));
 				assertTrue("WordCount job ID for WordCount jobs["+i+"] is invalid.", jobs[i].verifyID());
 
 				Process process = jobs[i].getProcess();

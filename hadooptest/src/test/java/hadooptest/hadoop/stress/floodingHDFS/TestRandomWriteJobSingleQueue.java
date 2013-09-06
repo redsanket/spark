@@ -71,7 +71,13 @@ public class TestRandomWriteJobSingleQueue extends TestSession {
     public void SingleRandomWriteJobSingleQueue() throws Exception{
     	
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
-		RandomWriterJob[] rwJob = new RandomWriterJob[Integer.parseInt(System.getProperty("JobNum"))];
+		
+		int jobNum = 20;
+		if(System.getProperty("JobNum") != null) {
+			jobNum = Integer.parseInt(System.getProperty("JobNum"));
+		}
+		
+		RandomWriterJob[] rwJob = new RandomWriterJob[jobNum];
 		for(int i = 0; i < rwJob.length; i++){
 			rwJob[i] = new RandomWriterJob();
 			Date date = new Date();

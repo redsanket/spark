@@ -59,7 +59,13 @@ public class TestRandomWriteJobMultiQueue extends TestSession {
 	public void MultiRandomWriteJobMultiQueue() throws IOException, InterruptedException {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd___HH_mm_ss___");
-		RandomWriterJob[] jobs = new RandomWriterJob[Integer.parseInt(System.getProperty("JobNum"))];
+		
+		int jobNum = 20;
+		if(System.getProperty("JobNum") != null) {
+			jobNum = Integer.parseInt(System.getProperty("JobNum"));
+		}
+		
+		RandomWriterJob[] jobs = new RandomWriterJob[jobNum];
 		int queueIndex = 0;
 		try {
 			for(int i = 0; i < jobs.length; i++){
