@@ -72,7 +72,7 @@ public class TestEndToEndCompression extends TestSession {
 		opts.add("-Dmapreduce.job.acl-view-job=*");
 		opts.add("-Dmapred.child.java.opts='-Djava.library.path=" + 
 				TestSession.conf.getProperty("HADOOP_COMMON_HOME") + 
-				"/lib/native/Linux-i386-32'");
+				"/lib/native/Linux-amd64-64");
 		opts.add("-Dmapreduce.map.memory.mb=2048");
 		opts.add("-Dmapreduce.reduce.memory.mb=4096");		
 		YARN_OPTS = opts.toArray(new String[0]);		
