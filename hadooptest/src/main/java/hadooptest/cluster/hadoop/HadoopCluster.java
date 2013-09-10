@@ -469,7 +469,13 @@ public abstract class HadoopCluster {
 	protected String[] getHostsFromList(String namenode, String file) 
 			throws Exception {
 		String[] output = TestSession.exec.runProcBuilder(
-				new String[] {"ssh", namenode, "/bin/cat", file});
+				new String[] {
+				        "ssh",
+	                    "-o", "StrictHostKeyChecking=no",
+	                    "-o", "UserKnownHostsFile=/dev/null",
+				        namenode,
+				        "/bin/cat",
+				        file});
 		String[] nodes = output[1].replaceAll("\\s+", " ").trim().split(" ");
 		TestSession.logger.trace("Hosts in file are: " + Arrays.toString(nodes));		
 		return nodes;
