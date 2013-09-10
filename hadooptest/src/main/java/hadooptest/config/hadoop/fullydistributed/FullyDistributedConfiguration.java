@@ -531,8 +531,11 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 			 * do just on a single host
 			 */
 			boolean isConfDirNFS = true;			
-            String[] pdshCmd = { "/home/y/bin/pdsh", "-w", this.hostname};
-
+            String[] pdshCmd = {
+                    "/home/y/bin/pdsh",
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "UserKnownHostsFile=/dev/null",
+                    "-w", this.hostname};
 			ArrayList<String> temp = new ArrayList<String>();
 			temp.addAll(Arrays.asList(pdshCmd));
 			temp.addAll(Arrays.asList(cpCmd));
@@ -589,8 +592,11 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
             boolean isConfDirNFS = true;
             String targetHost = (isConfDirNFS) ? daemonHost[0] :
                 StringUtils.join(daemonHost, "," );
-            String[] pdshCmd = { "/home/y/bin/pdsh", "-w", targetHost};
-	        
+            String[] pdshCmd = {
+                    "/home/y/bin/pdsh",
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "UserKnownHostsFile=/dev/null",
+                    "-w", targetHost};
 	        ArrayList<String> temp = new ArrayList<String>();
 	        temp.addAll(Arrays.asList(pdshCmd));
 	        temp.addAll(Arrays.asList(insertCmd));
@@ -648,8 +654,11 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
             boolean isConfDirNFS = true;
             String targetHost = (isConfDirNFS) ? daemonHost[0] :
                 StringUtils.join(daemonHost, "," );
-            String[] pdshCmd = { "/home/y/bin/pdsh", "-w", targetHost};
-            
+            String[] pdshCmd = {
+                    "/home/y/bin/pdsh",
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "UserKnownHostsFile=/dev/null",
+                    "-w", targetHost};
             ArrayList<String> temp = new ArrayList<String>();
             temp.addAll(Arrays.asList(pdshCmd));
             temp.addAll(Arrays.asList(replaceCmd));
@@ -702,8 +711,11 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 			TestSession.logger.info("Back up the Hadoop configuration " +
 					"directory to '" + customConfDir + "' on " + "the '" + 
 					this.component + "' host of '" + this.hostname +	"'.");
-
-			String[] pdshCmd = { "/home/y/bin/pdsh", "-w", this.hostname};
+			String[] pdshCmd = { 
+			        "/home/y/bin/pdsh",
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "UserKnownHostsFile=/dev/null",
+			        "-w", this.hostname};
 			ArrayList<String> temp = new ArrayList<String>();
 			temp.addAll(Arrays.asList(pdshCmd));
 			temp.addAll(Arrays.asList(cpCmd));
