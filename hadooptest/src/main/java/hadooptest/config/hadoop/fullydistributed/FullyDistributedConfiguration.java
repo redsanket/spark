@@ -533,8 +533,6 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 			boolean isConfDirNFS = true;			
             String[] pdshCmd = {
                     "/home/y/bin/pdsh",
-                    "-o", "StrictHostKeyChecking=no",
-                    "-o", "UserKnownHostsFile=/dev/null",
                     "-w", this.hostname};
 			ArrayList<String> temp = new ArrayList<String>();
 			temp.addAll(Arrays.asList(pdshCmd));
@@ -594,8 +592,6 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
                 StringUtils.join(daemonHost, "," );
             String[] pdshCmd = {
                     "/home/y/bin/pdsh",
-                    "-o", "StrictHostKeyChecking=no",
-                    "-o", "UserKnownHostsFile=/dev/null",
                     "-w", targetHost};
 	        ArrayList<String> temp = new ArrayList<String>();
 	        temp.addAll(Arrays.asList(pdshCmd));
@@ -656,8 +652,6 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
                 StringUtils.join(daemonHost, "," );
             String[] pdshCmd = {
                     "/home/y/bin/pdsh",
-                    "-o", "StrictHostKeyChecking=no",
-                    "-o", "UserKnownHostsFile=/dev/null",
                     "-w", targetHost};
             ArrayList<String> temp = new ArrayList<String>();
             temp.addAll(Arrays.asList(pdshCmd));
@@ -713,8 +707,6 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 					this.component + "' host of '" + this.hostname +	"'.");
 			String[] pdshCmd = { 
 			        "/home/y/bin/pdsh",
-                    "-o", "StrictHostKeyChecking=no",
-                    "-o", "UserKnownHostsFile=/dev/null",
 			        "-w", this.hostname};
 			ArrayList<String> temp = new ArrayList<String>();
 			temp.addAll(Arrays.asList(pdshCmd));
