@@ -15,9 +15,10 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.httpclient.HttpMethod;
 
+import coretest.Util;
+
 public final class ConsoleHandle
 {
-
 	private static final String WORKFLOW_COMPLETED_EXECUTION_STATUS = "COMPLETED";
 	private static final String WORKFLOW_COMPLETED_EXIT_STATUS = "COMPLETED";
 	private static final String WORKFLOW_FAILED_EXIT_STATUS = "FAILED";
@@ -40,8 +41,13 @@ public final class ConsoleHandle
 	{
 		try
 		{
-			this.conf = new XMLConfiguration("/home/y/conf/gdm_qe_test/config.xml");
+			String configPath = Util.getResourceFullPath(
+					"gdm/conf/config.xml");
+			
+			
+			this.conf = new XMLConfiguration(configPath);
 			this.consoleURL = this.conf.getString("hostconfig.console.base_url");
+			
 			TestSession.logger.debug("Found conf/config.xml configuration file.");
 			TestSession.logger.debug("Console Base URL: " + this.consoleURL);
 		} catch (ConfigurationException ex) {
@@ -240,6 +246,7 @@ public final class ConsoleHandle
 
 		TestSession.logger.info("cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		TestSession.logger.info("** cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
+		
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
 		this.response = new Response(postMethod, false);
 

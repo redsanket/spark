@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="SAGE" description="hio dataset"
+    name="hio-datain-test-pwhite"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="patwhite@yahoo-inc.com"
+        owner="patwhite@yahoo-inc.com" publisher="patwhite@yahoo-inc.com"/>
+    <Comments/>
+    <UGI group="user" permission="755"/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>60</DiscoveryFrequency>
+    <DiscoveryInterface>HIO_SOURCE</DiscoveryInterface>
+    <Paths>
+        <Path location="/data/daqdev/${DataSetName}/%{date}/data" type="data"/>
+        <Path location="/data/daqdev/${DataSetName}/%{date}/count" type="count"/>
+        <Path location="/data/daqdev/${DataSetName}/%{date}/invalid" type="invalid"/>
+    </Paths>
+    <Parameters>
+        <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="loader.strategy" value="identity"/>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey/>
+        <PartitionKey/>
+        <DataPathMask/>
+        <AddFields/>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>true</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="740" name="hio-datain-test-source"/>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="1440" name="gdm-target-denseb-patw" status="active">
+            <DateRange end="20110622" start="20110620"/>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 100" type="retention"/>
+            </Policies>
+            <ReplicationExcludePaths>invalid</ReplicationExcludePaths>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1440" name="gdm-target-elrond-patw" status="inactive">
+            <DateRange end="20110622" start="20110620"/>
+            <Policies>
+                <Policy
+                    condition="instanceDate(instancelist, instance) > 100" type="retention"/>
+            </Policies>
+            <ReplicationExcludePaths>invalid</ReplicationExcludePaths>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1140" name="hio-dataout-arch">
+            <DateRange end="20130104" start="20110101"/>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 20" type="retention"/>
+            </Policies>
+            <Resource capacity="2" name="bandwidth"/>
+        </Target>
+    </Targets>
+</DataSet>
+

@@ -1,6 +1,7 @@
 package hadooptest.cluster.gdm;
 
 import java.io.UnsupportedEncodingException;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -19,11 +20,13 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Logger;
+
+import coretest.Util;
 import yjava.byauth.jaas.HttpClientBouncerAuth;
+import hadooptest.TestSession;
 
 public class HTTPHandle
 {
-	private Logger log = Logger.getLogger(HTTPHandle.class.getName());
 	private HttpClient httpClient;
 	public static String SSO_SERVER = "bouncer.by.corp.yahoo.com";
 	public static int SSO_PORT = 443;
@@ -37,15 +40,18 @@ public class HTTPHandle
 	{
 		this.httpClient = new HttpClient();
 		try {
-			this.conf = new XMLConfiguration("/home/y/conf/gdm_qe_test/config.xml");
-			this.log.debug("Found conf/config.xml configuration file.");
+			String configPath = Util.getResourceFullPath(
+					"gdm/conf/config.xml");
+			
+			this.conf = new XMLConfiguration(configPath);
+			TestSession.logger.debug("Found conf/config.xml configuration file.");
 
 			SSO_SERVER = this.conf.getString("sso_server.resource", "https://gh.bouncer.login.yahoo.com/login/");
 			this.baseURL = this.conf.getString("hostconfig.console.base_url");
 
-			this.log.debug(new StringBuilder().append("Console Base URL: ").append(this.baseURL).toString());
+			TestSession.logger.debug(new StringBuilder().append("Console Base URL: ").append(this.baseURL).toString());
 		} catch (ConfigurationException localConfigurationException) {
-			this.log.error(localConfigurationException.toString());
+			TestSession.logger.error(localConfigurationException.toString());
 		}
 		this.httpClient.getParams().setParameter("User-Agent", "Jakarta Commons-HttpClient/3.1");
 		this.httpClient.getParams().setParameter("http.protocol.content-charset", "ISO-8859-1");
@@ -58,12 +64,12 @@ public class HTTPHandle
 		try {
 			str = localHttpClientBouncerAuth.authenticate("https://gh.bouncer.login.yahoo.com/login/", paramString1, paramString2.toCharArray());
 		} catch (Exception localException) {
-			this.log.error(new StringBuilder().append("SSO authentication failed. ").append(localException.toString()).toString());
+			TestSession.logger.error(new StringBuilder().append("SSO authentication failed. ").append(localException.toString()).toString());
 		}
 
 		YBYCookieHeader = new Header("Cookie", str);
 		this.httpClient.getParams().setParameter("Cookie", str);
-		this.log.debug("SSO auth cookie set");
+		TestSession.logger.debug("SSO auth cookie set");
 	}
 
 	public HttpMethod makeGET(String paramString1, String paramString2, ArrayList<CustomNameValuePair> paramArrayList) {
@@ -73,22 +79,22 @@ public class HTTPHandle
 		try {
 			localGetMethod = new GetMethod(str);
 		} catch (Exception localException1) {
-			this.log.error(new StringBuilder().append("Bad URL. ").append(localException1.toString()).toString());
+			TestSession.logger.error(new StringBuilder().append("Bad URL. ").append(localException1.toString()).toString());
 		}
 
 		localGetMethod.addRequestHeader(YBYCookieHeader);
-		this.log.info(new StringBuilder().append("Making a GET to ").append(str).toString());
+		TestSession.logger.info(new StringBuilder().append("Making a GET to ").append(str).toString());
 		try {
 			this.httpClient.executeMethod(localGetMethod);
-			this.log.info(localGetMethod.getResponseBodyAsString());
+			TestSession.logger.info(localGetMethod.getResponseBodyAsString());
 		} catch (Exception localException2) {
-			this.log.error(localException2);
+			TestSession.logger.error(localException2);
 		}
-		this.log.info(localGetMethod.getStatusLine().toString());
+		TestSession.logger.info(localGetMethod.getStatusLine().toString());
 		try {
-			this.log.info(localGetMethod.getResponseBodyAsString());
+			TestSession.logger.info(localGetMethod.getResponseBodyAsString());
 		} catch (Exception localException3) {
-			this.log.error(localException3.toString());
+			TestSession.logger.error(localException3.toString());
 		}
 		return localGetMethod;
 	}
@@ -116,13 +122,13 @@ public class HTTPHandle
 
 		localPostMethod.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 		try {
-			this.log.debug(new StringBuilder().append("Making HTTP POST request to ").append(str).toString());
+			TestSession.logger.debug(new StringBuilder().append("Making HTTP POST request to ").append(str).toString());
 			this.httpClient.executeMethod(localPostMethod);
 		} catch (Exception localException) {
-			this.log.error(localException.toString());
+			TestSession.logger.error(localException.toString());
 		}
 
-		this.log.debug(new StringBuilder().append("HTTP Response Code: ").append(localPostMethod.getStatusCode()).toString());
+		TestSession.logger.debug(new StringBuilder().append("HTTP Response Code: ").append(localPostMethod.getStatusCode()).toString());
 
 		return localPostMethod;
 	}
@@ -138,19 +144,19 @@ public class HTTPHandle
 		try {
 			localPostMethod.setRequestEntity(new StringRequestEntity(paramString3, "text/plain", "UTF-8"));
 		} catch (UnsupportedEncodingException localUnsupportedEncodingException) {
-			this.log.error("Encoding not right for POST body");
+			TestSession.logger.error("Encoding not right for POST body");
 		}
 		localPostMethod.addRequestHeader(YBYCookieHeader);
 		localPostMethod.setRequestHeader("Content-Type", "application/xml");
 		try
 		{
-			this.log.debug(new StringBuilder().append("Making HTTP POST request to ").append(str).toString());
+			TestSession.logger.debug(new StringBuilder().append("Making HTTP POST request to ").append(str).toString());
 			this.httpClient.executeMethod(localPostMethod);
 		} catch (Exception localException) {
-			this.log.error(localException.toString());
+			TestSession.logger.error(localException.toString());
 		}
 
-		this.log.debug(new StringBuilder().append("HTTP Response Code: ").append(localPostMethod.getStatusCode()).toString());
+		TestSession.logger.debug(new StringBuilder().append("HTTP Response Code: ").append(localPostMethod.getStatusCode()).toString());
 
 		return localPostMethod;
 	}
@@ -165,13 +171,13 @@ public class HTTPHandle
 			{
 				String str2 = localCustomNameValuePair.getName();
 				String str3 = localCustomNameValuePair.getValue();
-				this.log.debug(new StringBuilder().append("Param: ").append(str2).append("=").append(str3).toString());
+				TestSession.logger.debug(new StringBuilder().append("Param: ").append(str2).append("=").append(str3).toString());
 				try {
 					str3 = URLEncoder.encode(str3, "UTF-8");
 				} catch (UnsupportedEncodingException localUnsupportedEncodingException) {
-					this.log.error(new StringBuilder().append("Problem encoding query params. ").append(localUnsupportedEncodingException.toString()).toString());
+					TestSession.logger.error(new StringBuilder().append("Problem encoding query params. ").append(localUnsupportedEncodingException.toString()).toString());
 				}
-				this.log.debug(new StringBuilder().append("URLEncoded Param: ").append(str2).append("=").append(str3).toString());
+				TestSession.logger.debug(new StringBuilder().append("URLEncoded Param: ").append(str2).append("=").append(str3).toString());
 				String str4 = new StringBuilder().append(str2).append("=").append(str3).toString();
 				if (localStringBuilder.length() == 0) {
 					localStringBuilder.append("?");
@@ -183,7 +189,7 @@ public class HTTPHandle
 			}
 		}
 
-		this.log.debug(new StringBuilder().append("Constructing final URL from 'base'> ").append(paramString1).append(" and 'resource'>").append(paramString2).append(" and 'queryString'>").append(localStringBuilder.toString()).toString());
+		TestSession.logger.debug(new StringBuilder().append("Constructing final URL from 'base'> ").append(paramString1).append(" and 'resource'>").append(paramString2).append(" and 'queryString'>").append(localStringBuilder.toString()).toString());
 
 		localStringBuilder.insert(0, new StringBuilder().append(paramString1).append(paramString2).toString());
 		String str1 = localStringBuilder.toString();
@@ -191,10 +197,10 @@ public class HTTPHandle
 		{
 			localURL = new URL(str1);
 		} catch (MalformedURLException localMalformedURLException) {
-			this.log.error("Final URL is bad. Check the conf/config.xml");
+			TestSession.logger.error("Final URL is bad. Check the conf/config.xml");
 		}
 
-		this.log.debug(new StringBuilder().append("Final URL is ").append(str1).toString());
+		TestSession.logger.debug(new StringBuilder().append("Final URL is ").append(str1).toString());
 		return str1;
 	}
 }

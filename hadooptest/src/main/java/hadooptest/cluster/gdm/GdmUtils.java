@@ -15,10 +15,14 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 
+import coretest.Util;
+
 public class GdmUtils
 {
 	private static Logger log = Logger.getLogger(GdmUtils.class.getName());
-    private static final String TEST_CONFIGURATION = "/home/y/conf/gdm_qe_test/config.xml";
+	
+    private static final String TEST_CONFIGURATION = Util.getResourceFullPath(
+			"gdm/conf/config.xml");
 	private static Configuration conf;
 	
 	

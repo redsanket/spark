@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        11 Oct 2012
+        This sets the base configuration params for the GDM installation to
+        run tests against. There is one dependnecy on the test target and
+        that is we have to add the headless qe user to the console's tomcat
+        webapp's bouncer auth list, this is needed to allow the console to 
+        accept programmatic http requests from the qe tests.    
+
+        The usage is to ensure CONSOLE_HOST and CONSOLE_PORT are correctly
+        set, or that the yinst installation sets these parameters.
+-->
+<config>
+  <hostconfig>
+    <console>
+      <!--<base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>-->
+      <base_url>http://gsbl90310.blue.ygrid.yahoo.com:9999</base_url>
+      <actions>/console/rest/config/dataset/actions</actions>
+      <datasets>
+        <view>
+          <resource>/console/api/datasets/view</resource>
+        </view>
+        <clone>
+          <resource>/console/rest/config/dataset</resource>
+        </clone>
+        <unterminate>
+          <resource>/console/rest/config/dataset/actions</resource>
+        </unterminate>
+      </datasets>
+      <datasource>
+        <view>
+          <resource>/console/api/datasets/view</resource>
+        </view>
+        <clone>
+          <resource>/console/rest/config/datasource</resource>
+        </clone>
+        <unterminate>
+          <resource>/console/rest/config/dataset/actions</resource>
+        </unterminate>
+      </datasource>
+      <workflows>
+        <running>
+          <resource>/console/api/workflows/running</resource>
+        </running>
+        <completed>
+          <resource>/console/api/workflows/completed</resource>
+          <param>starttime</param>
+          <param>endtime</param>
+          <param>datasetname</param>
+          <param>instancessince</param>
+        </completed>
+        <failed>
+          <resource>/console/api/workflows/failed</resource>
+          <param>starttime</param>
+          <param>endtime</param>
+          <param>datasetname</param>
+          <param>instancessince</param>
+        </failed>
+        <stepexecutions>
+          <resource>/console/api/workflows/WORKFLOW_EXECUTION_ID/view</resource>
+          <param>facet</param>
+          <param>colo</param>
+        </stepexecutions>
+        <status>/console/api/workflows/WORKFLOW_EXECUTION_ID/view?facet=acquisition</status>
+        <!--&colo=gq1-->
+      </workflows>
+    </console>
+  </hostconfig>
+  
+    <testconfig>
+    <REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate>
+      <basedatasets>REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate</basedatasets>
+    </REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate>
+    <VerifyAcqRepRetWorkFlowExecutionSingleDate>
+      <basedataset>VerifyAcqRepRetWorkFlowExecutionSingleDate</basedataset>
+      <waitTimeForRepostoryUpdateInMs>45000</waitTimeForRepostoryUpdateInMs>
+      <waitTimeBeforeWorkflowPollingInMs>180000</waitTimeBeforeWorkflowPollingInMs>
+      <waitTimeBetweenWorkflowPollingInMs>60000</waitTimeBetweenWorkflowPollingInMs>
+      <timeoutInMs>1200000</timeoutInMs>
+    </VerifyAcqRepRetWorkFlowExecutionSingleDate>
+  </testconfig>
+  <auth>
+    <usr>hitusr_1</usr>
+    <pp>New2@password</pp>
+  </auth>
+</config>
