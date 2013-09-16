@@ -1,6 +1,7 @@
 package hadooptest.hadoop.stress.ClusterUsage;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
 
 import java.io.BufferedReader;
@@ -26,12 +27,13 @@ public class TestClusterMemUsage extends TestSession {
 	public void ClusterMemUsage() throws Exception {
 		
 		String rmaddr = "";
-		Hashtable<String,Hashtable<String,HadoopNode>> nodes = TestSession.getCluster().getNodes();
-		for(String str : nodes.keySet())
-			if(str.equals("resourcemanager"))
-				for(String s : nodes.get(str).keySet())
-					rmaddr = s;
-		
+		Hashtable<String, HadoopComponent> components = TestSession.getCluster().getComponents();
+
+		for(String component : components.keySet())
+	            if(component.equals("resourcemanager"))
+	                for(String s : components.get(component).getNodes().keySet())
+	                    rmaddr = s;
+
 		int refreshRate = System.getProperty("TestClusterMemUsage.refreshRate") == null? 0 : Integer.parseInt(System.getProperty("TestClusterMemUsage.refreshRate"));
 		boolean NodeMode = Boolean.parseBoolean(System.getProperty("TestClusterMemUsage.NodeMode"));
 
