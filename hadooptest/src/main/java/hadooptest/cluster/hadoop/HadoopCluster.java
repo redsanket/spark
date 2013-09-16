@@ -75,10 +75,7 @@ public abstract class HadoopCluster {
      * value HadoopNode */
     protected Hashtable<String, HadoopComponent> hadoopComponents =
             new Hashtable<String, HadoopComponent>();
-
-    protected Hashtable<String, String> compStats =
-            new Hashtable<String, String>();
-
+    
     /* TODO: Consider maintaining a cluster level properties for tracking
      * cluster level paths and settings. 
      */
