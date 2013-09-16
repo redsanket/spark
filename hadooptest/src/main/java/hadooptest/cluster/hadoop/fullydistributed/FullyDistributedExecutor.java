@@ -96,7 +96,7 @@ public class FullyDistributedExecutor extends Executor {
 	 * @throws Exception if there is a fatal error running the process.
 	 */
 	private String obtainKerberosCache(String user, boolean verbose) 
-			throws Exception {		
+			throws Exception {
 		if (verbose) {
 			TestSession.logger.info("Setup Kerberos for user '"+user+"':");
 		}
@@ -121,7 +121,8 @@ public class FullyDistributedExecutor extends Executor {
 	    String[] cmd =
 	    		{ "kinit", "-c", cacheName, "-k","-t",
 	    		keytabFileDir+"/"+keytabFile, kinitUser};
-	    runProcBuilder(cmd, newEnv, false);
+        runProcBuilder(cmd, newEnv, verbose);
+        TestSession.logger.debug("kerberos cachename KRB5CCNAME=" + cacheName);
 	    return cacheName;
 	}
 
