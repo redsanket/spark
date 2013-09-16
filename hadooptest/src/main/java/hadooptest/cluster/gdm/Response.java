@@ -1,5 +1,7 @@
 package hadooptest.cluster.gdm;
 
+import hadooptest.TestSession;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +14,7 @@ import net.sf.json.JSONArray;
 
 public class Response
 {
-	private static Logger log = Logger.getLogger(Response.class.getName());
+
 	private JSONUtil jsonUtil;
 	private String status;
 	private String responseBodyAsString;
@@ -33,18 +35,18 @@ public class Response
 				sb.append(line);
 		}
 		catch (IOException ex) {
-			log.error(ex.toString());
+			TestSession.logger.error(ex.toString());
 		}
 		this.responseBodyAsString = sb.toString();
 		this.jsonUtil = new JSONUtil();
 		try {
 			this.jsonUtil.setContent(this.responseBodyAsString);
 		} catch (Exception ex) {
-			log.error(ex.toString());
+			TestSession.logger.error(ex.toString());
 		}
 
 	    jsonObject=(JSONObject) JSONSerializer.toJSON(responseBodyAsString);
-	    log.info("Response jsonString: " + responseBodyAsString);
+	    TestSession.logger.info("Response jsonString: " + responseBodyAsString);
 	}
 
 	public Response(HttpMethod method, boolean isJSON) {
@@ -60,7 +62,7 @@ public class Response
 				sb.append(line);
 		}
 		catch (IOException ex) {
-			log.error(ex.toString());
+			TestSession.logger.error(ex.toString());
 		}
 		this.responseBodyAsString = sb.toString();
 	}

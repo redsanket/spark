@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdmqe" description="hio in dataset with dynamic dsd variable"
+    name="VAL_HioIn_dynamicDsd_5802708"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="patwhite@yahoo-inc.com"
+        owner="patwhite@yahoo-inc.com" publisher="patwhite@yahoo-inc.com"/>
+    <Comments/>
+    <UGI group="user" owner="patwhite" permission="755"/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>60</DiscoveryFrequency>
+    <DiscoveryInterface>HIO_SOURCE</DiscoveryInterface>
+    <Paths>
+        <Path location="/data/gdmqe/%{dsdKey}/%{date}/data" type="data"/>
+        <Path location="/data/gdmqe/%{dsdKey}/%{date}/count" type="count"/>
+        <Path location="/data/gdmqe/%{dsdKey}/%{date}/invalid" type="invalid"/>
+        <Path location="/data/gdmqe/%{dsdKey}/%{date}/schema" type="schema"/>
+    </Paths>
+    <Parameters>
+        <attribute name="feed" value="campaign-qa"/>
+        <attribute name="frequency" value="daily"/>
+    </Parameters>
+    <Partition name="dsdKey" type="DSD" values="campaign-qa"/>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>acct_id</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>true</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="740" name="Hio_Fdi_source_withDsd_5802708"/>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="1440"
+            name="gdm-target-denseb-patw_dense29_520_20130218" status="active">
+            <DateRange end="20110611" start="20110611"/>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 100" type="retention"/>
+            </Policies>
+            <ReplicationExcludePaths>invalid</ReplicationExcludePaths>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+    </Targets>
+    <HCatUsage>TRUE</HCatUsage>
+</DataSet>

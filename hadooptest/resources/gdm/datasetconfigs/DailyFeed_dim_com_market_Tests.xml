@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<DataSet name='NEW_DATA_SET_NAME' description='dim_com_market' catalog='GDM_Smoke'
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+	<Active>FALSE</Active>
+	<VerificationInstance></VerificationInstance>
+	<Priority>HIGHEST</Priority>
+	<Contact publisher='grid-qa@yahoo-inc.com' owner='dfsload@yahoo-inc.com' consumer='grid-qa@yahoo-inc.com'/>
+	<Comments>Basic smoke test, acquire a small feed from FDI to HDFS and then purge it</Comments>
+	<UGI permission='755' group='users'/>
+
+	<Frequency>daily</Frequency>
+	<DiscoveryFrequency>3600</DiscoveryFrequency>
+	<DiscoveryInterface>FDI</DiscoveryInterface>
+	<Paths>
+		<Path location='/data/gdmqe/auto2/data/${DataSetName}/%{date}' type="data"  />
+		<Path location='/data/gdmqe/auto2/schema/${DataSetName}/%{date}' type="schema"  />
+		<Path location='/data/gdmqe/auto2/count/${DataSetName}/%{date}' type="count"  />
+	</Paths>
+
+	<Parameters>
+		<attribute value='dim_com_market' name='feed'></attribute>
+		<attribute value='daily' name='frequency'></attribute>
+		<attribute value='0-998' name='bucket'></attribute>
+		<attribute value='dim_com_market_stats' name='statsfeed'></attribute>
+		<attribute value='yyyyMMdd' name='instancepattern'></attribute>
+	</Parameters>
+
+	<DataDefinition>
+		<StaticSchemaPath></StaticSchemaPath>
+		<RecordDelimiter></RecordDelimiter>
+		<FieldDelimiter></FieldDelimiter>
+		<InputFormat>Text</InputFormat>
+		<OutputFormat>Sequence</OutputFormat>
+		<SkipCommentsInData>false</SkipCommentsInData>
+		<SortKey>mrkt_sid</SortKey>
+		<PartitionKey></PartitionKey>
+		<DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+		<AddFields>datestamp=$datestamp</AddFields>
+		<RemoveFields></RemoveFields>
+		<SelectRecords></SelectRecords>
+	</DataDefinition>
+
+	<WorkflowStrategy>
+		<LoadStrategy>Default</LoadStrategy>
+		<RetryCount>0</RetryCount>
+		<SkipDataCommit>false</SkipDataCommit>
+		<SkipVerify>false</SkipVerify>
+		<NoOfParts>1</NoOfParts>
+		<PartsPerPartition>4</PartsPerPartition>
+	</WorkflowStrategy>
+
+	<Sources>
+		<Source name='gdm-fdi-source-patw02' latency='720'  />
+	</Sources>
+
+	<Targets>
+		<Target latency='1440' name='gdm-target-denseb-patw02' status="active" >
+			<DateRange start='20120127' end='20120127'></DateRange>
+                        <Policies>
+        	                <Policy
+                		condition="instanceDate(instancelist, instance) > 5" type="retention"/>
+            		</Policies>
+			<Resource name='bandwidth' capacity='10'></Resource>
+		</Target>
+	</Targets>
+
+
+</DataSet>
