@@ -24,6 +24,7 @@ public class HadoopComponent {
     protected Hashtable<String, HadoopNode> componentNodes =
             new Hashtable<String, HadoopNode>();
     protected State componentState = State.UNKNOWN;    
+    protected String componentStatus;
     protected String componentName;
 
     public HadoopComponent(String componentName,
@@ -42,6 +43,14 @@ public class HadoopComponent {
 
     public State getState() {
         return this.componentState;
+    }
+
+    public void setStatus(String status) {
+        this.componentStatus = status;
+    }
+
+    public String getStatus() {
+        return this.componentStatus;
     }
 
     public void printNodes() {
