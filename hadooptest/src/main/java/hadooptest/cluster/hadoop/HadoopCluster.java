@@ -22,7 +22,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.security.SecurityUtil;
-import org.apache.hadoop.yarn.client.YarnClientImpl;
+import org.apache.hadoop.yarn.client.YarnClientImpl; // 0.23
+// import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // 2.x
 
 import coretest.Util;
 import coretest.cluster.ClusterState;
@@ -44,15 +45,6 @@ public abstract class HadoopCluster {
     public static final String HISTORYSERVER = "historyserver";
     public static final String GATEWAY = "gateway";
     
-    // Admin hosts
-    public static final String ADMIN = "adm102.blue.ygrid.yahoo.com";
-
-    /** String representing the cluster type. */
-    public static final String FD_CLUSTER_TYPE =
-            "hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster";
-    public static final String PD_CLUSTER_TYPE =
-            "hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster";
-    
     /** String array for the cluster components */
     public static final String[] components = {
         HadoopCluster.NAMENODE,
@@ -63,17 +55,26 @@ public abstract class HadoopCluster {
         HadoopCluster.GATEWAY
         };
 
+    // Admin hosts
+    public static final String ADMIN = "adm102.blue.ygrid.yahoo.com";
+
+    /** String representing the cluster type. */
+    public static final String FD_CLUSTER_TYPE =
+            "hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster";
+    public static final String PD_CLUSTER_TYPE =
+            "hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster";
+    
+    public static enum State { UP, DOWN, UNKNOWN }
+    public static enum Action { START, STOP }    
     public static final String START = "start";
     public static final String STOP = "stop";
-    public static enum Action {
-        START, STOP }
     
     /**
      * Container for storing the Hadoop cluster node objects by components
      * Each component contains a hash table of key hostname and
      * value HadoopNode */
-    protected Hashtable<String, Hashtable<String, HadoopNode>> hadoopNodes =
-            new Hashtable<String, Hashtable<String, HadoopNode>>();
+    protected Hashtable<String, HadoopComponent> hadoopComponents =
+            new Hashtable<String, HadoopComponent>();
 
     protected Hashtable<String, String> compStats =
             new Hashtable<String, String>();
@@ -386,22 +387,18 @@ public abstract class HadoopCluster {
         TestSession.logger.info("Initialize the nodemanager node(s):");
         initComponentNodes(HadoopCluster.NODEMANAGER, dnHosts);
 
-        // Show all balances in hash table. 
-        TestSession.logger.debug("-- listing cluster nodes --");
-        Enumeration<String> components = hadoopNodes.keys(); 
-        while (components.hasMoreElements()) { 
-            String component = (String) components.nextElement(); 
-            Enumeration<HadoopNode> iterator =
-                    hadoopNodes.get(component).elements();
-            while(iterator.hasMoreElements()) {
-              HadoopNode node = (HadoopNode)iterator.nextElement();
-              TestSession.logger.info("component '" + component + "' node='" +
-                      node.getHostname() + "'.");
-            }
-        }   
+        printNodes();
     }
 
     
+    public void printNodes() {
+        TestSession.logger.debug("-- listing cluster nodes --");        
+        Enumeration<String> components = hadoopComponents.keys();
+        while(components.hasMoreElements()) {
+            String component = (String) components.nextElement();
+            hadoopComponents.get(component).printNodes();
+        }        
+    }
     
     /**
      * Initialize the Hadoop component nodes for a give component type.
@@ -452,7 +449,10 @@ public abstract class HadoopCluster {
 	                    "', conf dir='" + conf.getHadoopConfDir() + "'");
 	        }
 	    }
-	    hadoopNodes.put(component, cNodes);
+	    	    
+	    this.hadoopComponents.put(
+	            component,
+	            new HadoopComponent(component, cNodes));
 	}
 	
 	/**
@@ -487,9 +487,9 @@ public abstract class HadoopCluster {
 	 * @return Hashtable of String Arrays hostnames for each of the cluster
 	 * components.
 	 */
-	public Hashtable<String, Hashtable<String, HadoopNode>> getNodes() {
-		return hadoopNodes;
-	}
+    public Hashtable<String, HadoopComponent> getComponents() {
+        return this.hadoopComponents;
+    }
 
 	/**
 	 * Returns the cluster nodes hostnames for the given component.
@@ -500,7 +500,7 @@ public abstract class HadoopCluster {
 	 * @return String Arrays for the cluster nodes hostnames.
 	 */
 	public Hashtable<String, HadoopNode> getNodes(String component) {
-		return hadoopNodes.get(component);
+	    return this.hadoopComponents.get(component).getNodes();
 	}
 
     /**
@@ -523,9 +523,9 @@ public abstract class HadoopCluster {
     public HadoopNode getNode(String component) {
         if ((component == null) || component.isEmpty()) {
             component = HadoopCluster.GATEWAY;
-        }
-        Hashtable<String, HadoopNode> cNodes = hadoopNodes.get(component);
-        return cNodes.elements().nextElement();
+        }        
+        HadoopNode node = this.getNodes(component).elements().nextElement();
+        return node;
     }    
 	
     /**
