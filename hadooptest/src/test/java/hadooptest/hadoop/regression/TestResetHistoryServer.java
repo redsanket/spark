@@ -1,13 +1,10 @@
 package hadooptest.hadoop.regression;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
-import org.apache.hadoop.mapreduce.Cluster;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -25,7 +22,7 @@ public class TestResetHistoryServer extends TestSession {
 	}
 	
 	@Test
-	public void testCluster() throws Exception {
+	public void testResetHistoryServer() throws Exception {
 	    // Get the current cluster state
         TestSession.cluster.getState();
 
