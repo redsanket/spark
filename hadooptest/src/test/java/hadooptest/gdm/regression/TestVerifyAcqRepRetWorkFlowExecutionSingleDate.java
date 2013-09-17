@@ -28,14 +28,11 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	private long waitTimeForRepostoryUpdateInMs = 45000L;
 	private long timeoutInMs = 300000L;
 	private String datasetActivationTime = null;
-	//private String datasourceconfig_base = "/home/y/conf/gdm_qe_test/datasetconfigs/";
 	private String datasourceconfig_base;
 
 	@BeforeClass
 	public static void startTestSession() {
 		TestSession.start();
-		
-		
 	}
 	
 	/**
@@ -104,8 +101,7 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 		
 		// Clone the base data set
 		
-		this.response = this.console.cloneDataSet(this.dataSetName, "/home/y/conf/gdm_qe_test/datasetconfigs/VerifyAcqRepRetWorkFlowExecutionSingleDate_specification.xml", baseDataSetName);
-		//this.response = this.console.cloneDataSet(this.dataSetName, datasourceconfig_base + baseDataSetName + "_specification.xml", baseDataSetName);
+		this.response = this.console.cloneDataSet(this.dataSetName, datasourceconfig_base + baseDataSetName + "_specification.xml", baseDataSetName);
 		// Verify the response code
 		assertEquals("Verify Response Code - Clone DataSet", returnCode, Integer.toString(this.response.getStatusCode()));
 		

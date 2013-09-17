@@ -68,21 +68,6 @@ REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME -->
         </Target>
         <Target latency="1440" name="gdm-target-omegap1-rbernota_htf" status="active">
             <DateRange start="20120125" end="20120125"/>
-            <!-- REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME
-            <Paths>
-                <Path location="/ACQ_CLUSTER_NAME/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
-                <Path location="/ACQ_CLUSTER_NAME/data/daqdev/schema/${DataSetName}/%{date}" type="count"/>
-                <Path location="/ACQ_CLUSTER_NAME/data/daqdev/count/${DataSetName}/%{date}" type="schema"/>
-            </Paths>
-REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME -->
-            <Policies>
-                <Policy
-                    condition="numberOfInstances(instancelist, instance) > 1" type="retention"/>
-            </Policies>
-            <Resource capacity="10" name="bandwidth"/>
-        </Target>
-        <Target latency="1440" name="gdm-target-omegap1-rbernota_htf" status="active">
-            <DateRange start="20120125" end="20120125"/>
 <!-- REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME
             <Paths>
                 <Path location="/REP_CLUSTER_NAME/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
