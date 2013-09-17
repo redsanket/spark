@@ -1,749 +1,773 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>hadooptest</groupId>
-    <artifactId>hadooptest-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <relativePath>./parent-pom.xml</relativePath>
-  </parent>
-  
-  <artifactId>hadooptest-ci</artifactId>
-  
-  <properties>
-    <thread.count>8</thread.count>
-  </properties>
-    
-  <profiles>  
-    <profile>
-      <id>jacoco</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <properties>
-        <jacoco.version.1>0.6.3-SNAPSHOT</jacoco.version.1>
-        <jacoco.version>0.6.2.201302030002</jacoco.version>
-        <jacoco.raw.dir>/homes/hadoopqa/jacoco/results/latest</jacoco.raw.dir>  
-        <!--jacoco.raw.file>${jacoco.raw.dir}/resourcemanager.jacoco.exec</jacoco.raw.file-->
-        <jacoco.raw.file>${jacoco.raw.dir}</jacoco.raw.file>
-        <jacoco.report.dir>${project.basedir}/target/site/jacoco/hadooptest</jacoco.report.dir>
-      </properties>
+	<parent>
+		<groupId>hadooptest</groupId>
+		<artifactId>hadooptest-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>./parent-pom.xml</relativePath>
+	</parent>
 
-      <!-- This allows us to depend directly on SNAPSHOT -->
-      <repositories>
-        <repository>
-          <id>jacoco-snapshots</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-      </repositories>
-      
-      <dependencies>
-        <!-- jacoco dependencies -->
-        <dependency>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.jacoco</groupId>
-          <artifactId>org.jacoco.agent</artifactId>
-          <version>${jacoco.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.jacoco</groupId>
-          <artifactId>org.jacoco.ant</artifactId>
-          <version>${jacoco.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.jacoco</groupId>
-          <artifactId>org.jacoco.report</artifactId>
-          <version>${jacoco.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.jacoco</groupId>
-          <artifactId>org.jacoco.core</artifactId>
-          <version>${jacoco.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.ow2.asm</groupId>
-          <artifactId>asm-all</artifactId>
-          <version>4.1</version>
-        </dependency>
-      </dependencies>
+	<artifactId>hadooptest-ci</artifactId>
 
-      <build>
-        <plugins>
+	<properties>
+		<thread.count>8</thread.count>
+	</properties>
 
-          <!-- jacoco coverage report for Hadoop core -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.jacoco</groupId>
-                <artifactId>org.jacoco.ant</artifactId>
-                <version>${jacoco.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>ant-contrib</groupId>
-                <artifactId>ant-contrib</artifactId>
-                <version>20020829</version>
-              </dependency>
-            </dependencies>
-            <executions>
-              <execution>
-                <id>jacoco-report</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <taskdef name="jacoco-report"
-                             classname="org.jacoco.ant.ReportTask"
-                             classpathref="maven.plugin.classpath" />
-                    <taskdef classpathref="maven.runtime.classpath"
-                             resource="net/sf/antcontrib/antcontrib.properties" />
-                    <available
-                       file="${jacoco.raw.file}"
-                       property="jacoco.exec.file.exists" />
-                    <if>
-                      <equals arg1="${jacoco.exec.file.exists}" arg2="true" />
-                      <then>
-                        <echo message="Found ${jacoco.raw.file}" />
-                        <echo message="Executing jacoco report for Hadoop Core" />
-                        <trycatch>
-                          <try>
-                            <property name="hadoop.install" value="${HADOOP_INSTALL}" />
-                            <ant antfile="${project.basedir}/build.xml" target="clean" />
-                            <ant antfile="${project.basedir}/build.xml" target="merge" />
-                            <ant antfile="${project.basedir}/build.xml" target="report" />
-                          </try>
-                          <catch>
-                            <echo>skipping</echo>
-                          </catch>
-                        </trycatch>
-                      </then>
-                      <else>
-                        <echo message="No jacoco.exec file found." />
-                      </else>
-                    </if>
-                  </target>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
+	<profiles>
+		<!-- PROFILE FOR JACOCO -->
+		<!-- PROFILE FOR CLOVER -->
+		<!-- PROFILE FOR 0.23.7 (DEFAULT) -->
+		<!-- PROFILE FOR 2.0 -->
 
-          <!-- jacoco coverage report for the java test framework -->
-          <!-- This requires ant merge to be run first in the previous section -->
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco.version}</version>
-            <configuration>
-              <!-- [DEBUG]   (f) dataFile = /tmp/hadooptest-hadoopqa-theoden/target/jacoco.exec -->
-              <!-- this plugin is searching for the jacoco.exec file in the ../target directory -->
-              <destfile>${basedir}/data/exec/jacoco.exec</destfile>
-              <datafile>${basedir}/data/exec/jacoco.exec</datafile>
-              <outputDirectory>${jacoco.report.dir}</outputDirectory>
-            </configuration>
-            <executions>
-              <execution>
-                <id>jacoco-initialize</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>jacoco-site</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
+		<!-- PROFILE FOR JACOCO -->
+		<profile>
+			<id>jacoco</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<jacoco.version.1>0.6.3-SNAPSHOT</jacoco.version.1>
+				<jacoco.version>0.6.2.201302030002</jacoco.version>
+				<jacoco.raw.dir>/homes/hadoopqa/jacoco/results/latest</jacoco.raw.dir>
+				<!--jacoco.raw.file>${jacoco.raw.dir}/resourcemanager.jacoco.exec</jacoco.raw.file -->
+				<jacoco.raw.file>${jacoco.raw.dir}</jacoco.raw.file>
+				<jacoco.report.dir>${project.basedir}/target/site/jacoco/hadooptest</jacoco.report.dir>
+			</properties>
 
-        </plugins>
-      </build>
-    </profile>
+			<!-- This allows us to depend directly on SNAPSHOT -->
+			<repositories>
+				<repository>
+					<id>jacoco-snapshots</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
 
-    <profile>
-      <id>clover</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-          <name>clover</name>
-        </property>
-      </activation>
-      <properties>
-        <cloverLicenseLocation>/home/y/conf/clover/clover.license</cloverLicenseLocation>
-        <cloverDatabase>${project.build.directory}/clover/hadoop-coverage.db</cloverDatabase>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.atlassian.maven.plugins</groupId>
-            <artifactId>maven-clover2-plugin</artifactId>
-            <version>3.0.5</version>
-            <configuration>
-              <includesAllSourceRoots>true</includesAllSourceRoots>
-              <includesTestSourceRoots>true</includesTestSourceRoots>
-              <licenseLocation>${cloverLicenseLocation}</licenseLocation>
-              <cloverDatabase>${cloverDatabase}</cloverDatabase>
-              <targetPercentage>50%</targetPercentage>
-              <outputDirectory>${project.build.directory}/clover</outputDirectory>
-              <generateHtml>true</generateHtml>
-              <generateXml>true</generateXml>
-            </configuration>
-            <executions>
-              <execution>
-                <id>clover-setup</id>
-                <phase>process-sources</phase>
-                <goals>
-                  <goal>setup</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>clover</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>clover</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+			<dependencies>
+				<!-- jacoco dependencies -->
+				<dependency>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.jacoco</groupId>
+					<artifactId>org.jacoco.agent</artifactId>
+					<version>${jacoco.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.jacoco</groupId>
+					<artifactId>org.jacoco.ant</artifactId>
+					<version>${jacoco.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.jacoco</groupId>
+					<artifactId>org.jacoco.report</artifactId>
+					<version>${jacoco.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.jacoco</groupId>
+					<artifactId>org.jacoco.core</artifactId>
+					<version>${jacoco.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.ow2.asm</groupId>
+					<artifactId>asm-all</artifactId>
+					<version>4.1</version>
+				</dependency>
+			</dependencies>
 
-    <profile>
-      <id>profile-0.23.7</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
+			<build>
+				<plugins>
 
-      <dependencies>
-        <dependency>
-          <groupId>system</groupId>
-          <artifactId>system41</artifactId>
-          <version>0.9.2</version>
-          <scope>system</scope>
-          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
-        </dependency>
+					<!-- jacoco coverage report for Hadoop core -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<dependencies>
+							<dependency>
+								<groupId>org.jacoco</groupId>
+								<artifactId>org.jacoco.ant</artifactId>
+								<version>${jacoco.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>ant-contrib</groupId>
+								<artifactId>ant-contrib</artifactId>
+								<version>20020829</version>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<id>jacoco-report</id>
+								<phase>test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<taskdef name="jacoco-report" classname="org.jacoco.ant.ReportTask"
+											classpathref="maven.plugin.classpath" />
+										<taskdef classpathref="maven.runtime.classpath"
+											resource="net/sf/antcontrib/antcontrib.properties" />
+										<available file="${jacoco.raw.file}" property="jacoco.exec.file.exists" />
+										<if>
+											<equals arg1="${jacoco.exec.file.exists}" arg2="true" />
+											<then>
+												<echo message="Found ${jacoco.raw.file}" />
+												<echo message="Executing jacoco report for Hadoop Core" />
+												<trycatch>
+													<try>
+														<property name="hadoop.install" value="${HADOOP_INSTALL}" />
+														<ant antfile="${project.basedir}/build.xml" target="clean" />
+														<ant antfile="${project.basedir}/build.xml" target="merge" />
+														<ant antfile="${project.basedir}/build.xml" target="report" />
+													</try>
+													<catch>
+														<echo>skipping</echo>
+													</catch>
+												</trycatch>
+											</then>
+											<else>
+												<echo message="No jacoco.exec file found." />
+											</else>
+										</if>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 
-        <dependency>
-          <groupId>system</groupId>
-          <artifactId>system42</artifactId>
-          <version>0.9.2</version>
-          <scope>system</scope>
-          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
+					<!-- jacoco coverage report for the java test framework -->
+					<!-- This requires ant merge to be run first in the previous section -->
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<configuration>
+							<!-- [DEBUG] (f) dataFile = /tmp/hadooptest-hadoopqa-theoden/target/jacoco.exec -->
+							<!-- this plugin is searching for the jacoco.exec file in the ../target 
+								directory -->
+							<destfile>${basedir}/data/exec/jacoco.exec</destfile>
+							<datafile>${basedir}/data/exec/jacoco.exec</datafile>
+							<outputDirectory>${jacoco.report.dir}</outputDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>jacoco-initialize</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>jacoco-site</id>
+								<phase>test</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 
-    <profile>
-      <id>profile-2.0</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
+				</plugins>
+			</build>
+		</profile>
 
-      <dependencies>
-        <dependency>
-          <groupId>system</groupId>
-          <artifactId>system40</artifactId>
-          <version>0.9.2</version>
-          <scope>system</scope>
-          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-client-${HADOOP_VERSION}.jar</systemPath>
-        </dependency>
+		<!-- PROFILE FOR CLOVER -->
+		<profile>
+			<id>clover</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>clover</name>
+				</property>
+			</activation>
+			<properties>
+				<cloverLicenseLocation>/home/y/conf/clover/clover.license</cloverLicenseLocation>
+				<cloverDatabase>${project.build.directory}/clover/hadoop-coverage.db</cloverDatabase>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.atlassian.maven.plugins</groupId>
+						<artifactId>maven-clover2-plugin</artifactId>
+						<version>3.0.5</version>
+						<configuration>
+							<includesAllSourceRoots>true</includesAllSourceRoots>
+							<includesTestSourceRoots>true</includesTestSourceRoots>
+							<licenseLocation>${cloverLicenseLocation}</licenseLocation>
+							<cloverDatabase>${cloverDatabase}</cloverDatabase>
+							<targetPercentage>50%</targetPercentage>
+							<outputDirectory>${project.build.directory}/clover</outputDirectory>
+							<generateHtml>true</generateHtml>
+							<generateXml>true</generateXml>
+						</configuration>
+						<executions>
+							<execution>
+								<id>clover-setup</id>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>setup</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>clover</id>
+								<phase>test</phase>
+								<goals>
+									<goal>clover</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 
-        <dependency>
-          <groupId>system</groupId>
-          <artifactId>system41</artifactId>
-          <version>0.9.2</version>
-          <scope>system</scope>
-          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
-        </dependency>
+		<!-- PROFILE FOR 0.23.7 -->
+		<profile>
+			<id>profile-0.23.7</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system40</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-client-${HADOOP_VERSION}.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system41</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system42</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system52</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/lib/protobuf-java-2.5.0.jar</systemPath>
+				</dependency>
+			</dependencies>
+		</profile>
 
-        <dependency>
-          <groupId>system</groupId>
-          <artifactId>system42</artifactId>
-          <version>0.9.2</version>
-          <scope>system</scope>
-          <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
+		<!-- PROFILE FOR 2.0 -->
+		<profile>
+			<id>profile-2.0</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system40</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-client-${HADOOP_VERSION}.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system41</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system42</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system52</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/yarn/lib/protobuf-java-2.5.0.jar</systemPath>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
-  <build>
-    <plugins>
-      
-      <plugin>
-		  <groupId>org.apache.maven.plugins</groupId>
-		  <artifactId>maven-jar-plugin</artifactId>
-		  <configuration>
-          	<outputDirectory>${basedir}/target</outputDirectory>
-          	<finalName>RandomWriter</finalName>
-          </configuration>
-		  <executions>
-		  <execution>
-		    <phase>test</phase>
-		    <goals>
-		       <goal>test-jar</goal>
-		    </goals>
-		  </execution>
-		</executions>
-	  </plugin>
+	<build>
+		<plugins>
 
-      
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>${basedir}/target</outputDirectory>
+					<finalName>RandomWriter</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>test</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.13</version>
-        <configuration>
-          <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
-          <skip>true</skip>
-          <!-- Skip the default running of this plug-in (or everything will run twice... see below) -->
-          <!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
-          <testFailureIgnore>true</testFailureIgnore>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.hadoop</groupId>
-              <artifactId>excluded-artifact</artifactId>
-            </exclusion>
-          </exclusions>
-		  <!-- Set JVM heap max size -->
-          <argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/ -Xmx3g</argLine>  
-          <additionalClasspathElements>
-            <additionalClasspathElement>${basedir}</additionalClasspathElement>
-            <additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
-            <additionalClasspathElement>/tmp/hadooptest-hadoopqa-betty/target/hadooptest-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
-	    	<additionalClasspathElement>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</additionalClasspathElement>
-            <additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
-          </additionalClasspathElements>
-          <trimStackTrace>false</trimStackTrace>
-          <excludes>
-            <exclude>**/TestEndToEndCompression.java</exclude>
-          </excludes>          
-        </configuration>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.13</version>
+				<configuration>
+					<!-- Skip the default running of this plug-in (or everything will run 
+						twice... see below) -->
+					<skip>true</skip>
+					<!-- Skip the default running of this plug-in (or everything will run 
+						twice... see below) -->
+					<!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
+					<testFailureIgnore>true</testFailureIgnore>
+					<exclusions>
+						<exclusion>
+							<groupId>org.apache.hadoop</groupId>
+							<artifactId>excluded-artifact</artifactId>
+						</exclusion>
+					</exclusions>
+					<!-- Set JVM heap max size -->
+					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/
+						-Xmx3g</argLine>
+					<additionalClasspathElements>
+						<additionalClasspathElement>${basedir}</additionalClasspathElement>
+						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
+						<additionalClasspathElement>/tmp/hadooptest-hadoopqa-betty/target/hadooptest-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
+						<additionalClasspathElement>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</additionalClasspathElement>
+						<additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
+					</additionalClasspathElements>
+					<trimStackTrace>false</trimStackTrace>
+					<excludes>
+						<exclude>**/TestEndToEndCompression.java</exclude>
+					</excludes>
+				</configuration>
 
-        <executions>
+				<executions>
 
-          <execution>
-            <id>setup-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>coretest.SetupTests</groups>
-            </configuration>
-          </execution>
+					<execution>
+						<id>setup-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>coretest.SetupTests</groups>
+						</configuration>
+					</execution>
 
-          <execution>
-            <id>serial-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>coretest.SerialTests</groups>
-            </configuration>
-          </execution>
+					<execution>
+						<id>serial-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>coretest.SerialTests</groups>
+						</configuration>
+					</execution>
 
-          <execution>
-            <id>parallel-methods-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>coretest.ParallelMethodTests</groups>
-              <parallel>methods</parallel>
-              <threadCount>${thread.count}</threadCount>
-            </configuration>
-          </execution>
+					<execution>
+						<id>parallel-methods-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>coretest.ParallelMethodTests</groups>
+							<parallel>methods</parallel>
+							<threadCount>${thread.count}</threadCount>
+						</configuration>
+					</execution>
 
-          <execution>
-            <id>parallel-class-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>coretest.ParallelClassTests</groups>
-              <parallel>class</parallel>
-              <threadCount>${thread.count}</threadCount>
-            </configuration>
-          </execution>
+					<execution>
+						<id>parallel-class-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>coretest.ParallelClassTests</groups>
+							<parallel>class</parallel>
+							<threadCount>${thread.count}</threadCount>
+						</configuration>
+					</execution>
 
-          <execution>
-            <id>parallel-class-and-method-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <excludedGroups>coretest.SetupTests,coretest.SerialTests,coretest.ParallelClassTests,coretest.ParallelMethodTests,coretest.TearDownTests</excludedGroups>
-              <parallel>both</parallel>
-              <threadCount>${thread.count}</threadCount>
-            </configuration>
-          </execution>
+					<execution>
+						<id>parallel-class-and-method-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<excludedGroups>coretest.SetupTests,coretest.SerialTests,coretest.ParallelClassTests,coretest.ParallelMethodTests,coretest.TearDownTests</excludedGroups>
+							<parallel>both</parallel>
+							<threadCount>${thread.count}</threadCount>
+						</configuration>
+					</execution>
 
-          <execution>
-            <id>tear-down-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <groups>coretest.TearDownTests</groups>
-            </configuration>
-          </execution>
+					<execution>
+						<id>tear-down-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>coretest.TearDownTests</groups>
+						</configuration>
+					</execution>
 
-        </executions>
-      </plugin>
-    </plugins>
+				</executions>
+			</plugin>
+		</plugins>
 
-  </build>
+	</build>
 
-  <!-- Dependency based on the hadoop deployment -->
-  <dependencies>
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system32</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/hadoop-common-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system34</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/lib/hadoop-auth-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system35</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+	<!-- Dependency based on the hadoop deployment -->
+	<dependencies>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system32</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/common/hadoop-common-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system36</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/hadoop-gpl-compression.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system37</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/hdfs/hadoop-hdfs-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system1</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-common-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system2</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-hdfs-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system3</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-auth-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system34</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/common/lib/hadoop-auth-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system4</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-shuffle-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system5</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-hs-plugins-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system35</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/common/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system6</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system36</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/common/hadoop-gpl-compression.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system7</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-common-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system8</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system37</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/hdfs/hadoop-hdfs-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system9</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-hs-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system1</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-common-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system10</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-jobclient-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system2</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-hdfs-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system11</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-app-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system3</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-auth-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system12</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-core-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system13</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-site-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system14</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-api-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system4</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-shuffle-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system15</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system5</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-hs-plugins-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system16</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-applications-distributedshell-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system6</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system17</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system7</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-common-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system18</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-web-proxy-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system8</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system19</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-common-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system9</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-hs-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system20</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-common-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system10</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-jobclient-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system21</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system11</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-app-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system22</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system12</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-core-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system23</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-archives-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system13</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-site-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system24</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-distcp-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system14</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-api-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system25</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-extras-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system15</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system26</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-datajoin-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system16</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-applications-distributedshell-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system27</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-mapreduce-test.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system17</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system28</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-rumen-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system18</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-web-proxy-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system29</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system19</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-common-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system30</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system20</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-common-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system31</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix-${HADOOP_VERSION}.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system21</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system38</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system22</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system39</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>${HADOOP_SHARE}/common/lib/snappy-java-1.0.3.2.jar</systemPath>
-    </dependency>
-    
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system39</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system23</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-archives-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-    <dependency>
-      <groupId>system</groupId>
-      <artifactId>system40</artifactId>
-      <version>0.9.2</version>
-      <scope>system</scope>
-      <systemPath>/home/y/lib/jars/yjava_byauth.jar</systemPath>
-    </dependency>
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system24</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-distcp-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
 
-  </dependencies>
-  
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system25</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-extras-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system26</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-datajoin-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system27</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-mapreduce-test.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system28</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-rumen-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system29</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system30</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system31</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix-${HADOOP_VERSION}.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system38</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system38</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>${HADOOP_SHARE}/common/lib/snappy-java-1.0.3.2.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system100</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>system</groupId>
+			<artifactId>system40</artifactId>
+			<version>0.9.2</version>
+			<scope>system</scope>
+			<systemPath>/home/y/lib/jars/yjava_byauth.jar</systemPath>
+		</dependency>
+
+	</dependencies>
+
 </project>

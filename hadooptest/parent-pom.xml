@@ -1,329 +1,333 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>hadooptest</groupId>
-  <artifactId>hadooptest-parent</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+	<groupId>hadooptest</groupId>
+	<artifactId>hadooptest-parent</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-  <name>hadooptest</name>
-  <url>http://maven.apache.org</url>
+	<name>hadooptest</name>
+	<url>http://maven.apache.org</url>
 
-  <!-- This allows us to depend directly on SNAPSHOT -->
-  <repositories>
-    <repository>
-      <id>apache-snapshots</id>
-      <url>http://repository.apache.org/content/groups/snapshots-group/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+	<!-- This allows us to depend directly on SNAPSHOT -->
+	<repositories>
+		<repository>
+			<id>apache-snapshots</id>
+			<url>http://repository.apache.org/content/groups/snapshots-group/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
-  <profiles>
+	<profiles>
 
-    <profile>
-        <id>profile-ci</id>
-        <activation>
-            <activeByDefault>false</activeByDefault>
-        </activation>
-        <properties>
-            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	    <coretest.jar.dir>/tmp</coretest.jar.dir>
-        </properties>
-        <dependencies>
-            <dependency>
-                <groupId>system</groupId>
-                <artifactId>system2</artifactId>
-                <version>0.9.2</version>
-                <scope>system</scope>
-                <systemPath>${coretest.jar.dir}/coretest-1.0-SNAPSHOT.jar</systemPath>
-            </dependency>
-            
-            <!--  GDM automation dependency for yjava auth -->
-            <dependency>
-                <groupId>yahoo.yinst.yjava_byauth</groupId>
-                <artifactId>yjava_byauth</artifactId>
-                <version>0.6.0</version>
-            </dependency>
-        </dependencies>
-    </profile>
-    
-    <profile>
-      <id>profile-eclipse</id>
-      <activation>
-	<activeByDefault>false</activeByDefault>
-      </activation>
-      <properties>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      </properties>
-      <dependencies>
+		<!-- PROFILE FOR CI -->
+		<!-- PROFILE FOR ECLIPSE -->
+		<!-- PROFILE FOR 0.23.6 -->
+		<!-- PROFILE FOR 0.23.7 (DEFAULT) -->
+		<!-- PROFILE FOR 2.0 -->
 
-	<dependency>
-	  <groupId>coretest</groupId>
-	  <artifactId>coretest</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	  <scope>provided</scope>
-	</dependency>
+		<!-- PROFILE FOR CI -->
+		<profile>
+			<id>profile-ci</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+				<coretest.jar.dir>/tmp</coretest.jar.dir>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system100</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${coretest.jar.dir}/coretest-1.0-SNAPSHOT.jar</systemPath>
+				</dependency>
+				<!-- GDM automation dependency for yjava auth -->
+				<dependency>
+					<groupId>yahoo.yinst.yjava_byauth</groupId>
+					<artifactId>yjava_byauth</artifactId>
+					<version>0.6.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
 
-	<dependency>
-	  <groupId>coretest</groupId>
-	  <artifactId>coretest</artifactId>
-	  <classifier>sources</classifier>
-	  <version>1.0-SNAPSHOT</version>
-	  <scope>provided</scope>
-	</dependency>
+		<!-- PROFILE FOR ECLIPSE -->
+		<profile>
+			<id>profile-eclipse</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>coretest</groupId>
+					<artifactId>coretest</artifactId>
+					<version>1.0-SNAPSHOT</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>coretest</groupId>
+					<artifactId>coretest</artifactId>
+					<classifier>sources</classifier>
+					<version>1.0-SNAPSHOT</version>
+					<scope>provided</scope>
+				</dependency>
+				<!-- GDM automation dependency for yjava auth -->
+				<dependency>
+					<groupId>yahoo.yinst.yjava_byauth</groupId>
+					<artifactId>yjava_byauth</artifactId>
+					<version>0.6.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
 
-    <!--  GDM automation dependency for yjava auth -->
-    <dependency>
-        <groupId>yahoo.yinst.yjava_byauth</groupId>
-        <artifactId>yjava_byauth</artifactId>
-        <version>0.6.0</version>
-    </dependency>
+		<!-- PROFILE FOR 0.23.6 -->
+		<profile>
+			<id>profile-0.23.6</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+				<hadoop.version.ut.1>0.23.6</hadoop.version.ut.1>
+				<hadoop.version>${hadoop.version.ut.1}</hadoop.version>
+			</properties>
+		</profile>
 
-      </dependencies>
-    </profile>
+		<!-- PROFILE FOR 0.23.7 -->
+		<profile>
+			<id>profile-0.23.7</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+				<hadoop.version.ut.1>0.23.7</hadoop.version.ut.1>
+				<hadoop.version>${hadoop.version.ut.1}</hadoop.version>
+			</properties>
 
-    <profile>
-      <id>profile-0.23.6</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>0.23.6</hadoop.version.ut.1>
-        <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
-      </properties>
-    </profile>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-yarn-client</artifactId>
+					<version>${hadoop.version}</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-yarn-server-nodemanager</artifactId>
+					<version>${hadoop.version}</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-yarn-server-resourcemanager</artifactId>
+					<version>${hadoop.version}</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
 
-    <profile>
-      <id>profile-0.23.7</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>0.23.7</hadoop.version.ut.1>
-        <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
-      </properties>
+		<!-- PROFILE FOR 2.0 -->
+		<!-- SNAPSHOT REPO http://repository.apache.org/content/groups/snapshots-group/ -->
+		<profile>
+			<id>profile-2.0</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
 
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-client</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
+			<properties>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+				<hadoop.version.ut.old>2.0.4.0.1304041432</hadoop.version.ut.old>
+				<hadoop.version.ut.1>2.2.0-SNAPSHOT</hadoop.version.ut.1>
+				<hadoop.version>${hadoop.version.ut.1}</hadoop.version>
+			</properties>
 
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-server-nodemanager</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-yarn-client</artifactId>
+					<version>${hadoop.version}</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-yarn-server-nodemanager</artifactId>
+					<version>${hadoop.version}</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-yarn-server-resourcemanager</artifactId>
+					<version>${hadoop.version}</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>resources</directory>
+			</resource>
+		</resources>
 
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
-      </dependencies>
-    </profile>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<outputDirectory>../..</outputDirectory>
+					<reportOutputDirectory>../..</reportOutputDirectory>
+					<destDir>hadooptest-javadoc</destDir>
+					<aggregate>true</aggregate>
+					<quiet>true</quiet>
+					<excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
+				</configuration>
+			</plugin>
 
-    <profile>
-      <id>profile-2.0</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
+		</plugins>
 
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.1>2.0.4.0.1304041432 </hadoop.version.ut.1>
-        <hadoop.version>${hadoop.version.ut.1}</hadoop.version>
-      </properties>
+	</build>
 
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-client</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.12</version>
+		</dependency>
 
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>provided</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
+		<!-- GDM automation dependency for JSON -->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+			<classifier>jdk15</classifier>
+		</dependency>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>resources</directory>
-      </resource>
-    </resources>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>${hadoop.version}</version>
+			<type>test-jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>${hadoop.version}</version>
+			<type>test-jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-client-app</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-client-common</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-client-core</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-client-hs</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+			<version>${hadoop.version}</version>
+			<type>test-jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-yarn-common</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-yarn-server-tests</artifactId>
+			<version>${hadoop.version}</version>
+			<type>test-jar</type>
+			<scope>provided</scope>
+		</dependency>
 
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.2</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+		<!-- This is temporarily disabled due to Bugzilla Ticket 6204559 - Hadoop 
+			internal dist package hadoop_mvn_yarn is missing the hadoop-yarn-client.jar 
+			dependency> <groupId>org.apache.hadoop</groupId> <artifactId>hadoop-mapreduce-examples</artifactId> 
+			<version>${hadoop.version}</version> <type>test-jar</type> <scope>provided</scope> 
+			</dependency -->
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
-        <configuration>
-          <outputDirectory>../..</outputDirectory>
-          <reportOutputDirectory>../..</reportOutputDirectory>
-          <destDir>hadooptest-javadoc</destDir>
-          <aggregate>true</aggregate>
-          <quiet>true</quiet>
-          <excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
-        </configuration>
-      </plugin>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-examples</artifactId>
+			<version>0.23.7</version>
+			<scope>provided</scope>
+		</dependency>
 
-    </plugins>
+	</dependencies>
 
-  </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.12</version>
-    </dependency>
-    
-    <!-- GDM automation dependency for JSON -->
-    <dependency>
-        <groupId>net.sf.json-lib</groupId>
-        <artifactId>json-lib</artifactId>
-        <version>2.4</version>
-        <classifier>jdk15</classifier>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
-      <version>${hadoop.version}</version>
-      <type>test-jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
-      <version>${hadoop.version}</version>
-      <type>test-jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-app</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-common</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-core</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-hs</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-      <version>${hadoop.version}</version>
-      <type>test-jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-yarn-common</artifactId>
-      <version>${hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-yarn-server-tests</artifactId>
-      <version>${hadoop.version}</version>
-      <type>test-jar</type>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- This is temporarily disabled due to 
-         Bugzilla Ticket 6204559 - Hadoop internal dist package
-         hadoop_mvn_yarn is missing the hadoop-yarn-client.jar
-         dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-examples</artifactId>
-      <version>${hadoop.version}</version>
-      <type>test-jar</type>
-      <scope>provided</scope>
-    </dependency-->
-
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-examples</artifactId>
-      <version>0.23.7</version>
-      <scope>provided</scope>
-    </dependency>
-
-  </dependencies>
-  
 </project>
