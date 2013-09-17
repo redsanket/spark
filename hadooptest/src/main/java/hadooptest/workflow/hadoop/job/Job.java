@@ -145,6 +145,12 @@ public abstract class Job extends Thread {
 		return name;
 	}
 	
+    // -verboseclass
+    /*
+    YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();
+    yarnClient.getApplicationList();
+    */
+
 	/**
 	 * Get the Hadoop API RunningJob that is represented by this job.
 	 * 
@@ -155,11 +161,8 @@ public abstract class Job extends Thread {
 	 */
 	public RunningJob getHadoopJob() throws IOException {
 		RunningJob job = null;
-
 		JobClient jobClient = this.getHadoopAPIJobClient();
-
 		job = jobClient.getJob(this.getHadoopAPIJobID());
-
 		return job;
 	}
 	
@@ -885,9 +888,7 @@ public abstract class Job extends Thread {
 	 */
 	public JobClient getHadoopAPIJobClient() throws IOException {
 		JobClient jobClient = null;
-
 		jobClient = new JobClient(TestSession.cluster.getConf());
-
 		return jobClient;
 	}
 	

@@ -1,5 +1,6 @@
 package hadooptest.node.hadoop;
 
+import hadooptest.cluster.hadoop.HadoopCluster.State;
 import hadooptest.config.hadoop.HadoopConfiguration;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ public abstract class HadoopNode {
     /** hadoop component type */
     protected String component;
     
+    protected State nodeState = State.UNKNOWN;
     /**
      * Initializes the HadoopNode.
      * 
@@ -114,6 +116,14 @@ public abstract class HadoopNode {
         this.getConf().setDefaultHadoopConfDir(conf);
     }
 
+    public void setState(State state) {
+        this.nodeState = state;
+    }
+    
+    public State getState() {
+        return this.nodeState;
+    }
+    
     /**
      * Get the node conf. object.
      *

@@ -53,7 +53,6 @@ public class TestGenData extends TestSession {
 
         // Thread run method for creating job records as mapredqa.
         public void run() {
-
             int startIndex=this.index*partitionSize;
             String paddedPartIndex = String.format("%06d", index);
             String user = "hadoopqa";
@@ -152,8 +151,7 @@ public class TestGenData extends TestSession {
         }
         
         // Create n job records per partition per thread 
-        try {
-            
+        try {        
             for(int index = 0; index < numPartition ; index++) {
                 if ((index+1 == numPartition) && (partialBatchProcessSize > 0)) {
                     batchSize = partialBatchProcessSize;
@@ -171,7 +169,6 @@ public class TestGenData extends TestSession {
             TestSession.logger.error("Main thread interrupted.");
             e.printStackTrace();
         }
-        
         TestSession.logger.info(
                 "--> Generated " + numRecords + " job records in " +
                 numPartition + " paritions of size " + partitionSize +

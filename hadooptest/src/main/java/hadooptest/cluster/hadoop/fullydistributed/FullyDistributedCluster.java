@@ -2,8 +2,10 @@ package hadooptest.cluster.hadoop.fullydistributed;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
+import hadooptest.node.hadoop.HadoopNode;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -359,7 +361,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 		temp.addAll(Arrays.asList(cmd2));
 		temp.addAll(Arrays.asList(cmd3));
 		String [] cmd =
-		        temp.toArray(new String[cmd1.length+cmd2.length+cmd3.length]);
+		        temp.toArray(new String[temp.size()]);
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 
 		TestSession.logger.trace(Arrays.toString(output));
@@ -509,41 +511,42 @@ public class FullyDistributedCluster extends HadoopCluster {
      *         is fully up.
      */
 	public boolean isFullyUp() throws Exception {
-		boolean overallStatus = true;
-		boolean componentStatus = true;
-
-	    /** Container for storing the Hadoop cluster node objects by components */
-	    Hashtable<String, Boolean> compState =
-	            new Hashtable<String, Boolean>();
-
+	    boolean overallStatus = true;
+	    boolean componentStatus = true;
 		for (String component : HadoopCluster.components) {
 		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
 			  componentStatus = this.isComponentFullyUp(component);
 			  TestSession.logger.info("Get Cluster Status: " + component +
 			          " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
-			  compState.put(component, Boolean.valueOf(componentStatus));
 			  if (componentStatus == false) {
 				  overallStatus = false;
 			  }
 		}
-		
-		// Show cluster state summary		
-		String comp;
-	    Enumeration<String> comps = compState.keys();
-	    TestSession.logger.info("--> Cluster Component Status Summary:");
-        TestSession.logger.info("******************************");
-	    while(comps.hasMoreElements()) {
-	         comp = (String) comps.nextElement();
-	         componentStatus = compState.get(comp);
-	         TestSession.logger.info(
-	                 comp + ": " +
-	                 ((componentStatus == true) ? "up" : "down") +
-	                 " (" + compStats.get(comp) + ")");
-	    }	      
-        TestSession.logger.info("******************************");
-		
+		printClusterStatus();		
 	    return overallStatus;
+	}
+
+	public void printClusterStatus() {
+	    // Show cluster state summary       
+        TestSession.logger.info("--> Cluster Component Status Summary:");
+        TestSession.logger.info("******************************");        
+        Enumeration<String> componentKeys = hadoopComponents.keys(); 
+        while (componentKeys.hasMoreElements()) {             
+            String component = (String) componentKeys.nextElement(); 
+            if (component.equals(HadoopCluster.GATEWAY)) { continue; }
+            HadoopComponent hadoopComponent = hadoopComponents.get(component);
+            State state = hadoopComponent.getState();
+            StringBuffer str = new StringBuffer();
+            str.append(component + ": " + state.toString() +
+                    " (" + hadoopComponent.getStatus() + ")");
+            if (state == State.DOWN) {
+                str.append(": " + 
+                        StringUtils.join(hadoopComponent.getNode(state), ","));
+            }
+            TestSession.logger.info(str);
+        }
+        TestSession.logger.info("******************************");
 	}
 	
     /**
@@ -738,6 +741,8 @@ public class FullyDistributedCluster extends HadoopCluster {
 		int numExpectedDaemonProcessesPerHost =
 		        (action.equals(Action.START)) ?
 				numCapableDaemonProcessesPerHost : 0;
+		HadoopComponent hadoopComp = 
+		        TestSession.cluster.getComponents().get(component);
 	    for(String host : daemonHosts) {
 	    	// Check for the expected number of processes for each host
 	    	TestSession.logger.trace("Check against process counter for host " +
@@ -754,10 +759,14 @@ public class FullyDistributedCluster extends HadoopCluster {
 	        	String log = "/home/gs/var/log/hdfsqa/hadoop-hdfsqa-datanode-" +
 	                host+".log";
 	            TestSession.logger.debug("Daemon on host " + host +
-	            		" is not in expected state of '" + expectedState +
+	            		" is NOT in expected state of '" + expectedState +
 	            		"'.");
 	            TestSession.logger.debug("See log: " + host + ":"+ log);
+	            hadoopComp.getNode(host).setState(State.DOWN);
 	    	}
+	        else {
+                hadoopComp.getNode(host).setState(State.UP);
+	        }
 	    }
 
 		int numCapableDaemonProcesses =
@@ -780,9 +789,15 @@ public class FullyDistributedCluster extends HadoopCluster {
 		        " process " + expectedState + ": " +
 		        numRelativeActualDaemonProcesses + "/" +
 		        numCapableDaemonProcesses);
-		compStats.put(component, numRelativeActualDaemonProcesses + "/" +
+
+		// Set component status to the HadoopComponent instance
+		hadoopComp.setStatus(numRelativeActualDaemonProcesses + "/" +
                 numCapableDaemonProcesses);
 		
+		State compState = 
+		        (isComponentFullyInExpectedState) ? State.UP : State.DOWN;
+        TestSession.cluster.getComponents().get(component).setState(compState);
+
 		return isComponentFullyInExpectedState;
 	}	
 }
