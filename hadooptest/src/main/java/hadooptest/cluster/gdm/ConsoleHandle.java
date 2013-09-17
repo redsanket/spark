@@ -44,7 +44,6 @@ public final class ConsoleHandle
 			String configPath = Util.getResourceFullPath(
 					"gdm/conf/config.xml");
 			
-			
 			this.conf = new XMLConfiguration(configPath);
 			this.consoleURL = this.conf.getString("hostconfig.console.base_url");
 			
