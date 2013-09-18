@@ -1,21 +1,22 @@
 package hadooptest.gdm.regression;
 
-import coretest.SerialTests;
-import coretest.Util;
+import static org.junit.Assert.assertEquals;
+import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
-import hadooptest.TestSession;
 
-import org.junit.BeforeClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static org.junit.Assert.assertEquals;
+import coretest.SerialTests;
+import coretest.Util;
 
 @Category(SerialTests.class)
-public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_DateRange extends TestSession {
+public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate extends TestSession {
+
 	private ConsoleHandle console;
 	private Response response;
 	private String dataSetName;
@@ -34,13 +35,22 @@ public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_DateRange extends TestSession {
 
 		this.console = new ConsoleHandle();
 	}
-
+	
 	@Test
-	public void acquire__REG_smFeed_AcqReplRet_FDI_HDFS_DateRange() throws Exception {
-		this.dataSetName = ("REG_smFeed_AcqReplRet_FDI_HDFS_DateRange_" + System.currentTimeMillis());
+	public void acquire__REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate() throws Exception {
+		String baseDataSetName = console.getConf().getString("basedatasets.REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate");
+		this.dataSetName = ( baseDataSetName + "_" + System.currentTimeMillis());
 		long sleepWhileCloneInmSec = 60000L;
 
-		this.response = this.console.cloneDataSet(this.dataSetName, datasourceconfig_base+"REG_smFeed_AcqReplRet_FDI_HDFS_DateRange.xml");
+		if(baseDataSetName != null && !baseDataSetName.equals("")) {
+			this.response = this.console.cloneDataSet(this.dataSetName, datasourceconfig_base + baseDataSetName + "_specification.xml", baseDataSetName);
+		}
+		else {
+			baseDataSetName = "REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate";
+			this.response = this.console.cloneDataSet(this.dataSetName, datasourceconfig_base+"REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate.xml");
+		}
+		TestSession.logger.info("Base DataSet Name: " + baseDataSetName);
+
 		assertEquals("ResponseCode - cloneDataSet", 200, this.response.getStatusCode());
 
 		TestSession.logger.debug("Data set is being cloned. Sleeping for " + sleepWhileCloneInmSec + " ms.");
@@ -51,16 +61,19 @@ public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_DateRange extends TestSession {
 		}
 
 		this.response = this.console.checkDataSet(this.dataSetName);
+		
 		assertEquals("ResponseCode - checkDataSet", 200, this.response.getStatusCode());
 		assertEquals("DataSetName does not match.", this.dataSetName, this.response.getElementAtPath("/DatasetsResult/[0]/DatasetName").toString());
 		assertEquals("Priority does not match.", "HIGHEST", this.response.getElementAtPath("/DatasetsResult/[0]/Priority").toString());
 		assertEquals("Feed is not INACTIVE.", "INACTIVE", this.response.getElementAtPath("/DatasetsResult/[0]/Status").toString());
 
 		this.response = this.console.activateDataSet(this.dataSetName);
+
 		assertEquals("ResponseCode - Activate DataSet", 200, this.response.getStatusCode());
 		assertEquals("ActionName.", "unterminate", this.response.getElementAtPath("/Response/ActionName").toString());
 		assertEquals("ResponseId", "0", this.response.getElementAtPath("/Response/ResponseId").toString());
-		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", this.response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was not successful.", this.response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+
 		try
 		{
 			Thread.sleep(15000L);
@@ -84,23 +97,23 @@ public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_DateRange extends TestSession {
 		TestSession.logger.debug("Feed Submission Time: " + feedSubmisionTime);
 
 		assertEquals("ResponseCode - checkDataSet", 200, this.response.getStatusCode());
-		assertEquals("DataSetName does not match.", this.dataSetName, this.response.getElementAtPath("DatasetsResult/[0]/DatasetName").toString());
-		assertEquals("Feed is not ACTIVE.", "ACTIVE", this.response.getElementAtPath("DatasetsResult/[0]/Status").toString());
+		assertEquals("DataSetName matches.", this.dataSetName, this.response.getElementAtPath("DatasetsResult/[0]/DatasetName").toString());
+		assertEquals("Feed is ACTIVE.", "ACTIVE", this.response.getElementAtPath("DatasetsResult/[0]/Status").toString());
 
 		String workflowStatus = this.console.pingWorkflowExecution(this.dataSetName, feedSubmisionTime, waitTimeForWorkflowPolling);
 
-		assertEquals("Workflow not Complete.", "COMPLETED", workflowStatus);
+		assertEquals("Workflow not Completed", "COMPLETED", workflowStatus);
 
-		this.response = this.console.getCompletedJobsForDataSet(feedSubmisionTime, GdmUtils.getCalendarAsString(), this.dataSetName);
+		this.response = this.console.getCompletedJobsForDataSet(feedSubmisionTime, GdmUtils.getCalendarAsString(), this.dataSetName);		
 		assertEquals("It's not an acquisition job", "acquisition", this.response.getElementAtPath("/completedWorkflows/[0]/FacetName"));
 		assertEquals("Attempt != 1", Integer.valueOf(1), this.response.getElementAtPath("/completedWorkflows/[0]/Attempt"));
-		assertEquals("data.commit not done", "data.commit", this.response.getElementAtPath("/completedWorkflows/[0]/CurrentStep"));
+		assertEquals("data.commit done", "data.commit", this.response.getElementAtPath("/completedWorkflows/[0]/CurrentStep"));
 
 		TestSession.logger.info(this.response.toString());
 	}
 
 	@Test
-	public void replicate__REG_smFeed_AcqReplRet_FDI_HDFS_DateRange() throws Exception {
+	public void replicate__REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate() throws Exception {
 
 		String workflowStatusRepl = this.console.pingWorkflowExecution(this.dataSetName, feedSubmisionTime, waitTimeForWorkflowPolling);
 
@@ -108,9 +121,9 @@ public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_DateRange extends TestSession {
 
 		this.response = this.console.getCompletedJobsForDataSet(feedSubmisionTime, GdmUtils.getCalendarAsString(), this.dataSetName);
 
-		assertEquals("It's not a replication job", "replication", this.response.getElementAtPath("/completedWorkflows/[3]/FacetName"));
-		assertEquals("Attempt != 1", Integer.valueOf(1), this.response.getElementAtPath("/completedWorkflows/[3]/Attempt"));
-		assertEquals("copy not done", "copy.gdm-target-denseb-patw02.gdm-target-elrond-patw02", this.response.getElementAtPath("/completedWorkflows/[3]/CurrentStep"));
+		assertEquals("It's not a replication job", "replication", this.response.getElementAtPath("/completedWorkflows/[1]/FacetName"));
+		assertEquals("Attempt != 1", Integer.valueOf(1), this.response.getElementAtPath("/completedWorkflows/[1]/Attempt"));
+		assertEquals("copy not done", "copy.gdm-target-denseb-patw02.gdm-target-elrond-patw02", this.response.getElementAtPath("/completedWorkflows/[1]/CurrentStep"));
 		
 		TestSession.logger.info(this.response.toString());
 
@@ -118,13 +131,13 @@ public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_DateRange extends TestSession {
 
 
 	@Test
-	public void integrity__testForFailedWorkflows_DateRange() throws Exception {
+	public void integrity__REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate() throws Exception {
 		TestSession.logger.debug("Check for failed workflows, shouldn't be any...");
 		TestSession.logger.debug(this.response.getElementAtPath("/failedWorkflows/[0]/FacetName"));
 	}
 
 	@Test
-	public void deactivate__REG_smFeed_AcqReplRet_FDI_HDFS_DateRange() throws Exception {
+	public void deactivate__REG_smFeed_AcqReplRet_FDI_HDFS_SingleDate() throws Exception {
 		this.response = this.console.deactivateDataSet(this.dataSetName);
 
 		assertEquals("ResponseCode - Activate DataSet - shouldn't this be DEactivate datset??", 200, this.response.getStatusCode());
@@ -132,5 +145,4 @@ public class Test_REG_smFeed_AcqReplRet_FDI_HDFS_DateRange extends TestSession {
 		assertEquals("ResponseId", "0", this.response.getElementAtPath("/Response/ResponseId").toString());
 		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", this.response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
 	}
-	
 }
