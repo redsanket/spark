@@ -174,11 +174,13 @@ unless ($install_only) {
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
         execute("scp -r $remote_host:$remote_ws_ht/target/surefire-reports $local_ws_ht/target/");
 
-    	# COPY BACK THE FINGER PRINT FILE ALSO (TODO: IF EXISTS)
+    	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
+    	# TOGETHER WITH APPLICABLE JENKINS JOBS)
     	execute("scp -r $remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
 
         # LIST THE BUILD HOST TARGET DIR
-        execute("/usr/bin/tree $local_ws_ht/target/");
+        # execute("/usr/bin/tree $local_ws_ht/target/");
+        execute("ls -l /usr/bin/tree $local_ws_ht/target/*");
 
         # COPY THE CLOVER CODE COVERAGE FILE BACK IF APPLICABLE
         # execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
