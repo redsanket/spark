@@ -210,6 +210,6 @@ if (-e $fingerprint) {
     note("copy fingerprint file '$fingerprint' to workspace '$workspace':");
     copy($fingerprint,"$workspace/artifacts.stamp");
 } else {
-    note("unable to find upstream fingerprint file '$fingerprint' to copy to workspace '$workspace':");
+    note("Found no upstream fingerprint file '$fingerprint' to copy to workspace '$workspace':");
 }
 
