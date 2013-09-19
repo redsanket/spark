@@ -31,7 +31,7 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	private String datasourceconfig_base;
 
 	@BeforeClass
-	public static void startTestSession() {
+	public static void startTestSession() throws Exception {
 		TestSession.start();
 	}
 	
@@ -40,8 +40,7 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	 * Retention workflow execution test.
 	 */
 	@Before
-	public void init__Setup()
-	{
+	public void init__Setup() throws Exception {
 		this.datasourceconfig_base = Util.getResourceFullPath("gdm/datasetconfigs") + "/";
 		
 		this.console = new ConsoleHandle();
@@ -88,7 +87,7 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	 * Test the Acquisition, Replication, and Retention workflow execution.
 	 */
 	@Test
-	public void testAcqRepRetWorkFlowExecution() {
+	public void testAcqRepRetWorkFlowExecution() throws Exception {
 
 		String returnCode = "200";
 		
