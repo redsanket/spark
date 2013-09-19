@@ -201,11 +201,13 @@ if ($use_mvn) {
 }
 
 # Write test results in TAP format to /homes/hadoopqa
+
+# Copy the finger print file if it exists (so this test execution can be tied
+# with other related Jenkins jobs. 
+# E.g "/home/y/var/builds/workspace/NightlyHadoopQEAutomation-23
 my $result_root_dir = "/homes/hadoopqa/hudson_artifacts/";
-# my $result_root_dir = "/home/y/var/builds/workspace/NightlyHadoopQEAutomation-23
 $result_root_dir .= ($hadoop_version =~ /^0.23/) ? "hudson_artifacts-0.23" : "hudson_artifacts-2.0";
 my $fingerprint = $result_root_dir."/artifacts.stamp";
-
 if (-e $fingerprint) {
     note("copy fingerprint file '$fingerprint' to workspace '$workspace':");
     copy($fingerprint,"$workspace/artifacts.stamp");
