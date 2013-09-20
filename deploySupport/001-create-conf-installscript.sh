@@ -1,0 +1,103 @@
+t=/grid/0/tmp/deploy.$cluster.hdfsinfo
+[ -e $t ] && rm -rf  $t
+mkdir -p $t
+
+cp namenodes.$cluster.txt /grid/0/tmp/
+cp secondarynamenodes.$cluster.txt /grid/0/tmp/
+cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
+(
+    echo "rsync -r  $ADMIN_HOST::tmp/processNameNodeEntries.py  /tmp/ "
+    echo "rsync -r  $ADMIN_HOST::tmp/namenodes.$cluster.txt  /tmp/ "
+    echo "rsync -r  $ADMIN_HOST::tmp/secondarynamenodes.$cluster.txt  /tmp/ "
+    echo "rsync -r  $ADMIN_HOST::tmp/processNameNodeEntries.py  /tmp/ "
+    echo 'if grep -q `hostname`  ' /tmp/namenodes.$cluster.txt 
+    echo 'then'
+    echo '	export  nn=`hostname`'
+    echo 'else'
+    echo '	export  nn=`head -1 '  /tmp/namenodes.$cluster.txt  '`'
+    echo 'fi'
+    echo 'if grep -q `hostname`  ' /tmp/secondarynamenodes.$cluster.txt
+    echo 'then'
+    echo '      export  nn2=`hostname`'
+    echo 'else'
+    echo '      export  nn2=`head -1 '  /tmp/secondarynamenodes.$cluster.txt  '`'
+    echo 'fi'
+    # # # # # 3 January 2011: need to add variable for Secondary NN, above,
+    # # # # # in order to set yinst-vars for secondary also. Otherwise,
+    # # # # # there is no kerberos login file set for them and the
+    # # # # # secondary NN will not start.
+    if [ "$ENABLE_HA" = true ]; then
+        echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\" />'"
+    else
+        echo python /tmp/processNameNodeEntries.py -o /tmp/${cluster}.namenodeconfigs.xml   -1 /tmp/namenodes.$cluster.txt -2 /tmp/secondarynamenodes.$cluster.txt
+        echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"/>'"
+    fi
+    echo echo ====
+    echo echo ====
+
+    echo 'export shortname=`echo  $nn | cut -f1 -d.` '
+    echo 'export shortnamenn2=`echo  $nn2 | cut -f1 -d.` '
+    shortjt=`expr  $jobtrackernode : '(' '\([^\.]*\)\..*$' ')'`
+
+    clusternameopts="  -set $confpkg.TODO_HDFSCLUSTER_NAME=$cluster -set $confpkg.TODO_MAPREDCLUSTER_NAME=$cluster"
+
+
+    echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
+    echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst "
+    echo 'if [ -n "$TARGET_YROOT" ] '
+    echo 'then'
+    echo '      export rootdirparam="-yroot $TARGET_YROOT   '  -set $confpkg.TODO_RUNMKDIRS=false   \"
+    echo 'else'
+    echo "   export rootdirparam=\"-root ${yroothome}  \"  "
+    echo 'fi'
+    # echo "echo ======= installing config-package using '$HADOOP_CONFIG_INSTALL_STRING'"
+    echo GSHOME=$GSHOME $yinst install -downgrade -yes \$rootdirparam  \\
+    echo "  " -set $confpkg.TODO_GSHOME=/home/gs \\
+    echo "  " -set $confpkg.TODO_RMNODE_HOSTNAME=$jobtrackernode \\
+    echo "  " -set $confpkg.TODO_NAMENODE_HOSTNAME=\$nn \\
+    echo "  " -set $confpkg.TODO_DFS_WEB_KEYTAB=\$shortname.dev.service.keytab \\
+    echo "  " -set $confpkg.TODO_SECONDARYNAMENODE_HOSTNAME=\$nn2 \\
+    echo "  " -set $confpkg.TODO_MAPREDUSER=$MAPREDUSER \\
+    echo "  " -set $confpkg.TODO_HDFSUSER=$HDFSUSER \\
+    echo "  " -set $confpkg.TODO_RMNODE_SHORTHOSTNAME=$shortjt \\
+    echo "  " -set $confpkg.TODO_NAMENODE_SHORTHOSTNAME=\$shortname \\
+    echo "  " -set $confpkg.TODO_SECONDARYNAMENODE_SHORTHOSTNAME=\$shortnamenn2 \\
+    echo "  " -set $confpkg.TODO_NAMENODE_EXTRAPROPS=\"\$namenodeXML\" \\
+    echo "  " -set $confpkg.TODO_KERBEROS_ZONE=dev \\
+    echo "  " -set $confpkg.TODO_YARN_LOG_DIR=/home/gs/var/log/mapredqa \\
+    if [ "$ENABLE_HA" = true ]; then
+        echo "  " -set $confpkg.TODO_DFS_HA_LOGICAL_NAME=${cluster}-\$shortname \\
+        echo "  " -set $confpkg.TODO_DFS_HA_SHARED_EDITS_DIR=file:///homes/$HDFSUSER/ha_namedir/${cluster}_\$shortname/edits \\
+        echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_ANN=\"file:///grid/2/hadoop/var/hdfs/name,file:///homes/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name1\" \\
+        echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name,file:///homes/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name2\" \\
+        echo "  " -set $confpkg.TODO_DFS_HA_EDITS_DIR_ANN=\"file:///grid/2/hadoop/var/hdfs/name\" \\
+        echo "  " -set $confpkg.TODO_DFS_HA_EDITS_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name\" \\
+        echo "  " -set $confpkg.TODO_FISRT_HANN_HOSTNAME=\$nn \\
+        echo "  " -set $confpkg.TODO_SECOND_HANN_HOSTNAME=\$nn2 \\
+        echo "  " -set $confpkg.TODO_FISRT_HANN_SHORTNAME=\$shortname \\
+        echo "  " -set $confpkg.TODO_SECOND_HANN_SHORTNAME=\$shortnamenn2 \\
+        #echo "    -set $confpkg.TODO_ENABLE_DFS_HA='<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\"/>' \\"
+    fi
+    # The following is kept here to make old config work
+    echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn:8020 \\
+    if [ "$USE_DEFAULT_QUEUE_CONFIG" = true ]; then
+        echo "  " -set $confpkg.TODO_YARN_LOCAL_CAPACITY_SCHEDULER=EXAMPLE-local-capacity-scheduler.xml \\
+    fi
+    if [ "$HBASE_SHORTCIRCUIT" = true ] || [ "$HBASEVERSION" != "none" ]; then
+        echo "  " -set $confpkg.TODO_DFS_CLIENT_READ_SHORTCIRCUIT=true \\
+        echo "  " -set $confpkg.TODO_DFS_CLIENT_USE_LEGACY_BLOCKREADER_LOCAL=true \\
+    fi
+    echo "  " \$clusternameopts  \\
+    echo "  " $HADOOP_CONFIG_INSTALL_STRING
+    echo $yinst set \$rootdirparam  $confpkg.TODO_NAMENODE_EXTRAPROPS=\"\$namenodeXML\"
+    echo cp  /tmp/${cluster}.namenodeconfigs.xml  ${yroothome}/conf/hadoop/
+
+    if [ "$HERRIOT_CONF_ENABLED" = true ]
+    then
+	echo "echo ======= running yinst-set to set Herriot config properties."
+        echo "$yinst set -root ${yroothome} \\"
+	echo "    $confpkg.TODO_ADMINPERMISSIONSGROUP=gridadmin,users \\"
+	echo "    $confpkg.TODO_MAPRED_SITE_SPARE_PROPERTIES=' <property> <name>mapred.task.tracker.report.address</name> <!-- cluster variant --> <value>0.0.0.0:50030</value> <description>RPC connection from Herriot tests to a tasktracker</description> <final>true</final> </property>' \\"
+	echo "     $confpkg.TODO_HADOOP_CONFIG_CONFIGLINE='<configuration xmlns:xi=\"http://www.w3.org/2001/XInclude\">    <xi:include href=\"${yroothome}/conf/hadoop/hadoop-policy-system-test.xml\"/>' "
+    fi
+) >  /grid/0/tmp/deploy.$cluster.confoptions.sh
