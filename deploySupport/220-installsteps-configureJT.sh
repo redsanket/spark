@@ -3,7 +3,7 @@
 #
 #
 # (1) We run a lgroupadd operation to make sure that the mapred-user is in the group for tasktracker access.
-# (2) we run "cfg-${scriptnames}blue-namenode.sh" (made by the packaging of the configs)
+# (2) we run "cfg-${scriptnames}-namenode.sh" (made by the packaging of the configs)
 #
 # Inputs: $CONFIGUREJOBTRACKER	(boolean)
 # Inputs: $jobtrackernode (set by cluster-list.sh)
@@ -32,5 +32,5 @@ then
 
     # fanout "chown $MAPREDUSER  /etc/grid-keytabs/tt.*.service.keytab"
     # fanout "usermod -G hadoop $MAPREDUSER "
-    ssh $jobtrackernode "/bin/sh $yrootHadoopConf/cfg-${scriptnames}blue-jtnode.sh "
+    ssh $jobtrackernode "/bin/sh $yrootHadoopConf/cfg-${scriptnames}-jtnode.sh "
 fi

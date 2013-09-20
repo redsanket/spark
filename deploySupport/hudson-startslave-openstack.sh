@@ -18,7 +18,7 @@ case "$CLUSTER" in
       export scriptnames=generic10node12disk
       export localnames=12disk
       ;;
-   *) export scriptnames=generic10node ;;
+   *) export scriptnames=openstackmediumdisk ;;
 esac
 export confpkg=HadoopConfigopenstackmediumdisk
 export localconfpkg=hadooplocalconfigs

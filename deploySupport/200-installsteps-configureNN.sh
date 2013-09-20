@@ -3,7 +3,7 @@
 #
 #
 # (1) [setup for later] We copy scripts for namenode startup, to all NNs.
-# (2) we run "cfg-${scriptnames}blue-namenode.sh" (made by the packaging of the configs) on each NN.
+# (2) we run "cfg-${scriptnames}.sh" (made by the packaging of the configs) on each NN.
 # (2) We run a small perl(1) script to get the output and parse it.
 #
 # Inputs: $STARTNAMENODE	(boolean)
@@ -17,10 +17,10 @@ then
     fanoutNN "rsync -a '$scriptaddr/nameno*.sh' /tmp/ && rsync -a '$scriptaddr/getclusterid.pl'   /tmp/"
 
     echo == Running namenode-configure script
-    fanoutNN "/bin/sh $yrootHadoopConf/cfg-${scriptnames}blue-namenode.sh " 
+    fanoutNN "/bin/sh $yrootHadoopConf/cfg-${scriptnames}-namenode.sh " 
     if [ -z "$secondarynamenode" ]; then
        echo "no secondary name node to configure or start"
     else
-       fanoutSecondary "sh $yrootHadoopConf/cfg-${scriptnames}blue-namenode.sh"
+       fanoutSecondary "sh $yrootHadoopConf/cfg-${scriptnames}-namenode.sh"
     fi
 fi
