@@ -151,7 +151,7 @@ rm -f *.tgz > /dev/null 2>&1
 [ -z "$GRIDJDK64_INSTALL_STRING" ] && export GRIDJDK64_INSTALL_STRING=gridjdk64:hadoopXXX2X0X5Xlatest
 [ -z "$HADOOP_INSTALL_STRING" ] && export HADOOP_INSTALL_STRING=hadoop:hadoopXXX2X0X5Xlatest
 
-[ -z "$HADOOP_CONFIG_INSTALL_STRING" ] && export HADOOP_CONFIG_INSTALL_STRING=HadoopConfiggeneric10nodeblue:hadoopXXX2X0X5Xlatest
+[ -z "$HADOOP_CONFIG_INSTALL_STRING" ] && export HADOOP_CONFIG_INSTALL_STRING=HadoopConfigopenstackmediumdisk:hadoopXXX2X0X5Xlatest
 [ -z "$KILLALLPROCESSES" ] && export KILLALLPROCESSES=true
 [ -z "$RUNKINIT" ] && export RUNKINIT=true
 [ -z "$RUNSIMPLETEST" ] && export RUNSIMPLETEST=true
