@@ -28,8 +28,8 @@ import static org.junit.Assert.assertEquals;
 @Category(SerialTests.class)
 public class ABFTest extends TestSession {
     private String dataSetConfigBase;
-    private ConsoleHandle console;
-    private String dataSetName;
+    private static ConsoleHandle console;
+    private static String dataSetName;
     private String source1;
     private String target1;
     private String hcatTableName;
@@ -55,9 +55,9 @@ public class ABFTest extends TestSession {
     }
     
     @AfterClass
-    public void tearDown() {
+    public static void tearDown() {
         // make dataset inactive
-        Response response = this.console.deactivateDataSet(this.dataSetName);
+        Response response = console.deactivateDataSet(dataSetName);
 
         assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
         assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());

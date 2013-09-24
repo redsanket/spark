@@ -24,9 +24,9 @@ import static org.junit.Assert.fail;
 @Category(SerialTests.class)
 public class SwitchoverTest extends TestSession {
     private ConsoleHandle console;
-    private static String dataSetConfigBase = "/home/y/conf/gdm_qe_test/datasetconfigs/";
+    private String dataSetConfigBase;
     private String dataSetName;
-    private String grid1 = "gdm-target-denseb-patw";
+    private String grid1 = "densea";
     private String grid2 = "omegap1";
     private String grid3 = "grima";
     private List<SingleDataSetInstanceAcquirer> acquisitions = new ArrayList<SingleDataSetInstanceAcquirer>();
@@ -72,8 +72,10 @@ public class SwitchoverTest extends TestSession {
     }
     
     private void startDataSetInstanceAcquisition(String grid, String instanceDate) throws Exception {
+        //SingleDataSetInstanceAcquirer gridDataAcquirer = new SingleDataSetInstanceAcquirer(grid, instanceDate, this.getDataPath(), this.getSchemaPath(), this.getCountPath(), 
+        //    "gdm-dataset-patw02", false);
         SingleDataSetInstanceAcquirer gridDataAcquirer = new SingleDataSetInstanceAcquirer(grid, instanceDate, this.getDataPath(), this.getSchemaPath(), this.getCountPath(), 
-            "gdm-dataset-patw02", false);
+                "gdm-fdi-source-rbernota_htf", false);
         gridDataAcquirer.startAcquisition();    
         acquisitions.add(gridDataAcquirer);
     }

@@ -24,8 +24,8 @@ import static org.junit.Assert.fail;
 @Category(SerialTests.class)
 public class HCatSchemaUpdateTest extends TestSession {
     private static String dataSetConfigBase;
-    private ConsoleHandle console;
-    private String dataSetName;
+    private static ConsoleHandle console;
+    private static String dataSetName;
     private String grid1;
     
 	@BeforeClass
@@ -43,9 +43,9 @@ public class HCatSchemaUpdateTest extends TestSession {
     }
     
     @AfterClass
-    public void tearDown() throws Exception {
+    public static void tearDown() throws Exception {
         // make dataset inactive
-        Response response = this.console.deactivateDataSet(this.dataSetName);
+        Response response = console.deactivateDataSet(dataSetName);
 
         assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
         assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());

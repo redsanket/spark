@@ -9,20 +9,21 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import hadooptest.TestSession;
+
 public class JSONUtil
 {
 	private String jsonString;
 	private Object jsonObject;
-	private static Logger log = Logger.getLogger(JSONUtil.class.getName());
 
 	public final void setContent(String contentString)
 			throws Exception
 			{
 				if (contentString == null) {
-					log.error("Trying to set content 'null'");
+					TestSession.logger.error("Trying to set content 'null'");
 					throw new IllegalArgumentException("Content cannot be null");
 				}
-				log.debug(new StringBuilder().append("JSON string set. Content=").append(contentString).toString());
+				TestSession.logger.debug(new StringBuilder().append("JSON string set. Content=").append(contentString).toString());
 				this.jsonString = contentString;
 				map();
 			}
@@ -33,7 +34,7 @@ public class JSONUtil
 		StringBuilder currentToken = new StringBuilder();
 
 		if ((path == null) || (path.trim().length() == 0)) {
-			log.error("Path expression is null.");
+			TestSession.logger.error("Path expression is null.");
 			return null;
 		}
 
@@ -41,56 +42,56 @@ public class JSONUtil
 			String token = stringTokenizer.nextToken();
 			currentToken.append("/");
 			currentToken.append(token);
-			log.debug(new StringBuilder().append("Current token: ").append(token).toString());
+			TestSession.logger.debug(new StringBuilder().append("Current token: ").append(token).toString());
 
 			if ((token.startsWith("[")) && (token.endsWith("]"))) {
-				log.debug("token is for an array");
+				TestSession.logger.debug("token is for an array");
 				String arrayIndex = token.substring(token.indexOf("[") + 1, token.indexOf("]"));
 				if ((tmpObject instanceof ArrayList)) {
-					log.debug(new StringBuilder().append("Array found at ").append(currentToken.toString()).toString());
+					TestSession.logger.debug(new StringBuilder().append("Array found at ").append(currentToken.toString()).toString());
 					int index = -1;
 					try {
 						index = Integer.parseInt(arrayIndex);
-						log.debug(new StringBuilder().append("array index(simple) in token is ").append(index).toString());
+						TestSession.logger.debug(new StringBuilder().append("array index(simple) in token is ").append(index).toString());
 					} catch (NumberFormatException ex) {
-						log.debug("Array Index is not a plain number");
+						TestSession.logger.debug("Array Index is not a plain number");
 					}
 
 					if (index > -1) {
 						ArrayList tmp = (ArrayList)tmpObject;
-						log.debug(new StringBuilder().append("Array available size is ").append(tmp.size()).toString());
+						TestSession.logger.debug(new StringBuilder().append("Array available size is ").append(tmp.size()).toString());
 						if (index >= tmp.size()) {
 							throw new ArrayIndexOutOfBoundsException(new StringBuilder().append("At token '").append(currentToken.toString()).append("' array size is ").append(tmp.size()).append(" and you are looking for index ").append(index).toString());
 						}
 						tmpObject = tmp.get(index);
 					} else if (arrayIndex.equals(":last")) {
 						ArrayList tmp = (ArrayList)tmpObject;
-						log.debug(new StringBuilder().append("Array available size is ").append(tmp.size()).toString());
-						log.debug(new StringBuilder().append("Element from last index [").append(tmp.size() - 1).append("] ").toString());
+						TestSession.logger.debug(new StringBuilder().append("Array available size is ").append(tmp.size()).toString());
+						TestSession.logger.debug(new StringBuilder().append("Element from last index [").append(tmp.size() - 1).append("] ").toString());
 						tmpObject = tmp.get(tmp.size() - 1); } else {
 							if (arrayIndex.equals(":size")) {
 								ArrayList tmp = (ArrayList)tmpObject;
-								log.debug(new StringBuilder().append("Array available size is ").append(tmp.size()).toString());
+								TestSession.logger.debug(new StringBuilder().append("Array available size is ").append(tmp.size()).toString());
 								return Integer.valueOf(tmp.size());
 							}if (arrayIndex.equals(":all")) {
 								ArrayList tmp = (ArrayList)tmpObject;
 								return tmp;
 							}
-							log.warn(new StringBuilder().append("Looks like a wrong path expression ").append(path).toString());
+							TestSession.logger.warn(new StringBuilder().append("Looks like a wrong path expression ").append(path).toString());
 						}
 				}
 				else {
 					if (tmpObject == null) {
-						log.warn(new StringBuilder().append("Element not found at ").append(currentToken.toString()).append(". Returning 'null'").toString());
+						TestSession.logger.warn(new StringBuilder().append("Element not found at ").append(currentToken.toString()).append(". Returning 'null'").toString());
 						return null;
 					}
-					log.warn(new StringBuilder().append("Looking for Array, but found ").append(tmpObject.getClass().getName()).toString());
+					TestSession.logger.warn(new StringBuilder().append("Looking for Array, but found ").append(tmpObject.getClass().getName()).toString());
 				}
 			}
 			else {
-				log.debug("token is for an object");
+				TestSession.logger.debug("token is for an object");
 				if ((tmpObject instanceof HashMap)) {
-					log.debug(new StringBuilder().append("HashMap found at ").append(currentToken.toString()).toString());
+					TestSession.logger.debug(new StringBuilder().append("HashMap found at ").append(currentToken.toString()).toString());
 					HashMap tmp = (HashMap)tmpObject;
 					tmpObject = tmp.get(token);
 				}
@@ -99,17 +100,17 @@ public class JSONUtil
 
 			if (!stringTokenizer.hasMoreTokens())
 			{
-				log.info(new StringBuilder().append("Returning ").append(tmpObject.toString()).toString());
+				TestSession.logger.info(new StringBuilder().append("Returning ").append(tmpObject.toString()).toString());
 				return tmpObject;
 			}
 		}
-		log.warn(new StringBuilder().append("Path '").append(path).append("' not found").toString());
+		TestSession.logger.warn(new StringBuilder().append("Path '").append(path).append("' not found").toString());
 		return null;
 	}
 
 	private void map() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
-		log.debug("Mapping the content string into a JSON object");
+		TestSession.logger.debug("Mapping the content string into a JSON object");
 		try {
 			this.jsonObject = mapper.readValue(this.jsonString, Object.class);
 		} catch (JsonParseException ex) {

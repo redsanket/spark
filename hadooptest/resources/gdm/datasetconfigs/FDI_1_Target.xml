@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<DataSet name='NEW_DATA_SET_NAME' description='gdm-dataset-patw02' catalog='gdm-catalog'
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>FALSE</Active>
+    <VerificationInstance></VerificationInstance>
+    <Priority>HIGHEST</Priority>
+    <Contact publisher='gdm-qa@yahoo-inc.com' owner='dfsload@yahoo-inc.com' consumer='gdm-qa@yahoo-inc.com'/>
+    <Comments>Acquires 1 dataset to 1 grid</Comments>
+    <UGI permission='755' group='users'/>
+
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>10</DiscoveryFrequency>
+    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <Paths>
+        <Path location='DATA_PATH' type="data"  />
+        <Path location='SCHEMA_PATH' type="schema"  />
+        <Path location='COUNT_PATH' type="count"  />
+    </Paths>
+
+    <Parameters>
+        <attribute value='FEED_NAME' name='feed'></attribute>
+        <attribute value='daily' name='frequency'></attribute>
+        <attribute value='0-998' name='bucket'></attribute>
+        <attribute value='gdm-dataset-patw02_stats' name='statsfeed'></attribute>
+        <attribute value='yyyyMMdd' name='instancepattern'></attribute>
+    </Parameters>
+
+    <DataDefinition>
+        <StaticSchemaPath></StaticSchemaPath>
+        <RecordDelimiter></RecordDelimiter>
+        <FieldDelimiter></FieldDelimiter>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>mrkt_sid</SortKey>
+        <PartitionKey></PartitionKey>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields></RemoveFields>
+        <SelectRecords></SelectRecords>
+    </DataDefinition>
+
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+
+    <Sources>
+        <Source name='gdm-fdi-source-patw02' latency='720'  />
+    </Sources>
+
+    <Targets>
+        <Target latency='1440' name='GRID_TARGET' status="active" >
+            <DateRange start='START_DATE' end='END_DATE'></DateRange>
+                        <Policies>
+                            <Policy
+                    condition="numberOfInstances(instancelist, instance) > 50" type="retention"/>   
+                    </Policies>
+            <Resource name='bandwidth' capacity='10'></Resource>
+        </Target>
+    </Targets>
+        <HCat>
+            <HCatSchemaFile>schema.dat</HCatSchemaFile>
+            <HCatSchemaLocked>FALSE</HCatSchemaLocked>
+            <HCatTableName>NEW_DATA_SET_NAME</HCatTableName>
+            HCAT_USAGE
+        </HCat>
+</DataSet>

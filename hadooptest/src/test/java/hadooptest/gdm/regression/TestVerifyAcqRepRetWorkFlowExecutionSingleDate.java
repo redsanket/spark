@@ -34,7 +34,7 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	public static void startTestSession() throws Exception {
 		TestSession.start();
 	}
-	
+
 	/**
 	 * A test to initialize setup for the Acquisition, Replication, and 
 	 * Retention workflow execution test.
@@ -42,6 +42,15 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	@Before
 	public void init__Setup() throws Exception {
 		this.datasourceconfig_base = Util.getResourceFullPath("gdm/datasetconfigs") + "/";
+		
+		GdmUtils.customizeTestConf(
+				TestSession.conf.getProperty("GDM_CONSOLE_NAME"), 
+				Integer.parseInt(TestSession.conf.getProperty("GDM_CONSOLE_PORT")));
+		GdmUtils.customizeSpecificationConf(
+				TestSession.conf.getProperty("GDM_PREFIX"), 
+				TestSession.conf.getProperty("GDM_ACQ_CLUSTER"), 
+				TestSession.conf.getProperty("GDM_REPL_CLUSTER"),
+				"VerifyAcqRepRetWorkFlowExecutionSingleDate");
 		
 		this.console = new ConsoleHandle();
 		//this.baseDataSetName = console.getConf().getString("testconfig.VerifyAcqRepRetWorkFlowExecutionSingleDate.basedataset");

@@ -2,6 +2,7 @@ package hadooptest.cluster.gdm;
 
 import java.io.BufferedReader;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,17 +11,26 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import coretest.Util;
+import hadooptest.TestSession;
 
 public class GdmUtils
-{
-	private static Logger log = Logger.getLogger(GdmUtils.class.getName());
-	
+{	
     private static final String TEST_CONFIGURATION = Util.getResourceFullPath(
 			"gdm/conf/config.xml");
 	private static Configuration conf;
@@ -32,7 +42,7 @@ public class GdmUtils
 		}
 		catch (ConfigurationException e){
 			conf = null;
-			log.error("Test Configuration not found: " + TEST_CONFIGURATION , e);
+			TestSession.logger.error("Test Configuration not found: " + TEST_CONFIGURATION , e);
 		}
 	}
 	
@@ -45,10 +55,10 @@ public class GdmUtils
 		String fileName = paramString.substring(paramString.lastIndexOf("/")+1);
 		URL localURL = GdmUtils.class.getClassLoader().getResource(fileName);
 		if (localURL == null) {
-			log.debug("File " + paramString + " not found in classpath");
+			TestSession.logger.debug("File " + paramString + " not found in classpath");
 			return paramString;
 		}
-		log.debug("File " + paramString + " was found in the classpath at path " + localURL.getPath());
+		TestSession.logger.debug("File " + paramString + " was found in the classpath at path " + localURL.getPath());
 
 		return localURL.getPath();
 	}
@@ -65,12 +75,12 @@ public class GdmUtils
 			}
 			localBufferedReader.close();
 		} catch (FileNotFoundException localFileNotFoundException) {
-			log.error(localFileNotFoundException.toString());
+			TestSession.logger.error(localFileNotFoundException.toString());
 		} catch (IOException localIOException) {
-			log.error(localIOException.toString());
+			TestSession.logger.error(localIOException.toString());
 		}
-		log.debug("Read from " + paramString + ": " + str1);
-		log.debug("Total Size: " + str1.length());
+		TestSession.logger.debug("Read from " + paramString + ": " + str1);
+		TestSession.logger.debug("Total Size: " + str1.length());
 		return str1;
 	}
 
@@ -97,7 +107,78 @@ public class GdmUtils
 		localSimpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 		String str = localSimpleDateFormat.format(localCalendar.getTime());
-		log.debug(str);
+		TestSession.logger.debug(str);
 		return str;
+	}
+	
+	
+	public static void customizeSpecificationConf( 
+			String gdmPrefix, String acqCluster, String replCluster, String specification) throws Exception {
+
+		String specificationXML = 
+				Util.getResourceFullPath("gdm/datasetconfigs") + "/" + 
+						"VerifyAcqRepRetWorkFlowExecutionSingleDate" + 
+						"_specification.xml";
+
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		Document doc = docBuilder.parse(specificationXML);
+
+		Node dataSet = doc.getElementsByTagName("DataSet").item(0);
+		NamedNodeMap attr = dataSet.getAttributes();
+		Node nodeAttr = attr.getNamedItem("description");
+		nodeAttr.setTextContent("gdm-dataset-" + gdmPrefix);
+
+		Node parameters1 = doc.getElementsByTagName("attribute").item(0);
+		attr = parameters1.getAttributes();
+		nodeAttr = attr.getNamedItem("value");
+		nodeAttr.setTextContent("gdm-dataset-" + gdmPrefix);
+		
+		Node parameters2 = doc.getElementsByTagName("attribute").item(3);
+		attr = parameters2.getAttributes();
+		nodeAttr = attr.getNamedItem("value");
+		nodeAttr.setTextContent("gdm-dataset-" + gdmPrefix + "_stats");
+
+		Node sourceNode = doc.getElementsByTagName("Source").item(0);
+		attr = sourceNode.getAttributes();
+		nodeAttr = attr.getNamedItem("name");
+		nodeAttr.setTextContent("gdm-fdi-source-" + gdmPrefix);
+		
+
+		Node acqClusterNode = doc.getElementsByTagName("Target").item(0);
+		attr = acqClusterNode.getAttributes();
+		nodeAttr = attr.getNamedItem("name");
+		nodeAttr.setTextContent("gdm-target-" + acqCluster + "-" + gdmPrefix);
+		
+
+		Node replClusterNode = doc.getElementsByTagName("Target").item(1);
+		attr = replClusterNode.getAttributes();
+		nodeAttr = attr.getNamedItem("name");
+		nodeAttr.setTextContent("gdm-target-" + replCluster + "-" + gdmPrefix);
+		
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(new File(specificationXML));
+		transformer.transform(source, result);
+	}
+
+	public static void customizeTestConf(String gdmConsoleHost, int gdmConsolePort)
+			throws Exception {
+
+		String configXML = Util.getResourceFullPath("gdm/conf/config.xml");
+
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		Document doc = docBuilder.parse(configXML);
+
+		Node xmlBaseUrl = doc.getElementsByTagName("base_url").item(0);
+		xmlBaseUrl.setTextContent("http://" + gdmConsoleHost + ":" + gdmConsolePort);
+
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		StreamResult result = new StreamResult(new File(configXML));
+		transformer.transform(source, result);
 	}
 }

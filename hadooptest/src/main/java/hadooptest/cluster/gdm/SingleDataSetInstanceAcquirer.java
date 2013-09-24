@@ -60,6 +60,9 @@ public class SingleDataSetInstanceAcquirer {
             dataSetXml = dataSetXml.replaceAll("HCAT_USAGE", "<HCatUsage>FALSE</HCatUsage>");
         }
         
+        TestSession.logger.info("startAcquisition: dataSetName - " + dataSetName);
+        TestSession.logger.debug("startAcquisition: dataSetXml - " + dataSetXml);
+        
         Response response = this.console.createDataSet(dataSetName, dataSetXml);        
 
         if(!(Integer.toString(200).equals(response.getStatusCode()))) {
