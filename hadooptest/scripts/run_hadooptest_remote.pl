@@ -163,24 +163,39 @@ my $common_args = "--cluster $cluster --workspace $remote_ws_ht";
 $common_args .= " --build_coretest" if ($build_coretest);
 $common_args .= " ".join(" ", @ARGV);
 unless ($install_only) {
+
     if ($use_mvn) {
+        #########################
+        # Execute tests via maven
+        #########################
         execute("rm -rf $local_ws_ct/target/surefire-reports/");
         execute("ssh -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
 
-        # WE NEED TO COPY THE TEST RESULTS FROM THE GATEWAY BACK TO THE BUILD HOST
+        # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
         execute("scp -r $remote_host:$remote_ws_ht/target/surefire-reports $local_ws_ht/target/");
 
-	# copy back the fingerprint file if one exists.
-	execute("scp -r $remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
+    	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
+    	# TOGETHER WITH APPLICABLE JENKINS JOBS)
+    	execute("scp -r $remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
 
+        # LIST THE BUILD HOST TARGET DIR
+        # execute("/usr/bin/tree $local_ws_ht/target/");
+        execute("ls -l /usr/bin/tree $local_ws_ht/target/*");
+
+        # COPY THE CLOVER CODE COVERAGE FILE BACK IF APPLICABLE
         # execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
         execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
             if ( "clover" ~~ @ARGV );
 
+        # COPY THE JACOCO CODE COVERAGE FILE BACK IF APPLICABLE
         execute("scp -r $remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
             if ( "jacoco" ~~ @ARGV );
-    } else {
+    }
+    else {
+        #########################
+        # Execute tests via java 
+        #########################
         execute("ssh -t $remote_host \"$remote_ws_ht/scripts/run_hadooptest $common_args\"");
     }
 }

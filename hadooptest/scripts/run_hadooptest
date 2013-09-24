@@ -172,7 +172,8 @@ if ($use_mvn) {
         # execute("cd $workspace/../coretest; /home/y/bin/mvn install");
         execute("cd $workspace/../coretest; rm -f coretest_jar*.tgz; /home/y/bin/yinst_create -t nightly; yinst i coretest_jar*.tgz");
     } else {
-        execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live") unless (-e "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar");
+        # execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live") unless (-e "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar");
+        execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live");
     }
 
     execute("/usr/local/bin/yinst install yjava_byauth") unless (-e "/home/y/lib/jars/yjava_byauth.jar");
@@ -200,15 +201,17 @@ if ($use_mvn) {
 }
 
 # Write test results in TAP format to /homes/hadoopqa
+
+# Copy the finger print file if it exists (so this test execution can be tied
+# with other related Jenkins jobs. 
+# E.g "/home/y/var/builds/workspace/NightlyHadoopQEAutomation-23
 my $result_root_dir = "/homes/hadoopqa/hudson_artifacts/";
-# my $result_root_dir = "/home/y/var/builds/workspace/NightlyHadoopQEAutomation-23
 $result_root_dir .= ($hadoop_version =~ /^0.23/) ? "hudson_artifacts-0.23" : "hudson_artifacts-2.0";
 my $fingerprint = $result_root_dir."/artifacts.stamp";
-
 if (-e $fingerprint) {
     note("copy fingerprint file '$fingerprint' to workspace '$workspace':");
     copy($fingerprint,"$workspace/artifacts.stamp");
 } else {
-    note("unable to find upstream fingerprint file '$fingerprint' to copy to workspace '$workspace':");
+    note("Found no upstream fingerprint file '$fingerprint' to copy to workspace '$workspace':");
 }
 
