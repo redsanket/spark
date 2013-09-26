@@ -65,7 +65,7 @@ public abstract class HadoopCluster {
             "hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster";
     
     public static enum State { UP, DOWN, UNKNOWN }
-    public static enum Action { START, STOP, STATUS, RESET }    
+    public static enum Action { START, STOP, RESET, STATUS }
     public static final String START = "start";
     public static final String STOP = "stop";
     
