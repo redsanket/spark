@@ -565,6 +565,12 @@ public abstract class HadoopCluster {
 		if (!stopped) {
 			TestSession.logger.error("cluster did not stop!!!");
 		}
+		
+		/* Workaround for Bugzilla Ticket 6555489 - sssd crashes
+		 * Sleep 1.5 minutes for the sssd to recover from crashing
+		 */
+		Thread.sleep(90000);
+		
 		boolean started = this.start();
 		if (!started) {
 			TestSession.logger.error("cluster did not start!!!");
