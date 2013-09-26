@@ -24,7 +24,8 @@ import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
-import org.apache.hadoop.yarn.client.YarnClientImpl;
+// import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
+import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
