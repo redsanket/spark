@@ -22,8 +22,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.security.SecurityUtil;
-import org.apache.hadoop.yarn.client.YarnClientImpl; // 0.23
-// import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // 2.x
+//import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
+import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 
 import coretest.Util;
 import coretest.cluster.ClusterState;
@@ -65,7 +65,7 @@ public abstract class HadoopCluster {
             "hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster";
     
     public static enum State { UP, DOWN, UNKNOWN }
-    public static enum Action { START, STOP }    
+    public static enum Action { START, STOP, STATUS, RESET }    
     public static final String START = "start";
     public static final String STOP = "stop";
     
@@ -389,7 +389,7 @@ public abstract class HadoopCluster {
 
     
     public void printNodes() {
-        TestSession.logger.debug("-- listing cluster nodes --");        
+        TestSession.logger.debug("-- listing cluster nodes --");
         Enumeration<String> components = hadoopComponents.keys();
         while(components.hasMoreElements()) {
             String component = (String) components.nextElement();
