@@ -182,6 +182,29 @@ if ($use_mvn) {
     note($cmd);
     chomp($hadoop_version = `$cmd`);
 
+    ############################################################################
+    # Auto-set maven compile and runtime profiles for the corresponding 
+    # Hadoop version if it is not set via external parameters. 
+    ############################################################################
+    # Check for maven compile profile for Hadoop
+    my $found_compile_profile = grep( /profile-compile/, @common_args);
+    my $hadoop_compile_profile;
+    unless ($found_compile_profile) {
+        $hadoop_compile_profile = ($hadoop_version =~ "^0.23") ? "profile-compile-0.23.7" : "profile-compile-2.0";
+        $pom_opt .= " -P$hadoop_compile_profile";
+    }
+
+    # Check for maven runtime profile for Hadoop
+    my $found_runtime_profile = grep( /profile-runtime/, @common_args);
+    my $hadoop_runtime_profile;
+    unless ($found_runtime_profile) {
+        $hadoop_runtime_profile = ($hadoop_version =~ "^0.23") ? "profile-runtime-0.23.7" : "profile-runtime-2.0";
+        $pom_opt .= " -P$hadoop_runtime_profile";
+    }
+    
+    ############################################################################
+    # Execute the maven command
+    ############################################################################
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version ".
             "HADOOP_INSTALL=$hadoop_install ".
