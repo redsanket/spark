@@ -12,19 +12,18 @@ import java.io.IOException;
 
 public class TestSetupCluster extends TestSession {
 
-    private Action action = Action.STATUS;
-
     @BeforeClass
     public static void startTestSession() throws IOException {
         TestSession.start();
     }
 
     @Test
-    public void restartCluster() {
+    public void setupCluster() {
         try {
 
             // Initialize Action, default is STATUS.
-            String actionStr = System.getProperty("ACTION").toUpperCase();
+            Action action = Action.STATUS;
+            String actionStr = System.getProperty("ACTION", "").toUpperCase();
             if ((actionStr != null) && (!actionStr.isEmpty())) {
                 action = Action.valueOf(actionStr);
             }
