@@ -3,10 +3,8 @@ package hadooptest.cluster.hadoop.fullydistributed;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopComponent;
-import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
-import hadooptest.node.hadoop.HadoopNode;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -17,7 +15,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
