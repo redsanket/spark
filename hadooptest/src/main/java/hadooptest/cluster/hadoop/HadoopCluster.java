@@ -570,7 +570,7 @@ public abstract class HadoopCluster {
 		 * Sleep a few minutes for the sssd to recover from crashing
 		 */
         int resetClusterDelay = 
-                Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "0"));
+                Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "180"));
         TestSession.logger.info("RESET_CLUSTER_DELAY='" + resetClusterDelay
                 + "' seconds.");
 		TestSession.logger.info("Sleep '" + resetClusterDelay + 
