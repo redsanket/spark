@@ -418,9 +418,9 @@ public abstract class HadoopCluster {
 	    String compHostsSize = Integer.toString(hosts.length);
 	    int index=1;
 	    for (String host : hosts) {
-	        TestSession.logger.debug("Initialize '" + component + "' " +
-	                "component host '" + host + "' [" + index++ + "/" +
-	                compHostsSize + "].");
+	        TestSession.logger.debug("Init '" + component + "' " +
+	                "host '" + host + "' [" + index++ + "/" +
+	                compHostsSize + "]");
 	        
 	        // Initialize the component node.
 	        if (clusterType.equals(HadoopCluster.FD_CLUSTER_TYPE)) {
@@ -567,9 +567,15 @@ public abstract class HadoopCluster {
 		}
 		
 		/* Workaround for Bugzilla Ticket 6555489 - sssd crashes
-		 * Sleep 1.5 minutes for the sssd to recover from crashing
+		 * Sleep a few minutes for the sssd to recover from crashing
 		 */
-		Thread.sleep(90000);
+        int resetClusterDelay = 
+                Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "0"));
+        TestSession.logger.info("RESET_CLUSTER_DELAY='" + resetClusterDelay
+                + "' seconds.");
+		TestSession.logger.info("Sleep '" + resetClusterDelay + 
+		        "' seconds for sssd to recover...");
+		Thread.sleep(resetClusterDelay*1000);
 		
 		boolean started = this.start();
 		if (!started) {
