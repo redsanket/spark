@@ -47,7 +47,7 @@ public class FullyDistributedNode extends HadoopNode {
 	 *  Initialize the node configuration object.
 	 */
 	protected void initDefault(String defaultHadoopConfDir) throws Exception {
-	    TestSession.logger.info("Init FDNode: Init FDConf: default conf dir='" +
+	    TestSession.logger.trace("Init FDNode/FDConf: default conf dir='" +
                 defaultHadoopConfDir + "'");
         this.conf = new FullyDistributedConfiguration(
                 defaultHadoopConfDir, this.hostname, this.component);        
