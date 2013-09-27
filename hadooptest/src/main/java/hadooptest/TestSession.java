@@ -170,7 +170,7 @@ public abstract class TestSession extends TestSessionCore {
             logger.info("RESTART ON FAILURE='"+RESTART_ON_FAILURE+"'");
 
             int resetClusterDelay = 
-                    Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "0"));
+                    Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "180"));
             logger.info("RESET_CLUSTER_DELAY='" + resetClusterDelay
                     + "' seconds.");
 
