@@ -25,7 +25,7 @@ public class TestConf extends TestSession {
 	
     @Test
     public void getHadoopResources() {
-        TestSession.logger.info("Hadoop Resources" + 
+        TestSession.logger.info("Hadoop Resources: " + 
                 TestSession.cluster.getConf().toString("resources"));
         TestSession.logger.info("Hadoop Resources Properties" + 
                 TestSession.cluster.getConf().toString("props"));
