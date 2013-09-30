@@ -186,15 +186,19 @@ if ($use_mvn) {
     # Auto-set maven compile and runtime profiles for the corresponding 
     # Hadoop version if it is not set via external parameters. 
     ############################################################################
-    # Check for maven compile profile for Hadoop
-    my $found_compile_profile = grep( /profile-compile/, @common_args);
-    my $hadoop_compile_profile;
-    unless ($found_compile_profile) {
-        $hadoop_compile_profile = ($hadoop_version =~ "^0.23") ? "profile-compile-0.23.7" : "profile-compile-2.0";
-        $pom_opt .= " -P$hadoop_compile_profile";
-    }
+    # Check for maven compile profile for Hadoop. This is the compile time 
+    # version reference. Should use the default profile here. 
+    # E.g. Code on branch 23 will need to compile against H23, but may be able 
+    # to run some tests on H2.0.
+    # my $found_compile_profile = grep( /profile-compile/, @common_args);
+    # my $hadoop_compile_profile;
+    # unless ($found_compile_profile) {
+    #     $hadoop_compile_profile = ($hadoop_version =~ "^0.23") ? "profile-compile-0.23.7" : "profile-compile-2.0";
+    #     $pom_opt .= " -P$hadoop_compile_profile";
+    # }
 
-    # Check for maven runtime profile for Hadoop
+    # Check for maven runtime profile for Hadoop. This should correspod to the
+    # Hadoop version deployed on the cluster under test.
     my $found_runtime_profile = grep( /profile-runtime/, @common_args);
     my $hadoop_runtime_profile;
     unless ($found_runtime_profile) {
