@@ -13,7 +13,6 @@ import coretest.SerialTests;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 @Category(SerialTests.class)
 public class TestRollingUpgradeTraffic extends TestSession {
@@ -25,7 +24,10 @@ public class TestRollingUpgradeTraffic extends TestSession {
 	
     @Test
     public void testTraffic() throws Exception {
-        long maxDurationMin = 30;
+        // Initialize max duration, default is "5" minutes.
+        int maxDurationMin =
+                Integer.parseInt(System.getProperty("DURATION", "5"));
+        TestSession.logger.info("Run for '" + maxDurationMin + "' minutes.");
         long maxDurationMs = maxDurationMin*60*1000; 
         long startTime = System.currentTimeMillis();
         long currentTime = System.currentTimeMillis();
@@ -55,98 +57,64 @@ public class TestRollingUpgradeTraffic extends TestSession {
                 
 	public void generateTraffic() throws Exception {
 	    TestSession.logger.info("---> Generate traffic: ");
-	    Random r = new Random();
-	    int maxSec = 180;
-	    int waitSec;
 	    
-	    // Sleep Jobs
-	    runSleepTest();
-	    
-	    /*
-	    // Sleep a random number of seconds in the range of 0 to maxSec
-	    waitSec = r.nextInt(maxSec+1);
-	    TestSession.logger.info("Sleep for '" + waitSec + "' seconds.");
-	    Thread.sleep(waitSec*1000);	          
-	    */  
+	    // TODO: Run just sleep jobs for now ...	    
+        int numJobs =
+                Integer.parseInt(System.getProperty("NUM_JOBS", "4"));
+	    runSleepJobsTest(numJobs);
 	}	
 	
-	   /*
+    /*
      * A test for running a sleep job
      * 
      * Equivalent to JobSummaryInfo10 in the original shell script YARN regression suite.
      */
-    public void runSleepTest() {
+    public void runSleepJobsTest(int numJobs) {
+        TestSession.logger.info("---> Run '" + numJobs + "' sleep jobs:");
         try {
-            SleepJob jobUserDefault = new SleepJob();
-            SleepJob jobUser1 = new SleepJob();
-            SleepJob jobUser2 = new SleepJob();
-            SleepJob jobUser3 = new SleepJob();
-
-            jobUserDefault.setNumMappers(1);
-            jobUserDefault.setNumReducers(1);
-            jobUserDefault.setMapDuration(100);
-            jobUserDefault.setReduceDuration(100);
-
-            jobUserDefault.start();
-
-            jobUser1.setNumMappers(1);
-            jobUser1.setNumReducers(1);
-            jobUser1.setMapDuration(100);
-            jobUser1.setReduceDuration(100);
-            jobUser1.setUser("hadoop1");
-
-            jobUser1.start();
-
-            jobUser2.setNumMappers(1);
-            jobUser2.setNumReducers(1);
-            jobUser2.setMapDuration(100);
-            jobUser2.setReduceDuration(100);
-            jobUser2.setUser("hadoop2");
-
-            jobUser2.start();
-
-            jobUser3.setNumMappers(1);
-            jobUser3.setNumReducers(1);
-            jobUser3.setMapDuration(100);
-            jobUser3.setReduceDuration(100);
-            jobUser3.setUser("hadoop3");
-
-            jobUser3.start();
-
-            assertTrue("Sleep job (default user) was not assigned an ID within 10 seconds.", 
-                    jobUserDefault.waitForID(10));
-            assertTrue("Sleep job ID for sleep job (default user) is invalid.", 
-                    jobUserDefault.verifyID());
-
-            assertTrue("Sleep job (user 1) was not assigned an ID within 10 seconds.", 
-                    jobUser1.waitForID(10));
-            assertTrue("Sleep job ID for sleep job (user 1) is invalid.", 
-                    jobUser1.verifyID());
-
-            assertTrue("Sleep job (user 2) was not assigned an ID within 10 seconds.", 
-                    jobUser2.waitForID(10));
-            assertTrue("Sleep job ID for sleep job (user 2) is invalid.", 
-                    jobUser2.verifyID());
-
-            assertTrue("Sleep job (user 3) was not assigned an ID within 10 seconds.", 
-                    jobUser3.waitForID(10));
-            assertTrue("Sleep job ID for sleep job (user 3) is invalid.", 
-                    jobUser3.verifyID());
-
-            int waitTime = 2;
-            assertTrue("Job (default user) did not succeed.",
-                jobUserDefault.waitForSuccess(waitTime));
-            assertTrue("Job (user 1) did not succeed.",
-                jobUser1.waitForSuccess(waitTime));
-            assertTrue("Job (user 2) did not succeed.",
-                jobUser2.waitForSuccess(waitTime));
-            assertTrue("Job (user 3) did not succeed.",
-                jobUser3.waitForSuccess(waitTime));
+            SleepJob[] jobs = new SleepJob[numJobs];
+            int index = 0;
+            while (index < numJobs) {
+                jobs[index] = new SleepJob();
+                jobs[index].setNumMappers(1);
+                jobs[index].setNumReducers(1);
+                jobs[index].setMapDuration(100);
+                jobs[index].setReduceDuration(100);
+                jobs[index].setUser("hadoop" + ((index%20)+1));
+                jobs[index].start();                
+                index++;
+            }
+            waitForJobsID(jobs);
+            waitForJobsSuccess(jobs);
         }
         catch (Exception e) {
             TestSession.logger.error("Exception failure.", e);
             fail();
         }
     }
-	
+
+    public void waitForJobsID(SleepJob[] jobs) throws Exception {
+        int index = 0;
+        int waitTime = 10;
+        while (index < jobs.length) {
+            assertTrue("Sleep job (" + index + ") was not assigned an ID " +
+                    "within " + waitTime + " seconds.", 
+                    jobs[index].waitForID(waitTime));
+            assertTrue("Sleep job ID for sleep job (" + index + ") is invalid.", 
+                    jobs[index].verifyID());
+            index++;
+        }
+    }
+
+    public void waitForJobsSuccess(SleepJob[] jobs) throws Exception {
+        int index = 0;
+        int waitTime = 2;
+        while (index < jobs.length) {
+            assertTrue("Job (" + index + ") did not succeed within " +
+                    waitTime + " seconds.",
+                    jobs[index].waitForSuccess(waitTime));
+            index++;
+        }
+    }
+
 }
