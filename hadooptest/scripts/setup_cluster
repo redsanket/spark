@@ -88,6 +88,7 @@ push(@common_args, "--test TestSetupCluster");
 push(@common_args, "-DACTION=$action") if ($action);
 push(@common_args, "-DCOMPONENT=$component") if ($component);
 push(@common_args, "-DNODE=$nodename") if ($nodename);
+push(@common_args, "-DRESTART_ON_FAILURE=false");
 push(@common_args, join(" ", @ARGV));
 
 execute("$workspace/scripts/run_hadooptest ".join(" ",@common_args));
