@@ -67,6 +67,9 @@ public class TestSetupCluster extends TestSession {
                 break;
             case RESET:
                 TestSession.logger.info("--> Reset Cluster:");
+
+                // TODO: Consider support for resetting a specified component
+                
                 assertTrue("Cluster reset failed", TestSession.cluster.reset());
                 assertTrue(
                         "Cluster is not off of safemode after cluster reset",
