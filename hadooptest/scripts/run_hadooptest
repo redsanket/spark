@@ -163,6 +163,10 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 }
 
 my $hadoop_version;
+my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
+note($cmd);
+chomp($hadoop_version = `$cmd`);
+note("Hadoop version = '$hadoop_version'");
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
@@ -175,12 +179,7 @@ if ($use_mvn) {
         # execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live") unless (-e "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar");
         execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live");
     }
-
     execute("/usr/local/bin/yinst install yjava_byauth") unless (-e "/home/y/lib/jars/yjava_byauth.jar");
-
-    my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
-    note($cmd);
-    chomp($hadoop_version = `$cmd`);
 
     ############################################################################
     # Auto-set maven compile and runtime profiles for the corresponding 
@@ -218,6 +217,12 @@ if ($use_mvn) {
             $test_opt);
 
 } else {
+
+    # Need to compile the hadooptest jar if it doesn't exist.
+    unless (-e "$workspace/target/hadooptest-1.0-SNAPSHOT.jar") {
+        execute("/home/y/bin/mvn clean package -DskipTests -Pprofile-compile-2.0 -Pprofile-ci");
+    }
+
     # RUN TESTS VIA JAVA
     execute("/home/y/bin/java -cp ".
             join(":",@classpath)." ".
