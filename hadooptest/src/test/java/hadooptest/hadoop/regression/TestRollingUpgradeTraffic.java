@@ -45,6 +45,12 @@ public class TestRollingUpgradeTraffic extends TestSession {
             TestSession.logger.info("Elapsed time is: '" + elapsedTimeMin + 
                     "' minutes.");
             
+            currentTime = System.currentTimeMillis();
+            elapsedTime = currentTime - startTime;
+            elapsedTimeMin = (int) (elapsedTime / 1000) / 60;
+            TestSession.logger.info("Elapsed time is: '" + elapsedTimeMin + 
+                    "' minutes.");
+
             if (file.exists()){
                 TestSession.logger.info("Found stop file.");
             }
