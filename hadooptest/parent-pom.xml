@@ -42,7 +42,8 @@
 			</activation>
 			<properties>
 				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-				<coretest.jar.dir>/tmp</coretest.jar.dir>
+				<!-- <coretest.jar.dir>/tmp</coretest.jar.dir> -->
+				<coretest.jar.dir>/home/y/etc/coretest/java/lib/</coretest.jar.dir>				
 			</properties>
 			<dependencies>
 				<dependency>
@@ -54,9 +55,11 @@
 				</dependency>
 				<!-- GDM automation dependency for yjava auth -->
 				<dependency>
-					<groupId>yahoo.yinst.yjava_byauth</groupId>
-					<artifactId>yjava_byauth</artifactId>
-					<version>0.6.0</version>
+				    <groupId>system</groupId>
+                    <artifactId>yjava_byauth</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>/home/y/lib/jars/yjava_byauth.jar</systemPath>				
 				</dependency>
 			</dependencies>
 		</profile>
