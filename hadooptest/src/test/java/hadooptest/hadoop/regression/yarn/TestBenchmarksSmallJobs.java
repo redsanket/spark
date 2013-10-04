@@ -19,14 +19,14 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.client.YarnClientImpl;
+//import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
+import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import coretest.SerialTests;
 import coretest.Util;
-import hadooptest.ParallelMethodTests;
 
 /*
  *  Runs the mrbench test. Takes about 2 minutes to run.

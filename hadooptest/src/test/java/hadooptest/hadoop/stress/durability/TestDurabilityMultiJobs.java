@@ -20,7 +20,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.client.YarnClientImpl;
+//import org.apache.hadoop.yarn.client.YarnClientImpl; // 0.23
+import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // 2.x
 import org.junit.BeforeClass;
 import org.junit.Test;
 

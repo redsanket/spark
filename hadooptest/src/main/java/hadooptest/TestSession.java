@@ -41,7 +41,7 @@ public abstract class TestSession extends TestSessionCore {
 
 	/** The multi-cluster client thread **/
 	public static MultiClusterClient multiClusterClient;
-	
+		
 	/**
 	 * Initializes the test session in the following order:
 	 * initilizes framework configuration, initializes the
@@ -70,7 +70,7 @@ public abstract class TestSession extends TestSessionCore {
 
 		initSecurity();
 		
-		initMultiCluster();
+		initMultiCluster();		
 	}
 	
 	// stop() being implemented for multi-cluster support, so we can stop the
@@ -156,28 +156,64 @@ public abstract class TestSession extends TestSessionCore {
 		}
 
 		if (cluster != null) {
-			ClusterState clusterState = null;
+            TestSession.logger.info("***************************************");
+            TestSession.logger.info("Test Session Start: check cluster state " +
+                    "is up:");
+            TestSession.logger.info("***************************************");
+
+            /* TODO: optionally restart the cluster. This may impact how the
+             * tests are being run in parallel classes.
+             */
+            boolean RESTART_ON_FAILURE =
+                    Boolean.parseBoolean(
+                            System.getProperty("RESTART_ON_FAILURE", "true"));
+            logger.info("RESTART ON FAILURE='"+RESTART_ON_FAILURE+"'");
+
+            int resetClusterDelay = 
+                    Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "180"));
+            logger.info("RESET_CLUSTER_DELAY='" + resetClusterDelay
+                    + "' seconds.");
+
+		    ClusterState clusterState = null;
 			try {
-			    TestSession.logger.info("Get cluster state: ");
 				clusterState = cluster.getState();
 			}
 			catch (Exception e) {
 				logger.error("Failed to get the cluster state.", e);
 			}
 
-			if (clusterState != ClusterState.UP) {
+			if (clusterState == ClusterState.UP) {
+                logger.info("Cluster is fully up and ready to go.");                
+			} else {			    
 				logger.warn("Cluster is not fully up: cluster state='" +
 						clusterState.toString() + "'.'");
-				/*
-			TODO: optionally restart the cluster. This could impact how the
-			tests are being run in parallel classes.
-
-			try {
-				cluster.reset();				
-			} catch (Exception e) {
-				logger.error("Failed to restart the cluster:", e);				
-			}
-				 */
+				
+	            if (RESTART_ON_FAILURE) {
+	                 // Check if the cluster is fully up. If not try n times to reset it.
+	                int maxRetries = 3;
+	                int numRetries = 1;
+	                try {	                    
+	                    while ((clusterState != ClusterState.UP) &&
+	                            (numRetries <= maxRetries)) {
+	                        TestSession.logger.info("Retry #" + numRetries + ":");
+	                        TestSession.logger.info("Reset cluster:");
+	                        TestSession.cluster.reset();
+	                        clusterState = cluster.getState();
+	                        numRetries++;
+	                    }
+	                    if (!TestSession.cluster.isFullyUp()) {
+	                        TestSession.logger.error("Cluster is NOT fully up after '" +
+	                                maxRetries + "'.");
+	                    } else {
+	                        TestSession.logger.error("Cluster is fully up and ready.");                
+	                    }
+	                }
+	                catch (Exception e) {
+	                        TestSession.logger.error("Cluster is not fully up."+
+	                                " Restart failed!!!");
+	                }
+       
+	            }
 			}
 		}
 	}

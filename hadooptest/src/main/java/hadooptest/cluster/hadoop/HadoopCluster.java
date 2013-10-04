@@ -22,8 +22,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.security.SecurityUtil;
-import org.apache.hadoop.yarn.client.YarnClientImpl; // 0.23
-// import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // 2.x
+//import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
+import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 
 import coretest.Util;
 import coretest.cluster.ClusterState;
@@ -65,7 +65,7 @@ public abstract class HadoopCluster {
             "hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster";
     
     public static enum State { UP, DOWN, UNKNOWN }
-    public static enum Action { START, STOP }    
+    public static enum Action { START, STOP, RESET, STATUS }
     public static final String START = "start";
     public static final String STOP = "stop";
     
@@ -389,7 +389,7 @@ public abstract class HadoopCluster {
 
     
     public void printNodes() {
-        TestSession.logger.debug("-- listing cluster nodes --");        
+        TestSession.logger.debug("-- listing cluster nodes --");
         Enumeration<String> components = hadoopComponents.keys();
         while(components.hasMoreElements()) {
             String component = (String) components.nextElement();
@@ -418,9 +418,9 @@ public abstract class HadoopCluster {
 	    String compHostsSize = Integer.toString(hosts.length);
 	    int index=1;
 	    for (String host : hosts) {
-	        TestSession.logger.debug("Initialize '" + component + "' " +
-	                "component host '" + host + "' [" + index++ + "/" +
-	                compHostsSize + "].");
+	        TestSession.logger.debug("Init '" + component + "' " +
+	                "host '" + host + "' [" + index++ + "/" +
+	                compHostsSize + "]");
 	        
 	        // Initialize the component node.
 	        if (clusterType.equals(HadoopCluster.FD_CLUSTER_TYPE)) {
@@ -565,6 +565,18 @@ public abstract class HadoopCluster {
 		if (!stopped) {
 			TestSession.logger.error("cluster did not stop!!!");
 		}
+		
+		/* Workaround for Bugzilla Ticket 6555489 - sssd crashes
+		 * Sleep a few minutes for the sssd to recover from crashing
+		 */
+        int resetClusterDelay = 
+                Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "180"));
+        TestSession.logger.info("RESET_CLUSTER_DELAY='" + resetClusterDelay
+                + "' seconds.");
+		TestSession.logger.info("Sleep '" + resetClusterDelay + 
+		        "' seconds for sssd to recover...");
+		Thread.sleep(resetClusterDelay*1000);
+		
 		boolean started = this.start();
 		if (!started) {
 			TestSession.logger.error("cluster did not start!!!");

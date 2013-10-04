@@ -1,0 +1,95 @@
+#!/usr/bin/env perl 
+
+use strict;
+use warnings;
+use FindBin qw($Bin $Script);
+use Test::More;
+use File::Copy;
+
+my %options=();
+
+#
+# Setup shell environment on a remote host
+#
+
+sub usage {
+    my ($err_msg) = @_;
+    print STDERR << "EOF";
+
+  Usage: $Script -c cluster <option1> <values1> <option2> <values2> ...
+-----------------------------------------------------------------------------------
+The options
+        -c|--cluster    <cluster name> : cluster name
+        [ -a|--action                       ] : {status, stop, start, reset}
+                                                Default action is 'status'.
+        [ -d|--daemon                       ] : {namenode, resourcemanager, 
+                                                 datanode, nodemanager,
+                                                 historyserver}
+        [ -n|--node                         ] : nodename
+        [ -w|workspace  <workspace>         ] : workspace
+        [ -h|--help                         ] : help
+
+Pass Through options
+        [ -P<profile>                       ] : maven profile
+        [ -X                                ] : maven debug output
+
+Example:
+\$ scripts/setup_cluster -c omegab
+\$ scripts/setup_cluster -c omegab -a status
+\$ scripts/setup_cluster -c omegab -a stop -d datanode 
+\$ scripts/setup_cluster -c omegab -a start -d datanode 
+\$ scripts/setup_cluster -c omegab -a stop -n gsbl90762.blue.ygrid.yahoo.com
+\$ scripts/setup_cluster -c omegab -a start -n gsbl90762.blue.ygrid.yahoo.com
+\$ scripts/setup_cluster -c omegab -a reset
+        
+EOF
+    die($err_msg) if ($err_msg);
+    exit 0;
+}
+
+sub execute {
+    my ($command) = @_;
+    note($command);
+    system($command);
+}
+
+my $cluster;
+my $action;
+my $component;
+my $nodename;
+my $workspace = "$Bin/..";
+my $username = getpwuid($<);
+my $test;
+
+#
+# Command line options processing
+#
+use Getopt::Long;
+&Getopt::Long::Configure( 'pass_through');
+my $result = 
+GetOptions(\%options,
+    "cluster|c=s"        => \$cluster,
+    "action|a=s"         => \$action,
+    "component|d=s"      => \$component,
+    "node|n=s"           => \$nodename,
+    "workspace|w=s"      => \$workspace,
+    "help|h|?"
+    ) or usage(1);
+usage() if $options{help};
+usage("Invalid arguments!!!") if (!$result);
+
+my @common_args = (
+    "--cluster $cluster",
+    "--workspace $workspace",
+    "--java",
+    "--nopasswd"
+    );
+push(@common_args, "--test hadooptest.hadoop.regression.TestSetupCluster");
+push(@common_args, "-DACTION=$action") if ($action);
+push(@common_args, "-DCOMPONENT=$component") if ($component);
+push(@common_args, "-DNODE=$nodename") if ($nodename);
+push(@common_args, "-DRESTART_ON_FAILURE=false");
+push(@common_args, join(" ", @ARGV));
+
+execute("$workspace/scripts/run_hadooptest ".join(" ",@common_args));
+

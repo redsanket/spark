@@ -24,7 +24,7 @@ The options
         [ -j|--java                         ] : run tests via java directly instead of via maven
         [ -m|--mvn                          ] : run tests via maven instead of via java directly
         [ -build_coretest                   ] : build coretest
-        [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test 
+        [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -h|--help                         ] : help
@@ -166,6 +166,10 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 }
 
 my $hadoop_version;
+my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
+note($cmd);
+chomp($hadoop_version = `$cmd`);
+note("Hadoop version = '$hadoop_version'");
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
@@ -178,22 +182,44 @@ if ($use_mvn) {
         # execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live") unless (-e "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar");
         execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live");
     }
-
     execute("/usr/local/bin/yinst install yjava_byauth") unless (-e "/home/y/lib/jars/yjava_byauth.jar");
 
-    my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
-    note($cmd);
-    chomp($hadoop_version = `$cmd`);
+    ############################################################################
+    # Auto-set maven compile and runtime profiles for the corresponding 
+    # Hadoop version if it is not set via external parameters. 
+    ############################################################################
+    # Check for maven compile profile for Hadoop. This is the compile time 
+    # version reference. Should use the default profile here. 
+    # E.g. Code on branch 23 will need to compile against H23, but may be able 
+    # to run some tests on H2.0.
+    # my $found_compile_profile = grep( /profile-compile/, @common_args);
+    # my $hadoop_compile_profile;
+    # unless ($found_compile_profile) {
+    #     $hadoop_compile_profile = ($hadoop_version =~ "^0.23") ? "profile-compile-0.23.7" : "profile-compile-2.0";
+    #     $pom_opt .= " -P$hadoop_compile_profile";
+    # }
 
-    my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/"; 
-    if ($gdm) { 
-        # If the -gdm option is specified to the script, we want to  
+    # Check for maven runtime profile for Hadoop. This should correspod to the
+    # Hadoop version deployed on the cluster under test.
+    my $found_runtime_profile = grep( /profile-runtime/, @common_args);
+    my $hadoop_runtime_profile;
+    unless ($found_runtime_profile) {
+        $hadoop_runtime_profile = ($hadoop_version =~ "^0.23") ? "profile-runtime-0.23.7" : "profile-runtime-2.0";
+        $pom_opt .= " -P$hadoop_runtime_profile";
+    }
+    
+    my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/";
+    if ($gdm) {
+        # If the -gdm option is specified to the script, we want to 
         # run with the gdm-deployed Hadoop 0.23 jars, instead of relying
-        # on any cluster deployment of the Hadoop jar 
-        $hadoop_version = "0.23.9.1.1309061347"; 
+        # on any cluster deployment of the Hadoop jar
+        $hadoop_version = "0.23.9.1.1309061347";
         $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
     }
-
+    
+    ############################################################################
+    # Execute the maven command
+    ############################################################################
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version ".
             "HADOOP_INSTALL=$hadoop_install ".
@@ -203,6 +229,12 @@ if ($use_mvn) {
             $test_opt);
 
 } else {
+
+    # Need to compile the hadooptest jar if it doesn't exist.
+    unless (-e "$workspace/target/hadooptest-1.0-SNAPSHOT.jar") {
+        execute("/home/y/bin/mvn clean package -DskipTests -Pprofile-compile-2.0 -Pprofile-ci");
+    }
+
     # RUN TESTS VIA JAVA
     execute("/home/y/bin/java -cp ".
             join(":",@classpath)." ".
@@ -226,4 +258,3 @@ if (-e $fingerprint) {
 } else {
     note("Found no upstream fingerprint file '$fingerprint' to copy to workspace '$workspace':");
 }
-

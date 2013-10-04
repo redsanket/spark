@@ -180,7 +180,7 @@ unless ($install_only) {
 
         # LIST THE BUILD HOST TARGET DIR
         # execute("/usr/bin/tree $local_ws_ht/target/");
-        execute("ls -l /usr/bin/tree $local_ws_ht/target/*");
+        execute("ls -l $local_ws_ht/target/*");
 
         # COPY THE CLOVER CODE COVERAGE FILE BACK IF APPLICABLE
         # execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
