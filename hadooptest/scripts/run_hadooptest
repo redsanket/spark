@@ -24,6 +24,7 @@ The options
         [ -j|--java                         ] : run tests via java directly instead of via maven
         [ -m|--mvn                          ] : run tests via maven instead of via java directly
         [ -build_coretest                   ] : build coretest
+        [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test 
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -h|--help                         ] : help
@@ -60,6 +61,7 @@ my $cluster;
 my $conf = glob("~/hadooptest.conf");
 my $use_mvn = 1;
 my $build_coretest = 0;
+my $gdm = 0;
 my $workspace = "$Bin/..";
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
@@ -77,6 +79,7 @@ GetOptions(\%options,
     "mvn|m"              => sub { $use_mvn = 1 },
     "java|j"             => sub { $use_mvn = 0 },
     "build_coretest"     => \$build_coretest,
+    "gdm"                => \$gdm,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
     "test|t=s"           => \$test,
@@ -182,10 +185,19 @@ if ($use_mvn) {
     note($cmd);
     chomp($hadoop_version = `$cmd`);
 
+    my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/"; 
+    if ($gdm) { 
+        # If the -gdm option is specified to the script, we want to  
+        # run with the gdm-deployed Hadoop 0.23 jars, instead of relying
+        # on any cluster deployment of the Hadoop jar 
+        $hadoop_version = "0.23.9.1.1309061347"; 
+        $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
+    }
+
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version ".
             "HADOOP_INSTALL=$hadoop_install ".
-            "HADOOP_SHARE=/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/ ".
+            "HADOOP_SHARE=$hadoop_share ".
             "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean test -DfailIfNoTests=false ".
             join(" ", @common_args)." ".
             $test_opt);
