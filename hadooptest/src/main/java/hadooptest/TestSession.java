@@ -65,6 +65,17 @@ public abstract class TestSession extends TestSessionCore {
 		// Log Java Properties
 		initLogJavaProperties();
 		
+		// Check to see if the property GDM_ONLY is defined in the hadooptest
+		// configuration file.  If so, we want to exit the TestSession start
+		// method before we do any Hadoop-specific configuration and setup.
+		// This is intended to be used when running GDM tests on a GDM node
+		// that isn't deployed as part of a Hadoop cluster.
+		if(!(conf.getProperty("GDM_ONLY") == null)) {
+			if(conf.getProperty("GDM_ONLY").equalsIgnoreCase("true")) {
+				return;
+			}
+		}
+		
 		// Initialize the cluster to be used in the framework
 		initCluster();
 
