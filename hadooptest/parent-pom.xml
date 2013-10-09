@@ -35,6 +35,15 @@
 		<!-- PROFILE FOR 2.0 -->
 
 		<!-- PROFILE FOR CI -->
+        <!-- This profile is used for building the maven target primarily on the 
+             RE hosts (corp side), and occasionally on the gateway client
+             (colo side). It uses the script "scripts/ci_install_jar" to pull in
+             the depedent jar files. This script need to be run manually
+             hand. The issue that this is a manual process and not integrated 
+             with maven dependency is that 1) coretest is not in the maven 
+             repository and 2) yjava_byauth is accessible only from corp via the
+             ymaven repository, but cannot be accessed if building on the
+             gateway client on the colo. -->
 		<profile>
 			<id>profile-ci</id>
 			<activation>
@@ -43,7 +52,7 @@
 			<properties>
 				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 				<!-- <coretest.jar.dir>/tmp</coretest.jar.dir> -->
-				<coretest.jar.dir>/home/y/etc/coretest/java/lib/</coretest.jar.dir>
+				<coretest.jar.dir>/home/y/etc/coretest/java/lib/</coretest.jar.dir> 
 			</properties>
 			<dependencies>
 				<dependency>
