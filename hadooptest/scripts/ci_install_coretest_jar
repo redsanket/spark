@@ -2,6 +2,7 @@
 
 set -x
 /usr/local/bin/yinst install coretest_jar -branch nightly -same -live
+/usr/local/bin/yinst install yjava_byauth
 #rm -f coretest_jar*.tgz
 #/usr/local/bin/yinst fetch -branch nightly coretest_jar
 #tar xzvf coretest_jar*.tgz etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar
