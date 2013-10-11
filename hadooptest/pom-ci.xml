@@ -327,8 +327,8 @@
 					<additionalClasspathElements>
 						<additionalClasspathElement>${basedir}</additionalClasspathElement>
 						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
+						<!--  TODO: why is this hardcoded here ??? -->
 						<additionalClasspathElement>/tmp/hadooptest-hadoopqa-betty/target/hadooptest-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
-						<additionalClasspathElement>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</additionalClasspathElement>
 						<additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
 					</additionalClasspathElements>
 					<trimStackTrace>false</trimStackTrace>
@@ -743,21 +743,8 @@
 			<systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
 		</dependency>
 
-		<dependency>
-			<groupId>system</groupId>
-			<artifactId>system-coretest</artifactId>
-			<version>0.9.2</version>
-			<scope>system</scope>
-			<systemPath>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</systemPath>
-		</dependency>
-
-		<dependency>
-			<groupId>system</groupId>
-			<artifactId>system-yjava_byauth</artifactId>
-			<version>0.9.2</version>
-			<scope>system</scope>
-			<systemPath>/home/y/lib/jars/yjava_byauth.jar</systemPath>
-		</dependency>
+        <!-- coretest-1.0-SNAPSHOT.jar and yjava_byauth.jar are defined in 
+             parent-pom.xml --> 
 
 	</dependencies>
 
