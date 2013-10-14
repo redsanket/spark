@@ -24,40 +24,62 @@
 		</repository>
 	</repositories>
 
-    <!-- Define Hadoop version properties for 2.x -->
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version.ut.old>2.0.4.0.1304041432</hadoop.version.ut.old>
-        <hadoop.version.current>2.2.0-SNAPSHOT</hadoop.version.current>
-        <hadoop.version>${hadoop.version.current}</hadoop.version>
-    </properties>
+	<!-- Define Hadoop version properties for 2.x -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<hadoop.version.ut.old>2.0.4.0.1304041432</hadoop.version.ut.old>
+		<hadoop.version.current>2.2.0-SNAPSHOT</hadoop.version.current>
+		<hadoop.version>${hadoop.version.current}</hadoop.version>
+	</properties>
 
 	<profiles>
-        <!-- PROFILE FOR ECLIPSE:
-             For build environment -->
-		<!-- PROFILE FOR CI:
-		     For build in corp RE hosts, or build or test execution in colo. -->
+		<!-- PROFILE FOR ECLIPSE: For build environment -->
+		<!-- PROFILE FOR CI: For build in corp RE hosts, or build or test execution 
+			in colo. -->
 
 		<profile>
 			<id>profile-ci</id>
-            <!-- This profile is used for 1) building the maven package target  
-                 primarily on the RE hosts (corp side), and occasionally on the
-                 gateway client (colo side). A prerequisite is to run the script 
-                 "scripts/ci_install_jar" to pull in the dependent jar files not
-                 defined by the maven dependencies in the pom definition. This
-                 is because the coretest jar is not in the maven repository, and
-                 the yjava_byauth jar is only accessible via the ymaven 
-                 repository from corp, but not from the colo. -->
+			<!-- This profile is used for 1) building the maven package target primarily 
+				on the RE hosts (corp side), and occasionally on the gateway client (colo 
+				side). A prerequisite is to run the script "scripts/ci_install_jar" to pull 
+				in the dependent jar files not defined by the maven dependencies in the pom 
+				definition. This is because the coretest jar is not in the maven repository, 
+				and the yjava_byauth jar is only accessible via the ymaven repository from 
+				corp, but not from the colo. -->
 			<activation>
-                <file>
-                    <exists>/home/y/lib/jars/yjava_byauth.jar</exists>
-                </file>
-            </activation>
+				<file>
+				    <!-- /homes/hadoopqa directory exists only on the RE and 
+				         gateway hosts -->
+					<exists>/homes/hadoopqa</exists>
+				</file>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.2.1</version>
+						<executions>
+							<execution>
+								<id>exec</id>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<phase>compile</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<executable>scripts/ci_install_jar</executable>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 
 			<properties>
 				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-				<coretest.jar.dir>/home/y/etc/coretest/java/lib/</coretest.jar.dir> 
-                <yinst.lib.dir>/home/y/lib/jars/</yinst.lib.dir> 
+				<coretest.jar.dir>/home/y/etc/coretest/java/lib/</coretest.jar.dir>
+				<yinst.lib.dir>/home/y/lib/jars/</yinst.lib.dir>
 			</properties>
 
 			<dependencies>
@@ -83,12 +105,14 @@
 		<profile>
 			<id>profile-eclipse</id>
 
-            <activation>
-                <file>
-                    <missing>/home/y/lib/jars/yjava_byauth.jar</missing>
-                </file>
-            </activation>
-                        
+			<activation>
+				<file>
+                    <!-- /home/y/ directory does not exists on individual 
+                         windows/mac/linux box. -->
+					<missing>/home/y/lib/jars/yjava_byauth.jar</missing>
+				</file>
+			</activation>
+
 			<properties>
 				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 			</properties>
