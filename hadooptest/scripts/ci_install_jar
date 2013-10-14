@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# This script needs to be run before maven build can be run with the profile
+# "profile-ci" for building the maven package. The maven build is run primarily
+# on the RE hosts (corp side), and occasionally on the gateway client
+# (colo side). This script pulls in the depedent jar files. Teh reason this is 
+# separate process and is not integrated with maven dependency is that 
+# 1) coretest is not in the maven repository and 2) yjava_byauth is accessible 
+# only from corp side via the ymaven repository, but cannot be accessed if 
+# building on the gateway client on the colo.
+
+set -x
+/usr/local/bin/yinst install coretest_jar -branch nightly -same -live
+/usr/local/bin/yinst install yjava_byauth
+
+# Alternative for fetching the jar without actually activating the package.
+#
+# rm -f coretest_jar*.tgz
+# /usr/local/bin/yinst fetch -branch nightly coretest_jar
+# tar xzvf coretest_jar*.tgz etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar
+# cp ./etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar /tmp/
