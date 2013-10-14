@@ -178,11 +178,7 @@ if ($use_mvn) {
         execute("cd $workspace/../coretest; /home/y/bin/mvn package -DskipTests ");
         # execute("cd $workspace/../coretest; /home/y/bin/mvn install");
         execute("cd $workspace/../coretest; rm -f coretest_jar*.tgz; /home/y/bin/yinst_create -t nightly; yinst i coretest_jar*.tgz");
-    } else {
-        # execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live") unless (-e "/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar");
-        execute("/usr/local/bin/yinst install coretest_jar -branch nightly -same -live");
     }
-    execute("/usr/local/bin/yinst install yjava_byauth") unless (-e "/home/y/lib/jars/yjava_byauth.jar");
 
     ############################################################################
     # Auto-set maven compile and runtime profiles for the corresponding 
