@@ -156,7 +156,8 @@ if ($build_coretest) {
     execute("scp $local_ws_ct/target_dir/*.jar $remote_host:$remote_ws_ct/target");
 }
 
-execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"") if ($remote_username eq "hadoopqa");
+execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
+    if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa"));
 
 # EXECUTE TESTS
 my $common_args = "--cluster $cluster --workspace $remote_ws_ht";
@@ -172,7 +173,8 @@ unless ($install_only) {
         execute("ssh -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
 
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
-        execute("scp -r $remote_host:$remote_ws_ht/target/surefire-reports $local_ws_ht/target/");
+        execute("/bin/mkdir -p $local_ws_ht/target");
+        execute("scp -rp $remote_host:$remote_ws_ht/target/surefire-reports $local_ws_ht/target");
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
@@ -180,7 +182,7 @@ unless ($install_only) {
 
         # LIST THE BUILD HOST TARGET DIR
         # execute("/usr/bin/tree $local_ws_ht/target/");
-        execute("ls -l $local_ws_ht/target/*");
+        execute("ls -lR $local_ws_ht/target/*");
 
         # COPY THE CLOVER CODE COVERAGE FILE BACK IF APPLICABLE
         # execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
