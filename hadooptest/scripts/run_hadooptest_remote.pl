@@ -139,7 +139,7 @@ my $os=$^O;
 my $mvn = ($os eq 'linux') ? "/home/y/bin/mvn" : "/usr/bin/mvn";
 
 # INSTALL HADOOPTEST FRAMEWORK 
-execute("$mvn clean") if ($use_mvn);
+execute("$mvn clean -f $local_ws_ht/pom.xml") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file_ht --exclude='target' -C $local_ws_ht .");
 execute("scp $tgz_dir/$tgz_file_ht $remote_host:$remote_ws_ht");
 execute("ssh -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
