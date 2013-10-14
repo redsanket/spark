@@ -5,6 +5,8 @@ use warnings;
 use FindBin qw($Bin $Script);
 use Test::More;
 use File::Copy;
+use File::Find::Rule;
+use File::Basename; 
 
 my %options=();
 
@@ -211,10 +213,48 @@ if ($use_mvn) {
     my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/";
     if ($gdm) {
         # If the -gdm option is specified to the script, we want to 
-        # run with the gdm-deployed Hadoop 0.23 jars, instead of relying
+        # run with the gdm-deployed Hadoop 2.0 jars, instead of relying
         # on any cluster deployment of the Hadoop jar
-        $hadoop_version = "0.23.9.1.1309061347";
+        $hadoop_version = "2.0.5.0.1306301601";
         $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
+        
+        # Set up a rule to use to search the GDM Hadoop jars base dir
+        my $base_dir = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/";
+        my $find_rule = File::Find::Rule->new;
+
+        # Do not descend past the first level
+        $find_rule->maxdepth(1);
+
+        # Only return directories
+        $find_rule->directory;
+
+        # Apply the rule and retrieve the subdirectories, which should be the
+        # directories named by Hadoop version.
+        my @sub_dirs = $find_rule->in($base_dir);
+
+        # Print out the name of each directory on its own line
+        print "\nGDM Hadoop dependency directories are:\n";
+        print join("\n", @sub_dirs);
+        print "\n\n";
+        
+        # Get the individual directory version names
+        my @basedirs;
+        foreach my $dirname (@sub_dirs) {
+            push @basedirs, basename($dirname);
+        };
+        
+        # inverse alphabetical sort the names so most recent version comes first
+        @basedirs = reverse(sort @basedirs);
+        
+        # pick the most recent 2.0 version to use for Hadoop dependencies
+        foreach my $basedir (@basedirs) {
+            if ($basedir =~ m/^2\.(.*)/) {
+                print "\n\nSetting GDM Hadoop dependencies to Hadoop version $basedir\n\n";
+                $hadoop_version = $basedir;
+                $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
+                last;
+            }
+        } 
     }
     
     ############################################################################
