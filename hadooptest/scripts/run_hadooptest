@@ -6,7 +6,7 @@ use FindBin qw($Bin $Script);
 use Test::More;
 use File::Copy;
 use File::Find::Rule;
-use File::Basename; 
+use File::Basename;
 
 my %options=();
 
@@ -205,7 +205,7 @@ if ($use_mvn) {
         $hadoop_runtime_profile = ($hadoop_version =~ "^0.23") ? "profile-runtime-0.23.7" : "profile-runtime-2.0";
         $pom_opt .= " -P$hadoop_runtime_profile";
     }
-    
+
     my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/";
     if ($gdm) {
         # If the -gdm option is specified to the script, we want to 
@@ -268,7 +268,7 @@ if ($use_mvn) {
 
     # Need to compile the hadooptest jar if it doesn't exist.
     unless (-e "$workspace/target/hadooptest-1.0-SNAPSHOT.jar") {
-        execute("/home/y/bin/mvn clean package -DskipTests -Pprofile-compile-2.0 -Pprofile-ci");
+        execute("/home/y/bin/mvn clean package -DskipTests");
     }
 
     # RUN TESTS VIA JAVA
