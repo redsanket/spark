@@ -743,8 +743,8 @@
 			<systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
 		</dependency>
 
-        <!-- coretest-1.0-SNAPSHOT.jar and yjava_byauth.jar are defined in 
-             parent-pom.xml --> 
+                <!-- coretest-1.0-SNAPSHOT.jar and yjava_byauth.jar are defined in 
+                     parent-pom.xml --> 
 
 	</dependencies>
 
