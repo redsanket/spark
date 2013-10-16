@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <display-name>GDM Console</display-name>
+    <description>GDM Console</description>
+
+    <listener>
+        <listener-class>com.yahoo.grid.tools.web.servlet.listener.DAQContextLoaderListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>com.yahoo.grid.tools.configuration.listener.StartServicesListener</listener-class>
+    </listener>
+
+    <filter>
+        <filter-name>authenticationFilter</filter-name>
+        <filter-class>com.yahoo.grid.tools.web.filter.AuthenticationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>allowGetFilter</filter-name>
+        <filter-class>com.yahoo.grid.tools.configuration.web.filter.AllowGetMethodFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>BouncerFilter</filter-name>
+        <filter-class>yjava.servlet.filter.BouncerFilter</filter-class>
+        <init-param>
+            <param-name>bouncer.url</param-name>
+            <param-value>https://by.bouncer.login.yahoo.com/login/</param-value>
+        </init-param>
+                <init-param>
+                    <param-name>bouncer.script.users</param-name>
+                    <param-value>hitusr_1</param-value>
+                </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>BouncerFilter</filter-name>
+        <url-pattern>/app/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>BouncerFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>BouncerFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>BouncerFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
+        <url-pattern>/app/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
+        <url-pattern>/rest/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>allowGetFilter</filter-name>
+        <url-pattern>/query/*</url-pattern>
+    </filter-mapping>
+
+    <context-param>
+        <param-name>yjava_yiv_servlet.noParameterTreatmentURIs</param-name>
+        <param-value>(.*/datasource|.*(unified).*|.*admin/.*|.*/actions)</param-value>
+    </context-param>
+
+    <servlet>
+        <servlet-name>executeAdminRequest</servlet-name>
+        <jsp-file>/admin/executeAdminRequest.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>verifyDatasets</servlet-name>
+        <jsp-file>/dataset/verifyDataset.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>configureDatasets</servlet-name>
+        <jsp-file>/dataset/datasetConfigure.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>configuration</servlet-name>
+        <jsp-file>/dataset/configuration.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>sources</servlet-name>
+        <jsp-file>/datasource/sources.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>bizUserView</servlet-name>
+        <jsp-file>/dataset/bizUserWorkflowsView.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>workflows</servlet-name>
+        <jsp-file>/workflows/workflows.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>backfill</servlet-name>
+        <jsp-file>/admin/backfill.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>discovery</servlet-name>
+        <jsp-file>/dataset/discovery.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>bizuser</servlet-name>
+        <jsp-file>/dataset/bizuser.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>metrics</servlet-name>
+        <jsp-file>/metrics/metrics.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>queue</servlet-name>
+        <jsp-file>/queue/queue.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>health</servlet-name>
+        <jsp-file>/health/health.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>home</servlet-name>
+        <jsp-file>/home.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>alerts</servlet-name>
+        <jsp-file>/alert/alerts.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>archival</servlet-name>
+        <jsp-file>/dataout/archival.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>managedataset</servlet-name>
+        <servlet-class>com.yahoo.grid.tools.configuration.rest.dataset.DataSetConfigServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>managedatasource</servlet-name>
+        <servlet-class>com.yahoo.grid.tools.configuration.rest.datasource.DataSourceConfigServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
+            <param-value>com.sun.jersey.api.core.PackagesResourceConfig</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>
+                com.yahoo.grid.tools.web.resource;com.yahoo.grid.tools.web.action;com.yahoo.grid.tools.console
+            </param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ConfigRESTService</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
+            <param-value>com.sun.jersey.api.core.PackagesResourceConfig</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>com.yahoo.grid.tools.configuration.rest</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ConfigRESTService</servlet-name>
+        <url-pattern>/query/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>ConfigRESTService</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>configureDatasets</servlet-name>
+        <url-pattern>/app/configureDatasets</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>executeAdminRequest</servlet-name>
+        <url-pattern>/app/admin/executeAdminRequest</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>verifyDatasets</servlet-name>
+        <url-pattern>/app/verifyDatasets</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>configuration</servlet-name>
+        <url-pattern>/app/config</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>sources</servlet-name>
+        <url-pattern>/app/sources</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>bizUserView</servlet-name>
+        <url-pattern>/app/bizUserView</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>workflows</servlet-name>
+        <url-pattern>/app/workflows</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>backfill</servlet-name>
+        <url-pattern>/app/backfill</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>discovery</servlet-name>
+        <url-pattern>/app/discovery</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>bizuser</servlet-name>
+        <url-pattern>/app/bizuser</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>metrics</servlet-name>
+        <url-pattern>/app/metrics</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>queue</servlet-name>
+        <url-pattern>/app/queue</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>health</servlet-name>
+        <url-pattern>/app/applicationsummary</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>managedataset</servlet-name>
+        <url-pattern>/app/managedataset</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>managedatasource</servlet-name>
+        <url-pattern>/app/managedatasource</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>alerts</servlet-name>
+        <url-pattern>/app/alerts</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>home</servlet-name>
+        <url-pattern>/app/home</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>archival</servlet-name>
+        <url-pattern>/app/archival</url-pattern>
+    </servlet-mapping>
+
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>testPost</servlet-name>-->
+        <!--<url-pattern>/admin/testPost</url-pattern>-->
+    <!--</servlet-mapping>-->
+
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>
