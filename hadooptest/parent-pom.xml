@@ -22,6 +22,17 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		
+		<repository>
+            <id>yahoo-snapshots</id>
+            <url>http://ymaven.corp.yahoo.com:9999/proximity/repository/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
 	</repositories>
 
 	<!-- Define Hadoop version used to compile HTF code for 2.x -->
