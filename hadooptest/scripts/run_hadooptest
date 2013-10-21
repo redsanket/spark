@@ -171,6 +171,13 @@ my $hadoop_version;
 my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
 note($cmd);
 chomp($hadoop_version = `$cmd`);
+
+# Fix for GDM to init the hadoop version since it won't be installed and we 
+# expect hadoop 2 compatibility
+if ($gdm) {
+   $hadoop_version = "2.0";
+} 
+
 note("Hadoop version = '$hadoop_version'");
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
