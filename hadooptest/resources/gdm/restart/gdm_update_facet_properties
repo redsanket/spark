@@ -1,0 +1,20 @@
+#!/bin/bash  
+
+ACQ_APP_PROP_FILE=/grid/0/yroot/var/yroots/acquisition/home/y/libexec/ygrid_gdm_acquisition_server/conf/application.env.properties
+ACQ_APP_PROP_FILE_YROOT=/home/y/libexec/ygrid_gdm_acquisition_server/conf/application.env.properties
+REPL_APP_PROP_FILE=/grid/0/yroot/var/yroots/replication/home/y/libexec/ygrid_gdm_replication_server/conf/application.env.properties
+REPL_APP_PROP_FILE_YROOT=/home/y/libexec/ygrid_gdm_replication_server/conf/application.env.properties
+
+if grep -q "discovery.initial.delay" ${ACQ_APP_PROP_FILE}; then  
+    echo exist
+else  
+   SUDO_USER=$USER sudo /home/y/bin/yroot acquisition --cmd "echo discovery.initial.delay=7 >> ${ACQ_APP_PROP_FILE_YROOT}"
+fi
+
+if grep -q "discovery.initial.delay" ${REPL_APP_PROP_FILE}; then  
+    echo exist
+else  
+   SUDO_USER=$USER sudo /home/y/bin/yroot replication --cmd "echo discovery.initial.delay=7 >> ${REPL_APP_PROP_FILE_YROOT}"
+fi
+
+SUDO_USER=$USER sudo sed -i 's/retention.discovery.frequency=.*$/retention.discovery.frequency=30/g'  /grid/0/yroot/var/yroots/retention/home/y/libexec/ygrid_gdm_retention_server/conf/application.env.properties

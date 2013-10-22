@@ -95,6 +95,17 @@ public class GdmUtils
 				"start", "htf_gdm_setup" });
 	} 
 	
+	public static void restartConsole() throws Exception {
+		TestSession.logger.info("Installing htf_gdm_console_restart package...");
+		TestSession.exec.runProcBuilder(new String[] {"/usr/local/bin/yinst", 
+				"i", "htf_gdm_console_restart", 
+				"-br", "current", "-live" });
+		TestSession.logger.info("Running yinst directive to restart GDM console...");
+		TestSession.exec.runProcBuilder(new String[] { "sudo", 
+				"/usr/local/bin/yinst", 
+				"start", "htf_gdm_console_restart" });
+	}
+	
 	public static Calendar getCalendar() {
 		Calendar localCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		return localCalendar;
