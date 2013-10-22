@@ -72,6 +72,7 @@ public abstract class TestSession extends TestSessionCore {
 		// that isn't deployed as part of a Hadoop cluster.
 		if(!(conf.getProperty("GDM_ONLY") == null)) {
 			if(conf.getProperty("GDM_ONLY").equalsIgnoreCase("true")) {
+				initExecutor();
 				return;
 			}
 		}
@@ -107,6 +108,23 @@ public abstract class TestSession extends TestSessionCore {
 		frameworkName = "hadooptest";
 	}
 	
+	private static void initExecutor() {
+		// Retrieve the cluster type from the framework configuration file.
+		// This should be in the format of package.package.class
+		String strClusterType = conf.getProperty("CLUSTER_TYPE");
+
+		// Initialize the test session executor instance with the correct cluster type.
+		if (strClusterType.equals("hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster")) {
+			exec = new FullyDistributedExecutor();
+		}
+		else if (strClusterType.equals("hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster")) {
+			exec = new PseudoDistributedExecutor();
+		}
+		else {
+			logger.error("The cluster type is not yet fully supported: " + strClusterType);
+		}
+	} 
+	
 	/**
 	 * Initialize the cluster instance for the framework.
 	 */
@@ -125,15 +143,7 @@ public abstract class TestSession extends TestSessionCore {
 		String strClusterType = conf.getProperty("CLUSTER_TYPE");
 		
 		// Initialize the test session executor instance with the correct cluster type.
-		if (strClusterType.equals("hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster")) {
-			exec = new FullyDistributedExecutor();
-		}
-		else if (strClusterType.equals("hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster")) {
-			exec = new PseudoDistributedExecutor();
-		}
-		else {
-			logger.error("The cluster type is not yet fully supported: " + strClusterType);
-		}
+		initExecutor(); 
 
 		// Create a new instance of the cluster class specified in the 
 		// framework configuration file.

@@ -84,6 +84,17 @@ public class GdmUtils
 		return str1;
 	}
 
+	public static void copyWebXMLForHeadless() throws Exception {
+		TestSession.logger.info("Installing htf_gdm_setup package...");
+		TestSession.exec.runProcBuilder(new String[] {"/usr/local/bin/yinst", 
+				"i", "htf_gdm_setup", 
+				"-br", "current", "-live" });
+		TestSession.logger.info("Running yinst directive to copy headless web.xml configuration for GDM...");
+		TestSession.exec.runProcBuilder(new String[] { "sudo", 
+				"/usr/local/bin/yinst", 
+				"start", "htf_gdm_setup" });
+	} 
+	
 	public static Calendar getCalendar() {
 		Calendar localCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		return localCalendar;
