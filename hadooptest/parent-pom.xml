@@ -46,7 +46,8 @@
 				<file>
 					<!-- Check if the SVN tunnel script exists. It should only exists on 
 						the COLO. SVN_SSH=/gridtools/generic/bin/ssh_proxy_tunnel.sh -->
-					<missing>/gridtools/generic/bin/ssh_proxy_tunnel.sh</missing>
+					<!--  <missing>/gridtools/generic/bin/ssh_proxy_tunnel.sh</missing>  -->
+					<missing>/homes/hadoopqa</missing>
 				</file>
 			</activation>
 
