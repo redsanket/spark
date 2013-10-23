@@ -47,11 +47,11 @@
 					<!-- Check if the SVN tunnel script exists. It should only exists on 
 						the COLO. SVN_SSH=/gridtools/generic/bin/ssh_proxy_tunnel.sh -->
 					<!-- <missing>/gridtools/generic/bin/ssh_proxy_tunnel.sh</missing> -->
-					<!-- <missing>/homes/hadoopqa</missing> -->
+					<missing>/homes/hadoopqa</missing>
 					
 					<!-- coretest jars need to be installed separately beforehand by running 
 						mvn install in the coretest project -->
-					<exists>${user.home}/.m2/repository/coretest/coretest/1.0-SNAPSHOT/coretest-1.0-SNAPSHOT.jar</exists>
+					<!--  <exists>${user.home}/.m2/repository/coretest/coretest/1.0-SNAPSHOT/coretest-1.0-SNAPSHOT.jar</exists>  -->
 				</file>
 			</activation>
 
