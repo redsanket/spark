@@ -21,7 +21,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -84,6 +83,13 @@ public class GdmUtils
 		return str1;
 	}
 
+	/**
+	 * Copies the GDM web.xml necessary for headless users from the HTF
+	 * resources to the correct location on the GDM node, using the 
+	 * htf_gdm_setup package.
+	 * 
+	 * @throws Exception
+	 */
 	public static void copyWebXMLForHeadless() throws Exception {
 		TestSession.logger.info("Installing htf_gdm_setup package...");
 		TestSession.exec.runProcBuilder(new String[] {"/usr/local/bin/yinst", 
@@ -95,6 +101,12 @@ public class GdmUtils
 				"start", "htf_gdm_setup" });
 	} 
 	
+	/**
+	 * Triggers a restart of the GDM console, using the htf_gdm_console_restart
+	 * yinst package.
+	 * 
+	 * @throws Exception
+	 */ 
 	public static void restartConsole() throws Exception {
 		TestSession.logger.info("Installing htf_gdm_console_restart package...");
 		TestSession.exec.runProcBuilder(new String[] {"/usr/local/bin/yinst", 
