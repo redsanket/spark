@@ -33,9 +33,10 @@
 	</properties>
 
 	<profiles>
-		<!-- PROFILE FOR ECLIPSE: For build environment -->
-		<!-- PROFILE FOR CI: For CI build environment on corp RE hosts,
-                     and CI test execution or build on colo gateway clients. -->
+		<!-- PROFILE FOR ECLIPSE boxes: For build environment -->
+		<!-- PROFILE FOR YINST: yinst install jars required by profile-ci -->
+		<!-- PROFILE FOR CI: For CI build environment on corp RE hosts, and CI 
+			test execution or build on colo gateway clients. -->
 
 		<!-- PROFILE FOR ECLIPSE -->
 		<profile>
@@ -43,9 +44,9 @@
 
 			<activation>
 				<file>
-                                       <!-- /home/y/ directory does not exists on individual 
-                                            windows/mac/linux box. -->
-					<missing>/home/y/lib/jars/yjava_byauth.jar</missing>
+					<!-- Check if the SVN tunnel script exists. It should only exists on 
+						the COLO. SVN_SSH=/gridtools/generic/bin/ssh_proxy_tunnel.sh -->
+					<missing>/gridtools/generic/bin/ssh_proxy_tunnel.sh</missing>
 				</file>
 			</activation>
 
@@ -54,6 +55,8 @@
 			</properties>
 
 			<dependencies>
+				<!-- coretest jars need to be installed separately beforehand by running 
+					mvn install in the coretest project -->
 				<dependency>
 					<groupId>coretest</groupId>
 					<artifactId>coretest</artifactId>
@@ -76,30 +79,20 @@
 			</dependencies>
 		</profile>
 
-		<!-- PROFILE FOR CI -->
+
+		<!-- PROFILE FOR YINST INSTALL -->
 		<profile>
-			<id>profile-ci</id>
-			<!-- This profile is used for 1) building the maven
-                             package target primarily on the RE hosts (corp
-                             side), and occasionally on the gateway client
-                             (colo side). A prerequisite is to run the script
-                             "scripts/ci_install_jar" to pull in the dependent
-                             jar files not defined by the maven dependencies in
-                             the pom definition. This is because the coretest jar
-                             is not in the maven repository, and the yjava_byauth
-                             jar is only accessible via the ymaven repository
-                             from corp, but not from the colo. -->
+			<id>profile-yinst</id>
+			<!-- This profile is used for installing jar files used by profile-ci. 
+				It runs a script to set up jar files inaccessible from the ymaven repo (e.g. 
+				coretest), or via the ymaven repo on the colo (e.g. yjava_byauth) -->
 			<activation>
 				<file>
-				    <!-- /homes/hadoopqa directory exists only on the RE and 
-				         gateway hosts -->
-					<exists>/homes/hadoopqa</exists>
+					<!-- jar for coretest and yjava_byauth should be installed beforehand 
+						by calling 'mvn clean'. Currently, mvn does not support multiple file checking. -->
+					<exists>/usr/local/bin/yinst</exists>
 				</file>
 			</activation>
-
-			<!-- Run script to set up jar files inaccessible from
-                             the ymaven repo (e.g. coretest), or via the ymaven
-                             repo on the colo (e.g. yjava_byauth) -->
 			<build>
 				<plugins>
 					<plugin>
@@ -112,7 +105,7 @@
 								<goals>
 									<goal>exec</goal>
 								</goals>
-								<phase>compile</phase>
+								<phase>clean</phase>
 							</execution>
 						</executions>
 						<configuration>
@@ -121,6 +114,28 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+
+		<!-- PROFILE FOR CI -->
+		<profile>
+			<id>profile-ci</id>
+			<!-- This profile is used for 1) building the maven package target on 
+				the corp RE hosts as part of the nightly CI, 2) occasional manual build on 
+				the colo gateway client, 3) executing tests on the colo gateway clients as 
+				part of the nightly CI. The pre-requisite to using this profile is running 
+				the maven target: "mvn clean" which will invoke an external script "scripts/ci_install_jar" 
+				to yinst install dependent jar files. This includes the coretest jar which 
+				is not in maven repo, and the yjava_byauth jar which is not accessible via 
+				the ymaven repository from the colo. -->
+			<activation>
+				<file>
+					<!-- jar for coretest and yjava_byauth should be installed beforehand 
+						by calling 'mvn initalize'. Currently, mvn does not support multiple file 
+						checking. -->
+					<exists>/home/y/lib/jars/yjava_byauth.jar</exists>
+					<!-- <exists>/home/y/etc/coretest/java/lib/coretest-1.0-SNAPSHOT.jar</exists> -->
+				</file>
+			</activation>
 
 			<properties>
 				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -160,6 +175,7 @@
 		</resources>
 
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
