@@ -58,4 +58,22 @@ public class PseudoDistributedExecutor extends Executor {
 		return runProcBuilderGetProc(commandArray);
 	}
 
+	/**
+	* Returns the Process handle to a system command that is run, when a command, user
+	* name, and environment to run the command is specified.
+	*
+	* @param commandArray the command to run.  Each member of the string array should
+	*                                              be an item in the command string that is otherwise
+	*                                              surrounded by whitespace.
+	* @param username the system username to run the command under.
+	* @param env the environment variables to run the command with.
+	* @return String[] the output of running the system command.
+	*
+	* @throws Exception if there is a fatal error running the process.
+	*/
+	public Process runProcBuilderSecurityGetProcWithEnv(String[] commandArray,
+			String username, Map<String, String> env) throws Exception {
+		return runProcBuilderGetProc(commandArray, env);
+	}
+
 }
