@@ -136,8 +136,8 @@ note("CLASSPATH=".join(":",@classpath));
 execute("stty -echo; /usr/kerberos/bin/kinit $username\@DS.CORP.YAHOO.COM; stty echo")
     unless ($nopasswd);
 
-my $pom_opt="-f pom-ci.xml";
-my $mvn_settings_opt="-gs $workspace/resources/yjava_maven/settings.xml.gw";
+my $pom_opt="-f pom-ci.xml help:active-profiles";
+my $mvn_settings_opt="-gs $workspace/resources/yjava_maven/settings.xml.gw ";
 my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hadoop/lib/native/Linux-amd64-64/";
 my @common_args = (
     "-DCLUSTER_NAME=$cluster",
