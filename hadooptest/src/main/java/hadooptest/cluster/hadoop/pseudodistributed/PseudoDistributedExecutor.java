@@ -5,6 +5,7 @@
 package hadooptest.cluster.hadoop.pseudodistributed;
 
 import java.io.IOException;
+import java.util.Map;
 
 import coretest.cluster.Executor;
 
