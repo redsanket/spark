@@ -27,6 +27,7 @@ The options
         [ -m|--mvn                          ] : run tests via maven instead of via java directly
         [ -build_coretest                   ] : build coretest
         [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test
+        [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -h|--help                         ] : help
@@ -64,6 +65,7 @@ my $conf = glob("~/hadooptest.conf");
 my $use_mvn = 1;
 my $build_coretest = 0;
 my $gdm = 0;
+my $spark = 0; 
 my $workspace = "$Bin/..";
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
@@ -82,6 +84,7 @@ GetOptions(\%options,
     "java|j"             => sub { $use_mvn = 0 },
     "build_coretest"     => \$build_coretest,
     "gdm"                => \$gdm,
+    "spark"              => \$spark,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
     "test|t=s"           => \$test,
@@ -166,6 +169,12 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
     # $jacoco_result_dir="$workspace/data/exec/jacoco.exec";
     # execute("rm -f $jacoco_result_dir");
 }
+
+# If the user has provided the -spark option to the script, install the Spark
+# package so that we can run tests against the Spark jars.
+if ($spark) {
+    execute("yinst i yspark_yarn -live");
+} 
 
 my $hadoop_version;
 my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
