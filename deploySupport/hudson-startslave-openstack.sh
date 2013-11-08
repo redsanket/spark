@@ -60,6 +60,7 @@ then
         export HADOOP_MVN_INSTALL_STRING_PKG=`dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
         export HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
     done
+    export HADOOP_CORETREE_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
     export LOCAL_CONFIG_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
@@ -83,6 +84,7 @@ else
             export HADOOP_MVN_INSTALL_STRING_PKG=`dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
             export HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
         done
+        export HADOOP_CORETREE_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
         export LOCAL_CONFIG_INSTALL_STRING=`dist_tag list $HIT_DEPLOYMENT_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
 
 

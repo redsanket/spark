@@ -70,7 +70,10 @@ then
             recordManifest "$HIVEVERSION"
         fi
        else
-	    echo === not define HIVEIGORTAG
+            if [[ $HCATIGORTAG != none ]]; then
+                echo === not define HIVEIGORTAG
+                exit 1
+            fi
        fi
 else
 	echo ===  cannot find hiveserver2 nodes defined in igor, skip hive/hs2 installation now.

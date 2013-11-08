@@ -67,8 +67,14 @@ do
     echo "/home/y/bin/yrootcp /usr/lib/liblzo2* ${yrootname}:/usr/lib/" |  ssh $machname
     echo "/home/y/bin/yrootcp /usr/lib64/liblzo2* ${yrootname}:/usr/lib64/" |  ssh $machname
     echo 'chsh -s /bin/bash hadoopqa' | ssh ${machname} /home/y/bin/yroot ${yrootname}
-    m=`df ~hadoopqa | sed -n 2p`
-    echo "echo 'mount $m ~hadoopqa' | /home/y/bin/yroot  ${yrootname}" |  ssh $machname
+    echo "mkdir -p /home/y/var/yroots/${yrootname}/home/hadoopqa/.ssh " |  ssh $machname
+    echo "/home/y/bin/yrootcp /homes/hadoopqa/.ssh/* ${yrootname}:/homes/hadoopqa/.ssh/ " |  ssh $machname
+    echo "/home/y/bin/yrootcp /homes/hadoopqa/hadoopqa.dev* ${yrootname}:/homes/hadoopqa/ " |  ssh $machname
+    echo "chown -R hadoopqa /home/y/var/yroots/${yrootname}/home/hadoopqa " |  ssh $machname
+    echo "chgrp -R users /home/y/var/yroots/${yrootname}/home/hadoopqa " |  ssh $machname
+    echo "chmod 700 /home/y/var/yroots/${yrootname}/home/hadoopqa/.ssh " |  ssh $machname
+#    m=`df ~hadoopqa | sed -n 2p`
+#    echo "echo 'mount $m ~hadoopqa' | /home/y/bin/yroot  ${yrootname}" |  ssh $machname
 done
 fi
 return 0 ;

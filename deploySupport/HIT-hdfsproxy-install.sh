@@ -43,6 +43,9 @@ set -x
 # create new yroot
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY   SUDO_USER=hadoopqa sudo /home/y/bin/yroot --create $YR
 
+# Restrict os to rhel-6.x inside the yroot
+ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set root.os_restriction=rhel-6.x -yroot $YR -yes 
+
 # install headless user dfsproxy and hadoopqa inside the yroot
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst install admin/user-dfsproxy admin/sudo-hadoopqa -yroot $YR -yes 
 
@@ -69,10 +72,8 @@ configpkg=$HADOOP_CONFIG_INSTALL_STRING
 # install config pkg
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY SUDO_USER=hadoopqa sudo /usr/local/bin/yinst install $configpkg -branch quarantine -yroot $YR -yes -set $confpkg.YINST_VAR_TODO_RUNMKDIRS=false 
 
-
-
 # install hdfsproxy pkg inside the new yroot
-ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst install $HDFSPROXYVERSION -yroot $YR
+ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst install $HDFSPROXYVERSION $HADOOP_CORETREE_INSTALL_STRING -yroot $YR
 
 st=$?
 if [ "$st" -ne 0 ] ; then
@@ -97,3 +98,14 @@ if [ "$st" -ne 0 ] ; then
     exit $st
 
 fi
+
+# Generate hdfs proxy manifest
+/bin/mkdir -p /grid/0/tmp/$cluster.$TIMESTAMP/HIT
+ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst ls -yroot $YR > /grid/0/tmp/$cluster.$TIMESTAMP/HIT/hp-manifest.txt
+ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set -yroot $YR >> /grid/0/tmp/$cluster.$TIMESTAMP/HIT/hp-manifest.txt
+scp fsbl295n25.blue.ygrid.yahoo.com:/grid/0/yroot/var/yroots/hit_hp/home/y/libexec/yjava_tomcat/webapps/logs/hdfsproxy.log /grid/0/tmp/$cluster.$TIMESTAMP/HIT/hdfsproxy.log
+# files created has owner and group of root, but need to be changed to user and
+# group nobody to accommodate the rsync that will occur at the end of the HIT
+# run when test results are copied back from the gateway to the adm machine. 
+/bin/chown nobody -R /grid/0/tmp/$cluster.$TIMESTAMP/HIT
+/bin/chgrp nobody -R /grid/0/tmp/$cluster.$TIMESTAMP/HIT
