@@ -26,7 +26,7 @@ then
     echo "*****"
 
 
-    fanout "/usr/sbin/lgroupdel hadoop ; /usr/sbin/lgroupadd  -g  10787  hadoop ; /usr/sbin/lgroupmod -M $HDFSUSER,$MAPREDUSER,hadoopqa hadoop ; cd /etc/grid-keytabs ; [ -e tt.* ] && chmod +r tt.* ; [ -e dn.* ] && chmod +r dn.* ; chmod  +r *.keytab  "
+    fanoutnogw "/usr/sbin/lgroupdel hadoop ; /usr/sbin/lgroupadd  -g  10787  hadoop ; /usr/sbin/lgroupmod -M $HDFSUSER,$MAPREDUSER,hadoopqa hadoop ; cd /etc/grid-keytabs ; [ -e tt.* ] && chmod +r tt.* ; [ -e dn.* ] && chmod +r dn.* ; chmod  +r *.keytab  "
     echo == "note short-term workaround for capacity scheduler (expires Sept 30)"
     fanout " export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && export HADOOP_PREFIX=${yroothome}/share/hadoop && export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop && export YARN_HOME=${yroothome}/share/hadoop"
 
