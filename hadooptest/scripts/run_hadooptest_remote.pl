@@ -92,15 +92,20 @@ usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
 my $igor = "/home/y/bin/igor";
+my $re_host = "re100.ygrid.corp.gq1.yahoo.com";
 if (!$remote_host) {
     my $rolename="grid_re.clusters.$cluster.gateway";
     note("fetch unspecified gateway host from igor role: '$rolename'");
     $remote_host = (-e $igor) ? 
         `/home/y/bin/igor fetch -members $rolename` :
-        `ssh re101.ygrid.corp.gq1.yahoo.com $igor fetch -members $rolename`;
+        `ssh $re_host $igor fetch -members $rolename`;
     chomp($remote_host);
 }
 note("remote gateway host = '$remote_host'");
+unless ($remote_host) {
+    warn("ERROR: Missing required remote gateway host!!!");
+    exit 1;
+}
 
 $remote_ws = "/tmp/hadooptest-$remote_username-$cluster"
     unless ($remote_ws);
