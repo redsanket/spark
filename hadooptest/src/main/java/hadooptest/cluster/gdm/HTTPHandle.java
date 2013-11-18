@@ -35,6 +35,7 @@ public class HTTPHandle
 	public static Header YBYCookieHeader = null;
 	private String baseURL;
 	private Configuration conf;
+	public String cookie; 
 
 	public HTTPHandle()
 	{
@@ -67,6 +68,7 @@ public class HTTPHandle
 			TestSession.logger.error(new StringBuilder().append("SSO authentication failed. ").append(localException.toString()).toString());
 		}
 
+		cookie = str; 
 		YBYCookieHeader = new Header("Cookie", str);
 		this.httpClient.getParams().setParameter("Cookie", str);
 		TestSession.logger.debug("SSO auth cookie set");

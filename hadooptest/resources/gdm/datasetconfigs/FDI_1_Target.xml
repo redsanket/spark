@@ -51,7 +51,7 @@
     </WorkflowStrategy>
 
     <Sources>
-        <Source name='gdm-fdi-source-patw02' latency='720'  />
+        <Source name='FDI_SERVER_NAME' latency='720'  />
     </Sources>
 
     <Targets>

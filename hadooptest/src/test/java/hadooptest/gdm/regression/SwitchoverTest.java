@@ -26,15 +26,15 @@ public class SwitchoverTest extends TestSession {
     private ConsoleHandle console;
     private String dataSetConfigBase;
     private String dataSetName;
-    private String grid1 = "densea";
-    private String grid2 = "omegap1";
-    private String grid3 = "grima";
+    private String grid1;
+    private String grid2;
+    private String grid3;
     private List<SingleDataSetInstanceAcquirer> acquisitions = new ArrayList<SingleDataSetInstanceAcquirer>();
 
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
+    @BeforeClass
+    public static void startTestSession() {
+        TestSession.start();
+    }
     
     private class SwitchoverSource {
         String sourceName;
@@ -57,7 +57,20 @@ public class SwitchoverTest extends TestSession {
     @Before
     public void setup() throws Exception {
         
+        GdmUtils.customizeTestConf(
+                TestSession.conf.getProperty("GDM_CONSOLE_NAME"), 
+                Integer.parseInt(TestSession.conf.getProperty("GDM_CONSOLE_PORT")));
+        
         this.console = new ConsoleHandle();
+        
+        List<String> grids = this.console.getUniqueGrids();
+        if (grids.size() < 3) {
+            throw new Exception("Unable to run SwitchoverTest, 3 grid datasources are required.");
+        }
+        this.grid1 = grids.get(0);
+        this.grid2 = grids.get(1);
+        this.grid3 = grids.get(2);
+        TestSession.logger.info("Using grids " + this.grid1 + ", " + this.grid2 + ", and " + this.grid3);
         
         // initialize dataset name so we can acquire data to grids to the right directory immediately
         this.dataSetName = "Switchover01_" + System.currentTimeMillis();
@@ -68,14 +81,12 @@ public class SwitchoverTest extends TestSession {
         // start fetching a dataset instance 20120126 on grid2
         this.startDataSetInstanceAcquisition(this.grid2, "20120126");
 
-		this.dataSetConfigBase = Util.getResourceFullPath("gdm/datasetconfigs") + "/";
+        this.dataSetConfigBase = Util.getResourceFullPath("gdm/datasetconfigs") + "/";
     }
     
     private void startDataSetInstanceAcquisition(String grid, String instanceDate) throws Exception {
-        //SingleDataSetInstanceAcquirer gridDataAcquirer = new SingleDataSetInstanceAcquirer(grid, instanceDate, this.getDataPath(), this.getSchemaPath(), this.getCountPath(), 
-        //    "gdm-dataset-patw02", false);
         SingleDataSetInstanceAcquirer gridDataAcquirer = new SingleDataSetInstanceAcquirer(grid, instanceDate, this.getDataPath(), this.getSchemaPath(), this.getCountPath(), 
-                "gdm-fdi-source-rbernota_htf", false);
+                "gdm-dataset-patw02", false);
         gridDataAcquirer.startAcquisition();    
         acquisitions.add(gridDataAcquirer);
     }
@@ -88,7 +99,7 @@ public class SwitchoverTest extends TestSession {
     }
     
     private String createDataSetXml(SwitchoverSource source1, SwitchoverSource source2) {
-        String dataSetXml = this.console.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigBase + "SwitchoverDataSet.xml");
+        String dataSetXml = this.console.createDataSetXmlFromConfig(this.dataSetName, this.dataSetConfigBase + "SwitchoverDataSet.xml");
         dataSetXml = dataSetXml.replaceAll("SOURCE1_NAME", source1.sourceName);
         dataSetXml = dataSetXml.replaceAll("SOURCE2_NAME", source2.sourceName);
         if (source1.dateStart != null) {
@@ -124,7 +135,7 @@ public class SwitchoverTest extends TestSession {
             source2.sourceName = this.grid2;
             String dataSetXml = this.createDataSetXml(source1, source2);
             response = this.console.createDataSet(this.dataSetName, dataSetXml);
-            assertEquals("create switchover dataset", 200, response.getStatusCode());
+            assertEquals("create switchover dataset - dataset xml:\n" + dataSetXml, 200, response.getStatusCode());
         }
         this.console.checkAndActivateDataSet(this.dataSetName);
         String feedSubmisionTime = GdmUtils.getCalendarAsString();
