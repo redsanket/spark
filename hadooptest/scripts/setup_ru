@@ -111,8 +111,7 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
             # echo "Fetching role members and corresponding hadoop versions for the role $role:"
             # echo -n "role $role " >> $MEMBERS_FILE; 
 
-            echo "---------------------------------------------------------------------------------";
-            echo "---------------------------------------------------------------------------------" >> $MEMBERS_FILE; 
+            echo "---------------------------------------------------------------------------------" 2>&1 |tee -a $MEMBERS_FILE
 
             # igor fetch -member grid_re.clusters.sam| tr '\n' ',' | sed 's/.$//'
             if [[ $role == "grid_re.clusters.$cluster" ]]; then
@@ -135,13 +134,12 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
                 # cmd="$sub_cmd | sed 's/$/ ($comp)/'"
                 cmd="$sub_cmd | sed 's/^/$comp: /'"
             fi
-            sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\""
-            sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"" >> $MEMBERS_FILE
+
+            sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"" 2>&1 |tee -a $MEMBERS_FILE
 
             # for host in `igor fetch -member $role`; do
             #     version=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host readlink -f /home/gs/gridre/yroot.$cluster|cut -d "." -f3- `
-            #     echo "$host $version (role $role)"
-            #     echo "$host $version (role $role)" >> $MEMBERS_FILE
+            #     echo "$host $version (role $role)" 2>&1 |tee -a $MEMBERS_FILE
             # done;
         done;
     else
@@ -162,15 +160,13 @@ else
         touch $MEMBERS_FILE
         # ls -l $MEMBERS_FILE
         for role in `cat $ROLES_FILE`;do 
-            echo -n "role $role " >> $MEMBERS_FILE; 
-            igor fetch -member $role >> $MEMBERS_FILE;
-            # tail -1 $MEMBERS_FILE
-            # cat $MEMBERS_FILE
+            echo -n "role $role " 2>&1 |tee -a $MEMBERS_FILE;
+            igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
         done;
     else
         echo "--> Get host members using existing file '$MEMBERS_FILE'"
+        cat $MEMBERS_FILE;
     fi
-    cat $MEMBERS_FILE;
     ################################################
 fi
 

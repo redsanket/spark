@@ -85,16 +85,13 @@ then
     fi
     touch $MEMBERS_FILE
     for role in `cat $ROLES_FILE`;do 
-        echo -n "role $role " >> $MEMBERS_FILE; 
-        igor fetch -member $role >> $MEMBERS_FILE;
-        # tail -1 $MEMBERS_FILE
+        echo -n "role $role " 2>&1 |tee -a $MEMBERS_FILE; 
+        igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
     done;
 else
     echo "--> Get role members using existing file '$MEMBERS_FILE'"
-fi
-#if [[ $VERBOSE == 1 ]]; then
     cat $MEMBERS_FILE;
-#fi
+fi
 
 if [[ -n $ROLE ]]; then
     echo "--> Get host for role '$ROLE'"
