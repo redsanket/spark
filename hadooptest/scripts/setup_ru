@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #################################################################################
-# This script is inteded to provide test related information for a Hadoop QE
+# This script is inteded to provide support for rolling upgrade on a Hadoop QE
 # Cluster.
 #################################################################################
 
@@ -15,29 +15,25 @@ function usage
 {
     cat <<EOF
 usage: $0  --cluster             |-c <cluster name>
-          [--role                |-r <igor role> ]
-          [--yroot               |-y ]
-          [--force               |-f ]
           [--version                 ]
           [--versions                ]
+          [--force               |-f ]
           [--verbose             |-v ]
           [--help                |-h ]
 
 --cluster            Name of the cluster
---role               Name of the igor role
---yroot              Display yroot
+--version            Output only the single active hadoop version on each nodes
+--versions           Output all the hadoop versions deployed on each nodes
 --force              Force fetching from igor instead of using cache file
---version            Output version
 --verbose            Use verbose
 --help               Display usage
 
 Example:
 
-$ clustertestconfig -c mallard -r hdfsproxy
-$ clustertestconfig -c mallard -r hdfsproxy --yroot 
-$ clustertestconfig -c mallard -r gateway --force
-$ clustertestconfig -c mallard -r gateway
-$ clustertestconfig -c mallard -r gateway --yroot
+$ setup_ru -c sam --version
+$ setup_ru -c sam --versions
+$ setup_ru -c sam --version --force
+$ setup_ru -c sam --versions --force
 
 EOF
 }
