@@ -3,6 +3,10 @@
 #################################################################################
 # This script is inteded to provide support for rolling upgrade on a Hadoop QE
 # Cluster.
+# 
+# Because the script need ot perform "igor list -roles grid_re.clusters.$cluster*",
+# it requires that this script be run on the corp side in order to access the 
+# igor db.
 #################################################################################
 
 VERBOSE=0
@@ -100,7 +104,7 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
             rm $MEMBERS_FILE
         fi
         # for host in `igor list -roles grid_re.clusters.$cluster.*`;do 
-        echo "--> Get host member (from igor) and hadoop version (from host)"
+        echo "--> Get host member (from igor) and hadoop version (from host) as user hadoopqa"
         touch $MEMBERS_FILE
         # ls -l $MEMBERS_FILE
         for role in `cat $ROLES_FILE`;do 
@@ -113,7 +117,9 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
             if [[ $role == "grid_re.clusters.$cluster" ]]; then
                 hosts=`yinst range -ir "(@grid_re.clusters.$cluster, -@grid_re.clusters.$cluster.gateway, -@grid_re.clusters.$cluster.jobtracker, -@grid_re.clusters.$cluster.namenode, -@grid_re.clusters.$cluster.namenode2)"| paste -d, -s`
             else
-                hosts=`igor fetch -member $role| paste -d, -s`
+                # Because we can only run igor from corp side, use yinst instead.
+                # hosts=`igor fetch -member $role| paste -d, -s`
+                hosts=`yinst range -ir @$role| paste -d, -s`
             fi
 
             comp=`echo $role|cut -d"." -f4`
@@ -131,7 +137,7 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
                 cmd="$sub_cmd | sed 's/^/$comp: /'"
             fi
 
-            sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"" 2>&1 |tee -a $MEMBERS_FILE
+            sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"|sort -n" 2>&1 |tee -a $MEMBERS_FILE
 
             # for host in `igor fetch -member $role`; do
             #     version=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host readlink -f /home/gs/gridre/yroot.$cluster|cut -d "." -f3- `
@@ -157,7 +163,10 @@ else
         # ls -l $MEMBERS_FILE
         for role in `cat $ROLES_FILE`;do 
             echo -n "role $role " 2>&1 |tee -a $MEMBERS_FILE;
-            igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
+
+            # Because we can only run igor from corp side, use yinst instead.
+            # igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
+            yinst range -ir @$role 2>&1 |tee -a $MEMBERS_FILE;
         done;
     else
         echo "--> Get host members using existing file '$MEMBERS_FILE'"
