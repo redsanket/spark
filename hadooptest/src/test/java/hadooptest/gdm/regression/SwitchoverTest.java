@@ -3,6 +3,7 @@ package hadooptest.gdm.regression;
 import java.util.ArrayList;
 import java.util.List;
 import hadooptest.cluster.gdm.ConsoleHandle;
+import hadooptest.cluster.gdm.FeedGenerator;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.SingleDataSetInstanceAcquirer;
@@ -24,7 +25,6 @@ import static org.junit.Assert.fail;
 @Category(SerialTests.class)
 public class SwitchoverTest extends TestSession {
     private ConsoleHandle console;
-    private String dataSetConfigBase;
     private String dataSetName;
     private String grid1;
     private String grid2;
@@ -63,6 +63,13 @@ public class SwitchoverTest extends TestSession {
         
         this.console = new ConsoleHandle();
         
+        // initialize dataset name so we can acquire data to grids to the right directory immediately
+        this.dataSetName = "Switchover01_" + System.currentTimeMillis();
+        
+        FeedGenerator feedGenerator = new FeedGenerator(this.dataSetName);
+        feedGenerator.generateFeed("20120125");
+        feedGenerator.generateFeed("20120126");
+        
         List<String> grids = this.console.getUniqueGrids();
         if (grids.size() < 3) {
             throw new Exception("Unable to run SwitchoverTest, 3 grid datasources are required.");
@@ -72,21 +79,16 @@ public class SwitchoverTest extends TestSession {
         this.grid3 = grids.get(2);
         TestSession.logger.info("Using grids " + this.grid1 + ", " + this.grid2 + ", and " + this.grid3);
         
-        // initialize dataset name so we can acquire data to grids to the right directory immediately
-        this.dataSetName = "Switchover01_" + System.currentTimeMillis();
-        
         // start fetching a dataset instance 20120125 on grid1
         this.startDataSetInstanceAcquisition(this.grid1, "20120125");
         
         // start fetching a dataset instance 20120126 on grid2
         this.startDataSetInstanceAcquisition(this.grid2, "20120126");
-
-        this.dataSetConfigBase = Util.getResourceFullPath("gdm/datasetconfigs") + "/";
     }
     
     private void startDataSetInstanceAcquisition(String grid, String instanceDate) throws Exception {
-        SingleDataSetInstanceAcquirer gridDataAcquirer = new SingleDataSetInstanceAcquirer(grid, instanceDate, this.getDataPath(), this.getSchemaPath(), this.getCountPath(), 
-                "gdm-dataset-patw02", false);
+    	SingleDataSetInstanceAcquirer gridDataAcquirer = new SingleDataSetInstanceAcquirer(grid, instanceDate, this.getDataPath(), this.getSchemaPath(), this.getCountPath(), 
+                this.dataSetName, false);
         gridDataAcquirer.startAcquisition();    
         acquisitions.add(gridDataAcquirer);
     }
@@ -99,7 +101,8 @@ public class SwitchoverTest extends TestSession {
     }
     
     private String createDataSetXml(SwitchoverSource source1, SwitchoverSource source2) {
-        String dataSetXml = this.console.createDataSetXmlFromConfig(this.dataSetName, this.dataSetConfigBase + "SwitchoverDataSet.xml");
+    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/SwitchoverDataSet.xml");
+        String dataSetXml = this.console.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
         dataSetXml = dataSetXml.replaceAll("SOURCE1_NAME", source1.sourceName);
         dataSetXml = dataSetXml.replaceAll("SOURCE2_NAME", source2.sourceName);
         if (source1.dateStart != null) {
@@ -205,3 +208,4 @@ public class SwitchoverTest extends TestSession {
         assertEquals("ResponseMessage.", "Operation on " + dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
     }
 }
+

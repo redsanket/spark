@@ -6,8 +6,6 @@ import hadooptest.TestSession;
 
 public class SingleDataSetInstanceAcquirer {
     private ConsoleHandle console;
-    private static final String dataSetConfigBase = Util.getResourceFullPath("gdm/datasetconfigs") + "/";
-    private static final String dataSourceConfigBase = Util.getResourceFullPath("gdm/datasourceconfigs") + "/";
     private String feedSubmisionTime;
     private String targetGrid;
     private String date;
@@ -48,7 +46,8 @@ public class SingleDataSetInstanceAcquirer {
         createFDIServer();
     
         TestSession.logger.info("Creating dataSet " + dataSetName + " to acquire a single dataSet instance");
-        String dataSetXml = this.console.createDataSetXmlFromConfig(dataSetName, dataSetConfigBase + "FDI_1_Target.xml");
+        String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/FDI_1_Target.xml");
+        String dataSetXml = this.console.createDataSetXmlFromConfig(dataSetName, dataSetConfigFile);
         dataSetXml = dataSetXml.replaceAll("GRID_TARGET", targetGrid);
         dataSetXml = dataSetXml.replaceAll("START_DATE", date);
         dataSetXml = dataSetXml.replaceAll("END_DATE", date);
@@ -82,7 +81,8 @@ public class SingleDataSetInstanceAcquirer {
         String dataSource = this.console.getDataSourcetXml(fdiServerName);
         if (dataSource == null) {
             TestSession.logger.info(fdiServerName + " dataSource does not exist, creating");
-            String xmlFileContent = GdmUtils.readFile(dataSourceConfigBase + "FDI_Server_Template.xml");
+            String dataSourceConfigFile = Util.getResourceFullPath("gdm/datasourceconfigs/FDI_DataSource_Template.xml");
+            String xmlFileContent = GdmUtils.readFile(dataSourceConfigFile);
             xmlFileContent = xmlFileContent.replace("FDI_SERVER_NAME", fdiServerName);
             xmlFileContent = xmlFileContent.replace("GDM_CONSOLE_NAME", TestSession.conf.getProperty("GDM_CONSOLE_NAME"));
             boolean created = this.console.createDataSource(xmlFileContent);
