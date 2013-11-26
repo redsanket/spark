@@ -24,6 +24,7 @@ $opts{gw_dest_dir} = "/home/y/var/grid_re/builds/workspace";
 GetOptions(
     "cluster=s" => \$opts{cluster},
     "cmd=s" => \$opts{cmd},
+	"admin_host=s" => \$opts{admin_host},
 );
 
 # Get cluster value from environment variable if it's not defined as
@@ -74,7 +75,7 @@ exec_cmd("ssh $gw_hostname \"cd $opts{gw_dest_dir}/$opts{workspace} && tar xvfz 
 exec_cmd("ssh $gw_hostname \"cd $opts{gw_dest_dir}/$opts{workspace} && mv qa_svn_code/* . \"");
 
 # kick off test suite from GW host
-$opts{cmd} = "env TESTSUITEFILE=$ENV{TESTSUITEFILE} EMAIL_USER=$ENV{EMAIL_USER} CLUSTER=$opts{cluster} WORKSPACE=$opts{gw_dest_dir}/$opts{workspace} " . $opts{cmd};
+$opts{cmd} = "env TESTSUITEFILE=$ENV{TESTSUITEFILE} EMAIL_USER=$ENV{EMAIL_USER} CLUSTER=$opts{cluster} ADMIN_HOST=$opts{admin_host} WORKSPACE=$opts{gw_dest_dir}/$opts{workspace} " . $opts{cmd};
 exec_cmd("ssh $gw_hostname \"cd $opts{gw_dest_dir}/$opts{workspace} && $opts{cmd} \"");
 
 # copy the test results file back to hudson slave

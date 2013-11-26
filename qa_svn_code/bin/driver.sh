@@ -82,6 +82,7 @@ if [ "X${CLUSTER}X" == "XX" -o "X${TESTSUITEFILE}X" == "XX" -o "X${WORKSPACE}X" 
     SINGLETESTSUITE=""
     NOSTOPSTART=""
     EMAIL_USER=""
+	ADMIN_HOST=""
 
     if [ $ARGC -lt 6 ];then
         echo "ERROR : The number of arguments to the script is less than 6 !!"
@@ -123,6 +124,8 @@ if [ "X${CLUSTER}X" == "XX" -o "X${TESTSUITEFILE}X" == "XX" -o "X${WORKSPACE}X" 
                 ;;
             h)  usage
                 ;;
+			r)  ADMIN_HOST=$OPTARG
+				;;
             *)  usage;;
         esac
     done
@@ -167,6 +170,8 @@ else
     echo "ERROR : The Workspace \"$WORKSPACE\" does not exists !!"
     usage
 fi
+if [ -d $ADMIN_HOST ]; then
+	echo "The admin host is: \"$ADMIN_HOST\" "
 if [ "X$TESTSUITEFILE" == "X" -a "X$SINGLETESTSUITE" == "X" ];then
     echo "ERROR : Use -s to execute single test suite or -t to execute list of testcases"
     usage

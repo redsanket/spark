@@ -13,6 +13,7 @@ sub new {
     # It can be exported in the shell environment, passed in via the
     # command line, or via the Hudson configuration.
     $self->{CLUSTER}        = $ENV{'CLUSTER'}   || die('ERROR: Config $CLUSTER not defined');
+	$self->{ADM}			= $ENV{'ADMIN_HOST'};
 
     # Validate or defined HADOOP_QA_ROOT.
     $self->{HADOOP_QA_ROOT} = $ENV{'HADOOP_QA_ROOT'};
@@ -122,8 +123,14 @@ sub new {
         }
     }
 
-    $self->{ADMIN_HOST} =
-        [ ( 'adm103.blue.ygrid.yahoo.com', 'adm102.blue.ygrid.yahoo.com' ) ];
+	if ( -d $self->{ADM}){
+		$self->{ADMIN_HOST} =
+			[ ( $self->{ADM} ) ]
+	}
+	else {
+    	$self->{ADMIN_HOST} =
+        	[ ( 'adm103.blue.ygrid.yahoo.com', 'adm102.blue.ygrid.yahoo.com' ) ];
+	}
 
     $self->{RESOURCEMANAGER_NAME} =
         ($self->{YARN_USED}) ? 'RESOURCEMANAGER' : 'JOBTRACKER';
