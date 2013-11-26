@@ -172,6 +172,7 @@ else
 fi
 if [ -d $ADMIN_HOST ]; then
 	echo "The admin host is: \"$ADMIN_HOST\" "
+fi
 if [ "X$TESTSUITEFILE" == "X" -a "X$SINGLETESTSUITE" == "X" ];then
     echo "ERROR : Use -s to execute single test suite or -t to execute list of testcases"
     usage

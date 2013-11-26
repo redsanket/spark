@@ -125,7 +125,7 @@ sub new {
 
 	if ( -d $self->{ADM}){
 		$self->{ADMIN_HOST} =
-			[ ( $self->{ADM} ) ]
+			[ ( $self->{ADM} ) ];
 	}
 	else {
     	$self->{ADMIN_HOST} =
