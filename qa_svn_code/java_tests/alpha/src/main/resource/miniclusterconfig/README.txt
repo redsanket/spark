@@ -1,0 +1,1 @@
+This folder has configuration files for minicluster. This folder must not be included in the test classpath.

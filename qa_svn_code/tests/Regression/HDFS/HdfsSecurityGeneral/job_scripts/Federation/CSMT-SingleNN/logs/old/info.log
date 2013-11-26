@@ -1,0 +1,11 @@
+hadoopqa
+Thu Dec  9 03:32:35 UTC 2010
+Ticket cache: FILE:/tmp/krb5cc_31315
+Default principal: hadoopqa@DEV.YGRID.YAHOO.COM
+
+Valid starting     Expires            Service principal
+12/09/10 02:09:53  12/10/10 02:09:53  krbtgt/DEV.YGRID.YAHOO.COM@DEV.YGRID.YAHOO.COM
+	renew until 12/16/10 02:09:53
+
+
+Kerberos 4 ticket cache: /tmp/tkt31315

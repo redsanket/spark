@@ -1,0 +1,30 @@
+#!/bin/bash
+
+QUEUE1=unfunded
+QUEUE2=UDA
+
+# run generic wordcounts across two queues, alternate each submission between 10 and 100 input files
+echo "Start the run..."
+
+while [ 1 ]; do
+  # 10 input files, use QUEUE1 
+  hadoop  jar ARtest.jar ARtest 10 $QUEUE1
+  sleep 1
+
+  # 100 input files, use QUEUE1
+  hadoop  jar ARtest.jar ARtest 100 $QUEUE1
+  sleep 1
+
+  # 10 input files, use QUEUE2 
+  hadoop  jar ARtest.jar ARtest 10 $QUEUE2
+  sleep 1
+
+  # 100 input files, use QUEUE2 
+  hadoop  jar ARtest.jar ARtest 100 $QUEUE2
+  sleep 1
+
+  # delay 10 minutes
+  echo "Submitted 4 jobs, 2 to $QUEUE1 and 2 to $QUEUE2 queues"
+  sleep 600
+done
+

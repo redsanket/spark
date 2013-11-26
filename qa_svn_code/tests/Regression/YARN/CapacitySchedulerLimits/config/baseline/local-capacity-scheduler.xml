@@ -1,0 +1,258 @@
+<?xml version="1.0"?>
+
+<!-- local-capacity-scheduler.xml -->
+<configuration>
+
+  <property>
+    <name>yarn.scheduler.minimum-allocation-mb</name>
+    <value>1024</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+    <value>0.1</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.maximum-applications</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.maximum-capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.queues</name>
+    <value>a,b,default</value>
+  </property>
+
+<!-- queue default -->
+
+  <property>
+    <name>yarn.scheduler.capacity.root.default.capacity</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.default.maximum-capacity</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.default.user-limit-factor</name>
+    <value>1</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.default.minimum-user-limit-percent</name>
+    <value>50</value>
+  </property>
+
+<!-- queue a -->
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.queues</name>
+     <value>a1,a2</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.capacity</name>
+     <value>50</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.maximum-capacity</name>
+     <value>80</value>
+   </property>
+
+<!-- queue b -->
+
+   <property>
+     <name>yarn.scheduler.capacity.root.b.capacity</name>
+     <value>30</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.b.maximum-capacity</name>
+     <value>100</value>
+   </property>
+
+<!-- queue a1 -->
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a1.capacity</name>
+     <value>40</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a1.maximum-capacity</name>
+     <value>100</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a1.minimum-user-limit-percent</name>
+     <value>40</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a1.user-limit-factor</name>
+     <value>50</value>
+   </property>
+
+<!-- queue a2 -->
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a2.capacity</name>
+     <value>60</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a2.maximum-capacity</name>
+     <value>50</value>
+   </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.a2.minimum-user-limit-percent</name>
+    <value>50</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.a2.user-limit-factor</name>
+    <value>1</value>
+  </property>
+
+
+
+
+<!-- obselete properties -->
+
+  <property>
+    <name>yarn.scheduler.capacity.root.maximum-system-jobs</name>
+    <value>14</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.default.maximum-system-jobs</name>
+    <value>10</value>
+  </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.b.maximum-system-jobs</name>
+     <value>10</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a1.maximum-system-jobs</name>
+     <value>10</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a2.maximum-system-jobs</name>
+     <value>10</value>
+   </property>
+
+   <property>
+     <name>yarn.scheduler.capacity.root.a.maximum-system-jobs</name>
+     <value>10</value>
+   </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.maximum-initialized-active-tasks-per-user</name>
+    <value>10</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.a.maximum-initialized-active-tasks-per-user</name>
+    <value>10</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.a.a1.maximum-initialized-active-tasks-per-user</name>
+    <value>10</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.a.a1.maximum-initialized-active-tasks</name>
+    <value>20</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.a.a2.maximum-initialized-active-tasks-per-user</name>
+    <value>10</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.b.maximum-initialized-active-tasks-per-user</name>
+    <value>10</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.default.maximum-initialized-active-tasks-per-user</name>
+    <value>10</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.maximum-initialized-active-tasks</name>
+    <value>20</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.a.maximum-initialized-active-tasks</name>
+    <value>20</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.a.a2.maximum-initialized-active-tasks</name>
+    <value>20</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.b.maximum-initialized-active-tasks</name>
+    <value>20</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.root.default.maximum-initialized-active-tasks</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.init-accept-jobs-factor</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.init-accept-jobs-factor</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.a1.init-accept-jobs-factor</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.a2.init-accept-jobs-factor</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.b.init-accept-jobs-factor</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.default.init-accept-jobs-factor</name>
+    <value>10</value>
+  </property>
+
+
+</configuration>
+

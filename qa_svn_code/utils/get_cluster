@@ -1,0 +1,215 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to fetch and display the cluster information
+
+# Usage: $Script [info type] [component] [-tail <lines>] [-grep <regex>]
+# [info type] : {config, nodes, status, log}
+# [component] : {namenode, secondarynamenode, jobtracker|resourcemanager, tasktracker|nodemanager, datanode}
+# [-tail <lines>] : tail n number of lines
+# [-grep <regex>] : grep pattern
+# 
+# Examples:
+# 
+# VIEW NODE INFO (e.g. host names, log locations, web ui pages, etc.)
+#   CLUSTER=boromir get_cluster
+#   CLUSTER=boromir get_cluster config
+#   CLUSTER=boromir get_cluster nodes 
+#   CLUSTER=boromir get_cluster nodes namenode
+#   CLUSTER=boromir get_cluster namenode
+# 
+# VIEW NODE STATUS (view if nodes are up or down)
+#   CLUSTER=boromir get_cluster status
+#   CLUSTER=boromir get_cluster status namenode
+#   CLUSTER=boromir get_cluster status namenode <host name>
+# 
+# VIEW & GREOP LOG FILES:
+#   CLUSTER=boromir get_cluster log
+#   CLUSTER=boromir get_cluster log -tail 10
+#   CLUSTER=boromir get_cluster log -grep 'owned by'
+#   CLUSTER=boromir get_cluster log namenode
+#   CLUSTER=boromir get_cluster log namenode -tail 10
+#   CLUSTER=boromir get_cluster log namenode -grep 'owned by'
+
+# Alternatively:
+# Usage: $Script
+#    [-type|t      <info type>       ] : E.g. nodes, log, status, etc.
+#    [-component|c <component name>  ] : E.g. jobtracker, namenode, etc.
+#    [-tail        <number of lines> ] : last number of lines
+#    [-grep        <pattern>         ] : grep pattern
+#    [-help|h|?                      ] : Display usage
+#
+# Examples:
+#   CLUSTER=boromir get_cluster -type nodes
+#   CLUSTER=boromir get_cluster -type nodes -component namenode
+#   CLUSTER=boromir get_cluster -type status
+#   CLUSTER=boromir get_cluster -type status -component datanode
+#   CLUSTER=boromir get_cluster -type log
+#   CLUSTER=boromir get_cluster -type log -component datanode
+#   CLUSTER=boromir get_cluster -type log -component datanode -tail 10
+#   CLUSTER=boromir get_cluster -type log -tail 5
+#   CLUSTER=theoden get_cluster -type log -component tasktracker -grep 'owned by'
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use base qw(Hadoop::Test);
+use Getopt::Long;
+use Test::More;
+
+my %options = ();
+my $type="";
+my $component="";
+my $component_host="";
+my $tail=0;
+my $grep="";
+my $verbose=0;
+my $result  = 
+    GetOptions ( \%options,
+                 "type|t=s"      => \$type,
+                 "component|c=s" => \$component,
+                 "tail=s"        => \$tail,
+                 "grep=s"        => \$grep,
+                 "verbose"       => \$verbose,
+                 "help|h|?");
+ 
+usage(1) if (!$result);
+usage(0) if $options{help};
+
+if (@ARGV) {
+    if ($ARGV[0] eq 'config') {
+        $type = 'config'
+    }
+    elsif ($ARGV[0]) {
+        my $arg=$ARGV[0];
+        if (($arg eq 'nodes') || ($arg eq 'status') || ($arg eq 'log')) {
+            $type = $arg;
+            $component = $ARGV[1] if ($ARGV[1]);
+            $component_host = $ARGV[2] if ($ARGV[2]);
+        }
+        else {
+            $type = 'nodes';
+            $component = $arg;
+        }
+    }
+}
+
+sub usage
+{
+    my($exit_code) = @_;
+    print STDERR << "EOF";
+
+Usage: $Script [info type] [component] [-tail <lines>] [-grep <regex>]
+[info type] : {config, nodes, status, log}
+[component] : {namenode, secondarynamenode, jobtracker|resourcemanager, tasktracker|nodemanager, datanode}
+[-tail <lines>] : tail n number of lines
+[-grep <regex>] : grep pattern
+
+Examples:
+
+VIEW NODE INFO (e.g. host names, log locations, web ui pages, etc.)
+  CLUSTER=boromir get_cluster
+  CLUSTER=boromir get_cluster config
+  CLUSTER=boromir get_cluster nodes 
+  CLUSTER=boromir get_cluster nodes namenode
+  CLUSTER=boromir get_cluster namenode
+  CLUSTER=boromir get_cluster namenode -verbose
+
+VIEW NODE STATUS (view if nodes are up or down)
+  CLUSTER=boromir get_cluster status
+  CLUSTER=boromir get_cluster status namenode
+
+VIEW & GREOP LOG FILES:
+  CLUSTER=boromir get_cluster log
+  CLUSTER=boromir get_cluster log -tail 10
+  CLUSTER=boromir get_cluster log -grep 'owned by'
+  CLUSTER=boromir get_cluster log namenode
+  CLUSTER=boromir get_cluster log namenode -tail 10
+  CLUSTER=boromir get_cluster log namenode -grep 'owned by'
+
+EOF
+    exit $exit_code;
+}
+
+my $self = __PACKAGE__->new;
+my $Config = $self->config;
+
+unless ($type) {
+    note(explain($Config));
+}
+
+if ($type eq 'config') {
+    delete($Config->{NODES});
+    note(explain($Config));
+}
+
+$component = uc($component) if ($component);
+if (($type eq 'nodes') || ($type eq 'status')) {
+    my ($overall_status, $status);
+    if ($component) {
+        note("$component NODES=",explain($Config->{NODES}->{$component}));
+        if ($type eq 'status') {
+            ($overall_status, $status) =
+                $self->get_cluster_status([$component], $component_host,
+                                          $verbose);
+            note("status = ",explain($status->{$component}));
+        }
+    }
+    else {
+        note("NODES=",explain($Config->{NODES}));
+        if ($type eq 'status') {
+            ($overall_status, $status) = $self->get_cluster_status();
+            note("status = ",explain($status));
+        }
+    }
+    if ($status) {
+        note("overall status is $overall_status or ",
+             ($overall_status == 1) ? "up" : "down");
+    }
+}
+
+my @command;
+if ($type eq 'log') {
+    if ($component) {
+        check_component_log_dir($component, $tail, $grep);
+    }
+    else {
+        foreach my $comp (sort(keys %{$Config->{NODES}})) {
+            note("--> COMPONENT='$comp'");
+            check_component_log_dir($comp, $tail, $grep);
+        }
+    }
+}
+    
+sub check_component_log_dir {
+    my ($comp, $tail) = @_;
+
+    my $cmd;
+    if ($tail) {
+        $cmd = "tail -$tail";
+    }
+    elsif ($grep) {
+        $cmd = "grep '\"$grep\"'";
+    }
+    else {
+        $cmd = "ls -l";
+    }
+    # my $cmd = ($tail) ? "tail -$tail" : "ls -l";
+
+    if (ref($Config->{NODES}->{$comp}->{HOST}) eq 'ARRAY') {
+        my $index=0;
+        foreach my $host (@{$Config->{NODES}->{$comp}->{HOST}}) {
+            @command = ("ssh $host $cmd $Config->{NODES}->{$comp}->{LOG}[$index]");
+            note(@command);
+            system(@command);
+            $index++;
+        }
+    }
+    else {
+        @command = ("ssh $Config->{NODES}->{$comp}->{HOST} $cmd $Config->{NODES}->{$comp}->{LOG}");
+        note(@command);
+        system(@command);
+    }
+    
+}

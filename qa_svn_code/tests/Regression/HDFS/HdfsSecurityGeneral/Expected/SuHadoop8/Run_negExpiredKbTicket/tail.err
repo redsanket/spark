@@ -1,0 +1,2 @@
+10/00/00 00:00:00  WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl00000.blue.ygrid.yahoo.com/00.000.00.000:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]

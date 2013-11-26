@@ -1,0 +1,115 @@
+#!/usr/local/bin/perl 
+
+#
+# Update test results to twiki. It can optionally download the twiki file to be
+# uploaded from a remote host, where it does not have access to the twiki server
+# (e.g. colo hosts). 
+#
+# NOTE: This script requires the following yinst packages to be installed:
+# 1) ysecure, ytwiki_cmdline
+# 2) autotest_keydb (in order to access Twiki via headless user/password)   
+#
+# E.g:
+# /homes/hadoopqa/svn/HadoopQEAutomation/branch-20/utils/update_twiki -file <filename>
+# /homes/hadoopqa/svn/HadoopQEAutomation/branch-20/utils/update_twiki -remote_host gwbl2005.blue.ygrid.yahoo.com -file /grid/0/tmp/twiki_hadoop_20.out -twiki_name Hadoop_0_20_205_TestResults
+# /homes/hadoopqa/svn/HadoopQEAutomation/branch-23/utils/update_twiki -remote_host gwbl2005.blue.ygrid.yahoo.com -file /grid/0/tmp/twiki_hadoop_23.out -twiki_name Hadoop_0_23_TestResults
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use FindBin qw($Bin $Script);
+use File::Basename;
+
+sub usage
+{
+    my ($exit_code) = @_;
+
+    print STDERR << "EOF";
+
+Usage: 
+
+$Script
+   -files|f <file to upload> 
+   [-remote_host <remote hostname>]             : where the twiki is located
+   [-twiki_name <twiki name>]                   : twiki name
+   [-twiki_parent_topic <twiki parent topic> ]  : twiki parent topic name
+   [-verbose|v]
+   [-help|h|?]
+
+  NOTE: This script requires the package 'autotest_keydb' to be installed 
+        in order to access Twiki via headless user/password.
+
+EOF
+    exit $exit_code;
+}
+
+my $file;
+my $remote_host;
+my $twiki_parent_topic = 'Hadoop';
+my $twiki_name         = 'Hadoop_0_20_205_TestResults';
+use Getopt::Long;
+my %options=();
+GetOptions(\%options, 
+           "remote_host=s"        => \$remote_host,
+           "file=s"               => \$file,
+           "twiki_name=s"         => \$twiki_name,
+           "twiki_parent_topic=s" => \$twiki_parent_topic,
+           "verbose|v",
+           "help|h|?",
+           ) or usage(1);
+
+usage(0) if ($options{help}); 
+
+# Setup Authentication
+use ysecure;
+my ($result, $twiki_user, $twiki_key, $twiki_pass, $key);
+$twiki_user = "sds_autotest";
+$twiki_key  = "sds_autotest.dbpw";
+$result     = ycrKeyDbInit() and die "Initializing keydb failed: $result\n";
+$key        = ycrGetKey ($twiki_key);
+$twiki_pass = $key->value();
+$result     = ycrKeyDbDestroy(); # and die "Teardown of keydb failed: $result\n"; 
+
+# Check if we need to first download the file from a remote host
+my @command;
+if ($remote_host) {
+    my $remote_file = $file;
+    $file = (-f $file) ? $file : "/tmp/".basename($file);
+    print("---> Remote copy from '$remote_host:$remote_file' to 'localhost:$file':\n");
+    @command = ( '/usr/bin/scp',
+                 '-i',
+                 '/homes/hadoopqa/.ssh/id_dsa',
+                 "$remote_host:$remote_file",
+                 $file );
+    print("@command\n");
+    system(@command);
+}
+
+# Upload the file to twiki
+my $user               = getpwuid($<);
+my $output_dir         = "/tmp/update_twiki.$user";
+mkdir("$output_dir") unless (-d "$output_dir");
+my $outfile            = "$output_dir/$twiki_name";
+
+@command = ('cp', $file, $outfile);
+print("@command\n");
+system(@command);
+
+my $YTWIKI="/home/y/bin/ytwiki";
+mkdir($twiki_parent_topic) unless (-d $twiki_parent_topic);
+$twiki_name = "$twiki_parent_topic/$twiki_name";
+print "Writing twiki '$twiki_name' from file '$outfile'.\n";
+
+print "$YTWIKI -u $twiki_user -p xxxxx edit -f $twiki_name\n";
+system ("$YTWIKI -u $twiki_user -p $twiki_pass edit -f $twiki_name");
+
+print ("cp $outfile $twiki_name\n");
+system ("cp $outfile $twiki_name");
+
+print "$YTWIKI -u $twiki_user -p xxxxx save $twiki_name\n";
+system ("$YTWIKI -u $twiki_user -p $twiki_pass save $twiki_name");
+
+exit 0;
+
+

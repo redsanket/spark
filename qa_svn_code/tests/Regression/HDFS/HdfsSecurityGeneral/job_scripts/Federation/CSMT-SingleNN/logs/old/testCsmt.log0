@@ -1,0 +1,127 @@
+CSMT test basic set up: 
+/nn2 as a directory, directory should not exist before the test
+/nn2 is mounted to /tmp/nn2. There is a file /tmp/nn2/file1
+/nn3 is mounted to /tmp/nn3.
+hdfs dfs -conf my-core-site.xml -ls viewfs:/nn2/file1 will work
+hdfs dfs -conf my-core-site.xml -lsr viewfs:/nn2 does not list file1. Not sure if it is a bug or not 
+my-core-site.xml need to change the fs.default, and add fs.viewfs.mountable
+test begin.... 
++ hdfs dfs -ls /
+Found 7 items
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-03 02:35 /data
+drwxr-xr-x   - hdfsqa hadoop          0 2010-12-03 02:35 /mapred
+drwxr-xr-x   - hdfsqa hadoop          0 2010-12-03 02:35 /mapredsystem
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-09 03:43 /nn1
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-09 19:35 /tmp
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-08 00:46 /user
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-09 03:42 /user1
++ hdfs dfs -ls /tmp
+Found 14 items
+drwxr-xr-x   - hadoopqa hdfs            0 2010-12-06 19:42 /tmp/AA
+drwxr-xr-x   - hadoopqa hadoop          0 2010-12-07 00:49 /tmp/AAA
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-08 00:09 /tmp/AAAA
+drwxr-xr-x   - hadoopqa users           0 2010-12-08 00:11 /tmp/AAABB
+drwxr-xr-x   - hdfsqa   hdfs            0 2010-12-06 23:14 /tmp/PermTest2
+drwxrwxr--   - hadoopqa hdfs            0 2010-12-09 01:47 /tmp/PermTest_Copy
+drwxr-xr-x   - hdfsqa   hdfs            0 2010-12-09 19:35 /tmp/SSS
+drwxrwxrwx   - hdfsqa   hdfs            0 2010-12-09 01:47 /tmp/_distcp_logs_589pg0
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-06 23:32 /tmp/aaa
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-06 23:39 /tmp/aaaaa
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-07 00:28 /tmp/abcd
+-rw-rw-r--   3 hadoopqa hdfs            0 2010-12-07 00:13 /tmp/haaaa
+-rw-rw-r--   3 hadoopqa hdfs         6525 2010-12-07 00:15 /tmp/habbb
+drwxrwxrwx   - hadoopqa hdfs            0 2010-12-09 04:17 /tmp/nn2
++ hdfs dfs -ls /tmp/nn2
+Found 1 items
+-rw-r--r--   3 hadoopqa hdfs          0 2010-12-09 04:17 /tmp/nn2/file1
++ echo '##############################################'
+##############################################
++ echo 'using default or hdfs: scheme'
+using default or hdfs: scheme
++ hdfs dfs -conf my-core-site.xml -ls /
+Found 7 items
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-03 02:35 /data
+drwxr-xr-x   - hdfsqa hadoop          0 2010-12-03 02:35 /mapred
+drwxr-xr-x   - hdfsqa hadoop          0 2010-12-03 02:35 /mapredsystem
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-09 03:43 /nn1
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-09 19:35 /tmp
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-08 00:46 /user
+drwxrwxrwx   - hdfsqa hdfs            0 2010-12-09 03:42 /user1
++ hdfs dfs -conf my-core-site.xml -ls /tmp/nn2
+Found 1 items
+-rw-r--r--   3 hadoopqa hdfs          0 2010-12-09 04:17 /tmp/nn2/file1
++ hdfs dfs -conf my-core-site.xml -ls hdfs:///tmp
+Found 14 items
+drwxr-xr-x   - hadoopqa hdfs            0 2010-12-06 19:42 /tmp/AA
+drwxr-xr-x   - hadoopqa hadoop          0 2010-12-07 00:49 /tmp/AAA
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-08 00:09 /tmp/AAAA
+drwxr-xr-x   - hadoopqa users           0 2010-12-08 00:11 /tmp/AAABB
+drwxr-xr-x   - hdfsqa   hdfs            0 2010-12-06 23:14 /tmp/PermTest2
+drwxrwxr--   - hadoopqa hdfs            0 2010-12-09 01:47 /tmp/PermTest_Copy
+drwxr-xr-x   - hdfsqa   hdfs            0 2010-12-09 19:35 /tmp/SSS
+drwxrwxrwx   - hdfsqa   hdfs            0 2010-12-09 01:47 /tmp/_distcp_logs_589pg0
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-06 23:32 /tmp/aaa
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-06 23:39 /tmp/aaaaa
+-rw-r--r--   3 hadoopqa hdfs            0 2010-12-07 00:28 /tmp/abcd
+-rw-rw-r--   3 hadoopqa hdfs            0 2010-12-07 00:13 /tmp/haaaa
+-rw-rw-r--   3 hadoopqa hdfs         6525 2010-12-07 00:15 /tmp/habbb
+drwxrwxrwx   - hadoopqa hdfs            0 2010-12-09 04:17 /tmp/nn2
++ hdfs dfs -conf my-core-site.xml -ls hdfs:/nn2
+ls: Cannot access hdfs:/nn2: No such file or directory.
++ echo '##############################################'
+##############################################
++ echo '##############################################'
+##############################################
++ echo 'using default or viewfs: scheme'
+using default or viewfs: scheme
++ echo '############################################## : viewfs:/'
+############################################## : viewfs:/
++ hdfs dfs -conf my-core-site.xml -ls viewfs:/
+Found 1 items
+-r--r--r--   0 hadoopqa@DEV.YGRID.YAHOO.COM users          0 2010-12-09 21:32 /
++ echo '############################################## : viewfs:/nn2'
+############################################## : viewfs:/nn2
++ hdfs dfs -conf my-core-site.xml -ls viewfs:/nn2
+Found 1 items
+-rwxrwxrwx   0 hadoopqa hdfs          0 2010-12-09 04:17 /nn2
++ echo '############################################## : viewfs:/nn2/file1'
+############################################## : viewfs:/nn2/file1
++ hdfs dfs -conf my-core-site.xml -ls viewfs:/nn2/file1
+Found 1 items
+-rw-r--r--   3 hadoopqa hdfs          0 2010-12-09 04:17 /nn2/file1
++ echo '############################################## : viewfs:/nn2/'
+############################################## : viewfs:/nn2/
++ hdfs dfs -conf my-core-site.xml -lsr viewfs:/nn2/
+-rwxrwxrwx   0 hadoopqa hdfs          0 2010-12-09 04:17 /nn2
++ echo '##############################################: Not OK - viewfs:/nn2 '
+##############################################: Not OK - viewfs:/nn2 
++ hdfs dfs -conf my-core-site.xml -lsr viewfs:/nn2
+-rwxrwxrwx   0 hadoopqa hdfs          0 2010-12-09 04:17 /nn2
++ echo '##############################################: OK - viewfs:/nn2/file1'
+##############################################: OK - viewfs:/nn2/file1
++ hdfs dfs -conf my-core-site.xml -lsr viewfs:/nn2/file1
+-rw-r--r--   3 hadoopqa hdfs          0 2010-12-09 04:17 /nn2/file1
++ echo '##############################################: OK - viewfs:///nn2/file1 #####'
+##############################################: OK - viewfs:///nn2/file1 #####
++ hdfs dfs -conf my-core-site.xml -lsr viewfs:///nn2/file1
+-rw-r--r--   3 hadoopqa hdfs          0 2010-12-09 04:17 /nn2/file1
++ sed -n 25,48p my-core-site.xml
+    <description>The File System for viewfs:uris </description>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./nn2</name>
+    <value>hdfs://gsbl90772.blue.ygrid/tmp/nn2</value>
+  </property>
+
+  <property>
+    <name>fs.trash.interval</name>
+    <value>360</value>
+    <description>Number of minutes between trash checkpoints.
+  If zero, the trash feature is disabled.
+  </description>
+  </property>
+
+
+</configuration>
++ exit

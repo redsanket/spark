@@ -1,0 +1,63 @@
+#!/usr/local/bin/perl
+
+#
+# Backup and rotate the Hudson job artifacts directories.
+#
+
+use strict;
+use warnings;
+use File::Basename;
+use File::Path;
+use File::Rotate::Backup;
+
+# Requires:
+# yinst i ypan/perl-File-Rotate-Backup
+
+# ARTIFACT directory name is set in Hudson job configuration. The root directory
+# needs to contain all component level artifiacts directories. This is required
+# to aggregate test results at the end of each test cycle.
+# E.g. ARTIFACTS=
+# /homes/hadoopqa/hudson_artifacts/hudson_artifacts-0.23/artifacts-scanmus
+# /home/y/var/builds/workspace/NightlyHadoopQEAutomation-23/artifacts-scanmus
+# E.g. ARTIFACTS_ROOT_DIR=
+# /homes/hadoopqa/hudson_artifacts/hudson_artifacts-0.23
+# /homes/hadoopqa/hudson_artifacts/hudson_artifacts-1.0
+# /homes/hadoopqa/hudson_artifacts/hudson_artifacts-2.0
+# /home/y/var/builds/workspace/NightlyHadoopQEAutomation-23
+
+my $DEF_ARTIFACTS =
+    '/homes/hadoopqa/hudson_artifacts/hudson_artifacts-1.0/artifacts';
+my $ARTIFACTS = $ARGV[0] || $DEF_ARTIFACTS;
+# remove trailing "/"
+$ARTIFACTS =~ s/\/$//g;
+my $ARTIFACTS_ROOT_DIR = dirname($ARTIFACTS);
+my $ROOT_DIR_BASENAME = basename($ARTIFACTS_ROOT_DIR);
+my $BASENAME=basename($ARTIFACTS);
+
+# my $BACKUP_ROOT_DIR="/tmp/hudson_artifacts";
+my $BACKUP_ROOT_DIR="/homes/hadoopqa/hudson_artifacts/archives";
+my $BACKUP_DIR="$BACKUP_ROOT_DIR/$ROOT_DIR_BASENAME/$BASENAME";
+mkpath $BACKUP_DIR unless(-d $BACKUP_DIR);
+
+print("backup $ARTIFACTS\n");
+print("backup dir = $BACKUP_DIR\n");
+
+my $NUM_COPIES = $ARGV[1] || 5;
+print("Keep $NUM_COPIES copies of the artifacts directory:");
+
+# "$params->{backup_dir}"/"$params->{file_prefix}"/"$BASENAME"
+my $params = { no_archive => 'true',
+               dir_copies => $NUM_COPIES,
+               backup_dir => $BACKUP_DIR,
+               file_prefix => "$BASENAME".'_',
+               verbose => 0,
+               use_flock => 1,
+           };
+my $backup = File::Rotate::Backup->new($params);
+
+$backup->backup([ [ "$ARTIFACTS" => "$BASENAME" ],
+                  ]);
+$backup->rotate;
+
+print("ls -l $BACKUP_DIR\n");
+system("ls -l $BACKUP_DIR");

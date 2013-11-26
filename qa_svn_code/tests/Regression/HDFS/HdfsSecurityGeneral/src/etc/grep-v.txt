@@ -1,0 +1,4 @@
+WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+DEPRECATED: Use of this script to execute hdfs command is deprecated.
+Instead use the hdfs command for it.
+WARNING: org.apache.hadoop.metrics.jvm.EventCounter is deprecated. Please use org.apache.hadoop.log.metrics.EventCounter in all the log4j.properties files.

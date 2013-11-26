@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="/grid/0/gs/conf/local/local-superuser-conf.xml"/>
+
+<!-- i/o properties -->
+
+  <property>
+    <name>io.file.buffer.size</name>
+    <value>131072</value>
+    <description>The size of buffer for use in sequence files.
+  The size of this buffer should probably be a multiple of hardware
+  page size (4096 on Intel x86), and it determines how much data is
+  buffered during read and write operations.</description>
+  </property>
+
+  <property>
+    <name>io.serializations</name>
+    <value>org.apache.hadoop.io.serializer.WritableSerialization</value>
+  </property>
+
+<!-- file system properties -->
+  <property>
+    <name>fs.default.name</name>
+    <value>viewfs:///</value>
+    <description>The name of the default file system.  Either the
+  literal string "local" or a host:port for NDFS.</description>
+    <final>false</final>
+  </property>
+
+  <property>
+    <name>fs.viewfs.impl</name>
+    <value>org.apache.hadoop.fs.viewfs.ViewFileSystem</value>
+    <description>The File System for viewfs:uris </description>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./nn2</name>
+    <value>hdfs://gsbl90440.blue.ygrid/tmp/nn2.mt</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./nn3</name>
+    <value>hdfs://gsbl90470.blue.ygrid/tmp/nn3.mt</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./tmp</name>
+    <value>hdfs://gsbl90470.blue.ygrid/tmp/tmp.mt</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./user</name>
+    <value>hdfs://gsbl90470.blue.ygrid/user</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./jobtracker</name>
+    <value>hdfs://gsbl90470.blue.ygrid/jobtracker</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./mapred</name>
+    <value>hdfs://gsbl90470.blue.ygrid/mapred</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./mapredsystem</name>
+    <value>hdfs://gsbl90470.blue.ygrid/mapredsystem</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./data</name>
+    <value>hdfs://gsbl90470.blue.ygrid/tmp/data.mt</value>
+  </property>
+
+  <property>
+	<name>fs.viewfs.mounttable.qatest.link./nn4</name>
+	<value>hdfs://gsbl90470.blue.ygrid/tmp/nn4.mt</value>
+  </property>
+
+<!-- file system properties cwc -->
+  <property>
+    <name>fs.inmemory.size.mb</name>
+    <value>256</value>
+  </property>
+
+  <property>
+    <name>fs.trash.interval</name>
+    <value>360</value>
+    <description>Number of minutes between trash checkpoints.
+  If zero, the trash feature is disabled.
+  </description>
+  </property>
+
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>/grid/0/tmp/hadoop-${user.name}</value>
+    <description>A base for other temporary directories.</description>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>topology.script.file.name</name>
+    <value>/grid/0/gs/conf/current/topologyProgram</value>
+    <description> The script name that should be invoked to resolve DNS names to
+    NetworkTopology names. Example: the script would take host.foo.bar as an
+    argument, and return /rack1 as the output.
+  </description>
+  </property>
+
+  <property>
+    <name>fs.checkpoint.period</name>
+    <value>86400</value>
+    <description>The number of seconds between two periodic checkpoints.
+  </description>
+  </property>
+
+  <property>
+    <name>fs.checkpoint.size</name>
+    <value>2048000000</value>
+    <description>The size of the current edit log (in bytes) that triggers
+       a periodic checkpoint even if the fs.checkpoint.period hasn't expired.
+  </description>
+  </property>
+
+  <!-- ipc properties: copied from kryptonite configuration -->
+  <property>
+    <name>ipc.client.idlethreshold</name>
+    <value>8000</value>
+    <description>Defines the threshold number of connections after which
+               connections will be inspected for idleness.
+  </description>
+  </property>
+
+  <property>
+    <name>ipc.client.connection.maxidletime</name>
+    <value>30000</value>
+    <description>The maximum time after which a client will bring down the
+               connection to the server.
+  </description>
+  </property>
+
+  <property>
+    <name>ipc.client.connect.max.retries</name>
+    <value>50</value>
+    <description>Defines the maximum number of retries for IPC connections.</description>
+  </property>
+
+  <!-- Web Interface Configuration -->
+  <property>
+    <name>webinterface.private.actions</name>
+    <value>false</value>
+    <description> If set to true, the web interfaces of JT and NN may contain
+                actions, such as kill job, delete file, etc., that should
+                not be exposed to public. Enable this option if the interfaces
+                are only reachable by those who have the right authorization.
+  </description>
+  </property>
+
+  <property>
+    <name>io.compression.codecs</name>
+    <value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,com.hadoop.compression.lzo.LzoCodec,com.hadoop.compression.lzo.LzopCodec,org.apache.hadoop.io.compress.BZip2Codec</value>
+  </property>
+  
+  <property>
+    <name>io.compression.codec.lzo.class</name>
+    <value>com.hadoop.compression.lzo.LzoCodec</value>
+  </property>
+ <property>
+   <name>hadoop.security.authentication</name>
+   <value>kerberos</value>
+   <description>
+   Set the authentication for the cluster. Valid values are: simple or
+   kerberos.
+   </description>
+ </property>
+<property>
+  <name>hadoop.security.authorization</name>
+  <value>true</value>
+  <description>
+     Enable authorization for different protocols.
+  </description>
+</property>
+
+ <!--
+   The following two properties need be configurable for OPS.
+
+   Note that "byauth.values" is a comma-separated list, and the
+   list of properties there is then given immediately afterwards.
+   (So, if the list is 8 items, then there's 9 properties here.)
+ -->
+ <property>
+   <name>byauth.values</name>
+   <value>bouncer.cookie.domain</value>
+   <description>Backyard authentication config. Cluster invariant.</description>
+ </property>
+
+ <property>
+   <name>bouncer.cookie.domain</name>
+   <value>*.yahoo.com</value>
+   <description>Backyard authentication config. Cluster invariant.
+   </description>
+ </property>
+
+ <property>
+   <name>hadoop.http.filter.initializers</name>
+   <value>com.yahoo.hadoop.BouncerAuthFilterInitializer</value>
+<description>
+     The name of a class that initializes an input filter for Jetty. The class must implement org.apache.hadoop.http.FilterInitializer.
+     Cluster invariant.
+   </description>
+ </property>
+
+
+
+<!-- This controls the pages which should bypass byauth. Still under discussion
+ <property>
+   <name>byauth.bypass.paths</name>
+   <value></value>
+ </property>
+-->
+
+
+  <property>
+    <name>byauth.bypass.paths</name>
+    <value>/jobtracker,/machines,/jobqueue_details,/jobdetails,/tasktracker,/dfshealth,/dfsnodelist</value>
+    <description>command-separated list of pages to not auth via BYAuth</description>
+  </property>
+
+  <property>
+    <name>hadoop.security.auth_to_local</name>
+    <value>RULE:[2:$1@$0](.*@DS.CORP.YAHOO.COM)s/@.*//
+        RULE:[1:$1@$0](.*@DS.CORP.YAHOO.COM)s/@.*//
+        RULE:[2:$1@$0]([jt]t@.*DEV.YGRID.YAHOO.COM)s/.*/mapred/
+        RULE:[2:$1@$0]([nd]n@.*DEV.YGRID.YAHOO.COM)s/.*/hdfs/
+        RULE:[2:$1@$0](mapred@.*DEV.YGRID.YAHOO.COM)s/.*/mapred/
+        RULE:[2:$1@$0](hdfs@.*DEV.YGRID.YAHOO.COM)s/.*/hdfs/
+        RULE:[2:$1@$0](mapred@.*YGRID.YAHOO.COM)s/.*/mapred/
+        RULE:[2:$1@$0](hdfs@.*YGRID.YAHOO.COM)s/.*/hdfs/
+        DEFAULT</value>
+<description>The mapping from kerberos principal names to local OS user names.
+So the default rule is just "DEFAULT" which takes all principals in your default domain to their first component. "omalley@APACHE.ORG" and "omalley/admin@APACHE.ORG" to "omalley", if your default domain is APACHE.ORG.
+
+The translations rules have 3 sections:
+      base     filter    substitution
+
+The base consists of a number that represents the number of components in the principal name excluding the realm and the pattern for building the name from the sections of the principal name. The base uses $0 to mean the realm, $1 to mean the first component and $2 to mean the second component.
+
+[1:$1@$0] translates "omalley@APACHE.ORG" to "omalley@APACHE.ORG"
+[2:$1] translates "omalley/admin@APACHE.ORG" to "omalley"
+[2:$1%$2] translates "omalley/admin@APACHE.ORG" to "omalley%admin"
+
+The filter is a regex in parens that must the generated string for the rule to apply.
+
+"(.*%admin)" will take any string that ends in "%admin"
+"(.*@ACME.COM)" will take any string that ends in "@ACME.COM"
+
+Finally, the substitution is a sed rule to translate a regex into a fixed string.
+
+"s/@ACME\.COM//" removes the first instance of "@ACME.COM".
+"s/@[A-Z]*\.COM//" removes the first instance of "@" followed by a name followed by ".COM".
+"s/X/Y/g" replaces all of the "X" in the name with "Y"
+
+So, if your default realm was APACHE.ORG, but you also wanted to take all principals from ACME.COM that had a single component "joe@ACME.COM", you'd do:
+
+RULE:[1:$1@$0](.@ACME.ORG)s/@.//
+DEFAULT
+
+To also translate the names with a second component, you'd make the rules:
+
+RULE:[1:$1@$0](.@ACME.ORG)s/@.//
+RULE:[2:$1@$0](.@ACME.ORG)s/@.//
+DEFAULT
+
+If you want to treat all principals from APACHE.ORG with /admin as "admin", your rules would look like:
+
+RULE[2:$1%$2@$0](.%admin@APACHE.ORG)s/./admin/
+DEFAULT
+    </description>
+  </property>
+<property>
+  <name>topology.node.switch.mapping.impl</name>
+  <value>org.apache.hadoop.net.YahooDNSToSwitchMapping</value>
+  <description> The Yahoo implementation of the DNSToSwitchMapping. It
+    resolves node names. In case of unknown hosts or unresolvable ip address, the
+    default value of DEFAULT_RACK is returned for that node name.
+  </description>
+</property> 
+<property>
+  <name>hadoop.security.groups.cache.secs</name>
+  <value>14400</value>
+</property>
+
+
+</configuration>

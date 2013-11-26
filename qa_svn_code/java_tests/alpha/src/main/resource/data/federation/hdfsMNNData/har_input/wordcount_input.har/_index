@@ -1,0 +1,5 @@
+%2F dir 1296255263637+493+hadoopqa+hdfs 0 0 wordcount_input 
+%2Fwordcount_input%2FIndustrialDecisionMaking.txt file part-0 14363 94119 1296252912958+420+hadoopqa+hdfs 
+%2Fwordcount_input%2FBestManagementQuotationI.txt file part-0 0 14363 1296252912919+420+hadoopqa+hdfs 
+%2Fwordcount_input%2FSydneySheldonMasterOfTheGame.txt file part-0 108482 799284 1296252913013+420+hadoopqa+hdfs 
+%2Fwordcount_input dir 1296252912979+493+hadoopqa+hdfs 0 0 BestManagementQuotationI.txt IndustrialDecisionMaking.txt SydneySheldonMasterOfTheGame.txt 

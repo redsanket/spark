@@ -1,0 +1,137 @@
+## This file will consists of the Tests to be executed
+### It also includes the directories and config to be picked up
+### The values of each of the column can be single|comma separated list or *
+
+## Test Type | Component | Jobs | run_ Tests Scripts | Test Arguments | Test Timeout (min) | Keyword |
+
+### Benchmark TestSuites ( Part of Acceptance Tests)
+Benchmarks|YARN|DFSIO|run_DFSIO.sh||||
+Benchmarks|YARN|NNBench|run_NNBench.ss||||
+Benchmarks|YARN|Scan|run_Scan.sh||||
+Benchmarks|YARN|Shuffle|run_Shuffle.sh|||480||
+Benchmarks|YARN|SmallJobs|run_SmallJobs.sh||||
+Benchmarks|YARN|Sort|run_Sort.sh||240||
+Benchmarks|YARN|TeraSort|run_TeraSort.sh||||
+
+
+### EndToEnd TestSuites ( Part of Acceptance Tests)
+EndToEnd|YARN|Pipes|run_Pipes.sh||||
+EndToEnd|YARN|Compression|run_Compression.sh||||
+EndToEnd|YARN|Streaming|run_StreamingTests.sh||||
+
+# HDFS runtime as of 12/01/2012
+# ===============================
+# "balancer"                 Took=1h 11m 23s
+# "FedAppMNN"                Took=0h 58m 13s
+# "restoreCheckpointStorage" Took=0h 55m 3s
+# "ViewfsCSMT"               Took=0h 51m 8s
+# "delegationTokens"         Took=0h 48m 25s
+# "fsck"                     Took=0h 25m 26s
+# "metrics"                  Took=0h 23m 50s
+# "FileAppend"               Took=0h 21m 29s
+# "Trash"                    Took=0h 21m 16s
+# "adminReport"              Took=0h 18m 12s
+# "FedDfsMNN"                Took=0h 17m 27s
+# "FedAdminMNN"              Took=0h 16m 7s
+# "secondaryNamenode"        Took=0h 14m 42s
+# "quota"                    Took=0h 12m 45s
+# "archives"                 Took=0h 10m 2s
+# "HdfsSecurityGeneral"      Took=0h 7m 59s
+# "bugs"                     Took=0h 4m 53s
+# "printTopology"            Took=0h 0m 32s
+
+## HDFS TestsSuites
+Regression|HDFS|FileAppend|run_TestAppend.sh|||1|
+Regression|HDFS|quota|run_quota.sh|||1|
+Regression|HDFS|Trash|run_NewTrash.sh|||1|
+Regression|HDFS|delegationTokens|run_delegationTokens.sh|||1|  # require cluster with multiple namenodes
+Regression|HDFS|archives|run_archives.sh|||1|
+Regression|HDFS|balancer|run_balancer.sh|||1|
+Regression|HDFS|balancer|run_balancer.t|||1|
+Regression|HDFS|secondaryNamenode|run_secondaryNamenode.sh|||1| # require virtual host and keys to be setup on the test cluster
+Regression|HDFS|metrics|run_metric_FilesInGetListingOps.sh|||1| # require cluster with multiple namenodes 
+Regression|HDFS|fsck|run_fsck.sh|||1|
+Regression|HDFS|bugs|run_Release203_bugsTest.sh|||1|
+Regression|HDFS|bugs|run_Release22_bugsTest.sh|||1|
+Regression|HDFS|restoreCheckpointStorage|run_restoreCheckpointStorage.sh|||1|
+Regression|HDFS|Permission|run_permisssion.sh|||1|
+Regression|HDFS|FedDfsMNN|run_FedDfsMNN.sh|||1|
+Regression|HDFS|FedAdminMNN|run_DfsAdminMNN.sh|||1|
+Regression|HDFS|FedAppMNN|run_WordcountMNN.sh|||1|
+Regression|HDFS|FedAppMNN|run_DistcpMNN.sh|||1|
+Regression|HDFS|FedAppMNN|run_TeraSortMNN.sh|||1|
+Regression|HDFS|HdfsSecurityGeneral|run_SecurityGeneral.sh|||1|
+Regression|HDFS|ViewfsCSMT|run_CSMT.sh|||1|    # require config file /grid/0/gs/conf/local/local-superuser-conf.xml to exist on the gateway
+Regression|HDFS|adminReport|run_adminReport.sh|||1|
+Regression|HDFS|printTopology|run_printTopology.sh|||1|
+
+# YARN runtime as of 12/04/2012
+# ===============================
+# "capacityScheduler"        Took=2h 0m 39s
+# "linuxTaskController"      Took=0h 49m 22s
+# "CapacitySchedulerLimits"  Took=0h 31m 12s
+# "JobSummaryInfo"           Took=0h 27m 31s
+# "excludedNodeCheck"        Took=0h 20m 59s
+# "JvmParams478"             Took=0h 12m 52s
+# "jobSummary740"            Took=0h 11m 22s
+# "MR2037"                   Took=0h 11m 19s
+# "MapredFailTask"           Took=0h 7m 31s
+# "MapredCLI"                Took=0h 7m 4s
+# "ShuffleFailureBigMap"     Took=0h 6m 13s
+# "JobJarPermissions"        Took=0h 5m 14s
+# "memoryConfig"             Took=0h 5m 10s
+# "RecursiveChmod"           Took=0h 4m 20s
+# "MapredKillTask"           Took=0h 4m 5s
+# "adminStartStopQueues5913" Took=0h 4m 2s
+# "BackwardCompatibility"    Took=0h 3m 36s
+# "ldLibraryPath5980"        Took=0h 3m 33s
+# "queueAcls"                Took=0h 3m 8s
+# "MapredQueueCLI"           Took=0h 1m 48s
+# "MR1178"                   Took=0h 0m 57s
+# "MapredListAttemptIds"     Took=0h 0m 51s
+
+## YARN TestSuites
+Regression|YARN|JobSummaryInfo|*|||1|
+Regression|YARN|JvmParams478|run_jvm_param478.t|||1|
+Regression|YARN|MR1178|*|||1|
+Regression|YARN|MR2037|*|||1|
+Regression|YARN|BackwardCompatibility|*|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_0_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_25_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_41_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_50_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_100_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_110_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queues_25_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queues_100_pc.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_high_ram_1.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_high_ram_2.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queue_high_ram_3.t|||1|
+Regression|YARN|capacityScheduler|run_cs_queues_high_ram_1.t|||1|
+Regression|YARN|CapacitySchedulerLimits|run_test_max_jobs.t|-type user -queue root.default||1|
+Regression|YARN|CapacitySchedulerLimits|run_test_max_jobs.t|-type queue -queue root.default||1|
+Regression|YARN|CapacitySchedulerLimits|run_test_max_jobs.t|-type user -queue root.a.a2||1|
+Regression|YARN|CapacitySchedulerLimits|run_test_max_jobs.t|-type queue -queue root.a.a2||1|
+Regression|YARN|CapacitySchedulerLimits|run_test_refresh_queues.t|-type queue||1|
+Regression|YARN|linuxTaskController|run_linuxTaskController.sh|||1|
+Regression|YARN|MapredCLI|run_mapredCLI.sh|||1|
+Regression|YARN|MapredCLIJobList|run_mapredCLIJobList.sh|||1|
+Regression|YARN|MapredQueueCLI|run_MapredQueueCLI.sh|||1|
+Regression|YARN|MapredListAttemptIds|run_MapredListAttemptIds.sh|||1|
+Regression|YARN|adminStartStopQueues5913|run_regression_adminStartStopQueues5913.sh|||1|
+Regression|YARN|excludedNodeCheck|run_sanity_NodeCheck.sh|||1|
+Regression|YARN|ldLibraryPath5980|run_regression_ldLibraryPath5980.sh|||1|
+Regression|YARN|queueAcls|run_queue_acls.t|||1|
+Regression|YARN|jobSummary740|run_regression_jobSummary740.sh|||1|
+Regression|YARN|JobJarPermissions|run_JobJarPermissions.sh|||1|
+Regression|YARN|ShuffleFailureBigMap|run_ShuffleFailureBigMap.sh|||1|
+Regression|YARN|memoryConfig|run_memoryConfig.sh|||1|
+Regression|YARN|RecursiveChmod|run_RecursiveChmod.sh|||1|
+
+# MR284 and MR830 are taking several hours to run ... need to investigate 
+# Regression|YARN|MR284|*||||
+# Regression|YARN|MR830|*||||
+
+## Scanmus Tests
+Scanmus|HDFS|SNNScanmus|*||||
+Scanmus|HDFS|NNScanmus|*||||

@@ -1,0 +1,8 @@
+    Create file, then remove, and list in trash dir:
+Found 1 items
+-rw-------   3 hdfsqa hdfs         14 2010-00-00 00:00 /tmp/hdft_tmptrash.txt
+ls: `/user/hdfsqa/.Trash/Current//tmp/hdft_tmptrash.txt': No such file or directory
+Moved: 'hdfs://gsbl00000.blue.ygrid.yahoo.com:8020/tmp/hdft_tmptrash.txt' to trash at: hdfs://gsbl00000.blue.ygrid.yahoo.com:8020/user/hdfsqa/.Trash/Current
+ls: `/tmp/hdft_tmptrash.txt': No such file or directory
+Found 1 items
+-rw-------   3 hdfsqa hdfs         14 2010-00-00 00:00 /user/hdfsqa/.Trash/Current/tmp/hdft_tmptrash.txt

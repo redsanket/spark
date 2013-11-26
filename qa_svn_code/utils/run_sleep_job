@@ -1,0 +1,118 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to run a sleep job
+# Example:
+# $ CLUSTER=<cluster name> run_sleep_job
+# $ CLUSTER=<cluster name> run_sleep_job -user hadoopqa
+# $ CLUSTER=<cluster name> run_sleep_job -queue grideng -user hadoopqa
+# $ CLUSTER=<cluster name> run_sleep_job -args -Dmapred.reduce.slowstart.completed.maps=1
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use base qw(Hadoop::Test);
+use Getopt::Long;
+use Test::More;
+
+my %options = ();
+my $num_default_tasks = 2;
+my $num_default_sleep = 1000;
+my $num_map_tasks    = $num_default_tasks;
+my $num_reduce_tasks = $num_default_tasks;
+my $map_sleep         = $num_default_sleep;
+my $reduce_sleep      = $num_default_sleep;
+my $background;
+my $wait;
+my $user=getpwuid($>);
+my $queue='default';
+my @args;
+my $result =
+    GetOptions ( \%options,
+                 "map=s"          => \$num_map_tasks,
+                 "reduce=s"       => \$num_reduce_tasks,
+                 "map_sleep=s"    => \$map_sleep,
+                 "reduce_sleep=s" => \$reduce_sleep,
+                 "background|bg"  => \$background,
+                 "wait"           => \$wait,
+                 "user=s"         => \$user,
+                 "queue=s"        => \$queue,
+                 "args=s{,}"      => \@args,
+                 "help|h|?");
+
+usage(1) if (!$result) or (@ARGV);
+usage(0) if $options{help};
+
+sub usage
+{
+    my($exit_code) = @_;
+    diag << "EOF";
+Usage: $Script
+   [-map    <num map tasks>          ]: default tasks is $num_default_tasks.
+   [-reduce <num reduce tasks>       ]: default tasks is $num_default_tasks.
+   [-map_sleep <num map tasks>       ]: default tasks is $num_default_sleep.
+   [-reduce_sleep <num reduce tasks> ]: default tasks is $num_default_sleep.
+   [-user   <user uid>               ]: default user is the uid
+   [-user   <queue name>             ]: default queue is 'default'
+   [-args   <runtime args>           ]: one or more runtime args to be passed through
+   [-background                      ]: run sleep job in the background instead of the default foreground
+   [-wait                            ]: wait for the background sleep job to complete
+   [-help|h|?                        ]: Display usage
+
+Example:
+CLUSTER=<cluster name> run_sleep_job
+CLUSTER=<cluster name> run_sleep_job -user hadoopqa
+CLUSTER=<cluster name> run_sleep_job -user hadoopqa -queue grideng
+CLUSTER=<cluster name> run_sleep_job -args -Dmapred.reduce.slowstart.completed.maps=1
+
+EOF
+    exit $exit_code;
+}
+
+my $self = __PACKAGE__->new;
+my $Config = $self->config;
+# note(explain($Config));
+
+my $JOB_RUNNING_STATE   = 1;
+my $JOB_SUCCEEDED_STATE = 2;
+my $JOB_FAILED_STATE    = 3;
+my $JOB_PREP_STATE      = 4;
+
+# Run the job in the background & get the job ID
+my $job_hash = {'map_task'     => $num_map_tasks,
+                'reduce_task'  => $num_reduce_tasks,
+                'map_sleep'    => $map_sleep,
+                'reduce_sleep' => $reduce_sleep,
+                'user'         => $user,
+                'queue'        => $queue,
+                };
+$job_hash->{args} = \@args if (@args);
+
+if ($background) {
+    note("--> Submit a sleep job in the background: ");
+    my $job_id = $self->submit_sleep_job($job_hash);
+    note("Job ID='$job_id'");
+
+    # Wait for the job to start running
+    my $wait_interval = 5;
+    my $verbose = 0;
+    $self->wait_for_job_state($job_id,
+                              $JOB_RUNNING_STATE,
+                              $wait_interval, undef,
+                              $verbose);
+    
+    if ($wait) {
+        # Wait for the mapper tasks to complete
+        my $task_type = 'map';
+        my $task_state = 'completed';
+        $self->wait_for_tasks_state($job_id, $task_type, $task_state, $num_map_tasks);
+    }
+}
+else {
+    note("--> Run a sleep job in the foreground: ");
+    $job_hash->{mode} = 'system';
+    $self->run_sleep_job($job_hash);
+}
+
+

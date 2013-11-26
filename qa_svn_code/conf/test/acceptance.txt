@@ -1,0 +1,24 @@
+### This file will consists of the Tests to be executed
+### It also includes the directories and config to be picked up
+### The values of each of the column can be single|comma separated list or *
+
+## Test Type | Component | Jobs | run_ tests scripts | arguments to be passed | optional test timeout (minutes) |
+
+## Known Good
+### Fast
+EndToEnd|YARN|Pipes|run_Pipes.sh|||
+Benchmarks|YARN|TeraSort|run_TeraSort.sh||| 
+
+### Avg
+Benchmarks|YARN|DFSIO|run_DFSIO.sh|||
+Benchmarks|YARN|Scan|run_Scan.sh|||
+Benchmarks|YARN|Shuffle|run_Shuffle.sh|||
+
+#### Around 30 minutes
+Benchmarks|YARN|SmallJobs|run_SmallJobs.sh|||
+Regression|YARN|JobSummaryInfo|run_JobSummaryInfo.sh|||
+Benchmarks|YARN|Sort|run_Sort.sh|||
+EndToEnd|YARN|Streaming|run_StreamingTests.sh|||
+
+### SLOW  1h+
+EndToEnd|YARN|Compression|run_Compression.sh|||

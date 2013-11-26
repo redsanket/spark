@@ -1,0 +1,41 @@
+ARtest
+bash script wrapper that submits a set of 4 java generic-wordcount jobs to a cluster in a loop, 
+immediate goal is generate a constant minimal load on two of AxoniteRed's queues, this is for 
+SupportShop development for hadoop 2.0 and metrics gathering.
+
+The wc jobs are self contained in that they generate their own input data and will take the number 
+of input files to generate as an arg, they also accept the run queue to submit to as another arg. 
+The bash script acts as a little driver for these jobs, modify the bash script as desired to:
+- increase/decrease each wc job's runtime by increase/decrease the infiles to use
+- alter the inter-job submission directly using the 'sleep'
+- alter the queues to use by mod of the two QUEUEx shell vars, add vars if you want more queues 
+
+Tested on AR's node gsrd228n17.red.ygrid.yahoo.com 
+         
+Usage;
+1. ssh to a node of the cluster under test
+2. mkdir a working area
+3. svn co 
+4. ./buildme ARtest
+5. ./runme
+6. verify on RM GUI that jobs 'genericWordcount_job_infile_*' are succesfully completing
+7. check queue utilization for activity
+
+Example;
+1. ssh  gsrd228n17.red.ygrid.yahoo.com
+2. mkdir /tmp/phw; cd /tmp/phw
+3. svn co $SVNROOT/yahoo/platform/grid/projects/trunk/hudson/internal/HadoopQEAutomation/branch-23/java_tests/ARtest
+4. ./buildme  ARtest
+    ./genericWordcount.java:145: warning: [deprecation] FSDataOutputStream(OutputStream) in FSDataOutputStream has been deprecated
+          FSDataOutputStream dostream = new FSDataOutputStream(myFs.create(myFs, infile, new FsPermission("644")));
+    1 warning
+    added manifest
+    adding: genericWordcount$Map.class(in = 1939) (out= 801)(deflated 58%)
+    adding: genericWordcount$GenData.class(in = 2591) (out= 1338)(deflated 48%)
+    adding: genericWordcount$Reduce.class(in = 1612) (out= 648)(deflated 59%)
+    adding: ARtest.class(in = 3144) (out= 1617)(deflated 48%)
+    adding: genericWordcount.class(in = 3284) (out= 1597)(deflated 51%)
+    Completed successfully
+5. ./runme 
+6. check 'http://axonitered-jt1.red.ygrid.yahoo.com:8088/cluster/apps' for job status
+7. should see 'unfunded' and 'UDA' queues showing activity

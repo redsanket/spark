@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<allocations>
+  <!-- cluster specific -->
+  <!-- create as many pool elements as there are queues -->
+  <pool name="keystone">
+    
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="sponsoredsearch">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="bt">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="sds">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="audience">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="search">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="gridops">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="grideng">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+  <pool name="unfunded">
+    <maxRunningJobs>35</maxRunningJobs>
+  </pool>
+</allocations>

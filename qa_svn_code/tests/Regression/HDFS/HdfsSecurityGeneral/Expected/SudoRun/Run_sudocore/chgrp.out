@@ -1,0 +1,5 @@
+    Expect group changed from hdfs to users:
+Found 1 items
+-rw-------   3 hdfsqa hdfs         14 2010-00-00 00:00 /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_chgrp.txt
+Found 1 items
+-rw-------   3 hdfsqa users         14 2010-00-00 00:00 /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_chgrp.txt

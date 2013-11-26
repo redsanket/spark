@@ -1,0 +1,93 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to aggregate the component level test results in
+# the component level artifacts directories. The aggregated test results will be
+# stored in the parent level artifacts directory.
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use Test::More;
+
+my $verbose = 0;
+
+my $ARTIFACTS_ROOT_DIR = $ARGV[0];
+$ARTIFACTS_ROOT_DIR ||= $ENV{'WORKSPACE'};
+
+# Create and cleanup the target parent level artifacts directory.
+my $target_artifacts_dir="$ARTIFACTS_ROOT_DIR/artifacts";
+my $cmd = "if [ -d $target_artifacts_dir ]; then /bin/rm -rf $target_artifacts_dir; fi";
+note("$cmd");
+system($cmd);
+my $target_ts_dir="$target_artifacts_dir/TestSummary";
+system("mkdir -p $target_ts_dir");
+
+# Discover the component level artifacts directories.
+my @command = ('ls', '-d', "$ARTIFACTS_ROOT_DIR/artifacts-*");
+my @comp_artifacts_dirs = split("\n",`@command`);
+
+# Test Summary Files (testSummary.log will be regenerated later)
+my @ts_files = ('TAP.log',
+                'countSummary',
+                'executionTime',
+                'passSummary.log',
+                'failSummary.log',
+                'skipSummary.log',
+                );
+
+# For each component level artifact root dir, aggregate the test results.
+# Do this using the test summary files (i.e. @ts_files), and concatenate them to
+# the target test summary files so we can get the sum total in the next step.
+foreach my $comp_artifacts_dir (@comp_artifacts_dirs) {
+    note("Aggregate test results from '$comp_artifacts_dir' to '$target_artifacts_dir':");
+    my $comp_ts_dir="$comp_artifacts_dir/TestSummary";
+    foreach my $ts_file (@ts_files) {
+        my $comp_ts_file = "$comp_ts_dir/$ts_file";
+        my $target_ts_file = "$target_ts_dir/$ts_file";
+        if (-e $comp_ts_file) {
+            @command = ('cat', "$comp_ts_file", '>>', "$target_ts_file");
+            note("@command") if $verbose;
+            system("@command");
+        }
+        else {
+            # Test execution may not result in one or more of the following types.
+            # Touch the file so that at least an empty file will exist.
+            system("/bin/touch $target_ts_dir/$ts_file");
+        }
+    }    
+}
+
+# Post-process count summary
+# countSummary (i.e <#ran>,<#passed>,<#failed>,<#skip>)
+# We need to collapse the multiple lines count summary for each component into a
+# single line for the aggregate total.
+my $target_count_summary = "$target_ts_dir/countSummary";
+
+# Back it up
+$cmd="/bin/cp $target_count_summary $target_count_summary.save";
+system($cmd);
+if ($verbose) {
+    $cmd="/bin/cat $target_count_summary";
+    note($cmd);
+    system($cmd);
+}
+
+my @total;
+open (MYFILE, "$target_count_summary");
+while (<MYFILE>)
+{
+    chomp;
+    my $col_index = 0;
+    $total[$col_index++] += $_ for split(',');
+}
+close(MYFILE);
+
+# Overwrite the count summary file with a single line of aggregated total. 
+my $str = join(',', @total);
+@command = ('echo', "$str", '>', "$target_count_summary");
+system("@command");
+$cmd="/bin/cat $target_count_summary";
+note($cmd);
+system($cmd);

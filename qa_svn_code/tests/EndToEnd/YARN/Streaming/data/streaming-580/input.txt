@@ -1,0 +1,2 @@
+cachedir.zip/cache.txt
+cachedir.zip/cache2.txt

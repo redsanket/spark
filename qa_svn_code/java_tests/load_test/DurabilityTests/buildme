@@ -1,0 +1,17 @@
+# need to have the cluster arg and source file
+if [ $# != 2 ]; then
+  echo "Error: need the cluster name and the source file"
+  echo "Usage: buildme <CLUSTER> <SOURCE>" 
+  exit
+fi
+
+# make sure we start clean
+rm -rf out
+mkdir out
+
+# compile
+javac -Xlint:deprecation  -cp  .:`/home/gs/gridre/yroot.$1/share/hadoop/bin/hadoop  --config /home/gs/gridre/yroot.$1/conf/hadoop  classpath` -d out $2.java
+
+# jar it up
+jar -cvf  $2.jar  -C out .
+

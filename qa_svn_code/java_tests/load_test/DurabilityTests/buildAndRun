@@ -1,0 +1,15 @@
+# need the cluster and the number of hours as arguments
+if [ $# != 2 ]; then
+  echo "Error: need the cluster name and the source file"
+  echo "Usage: buildrun <CLUSTER> <HOURS>" 
+  exit
+fi
+
+#switch into the spot for the localized copy of the sources
+cd /home/gs/gridre/yroot.$1/tmp/qa_svn_code_23/java_tests/load_test/DurabilityTests/
+
+#exec the buildme script
+./buildme $1 run24hour_job
+
+#launch the test
+/home/gs/gridre/yroot.$1/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.$1/conf/hadoop  jar run24hour_job.jar run24hour_job $2

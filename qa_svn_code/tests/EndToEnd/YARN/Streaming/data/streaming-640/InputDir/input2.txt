@@ -1,0 +1,4 @@
+java-an object-oriented-language
+c++-also-supports-object-oriented-concepts
+smalltalk-is-also-object-oriented-language
+and-so-is-the-c#

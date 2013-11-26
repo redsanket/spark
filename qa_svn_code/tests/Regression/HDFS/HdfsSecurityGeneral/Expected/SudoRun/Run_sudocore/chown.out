@@ -1,0 +1,5 @@
+    Expect owner changed from hdfs/hdfsqa to hadoopqa:
+Found 1 items
+-rw-------   3 hdfsqa hdfs         14 2010-00-00 00:00 /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_chown.txt
+Found 1 items
+-rw-------   3 hadoopqa hdfs         14 2010-00-00 00:00 /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_chown.txt

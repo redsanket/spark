@@ -1,0 +1,2 @@
+InputDir/input1.txt
+InputDir/input2.txt

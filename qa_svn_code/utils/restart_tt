@@ -1,0 +1,4 @@
+#!/bin/bash
+
+$(dirname $0)/hadoop_daemon.pl -o stop -o start -component tasktracker
+

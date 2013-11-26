@@ -1,0 +1,19 @@
+### This file will consists of the Tests to be executed 
+### It also includes the directories and config to be picked up
+### The values of each of the coloumn can be single/comma separated list or *
+
+## Test Type | Component | Jobs | run_ tests scripts | arguments to be passed |
+
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_tasks_per_job_to_accept.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_tasks_per_user_to_accept.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_tasks_per_queue_to_accept.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_jobs_per_user_to_accept.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_jobs_per_queue_to_accept.t||
+
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_tasks_per_job_to_run.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_tasks_per_user_to_run.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_tasks_per_queue_to_run.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_jobs_per_user_to_run.t||
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_max_jobs_per_queue_to_run.t||
+
+Regression|Mapreduce|CapacitySchedulerLimits|run_test_refresh_queues.t| |

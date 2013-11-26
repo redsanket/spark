@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+
+<!-- $Id$ -->
+
+<simonConfig name="hadoop.dfs" >
+   
+    <!-- BLURBS (AGGREGATOR INPUT) -->
+    <blurbMessage name="dfs" version="0.6" period="5" staleAccumulatorPolicy="free">
+    
+        <blurb name="datanode">
+            <tag     name="hostName"                            type="string" />
+            <tag     name="sessionId"                           type="string" />
+            <gauge   name="blockChecksumOp_avg_time"            type="long" />
+            <counter name="blockChecksumOp_num_ops"             type="long" />
+            <gauge   name="blockReports_avg_time"               type="long" />
+            <counter name="blockReports_num_ops"                type="long" />
+            <counter name="blocks_read"                         type="long" />
+            <counter name="blocks_removed"                      type="long" />
+            <counter name="blocks_replicated"                   type="long" />
+            <counter name="blocks_verified"                     type="long" />
+            <counter name="block_verification_failures"         type="long" />
+            <counter name="blocks_written"                      type="long" />
+            <counter name="bytes_read"                          type="long" />
+            <counter name="bytes_written"                       type="long" />
+            <gauge   name="copyBlockOp_avg_time"                type="long" />
+            <counter name="copyBlockOp_num_ops"                 type="long" />
+            <gauge   name="heartBeats_avg_time"                 type="long" />
+            <counter name="heartBeats_num_ops"                  type="long" />
+            <gauge   name="readBlockOp_avg_time"                type="long" />
+            <counter name="readBlockOp_num_ops"                 type="long" />
+            <gauge   name="readMetadataOp_avg_time"             type="long" />
+            <counter name="readMetadataOp_num_ops"              type="long" />
+            <counter name="reads_from_local_client"             type="long" />
+            <counter name="reads_from_remote_client"            type="long" />
+            <gauge   name="replaceBlockOp_avg_time"             type="long" />
+            <counter name="replaceBlockOp_num_ops"              type="long" />
+            <gauge   name="writeBlockOp_avg_time"               type="long" />
+            <counter name="writeBlockOp_num_ops"                type="long" />
+            <counter name="writes_from_local_client"            type="long" />
+            <counter name="writes_from_remote_client"           type="long" />
+        </blurb>
+       
+        <blurb name="namenode">
+            <tag     name="hostName"                            type="string" />
+            <tag     name="sessionId"                           type="string" />
+            <counter name="AddBlockOps"                         type="long" />
+            <counter name="blockReport_num_ops"                 type="long" />
+            <gauge   name="blockReport_avg_time"                type="long" cf="last" />
+            <counter name="CreateFileOps"                       type="long" />
+            <counter name="DeleteFileOps"                       type="long" />
+            <counter name="FileInfoOps"                         type="long" />
+            <counter name="FilesAppended"                       type="long" />
+            <counter name="FilesCreated"                        type="long" />
+            <counter name="FilesRenamed"                        type="long" />
+            <gauge   name="fsImageLoadTime"                     type="long" />
+            <counter name="GetBlockLocations"                   type="long" />
+            <counter name="GetListingOps"                       type="long" />
+            <counter name="JournalTransactionsBatchedInSync"    type="long" />
+            <gauge   name="SafemodeTime"                        type="long" />
+            <gauge   name="Syncs_avg_time"                      type="long" cf="last" />
+            <counter name="Syncs_num_ops"                       type="long" />
+            <counter name="Transactions_num_ops"                type="long" />
+            <gauge   name="Transactions_avg_time"               type="long" cf="last" />
+        </blurb>
+
+        <blurb name="FSDirectory">
+            <tag     name="hostName"                            type="string"  />
+            <tag     name="sessionId"                           type="string"  />
+        </blurb>
+
+        <blurb name="FSNamesystem">
+            <tag     name="hostName"                            type="string"  />
+            <tag     name="sessionId"                           type="string"  />
+            <gauge   name="BlockCapacity"                       type="long" />
+            <gauge   name="BlocksTotal"                         type="long" cf="last"/>
+            <gauge   name="CapacityTotalGB"                     type="long" />
+            <gauge   name="CapacityUsedGB"                      type="long" />
+            <gauge   name="CapacityRemainingGB"                 type="long" />
+            <gauge   name="CorruptBlocks"                       type="long" cf="last" />
+            <gauge   name="ExcessBlocks"                        type="long" cf="last" />
+            <gauge   name="FilesTotal"                          type="long" cf="last" />
+            <gauge   name="MissingBlocks"                       type="long" cf="last" />
+            <gauge   name="PendingDeletionBlocks"               type="long" cf="last" />
+            <gauge   name="PendingReplicationBlocks"            type="long" cf="last" />
+            <gauge   name="ScheduledReplicationBlocks"          type="long" cf="last" />
+            <gauge   name="TotalLoad"                           type="long" />
+            <gauge   name="UnderReplicatedBlocks"               type="long" cf="last" />
+        </blurb>
+
+    </blurbMessage>
+    
+    <!-- REPORT PERIODS -->
+    <reportPeriod name="perMinute" seconds="60"/>
+
+    <!-- REPORTS (AGGREGATOR OUTPUT) -->
+    <report name="DFS" version="0.6" periods="perMinute"> 
+
+       <!--
+            Notes:
+
+            #pids means the number of processes that reported in the report period. For
+            reportItems that include the hostName, #pids should normally be 1, but it
+            could be 2 in the case where the process restarted in the report period.
+
+            #restarts is the number of new processes that were seen in a report period.
+            This should be 0 normally, but 1 when a jobtracker/tasktracker process started
+            or re-started in the report period.
+        -->
+
+        <reportItem name="hdfs throughput" blurb="datanode">
+            <value name="#nodes">                           count(hostName)                     </value>
+            <value name="#pids">                            count(nodeId)                       </value>
+            <value name="#restarts">                        newCount                            </value>
+            <value name="numberblockChecksumOp">            blockChecksumOp_avg_time            </value>
+            <value name="blockChecksumOpPerSec">            blockChecksumOp_num_ops/period      </value>
+            <value name="numberBlockReports">               blockReports_avg_time               </value>
+            <value name="blockReportsPerSec">               blockReports_num_ops/period         </value> 
+            <value name="blocksReadPerSec">                 blocks_read/period                  </value>
+            <value name="blocksRemovedPerSec">              blocks_removed/period               </value>
+            <value name="blocksReplicatedPerSec">           blocks_replicated/period            </value>
+            <value name="blocksVerifiedPerSec">             blocks_verified/period              </value>
+            <value name="blockVerificationFailuresPerSec">  block_verification_failures/period  </value>
+            <value name="blocksWrittenPerSec">              blocks_written/period               </value>
+            <value name="bytesReadPerSec">                  bytes_read/period                   </value>
+            <value name="bytesWrittenPerSec">               bytes_written/period                </value>
+            <value name="numberCopyBlockOperations">        copyBlockOp_avg_time                </value>
+            <value name="copyBlockOperationsPerSec">        copyBlockOp_num_ops/period          </value>
+            <value name="numberHeartBeats">                 heartBeats_avg_time                 </value>
+            <value name="heartBeatsPerSec">                 heartBeats_num_ops/period           </value>
+            <value name="numberReadBlockOperations">        readBlockOp_avg_time                </value>
+            <value name="readBlockOperationsPerSec">        readBlockOp_num_ops/period          </value>
+            <value name="numberReadMetadataOperations">     readMetadataOp_avg_time             </value>
+            <value name="readMetadataOperationsPerSec">     readMetadataOp_num_ops/period       </value>
+            <value name="readsFromLocalClientPerSec">       reads_from_local_client/period      </value>
+            <value name="readsFromLocalRemotePerSec">       reads_from_remote_client/period     </value>
+            <value name="numberReplaceBlockOperations">     replaceBlockOp_avg_time             </value>
+            <value name="replaceBlockOperationsPerSec">     replaceBlockOp_num_ops/period       </value>
+            <value name="numberWriteBlockOperations">       writeBlockOp_avg_time               </value>
+            <value name="writeBlockOperationsPerSec">       writeBlockOp_num_ops/period         </value>
+            <value name="writesFromLocalClientPerSec">      writes_from_local_client/period     </value>
+            <value name="writesFromLocalRemotePerSec">      writes_from_remote_client/period    </value>
+        </reportItem>
+        
+        <reportItem name="individual datanode throughput" blurb="datanode">
+            <key   name="node" tag="hostName" />
+            <value name="#pids">                            count(nodeId)                       </value>
+            <value name="#restarts">                        newCount                            </value>
+            <value name="bytesWrittenPerSec">               bytes_written/period                </value>
+            <value name="bytesReadPerSec">                  bytes_read/period                   </value>
+            <value name="blocksWrittenPerSec">              blocks_written/period               </value>
+            <value name="blocksReadPerSec">                 blocks_read/period                  </value>
+            <value name="blocksReplicatedPerSec">           blocks_replicated/period            </value>
+            <value name="blocksRemovedPerSec">              blocks_removed/period               </value>
+            <value name="blocksVerifiedPerSec">             blocks_verified/period              </value>
+            <value name="blockVerificationFailuresPerSec">  block_verification_failures/period  </value>
+            <value name="readsFromLocalClientPerSec">       reads_from_local_client/period      </value>
+            <value name="readsFromLocalRemotePerSec">       reads_from_remote_client/period     </value>
+            <value name="writesFromLocalClientPerSec">      writes_from_local_client/period     </value>
+            <value name="writesFromLocalRemotePerSec">      writes_from_remote_client/period    </value>
+            <value name="blockChecksumOpPerSec">            blockChecksumOp_num_ops/period      </value>
+        </reportItem>
+
+        <reportItem name="namenode operations" blurb="namenode,FSDirectory">
+            <key   name="node" tag="hostName" />
+            <value name="#pids">                            count(nodeId)                       </value>
+            <value name="#restarts">                        newCount                            </value>
+            <value name="AddBlockOps">                      AddBlockOps                         </value>
+            <value name="AverageBlockReportTime">           blockReport_avg_time                </value>
+            <value name="numberOfBlockReportPerSec">        blockReport_num_ops/period          </value>
+            <value name="CreateFileOps">                    CreateFileOps                       </value>
+            <value name="DeleteFileOps">                    DeleteFileOps                       </value>
+            <value name="FileInfoOps">                      FileInfoOps                         </value>
+            <value name="fileInfoOpsPerSec">                FileInfoOps/period                  </value>
+            <value name="FilesAppended">                    FilesAppended                       </value>
+            <value name="filesAppendedPerSec">              FilesAppended/period                </value>
+            <value name="FilesCreated">                     FilesCreated                        </value>
+            <value name="filesCreatedPerSec">               FilesCreated/period                 </value>
+            <value name="FilesRenamed">                     FilesRenamed                        </value>
+            <value name="filesRenamedPerSec">               FilesRenamed/period                 </value>
+            <value name="fsImageLoadTime">                  fsImageLoadTime                     </value>
+            <value name="GetBlockLocationsPerSec">          GetBlockLocations/period            </value>
+            <value name="GetListingOps">                    GetListingOps                       </value>
+            <value name="JournalTransactionsBatchedInSync"> JournalTransactionsBatchedInSync    </value>
+            <value name="timeInSafeMode">                   SafemodeTime                        </value>
+            <value name="AverageSyncTime">                  Syncs_avg_time                      </value>
+            <value name="numberOfSyncsPerSec">              Syncs_num_ops/period                </value>
+            <value name="numberOfTransactionsPerSec">       Transactions_num_ops/period         </value>
+            <value name="AverageTransactionTime">           Transactions_avg_time               </value>
+        </reportItem>
+
+        <reportItem name="FSNamesystem status" blurb="FSNamesystem">
+            <key   name="node" tag="hostName" />
+            <value name="BlockCapacity">                    BlockCapacity                       </value>
+            <value name="BlocksTotal">                      BlocksTotal                         </value>
+            <value name="CapacityTotalGB">                  CapacityTotalGB                     </value>
+            <value name="CapacityUsedGB">                   CapacityUsedGB                      </value>
+            <value name="CapacityRemainingGB">              CapacityRemainingGB                 </value>
+            <value name="CorruptBlocks">                    CorruptBlocks                       </value>
+            <value name="ExcessBlocks">                     ExcessBlocks                        </value>
+            <value name="FilesTotal">                       FilesTotal                          </value>
+            <value name="MissingBlocks">                    MissingBlocks                       </value>
+            <value name="PendingDeletionBlocks">            PendingDeletionBlocks               </value>
+            <value name="PendingReplicationBlocks">         PendingReplicationBlocks            </value>
+            <value name="ScheduledReplicationBlocks">       ScheduledReplicationBlocks          </value>
+            <value name="TotalLoad">                        TotalLoad                           </value>
+            <value name="UnderReplicatedBlocks">            UnderReplicatedBlocks               </value>
+        </reportItem>
+    </report>
+    
+</simonConfig>
+
+<!-- svn202.dt.corp.sp1.yahoo.com uncompressed/chunked Thu Dec 10 08:33:26 PST 2009 -->

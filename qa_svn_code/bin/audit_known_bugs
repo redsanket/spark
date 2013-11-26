@@ -1,0 +1,121 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to aggregate the component level test execution
+# time in the component level artifacts directories. The aggregated total will be
+# stored in the parent level artifacts directory.
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use File::Basename;
+use Test::More;
+use Text::Trim;
+use String::ShellQuote;
+
+use Getopt::Long;
+my $verbose = 0;
+my $status_filter = '';
+my $bug_file="$Bin/../conf/test/known_bugs.txt";
+my %options=();
+GetOptions(\%options, 
+           "status=s"  => \$status_filter,
+           "file=s"    => \$bug_file,
+           "verbose|v" => \$verbose,
+           "help|h|?",
+           ) or usage(1);
+
+usage(0) if ($options{help}); 
+
+sub usage
+{
+    my($exit_code) = @_;
+    diag << "EOF";
+Usage: $Script
+   [-status <status>   ] : filter based on the specified bug status 
+   [-file   <filename> ] : Bug list file
+   [-verbose           ] : verbose
+   [-help|h|?          ] : Display usage
+
+EOF
+    exit $exit_code;
+}
+
+my @command = ('/bin/cat', "$bug_file");
+my $content = `@command`;
+my $bugs = {};
+foreach my $line (split("\n", $content)) {
+    next if (($line =~ "^#") || ($line =~ /^(\s)*$/));
+    note("line = '$line'") if $verbose;
+    my ($test_suite, $test_name, $bug_id) = split(' ', $line);
+    if (defined($bugs->{$bug_id})) {
+
+        if (defined($bugs->{$bug_id}->{$test_suite})) {
+            my $array;
+            $array = $bugs->{"$bug_id"}->{$test_suite};
+            push(@$array, $test_name);
+            $bugs->{$bug_id}->{$test_suite} = $array;
+        }
+        else {
+            $bugs->{$bug_id}->{$test_suite} = [ $test_name ];
+        }
+    }
+    else {
+        $bugs->{$bug_id}->{$test_suite} = [ $test_name ];
+    }
+}
+note(explain($bugs)) if $verbose;
+
+my $stats = {};
+note("check bug ids status via ybug ...");
+foreach my $key (sort keys %$bugs) {
+    my $bug_id = $key;
+    next unless ($bug_id);
+
+    @command = ('/home/y/bin/ybug', 'view', $bug_id, '--yaml', '|', '/bin/egrep',
+                shell_quote('^bug_status|^short_desc|^resolution'));
+    note("@command") if $verbose;
+    my $result = `@command`;
+    note("result = '$result'") if $verbose;
+
+    my $bug_stats = ();
+    foreach my $line (split("\n", $result)) {
+        push(@$bug_stats, trim((split(':', $line))[1]));
+    }
+    note(explain($bug_stats)) if $verbose;
+    $stats->{$bug_id} = $bug_stats;
+
+    my $status = $bug_stats->[0];
+    if ($status_filter) {
+        next unless ($status eq $status_filter);
+    }
+
+    my $reso   = $bug_stats->[1];
+
+    my $desc   = $bug_stats->[2];
+
+    $desc = '"'.$desc unless ($desc =~ /^\"/);
+    my $length = length($desc);
+    if ($length > 80) {
+        $desc = substr($bug_stats->[2], 0, 76).'...';
+    }
+    else {
+        $desc = substr($bug_stats->[2], 0, 79);
+    }
+    $desc = $desc.'"' unless ($desc =~ /\"$/);
+
+    my @test_suites;
+    foreach my $test_suite (sort keys %{$bugs->{$key}}) {
+        push(@test_suites, $test_suite);
+    }
+
+    printf("%-3s=%-5s %-6s=%-8s %-6s=%-7s %-4s=%-80s %-5s=%-5s\n",
+           "bug", "$bug_id",
+           "status", "$status",
+           "resolution", "$reso",
+           "desc", "$desc",
+           "suite", join(',', @test_suites));
+}
+note(explain($stats)) if $verbose;
+

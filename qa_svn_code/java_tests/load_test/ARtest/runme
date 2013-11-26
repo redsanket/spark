@@ -1,0 +1,52 @@
+#!/bin/bash
+
+QUEUE1=unfunded
+QUEUE2=unfunded
+# Comment below, as UDA queue is not available on QE cluster
+# QUEUE2=UDA
+
+CLUSTER=$1
+HOURS=$2
+MINS=60
+SECS=60
+
+# ARtest was running in loop, adding timespan for test runs
+startTime=`date +%s`
+timeSpan=$(($HOURS*$MINS*$SECS))
+endTime=$(($timeSpan+$startTime))
+echo "CLUSTER: $CLUSTER"
+echo "HOURS: $HOURS"
+echo "STARTTIME: $startTime"
+echo "TIMESPAN: $timeSpan"
+echo "ENDTIME: $endTime"
+
+# Get hadoop version
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.$CLUSTER/conf/hadoop/ version
+
+# Run generic wordcounts across two queues, alternate each submission between 10 and 100 input files
+echo "Start the run..."
+
+while (( `date +%s` < $endTime )) ; do
+  # 10 input files, use QUEUE1 
+  /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop jar ARtest.jar ARtest 10 $QUEUE1
+  sleep 1
+
+  # 100 input files, use QUEUE1
+  /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop jar ARtest.jar ARtest 100 $QUEUE1
+  sleep 1
+
+  # 10 input files, use QUEUE2 
+  /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop jar ARtest.jar ARtest 50 $QUEUE2
+  sleep 1
+
+  # 100 input files, use QUEUE2 
+  /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop jar ARtest.jar ARtest 150 $QUEUE2
+  sleep 1
+
+  # Delay 10 minutes
+  echo "Submitted 4 jobs, 2 to $QUEUE1 and 2 to $QUEUE2 queues"
+  sleep 600
+
+  echo "Time to go is $endTime"
+done
+

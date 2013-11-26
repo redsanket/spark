@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<!-- This is the configuration file for the resource manager in Hadoop. -->
+<!-- You can configure various scheduling parameters related to queues. -->
+<!-- The properties for a queue follow a naming convention,such as, -->
+<!-- mapred.scheduler.capacity.queue.<queue-name>.property-name. -->
+
+<configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="/home/gs/conf/local/local-capacity-scheduler.xml"/>
+
+</configuration>

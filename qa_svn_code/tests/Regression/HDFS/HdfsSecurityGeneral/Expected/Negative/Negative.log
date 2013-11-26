@@ -1,0 +1,672 @@
+
+========= TEST:::: Executing script /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_aaa.sh ...
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_hadoop_env.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_setenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_testenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_globals.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_util_lib.sh
+From util lib
+my_progSh=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_aaa.sh
+my_prog=run_aaa
+my_progDir=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative
+my_jobDir=Negative
+HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_aaa
+    HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_aaa; LOCAL_DEFAULT_REL_OUTPUT_DIR = Negative/run_aaa
+My progname =/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_aaa.sh
+My CURRENT DIR=/home/y/var/builds/workspace/HDFSRegression
+
+========= TEST:::: Executing script /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negExpiredKbTicket.sh ...
+Source env and library from 
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_hadoop_env.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_setenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_testenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_globals.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_util_lib.sh
+From util lib
+From util lib
+Verbose mode set: HDFT_VERBOSE is 1
+HDFD_TOP_DIR=/user/hadoopqa/hdfsRegressionData
+HDFL_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression/
+HDFL_ARTIFACTS_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//artifacts
+HDFL_EXPECTED_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//Expected
+HDFT_OPS_RDDIR=ls lsr du dus stat count
+HDFT_OPS_RDFILE=ls cat tail
+my_progSh=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negExpiredKbTicket.sh
+my_prog=run_negExpiredKbTicket
+my_progDir=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative
+my_jobDir=Negative
+HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_negExpiredKbTicket
+    HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_negExpiredKbTicket; LOCAL_DEFAULT_REL_OUTPUT_DIR = Negative/run_negExpiredKbTicket
+$ to get date in epoch date '+%s'
+$ To print epoch date in kdb format: date -d @1288207638    "+%Y%m%d%H%M%S" 
+Current Date=Thu Oct 28 02:51:59 UTC 2010; epoch=1288234319; epoch 24 hours ago: 1288147919; date 24 hours ago: 20101027025159)
+    Exec kdestroy to remove KB tickets
+    Exec klist to show that no valid  KB tickets remains:
+klist: No credentials cache found (ticket cache FILE:/tmp/krb5cc_31315)
+klist: You have no tickets cached
+
+
+Kerberos 4 ticket cache: /tmp/tkt31315
+    Exec kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab -s 20101027025159 -l 30s hadoopqa
+    Exec klist to show that KB Ticket should expire 24 hours ago:
+klist: You have no tickets cached
+Ticket cache: FILE:/tmp/krb5cc_31315
+Default principal: hadoopqa@DEV.YGRID.YAHOO.COM
+
+Valid starting     Expires            Service principal
+10/28/10 02:51:59  10/27/10 02:52:29  krbtgt/DEV.YGRID.YAHOO.COM@DEV.YGRID.YAHOO.COM
+	renew until 11/03/10 02:51:59
+
+
+Kerberos 4 ticket cache: /tmp/tkt31315
+    Now begin the negatives tests:
+    Now begin the negatives tests:
+/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negExpiredKbTicket.sh: line 70: export RUN_ONE_TEST=1: command not found
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=2
+   CORETEST_OP=ls
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/ls.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/ls.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/ls.err
+    DOIT:::: hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/ls.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-2 ls - exec]:  OK  in  subtask exec - [Pass SF013-2 ls ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/ls.err /tmp/hdft11032 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft11032 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/ls.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/ls.err] does not exist
+Fail in [SF013-2 ls - diff]:  BAD in  subtask diff - [Fail SF013-2 ls: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/ls.err ]
+FAIL in [SF013-2 ls]:  BAD in  SF013-2 ls in either exec or diff - [FAIL SF013-2 ls ]
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=3
+   CORETEST_OP=lsr
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/lsr.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/lsr.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/lsr.err
+    DOIT:::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/ >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/lsr.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-3 lsr - exec]:  OK  in  subtask exec - [Pass SF013-3 lsr ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/lsr.err /tmp/hdft11160 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft11160 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/lsr.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/lsr.err] does not exist
+Fail in [SF013-3 lsr - diff]:  BAD in  subtask diff - [Fail SF013-3 lsr: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/lsr.err ]
+FAIL in [SF013-3 lsr]:  BAD in  SF013-3 lsr in either exec or diff - [FAIL SF013-3 lsr ]
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=4
+   CORETEST_OP=cat
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/cat.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/cat.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/cat.err
+    DOIT:::: hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/cat.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-4 cat - exec]:  OK  in  subtask exec - [Pass SF013-4 cat ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/cat.err /tmp/hdft11259 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft11259 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/cat.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/cat.err] does not exist
+Fail in [SF013-4 cat - diff]:  BAD in  subtask diff - [Fail SF013-4 cat: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/cat.err ]
+FAIL in [SF013-4 cat]:  BAD in  SF013-4 cat in either exec or diff - [FAIL SF013-4 cat ]
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=5
+   CORETEST_OP=copyFromLocal
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/copyFromLocal.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/copyFromLocal.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+    ------------------------
+    Exec hadoop fs -copyFromLocal /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/copyFromLocal.err
+10/10/28 02:52:08 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:08 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+    ######DOIT:::: hadoop fs -copyFromLocal  /home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+10/10/28 02:52:09 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:09 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+10/10/28 02:52:10 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:10 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-5 copyFromLocal - exec]:  OK  in  subtask exec - [Pass SF013-5 copyFromLocal ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/copyFromLocal.err /tmp/hdft11603 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft11603 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/copyFromLocal.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/copyFromLocal.err] does not exist
+Fail in [SF013-5 copyFromLocal - diff]:  BAD in  subtask diff - [Fail SF013-5 copyFromLocal: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/copyFromLocal.err ]
+FAIL in [SF013-5 copyFromLocal]:  BAD in  SF013-5 copyFromLocal in either exec or diff - [FAIL SF013-5 copyFromLocal ]
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=6
+   CORETEST_OP=get
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/get.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/get.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/get.err
+    DOIT:::: hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755    /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/get.err
+10/10/28 02:52:12 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:12 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-6 get - exec]:  OK  in  subtask exec - [Pass SF013-6 get ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/get.err /tmp/hdft11717 
+mv: cannot stat `/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/get.err': No such file or directory
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft11717 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/get.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/get.err] does not exist
+Fail in [SF013-6 get - diff]:  BAD in  subtask diff - [Fail SF013-6 get: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/get.err ]
+FAIL in [SF013-6 get]:  BAD in  SF013-6 get in either exec or diff - [FAIL SF013-6 get ]
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=7
+   CORETEST_OP=tail
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/tail.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/tail.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -tail /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/tail.err
+    DOIT:::: hadoop fs -tail /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/tail.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-7 tail - exec]:  OK  in  subtask exec - [Pass SF013-7 tail ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/tail.err /tmp/hdft11934 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft11934 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/tail.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/tail.err] does not exist
+Fail in [SF013-7 tail - diff]:  BAD in  subtask diff - [Fail SF013-7 tail: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/tail.err ]
+FAIL in [SF013-7 tail]:  BAD in  SF013-7 tail in either exec or diff - [FAIL SF013-7 tail ]
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=8
+   CORETEST_OP=rm
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rm.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/rm.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -rm /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rm.err
+    DOIT::: hadoop  fs   -rm /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rm.err 
+10/10/28 02:52:18 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:18 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+    #########DOIT::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rm.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-8 rm - exec]:  OK  in  subtask exec - [Pass SF013-8 rm ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rm.err /tmp/hdft12138 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft12138 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rm.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/rm.err] does not exist
+Fail in [SF013-8 rm - diff]:  BAD in  subtask diff - [Fail SF013-8 rm: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/rm.err ]
+FAIL in [SF013-8 rm]:  BAD in  SF013-8 rm in either exec or diff - [FAIL SF013-8 rm ]
+##########################################
+   CORETEST_ID=SF013
+   CORETEST_SUBID=9
+   CORETEST_OP=rmr
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=tmpWrite/hdfsTestData/basic
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rmr.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/rmr.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -rmr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rmr.err
+    DOIT::: hadoop  fs   -rmr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rmr.err 
+10/10/28 02:52:20 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:20 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+    #########DOIT::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rmr.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF013-9 rmr - exec]:  OK  in  subtask exec - [Pass SF013-9 rmr ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rmr.err /tmp/hdft12412 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft12412 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negExpiredKbTicket/rmr.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/rmr.err] does not exist
+Fail in [SF013-9 rmr - diff]:  BAD in  subtask diff - [Fail SF013-9 rmr: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negExpiredKbTicket/rmr.err ]
+FAIL in [SF013-9 rmr]:  BAD in  SF013-9 rmr in either exec or diff - [FAIL SF013-9 rmr ]
+FAIL in runnnig /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negExpiredKbTicket.sh: LOCAL_TASK_RESULT=1
+Result of running /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negExpiredKbTicket.sh =1
+
+========= TEST:::: Executing script /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negLongExpiredKbTkt.sh ...
+Source env and library from 
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_hadoop_env.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_setenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_testenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_globals.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_util_lib.sh
+From util lib
+From util lib
+Verbose mode set: HDFT_VERBOSE is 1
+HDFD_TOP_DIR=/user/hadoopqa/hdfsRegressionData
+HDFL_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression/
+HDFL_ARTIFACTS_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//artifacts
+HDFL_EXPECTED_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//Expected
+HDFT_OPS_RDDIR=ls lsr du dus stat count
+HDFT_OPS_RDFILE=ls cat tail
+my_progSh=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negLongExpiredKbTkt.sh
+my_prog=run_negLongExpiredKbTkt
+my_progDir=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative
+my_jobDir=Negative
+HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_negLongExpiredKbTkt
+    HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_negLongExpiredKbTkt; LOCAL_DEFAULT_REL_OUTPUT_DIR = Negative/run_negLongExpiredKbTkt
+$ to get date in epoch date '+%s'
+$ To print epoch date in kdb format: date -d @1288207638    "+%Y%m%d%H%M%S" 
+Current Date=Thu Oct 28 02:52:22 UTC 2010; epoch=1288234342; epoch 24*8 hours ago: 1287543142; date 24*8hours ago: 20101020025222)
+    Exec kdestroy to remove KB tickets
+    Exec klist to show that no valid  KB tickets remains:
+klist: No credentials cache found (ticket cache FILE:/tmp/krb5cc_31315)
+klist: You have no tickets cached
+
+
+Kerberos 4 ticket cache: /tmp/tkt31315
+    Exec kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab -s 20101020025222 -l 30s hadoopqa
+    Exec klist to show that KB Ticket should expire 24 hours ago:
+klist: You have no tickets cached
+Ticket cache: FILE:/tmp/krb5cc_31315
+Default principal: hadoopqa@DEV.YGRID.YAHOO.COM
+
+Valid starting     Expires            Service principal
+10/28/10 02:52:22  10/20/10 02:52:52  krbtgt/DEV.YGRID.YAHOO.COM@DEV.YGRID.YAHOO.COM
+	renew until 10/27/10 02:52:22
+
+
+Kerberos 4 ticket cache: /tmp/tkt31315
+    Now begin the negatives tests:
+    Now begin the negatives tests:
+/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negLongExpiredKbTkt.sh: line 70: echo export RUN_ONE_TEST=1: command not found
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=2
+   CORETEST_OP=ls
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/ls.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/ls.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/ls.err
+    DOIT:::: hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/ls.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-2 ls - exec]:  OK  in  subtask exec - [Pass SF012-2 ls ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/ls.err /tmp/hdft12674 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft12674 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/ls.err
+Pass in [SF012-2 ls - diff]:  OK  in  subtask diff - [Pass SF012-2 ls ]
+PASS in [SF012-2 ls]:  OK  in  SF012-2 ls in both exec and diff - [PASS SF012-2 ls ]
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=3
+   CORETEST_OP=lsr
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/lsr.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/lsr.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/lsr.err
+    DOIT:::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/ >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/lsr.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-3 lsr - exec]:  OK  in  subtask exec - [Pass SF012-3 lsr ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/lsr.err /tmp/hdft12754 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft12754 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/lsr.err
+Pass in [SF012-3 lsr - diff]:  OK  in  subtask diff - [Pass SF012-3 lsr ]
+PASS in [SF012-3 lsr]:  OK  in  SF012-3 lsr in both exec and diff - [PASS SF012-3 lsr ]
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=4
+   CORETEST_OP=cat
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/cat.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/cat.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/cat.err
+    DOIT:::: hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/cat.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-4 cat - exec]:  OK  in  subtask exec - [Pass SF012-4 cat ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/cat.err /tmp/hdft12897 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft12897 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/cat.err
+Pass in [SF012-4 cat - diff]:  OK  in  subtask diff - [Pass SF012-4 cat ]
+PASS in [SF012-4 cat]:  OK  in  SF012-4 cat in both exec and diff - [PASS SF012-4 cat ]
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=5
+   CORETEST_OP=copyFromLocal
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/copyFromLocal.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/copyFromLocal.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+    ------------------------
+    Exec hadoop fs -copyFromLocal /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/copyFromLocal.err
+10/10/28 02:52:30 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:30 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+    ######DOIT:::: hadoop fs -copyFromLocal  /home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+10/10/28 02:52:31 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:31 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+10/10/28 02:52:32 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:32 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-5 copyFromLocal - exec]:  OK  in  subtask exec - [Pass SF012-5 copyFromLocal ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/copyFromLocal.err /tmp/hdft13176 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft13176 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/copyFromLocal.err
+Pass in [SF012-5 copyFromLocal - diff]:  OK  in  subtask diff - [Pass SF012-5 copyFromLocal ]
+PASS in [SF012-5 copyFromLocal]:  OK  in  SF012-5 copyFromLocal in both exec and diff - [PASS SF012-5 copyFromLocal ]
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=6
+   CORETEST_OP=get
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/get.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/get.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/get.err
+    DOIT:::: hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755    /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/get.err
+10/10/28 02:52:33 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:33 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-6 get - exec]:  OK  in  subtask exec - [Pass SF012-6 get ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/get.err /tmp/hdft13309 
+mv: cannot stat `/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/get.err': No such file or directory
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft13309 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/get.err
+Pass in [SF012-6 get - diff]:  OK  in  subtask diff - [Pass SF012-6 get ]
+PASS in [SF012-6 get]:  OK  in  SF012-6 get in both exec and diff - [PASS SF012-6 get ]
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=7
+   CORETEST_OP=tail
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/tail.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/tail.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -tail /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/tail.err
+    DOIT:::: hadoop fs -tail /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/tail.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-7 tail - exec]:  OK  in  subtask exec - [Pass SF012-7 tail ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/tail.err /tmp/hdft13388 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft13388 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/tail.err
+Pass in [SF012-7 tail - diff]:  OK  in  subtask diff - [Pass SF012-7 tail ]
+PASS in [SF012-7 tail]:  OK  in  SF012-7 tail in both exec and diff - [PASS SF012-7 tail ]
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=8
+   CORETEST_OP=rm
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rm.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/rm.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -rm /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rm.err
+    DOIT::: hadoop  fs   -rm /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rm.err 
+10/10/28 02:52:35 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:36 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+    #########DOIT::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rm.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-8 rm - exec]:  OK  in  subtask exec - [Pass SF012-8 rm ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rm.err /tmp/hdft13642 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft13642 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rm.err
+Pass in [SF012-8 rm - diff]:  OK  in  subtask diff - [Pass SF012-8 rm ]
+PASS in [SF012-8 rm]:  OK  in  SF012-8 rm in both exec and diff - [PASS SF012-8 rm ]
+##########################################
+   CORETEST_ID=SF012
+   CORETEST_SUBID=9
+   CORETEST_OP=rmr
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=tmpWrite/hdfsTestData/basic
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rmr.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negLongExpiredKbTkt/rmr.err
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -rmr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rmr.err
+    DOIT::: hadoop  fs   -rmr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rmr.err 
+10/10/28 02:52:38 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:38 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+    #########DOIT::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rmr.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF012-9 rmr - exec]:  OK  in  subtask exec - [Pass SF012-9 rmr ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rmr.err /tmp/hdfta3866 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdfta3866 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negLongExpiredKbTkt/rmr.err
+Pass in [SF012-9 rmr - diff]:  OK  in  subtask diff - [Pass SF012-9 rmr ]
+PASS in [SF012-9 rmr]:  OK  in  SF012-9 rmr in both exec and diff - [PASS SF012-9 rmr ]
+PASS in runnnig /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negLongExpiredKbTkt.sh: LOCAL_TASK_RESULT=0
+Result of running /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negLongExpiredKbTkt.sh =0
+
+========= TEST:::: Executing script /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negNoKbTicket.sh ...
+Source env and library from 
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_hadoop_env.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_setenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_testenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_globals.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_util_lib.sh
+From util lib
+From util lib
+Verbose mode set: HDFT_VERBOSE is 1
+HDFD_TOP_DIR=/user/hadoopqa/hdfsRegressionData
+HDFL_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression/
+HDFL_ARTIFACTS_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//artifacts
+HDFL_EXPECTED_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//Expected
+HDFT_OPS_RDDIR=ls lsr du dus stat count
+HDFT_OPS_RDFILE=ls cat tail
+my_progSh=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negNoKbTicket.sh
+my_prog=run_negNoKbTicket
+my_progDir=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative
+my_jobDir=Negative
+HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_negNoKbTicket
+    HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Negative/run_negNoKbTicket; LOCAL_DEFAULT_REL_OUTPUT_DIR = Negative/run_negNoKbTicket
+klist: No credentials cache found (ticket cache FILE:/tmp/krb5cc_31315)
+klist: You have no tickets cached
+
+
+Kerberos 4 ticket cache: /tmp/tkt31315
+/home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negNoKbTicket.sh: line 45: export RUN_ONE_TEST=1: command not found
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=12
+   CORETEST_OP=ls
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/ls.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/ls.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/ls.err
+    DOIT:::: hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/ls.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF010-12 ls - exec]:  OK  in  subtask exec - [Pass SF010-12 ls ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/ls.err /tmp/hdft14114 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft14114 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/ls.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/ls.err] does not exist
+Fail in [SF010-12 ls - diff]:  BAD in  subtask diff - [Fail SF010-12 ls: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/ls.err ]
+FAIL in [SF010-12 ls]:  BAD in  SF010-12 ls in either exec or diff - [FAIL SF010-12 ls ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=13
+   CORETEST_OP=lsr
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/lsr.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/lsr.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/lsr.err
+    DOIT:::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/ >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/lsr.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF010-13 lsr - exec]:  OK  in  subtask exec - [Pass SF010-13 lsr ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/lsr.err /tmp/hdft14197 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft14197 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/lsr.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/lsr.err] does not exist
+Fail in [SF010-13 lsr - diff]:  BAD in  subtask diff - [Fail SF010-13 lsr: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/lsr.err ]
+FAIL in [SF010-13 lsr]:  BAD in  SF010-13 lsr in either exec or diff - [FAIL SF010-13 lsr ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=14
+   CORETEST_OP=cat
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/cat.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/cat.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/cat.err
+    DOIT:::: hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/cat.err
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF010-14 cat - exec]:  OK  in  subtask exec - [Pass SF010-14 cat ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/cat.err /tmp/hdft14329 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft14329 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/cat.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/cat.err] does not exist
+Fail in [SF010-14 cat - diff]:  BAD in  subtask diff - [Fail SF010-14 cat: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/cat.err ]
+FAIL in [SF010-14 cat]:  BAD in  SF010-14 cat in either exec or diff - [FAIL SF010-14 cat ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=15
+   CORETEST_OP=copyToLocal
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/copyToLocal.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/copyToLocal.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -copyToLocal /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/copyToLocal.err
+    DOIT:::: hadoop fs -copyToLocal /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755    /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/copyToLocal.err
+10/10/28 02:52:46 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:47 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF010-15 copyToLocal - exec]:  OK  in  subtask exec - [Pass SF010-15 copyToLocal ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/copyToLocal.err /tmp/hdft14409 
+mv: cannot stat `/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/copyToLocal.err': No such file or directory
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft14409 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/copyToLocal.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/copyToLocal.err] does not exist
+Fail in [SF010-15 copyToLocal - diff]:  BAD in  subtask diff - [Fail SF010-15 copyToLocal: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/copyToLocal.err ]
+FAIL in [SF010-15 copyToLocal]:  BAD in  SF010-15 copyToLocal in either exec or diff - [FAIL SF010-15 copyToLocal ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=16
+   CORETEST_OP=get
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/get.err
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/get.err
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/get.err
+    DOIT:::: hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755    /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/get.err
+10/10/28 02:52:48 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:52:48 WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+BEFORE CALLING hdftMapStatus 255 'kbneg' 
+Pass in [SF010-16 get - exec]:  OK  in  subtask exec - [Pass SF010-16 get ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/get.err /tmp/hdft14541 
+mv: cannot stat `/home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/get.err': No such file or directory
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdft14541 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Negative/run_negNoKbTicket/get.err
+    error in hdftDoDiff: second file [/home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/get.err] does not exist
+Fail in [SF010-16 get - diff]:  BAD in  subtask diff - [Fail SF010-16 get: file2 does not exist  /home/y/var/builds/workspace/HDFSRegression//Expected/Negative/run_negNoKbTicket/get.err ]
+FAIL in [SF010-16 get]:  BAD in  SF010-16 get in either exec or diff - [FAIL SF010-16 get ]
+FAIL in runnnig /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negNoKbTicket.sh: LOCAL_TASK_RESULT=1
+Result of running /home/y/var/builds/workspace/HDFSRegression/job_scripts/Negative/run_negNoKbTicket.sh =1

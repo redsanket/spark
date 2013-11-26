@@ -1,0 +1,20 @@
+This is the integration test suite for hadoop core 0.23.3 release line.
+In order to run the tests:
+  - yinst install -branch current hadoopcoretest23
+  - $YROOT/bin/run-hadoopcore23-integration-tests.sh -results-dir=<res> -logs-dir=<logs>
+
+Notes:
+
+Confirm that the following environment variables are correctly set for your installation:
+- HIT_HDFS_STORAGE_DIR   -> your HDFS base URI
+- HADOOP_COMMON_HOME     -> your hadoop install base path
+
+Changes:
+
+20120425 - ticket 5538228
+- modify Hadoop jar paths to new packaging design
+- change FIT_* vars to be HIT_*
+- update version 
+  From: hadoopcoretest23-0.23.1.0006
+  To:   hadoopcoretest23-0.23.3.0001
+

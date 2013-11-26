@@ -1,0 +1,5 @@
+Found 4 items
+-rw-r--r--   3 hadoopqa hdfs         95 2010-10-23 03:23 /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/helloWorld755
+-rw-r--r--   3 hadoopqa hdfs       2263 2010-10-23 03:23 /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+-rw-r--r--   3 hadoopqa hdfs       2375 2010-10-23 03:23 /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRXFile755
+-rw-r--r--   3 hadoopqa hdfs       2286 2010-10-23 03:23 /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallWRFile755

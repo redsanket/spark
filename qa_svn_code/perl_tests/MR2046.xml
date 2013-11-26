@@ -1,0 +1,52 @@
+<?xml version='1.0'?>
+<testcases>
+<!-- MR 2046 -->
+  <group>
+    <test>
+      <description>Putting the data in hdfs required for testing this test case</description>
+      <cmd>$HADOOP_COMMON_HOME/bin/hadoop fs -put $pwd/data/MR2046 /user/hadoopqa/MR2046</cmd>
+      <exp_stdout_regexp>WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id</exp_stdout_regexp>
+    </test>
+
+    <test>
+      <description>Running wordcount -Dmapreduce.job.queuename=default job to capture the split size</description>
+      <cmd>$HADOOP_COMMON_HOME/bin/hadoop jar $HADOOP_MAPRED_HOME/hadoop-mapred-examples.jar wordcount -Dmapreduce.job.queuename=default  -Dmapreduce.input.fileinputformat.split.maxsize=33554432 /user/hadoopqa/MR2046/128_MB_data/one-file/128_MB_data.txt /user/hadoopqa/MR2046/128_MB_data/one-file/wordcount.out</cmd>
+      <exp_stdout_regexp>number of splits:4</exp_stdout_regexp>
+    </test>
+  </group>
+
+  <group>
+    <test>
+      <description>Running wordcount -Dmapreduce.job.queuename=default job on multiple files to capture the split size. No of splits should be 6 since there are three part files each worth 2 blocks in terms of size</description>
+      <cmd>$HADOOP_COMMON_HOME/bin/hadoop jar $HADOOP_MAPRED_HOME/hadoop-mapred-examples.jar wordcount -Dmapreduce.job.queuename=default  -Dmapreduce.input.fileinputformat.split.maxsize=33554432 /user/hadoopqa/MR2046/128_MB_data/multiple-files /user/hadoopqa/MR2046/128_MB_data/multiple-files/wordcount.out</cmd>
+      <exp_stdout_regexp>number of splits:6</exp_stdout_regexp>
+    </test>
+    <test>
+    </test>
+  </group>
+
+  <group>
+    <test>
+      <description>Running wordcount -Dmapreduce.job.queuename=default job on a file with size greater than 2*block size. Splits should be 5</description>
+      <cmd>$HADOOP_COMMON_HOME/bin/hadoop jar $HADOOP_MAPRED_HOME/hadoop-mapred-examples.jar wordcount -Dmapreduce.job.queuename=default  -Dmapreduce.input.fileinputformat.split.maxsize=33554432 /user/hadoopqa/MR2046/more_than_128_MB_data/one-file/more_than_128_MB.txt /user/hadoopqa/MR2046/more_than_128_MB_data/one-file/wordcount.out</cmd>
+      <exp_stdout_regexp>number of splits:5</exp_stdout_regexp>
+    </test>
+    <test>
+    </test>
+  </group>
+
+  <group>
+    <test>
+      <description>Running wordcount -Dmapreduce.job.queuename=default job on multiple files whose size put together is greater than 2*Block size to capture the split size. No of splits should be 6</description>
+      <cmd>$HADOOP_COMMON_HOME/bin/hadoop jar $HADOOP_MAPRED_HOME/hadoop-mapred-examples.jar wordcount -Dmapreduce.job.queuename=default   -Dmapreduce.input.fileinputformat.split.maxsize=33554432 /user/hadoopqa/MR2046/more_than_128_MB_data/multiple-files /user/hadoopqa/MR2046/more_than_128_MB_data/multiple-files/wordcount.out</cmd>
+      <exp_stdout_regexp>number of splits:6</exp_stdout_regexp>
+    </test>
+
+    <test>
+      <description>Removing any existing data belonging to this test case from previous run</description>
+      <cmd>$HADOOP_COMMON_HOME/bin/hadoop fs -rmr -skipTrash /user/hadoopqa/MR2046</cmd>
+      <exp_stdout_regexp> WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Deleted hdfs://$NN:8020/user/hadoopqa/MR2046</exp_stdout_regexp>
+    </test>
+  </group>
+</testcases>

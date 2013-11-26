@@ -1,0 +1,3 @@
+10/00/00 00:00:00  WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/00/00 00:00:00  WARN ipc.Client: Exception encountered while connecting to the server : javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]
+Bad connection to FS. Command aborted. Exception: Call to gsbl90772.blue.ygrid.yahoo.com/98.137.98.114:8020 failed on local exception: java.io.IOException: javax.security.sasl.SaslException: GSS initiate failed [Caused by GSSException: No valid credentials provided (Mechanism level: Failed to find any Kerberos tgt)]

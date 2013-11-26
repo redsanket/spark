@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+
+<!-- $Id: hadoop-mapred-simon-metrics.xml 24368 2009-10-28 20:30:59Z rajive $ --> 
+
+<simonConfig name="hadoop.mapred" >
+   
+    <!-- BLURBS (AGGREGATOR INPUT) -->
+    <blurbMessage name="mapred" version="0.20.2" period="5" staleAccumulatorPolicy="free">
+    
+        <blurb name="jobtracker">
+            <tag     name="hostName"            type="string"     />
+            <tag     name="sessionId"           type="string"     />
+            <gauge   name="map_slots"           type="long"      />
+            <gauge   name="reduce_slots"        type="long"      />
+            <gauge name="blacklisted_maps"    type="long"       />
+            <gauge name="blacklisted_reduces" type="long"       />
+            <counter name="heartbeats"          type="long"       />
+            <counter name="maps_launched"       type="long"       />
+            <counter name="maps_completed"      type="long"       />
+            <counter name="maps_failed"      type="long"       />
+            <counter name="reduces_launched"    type="long"       />
+            <counter name="reduces_completed"   type="long"       />
+            <counter name="reduces_failed"   type="long"       />
+            <counter name="jobs_submitted"      type="long"       />
+            <counter name="jobs_completed"      type="long"       />
+            <gauge name="waiting_maps"        type="long"       />
+            <gauge name="waiting_reduces"     type="long"       />
+            <gauge name="reserved_map_slots"     type="long"       />
+            <gauge name="reserved_reduce_slots"     type="long"       />
+            <gauge name="occupied_map_slots"     type="long"       />
+            <gauge name="occupied_reduce_slots"     type="long"       />
+            <counter name="jobs_failed"     type="long"       />
+            <counter name="jobs_killed"     type="long"       />
+            <gauge name="jobs_preparing"     type="long"       />
+            <gauge name="jobs_running"     type="long"       />
+            <gauge name="running_maps"     type="long"       />
+            <gauge name="running_reduces"     type="long"       />
+            <counter name="maps_killed"     type="long"       />
+            <counter name="reduces_killed"     type="long"       />
+            <gauge name="trackers"     type="long"       />
+            <gauge name="trackers_blacklisted"     type="long"       />
+            <gauge name="trackers_graylisted"      type="long"       />
+            <gauge name="trackers_decommissioned"     type="long"       />
+        </blurb>
+
+        <blurb name="tasktracker">
+            <tag     name="hostName"          type="string"     />
+            <tag     name="sessionId"         type="string"     />
+            <gauge   name="mapTaskSlots"      type="short"      />
+            <gauge   name="reduceTaskSlots"   type="short"      />
+            <counter name="tasks_completed"   type="long"       />
+            <counter name="tasks_failed_timeout"   type="long"       />
+            <counter name="tasks_failed_ping"   type="long"       />
+            <gauge   name="maps_running"      type="long"       />
+            <gauge   name="reduces_running"   type="long"       />
+        </blurb>
+
+        <blurb name="shuffleInput">
+            <tag     name="hostName"          type="string"      />
+            <tag     name="user"              type="string"      />
+            <tag     name="sessionId"         type="string"      />
+            <tag     name="jobName"           type="string"      />
+            <tag     name="jobId"             type="string"      />
+            <tag     name="taskId"            type="string"      />
+            <counter name="shuffle_input_bytes"              type="long"   />
+            <counter name="shuffle_failed_fetches"           type="long"    />
+            <counter name="shuffle_success_fetches"          type="long"    />
+            <gauge   name="shuffle_fetchers_busy_percent"    type="long"   cf="last" />
+        </blurb>
+
+        <blurb name="shuffleOutput">
+            <tag     name="hostName"           type="string"      />
+            <tag     name="sessionId"          type="string"     />
+            <counter name="shuffle_output_bytes"         type="long"     />
+            <counter name="shuffle_failed_outputs"       type="long"  />
+            <counter name="shuffle_success_outputs"      type="long"  />
+            <gauge   name="shuffle_handler_busy_percent" type="long" cf="last" />
+        </blurb>
+
+        <blurb name="job">
+            <tag     name="hostName"          type="string"      />
+            <tag     name="user"              type="string"      />
+            <tag     name="sessionId"         type="string"      />
+            <tag     name="jobName"           type="string"      />
+            <tag     name="jobId"             type="string"      />
+            <tag     name="group"             type="string"      />
+            <tag     name="counter"           type="string"      />
+            <counter name="value"             type="float"       />
+        </blurb>
+
+    </blurbMessage>
+    
+    <!-- REPORT PERIODS -->
+    <reportPeriod name="perMinute" seconds="60"/>
+
+    <!-- REPORTS (AGGREGATOR OUTPUT) -->
+    <report name="MapReduce" version="0.20.2" periods="perMinute"> 
+
+        <!--
+            Notes:
+
+            #pids means the number of processes that reported in the report period. For
+            reportItems that include the hostName, #pids should normally be 1, but it 
+            could be 2 in the case where the process restarted in the report period.
+
+            #restarts is the number of new processes that were seen in a report period.
+            This should be 0 normally, but 1 when a jobtracker/tasktracker process started
+            or re-started in the report period. 
+        -->
+        <reportItem name="jobtracker totals" blurb="jobtracker">
+            <value name="#jobtrackers">           count(hostName)              </value>
+            <value name="#pids">                  count(nodeId)                </value>
+            <value name="#restarts">              newCount                     </value>
+            <value name="#sessions">              count(sessionId)             </value>
+            <value name="mapsLaunchedPerSec">     maps_launched/period         </value>
+            <value name="heartBeatsPerSec">       heartbeats/period            </value>
+            <value name="mapsCompletedPerSec">    maps_completed/period        </value>
+            <value name="reducesLaunchedPerSec">  reduces_launched/period      </value>
+            <value name="reducesCompletedPerSec"> reduces_completed/period     </value>
+            <value name="jobsSubmittedPerSec">    jobs_submitted/period        </value>
+            <value name="jobsCompletedPerSec">    jobs_completed/period        </value>
+            <value name="jobsSubmitted">    jobs_submitted        </value>
+            <value name="jobsCompleted">    jobs_completed        </value>
+        </reportItem>
+
+        <reportItem name="jobtracker" blurb="jobtracker">
+          <!--         
+            <key name="sessionId" tag="sessionId" />  
+          -->
+            <key name="jobtracker" tag="hostName" />
+            <value name="#pids">                    count(nodeId)               </value>
+            <value name="#restarts">                newCount                    </value>
+            <value name="heartbeatsPerSec">         heartbeats/period           </value>
+            <value name="mapsLaunchedPerSec">       maps_launched/period        </value>
+            <value name="mapsCompletedPerSec">      maps_completed/period       </value>
+            <value name="reducesLaunchedPerSec">    reduces_launched/period     </value>
+            <value name="reducesCompletedPerSec">   reduces_completed/period    </value>
+            <value name="jobsSubmittedPerSec">      jobs_submitted/period       </value>
+            <value name="jobsCompletedPerSec">      jobs_completed/period       </value>
+            <value name="blacklistedMaps">          blacklisted_maps            </value>
+            <value name="blacklistedReduces">       blacklisted_reduces         </value>
+            <value name="reduceSlots">              reduce_slots                </value>
+            <value name="mapSlots">                 map_slots                   </value>
+            <value name="waitingMaps">              waiting_maps                </value>
+            <value name="waitingReduces">           waiting_reduces             </value>
+            <value name="reservedMapSlots">         reserved_map_slots          </value>
+            <value name="reservedReduceSlots">      reserved_reduce_slots       </value>
+            <value name="occupiedMapSlots">         occupied_map_slots          </value>
+            <value name="occupiedReduceSlots">      occupied_reduce_slots       </value>
+            <value name="runningMaps">              running_maps                </value>
+            <value name="runningReduces">           running_reduces             </value>
+            <value name="jobsPreparing">            jobs_preparing              </value>
+            <value name="jobsRunning">              jobs_running                </value>
+            <value name="blacklistedTrackers">      trackers_blacklisted        </value>
+            <value name="graylistedTrackers">       trackers_graylisted         </value>
+          </reportItem>
+
+        <reportItem name="tasktracker totals" blurb="tasktracker">
+            <value name="#nodes">                 count(hostName)                       </value>
+            <value name="#pids">                  count(nodeId)                         </value>
+            <value name="#restarts">              newCount                              </value>
+            <value name="tasksCompletedPerSec">   tasks_completed/period                </value>
+            <value name="mapsRunning">            maps_running                          </value>
+            <value name="reducesRunning">         reduces_running                       </value>
+            <value name="%mapUtilization">        100*(maps_running)/mapTaskSlots       </value>
+            <value name="%reduceUtilization">     100*(reduces_running)/reduceTaskSlots </value>
+            <value name="tasksFailedPing"> tasks_failed_ping                            </value>
+            <value name="tasksFailedTimeout"> tasks_failed_timeout                      </value>
+        </reportItem>
+
+        <reportItem name="tasktracker" blurb="tasktracker">
+            <key name="sessionId" tag="sessionId" />
+            <key name="node" tag="hostName" />
+            <value name="#pids">                  count(nodeId)                </value>
+            <value name="#restarts">              newCount                     </value>
+            <value name="tasksCompletedPerSec">   tasks_completed/period       </value>
+            <value name="mapsRunning">            maps_running                 </value>
+            <value name="reducesRunning">         reduces_running              </value>
+            <value name="%mapUtilization">        100*(maps_running)/mapTaskSlots </value>
+            <value name="%reduceUtilization">     100*(reduces_running)/reduceTaskSlots </value>
+            <value name="mapTaskSlots"> mapTaskSlots </value> 
+            <value name="reduceTaskSlots"> reduceTaskSlots </value>
+        </reportItem>
+
+        <reportItem name="shuffle input by host" blurb="shuffleInput">
+            <key   name="node" tag="hostName" />
+            <value name="shuffleInputBytesPerSec">shuffle_input_bytes/period           </value>
+            <value name="shuffleFailedFetchesPerSec">shuffle_failed_fetches/period     </value>
+            <value name="shuffleSuccessFetchesPerSec">shuffle_success_fetches/period   </value>
+            <value name="shuffleFetchersBusyPercent">AVERAGE(shuffle_fetchers_busy_percent)   </value>
+        </reportItem>
+        <reportItem name="shuffle output by host" blurb="shuffleOutput">
+            <value name="shuffleOutputBytesPerSec">shuffle_output_bytes/period       </value>
+            <value name="failedOutputsPerSec">shuffle_failed_outputs/period          </value>
+            <value name="successOutputsSuccessPerSec">shuffle_success_outputs/period </value>
+            <value name="shuffleHandlerBusyPercent">AVERAGE(shuffle_handler_busy_percent) </value>
+        </reportItem>
+        <!--
+        <reportItem name="shuffle input by user" blurb="shuffleInput">
+            <key   name="user" tag="user" />
+            <value name="shuffleInputBytesPerSec">shuffle_input_bytes/period           </value>
+            <value name="shuffleFailedFetchesPerSec">shuffle_failed_fetches/period     </value>
+            <value name="shuffleSuccessFetchesPerSec">shuffle_success_fetches/period   </value>
+            <value name="shuffleFetchersBusyPercent">AVERAGE(shuffle_fetchers_busy_percent)  </value>
+        </reportItem>
+
+        <reportItem name="shuffle input by session" blurb="shuffleInput">
+            <key   name="user" tag="user" />
+            <key   name="sessionId" tag="sessionId" />
+            <value name="shuffleInputBytesPerSec">shuffle_input_bytes/period           </value>
+            <value name="shuffleFailedFetchesPerSec">shuffle_failed_fetches/period     </value>
+            <value name="shuffleSuccessFetchesPerSec">shuffle_success_fetches/period   </value>
+            <value name="shuffleFetchersBusyPercent">AVERAGE(shuffle_fetchers_busy_percent)  </value>
+        </reportItem>
+
+        <reportItem name="shuffle output by session" blurb="shuffleOutput">
+            <value name="shuffleOutputBytesPerSec">shuffle_output_bytes/period       </value>
+            <value name="failedOutputsPerSec">shuffle_failed_outputs/period          </value>
+            <value name="successOutputsSuccessPerSec">shuffle_success_outputs/period </value>
+            <value name="shuffleHandlerBusyPercent">AVERAGE(shuffle_handler_busy_percent) </value>
+        </reportItem>
+
+        <reportItem name="counters by user" blurb="job">
+            <key   name="jobtracker" tag="hostName" />
+            <key   name="user"       tag="user" />
+            <key   name="jobName"    tag="jobName" />
+            <key   name="group"      tag="group" />
+            <key   name="counter"    tag="counter" />
+            <value name="#sessions">              count(sessionId)             </value>
+            <value name="#jobs">                  count(jobId)                 </value>
+            <value name="perSec">                 value/period                 </value>
+        </reportItem>
+
+        <reportItem name="counters by session" blurb="job">
+            <key   name="jobtracker" tag="hostName" />
+            <key   name="user"       tag="user" />
+            <key   name="sessionId"  tag="sessionId"/>
+            <key   name="jobName"    tag="jobName" />
+            <key   name="group"      tag="group" />
+            <key   name="counter"    tag="counter" />
+            <value name="#jobs">                  count(jobId)                 </value>
+            <value name="perSec">                 value/period                 </value>
+        </reportItem>
+
+        -->
+    </report>
+    
+</simonConfig>
+

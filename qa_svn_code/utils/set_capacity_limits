@@ -1,0 +1,104 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to show the initialized capacity limits
+# Example:
+# HADOOP_QA_ROOT=/home CLUSTER=theoden submit_sleep_jobs.t  
+# CLUSTER=boromir ./submit_sleep_jobs.t -jobs 2
+# CLUSTER=boromir ./submit_sleep_jobs.t -jobs 2 -state SUCCEEDED
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use base qw(Hadoop::Test);
+use Hadoop22::CapacityScheduler;
+use Getopt::Long;
+use Test::More;
+
+my %options = ();
+my $verbose          = 0;
+my $multiple_users   = 0;
+my $target;
+my $config_dir;
+
+my $result =
+    GetOptions ( \%options,
+                 "conf=s"         => \$config_dir,
+                 "target=s"       => \$target,
+                 "verbose"        => \$verbose,
+                 "multiple-users" => \$multiple_users,
+                 "help|h|?");
+
+usage(1) if (!$result) or (@ARGV);
+usage(0) if $options{help};
+
+sub usage
+{
+    my($exit_code) = @_;
+    diag << "EOF";
+Usage: $Script
+   [-conf      <conf dir>         ] : local config directory to use as the baseline (optional)
+   [-target    <target limit>     ] : a hash containing the target limits
+   [-multiple-users               ] : default is $multiple_users (0 for off, 1 for on)
+   [-verbose                      ] : verbose
+   [-help|h|?                     ] : Display usage
+
+EOF
+    exit $exit_code;
+}
+
+my $self = __PACKAGE__->new;
+my $Config = $self->config;
+my $cs = Hadoop22::CapacityScheduler->new($self);
+
+my $conf_file;
+my ($conf, $config_limits, $limits, $logged_limits);
+
+if ($config_dir) {
+    my $component = ($Config->{YARN_USED}) ? 'resourcemanager' : 'jobtracker';
+    my $component_host = $Config->{uc($component)};
+    $conf = $self->create_new_conf_dir($component_host, $config_dir);
+}
+else {
+    $config_dir = $self->get_component_config_dir('resourcemanager');
+    $conf ={ 'root_dir'             => $config_dir, 
+             'local_cap_sched_conf' => "$config_dir/local-capacity-scheduler.xml" };
+}
+
+my $target_limits;
+if ($target) {
+#    open CONFIG_FILE, "< $target" or die "Can't open $target, $!\n";
+#    my $content;
+#    $content .= $_ while (<CONFIG_FILE>);
+#    close CONFIG_FILE;
+#    my %limits = eval("$content");
+#    $target_limits = \%limits;
+    $target_limits = do $target;
+
+
+}
+else {
+    $target_limits = {
+        "maximum-system-jobs"                       => 12, # default = 5000
+        "capacity"                                  => 25, # no default value
+        "minimum-user-limit-percent"                => 50, # default = 100
+        "init-accept-jobs-factor"                   => 2,  # default = 10
+        "user-limit-factor"                         => 20, # default = 1
+        "maximum-capacity"                          => 25, # default = -1 (i.e.cluster limit)
+        "maximum-initialized-active-tasks-per-user" => 10, # Default = 100000
+        "maximum-initialized-active-tasks"          => 20  # Defautl = 200000 
+        };
+}
+
+note(explain($target_limits));
+exit;
+
+$target_limits = $cs->construct_target_limits($target_limits);
+
+($conf, $config_limits, $limits, $logged_limits) =
+    $cs->check_set_config_limits({'limits' => $target_limits,
+                                  'conf'   => $conf},
+                                 $verbose);
+
+

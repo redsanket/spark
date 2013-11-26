@@ -1,0 +1,32 @@
+PRODUCT_NAME = hadoopdistcptest2dotX
+README = README-$(PRODUCT_NAME)
+TS = `date +"%y%m%d%H%M"`
+BASE_VERSION=2.2.0.0
+VERSION = $(BASE_VERSION).$(TS)
+
+SHORT_DESC = Hadoop DistCp integration test suite for 2.x release line
+LONG_DESC = `cat $(README)`
+CUSTODIAN = yahoo-hadoop-core-qe@yahoo-inc.com http://twiki.corp.yahoo.com/view/Grid/SIRE
+PACKAGE_OS_SPECIFIC = no
+NO_AUTO_REQUIRES = yes
+
+TEST_SRC = hadoopdistcptest.src/
+PACKAGE_DIST = share/test/hadoop/hadoopdistcptest2dotX
+
+OWNER = hadoopqa
+GROUP = users
+PERM = 0775
+
+YINST bug-product Hadoop
+YINST bug-component Quality Engineering
+
+# Package dependencies
+
+#Copy test cases and harness content
+glob - - - $(PACKAGE_DIST)_$(BASE_VERSION)/bin/ $(TEST_SRC)/bin/*
+
+# Create soft link to harness
+symlink - - - $(PACKAGE_DIST) $(ROOT)/$(PACKAGE_DIST)_$(BASE_VERSION)
+# Driver script has to be linked up from the $YROOT/bin
+symlink - - - bin/run-hadoopdistcp2dotX-integration-tests.sh $(ROOT)/$(PACKAGE_DIST)_$(BASE_VERSION)/bin/run-hadoopdistcp2dotX-integration-tests.sh
+

@@ -1,0 +1,48 @@
+# <Test Suite Name> <Test Case Name> <Bug ID> <Always Skip Tag: 'skip'>
+
+EndToEnd/YARN/Streaming                  CacheFiles_610                                   4998188 
+EndToEnd/YARN/Streaming                  CacheFiles_630                                   4998188
+EndToEnd/YARN/Streaming                  CacheFiles_650                                   4998188
+EndToEnd/YARN/Streaming                  CacheFiles_670                                   4998188
+
+Regression/HDFS/archives                 test_archive_14                                  4323063
+Regression/HDFS/archives                 test_archive_16                                  4323063
+
+Regression/YARN/JvmParams478             jvm_param478_9                                   5312711
+Regression/YARN/JvmParams478             jvm_param478_10                                  5312711
+Regression/YARN/JvmParams478             jvm_param478_11                                  5312711
+Regression/YARN/JvmParams478             jvm_param478_12                                  5312711
+Regression/YARN/JvmParams478             jvm_param478_43                                  5312711
+Regression/YARN/JvmParams478             jvm_param478_44                                  5312711
+Regression/YARN/JvmParams478             jvm_param478_52                                  5312711
+
+Regression/YARN/MapredCLI                test_KillJobIdAlreadyKilledJob                   5366200
+Regression/YARN/MapredCLI                test_getJobStatusWithInvalidJobIdProvided        5366200
+Regression/YARN/MapredCLI                test_getJobStatusWithInvalidJobIdProvided        5366200
+Regression/YARN/MapredFailTask           test_failTaskOfAlreadyFailedJob                  5366200
+Regression/YARN/MapredFailTask           test_failTaskOfAlreadyCompletedJob               5366200
+Regression/YARN/MapredKillTask           test_killTaskOfAlreadyCompletedJob               5366200
+Regression/YARN/MapredKillTask           test_killTaskOfAlreadyFailedJob                  5366200
+Regression/YARN/JobJarPermissions        JobJarPermissions20                              5428388
+Regression/YARN/capacityScheduler        cs_queue_high_ram_1_2                            4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_1_6                            4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_1_10                           4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_2_2                            4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_2_6                            4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_2_10                           4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_3_2                            4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_3_6                            4624829
+Regression/YARN/capacityScheduler        cs_queue_high_ram_3_10                           4624829
+Regression/YARN/capacityScheduler        cs_queues_high_ram_1_5                           4624829
+Regression/YARN/capacityScheduler        cs_queues_high_ram_1_15                          4624829
+Regression/YARN/CapacitySchedulerLimits  test_refresh_queues_49                           5701254
+
+
+Regression/HDFS/FedDfsMNN		 FED_DFS_MNN_CHMOD_FED_DFS_134			  6427324
+Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_135			  6427324
+Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_234			  6427324
+Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_235			  6427324
+Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_334			  6427324
+Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_335			  6427324
+Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_434			  6427324
+Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_435			  6427324

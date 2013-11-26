@@ -1,0 +1,132 @@
+#!/bin/sh
+
+##############################################################################
+# File Name     : restart_cluster
+# Type          : Shell Script
+# Description   : This script is useful for restarting the cluster
+# Framework Twiki : http://twiki.corp.yahoo.com/view/Grid/HadoopQEAutomation 
+##############################################################################
+
+# This file should have executable permision
+# Capturing starting time of execution
+STARTTIME=`date +%m-%d-%Y_%H-%M-%S`
+START_IN_SEC=`date +%s`
+
+##### Usage Function
+function usage
+{
+    echo 
+    echo "USAGE"
+    echo "-----------------------------------------------------------------------------------"
+    echo "/bin/sh $0 <option1> <values1> <option2> <values2> ...
+
+The options
+        -c <cluster name> 
+        [ -w <workspace location> ]
+        [ -u <user to whom mail to be sent> ]
+
+Script must be run as 'hadoopqa'"
+    exit 1
+}
+
+
+### Checking if user is hadoopqa
+USER=`whoami`
+if [ "${USER}" != "hadoopqa" ];then
+    echo
+    echo "*** Running as user '${USER}'!!! Script must be run as 'hadoopqa'. ***"
+    usage
+fi
+
+
+### Checking if it is run from yHudson Job
+if [ "X${CLUSTER}X" == "XX" -o "X${TESTSUITEFILE}X" == "XX" -o "X${WORKSPACE}X" == "XX" ];then
+
+    ### Commandline Input Variables
+    ARGC=$#
+    CLUSTER=""
+    WORKSPACE=""
+    VERSION=""
+
+    ### Commandline Input Validation
+    while getopts "c:w:t:s:u:nh" opt; do
+        case $opt in
+            c) CLUSTER=$OPTARG
+               ;;
+            w) WORKSPACE=$OPTARG
+               ;;
+            h) usage
+               ;;
+            *) usage;;
+        esac
+    done
+fi
+
+### Input Validation
+if [ "X$CLUSTER" == "X" ];then
+    echo "ERROR : CLUSTER name not provided, use -c option"
+    usage
+else
+    ### From .20.204  deployments will be residing in /home/gs 
+    set -x
+    HADOOP_QA_ROOT=`ls -ltr {/home,/grid/0}/gs/gridre/yroot.${CLUSTER}/share/{hadoop-current,hadoopcommon,hadoop}/bin/hadoop 2> /dev/null | sort | tail -1 | awk '{print $9}' | sed -e 's/\(.*\)\/gs.*$/\1/'`
+    set +x
+    if [ "X${HADOOP_QA_ROOT}X" == "XX" ];then
+        echo "FATAL :: Hadoop Binary is not found"
+        exit 1
+    fi
+
+    ### From .20.204  deployments will be residing in /home/gs/var/log 
+    if [ "X${HADOOP_QA_ROOT}X" == "X/homeX" ];then
+        HADOOP_LOG_DIR="${HADOOP_QA_ROOT}/gs/var/log"
+    else
+        HADOOP_LOG_DIR="${HADOOP_QA_ROOT}/hadoop/var/log"
+    fi
+fi
+
+if [ -d "${HADOOP_QA_ROOT}/gs/gridre/yroot.$CLUSTER" ]; then
+    echo "The Valid cluster         :: $CLUSTER"
+else
+    echo "ERROR : The Cluster \"$CLUSTER\" is not valid as ${HADOOP_QA_ROOT}/gs/gridre/yroot.$CLUSTER does not exists !!"
+    usage
+fi
+
+if [ "X$WORKSPACE" == "X" ];then
+    echo "WARN : WORKSPACE not provided, using currently directory. (use -w option to override)"
+    WORKSPACE=$(dirname $0)/..
+fi
+
+if [ -d $WORKSPACE ]; then
+    echo "The Valid Workspace               :: $WORKSPACE"
+else
+    echo "ERROR : The Workspace \"$WORKSPACE\" does not exists !!"
+    usage
+fi
+HADOOP_QA_ROOT_TMP="/grid/0/tmp/hadoopqe.${CLUSTER}.${START_IN_SEC}"
+
+
+########### Set Up Hadoop Product Related Environment Variables ######
+#
+#       CLUSTER, HADOOP_HOME, HADOOP_COMMON_HOME, HADOOP_MAPRED_HOME, 
+#       HADOOP_HDFS_HOME, HADOOP_CONF_DIR, HADOOP_MAPRED_EXAMPLES_JAR
+#       HADOOP_MAPRED_TEST_JAR, HADOOP_STREAMING_JAR, JAVA_HOME
+#
+#######################################################################
+ARTIFACTS=$WORKSPACE/artifacts
+. $WORKSPACE/conf/hadoop/common_hadoop_env.sh $CLUSTER $WORKSPACE $ARTIFACTS $HADOOP_QA_ROOT $HADOOP_LOG_DIR
+
+# Load Library 
+. $WORKSPACE/lib/library.sh
+. $WORKSPACE/lib/restart_cluster_lib.sh
+. $WORKSPACE/lib/user_kerb_lib.sh
+
+## Restroring cluster in default state
+restartCluster
+FINAL_RESULT=$?
+
+VERSION=`$HADOOP_COMMON_HOME/bin/hadoop  --config $HADOOP_CONF_DIR version | grep 'Hadoop 0.'`
+echo "******************************************************************************************************************"
+echo "FINISHING EXECUTION OF HADOOP CLUSTER RESTART ON  CLUSTER => \"$CLUSTER\" with Hadoop Version :: $VERSION"
+echo "******************************************************************************************************************"
+echo "Execution exit code =  ${FINAL_RESULT}"
+exit 0

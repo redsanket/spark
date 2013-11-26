@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- local-mapred-site.xml -->
+
+<configuration>
+
+<property>
+  <name>mapred.queue.names</name>
+  <value>gridops,grid-dev,grideng,default</value>
+</property>
+
+<property>
+  <name>mapred.acls.enabled</name>
+  <value>true</value>
+</property>
+
+<property>
+<name>mapreduce.cluster.administrators</name>
+<value> gridadmin,hadoop,philips,hadoopqa</value>
+</property>
+<property><name>mapreduce.job.acl-view-job</name><value>*</value></property>
+
+</configuration>

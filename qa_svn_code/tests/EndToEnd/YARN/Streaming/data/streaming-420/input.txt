@@ -1,0 +1,2 @@
+cachedir.tar/cache.txt
+cachedir.tar/cache2.txt

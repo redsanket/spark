@@ -1,0 +1,6 @@
+571841  hdfs://gsbl00000.blue.ygrid/user/hadoopqa/hdfsMNNData/distcache_input
+908324  hdfs://gsbl00000.blue.ygrid/user/hadoopqa/hdfsMNNData/har_input
+7019    hdfs://gsbl00000.blue.ygrid/user/hadoopqa/hdfsMNNData/hdfsTestData
+95      hdfs://gsbl00000.blue.ygrid/user/hadoopqa/hdfsMNNData/helloworld.txt
+0       hdfs://gsbl00000.blue.ygrid/user/hadoopqa/hdfsMNNData/tmpWrite
+202217  hdfs://gsbl00000.blue.ygrid/user/hadoopqa/hdfsMNNData/wordcount_input

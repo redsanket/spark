@@ -1,0 +1,135 @@
+"Note:: testViewfs.sh - Test the use of viewfs in URI and in config file"
+"Note:: test various combintions of URI, config"
+"Note:: --config: ds.default to be hdfs://gwbl90772.blue.ygrid  vs viewfs:/// "
+"Note:: --config set ds.default to be non-final, so that it can over-ridden by -conf"
+"Note:: dfs -conf: my-viewfs-scheme-only.xml vs my-hdfs-scheme-only.xml"
+"Note:: URI: /nn2/file1, //nn2, ///nn2 - these are viewfs:" 
+"Note:: URI: hdfs:/nn2 and hdfs:/nn4 does not exist. They are mount points "
+"Note:: /nn2 is mounted to hdfs:/tmp/nn2.mt , and /nn4 is mounted to hdfs:/tmp/nn4.mt"
+"Note:: hdfs config, then viewfs config for /nn2/file1; then hdfs, viewfs config for tmp"
+# Comment on the test groups
+'Note:: Test Group 01-20: using hdfs as default, try to access /tmp/nn2/file1. /, ///, //gsbl90772, hdfs:/, hdfs:///, hdfs://gsbl90772 should work. All other fail'
+'Note:: Test Group 21-30: using viewfs as default, try to access /tmp/nn2/file1. All should fail, except #16 hdfs://gsbl90772/tmp/nn2/file1'
+'Note:: Test Group 41-50: using hdfs as default, try to access /nn2/file1. All should fail, except #27, #28 using viewfs:'
+'Note:: Test Group 61-70: using viewfs as default, try to access /nn2/file1. /nn2, ///nn2, viewfs:/nn2, viewfs:///nn2 should work. Other should fail.'
+'Note:: Test Group 81-90:  using viewfs as default, but use hdfs override. Should have the same behavior as in case 01-10'
+'Note:: Test Group 101-110:  basic default URI that works with hdfs_configs and viewfs_config, and the basic set up'
+'Note:: viewfs://default/nn2 is mounted to hdfs:/tmp/nn2.mt'
+'Note:: viewfs://qatest/nn4 is mounted to hdfs:/tmp/nn4.mt'
+
+---+++++ Using hdfs as default,try to access /tmp/nn2/file1  using various URI
+| [Pass] | [exec - POS test] [POS_01] | hadoop  --config v20_hdfs_omegam  dfs -ls /tmp/nn2.mt/file1    |
+| [Pass] | [exec - POS test] [POS_02] | hadoop  --config v20_hdfs_omegam/ dfs -ls ///tmp/nn2.mt/file1   |
+| [Pass] | [exec - POS test] [POS_03] | hadoop  --config v20_hdfs_omegam/ dfs -ls //gsbl90470.blue.ygrid/tmp/nn2.mt/file1   |
+| [Pass] | [exec - POS test] [POS_04] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs:/tmp/nn2.mt/file1   |
+| [Pass] | [exec - POS test] [POS_05] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs:///tmp/nn2.mt/file1    |
+| [Pass] | [exec - POS test] [POS_06] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs://gsbl90470.blue.ygrid/tmp/nn2.mt/file1    |
+| [Pass] | [exec - NEG test] [NEG_07] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs:/tmp/nn2.mt/file1   | Comment: @: /tmp is not a mount point |
+| [Pass] | [exec - NEG test] [NEG_08] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs:///tmp/nn2.mt/file1   | Comment: @: /tmp is not a mount point |
+| [Pass] | [exec - NEG test] [NEG_09] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs://gsbl90470.blue.ygrid/tmp/nn2.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_10] | hadoop  --config v20_hdfs_omegam/ dfs -ls //tmp/nn2.mt/file1   | Comment: @: //tmp is not a valid authorith |
+| [Pass] | [exec - POS test] [POS_11] | hadoop  --config v20_hdfs_omegam/ dfs -ls //default/tmp/nn2.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_12] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs://default/tmp/nn2.mt/file1   | Comment: @: expect to work, but didn;t XXX |
+| [Pass] | [exec - NEG test] [NEG_13] | hadoop  --config v20_hdfs_omegam/ dfs -ls vewfs://default/tmp/nn2.mt/dir1   | Comment: @: using viewfs would work |
+| [Pass] | [exec - POS test] [POS_14] | hadoop  --config v20_hdfs_omegam/ dfs -ls /tmp/nn4.mt/file1   |
+| [FAIL] | [exec - NEG test] [NEG_15] | hadoop  --config v20_hdfs_omegam/ dfs -ls //qatest/tmp/nn4.mt/file1   | Comment: @: //qatest should not work, but it does. Why? XXX  |
+| [Pass] | [exec - NEG test] [NEG_16] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs://qatest/tmp/nn4.mt/dir1   |
+| [Pass] | [exec - NEG test] [NEG_17] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs://qatest/tmp/nn4.mt/dir1   |
+| [Pass] | [exec - NEG test] [NEG_18] | hadoop  --config v20_hdfs_omegam/ dfs -ls /nn4.mt/dir1   |
+
+---+++ Using viewfs:/// as default, trying to access /tmp/nn2.mt (usually fail, except with correct hdfs: URI) 
+| [Pass] | [exec - NEG test] [NEG_21] | hadoop  --config v20_viewfs_omegam  dfs -ls /tmp/nn2.mt/file1    | Comment: @: viewfs cannot access to any /tmp as it is not a mount point |
+| [Pass] | [exec - NEG test] [NEG_22] | hadoop  --config v20_viewfs_omegam/ dfs -ls ///tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_23] | hadoop  --config v20_viewfs_omegam/ dfs -ls //gsbl90470.blue.ygrid/tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_24] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs:/tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_25] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs:///tmp/nn2.mt/file1    | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - POS test] [POS_26] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs://gsbl90470.blue.ygrid/tmp/nn2.mt/file1    | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_27] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs:/tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_28] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs:///tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_29] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs://gsbl90470.blue.ygrid/tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_30] | hadoop  --config v20_viewfs_omegam/ dfs -ls //tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_31] | hadoop  --config v20_viewfs_omegam/ dfs -ls //default/tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_32] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs://default/tmp/nn2.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_33] | hadoop  --config v20_viewfs_omegam/ dfs -ls vewfs://default/tmp/nn2.mt/dir1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_34] | hadoop  --config v20_viewfs_omegam/ dfs -ls /tmp/nn4.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_35] | hadoop  --config v20_viewfs_omegam/ dfs -ls //qatest/tmp/nn4.mt/file1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_36] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs://qatest/tmp/nn4.mt/dir1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_37] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs://qatest/tmp/nn4.mt/dir1   | Comment: @: /tmp not a valid mount point |
+| [Pass] | [exec - NEG test] [NEG_38] | hadoop  --config v20_viewfs_omegam/ dfs -ls /nn4.mt/dir1   | Comment: @: /nn4 would work, not /nn4.mt |
+
+---+++ Using hdfs as default, trying to access /nn2 (should all fail, as /nn2 is not a real hdfs directory)
+
+| [Pass] | [exec - NEG test] [NEG_41] | hadoop  --config v20_hdfs_omegam/ dfs -ls /nn2/file1    | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_42] | hadoop  --config v20_hdfs_omegam/ dfs -ls ///nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_43] | hadoop  --config v20_hdfs_omegam/ dfs -ls //gsbl90470.blue.ygrid/nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_44] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs:/nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_45] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs:///nn2/file1    | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_46] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs://gsbl90470.blue.ygrid/nn2/file1    | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_47] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs:/nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_48] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs:///nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_49] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs://gsbl90470.blue.ygrid/nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_50] | hadoop  --config v20_hdfs_omegam/ dfs -ls //nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_51] | hadoop  --config v20_hdfs_omegam/ dfs -ls //default/nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_52] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs://default/nn2/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_53] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs://default/nn2/dir1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_54] | hadoop  --config v20_hdfs_omegam/ dfs -ls /nn4/dir1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_55] | hadoop  --config v20_hdfs_omegam/ dfs -ls //qatest/nn4/file1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_56] | hadoop  --config v20_hdfs_omegam/ dfs -ls hdfs://qatest/nn4/dir1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_57] | hadoop  --config v20_hdfs_omegam/ dfs -ls viewfs://qatest/nn4/dir1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+| [Pass] | [exec - NEG test] [NEG_58] | hadoop  --config v20_hdfs_omegam/ dfs -ls /nn4.mt/dir1   | Comment: @: /nn2 or /nn4 are mount points, not dir.  |
+
+---+++ Using viewfs as default, trying to access /nn2 (should work, unless prefixed by hdfs:)
+
+| [Pass] | [exec - POS test] [POS_61] | hadoop  --config v20_viewfs_omegam/ dfs -ls /nn2/file1    | Comment: @: viewfs mount point |
+| [Pass] | [exec - POS test] [POS_62] | hadoop  --config v20_viewfs_omegam/ dfs -ls ///nn2/file1   | Comment: @: /// same as /   |
+| [Pass] | [exec - POS test] [POS_63] | hadoop  --config v20_viewfs_omegam/ dfs -ls //gsbl90470.blue.ygrid/nn2/file1   |
+| [Pass] | [exec - NEG test] [NEG_64] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs:/nn2/file1   | Comment: @: hdfs:/tmp would work  |
+| [Pass] | [exec - NEG test] [NEG_65] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs:///nn2/file1    | Comment: @: hdfs:///tmp would work  |
+| [Pass] | [exec - NEG test] [NEG_66] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs://gsbl90470.blue.ygrid/nn2/file1   | Comment: @: hdfs://gsbl90470.blue.ygrid/tmp/ would work   |
+| [Pass] | [exec - POS test] [POS_67] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs:/nn2/file1   | 
+| [Pass] | [exec - POS test] [POS_68] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs:///nn2/file1   |
+| [Pass] | [exec - NEG test] [NEG_69] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs://gsbl90470.blue.ygrid/nn2/file1   | Comment: @: /nn2 not a valid hdfs dir |
+| [Pass] | [exec - NEG test] [NEG_70] | hadoop  --config v20_viewfs_omegam/ dfs -ls //nn2/file1   | Comment: @: //nn2 not a valid authority |
+| [Pass] | [exec - POS test] [POS_71] | hadoop  --config v20_viewfs_omegam/ dfs -ls //default/nn2/file1   | Comment: @: //default/nn2 = /nn2  |
+| [Pass] | [exec - NEG test] [NEG_72] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs://default/nn2/file1   | Comment: @: not a valid hdfs default  |
+| [Pass] | [exec - POS test] [POS_73] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs://default/nn2/dir1   |
+| [Pass] | [exec - NEG test] [NEG_74] | hadoop  --config v20_viewfs_omegam/ dfs -ls /nn4/dir1   | Comment: @: should work? XXX  |
+| [Pass] | [exec - NEG test] [NEG_75] | hadoop  --config v20_viewfs_omegam/ dfs -ls //qatest/nn4/file1   | Comment: @: //qatest need to be prefixed by viewfs: |
+| [Pass] | [exec - NEG test] [NEG_76] | hadoop  --config v20_viewfs_omegam/ dfs -ls hdfs://qatest/nn4/dir1   | Comment: @: should be viewfs://qatest, not hdfs  |
+| [Pass] | [exec - POS test] [POS_77] | hadoop  --config v20_viewfs_omegam/ dfs -ls viewfs://qatest/nn4/dir1   |
+| [Pass] | [exec - NEG test] [NEG_78] | hadoop  --config v20_viewfs_omegam/ dfs -ls /nn4.mt/dir1   | Comment: @: /nn4.mt not a valid hdfs dir |
+
+---+++++ Use viewfs, but overridden by hdfs. So result should be same as hdfs
+
+| [Pass] | [exec - POS test] [POS_81] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls /tmp/nn2.mt/file1    |
+| [Pass] | [exec - POS test] [POS_82] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls ///tmp/nn2.mt/file1   |
+| [Pass] | [exec - POS test] [POS_83] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls //gsbl90470.blue.ygrid/tmp/nn2.mt/file1   |
+| [Pass] | [exec - POS test] [POS_84] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls hdfs:/tmp/nn2.mt/file1   |
+| [Pass] | [exec - POS test] [POS_85] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls hdfs:///tmp/nn2.mt/file1    |
+| [Pass] | [exec - POS test] [POS_86] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls hdfs://gsbl90470.blue.ygrid/tmp/nn2.mt/file1    |
+| [Pass] | [exec - NEG test] [NEG_87] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls viewfs:/tmp/nn2.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_88] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls viewfs:///tmp/nn2.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_89] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls viewfs://gsbl90470.blue.ygrid/tmp/nn2.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_90] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls //tmp/nn2.mt/file1   |
+| [Pass] | [exec - POS test] [POS_91] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls //default/tmp/nn2.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_92] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls hdfs://default/tmp/nn2.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_93] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls viewfs://default/tmp/nn2.mt/dir1   |
+| [Pass] | [exec - POS test] [POS_94] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls /tmp/nn4.mt/file1   |
+| [Pass] | [exec - POS test] [POS_95] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls //qatest/tmp/nn4.mt/file1   |
+| [Pass] | [exec - NEG test] [NEG_96] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls hdfs://qatest/tmp/nn4.mt/dir1   |
+| [Pass] | [exec - NEG test] [NEG_97] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls viewfs://qatest/tmp/nn4.mt/dir1   |
+| [Pass] | [exec - NEG test] [NEG_98] | hadoop  --config v20_viewfs_omegam/ dfs -conf v20_hdfs_omegam/my-hdfs-scheme-only.xml -ls /nn4.mt/dir1   |
+
+---+++++ Misc 
+| [Pass] | [exec - POS test] [POS_101] | hadoop  --config v20_hdfs_omegam/   dfs -ls /   | Comment: @: shows /tmp |
+| [Pass] | [exec - POS test] [POS_102] | hadoop  --config v20_viewfs_omegam/ dfs -ls /   | Comment: @: shows the mount points  |
+| [Pass] | [exec - POS test] [POS_103] | hadoop  --config v20_hdfs_omegam/   dfs -lsr /tmp/nn2.mt/   | Comment: @: viewfs:/nn2 is mounted to this directory |
+| [Pass] | [exec - POS test] [POS_104] | hadoop  --config v20_hdfs_omegam/   dfs -lsr /tmp/nn4.mt/   | Comment: @: viewfs:/nn4 is mounted to this directory |
+| [Pass] | [exec - POS test] [POS_105] | hadoop  --config v20_viewfs_omegam/ dfs -lsr /nn2   | Comment: @: should show the same content as POS_103 |
+| [Pass] | [exec - POS test] [POS_106] | hadoop  --config v20_viewfs_omegam/ dfs -lsr ///nn2   | Comment: @: should show the same content as POS_103 |
+| [FAIL] | [exec - POS test] [POS_107] | hadoop  --config v20_viewfs_omegam/ dfs -lsr /nn4   | Comment: @: should show the same content as POS_104 |
+| [Pass] | [exec - POS test] [POS_108] | hadoop  --config v20_viewfs_omegam/ dfs -lsr viewfs://default/nn2   | Comment: @: viewfs supports default as an authority |
+| [Pass] | [exec - POS test] [POS_109] | hadoop  --config v20_viewfs_omegam/ dfs -lsr viewfs://qatest/nn4   | Comment: @: qatest is one of the configured  authority |
+| [Pass] | [exec - NEG test] [NEG_110] | hadoop  --config v20_viewfs_omegam/ dfs -lsr ///nn4   | Comment: @: qatest is not default authority  |
+| [Pass] | [exec - NEG test] [NEG_111] | hadoop  --config v20_hdfs_omegam/   dfs -lsr vewfs:/nn2   | Comment: @: need to add the /nn2 mount point defintion to make this work  |
+| [Pass] | [exec - NEG test] [NEG_112] | hadoop  --config v20_hdfs_omegam/   dfs -lsr vewfs:/nn4   | Comment: @: need to add the /nn4 mount point defintion to make this work  |

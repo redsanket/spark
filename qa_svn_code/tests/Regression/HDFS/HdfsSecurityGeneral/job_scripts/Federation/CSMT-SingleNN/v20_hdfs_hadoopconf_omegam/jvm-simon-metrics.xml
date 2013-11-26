@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+
+<simonConfig name="jvm" >
+   
+    <!-- BLURBS (AGGREGATOR INPUT) -->
+    <blurbMessage name="jvm" version="0.1" period="5" >
+    
+        <blurb name="metrics">
+            <tag     name="hostName"                 type="string"     />
+            <tag     name="processName"              type="string"     />
+            <tag     name="sessionId"                type="string"     />
+
+            <gauge   name="memNonHeapUsedM"          type="float"      />
+            <gauge   name="memNonHeapCommittedM"     type="float"      />
+            <gauge   name="memHeapUsedM"             type="float"      />
+            <gauge   name="memHeapCommittedM"        type="float"      />
+
+            <counter name="gcCount"                  type="long"       />
+            <counter name="gcTimeMillis"             type="long"       />
+
+            <gauge   name="threadsNew"               type="long"       />
+            <gauge   name="threadsRunnable"          type="long"       />
+            <gauge   name="threadsBlocked"           type="long"       />
+            <gauge   name="threadsWaiting"           type="long"       />
+            <gauge   name="threadsTimedWaiting"      type="long"       />
+            <gauge   name="threadsTerminated"        type="long"       />
+
+            <!-- logging events -->
+            <counter name="logFatal"                 type="long"       />
+            <counter name="logError"                 type="long"       />
+            <counter name="logWarn"                  type="long"       />
+            <counter name="logInfo"                  type="long"       />
+
+        </blurb>
+       
+    </blurbMessage>
+    
+    <!-- REPORT PERIODS -->
+    <reportPeriod name="default" seconds="60"/>
+
+    <!-- REPORTS (AGGREGATOR OUTPUT) -->
+    <report name="JVM" version="0.1" periods="default"> 
+
+       <!--
+            Notes:
+
+            #pids means the number of processes that reported in the report period. 
+            #restarts is the number of new processes that were seen in a report period.
+        -->
+
+        <reportItem name="by node name" blurb="metrics">
+            <key   name="processName"             tag="processName" />
+            <key   name="sessionId"               tag="sessionId"   />
+            <key   name="node"                    tag="hostName"    />
+            <value name="#pids">                  count(nodeId)                     </value>
+            <value name="#restarts">              newCount                          </value>
+            <value name="memNonHeapUsedM">        AVERAGE(memNonHeapUsedM)          </value>
+            <value name="memNonHeapCommittedM">   AVERAGE(memNonHeapCommittedM)     </value>
+            <value name="memHeapUsedM">           AVERAGE(memHeapUsedM)             </value>
+            <value name="memHeapCommittedM">      AVERAGE(memHeapCommittedM)        </value>
+
+            <value name="gc/min">                 AVERAGE(gcCount)*60/period        </value>
+            <value name="gcTime%">                AVERAGE(gcTimeMillis)/(10*period) </value>
+
+            <value name="threadsNew">             AVERAGE(threadsNew)               </value>
+            <value name="threadsRunnable">        AVERAGE(threadsRunnable)          </value>
+            <value name="threadsBlocked">         AVERAGE(threadsBlocked)           </value>
+            <value name="threadsWaiting">         AVERAGE(threadsWaiting)           </value>
+            <value name="threadsTimedWaiting">    AVERAGE(threadsTimedWaiting)      </value>
+            <value name="threadsTerminated">      AVERAGE(threadsTerminated)        </value>
+
+            <value name="logFatal/min">           AVERAGE(logFatal)                 </value>
+            <value name="logError/min">           AVERAGE(logError)                 </value>
+            <value name="logWarn/min">            AVERAGE(logWarn)                  </value>
+            <value name="logInfo/min">            AVERAGE(logInfo)                  </value>
+        </reportItem>
+
+        <reportItem name="by session" blurb="metrics">
+            <key   name="processName"             tag="processName" />
+            <key   name="sessionId"               tag="sessionId"   />
+            <value name="#nodes">                 count(hostName)                   </value>
+            <value name="#pids">                  count(nodeId)                     </value>
+            <value name="#restarts">              newCount                          </value>
+            <value name="memNonHeapUsedM">        AVERAGE(memNonHeapUsedM)          </value>
+            <value name="memNonHeapCommittedM">   AVERAGE(memNonHeapCommittedM)     </value>
+            <value name="memHeapUsedM">           AVERAGE(memHeapUsedM)             </value>
+            <value name="memHeapCommittedM">      AVERAGE(memHeapCommittedM)        </value>
+
+            <value name="gc/min">                 AVERAGE(gcCount)*60/period        </value>
+            <value name="gcTime%">                AVERAGE(gcTimeMillis)/(10*period) </value>
+
+            <value name="threadsNew">             AVERAGE(threadsNew)               </value>
+            <value name="threadsRunnable">        AVERAGE(threadsRunnable)          </value>
+            <value name="threadsBlocked">         AVERAGE(threadsBlocked)           </value>
+            <value name="threadsWaiting">         AVERAGE(threadsWaiting)           </value>
+            <value name="threadsTimedWaiting">    AVERAGE(threadsTimedWaiting)      </value>
+            <value name="threadsTerminated">      AVERAGE(threadsTerminated)        </value>
+
+            <value name="logFatal/min">           AVERAGE(logFatal)                 </value>
+            <value name="logError/min">           AVERAGE(logError)                 </value>
+            <value name="logWarn/min">            AVERAGE(logWarn)                  </value>
+            <value name="logInfo/min">            AVERAGE(logInfo)                  </value>
+        </reportItem>
+
+        <reportItem name="by process name" blurb="metrics">
+            <key   name="processName"             tag="processName" />
+            <value name="#sessions">              count(sessionId)                  </value>
+            <value name="#nodes">                 count(hostName)                   </value>
+            <value name="#pids">                  count(nodeId)                     </value>
+            <value name="#restarts">              newCount                          </value>
+            <value name="memNonHeapUsedM">        AVERAGE(memNonHeapUsedM)          </value>
+            <value name="memNonHeapCommittedM">   AVERAGE(memNonHeapCommittedM)     </value>
+            <value name="memHeapUsedM">           AVERAGE(memHeapUsedM)             </value>
+            <value name="memHeapCommittedM">      AVERAGE(memHeapCommittedM)        </value>
+
+            <value name="gc/min">                 AVERAGE(gcCount)*60/period        </value>
+            <value name="gcTime%">                AVERAGE(gcTimeMillis)/(10*period) </value>
+
+            <value name="threadsNew">             AVERAGE(threadsNew)               </value>
+            <value name="threadsRunnable">        AVERAGE(threadsRunnable)          </value>
+            <value name="threadsBlocked">         AVERAGE(threadsBlocked)           </value>
+            <value name="threadsWaiting">         AVERAGE(threadsWaiting)           </value>
+            <value name="threadsTimedWaiting">    AVERAGE(threadsTimedWaiting)      </value>
+            <value name="threadsTerminated">      AVERAGE(threadsTerminated)        </value>
+
+            <value name="logFatal/min">           AVERAGE(logFatal)                 </value>
+            <value name="logError/min">           AVERAGE(logError)                 </value>
+            <value name="logWarn/min">            AVERAGE(logWarn)                  </value>
+            <value name="logInfo/min">            AVERAGE(logInfo)                  </value>
+        </reportItem>
+
+    </report>
+    
+</simonConfig>
+

@@ -1,0 +1,1773 @@
+
+
+INDUSTRIAL DECISION MAKING & ANALYSIS:
+
+THE IMPLEMENTATION OF THE THEORY OF
+
+CONSTRAINTS
+
+WRITTEN BY:
+
+Dr. MILTIADIS BOBOULOS
+
+R&D SECTION, ALMA LTD, INDUSTRIAL CONSTRUCTIONS
+
+What to change?
+
+To what to change?
+
+How to cause the change?
+
+Don't people already have the capacity to answer all these questions
+
+?
+
+Does this mean that through TOC we'll be able to generate an infiniteamount of output?
+
+You make it sound almost too easy. Is it?
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+TABLE OF CONTENTS
+
+Introduction tothe Theory of Constraints __________1
+
+Fundamental Analysis of the Theory of Constraints _2
+
+About Chain Analogy______________________________ 4
+
+About the Process of On Going Improvement _________ 7
+
+About Thinking Processes (TP) _____________________ 10 The Fundamentals of the Thinking Processes________________ 11Thinking Process Tools __________________________________ 12
+
+Current Reality Tree (CRT)_____________________________ 12
+
+Evaporating Cloud (EC) _______________________________ 13
+
+Future Reality Tree (FRT) ______________________________ 14
+
+Negative Branch (NBR) _______________________________ 15
+
+Prerequisite Tree (PRT) _______________________________ 16
+
+Transition Tree (TrT)__________________________________ 18
+
+Epilogue ________________________________________ 19
+
+TOC Resources _______________________________21
+
+Books, Writings by Goldratt ________________________ 21
+
+TOC Books, Writings by Other Authors _______________ 28
+
+Other ___________________________________________ 37
+
+Published Articles in Magazines & Newspapers ________ 38
+
+Conferences and Symposiums______________________ 42
+
+Videos __________________________________________ 43
+
+TOC Case Studies _____________________________44
+
+Brief Overview of Some Case Studies ________________ 44
+
+Conceptual Analysis of Selected Case Studies ________ 46
+
+Itemised Conclusions __________________________58
+
+Introduction tothe Theory of Constraints
+
+1
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+The Theory of Constraints (TOC) is a portfolio of management philosophies, management disciplines, and industry-specific "best practices" developed and popularised over the past 20 years by physicist Dr. Eliyahu M. Goldratt and his associates. Most people are first exposed to the concepts through his book TheGoal, (North River Press, 1984).
+
+Dr. Goldratt has been described byFortune Magazine as a guru to industry and by Business Week as a genius. His booksThe Goal, It's Not Luck, andCritical Chain, gripping fast paced business novels, are transforming management thinking throughout the world.
+
+Goldratt's Theory of Constraints is being used by thousands of corporations, and is taught in over 200 colleges, universities and business schools. His books have sold over 3 million copies and have been translated into 23 languages. The Theory of Constraints is an overall philosophy, usually applied to running and improving an organisation. TOC consists of Problem Solving and Management/Decision-Making Tools called the Thinking Processes (TP). TOC is applied to logically and systematically answer these three questions essential to any process of ongoing improvement: "What to change?" "To what to change?"
+
+"How to cause the change?"
+
+More specific uses of the Thinking Processes can be used to significantly enhance vital management skills, such as: win-win conflict resolution effective communication team building skills delegation empowerment Famous for spectacular results, the use of TOC has resulted in Proven Solutions created by applying the Thinking Processes (TP) in specific functional areas such as Sales, Marketing, Logistics, Finance, Accounting, Engineering and Project Management. Many of these solutions are discussed in detail in the books: The Goal, The Race, It's Not Luck and Critical Chain.
+
+TOC recognises that the output of any system that consists of multiple steps where the output of one step depends on the output of one or more previous steps will be limited (or constrained) by the least productive steps. In other words, as
+
+2
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+paraphrased in The Goal, the strength of any chain is dependant upon its weakest link.
+
+Where manufacturing is concerned, TOC postulates that the goal is to make (more) money. It describes three avenues to this goal: Increase Throughput, Reduce Inventory, Reduce Operating Expense As Dr. Goldratt notes, the opportunities to make more money through reductions in inventory and operating expense are limited by zero. The opportunities to make more money by increasing Throughput, on the other hand, are not limited. More than that, though, TOC challenges us to define a goal and re-examine all of our actions and measurements based on how well or how poorly they serve it. This is done through a set of tools that help us identify and resolve bottlenecks.
+
+Fundamental Analysis of the Theory of Constraints
+
+The Theory of Constraints, as it is commonly called, recognises that organisations exist to achieve a goal. A factor that limits a company’s ability to achieve more of its goal is referred to as a "constraint." In The Goal, the demand for parts produced by a computer-controlled piece of equipment known as the NCX10 exceeded the machine’s capacity. Since the factory could only assemble and sell as many products as they had parts from the machine, the capacity of the factory to make money was tied directly to the output of the NCX10. The NCX10, therefore, was the constraint.
+
+It is imperative for businesses to identify and manage constraints. "Because a constraint is a factor that limits the system from getting more of whatever it strives for, then a business manager who wants more profits must manage the constraints. There really is no choice in the matter. Either you manage constraints or they manage you." Noreen, Smith, and Mackey in The Theory of Constraintsand its Implications for Management Accounting (North River Press, 1995).
+
+3
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+The Theory of Constraints, then, is a management philosophy that focuses the organisations scarce resources on improving the performance of the true constraint, and therefore the bottom line of the organisation. Goldratt uses a ChainAnalogy1 to help illustrate why this is the most effective way to get immediate results.
+
+It may be relatively easy intellectually to recognise that an organisation must have a constraint, but it may be quite another thing to positively identify it. In situations when the constraint can be easily identified (which is usually because it is a physical constraint such as the machine known as the "NCX10" in the book The Goal), the five step Process Of On Going Improvement2 will provide the steps necessary to deal with the constraint. In situations when the constraint is not as easily sited (which is often because it has to do with the inter-relationships between the various "links" in the organisational "chain"), the ThinkingProcesses3 will provide the tools necessary to identify the core problem or core conflict and the tools needed to deal with it effectively.
+
+About Chain Analogy
+
+A manufacturing company can
+
+be thought of as a chain of
+
+dependent events that are linked
+
+together like a chain. The
+
+activities that go on in one "link"
+
+are dependent upon the activities
+
+that occur in the preceding "link."
+
+The manufacturer in the example
+
+above fabricates products to order. First they market their services. If the marketing is successful they will get some requests for proposals, and create
+
+1 More information in the section AboutChain Analogy 2 More information in the section AboutProcess Of On Going Improvement3 More information in the section About Thinking Processes
+
+4
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+some bids. If some bids are successful they will procure the necessary materials. Once the materials are on hand they will manufacture the product. Once manufacturing is complete packaging prepares the product to be sent to the customer. Finally, once packaged, the product can be shipped to the customer. We notice that each step is dependent on the preceding step. That is, the product cannot be shipped until after it is packaged; the product can not be packaged until it is manufactured; the product cannot be manufactured until the necessary materials are procured; etc. It is this dependency that explains why the Theory of Constraints is so powerful when compared with "conventional wisdom." The chain pictured above is for a very simple company. Even so, it doesn’t really picture all the operations in the company. For example, billing and collection are not included. The typical company has a much more complex chain than is pictured here. To handle this complexity, management typically splits the chain up into links and endeavors to manage each link so as to "maximize" its performance. As a result, conventional wisdom is as follows:
+
+• An improvement to any link in the chain is considered to be an improvement to the chain.
+
+• System wide or "global" improvement is believed to be the sum of all the
+
+"local" improvement made within each link.
+
+• This is analogous to saying the primary measurement of success in managing the chain is the weight of the chain, i.e. if one manager beefs up her/his link that makes the chain heavier and better.
+
+As a result, all managers compete for scarce resources all the time. They all want
+
+5
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+to reach their goal of maximising the weight of their link, because they believe that is the way to maximise the effectiveness of the organisation. By considering the following true story from a printing company, we’ll see another view. A team from a press operation in the middle of their system came to management with a proposal for continuous improvement. (We should think of them as being located in the manufacturing link above.) They had discovered an improvement that could be made to their press that would increase productivity 25%! It would cost the company only $20,000. Conventional analysis showed the payback period on this was relatively short. Would you authorise the investment? Senior managers were about to sign the check when someone asked, "Where does the output of this press go? And, what is the status of work-in-process at that next operation?" It turned out that work was already queued up at the next operation. In other words, the company almost spent $20,000 so that the output of the press in question could wait 25% longer at the next operation! Had they made the expenditure they may have had a false sense of success when viewing the 25% increase in the "productivity" figures of the press, but the actual bottom line impact would have been a negative $20,000 because that money was spent without actually bringing any more money into the plant!
+
+TOC Wisdom
+
+TOC says that management needs to find the weak link in the chain. In the
+
+6
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+example above it turned out that manufacturing was the weak link. That is to say that marketing was attracting sufficient requests for proposals, and bidding was winning a sufficient number of bids to keep the plant busy, and procurement was able to get the necessary parts on time, and packaging could handle everything that was manufactured, and shipping could keep up with packaging, BUT
+
+manufacturing could not keep up with the schedule.
+
+In this case, what would be the bottom line impact of "beefing up" or improving the packaging link? Some cost savings may be produced, but the long term impact on the bottom line will probably not be great because it did not enable the company to fill any more orders than they are currently. (We remember that it is manufacturing that is limiting the rate at which orders are fulfilled.) The same holds true for shipping, procurement, marketing, and bidding. The one place where a significant impact can be made on the bottom line is at the constraint – in manufacturing in this example. The old saying
+
+chain is only as strong as its weakest link.
+
+applies: a
+
+As a result, TOC wisdom is as follows:
+
+• Most improvements to most links do NOT improve the chain.
+
+•
+
+"global" improvemen
+
+System wide, or
+
+t, then is NOT the sum of the local
+
+improvements.
+
+• Thus a company should focus on "chai
+
+not link weight) by
+
+n strength" (
+
+working to strengthen the weakest link – the constraint!
+
+The result is that when using the Theory Of Constraints, managers do not fight over scarce resources. They all understand that once the constraint is known, the line impact can be gotten by
+
+most bottom
+
+channelling those resources to the
+
+constraint.
+
+About the Process Of On Going Improvement To manage constraints (rather than be m
+
+ses a
+
+anaged by them), Goldratt propo
+
+five-step Process Of On Going Improvement. The steps in this process are: 1. Identify
+
+7
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+2. Exploit
+
+3. Subordinate
+
+4. Elevate, and
+
+5. Go back to Step 1
+
+Identify
+
+In order to manage a constraint, it is first necessary to identify it. In Eli Goldratt's book The Goal (North River Press, 1984), a machine known as the NCX10 was identified as the constraint. This knowledge helped the company determine where an increase in "productivity" would lead to increased profits. Concentrating on a non-constraint resource would not increase the throughput (the rate at which money comes into the system through sales) because there would not be an increase in the number of orders fulfilled. There might be local gains, such as a reduction or elimination of the queue of work-in-process waiting in front of the ut if that material ends up wa
+
+resource, b
+
+iting longer somewhere else, there will be
+
+no global benefit. To increase throughput, flow through the constraint must be d.
+
+increase
+
+Exploit
+
+Once the constraint is identified, the next step is to focus on how to get more production within the existing capacity limitations. Goldratt refers to this as exploiting the constraint. One example from The Goal was when the company and the labour union agreed to stagger lunches, breaks, and shift changes so the e could be producing during times
+
+machin
+
+it previously sat idle. This added
+
+significantly to the output of the NCX10, and therefore to the output of the entire plant.
+
+Subordinate
+
+Exploiting the constraint does not insure that the materials needed next by the constraint will always show up on time. This is often because these materials are waiting in queue at a non-constraint resource that is running a job that the constraint doesn’t need yet. Subordination is necessary to prevent this from happening. This usually involves significant changes to current (and generally long
+
+8
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+established) ways of doing things at the non-constraint resources. Elevate
+
+After the constraint is identified, the available capacity is exploited, and the nonconstraint resources have been subordinated, the next step is to determine if the output of the constraint is enough to supply market demand. If so, there is no need at this time to "elevate" because this process is no longer the constraint of the system. In that case the market would be the constraint, and the TOC Thinking Process should be used to develop a marketing solution. However, we should be ctivate the res
+
+careful not to over a
+
+ource that was the constraint and produce
+
+unneeded inventory.
+
+If, on the other hand, after fully Exploiting this process it still cannot produce enough product to meet market demand, it is necessary to find more capacity by
+
+"elevating" the constraint. In The Goal, schedulers were able to remove some of the load from the constraint by rerouting it across two other machines. They also outsourced some work and brought in an older machine that could process some of the parts made by the NCX10. These were all ways of adding capacity, or elevating the constraint. It is important to note that to "elevate" comes after
+
+"exploit" and "subordinate." Following greatest
+
+this sequence ensures the
+
+more money-now and in the future.
+
+movement toward the goal of making
+
+Go back to step 1
+
+Once the output of the constraint is no longer the factor that limits the rate of fulfilling orders, it is no longer the constraint. Step 5 is to go back to Step 1 and constraint
+
+identify the new
+
+– because there always is one. The five step process is then repeated.
+
+It may appear that implementing TOC involves a never-ending series of trips rocess – a kind of tool
+
+through the five-step p
+
+to assist in more perfectly balancing
+
+a production system.
+
+This is not the case. A fundamental principle of the Theory Of Constraints is that
+
+9
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+the combination of dependent events (such as the steps in a production system) and normal variation (which is always present) makes it literally impossible to ever fully balance a line. There will always be a constraint in the system. What creates chaos is allowing the constraint to move around – and a so-called "balanced" system will always experience a moving constraint due to normal variation. For that reason, companies that get the greatest financial benefit from TOC are those that make a strategic choice of where they want the constraint to be. They then manage their entire operation (product design, marketing, capital investment, hiring, etc.) accordingly. This allows the company to manage the constraint to their advantage rather than allowing the constraint to manage them.
+
+About Thinking Processes (TP)
+
+The Thinking Processes can be used when the constraint of the system is not obvious. This is generally the case when the constraint is not a physical resource, but instead is in the market or in the
+
+s that exist regarding how we manage
+
+policie
+
+our organisation. (The Thinking Processes stand alone and as such can be used individually in appropriate circumstances.)
+
+Goldratt believes that most organisations do not have a true physical constraint, or if they do, correct application of the 5 step Process Of On Going Improvement will k the constraint fa
+
+usually brea
+
+irly quickly. Therefore, it is mastery of the Thinking Processes that is necessary for most organisations to break through their constraint.
+
+rther, we will have to examine the
+
+To explore the Thinking Process fu
+
+ndamentals.
+
+fu
+
+The Fundamentals of the Thinking Processes Si
+
+Processes invo
+
+mply stated, the Thinking
+
+lve the rigorous application of effectcause-effect logic to answer the following three questions: 1. What to Change?
+
+10
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+2. What to Change to?
+
+3. How to Cause the Change?
+
+The first question is the equivalent to the first step of the five step Process Of On Going Improvement: "Identify the Constraint?" Since these processes are generally used when the constraint is not a physical resource, there is usually no physical evidence (such as work-in-process inventory) to point you to the constraint. Instead you have to "map out" what is currently going on in your system. The logical mapping structure that is used at this point, is the "Current Reality Tree." This is not a simple task, but when it is completed successfully, we will know what to change.
+
+That will bring us to the
+
+ile this question is
+
+question, "What to change to?" Wh
+
+intuitively obvious, there are two distinct steps to answering it. 1. Identify the breakthrough idea that will overcome the current constraint 2. Ensure that the "cure" that is derived will not be worse than the "disease." The "Evaporating Cloud" is used to break through the core conflict that is currently constraining the organization. Then the "Future Reality Tree" is used to ensure that the undesirable effects we now are experiencing will, indeed, be changed to desirable effects by this breakthrough idea. The unintended negative consequences of the proposed solution are usually identified at this point using what are called Negative Branches. If these bad things that result from a good u
+
+action can be prevented, then we can be s re the cure will not be worse than the disease. Now we know what to change to.
+
+That brings us to question 3, "How to cause the change?" The simple answer is: get the people who are going to have to live with the change to create the action plan that is needed for implementation. The Thinking Process pro-actively involves those who are most effected by the change. These people are solicited for their vision of what obstacles might prevent the organisation from moving forward on this breakthrough solution. The workers are used to generate all the additional ideas that are necessary to implement the original injection. Once these are known, a plan is mapped out. The tool
+
+d when answering question 3: the
+
+s use
+
+11
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+"Prerequisite Tree," and the "Transition Tree."
+
+Thinking Process Tools:
+
+Current Reality Tree (CRT)
+
+W
+
+rocesses, the first of 3 questions we should ask is:
+
+hen using the Thinking P
+
+• "What to change?"
+
+It is the equivalent of the first step of the five step Process Of On Going Improvement: "Identify the Constraint?" However, since the Thinking Processes are usually used when the constraint is not a physical resource, we can rarely use physical evidence like work in process (WIP) to identify the constraint. Instead, we start with the evidence that is available: the negative effects that are a
+
+s of negat
+
+pparent within the system. Example
+
+ive effects would be things such as
+
+- frequently shipping orders late;
+
+-
+
+;
+
+excessive amounts of inventory
+
+- lead times that are increasing;
+
+- poor human relations within the organisation.
+
+Goldratt calls these "Undesirable Effects" or UDEs. The key is to realise that the UDEs are not the "real" problem --they are only the visible effects of the real or
+
+"core" problem. The challenge is to map out the interrelated web of cause-andeffect that links the undesirable effects together. Once completed, one is generally able to identify the "core problem" near the bottom of the logical map. This map is known as a "Current Reality Tree." Once properly constructed, we are the position to know what to change.
+
+in
+
+Evaporating Cloud (EC)
+
+12
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+When using the Thinking Processes, the second of 3 questions we should ask ourselves is:
+
+• "What to change to?"
+
+The first step in determining the answer to this question is to understand why the core problem exists. (We should remember that the core problem was found at the base of the logical structure --known as the Current Reality Tree --that was formed to find the constraint of the system.) It is assumed that managers are not stupid. If there was an easy solution to this core problem, it would have been solved long ago. No, there must be some conflict that underlies the core problem. Once this core conflict is identified, it is necessary to develop a breakthrough idea (referred to as an "injection") that will resolve the conflict. This is accomplished using a tool known as the "Evaporating Cloud." The second step in determining "what to change to" is to test our breakthrough idea, our injection, to see if it will have the desired impact on your system. That is, would implementing the injection change the undesirable effects (UDEs) we are able effects (DEs)?
+
+now experiencing into desir
+
+Future Reality Tree (FRT)
+
+When using the Thinking Processes, the second of 3 questions we should ask is:
+
+• "What to change to?"
+
+The first step in determining the answer to this question is to determine the conflict that underlies the core problem using the mapping tool called the Evaporating Cloud. The main output of the Evaporating Cloud is a breakthrough idea, called an injection.
+
+Once the injection is determined, we will have one necessary part of the solution. However, the injection is not sufficient to resolve the core problem. In fact, to be sure the proposed injection is indeed a "good" idea, it is important to check what the effect of implementing that idea would be.
+
+Thus the second step in determining "what to change to" is to test your
+
+13
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+breakthrough injection, to see if it will have the desired impact on our system. That is, would implementing the injection change the undesirable effects (UDEs) we are now experiencing into desirable effects (DEs)? This is done by returning to the original map of undesirable effects (the Current Reality Tree) and inserting the injection at the appropriate place. Then, redraw the logical connections and see whether implementing this idea would, indeed, reverse the undesirable effects into desirable effects. If it works, we now know to what to change. This mapping tool used in this step is the "Future Reality Tree" because it gives us a good picture of what the future can look like if we can figure out how to implement the injection. Notice that at this point, it is not necessary to know how we can implement our injection. In fact, sometimes it will appear that the injection xt to impossible to implement --t
+
+is ne
+
+hat it will happen only when "pigs can fly." Such injections are referred to as "Flying Pig Injections." If this is the case for us, we should not be in despair. There are effective techniques for grounding a flying pig.
+
+Negative Branch (NBR)
+
+After we have used the Current Reality Tree to map a clear picture of the core problem that is causing your current pain. After we have from the Evaporating Cloud, a breakthrough idea that can significantly improve our situation; we have from the Future Reality Tree, some a
+
+deed change the
+
+ssurance that this idea will in
+
+undesirable effects. We are currently experiencing into desirable effects in the future, we will need the input of the people who will be most affected by the proposed changes in order to ensure successful implementation. The Thinking Processes are used in a very open and participatory fashion. We’ll work closely with the people who are going to be asked to change. Their involvement is absolutely vital to the long-term success of the implementation. As they view the proposed change that come with the "injection" and rosy "future reality" that accompanies it, they will tend to be resistant. We should always remember, that the core problem has
+
+r some time, and that
+
+probably existed fo
+
+there is a significant conflict underlying the current behaviour. Thus, the proposed
+
+14
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+injection will usually be counter to the culture of the organisation (or the subculture of a department or sub-group of the organisation). People will usually look at the idea and say, "Yes, I see where your solution might work, but...." They complete the sentence with any number of unintended negative result of the change. For example:
+
+consequences that they fear will happen as a
+
+• "If we make that much improvement in output, our department won't need as many people."
+
+• "If we take the master schedule away from all the departments, we won't know what is coming down the pipe."
+
+The Thinking Process intentionally seeks out these 'Yes, but there is a negative consequence' statements! They are important to preventing a failed implementation. The people w are involved in the affected process(es) will best ho
+
+know what these unintended negative consequences (Goldratt calls them
+
+" Negative Branches") will be.
+
+So the Thinking process seeks proactively to identify them and then assists the the concern forward in
+
+person who brought
+
+figuring out how to prevent that
+
+negative consequence from actually occurring. Goldratt calls this "trimming the Negative Branches."
+
+Prerequisite Tree (PRT)
+
+When using the Thinking Processes, the third of 3 questions we should ask is:
+
+• "How to cause the change?"
+
+The wording here is very important! We should note here, that it does not ask 'how to change
+
+ince
+
+things?' The emphasis is on causing the change to happen. S
+
+people tend to be less resistant to changes that they helped design, the key is to involve the people who will have to execute the changes in a meaningful way. This portion of the Thinking Process is perhaps its greatest strength --that which sets it apart from many other processes of continuous improvement. Once a group/team/manager determines what to change to, the implementation "team" too
+
+15
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+often goes into full operation: set dates, take names, and don't let anything get in the way. Not so with the Thinking Process. At this point all we have is a clear picture of the core problem that is causing our current pain (from the Current Reality Tree), the breakthrough idea that can significantly improve our condition (from the Evaporating Cloud) and assurance that this idea will indeed change the undesirable effects we are currently experiencing into desirable effects in the future (from the Future Reality Tree). We have not considered at all how to get from our undesirable current reality to our desired future reality. The next step is to work closely with the people who are going to be asked to change. Their involvement is absolutely vital to the long term success of the implementation. As they view the proposed change, the "injection" and rosy "future reality" that accompanies it, they will tend to be resistant. Remember that the core problem has probably existed for some time, and that there is a significant conflict current behaviour. Thus,
+
+underlying the
+
+the proposed injection will usually be
+
+counter to the culture of the organisation (or the department or sub-group of the organisation).
+
+People will usually look at the proposed solution and say, "Yes, I see where your y these people complete this sentence is by
+
+idea might work, but...." One wa
+
+identifying obstacles that seem to make the chances of successfully implementing the idea very small. For example:
+
+•
+
+, but it
+
+Yes, your solution is good
+
+requires that marketing and engineering
+
+must communicate closely with each other, and in our company they aren't even on speaking terms.
+
+•
+
+ay work, but before
+
+Yes, your idea m
+
+we could implement it we would have
+
+to train everybody in the organisation and we don't have any money in the budget for that.
+
+• Great, but the manager will have to give her approval first, and you can forget that!
+
+These obstacles are pro-actively sought, and the person who originally pointed out the obstacle is asked to identify the conditions that would be necessary to
+
+16
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+overcome it. By helping the originator to solve the problem, not only do we develop effective solutions, but buy-in from the participants is very high. The mapping tool that is used to logically show what is necessary to overcome these obstacles is called the "Prerequisite Tree."
+
+at peopl
+
+There is another way th
+
+e can complete the sentence, "Yes, but...." It is by identifying unintended negative consequences; these are discussed in the section on Negative Branches.
+
+Transition Tree (TrT)
+
+When using the Thinking Processes, the third of 3 questions we should ask is:
+
+• "How to cause the change?"
+
+The wording here is very important! We note here, that it does not ask 'how to change things?' The emphasis is on causi
+
+ince people
+
+ng the change to happen. S
+
+tend to be less resistant to changes that they helped design, the key is to involve the people who will have to execute the changes in a meaningful way. Negative branches and the prerequisite tree are discussed on other pages, as was vaporating cloud. All
+
+the e
+
+three of these mapping tools produce ideas, called
+
+injections, about what conditions need to exist in order to produce a solution that will:
+
+1.
+
+that
+
+Resolve the core conflict
+
+has the organisation constrained
+
+2.
+
+es
+
+Prevent unintended negative consequenc that might have been the result of the proposed change
+
+3. Overcome obstacles to implementation
+
+Once all the additional injections that are necessary to implement the original injection are known, a plan is mapped out. It shows all the actions necessary to plementation and show
+
+achieve successful im
+
+s the interrelationships so that the
+
+is clear. The tool used to accomplish this is called
+
+proper sequence of the actions
+
+the "Transition Tree."
+
+17
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Epilogue
+
+The Theory of Constraints is an overall management philosophy that enables the managers of a system to get more of the goal that the system is designed to produce. If, for example, the goal of a busi
+
+ke money now and in the
+
+ness is to ma
+
+future, TOC will enable the managers of the company to do so. How does it accomplish this? By enabling management to make better decisions, by considering the decision making process map below. Inputs...
+
+Circumstances
+
+Outputs...
+
+Data
+
+Intuition
+
+Decisions
+
+that Drive
+
+Past Experience
+
+the Company
+
+Policies
+
+Theory
+
+Let us think about the really important decisions, the "strategic" decisions. Decisions makers will, consciously and/or subconsciously, consider some or all of the inputs above. They then process this inputs and produce their decisions. So the question is, "How does TOC impact this process map?" That is, if adopting anagement philosophy
+
+TOC as an overall m
+
+will enable our company to make
+
+better decisions, it must somehow change the inputs to the process (because if we don't change the inputs we will get the same outputs), or change the Decision Making process itself.
+
+The answer is that adopting TOC as overall management philosophy will do both: it changes the fundamental decision making process and makes significant changes to the inputs to that process. And it is absolutely necessary to change both. If we change the proce
+
+uce defective inputs, our
+
+ss but continue to introd
+
+18
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+outputs may improve, but they still won't be the best. Likewise, we can improve the quality of the inputs and get in improvement in the outputs; but if the process itself is of low quality, then the outputs still won't be the best. The following points identify how TOC c
+
+e process.
+
+hanges the inputs to th
+
+• Circumstances: TOC always puts the current circumstances into a global ple, set-ups
+
+perspective. (For exam
+
+in Drill Room are increasing, but
+
+performance to customer due dates is increasing too.);
+
+• Data: TOC dramatically reduces the data considered and redefines the easurements;
+
+critical m
+
+• Intuition: TOC forces us to make our
+
+others.
+
+intuition explicit and visible to
+
+You must always question your assumptions --and the assumptions of others;
+
+• Past Experience: TOC examines the cause-and-effect relationships;
+
+• Policies: TOC identifies and challenges the current validity of existing policies.
+
+• Theory: TOC sharpens the focus of how to get more of the system's goal.
+
+19
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+TOC Resources
+
+Books, Writings by Goldratt:
+
+Eliyahu M. Goldratt: Eli Goldratt is an educator, scientist, philosopher and business leader. But first and foremost he is a thinker who provokes others to think. Often characterised as being unconventional and stimulating, Dr. Goldratt exhorts his readers to examine and reassess their business practices.
+
+The Goal
+
+by Eliyahu M. Goldratt (North River Press, 1984)
+
+Over 3 million copies sold! Used by thousands of
+
+companies and taught in hundreds of business schools!
+
+This book, which introduces the Theory of Constraints, has changed business thinking. The Goal is a gripping, fast-paced business novel about overcoming the barriers to making money. We learn the fundamentals of
+
+identifying and solving the problems created by
+
+constraints.
+
+The book helps to start successfully addressing chronic productivity and quality problems.
+
+"Like Mrs. Fields and her cookies, The Goal was too tasty to remain obscure. Companies began buying big batches and management schools included it in their curriculums. It was eventually translated into 13 languages and sold over 1.2 million copies." —Fortune Magazine
+
+"A survey of the reading habits of managers found that though they buy books by the likes of Tom Peters for display purposes, the one management book they have actually read from cover to cover is The Goal." —The Economist
+
+" Goal readers are now doing the best work of their lives." —Success Magazine
+
+20
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+"A factory may be an unlikely setting for a novel, but the book has been wildly effective." —Tom Peters
+
+It's Not Luck
+
+by Eliyahu M. Goldratt (North River Press, 1994)
+
+THE SEQUEL TO THE GOAL
+
+We learn more about the powerful techniques first
+
+presented in the best-selling business novel, The Goal. In this book, Dr. Goldratt, through examples in a variety of industries, shows how to apply TOC to sales and marketing, inventory control, and production distribution. In addition, techniques in conflict resolution are introduced on both a business and personal level.
+
+The Book
+
+Alex Rogo has had a great year. He was promoted to Executive vice-president of UniCo with the responsibility for three recently acquired companies. His team of former and new associates is in place and the future looks secure and exciting. But there has been a shift of policy at the board level. Cash is needed and Alex's companies are to be put on the auction block. Alex faces a cruel dilemma. If he successfully completes the turnaround of his companies they can be sold for maximum return. If he fails, the companies will be closed down. Either way, Alex and his team will be out of work. It looks like a lose-lose situation. And as if he doesn't have enough to deal with, his two children have become teenagers!
+
+Critical Chain
+
+by Eliyahu M. Goldratt (North River Press, 1997).
+
+Powerful yet simple techniques to solve project
+
+21
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+management's toughest problems.
+
+This book teaches companies how to drastically cut project development times resulting in early completion within budget and without compromising quality or specifications.
+
+Project Managers and their teams will benefit from Goldratt's techniques of how to remain focused on the few critical areas and how to prevent your attention from being divided among all of the projects tasks and resources. Especially useful for dealing with one of the most difficult and pressing management challenges: developing highly innovative new products.
+
+"Anyone who doesn't snap up a copy is missing a wonderful opportunity for professional and personal development." —Assembly
+
+"This book is valuable to two main audiences: project managers and senior managers…useful for dealing with one of the most difficult and pressing management challenges: developing highly innovated new products."<PALIGN=LEFT
+
+"Eli Goldratt's first novel, The Goal, shook up the factory floor… Goldratt essentially adds a discipline for understanding what drives project performance and therefore what the focus of a project manager's attention should be." —
+
+Harvard Business Review
+
+"Critical Chain will revolutionise project management." —World Aero-Engine Review
+
+The Race
+
+by Goldratt and Fox (North River Press, 1986)
+
+The graphics and accompanying text reveal the implications that stem from the shop floor to our standard of living. The Race allows us to derive a superior system, DrumBuffer-Rope, for generating logistical improvements. It also
+
+22
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+shows us how to focus these improvements so they are optimal and not just local. The epilogue and appendix quizzes will give the thoughtful reader insight in how to initiate and extend a process of ongoing improvement into other areas-like marketing and financial control.
+
+Necessary but not Sufficient: A Theory of Constraints BusinessNovel
+
+by Eliyahu M. Goldratt with Eli Shragenheim and Carol A. Ptak
+
+After reading the newspapers and following the oscillations of the stock market, it becomes apparent that hi-tech companies are of a different breed. Never before have the chances of making a fortune been so realistic and never before have large companies been so fragile. What is really going on inside these hi-tech companies? What types of pressures and challenges are they facing? And how do they cope?
+
+Computer software providers, especially the ones that specialise in handling the data needs of organisations, are prime examples of these volatile companies. In the nineties we witnessed their growth from small business into multi-billion dollar giants. No wonder investors were attracted.
+
+In 1998 it was easy for such companies to raise as much money as they wanted. But now, investment funds have dried up. Why? And more importantly, is there a way to reverse the trend? This book gives the answers.
+
+The Theory of Constraints
+
+by Eliyahu M. Goldratt
+
+The Theory of Constraints walks us through the crucial stages
+
+23
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+of a continuous program: the five steps of focusing; the process of change; how to prove effect-cause effect; and how to invent simple solutions to complex problems. Equally important, the author reveals the devastating impact that an organisation’s psychology can have on the process of improvements. Theory of Constraints is a crucial document for understanding what it takes to achieve manufacturing breakthroughs.
+
+The Haystack Syndrome
+
+by Eliyahu M. Goldratt
+
+This maddening dilemma of our technological age is a factor in every important decision,
+
+ct to have
+
+and an issue we expe
+
+addressed by modern-day information systems.
+
+Part One: Formalising the Decision Process - Defining the goal, the measurements, and how
+
+sly improve
+
+to continuou
+
+the whole system - The Theory of Constraints.
+
+Part Two: The Architecture of an Information System - Dealing with information as it relates to the real world; quantifying Murphy, the time-buffer concept, directing process improvements, measuring local performance.
+
+Part Three: Scheduling - How to implement a real process of ongoing improvement requiring interplay between
+
+tem and the manager, resolving
+
+the sys
+
+ll conflicts, considering capacity and protection.
+
+a
+
+Essays on the Theory of Constraints
+
+by Eliyahu M. Goldratt
+
+This collection of essays wa
+
+ally published in The
+
+s origin
+
+Journal on the Theory of Constraints.
+
+m
+
+Chapter 1 Hierarchical Manage ent — The Inherent Conflict Modine — The McHenry Plant
+
+24
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Chapter 2 Laying the Foundation APOLOGIA or In The Move Toward The Third Stage
+
+The Fundamental Measurem
+
+Chapter 3
+
+ents When Quoted Lead Times Are The
+
+Problem
+
+Chapter 4 The Importance of a System’s Constraints Looking Beyond The First Stage; Just In Time (Fictional Visit — Real Plants)
+
+Chapter 5 How Complex Are Our Systems Looking Beyond The First Stage; Just In Time
+
+Chapter 6 The Paradigm Shift Looking Beyond The First Stage; Just In Time
+
+Late Night Discussions
+
+by Eliyahu M. Goldratt
+
+This collection of Late Night
+
+appeared
+
+Discussions originally
+
+as a monthly column in Industry Week magazine.
+
+tri
+
+How to block our own dis bution channels, a discussion on the automotive industry.
+
+oluti
+
+How to turn an excellent s
+
+on into a disaster, a discussion
+
+on single source vendor.
+
+rom one ditch into another, a discussion on
+
+How to go f
+
+automation.
+
+How to throw out the baby with the bath water a discussion on automation. How to run from one excuse to another a discussion on Japanese success. A discussion on why TQM is not produci
+
+results expected and who has
+
+ng the
+
+devastating inertia, the "troops" or the inventors? ct devastating and long te
+
+How to perfe
+
+rm lead times a discussion on project
+
+engineering.
+
+The paradigm shift in material management.
+
+25
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+How companies behave in a market downturn a discussion on market segmentation, part 1.
+
+How the notion of product price kills companies market segmentation, part 2. rements c
+
+How erroneous policies and measu
+
+an kill a friendship a discussion on
+
+human behaviour in organisations.
+
+here did product cost and profit come fr
+
+W
+
+om a discussion on cost accounting.
+
+TOC Books, Writings by Other Authors:
+
+ing
+
+Throughput Account
+
+Author: Thomas Corbett
+
+We learn how to apply the theory of constraints to
+
+management accounting. The Theory of Constraints, a
+
+management philosophy derived from physics, assumes that event organisati
+
+constraints pr
+
+ons from achieving better
+
+performance.
+
+The Theory of Constraints (TOC) is based on a scientific method that has been developed
+
+refined for nearly three
+
+and
+
+decades by Dr. Eliyahu M. Goldratt.
+
+gement, it
+
+As a tool for business mana
+
+is now accepted as a mainstream
+
+alternative to cost accounting.
+
+"TOC is radically different from traditional accounting methods taught in universities, the focus is on finding the highest price that the market will bear and maximising throughput dollars, not cost-plus accounting." Accounting Today This book:
+
+Reveals a new management tool for
+
+ial accounting and shows an
+
+manager
+
+alternative path for other management practices.
+
+Enables managers to quickly see if their decisions increase profitability.
+
+26
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Demonstrates some of cost accounting's flaws, and shows how these errors will lead to bad decision making.
+
+Compares the paradigm of TOC-based throughput accounting with more conventional cost accounting methodologies and in the process, demonstrates a new way to solve the complex problems of modern management.
+
+"Cost Accounting is productivity’s public enemy number one." ahu M. Goldratt
+
+Eliy
+
+e Theory
+
+Deming and Goldratt Th
+
+of Constraints and the System
+
+of Profound Knowledge
+
+by Domenico Lepore and Oded Cohen
+
+Domenico Lepore and Oded Cohen:
+
+have devoted their
+
+These authors'
+
+professional lives to understanding and implementing the processes presented in their book, Deming and Goldratt:The Theory of Constraints and the System of ProfoundKnowledge
+
+nd
+
+- Domenico Lepore as a Deming Scholar a
+
+Oded Cohen as Eli Goldratt's collaborator and partner. A step by step guide to im
+
+t
+
+plementing the managemen
+
+systems of w. Edwards Deming and Eliyahu M. Goldratt
+
+Dr.'s Deming and Goldratt are recognised as two of the foremost geniuses of modern management. The
+
+integration of the Theory of Constraints and the System of process
+
+Profound Knowledge into one cohesive
+
+brings the work of these two great
+
+thinkers to a new level of accessibility.
+
+The ten steps of the decalogue reflect the basic concept that in order to manage effectively we must be able to predict
+
+ecisions.
+
+the outcome of our management d
+
+This seemingly simple statement is the core of successful management. the tools presented in this book will enable any organisation to: > manage
+
+27
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+effectively > develop focused business strategies > create an atmosphere of continuous improvement
+
+You will not find a quick fix in these pages, but with determination and focus you will be able to control and radically improve your organisation. The authors have devoted their professional lives to understanding and implementing the processes presented in this book; Domenico Lepore as a ldratt’s collaborator and partner.
+
+Deming scholar and Oded Cohen as Eli Go
+
+The Constraints Management Handbook
+
+by James F. Cox and Michael S. Spencer
+
+A new approach to improving the production of goods and services, Constraints Management (CM), recognises the powerful role of the constraint (the limiting resource) in determining the output of the entire production system. By learning about and mastering CM concepts, managers can improve their companies' present output and plan for future growth as well. This book is an excellent attempt to unify the pieces in production: sorting through the fog of classification, the overlap between MRP, JIT and TOC, and clarifying the implications on one of the most important aspects-the measurements.
+
+Key Features:
+
+Explains the five-step process to continuous improvement. Covers VAT analysis, drum-buffer-rope scheduling, buffer m
+
+, and other methods, including
+
+anagement
+
+methods that can be used with existing systems.
+
+M techniques.
+
+Includes in-depth case studies demonstrating successful C Defines important terms and explains CM thinking tools.
+
+28
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+The Theory of Constraints and Its Implications for ManagementAccounting
+
+by Noreen, Smith and Mackey
+
+Sponsored by: The Institute Of Management Accountants (Usa), and Price Waterhouse (France)
+
+This book demonstrates how throughput accounting rather than traditional cost accounting is the measurement tool required for business decisions.
+
+This information is presented as an in-depth and impartial evaluation of the implementation of the Theory of Constraints at over 20 companies. Seven of the case studies are described in detail, including the original thinking process with diagrams as constructed by the companies'
+
+managers. Fascinating and enlightening reading.
+
+Goldratt's Theory of Constraints
+
+by H. William Dettmer
+
+Dettmer describes the action steps that follow this theory and shows, step-by-step, how to effectively manage change in an organisational system, at any level.
+
+Much of the content in this book focuses on the author's understanding and interpretation of Goldratt's logical Thinking Process. He clarifies the five focusing steps of the theory and teaches the mechanics of all the thinking tools. Using this book, you can determine what to change, what to change to, and how to make change happen. Benefits:
+
+Understand how to use the great power and versatility of the thinking tools. Construct logic trees with ease, guided by illustrations that show virtually every aspect of the tools' use. Use as a text for training or graduate management courses.
+
+29
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Securing the Future
+
+by Gerald I. Kendal
+
+Today's managers encounter tremendous resistance in
+
+getting others to buy into change. The ongoing rounds of downsizing and upheaval have taken their toll, leaving a legacy of scepticism. Therefore, managers must not only have ideas, but must be experts at "selling" the correct answers, information, and measurements to address issues of change.
+
+Securing the Future uses the Theory of Constraints to provide solutions to today's management problems. This book documents the step-by-step approach to achieving a strategic vision of long-term competitive advantage, employment security, and customer satisfaction. Using a combination of parable, methodology, and case studies. This book presents an in-depth management road map to exponential improvement in any organisation Key Features:
+
+Shows how to align all parts of an organisation to drastically improve performance. Illustrates through examples and methodology how to win the kind of employee collaboration and commitment that drives bottom line results. Provides measurements to be used as an executive tool to navigate the organisation to long-term safety and success for employees, shareholders, and customers. Teaches how to use five integrated Thinking Processes to build a competitive, customer oriented, and value-driven organisation. Includes seven case studies that illustrate winning strategies and a full set of TOC trees.
+
+The Constraints Management Handbook
+
+by James F. Cox and Michael S. Spencer
+
+A new approach to improving the production of goods and services, Constraints Management (CM), recognizes the
+
+30
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+powerful role of the constraint (the limiting resource) in determining the output of the entire production system. By learning about and mastering CM concepts, managers can improve their companies' present output and plan for future growth as well. This book is an excellent attempt to unify the pieces in production: sorting through the fog of classification, the overlap between MRP, JIT and TOC, and clarifying the implications on one of the most important aspects-the measurements.
+
+Key Features:
+
+Explains the five-step process to continuous improvement. Covers VAT analysis, drum-buffer-rope scheduling, buffer management, and other methods, including methods that can be used with existing systems.
+
+Includes in-depth case studies demonstrating successful CM techniques. Defines important terms and explains CM thinking tools.
+
+Introduction to the TOC Management System
+
+by Thomas B. McMullen, JR.
+
+This book helps busy executives and professionals quickly learn and implement TOC principles.
+
+Introduction to the Theory of Constraints (TOC) Management System organises several proven TOC principles, processes, and solutions into a TOC management system that has been successfully applied to everything from manufacturing industries to health care.
+
+Introduction to the Theory of Constraints (TOC) Management System tells what TOC is, where it came from, who uses it, and how to get started with it. Key Features:
+
+Provides a compact source of information and "how to" instructions for those who are beginning their study and initial use of TOC.
+
+31
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Enables directors and executives of corporations, not-for profits, and other institutions to initiate and guide applications of TOC and its management system. Organises proven TOC principles, processes, and solutions ("TOC Best Practices") into a TOC Management System.
+
+Highlights the TOC Management System's suitability for generating superior degrees of short-and long-term profitability, employment stability, and stakeholder loyalty.
+
+Describes the TOC "Throughput" Value Added (TVA) financial management system, including its important new operational definition.
+
+Project Management in the Fast Lane
+
+by Robert C. Newbold
+
+This "how to" manual details proven methods for turning around chronically late, over budget, and under performing projects.
+
+Project Management in the Fast Lane explains how Theory of Constraints tools can be applied to achieve effective, breakthrough solutions in virtually any environment. It includes a complete discussion of the Critical Chain scheduling approach pioneered by Eli Goldratt - the most significant new development in project scheduling in the last 40 years. The project management tools described in Project Management in the Fast Lane are clearly outlined and will help project managers in manufacturing construction, and new product development in any field find efficient, practical, and sound solutions to management issues. Common problems related to deadlines, budgets, project performance, and more are thoroughly treated, providing a solid basis for applying tools to familiar problems.
+
+Key Features
+
+Clear guidance on making practical, powerful changes to the way you manage projects. Description of basic approaches to analysing and fixing common
+
+32
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+management problems.
+
+A discussion of Critical Chain scheduling. Practical ways to dramatically improve on-time completion of projects and simultaneously decrease the time it takes to complete them, while not significantly increasing expenses. Common sense solutions to real significant problems. Coverage of how an organisation can work together to improve production.
+
+Thinking For A Change: Putting the TOC Processes to Use by Lisa J. Scheinkopf
+
+After an overview of the Theory of Constraints (TOC) and the types of constraints that exist in any organisation, the reader is led through the step-by-step process of the two foundational thinking methods on which the Thinking Processes are based. The reader can then use the book as a field guide, learning the five processes as needed, based on his or her own particular issues.
+
+"Explaining the Thinking Processes accurately in writing is a very challenging task. To choose examples that make this technical subject alive to a broad spectrum of people is even more difficult. In this book Lisa succeeds in these two daunting tasks. She actually succeeds in doing it in a particularly enticing style. My hat’s off to her. I’m recommending this book to anyone who wants to learn more about the Thinking Processes. I even recommend it to veteran
+
+‘Jonahs.’"
+
+--Eliyahu M. Goldratt
+
+"Thinking for a Change is a book that provides the detailed tutoring required to learn TOC tools and can be simultaneously used as a reference by the experts. A well-written, easy-to-understand book with real-life examples to which everyone t for anyone facing c
+
+can relate! A mus
+
+hange and new frontiers. You will refer to
+
+this book often."
+
+33
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+--Carol A. Ptak President Eagle Enterprises
+
+"If you are in need of state-of-the-art problem solving tools, this is the book to have. I’ll buy it and give it a very special place on my desk."
+
+--Peter Sacreas Operations Manager Sycron, The Netherlands
+
+Other:
+
+• Breaking the Constraints to World-Class Performance by Dettmer (ASQ
+
+Quality Press, 1998)
+
+• Introduction to the Theory of Cons
+
+ints (TOC) M
+
+tra
+
+anagement System
+
+by McMullen (The St. Lucie Press, 1998)
+
+• Management Dilemmas, The Theory of Constraints Approach to
+
+tification and Solutions
+
+Problem Iden
+
+by Schragenheim (The St. Lucie
+
+Press, 1999)
+
+• Re-Engineering the Manufacturing System, Applying the Theory of
+
+Constraints by Stein (Marcel Dekker, Inc., 1996)
+
+• Securing the Future, Strategies for Exponential Growth Using the
+
+Theory of Constraints by Kendall (The St. Lucie Press, 1998)
+
+• Synchronous Manufacturing by Srikanth and Umble (Spectrum Pub., 1995)
+
+• The Theory of Constraints and Its Implications for Management
+
+Accounting by Noreen, Smith, and Mackey (North River Press, 1995)
+
+• Thinking for a Change, Putting th
+
+OC Thinking Processes to Use
+
+e T
+
+by
+
+Sheinkopf (The St. Lucie Press, 1999)
+
+34
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Published Articles in Magazines & Newspapers:
+
+"You Can't Spot Serious Shareholder Value? Check Your Paradigms!" This article was written by Rudolf G. Burkhard, and won the 1999 Pricewaterhouse Coopers European Shareholder Value Award.
+
+This article won the 1999 PricewaterhouseCoopers European Shareholder Value Award.
+
+…Executives are under too much pressure to spend time looking for anddeveloping new and better solutions to running their business. They are aware ofthe need to manage their business as a system but on the whole do not do so,because they are lacking the tools to do so. Goldratt's five focusing steps are away to solve this missing capability by focusing on the very few constraints any(business) system can have. Policies (the way things are done) are keyconstraints to better profits and improved SVA and many need to be changed.Some examples show how policies from the past are blocking businesses fromearning much better SVAs…
+
+"Program Management - Turning Many Projects into Few Priorities with TOC" This article was written by AGI Certified Associate Frank Patrick of Focused Performance and was presented at the Project Management Institute Symposium in October 1999 magazine.
+
+…In PMI's A Guide to the Project Management Body of Knowledge, a program isdefined as ". . . a group of projects managed in a coordinated way to obtainbenefits not available from managing them individually." Most organisations thatdepend on the accomplishment of projects as a source of products, profits, orprocess improvements do so with shared resources that must be "managed in acoordinated way." In such a system, proficiency at managing single projectsindividually without proactively dealing with the interactions between them is not
+
+35
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+sufficient to assure the attainment of the goals of the organisation. The system thatreally needs to be managed in most cases is greater than the sum of the singleprojects. It is a larger, complex system of projects, priorities, policies, andpractices that guide the behaviours of managers and resources and requiresconsistent and coherent coordination for maximum effectiveness.By applying the TOC prescription for multi-project/program management, anorganisation honours its priorities by scheduling its program through thestrategically defined precedence of the synchronisation schedule.Project managers avoid unnecessary changes in priority by relying on buffers toabsorb most of the normal, expected variability in the execution of tasks andprojects.
+
+Resource managers find clear direction and priority for assignment of tasks in thestatus of the buffers, which indicate the best use for available resources to supportthe promises made by the organisation.
+
+And resources have a single priority --the current task to which they are assigned.Without the distraction of pressures to multitask or to meet false priorities of taskdue dates, they can concentrate on the task at and "just do it," do just it, and do itjustice to assure a quality handoff, successful projects, and maximum throughputfor the organisation…
+
+"Critical Chain Scheduling and Buffer Management - Getting Out From Between Parkinson's Rock and Murphy's Hard Place"
+
+This article was written by AGI Certified Associate Frank Patrick of Focused Performance and appeared in the April 1999 issue of the Project Management Institute's PM Network magazine
+
+"Work expands to fill (and often exceed) the time allowed." --Parkinson's Law
+
+"Whatever can go wrong, will." --Murphy's Law
+
+…Uncertainty is why we need project management. How we manage foruncertainty is at the core of improvement of project performance--getting projectsdone both faster and with better reliability of the promised deliverable dates.
+
+36
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+The approach to project management known as "Critical Chain Scheduling andBuffer Management" provides mechanisms to allow a "whole system" view ofprojects. It identifies and protects what's critical from inevitable uncertainty, and asa result, avoids major impact of Parkinson's Law at the task level while accountingfor Murphy's Law at the project level.
+
+Project managers and teams need to shift their attention from assuring theachievement of task estimates and intermediate milestones to assuring the onlydate that matters--the final promised due date. Safety that is typically built intotasks to cover Murphy's Law is inefficient, leading to longer than necessary (oracceptable) schedules, and apparently ineffective, given the impact of Parkinson'sLaw from which many projects suffer...
+
+Learning from Experience
+
+by Eli Schragenheim and Avner Passal
+
+…This paper touches upon some of the main points of the methodology. Teachingthe basics of the methodology takes two full days of workshop. Then, there is stilla considerable benefit to assist the first learning teams by having a consultant jointhe team and supervise the process. <O:P</O:P The actual experience we have in implementing the process for structured learningfrom experience shows huge benefits to the organisations. The learning teamstestify that they have revealed thinking paradigms that badly need updating. In nocase the regular unstructured way some individuals learn would have producedsuch a clear identification of the source of the problem. We have seen in all theactual inquiries led by us that by encouraging people to challenge currentparadigms new insights emerge and much better understanding of the surroundingreality is achieved.<O:P</O:P
+
+Another matter is the maturity of the organisation to implement organisationallearning in general and the learning from experience in particular. In a culturewhere people “have to pay for their mistakes” no true learning has any chance.
+
+<O:P</O:P
+
+37
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Learning from experience seems to us as relatively easier to implement as otherform of organisational learning. At times where the organisation is going through asubstantial change, there is a special benefit for implementing a formal procedurefor learning from experience. Noting the cases where a gap is observed and goingthrough the structured learning can reveal a number of old paradigms that fit thereality before the change and didn’t change with the organisational change. Such aquick identification of wrong paradigms should be of great impact in the success ofthe implementation of the organisational change…
+
+The Theory Of Constraints
+
+By Tony Rizzo
+
+…The Theory of Constraints and the Thinking Process tools are already beingused to great effect in many companies throughout the world. These companiesmanage change, rather than letting change manage them. Many of them alreadyhave reported astounding results. For example, Avery Dennison reported a 20% increase in market share only 18 months after adopting the Theory of Constraints.One Vice President of Texas Instruments recently reported that that companyimproved operations to the extent that it could defer a $600 million investment innew plants. Results such as these suggest that the Theory of Constraints will soonsweep not the nation but the world. Last year, Toyota expressed an interest in thesubject…
+
+Other TOC Articles
+
+• Atwater, Brian and Margaret L. Gagne, " The Theory of Constraints VersusContribution Margin Analysis for Product Mix Decisions", Journal of Cost Management, January/February 1997, Vol 11 No. 1
+
+• Campbell, Robert, Peter Brewer, and Tina Mills, " Designing an InformationSystem Using Activity-Based Costing and the Theory of Constraints", Journal of Cost Management, Journal of Cost Management, January/February 1997, Vol 11 No. 1
+
+38
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+• Gupta, Mahesh, Sid Baxendale, and Kathy McNamara, " Integrating TOC andABCM in a Health Care Company", Journal of Cost Management, July/August 1997, Vol 11 No. 4
+
+• Hall, Robert, Nicholas P. Galambos, and Margaret Karlsson, " Constraint-Based Profitability Analysis: Stepping Beyond the Theory of Constraints", Journal of Cost Management, July/August 1997, Vol 11 No.4
+
+• Ruhl, Jack M., "An Introduction to the Theory of Constraints" , Journal of Cost Management, Summer 1996, Vol 10 No. 2, p. 43.
+
+• Salifatinos, Chris, "Integrating the Theory of Constraints and Activity-Based Costing", Journal of Cost Management, Fall 1995, Vol 9 No.3, p.58.
+
+Conferences and Symposiums:
+
+• September 1995: Philadelphia, PA
+
+• March 1996: Washington, DC
+
+• October 1996: Colorado Springs
+
+• March 1997: San Antonio, Texas
+
+• November 1997: Ft. Lauderdale, FL
+
+• May 1998: London, England
+
+• November 1998: Memphis, Tennessee
+
+• July 1999: Chicago, Illinois
+
+• July 2000: Saint Paul, Minnesota
+
+Videos:
+
+• The Goal: The How-To Version (American Media, West Des Moines, IA,
+
+39
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+• TOC For Industry (Goldratt Institute, 1995)
+
+• Introduction to TOC - Featuring AGI General Partner Dale Houle at theMay 1998 JUW/TOC Symposium in London.
+
+• Persuading the Customer to Buy - Part One - Featuring AGI GeneralPartner Dale Houle at the May 1998 JUW/TOC Symposium in London.
+
+• Persuading the Customer to Buy - Part Two - Featuring AGI GeneralPartner Dale Houle at the May 1998 JUW/TOC Symposium in London.
+
+40
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+TOC Case Studies
+
+Brief Overview of Some Case Studies:
+
+Using TOC, this UK printing company addressed its sales constraint, won back lost clients and is exceeding revenue expectations. The Clowes Group4
+
+United States Air Force Healthcare System5
+
+The USAF is using the TOC Thinking Processes to deal with downsizing & costcutting without compromising on quality of service and meeting patients' needs. Alphamet (UK) Ltd.6
+
+This success story describes how Alphamet, a UK trading company, moved from a position of barely keeping its head above water to generating a pre-tax profit improvement in excess of 3500% using the TOC Thinking Processes and tools and presenting Unrefusable Offers to its vendors and customers. Antarctic Support Associates7
+
+ASA has used Critical Chain for several projects with excellent results. Thiswrite-up discusses a project that was already underway - and already behindschedule - when the project team switched to Critical Chain scheduling.Brickman Group8
+
+This landscaping company applied TOC for Production to its operations andmade its already successful organisation even more so. Schedules are nowbeing met, customer satisfaction is up dramatically, and the bottom line hasincreased by more than 50%.
+
+Lucent Technologies
+
+Using Critical Chain, Lucent's Outside Plant Fiber Optic Cable Business Unitreduced its product introduction interval by 50%, improved on-time delivery,
+
+4,5,6,7,8 These are Characteristic Case Studies, which are discussed analytically below.
+
+41
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+and increased the organisation’s capacity to develop products.Lord Corporation
+
+After applying TOC/Critical Chain in their multi-project environment,capacity has increased, cycle time improved, and operating expenseremained the same.
+
+Cartiva, Inc./Rydell Group
+
+Using TOC to identify and address constraints, this group of car dealershipshas realised results which include net profit up by more than 300% in a yearand annual inventory turns up from 4 to 12.
+
+Cryovac
+
+Implementing the TOC Replenishment/Distribution Solution on its entire supply chain has yielded very promising early results for Cryovac and its distributors. Synergis Technologies Group
+
+Synergis has successfully implemented Critical Chain to manage more than 200 concurrent projects in nine locations, making on-time delivery their top priority. Kreisler Manufacturing Corporation
+
+In 1996, Kreisler was in its fifth straight year of losses. The company turned itself around after implementing TOC for Production.
+
+Media Automotive
+
+This South African auto parts distributor achieved success using the TOC Thinking Processes to make an Unrefusable Offer to a parts manufacturer and meet the needs of its market.
+
+Bal Seal Engineering
+
+Shortly after implementing Drum-Buffer-Rope, net profit doubled, inventory decreased by 50%, OE was down, lead times shortened, customer satisfaction increased, and employee quality of life was enhanced considerably. Habitat For Humanity
+
+42
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Using Critical Chain scheduling, a project team for Habitat For Humanity in New Zealand built a 4 bedroom home in just 3 hours, 44 minutes, and 59 seconds --setting a new world record.
+
+Conceptual Analysis of Selected Case Studies:
+
+The Clowes Group
+
+Addressing a Sales Constraint
+
+The Clowes Group is a 200-year-old printing company in Northeast England. From the start its owners were entrepreneurial and successful. In the 1800s the company was 600 employees strong, had international clients, and boasted that there wasn't a written language they couldn't produce. The company was the original printer of the entire Charles Dickens portfolio. By the 1980s they had been acquired several times over. In the mid 1990s they suffered what current Chief Executive Alex Evans calls the "Big Crisis." Clowes was owned ("swallowed") by a company that had diverse ("unfocused") holdings. This parent company decided that the labour costs at Clowes were much too high. Morale took a nosedive as the printers' union saw this as a direct attack. In 1993 and 1994 Clowes saw its net profit plummet. The company brought in Mr. Evans, then a consultant, as its managing director. The first obvious problem he saw was low morale. The next was very high inventory. He immediately made a plan to change the way things were being managed at Clowes. Within three months, the company was out of the red.
+
+In 1996, Mr. Evans was named Chief Executive and decided the company would focus on addressing its constraints in production and strategy. Shortly there after he led a management buyout of Clowes.
+
+In 1998, Mr. Evans read The Goal, and felt it made sense and reflected what he had been trying to accomplish. He and others from Clowes attended an AGIsponsored TOC Symposium in London to learn more about dealing with the sales
+
+43
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+constraint that had presented itself.
+
+They felt they had been dealing with their production problems, but now were not generating enough revenue. Their conversion of leads to sales was very low (almost one in fifteen). And they were experiencing idle time in the workforce and on their web printer - the printer they identified as their constraint and the printer which generated the most income.
+
+This created an environment where the workforce blamed the sales people for the lack of work. The sale people were frustrated by this, as well as the pressure from what they perceived to be unrealistic targets. This left management frustrated that the company could not achieve the desired level of performance. After meeting at the TOC Symposium, Mr. Evans brought in AGI's UK partner, Oded Cohen, to help address the sales constraint and construct the direction of the solution. They started by doing a standard TOC recommendation. It was decided to get away from simple order taking and move to value selling - selling not just a printing service, but a solution to the customers' problems. This meant they had to develop a better understanding of their customers, which started with listening and developing their TOC analytical tools.
+
+The process used
+
+A combined group of the company's directors and sales team got together to work on this new direction. When the sales team was asked for the problems (undesirable effects - UDEs) of the customers, what they gave instead was a list of their complaints about Clowes and its customers.
+
+What surfaced was an internal chronic conflict, caused by the fact that the sales people had not yet bought into the change process that was being forced on them. They were quite bitter.
+
+Mr. Cohen met with the sales force collectively and individually to achieve the buyin necessary to move forward with the solution. The sales people were then asked to give case studies of their current customer
+
+44
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+problems as well as the corresponding Clowes offering. A communication system was established so each sales person was able to see the UDEs of each client, the solutions used/proposed, and comments about how they were working. This created an enthusiastic team environment - members of the sales force began working with each other, making suggestions on issues based on their own experience.
+
+Results
+
+Many of the problem accounts that Clowes had lost during this time period came back. Some even brought affiliate business as well.
+
+The coveted web printers were fully booked three months in advance - during the quarter which historically had been the worst.
+
+At the end of the first quarter of 1999, Clowes' revenue was 150% ahead of where they wanted it to be by the end of the second quarter. Clowes is working to evolve its market offer into full project management - handling the details of the client's job from data collection and manipulation through to worldwide distribution.
+
+United States Air Force
+
+TOC Thinking Processes
+
+The thinking processes can be applied in many environment and situations as illustrated in previous case studies; people have applied this methodology to resolve family problems, personal conflicts, and other non-business needs. This case looks at the application of the thinking processes to a much larger and more complex situation.
+
+The U.S. Air Force healthcare system, with 120 medical facilities and a patient base of around 3 million people (active military, retirees, dependents) is continually being squeezed to do more with less. (Sound familiar?) But when it comes to healthcare, there is an overriding need to insure that the services provided remain
+
+45
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+at the highest quality and continue to serve the needs of the patients. The basic problems involve a mismatch between changing demand and the availability of specific resources, conflict between the need for flexibility and the desire for standardisation (to insure quality), and the push-pull between local control and centralisation. When you think about it, it's not that different from what most manufacturers face - only on a larger scale.
+
+When forced to downsize and cut costs, where do you begin? For the Air Force, the first step was to assemble a team of about 15 people, under the direction of a TOC "Jonah", to identify the goals, conflicts, and impacts of a redesign of the healthcare delivery system. The team members represented Air Force headquarters, the command level and individual hospitals. None of the participants were top-level officers - the team members really understood the details and the challenges from a working level.
+
+The primary objective during the redesign was to preserve the surgeons and the operating rooms, the highest-cost and highest-value portions of the system. All other considerations were subordinated to those key resources. The most surprising thing about this workshop, perhaps, is that the attendees were able to come together with a plan (current reality tree, prerequisites, future reality tree) in just 14 days of effort. And each group within the team (sub-teams worked on different aspect of the problem, then the individual plans were brought together) was able to clearly outline the current situation, the conflicting objectives and the resolution of those conflicts for its assigned portion of the healthcare delivery system. More surprisingly, the separately developed segments of the plan fit together into an overall plan with very little adjustment needed. This is obviously a very large, long-term project which will roll out over an extended period of time. It is remarkable, however, to note that the thinking processes are extremely scaleable (as the systems people would say), applying to husband-wife and family problems, to typical plant and enterprise situations, to something as large as a 120-facility comprehensive (and bureaucratic) medical care system.
+
+46
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Alphamet (UK) Ltd.
+
+TOC Thinking Processes and Unrefusable Offers From Bust (Nearly) to Boom
+
+Alphamet (UK) Ltd. began trading in 1988 as a multi-metal broker. Its industry went through changes due to the recession of the late 80s and early 90s. Many of the poor performers in the industry went under and excellent service became a prerequisite to staying in business. Alphamet had to change to make a profit. The company's TOC journey began in 1995 when Managing Director Alf Wheeler attended an "Overview of TOC for Industry" facilitated by Eli Goldratt. During the program, the way Alf thought about doing business changed. A month later he went through a Management Skills Workshop, followed by the Jonah Program during which he realised that he himself was Alphamet's core problem. Alf realised that he struggled between an autocratic and democratic leadership style and the result was chaos. He saw that a deep conflict with his co-director needed to be resolved. And he begrudgingly accepted that possible negative outcomes of actions and ideas must be acknowledged and addressed - a lesson he learned only after the company had suffered losses. In order to address internal conflicts and constraints, the entire Alphamet staff went through the Management Skills Workshop in September 1996. At the time they were a group of bitter, unhappy and unmotivated people. Some then used the tools they had learned to challenge Alf's authority and position. About one third of the Alphamet staff left - unfortunate, but necessary if Alphamet was going to move forward.
+
+Alphamet now prepared to use the TOC Thinking Processes to construct and present Unrefusable Offers to its vendors and customers. The company did a survey via fax of current and potential customers to determine their problems and needs. The majority of those surveyed responded within 48 hours - an indication that Alphamet had something that the market wanted.
+
+In order to meet the needs of its customers, Alphamet would need the support of its vendors. The company made Unrefusable Offers to its three vendors - two
+
+47
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+refused and one accepted. That one is now the only major player left in the market.
+
+Alphamet then began making Unrefusable Offers to potential customers. The offers addressed the issues identified in the customer survey. Some issues raised were considered "trivial" - such as packaging, others were policy constraints. All were "so simple" to deal with, thus giving the customers what they wanted. Other actions taken during this time included:
+
+• Alphamet prepared to upgrade the plant in order to offer a complete product range to the market
+
+• Slow moving inventory was reduced at a loss in order to generate necessary resources (cash and warehouse space)
+
+• Declining markets were dropped in order to free resources to focus on the new targeted markets
+
+• The company tried very, very hard to stay on course and not be distracted by other obstacles
+
+The results two years into Alphamet's TOC Journey:
+
+• Alphamet now supplies 80% of the UK market (up from just 15%)
+
+• Pretax profits have increased from Ј2,700 to Ј146,000 and are still growing
+
+• Gross margin is up from 29% to 41%
+
+• Projected 1998-1999 pretax profit is upwards of Ј250,000
+
+• A much happier team earning better wages, receiving larger profit sharing, empowered, with a higher level of self-respect than two years ago.
+
+• To deal with current growth - and prepare for future growth as well - Alphamet is moving to larger, more comfortable premises
+
+• The company is investing in additional capacity as well (systems, people, equipment, etc.).
+
+• Alphamet's computer systems are being overhauled for Y2K compliance.
+
+48
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+• The company will now return its attention to formerly profitable areas of business it had neglected during this tremendous boom. Alphamet is not becoming complacent, though. The company recognizes that its competitors will be breathing down its neck and is preparing additional strategy - and Unrefusable Offers - to stay ahead. Internal conflicts and constraints are addressed on an ongoing basis, and Alf Wheeler is still struggling with his own
+
+"sales versus managing" conflict. The TOC tools will be used to guide Alphamet as it continues to lead the UK market and forges into the global arena.
+
+Antarctic Support Associates
+
+TOC for Project Management/Critical Chain
+
+"The NSF is most impressed with ASA's continued management training forexisting project teams. ASA is apparently committed to the success of these teamsand the projects that they are working on by providing added tools to enhancetheir output. The use of Theory of Constraints project management methodologyappears to have been successful with several projects." - quote from one of the National Science Foundation's performance evaluations of ASA Antarctic Support Associates (ASA) is a $100 million government service provider. Its purpose is to support work sponsored by the National Science Foundation (NSF) to expand the horizons of science in one of the most extreme environments on earth.
+
+The research conducted in and on Antarctica is done under a 42-nation treaty signed to allow research to be performed in a peaceful way. There are three types of research done on this icy continent:
+
+• On the continent of Antarctica itself
+
+• What effect systems in Antarctica have on the global process of the world
+
+• Astronomy and space
+
+ASA supports three research stations in Antarctica (including one at the South
+
+49
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Pole) and two floating stations - the Research Vessel (R/V) Laurence W. Gould and the R/V Nathaniel B. Palmer - which circumnavigate the continent. In 1997 ASA was introduced to Theory of Constraints. Core employees took the Management Skills Workshop and Project Management program. Upon returning from the Project Management program in October 1997, the challenge of bringing in on-time a project that was at that stage four months behind schedule was undertaken.
+
+The R/V Laurence M. Gould was scheduled to begin its maiden science support voyage no later than January 15, 1998. In October 1997 the project was already several months behind schedule. ASA was going to put TOC Project Management/Critical Chain to work.
+
+The initial challenge was to assemble several key staff members to create a network and schedule for getting the science support equipment on-board the Gould and operational in time for its first mission.
+
+It took six people four days to develop the network. Initially, more than 400 tasks were identified. Those tasks were reduced to less than 200 for the schedule. The Critical Chain was less than 100 tasks. It was determined that the equivalent of 20 full-time people would be necessary for this project. The project buffer was 15 days, the feeding buffers 12 days. The tools used to schedule and manage the project were MS Project and ProChain. A due date for this phase of the project was set for December 15, 1997.
+
+On October 20, 1997 new challenges were identified. The team had to create and fill five additional temporary job openings in less than a week. Procurements, which numbered more than 100, had to be centralised and assigned to the task leader for monitoring and tracking. ASA's logistics and purchasing divisions were each required to assign one full-time person to support procurements from the ASA offices in Denver. An on-site task leader and team were appointed and deployed to Louisiana and had to operate within an extremely narrow time horizon for this job.
+
+The next set of challenges (November 2 - December 12, 1997) included unplanned disruptions in ASA's schedule caused by contentions for space and
+
+50
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+shipyard personnel to support science equipment and installation (e.g. the shipyard installed flooring or cabinets when ASA scheduled installation of instruments).
+
+The Results
+
+By using Critical Chain scheduling, the ASA project team enabled the R/V
+
+Laurence M. Gould to pass the sea-trial tests and be ready to embark on its voyage to Antarctica on December 11, 1997 - in time to arrive and prepare to take its maiden science voyage in January 1998 - on schedule, rather than four months late as had been anticipated in October.
+
+The Benefits
+
+The ASA team met its customer's requirements. Finishing on-time meant enabling science throughput - the science cruise could sail - and several hundred thousand dollars in profit were retained for ASA.
+
+The Brickman Group
+
+TOC for Production applied to a service industry The Brickman Group is one of the largest landscaping companies in the United States. Sixty percent of Brickman's business is landscape maintenance; the other 40 is landscape installation. It was a well-managed company whose management knew could do better. In February 1996 the Brickman Group began its "refinement process" using TOC.
+
+The TOC journey started with about 90 middle-and upper-management personnel reading The Goal. Most agreed that the TOC concepts made sense, but they didn't know how to translate them from the production environment to their landscaping business.
+
+In March 1996 Brickman managers went through a Production Application program, where they learned how to apply TOC for Production to landscaping.
+
+51
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+They began to understand that the constraint was not necessarily something negative that should be avoided, but that it may be the most profitable part of the business - and if they could control the constraint they could then control profitability. It was realised that work was being done in batches and that local optimum was the focus.
+
+Mowing was identified as the constraint. That task was then pulled out of the batch of work, which included the detail-work of fertilising, weeding, watering, and trimming. Making mowing a stand-alone task revealed excess capacity, improved efficiency, and enabled Brickman to make and meet schedules - something it had trouble with in the past. Customer satisfaction increased. The next step in the TOC journey involved 12 members of upper management going through the Jonah Program. This pointed out the need to outline the processes that occur within Brickman in order to establish consistency and standardisation throughout the company, to identify and address the conflicts which occur, and to work on scheduling and the misalignment of resources. The ongoing TOC journey at Brickman has taught them some valuable lessons:
+
+• Don't change too many processes too quickly - people need to adjust
+
+• Everyone doesn't learn and accept change at the same speed
+
+• Document the existing processes and share the planned changes with the staff - involving them in the creation of the Current Reality Trees and Future Reality Trees provides everyone with a sense of involvement, understanding and ownership
+
+• For Brickman, TOC was a "refinement process" - this made it easier for personnel to accept the change as something more than a fad, especially as a company which was doing well prior to TOC
+
+• Measure and share results with other departments and divisions - all can learn from each other's experience
+
+• Appeal to all the senses - different people respond to learning and changing in different ways, provide the information in different formats - video, books,
+
+52
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+simulators, etc.
+
+The results at Brickman since implementing TOC:
+
+• Dramatic increase in customer satisfaction due to factors which include being able to make and meet scheduling commitments.
+
+• 20% increase in client base with only a 12-13% increase in staff.
+
+• Minimum 50% increase in the bottom line.
+
+53
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+Itemised Conclusions
+
+…Thus, what is the Goal?
+
+Many for-profit companies believe their goal is related to money. Some would argue that the Goal is related to customers. And others would argue that the Goal is related to jobs and the workforce. The Theory of Constraints does not disagree with any of these three groups of people. In fact, Goldratt contends that the owners of an organisation are the only ones who define the goal. Once the choice is made, however, the other two become necessary conditions.
+
+54
+
+THE THEORY OF CONSTRAINTS
+
+MILTIADIS BOBOULOS
+
+For example, those companies who believe their goal is to make money now and in the future find that it is not possible to do so unless they also satisfy customers and employees now and in the future. If they seek money while abusing employees, they will experience high employee defection that almost always leads to high customer defection.
+
+The company that chooses satisfying customers now and in the future for their goal will find it necessary to make money and to satisfy employees now and in the future.
+
+And the company that regards satisfying employees as their goal will likewise find it necessary to make money and to satisfy customers now and in the future. Whenever TOC refers to the "goal" of a company, unless otherwise stated, that goal will be to "make money now and in the future." If an organisation has a different goal, they should remember that because making money now and in the future is a necessary condition of reaching their goal, the information about
+
+"making money" on these pages is still pertinent to their organisation.
+
+55
+
+Document Outline

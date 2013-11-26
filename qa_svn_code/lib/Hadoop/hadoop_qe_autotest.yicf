@@ -1,0 +1,41 @@
+# When packages are added, follow these steps (if we can setup a build for this, we could automate it):
+# 1. increment VERSION below
+# 2. yinst_create --buildtype release hadoop_qe_autotest.yicf
+# 3. dist_install hadoop_qe_automation_reqs
+
+PRODUCT_NAME = hadoop_qe_autotest
+VERSION = 0.0.1
+SHORT_DESC = Required packages for running hadoop QE automation tests
+LONG_DESC = ${SHORT_DESC}
+CUSTODIAN = hadoop-qe-champaign@yahoo-inc.com http://twiki.corp.yahoo.com/view/Hadoop/Hadoop22TestAutomation
+PACKAGE_OS_SPECIFIC = no
+
+SRCDIRS = ..
+
+YINST bug-product Hadoop
+YINST bug-component Quality Engineering
+
+SHORT_NAME = ${PRODUCT_NAME}
+
+src_root_dir = "../.."
+pkg_root_dir = "libexec/$(PRODUCT_NAME)"
+pkg_lib_dir = "$(pkg_root_dir)/lib"
+pkg_lib_hadoop_dir = "$(pkg_root_dir)/lib/Hadoop"
+pkg_utils_dir = "$(pkg_root_dir)/utils"
+glob 0755 - -    $(pkg_utils_dir)/ $(src_root_dir)/utils/*
+glob 0644 - -    $(pkg_lib_dir)/ $(src_root_dir)/lib/*
+glob 0644 - -    $(pkg_lib_hadoop_dir)/ $(src_root_dir)/lib/Hadoop/*
+
+
+YINST requires pkg ypan/perl-Data-Dumper                2.121_02    *
+YINST requires pkg ypan/perl-File-Rotate-Backup         0.13_01     *
+YINST requires pkg ypan/perl-HTML-Parser                3.60_01     *
+YINST requires pkg ypan/perl-HTML-Tree                  4.1_01      *
+YINST requires pkg ypan/perl-IO-CaptureOutput           1.1101_01   *
+YINST requires pkg ypan/perl-JSON                       2.15_01     *
+YINST requires pkg ypan/perl-Math-Round                 0.06_02     *
+YINST requires pkg ypan/perl-Scalar-List-Utils          1.21_01     *
+YINST requires pkg ypan/perl-String-ShellQuote          1.03_02     *
+YINST requires pkg ypan/perl-Text-Trim                  1.01_02     *
+YINST requires pkg ypan/perl-Time-HiRes                 1.9719_02   *
+YINST requires pkg ypan/perl-XML-Simple                 2.18_04     *

@@ -1,0 +1,61 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to submit a sample sleep job
+# Example:
+# $ CLUSTER=<cluster name> check_safemode
+# $ CLUSTER=<cluster name> check_safemode -user hadoopqa
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use base qw(Hadoop::Test);
+use Getopt::Long;
+use Test::More;
+Getopt::Long::Configure('pass_through');
+
+my %options = ();
+my $verbose;
+my $user=getpwuid($>);
+my $comp='hadoop';
+my $result =
+    GetOptions ( \%options,
+                 "user=s"  => \$user,
+                 "comp=s"  => \$comp,
+                 "verbose" => \$verbose,
+                 "help|h|?");
+
+usage(1) if (!$result);
+usage(0) if $options{help};
+
+sub usage
+{
+    my($exit_code) = @_;
+    diag << "EOF";
+Usage: $Script
+   [-user <user>  ] : default user is the uid
+   [-comp <comp>  ] : default component is hadoop {hadoop, mapred, hdfs}
+   [-verbose      ] : verbose
+   [-help|h|?     ] : Display usage
+
+EOF
+    exit $exit_code;
+}
+
+my $self = __PACKAGE__->new;
+my $Config = $self->config;
+# note(explain($Config));
+
+my $type = (($ARGV[0] =~ "job") && ($Config->{YARN_USED}))  ? 'hdfs' : $comp;
+
+my $nn=$Config->{NODES}->{NAMENODE}->{HOST1};
+my $command = "dfsadmin -fs hdfs://$nn:8020 -safemode wait";
+
+$self->run_hadoop_command( {
+    command => $command,
+    user => $user,
+    mode => 'system'
+    },
+    $type );
+

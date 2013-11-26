@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="/grid/0/gs/conf/local/local-superuser-conf.xml"/>
+
+<!-- file system properties -->
+  <!-- property>
+    <name>fs.default.name</name>
+    <value>viewfs:///</value>
+    <description>The name of the default file system.  Either the
+  literal string "local" or a host:port for NDFS.</description>
+    <final>false</final>
+  </property -->
+
+  <!--property>
+    <name>fs.viewfs.impl</name>
+    <value>org.apache.hadoop.fs.viewfs.ViewFileSystem</value>
+    <description>The File System for viewfs:uris </description>
+  </property-->
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./nn2</name>
+    <value>hdfs://NN2.blue.ygrid/tmp/nn2.mt</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./nn3</name>
+    <value>hdfs://NN3.blue.ygrid/tmp/nn3.mt</value>
+  </property>
+
+  <property>
+	<name>fs.viewfs.mounttable.qatest.link./nn4</name>
+	<value>hdfs://NN4.blue.ygrid/tmp/nn4.mt</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./tmp</name>
+    <value>hdfs://NN0.blue.ygrid/tmp/tmp.mt</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./user</name>
+    <value>hdfs://NN0.blue.ygrid/user</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./jobtracker</name>
+    <value>hdfs://NN0.blue.ygrid/jobtracker</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./mapred</name>
+    <value>hdfs://NN0.blue.ygrid/mapred</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./mapredsystem</name>
+    <value>hdfs://NN0.blue.ygrid/mapredsystem</value>
+  </property>
+
+  <property>
+    <name>fs.viewfs.mounttable.default.link./data</name>
+    <value>hdfs://NN0.blue.ygrid/tmp/data.mt</value>
+  </property>
+
+
+<!-- file system properties cwc -->
+
+</configuration>

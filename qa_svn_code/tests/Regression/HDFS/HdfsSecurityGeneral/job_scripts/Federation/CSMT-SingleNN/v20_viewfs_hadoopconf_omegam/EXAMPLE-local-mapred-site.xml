@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- local-mapred-site.xml -->
+
+<configuration>
+
+<property>
+  <name>mapred.queue.names</name>
+  <value>keystone,sponsoredsearch,bt,sds,audience,atg_other,search,gridops,grid-dev,grideng,unfunded</value>
+</property>
+
+<property>
+  <name>mapred.acls.enabled</name>
+  <value>true</value>
+</property>
+
+</configuration>

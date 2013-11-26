@@ -1,0 +1,27 @@
+Hadoop 23 Durability Tests
+
+These tests are combination regression and durability, initial motivation was to regression
+check for Kerb TGT and token issues that would not show up until significant time has passed,
+like 24 hr TGT renewal, expired token renewal, and such. It's nice to be able to run jobs
+for long periods, so they've been adapted to be general purpose durability tests.
+
+Building them is done by compiling against the target cluster, this is not pretty but is
+does make sure you are running against the code under test, necessary if you've got a
+Dev tarball overlay since there's no way to pull non-checked in code from git or svn. 
+
+--run24hour_job-- 
+this takes a number of hours to run as an arg and basically runs small
+wordcount jobs with a short sleep inbetween for (at least) that long. Run appoaches are:
+25 hours: this is a regression check for the "AB token bug"
+72 hours: regression check for the compute node's internal secret key cache roll
+169 hours: 1 week plus 1 hour, renewal limit window of a TGT
+
+There's a jar built on elrdon using 0.23.6 with Daryn's token renewal fix SNAPSHOT,
+you will likely want to rebuild your own jar, suggested approach is to cp all of the files
+in this svn dir to the RM or NN (any node really, but GWs can be iffy) of your test cluster 
+and do:
+
+buildme <CLUSTERNAME> run24hour_job
+
+Running from cmdline is described in src comment header.
+

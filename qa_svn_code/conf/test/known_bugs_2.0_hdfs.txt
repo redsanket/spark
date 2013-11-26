@@ -1,0 +1,66 @@
+Regression/HDFS/delegationTokens	run_delegationTokens.sh 5629780
+# Regression/HDFS/bugs    test_bug4315986_filesDirWithHftp_ls_file        5651188
+# Regression/HDFS/bugs    test_bug4315986_filesDirWithHftp_cat_hftp_dotTxt        5651188
+# Regression/HDFS/bugs    test_bug4315986_filesDirWithHftp_cat_hftp_dotAdotTxt    5651188
+# Regression/HDFS/bugs    test_bug4315986_filesDirWithHftp_cat_hftp_dotCrc        5651188
+# Regression/HDFS/bugs    test_bug4315986_filesDirWithHftp_cat_hftp_dotAdotCrc    5651188
+# Regression/HDFS/bugs    test_bug4093980_check_crc_hftp_ls       5651188
+# Regression/HDFS/bugs    test_bug4093980_distcp_crc_hftp_hdfs    5651188
+# Regression/HDFS/bugs    test_bug4315986_filesDirWithHftp_ls_DirWithDorCrcDir    5651188
+# Regression/HDFS/bugs    test_bug4315986_filesDirWithHftp_distcp_hftp_file       5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_!_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_#_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_$_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_%_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_(_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_)_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_+_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_=_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_@_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_^_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_`_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_|_symbol     5651188
+# Regression/HDFS/bugs    test_HDFS_1109_HFTP_URL_Encoding_file_with_~_symbol     5651188
+# Regression/HDFS/ViewfsCSMT      VFS_DISTCP_POS_803      5651188
+# Regression/HDFS/ViewfsCSMT      VFS_DISTCP_POS_813      5651188
+# Regression/HDFS/ViewfsCSMT      VFS_DISTCP_POS_814      5651188
+# Regression/HDFS/ViewfsCSMT      VFS_DISTCP_POS_823      5651188
+# Regression/HDFS/ViewfsCSMT      VFS_DISTCP_POS_824      5651188
+# Regression/HDFS/ViewfsCSMT      VFS-WC_POS_CSMT_304      5651188
+# Regression/HDFS/ViewfsCSMT      VFS-WC_POS_CSMT_305      5651188
+
+# Regression/HDFS/FedAppMNN FED_DCPY_160 5651188
+# Regression/HDFS/FedAppMNN FED_DCPY_230 5651188
+# Regression/HDFS/FedAppMNN FED_DCPY_270 5651188
+# Regression/HDFS/FedAppMNN FED_DCPY_360 5651188
+# Regression/HDFS/FedAppMNN FED_DCPY_420 5651188
+# Regression/HDFS/FedAppMNN FED_DCPY_450 5651188
+# Regression/HDFS/FedAppMNN FED_DCPY_520 5651188
+# Regression/HDFS/FedAppMNN FED_DCPY_550 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_160 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_230 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_270 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_360 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_420 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_450 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_520 5651188
+# Regression/HDFS/FedAppMNN FED_WCOUNT_550 5651188
+
+Regression/HDFS/archives                 test_archive_14                                  4323063
+Regression/HDFS/archives                 test_archive_16                                  4323063
+
+Regression/HDFS/balancer        test_balancer_4	5629780
+Regression/HDFS/restoreCheckpointStorage        testCheckpointStorageRestored   5629780
+Regression/HDFS/restoreCheckpointStorage        test_checkpoint_1       5629780
+Regression/HDFS/restoreCheckpointStorage        test_checkpoint_2       5629780
+Regression/HDFS/secondaryNamenode        test_clusterId1       5629780
+Regression/HDFS/restoreCheckpointStorage testCheckpointStorageNotRestored                 5485236
+Regression/HDFS/restoreCheckpointStorage testNamenodesShutDownWhenNoStorage               5485236
+Regression/HDFS/restoreCheckpointStorage testRestoredCheckpointStorageDirectoryWasCorrect 5485236
+
+Regression/HDFS/FedAdminMNN				 FED_ADM_FED_ADM_170	6081818
+Regression/HDFS/FedAdminMNN				 FED_ADM_FED_ADM_171	6081818
+Regression/HDFS/FedAdminMNN				 FED_ADM_FED_ADM_172	6081818
+Regression/HDFS/FedAdminMNN				 FED_ADM_FED_ADM_173	6081818
+
+Regression/HDFS/restoreCheckpointStorage	knockOffFS2	6031081	

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+SOURCE=$1
+CLUSTER=$2
+HOURS=$3
+CLUSTERYROOT=/home/gs/gridre/yroot.$CLUSTER
+
+[ -z "$WORKSPACE" ] && export WORKSPACE=`pwd`
+
+cp qa_svn_code_23.tgz $CLUSTERYROOT/tmp
+cd $CLUSTERYROOT/tmp
+tar -zxf qa_svn_code_23.tgz
+
+cd $CLUSTERYROOT/tmp/qa_svn_code_23/java_tests/load_test/ARtest
+
+# need the cluster name we're running against
+if [ $# -ne 3 ]; then
+  echo "Error: need the SOURCE, CLUSTER we are running on and HOUR to indicate how long test will run"
+  exit 1
+fi
+
+# exec the buildme script
+./buildme $SOURCE
+
+#launch the test
+./runme $CLUSTER $HOURS

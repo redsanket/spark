@@ -1,0 +1,9 @@
+    Expect rep  changed from 3 to 4 to 2:
+Found 1 items
+-rw-------   3 hdfsqa hdfs         14 2010-00-00 00:00 /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_setrep.txt
+Replication 4 set: /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_setrep.txt
+Found 1 items
+-rw-------   4 hdfsqa hdfs         14 2010-00-00 00:00 /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_setrep.txt
+Replication 2 set: /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_setrep.txt
+Found 1 items
+-rw-------   2 hdfsqa hdfs         14 2010-00-00 00:00 /user/hadoopqa/hdfsRegressionData/tmpSudo/hdfsTestData/basic/tmp_setrep.txt

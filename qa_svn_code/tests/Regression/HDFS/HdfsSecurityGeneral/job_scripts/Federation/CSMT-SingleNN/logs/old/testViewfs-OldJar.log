@@ -1,0 +1,308 @@
+20
+testViewfs.sh - Test the use of viewfs in URI and in config file
+test various combintions of URI, config
+--config: ds.default to be hdfs://gwbl90772.blue.ygrid  vs viewfs:/// 
+--config set ds.default to be non-final, so that it can over-ridden by -conf
+dfs -conf: my-viewfs-scheme-only.xml vs my-hdfs-scheme-only.xml
+URI: /nn2/file1, //nn2, ///nn2
+///nn2 is mounted to /tmp/nn2
+hdfs config, then viewfs config for /nn2/file1; then hdfs, viewfs config for tmp
+/grid/0/gs/gridre/yroot.omegab/share/hadoop-current/bin/hadoop
+Hadoop 000.00.00.000.000.00.00.000
+Subversion git://hadoopre4.corp.sk1.yahoo.com/ on branch (no branch) -r bfd04219feaa000.00.00.000e000.00.00.000af728ac040
+Compiled by hadoopqa on ddd mmm 000.00.00.000 UTC 2010
+CLUSTER=omegab
+HADOOP_HOME=/grid/0/gs/gridre/yroot.omegab/share/hadoop-current
+
+Test Group 01-10: using hdfs as default, try to access /tmp/nn2/file1. /, ///, //gsbl90772, hdfs:/, hdfs:///, hdfs://gsbl90772 should work. All other fail
+Test Group 11-20: using viewfs as default, try to access /tmp/nn2/file1. All should fail, except #16 hdfs://gsbl90772/tmp/nn2/file1
+Test Group 21-30: using hdfs as default, try to access /nn2/file1. All should fail, except #27, #28 using viewfs:
+Test Group 31-40: using viewfs as default, try to access /nn2/file1. /nn2, ///nn2, viewfs:/nn2, viewfs:///nn2 should work. Other should fail.
+Test Group 41-50:  using viewfs as default, but use hdfs override. Should have the same behavior as in case 01-10
+There does not seem to have a way to set up such that one cannotaccess both /nn2/file1 and /tmp/nn2/file1 without some sort of hdfs:/ or viewfs:/ in front of it
+Found 2 items
+drwx------   - hadoopqa hdfs          000.00.00.000 00:00 /tmp/nn2/dir1
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+Deleted hdfs://gsbl00000.blue.ygrid.yahoo.com/tmp/nn2
+###########################################
+## [POS_01] CMD 1 is:  hadoop  --config v20_hdfs_hadoopconf_omegab  dfs -ls /tmp/nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_01] Cmd 1 is:  hadoop  --config v20_hdfs_hadoopconf_omegab  dfs -ls /tmp/nn2/file1 
+ 
+###########################################
+## [POS_02] CMD 2 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls ///tmp/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_02] Cmd 2 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls ///tmp/nn2/file1
+ 
+###########################################
+## [POS_03] CMD 3 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/tmp/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_03] Cmd 3 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/tmp/nn2/file1
+ 
+###########################################
+## [POS_04] CMD 4 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:/tmp/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_04] Cmd 4 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:/tmp/nn2/file1
+ 
+###########################################
+## [POS_05] CMD 5 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:///tmp/nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_05] Cmd 5 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:///tmp/nn2/file1 
+ 
+###########################################
+## [POS_06] CMD 6 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/tmp/nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_06] Cmd 6 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/tmp/nn2/file1 
+ 
+###########################################
+## [NEG_07] CMD 7 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:/tmp/nn2/file1 
+ls: No FileSystem for scheme: viewfs
+[exec - NEG test] [Pass] [NEG_07] Cmd 7 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:/tmp/nn2/file1
+ 
+###########################################
+## [NEG_08] CMD 8 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:///tmp/nn2/file1 
+ls: No FileSystem for scheme: viewfs
+[exec - NEG test] [Pass] [NEG_08] Cmd 8 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:///tmp/nn2/file1
+ 
+###########################################
+## [NEG_09] CMD 9 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/tmp/nn2/file1 
+ls: No FileSystem for scheme: viewfs
+[exec - NEG test] [Pass] [NEG_09] Cmd 9 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/tmp/nn2/file1
+ 
+###########################################
+## [NEG_10] CMD 10 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //tmp/nn2/file1 
+ls: Cannot access //tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_10] Cmd 10 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //tmp/nn2/file1
+ 
+###########################################
+## [NEG_11] CMD 11 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls /tmp/nn2/file1  
+ls: Cannot access /tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_11] Cmd 11 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls /tmp/nn2/file1 
+ 
+###########################################
+## [NEG_12] CMD 12 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls ///tmp/nn2/file1 
+ls: Cannot access ///tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_12] Cmd 12 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls ///tmp/nn2/file1
+ 
+###########################################
+## [NEG_13] CMD 13 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/tmp/nn2/file1 
+ls: Cannot access //gsbl00000.blue.ygrid/tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_13] Cmd 13 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/tmp/nn2/file1
+ 
+###########################################
+## [NEG_14] CMD 14 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:/tmp/nn2/file1 
+ls: Incomplete HDFS URI, no host: hdfs:/tmp/nn2/file1
+[exec - NEG test] [Pass] [NEG_14] Cmd 14 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:/tmp/nn2/file1
+ 
+###########################################
+## [NEG_15] CMD 15 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:///tmp/nn2/file1  
+ls: Incomplete HDFS URI, no host: hdfs:///tmp/nn2/file1
+[exec - NEG test] [Pass] [NEG_15] Cmd 15 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:///tmp/nn2/file1 
+ 
+###########################################
+## [POS_16] CMD 16 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/tmp/nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_16] Cmd 16 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/tmp/nn2/file1 
+ 
+###########################################
+## [NEG_17] CMD 17 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:/tmp/nn2/file1 
+ls: Cannot access viewfs:/tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_17] Cmd 17 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:/tmp/nn2/file1
+ 
+###########################################
+## [NEG_18] CMD 18 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:///tmp/nn2/file1 
+ls: Cannot access viewfs:///tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_18] Cmd 18 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:///tmp/nn2/file1
+ 
+###########################################
+## [NEG_19] CMD 19 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/tmp/nn2/file1 
+ls: ViewFs: Cannot initialize: Empty Mount table in config
+[exec - NEG test] [Pass] [NEG_19] Cmd 19 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/tmp/nn2/file1
+ 
+###########################################
+## [NEG_20] CMD 20 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //tmp/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /nn2/file1
+[exec - NEG test] [FAIL] [NEG_20] Cmd 20 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //tmp/nn2/file1
+ 
+###########################################
+## [NEG_21] CMD 21 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls /nn2/file1  
+ls: Cannot access /nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_21] Cmd 21 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls /nn2/file1 
+ 
+###########################################
+## [NEG_22] CMD 22 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls ///nn2/file1 
+ls: Cannot access ///nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_22] Cmd 22 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls ///nn2/file1
+ 
+###########################################
+## [NEG_23] CMD 23 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/nn2/file1 
+ls: Cannot access //gsbl00000.blue.ygrid/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_23] Cmd 23 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/nn2/file1
+ 
+###########################################
+## [NEG_24] CMD 24 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:/nn2/file1 
+ls: Cannot access hdfs:/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_24] Cmd 24 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:/nn2/file1
+ 
+###########################################
+## [NEG_25] CMD 25 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:///nn2/file1  
+ls: Cannot access hdfs:///nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_25] Cmd 25 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs:///nn2/file1 
+ 
+###########################################
+## [NEG_26] CMD 26 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/nn2/file1  
+ls: Cannot access hdfs://gsbl00000.blue.ygrid/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_26] Cmd 26 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/nn2/file1 
+ 
+###########################################
+## [POS_27] CMD 27 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:/nn2/file1 
+ls: No FileSystem for scheme: viewfs
+[exec - POS test] [FAIL] [POS_27] Cmd 27 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:/nn2/file1
+ 
+###########################################
+## [POS_28] CMD 28 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:///nn2/file1 
+ls: No FileSystem for scheme: viewfs
+[exec - POS test] [FAIL] [POS_28] Cmd 28 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs:///nn2/file1
+ 
+###########################################
+## [NEG_29] CMD 29 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/nn2/file1 
+ls: No FileSystem for scheme: viewfs
+[exec - NEG test] [Pass] [NEG_29] Cmd 29 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/nn2/file1
+ 
+###########################################
+## [NEG_30] CMD 30 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //nn2/file1 
+ls: Cannot access //nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_30] Cmd 30 is:  hadoop  --config v20_hdfs_hadoopconf_omegab/ dfs -ls //nn2/file1
+ 
+###########################################
+## [POS_31] CMD 31 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls /nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /nn2/file1
+[exec - POS test] [Pass] [POS_31] Cmd 31 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls /nn2/file1 
+ 
+###########################################
+## [POS_32] CMD 32 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls ///nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /nn2/file1
+[exec - POS test] [Pass] [POS_32] Cmd 32 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls ///nn2/file1
+ 
+###########################################
+## [POS_33] CMD 33 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /nn2/file1
+[exec - POS test] [Pass] [POS_33] Cmd 33 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //gsbl00000.blue.ygrid/nn2/file1
+ 
+###########################################
+## [NEG_34] CMD 34 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:/nn2/file1 
+ls: Incomplete HDFS URI, no host: hdfs:/nn2/file1
+[exec - NEG test] [Pass] [NEG_34] Cmd 34 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:/nn2/file1
+ 
+###########################################
+## [NEG_35] CMD 35 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:///nn2/file1  
+ls: Incomplete HDFS URI, no host: hdfs:///nn2/file1
+[exec - NEG test] [Pass] [NEG_35] Cmd 35 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs:///nn2/file1 
+ 
+###########################################
+## [NEG_36] CMD 36 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/nn2/file1  
+ls: Cannot access hdfs://gsbl00000.blue.ygrid/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_36] Cmd 36 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls hdfs://gsbl00000.blue.ygrid/nn2/file1 
+ 
+###########################################
+## [POS_37] CMD 37 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /nn2/file1
+[exec - POS test] [Pass] [POS_37] Cmd 37 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:/nn2/file1
+ 
+###########################################
+## [POS_38] CMD 38 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:///nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /nn2/file1
+[exec - POS test] [Pass] [POS_38] Cmd 38 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs:///nn2/file1
+ 
+###########################################
+## [NEG_39] CMD 39 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/nn2/file1 
+ls: ViewFs: Cannot initialize: Empty Mount table in config
+[exec - NEG test] [Pass] [NEG_39] Cmd 39 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls viewfs://gsbl00000.blue.ygrid/nn2/file1
+ 
+###########################################
+## [NEG_40] CMD 40 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //nn2/file1 
+ls: Cannot access //nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_40] Cmd 40 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -ls //nn2/file1
+ 
+###########################################
+## [POS_41] CMD 41 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls /tmp/nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_41] Cmd 41 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls /tmp/nn2/file1 
+ 
+###########################################
+## [POS_42] CMD 42 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls ///tmp/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_42] Cmd 42 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls ///tmp/nn2/file1
+ 
+###########################################
+## [POS_43] CMD 43 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls //gsbl00000.blue.ygrid/tmp/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_43] Cmd 43 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls //gsbl00000.blue.ygrid/tmp/nn2/file1
+ 
+###########################################
+## [POS_44] CMD 44 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls hdfs:/tmp/nn2/file1 
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_44] Cmd 44 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls hdfs:/tmp/nn2/file1
+ 
+###########################################
+## [POS_45] CMD 45 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls hdfs:///tmp/nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_45] Cmd 45 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls hdfs:///tmp/nn2/file1 
+ 
+###########################################
+## [POS_46] CMD 46 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls hdfs://gsbl00000.blue.ygrid/tmp/nn2/file1  
+Found 1 items
+-rw-------   3 hadoopqa hdfs        000.00.00.000 00:00 /tmp/nn2/file1
+[exec - POS test] [Pass] [POS_46] Cmd 46 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls hdfs://gsbl00000.blue.ygrid/tmp/nn2/file1 
+ 
+###########################################
+## [NEG_47] CMD 47 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls viewfs:/tmp/nn2/file1 
+ls: Cannot access viewfs:/tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_47] Cmd 47 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls viewfs:/tmp/nn2/file1
+ 
+###########################################
+## [NEG_48] CMD 48 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls viewfs:///tmp/nn2/file1 
+ls: Cannot access viewfs:///tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_48] Cmd 48 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls viewfs:///tmp/nn2/file1
+ 
+###########################################
+## [NEG_49] CMD 49 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls viewfs://gsbl00000.blue.ygrid/tmp/nn2/file1 
+ls: ViewFs: Cannot initialize: Empty Mount table in config
+[exec - NEG test] [Pass] [NEG_49] Cmd 49 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls viewfs://gsbl00000.blue.ygrid/tmp/nn2/file1
+ 
+###########################################
+## [NEG_50] CMD 50 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls //tmp/nn2/file1 
+ls: Cannot access //tmp/nn2/file1: No such file or directory.
+[exec - NEG test] [Pass] [NEG_50] Cmd 50 is:  hadoop  --config v20_viewfs_hadoopconf_omegab/ dfs -conf my-hdfs-scheme-only.xml -ls //tmp/nn2/file1
+ 
+Test Summary: 50 Tests. 47 Pass. 3 FAIL.
+
+Run on Wed Dec 22 23:48:52 UTC 2010 gwbl2003.blue.ygrid.yahoo.com by cwchung
+## Config used in this test: 
+v22_hdfs_hadoopconf-omegab/core-site.xml:    <name>fs.default.name</name>
+v22_hdfs_hadoopconf-omegab/core-site.xml-    <!-- cluster variant -->
+v22_hdfs_hadoopconf-omegab/core-site.xml-    <value>hdfs://gsbl90772.blue.ygrid.yahoo.com:8020</value>
+v22_hdfs_hadoopconf-omegab/core-site.xml-    <!-- value>viewfs:///</value -->
+--
+v22_viewfs_hadoopconf-omegab/core-site.xml:    <name>fs.default.name</name>
+v22_viewfs_hadoopconf-omegab/core-site.xml-    <!-- cluster variant -->
+v22_viewfs_hadoopconf-omegab/core-site.xml-    <!-- value>hdfs://gsbl90772.blue.ygrid.yahoo.com:8020</value -->
+v22_viewfs_hadoopconf-omegab/core-site.xml-    <value>viewfs:///</value>

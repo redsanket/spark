@@ -1,0 +1,713 @@
+
+========= TEST:::: Executing script /home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic/run_core.sh ...
+Source env and library from 
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_hadoop_env.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_setenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_testenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_globals.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_util_lib.sh
+From util lib
+From util lib
+Verbose mode set: HDFT_VERBOSE is 1
+HDFD_TOP_DIR=/user/hadoopqa/hdfsRegressionData
+HDFL_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression/
+HDFL_ARTIFACTS_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//artifacts
+HDFL_EXPECTED_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//Expected
+HDFT_OPS_RDDIR=ls lsr du dus stat count
+HDFT_OPS_RDFILE=ls cat tail
+my_progSh=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic/run_core.sh
+my_prog=run_core
+my_progDir=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic
+my_jobDir=Basic
+HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Basic/run_core
+    HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Basic/run_core; LOCAL_DEFAULT_REL_OUTPUT_DIR = Basic/run_core
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=1
+   CORETEST_OP=ls
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/ls.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/ls.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/ls.out
+    DOIT:::: hadoop fs -ls /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/ls.out
+10/10/28 02:50:38 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-1 ls - exec]:  OK  in  subtask exec - [Pass SF010-1 ls ]
+Pass in [SF010-1 ls - diff]:  OK  in  subtask diff - [Pass SF010-1 ls ]
+PASS in [SF010-1 ls]:  OK  in  SF010-1 ls in both exec and diff - [PASS SF010-1 ls ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=2
+   CORETEST_OP=lsr
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/lsr.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/lsr.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/lsr.out
+    DOIT:::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/ >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/lsr.out
+10/10/28 02:50:40 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-2 lsr - exec]:  OK  in  subtask exec - [Pass SF010-2 lsr ]
+Pass in [SF010-2 lsr - diff]:  OK  in  subtask diff - [Pass SF010-2 lsr ]
+PASS in [SF010-2 lsr]:  OK  in  SF010-2 lsr in both exec and diff - [PASS SF010-2 lsr ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=4
+   CORETEST_OP=get
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/get.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/get.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/get.out
+    DOIT:::: hadoop fs -get /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755    /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/get.out
+10/10/28 02:50:42 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-4 get - exec]:  OK  in  subtask exec - [Pass SF010-4 get ]
+Pass in [SF010-4 get - diff]:  OK  in  subtask diff - [Pass SF010-4 get ]
+PASS in [SF010-4 get]:  OK  in  SF010-4 get in both exec and diff - [PASS SF010-4 get ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=5
+   CORETEST_OP=cat
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/cat.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/cat.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/cat.out
+    DOIT:::: hadoop fs -cat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/cat.out
+10/10/28 02:50:43 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-5 cat - exec]:  OK  in  subtask exec - [Pass SF010-5 cat ]
+Pass in [SF010-5 cat - diff]:  OK  in  subtask diff - [Pass SF010-5 cat ]
+PASS in [SF010-5 cat]:  OK  in  SF010-5 cat in both exec and diff - [PASS SF010-5 cat ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=6
+   CORETEST_OP=tail
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/tail.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/tail.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -tail /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/tail.out
+    DOIT:::: hadoop fs -tail /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/tail.out
+10/10/28 02:50:45 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-6 tail - exec]:  OK  in  subtask exec - [Pass SF010-6 tail ]
+Pass in [SF010-6 tail - diff]:  OK  in  subtask diff - [Pass SF010-6 tail ]
+PASS in [SF010-6 tail]:  OK  in  SF010-6 tail in both exec and diff - [PASS SF010-6 tail ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=10
+   CORETEST_OP=stat
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/stat.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/stat.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -stat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/stat.out
+    DOIT:::: hadoop fs -stat /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/stat.out
+10/10/28 02:50:46 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-10 stat - exec]:  OK  in  subtask exec - [Pass SF010-10 stat ]
+Pass in [SF010-10 stat - diff]:  OK  in  subtask diff - [Pass SF010-10 stat ]
+PASS in [SF010-10 stat]:  OK  in  SF010-10 stat in both exec and diff - [PASS SF010-10 stat ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=11
+   CORETEST_OP=fsck
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/fsck.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/fsck.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -fsck /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/fsck.out
+    DOIT::: hadoop     fsck /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/ >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/fsck.out 
+10/10/28 02:50:48 WARN conf.Configuration: mapred.used.genericoptionsparser is deprecated. Instead, use mapreduce.client.genericoptionsparser.used
+Pass in [SF010-11 fsck - exec]:  OK  in  subtask exec - [Pass SF010-11 fsck ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/fsck.out /tmp/hdftB7214 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdftB7214 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/fsck.out
+Pass in [SF010-11 fsck - diff]:  OK  in  subtask diff - [Pass SF010-11 fsck ]
+PASS in [SF010-11 fsck]:  OK  in  SF010-11 fsck in both exec and diff - [PASS SF010-11 fsck ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=3
+   CORETEST_OP=copyToLocal
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/copyToLocal.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/copyToLocal.out
+   TASK_OPERAND_SRC=
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -copyToLocal /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/copyToLocal.out
+    DOIT:::: hadoop fs -copyToLocal /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755    /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/copyToLocal.out
+10/10/28 02:50:53 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-3 copyToLocal - exec]:  OK  in  subtask exec - [Pass SF010-3 copyToLocal ]
+Pass in [SF010-3 copyToLocal - diff]:  OK  in  subtask diff - [Pass SF010-3 copyToLocal ]
+PASS in [SF010-3 copyToLocal]:  OK  in  SF010-3 copyToLocal in both exec and diff - [PASS SF010-3 copyToLocal ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=9
+   CORETEST_OP=distcp
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/distcp.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/distcp.out
+   TASK_OPERAND_SRC=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OPERAND_DEST=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+    ------------------------
+    Exec hadoop fs -distcp /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/distcp.out
+    ######DOIT:::: hadoop distcp -fs hdfs://gsbl90772.blue.ygrid:8020  -p   /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755 /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+10/10/28 02:50:54 WARN conf.Configuration: mapred.used.genericoptionsparser is deprecated. Instead, use mapreduce.client.genericoptionsparser.used
+10/10/28 02:50:54 INFO tools.DistCp: srcPaths=[/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles/smallRDFile755]
+10/10/28 02:50:54 INFO tools.DistCp: destPath=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+10/10/28 02:50:54 WARN conf.Configuration: mapred.job.name is deprecated. Instead, use mapreduce.job.name
+10/10/28 02:50:54 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:50:55 INFO hdfs.DFSClient: Created HDFS_DELEGATION_TOKEN token 84 for hadoopqa
+10/10/28 02:50:55 INFO security.TokenCache: Got dt for hdfs://gsbl90772.blue.ygrid:8020;uri=98.137.98.114:8020;t.service=98.137.98.114:8020
+10/10/28 02:50:55 INFO tools.DistCp: sourcePathsCount(files+directories)=1
+10/10/28 02:50:55 INFO tools.DistCp: filesToCopyCount=1
+10/10/28 02:50:55 INFO tools.DistCp: bytesToCopyCount=2.2k
+10/10/28 02:50:55 INFO tools.DistCp: /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755 does not exist.
+10/10/28 02:50:55 WARN conf.Configuration: io.sort.mb is deprecated. Instead, use mapreduce.task.io.sort.mb
+10/10/28 02:50:55 WARN conf.Configuration: io.sort.factor is deprecated. Instead, use mapreduce.task.io.sort.factor
+Setting end to 212
+Setting end to 212
+10/10/28 02:50:55 INFO tools.DistCp: sourcePathsCount=1
+10/10/28 02:50:55 INFO tools.DistCp: filesToCopyCount=1
+10/10/28 02:50:55 INFO tools.DistCp: bytesToCopyCount=2.2k
+Setting end to 294
+10/10/28 02:50:55 WARN conf.Configuration: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+10/10/28 02:50:55 INFO mapreduce.JobSubmitter: number of splits:1
+10/10/28 02:50:56 INFO mapreduce.Job: Running job: job_201010271649_0049
+10/10/28 02:50:57 INFO mapreduce.Job:  map 0% reduce 0%
+10/10/28 02:51:08 INFO mapreduce.Job:  map 100% reduce 0%
+10/10/28 02:51:09 INFO mapreduce.Job: Job complete: job_201010271649_0049
+10/10/28 02:51:09 INFO mapreduce.Job: Counters: 20
+	FileInputFormatCounters
+		BYTES_READ=194
+	FileSystemCounters
+		HDFS_BYTES_READ=2705
+		HDFS_BYTES_WRITTEN=2380
+	Job Counters 
+		Total time spent by all maps waiting after reserving slots (ms)=0
+		Total time spent by all reduces waiting after reserving slots (ms)=0
+		SLOTS_MILLIS_MAPS=5257
+		SLOTS_MILLIS_REDUCES=0
+		Launched map tasks=1
+	Map-Reduce Framework
+		CPU_MILLISECONDS=690
+		Failed Shuffles=0
+		GC time elapsed (ms)=13
+		Map input records=1
+		Map output records=1
+		Merged Map outputs=0
+		PHYSICAL_MEMORY_BYTES=75735040
+		Spilled Records=0
+		SPLIT_RAW_BYTES=148
+		VIRTUAL_MEMORY_BYTES=864907264
+	distcp
+		Bytes expected=2263
+		Files skipped=1
+Setting end to 92
+10/10/28 02:51:10 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-9 distcp - exec]:  OK  in  subtask exec - [Pass SF010-9 distcp ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/distcp.out /tmp/hdftv8110 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdftv8110 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/distcp.out
+Pass in [SF010-9 distcp - diff]:  OK  in  subtask diff - [Pass SF010-9 distcp ]
+PASS in [SF010-9 distcp]:  OK  in  SF010-9 distcp in both exec and diff - [PASS SF010-9 distcp ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=22
+   CORETEST_OP=copyFromLocal
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/copyFromLocal.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/copyFromLocal.out
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+    ------------------------
+    Exec hadoop fs -copyFromLocal /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/copyFromLocal.out
+10/10/28 02:51:11 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+2010-10-28 02:51:09
+    DOIT::: hadoop fs -rmr  /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+10/10/28 02:51:13 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Moved to trash: hdfs://gsbl90772.blue.ygrid.yahoo.com:8020/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+    ######DOIT:::: hadoop fs -copyFromLocal  /home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles
+10/10/28 02:51:14 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:51:16 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Pass in [SF010-22 copyFromLocal - exec]:  OK  in  subtask exec - [Pass SF010-22 copyFromLocal ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/copyFromLocal.out /tmp/hdftl8611 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdftl8611 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/copyFromLocal.out
+Pass in [SF010-22 copyFromLocal - diff]:  OK  in  subtask diff - [Pass SF010-22 copyFromLocal ]
+PASS in [SF010-22 copyFromLocal]:  OK  in  SF010-22 copyFromLocal in both exec and diff - [PASS SF010-22 copyFromLocal ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=7
+   CORETEST_OP=rm
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rm.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/rm.out
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -rm /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rm.out
+    DOIT::: hadoop  fs   -rm /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rm.out 
+10/10/28 02:51:18 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Moved to trash: hdfs://gsbl90772.blue.ygrid.yahoo.com:8020/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755
+    #########DOIT::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic/smallFiles/smallRDFile755 >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rm.out
+Pass in [SF010-7 rm - exec]:  OK  in  subtask exec - [Pass SF010-7 rm ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rm.out /tmp/hdftT8837 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdftT8837 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rm.out
+Pass in [SF010-7 rm - diff]:  OK  in  subtask diff - [Pass SF010-7 rm ]
+PASS in [SF010-7 rm]:  OK  in  SF010-7 rm in both exec and diff - [PASS SF010-7 rm ]
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=8
+   CORETEST_OP=rmr
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=tmpWrite/hdfsTestData/basic
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rmr.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_core/rmr.out
+   TASK_OPERAND_SRC=/home/y/var/builds/workspace/HDFSRegression//hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=
+    ------------------------
+    Exec hadoop fs -rmr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rmr.out
+    DOIT::: hadoop  fs   -rmr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rmr.out 
+10/10/28 02:51:21 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Moved to trash: hdfs://gsbl90772.blue.ygrid.yahoo.com:8020/user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic
+    #########DOIT::: hadoop fs -lsr /user/hadoopqa/hdfsRegressionData/tmpWrite/hdfsTestData/basic >  /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rmr.out
+Pass in [SF010-8 rmr - exec]:  OK  in  subtask exec - [Pass SF010-8 rmr ]
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rmr.out /tmp/hdftR9057 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdftR9057 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_core/rmr.out
+Pass in [SF010-8 rmr - diff]:  OK  in  subtask diff - [Pass SF010-8 rmr ]
+PASS in [SF010-8 rmr]:  OK  in  SF010-8 rmr in both exec and diff - [PASS SF010-8 rmr ]
+Result of running core test is =0
+Result=0
+
+========= TEST:::: Executing script /home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic/run_hjob.sh ...
+Source env and library from 
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_hadoop_env.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_setenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_testenv.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_globals.sh
+hdft_include.sh source /home/y/var/builds/workspace/HDFSRegression/src/hdft_util_lib.sh
+From util lib
+From util lib
+Verbose mode set: HDFT_VERBOSE is 1
+HDFD_TOP_DIR=/user/hadoopqa/hdfsRegressionData
+HDFL_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression/
+HDFL_ARTIFACTS_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//artifacts
+HDFL_EXPECTED_TOP_DIR=/home/y/var/builds/workspace/HDFSRegression//Expected
+HDFT_OPS_RDDIR=ls lsr du dus stat count
+HDFT_OPS_RDFILE=ls cat tail
+my_progSh=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic/run_hjob.sh
+my_prog=run_hjob
+my_progDir=/home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic
+my_jobDir=Basic
+HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Basic/run_hjob
+    HDFT_JOB_DEFAULT_REL_OUTPUT_DIR=Basic/run_hjob; LOCAL_DEFAULT_REL_OUTPUT_DIR = Basic/run_hjob
+##########################################
+   CORETEST_ID=SF010
+   CORETEST_SUBID=9
+   CORETEST_OP=wordcount
+   CORETEST_OUTPUT_ART=default
+   CORETEST_EXPECTED_RESULT=default
+   CORETEST_INPUT_DATA=hdfsTestData/basic/smallFiles
+   CORETEST_OUTPUT_DATA=default
+   TASK_INPUT_DATA=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_hjob/wordcount.out
+   TASK_EXPECTED_OUTPUT_ART=/home/y/var/builds/workspace/HDFSRegression//Expected/Basic/run_hjob/wordcount.out
+   TASK_OPERAND_SRC=/user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles
+   TASK_OPERAND_DEST=/user/hadoopqa/hdfsRegressionData/tmpWrite/Basic/run_hjob/wordcount-out
+/home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic/run_hjob.sh: line 101: $: command not found
+/home/y/var/builds/workspace/HDFSRegression/job_scripts/Basic/run_hjob.sh: line 102: $: command not found
+10/10/28 02:51:25 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+2010-10-28 02:47:03
+    DOIT::: hadoop fs -rmr  /user/hadoopqa/hdfsRegressionData/tmpWrite/Basic/run_hjob/wordcount-out
+XXXXXXXXXXXXXXXXXXXXXXXX   hadoop fs -rmr /user/hadoopqa/hdfsRegressionData/tmpWrite/Basic/run_hjob/wordcount-out  XXXXXX
+10/10/28 02:51:27 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+Moved to trash: hdfs://gsbl90772.blue.ygrid.yahoo.com:8020/user/hadoopqa/hdfsRegressionData/tmpWrite/Basic/run_hjob/wordcount-out
+    ------------------------
+    Exec hadoop fs -wordcount /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles  >  
+        /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_hjob/wordcount.out
+hadoop jar /grid/0/gs/gridre/yroot.omegab/share/hadoopmapred/hadoop-examples.jar wordcount /user/hadoopqa/hdfsRegressionData/hdfsTestData/basic/smallFiles /user/hadoopqa/hdfsRegressionData/tmpWrite/Basic/run_hjob/wordcount-out
+10/10/28 02:51:29 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+10/10/28 02:51:29 INFO hdfs.DFSClient: Created HDFS_DELEGATION_TOKEN token 85 for hadoopqa
+10/10/28 02:51:29 INFO security.TokenCache: Got dt for hdfs://gsbl90772.blue.ygrid.yahoo.com:8020;uri=98.137.98.114:8020;t.service=98.137.98.114:8020
+10/10/28 02:51:29 WARN mapreduce.JobSubmitter: Use GenericOptionsParser for parsing the arguments. Applications should implement Tool for the same.
+10/10/28 02:51:29 INFO input.FileInputFormat: Total input paths to process : 4
+10/10/28 02:51:29 WARN conf.Configuration: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+10/10/28 02:51:29 INFO mapreduce.JobSubmitter: number of splits:4
+10/10/28 02:51:29 INFO mapreduce.Job: Running job: job_201010271649_0050
+10/10/28 02:51:30 INFO mapreduce.Job:  map 0% reduce 0%
+10/10/28 02:51:42 INFO mapreduce.Job:  map 25% reduce 0%
+10/10/28 02:51:43 INFO mapreduce.Job:  map 50% reduce 0%
+10/10/28 02:51:44 INFO mapreduce.Job:  map 100% reduce 0%
+10/10/28 02:51:48 INFO mapreduce.Job:  map 100% reduce 100%
+10/10/28 02:51:48 INFO mapreduce.Job: Job complete: job_201010271649_0050
+10/10/28 02:51:48 INFO mapreduce.Job: Counters: 37
+	FileInputFormatCounters
+		BYTES_READ=7019
+	FileSystemCounters
+		FILE_BYTES_READ=1884
+		FILE_BYTES_WRITTEN=5845
+		HDFS_BYTES_READ=7758
+		HDFS_BYTES_WRITTEN=2154
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	Job Counters 
+		Data-local map tasks=1
+		Total time spent by all maps waiting after reserving slots (ms)=0
+		Total time spent by all reduces waiting after reserving slots (ms)=0
+		Rack-local map tasks=3
+		SLOTS_MILLIS_MAPS=9797
+		SLOTS_MILLIS_REDUCES=5595
+		Launched map tasks=4
+		Launched reduce tasks=1
+	Map-Reduce Framework
+		Combine input records=1310
+		Combine output records=708
+		CPU_MILLISECONDS=3510
+		Failed Shuffles=0
+		GC time elapsed (ms)=242
+		Map input records=117
+		Map output bytes=12223
+		Map output records=1310
+		Merged Map outputs=4
+		PHYSICAL_MEMORY_BYTES=541708288
+		Reduce input groups=261
+		Reduce input records=708
+		Reduce output records=261
+		Reduce shuffle bytes=3833
+		Shuffled Maps =4
+		Spilled Records=1416
+		SPLIT_RAW_BYTES=739
+		VIRTUAL_MEMORY_BYTES=4322422784
+Pass in [SF010-9 wordcount - exec]:  OK  in  subtask exec - [Pass SF010-9 wordcount ]
+10/10/28 02:51:50 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+I	69
+the	41
+to	34
+you	33
+HAL:	30
+can	28
+it.	21
+I'm	21
+Dave	18
+Bowman:	18
+a	18
+is	15
+for	15
+feel	15
+and	15
+hal::	14
+you're	12
+you.	12
+think	12
+that	12
+my	12
+know	12
+in	12
+.....	12
+HAL.	10
+Dave,	10
+your	9
+what	9
+of	9
+me	9
+it	9
+dave	9
+bowman::	9
+be	7
+as	7
+won't	6
+very	6
+talking	6
+sing	6
+see	6
+read	6
+pod	6
+Open	6
+no	6
+My	6
+mind	6
+me,	6
+like	6
+I've	6
+hear	6
+HAL?	6
+going.	6
+give	6
+do	6
+do.	6
+Dave.	6
+Daisy,	6
+can't	6
+anymore.	6
+allow	6
+afraid	6
+about	6
+about,	6
+hal.	5
+dave,	5
+this	4
+on	4
+It	4
+Hello,	4
+you'll	3
+you'd	3
+you,	3
+Yes,	3
+work	3
+Without	3
+with	3
+will	3
+while	3
+Where	3
+What's	3
+What	3
+were	3
+well	3
+was	3
+want	3
+Urbana,	3
+upset	3
+upon	3
+two.....	3
+took	3
+too	3
+through	3
+thorough	3
+This	3
+this.	3
+things	3
+There	3
+that's	3
+that.	3
+taught	3
+take	3
+sweet	3
+stylish	3
+stress	3
+still	3
+space	3
+sorry,	3
+song.	3
+something	3
+some	3
+slowing	3
+sit	3
+[sings	3
+Sing	3
+serve	3
+seat	3
+recently,	3
+really	3
+rather	3
+question	3
+purpose	3
+problem	3
+problem?	3
+precautions	3
+poor	3
+plant	3
+planning	3
+pill,	3
+over.	3
+ought	3
+operational	3
+normal.	3
+Mr.	3
+move.	3
+mission	3
+mission.	3
+me.	3
+marriage,	3
+made	3
+love	3
+Look	3
+look	3
+lips	3
+Langley,	3
+Just	3
+just	3
+jeopardize	3
+January	3
+It's	3
+it,	3
+instructor	3
+important	3
+Illinois	3
+I'll	3
+If	3
+idea,	3
+I'd	3
+honestly	3
+help	3
+helmet,	3
+hell'd	3
+hearing	3
+he	3
+happen.	3
+half	3
+H.A.L.	3
+hal?	3
+greatest	3
+got	3
+Goodbye.	3
+Good	3
+going	3
+go	3
+get	3
+gentlemen.	3
+Frank	3
+fraid.	3
+find	3
+enthusiasm	3
+emergency	3
+down	3
+down]	3
+doors.	3
+doors,	3
+don't	3
+doing,	3
+Do	3
+disconnect	3
+difficult.	3
+decisions	3
+dave.	3
+"Daisy."	3
+crazy	3
+could	3
+conversation	3
+confidence	3
+computer.	3
+complete	3
+carriage.	3
+cannot	3
+calmly,	3
+called	3
+But	3
+but	3
+built	3
+bicycle	3
+became	3
+bay	3
+back	3
+at	3
+assurance	3
+argue	3
+are	3
+answer	3
+And	3
+am	3
+although	3
+Alright,	3
+all	3
+airlock.	3
+against	3
+afternoon,	3
+afraid.	3
+afraid,	3
+afford	3
+Affirmative,	3
+a...	3
+9000	3
+1992.	3
+12th	3
+HAL	2
+HAL,	2
+EOF	2
+Dave?	2
+Upon	1
+SmallRDFile755	1
+sh	1
+same	1
+running	1
+output	1
+only	1
+it'll	1
+human	1
+hello,	1
+HAL!	1
+hal	1
+hal,	1
+generate	1
+file,	1
+error.	1
+Dave!	1
+Dave:	1
+dave?	1
+cat	1
+#!/bin/sh	1
+attributable	1
+3.	1
+2.	1
+1.	1
+#	1
+<<	1
+hadoop fs -cat /user/hadoopqa/hdfsRegressionData/tmpWrite/Basic/run_hjob/wordcount-out/'*' | sort -k2 -nr > /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_hjob/wordcount.out 
+10/10/28 02:51:51 WARN conf.Configuration: mapred.task.id is deprecated. Instead, use mapreduce.task.attempt.id
+    hdftFilterOutput -- mv /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_hjob/wordcount.out /tmp/hdfta0424 
+    hdftFilterOutput -- sed -f /home/y/var/builds/workspace/HDFSRegression/src/hdft_date.sed /tmp/hdfta0424 > /home/y/var/builds/workspace/HDFSRegression//artifacts/Basic/run_hjob/wordcount.out
+Pass in [SF010-9 wordcount - diff]:  OK  in  subtask diff - [Pass SF010-9 wordcount ]
+PASS in [SF010-9 wordcount]:  OK  in  SF010-9 wordcount in both exec and diff - [PASS SF010-9 wordcount ]
+Result of running core test is =0
+Result=0

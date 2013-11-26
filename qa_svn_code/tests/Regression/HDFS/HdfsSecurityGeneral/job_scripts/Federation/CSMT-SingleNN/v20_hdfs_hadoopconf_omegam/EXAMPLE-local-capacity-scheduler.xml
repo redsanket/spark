@@ -1,0 +1,232 @@
+<?xml version="1.0"?>
+
+<!-- local-capacity-scheduler.xml -->
+<configuration>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.atg_other.capacity</name>
+    <value>9</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.atg_other.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.atg_other.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.atg_other.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.keystone.capacity</name>
+    <value>9</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.keystone.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.keystone.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.keystone.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.sponsoredsearch.capacity</name>
+    <value>9</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.sponsoredsearch.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.sponsoredsearch.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.sponsoredsearch.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.bt.capacity</name>
+    <value>9</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.bt.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.bt.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.bt.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.sds.capacity</name>
+    <value>9</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.sds.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.sds.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.sds.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.audience.capacity</name>
+    <value>9</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.audience.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.audience.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.audience.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.search.capacity</name>
+    <value>9</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.search.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.search.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.search.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.gridops.capacity</name>
+    <value>9</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.gridops.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.gridops.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.gridops.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.grideng.capacity</name>
+    <value>9</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.grideng.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.grideng.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.grideng.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+  
+  <property>
+    <name>mapred.capacity-scheduler.queue.unfunded.capacity</name>
+    <value>9</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.unfunded.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.unfunded.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.unfunded.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.grid-dev.capacity</name>
+    <value>9</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.grid-dev.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.queue.grid-dev.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.capacity-scheduler.queue.grid-dev.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.capacity-scheduler.init-worker-threads</name>
+    <value>10</value>
+    <description>Number of worker threads which would be used by
+    Initialization poller to initialize jobs in a set of queue.
+    If number mentioned in property is equal to number of job queues
+    then a single thread would initialize jobs in a queue. If lesser
+    then a thread would get a set of queues assigned. If the number
+    is greater then number of threads would be equal to number of 
+    job queues.
+    </description>
+  </property>
+
+</configuration>

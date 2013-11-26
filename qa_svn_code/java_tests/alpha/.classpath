@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resource/testconfig"/>
+	<classpathentry kind="src" path="src/main/resource/data"/>
+	<classpathentry kind="src" path="yconcordion-resources"/>
+	<classpathentry kind="src" path="yconcordion-java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/hadoop-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/hadoop-hdfs"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/yconcordion"/>
+	<classpathentry kind="lib" path="/yconcordion/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/yconcordion/lib/junit-4.8.2-src.jar"/>
+	<classpathentry kind="lib" path="/yconcordion/lib/junit-4.8.2.jar" sourcepath="/home/bachbui/.m2/repository/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
+	<classpathentry kind="lib" path="/yconcordion/lib/ognl-2.6.9.jar"/>
+	<classpathentry kind="lib" path="/yconcordion/lib/xom-1.2.5.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

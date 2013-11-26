@@ -1,0 +1,10 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+    <body>
+    	<h1>HDFS Write</h1>
+        <p>
+            * Doing a write of "<span concordion:execute="doWrite(#TEXT)">Bach</span>" 
+            to a file, then <span concordion:execute="#result=doRead()">read</span> from the same file
+            you will get "<span concordion:assertEquals="#result">Bachdsfdsf</span>"
+        </p>                
+    </body>
+</html>

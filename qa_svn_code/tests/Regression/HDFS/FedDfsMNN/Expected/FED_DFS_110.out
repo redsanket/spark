@@ -1,0 +1,7 @@
+Found 6 items
+drwx------   - hadoopqa hdfs          0 2010-00-00 00:00 hdfsMNNData/distcache_input
+drwx------   - hadoopqa hdfs          0 2010-00-00 00:00 hdfsMNNData/har_input
+drwx------   - hadoopqa hdfs          0 2010-00-00 00:00 hdfsMNNData/hdfsTestData
+-rw-------   3 hadoopqa hdfs         95 2010-00-00 00:00 hdfsMNNData/helloworld.txt
+drwx------   - hadoopqa hdfs          0 2010-00-00 00:00 hdfsMNNData/tmpWrite
+drwx------   - hadoopqa hdfs          0 2010-00-00 00:00 hdfsMNNData/wordcount_input

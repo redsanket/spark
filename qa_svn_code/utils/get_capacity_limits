@@ -1,0 +1,76 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to show the initialized capacity limits
+# Example:
+# HADOOP_QA_ROOT=/home CLUSTER=theoden submit_sleep_jobs.t  
+# CLUSTER=boromir ./submit_sleep_jobs.t -jobs 2
+# CLUSTER=boromir ./submit_sleep_jobs.t -jobs 2 -state SUCCEEDED
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use base qw(Hadoop::Test);
+use Hadoop22::CapacityScheduler;
+use Getopt::Long;
+use Test::More;
+
+my %options = ();
+my $num_default_tasks = 1;
+my $num_map_tasks    = $num_default_tasks;
+my $num_reduce_tasks = $num_default_tasks;
+my $map_sleep        = 1000;
+my $reduce_sleep     = 1000;
+# my $user             = getpwuid($>);
+my $user             = 'hadoopqa';
+my $queue            = 'default';
+my $num_jobs         = 1;
+my $verbose          = 0;
+my $multiple_users   = 0;
+my $wait_for_state;
+
+my $result =
+    GetOptions ( \%options,
+                 "user=s"         => \$user,
+                 "queue=s"        => \$queue,
+                 "jobs=s"         => \$num_jobs,
+                 "reduce=s"       => \$num_reduce_tasks,
+                 "map=s"          => \$num_map_tasks,
+                 "state=s"        => \$wait_for_state,
+                 "verbose=s"      => \$verbose,
+                 "multiple-users" => \$multiple_users,
+                 "help|h|?");
+
+usage(1) if (!$result) or (@ARGV);
+usage(0) if $options{help};
+
+sub usage
+{
+    my($exit_code) = @_;
+    diag << "EOF";
+Usage: $Script
+   [-user      <user id>          ] : default user is $user.
+   [-queue     <queue>            ] : default queue is $queue.
+   [-jobs      <number of jobs>   ] : default queue is $num_jobs.
+   [-map       <num map tasks>    ] : default tasks is $num_default_tasks.
+   [-reduce    <num reduce tasks> ] : default tasks is $num_default_tasks.
+   [-state     <wait for state>   ] : optional {'PREP', 'RUNNING', 'SUCCEEDED'}
+   [-multiple-users               ] : default is $multiple_users (0 for off, 1 for on)
+   [-verbose   <verbose setting>  ] : default is $verbose (0 for off, 1 for on)
+   [-help|h|?                     ] : Display usage
+
+EOF
+    exit $exit_code;
+}
+
+my $self = __PACKAGE__->new;
+my $Config = $self->config;
+# note(explain($Config));
+my $cs = Hadoop22::CapacityScheduler->new($self);
+
+my $conf = $self->get_component_config_dir('resourcemanager');
+my $conf_file = "$conf/local-capacity-scheduler.xml";
+my ($config_limits, $limits, $logged_limits) = $cs->get_limits($conf_file, );
+
+# $cs->compare_limits($config_limits, $logged_limits);

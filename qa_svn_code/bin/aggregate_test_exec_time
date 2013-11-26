@@ -1,0 +1,50 @@
+#!/usr/local/bin/perl
+
+# The purpose of this script is to aggregate the component level test execution
+# time in the component level artifacts directories. The aggregated total will be
+# stored in the parent level artifacts directory.
+
+use strict;
+use warnings;
+
+use FindBin qw($Bin $Script);
+use lib "$FindBin::Bin/../lib";
+use File::Basename;
+use Test::More;
+use Text::Trim;
+
+# my $ARTIFACTS_ROOT_DIR='/grid/0/y/var/builds/workspace/NightlyHadoopQEAutomation-20';
+my $ARTIFACTS_ROOT_DIR = $ARGV[0];
+$ARTIFACTS_ROOT_DIR ||= $ENV{'WORKSPACE'};
+
+# Discover the component level artifacts directories.
+my @command = ('ls', '-d', "$ARTIFACTS_ROOT_DIR/artifacts-*");
+my @comp_artifacts_dirs = split("\n",`@command`);
+
+my $total_sec = 0;
+foreach my $comp_artifacts_dir (@comp_artifacts_dirs) {
+    next if (basename($comp_artifacts_dir) =~ /hudson/);
+    my $comp_ts_dir="$comp_artifacts_dir/TestSummary";
+    my $comp_ts_file = "$comp_ts_dir/testSummary.log";
+    if (-e $comp_ts_file) {
+        # E.g.: 'EXECUTION TIME  :: 1h 23m 32s'
+        @command = ('grep', "'EXECUTION TIME'", "$comp_ts_file");
+        my $time = trim(`@command`);
+        my ($h, $m, $s);
+        if ($time =~ m/(EXECUTION TIME.*)(\d+)(h)(\s+)(\d+)(m)(\s+)(\d+)(s)/) {
+           $h = $2;
+           $m = $5;
+           $s = $8;
+        }
+        note("Aggregate test execution time: '$comp_artifacts_dir': $time");
+        $total_sec += $s + $m*60 + $h*60*60;
+    }
+}
+
+my $days = int($total_sec/(24*60*60));
+my $hours = ($total_sec/(60*60))%24;
+my $mins = ($total_sec/60)%60;
+my $secs = $total_sec%60;
+note($days, "d ", $hours, "h ", $mins, "m ", $secs, "s\n");
+
+print("$total_sec\n");

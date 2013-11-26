@@ -1,0 +1,23 @@
+This is the HIT integration test suite for hadoop DistCp 2.x release line.
+In order to run the tests standalone:
+  - yinst install -branch current hadoopdistcptest2dotX
+  - $YROOT/bin/run-hadoopdistcp2dotX-integration-tests.sh -results-dir=<res> -logs-dir=<logs>
+
+In order to run the tests in a hit environment:
+  - deploy/enter a hit 2.x yroot
+  - export COMP=hadoopdistcp2dotX
+  - export HIT_LOG=/mnt/hit/results/`date +"%y%m%d%H%M"`
+  - mkdir -p -m 0777 $HIT_LOG/$COMP/results $HIT_LOG/$COMP/logs
+  - /home/y/bin/run-${COMP}-integration-tests.sh -results-dir=$HIT_LOG/${COMP}/results -logs-dir=$HIT_LOG/$COMP/logs > $HIT_LOG/$COMP/runlog
+
+Notes:
+
+Confirm that the following environment variables are correctly set for your installation:
+- FIT_HDFS_STORAGE_DIR   -> your HDFS base URI
+- HADOOP_COMMON_HOME     -> your hadoop install base path
+
+Changes:
+
+20130906 - initial create, main change is to use webhdfs and remove hftp since hftp is 
+not officially supported in 2.x
+

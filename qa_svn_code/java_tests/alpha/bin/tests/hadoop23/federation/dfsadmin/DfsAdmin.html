@@ -1,0 +1,155 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<head>
+	<meta testlist="/home/bachbui/workspace/example/src/tests/hadoop23/resource/testconfig/testlist.txt" />
+</head>
+<body>
+	<h1>HDFS Federation testing</h1>
+	<h2>DFSAdmin</h2>
+	<h3>Configuration</h3>
+	<p>        
+    <!-- * blah <span concordion:execute="getNameServiceFromConfig()"></span>
+       * blah <span concordion:execute="getDefaultFSNameNodeFromConfig()"></span>
+       * blah <span concordion:execute="getDefaultNameNodeFromConfig()"></span>
+       * blah <span concordion:execute="getNameNodeAddrsFromConfig()"></span>
+    -->    
+       <!-- * Doing a write of "<span concordion:execute="doWrite(#TEXT)">Bach</span>" to a file -->
+                                    
+        </p>
+        
+        
+        <h3>Setup</h3>
+        <p>
+        	Copy files from <span concordion:execute="setLocalPath(#TEXT)">/home/bachbui/workspace/example/src/tests/hadoop23/resource/data/federation/hdfsMNNData</span>
+        	to <span concordion:execute="setHdfsPath(#TEXT)">/user/bachbui/</span>
+        	<span concordion:execute="copyFromLocalFile()"></span> 
+        </p>
+        
+        		        
+        <h3>Tests</h3>
+        <div xmlns:yahooExt="http://www.yahoo.com/hadoop">         	
+        	<table border="1">  
+        	<tr>
+        		<td>
+        			<h4>Test cases</h4>
+        		</td>
+        		<td>
+        			<h4>Expected results</h4>
+        		</td>
+        	</tr>
+        	<tr testID="testUpgradeProgressDefault">         				
+				<td>						
+					Check the <span concordion:set="#option">status</span> of <span concordion:set="#command">upgrade progress</span> on the <span concordion:set="#namenode">default</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command, #option)">There are no upgrades in progress.
+</span>
+				</td>
+			</tr>
+			
+			<tr testID="testUpgradeProgressSpecific">         				
+				<td>						
+					Check the <span concordion:set="#option">status</span> of <span concordion:set="#command">upgrade progress</span> on a <span concordion:set="#namenode">specific</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command, #option)">There are no upgrades in progress.
+</span>
+				</td>
+			</tr>
+			
+        	<tr testID="testSaveMetadataDefault">         				
+				<td>						
+					<span concordion:set="#command">Save metadata</span> associated with the <span concordion:set="#namenode">default</span> file system
+					to file <span concordion:set="#option">YYYsave</span>
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command, #option)">Created file YYYsave on server hdfs://[a-z0-9\.]+:[0-9]+
+</span>
+				</td>
+			</tr>
+			<tr testID="testSaveMetadataSpecific">	
+				<td>
+					<span concordion:set="#command">Save metadata</span> associated with the <span concordion:set="#namenode">specific</span> file system
+					to file <span concordion:set="#option">YYYsave</span>
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command, #option)">Created file YYYsave on server hdfs://[a-z0-9\.:]+</span>
+				</td>
+			</tr>
+       		<tr testID= "testRefreshAclDefault">
+				<td>
+					<span concordion:set="#command">Refresh service acl</span> associated with the <span concordion:set="#namenode">default</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)">\n</span>
+				</td>							
+			</tr>							
+			<tr testID= "testRefreshAclSpecific">	
+				<td>
+					<span concordion:set="#command">Refresh service acl</span> associated with the <span concordion:set="#namenode">specific</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)">\n</span>
+				</td>
+			</tr>
+		
+			<tr testID= "testRefreshUserGroupMapDefault">
+				<td>
+					<span concordion:set="#command">Refresh user to group mapping</span> associated with the <span concordion:set="#namenode">default</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)"></span>
+				</td>							
+			</tr>							
+			<tr testID= "testRefreshUserGroupMapSpecific">	
+				<td>
+					<span concordion:set="#command">Refresh user to group mapping</span> associated with the <span concordion:set="#namenode">specific</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)"></span>
+				</td>
+			</tr>
+			
+				
+       		<tr testID= "testRefreshUserGroupConfDefault">
+				<td>
+					<span concordion:set="#command">Refresh super user group configuration</span> associated with the <span concordion:set="#namenode">default</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)"></span>
+				</td>							
+			</tr>							
+			<tr testID= "testRefreshUserGroupConfSpecific">	
+				<td>
+					<span concordion:set="#command">Refresh super user group configuration</span> associated with the <span concordion:set="#namenode">specific</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)">\n</span>
+				</td>
+			</tr>
+			<tr testID= "testPrintTopologyDefault">
+				<td>
+					<span concordion:set="#command">Print topology</span> associated with the <span concordion:set="#namenode">default</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)">(Rack: /[0-9a-z-\.]+
+(\s+[0-9\.]+:[0-9]+ \([a-z0-9\.]+\)
+)+)+
+</span>
+				</td>
+			</tr>											
+			<tr testID= "testPrintTopologySpecific">	
+				<td>
+					<span concordion:set="#command">Print topology</span> associated with the <span concordion:set="#namenode">specific</span> file system
+				</td>
+				<td>
+				    <span yahooExt:assertRegexEquals="dfsAdminTestCommand(#namenode, #command)">(Rack: /[0-9a-z-\.]+
+(\s+[0-9\.]+:[0-9]+ \([a-z0-9\.]+\)
+)+)+
+</span>
+				</td>
+			</tr>
+																			 						
+			</table>				
+		</div>                     
+</body>
+</html>

@@ -1,0 +1,504 @@
+Changes current as of Wed Feb 9 00:41:42 UTC 2011
+commit 7598e43445576365d196702a5dcfec96cc7a6c89
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Tue Feb 8 16:38:53 2011 -0800
+
+    Ticket 4312488 - decrease java heap size for generic10nodes
+
+commit 13fd96973deb7db5119784a3256c060d9cf0ce75
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Tue Feb 8 12:14:04 2011 -0800
+
+    Ticket 4312488 - update namenode configs for Dilithium blue and generic10nodes
+
+commit fe4d256c99b70ed15b56404cbdb06ca7b7dc0958
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Mon Feb 7 22:12:13 2011 -0800
+
+    Ticket 4312488: rollback changes
+
+commit 7d1206e004bff54fa62b6155669e9bbbaa6fa77c
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Mon Feb 7 16:20:05 2011 -0800
+
+    Fix hadoopaudit pkg
+
+commit 6b0fce6f0e70bfb1abfe9f1a8e88d89a40f212a8
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Mon Feb 7 16:08:09 2011 -0800
+
+    Ticket 4312488 - Dilithium {blue, gold, red} namenode configs
+
+commit 24f882fab0c62d1eea19dbe80a8991fea95cd462
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 16:38:06 2011 -0800
+
+    Removing extraneous 'rm'
+
+commit 86d90bcdb4391fdeb0533321ac4df1f7c4534c56
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 14:57:21 2011 -0800
+
+    Removing spare 'rm'
+
+commit 4626a03851b36a425e11dcbe197d55ca937c7c5a
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 14:34:10 2011 -0800
+
+    adding hadoop-audit package.
+
+commit e9195c930a0d273c9ccdab8c2419f1f2a3c49f5c
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 14:25:18 2011 -0800
+
+    Adding prior to renaming.
+
+commit 5d9f5cb118bd69c66252edc0a3e43d76c2e28042
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 14:24:59 2011 -0800
+
+    Adding prior to renaming.
+
+commit 05c612cd695cfa942d00458f3d256b9f4131893b
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 14:24:41 2011 -0800
+
+    Adding prior to renaming.
+
+commit fb044a2ed9290e2840601f984cd34db5dbd2648c
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 14:23:29 2011 -0800
+
+    Adding prior to renaming.
+
+commit d2021c682914ccbd128f8288f8538a5deef32586
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Feb 3 14:22:53 2011 -0800
+
+    Adding prior to renaming.
+
+commit ec884e3d1466a96ec0a60c2d69c4f2980de7fe7f
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Feb 2 21:03:28 2011 -0800
+
+    Ticket 4296025 - Hadoop Config for Axonite Blue
+
+commit 3dba0c8d91018a1e4f958a8b95ca5f895da2f55e
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Feb 2 11:02:41 2011 -0800
+
+    Ticket 4298959 - initial check in for Dilithium RED config pkgs
+
+commit 6da190c701e39d3d24a6f65f24372d2aca9c5691
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Feb 2 11:01:37 2011 -0800
+
+    Ticket 4298959 - initial check in for Dilithium RED config pkgs
+
+commit ee32c5a353abaa2899f6a2376f5ba32765afdfae
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Feb 1 17:23:40 2011 -0800
+
+    Bugzilla Ticket 4128635 - AxoniteBlue: Changes to conf: Increase NN heap to 45000
+
+commit d2fd9bbcd0a6e94f9b87346ed73a5c5cab6fe676
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Thu Jan 27 15:19:24 2011 -0800
+
+    Ticket 4241730 - Disable reduce input limit for 20.xxx
+
+commit 5e0a5cce138cae3fc569cc99b65f08a951f493b3
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 12:43:16 2011 -0800
+
+    Add two more clusters: xtan & xblue
+
+commit 89e2026256af06b30c8cb15621154c92532913f4
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 12:30:21 2011 -0800
+
+    fix typo in the xblue config file
+
+commit 34dd668245f9e1c5163fa87836e6a228bd7f677c
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 12:28:09 2011 -0800
+
+    initial check in for xblue config files
+
+commit 3bf89e3d807aa6400da24f34ab291b3bda1be0ad
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 12:23:14 2011 -0800
+
+    update configuration for xtan cluster
+
+commit 7fd4abc72082dd286864ff78eca1e222710f7296
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 12:15:30 2011 -0800
+
+    update SIMON-AGGREGATOR-HOST for xtan cluster
+
+commit ce85f588f2820696782da966c217aee0842f2e39
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 12:05:36 2011 -0800
+
+    update SIMON-AGGREGATOR-HOST for xtan cluster
+
+commit 3c057cf0753a224acb7b085c066ac63e058e8124
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 12:03:53 2011 -0800
+
+    update SIMON-AGGREGATOR-HOST for xtan cluster
+
+commit e47e53a3c90da8429f3dbab349fc93861087ed85
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 11:51:00 2011 -0800
+
+    update SIMON-AGGREGATOR-HOST for xtan cluster
+
+commit b4af595a923ecd30b200b5b983f13a0014c8b5ee
+Author: Jin Sun <jinsun@fastactrock.corp.yahoo.com>
+Date:   Wed Jan 26 11:37:13 2011 -0800
+
+    new entry for xtan cluster
+
+commit 34c3ceac23b88d482224d97616adb5b9b3166f31
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Wed Jan 26 11:01:40 2011 -0800
+
+    Adding description of making package for new cluster.
+
+commit 67eedc6ad7628ae6c1e3aba44131f516c9aaed6f
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Wed Jan 26 11:01:02 2011 -0800
+
+    Adding description of making package for new cluster.
+
+commit 26b5aa4034c4f643cc1e63fe00258515afb27902
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Jan 20 16:58:02 2011 -0800
+
+    Fix so that vals with embedded spaces would work.
+
+commit 09dc3b066ddf3f1d80d2ba44c1be8ba5659671d9
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Jan 20 10:46:44 2011 -0800
+
+    [Ticket 4272688]  New: Config change for Dilithium blue and gold namenodes -- add -Xmx46080m -Xms46080m -XX:CMSInitiatingOccupancyFraction=84 -XX:+UseCMSInitiatingOccupancyOnly
+
+commit cf89e23c9909167fbd8bcd4c6cc5d0b547fe09e9
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Jan 20 10:02:17 2011 -0800
+
+    making uraniumblue refer to .bliue.ygrid.yahoo.com
+
+commit 7b7a9d343208a53df7a0010a09539464506b2344
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Jan 14 20:21:40 2011 -0800
+
+    Bugzilla Ticket 4261270: make mapreduce.cluster.delegation.token.renew-interval parameterizable.
+
+commit 05621683d1ca41c144c914ec071ae3507d10bb94
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Jan 14 20:18:18 2011 -0800
+
+    Bugzilla Ticket 4261270: make mapreduce.cluster.delegation.token.renew-interval parameterizable.
+
+commit e39e903bd91b2717169aa358088f2ea9e1d1a6d4
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Dec 23 12:03:53 2010 -0800
+
+    Bugzilla Ticket 4227640 - Incorrect Oxium Tan hadoop configuration for secondary namenode host name
+
+commit d8e7edb9a80873738798a63953136192c26bde8f
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Wed Dec 22 18:07:33 2010 -0800
+
+    Bugzilla Ticket 4227640 - Incorrect Oxium Tan hadoop configuration for secondary namenode host name
+
+commit 801890461b3148ff6d23faa4d697d0c430dfb2ce
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Wed Dec 8 11:07:33 2010 -0800
+
+    removing some of the older clusters.
+
+commit 323f9ed6209b43cdbefe3b2508924896333b5e75
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Wed Dec 8 10:53:12 2010 -0800
+
+    Bugzilla Ticket 4186004 - Axonite Gold java heap size increase config change. (increasing on generic 10-node config also.)
+
+commit 97407eaf6f8b08a0b0f9caf19f0a8ef11525ba9e
+Author: U-DS\tsz <tsz@arrivefrence-lx.ds.corp.yahoo.com>
+Date:   Mon Dec 6 14:46:45 2010 -0800
+
+    Bugzilla Ticket 4192587 - add a new conf property dfs.block.invalidate.limit
+
+commit 6fa3a91178e994db1facad25a36693fcd0475782
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Oct 29 14:35:49 2010 -0700
+
+    Minor change to put .jar for viewfs into class path - as a .jar, not a directory.
+
+commit a0a3273eef6cadbeb1834cd8cdaf6e1a8a2843ab
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Oct 29 11:53:28 2010 -0700
+
+    Change to make config-files mode 0644 or 0755 - writable for yinst needs.
+
+commit 9c16bef0097a0613ef5f070ec47b95de8e0eb3dc
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Oct 29 11:47:19 2010 -0700
+
+    making viewfs link be hadoopview/current and not current/lib.
+
+commit b7a54cead7c611c9c56026e94d3609e014c7cb58
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Oct 28 18:00:24 2010 -0700
+
+    Adding viewfs support.
+
+commit d338fc0fa78c6118c9fbe4f54310f04a3c108668
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Oct 26 08:40:53 2010 -0700
+
+    resync'ing 10-node and 500-node definitions before a deployment.
+
+commit e7c073fbfa8c190a5557875dbf75e818da00d54c
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Oct 14 15:48:24 2010 -0700
+
+    [Bugzilla Ticket 4056429] change log dir pathname on data node based on hadoop-ident-string if it is set...
+
+commit a30855f3558cf0b3d3b52236e498664585156481
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Wed Oct 13 09:55:00 2010 -0700
+
+    [Ticket 4058837] MW: [Mithril Gold 10/18] Update NN heap and striping config
+
+commit be97b4d5c97c2c77ae4abb4c334983110e307dc2
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Oct 12 17:53:32 2010 -0700
+
+    Bugzilla Ticket 4053081 - issues with Log4JLogger and class files and commonlogging
+
+commit 2792bb42645217312c6d5a892e9d9fc7f531126a
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Oct 12 11:23:35 2010 -0700
+
+    Up-ing heap sizes for mithral-gold.
+
+commit 08816a6d7e8b2542d083703ebe5847bd89b50d5e
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Sat Oct 2 10:48:22 2010 -0700
+
+    Bumping up minimum heapsize.
+
+commit 545385ac450acf5ea0b01ee81f1ea4a3e037e367
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Sat Oct 2 10:16:58 2010 -0700
+
+    Bugzilla Ticket 4028072 - OutOfMemoryError: GC Overhead exceeded in CobaltBlue History Servlet
+
+commit 972cfd7e9c2449f90b18f938219736ae07807894
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Sat Oct 2 10:10:06 2010 -0700
+
+    [Ticket 4032492] Dilithium Gold NameNode heap size config change
+
+commit c75e167f076bc8af1fc6351f66a3fb081df705be
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Sat Oct 2 10:01:42 2010 -0700
+
+    Making sure this .20.104 change is completely merged into .20.201.
+
+commit 0af2337b32454c2f5e20cf0972c2181f95fda7e4
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Sat Oct 2 09:55:21 2010 -0700
+
+    Bugzilla Ticket 4030154 - Config change request for Dilithium Blue and Gold datanode -- changed TODO-DFS-BALANCE-BANDWIDTHPERSEC to 15000000
+
+commit 2e2016402c5152153383806b5b4d91044afdc722
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Sep 28 18:25:30 2010 -0700
+
+    Re-adding hadoop.security.groups.cache.secs per Jakob.
+
+commit c44fc0272035be29efa2642cdcc79aa65dbc5ef8
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Sep 24 12:21:20 2010 -0700
+
+    [Ticket 4004163] Config change  mapreduce.admin.user.home.dir
+
+commit 1ead754892346c64bb2bce6812ac83a9ed721997
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Sep 24 11:46:27 2010 -0700
+
+    Bugzilla Ticket 4013307 - Config change mapreduce.reduce.input.limit
+
+commit e20c7a469a04d1b1e843b23f9683875da40141c3
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Sep 21 22:38:55 2010 -0700
+
+    adding mapred.admin.user.home.dir to 0.20.201 configs.
+
+commit 94a6d848efd6f9815ec7d3943b0a7ea8bb2d4274
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Sep 21 11:34:28 2010 -0700
+
+    Changing to 8/4 for map and reduce tasks.
+
+commit 6d7fe714f0bf5972be5f7077d8cedf3685dc030a
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Mon Sep 20 15:32:33 2010 -0700
+
+    Adding two striped-grids
+
+commit f4b833f23fab370565a8a42a607e0735268e5d5b
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Fri Sep 17 14:56:10 2010 -0700
+
+    making install clear /tmp/mapred-local/
+
+commit 1e4a1cbcaca0a890a1b19ef92f9584bbc094805d
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Sep 16 20:28:36 2010 -0700
+
+    minor changes to automate the tag-name-creation.
+
+commit 4af61c38af05b004863811b9129d2734efb927c7
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Sep 16 20:12:35 2010 -0700
+
+    changing setbranch to be a bit more thorough.
+
+commit 57464ba1b1b93bbe1d8f2e03d066d8875db04058
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Sep 16 19:54:22 2010 -0700
+
+    making easy to overwrite target branch name using BRANCHNAME in env.
+
+commit 23428e785e2ee19a0fb99330ee53902f6a408cc4
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Sep 16 19:50:56 2010 -0700
+
+    removing uraniumblue (non-stripe) from the list.
+
+commit 3308fcaec51688c487e40ef093ddaaff3546b602
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Sep 16 19:42:58 2010 -0700
+
+    removing uraniumblue (non-stripe) from the list.
+
+commit f79d1e97462d991bcc572747055c826f79fd9607
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Sep 16 19:35:57 2010 -0700
+
+    Moving Fred.1 configs to git repository.
+
+commit dd5cd2269ff64246f2f5ecf005b411f83e101248
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Tue Aug 31 12:15:46 2010 -0700
+
+    Making consistent with .1xx configs.
+
+commit b8178ee5e7b41e93316e3f4e9a8fa10d91888537
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Mon Aug 30 10:12:44 2010 -0700
+
+    [Ticket 3927854] MW [Axonite Gold] Deploy hadoop-0.20.200.4.1008201710 Fred release
+
+commit 18761838248ab9e00ebdc30652593d68c1ff1bb6
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 21:11:51 2010 -0700
+
+    Minor change to be more defensive in macro substitution.
+
+commit b3deb5cdc6d645ac7d7e74f73d9e24ba987af497
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 16:44:26 2010 -0700
+
+    Adding 0.20.104 configs.
+
+commit 660c451811c670c9d65ffc46bc4b3a2d8861cc75
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 16:41:35 2010 -0700
+
+    Adding 0.20.104 configs.
+
+commit 63633ef469d8a8887e894761ba2450af38d1182b
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:21:33 2010 -0700
+
+    Building from Hudson
+
+commit 6d014933668ea0d1a5076f9296bc8701772ba030
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:13:13 2010 -0700
+
+    Building from Hudson
+
+commit a7ab130462f01ab8f66698bbfbf5db2640aade30
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:12:11 2010 -0700
+
+    Pull changelogs form git
+
+commit f04d3763338017ca224ab9a5d8719170b50ffc81
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:08:05 2010 -0700
+
+    bringing current-as-of-Aug-25 forward for .1xx and eventually 0.22
+
+commit bf254174b354cd5f7feee162002cb675d4f30c3b
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:06:52 2010 -0700
+
+    bringing current-as-of-Aug-25 forward for .1xx and eventually 0.22
+
+commit db492390594c7ef654d490e93a70a18d5c05869c
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:05:57 2010 -0700
+
+    bringing current-as-of-Aug-25 forward for .1xx and eventually 0.22
+
+commit 420dc67f3705109a7f7b5189d35b090c1c49b77f
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:02:46 2010 -0700
+
+    bringing current-as-of-Aug-25 forward for .1xx and eventually 0.22
+
+commit d1bf337da7bb1620c669b66769cdf4a87930efdf
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 15:02:07 2010 -0700
+
+    bringing current-as-of-Aug-25 forward for .1xx and eventually 0.22
+
+commit fd10cb79e5645103fdb39cf5cc2001dfd1386cf8
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 13:58:47 2010 -0700
+
+    obsolete file.
+
+commit 38afe1b8a4771b9be427a943dd2e431cb80724ae
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 13:58:31 2010 -0700
+
+    Moving build scripts to more visible directory.
+
+commit 6fe40b087cc4ab8ff0bb87e51bfa92166f777bfc
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 13:57:19 2010 -0700
+
+    Adding for patch-needs.
+
+commit 2385171cae960a2dc0861c62fe53d2673478b828
+Author: Jeffrey Bowles <jab@yahoo-inc.com>
+Date:   Thu Aug 26 13:50:21 2010 -0700
+
+    Current versions as of Aug 25 for .1xx initial debugging work.
+
+commit 88065dcf0da34c77baf4290aaae3fd51a7c75206
+Author: Roman Shaposhnik <rvs@articleneed-lm.corp.yahoo.com>
+Date:   Fri Aug 13 22:24:14 2010 -0700
+
+    Init

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+CLUSTER=$1
+[ -z "$WORKSPACE" ] && export WORKSPACE=`pwd`
+
+# need the cluster name we're running against
+if [ $# -ne 1 ]; then
+  echo "Error: need the CLUSTER name we are running on"
+  exit 1
+fi
+
+#switch into the spot for the localized copy of the sources
+cd /home/gs/gridre/yroot.$1/tmp/qa_svn_code_23/java_tests/load_test/TokenRenewal/
+
+# exec the buildme script
+./buildme $CLUSTER
+
+#launch the test
+./runme $CLUSTER

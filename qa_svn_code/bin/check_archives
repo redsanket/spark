@@ -1,0 +1,224 @@
+#!/usr/local/bin/perl
+
+#
+# Check hudson archive directories
+# 
+# E.g.
+# check_archives -type runtime -threshold 20 -project NightlyHadoopQEAutomation-23-YARN
+# check_archives -type failures -project NightlyHadoopQEAutomation-20-*
+# check_archives -type failrues -project NightlyHadoopQEAutomation-20-HDFS
+# check_archives -type failures -project NightlyHadoopQEAutomation-23-*
+#
+
+use strict;
+use warnings;
+use Text::Trim;
+use FindBin qw($Bin $Script);
+use Getopt::Long;
+use Test::More;
+use List::Util qw(min max sum);
+
+my %options = ();
+my $hudson_host = "gsbl90183.blue.ygrid.yahoo.com";
+my $type = "runtime";
+my $project = "NightlyHadoopQEAutomation-23-*";
+my $verbose = 0;
+my $threshold_percent = 20;
+my $runtime;
+my $result  = 
+    GetOptions ( \%options,
+                 "host=s" => \$hudson_host,
+                 "type=s" => \$type,
+                 "project=s" => \$project,
+                 "threshold=s" => \$threshold_percent,
+                 "runtime=s" => \$runtime,
+                 "verbose" => \$verbose,
+                 "help|h|?");
+
+usage(0) if $options{help};
+usage(1) if (!$result) or (@ARGV);
+
+sub usage
+{
+    my($exit_code) = @_;
+    print STDERR << "EOF";
+
+Usage: $Script
+   -host <hudson host>            : Hudson server host
+   -type <report type>            : i.e. {'runtime', 'failures'}
+   -project <Hudson project(s)>   : e.g. NightlyHadoopQEAutomation-20-*,
+                                         NightlyHadoopQEAutomation-20-HDFS
+   -threshold <percent>           : threshold percent for checking if lateset
+                                    runtime is above or below average
+   -runtime <runtime>             : execution time to compare against
+   -verbose                       : verbose mode
+   [-help|h|?                   ] : Display usage
+
+EOF
+    exit $exit_code;
+}
+
+my $root_dir = "/home/y/var/yhudson/master/jobs";
+my $project_root_dir = "$root_dir/$project";
+
+# Get the archives directories for the Hadoop release version
+my @command = ("ls", "-d", "$project_root_dir");
+@command = ('ssh', $hudson_host, @command,);
+# print("@command\n");
+my @arch_dirs = split("\n", `@command`);
+
+my $status = 0;
+foreach my $dir (@arch_dirs) {
+
+    # out of how many archives
+
+    # TODO: this is not woking because some directories are empty
+    # @command = ("/usr/bin/find",
+    #             "$dir/builds",
+    #             "-mindepth", "1",
+    #             "-maxdepth", "1",
+    #             "-type", "d",
+    #             "|", "/usr/bin/wc", "-l"); 
+
+    @command = ("/usr/bin/find",
+                "$dir",
+                "-name", "testSummary.log",
+                "|", "/usr/bin/wc", "-l");
+    @command = ('ssh', $hudson_host, @command,);
+    print("@command\n") if $verbose;
+    my $num_archives = trim(`@command`);
+
+    if ($type =~ 'fail') {
+        # count number of unique failures
+        @command = ("/usr/bin/find",
+                    "$dir",
+                    "-name", "failSummary.log",
+                    "|", "xargs", "cat",
+                    "|", "/bin/cut", '-d', "'|'", '-f1',
+                    "|", "/bin/sort",
+                    "|", "uniq", "-c",
+                    "|", "sort", "-rn");
+    } else {
+        @command = ("/usr/bin/find",
+                    "$dir",
+                    "-name", "testSummary.log",
+                    "|", "/bin/sort", "-n",
+                    "|", "xargs", "grep", "'EXECUTION TIME'");
+    }
+        
+    @command = ('ssh', $hudson_host, "\"", @command, "\"");
+    print("@command\n") if $verbose;
+    my $output = `@command`;
+    if ($output) {
+        print("================================================================================\n");
+        print("$dir: out of '$num_archives' archives\n");
+        print("================================================================================\n");
+        print("$output\n");
+    }
+
+    # Continue only for type runtime and if output is not empty
+    next unless (($type eq 'runtime') && ($output));
+
+    my @all_runtimes = ();
+    foreach my $line (split("\n", $output)) {
+        my $time_str = trim((split(':', $line))[-1]);
+        my $time = {};
+        if ($time_str =~ m/(\d+)(h\s+)(\d+)(m\s+)(\d+)(s\s*)/) {
+            $time->{hour} = $1;
+            $time->{minute} = $3;
+            $time->{second} = $5;
+        }
+        print("hours = '$time->{hour}'\n") if $verbose;
+        print("minutes = '$time->{minute}'\n") if $verbose;
+        print("seconds = '$time->{second}'\n") if $verbose;
+        push(@all_runtimes, ($time->{hour}*60*60 + $time->{minute}*60 + $time->{second}));
+    }
+    push(@all_runtimes, $runtime) if $runtime;
+    print("all_runtimes = ".join(',', @all_runtimes)."\n") if $verbose;
+    my $last_runtime = $all_runtimes[-1];
+
+    my @prev_runtimes = splice(@all_runtimes, 0, -1);
+    print("prev_runtimes = ".join(',', @prev_runtimes)."\n") if $verbose;
+
+    # Get the average but first throw out runtimes outside the thresholds.
+    # my $average = int(sum(@prev_runtimes)/scalar(@prev_runtimes));
+    my @prev_runtimes_filtered = ();
+    foreach my $time (@prev_runtimes) {
+        print("time = '$time'\n") if $verbose;
+        unless (scalar(@prev_runtimes_filtered)) {
+            push(@prev_runtimes_filtered, $time);
+            next;
+        }
+        my $running_average =
+            int(sum(@prev_runtimes_filtered)/scalar(@prev_runtimes_filtered));
+        print("running average = '$running_average'\n") if $verbose;
+        push(@prev_runtimes_filtered, $time)
+            unless test_range($time, 
+                              get_range($threshold_percent,
+                                        $running_average, $verbose));
+    }
+    my $average =
+        int(sum(@prev_runtimes_filtered)/scalar(@prev_runtimes_filtered));
+    print("average = '$average'\n") if $verbose;
+
+    $status += 
+        test_range($last_runtime,
+                   get_range($threshold_percent, $average, $verbose),
+                   1);
+}
+exit $status;
+
+# Get the threshold range
+sub get_range {
+    my ($threshold_percent, $average, $verbose) = @_;
+    my $threshold = int($threshold_percent*$average/100);
+    my $range = { 'threshold' => $threshold_percent,
+                  'average'   => $average,
+                  'lower'     => max($average-$threshold, 0),
+                  'upper'     => $average+$threshold, };
+    print("$threshold_percent% threshold of average $average = ".
+          "('$range->{upper}', '$range->{lower}')\n") if $verbose;
+    return $range;
+}
+
+# Test time is within the range.
+# Return 0 for true, 1 if time is above or below the threshold range.
+sub test_range {
+    my ($time, $range, $verbose) = @_;
+    my $status = 0;
+    my $time_hms = convert_to_hms($time);
+    my $avg_hms = convert_to_hms($range->{average});
+    my $str =
+        "the $range->{threshold}% threshold of the average of ".
+        "'$avg_hms->{hr}h $avg_hms->{min}m $avg_hms->{sec}s' or '$range->{average}s'";
+    my $compare_str;
+    if ($time > $range->{upper}) {
+        $compare_str = 'above';
+        $status = 1;
+    }
+    elsif ($time < $range->{lower}) {
+        $compare_str = 'below';
+        $status = 1;
+    }
+    else {
+        $compare_str = 'within';
+        $status = 0;
+    }
+    print("The last execution time of ".
+          "'$time_hms->{hr}h $time_hms->{min}m $time_hms->{sec}s' ".
+          "or '$time"."s' is $compare_str $str\n") if $verbose;
+    return $status
+}
+
+# Convert time from seconds to hours/minutes/seconds
+sub  convert_to_hms {
+    my ($time, $verbose) = @_;
+    my $hr  = int($time/(60*60));
+    my $min = int(($time-$hr*60*60)/60);
+    my $sec = $time-$hr*60*60-$min*60;
+    my $hash = { 'hr' => $hr,
+                 'min' => $min,
+                 'sec' => $sec};
+    note(explain($hash)) if $verbose;
+    return $hash;
+}
