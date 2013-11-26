@@ -24,7 +24,6 @@ $opts{gw_dest_dir} = "/home/y/var/grid_re/builds/workspace";
 GetOptions(
     "cluster=s" => \$opts{cluster},
     "cmd=s" => \$opts{cmd},
-	"admin_host=s" => \$opts{admin_host},
 );
 
 # Get cluster value from environment variable if it's not defined as
@@ -49,6 +48,7 @@ $opts{build_url} = $ENV{BUILD_URL};
 $opts{hudson_url} = $ENV{HUDSON_URL};
 $opts{job_name} = $ENV{JOB_NAME};
 $opts{build_number} = $ENV{BUILD_NUMBER};
+$opts{admin_host} = $ENV{ADMIN_HOST}
 
 # retrieve GW host from igor definition for specified cluster
 my $igor_gw_role = $opts{igor_namespace} . "." . $opts{cluster} . ".gateway" ;
