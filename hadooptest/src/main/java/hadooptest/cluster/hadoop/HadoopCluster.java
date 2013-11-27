@@ -56,7 +56,7 @@ public abstract class HadoopCluster {
         };
 
     // Admin hosts
-    public static final String ADMIN = "adm103.blue.ygrid.yahoo.com";
+    public static final String ADMIN = TestSession.conf.getProperty("ADM_BOX"); 
 
     /** String representing the cluster type. */
     public static final String FD_CLUSTER_TYPE =

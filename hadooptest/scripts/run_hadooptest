@@ -30,6 +30,7 @@ The options
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
+        [ -a|--adm_box                      ] : The admin box to be used by the framework (adm103.blue.ygrid.yahoo.com is the default)
         [ -h|--help                         ] : help
 
 Pass Through options
@@ -67,6 +68,7 @@ my $build_coretest = 0;
 my $gdm = 0;
 my $spark = 0; 
 my $workspace = "$Bin/..";
+my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
 my $test;
@@ -87,6 +89,7 @@ GetOptions(\%options,
     "spark"              => \$spark,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
+    "adm_box|a=s"        => \$adm_box, 
     "test|t=s"           => \$test,
     "help|h|?"
     ) or usage(1);
@@ -97,6 +100,7 @@ usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 note("cluster='$cluster'");
 note("conf = $conf");
 note("workspace='$workspace'");
+note("adm box = $adm_box"); 
 note("use_mvn='$use_mvn'");
 
 my @tests = ($test) ? split(",", $test) : 
@@ -145,6 +149,7 @@ my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hado
 my @common_args = (
     "-DCLUSTER_NAME=$cluster",
     "-DWORKSPACE=$workspace",
+    "-DADM_BOX=$adm_box", 
     "-Dhadooptest.config=$conf",
     join(" ", @ARGV)
     );
