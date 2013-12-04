@@ -2,7 +2,6 @@ package hadooptest.monitoring.monitors;
 
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.constants.LoggingNomenclature;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
