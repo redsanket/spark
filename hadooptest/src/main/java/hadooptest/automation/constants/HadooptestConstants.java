@@ -1,5 +1,6 @@
 package hadooptest.automation.constants;
 
+
 public class HadooptestConstants {
 
 	// Node Types
@@ -49,6 +50,14 @@ public class HadooptestConstants {
 		public static String CAT = "/bin/cat";
 		public static String SED = "/bin/sed";
 		public static String PIPE = "|";
+	}
+	
+	//Locations
+	public static class Location {
+		public static String CORE_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/core-site.xml";
+		public static String HDFS_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/hdfs-site.xml";
+		public static String YARN_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/yarn-site.xml";
+		public static String MAPRED_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/mapred-site.xml";
 	}
 
 }

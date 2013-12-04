@@ -19,6 +19,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
@@ -54,6 +55,14 @@ public class MonitoringListener extends RunListener {
 				logger.info("Doing Monitoring..since annotation is "
 						+ annotation.annotationType().getCanonicalName());
 				Configuration conf = new Configuration(true);
+				conf.addResource(HadooptestConstants.Location.CORE_SITE_XML);
+				conf.addResource(HadooptestConstants.Location.HDFS_SITE_XML);
+				conf.addResource(HadooptestConstants.Location.YARN_SITE_XML);
+				conf.addResource(HadooptestConstants.Location.MAPRED_SITE_XML);
+				conf.addResource(new Path(HadooptestConstants.Location.CORE_SITE_XML));
+				conf.addResource(new Path(HadooptestConstants.Location.HDFS_SITE_XML));
+				conf.addResource(new Path(HadooptestConstants.Location.YARN_SITE_XML));
+				conf.addResource(new Path(HadooptestConstants.Location.MAPRED_SITE_XML));
 				ClassLoader classLoader = Configuration.class.getClassLoader();
 				conf.addResource(classLoader
 						.getResourceAsStream(HadooptestConstants.ConfFileNames.CORE_SITE_XML));
