@@ -26,7 +26,7 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	private long waitTimeBeforeWorkflowPollingInMs = 180000L;
 	private long waitTimeBetweenWorkflowPollingInMs = 60000L;
 	private long waitTimeForRepostoryUpdateInMs = 45000L;
-	private long timeoutInMs = 300000L;
+	private long timeoutInMs = 600000L;
 	private String datasetActivationTime = null;
 	private String datasourceconfig_base;
 
