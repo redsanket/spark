@@ -49,8 +49,8 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		this.testClassBeingMonitored = testClass.getSimpleName();
 		this.testMethodBeingMonitored = testMethodName;
 		this.testPackageBeingMonitored = testClass.getPackage().getName();
-		if (periodicity < 5) {
-			this.periodicity = 5;
+		if (periodicity < 10) {
+			this.periodicity = 10;
 		} else {
 			this.periodicity = periodicity;
 		}
@@ -65,8 +65,10 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 				+ this.testClassBeingMonitored + "/"
 				+ this.testMethodBeingMonitored + "/"
 				+ formattedDateAndTime + "/";
+			synchronized(this){
+			hostwiseReadings = new HashMap<String, HashMap<Integer, String>>();
+			}
 
-		hostwiseReadings = new HashMap<String, HashMap<Integer, String>>();
 		commaSeperatedHosts = new String();
 		for (String aComponent : componentToHostMapping.keySet()) {
 			for (String aHost : componentToHostMapping.get(aComponent)) {
@@ -91,7 +93,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 	 * The thread run control variable. Thread stops once this is set.
 	 */
 	public void stopMonitoring() {
-		logger.info("Stop monitoring received in AnstractMonotor for "
+		logger.info("Stop monitoring received in AbstractMonotor for "
 				+ this.kind);
 		monitoringUnderway = false;
 	}

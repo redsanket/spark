@@ -18,18 +18,18 @@ import java.util.concurrent.Executors;
  */
 public class MonitorGeneral implements IMonitoringControl {
 	private ArrayList<IMonitor> monitors = new ArrayList<IMonitor>();
-	ExecutorService executor = Executors.newFixedThreadPool(20);
+	ExecutorService executor = Executors.newFixedThreadPool(3);
 
 	/**
 	 * This method is invoked from {@link MonitoringListener} once a test
 	 * starts.
 	 */
 
-	public void registerMonitor(IMonitor monitor) {
+	public synchronized void registerMonitor(IMonitor monitor) {
 		monitors.add(monitor);
 	}
 
-	public void removeMonitor(IMonitor monitor) {
+	public synchronized void removeMonitor(IMonitor monitor) {
 		monitors.remove(monitor);
 
 	}
@@ -39,7 +39,7 @@ public class MonitorGeneral implements IMonitoringControl {
 	 * starts.
 	 */
 
-	public void startMonitors() {
+	public synchronized void startMonitors() {
 		for (IMonitor aMonitor : monitors) {
 			aMonitor.startMonitoring();
 			executor.execute((Runnable) aMonitor);
@@ -50,7 +50,7 @@ public class MonitorGeneral implements IMonitoringControl {
 	 * This method is invoked from {@link MonitoringListener} once a test
 	 * finishes.
 	 */
-	public void stopMonitors() {
+	public synchronized void stopMonitors() {
 		for (IMonitor aMonitor : monitors) {
 			aMonitor.stopMonitoring();
 			aMonitor.dumpData();
@@ -61,7 +61,7 @@ public class MonitorGeneral implements IMonitoringControl {
 	 * This method is invoked from {@link MonitoringListener} once a test
 	 * finishes.
 	 */
-	public void removeAllMonitors() {
+	public synchronized void removeAllMonitors() {
 		monitors = new ArrayList<IMonitor>();
 	}
 }

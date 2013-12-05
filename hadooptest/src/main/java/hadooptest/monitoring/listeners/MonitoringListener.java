@@ -37,13 +37,15 @@ import org.junit.runner.notification.RunListener;
  */
 public class MonitoringListener extends RunListener {
 	Logger logger = Logger.getLogger(MonitoringListener.class);
-	MonitorGeneral monitorGeneral = new MonitorGeneral();
+
+	HashMap<String, MonitorGeneral> monitorGenerals = new HashMap<String, MonitorGeneral>();
 
 	@Override
 	/**
 	 * Overridden Method, provided by the RunListener. Invoked when a test is about to start.
 	 */
-	public void testStarted(Description description) {
+	public synchronized void testStarted(Description description) {
+		MonitorGeneral monitorGeneral = new MonitorGeneral();
 		logger.info("Monitoring listener invoked..on testStart");
 		String cluster = System.getProperty("CLUSTER_NAME");
 		Class<?> descriptionOfTestClass = description.getTestClass();
@@ -52,6 +54,9 @@ public class MonitoringListener extends RunListener {
 		Collection<Annotation> annotations = description.getAnnotations();
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().isAssignableFrom(Monitorable.class)) {
+				monitorGenerals
+						.put(description.getMethodName(), monitorGeneral);
+				logger.info("START MJ size now:" + monitorGenerals.size());
 				logger.info("Doing Monitoring..since annotation is "
 						+ annotation.annotationType().getCanonicalName());
 				Configuration conf = new Configuration(true);
@@ -59,10 +64,14 @@ public class MonitoringListener extends RunListener {
 				conf.addResource(HadooptestConstants.Location.HDFS_SITE_XML);
 				conf.addResource(HadooptestConstants.Location.YARN_SITE_XML);
 				conf.addResource(HadooptestConstants.Location.MAPRED_SITE_XML);
-				conf.addResource(new Path(HadooptestConstants.Location.CORE_SITE_XML));
-				conf.addResource(new Path(HadooptestConstants.Location.HDFS_SITE_XML));
-				conf.addResource(new Path(HadooptestConstants.Location.YARN_SITE_XML));
-				conf.addResource(new Path(HadooptestConstants.Location.MAPRED_SITE_XML));
+				conf.addResource(new Path(
+						HadooptestConstants.Location.CORE_SITE_XML));
+				conf.addResource(new Path(
+						HadooptestConstants.Location.HDFS_SITE_XML));
+				conf.addResource(new Path(
+						HadooptestConstants.Location.YARN_SITE_XML));
+				conf.addResource(new Path(
+						HadooptestConstants.Location.MAPRED_SITE_XML));
 				ClassLoader classLoader = Configuration.class.getClassLoader();
 				conf.addResource(classLoader
 						.getResourceAsStream(HadooptestConstants.ConfFileNames.CORE_SITE_XML));
@@ -148,7 +157,13 @@ public class MonitoringListener extends RunListener {
 	/**
 	 * This method invokes the {@link MonitorGeneral} to stop and remove all the monitors.
 	 */
-	public void testFinished(Description description) {
+	public synchronized void testFinished(Description description) {
+	if (monitorGenerals.size() == 0)
+		return;	
+		logger.info("STOP MJ size now:" + monitorGenerals.size()
+				+ " called on method:" + description.getMethodName());
+		MonitorGeneral monitorGeneral = monitorGenerals.get(description
+				.getMethodName());
 		monitorGeneral.stopMonitors();
 		monitorGeneral.removeAllMonitors();
 	}
@@ -160,7 +175,7 @@ public class MonitoringListener extends RunListener {
 	 * @param rmWebappAddress
 	 * @return
 	 */
-	ArrayList<String> getDataNodes(String rmWebappAddress) {
+	private ArrayList<String> getDataNodes(String rmWebappAddress) {
 		ArrayList<String> components = new ArrayList<String>();
 		HTTPHandle httpHandle = new HTTPHandle();
 		String resource = "/ws/v1/cluster/nodes";

@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Monitorable {
-	int cpuPeriodicity() default 10;
+	int cpuPeriodicity() default 30;
 
-	int memPeriodicity() default 10;
+	int memPeriodicity() default 30;
 }
