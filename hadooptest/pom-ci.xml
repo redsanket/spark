@@ -342,6 +342,12 @@
 					<excludes>
 						<exclude>**/TestEndToEndCompression.java</exclude>
 					</excludes>
+                                        <properties>
+                                            <property>
+                                                <name>listener</name>
+                                                <value>hadooptest.monitoring.listeners.MonitoringListener</value>
+                                            </property>
+                                        </properties>
 				</configuration>
 
 				<executions>

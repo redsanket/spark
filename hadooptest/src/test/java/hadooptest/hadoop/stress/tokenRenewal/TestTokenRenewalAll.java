@@ -3,6 +3,7 @@ package hadooptest.hadoop.stress.tokenRenewal;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.monitoring.Monitorable;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
@@ -95,6 +96,7 @@ public class TestTokenRenewalAll extends TestSession {
 	 */
 
 	@Test
+	@Monitorable
 	public void TestTokenRenewal() throws Exception{
 		
 		TestSession.logger.info("Trying to run the test:");

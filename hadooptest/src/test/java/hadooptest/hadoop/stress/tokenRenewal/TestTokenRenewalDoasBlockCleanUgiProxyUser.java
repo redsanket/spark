@@ -2,6 +2,7 @@ package hadooptest.hadoop.stress.tokenRenewal;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.monitoring.Monitorable;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 
 import java.io.File;
@@ -81,6 +82,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends TestSession {
 	 */
 
 	@Test
+	@Monitorable
 	public void runTestTokenRenewal1() throws Exception {
 		Configuration conf = TestSession.cluster.getConf();//new Configuration();
 	    Cluster cluster = new Cluster(conf);
