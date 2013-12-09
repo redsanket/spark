@@ -30,7 +30,7 @@ public class ResourceManagerHttpUtils {
 		HTTPHandle httpHandle = new HTTPHandle();
 		String resource = "/cluster/cluster";
 		logger.info("Resource Manager URL read as"
-				+ crossClusterProperties.getProperty(clusterName + "."
+				+ crossClusterProperties.getProperty(clusterName.toLowerCase() + "."
 						+ HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
 		String resourceManager = crossClusterProperties.getProperty(clusterName
 				+ "." + HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
