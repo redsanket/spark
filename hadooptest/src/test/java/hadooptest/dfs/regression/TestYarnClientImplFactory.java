@@ -1,11 +1,10 @@
 package hadooptest.dfs.regression;
 
-import java.lang.reflect.InvocationTargetException;
-
 import hadooptest.TestSession;
 import hadooptest.automation.factories.yarnClientImpl.IYarnClientFunctionality;
 import hadooptest.automation.factories.yarnClientImpl.YarnClientImplFactory;
-import hadooptest.monitoring.Monitorable;
+
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.log4j.Logger;
@@ -21,7 +20,6 @@ public class TestYarnClientImplFactory extends TestSession {
 	}
 
 	@Test
-	@Monitorable
 	@Deprecated
 	public void testFactory() throws ClassNotFoundException,
 			InstantiationException, IllegalAccessException, SecurityException,
