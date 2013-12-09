@@ -1,6 +1,5 @@
 package hadooptest.automation.constants;
 
-
 public class HadooptestConstants {
 
 	// Node Types
@@ -40,7 +39,8 @@ public class HadooptestConstants {
 		public static String MEMORY = "MEMORY";
 		public static String CPU = "CPU";
 		public static String FILES = "FILES";
-	}
+		public static String USER_DIR="user.dir";
+		}
 
 	// Commands
 	public static class ShellCommand {
@@ -51,13 +51,21 @@ public class HadooptestConstants {
 		public static String SED = "/bin/sed";
 		public static String PIPE = "|";
 	}
-	
-	//Locations
+
+	// Locations
 	public static class Location {
-		public static String CORE_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/core-site.xml";
-		public static String HDFS_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/hdfs-site.xml";
-		public static String YARN_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/yarn-site.xml";
-		public static String MAPRED_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/mapred-site.xml";
+		public static String CORE_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/core-site.xml";
+		public static String HDFS_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/hdfs-site.xml";
+		public static String YARN_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/yarn-site.xml";
+		public static String MAPRED_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/mapred-site.xml";
 	}
 
 }

@@ -57,8 +57,10 @@ public class Response {
 					method.getResponseBodyAsStream()));
 			String line = null;
 
-			while ((line = br.readLine()) != null)
+			while ((line = br.readLine()) != null){
 				sb.append(line);
+				sb.append("\n");
+			}
 		} catch (IOException ex) {
 			logger.error(ex.toString());
 		}
