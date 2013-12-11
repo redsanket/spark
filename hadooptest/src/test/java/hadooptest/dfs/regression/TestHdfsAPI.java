@@ -272,7 +272,7 @@ public class TestHdfsAPI extends TestSession {
 		}
 	}
 
-	// @Test
+	 @Test
 	public void appendToFile() throws Exception {
 		logger.info("traceMethod:appendToFile");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
@@ -302,7 +302,7 @@ public class TestHdfsAPI extends TestSession {
 		}
 	}
 
-	// @Test
+	 @Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() {
 		logger.info("traceMethod:testdoAMovesInAndOutOfClusterAndChecksum");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
