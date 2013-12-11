@@ -24,6 +24,7 @@ public class HadooptestConstants {
 		public static String HADOOPQA = "hadoopqa";
 		public static String MAPREDQA = "mapredqa";
 		public static String HDFSQA = "hdfsqa";
+		public static String DFSLOAD = "dfsload";
 	}
 
 	// Log
@@ -39,8 +40,8 @@ public class HadooptestConstants {
 		public static String MEMORY = "MEMORY";
 		public static String CPU = "CPU";
 		public static String FILES = "FILES";
-		public static String USER_DIR="user.dir";
-		}
+		public static String USER_DIR = "user.dir";
+	}
 
 	// Commands
 	public static class ShellCommand {
@@ -66,6 +67,30 @@ public class HadooptestConstants {
 		public static String MAPRED_SITE_XML = "/home/gs/gridre/yroot."
 				+ System.getProperty("CLUSTER_NAME")
 				+ "/conf/hadoop/mapred-site.xml";
+
+		public static class Keytab {
+			public static String HADOOPQA = "/homes/hadoopqa/hadoopqa.dev.headless.keytab";
+			public static String DFSLOAD = "/homes/dfsload/dfsload.dev.headless.keytab";
+		}
+
+		public static class TestProperties {
+			public static String CrossClusterProperties = System
+					.getProperty(HadooptestConstants.Miscellaneous.USER_DIR)
+					+ "/conf/CrossCluster/Resource.properties";
+
+		}
+	}
+
+	// Schemas
+	public static class Schema {
+		public static String HTTP = "http://";
+		public static String HDFS = "hdfs://";
+		public static String WEBHDFS = "webhdfs://";
+	}
+	// Ports
+	public static class Ports {
+		public static String HDFS = "8020";
+
 	}
 
 }
