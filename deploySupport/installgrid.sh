@@ -17,7 +17,7 @@
 # (4) You will need to comment or uncomment to make it run only the sections you want.
 #
 #
-confpkg=HadoopConfigopenstackmediumdisk
+confpkg=HadoopConfigopenstacklargedisk
 confpkginstalloptions=
 export yinst=/usr/local/bin/yinst
 
