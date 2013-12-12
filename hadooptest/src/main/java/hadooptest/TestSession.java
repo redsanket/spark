@@ -185,9 +185,10 @@ public abstract class TestSession extends TestSessionCore {
             /* TODO: optionally restart the cluster. This may impact how the
              * tests are being run in parallel classes.
              */
-            boolean RESTART_ON_FAILURE =
-                    Boolean.parseBoolean(
-                            System.getProperty("RESTART_ON_FAILURE", "true"));
+            boolean RESTART_ON_FAILURE = true;
+            RESTART_ON_FAILURE = Boolean.parseBoolean(
+            		conf.getProperty("RESTART_ON_FAILURE"));
+
             logger.info("RESTART ON FAILURE='"+RESTART_ON_FAILURE+"'");
 
             int resetClusterDelay = 
