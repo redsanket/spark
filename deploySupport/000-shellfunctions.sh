@@ -166,8 +166,8 @@ fanoutGW() {
    do
        machname=`echo $g | cut -f1 -d:`
        yrootname=`echo $g | cut -f2 -d:`
-       [ -z "$yrootname" ] &&  yrootname=hadoop.23_${cluster}
-       yrootname=${yrootname}_23_${TIMESTAMP}
+       [ -z "$yrootname" ] &&  yrootname=hadoop.${cluster}
+       yrootname=${yrootname}
        
        # Check if yroot already exists or not,
        yroot_output=`ssh $machname /home/y/bin/yroot --set $yrootname`
@@ -202,8 +202,8 @@ fanoutYRoots() {
    do
        machname=`echo $g | cut -f1 -d:`
        yrootname=`echo $g | cut -f2 -d:`
-       [ -z "$yrootname" ] &&  yrootname=hadoop.23_${cluster}
-       yrootname=${yrootname}_23_${TIMESTAMP}
+       [ -z "$yrootname" ] &&  yrootname=hadoop.${cluster}
+       yrootname=${yrootname}
 
        # Check if yroot already exists or not,
        yroot_output=`ssh $machname /home/y/bin/yroot --set $yrootname`

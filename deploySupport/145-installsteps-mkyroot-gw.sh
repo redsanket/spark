@@ -11,25 +11,22 @@ for g in $gateways
 do
     case $g in
     *:*)
-        machname=`echo $g | cut -f1 -d:`
+	machname=`echo $g | cut -f1 -d:`
         yrootname=`echo $g | cut -f2 -d:`
         ;;
     *)
         machname=`echo $g | cut -f1 -d:`
-        yrootname=hadoop.23_${cluster}
+        yrootname=hadoop.${cluster}
         ;;
     esac
-    yrootname=${yrootname}_23_${TIMESTAMP}
+    yrootname=${yrootname}
 
     case $g in
-    gwbl2005*|gwbl2007*)
-       yrootimage=" "
-        ;;
-    gwbl200*)
+    gwbl2008*|gwbl2009*)
         yrootimage=5.6-20110328
-        ;;  
+        ;;
     *)
-        yrootimage=" "
+        yrootimage=6.4-20130325
         ;;
     esac
 
@@ -37,7 +34,7 @@ do
 
     
     banner  Step 1 of $machname/$yrootname.  Removing $yrootname from $machname.
-    yroot_output=`/home/y/bin/yroot --set $yrootname`
+    yroot_output=`ssh $machname "/home/y/bin/yroot --set $yrootname" `
     if [ -n "$yroot_output" ]; then
         export removeOldYroot=true
     	echo SUDO_USER=hadoopqa sudo /home/y/bin/yroot --stop $yrootname | ssh $machname
