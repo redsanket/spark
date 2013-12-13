@@ -15,6 +15,7 @@ case "$HITVERSION" in
     export HADOOP_PREFIX=$yroothome/share/hadoop
     export HADOOP_MAPRED_HOME=$yrootHadoopMapred
     export HADOOP_HDFS_HOME=$yrootHadoopHdfs
+    export HADOOP_HOME=${GSHOME}/hadoop/current
 	env > $scripttmp/$cluster.hit.install.env
 	echo ========= cluster = $cluster
 (
