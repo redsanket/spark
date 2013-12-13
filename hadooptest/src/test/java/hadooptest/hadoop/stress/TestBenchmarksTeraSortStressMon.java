@@ -8,6 +8,7 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
+import hadooptest.monitoring.Monitorable;
 import hadooptest.workflow.hadoop.job.GenericJob;
 
 import java.util.ArrayList;
@@ -193,6 +194,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
 
     
     @Test 
+    @Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
     public void testSort() throws Exception{
         String tcDesc = "Runs hadoop terasort and verifies that " + 
                 "the data is properly sorted";
