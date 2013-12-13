@@ -25,6 +25,7 @@ public class HadooptestConstants {
 		public static String MAPREDQA = "mapredqa";
 		public static String HDFSQA = "hdfsqa";
 		public static String DFSLOAD = "dfsload";
+		public static String HDFS = "hdfs";
 	}
 
 	// Log
@@ -79,6 +80,13 @@ public class HadooptestConstants {
 					+ "/conf/CrossCluster/Resource.properties";
 
 		}
+		public static class Binary {
+			public static String HADOOP = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hadoop";
+		}
+		public static class Conf {
+			public static String DIRECTORY = "/homes/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
+		}
+
 	}
 
 	// Schemas
@@ -86,6 +94,7 @@ public class HadooptestConstants {
 		public static String HTTP = "http://";
 		public static String HDFS = "hdfs://";
 		public static String WEBHDFS = "webhdfs://";
+		public static String HFTP = "hftp://";
 	}
 	// Ports
 	public static class Ports {
