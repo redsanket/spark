@@ -76,16 +76,16 @@ public class TestDistcpCLI extends TestSession {
 		this.parametrizedCluster = cluster;
 		this.localCluster = System.getProperty("CLUSTER_NAME");
 		testDataFiles = new HashSet<String>();
-		// testDataFiles.add("/HTF/testdata/dfs/big_file_10dot7GB");
+		 testDataFiles.add("/HTF/testdata/dfs/big_file_10dot7GB");
 		testDataFiles.add("/HTF/testdata/dfs/file_128MB");
 		testDataFiles.add("/HTF/testdata/dfs/file_1B");
-		// testDataFiles.add("/HTF/testdata/dfs/file_255MB");
-		// testDataFiles.add("/HTF/testdata/dfs/file_256MB");
-		// testDataFiles.add("/HTF/testdata/dfs/file_257MB");
+		 testDataFiles.add("/HTF/testdata/dfs/file_255MB");
+		 testDataFiles.add("/HTF/testdata/dfs/file_256MB");
+		 testDataFiles.add("/HTF/testdata/dfs/file_257MB");
 		testDataFiles.add("/HTF/testdata/dfs/file_64MB");
-		// testDataFiles.add("/HTF/testdata/dfs/file_767MB");
-		// testDataFiles.add("/HTF/testdata/dfs/file_768MB");
-		// testDataFiles.add("/HTF/testdata/dfs/file_769MB");
+		 testDataFiles.add("/HTF/testdata/dfs/file_767MB");
+		 testDataFiles.add("/HTF/testdata/dfs/file_768MB");
+		 testDataFiles.add("/HTF/testdata/dfs/file_769MB");
 		testDataFiles.add("/HTF/testdata/dfs/file_empty");
 
 		logger.info("Test invoked for local cluster:[" + this.localCluster
