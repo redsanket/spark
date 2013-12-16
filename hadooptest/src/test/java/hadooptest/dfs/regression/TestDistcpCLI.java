@@ -154,7 +154,11 @@ public class TestDistcpCLI extends TestSession {
 	boolean doesFileExistInDFS(String cluster, String completePathToFile)
 			throws Exception {
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("fs");
 		sb.append(" ");
@@ -189,7 +193,11 @@ public class TestDistcpCLI extends TestSession {
 	void copyLocalFileIntoClusterUsingWebhdfs(String cluster,
 			String completePathToFile) throws Exception {
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("fs");
 		sb.append(" ");
@@ -225,7 +233,11 @@ public class TestDistcpCLI extends TestSession {
 				: completePathToFile.substring(0, lastIndexOfSlash);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("fs");
 		sb.append(" ");
@@ -257,7 +269,11 @@ public class TestDistcpCLI extends TestSession {
 	void doChmod(String aCluster, String completePath) throws Exception {
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("fs");
 		sb.append(" ");
@@ -339,7 +355,11 @@ public class TestDistcpCLI extends TestSession {
 
 		logger.info("Initiating removal of " + schemaDecoratedPathToFile);
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("fs -rm");
 		sb.append(" ");
@@ -367,7 +387,11 @@ public class TestDistcpCLI extends TestSession {
 		String appendString = ".srcWebhdfs" + srcCluster + "dstWebhdfs"
 				+ dstCluster + ".txt";
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("distcp");
 		sb.append(" ");
@@ -398,7 +422,11 @@ public class TestDistcpCLI extends TestSession {
 		String appendString = ".srcWebhdfs" + srcCluster + "dstHdfs"
 				+ dstCluster + ".txt";
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("distcp");
 		sb.append(" ");
@@ -429,7 +457,11 @@ public class TestDistcpCLI extends TestSession {
 		String appendString = ".srcHftp" + srcCluster + "dstWebhdfs"
 				+ dstCluster + ".txt";
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("distcp");
 		sb.append(" ");
@@ -461,7 +493,11 @@ public class TestDistcpCLI extends TestSession {
 		String appendString = ".srcHftp" + srcCluster + "dstHdfs" + dstCluster
 				+ ".txt";
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("distcp");
 		sb.append(" ");
@@ -493,7 +529,11 @@ public class TestDistcpCLI extends TestSession {
 		String appendString = ".srcHdfs" + srcCluster + "dstWebhdfs"
 				+ dstCluster + ".txt";
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("distcp");
 		sb.append(" ");
@@ -525,7 +565,11 @@ public class TestDistcpCLI extends TestSession {
 		String appendString = ".srcHdfs" + srcCluster + "dstHdfs" + dstCluster
 				+ ".txt";
 		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Miscellaneous.HADOOP);
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("distcp");
 		sb.append(" ");
