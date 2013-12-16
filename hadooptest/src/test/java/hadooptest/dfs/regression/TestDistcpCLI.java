@@ -552,8 +552,8 @@ public class TestDistcpCLI extends TestSession {
 
 	}
 
-	@Test
-	public void testDistcp_WebhdfsToWebhdfs() throws Exception {
+//	@Test
+	public void testWebhdfsToWebhdfs() throws Exception {
 		for (String aFile : testDataFiles) {
 			// Push
 			commandDistcpWebhdfsToWebhdfs(this.localCluster,
@@ -565,7 +565,7 @@ public class TestDistcpCLI extends TestSession {
 	}
 
 	@Test
-	public void testDistcp_WebhdfsToHdfs() throws Exception {
+	public void testWebhdfsToHdfs() throws Exception {
 		for (String aFile : testDataFiles) {
 			if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
 					.startsWith("0"))
@@ -584,7 +584,7 @@ public class TestDistcpCLI extends TestSession {
 	}
 
 	@Test
-	public void testDistcp_HftpToWebhdfs() throws Exception {
+	public void testHftpToWebhdfs() throws Exception {
 		for (String aFile : testDataFiles) {
 			// Push
 			if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
@@ -601,7 +601,7 @@ public class TestDistcpCLI extends TestSession {
 	}
 
 	@Test
-	public void testDistcp_HftpToHdfs() throws Exception {
+	public void testHftpToHdfs() throws Exception {
 		if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
 				.startsWith("0"))
 				|| (this.localHadoopVersion.startsWith("2") && this.remoteHadoopVersion
@@ -623,7 +623,7 @@ public class TestDistcpCLI extends TestSession {
 	}
 
 	@Test
-	public void testDistcp_HdfsToWebhdfs() throws Exception {
+	public void testHdfsToWebhdfs() throws Exception {
 		for (String aFile : testDataFiles) {
 			// Push
 			commandDistcpHdfsToWebhdfs(this.localCluster,
@@ -641,7 +641,7 @@ public class TestDistcpCLI extends TestSession {
 	}
 
 	@Test
-	public void testDistcp_HdfsToHdfs() throws Exception {
+	public void testHdfsToHdfs() throws Exception {
 		if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
 				.startsWith("0"))
 				|| (this.localHadoopVersion.startsWith("2") && this.remoteHadoopVersion
