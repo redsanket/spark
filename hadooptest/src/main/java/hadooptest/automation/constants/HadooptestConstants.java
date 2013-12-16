@@ -84,7 +84,7 @@ public class HadooptestConstants {
 			public static String HADOOP = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hadoop";
 		}
 		public static class Conf {
-			public static String DIRECTORY = "/homes/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
+			public static String DIRECTORY = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
 		}
 
 	}
