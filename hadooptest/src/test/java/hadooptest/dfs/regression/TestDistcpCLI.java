@@ -76,16 +76,16 @@ public class TestDistcpCLI extends TestSession {
 		this.parametrizedCluster = cluster;
 		this.localCluster = System.getProperty("CLUSTER_NAME");
 		testDataFiles = new HashSet<String>();
-		 testDataFiles.add("/HTF/testdata/dfs/big_file_10dot7GB");
+//		testDataFiles.add("/HTF/testdata/dfs/big_file_10dot7GB");
 		testDataFiles.add("/HTF/testdata/dfs/file_128MB");
 		testDataFiles.add("/HTF/testdata/dfs/file_1B");
-		 testDataFiles.add("/HTF/testdata/dfs/file_255MB");
-		 testDataFiles.add("/HTF/testdata/dfs/file_256MB");
-		 testDataFiles.add("/HTF/testdata/dfs/file_257MB");
+		testDataFiles.add("/HTF/testdata/dfs/file_255MB");
+		testDataFiles.add("/HTF/testdata/dfs/file_256MB");
+		testDataFiles.add("/HTF/testdata/dfs/file_257MB");
 		testDataFiles.add("/HTF/testdata/dfs/file_64MB");
-		 testDataFiles.add("/HTF/testdata/dfs/file_767MB");
-		 testDataFiles.add("/HTF/testdata/dfs/file_768MB");
-		 testDataFiles.add("/HTF/testdata/dfs/file_769MB");
+		testDataFiles.add("/HTF/testdata/dfs/file_767MB");
+		testDataFiles.add("/HTF/testdata/dfs/file_768MB");
+		testDataFiles.add("/HTF/testdata/dfs/file_769MB");
 		testDataFiles.add("/HTF/testdata/dfs/file_empty");
 
 		logger.info("Test invoked for local cluster:[" + this.localCluster
@@ -132,7 +132,7 @@ public class TestDistcpCLI extends TestSession {
 		isDataCopiedAcrossConcernedClusters = true;
 
 	}
-	
+
 	void printOutResponse(Process process) throws InterruptedException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				process.getInputStream()));
@@ -143,14 +143,13 @@ public class TestDistcpCLI extends TestSession {
 				TestSession.logger.debug(line);
 				line = reader.readLine();
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		process.waitFor();	
+		process.waitFor();
 	}
-
 
 	boolean doesFileExistInDFS(String cluster, String completePathToFile)
 			throws Exception {
@@ -358,7 +357,6 @@ public class TestDistcpCLI extends TestSession {
 		printOutResponse(process);
 		Assert.assertEquals(commandString, 0, process.exitValue());
 	}
-
 
 	/*
 	 * Initiate command for a webhdfs://(source) --> webhdfs://(dest) distcp
