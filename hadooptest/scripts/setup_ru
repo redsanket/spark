@@ -1,0 +1,190 @@
+#!/bin/bash
+
+#################################################################################
+# This script is inteded to provide support for rolling upgrade on a Hadoop QE
+# Cluster.
+# 
+# Because the script need ot perform "igor list -roles grid_re.clusters.$cluster*",
+# it requires that this script be run on the corp side in order to access the 
+# igor db.
+#################################################################################
+
+VERBOSE=0
+GET_YROOT=0
+GET_VERSION=0
+GET_VERSIONS=0
+FORCE=0
+
+function usage
+{
+    cat <<EOF
+usage: $0  --cluster             |-c <cluster name>
+          [--version                 ]
+          [--versions                ]
+          [--force               |-f ]
+          [--verbose             |-v ]
+          [--help                |-h ]
+
+--cluster            Name of the cluster
+--version            Output only the single active hadoop version on each nodes
+--versions           Output all the hadoop versions deployed on each nodes
+--force              Force fetching from igor instead of using cache file
+--verbose            Use verbose
+--help               Display usage
+
+Example:
+
+$ setup_ru -c sam --version
+$ setup_ru -c sam --versions
+$ setup_ru -c sam --version --force
+$ setup_ru -c sam --versions --force
+
+EOF
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -c | --cluster )          shift
+                                  cluster=$1
+                                  ;;
+        -r | --role )             shift
+                                  ROLE=$1
+                                  ;;
+        -y | --yroot )            GET_YROOT=1
+                                  ;;
+        --version )               GET_VERSION=1
+                                  ;;
+        --versions )              GET_VERSIONS=1
+                                  ;;
+        -f | --force )            shift
+                                  FORCE=1
+                                  ;;
+        -v | --verbose )          VERBOSE=1
+                                  ;;
+        -h | --help )             usage
+                                  exit
+                                  ;;
+        * )                       usage
+                                  exit 1
+    esac
+    shift
+done
+
+FILE_PREFIX="ru"
+ROLES_FILE="/tmp/$FILE_PREFIX.$cluster.roles"
+
+if ([[ ! -f $ROLES_FILE ]] || [[ $FORCE == 1 ]])
+then 
+    if [[ -f $ROLES_FILE ]]; then
+        rm $ROLES_FILE 
+    fi 
+    echo "--> Get roles from igor"
+    # igor list -roles grid_re.clusters.$cluster.* > $ROLES_FILE
+    igor list -roles grid_re.clusters.$cluster* > $ROLES_FILE
+else
+    echo "--> Get roles using existing file '$ROLES_FILE'"
+fi
+
+if [[ $VERBOSE == 1 ]]; then
+    cat $ROLES_FILE;
+fi
+
+# set +x
+
+if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
+    #################################################
+    if [[ $GET_VERSION == 1 ]]; then
+        MEMBERS_FILE=/tmp/$FILE_PREFIX.$cluster.members.version
+    else
+        MEMBERS_FILE=/tmp/$FILE_PREFIX.$cluster.members.versions
+    fi
+    if ([[ ! -f $MEMBERS_FILE ]] || [[ $FORCE == 1 ]])
+    then 
+        if [[ -f $MEMBERS_FILE ]]; then
+            rm $MEMBERS_FILE
+        fi
+        # for host in `igor list -roles grid_re.clusters.$cluster.*`;do 
+        echo "--> Get host member (from igor) and hadoop version (from host) as user hadoopqa"
+        touch $MEMBERS_FILE
+        # ls -l $MEMBERS_FILE
+        for role in `cat $ROLES_FILE`;do 
+            # echo "Fetching role members and corresponding hadoop versions for the role $role:"
+            # echo -n "role $role " >> $MEMBERS_FILE; 
+
+            echo "---------------------------------------------------------------------------------" 2>&1 |tee -a $MEMBERS_FILE
+
+            # igor fetch -member grid_re.clusters.sam| tr '\n' ',' | sed 's/.$//'
+            if [[ $role == "grid_re.clusters.$cluster" ]]; then
+                hosts=`yinst range -ir "(@grid_re.clusters.$cluster, -@grid_re.clusters.$cluster.gateway, -@grid_re.clusters.$cluster.jobtracker, -@grid_re.clusters.$cluster.namenode, -@grid_re.clusters.$cluster.namenode2)"| paste -d, -s`
+            else
+                # Because we can only run igor from corp side, use yinst instead.
+                # hosts=`igor fetch -member $role| paste -d, -s`
+                hosts=`yinst range -ir @$role| paste -d, -s`
+            fi
+
+            comp=`echo $role|cut -d"." -f4`
+            if [[ -z $comp ]]; then
+                comp="datanode"
+            fi
+
+            if [[ $GET_VERSION == 1 ]]; then
+                sub_cmd="readlink -f /home/gs/gridre/yroot.$cluster"
+                # cmd="$sub_cmd | sed 's|/home/gs/gridre/yroot.$cluster.||' | sed 's/$/ ($comp)/'"
+                cmd="$sub_cmd | sed 's|/home/gs/gridre/yroot.$cluster.||' | sed 's/^/$comp: /'"
+            else # [[ $GET_VERSIONS == 1 ]]
+                sub_cmd="ls -ld /home/gs/gridre/yroot.$cluster*"
+                # cmd="$sub_cmd | sed 's/$/ ($comp)/'"
+                cmd="$sub_cmd | sed 's/^/$comp: /'"
+            fi
+
+            sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"|sort -n" 2>&1 |tee -a $MEMBERS_FILE
+
+            # for host in `igor fetch -member $role`; do
+            #     version=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host readlink -f /home/gs/gridre/yroot.$cluster|cut -d "." -f3- `
+            #     echo "$host $version (role $role)" 2>&1 |tee -a $MEMBERS_FILE
+            # done;
+        done;
+    else
+        echo "--> Get host members using existing file '$MEMBERS_FILE'"
+        cat $MEMBERS_FILE;
+    fi
+    #################################################
+else
+    #################################################
+    MEMBERS_FILE=$FILE_PREFIX.$cluster.members
+    if ([[ ! -f $MEMBERS_FILE ]] || [[ $FORCE == 1 ]])
+    then 
+        if [[ -f $MEMBERS_FILE ]]; then
+            rm $MEMBERS_FILE
+        fi
+        # for host in `igor list -roles grid_re.clusters.$cluster.*`;do 
+        echo "--> Get host member from igor"
+        touch $MEMBERS_FILE
+        # ls -l $MEMBERS_FILE
+        for role in `cat $ROLES_FILE`;do 
+            echo -n "role $role " 2>&1 |tee -a $MEMBERS_FILE;
+
+            # Because we can only run igor from corp side, use yinst instead.
+            # igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
+            yinst range -ir @$role 2>&1 |tee -a $MEMBERS_FILE;
+        done;
+    else
+        echo "--> Get host members using existing file '$MEMBERS_FILE'"
+        cat $MEMBERS_FILE;
+    fi
+    ################################################
+fi
+
+#set +x
+
+if [[ -n $ROLE ]]; then
+    echo "--> Get host for role '$ROLE'"
+    grep -w $ROLE $MEMBERS_FILE
+    HOST=`grep -w $ROLE $MEMBERS_FILE|cut -d' ' -f3`
+fi
+
+if [[ $GET_YROOT == 1 ]]; then
+    # [--date] [--sort_time|-st] [--sort_reverse|-sr]
+    ssh $HOST yroot -list --sort_time --date
+fi
+

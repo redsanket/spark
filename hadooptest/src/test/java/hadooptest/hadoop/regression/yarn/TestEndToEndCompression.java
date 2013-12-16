@@ -71,9 +71,17 @@ public class TestEndToEndCompression extends TestSession {
 		// Initialize YARN_OPTS
 		ArrayList<String> opts = new ArrayList<String>();
 		opts.add("-Dmapreduce.job.acl-view-job=*");
+		// The compression job submission explicity needs to use the 32-bit
+		// compression libraries (i386-32) for the jobs to run successfully
+		// as the nodes in the cluster run in 32-bit mode JVMs. The
+		// verification of the jobs needs to be done with the 64-bit
+		// compression libraries (amd64-64) as the gateway node JVM (and thus
+		// all framework access of the hadoop API) is done through a 64-bit JVM.
+		// The setting of java.library.home in pom-ci.xml accomplishes setting
+		// the 64-bit native libraries for API use.
 		opts.add("-Dmapred.child.java.opts='-Djava.library.path=" + 
 				TestSession.conf.getProperty("HADOOP_COMMON_HOME") + 
-				"/lib/native/Linux-amd64-64");
+				"/lib/native/Linux-i386-32" + "'");
 		opts.add("-Dmapreduce.map.memory.mb=2048");
 		opts.add("-Dmapreduce.reduce.memory.mb=4096");		
 		YARN_OPTS = opts.toArray(new String[0]);		

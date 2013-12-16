@@ -75,6 +75,7 @@ public class GdmUtils
 			localBufferedReader.close();
 		} catch (FileNotFoundException localFileNotFoundException) {
 			TestSession.logger.error(localFileNotFoundException.toString());
+			throw new IllegalArgumentException(localFileNotFoundException.toString()); 
 		} catch (IOException localIOException) {
 			TestSession.logger.error(localIOException.toString());
 		}

@@ -322,8 +322,15 @@
 						</exclusion>
 					</exclusions>
 					<!-- Set JVM heap max size -->
-					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/
-						-Xmx3g</argLine>
+					<!-- The compression job submission explicity needs to use the 64-bit
+                         compression libraries (i386-32) for the jobs to run successfully
+                         as the nodes in the cluster run in 32-bit mode JVMs. The
+                         verification of the jobs needs to be done with the 64-bit
+                         compression libraries (amd64-64) as the gateway node JVM (and thus
+                         all framework access of the hadoop API) is done through a 64-bit JVM.
+                         Setting the java.library.path to 64-bit native libraries here allows
+                         Hadoop API access via 64-bit java from the gateways. -->
+					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/ -Xmx3g</argLine>
 					<additionalClasspathElements>
 						<additionalClasspathElement>${basedir}</additionalClasspathElement>
 						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
@@ -335,6 +342,12 @@
 					<excludes>
 						<exclude>**/TestEndToEndCompression.java</exclude>
 					</excludes>
+                                        <properties>
+                                            <property>
+                                                <name>listener</name>
+                                                <value>hadooptest.monitoring.listeners.MonitoringListener</value>
+                                            </property>
+                                        </properties>
 				</configuration>
 
 				<executions>

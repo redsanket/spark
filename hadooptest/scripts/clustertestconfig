@@ -40,16 +40,14 @@ EOF
 while [ "$1" != "" ]; do
     case $1 in
         -c | --cluster )          shift
-                                  CLUSTER=$1
+                                  cluster=$1
                                   ;;
         -r | --role )             shift
                                   ROLE=$1
                                   ;;
-        -y | --yroot )            shift
-                                  GET_YROOT=1
+        -y | --yroot )            GET_YROOT=1
                                   ;;
-        -f | --force )            shift
-                                  FORCE=1
+        -f | --force )            FORCE=1
                                   ;;
         -v | --verbose )          VERBOSE=1
                                   ;;
@@ -63,12 +61,13 @@ while [ "$1" != "" ]; do
 done
 
 
-ROLES_FILE=/tmp/grid_re.cluster.$CLUSTER
+ROLES_FILE=/tmp/grid_re.cluster.$cluster
 
 if ([[ ! -f $ROLES_FILE ]] || [[ $FORCE == 1 ]])
 then 
     echo "--> Get roles from igor"
-    igor list -roles grid_re.clusters.$CLUSTER.* > $ROLES_FILE
+    #igor list -roles grid_re.clusters.$cluster.* > $ROLES_FILE
+    igor list -roles grid_re.clusters.$cluster* > $ROLES_FILE
 else
     echo "--> Get roles using existing file '$ROLES_FILE'"
 fi
@@ -76,21 +75,21 @@ if [[ $VERBOSE == 1 ]]; then
     cat $ROLES_FILE;
 fi
 
-MEMBERS_FILE=/tmp/grid_re.cluster.$CLUSTER.members
+MEMBERS_FILE=/tmp/grid_re.cluster.$cluster.members
 if ([[ ! -f $MEMBERS_FILE ]] || [[ $FORCE == 1 ]])
 then 
-    # for host in `igor list -roles grid_re.clusters.$CLUSTER.*`;do 
+    # for host in `igor list -roles grid_re.clusters.$cluster.*`;do 
     echo "--> Get host member from igor"
+    if [[ -f $MEMBERS_FILE ]]; then
+        rm $MEMBERS_FILE
+    fi
     touch $MEMBERS_FILE
-    for host in `cat $ROLES_FILE`;do 
-        echo -n "host $host " >> $MEMBERS_FILE; 
-        igor fetch -member $host >> $MEMBERS_FILE;
-        tail -1 $MEMBERS_FILE
+    for role in `cat $ROLES_FILE`;do 
+        echo -n "role $role " 2>&1 |tee -a $MEMBERS_FILE; 
+        igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
     done;
 else
-    echo "--> Get host members using existing file '$MEMBERS_FILE'"
-fi
-if [[ $VERBOSE == 1 ]]; then
+    echo "--> Get role members using existing file '$MEMBERS_FILE'"
     cat $MEMBERS_FILE;
 fi
 
