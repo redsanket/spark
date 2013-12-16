@@ -405,7 +405,7 @@ public class TestDistcpCLI extends TestSession {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("distcp");
+		sb.append("distcp -pbugp");
 		sb.append(" ");
 		String nnForWebhdfsSrc = getNNUrlForWebhdfs(srcCluster);
 		sb.append(nnForWebhdfsSrc + completePathToFile);
@@ -440,7 +440,7 @@ public class TestDistcpCLI extends TestSession {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("distcp");
+		sb.append("distcp -pbugp");
 		sb.append(" ");
 		String nnForWebhdfsSrc = getNNUrlForWebhdfs(srcCluster);
 		sb.append(nnForWebhdfsSrc + completePathToFile);
@@ -475,7 +475,7 @@ public class TestDistcpCLI extends TestSession {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("distcp");
+		sb.append("distcp -pbugp");
 		sb.append(" ");
 		String nnForWebhdfsSrc = getNNUrlForHftp(srcCluster);
 		sb.append(nnForWebhdfsSrc + completePathToFile);
@@ -511,7 +511,7 @@ public class TestDistcpCLI extends TestSession {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("distcp");
+		sb.append("distcp -pbugp");
 		sb.append(" ");
 		String nnForWebhdfsSrc = getNNUrlForHftp(srcCluster);
 		sb.append(nnForWebhdfsSrc + completePathToFile);
@@ -547,7 +547,7 @@ public class TestDistcpCLI extends TestSession {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("distcp");
+		sb.append("distcp -pbugp");
 		sb.append(" ");
 		String nnForWebhdfsSrc = getNNUrlForHdfs(srcCluster);
 		sb.append(nnForWebhdfsSrc + completePathToFile);
@@ -583,7 +583,7 @@ public class TestDistcpCLI extends TestSession {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("distcp");
+		sb.append("distcp -pbugp");
 		sb.append(" ");
 		String nnForWebhdfsSrc = getNNUrlForHdfs(srcCluster);
 		sb.append(nnForWebhdfsSrc + completePathToFile);
