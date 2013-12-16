@@ -46,6 +46,7 @@ public class TestDistcpCLI extends TestSession {
 	private String localHadoopVersion;
 	private String remoteHadoopVersion;
 	private static Properties crossClusterProperties;
+	private static HashMap<String, String> versionStore;
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -59,6 +60,7 @@ public class TestDistcpCLI extends TestSession {
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
+		versionStore = new HashMap<String, String>();
 
 	}
 
@@ -95,16 +97,26 @@ public class TestDistcpCLI extends TestSession {
 	@Before
 	public void getVersions() {
 		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
-		localHadoopVersion = rmUtils.getHadoopVersion(this.localCluster);
-		localHadoopVersion = localHadoopVersion.split("\\.")[0];
-		if (this.localCluster.equals(this.parametrizedCluster)) {
-			remoteHadoopVersion = localHadoopVersion;
-		} else {
+		if (versionStore.containsKey(this.localCluster)){
+			//Do not make an unnecessary call to get the version, if you've already made it once.
+			localHadoopVersion = versionStore.get(this.localCluster);
+		}else{
+			localHadoopVersion = rmUtils.getHadoopVersion(this.localCluster);
+			localHadoopVersion = localHadoopVersion.split("\\.")[0];
+			versionStore.put(this.localCluster, localHadoopVersion);
+		}
+
+		if (versionStore.containsKey(this.parametrizedCluster)){
+			//Do not make an unnecessary call to get the version, if you've already made it once.
+			remoteHadoopVersion = versionStore.get(this.parametrizedCluster);
+		}else{
 			remoteHadoopVersion = rmUtils
 					.getHadoopVersion(this.parametrizedCluster);
 			remoteHadoopVersion = remoteHadoopVersion.split("\\.")[0];
+			versionStore.put(this.parametrizedCluster, remoteHadoopVersion);
+			
 		}
-
+		
 	}
 
 	@Before
