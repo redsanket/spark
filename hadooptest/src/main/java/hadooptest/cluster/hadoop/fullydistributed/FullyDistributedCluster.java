@@ -711,8 +711,10 @@ public class FullyDistributedCluster extends HadoopCluster {
 				Arrays.toString(daemonHosts));		
 		
 		// Get the number of running process(es) for a given component
-		String prog = (component.equals("datanode")) ? "jsvc.exec" : "java";		    
-		String[] cmd = {"ssh", adminHost, "pdsh", "-w",
+		String prog = (component.equals("datanode")) ? "jsvc.exec" : "java";
+
+		// Set connect time out from default value of 10 seconds to 5. 
+		String[] cmd = {"ssh", adminHost, "pdsh", "-t", "5", "-w",
 				StringUtils.join(daemonHosts, ","), 
 				"ps auxww", "|", "grep \"" + prog + " -Dproc_" + component +
 		        "\"", "|", "/usr/bin/cut", "-d':'", "-f1" };		        
