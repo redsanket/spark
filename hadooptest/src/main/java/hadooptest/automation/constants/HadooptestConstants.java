@@ -1,6 +1,5 @@
 package hadooptest.automation.constants;
 
-
 public class HadooptestConstants {
 
 	// Node Types
@@ -25,6 +24,8 @@ public class HadooptestConstants {
 		public static String HADOOPQA = "hadoopqa";
 		public static String MAPREDQA = "mapredqa";
 		public static String HDFSQA = "hdfsqa";
+		public static String DFSLOAD = "dfsload";
+		public static String HDFS = "hdfs";
 	}
 
 	// Log
@@ -40,6 +41,7 @@ public class HadooptestConstants {
 		public static String MEMORY = "MEMORY";
 		public static String CPU = "CPU";
 		public static String FILES = "FILES";
+		public static String USER_DIR = "user.dir";
 	}
 
 	// Commands
@@ -51,13 +53,53 @@ public class HadooptestConstants {
 		public static String SED = "/bin/sed";
 		public static String PIPE = "|";
 	}
-	
-	//Locations
+
+	// Locations
 	public static class Location {
-		public static String CORE_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/core-site.xml";
-		public static String HDFS_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/hdfs-site.xml";
-		public static String YARN_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/yarn-site.xml";
-		public static String MAPRED_SITE_XML = "/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/conf/hadoop/mapred-site.xml";
+		public static String CORE_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/core-site.xml";
+		public static String HDFS_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/hdfs-site.xml";
+		public static String YARN_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/yarn-site.xml";
+		public static String MAPRED_SITE_XML = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/conf/hadoop/mapred-site.xml";
+
+		public static class Keytab {
+			public static String HADOOPQA = "/homes/hadoopqa/hadoopqa.dev.headless.keytab";
+			public static String DFSLOAD = "/homes/dfsload/dfsload.dev.headless.keytab";
+		}
+
+		public static class TestProperties {
+			public static String CrossClusterProperties = System
+					.getProperty(HadooptestConstants.Miscellaneous.USER_DIR)
+					+ "/conf/CrossCluster/Resource.properties";
+
+		}
+		public static class Binary {
+			public static String HADOOP = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hadoop";
+		}
+		public static class Conf {
+			public static String DIRECTORY = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
+		}
+
+	}
+
+	// Schemas
+	public static class Schema {
+		public static String HTTP = "http://";
+		public static String HDFS = "hdfs://";
+		public static String WEBHDFS = "webhdfs://";
+		public static String HFTP = "hftp://";
+	}
+	// Ports
+	public static class Ports {
+		public static String HDFS = "8020";
+
 	}
 
 }

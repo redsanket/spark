@@ -82,7 +82,7 @@ public class HTTPHandle {
 		}
 		logger.info(localGetMethod.getStatusLine().toString());
 		try {
-			logger.info(localGetMethod.getResponseBodyAsString());
+//			logger.info(localGetMethod.getResponseBodyAsString());
 		} catch (Exception localException3) {
 			logger.error(localException3.toString());
 		}
