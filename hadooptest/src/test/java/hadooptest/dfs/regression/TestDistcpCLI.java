@@ -78,7 +78,7 @@ public class TestDistcpCLI extends TestSession {
 		this.parametrizedCluster = cluster;
 		this.localCluster = System.getProperty("CLUSTER_NAME");
 		testDataFiles = new HashSet<String>();
-//		testDataFiles.add("/HTF/testdata/dfs/big_file_10dot7GB");
+		testDataFiles.add("/HTF/testdata/dfs/big_file_10dot7GB");
 		testDataFiles.add("/HTF/testdata/dfs/file_128MB");
 		testDataFiles.add("/HTF/testdata/dfs/file_1B");
 		testDataFiles.add("/HTF/testdata/dfs/file_255MB");
