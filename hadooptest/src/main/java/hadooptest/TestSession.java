@@ -193,7 +193,7 @@ public abstract class TestSession extends TestSessionCore {
                 boolean RESTART_ON_FAILURE = Boolean.parseBoolean(
                                 System.getProperty("RESTART_ON_FAILURE",
                                 conf.getProperty("RESTART_ON_FAILURE", "true")));
-                logger.info("RESTART ON FAILURE='"+RESTART_ON_FAILURE+"'");
+                logger.info("RESTART_ON_FAILURE='"+RESTART_ON_FAILURE+"'");
 
                 int resetClusterDelay = 
                         Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY",

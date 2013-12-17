@@ -16,8 +16,8 @@ import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.mapred.TaskReport;
 
 /**
- * A class which should represent the base capability of any job
- * submitted to a cluster.
+ * Wrapper to the Apache Hadoop JobClient. Contains additional methods that are
+ * specific for testing.
  */
 public class JobClient extends org.apache.hadoop.mapred.JobClient {
 
@@ -31,12 +31,24 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         super(conf);
     }
     
+    /**
+     * Generate the task report summary given a task report.
+     * 
+     * @throws InterruptedException 
+     * @throws IOException 
+     */
     public HashMap<TIPStatus, Integer> getTaskReportSummary(
             TaskReport[] taskReports) {
         return this.getTaskReportSummary(
                 taskReports, new HashMap<TIPStatus, Integer>());
     }
 
+    /**
+     * Generate the task report summary given a task report.
+     * 
+     * @throws InterruptedException 
+     * @throws IOException 
+     */
     public HashMap<TIPStatus, Integer> getTaskReportSummary(
             TaskReport[] taskReports, 
             HashMap<TIPStatus, Integer> statusCounter) {
@@ -66,6 +78,12 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         return statusCounter;
     }
     
+    /**
+     * Get the task report for a particular job ID.
+     * 
+     * @throws InterruptedException 
+     * @throws IOException 
+     */
     public TaskReportSummary getTaskReportSummary(
             JobID jobId, 
             TaskReportSummary taskReportSummary) 
@@ -91,6 +109,12 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         return taskReportSummary;
     }
     
+    /**
+     * Get the task report summary for the given job status array.
+     * 
+     * @throws InterruptedException 
+     * @throws IOException 
+     */
     public TaskReportSummary getTaskReportSummary(JobStatus[] jobsStatus) 
             throws InterruptedException, IOException {
         TaskReportSummary taskReportSummary = new TaskReportSummary();
@@ -102,6 +126,12 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         return taskReportSummary;
     }
     
+    /**
+     * Get the task report summary for all the jobs.
+     * 
+     * @throws InterruptedException 
+     * @throws IOException 
+     */
     public TaskReportSummary getTaskReportSummary()
         throws InterruptedException, IOException {
         TestSession.logger.info("********************************************");
@@ -118,12 +148,10 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
     }
     
     /**
-     * Get an array of current mapper TaskReport statuses for the current Job.
+     * Print the task summary report.
      * 
-     * @return TaskReport[] an array of TaskReport map task statuses.
-     * 
-     * @throws InterruptedException if there is a problem sleeping the current Thread.
-     * @throws IOException if there is a fatal error getting the Hadoop JobClient.
+     * @throws InterruptedException 
+     * @throws IOException 
      */
     public void printTasksSummary() 
             throws InterruptedException, IOException {
