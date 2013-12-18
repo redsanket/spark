@@ -194,7 +194,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
 
     
     @Test 
-    @Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
+    @Monitorable(cpuPeriodicity = 3, memPeriodicity = 3)
     public void testSort() throws Exception{
         String tcDesc = "Runs hadoop terasort and verifies that " + 
                 "the data is properly sorted";

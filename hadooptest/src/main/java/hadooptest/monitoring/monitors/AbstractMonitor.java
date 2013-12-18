@@ -49,11 +49,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		this.testClassBeingMonitored = testClass.getSimpleName();
 		this.testMethodBeingMonitored = testMethodName;
 		this.testPackageBeingMonitored = testClass.getPackage().getName();
-		if (periodicity < 10) {
-			this.periodicity = 10;
-		} else {
-			this.periodicity = periodicity;
-		}
+		this.periodicity = periodicity;
 
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
