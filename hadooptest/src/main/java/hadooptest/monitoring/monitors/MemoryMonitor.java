@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import hadooptest.TestSession;
 
 /**
  * <p>
@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
  */
 
 public class MemoryMonitor extends AbstractMonitor {
-	Logger logger = Logger.getLogger(MemoryMonitor.class);
 
 	public MemoryMonitor(String clusterName,
 			HashMap<String, ArrayList<String>> sentComponentToHostMapping,
@@ -63,7 +62,7 @@ public class MemoryMonitor extends AbstractMonitor {
 				DecimalFormat df = new DecimalFormat("##.##");
 				memUsagePercentage = Float.parseFloat(df
 						.format(memUsagePercentage));
-				System.out.println("% usage  memory" + memUsagePercentage);
+				TestSession.logger.debug("(MEMORY) % utilization: " + hostThatResponded + ": " + memUsagePercentage);
 				if (hostwiseReadings.containsKey(hostThatResponded)) {
 					HashMap<Integer, String> timelapsedReding = hostwiseReadings
 							.get(hostThatResponded);

@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import hadooptest.TestSession;
 
 /**
  * <p>
@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
  * 
  */
 public class CPUMonitor extends AbstractMonitor {
-	Logger logger = Logger.getLogger(CPUMonitor.class);
 
 	public CPUMonitor(String clusterName,
 			HashMap<String, ArrayList<String>> sentComponentToHostMapping,
@@ -44,12 +43,21 @@ public class CPUMonitor extends AbstractMonitor {
 		Process p = Runtime.getRuntime().exec(commandStrings);
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				p.getInputStream()));
+		boolean logHeader = false;
+		
 		while ((responseLine = r.readLine()) != null) {
 			if (!responseLine.contains("Linux")
 					&& !responseLine.contains("CPU")
-					&& !responseLine.contains("Average")) {
-				logger.debug("            CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest   %idle");
-				logger.debug("(CPU) Monitoring response:" + responseLine);
+					&& !responseLine.contains("Average")
+					&& responseLine.contains("all")) {
+				
+				if (logHeader == false) {
+					TestSession.logger.debug("(CPU) utilization:" + 
+							"                         CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest   %idle");
+					logHeader = true;
+				}
+				
+				TestSession.logger.debug("(CPU) utilization: " + responseLine);
 				String[] splits = responseLine.split("\\s+");
 				if (splits.length < 2)
 					continue;
