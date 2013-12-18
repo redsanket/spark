@@ -904,8 +904,8 @@ public abstract class Job extends Thread {
 	}
 	
 	/**
-	 * Blocking call that waits until the current job is running, failed, or killed, before
-	 * proceeding.
+	 * Blocking call that waits until the current job is running, succeeded, unknown, failed, 
+	 * or killed, before proceeding.
 	 * 
 	 * @throws InterruptedException if there is a problem sleeping the current Thread.
 	 * @throws IOException if there is a fatal error getting the job state.
@@ -919,6 +919,8 @@ public abstract class Job extends Thread {
 		}
 		while (this.getJobStatus() != JobState.RUNNING 
 				&& this.getJobStatus() != JobState.FAILED 
+				&& this.getJobStatus() != JobState.SUCCEEDED
+				&& this.getJobStatus() != JobState.UNKNOWN
 				&& this.getJobStatus() != JobState.KILLED);
 	}
 	
@@ -937,7 +939,28 @@ public abstract class Job extends Thread {
 
 		JobClient jobClient = this.getHadoopAPIJobClient();
 
-		// Block until the Job is either running, failed, or killed.
+		taskReports = jobClient.getMapTaskReports(this.getHadoopAPIJobID());
+
+		return taskReports;
+	}
+	
+	/**
+	 * Get an array of current mapper TaskReport statuses for the current Job,
+	 * but block until job state is RUNNING or later.
+	 * 
+	 * @return TaskReport[] an array of TaskReport map task statuses.
+	 * 
+	 * @throws InterruptedException if there is a problem sleeping the current Thread.
+	 * @throws IOException if there is a fatal error getting the Hadoop JobClient.
+	 */
+	public TaskReport[] getMapTasksStatusUntilRunning() 
+			throws InterruptedException, IOException {
+
+		TaskReport[] taskReports = null;
+
+		JobClient jobClient = this.getHadoopAPIJobClient();
+
+		// Block until the Job is either running or completed.
 		// The Hadoop API to get task status will return an empty
 		// TaskReport[] if the job is in the PREP state and has not
 		// yet started.
