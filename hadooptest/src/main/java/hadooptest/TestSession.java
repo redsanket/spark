@@ -176,67 +176,74 @@ public abstract class TestSession extends TestSessionCore {
 			logger.error("The cluster type is not yet fully supported: " + strClusterType);
 		}
 
-		if (cluster != null) {
-            TestSession.logger.info("***************************************");
-            TestSession.logger.info("Test Session Start: check cluster state " +
-                    "is up:");
-            TestSession.logger.info("***************************************");
+        boolean CHECK_CLUSTER_STATE = Boolean.parseBoolean(
+                    System.getProperty("CHECK_CLUSTER_STATE",
+                            conf.getProperty("CHECK_CLUSTER_STATE", "true")));
+        
+        if (CHECK_CLUSTER_STATE) {
+            if (cluster != null) {
+                TestSession.logger.info("***************************************");
+                TestSession.logger.info("Test Session Start: check cluster state " +
+                        "is up:");
+                TestSession.logger.info("***************************************");
 
-            /* TODO: optionally restart the cluster. This may impact how the
-             * tests are being run in parallel classes.
-             */
-            boolean RESTART_ON_FAILURE =
-                    Boolean.parseBoolean(
-                            System.getProperty("RESTART_ON_FAILURE", "true"));
-            logger.info("RESTART ON FAILURE='"+RESTART_ON_FAILURE+"'");
+                /* TODO: optionally restart the cluster. This may impact how the
+                 * tests are being run in parallel classes.
+                 */
+                boolean RESTART_ON_FAILURE = Boolean.parseBoolean(
+                                System.getProperty("RESTART_ON_FAILURE",
+                                conf.getProperty("RESTART_ON_FAILURE", "true")));
+                logger.info("RESTART_ON_FAILURE='"+RESTART_ON_FAILURE+"'");
 
-            int resetClusterDelay = 
-                    Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY", "180"));
-            logger.info("RESET_CLUSTER_DELAY='" + resetClusterDelay
-                    + "' seconds.");
+                int resetClusterDelay = 
+                        Integer.parseInt(System.getProperty("RESET_CLUSTER_DELAY",
+                                conf.getProperty("RESET_CLUSTER_DELAY", "180")));
+                logger.info("RESET_CLUSTER_DELAY='" + resetClusterDelay
+                        + "' seconds.");
 
-		    ClusterState clusterState = null;
-			try {
-				clusterState = cluster.getState();
-			}
-			catch (Exception e) {
-				logger.error("Failed to get the cluster state.", e);
-			}
+                ClusterState clusterState = null;
+                try {
+                    clusterState = cluster.getState();
+                }
+                catch (Exception e) {
+                    logger.error("Failed to get the cluster state.", e);
+                }
 
-			if (clusterState == ClusterState.UP) {
-                logger.info("Cluster is fully up and ready to go.");                
-			} else {			    
-				logger.warn("Cluster is not fully up: cluster state='" +
-						clusterState.toString() + "'.'");
-				
-	            if (RESTART_ON_FAILURE) {
-	                 // Check if the cluster is fully up. If not try n times to reset it.
-	                int maxRetries = 3;
-	                int numRetries = 1;
-	                try {	                    
-	                    while ((clusterState != ClusterState.UP) &&
-	                            (numRetries <= maxRetries)) {
-	                        TestSession.logger.info("Retry #" + numRetries + ":");
-	                        TestSession.logger.info("Reset cluster:");
-	                        TestSession.cluster.reset();
-	                        clusterState = cluster.getState();
-	                        numRetries++;
-	                    }
-	                    if (!TestSession.cluster.isFullyUp()) {
-	                        TestSession.logger.error("Cluster is NOT fully up after '" +
-	                                maxRetries + "'.");
-	                    } else {
-	                        TestSession.logger.error("Cluster is fully up and ready.");                
-	                    }
-	                }
-	                catch (Exception e) {
-	                        TestSession.logger.error("Cluster is not fully up."+
-	                                " Restart failed!!!");
-	                }
-       
-	            }
-			}
-		}
+                if (clusterState == ClusterState.UP) {
+                    logger.info("Cluster is fully up and ready to go.");                
+                } else {			    
+                    logger.warn("Cluster is not fully up: cluster state='" +
+                            clusterState.toString() + "'.'");
+                    if (RESTART_ON_FAILURE) {
+                        // Check if the cluster is fully up. If not try n times to reset it.
+                        int maxRetries = 3;
+                        int numRetries = 1;
+                        try {	                    
+                            while ((clusterState != ClusterState.UP) &&
+                                    (numRetries <= maxRetries)) {
+                                TestSession.logger.info("Retry #" + numRetries + ":");
+                                TestSession.logger.info("Reset cluster:");
+                                TestSession.cluster.reset();
+                                clusterState = cluster.getState();
+                                numRetries++;
+                            }
+                            if (!TestSession.cluster.isFullyUp()) {
+                                TestSession.logger.error("Cluster is NOT fully up after '" +
+                                        maxRetries + "'.");
+                            } else {
+                                TestSession.logger.error("Cluster is fully up and ready.");                
+                            }
+                        }
+                        catch (Exception e) {
+                            TestSession.logger.error("Cluster is not fully up."+
+                                    " Restart failed!!!");
+                        }
+                    }
+                }
+            }
+        } else {
+            logger.info("CHECK_CLUSTER_STATE='"+CHECK_CLUSTER_STATE+"'");            
+        }
 	}
 	
 	/**

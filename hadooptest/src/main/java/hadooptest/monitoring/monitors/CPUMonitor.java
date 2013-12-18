@@ -48,7 +48,8 @@ public class CPUMonitor extends AbstractMonitor {
 			if (!responseLine.contains("Linux")
 					&& !responseLine.contains("CPU")
 					&& !responseLine.contains("Average")) {
-				System.out.println("(CPU) Monitoring response:" + responseLine);
+				logger.debug("            CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest   %idle");
+				logger.debug("(CPU) Monitoring response:" + responseLine);
 				String[] splits = responseLine.split("\\s+");
 				if (splits.length < 2)
 					continue;
