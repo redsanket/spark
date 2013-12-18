@@ -10,6 +10,7 @@ import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
 import hadooptest.node.hadoop.pseudodistributed.PseudoDistributedNode;
+import hadooptest.workflow.hadoop.job.JobClient;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -609,6 +610,18 @@ public abstract class HadoopCluster {
 		return yarnClient;
 	}
 	
+    /**
+     * Get the Job Client
+     * 
+     * @return JobClient instance.
+     * 
+     * @throws IOException.
+     */
+    public JobClient getJobClient() throws IOException {
+        return new JobClient(TestSession.getCluster().getConf());
+    }
+    
+
 	/**
 	 * Get the cluster Hadoop file system.
 	 * 

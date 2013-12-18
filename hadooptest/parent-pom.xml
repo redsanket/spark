@@ -28,7 +28,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hadoop.version.ut.old>2.0.4.0.1304041432</hadoop.version.ut.old>
-		<hadoop.version.current>2.2.0-SNAPSHOT</hadoop.version.current>
+		<hadoop.version.current>2.2.0</hadoop.version.current>
 		<hadoop.version>${hadoop.version.current}</hadoop.version>
 	</properties>
 
