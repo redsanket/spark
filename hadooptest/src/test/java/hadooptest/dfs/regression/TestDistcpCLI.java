@@ -3,6 +3,7 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -607,8 +608,9 @@ public class TestDistcpCLI extends TestSession {
 		commandRemoveFile(schemaDecoratedDestination);
 
 	}
-
-//	@Test
+	
+	@Monitorable
+	@Test
 	public void testWebhdfsToWebhdfs() throws Exception {
 		for (String aFile : testDataFiles) {
 			// Push
@@ -619,7 +621,8 @@ public class TestDistcpCLI extends TestSession {
 					this.localCluster, aFile);
 		}
 	}
-
+	
+	@Monitorable
 	@Test
 	public void testWebhdfsToHdfs() throws Exception {
 		for (String aFile : testDataFiles) {
@@ -638,7 +641,7 @@ public class TestDistcpCLI extends TestSession {
 		}
 
 	}
-
+	@Monitorable
 	@Test
 	public void testHftpToWebhdfs() throws Exception {
 		for (String aFile : testDataFiles) {
@@ -655,7 +658,7 @@ public class TestDistcpCLI extends TestSession {
 		}
 
 	}
-
+	@Monitorable
 	@Test
 	public void testHftpToHdfs() throws Exception {
 		if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
@@ -677,7 +680,7 @@ public class TestDistcpCLI extends TestSession {
 		}
 
 	}
-
+	@Monitorable
 	@Test
 	public void testHdfsToWebhdfs() throws Exception {
 		for (String aFile : testDataFiles) {
@@ -695,7 +698,7 @@ public class TestDistcpCLI extends TestSession {
 		}
 
 	}
-
+	@Monitorable
 	@Test
 	public void testHdfsToHdfs() throws Exception {
 		if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
