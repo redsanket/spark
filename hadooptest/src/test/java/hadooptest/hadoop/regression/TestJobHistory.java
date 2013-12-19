@@ -24,13 +24,13 @@ public class TestJobHistory extends TestSession {
 	
 	@Test
 	public void testCluster() throws Exception {	    
-	    JobClient js = TestSession.cluster.getJobClient();
+	    JobClient jobClient = TestSession.cluster.getJobClient();
 	    // js.printTasksSummary();
 	    
         TestSession.logger.info("********************************************");
-        TestSession.logger.info("---> Display All Jobs:");
+        TestSession.logger.info("Display All Jobs:");
         TestSession.logger.info("********************************************");
-        JobStatus[] jobsStatus1 = js.getAllJobs();
+        JobStatus[] jobsStatus1 = jobClient.getAllJobs();
         /* 
          * We can also get job status for jobs based on start time, or job IDs.
          * 
@@ -39,16 +39,15 @@ public class TestJobHistory extends TestSession {
             "job_1385138355868_0006", "job_1385138355868_0007"});
          */
         JobStatus[] jobsStatus = jobsStatus1;
-        js.displayJobList(jobsStatus);
-        TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
+        jobClient.displayJobList(jobsStatus);
         
         TestSession.logger.info("********************************************");
-        TestSession.logger.info("--> Aggregate Task Summary For Each Job:");
+        TestSession.logger.info("Aggregate Task Summary For Each Job:");
         TestSession.logger.info("********************************************");
-        TaskReportSummary taskReportSummary = js.getTaskReportSummary(jobsStatus);
+        TaskReportSummary taskReportSummary = jobClient.getTaskReportSummary(jobsStatus);
         
         TestSession.logger.info("********************************************");
-        TestSession.logger.info("--> Print Task Summary For All Jobs:");
+        TestSession.logger.info("Print Task Summary For All Jobs:");
         TestSession.logger.info("********************************************");        
         taskReportSummary.printSummary();
         

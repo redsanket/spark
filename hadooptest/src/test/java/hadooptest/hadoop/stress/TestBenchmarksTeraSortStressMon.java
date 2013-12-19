@@ -244,7 +244,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
     @After
     public void getTaskResportSummary() 
             throws InterruptedException, IOException {
-        JobClient js = TestSession.cluster.getJobClient();
+        JobClient jobClient = TestSession.cluster.getJobClient();
         
         // LOG TO FILE
         Logger logger = TestSession.logger;
@@ -260,19 +260,18 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
         logger.addAppender(fileAppender);
 
         TestSession.logger.info("********************************************");
-        TestSession.logger.info("---> Display Jobs:");
+        TestSession.logger.info("Display Jobs:");
         TestSession.logger.info("********************************************");
-        JobStatus[] jobsStatus = js.getJobs(TestSession.startTime);
-        js.displayJobList(jobsStatus);
-        TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
+        JobStatus[] jobsStatus = jobClient.getJobs(TestSession.startTime);
+        jobClient.displayJobList(jobsStatus);
         
         TestSession.logger.info("********************************************");
-        TestSession.logger.info("--> Aggregate Task Summary For Each Job:");
+        TestSession.logger.info("Aggregate Task Summary For Each Job:");
         TestSession.logger.info("********************************************");
-        TaskReportSummary taskReportSummary = js.getTaskReportSummary(jobsStatus);
+        TaskReportSummary taskReportSummary = jobClient.getTaskReportSummary(jobsStatus);
         
         TestSession.logger.info("********************************************");
-        TestSession.logger.info("--> Print Task Summary For Jobs:");
+        TestSession.logger.info("Print Task Summary For Jobs:");
         TestSession.logger.info("********************************************");        
         taskReportSummary.printSummary();
         

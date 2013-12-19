@@ -104,6 +104,42 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
     }
     
     /**
+     * Display Job List. This overrides the parent class of apache hadoop 
+     * JobClient because we want to be able to get this information to the 
+     * TestSession logger.
+     * 
+     * @param Array of job status. 
+     * @throws IOException 
+     */
+    public void displayJobList(JobStatus[] jobs) {
+        TestSession.logger.info("Total jobs:" + jobs.length);
+        TestSession.logger.info(
+                "JobId" + "\t" + "State" + "\t" + "StartTime" + "\t" +
+                "UserName" + "\t" + "Queue" + "\t" + "Priority" + "\t" + 
+                "UsedContainers" + "\t" + "\t" + "RsvdContainers" + "\t" + 
+                "UsedMem" + "\t" + "RsvdMem" + "\t" + "NeededMem" + "\t" + 
+                "AM info");
+        for (JobStatus job : jobs) {
+              int numUsedSlots = job.getNumUsedSlots();
+              int numReservedSlots = job.getNumReservedSlots();
+              int usedMem = job.getUsedMem();
+              int rsvdMem = job.getReservedMem();
+              int neededMem = job.getNeededMem();
+              TestSession.logger.info(
+                  job.getJobID().toString() + "\t" +  job.getState() + "\t" + job.getStartTime() + "\t" + 
+                  job.getUsername() + "\t" +  job.getQueue() + "\t" + 
+                  job.getPriority().name() + "\t" + 
+                  (numUsedSlots < 0 ? "UNAVAILABLE" : numUsedSlots)  + "\t" + 
+                  (numReservedSlots < 0 ? "UNAVAILABLE" : numReservedSlots)  + "\t" + 
+                  (usedMem < 0 ? "UNAVAILABLE" : String.format("%dM", usedMem)) + "\t" + 
+                  (rsvdMem < 0 ? "UNAVAILABLE" : String.format("%dM", rsvdMem)) + "\t" + 
+                  (neededMem < 0 ? "UNAVAILABLE" : String.format("%dM", neededMem)) + "\t" + 
+                  job.getSchedulingInfo());
+        }
+    }
+    
+    
+    /**
      * Generate the task report summary given a task report.
      * 
      * @throws InterruptedException 
@@ -199,7 +235,6 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         TestSession.logger.info("********************************************");
         JobStatus[] jobsStatus = this.getAllJobs();
         this.displayJobList(jobsStatus);
-        TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
         
         TestSession.logger.info("********************************************");
         TestSession.logger.info("--> Aggregate Task Summary For Each Job:");
