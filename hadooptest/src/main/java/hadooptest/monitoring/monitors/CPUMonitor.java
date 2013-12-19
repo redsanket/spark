@@ -60,12 +60,12 @@ public class CPUMonitor extends AbstractMonitor {
 		Process p = Runtime.getRuntime().exec(commandStrings);
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				p.getInputStream()));
-		boolean logHeader = false;
 		
 	    PrintWriter artifactFile = new PrintWriter(new BufferedWriter(new FileWriter(outputFilePath, true)));
 		String header = "(CPU) utilization:" + 
 				"                         CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest   %idle";
 		String utilizationOutput;
+		boolean logHeader = false;
 	    
 		while ((responseLine = r.readLine()) != null) {
 			if (!responseLine.contains("Linux")
