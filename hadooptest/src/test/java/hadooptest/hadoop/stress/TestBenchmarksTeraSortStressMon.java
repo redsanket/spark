@@ -18,6 +18,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.examples.terasort.TeraValidate;
 import org.apache.hadoop.fs.FileSystem;
@@ -230,6 +235,19 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
     public void getTaskResportSummary() 
             throws InterruptedException, IOException {
         JobClient js = TestSession.cluster.getJobClient();
+        
+        // LOG TO FILE
+        Logger logger = TestSession.logger;
+        FileAppender fileAppender = new FileAppender();
+        fileAppender.setName("FileLogger");        
+        fileAppender.setFile(
+                TestSession.conf.getProperty("WORKSPACE_SF_REPORTS") +
+                "/tasks_report.log");
+        fileAppender.setLayout(new PatternLayout("%d %-5p %m%n"));
+        fileAppender.setThreshold(Level.INFO);
+        fileAppender.setAppend(true);
+        fileAppender.activateOptions();
+        logger.addAppender(fileAppender);
 
         TestSession.logger.info("********************************************");
         TestSession.logger.info("---> Display Jobs:");
@@ -248,6 +266,8 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
         TestSession.logger.info("********************************************");        
         taskReportSummary.printSummary();
         
+        logger.removeAppender(fileAppender);
+        
         // Check that there are no non-complete tasks
         int numNonCompleteMapTasks = taskReportSummary.getNonCompleteMapTasks();
         int numNonCompleteReduceTasks = taskReportSummary.getNonCompleteReduceTasks();
@@ -263,7 +283,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
                 " more reduce task failures than the acceptable failure of " + 
                 acceptableRedFailure;
         assertTrue(mapMsg, numNonCompleteMapTasks <= acceptableMapFailure);
-        assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);        
+        assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);           
     }
     
 }
