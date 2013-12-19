@@ -61,11 +61,11 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             jobId = js.getJobID().toString();
             
             if (Arrays.asList(jobIds).contains(jobId)) {
-                TestSession.logger.info("Include matching job '" + jobId +
+                TestSession.logger.debug("Include matching job '" + jobId +
                         "'");                
                 filteredJs.add(js);
             } else {
-                TestSession.logger.info("Exclude non-matching job '" + jobId +
+                TestSession.logger.debug("Exclude non-matching job '" + jobId +
                         "'");                
             }
         }
@@ -88,13 +88,13 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             jobId = js.getJobID().toString();
             jobStart = js.getStartTime();
             if (jobStart >= startTime) {
-                TestSession.logger.info("Include job '" + jobId +
+                TestSession.logger.debug("Include job '" + jobId +
                         "': job start time '" + sdf.format(new Date(jobStart)) +
                         "' => cutoff time '" +
                         sdf.format(new Date(startTime)) + "'");                
                 filteredJs.add(js);
             } else {
-                TestSession.logger.info("Exclude job '" + jobId +
+                TestSession.logger.debug("Exclude job '" + jobId +
                         "': job start time '" + sdf.format(new Date(jobStart)) +
                         "' < cutoff time '" +
                         sdf.format(new Date(startTime)) + "'");                
