@@ -87,7 +87,6 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         for ( JobStatus js : jobsStatus) {
             jobId = js.getJobID().toString();
             jobStart = js.getStartTime();
-            // long currentTime = System.currentTimeMillis() / 1000L;            
             if (jobStart >= startTime) {
                 TestSession.logger.info("Include job '" + jobId +
                         "': job start time '" + sdf.format(new Date(jobStart)) +
@@ -120,12 +119,12 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             TIPStatus taskStatus = report.getCurrentStatus();
             if (!statusCounter.containsKey(taskStatus)) {
                 statusCounter.put(taskStatus, 1);
-                TestSession.logger.info("init count for " +
+                TestSession.logger.trace("init count for " +
                 taskStatus.toString());
             } else {
                 statusCounter.put(taskStatus,
                         statusCounter.get(taskStatus)+1);
-                TestSession.logger.info("increment count for " + 
+                TestSession.logger.trace("increment count for " + 
                         taskStatus.toString());
             }
             TestSession.logger.info("Status of task id '" + taskId + 

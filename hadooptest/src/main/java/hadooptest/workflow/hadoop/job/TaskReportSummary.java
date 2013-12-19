@@ -6,7 +6,6 @@ package hadooptest.workflow.hadoop.job;
 
 import hadooptest.TestSession;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.hadoop.mapred.TIPStatus;
@@ -118,13 +117,12 @@ public class TaskReportSummary {
      */
     public void printSummary() {
         TestSession.logger.info("Total Number of map tasks = " + this.getMapTasks());
-        TestSession.logger.info("Total Number of reduce tasks = " + this.getReduceTasks());
-
         for(TIPStatus taskStatus : this.getMapStatusCounter().keySet()){
             TestSession.logger.info("Number of map tasks with status " + taskStatus.toString() +
                     " = "+ this.getMapStatusCounter().get(taskStatus));
         }
-        
+
+        TestSession.logger.info("Total Number of reduce tasks = " + this.getReduceTasks());
         for(TIPStatus taskStatus : this.getReduceStatusCounter().keySet()){
             TestSession.logger.info("Number of reduce tasks with status " + taskStatus.toString() +
                     " = "+ this.getReduceStatusCounter().get(taskStatus));
