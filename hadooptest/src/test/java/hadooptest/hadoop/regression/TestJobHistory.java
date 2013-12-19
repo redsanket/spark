@@ -12,6 +12,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+/**
+ * Sample test for using JobClient to get task summary report .
+ */
 public class TestJobHistory extends TestSession {
     
 	@BeforeClass
@@ -27,7 +30,15 @@ public class TestJobHistory extends TestSession {
         TestSession.logger.info("********************************************");
         TestSession.logger.info("---> Display All Jobs:");
         TestSession.logger.info("********************************************");
-        JobStatus[] jobsStatus = js.getAllJobs();
+        JobStatus[] jobsStatus1 = js.getAllJobs();
+        /* 
+         * We can also get job status for jobs based on start time, or job IDs.
+         * 
+        JobStatus[] jobsStatus2 = js.getJobs(Long.parseLong("1385138589547"));
+        JobStatus[] jobsStatus3 = js.getJobs(new String[] {
+            "job_1385138355868_0006", "job_1385138355868_0007"});
+         */
+        JobStatus[] jobsStatus = jobsStatus1;
         js.displayJobList(jobsStatus);
         TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
         

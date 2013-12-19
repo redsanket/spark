@@ -8,6 +8,10 @@ import hadooptest.TestSession;
 import hadooptest.config.hadoop.HadoopConfiguration;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.hadoop.mapred.JobID;
@@ -44,6 +48,62 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
     }
 
     /**
+     * Get JobStatus for all jobs for a given set of job IDs.
+     * 
+     * @param String array of job IDs
+     * @throws IOException 
+     */
+    public JobStatus[] getJobs(String[] jobIds) throws IOException {
+        JobStatus[] jobsStatus = this.getAllJobs();
+        String jobId;
+        ArrayList<JobStatus> filteredJs = new ArrayList<JobStatus>();
+        for ( JobStatus js : jobsStatus) {
+            jobId = js.getJobID().toString();
+            
+            if (Arrays.asList(jobIds).contains(jobId)) {
+                TestSession.logger.info("Include matching job '" + jobId +
+                        "'");                
+                filteredJs.add(js);
+            } else {
+                TestSession.logger.info("Exclude non-matching job '" + jobId +
+                        "'");                
+            }
+        }
+        return filteredJs.toArray(new JobStatus[filteredJs.size()]);
+    }
+    
+    /**
+     * Get JobStatus for all jobs that ran at or after a given start time.
+     * 
+     * @param String array of job IDs
+     * @throws IOException 
+     */
+    public JobStatus[] getJobs(long startTime) throws IOException {
+        JobStatus[] jobsStatus = this.getAllJobs();
+        String jobId;
+        ArrayList<JobStatus> filteredJs = new ArrayList<JobStatus>();
+        long jobStart;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for ( JobStatus js : jobsStatus) {
+            jobId = js.getJobID().toString();
+            jobStart = js.getStartTime();
+            if (jobStart >= startTime) {
+                TestSession.logger.info("Include job '" + jobId +
+                        "': job start time '" + sdf.format(new Date(jobStart)) +
+                        "' => cutoff time '" +
+                        sdf.format(new Date(startTime)) + "'");                
+                filteredJs.add(js);
+            } else {
+                TestSession.logger.info("Exclude job '" + jobId +
+                        "': job start time '" + sdf.format(new Date(jobStart)) +
+                        "' < cutoff time '" +
+                        sdf.format(new Date(startTime)) + "'");                
+            }
+        }
+        return filteredJs.toArray(new JobStatus[filteredJs.size()]);
+    }
+    
+    /**
      * Generate the task report summary given a task report.
      * 
      * @throws InterruptedException 
@@ -59,12 +119,12 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             TIPStatus taskStatus = report.getCurrentStatus();
             if (!statusCounter.containsKey(taskStatus)) {
                 statusCounter.put(taskStatus, 1);
-                TestSession.logger.info("init count for " +
+                TestSession.logger.trace("init count for " +
                 taskStatus.toString());
             } else {
                 statusCounter.put(taskStatus,
                         statusCounter.get(taskStatus)+1);
-                TestSession.logger.info("increment count for " + 
+                TestSession.logger.trace("increment count for " + 
                         taskStatus.toString());
             }
             TestSession.logger.info("Status of task id '" + taskId + 

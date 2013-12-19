@@ -20,9 +20,10 @@ import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Logger;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
+
+import hadooptest.TestSession;
 
 /**
  * <p>
@@ -36,7 +37,6 @@ import org.junit.runner.notification.RunListener;
  * 
  */
 public class MonitoringListener extends RunListener {
-	Logger logger = Logger.getLogger(MonitoringListener.class);
 
 	HashMap<String, MonitorGeneral> monitorGenerals = new HashMap<String, MonitorGeneral>();
 
@@ -46,18 +46,18 @@ public class MonitoringListener extends RunListener {
 	 */
 	public synchronized void testStarted(Description description) {
 		MonitorGeneral monitorGeneral = new MonitorGeneral();
-		logger.info("Monitoring listener invoked..on testStart");
+		TestSession.logger.info("Monitoring listener invoked..on testStart");
 		String cluster = System.getProperty("CLUSTER_NAME");
 		Class<?> descriptionOfTestClass = description.getTestClass();
-		logger.info("Method that has this annotation:"
+		TestSession.logger.info("Method that has this annotation:"
 				+ description.getMethodName());
 		Collection<Annotation> annotations = description.getAnnotations();
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().isAssignableFrom(Monitorable.class)) {
 				monitorGenerals
 						.put(description.getMethodName(), monitorGeneral);
-				logger.info("START MJ size now:" + monitorGenerals.size());
-				logger.info("Doing Monitoring..since annotation is "
+				TestSession.logger.info("START MJ size now:" + monitorGenerals.size());
+				TestSession.logger.info("Doing Monitoring..since annotation is "
 						+ annotation.annotationType().getCanonicalName());
 				Configuration conf = new Configuration(true);
 				conf.addResource(HadooptestConstants.Location.CORE_SITE_XML);
@@ -121,7 +121,7 @@ public class MonitoringListener extends RunListener {
 						HadooptestConstants.NodeTypes.DATANODE,
 						getDataNodes(rmWebAppAddress));
 
-				logger.info("COMPS:" + componentToHostMapping);
+				TestSession.logger.info("COMPS:" + componentToHostMapping);
 
 				// Add the CPU Monitor
 				CPUMonitor cpuMonitor = new CPUMonitor(cluster,
@@ -146,7 +146,7 @@ public class MonitoringListener extends RunListener {
 				// Start 'em monitors
 				monitorGeneral.startMonitors();
 			} else {
-				logger.info("Skipping annotation..since annotation is "
+				TestSession.logger.info("Skipping annotation..since annotation is "
 						+ annotation.annotationType().getCanonicalName()
 						+ " in test named " + description.getMethodName());
 			}
@@ -160,7 +160,7 @@ public class MonitoringListener extends RunListener {
 	public synchronized void testFinished(Description description) {
 	if (monitorGenerals.size() == 0)
 		return;	
-		logger.info("STOP MJ size now:" + monitorGenerals.size()
+		TestSession.logger.info("STOP MJ size now:" + monitorGenerals.size()
 				+ " called on method:" + description.getMethodName());
 		MonitorGeneral monitorGeneral = monitorGenerals.get(description
 				.getMethodName());

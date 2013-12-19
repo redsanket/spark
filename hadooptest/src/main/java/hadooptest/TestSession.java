@@ -42,6 +42,8 @@ public abstract class TestSession extends TestSessionCore {
 	/** The multi-cluster client thread **/
 	public static MultiClusterClient multiClusterClient;
 		
+    public static long startTime;
+
 	/**
 	 * Initializes the test session in the following order:
 	 * initilizes framework configuration, initializes the
@@ -52,6 +54,8 @@ public abstract class TestSession extends TestSessionCore {
 	 * TestSession for a test class.
 	 */
 	public static void start() {
+
+	    startTime = System.currentTimeMillis();
 
 		// Initialize the framework name
 		initFrameworkName();

@@ -10,7 +10,10 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.monitoring.Monitorable;
 import hadooptest.workflow.hadoop.job.GenericJob;
+import hadooptest.workflow.hadoop.job.JobClient;
+import hadooptest.workflow.hadoop.job.TaskReportSummary;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,21 +23,23 @@ import org.apache.hadoop.examples.terasort.TeraValidate;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 //import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 import org.junit.BeforeClass;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import hadooptest.ParallelMethodTests;
+import coretest.SerialTests;
 
 /*
  *  Runs the teragen and terasort test. Takes about 2 minutes to run.
  */
 
-@Category(ParallelMethodTests.class)
+@Category(SerialTests.class)
 public class TestBenchmarksTeraSortStressMon extends TestSession {
 
     @BeforeClass
@@ -194,7 +199,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
 
     
     @Test 
-    @Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
+    @Monitorable(cpuPeriodicity = 3, memPeriodicity = 3)
     public void testSort() throws Exception{
         String tcDesc = "Runs hadoop terasort and verifies that " + 
                 "the data is properly sorted";
@@ -217,5 +222,48 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
         String sortReport = testDir + "/teraReport";
         validateSortResults(sortOutputDir, sortReport);
     }
+    
+    /*
+     * After each test, fetch the job task reports.
+     */
+    @After
+    public void getTaskResportSummary() 
+            throws InterruptedException, IOException {
+        JobClient js = TestSession.cluster.getJobClient();
 
+        TestSession.logger.info("********************************************");
+        TestSession.logger.info("---> Display Jobs:");
+        TestSession.logger.info("********************************************");
+        JobStatus[] jobsStatus = js.getJobs(TestSession.startTime);
+        js.displayJobList(jobsStatus);
+        TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
+        
+        TestSession.logger.info("********************************************");
+        TestSession.logger.info("--> Aggregate Task Summary For Each Job:");
+        TestSession.logger.info("********************************************");
+        TaskReportSummary taskReportSummary = js.getTaskReportSummary(jobsStatus);
+        
+        TestSession.logger.info("********************************************");
+        TestSession.logger.info("--> Print Task Summary For Jobs:");
+        TestSession.logger.info("********************************************");        
+        taskReportSummary.printSummary();
+        
+        // Check that there are no non-complete tasks
+        int numNonCompleteMapTasks = taskReportSummary.getNonCompleteMapTasks();
+        int numNonCompleteReduceTasks = taskReportSummary.getNonCompleteReduceTasks();
+        
+        int acceptableMapFailure = 0;
+        int acceptableRedFailure = 0;
+        String mapMsg = "There are " +
+                (numNonCompleteMapTasks - acceptableMapFailure) + 
+                " more map task failures than the acceptable failure of " +
+                acceptableMapFailure;
+        String redMsg = "There are " + 
+                (numNonCompleteReduceTasks - acceptableRedFailure) + 
+                " more reduce task failures than the acceptable failure of " + 
+                acceptableRedFailure;
+        assertTrue(mapMsg, numNonCompleteMapTasks <= acceptableMapFailure);
+        assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);        
+    }
+    
 }
