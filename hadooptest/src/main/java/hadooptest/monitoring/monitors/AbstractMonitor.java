@@ -9,9 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
-
 import hadooptest.monitoring.IMonitor;
+import hadooptest.TestSession;
 
 /**
  * The actual monitors (CPU, Memory, Log) should extend this AbstractMonitor.
@@ -38,7 +37,6 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 	protected BufferedWriter bw = null;
 	protected String baseDirPathToDump;
 	protected File fileHandleOnCompletePathToOutputFile;
-	Logger logger = Logger.getLogger(AbstractMonitor.class);
 
 	AbstractMonitor(String clusterName,
 			HashMap<String, ArrayList<String>> sentComponentToHostMapping,
@@ -89,7 +87,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 	 * The thread run control variable. Thread stops once this is set.
 	 */
 	public void stopMonitoring() {
-		logger.info("Stop monitoring received in AbstractMonotor for "
+		TestSession.logger.info("Stop monitoring received in AbstractMonotor for "
 				+ this.kind);
 		monitoringUnderway = false;
 	}
@@ -99,7 +97,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		while (monitoringUnderway) {
 			try {
 				fetchResourceUsageIntoMemory(tick++);
-				logger.info(kind + " monitor sleeping for " + this.periodicity
+				TestSession.logger.info(kind + " monitor sleeping for " + this.periodicity
 						+ " secs...");
 				Thread.sleep(this.periodicity * 1000);
 			} catch (IOException e) {
@@ -116,7 +114,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 	 * class and the test method name.
 	 */
 	public void dumpData() {
-		logger.info("DUMPING:" + hostwiseReadings);
+		TestSession.logger.info("DUMPING:" + hostwiseReadings);
 		new File(baseDirPathToDump).mkdirs();
 		fileHandleOnCompletePathToOutputFile = new File(baseDirPathToDump
 				+ this.kind);
