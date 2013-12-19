@@ -3,6 +3,8 @@ package hadooptest.hadoop.stress;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
@@ -13,11 +15,22 @@ import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobClient;
 import hadooptest.workflow.hadoop.job.TaskReportSummary;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.examples.terasort.TeraValidate;
 import org.apache.hadoop.fs.FileSystem;
@@ -28,6 +41,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 //import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.After;
 import org.junit.Test;
@@ -42,228 +56,305 @@ import coretest.SerialTests;
 @Category(SerialTests.class)
 public class TestBenchmarksTeraSortStressMon extends TestSession {
 
-    @BeforeClass
-    public static void startTestSession() throws Exception{
-        TestSession.start();
-        setupTestConf();
-        setupTestDir();
-    }
+	@BeforeClass
+	public static void startTestSession() throws Exception {
+		TestSession.start();
+		setupTestConf();
+		setupTestDir();
+	}
 
-    public static void setupTestConf() throws Exception {
-        FullyDistributedCluster cluster =
-                (FullyDistributedCluster) TestSession.cluster;
-        String component = HadoopCluster.RESOURCE_MANAGER;
+	public static void setupTestConf() throws Exception {
+		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
+		String component = HadoopCluster.RESOURCE_MANAGER;
 
-        /* 
-         * NOTE: Add a check via the Hadoop API or jmx to determine if a single
-         * queue is already in place. If so, skip the following as to not waste
-         *  time.
-         */
-        YarnClientImpl yarnClient = new YarnClientImpl();
-        yarnClient.init(TestSession.getCluster().getConf());
-        yarnClient.start();
+		/*
+		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
+		 * queue is already in place. If so, skip the following as to not waste
+		 * time.
+		 */
+		YarnClientImpl yarnClient = new YarnClientImpl();
+		yarnClient.init(TestSession.getCluster().getConf());
+		yarnClient.start();
 
-        List<QueueInfo> queues =  yarnClient.getAllQueues(); 
-        assertNotNull("Expected cluster queue(s) not found!!!", queues);        
-        TestSession.logger.info("queues='" +
-            Arrays.toString(queues.toArray()) + "'");
-        if ((queues.size() == 1) &&
-            (Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
-                TestSession.logger.debug("Cluster is already setup properly." +
-                        "Nothing to do.");
-                return;
-        }
-        
-        // Backup the default configuration directory on the Resource Manager
-        // component host.
-        cluster.getConf(component).backupConfDir(); 
+		List<QueueInfo> queues = yarnClient.getAllQueues();
+		assertNotNull("Expected cluster queue(s) not found!!!", queues);
+		TestSession.logger.info("queues='" + Arrays.toString(queues.toArray())
+				+ "'");
+		if ((queues.size() == 1)
+				&& (Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
+			TestSession.logger.debug("Cluster is already setup properly."
+					+ "Nothing to do.");
+			return;
+		}
 
-        // Copy files to the custom configuration directory on the
-        // Resource Manager component host.
-        String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
-                "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
-        cluster.getConf(component).copyFileToConfDir(sourceFile,
-                "capacity-scheduler.xml");
-        cluster.hadoopDaemon(Action.STOP, component);
-        cluster.hadoopDaemon(Action.START, component);
-    }
+		// Backup the default configuration directory on the Resource Manager
+		// component host.
+		cluster.getConf(component).backupConfDir();
 
-    public static void setupTestDir() throws Exception {
-        // Define the test directory
-        DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-            System.getProperty("user.name") + "/terasort";
-        
-        // Delete it existing test directory if exists
-        FileSystem fs = TestSession.cluster.getFS();
-        FsShell fsShell = TestSession.cluster.getFsShell();                
-        if (fs.exists(new Path(testDir))) {
-            TestSession.logger.info("Delete existing test directory: " +
-                testDir);
-            fsShell.run(new String[] {"-rm", "-r", testDir});           
-        }
-        
-        // Create or re-create the test directory.
-        TestSession.logger.info("Create new test directory: " + testDir);
-        fsShell.run(new String[] {"-mkdir", "-p", testDir});
-    }
-    
-    // Create test data
-    private void createData(String outputDir) throws Exception {
+		// Copy files to the custom configuration directory on the
+		// Resource Manager component host.
+		String sourceFile = TestSession.conf.getProperty("WORKSPACE")
+				+ "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
+		cluster.getConf(component).copyFileToConfDir(sourceFile,
+				"capacity-scheduler.xml");
+		cluster.hadoopDaemon(Action.STOP, component);
+		cluster.hadoopDaemon(Action.START, component);
+	}
 
-        String jobName = "teragen";
-        String jar =
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR");
-        String dataSize = "2";
+	public static void setupTestDir() throws Exception {
+		// Define the test directory
+		DFS dfs = new DFS();
+		String testDir = dfs.getBaseUrl() + "/user/"
+				+ System.getProperty("user.name") + "/terasort";
 
-        GenericJob job = new GenericJob();
-        job.setJobJar(jar);
-        job.setJobName(jobName);
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add(dataSize);
-        jobArgs.add(outputDir);
-        job.setJobArgs(jobArgs.toArray(new String[0]));
-        job.start();
-        job.waitForID(600);
-        boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run job '" + jobName + "': cmd='" +
-                StringUtils.join(job.getCommand(), " ") + "'.", isSuccessful);
-    }
-    
+		// Delete it existing test directory if exists
+		FileSystem fs = TestSession.cluster.getFS();
+		FsShell fsShell = TestSession.cluster.getFsShell();
+		if (fs.exists(new Path(testDir))) {
+			TestSession.logger.info("Delete existing test directory: "
+					+ testDir);
+			fsShell.run(new String[] { "-rm", "-r", testDir });
+		}
 
-    // Run a sort job
-    private void runSortJob(String sortInput, String sortOutput)
-            throws Exception {
+		// Create or re-create the test directory.
+		TestSession.logger.info("Create new test directory: " + testDir);
+		fsShell.run(new String[] { "-mkdir", "-p", testDir });
+	}
 
-        String jobName = "terasort";
-        String jar =
-                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR");
+	// Create test data
+	private void createData(String outputDir) throws Exception {
 
-        GenericJob job;
-        job = new GenericJob();
-        job.setJobJar(jar);
-        job.setJobName(jobName);
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add("-Dmapreduce.reduce.input.limit=-1");
-        jobArgs.add(sortInput);
-        jobArgs.add(sortOutput);
-        
-        /*
-        int numReduces = 2;
-        jobArgs.add("-r");
-        jobArgs.add(Integer.toString(numReduces));
-        */
-        
-        job.setJobArgs(jobArgs.toArray(new String[0]));
-        job.start();
-        job.waitForID(600);
-        boolean isSuccessful = job.waitForSuccess(20);
-        assertTrue("Unable to run SORT job: cmd=" + 
-                StringUtils.join(job.getCommand(), " "), isSuccessful);        
-    }
+		String jobName = "teragen";
+		String jar = TestSession.cluster.getConf().getHadoopProp(
+				"HADOOP_EXAMPLE_JAR");
+		String dataSize = "2";
 
-    
-    /* 
-     * validate sort was successful
-     */
-    public void validateSortResults(String sortOutput, String sortReport)
-            throws Exception {
-        TestSession.logger.debug("Validate Sort Results : ");
+		GenericJob job = new GenericJob();
+		job.setJobJar(jar);
+		job.setJobName(jobName);
+		ArrayList<String> jobArgs = new ArrayList<String>();
+		jobArgs.add("-Dmapreduce.job.acl-view-job=*");
+		jobArgs.add(dataSize);
+		jobArgs.add(outputDir);
+		job.setJobArgs(jobArgs.toArray(new String[0]));
+		job.start();
+		job.waitForID(600);
+		boolean isSuccessful = job.waitForSuccess(20);
+		assertTrue(
+				"Unable to run job '" + jobName + "': cmd='"
+						+ StringUtils.join(job.getCommand(), " ") + "'.",
+				isSuccessful);
+	}
 
-        /* Submit a sort validate job: 
-         * 
-         * CLI:
-         * CMD="$HADOOP_COMMON_CMD --config $HADOOP_CONF_DIR 
-         * jar $HADOOP_MAPRED_TEST_JAR testmapredsort
-         *  ${YARN_OPTIONS} -sortInput sortInputDir -sortOutput sortOutputDir"
-         *  
-         *  API Call:
-         */                
-        ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.add("-Dmapreduce.job.acl-view-job=*");
-        jobArgs.add("-Dmapreduce.reduce.input.limit=-1");
-        jobArgs.add(sortOutput);
-        jobArgs.add(sortReport);
-        String[] args = jobArgs.toArray(new String[0]);
-        HadoopConfiguration conf = TestSession.getCluster().getConf();
-        int rc = ToolRunner.run(conf, new TeraValidate(), args);
-        if (rc != 0) {
-            TestSession.logger.error("SortValidator failed!!!");
-        }
-        
-        boolean isSuccessful = (rc == 0) ? true : false;
-        assertTrue("Unable to run terasort validation job.", isSuccessful);
-    }
+	// Run a sort job
+	private void runSortJob(String sortInput, String sortOutput)
+			throws Exception {
 
-    
-    @Test 
-    @Monitorable(cpuPeriodicity = 3, memPeriodicity = 3)
-    public void testSort() throws Exception{
-        String tcDesc = "Runs hadoop terasort and verifies that " + 
-                "the data is properly sorted";
-        TestSession.logger.info("Run test: " + tcDesc);
+		String jobName = "terasort";
+		String jar = TestSession.cluster.getConf().getHadoopProp(
+				"HADOOP_EXAMPLE_JAR");
 
-        DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-                System.getProperty("user.name") + "/terasort";
-        
-        // Generate sort data
-        String dataDir = testDir + "/teraInputDir";
-        createData(dataDir);
-        
-        // Sort the data
-        String sortInputDir = dataDir;
-        String sortOutputDir = testDir + "/teraOutputDir";
-        runSortJob(sortInputDir, sortOutputDir);
+		GenericJob job;
+		job = new GenericJob();
+		job.setJobJar(jar);
+		job.setJobName(jobName);
+		ArrayList<String> jobArgs = new ArrayList<String>();
+		jobArgs.add("-Dmapreduce.job.acl-view-job=*");
+		jobArgs.add("-Dmapreduce.reduce.input.limit=-1");
+		jobArgs.add(sortInput);
+		jobArgs.add(sortOutput);
 
-        // Validate the data
-        String sortReport = testDir + "/teraReport";
-        validateSortResults(sortOutputDir, sortReport);
-    }
-    
-    /*
-     * After each test, fetch the job task reports.
-     */
-    @After
-    public void getTaskResportSummary() 
-            throws InterruptedException, IOException {
-        JobClient js = TestSession.cluster.getJobClient();
+		/*
+		 * int numReduces = 2; jobArgs.add("-r");
+		 * jobArgs.add(Integer.toString(numReduces));
+		 */
 
-        TestSession.logger.info("********************************************");
-        TestSession.logger.info("---> Display Jobs:");
-        TestSession.logger.info("********************************************");
-        JobStatus[] jobsStatus = js.getJobs(TestSession.startTime);
-        js.displayJobList(jobsStatus);
-        TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
-        
-        TestSession.logger.info("********************************************");
-        TestSession.logger.info("--> Aggregate Task Summary For Each Job:");
-        TestSession.logger.info("********************************************");
-        TaskReportSummary taskReportSummary = js.getTaskReportSummary(jobsStatus);
-        
-        TestSession.logger.info("********************************************");
-        TestSession.logger.info("--> Print Task Summary For Jobs:");
-        TestSession.logger.info("********************************************");        
-        taskReportSummary.printSummary();
-        
-        // Check that there are no non-complete tasks
-        int numNonCompleteMapTasks = taskReportSummary.getNonCompleteMapTasks();
-        int numNonCompleteReduceTasks = taskReportSummary.getNonCompleteReduceTasks();
-        
-        int acceptableMapFailure = 0;
-        int acceptableRedFailure = 0;
-        String mapMsg = "There are " +
-                (numNonCompleteMapTasks - acceptableMapFailure) + 
-                " more map task failures than the acceptable failure of " +
-                acceptableMapFailure;
-        String redMsg = "There are " + 
-                (numNonCompleteReduceTasks - acceptableRedFailure) + 
-                " more reduce task failures than the acceptable failure of " + 
-                acceptableRedFailure;
-        assertTrue(mapMsg, numNonCompleteMapTasks <= acceptableMapFailure);
-        assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);        
-    }
-    
+		job.setJobArgs(jobArgs.toArray(new String[0]));
+		job.start();
+		job.waitForID(600);
+		boolean isSuccessful = job.waitForSuccess(20);
+		assertTrue(
+				"Unable to run SORT job: cmd="
+						+ StringUtils.join(job.getCommand(), " "), isSuccessful);
+	}
+
+	/*
+	 * validate sort was successful
+	 */
+	public void validateSortResults(String sortOutput, String sortReport)
+			throws Exception {
+		TestSession.logger.debug("Validate Sort Results : ");
+
+		/*
+		 * Submit a sort validate job:
+		 * 
+		 * CLI: CMD="$HADOOP_COMMON_CMD --config $HADOOP_CONF_DIR jar
+		 * $HADOOP_MAPRED_TEST_JAR testmapredsort ${YARN_OPTIONS} -sortInput
+		 * sortInputDir -sortOutput sortOutputDir"
+		 * 
+		 * API Call:
+		 */
+		ArrayList<String> jobArgs = new ArrayList<String>();
+		jobArgs.add("-Dmapreduce.job.acl-view-job=*");
+		jobArgs.add("-Dmapreduce.reduce.input.limit=-1");
+		jobArgs.add(sortOutput);
+		jobArgs.add(sortReport);
+		String[] args = jobArgs.toArray(new String[0]);
+		HadoopConfiguration conf = TestSession.getCluster().getConf();
+		int rc = ToolRunner.run(conf, new TeraValidate(), args);
+		if (rc != 0) {
+			TestSession.logger.error("SortValidator failed!!!");
+		}
+
+		boolean isSuccessful = (rc == 0) ? true : false;
+		assertTrue("Unable to run terasort validation job.", isSuccessful);
+	}
+
+	@Test
+	@Monitorable(cpuPeriodicity = 3, memPeriodicity = 3)
+	public void testSort() throws Exception {
+		String tcDesc = "Runs hadoop terasort and verifies that "
+				+ "the data is properly sorted";
+		TestSession.logger.info("Run test: " + tcDesc);
+
+		DFS dfs = new DFS();
+		String testDir = dfs.getBaseUrl() + "/user/"
+				+ System.getProperty("user.name") + "/terasort";
+
+		// Generate sort data
+		String dataDir = testDir + "/teraInputDir";
+		createData(dataDir);
+
+		// Sort the data
+		String sortInputDir = dataDir;
+		String sortOutputDir = testDir + "/teraOutputDir";
+		runSortJob(sortInputDir, sortOutputDir);
+
+		// Validate the data
+		String sortReport = testDir + "/teraReport";
+		validateSortResults(sortOutputDir, sortReport);
+	}
+
+	/*
+	 * After each test, fetch the job task reports.
+	 */
+	@After
+	public void getTaskResportSummary() throws InterruptedException,
+			IOException {
+		JobClient js = TestSession.cluster.getJobClient();
+
+		// LOG TO FILE
+		Logger logger = TestSession.logger;
+		FileAppender fileAppender = new FileAppender();
+		fileAppender.setName("FileLogger");
+		fileAppender.setFile(TestSession.conf
+				.getProperty("WORKSPACE_SF_REPORTS") + "/tasks_report.log");
+		fileAppender.setLayout(new PatternLayout("%d %-5p %m%n"));
+		fileAppender.setThreshold(Level.INFO);
+		fileAppender.setAppend(true);
+		fileAppender.activateOptions();
+		logger.addAppender(fileAppender);
+
+		TestSession.logger.info("********************************************");
+		TestSession.logger.info("---> Display Jobs:");
+		TestSession.logger.info("********************************************");
+		JobStatus[] jobsStatus = js.getJobs(TestSession.startTime);
+		js.displayJobList(jobsStatus);
+		TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
+
+		TestSession.logger.info("********************************************");
+		TestSession.logger.info("--> Aggregate Task Summary For Each Job:");
+		TestSession.logger.info("********************************************");
+		TaskReportSummary taskReportSummary = js
+				.getTaskReportSummary(jobsStatus);
+
+		TestSession.logger.info("********************************************");
+		TestSession.logger.info("--> Print Task Summary For Jobs:");
+		TestSession.logger.info("********************************************");
+		taskReportSummary.printSummary();
+
+		logger.removeAppender(fileAppender);
+
+		// Check that there are no non-complete tasks
+		int numNonCompleteMapTasks = taskReportSummary.getNonCompleteMapTasks();
+		int numNonCompleteReduceTasks = taskReportSummary
+				.getNonCompleteReduceTasks();
+
+		int acceptableMapFailure = 0;
+		int acceptableRedFailure = 0;
+		String mapMsg = "There are "
+				+ (numNonCompleteMapTasks - acceptableMapFailure)
+				+ " more map task failures than the acceptable failure of "
+				+ acceptableMapFailure;
+		String redMsg = "There are "
+				+ (numNonCompleteReduceTasks - acceptableRedFailure)
+				+ " more reduce task failures than the acceptable failure of "
+				+ acceptableRedFailure;
+		assertTrue(mapMsg, numNonCompleteMapTasks <= acceptableMapFailure);
+		assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);
+	}
+
+	@AfterClass
+	static public void collateExceptions() throws ParseException, IOException {
+		String cluster = System.getProperty("CLUSTER_NAME");
+		Class<?> clazzz = new Object() {
+		}.getClass().getEnclosingClass();
+		String clazz = clazzz.getSimpleName();
+		String packaze = clazzz.getPackage().getName();
+
+		List<String> directoriesToScour = new ArrayList<String>();
+		for (Method aMethod : clazzz.getMethods()) {
+			Annotation[] annotations = aMethod.getAnnotations();
+			for (Annotation anAnnotation : annotations) {
+				if (anAnnotation.annotationType().isAssignableFrom(Test.class)) {
+					String latestRun = getLatestRun(cluster, packaze, clazz,
+							aMethod.getName());
+					directoriesToScour.add(latestRun
+							+ HadooptestConstants.UserNames.HDFSQA + "/");
+					directoriesToScour.add(latestRun
+							+ HadooptestConstants.UserNames.MAPREDQA + "/");
+
+				}
+			}
+		}
+		ExceptionParsingOrchestrator exceptionParsingO10r = new ExceptionParsingOrchestrator(
+				directoriesToScour);
+		try {
+			exceptionParsingO10r.peelAndBucketExceptions();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE")
+				+ "/target/surefire-reports";
+		String outputFilePath = outputBaseDirPath + "/" + cluster + "_"
+				+ packaze + "_" + clazz + "_" + "loggedExceptions.txt";
+
+		TestSession.logger.info("Exceptions going into:" + outputFilePath);
+		exceptionParsingO10r.logExceptionsInFile(outputFilePath);
+
+	}
+
+	static private String getLatestRun(String cluster, String packaze,
+			String clazz, String testName) throws ParseException {
+		TestSession.logger.info("PAckaze:" + packaze + " Clazz:" + clazz
+				+ " TestName:" + testName);
+		List<Date> dates = new ArrayList<Date>();
+		String datesHangFromHere = "/grid/0/tmp/stressMonitoring/" + cluster
+				+ "/" + packaze + "/" + clazz + "/" + testName + "/";
+		File folder = new File(datesHangFromHere);
+		File[] listOfFilesOrDirs = folder.listFiles();
+		for (File aFileOrDirectory : listOfFilesOrDirs) {
+			if (aFileOrDirectory.isDirectory()) {
+				Date date = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss")
+						.parse(aFileOrDirectory.getName());
+				dates.add(date);
+			}
+		}
+		Collections.sort(dates);
+		SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
+		String formattedDateAndTime = sdf.format(dates.get(0));
+		return datesHangFromHere + formattedDateAndTime
+				+ "/FILES/home/gs/var/log/";
+	}
+
 }

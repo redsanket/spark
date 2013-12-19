@@ -113,6 +113,8 @@ public class TestHdfsAPI extends TestSession {
 	 */
 	@BeforeClass
 	public static void testSessionStart() throws Exception {
+		TestSession.start();
+		
 		// Populate the details for HADOOPQA
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
 		fileOwnerUserDetails.put(KEYTAB_DIR,
