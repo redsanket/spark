@@ -352,7 +352,8 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
 		}
 		Collections.sort(dates);
 		SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
-		String formattedDateAndTime = sdf.format(dates.get(0));
+		
+		String formattedDateAndTime = sdf.format(dates.get(dates.size()-1));
 		return datesHangFromHere + formattedDateAndTime
 				+ "/FILES/home/gs/var/log/";
 	}
