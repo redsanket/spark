@@ -80,13 +80,13 @@ public class TestMonitoring extends TestSession {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		TestSession.logger.info("Exceptions going into "
-				+ "/grid/0/tmp/stressMonitoring/" + cluster + "/" + packaze
-				+ "_" + clazz + "_" + "loggedExceptions.txt");
-		exceptionParsingO10r
-				.logExceptionsInFile("/grid/0/tmp/stressMonitoring/" + cluster
-						+ "/" + packaze + "_" + clazz + "_"
-						+ "loggedExceptions.txt");
+		String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE")
+				+ "/target/surefire-reports";
+		String outputFilePath = outputBaseDirPath + "/" + cluster + "_"
+				+ packaze + "_" + clazz + "_" + "loggedExceptions.txt";
+
+		TestSession.logger.info("Exceptions going into:" + outputFilePath);
+		exceptionParsingO10r.logExceptionsInFile(outputFilePath);
 
 	}
 
@@ -108,7 +108,8 @@ public class TestMonitoring extends TestSession {
 		}
 		Collections.sort(dates);
 		SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
-		String formattedDateAndTime = sdf.format(dates.get(0));
+		
+		String formattedDateAndTime = sdf.format(dates.get(dates.size()-1));
 		return datesHangFromHere + formattedDateAndTime
 				+ "/FILES/home/gs/var/log/";
 	}
