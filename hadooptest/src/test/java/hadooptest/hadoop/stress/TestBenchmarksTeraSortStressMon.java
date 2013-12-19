@@ -3,6 +3,8 @@ package hadooptest.hadoop.stress;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
@@ -13,9 +15,16 @@ import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobClient;
 import hadooptest.workflow.hadoop.job.TaskReportSummary;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.FileAppender;
@@ -33,6 +42,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 //import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.After;
 import org.junit.Test;
@@ -285,5 +295,68 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
         assertTrue(mapMsg, numNonCompleteMapTasks <= acceptableMapFailure);
         assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);           
     }
-    
+
+	@AfterClass
+	static public void collateExceptions() throws ParseException, IOException {
+		String cluster = System.getProperty("CLUSTER_NAME");
+		Class<?> clazzz = new Object() {
+		}.getClass().getEnclosingClass();
+		String clazz = clazzz.getSimpleName();
+		String packaze = clazzz.getPackage().getName();
+
+		List<String> directoriesToScour = new ArrayList<String>();
+		for (Method aMethod : clazzz.getMethods()) {
+			Annotation[] annotations = aMethod.getAnnotations();
+			for (Annotation anAnnotation : annotations) {
+				if (anAnnotation.annotationType().isAssignableFrom(Test.class)) {
+					String latestRun = getLatestRun(cluster, packaze, clazz,
+							aMethod.getName());
+					directoriesToScour.add(latestRun
+							+ HadooptestConstants.UserNames.HDFSQA + "/");
+					directoriesToScour.add(latestRun
+							+ HadooptestConstants.UserNames.MAPREDQA + "/");
+
+				}
+			}
+		}
+		ExceptionParsingOrchestrator exceptionParsingO10r = new ExceptionParsingOrchestrator(
+				directoriesToScour);
+		try {
+			exceptionParsingO10r.peelAndBucketExceptions();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		TestSession.logger.info("Exceptions going into "
+				+ "/grid/0/tmp/stressMonitoring/" + cluster + "/" + packaze
+				+ "_" + clazz + "_" + "loggedExceptions.txt");
+		exceptionParsingO10r
+				.logExceptionsInFile("/grid/0/tmp/stressMonitoring/" + cluster
+						+ "/" + packaze + "_" + clazz + "_"
+						+ "loggedExceptions.txt");
+
+	}
+
+	static private String getLatestRun(String cluster, String packaze,
+			String clazz, String testName) throws ParseException {
+		TestSession.logger.info("PAckaze:" + packaze + " Clazz:" + clazz
+				+ " TestName:" + testName);
+		List<Date> dates = new ArrayList<Date>();
+		String datesHangFromHere = "/grid/0/tmp/stressMonitoring/" + cluster
+				+ "/" + packaze + "/" + clazz + "/" + testName + "/";
+		File folder = new File(datesHangFromHere);
+		File[] listOfFilesOrDirs = folder.listFiles();
+		for (File aFileOrDirectory : listOfFilesOrDirs) {
+			if (aFileOrDirectory.isDirectory()) {
+				Date date = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss")
+						.parse(aFileOrDirectory.getName());
+				dates.add(date);
+			}
+		}
+		Collections.sort(dates);
+		SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
+		String formattedDateAndTime = sdf.format(dates.get(0));
+		return datesHangFromHere + formattedDateAndTime
+				+ "/FILES/home/gs/var/log/";
+	}
+
 }
