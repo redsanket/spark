@@ -32,7 +32,7 @@ import hadooptest.TestSession;
 public class MemoryMonitor extends AbstractMonitor {
 
 	private String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE") + "/target/surefire-reports";
-	private String outputFilePath = outputBaseDirPath + "/Memory_Utilization.txt";
+	private String outputFilePath = outputBaseDirPath + "/Memory_Utilization.log";
 	
 	public MemoryMonitor(String clusterName,
 			HashMap<String, ArrayList<String>> sentComponentToHostMapping,
