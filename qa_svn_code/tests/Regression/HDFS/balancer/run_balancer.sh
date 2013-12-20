@@ -111,7 +111,7 @@ function test_balancer_4
   local exec_cmd="ssh -i ${HDFS_SUPER_USER_KEY_FILE} ${HDFS_SUPER_USER}@${SNN} \"${kinit_cmd};${hadoop_common_export};${balancer_cmd}\""
 
   echo $exec_cmd
-  eval $exec_cmd | grep "org.apache.hadoop.security.authorize.AuthorizationException: User hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM (auth:) is not authorized for protocol interface org.apache.hadoop.hdfs.server.protocol.NamenodeProtocol, expected client  principal is hdfs/${SNN}@DEV.YGRID.YAHOO.COM."
+  eval $exec_cmd | grep "AuthorizationException: User hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM (auth:KERBEROS)"
   COMMAND_EXIT_CODE=$?
   REASONS="See Bug 4550634. Did not see the message 'org.apache.hadoop.security.authorize.AuthorizationException: User hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM (auth:) is not authorized for protocol interface org.apache.hadoop.hdfs.server.protocol.NamenodeProtocol, expected client  principal is hdfs/${SNN}@DEV.YGRID.YAHOO.COM.' when balancer was run."
   displayTestCaseResult

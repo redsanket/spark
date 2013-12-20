@@ -1,0 +1,30 @@
+# need to have the source file
+# tested for densea
+if [ $# != 2 ]; then
+  echo "Error: need the cluster and source file"
+  echo "Usage: buildme  <CLUSTER> <SOURCE>" 
+  echo "Example: buildme  densea GenFilesInHdfs" 
+  exit
+fi
+
+# make sure we start clean
+rm -rf out
+mkdir out
+
+# compile
+javac -Xlint:deprecation  -cp  .:`/home/gs/gridre/yroot.$1/share/hadoop/bin/hadoop  --config /home/gs/gridre/yroot.$1/conf/hadoop  classpath` -d out $2.java
+if [ $? -ne 0 ];then
+  echo "Error: Compile failed"
+  exit 1
+fi
+
+# jar it up
+jar -cvf  $2.jar  -C out .
+if [ $? -ne 0 ];then
+  echo "Error: Jar create failed"
+  exit 1
+fi
+
+echo "Completed successfully"
+
+

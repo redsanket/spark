@@ -220,13 +220,13 @@ function test_getJobStatusBasedOnKilledJobId {
 
     status=`cat $captureFile | grep "Job state: " | grep -o --regexp="PREP\|RUNNING\|SUCCEEDED\|COMPLETED\|KILLED" `
 
-    if [ $status != "KILLED" ] ; then
-        echo "The returned job status '$status' is not what is expected (KILLED) " >> $ARTIFACTS_FILE 2>&1     
-        setFailCase "The returned job status '$status' is not what is expected (KILLED) "
+    if [ $status == "SUCCEEDED" ] || [ $status == "KILLED" ] ; then
+	COMMAND_EXIT_CODE=0
+    else
+        echo "The returned job status '$status' is not what is expected (0.23 KILLED, 2.0 SUCCEEDED) " >> $ARTIFACTS_FILE 2>&1     
+        setFailCase "The returned job status '$status' is not what is expected (0.23 KILLED, 2.0 SUCCEEDED) "
         windUp   
         return
-    else
-        COMMAND_EXIT_CODE=0
     fi
 
     displayTestCaseResult
@@ -502,13 +502,12 @@ function test_KillJobIdAlreadyFailedJob {
         return
     fi
 
-    local myresp=`failAJob $myjobId`
+    failAJob $myjobId
+    $HADOOP_COMMON_HOME/bin/hadoop --config $HADOOP_CONF_DIR job -status $myjobId > $captureFile 2>&1
 
-    if [ $myresp != "Killed" ] ; then
-        dumpCapturedOutput $captureFile 
-        echo "Expected Killed message and instead got $myresp as output " >> $ARTIFACTS_FILE 2>&1
-        echo "The job has not been killed successfully and so marking the test case as failed " >> $ARTIFACTS_FILE 2>&1
-        setFailCase " The job has not been killed successfully and so marking the test case as failed "
+    if [ `cat $captureFile | grep "FAILED" | wc -l` -eq 0 ] ; then
+        echo " Unable to fail the job and so failing the test case " >> $ARTIFACTS_FILE 2>&1
+        setFailCase "Unable to fail the job and so failing the test case "
         windUp
         return
     fi

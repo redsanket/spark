@@ -1,0 +1,19 @@
+This are the bash prototype tools and tests for IP Failover HA. 
+
+NOTE WELL: This uses manually created hadoop conf files that are being added to the RU
+deploy tool, this is not working yet, so for a given cluster we need to manually update
+core-site, hdfs-site and hdfs-ha with HA specific property changes and store them in a 
+fixed path for cp to the cluster's nodes. This is going to be fixed in the deploy tools.
+
+Usage is, from adm102 as root, run:
+
+1. Deploy 2.2.x using the existing rhel6 Jenkins 2.x deploy job
+
+2. use ha_updateAllNodes.sh to distribute confs, verify support is in place, etc
+
+3. use ha_restartAllNodes.sh to restart all nodes
+
+4. use ha_failover.sh <cluster> ha1 to init the namenodes and net interfaces
+
+The tests can then be run from a cluster's node as hadoopqa.
+ 

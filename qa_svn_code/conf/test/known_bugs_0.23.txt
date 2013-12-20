@@ -35,6 +35,10 @@ Regression/YARN/capacityScheduler        cs_queues_high_ram_1_5                 
 Regression/YARN/capacityScheduler        cs_queues_high_ram_1_15                          4624829
 Regression/YARN/CapacitySchedulerLimits  test_refresh_queues_49                           5701254
 
+Regression/YARN/queueAcls                queue_acls_39                                    4620788
+Regression/YARN/queueAcls                queue_acls_40                                    4620788
+Regression/YARN/queueAcls                queue_acls_59                                    4620788
+Regression/YARN/queueAcls                queue_acls_60                                    4620788
 
 Regression/HDFS/FedDfsMNN		 FED_DFS_MNN_CHMOD_FED_DFS_134			  6427324
 Regression/HDFS/FedDfsMNN                FED_DFS_MNN_CHMOD_FED_DFS_135			  6427324

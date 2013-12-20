@@ -3689,9 +3689,10 @@ sub kill_job {
 sub get_used_memory {
     my ($self, $job_status, $verbose) = @_;
     my $used_memory = $job_status->{UsedMem};
+    note("raw allocated/used memory = '$used_memory'");
     $used_memory =~ s/M$//g;
     $used_memory = nearest(.01, $used_memory/1024);
-    note("allocated/used memory = '$used_memory' GB") if ($verbose);
+    note("allocated/used memory = '$used_memory' GB");
     return $used_memory;
 }
 
@@ -3699,7 +3700,7 @@ sub get_used_memory {
 sub get_used_containers {
     my ($self, $job_status, $verbose) = @_;
     my $used_containers = $job_status->{UsedContainers};
-    note("allocated/used containers = '$used_containers'") if ($verbose);
+    note("allocated/used containers = '$used_containers'");
     return $used_containers;
 }
 
@@ -4173,22 +4174,23 @@ sub check_tasks_status {
         $verbose) = @_;
 
     my $am_container    = 1;
-    my $task_containers = $self->get_used_containers($job_status) - $am_container;
     my $am_mem          = $slot_mem_size->{am};
+
+    # Tasks counts via separate calls to job -list-attempt-ids for each
+    # job are not guaranteed to be accurate due to timing issues.
+    # So use tasks counts from job -list instead. 
+
+    my $task_containers = $self->get_used_containers($job_status) - $am_container;
     my $tasks_mem       = $self->get_used_memory($job_status) - $am_mem;
+
+    my $running_job_tasks = $self->get_num_jobs_tasks($job_id, 'running', $verbose);
+    my $completed_job_tasks = $self->get_num_jobs_tasks($job_id, 'completed', $verbose);
 
     note("--------------------------------------------------------------------------------");
     note("Validate memory allocation: Job '$job_id':");
     note("Job List Output: '$task_containers' M/R task containers of $tasks_mem' GB ".
          "+ '$am_container' AM container of '$am_mem' GB:");
     note("job list output used mem = '$tasks_mem'");
-
-    # Tasks counts via separate calls to job -list-attempt-ids for each
-    # job are not guaranteed to be accurate due to timing issues.
-    # So use tasks counts from job -list instead. 
-
-    my $running_job_tasks = $self->get_num_jobs_tasks($job_id, 'running', $verbose);
-    my $completed_job_tasks = $self->get_num_jobs_tasks($job_id, 'completed', $verbose);
 
     note("--> Check running tasks status=", explain($running_job_tasks));
     note("--> Check completed tasks status=", explain($completed_job_tasks));

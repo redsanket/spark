@@ -1,0 +1,4 @@
+http://gsbl90032.blue.ygrid.yahoo.com:50090/status.jsp
+http://gsbl90032.blue.ygrid.yahoo.com:50090/logs/
+
+

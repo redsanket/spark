@@ -1,0 +1,7 @@
+http://gsbl90031.blue.ygrid.yahoo.com:50070/dfshealth.jsp
+http://gsbl90031.blue.ygrid.yahoo.com:50070/nn_browsedfscontent.jsp
+http://gsbl90031.blue.ygrid.yahoo.com:50070/logs/
+http://gsbl90031.blue.ygrid.yahoo.com:50070/dfsnodelist.jsp?whatNodes=LIVE
+http://gsbl90031.blue.ygrid.yahoo.com:50070/dfsnodelist.jsp?whatNodes=DEAD
+http://gsbl90031.blue.ygrid.yahoo.com:50070/dfsnodelist.jsp?whatNodes=DECOMMISSIONING
+http://gsbl90031.blue.ygrid.yahoo.com:50075/browseDirectory.jsp
