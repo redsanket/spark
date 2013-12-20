@@ -87,14 +87,14 @@ public class MemoryMonitor extends AbstractMonitor {
 						.format(memUsagePercentage));
 				
 				if (logHeader == false) {
-					TestSession.logger.debug(header);
+					TestSession.logger.trace(header);
 				    artifactFile.println(header);
 					logHeader = true;
 				}
 				
 				String timeStamp = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(Calendar.getInstance().getTime());
 				utilizationOutput = "(MEMORY) % utilization: " + hostThatResponded + ": " + memUsagePercentage;
-				TestSession.logger.debug(utilizationOutput);
+				TestSession.logger.trace(utilizationOutput);
 			    artifactFile.println(timeStamp + " : " + utilizationOutput);
 				
 				if (hostwiseReadings.containsKey(hostThatResponded)) {

@@ -1,8 +1,6 @@
 package hadooptest.monitoring.listeners;
 
-import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.http.HTTPHandle;
-import hadooptest.automation.utils.http.Response;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.monitoring.Monitorable;
 import hadooptest.monitoring.monitors.CPUMonitor;
 import hadooptest.monitoring.monitors.LogMonitor;
@@ -11,15 +9,10 @@ import hadooptest.monitoring.monitors.MonitorGeneral;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
 
@@ -52,74 +45,32 @@ public class MonitoringListener extends RunListener {
 		TestSession.logger.info("Method that has this annotation:"
 				+ description.getMethodName());
 		Collection<Annotation> annotations = description.getAnnotations();
+		
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().isAssignableFrom(Monitorable.class)) {
 				monitorGenerals
 						.put(description.getMethodName(), monitorGeneral);
 				TestSession.logger.info("START MJ size now:" + monitorGenerals.size());
 				TestSession.logger.info("Doing Monitoring..since annotation is "
-						+ annotation.annotationType().getCanonicalName());
-				Configuration conf = new Configuration(true);
-				conf.addResource(HadooptestConstants.Location.CORE_SITE_XML);
-				conf.addResource(HadooptestConstants.Location.HDFS_SITE_XML);
-				conf.addResource(HadooptestConstants.Location.YARN_SITE_XML);
-				conf.addResource(HadooptestConstants.Location.MAPRED_SITE_XML);
-				conf.addResource(new Path(
-						HadooptestConstants.Location.CORE_SITE_XML));
-				conf.addResource(new Path(
-						HadooptestConstants.Location.HDFS_SITE_XML));
-				conf.addResource(new Path(
-						HadooptestConstants.Location.YARN_SITE_XML));
-				conf.addResource(new Path(
-						HadooptestConstants.Location.MAPRED_SITE_XML));
-				ClassLoader classLoader = Configuration.class.getClassLoader();
-				conf.addResource(classLoader
-						.getResourceAsStream(HadooptestConstants.ConfFileNames.CORE_SITE_XML));
-				conf.addResource(classLoader
-						.getResourceAsStream(HadooptestConstants.ConfFileNames.HDFS_SITE_XML));
-				conf.addResource(classLoader
-						.getResourceAsStream(HadooptestConstants.ConfFileNames.YARN_SITE_XML));
-				conf.addResource(classLoader
-						.getResourceAsStream(HadooptestConstants.ConfFileNames.MAPRED_SITE_XML));
+						+ annotation.annotationType().getCanonicalName());				
+				
 				HashMap<String, ArrayList<String>> componentToHostMapping = new HashMap<String, ArrayList<String>>();
-
-				// Resource Manager
-				String rm = conf
-						.get("yarn.resourcemanager.resource-tracker.address");
-				String rmWithoutPort = rm.split(":")[0];
-				ArrayList<String> components = new ArrayList<String>();
-				components.add(rmWithoutPort);
+				
 				componentToHostMapping.put(
-						HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
-						components);
-				// History Server (shares the details with RM)
-				components = new ArrayList<String>();
-				components.add(rmWithoutPort);
+						HadoopCluster.DATANODE,
+						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.DATANODE))));
 				componentToHostMapping.put(
-						HadooptestConstants.NodeTypes.HISTORY_SERVER,
-						components);
-
-				// Namenodes
-				String nn = conf.get("dfs.namenode.https-address");
-				components = new ArrayList<String>();
-				components.add(nn.split(":")[0]);
+						HadoopCluster.NAMENODE,
+						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE))));
 				componentToHostMapping.put(
-						HadooptestConstants.NodeTypes.NAMENODE, components);
-
-				// Secondary namenodes
-				String snn = conf.get("dfs.namenode.secondary.http-address");
-				components = new ArrayList<String>();
-				components.add(snn.split(":")[0]);
+						HadoopCluster.HISTORYSERVER,
+						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.HISTORYSERVER))));
 				componentToHostMapping.put(
-						HadooptestConstants.NodeTypes.SECONDARY_NAMENODE,
-						components);
-
-				// Data Nodes
-				String rmWebAppAddress = conf
-						.get("yarn.resourcemanager.webapp.address");
+						HadoopCluster.RESOURCE_MANAGER,
+						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.RESOURCE_MANAGER))));
 				componentToHostMapping.put(
-						HadooptestConstants.NodeTypes.DATANODE,
-						getDataNodes(rmWebAppAddress));
+						HadoopCluster.NODEMANAGER,
+						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.NODEMANAGER))));
 
 				TestSession.logger.info("COMPS:" + componentToHostMapping);
 
@@ -166,31 +117,6 @@ public class MonitoringListener extends RunListener {
 				.getMethodName());
 		monitorGeneral.stopMonitors();
 		monitorGeneral.removeAllMonitors();
-	}
-
-	/**
-	 * Dynamically constructs the list of data Nodes, by fetching the "alive'
-	 * nodes from the resource manager, via a HTTP call.
-	 * 
-	 * @param rmWebappAddress
-	 * @return
-	 */
-	private ArrayList<String> getDataNodes(String rmWebappAddress) {
-		ArrayList<String> components = new ArrayList<String>();
-		HTTPHandle httpHandle = new HTTPHandle();
-		String resource = "/ws/v1/cluster/nodes";
-		HttpMethod getMethod = httpHandle.makeGET("http://" + rmWebappAddress,
-				resource, null);
-		Response response = new Response(getMethod);
-
-		JSONObject rmResponseJson = response.getJsonObject();
-		JSONObject nodesJson = (JSONObject) rmResponseJson.get("nodes");
-		JSONArray dataNodeArrayJson = (JSONArray) nodesJson.get("node");
-		for (int xx = 0; xx < dataNodeArrayJson.size(); xx++) {
-			JSONObject dataNodeJson = dataNodeArrayJson.getJSONObject(xx);
-			components.add((String) dataNodeJson.get("nodeHostName"));
-		}
-		return components;
 	}
 
 }

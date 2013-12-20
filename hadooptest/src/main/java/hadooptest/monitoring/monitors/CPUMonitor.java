@@ -74,13 +74,13 @@ public class CPUMonitor extends AbstractMonitor {
 					&& responseLine.contains("all")) {
 				
 				if (logHeader == false) {
-					TestSession.logger.debug(header);
+					TestSession.logger.trace(header);
 				    artifactFile.println(header);
 					logHeader = true;
 				}
 				
 				utilizationOutput = "(CPU) utilization: " + responseLine;
-				TestSession.logger.debug(utilizationOutput);
+				TestSession.logger.trace(utilizationOutput);
 			    artifactFile.println(utilizationOutput);
 			    
 				String[] splits = responseLine.split("\\s+");

@@ -97,7 +97,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		while (monitoringUnderway) {
 			try {
 				fetchResourceUsageIntoMemory(tick++);
-				TestSession.logger.info(kind + " monitor sleeping for " + this.periodicity
+				TestSession.logger.trace(kind + " monitor sleeping for " + this.periodicity
 						+ " secs...");
 				Thread.sleep(this.periodicity * 1000);
 			} catch (IOException e) {
