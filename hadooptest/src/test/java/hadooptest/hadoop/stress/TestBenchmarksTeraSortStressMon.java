@@ -2,6 +2,7 @@ package hadooptest.hadoop.stress;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
@@ -14,6 +15,9 @@ import hadooptest.workflow.hadoop.job.GenericJob;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import java.io.IOException;
+import java.io.FileInputStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.examples.terasort.TeraValidate;
@@ -32,6 +36,8 @@ import hadooptest.ParallelMethodTests;
 
 /*
  *  Runs the teragen and terasort test. Takes about 2 minutes to run.
+ *  Added another test 'testSortRunForSpecifiedTime', which is based on 'testSort' only
+ *  it takes a time to run in minutes from the properties conf file. 
  */
 
 @Category(ParallelMethodTests.class)
@@ -192,7 +198,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
         assertTrue("Unable to run terasort validation job.", isSuccessful);
     }
 
-    
+
     @Test 
     @Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
     public void testSort() throws Exception{
@@ -218,4 +224,71 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
         validateSortResults(sortOutputDir, sortReport);
     }
 
+    @Test 
+    @Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
+    public void testSortRunForSpecifiedTime() throws Exception{
+    	
+    	// get timeToRunMinutes from the .properties file.
+    	Properties prop = new Properties();
+    	String workingDir = System.getProperty("user.dir");
+    	try {
+            //load properties file
+    		prop.load(new FileInputStream(workingDir+"/conf/StressConf/StressTestProp.properties"));
+    	} catch (IOException ex) {
+    		TestSession.logger.error("Problem loading StressTestProp.properties file");
+    		ex.printStackTrace();
+        }
+    	int timeToRunMinutes  = Integer.parseInt(prop.getProperty("Stress.stressTimeToRunMinutes"));
+        TestSession.logger.debug("Property file sets time to run as: " + timeToRunMinutes + " minutes");
+    	
+        String tcDesc = "Runs hadoop terasort for specified time and " +
+        		"verifies that the data is properly sorted";
+        TestSession.logger.info("Run test for " + timeToRunMinutes + " minutes:\n" + tcDesc);
+
+        DFS dfs = new DFS();
+        String testDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/terasort";
+        
+        // run the set of sort jobs (data-gen/sort/validate) for specified time,
+        // runtime resolution is driven by the job's runtimes, which is about a
+        // minute, so the actual runtime may be higher than specified by as much 
+        // as this amount (~1 minute)
+        long currentTime = (System.currentTimeMillis()/1000); // start time in seconds
+        long startTime = currentTime;
+        long runTime = timeToRunMinutes*60; // get runtime in seconds
+        long endTime = currentTime + runTime; // get time to stop
+        TestSession.logger.debug("Time test needs to run in seconds: " + runTime);
+        TestSession.logger.debug("Start time in seconds: " + currentTime);
+        TestSession.logger.debug("End time in seconds: " + endTime);
+        
+        // while wrapping the original terasort job, controlled by the desired
+        // runtime, tracks and logs the number of job sets we've run in the given
+        // runtime, job sets being; data-gen, sorting, and validation.
+        int passcount = 0;
+        while (currentTime < endTime) {
+        	
+        	// Generate sort data
+            String dataDir = testDir + "/teraInputDir"+passcount;
+            createData(dataDir);
+            
+            // Sort the data
+            String sortInputDir = dataDir;
+            String sortOutputDir = testDir + "/teraOutputDir"+passcount;
+        	runSortJob(sortInputDir, sortOutputDir);
+
+        	// Validate the data
+        	String sortReport = testDir + "/teraReport"+passcount;
+        	validateSortResults(sortOutputDir, sortReport);
+                	
+        	// update the loop control and job counter
+        	currentTime = (System.currentTimeMillis()/1000);
+        	passcount++;
+        	TestSession.logger.debug("currentTime is: " + currentTime);
+        	TestSession.logger.info("Ran sort job set, passcount is: " + passcount);
+        }
+        // log the overall run's job's info
+        TestSession.logger.info("Completed, ran " + passcount + " job sets (generate data, sort, and validate) in " + 
+        		(currentTime-startTime) + " seconds");
+    }  
+    
 }
