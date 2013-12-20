@@ -11,6 +11,12 @@ import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+
 import coretest.TestSessionCore;
 import coretest.cluster.ClusterState;
 import hadooptest.cluster.MultiClusterClient;
@@ -46,9 +52,26 @@ public abstract class TestSession extends TestSessionCore {
 		
     public static long startTime;
 
+    public static void printBanner(String msg) {
+        startTime = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
+        System.out.println("********************************************************************************");
+        System.out.println(sdf.format(new Date(startTime)) + " " +
+                currentThreadClassName + " - starting test: " + msg);
+        System.out.println("********************************************************************************");
+    }
+
+    @Rule
+    public TestRule watcher = new TestWatcher() {
+        protected void starting(Description description) {
+            printBanner(description.getClassName() + ": " + description.getMethodName());
+        }
+    };
+
 	/**
 	 * Initializes the test session in the following order:
-	 * initilizes framework configuration, initializes the
+	 * Initializes framework configuration, initializes the
 	 * centralized logger, initializes the cluster reference.
 	 * 
 	 * This method should be called once from every subclass
@@ -56,20 +79,12 @@ public abstract class TestSession extends TestSessionCore {
 	 * TestSession for a test class.
 	 */
 	public static void start() {
-
-	    startTime = System.currentTimeMillis();	    
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
-        String callerThreadClassName = Thread.currentThread().getStackTrace()[2].getClassName();
-	    System.out.println("********************************************************************************");
-        System.out.println(sdf.format(new Date(startTime)) + " " +
-                currentThreadClassName + " - STARTING TEST: " +
-                callerThreadClassName );
-        System.out.println("********************************************************************************");
-	    
+	    // Pass the caller class name
+	    printBanner(Thread.currentThread().getStackTrace()[2].getClassName());
+	    	    
 		// Initialize the framework name
 		initFrameworkName();
-		
+
 		// Initialize the framework configuration
 		initConfiguration();
 		
