@@ -1,5 +1,9 @@
 package hadooptest.automation.utils.exceptionParsing;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,6 +111,32 @@ public class ExceptionBucketer {
 			logger.info("..............................................................................................");
 		}
 
+	}
+	
+	public void logExceptionsInFile(String completePathToFile) throws IOException{
+		File logIntoThisFile = new File(completePathToFile);
+		if (!logIntoThisFile.exists()){
+			logIntoThisFile.createNewFile();
+		}
+		FileWriter fileWriter = new FileWriter(logIntoThisFile);
+		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+		bufferedWriter.write("--------------------------------------SUMMARY---------------------------------------------\n");
+		bufferedWriter.write("Total count of Exception buckets:" + exceptionBuckets.size() + "\n");
+		bufferedWriter.write("Total count of exceptions:" + countExceptions() + "\n");
+		bufferedWriter.write("------------------------------------------------------------------------------------------\n");
+		for (ExceptionBucket exceptionBucket : exceptionBuckets) {
+			for (ExceptionPeel exceptionPeel : exceptionBucket
+					.getExceptionPeels()) {
+				
+				bufferedWriter.write("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");				
+				bufferedWriter.write("File Name: " + exceptionPeel.getFilename() +"\n");
+				bufferedWriter.write("Time Stamp:" + exceptionPeel.getTimestamp() +"\n");
+				bufferedWriter.write("Blurb:" + exceptionPeel.getBlurb() +"\n");
+				bufferedWriter.write("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+			}
+		}
+		bufferedWriter.close();
+		
 	}
 
 }

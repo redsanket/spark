@@ -113,6 +113,8 @@ public class TestHdfsAPI extends TestSession {
 	 */
 	@BeforeClass
 	public static void testSessionStart() throws Exception {
+		TestSession.start();
+		
 		// Populate the details for HADOOPQA
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
 		fileOwnerUserDetails.put(KEYTAB_DIR,
@@ -492,12 +494,12 @@ public class TestHdfsAPI extends TestSession {
 							.println("=======================================================================");
 					logger.info("Canonical Service name:"
 							+ aRemoteFS.getCanonicalServiceName());
-					logger.info("Default Block Size:"
-							+ aRemoteFS.getDefaultBlockSize());
+//					logger.info("Default Block Size:"
+//							+ aRemoteFS.getDefaultBlockSize());
 					logger.info("Default Block Size Path:"
 							+ aRemoteFS.getDefaultBlockSize(new Path(oneFile)));
-					logger.info("Default Replication:"
-							+ aRemoteFS.getDefaultReplication());
+//					logger.info("Default Replication:"
+//							+ aRemoteFS.getDefaultReplication());
 					logger.info("Default Replication Path:"
 							+ aRemoteFS
 									.getDefaultReplication(new Path(oneFile)));

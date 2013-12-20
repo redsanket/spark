@@ -3,13 +3,19 @@ package hadooptest.monitoring.monitors;
 import hadooptest.automation.constants.HadooptestConstants;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import hadooptest.TestSession;
 
 /**
  * <p>
@@ -24,8 +30,10 @@ import org.apache.log4j.Logger;
  */
 
 public class MemoryMonitor extends AbstractMonitor {
-	Logger logger = Logger.getLogger(MemoryMonitor.class);
 
+	private String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE") + "/target/surefire-reports";
+	private String outputFilePath = outputBaseDirPath + "/Memory_Utilization.log";
+	
 	public MemoryMonitor(String clusterName,
 			HashMap<String, ArrayList<String>> sentComponentToHostMapping,
 			Class<?> testClass, String testMethodName, int periodicity) {
@@ -35,6 +43,15 @@ public class MemoryMonitor extends AbstractMonitor {
 		commandStrings = new String[] { "bash", "-c",
 				"pdsh -w " + commaSeperatedHosts + " free -m" };
 
+		File outputDir = new File(outputBaseDirPath);
+		outputDir.mkdirs();
+		File outputFile = new File(outputFilePath);
+		try {
+			outputFile.createNewFile();
+		}
+		catch (IOException ioe) {
+			TestSession.logger.error("Could not create memory monitoring output file", ioe);
+		}
 	}
 
 	/**
@@ -48,6 +65,11 @@ public class MemoryMonitor extends AbstractMonitor {
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				p.getInputStream()));
 
+	    PrintWriter artifactFile = new PrintWriter(new BufferedWriter(new FileWriter(outputFilePath, true)));
+		String header = "(MEMORY) utilization:";
+		String utilizationOutput;
+		boolean logHeader = false;
+		
 		while ((responseLine = r.readLine()) != null) {
 			if (!responseLine.contains("cache")
 					&& !responseLine.contains("Swap")) {
@@ -63,7 +85,18 @@ public class MemoryMonitor extends AbstractMonitor {
 				DecimalFormat df = new DecimalFormat("##.##");
 				memUsagePercentage = Float.parseFloat(df
 						.format(memUsagePercentage));
-				System.out.println("% usage  memory" + memUsagePercentage);
+				
+				if (logHeader == false) {
+					TestSession.logger.debug(header);
+				    artifactFile.println(header);
+					logHeader = true;
+				}
+				
+				String timeStamp = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(Calendar.getInstance().getTime());
+				utilizationOutput = "(MEMORY) % utilization: " + hostThatResponded + ": " + memUsagePercentage;
+				TestSession.logger.debug(utilizationOutput);
+			    artifactFile.println(timeStamp + " : " + utilizationOutput);
+				
 				if (hostwiseReadings.containsKey(hostThatResponded)) {
 					HashMap<Integer, String> timelapsedReding = hostwiseReadings
 							.get(hostThatResponded);
@@ -77,5 +110,6 @@ public class MemoryMonitor extends AbstractMonitor {
 				}
 			}
 		}
+		artifactFile.close();
 	}
 }

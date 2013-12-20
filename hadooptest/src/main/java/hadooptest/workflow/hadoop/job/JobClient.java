@@ -61,11 +61,11 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             jobId = js.getJobID().toString();
             
             if (Arrays.asList(jobIds).contains(jobId)) {
-                TestSession.logger.info("Include matching job '" + jobId +
+                TestSession.logger.debug("Include matching job '" + jobId +
                         "'");                
                 filteredJs.add(js);
             } else {
-                TestSession.logger.info("Exclude non-matching job '" + jobId +
+                TestSession.logger.debug("Exclude non-matching job '" + jobId +
                         "'");                
             }
         }
@@ -87,15 +87,14 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         for ( JobStatus js : jobsStatus) {
             jobId = js.getJobID().toString();
             jobStart = js.getStartTime();
-            // long currentTime = System.currentTimeMillis() / 1000L;            
             if (jobStart >= startTime) {
-                TestSession.logger.info("Include job '" + jobId +
+                TestSession.logger.debug("Include job '" + jobId +
                         "': job start time '" + sdf.format(new Date(jobStart)) +
                         "' => cutoff time '" +
                         sdf.format(new Date(startTime)) + "'");                
                 filteredJs.add(js);
             } else {
-                TestSession.logger.info("Exclude job '" + jobId +
+                TestSession.logger.debug("Exclude job '" + jobId +
                         "': job start time '" + sdf.format(new Date(jobStart)) +
                         "' < cutoff time '" +
                         sdf.format(new Date(startTime)) + "'");                
@@ -103,6 +102,42 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         }
         return filteredJs.toArray(new JobStatus[filteredJs.size()]);
     }
+    
+    /**
+     * Display Job List. This overrides the parent class of apache hadoop 
+     * JobClient because we want to be able to get this information to the 
+     * TestSession logger.
+     * 
+     * @param Array of job status. 
+     * @throws IOException 
+     */
+    public void displayJobList(JobStatus[] jobs) {
+        TestSession.logger.info("Total jobs:" + jobs.length);
+        TestSession.logger.info(
+                "JobId" + "\t" + "State" + "\t" + "StartTime" + "\t" +
+                "UserName" + "\t" + "Queue" + "\t" + "Priority" + "\t" + 
+                "UsedContainers" + "\t" + "\t" + "RsvdContainers" + "\t" + 
+                "UsedMem" + "\t" + "RsvdMem" + "\t" + "NeededMem" + "\t" + 
+                "AM info");
+        for (JobStatus job : jobs) {
+              int numUsedSlots = job.getNumUsedSlots();
+              int numReservedSlots = job.getNumReservedSlots();
+              int usedMem = job.getUsedMem();
+              int rsvdMem = job.getReservedMem();
+              int neededMem = job.getNeededMem();
+              TestSession.logger.info(
+                  job.getJobID().toString() + "\t" +  job.getState() + "\t" + job.getStartTime() + "\t" + 
+                  job.getUsername() + "\t" +  job.getQueue() + "\t" + 
+                  job.getPriority().name() + "\t" + 
+                  (numUsedSlots < 0 ? "UNAVAILABLE" : numUsedSlots)  + "\t" + 
+                  (numReservedSlots < 0 ? "UNAVAILABLE" : numReservedSlots)  + "\t" + 
+                  (usedMem < 0 ? "UNAVAILABLE" : String.format("%dM", usedMem)) + "\t" + 
+                  (rsvdMem < 0 ? "UNAVAILABLE" : String.format("%dM", rsvdMem)) + "\t" + 
+                  (neededMem < 0 ? "UNAVAILABLE" : String.format("%dM", neededMem)) + "\t" + 
+                  job.getSchedulingInfo());
+        }
+    }
+    
     
     /**
      * Generate the task report summary given a task report.
@@ -120,12 +155,12 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             TIPStatus taskStatus = report.getCurrentStatus();
             if (!statusCounter.containsKey(taskStatus)) {
                 statusCounter.put(taskStatus, 1);
-                TestSession.logger.info("init count for " +
+                TestSession.logger.trace("init count for " +
                 taskStatus.toString());
             } else {
                 statusCounter.put(taskStatus,
                         statusCounter.get(taskStatus)+1);
-                TestSession.logger.info("increment count for " + 
+                TestSession.logger.trace("increment count for " + 
                         taskStatus.toString());
             }
             TestSession.logger.info("Status of task id '" + taskId + 
@@ -200,7 +235,6 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         TestSession.logger.info("********************************************");
         JobStatus[] jobsStatus = this.getAllJobs();
         this.displayJobList(jobsStatus);
-        TestSession.logger.info("Total Number of jobs = " + jobsStatus.length);
         
         TestSession.logger.info("********************************************");
         TestSession.logger.info("--> Aggregate Task Summary For Each Job:");

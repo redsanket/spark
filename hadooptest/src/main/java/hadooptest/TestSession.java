@@ -8,6 +8,8 @@ import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import coretest.TestSessionCore;
 import coretest.cluster.ClusterState;
@@ -42,6 +44,8 @@ public abstract class TestSession extends TestSessionCore {
 	/** The multi-cluster client thread **/
 	public static MultiClusterClient multiClusterClient;
 		
+    public static long startTime;
+
 	/**
 	 * Initializes the test session in the following order:
 	 * initilizes framework configuration, initializes the
@@ -53,13 +57,23 @@ public abstract class TestSession extends TestSessionCore {
 	 */
 	public static void start() {
 
+	    startTime = System.currentTimeMillis();	    
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
+        String callerThreadClassName = Thread.currentThread().getStackTrace()[2].getClassName();
+	    System.out.println("********************************************************************************");
+        System.out.println(sdf.format(new Date(startTime)) + " " +
+                currentThreadClassName + " - STARTING TEST: " +
+                callerThreadClassName );
+        System.out.println("********************************************************************************");
+	    
 		// Initialize the framework name
 		initFrameworkName();
 		
 		// Initialize the framework configuration
 		initConfiguration();
 		
-		// Intitialize the framework logger
+		// Initialize the framework logger
 		initLogging();
 		
 		// Log Java Properties

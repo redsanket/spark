@@ -2,15 +2,25 @@ package hadooptest.dfs.regression;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
+
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.security.PrivilegedExceptionAction;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Hex;
@@ -26,6 +36,7 @@ import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -108,6 +119,8 @@ public class TestWebHdfsAPI extends TestSession {
 	 */
 	@BeforeClass
 	public static void testSessionStart() throws Exception {
+		TestSession.start();
+		
 		// Populate the details for HADOOPQA
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
 		fileOwnerUserDetails.put(KEYTAB_DIR,
@@ -406,12 +419,12 @@ public class TestWebHdfsAPI extends TestSession {
 							.println("=======================================================================");
 					logger.info("Canonical Service name:"
 							+ aRemoteFS.getCanonicalServiceName());
-					logger.info("Default Block Size:"
-							+ aRemoteFS.getDefaultBlockSize());
+//					logger.info("Default Block Size:"
+//							+ aRemoteFS.getDefaultBlockSize());
 					logger.info("Default Block Size Path:"
 							+ aRemoteFS.getDefaultBlockSize(new Path(oneFile)));
-					logger.info("Default Replication:"
-							+ aRemoteFS.getDefaultReplication());
+//					logger.info("Default Replication:"
+//							+ aRemoteFS.getDefaultReplication());
 					logger.info("Default Replication Path:"
 							+ aRemoteFS
 									.getDefaultReplication(new Path(oneFile)));
@@ -613,4 +626,5 @@ public class TestWebHdfsAPI extends TestSession {
 			throw new RuntimeException(e);
 		}
 	}
+
 }

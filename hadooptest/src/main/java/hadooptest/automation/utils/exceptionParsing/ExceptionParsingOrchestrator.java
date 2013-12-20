@@ -1,6 +1,7 @@
 package hadooptest.automation.utils.exceptionParsing;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -53,5 +54,9 @@ public class ExceptionParsingOrchestrator {
 	
 	public void showBucketUtilization(){
 		exceptionBucketer.showBucketUtilization();
+	}
+	
+	public void logExceptionsInFile(String completePathToFile) throws IOException{
+		exceptionBucketer.logExceptionsInFile(completePathToFile);
 	}
 }
