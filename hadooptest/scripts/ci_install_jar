@@ -10,9 +10,8 @@
 # building on the gateway client on the colo.
 
 set -x
-echo "NOT DOING THIS for compile only on development desktop linux box..."
-#phw /usr/local/bin/yinst install coretest_jar -branch nightly -live
-#phw /usr/local/bin/yinst install yjava_byauth
+/usr/local/bin/yinst install coretest_jar -branch nightly -live
+/usr/local/bin/yinst install yjava_byauth
 
 # Alternative for fetching the jar without actually activating the package.
 #
