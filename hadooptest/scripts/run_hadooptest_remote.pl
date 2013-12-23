@@ -203,7 +203,7 @@ unless ($install_only) {
         #########################
         # Execute tests via java 
         #########################
-        execute("ssh -t $remote_host \"$remote_ws_ht/scripts/run_hadooptest $common_args\"");
+        execute("ssh -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
     }
 }
 
