@@ -21,11 +21,13 @@ sub usage {
 The options
         -c|--cluster    <cluster name> : cluster name
         [ -a|--action                       ] : {status, stop, start, reset}
-                                                Default action is 'status'.
+                                                DEFAULT action is 'status'.
         [ -d|--daemon                       ] : {namenode, resourcemanager, 
                                                  datanode, nodemanager,
                                                  historyserver}
         [ -n|--node                         ] : nodename
+        [ -r|--remote                       ] : running the script remotely away
+                                                from the hadoop client host
         [ -w|workspace  <workspace>         ] : workspace
         [ -h|--help                         ] : help
 
@@ -57,6 +59,7 @@ my $cluster;
 my $action;
 my $component;
 my $nodename;
+my $remote=0;
 my $workspace = "$Bin/..";
 my $username = getpwuid($<);
 my $test;
@@ -72,6 +75,7 @@ GetOptions(\%options,
     "action|a=s"         => \$action,
     "component|d=s"      => \$component,
     "node|n=s"           => \$nodename,
+    "remote|r"           => \$remote,
     "workspace|w=s"      => \$workspace,
     "help|h|?"
     ) or usage(1);
@@ -80,16 +84,19 @@ usage("Invalid arguments!!!") if (!$result);
 
 my @common_args = (
     "--cluster $cluster",
-    "--workspace $workspace",
-    "--java",
     "--nopasswd"
     );
+
+push(@common_args, "--java") unless ($remote);
+push(@common_args, "--workspace $workspace") unless ($remote);
 push(@common_args, "--test hadooptest.hadoop.regression.TestSetupCluster");
 push(@common_args, "-DACTION=$action") if ($action);
 push(@common_args, "-DCOMPONENT=$component") if ($component);
 push(@common_args, "-DNODE=$nodename") if ($nodename);
+push(@common_args, "-DCHECK_CLUSTER_STATE=true");
 push(@common_args, "-DRESTART_ON_FAILURE=false");
 push(@common_args, join(" ", @ARGV));
 
-execute("$workspace/scripts/run_hadooptest ".join(" ",@common_args));
+my $run_script = ($remote) ? "run_hadooptest_remote" : "run_hadooptest";
+execute("$workspace/scripts/$run_script ".join(" ",@common_args));
 
