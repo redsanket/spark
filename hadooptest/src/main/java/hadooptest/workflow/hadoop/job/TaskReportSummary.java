@@ -7,6 +7,8 @@ package hadooptest.workflow.hadoop.job;
 import hadooptest.TestSession;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.mapred.TIPStatus;
 
@@ -14,30 +16,43 @@ import org.apache.hadoop.mapred.TIPStatus;
  * Container class for task report summary for a set of jobs.
  */
 public class TaskReportSummary {
-    
-    // Track map and reduce tasks total, and sub total for each task type
-    private int totalMapTasks = 0;
-    private int totalReduceTasks = 0;        
     private HashMap<TIPStatus, Integer> mapStatusCounter =
             new HashMap<TIPStatus, Integer>();
     private HashMap<TIPStatus, Integer> reduceStatusCounter =
             new HashMap<TIPStatus, Integer>();
 
     public TaskReportSummary() {
+        for (TIPStatus status: TIPStatus.values()) {
+            mapStatusCounter.put(status, 0);
+            reduceStatusCounter.put(status, 0);
+        }
     }
         
     /**
+     * Get the total number of tasks by task type
+     * 
+     * @param HashMap<TIPStatus, Integer> statusCounter
+     */
+    public int getTotalTasks(HashMap<TIPStatus, Integer> statusCounter) {
+        int totalTasks = 0;
+        for (Integer count : statusCounter.values()) {
+            totalTasks = totalTasks + count;
+        }
+        return totalTasks;
+    }
+
+    /**
      * Get the total number of map tasks
      */
-    public int getMapTasks() {
-        return totalMapTasks;
+    public int getTotalMapTasks() {
+        return getTotalTasks(mapStatusCounter);
     }
     
     /**
      * Get the total number of reduce tasks
      */
-    public int getReduceTasks() {
-        return totalReduceTasks;
+    public int getTotalReduceTasks() {
+        return getTotalTasks(reduceStatusCounter);
     }
         
     /**
@@ -58,32 +73,17 @@ public class TaskReportSummary {
      * Get the total number of non-complete map tasks
      */
     public int getNonCompleteMapTasks() {
-        return (this.getMapTasks() - 
-                this.getMapTasks(TIPStatus.COMPLETE));
+        return (this.getTotalMapTasks() - this.getMapTasks(TIPStatus.COMPLETE));
     }    
     
     /**
      * Get the total number of non-complete reduce tasks
      */
     public int getNonCompleteReduceTasks() {
-        return (this.getReduceTasks() - 
+        return (this.getTotalReduceTasks() - 
                 this.getReduceTasks(TIPStatus.COMPLETE));
     }    
     
-    /**
-     * Increment the number of map tasks
-     */
-    public void incrementMapTasks(int numTasks) {
-        totalMapTasks = totalMapTasks + numTasks;
-    }
-
-    /**
-     * Increment the number of reduce tasks
-     */
-    public void incrementReduceTasks(int numTasks) {
-        totalReduceTasks = totalReduceTasks + numTasks;
-    }
-        
     /**
      * Set the map task status counter
      */
@@ -113,19 +113,39 @@ public class TaskReportSummary {
     }
     
     /**
-     * Print the task report summary.
+     * Print the task report summary for a given task type counter
      */
-    public void printSummary() {
-        TestSession.logger.info("Total Number of map tasks = " + this.getMapTasks());
-        for(TIPStatus taskStatus : this.getMapStatusCounter().keySet()){
-            TestSession.logger.info("Number of map tasks with status " + taskStatus.toString() +
-                    " = "+ this.getMapStatusCounter().get(taskStatus));
+    public String getSummaryString(HashMap<TIPStatus, Integer> taskCounter) {
+        StringBuffer sb = new StringBuffer();
+        Iterator<Entry<TIPStatus, Integer>> iter = 
+                taskCounter.entrySet().iterator();
+        while (iter.hasNext()) {
+            Entry<TIPStatus, Integer> entry = iter.next();
+            sb.append(entry.getKey());
+            sb.append('=').append('"');
+            sb.append(entry.getValue());
+            sb.append('"');
+            if (iter.hasNext()) {
+                sb.append(',').append(' ');
+            }
         }
+        return sb.toString();
+    }
 
-        TestSession.logger.info("Total Number of reduce tasks = " + this.getReduceTasks());
-        for(TIPStatus taskStatus : this.getReduceStatusCounter().keySet()){
-            TestSession.logger.info("Number of reduce tasks with status " + taskStatus.toString() +
-                    " = "+ this.getReduceStatusCounter().get(taskStatus));
+    /**
+     * Print the full task report summary for all summary types.
+     */
+    public void displaySummary() {
+        TestSession.logger.info("--------------------------------------------");
+        TestSession.logger.info("Display task report summary for jobs:");
+        TestSession.logger.info("--------------------------------------------");
+        HashMap<TIPStatus, Integer> taskTypeCounter;
+        for (String taskType : new String[] {"map", "reduce"}) {
+            taskTypeCounter = (taskType.equals("map")) ? 
+                    this.getMapStatusCounter() : this.getReduceStatusCounter();
+            TestSession.logger.info("Total " + taskType + "tasks=" + 
+                    this.getTotalTasks(taskTypeCounter) +
+                    ": (" + this.getSummaryString(taskTypeCounter) + ")");
         }
     }
 }

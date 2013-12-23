@@ -11,8 +11,11 @@ import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -331,4 +334,28 @@ public abstract class TestSession extends TestSessionCore {
 		}
 	}
 	
+    /**
+     * add File Appender to Logger
+     */
+    public static void addLoggerFileAppender(String fileName) {
+        Logger logger = TestSession.logger;
+        FileAppender fileAppender = new FileAppender();
+        fileAppender.setName(fileName);        
+        fileAppender.setFile(
+                TestSession.conf.getProperty("WORKSPACE_SF_REPORTS") +
+                "/" + fileName);
+        fileAppender.setLayout(new PatternLayout("%d %-5p %m%n"));
+        fileAppender.setThreshold(Level.INFO);
+        fileAppender.setAppend(true);
+        fileAppender.activateOptions();
+        logger.addAppender(fileAppender);
+    }
+
+    /**
+     * add File Appender to Logger
+     */
+    public static void removeLoggerFileAppender(String fileName) {
+        Logger logger = TestSession.logger;
+        logger.removeAppender(fileName);
+    }    
 }
