@@ -22,7 +22,7 @@ The options
         -c|--cluster    <cluster name> : cluster name
         [ -a|--action                       ] : {status, stop, start, reset}
                                                 DEFAULT action is 'status'.
-        [ -d|--daemon                       ] : {namenode, resourcemanager, 
+        [ -d|--component                    ] : {namenode, resourcemanager, 
                                                  datanode, nodemanager,
                                                  historyserver}
         [ -n|--node                         ] : nodename
@@ -91,8 +91,8 @@ push(@common_args, "--java") unless ($remote);
 push(@common_args, "--workspace $workspace") unless ($remote);
 push(@common_args, "--test hadooptest.hadoop.regression.TestSetupCluster");
 push(@common_args, "-DACTION=$action") if ($action);
-push(@common_args, "-DCOMPONENT=$component") if ($component);
-push(@common_args, "-DNODE=$nodename") if ($nodename);
+push(@common_args, "-DCOMPONENT=$component") if (($component) && ($component ne "none"));
+push(@common_args, "-DNODE=$nodename") if (($nodename) && ($nodename ne "none"));
 push(@common_args, "-DCHECK_CLUSTER_STATE=true");
 push(@common_args, "-DRESTART_ON_FAILURE=false");
 push(@common_args, join(" ", @ARGV));
