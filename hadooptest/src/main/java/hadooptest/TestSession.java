@@ -29,7 +29,6 @@ import coretest.TestSessionCore;
 import coretest.cluster.ClusterState;
 import hadooptest.cluster.MultiClusterClient;
 import hadooptest.cluster.MultiClusterServer;
-import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobClient;
 
 /**
@@ -62,9 +61,6 @@ public abstract class TestSession extends TestSessionCore {
 
     public static String TASKS_REPORT_LOG = "tasks_report.log";
     public static long startTime;
-    
-    public static enum HADOOP_EXEC_MODE { CLI, API }
-    public static enum HADOOP_JOB_TYPE { SLEEP, WORDCOUNT }
     
     public static String currentTestMethodName;
 
@@ -116,8 +112,10 @@ public abstract class TestSession extends TestSessionCore {
         System.out.println("----------@After: TestSession: logTaskResportSummary-----------------------------");
 
         // Log the current test method name
-        TestSession.addLoggerFileAppender(TestSession.TASKS_REPORT_LOG);   
+        TestSession.addLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
+        System.out.println("================================================================================");
         TestSession.logger.info("Test Method Name: " + currentTestMethodName);
+        System.out.println("================================================================================");
         TestSession.removeLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
 
         // Log the tasks report summary for jobs that ran as part of this test 
