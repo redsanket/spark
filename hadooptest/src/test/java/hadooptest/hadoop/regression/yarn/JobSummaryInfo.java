@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -19,11 +18,6 @@ public class JobSummaryInfo extends TestSession {
 	
 	private SleepJob sleepJob;
 	private FailJob failJob;
-	
-	@BeforeClass
-	public static void startTestSession() throws IOException {
-		TestSession.start();
-	}
 	
 	/*
 	 * After each test, we must reset the state of the cluster to a known default state.

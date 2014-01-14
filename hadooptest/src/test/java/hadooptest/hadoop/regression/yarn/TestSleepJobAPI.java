@@ -4,7 +4,6 @@ import hadooptest.TestSession;
 
 import static org.junit.Assert.fail;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.apache.hadoop.SleepJob;
@@ -12,11 +11,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
 
 public class TestSleepJobAPI extends TestSession {
-	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 	
 	/*
 	 * A test for running a sleep job

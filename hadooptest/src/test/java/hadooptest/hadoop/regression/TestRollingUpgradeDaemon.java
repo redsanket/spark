@@ -7,14 +7,12 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import coretest.SerialTests;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Random;
@@ -22,11 +20,6 @@ import java.util.Random;
 @Category(SerialTests.class)
 public class TestRollingUpgradeDaemon extends TestSession {
 
-	@BeforeClass
-	public static void startTestSession() throws IOException {
-		TestSession.start();
-	}
-	
     @Test
     public void testResetDaemons() throws Exception {
         // Initialize max duration, default is "5" minutes.

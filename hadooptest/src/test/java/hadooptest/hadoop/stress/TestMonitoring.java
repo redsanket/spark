@@ -18,7 +18,6 @@ import hadooptest.monitoring.Monitorable;
 
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -26,10 +25,6 @@ import coretest.SerialTests;
 
 @Category(SerialTests.class)
 public class TestMonitoring extends TestSession {
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 
 	Logger logger = Logger.getLogger(TestMonitoring.class);
 

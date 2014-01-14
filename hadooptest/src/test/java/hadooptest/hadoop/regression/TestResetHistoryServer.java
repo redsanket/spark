@@ -5,22 +5,15 @@ import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import coretest.Util;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TestResetHistoryServer extends TestSession {
 
-	@BeforeClass
-	public static void startTestSession() throws IOException {
-		TestSession.start();
-	}
-	
 	@Test
 	public void testResetHistoryServer() throws Exception {
 	    // Get the current cluster state

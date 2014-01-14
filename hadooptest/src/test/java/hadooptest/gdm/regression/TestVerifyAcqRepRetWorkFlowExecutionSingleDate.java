@@ -8,7 +8,6 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
 
-import org.junit.BeforeClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,11 +28,6 @@ public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession 
 	private long timeoutInMs = 600000L;
 	private String datasetActivationTime = null;
 	private String datasourceconfig_base;
-
-	@BeforeClass
-	public static void startTestSession() throws Exception {
-		TestSession.start();
-	}
 
 	/**
 	 * A test to initialize setup for the Acquisition, Replication, and 

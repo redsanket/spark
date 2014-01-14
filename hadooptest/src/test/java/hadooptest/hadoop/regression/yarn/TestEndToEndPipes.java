@@ -13,16 +13,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestEndToEndPipes extends TestSession {
 	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
-
 	public void showHdfsDir() throws Exception {
         DFS dfs = new DFS();
 		dfs.fsls("/user/" + System.getProperty("user.name") + "/pipes", new String[] {"-d"});

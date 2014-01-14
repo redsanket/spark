@@ -2,7 +2,6 @@ package hadooptest.hadoop.stress.ClusterUsage;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopComponent;
-import hadooptest.node.hadoop.HadoopNode;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,16 +11,9 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestClusterMemUsage extends TestSession {
-	
-	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 	
 	@Test
 	public void ClusterMemUsage() throws Exception {

@@ -5,9 +5,6 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 
-import java.io.IOException;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -17,11 +14,6 @@ import coretest.SerialTests;
 public class TestConf extends TestSession {
 
     private String component = HadoopCluster.RESOURCE_MANAGER;
-    
-	@BeforeClass
-	public static void startTestSession() throws IOException {
-		TestSession.start();
-	}
 	
     @Test
     public void getHadoopResources() {

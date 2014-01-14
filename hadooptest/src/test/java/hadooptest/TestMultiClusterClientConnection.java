@@ -1,6 +1,5 @@
 package hadooptest;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import coretest.Util;
@@ -11,11 +10,6 @@ import hadooptest.TestSession;
  * remote gateway for a different cluster, and has a configurable timeout.
  */
 public class TestMultiClusterClientConnection extends TestSession {
-
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 
 	/**
 	 * Wait for the duration of the specified timeout before exiting the 

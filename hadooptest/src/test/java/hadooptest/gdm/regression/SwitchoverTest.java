@@ -8,8 +8,6 @@ import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.SingleDataSetInstanceAcquirer;
 
-import org.junit.BeforeClass;
-
 import coretest.SerialTests;
 import coretest.Util;
 
@@ -31,11 +29,6 @@ public class SwitchoverTest extends TestSession {
     private String grid3;
     private List<SingleDataSetInstanceAcquirer> acquisitions = new ArrayList<SingleDataSetInstanceAcquirer>();
 
-    @BeforeClass
-    public static void startTestSession() {
-        TestSession.start();
-    }
-    
     private class SwitchoverSource {
         String sourceName;
         String dateStart;

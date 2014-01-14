@@ -8,14 +8,12 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.apache.hadoop.SleepJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -24,11 +22,6 @@ import coretest.SetupTests;
 @Category(SetupTests.class)
 public class TestSetupJacoco extends TestSession {
 
-	@BeforeClass
-	public static void startTestSession() throws IOException {
-		TestSession.start();
-	}
-	
 	@Test
 	public void setupJacocoConf() throws Exception {
 	    FullyDistributedCluster cluster =

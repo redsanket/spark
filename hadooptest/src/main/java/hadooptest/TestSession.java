@@ -9,12 +9,17 @@ import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Vector;
 
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
@@ -24,6 +29,8 @@ import coretest.TestSessionCore;
 import coretest.cluster.ClusterState;
 import hadooptest.cluster.MultiClusterClient;
 import hadooptest.cluster.MultiClusterServer;
+import hadooptest.workflow.hadoop.job.GenericJob;
+import hadooptest.workflow.hadoop.job.JobClient;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -54,6 +61,9 @@ public abstract class TestSession extends TestSessionCore {
 	public static MultiClusterClient multiClusterClient;
 		
     public static long startTime;
+    
+    public static enum HADOOP_EXEC_MODE { CLI, API }
+    public static enum HADOOP_JOB_TYPE { SLEEP, WORDCOUNT }
 
     public static void printBanner(String msg) {
         startTime = System.currentTimeMillis();
@@ -65,12 +75,50 @@ public abstract class TestSession extends TestSessionCore {
         System.out.println("********************************************************************************");
     }
 
+    /*
+     * Print method names for all tests in a class:
+     * Print name of currently executing test 
+     */
     @Rule
     public TestRule watcher = new TestWatcher() {
         protected void starting(Description description) {
             printBanner(description.getClassName() + ": " + description.getMethodName());
         }
     };
+
+    /*
+     * Run before the start of each test class.
+     */
+    @BeforeClass
+    public static void startTestSession() throws Exception {
+        System.out.println("----------@BeforeClass: TestSession: startTestSession----------------------------");
+        TestSession.start();
+    }
+
+    /*
+     * After each test, fetch the job task reports.
+     */
+    @After
+    public void logTaskResportSummary() 
+            throws InterruptedException, IOException {
+
+        // Do Nothing For GDM
+        if ((conf.getProperty("GDM_ONLY") != null) && 
+            (conf.getProperty("GDM_ONLY").equalsIgnoreCase("true"))) {
+            return;
+        }
+
+        System.out.println("----------@After: TestSession: logTaskResportSummary-----------------------------");
+        JobClient jobClient = TestSession.cluster.getJobClient();
+        int numAcceptableNonCompleteMapTasks = 20;
+        int numAcceptableNonCompleteReduceTasks = 20;
+        jobClient.validateTaskReportSummary(
+                jobClient.logTaskReportSummary(
+                        "tasks_report.log", 
+                        TestSession.startTime),
+                        numAcceptableNonCompleteMapTasks,
+                        numAcceptableNonCompleteReduceTasks);        
+    }
 
 	/**
 	 * Initializes the test session in the following order:
@@ -357,5 +405,66 @@ public abstract class TestSession extends TestSessionCore {
     public static void removeLoggerFileAppender(String fileName) {
         Logger logger = TestSession.logger;
         logger.removeAppender(fileName);
-    }    
+    }
+    
+    /*
+     * randomwriter: A map/reduce program that writes 10GB of random data per node.
+     */
+    public static void setupByteTestData() throws Exception {
+        Vector<GenericJob> jobVector = new Vector<GenericJob>();
+        GenericJob job;
+
+        String[] COMPRESS_OFF = {
+            "-Dmapreduce.map.output.compress=false",
+            "-Dmapreduce.output.fileoutputformat.compress=false"
+        };  
+        String[] YARN_OPTS = { "-Dmapreduce.job.acl-view-job=*" };
+        
+        // Instantiate a randomwriter job to generate Random Byte Data
+        job = new GenericJob();
+        job.setJobJar(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+        job.setJobName("randomwriter");
+        ArrayList<String> jobArgs = new ArrayList<String>();
+        jobArgs.addAll(Arrays.asList(YARN_OPTS));
+        jobArgs.addAll(Arrays.asList(COMPRESS_OFF));
+        jobArgs.add("-Dmapreduce.randomwriter.totalbytes=1024");
+        jobArgs.add("Compression/byteInput");
+        job.setJobArgs(jobArgs.toArray(new String[0]));
+        jobVector.add(job);
+
+        jobVector.get(0).start();
+        jobVector.get(0).waitForID(120);
+        jobVector.get(0).waitForSuccess(3);
+    }
+        
+    /*
+     * randomtextwriter: A map/reduce program that writes 10GB of random textual data per node.
+     */
+    public static void setupTextTestData() throws Exception {        
+        Vector<GenericJob> jobVector = new Vector<GenericJob>();
+        GenericJob job;
+
+        String[] COMPRESS_OFF = {
+                "-Dmapreduce.map.output.compress=false",
+                "-Dmapreduce.output.fileoutputformat.compress=false"
+        };  
+        String[] YARN_OPTS = { "-Dmapreduce.job.acl-view-job=*" };
+
+        // Instantiate a randomtextwriter job to generate Random Text Data
+        job = new GenericJob();
+        job.setJobJar(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+        job.setJobName("randomtextwriter");
+        ArrayList<String> jobArgs2 = new ArrayList<String>();
+        jobArgs2.addAll(Arrays.asList(YARN_OPTS));
+        jobArgs2.addAll(Arrays.asList(COMPRESS_OFF));
+        jobArgs2.add("-Dmapreduce.randomtextwriter.totalbytes=1024");
+        jobArgs2.add("Compression/textInput");
+        job.setJobArgs(jobArgs2.toArray(new String[0]));
+        jobVector.add(job);
+        
+        jobVector.get(0).start();
+        jobVector.get(0).waitForID(120);
+        jobVector.get(0).waitForSuccess(3);
+    }
+
 }

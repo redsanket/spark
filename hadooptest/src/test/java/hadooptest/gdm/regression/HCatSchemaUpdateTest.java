@@ -10,7 +10,6 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.TestSession;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -27,11 +26,6 @@ public class HCatSchemaUpdateTest extends TestSession {
     private static ConsoleHandle console;
     private static String dataSetName;
     private String grid1;
-    
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
     
     @Before
     public void setup() throws Exception {

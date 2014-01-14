@@ -7,16 +7,10 @@ import hadooptest.cluster.hadoop.DFS;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestFS extends TestSession {
 	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
-
 	/*
 	* A test for running fs ls
 	*/

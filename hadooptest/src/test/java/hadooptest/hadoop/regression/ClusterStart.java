@@ -18,8 +18,6 @@ public class ClusterStart extends TestSession {
 	@Test
 	public void startCluster() {
 		try {
-			TestSession.start();
-
 			assertTrue("The cluster did not successfully start.", cluster.start());
 		}
 		catch (Exception e) {

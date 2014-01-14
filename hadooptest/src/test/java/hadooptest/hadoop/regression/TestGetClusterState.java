@@ -3,11 +3,8 @@ package hadooptest.hadoop.regression;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-
 import hadooptest.TestSession;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -20,11 +17,6 @@ import coretest.cluster.ClusterState;
 @Category(SerialTests.class)
 public class TestGetClusterState extends TestSession {
 
-	@BeforeClass
-	public static void startTestSession() throws IOException {
-		TestSession.start();
-	}
-	
 	@Test
 	public void checkClusterState() {
 		try {

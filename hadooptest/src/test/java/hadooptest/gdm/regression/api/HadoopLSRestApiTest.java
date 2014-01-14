@@ -1,7 +1,5 @@
 package hadooptest.gdm.regression.api;
 
-
-
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -40,11 +37,6 @@ public class HadoopLSRestApiTest extends TestSession {
 	public static final String dataSetPath = "/console/query/config/dataset/getDatasets";
 	public static final String dataSourcePath = "/console/query/config/datasource";
 	public static final String dataPath = "/data/daqdev/data/";
-	
-	@BeforeClass
-	public static void startTestSession() throws Exception {
-		TestSession.start();
-	}
 	
 	@Before
 	public void setUp() throws NumberFormatException, Exception {

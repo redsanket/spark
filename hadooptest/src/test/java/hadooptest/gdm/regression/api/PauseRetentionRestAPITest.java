@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -34,11 +33,6 @@ public class PauseRetentionRestAPITest extends TestSession {
 	private List<String> datasetsResultList;
 	private String hostName;
 	public static final int SUCCESS = 200;
-
-	@BeforeClass
-	public static void startTestSession() throws Exception {
-		TestSession.start();
-	}
 
 	@Before
 	public void setUp() throws NumberFormatException, Exception {

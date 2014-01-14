@@ -8,16 +8,10 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestYarnClientImplFactory extends TestSession {
 	Logger logger = Logger.getLogger(TestYarnClientImplFactory.class);
-
-	@BeforeClass
-	public static void startTestSession() throws Exception {
-		TestSession.start();
-	}
 
 	@Test
 	@Deprecated

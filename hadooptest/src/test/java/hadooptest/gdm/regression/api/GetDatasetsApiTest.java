@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -37,11 +36,6 @@ public class GetDatasetsApiTest extends TestSession {
 	private List<String>dataTargetList= new ArrayList<String>();
 	public static final String dataSetPath = "/console/query/config/dataset/getDatasets";
 	public static final String dataSourcePath = "/console/query/config/datasource";
-
-	@BeforeClass
-	public static void startTestSession() throws Exception {
-		TestSession.start();
-	}
 
 	@Before
 	public void setUp() throws NumberFormatException, Exception {

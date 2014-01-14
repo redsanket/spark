@@ -3,11 +3,9 @@ package hadooptest.gdm.regression;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -41,11 +39,6 @@ public class DoAsAcqRepByUserRetBySuperUserTest extends TestSession {
 	public static String acquisitionDataSetName ;
 	public static String replicationDataSetName ;
 	public static final String HadoopLS = "/console/api/admin/hadoopls";
-
-	@BeforeClass
-	public static void startTestSession() throws Exception {
-		TestSession.start();
-	}
 
 	@Before
 	public void setUp() throws NumberFormatException, Exception {
