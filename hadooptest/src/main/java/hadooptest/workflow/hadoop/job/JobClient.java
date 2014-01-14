@@ -21,6 +21,8 @@ import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.mapred.TaskReport;
 
+import coretest.Util;
+
 /**
  * Wrapper to the Apache Hadoop JobClient. Contains additional methods that are
  * specific for testing.
@@ -81,17 +83,17 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         String jobId;
         ArrayList<JobStatus> filteredJs = new ArrayList<JobStatus>();
         long jobStart;
-        for ( JobStatus js : jobsStatus) {
+        for (JobStatus js : jobsStatus) {
             jobId = js.getJobID().toString();
             jobStart = js.getStartTime();
             if (jobStart >= startTime) {
-                TestSession.logger.debug("Include job '" + jobId +
+                TestSession.logger.trace("Include job '" + jobId +
                         "': job start time '" + sdf.format(new Date(jobStart)) +
                         "' => cutoff time '" +
                         sdf.format(new Date(startTime)) + "'");                
                 filteredJs.add(js);
             } else {
-                TestSession.logger.debug("Exclude job '" + jobId +
+                TestSession.logger.trace("Exclude job '" + jobId +
                         "': job start time '" + sdf.format(new Date(jobStart)) +
                         "' < cutoff time '" +
                         sdf.format(new Date(startTime)) + "'");                
@@ -100,6 +102,155 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         return filteredJs.toArray(new JobStatus[filteredJs.size()]);
     }
     
+    /**
+     * Get Job ID's for all jobs that ran at or after a given start time.
+     * 
+     * @param long startTime
+     * @return String[] Job ID's
+     * 
+     * @throws IOException 
+     */
+    public String[] getJobIds(long startTime) throws IOException {
+        return this.getJobIds(this.getJobs(startTime));
+    }
+
+    /**
+     * Get Job ID's given an array of JobStatus
+     * 
+     * @param JobStatus[]
+     * @return JobID[] 
+     * 
+     * @throws IOException 
+     */
+    public JobID[] getJobIDs(JobStatus[] jobsStatus) throws IOException {
+        JobID[] jobIDs = new JobID[jobsStatus.length];
+        int index = 0;
+        for (JobStatus js : jobsStatus) {
+            jobIDs[index] = js.getJobID();
+            index++;
+        }
+        return jobIDs;
+    }
+
+    /**
+     * Get Job ID's given an array of JobStatus
+     * 
+     * @param JobStatus[]
+     * @return String[] Job ID's
+     * 
+     * @throws IOException 
+     */
+    public String[] getJobIds(JobStatus[] jobsStatus) throws IOException {
+        String[] jobIds = new String[jobsStatus.length];
+        int index = 0;
+        for (JobStatus js : jobsStatus) {
+            jobIds[index] = js.getJobID().toString();
+            index++;
+        }
+        return jobIds;
+    }
+
+    /**
+     * Waits indefinitely for the job to succeed, and returns true for success.
+     * Uses the Hadoop API to check status of the job.
+     * 
+     * @return boolean whether the job succeeded
+     * 
+     * @throws InterruptedException if there is a failure sleeping the current Thread. 
+     * @throws IOException if there is a fatal error waiting for the job state.
+     */
+    public boolean waitForSuccess(JobID[] jobID) 
+            throws InterruptedException, IOException {
+        return this.waitForSuccess(jobID, 0);
+    }
+    
+    /**
+     * Waits indefinitely for the job to succeed, and returns true for success.
+     * Uses the Hadoop API to check status of the job.
+     * 
+     * @return boolean whether the job succeeded
+     * 
+     * @throws InterruptedException if there is a failure sleeping the current Thread. 
+     * @throws IOException if there is a fatal error waiting for the job state.
+     */
+    public boolean waitForSuccess(JobID[] jobIDs, int minutes) 
+            throws InterruptedException, IOException {
+        boolean isSuccessful=true;
+        for (JobID jobID : jobIDs) {
+            isSuccessful = waitForSuccess(jobID, minutes);
+        }
+        return isSuccessful;
+    }
+
+    /**
+     * Waits indefinitely for the job to succeed, and returns true for success.
+     * Uses the Hadoop API to check status of the job.
+     * 
+     * @return boolean whether the job succeeded
+     * 
+     * @throws InterruptedException if there is a failure sleeping the current Thread. 
+     * @throws IOException if there is a fatal error waiting for the job state.
+     */
+    public boolean waitForSuccess(JobID jobID, int minutes) 
+            throws InterruptedException, IOException {
+        JobState currentState = JobState.UNKNOWN;
+        String jobIdStr = jobID.toString();
+        // Give the sleep job time to complete
+        for (int i = 0; i <= (minutes * 6); i++) {            
+            currentState = JobState.getState(
+                    super.getJob(jobID).getJobState());
+            if (currentState.equals(JobState.SUCCEEDED)) {
+                TestSession.logger.info("JOB '" + jobIdStr + "' SUCCEEDED");
+                return true;
+            }
+            else if (currentState.equals(JobState.PREP)) {
+                TestSession.logger.info("JOB '" + jobIdStr + "' IS STILL IN PREP STATE");
+            }
+            else if (currentState.equals(JobState.RUNNING)) {
+                TestSession.logger.info("JOB '" + jobIdStr + "' IS STILL RUNNING");
+            }
+            else if (currentState.equals(JobState.FAILED)) {
+                TestSession.logger.info("JOB '" + jobIdStr + "' FAILED");
+                return false;
+            }
+            else if (currentState.equals(JobState.KILLED)) {
+                TestSession.logger.info("JOB '" + jobIdStr + "' WAS KILLED");
+                return false;
+            }
+            Util.sleep(10);
+        }
+        TestSession.logger.error("JOB '" + jobIdStr + "' didn't SUCCEED within the timeout window.");
+        return false;
+    }
+
+    /**
+     * Waits indefinitely for the job to succeed, and returns true for success.
+     * Uses the Hadoop API to check status of the job.
+     * 
+     * @return boolean whether the job succeeded
+     * 
+     * @throws InterruptedException if there is a failure sleeping the current Thread. 
+     * @throws IOException if there is a fatal error waiting for the job state.
+     */
+    public boolean assertJobStateEquals(JobID jobID, JobState expectedState) 
+            throws InterruptedException, IOException {
+        JobState currentState = JobState.UNKNOWN;
+        String jobIdStr = jobID.toString();
+        currentState = JobState.getState(
+                super.getJob(jobID).getJobState());
+        if (currentState.equals(expectedState)) {
+            TestSession.logger.info("JOB '" + jobIdStr + 
+                    "' matched expected state " + expectedState.toString());
+            return true;
+        } else {
+            TestSession.logger.info("JOB '" + jobIdStr + 
+                    "' has current state '" + currentState.toString() + 
+                    "', it does not matched expected state " + 
+                    expectedState.toString());
+            return false;
+        }        
+    }    
+
     /**
      * Display Job List for a given set of JobStatus. This overrides the parent
      * class of apache hadoop JobClient because we want to be able to log this 
@@ -163,20 +314,20 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         }        
         TestSession.logger.trace("Num " + taskType + " task reports=" +
                 taskTypeReports.length);
-        for ( TaskReport taskTypereport : taskTypeReports) {
-            String taskId = taskTypereport.getTaskID().toString();
+        for ( TaskReport taskTypeReport : taskTypeReports) {
+            String taskId = taskTypeReport.getTaskID().toString();
             TestSession.logger.trace("task id=" + taskId);
-            TIPStatus taskStatus = taskTypereport.getCurrentStatus();
+            TIPStatus taskStatus = taskTypeReport.getCurrentStatus();
             statusCounter.put(taskStatus,
                     statusCounter.get(taskStatus)+1);
             TestSession.logger.trace("increment count for " + 
                     taskStatus.toString());
-            TestSession.logger.info("'" + jobID.toString() + 
+            TestSession.logger.trace("'" + jobID.toString() + 
                     "'->'" + taskId + "'='" +
-                    taskTypereport.getCurrentStatus().toString() + "'");
+                    taskStatus.toString() + "'");
             if (!taskStatus.equals(TIPStatus.COMPLETE)) {
                 TestSession.logger.warn("Found non-complete status '" +
-                        taskTypereport.getCurrentStatus().toString() +
+                        taskStatus.toString() +
                         "' for task id '" + taskId + "'");                      
             }
         }
@@ -371,11 +522,11 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
                 taskReportSummary.getNonCompleteReduceTasks();
         String mapMsg = "There are " +
                 (numNonCompleteMapTasks - acceptableMapFailure) + 
-                " more map task failures than the acceptable failure of " +
+                " more non-completed map tasks than the acceptable count of " +
                 acceptableMapFailure;
         String redMsg = "There are " + 
                 (numNonCompleteReduceTasks - acceptableRedFailure) + 
-                " more reduce task failures than the acceptable failure of " + 
+                " more non-completed reduce tasks than the acceptable count of " + 
                 acceptableRedFailure;
         assertTrue(mapMsg, numNonCompleteMapTasks <= acceptableMapFailure);
         assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);           
