@@ -1,13 +1,10 @@
 package hadooptest.hadoop.regression.yarn;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
-import hadooptest.cluster.hadoop.HadoopCluster.Action;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.workflow.hadoop.job.GenericJob;
 
@@ -16,23 +13,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
-import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.SortValidator;
-import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-//import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
-import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -51,146 +41,16 @@ public class TestEndToEndCompression extends TestSession {
 	private static final String[] COMPRESSION_TYPES =
 		{"NONE", "BLOCK", "RECORD"};
 	private static final String[] DATA_TYPES = {"byte", "text"};
-	
-	private static final String[] COMPRESS_ON = {
-		"-Dmapreduce.map.output.compress=true",
-		"-Dmapreduce.output.fileoutputformat.compress=true"
-	};
-	private static final String[] COMPRESS_OFF = {
-		"-Dmapreduce.map.output.compress=false",
-		"-Dmapreduce.output.fileoutputformat.compress=false"
-	};	
-	private static String[] YARN_OPTS;
-	
-	private static int numReduces = 2;
+	private static int numReduces = 2;	
+	private static String relativeTestDataDir = "Compression/";
 	
 	@BeforeClass
 	public static void startTestSession() throws Exception{
 		TestSession.start();
-
-		// Initialize YARN_OPTS
-		ArrayList<String> opts = new ArrayList<String>();
-		opts.add("-Dmapreduce.job.acl-view-job=*");
-		// The compression job submission explicity needs to use the 32-bit
-		// compression libraries (i386-32) for the jobs to run successfully
-		// as the nodes in the cluster run in 32-bit mode JVMs. The
-		// verification of the jobs needs to be done with the 64-bit
-		// compression libraries (amd64-64) as the gateway node JVM (and thus
-		// all framework access of the hadoop API) is done through a 64-bit JVM.
-		// The setting of java.library.home in pom-ci.xml accomplishes setting
-		// the 64-bit native libraries for API use.
-		opts.add("-Dmapred.child.java.opts='-Djava.library.path=" + 
-				TestSession.conf.getProperty("HADOOP_COMMON_HOME") + 
-				"/lib/native/Linux-i386-32" + "'");
-		opts.add("-Dmapreduce.map.memory.mb=2048");
-		opts.add("-Dmapreduce.reduce.memory.mb=4096");		
-		YARN_OPTS = opts.toArray(new String[0]);		
-
-		setupTestConf();
-		setupTestDir();
-		setupTestData();		
-
-		Cluster clusterInfo = TestSession.cluster.getClusterInfo();
-		int ttCount = clusterInfo.getClusterStatus().getTaskTrackerCount();
-		// numReduces = (int) ( ttCount* 0.5);
-	}
-
-	public static void setupTestConf() throws Exception {
-		FullyDistributedCluster cluster =
-				(FullyDistributedCluster) TestSession.cluster;
-		String component = HadoopCluster.RESOURCE_MANAGER;
-
-		/* 
-		 * NOTE: Add a check via the Hadoop API or jmx to determine if a single
-		 * queue is already in place. If so, skip the following as to not waste
-		 *  time.
-		 */
-		YarnClientImpl yarnClient = new YarnClientImpl();
-		yarnClient.init(TestSession.getCluster().getConf());
-		yarnClient.start();
-
-		List<QueueInfo> queues =  yarnClient.getAllQueues(); 
-		assertNotNull("Expected cluster queue(s) not found!!!", queues);		
-		TestSession.logger.info("queues='" +
-        	Arrays.toString(queues.toArray()) + "'");
-		if ((queues.size() == 1) &&
-			(Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
-				TestSession.logger.debug("Cluster is already setup properly." +
-						"Nothing to do.");
-				return;
-		}
-		
-		// Backup the default configuration directory on the Resource Manager
-		// component host.
-		cluster.getConf(component).backupConfDir();	
-
-		// Copy files to the custom configuration directory on the
-		// Resource Manager component host.
-		String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
-				"/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
-		cluster.getConf(component).copyFileToConfDir(sourceFile,
-				"capacity-scheduler.xml");
-		cluster.hadoopDaemon(Action.STOP, component);
-		cluster.hadoopDaemon(Action.START, component);
+		TestSession.cluster.setupSingleQueueCapacity();
+		TestSession.cluster.setupRwRtwTestData(relativeTestDataDir);
 	}
 	
-    public static void setupTestDir() throws Exception {
-        // Define the test directory
-        DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-            System.getProperty("user.name") + "/Compression";
-
-        // Delete it existing test directory if exists
-        FileSystem fs = TestSession.cluster.getFS();
-        FsShell fsShell = TestSession.cluster.getFsShell();
-        if (fs.exists(new Path(testDir))) {
-            TestSession.logger.info("Delete existing test directory: " +
-                testDir);
-            fsShell.run(new String[] {"-rm", "-r", testDir});
-        }
-        
-        // Create or re-create the test directory.
-        TestSession.logger.info("Create new test directory: " + testDir);
-        fsShell.run(new String[] {"-mkdir", "-p", testDir});
-    }
-
-	
-	public static void setupTestData() throws Exception {
-		Vector<GenericJob> jobVector = new Vector<GenericJob>();
-        GenericJob job;
-
-		// Instantiate a randomwriter job to generate Random Byte Data
-        job = new GenericJob();
-        job.setJobJar(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
-        job.setJobName("randomwriter");
-        ArrayList<String> jobArgs = new ArrayList<String>();
-		jobArgs.addAll(Arrays.asList(YARN_OPTS));
-		jobArgs.addAll(Arrays.asList(COMPRESS_OFF));
-		jobArgs.add("-Dmapreduce.randomwriter.totalbytes=1024");
-		jobArgs.add("Compression/byteInput");
-		job.setJobArgs(jobArgs.toArray(new String[0]));
-        jobVector.add(job);
-
-		// Instantiate a randomtextwriter job to generate Random Text Data
-		job = new GenericJob();
-        job.setJobJar(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
-        job.setJobName("randomtextwriter");
-        ArrayList<String> jobArgs2 = new ArrayList<String>();
-		jobArgs2.addAll(Arrays.asList(YARN_OPTS));
-		jobArgs2.addAll(Arrays.asList(COMPRESS_OFF));
-		jobArgs2.add("-Dmapreduce.randomtextwriter.totalbytes=1024");
-		jobArgs2.add("Compression/textInput");
-		job.setJobArgs(jobArgs2.toArray(new String[0]));
-		jobVector.add(job);
-        
-        jobVector.get(0).start();
-        jobVector.get(1).start();
-        jobVector.get(0).waitForID(120);
-        jobVector.get(1).waitForID(120);
-        jobVector.get(0).waitForSuccess(3);
-        jobVector.get(1).waitForSuccess(3);
-	}
-		
 	public static String[] runHadoopExampleJar(String[] jarCmd)
 		throws Exception {
 		String[] jobCmd = {
@@ -375,12 +235,12 @@ public class TestEndToEndCompression extends TestSession {
 			"data type=" + dataType;
 		TestSession.logger.debug(testDesc);
 					
-		String sortInput = "Compression/" + dataType + "Input";
+		String sortInput = relativeTestDataDir + "/" + dataType + "Input";
 
 		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
 		df.setTimeZone(TimeZone.getTimeZone("CST"));  
-		String sortOutput = 
-			"Compression" + "/" +
+		String sortOutput =
+		    relativeTestDataDir + "/" +
 			jobCodec + "/" +
 			mapCodec + "/" +
 			compressionType + "/" +
@@ -397,8 +257,8 @@ public class TestEndToEndCompression extends TestSession {
         job.setJobJar(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
         job.setJobName("sort");
         ArrayList<String> jobArgs = new ArrayList<String>();
-		jobArgs.addAll(Arrays.asList(YARN_OPTS));
-		jobArgs.addAll(Arrays.asList(COMPRESS_ON));
+		jobArgs.addAll(Arrays.asList(HadoopCluster.YARN_OPTS));
+		jobArgs.addAll(Arrays.asList(HadoopCluster.COMPRESS_ON));
 		jobArgs.add("-Dmapreduce.output.fileoutputformat.compress.codec=" +
 				jobCodec);
 		jobArgs.add("-Dmapreduce.map.output.compress.codec=" + mapCodec);
@@ -448,7 +308,7 @@ public class TestEndToEndCompression extends TestSession {
 
 		// API calls
         ArrayList<String> jobArgs = new ArrayList<String>();
-        jobArgs.addAll(Arrays.asList(YARN_OPTS));
+        jobArgs.addAll(Arrays.asList(HadoopCluster.YARN_OPTS));
 		jobArgs.add("-sortInput");
 		jobArgs.add(sortInput);
 		jobArgs.add("-sortOutput");
