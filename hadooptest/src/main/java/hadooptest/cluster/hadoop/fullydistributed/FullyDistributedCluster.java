@@ -8,14 +8,11 @@ import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -88,10 +85,8 @@ public class FullyDistributedCluster extends HadoopCluster {
         String defaultTmpDir = "/homes/hadoopqa/tmp/hadooptest";
         TestSession.conf.setProperty("TMP_DIR", 
                 TestSession.conf.getProperty("TMP_DIR", defaultTmpDir));
-        DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-        df.setTimeZone(TimeZone.getTimeZone("CST"));  
         String tmpDir = TestSession.conf.getProperty("TMP_DIR") +
-                "/hadooptest-" + df.format(new Date());
+                "/hadooptest-" + TestSession.getFileDateFormat(new Date());
         new File(tmpDir).mkdirs();
         TestSession.conf.setProperty("TMP_DIR", tmpDir);
     }
