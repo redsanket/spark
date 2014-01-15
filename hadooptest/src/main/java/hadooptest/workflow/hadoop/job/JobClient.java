@@ -9,10 +9,8 @@ import hadooptest.TestSession;
 import hadooptest.config.hadoop.HadoopConfiguration;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -74,11 +72,10 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
      * 
      * @throws IOException 
      */
-    public JobStatus[] getJobs(long startTime) throws IOException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public JobStatus[] getJobs(long startTime) throws IOException {        
         TestSession.logger.debug(
-                "Get job status for jobs based on start time '" +
-                        sdf.format(new Date(startTime)) + "':");
+                "Get jobs status for jobs with start time after '" + startTime +
+                "' (" + TestSession.getLogDateFormat(startTime) + ")");
         JobStatus[] jobsStatus = this.getAllJobs();
         String jobId;
         ArrayList<JobStatus> filteredJs = new ArrayList<JobStatus>();
@@ -88,15 +85,17 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             jobStart = js.getStartTime();
             if (jobStart >= startTime) {
                 TestSession.logger.trace("Include job '" + jobId +
-                        "': job start time '" + sdf.format(new Date(jobStart)) +
+                        "': job start time '" +
+                        TestSession.getFileDateFormat(jobStart) +
                         "' => cutoff time '" +
-                        sdf.format(new Date(startTime)) + "'");                
+                        TestSession.getFileDateFormat(startTime) + "'");                
                 filteredJs.add(js);
             } else {
                 TestSession.logger.trace("Exclude job '" + jobId +
-                        "': job start time '" + sdf.format(new Date(jobStart)) +
+                        "': job start time '" +
+                        TestSession.getFileDateFormat(jobStart) +
                         "' < cutoff time '" +
-                        sdf.format(new Date(startTime)) + "'");                
+                        TestSession.getFileDateFormat(startTime) + "'");                
             }
         }
         return filteredJs.toArray(new JobStatus[filteredJs.size()]);
@@ -185,6 +184,8 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
     /**
      * Waits indefinitely for the job to succeed, and returns true for success.
      * Uses the Hadoop API to check status of the job.
+     * 
+     * @param minutes max amount of time to wait
      * 
      * @return boolean whether the job succeeded
      * 
@@ -493,6 +494,16 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
     public TaskReportSummary logTaskReportSummary(
             String fileName, long startTime) 
                     throws InterruptedException, IOException {
+
+        TestSession.addLoggerFileAppender(fileName);
+        // Log the current test method name
+        System.out.println("================================================================================");
+        TestSession.logger.info("Test Method Name: " + TestSession.currentTestMethodName);
+        System.out.println("================================================================================");
+        TestSession.logger.info("Get jobs with start time after '" + startTime +
+                "' (" + TestSession.getLogDateFormat(startTime) + ")");
+        TestSession.removeLoggerFileAppender(fileName);
+
         return this.logTaskReportSummary(fileName, this.getJobs(startTime));
     }
 
