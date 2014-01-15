@@ -13,10 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,10 +60,8 @@ public class PseudoDistributedCluster extends HadoopCluster {
                 "/Users/" + System.getProperty("user.name") + "/hadooptest/tmp";
         TestSession.conf.setProperty("TMP_DIR", 
                 TestSession.conf.getProperty("TMP_DIR", defaultTmpDir));
-        DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-        df.setTimeZone(TimeZone.getTimeZone("CST"));  
         String tmpDir = TestSession.conf.getProperty("TMP_DIR") +
-                "/hadooptest-" + df.format(new Date());
+                "/hadooptest-" + TestSession.getFileDateFormat(new Date());
         new File(tmpDir).mkdirs();
         TestSession.conf.setProperty("TMP_DIR", tmpDir);
 
