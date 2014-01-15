@@ -8,6 +8,7 @@ import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -60,16 +62,15 @@ public abstract class TestSession extends TestSessionCore {
 	public static MultiClusterClient multiClusterClient;
 
     public static String TASKS_REPORT_LOG = "tasks_report.log";
-    public static long startTime;
-    
+    public static long startTime=System.currentTimeMillis();    
+    public static long testStartTime;
     public static String currentTestMethodName;
 
     public static void printBanner(String msg) {
-        startTime = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
         System.out.println("********************************************************************************");
-        System.out.println(sdf.format(new Date(startTime)) + " " +
+        System.out.println(sdf.format(new Date(System.currentTimeMillis())) + " " +
                 currentThreadClassName + " - starting test: " + msg);
         System.out.println("********************************************************************************");
     }
@@ -92,8 +93,17 @@ public abstract class TestSession extends TestSessionCore {
      */
     @BeforeClass
     public static void startTestSession() throws Exception {
-        System.out.println("----------@BeforeClass: TestSession: startTestSession----------------------------");
+        System.out.println("--------- @BeforeClass: TestSession: startTestSession ---------------------------");
         TestSession.start();
+    }
+
+    /*
+     * Run before the start of each test class.
+     */
+    @Before
+    public void startTest() throws Exception {
+        TestSession.logger.info("--------- @Before: TestSession: startTest ----------------------------------");
+        testStartTime = System.currentTimeMillis();
     }
 
     /*
@@ -109,14 +119,7 @@ public abstract class TestSession extends TestSessionCore {
             return;
         }
 
-        System.out.println("----------@After: TestSession: logTaskResportSummary-----------------------------");
-
-        // Log the current test method name
-        TestSession.addLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
-        System.out.println("================================================================================");
-        TestSession.logger.info("Test Method Name: " + currentTestMethodName);
-        System.out.println("================================================================================");
-        TestSession.removeLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
+        TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
 
         // Log the tasks report summary for jobs that ran as part of this test 
         JobClient jobClient = TestSession.cluster.getJobClient();
@@ -125,7 +128,7 @@ public abstract class TestSession extends TestSessionCore {
         jobClient.validateTaskReportSummary(
                 jobClient.logTaskReportSummary(
                         TestSession.TASKS_REPORT_LOG, 
-                        TestSession.startTime),
+                        TestSession.testStartTime),
                         numAcceptableNonCompleteMapTasks,
                         numAcceptableNonCompleteReduceTasks);        
     }
@@ -181,7 +184,28 @@ public abstract class TestSession extends TestSessionCore {
 		multiClusterServer.stopServer();
 		multiClusterClient.stopClient();
 	}
+
+    private static String getDateFormat(Date date, String format) {
+        DateFormat df = new SimpleDateFormat(format);
+        return df.format(date);        
+    }    
 	
+    public static String getFileDateFormat(Date date) {
+        return getDateFormat(date, "yyyy-MMdd-HHmmss");
+    }
+
+    public static String getLogDateFormat(Date date) {
+        return getDateFormat(date, "yyyy-MM-dd HH:mm:ss z");
+    }
+
+	public static String getFileDateFormat(long time) {
+	    return getFileDateFormat(new Date(time));
+    }
+
+    public static String getLogDateFormat(long time) {
+        return getLogDateFormat(new Date(time));
+    }
+
 	/**
 	 * Get the Hadoop cluster instance for the test session.
 	 * 
