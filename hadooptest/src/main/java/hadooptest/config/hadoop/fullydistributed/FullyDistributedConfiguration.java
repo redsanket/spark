@@ -8,14 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.TimeZone;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster;
@@ -88,10 +85,8 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 		String defaultTmpDir = "/homes/hadoopqa/tmp/hadooptest";
 		hadoopProps.setProperty("TMP_DIR", 
 				TestSession.conf.getProperty("TMP_DIR", defaultTmpDir));
-		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-		df.setTimeZone(TimeZone.getTimeZone("CST"));  
 		String tmpDir = this.getHadoopProp("TMP_DIR") + "/hadooptest-" +	
-				df.format(new Date());
+		        TestSession.getFileDateFormat(new Date());
 		new File(tmpDir).mkdirs();
 		hadoopProps.setProperty("TMP_DIR", tmpDir);
 		
@@ -155,10 +150,9 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 			throws Exception {
 	    component= this.component;
 		/* Generate the localconfiguration filename */
-		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-		df.setTimeZone(TimeZone.getTimeZone("CST"));  
 		String localConfDir = this.getHadoopProp("TMP_DIR") + "/hadoop-conf-" +	
-				component + ".local." + df.format(new Date());	
+				component + ".local." +
+		        TestSession.getFileDateFormat(new Date());	
 		String componentHost = TestSession.cluster.getNodeNames(component)[0];
 		String[] cmd = {
 		        "/usr/bin/scp", "-r",
@@ -390,7 +384,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      * Copy a single file from a given Hadoop configuration directory to a 
      * Hadoop cluster gateway. This assumes that the cluster under test is 
      * already using a custom backup directory that is editable, by previously 
-     * calling the backupConfDir() methdo. 
+     * calling the backupConfDir() method. 
      * 
      * @param sourceFile source configuration file to copy
      * 
@@ -407,7 +401,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      * Copy a single file from a given Hadoop configuration directory to a 
      * Hadoop cluster component. This assumes that the cluster under test is 
      * already using a custom backup directory that is editable, by previously 
-     * calling the backupConfDir() methdo. 
+     * calling the backupConfDir() method.
      * 
      * @param sourceFile source configuration file to copy
      * @param targetFile target configuration file to copy to
@@ -426,7 +420,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      * Copy files from a given Hadoop configuration directory to a Hadoop
      * cluster component. This assumes that the cluster under test is already
      * using a custom backup directory that is editable, by previously calling
-     * the backupConfDir() methdo. 
+     * the backupConfDir() method. 
      * 
      * @param sourceDir source configuration directory to copy the files from
      * 
@@ -443,7 +437,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      * Copy files from a given Hadoop configuration directory to a Hadoop
      * cluster component. This assumes that the cluster under test is already
      * using a custom backup directory that is editable, by previously calling
-     * the backupConfDir() methdo. 
+     * the backupConfDir() method. 
      * 
      * @param sourceDir source configuration directory to copy the files from
      * @param component cluster component such as gateway, namenode,
@@ -466,7 +460,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      * Copy file or files from a given Hadoop configuration directory to a 
      * Hadoop cluster component. This assumes that the cluster under test is 
      * already using a custom backup directory that is editable, by previously 
-     * calling the backupConfDir() methdo. 
+     * calling the backupConfDir() method. 
      * 
      * @param sourceFiles source configuration file or files to copy
      * @param component cluster component such as gateway, namenode,
@@ -681,11 +675,9 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      */
     public boolean backupConfDir () throws Exception {
 		// New Hadoop conf dir
-		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-	    df.setTimeZone(TimeZone.getTimeZone("CST"));  
 	    String customConfDir = this.getHadoopProp("TMP_DIR") + 
 	            "/hadoop-conf-" + this.component + "-" + this.hostname + "." +    
-	    		df.format(new Date());
+	            TestSession.getFileDateFormat(new Date());
 
 	    // Follow and dereference symlinks
         String cpCmd[] = {
