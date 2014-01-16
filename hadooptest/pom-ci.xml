@@ -598,14 +598,6 @@
 
 		<dependency>
 			<groupId>system</groupId>
-			<artifactId>system13</artifactId>
-			<version>0.9.2</version>
-			<scope>system</scope>
-			<systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-site-${HADOOP_VERSION}.jar</systemPath>
-		</dependency>
-
-		<dependency>
-			<groupId>system</groupId>
 			<artifactId>system14</artifactId>
 			<version>0.9.2</version>
 			<scope>system</scope>
