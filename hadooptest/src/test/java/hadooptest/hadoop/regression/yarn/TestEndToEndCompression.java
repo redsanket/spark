@@ -8,12 +8,9 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.workflow.hadoop.job.GenericJob;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileStatus;
@@ -237,15 +234,13 @@ public class TestEndToEndCompression extends TestSession {
 					
 		String sortInput = relativeTestDataDir + "/" + dataType + "Input";
 
-		DateFormat df = new SimpleDateFormat("yyyy-MMdd-hhmmss");  
-		df.setTimeZone(TimeZone.getTimeZone("CST"));  
 		String sortOutput =
 		    relativeTestDataDir + "/" +
 			jobCodec + "/" +
 			mapCodec + "/" +
 			compressionType + "/" +
 			dataType + "/" +
-			"output-" + df.format(new Date());
+			"output-" + TestSession.getFileDateFormat(new Date());
 		/*
 		String prefix = "hdfs://gsbl90269.blue.ygrid.yahoo.com/user/hadoopqa/";
 		sortInput = prefix+sortInput;

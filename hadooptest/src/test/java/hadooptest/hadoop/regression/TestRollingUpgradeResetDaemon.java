@@ -17,8 +17,14 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Random;
 
+/*
+ * TestRollingUpgradeResetDaemon
+ * 
+ * Restart and/or upgrade Hadoop daemons in various combinations
+ * 
+ */
 @Category(SerialTests.class)
-public class TestRollingUpgradeDaemon extends TestSession {
+public class TestRollingUpgradeResetDaemon extends TestSession {
 
     @Test
     public void testResetDaemons() throws Exception {

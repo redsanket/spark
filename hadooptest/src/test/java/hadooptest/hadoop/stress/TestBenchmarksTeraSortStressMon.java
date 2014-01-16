@@ -243,7 +243,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
         JobClient jobClient = TestSession.cluster.getJobClient();
         jobClient.validateTaskReportSummary(
                 jobClient.logTaskReportSummary(
-                        "tasks_report.log", TestSession.startTime), 0, 0);        
+                        "tasks_report.log", TestSession.testStartTime), 0, 0);        
     }
 
 	@AfterClass

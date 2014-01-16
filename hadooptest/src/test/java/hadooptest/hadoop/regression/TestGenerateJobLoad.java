@@ -24,8 +24,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/*
+ * Generate the Hadoop job load (e.g. for testing Hadoop Rolling Upgrade) 
+ * based on one or more of the following parameters: 
+ * job types, batch size, job submission interval, runtime duration, 
+ * termination file, and capacity threshold.
+ * 
+ */
 @Category(SerialTests.class)
-public class TestRollingUpgradeTraffic extends TestSession {
+public class TestGenerateJobLoad extends TestSession {
     
     int jobIndex = 0;
 
@@ -139,8 +146,13 @@ public class TestRollingUpgradeTraffic extends TestSession {
 
         JobClient jobClient = TestSession.cluster.getJobClient();
         TestSession.cluster.getJobClient().waitForSuccess(
-                jobClient.getJobIDs(jobClient.getJobs(TestSession.startTime)),
-                durationMin);        
+                jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
+                durationMin);
+        
+        // Check again after the first set of jobs all succeeded
+        TestSession.cluster.getJobClient().waitForSuccess(
+                jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
+                durationMin);
         
         // Remove the termination indicator file if it exists
         if (terminationFile.exists()) {
@@ -234,7 +246,7 @@ public class TestRollingUpgradeTraffic extends TestSession {
         while (index < numJobs) {
             jobType = jobTypes[index%numJobTypes];
             jobIndex++;
-            TestSession.logger.info("-----------Submit job #" + jobIndex +
+            TestSession.logger.info("---------- Submit job #" + jobIndex +
                     " " + jobType + " (batch " + (index+1) + "/" + numJobs +
                     ") ---------------");
             /*
@@ -264,7 +276,7 @@ public class TestRollingUpgradeTraffic extends TestSession {
         while (index < numJobs) {
             String username = "hadoop" + ((index%20)+1);
             TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
-            TestSession.logger.info("-----------Submit job #" + (index+1) + "---------------");
+            TestSession.logger.info("---------- Submit job #" + (index+1) + " --------------");
             
             // TODO: this runs serially right now.
             rc = ToolRunner.run(conf, new org.apache.hadoop.SleepJob(), args);
