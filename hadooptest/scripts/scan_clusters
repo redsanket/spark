@@ -11,7 +11,7 @@ for cluster in $CLUSTERS; do
     echo "--------------------"
     hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;
     # perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts "echo -n 'Connected successfully to ';hostname";
-    perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts "df -h";
+    perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -t 30 -u 30 -w $hosts "df -h";
 done
 
 # console reboot
