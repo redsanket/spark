@@ -28,18 +28,17 @@ cd $BASEDIR/..
 mvn eclipse:eclipse -Pprofile-eclipse
 mvn clean package -DskipTests -Pprofile-eclipse
 
-# Put all of the new dependency jars in the dependencies dir for the project
+# Copy the local .m2 repo into the dependencies dir.
 mkdir $BASEDIR/../dependencies
-find ~/.m2 -name '*.jar' -exec cp {} $BASEDIR/../dependencies/ ";"
+cp -R ~/.m2 $BASEDIR/../dependencies/
 
-# Print out the size on disk for the .m2 and dependencies dirs.  They won't
-# be exact, because of extra maven metadata, but they should be in the same
-# ballpark.
+# Print out the size on disk for the .m2 and dependencies dirs.  They should
+# match.
 du -sk ~/.m2
 du -sk $BASEDIR/../dependencies
 
 # Add the dependencies to the git commit.  --all option adds new files,
 # removes files in the repo no longer there on disk, and stages modified
 # files that already exist in the repo.
-git add --force --all $BASEDIR/../dependencies/*.jar
+git add --force --all $BASEDIR/../dependencies/*
 
