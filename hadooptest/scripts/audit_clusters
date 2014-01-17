@@ -1,14 +1,17 @@
 #!/bin/bash
 
 clusters=$*
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 TIMESTAMP=`date +%y%m%d-%T`
 filename="/tmp/scan.log.$TIMESTAMP"
-./scripts/scan_clusters $clusters 2>&1 | tee $filename
+$script_dir/scan_clusters $clusters 2>&1 | tee $filename
 
 echo "==========================================="
 echo "SUMMARY"
 echo "==========================================="
-./scripts/parse_scan_clusters $filename
+$script_dir/parse_scan_clusters $filename
 
 rm $filename
 
