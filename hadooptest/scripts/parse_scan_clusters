@@ -34,7 +34,9 @@ while (<>) {
     # $. keep track of the current line number
     # printf("line %2d: %s", $., $_);
 
-    if (($_ =~ "Warning: Permanently added") || ($_ =~ "---------")) {
+    if (($_ =~ /^\Q+\E/) || 
+	($_ =~ "Warning: Permanently added") ||
+	($_ =~ "---------")) {
         next;
     }
 
