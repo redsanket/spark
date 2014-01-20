@@ -97,30 +97,30 @@ public class TestDistcpCli extends TestSession {
 		fileMetadata.put("file_empty", new Double((double) 0));
 		fileMetadata.put("file_1B", new Double((double) 1));
 		// 64 MB file size variations
-//		fileMetadata.put("file_1_byte_short_of_64MB", new Double(
-//				(double) 64 * 1024 * 1024) - 1);
-//		fileMetadata.put("file_64MB", new Double((double) 64 * 1024 * 1024));
-//		fileMetadata.put("file_1_byte_more_than_64MB", new Double(
-//				(double) 64 * 1024 * 1024) + 1);
-//
-//		// 128 MB file size variations
-//		fileMetadata.put("file_1_byte_short_of_128MB", new Double(
-//				(double) 128 * 1024 * 1024) - 1);
-//		fileMetadata.put("file_128MB", new Double((double) 128 * 1024 * 1024));
-//		fileMetadata.put("file_1_byte_more_than_128MB", new Double(
-//				(double) 128 * 1024 * 1024) + 1);
-//
-//		fileMetadata.put("file_255MB", new Double((double) 255 * 1024 * 1024));
-//		fileMetadata.put("file_256MB", new Double((double) 256 * 1024 * 1024));
-//		fileMetadata.put("file_257MB", new Double((double) 257 * 1024 * 1024));
-//
-//		fileMetadata.put("file_767MB", new Double((double) 767 * 1024 * 1024));
-//		fileMetadata.put("file_768MB", new Double((double) 768 * 1024 * 1024));
-//		fileMetadata.put("file_769MB", new Double((double) 769 * 1024 * 1024));
+		fileMetadata.put("file_1_byte_short_of_64MB", new Double(
+				(double) 64 * 1024 * 1024) - 1);
+		fileMetadata.put("file_64MB", new Double((double) 64 * 1024 * 1024));
+		fileMetadata.put("file_1_byte_more_than_64MB", new Double(
+				(double) 64 * 1024 * 1024) + 1);
+
+		// 128 MB file size variations
+		fileMetadata.put("file_1_byte_short_of_128MB", new Double(
+				(double) 128 * 1024 * 1024) - 1);
+		fileMetadata.put("file_128MB", new Double((double) 128 * 1024 * 1024));
+		fileMetadata.put("file_1_byte_more_than_128MB", new Double(
+				(double) 128 * 1024 * 1024) + 1);
+
+		fileMetadata.put("file_255MB", new Double((double) 255 * 1024 * 1024));
+		fileMetadata.put("file_256MB", new Double((double) 256 * 1024 * 1024));
+		fileMetadata.put("file_257MB", new Double((double) 257 * 1024 * 1024));
+
+		fileMetadata.put("file_767MB", new Double((double) 767 * 1024 * 1024));
+		fileMetadata.put("file_768MB", new Double((double) 768 * 1024 * 1024));
+		fileMetadata.put("file_769MB", new Double((double) 769 * 1024 * 1024));
 //		// Huge file
-//		fileMetadata.put("file_11GB",
-//				new Double(((double) ((double) (double) 10 * (double) 1024
-//						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
+		fileMetadata.put("file_11GB",
+				new Double(((double) ((double) (double) 10 * (double) 1024
+						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
 
 		setOfTestDataFilesInHdfs = new HashSet<String>();
 		setOfTestDataFilesInLocalFs = new HashSet<String>();
