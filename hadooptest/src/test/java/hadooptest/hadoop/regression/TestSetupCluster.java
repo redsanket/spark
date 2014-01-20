@@ -5,17 +5,9 @@ import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-
 public class TestSetupCluster extends TestSession {
-
-    @BeforeClass
-    public static void startTestSession() throws IOException {
-        TestSession.start();
-    }
 
     @Test
     public void setupCluster() {

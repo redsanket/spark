@@ -1,0 +1,72 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin $Script);
+use Test::More;
+use File::Copy;
+use File::Find::Rule;
+use File::Basename;
+
+my $res;
+my $percentage;
+my $df_header;
+my $cluster;
+my $show_df_header=1;
+my $show_cluster_header=1;
+my $df_threshold=90;
+
+sub print_cluster_header() {
+    print("--------------------\n");
+    print("cluster=$cluster\n");
+    print("--------------------\n");
+    $show_cluster_header=0;
+}
+
+sub print_df_header() {
+    print($df_header);
+    $show_df_header=0;
+}
+
+# open call is not needed when opening the file specified as the first argument
+# open(FILE1, $ARGV[0]);
+while (<>) {
+    # $. keep track of the current line number
+    # printf("line %2d: %s", $., $_);
+
+    if (($_ =~ /^\Q+\E/) || 
+	($_ =~ "Warning: Permanently added") ||
+	($_ =~ "---------")) {
+        next;
+    }
+
+    # Save the cluster header
+    if ($_ =~ m/(^cluster)\s+(.*)/) {
+        $cluster = $2;
+        $show_cluster_header=1;
+        $show_df_header=1;
+        next;
+    }
+
+    # Save the df header
+    if ($_ =~ /(.*)\s+(Filesystem)\s+(.*)/) {
+        $df_header = $_;
+        next;
+    }
+
+    # Check percentage
+    if ($_ =~ m/(.*)\s+(\d+)(%)\s+(.*)/) {
+	$percentage=$2;
+	if ($percentage > $df_threshold) {
+	    print_cluster_header() if ($show_cluster_header == 1);
+	    print_df_header() if ($show_df_header == 1);
+	    print($_);
+	}
+    } else {
+	if ($_ =~ "/vol/") {
+	    next;
+	}
+	print_cluster_header() if ($show_cluster_header == 1);
+	printf("%s", $_);
+    }
+}

@@ -13,7 +13,6 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.TestSession;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -33,11 +32,6 @@ public class ABFTest extends TestSession {
     private String source1;
     private String target1;
     private String hcatTableName;
-    
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
     
     @Before
     public void setup() throws Exception {

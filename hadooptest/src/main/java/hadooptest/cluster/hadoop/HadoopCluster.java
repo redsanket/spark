@@ -4,26 +4,35 @@
 
 package hadooptest.cluster.hadoop;
 
+import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
 import hadooptest.node.hadoop.pseudodistributed.PseudoDistributedNode;
+import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.security.SecurityUtil;
 //import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
+import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 
 import coretest.Util;
@@ -70,6 +79,43 @@ public abstract class HadoopCluster {
     public static final String START = "start";
     public static final String STOP = "stop";
     
+    public static enum HADOOP_EXEC_MODE { CLI, API }
+    public static enum HADOOP_JOB_TYPE {
+        SLEEP, WORDCOUNT, RANDOM_WRITER, RANDOM_TEXT_WRITER }
+    
+    public static final String[] COMPRESS_ON = {
+        "-Dmapreduce.map.output.compress=true",
+        "-Dmapreduce.output.fileoutputformat.compress=true"
+    };
+    public static final String[] COMPRESS_OFF = {
+        "-Dmapreduce.map.output.compress=false",
+        "-Dmapreduce.output.fileoutputformat.compress=false"
+    };  
+
+    public static final String[] YARN_OPTS = {
+        "-Dmapreduce.job.acl-view-job=*" 
+    };
+
+    public static final String[] YARN_OPTS2 = {
+        "-Dmapreduce.map.memory.mb=2048",
+        "-Dmapreduce.reduce.memory.mb=4096"
+    };
+
+    /* The compression job submission explicitly needs to use the 32-bit
+     * compression libraries (i386-32) for the jobs to run successfully
+     * as the nodes in the cluster run in 32-bit mode JVMs. The
+     * verification of the jobs needs to be done with the 64-bit
+     * compression libraries (amd64-64) as the gateway node JVM (and thus
+     * all framework access of the hadoop API) is done through a 64-bit JVM.
+     * The setting of java.library.home in pom-ci.xml accomplishes setting
+     * the 64-bit native libraries for API use.
+     */
+    public static final String[] YARN_OPTS3 = {
+        "-Dmapred.child.java.opts='-Djava.library.path=" + 
+                TestSession.conf.getProperty("HADOOP_COMMON_HOME") + 
+                "/lib/native/Linux-i386-32" + "'"    
+    };
+
     /**
      * Container for storing the Hadoop cluster node objects by components
      * Each component contains a hash table of key hostname and
@@ -388,7 +434,172 @@ public abstract class HadoopCluster {
         printNodes();
     }
 
+    public void setupSingleQueueCapacity() throws Exception {
+        FullyDistributedCluster cluster =
+                (FullyDistributedCluster) TestSession.cluster;
+        String component = HadoopCluster.RESOURCE_MANAGER;
+
+        /* 
+         * NOTE: Add a check via the Hadoop API or jmx to determine if a single
+         * queue is already in place. If so, skip the following as to not waste
+         *  time.
+         */
+        YarnClientImpl yarnClient = this.getYarnClient();
+
+        List<QueueInfo> queues =  yarnClient.getAllQueues(); 
+        assertNotNull("Expected cluster queue(s) not found!!!", queues);        
+        TestSession.logger.info("queues='" +
+            Arrays.toString(queues.toArray()) + "'");
+        if ((queues.size() == 1) &&
+            (Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
+                TestSession.logger.debug("Cluster is already setup properly. " +
+                        "Nothing to do.");
+                return;
+        }
+        
+        // Backup the default configuration directory on the Resource Manager
+        // component host.
+        cluster.getConf(component).backupConfDir(); 
+
+        // Copy files to the custom configuration directory on the
+        // Resource Manager component host.
+        String sourceFile = TestSession.conf.getProperty("WORKSPACE") +
+                "/conf/SingleQueueConf/single-queue-capacity-scheduler.xml";
+        cluster.getConf(component).copyFileToConfDir(sourceFile,
+                "capacity-scheduler.xml");
+        cluster.hadoopDaemon(Action.STOP, component);
+        cluster.hadoopDaemon(Action.START, component);
+    }
+
+    public static void setupTestDir(String relativeOutputDir) throws Exception {
+        // Define the test directory
+        DFS dfs = new DFS();
+        String testDir = dfs.getBaseUrl() + "/user/" +
+            System.getProperty("user.name") + "/" + relativeOutputDir;
+
+        // Delete it existing test directory if exists
+        FileSystem fs = TestSession.cluster.getFS();
+        FsShell fsShell = TestSession.cluster.getFsShell();
+        if (fs.exists(new Path(testDir))) {
+            TestSession.logger.info("Delete existing test directory: " +
+                testDir);
+            fsShell.run(new String[] {"-rm", "-r", testDir});
+        }
+        
+        // Create or re-create the test directory.
+        TestSession.logger.info("Create new test directory: " + testDir);
+        fsShell.run(new String[] {"-mkdir", "-p", testDir});
+    }
+
+    /*
+     * Create a generic job
+     */
+    public static GenericJob createGenericJob(
+            HadoopCluster.HADOOP_JOB_TYPE jobType, String relativeOutputDir)
+                    throws Exception {
+        // Create a generic job
+        GenericJob job = new GenericJob();
+        job.setJobJar(
+                TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+
+        // Set generic job type
+        if (jobType == HADOOP_JOB_TYPE.RANDOM_WRITER) {
+            job.setJobName("randomwriter");            
+        } else if (jobType == HADOOP_JOB_TYPE.RANDOM_TEXT_WRITER) {
+            job.setJobName("randomtextwriter");            
+        } else {
+            throw new Exception("Uknown job type!!!");
+        }
+        
+        // Set job args
+        ArrayList<String> jobArgs = new ArrayList<String>();
+        jobArgs.addAll(Arrays.asList(YARN_OPTS));
+        jobArgs.addAll(Arrays.asList(YARN_OPTS2));
+        jobArgs.addAll(Arrays.asList(YARN_OPTS3));
+        
+        jobArgs.addAll(Arrays.asList(HadoopCluster.COMPRESS_OFF));
+        if (jobType == HADOOP_JOB_TYPE.RANDOM_WRITER) {
+            jobArgs.add("-Dmapreduce.randomwriter.totalbytes=1024");
+            jobArgs.add(relativeOutputDir+"/byteInput");
+        } else if (jobType == HADOOP_JOB_TYPE.RANDOM_TEXT_WRITER) {
+            jobArgs.add("-Dmapreduce.randomtextwriter.totalbytes=1024");
+            jobArgs.add(relativeOutputDir+"/textInput");
+        } else {
+            throw new Exception("Uknown job type!!!");
+        }
+        job.setJobArgs(jobArgs.toArray(new String[0]));
+        
+        return job;
+    }
+
+    /*
+     * randomwriter: A map/reduce program that writes 10GB of random data per node.
+     */
+    public void setupRwTestData(String relativeOutputDir) 
+            throws Exception {
+        setupTestDir(relativeOutputDir);
+        Vector<GenericJob> jobVector = new Vector<GenericJob>();
+        jobVector.add(
+                createGenericJob(
+                        HadoopCluster.HADOOP_JOB_TYPE.RANDOM_WRITER,
+                        relativeOutputDir));
+        runJobs(jobVector);
+    }
+   
+    /*
+     * randomtextwriter: A map/reduce program that writes 10GB of random textual data per node.
+     */
+    public void setupRtwTestData(String relativeOutputDir)
+            throws Exception {        
+        setupTestDir(relativeOutputDir);
+        Vector<GenericJob> jobVector = new Vector<GenericJob>();
+        jobVector.add(
+                createGenericJob(
+                        HadoopCluster.HADOOP_JOB_TYPE.RANDOM_TEXT_WRITER,
+                        relativeOutputDir));
+        runJobs(jobVector);
+    }
+
+    /*
+     * randomwriter and random text writer
+     */
+    public void setupRwRtwTestData(String relativeOutputDir)
+            throws Exception {
+        setupTestDir(relativeOutputDir);
+        Vector<GenericJob> jobVector = new Vector<GenericJob>();
+        jobVector.add(
+                createGenericJob(
+                        HadoopCluster.HADOOP_JOB_TYPE.RANDOM_WRITER,
+                        relativeOutputDir));
+        jobVector.add(
+                createGenericJob(
+                        HadoopCluster.HADOOP_JOB_TYPE.RANDOM_TEXT_WRITER,
+                        relativeOutputDir));
+        TestSession.cluster.runJobs(jobVector);        
+    }
     
+    public void runJobs(Vector<GenericJob> jobVector) throws Exception {
+        runJobs(jobVector, 120, 3);
+    }
+
+    public void runJobs(Vector<GenericJob> jobVector,
+            int waitForIDsec, int waitForSuccessMin) throws Exception {
+        // Start the jobs
+        for (GenericJob job : jobVector) {
+            job.start();
+        }
+        
+        // Wait for job IDs
+        for (GenericJob job : jobVector) {
+            job.waitForID(waitForIDsec);
+        }
+        
+        // Wait for success
+        for (GenericJob job : jobVector) {
+            job.waitForSuccess(waitForSuccessMin);
+        }        
+    }
+
     public void printNodes() {
         TestSession.logger.debug("-- listing cluster nodes --");
         Enumeration<String> components = hadoopComponents.keys();
@@ -610,6 +821,107 @@ public abstract class HadoopCluster {
 		return yarnClient;
 	}
 	
+    /**
+     * Get the queue capacities
+     * 
+     * @return Map of queue capacities where the key is the queue name, and the
+     * value is the queue capacity.
+     * 
+     * @throws IOException.
+     */
+    public Map<String, Float> getQueueCapacity() throws Exception {
+        YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();        
+        List<QueueInfo> queues =  yarnClient.getAllQueues();
+        Map<String, Float> capacity = new HashMap<String, Float>();
+        int index = 1;
+        for (QueueInfo queue : queues) {
+            TestSession.logger.info(
+                    "Queue " + index++ + " name=" + queue.getQueueName() +
+                    ", capacity=" + queue.getCapacity());                        
+            capacity.put(queue.getQueueName(), queue.getCapacity());
+        }
+        return capacity;
+    }
+
+    /**
+     * Get the queue capacities
+     * 
+     * @param Queue name
+     * @return Queue capacities where the key is the queue name, and the
+     * value is the queue capacity.
+     * 
+     * @throws IOException.
+     */
+    public Float getQueueCapacity(String queueName) throws Exception {
+        Map<String, Float> capacity = this.getQueueCapacity();
+        return capacity.get(queueName);
+    }
+
+    /**
+     * Get the queue capacities
+     * 
+     * @return Map of queue capacities where the key is the queue name, and the
+     * value is the queue capacity.
+     * 
+     * @throws IOException.
+     */
+    public Map<String, QueueInfo> getQueueInfo() throws Exception {
+        YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();        
+        List<QueueInfo> queues =  yarnClient.getAllQueues();
+        Map<String, QueueInfo> queueInfoMp = new HashMap<String, QueueInfo>();
+        int index = 1;
+        for (QueueInfo queueInfo : queues) {
+            TestSession.logger.info(
+                    "Queue " + index++ + " name=" + queueInfo.getQueueName() +
+                    ", capacity=" + queueInfo.getCapacity());                        
+            queueInfoMp.put(queueInfo.getQueueName(), queueInfo);
+        }
+        return queueInfoMp;
+    }
+
+    /**
+     * Get the queue capacities
+     * 
+     * @param Queue name
+     * @return Queue capacities where the key is the queue name, and the
+     * value is the queue capacity.
+     * 
+     * @throws IOException.
+     */
+    public QueueInfo getQueueInfo(String queueName) throws Exception {
+        Map<String, QueueInfo> queueInfo = this.getQueueInfo();
+        return queueInfo.get(queueName);
+    }
+
+        
+	public List<QueueInfo> getQueneInfo() throws Exception {
+        YarnClientImpl yarnClient = TestSession.cluster.getYarnClient();        
+        List<QueueInfo> queues =  yarnClient.getAllQueues();
+        TestSession.logger.info(
+                "Queues='" + Arrays.toString(queues.toArray()) + "'");
+        return queues;
+    }
+    
+    public void printQueueCapacity(Map<String, Float> capacity) {
+        int index = 1;
+        
+        for (String queueName: capacity.keySet()) {
+            TestSession.logger.info(
+                    "Queue " + index++ + " name=" + queueName +
+                    ", capacity=" + capacity.get(queueName).toString());
+        } 
+    }
+
+    public void printQueueCapacity(List<QueueInfo> queues) {
+        int index = 1;
+        for (QueueInfo queue : queues) {
+            queue.getCapacity();
+            TestSession.logger.info(
+                    "Queue " + index++ + " name=" + queue.getQueueName() +
+                    ", capacity=" + queue.getCapacity());            
+        }
+    }
+    
     /**
      * Get the Job Client
      * 

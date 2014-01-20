@@ -12,17 +12,11 @@ import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 //import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 
 public class TestYarnClient extends TestSession {
 	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
-
 	/*
 	 * A test for the Yarn Client
 	 */

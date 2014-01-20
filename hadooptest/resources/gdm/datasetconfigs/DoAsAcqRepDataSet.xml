@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog"
+    description="gdm-dataset-GDM-5.6.0-QE-build" name="NEW_DATA_SET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>FALSE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>GDM automated test dataset built by deploy scripts.</Comments>
+  <!--   <UGI group="GROUP_NAME" owner="OWNER_NAME" permission="755"/>  -->
+    <UGI GROUP_OWNER_VALUE   permission="755"/>
+    <RunAsOwner>RUN_AS_OWNER</RunAsOwner>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>90</DiscoveryFrequency>
+    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <Paths>
+        <Path location="/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
+        <Path location="/data/daqdev/count/${DataSetName}/%{date}" type="count"/>
+        <Path location="/data/daqdev/schema/${DataSetName}/%{date}" type="schema"/>
+    </Paths>
+    <Parameters>
+        <attribute name="feed" value="gdm-dataset-GDM-5.6.0-QE-build"/>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="bucket" value="0-998"/>
+        <attribute name="statsfeed" value="gdm-dataset-GDM-5.6.0-QE-build_stats"/>
+        <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="retentionPeriod" value="390"/>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>mrkt_sid</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720"
+            name="gdm-fdi-source-GDM-5.6.0-QE-build" />
+    </Sources>
+    <DataFlow/>
+    <Targets>
+         <Target latency="1440" name="TARGET1" status="active">
+            <DateRange end="20220101" start="20100101"/>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 10" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1440" name="TARGET2">
+            <DateRange end="20220101" start="20100101"/>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 10" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+    </Targets>
+    <HCat>
+        <HCatDatabaseName>gdm</HCatDatabaseName>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatSchemaFile>schema.dat</HCatSchemaFile>
+        <HCatSchemaFormat>ULT</HCatSchemaFormat>
+        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
+        <HCatTableName>test-lawkp-hituser1</HCatTableName>
+    </HCat>
+</DataSet>

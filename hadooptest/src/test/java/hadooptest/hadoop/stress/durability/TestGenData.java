@@ -1,12 +1,8 @@
 package hadooptest.hadoop.stress.durability;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,9 +14,15 @@ import org.apache.hadoop.fs.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 /*
  * Example: 
- * ./scripts/run_hadooptest -c theoden -m -n -w `pwd` -t TestGenData -DJOB_RECORD=1000000
+ * ./scripts/run_hadooptest -c theoden -m -n -w `pwd` -t TestGenData -DNUM_DATA_FILES=1000000
+ * ./scripts/run_hadooptest -c theoden -m -n -w `pwd` -t TestGenData -DNUM_DATA_FILES=1000000 -DDATA_FILE_SIZE=1048576
+ * 
+ * For creating 0 byte files: 100,000 files in ~1 min, 1,000,000 in ~6 min
+ * For creating 1 MB files: 10,000 files in ~2 min
+ * 
  */
 public class TestGenData extends TestSession {
     
@@ -33,7 +35,11 @@ public class TestGenData extends TestSession {
         int partitionSize;
         DFS hdfs;
         FileSystem fs;
-
+        
+        String dataSizeStr = System.getProperty("DATA_FILE_SIZE", "1048576");
+        byte[] dataBuf = 
+                new byte[Integer.parseInt(System.getProperty("DATA_FILE_SIZE", "1048576"))];
+                
         // Instantiate a thread for creating a subset of job records
         GenDataThread(int index, String jobRecDir, int batchSize,
                 int partitionSize, DFS hdfs) {
@@ -55,15 +61,10 @@ public class TestGenData extends TestSession {
         public void run() {
             int startIndex=this.index*partitionSize;
             String paddedPartIndex = String.format("%06d", index);
-            String user = "hadoopqa";
-            String jobType = "Sleep";
-            String jobState = "SUCCEEDED";
             String jobRecPartDir = this.jobRecDir + "/" + paddedPartIndex;
-            String jobRecExt1 = "_conf.xml";
+            String jobRecExt = ".data";
             long time = System.currentTimeMillis();
-            String jobNamePrefix = "job_" + time + "_";
-            String jobRecExt2 = "-" + time + "-" + user + "-" + jobType +
-                    "+job-" + time + "-1-1-" + jobState + "-default.jhist";
+            String jobNamePrefix = "file_" + time + "_";
             String jobStrPrefix = jobRecPartDir + "/" + jobNamePrefix;
             TestSession.logger.info("Generate " + batchSize +
                     " job records in " + jobRecPartDir + " for " + 
@@ -81,12 +82,11 @@ public class TestGenData extends TestSession {
                 // Create n job records
                 for(int i = startIndex; i < (startIndex+batchSize); i++) {
                     String jobStr = jobStrPrefix + String.format("%06d", i);
-                    Path path1 = new Path(jobStr + jobRecExt1);
-                    Path path2 = new Path(jobStr + jobRecExt2);                    
-                    FSDataOutputStream fss1 = fs.create(path1);
-                    fss1.close();
-                    FSDataOutputStream fss2 = fs.create(path2);
-                    fss2.close();
+                    Path path = new Path(jobStr + jobRecExt);
+                    FSDataOutputStream fss = fs.create(path);
+                    // FSDataOutputStream fss = fs.create(path, false, 100);
+                    fss.write(dataBuf);
+                    fss.close();
                 }
             } catch (Exception e) {
                 TestSession.logger.info("Caught exception in child thread #" +
@@ -107,37 +107,39 @@ public class TestGenData extends TestSession {
 
     @Test
     public void testGenData() throws Exception {
-        int numRecords = 0;
+        int numDataFiles = 0;
         try {
-            numRecords = 
-                    Integer.parseInt(System.getProperty("JOB_RECORD", "1000")); 
+            numDataFiles = 
+                    Integer.parseInt(System.getProperty("NUM_DATA_FILES", "1000")); 
         } catch (NumberFormatException e) {
             System.err.println("Argument must be an integer!!!");
             System.exit(1);
-        }
-
+        }        
+        
         int partitionSize = 1000;
-        int numPartition =  numRecords/partitionSize;
-        int partialBatchProcessSize= numRecords%partitionSize;
+        int numPartition =  numDataFiles/partitionSize;
+        int partialBatchProcessSize= numDataFiles%partitionSize;
         if (partialBatchProcessSize > 0) {
             numPartition++;
         }
         
-        String jobRecRootDir = "/mapred/history/done";
+        String dataRootDir = System.getProperty("DATA_ROOT_DIR", "test-data"); 
+
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
         String dateStr = sdf.format(date);
-        String jobRecDir = jobRecRootDir + "/" + dateStr;
+        String dataRecDir = dataRootDir + "/" + dateStr;
 
         TestSession.logger.info(
-                "--> Generate " + numRecords + " job records in " +
+                "--> Generate " + numDataFiles + " data records in " +
                 numPartition + " paritions of size " + partitionSize +
-                " in " + jobRecDir + ":");
+                " in " + dataRecDir + ":");
 
         // Spawn a thread for each partition of job records
         GenDataThread[] threads = new GenDataThread[numPartition];
         int batchSize = partitionSize;
 
+        /*
         // Run as mapredqa
         try {
             // Initialize API security for the FullyDistributedCluster type only.
@@ -149,6 +151,7 @@ public class TestGenData extends TestSession {
             logger.error("Failed to set the Hadoop API security.", ioe);
             ioe.printStackTrace();
         }
+        */
         
         // Create n job records per partition per thread 
         try {        
@@ -156,7 +159,7 @@ public class TestGenData extends TestSession {
                 if ((index+1 == numPartition) && (partialBatchProcessSize > 0)) {
                     batchSize = partialBatchProcessSize;
                 }
-                threads[index] = new GenDataThread(index, jobRecDir, batchSize,
+                threads[index] = new GenDataThread(index, dataRecDir, batchSize,
                         partitionSize, hdfs);
                 threads[index].start();
                 // Thread.sleep(100);
@@ -170,9 +173,9 @@ public class TestGenData extends TestSession {
             e.printStackTrace();
         }
         TestSession.logger.info(
-                "--> Generated " + numRecords + " job records in " +
+                "--> Generated " + numDataFiles + " job records in " +
                 numPartition + " paritions of size " + partitionSize +
-                " in " + jobRecDir + ":");
+                " in " + dataRecDir + ":");
     }
         
 }

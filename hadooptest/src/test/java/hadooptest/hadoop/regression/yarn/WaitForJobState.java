@@ -8,7 +8,6 @@ import hadooptest.workflow.hadoop.job.SleepJob;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /*
@@ -17,11 +16,6 @@ import org.junit.Test;
 public class WaitForJobState extends TestSession {
 	
 	private SleepJob sleepJob;
-
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 
 	/*
 	 * Before each test, we much initialize the sleep job and verify that its job ID is valid.

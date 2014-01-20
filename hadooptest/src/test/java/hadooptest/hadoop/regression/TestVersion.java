@@ -3,19 +3,18 @@ package hadooptest.hadoop.regression;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.DFS;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-
 public class TestVersion extends TestSession {
 
-	@BeforeClass
-	public static void startTestSession() throws IOException {
-		TestSession.start();
-	}
-	
+    @BeforeClass
+    public static void startTestSession() {
+        TestSession.start();
+    }
+    
 	@Test
 	public void assertHadoopVersion() {
 		try {

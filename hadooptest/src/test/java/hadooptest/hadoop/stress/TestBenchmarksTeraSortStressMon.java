@@ -14,7 +14,6 @@ import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.monitoring.Monitorable;
 import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobClient;
-import hadooptest.workflow.hadoop.job.TaskReportSummary;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,19 +27,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.io.IOException;
 import java.io.FileInputStream;
 
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.examples.terasort.TeraValidate;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 //import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
@@ -245,57 +238,12 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
      * After each test, fetch the job task reports.
      */
     @After
-    public void getTaskResportSummary() 
+    public void logTaskResportSummary() 
             throws InterruptedException, IOException {
         JobClient jobClient = TestSession.cluster.getJobClient();
-        
-        // LOG TO FILE
-        Logger logger = TestSession.logger;
-        FileAppender fileAppender = new FileAppender();
-        fileAppender.setName("FileLogger");        
-        fileAppender.setFile(
-                TestSession.conf.getProperty("WORKSPACE_SF_REPORTS") +
-                "/tasks_report.log");
-        fileAppender.setLayout(new PatternLayout("%d %-5p %m%n"));
-        fileAppender.setThreshold(Level.INFO);
-        fileAppender.setAppend(true);
-        fileAppender.activateOptions();
-        logger.addAppender(fileAppender);
-
-        TestSession.logger.info("********************************************");
-        TestSession.logger.info("Display Jobs:");
-        TestSession.logger.info("********************************************");
-        JobStatus[] jobsStatus = jobClient.getJobs(TestSession.startTime);
-        jobClient.displayJobList(jobsStatus);
-        
-        TestSession.logger.info("********************************************");
-        TestSession.logger.info("Aggregate Task Summary For Each Job:");
-        TestSession.logger.info("********************************************");
-        TaskReportSummary taskReportSummary = jobClient.getTaskReportSummary(jobsStatus);
-        
-        TestSession.logger.info("********************************************");
-        TestSession.logger.info("Print Task Summary For Jobs:");
-        TestSession.logger.info("********************************************");        
-        taskReportSummary.printSummary();
-        
-        logger.removeAppender(fileAppender);
-        
-        // Check that there are no non-complete tasks
-        int numNonCompleteMapTasks = taskReportSummary.getNonCompleteMapTasks();
-        int numNonCompleteReduceTasks = taskReportSummary.getNonCompleteReduceTasks();
-        
-        int acceptableMapFailure = 0;
-        int acceptableRedFailure = 0;
-        String mapMsg = "There are " +
-                (numNonCompleteMapTasks - acceptableMapFailure) + 
-                " more map task failures than the acceptable failure of " +
-                acceptableMapFailure;
-        String redMsg = "There are " + 
-                (numNonCompleteReduceTasks - acceptableRedFailure) + 
-                " more reduce task failures than the acceptable failure of " + 
-                acceptableRedFailure;
-        assertTrue(mapMsg, numNonCompleteMapTasks <= acceptableMapFailure);
-        assertTrue(redMsg, numNonCompleteReduceTasks <= acceptableRedFailure);           
+        jobClient.validateTaskReportSummary(
+                jobClient.logTaskReportSummary(
+                        "tasks_report.log", TestSession.testStartTime), 0, 0);        
     }
 
 	@AfterClass

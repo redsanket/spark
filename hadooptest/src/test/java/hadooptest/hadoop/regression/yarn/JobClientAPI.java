@@ -5,19 +5,11 @@ import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.workflow.hadoop.job.SleepJob;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 
 public class JobClientAPI extends TestSession {
-
-	/******************* CLASS BEFORE/AFTER ***********************/
-
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 
 	/******************* TESTS ***********************/
 

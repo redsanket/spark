@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /*
@@ -25,11 +24,6 @@ public class TestClusterMemUsageCLI extends TestSession {
 	final long mega = kilo*1024;
 	final long giga = mega*1024;
 	final long tera = giga*1024;
-	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 	
 	@Test
 	public void ClusterMemUsage() throws Exception {

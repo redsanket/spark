@@ -3,7 +3,12 @@ package hadooptest.cluster.gdm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -120,5 +125,69 @@ public class JSONUtil
 		} catch (IOException ex) {
 			throw new Exception(new StringBuilder().append("IOException while mapping the json string. ").append(ex.toString()).toString());
 		}
+	}
+	
+    /**
+     * Method to print the json string in  its format
+     * @param text - json string
+     * @return string formated to json
+     */
+	public static String formatString(String text) {
+		StringBuilder json = new StringBuilder();
+		String indentString = "";
+		for (int i = 0; i < text.length(); i++) {
+			char letter = text.charAt(i);
+			switch (letter) {
+			case '{':
+			case '[':
+				json.append("\n" + indentString + letter + "\n");
+				indentString = indentString + "\t";
+				json.append(indentString);
+				break;
+			case '}':
+			case ']':
+				indentString = indentString.replaceFirst("\t", "");
+				json.append("\n" + indentString + letter);
+				break;
+			case ',':
+				json.append(letter + "\n" + indentString);
+				break;
+
+			default:
+				json.append(letter);
+				break;
+			}
+		}
+		return json.toString();
+	}
+	
+
+	/*
+	 * Method that constructs args parameter for GDM REST API
+	 */
+	public String constructArgumentParameter(List<String> targetSourceName, String action ) {
+		JSONObject actionObject = new JSONObject().element("action", action);
+		JSONArray targetsArray = new JSONArray();
+		for (String source : targetSourceName) {
+			targetsArray.add(new JSONObject().element("name", source));
+		}
+		actionObject.put("targets", targetsArray);
+		return actionObject.toString();
+	}
+
+	/**
+	 * Method that constructs ResourceNames Parameter for GDM REST API
+	 * @param resourceNames
+	 * @return
+	 */
+	public String constructResourceNamesParameter(List<String> resourceNames) {
+		TestSession.logger.info("****** constructResourceNamesParameter *** " + resourceNames.toString());
+		JSONArray resourceArray = new JSONArray();
+		for (String resource : resourceNames) {
+			resourceArray.add(new JSONObject().element("ResourceName",resource));
+		}
+		String resourceString = resourceArray.toString();
+		TestSession.logger.info("resourceString = " + resourceString);
+		return resourceString;
 	}
 }

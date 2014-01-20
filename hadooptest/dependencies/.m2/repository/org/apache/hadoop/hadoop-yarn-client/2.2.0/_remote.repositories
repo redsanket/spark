@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Fri Jan 17 10:11:40 CST 2014
+hadoop-yarn-client-2.2.0.pom>local\ central\ mirror=
+hadoop-yarn-client-2.2.0.jar>local\ central\ mirror=
+hadoop-yarn-client-2.2.0.jar>=

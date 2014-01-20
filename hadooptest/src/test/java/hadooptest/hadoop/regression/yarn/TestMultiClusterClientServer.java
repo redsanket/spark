@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.hadoop.DFS;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -19,11 +18,6 @@ import coretest.Util;
 @Category(SerialTests.class)
 public class TestMultiClusterClientServer extends TestSession {
 	
-	@BeforeClass
-	public static void startTestSession() throws Exception {
-		TestSession.start();
-	}
-
 	/**
 	 * The test stages a copy from DFS to DFS when the initiating cluster
 	 * is on another gateway.

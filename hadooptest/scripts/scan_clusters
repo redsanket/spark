@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# for cluster in `IGOR_NS="grid_re.clusters";igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$|cut -d "." -f3`;do echo -e "**********\n$cluster\n**********";hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts echo "Connected successfully";done
+
+CLUSTERS_PARAM=$*
+CLUSTERS=${CLUSTERS_PARAM:=`IGOR_NS="grid_re.clusters";igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$|cut -d "." -f3`}
+
+for cluster in $CLUSTERS; do
+    echo "--------------------"
+    echo cluster $cluster
+    echo "--------------------"
+    hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;
+    # perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts "echo -n 'Connected successfully to ';hostname";
+    set -x
+    perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -t 30 -u 30 -w $hosts "df -h";
+    set +x
+done
+
+# console reboot
+# auto file site-ops ticket
+
+

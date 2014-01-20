@@ -18,8 +18,6 @@ public class ClusterStop extends TestSession {
 	@Test
 	public void stopCluster() {
 		try {
-			TestSession.start();
-
 			assertTrue("The cluster did not successfully stop.", cluster.stop());
 			cluster.getConf().cleanup();
 		}

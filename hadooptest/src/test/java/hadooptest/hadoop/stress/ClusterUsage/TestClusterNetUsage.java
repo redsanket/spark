@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /*
@@ -19,11 +18,6 @@ import org.junit.Test;
  * timeOut		: Time limit to print info
  */
 public class TestClusterNetUsage extends TestSession {
-	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 	
 	@Test
 	public void ClusterNetUsage() throws Exception {

@@ -30,8 +30,8 @@ public class HTTPHandle
 	private HttpClient httpClient;
 	public static String SSO_SERVER = "bouncer.by.corp.yahoo.com";
 	public static int SSO_PORT = 443;
-	public static String USER = "";
-	public static String PASSWORD = "";
+	public static String userName = "";
+    public static String passWord = "";
 	public static Header YBYCookieHeader = null;
 	private String baseURL;
 	private Configuration conf;
@@ -51,6 +51,9 @@ public class HTTPHandle
 			this.baseURL = this.conf.getString("hostconfig.console.base_url");
 
 			TestSession.logger.debug(new StringBuilder().append("Console Base URL: ").append(this.baseURL).toString());
+			this.userName = this.conf.getString("auth.usr");
+			this.passWord = this.conf.getString("auth.pp");
+			this.logonToBouncer(this.userName,this.passWord);
 		} catch (ConfigurationException localConfigurationException) {
 			TestSession.logger.error(localConfigurationException.toString());
 		}
@@ -58,6 +61,14 @@ public class HTTPHandle
 		this.httpClient.getParams().setParameter("http.protocol.content-charset", "ISO-8859-1");
 	}
 
+	/**
+	 * Return the bouncer cookie
+	 * @return - cookie as String
+	 */
+	public String getBouncerCookie() {
+		return cookie;
+	}
+	
 	public void logonToBouncer(String paramString1, String paramString2)
 	{
 		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();

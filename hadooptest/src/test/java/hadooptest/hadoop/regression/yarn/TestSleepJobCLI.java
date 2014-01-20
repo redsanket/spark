@@ -10,18 +10,12 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import coretest.Util;
 
 public class TestSleepJobCLI extends TestSession {
 	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
-
 	/*
 	 * A test for running a sleep job
 	 * 
