@@ -2,25 +2,16 @@ package hadooptest.dfs.regression;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
-
+import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.security.PrivilegedExceptionAction;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Hex;
@@ -36,7 +27,7 @@ import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -50,7 +41,7 @@ import coretest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestWebHdfsAPI extends TestSession {
+public class TestHdfsApi extends TestSession {
 
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";
@@ -76,14 +67,17 @@ public class TestWebHdfsAPI extends TestSession {
 	static String ACTION_MOVE_TO_LOCAL = "moveToLocal";
 	static String ACTION_CHECKSUM = "chucksum";
 
-	static Logger logger = Logger.getLogger(TestWebHdfsAPI.class);
+	static Logger logger = Logger.getLogger(TestHdfsApi.class);
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
 	private String schema;
 	private String nameNode;
+	private String cluster;
+	private String localHadoopVersion;
+	private String remoteHadoopVersion;
 
-	public TestWebHdfsAPI(String cluster) {
+	public TestHdfsApi(String cluster) {
 
 		Properties crossClusterProperties = new Properties();
 		try {
@@ -93,8 +87,8 @@ public class TestWebHdfsAPI extends TestSession {
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
-
-		this.schema = HadooptestConstants.Schema.WEBHDFS;
+		this.cluster = cluster;
+		this.schema = HadooptestConstants.Schema.HDFS;
 		this.nameNode = crossClusterProperties.getProperty(cluster
 				.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
 		;
@@ -108,7 +102,7 @@ public class TestWebHdfsAPI extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { "wilma" }, { "betty" }, });
+		return Arrays.asList(new Object[][] { { "betty" }, { "boromir" }, });
 	}
 
 	/*
@@ -132,8 +126,8 @@ public class TestWebHdfsAPI extends TestSession {
 				+ HadooptestConstants.UserNames.HADOOPQA + "File");
 		fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS,
 				HadooptestConstants.UserNames.DFSLOAD);
-		TestWebHdfsAPI.supportingData.put(
-				HadooptestConstants.UserNames.HADOOPQA, fileOwnerUserDetails);
+		TestHdfsApi.supportingData.put(HadooptestConstants.UserNames.HADOOPQA,
+				fileOwnerUserDetails);
 
 		// Populate the details for DFSLOAD
 		fileOwnerUserDetails = new HashMap<String, String>();
@@ -148,11 +142,11 @@ public class TestWebHdfsAPI extends TestSession {
 		fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS,
 				HadooptestConstants.UserNames.HADOOPQA);
 
-		TestWebHdfsAPI.supportingData.put(
-				HadooptestConstants.UserNames.DFSLOAD, fileOwnerUserDetails);
-		logger.info("CHECK:" + TestWebHdfsAPI.supportingData);
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		TestHdfsApi.supportingData.put(HadooptestConstants.UserNames.DFSLOAD,
+				fileOwnerUserDetails);
+		logger.info("CHECK:" + TestHdfsApi.supportingData);
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Create a local file
 			createLocalFile(aFileName);
@@ -160,16 +154,26 @@ public class TestWebHdfsAPI extends TestSession {
 	}
 
 	@Before
-	public void copyFilesOntoHadoopFS() {
-		try {
-			testSessionStart();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+	public void getVersions() {
+		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
+		localHadoopVersion = rmUtils.getHadoopVersion(
+				System.getProperty("CLUSTER_NAME")).split("\\.")[0];
+		if (System.getProperty("CLUSTER_NAME").equals(this.cluster)) {
+			remoteHadoopVersion = localHadoopVersion;
+		} else {
+			remoteHadoopVersion = rmUtils.getHadoopVersion(this.cluster).split(
+					"\\.")[0];
 		}
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aOwnersFileName = TestWebHdfsAPI.supportingData.get(aUser)
-					.get(OWNED_FILE_WITH_COMPLETE_PATH);
+
+	}
+
+	@Test
+	public void copyFilesOntoHadoopFS() throws IOException,
+			InterruptedException {
+		logger.info("traceMethod:copyFilesOntoHadoopFS");
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aOwnersFileName = TestHdfsApi.supportingData.get(aUser).get(
+					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			Configuration aConf = getConfForRemoteFS(aUser);
 			UserGroupInformation ugi = getUgiForUser(aUser);
@@ -179,20 +183,69 @@ public class TestWebHdfsAPI extends TestSession {
 				// First copy the file to the remote DFS'es
 				doAs = new DoAs(ugi, ACTION_COPY_FROM_LOCAL, aConf,
 						aOwnersFileName, aOwnersFileName);
+				logger.info("traceMethod:copyFilesOntoHadoopFS beginning copyFromLocal for user "
+						+ aUser + " cluster " + this.cluster);
 				doAs.doAction();
+				logger.info("traceMethod:copyFilesOntoHadoopFS after copyFromLocal for user "
+						+ aUser + " cluster " + this.cluster);
 
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				logger.error("Localized message:" + e.getLocalizedMessage());
+				if (localHadoopVersion.startsWith("2")
+						&& remoteHadoopVersion.startsWith("0")) {
+					if (e.getLocalizedMessage().contains("Broken pipe")) {
+						logger.info("got expected exception (Broken pipe) when using HDFS to "
+								+ ACTION_COPY_FROM_LOCAL
+								+ " from 2.x to 0.23, for user=" + aUser);
+
+					} else if (e.getClass().isAssignableFrom(
+							java.io.EOFException.class)) {
+						// Yes, you get a different exception if the user is
+						// different (for the same action)....go figure!
+						// If you try the same action from command line, you
+						// always get a "Broken pipe" exception
+						// I think this happens because of the doAs block.
+						logger.info("got expected exception (EOFException) when using HDFS to "
+								+ ACTION_COPY_FROM_LOCAL
+								+ " from 2.x to 0.23, for user=" + aUser);
+					}
+
+				} else if (localHadoopVersion.startsWith("0")
+						&& remoteHadoopVersion.startsWith("2")) {
+					// Trying to copy, via hdfs:// from 0.23 cluster into a 2.0
+					// cluster
+					if (e.getLocalizedMessage().contains(
+							"org.apache.hadoop.ipc.RPC$VersionMismatch")) {
+						logger.info("got expected exception (RPCVersionMismatch) when using HDFS to "
+								+ ACTION_COPY_FROM_LOCAL
+								+ " from 0.23 to 2.x, user=" + aUser);
+					}
+				} else {
+					logger.error("Unexpected exception, on doing "
+							+ ACTION_COPY_FROM_LOCAL + " from version "
+							+ localHadoopVersion + " to version "
+							+ remoteHadoopVersion);
+					throw (e);
+				}
 			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+				throw (e);
 			}
 		}
 	}
 
 	@Test(expected = AccessControlException.class)
-	public void checkPermissions() throws AccessControlException {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+	public void checkPermissions() throws IOException, InterruptedException {
+		logger.info("traceMethod:checkPermissions");
+		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
+			// Test not valid, because the file would not have got copied to
+			// begin with, because of the version mismatch.
+			// Throw the Exception that the test is expecting.
+			throw new AccessControlException();
+		}
+		copyFilesOntoHadoopFS();
+		logger.info("traceMethod, after copyFiles");
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Get the config and UGI to make the call as the right user
 			Configuration aConf = getConfForRemoteFS(aUser);
@@ -200,34 +253,40 @@ public class TestWebHdfsAPI extends TestSession {
 			DoAs doAs;
 			try {
 				// Check Permissions
-				String userWithouPermission = TestWebHdfsAPI.supportingData
-						.get(aUser).get(USER_WHO_DOESNT_HAVE_PERMISSIONS);
+				String userWithouPermission = TestHdfsApi.supportingData.get(
+						aUser).get(USER_WHO_DOESNT_HAVE_PERMISSIONS);
 				UserGroupInformation ugiNoPermission = getUgiForUser(userWithouPermission);
-
+				logger.info("In traceMethod:checkPermissions, beginning processing for "
+						+ aUser + " for cluster " + this.cluster);
 				doAs = new DoAs(ugiNoPermission, ACTION_APPEND_TO_FILE, aConf,
 						aFileName, null);
 				doAs.doAction();
-				try {
-					cleanupAfterTest();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				logger.info("In traceMethod:checkPermissions, beginning processing for "
+						+ aUser + " for cluster " + this.cluster);
 
 			} catch (AccessControlException acx) {
 				throw acx;
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw (e);
 			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+				throw (e);
 			}
 		}
 	}
 
-	@Test
+	 @Test
 	public void appendToFile() throws Exception {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		logger.info("traceMethod:appendToFile");
+		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
+			// Test not valid, because the file would not have got copied to
+			// begin with, because of the version mismatch
+			return;
+		}
+		// Copy over the files.
+		copyFilesOntoHadoopFS();
+
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			// Get the config and UGI to make the call as the right user
@@ -243,13 +302,19 @@ public class TestWebHdfsAPI extends TestSession {
 			doAs = new DoAs(ugi, ACTION_DUMP_STUFF, aConf, aFileName, null);
 			doAs.doAction();
 		}
-		cleanupAfterTest();
 	}
 
-	@Test
-	public void testdoAMovesInAndOutOfClusterAndChecksum() throws Exception {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+	 @Test
+	public void testdoAMovesInAndOutOfClusterAndChecksum() {
+		logger.info("traceMethod:testdoAMovesInAndOutOfClusterAndChecksum");
+		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
+			// Test not valid, because the file would not have got copied to
+			// begin with, because of the version mismatch
+			return;
+		}
+
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Re-create the local file as it gets moved
 			createLocalFile(aFileName + FILE_GOES_AROUND);
@@ -293,8 +358,6 @@ public class TestWebHdfsAPI extends TestSession {
 				doAs = new DoAs(ugi, ACTION_MOVE_TO_LOCAL, aConf,
 						previousFileName, newFileName);
 				doAs.doAction();
-				
-				cleanupAfterTest();
 
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -304,10 +367,17 @@ public class TestWebHdfsAPI extends TestSession {
 		}
 	}
 
-//	@After
+	@After
 	public void cleanupAfterTest() throws Exception {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		logger.info("traceMethod:cleanupAfterTest");
+		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
+			// Test not valid, because the file would not have got copied to
+			// begin with, because of the version mismatch
+			return;
+		}
+
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			// Get the config and UGI to make the call as the right user
@@ -365,7 +435,12 @@ public class TestWebHdfsAPI extends TestSession {
 					aRemoteFS.copyFromLocalFile(false, true, new Path(oneFile),
 							new Path(otherFile));
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					logger.info("In traceMethod:PrivilegedExceptionActionImpl, got exception "
+							+ e.getMessage()
+							+ " for user "
+							+ ugi.getUserName()
+							+ " for action " + action);
+					throw (e);
 				}
 			} else if (action.equals(ACTION_APPEND_TO_FILE)) {
 				configuration.set(DFS_SUPPORT_APPEND, TRUE);
@@ -571,11 +646,11 @@ public class TestWebHdfsAPI extends TestSession {
 
 	UserGroupInformation getUgiForUser(String aUser) {
 
-		String keytabUser = TestWebHdfsAPI.supportingData.get(aUser).get(
+		String keytabUser = TestHdfsApi.supportingData.get(aUser).get(
 				KEYTAB_USER);
 		logger.info("Set keytab user=" + keytabUser);
-		String keytabDir = TestWebHdfsAPI.supportingData.get(aUser).get(
-				KEYTAB_DIR);
+		String keytabDir = TestHdfsApi.supportingData.get(aUser)
+				.get(KEYTAB_DIR);
 		logger.info("Set keytab dir=" + keytabDir);
 		UserGroupInformation ugi;
 		try {
@@ -626,5 +701,4 @@ public class TestWebHdfsAPI extends TestSession {
 			throw new RuntimeException(e);
 		}
 	}
-
 }

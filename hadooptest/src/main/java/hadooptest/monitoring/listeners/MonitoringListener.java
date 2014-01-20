@@ -39,10 +39,10 @@ public class MonitoringListener extends RunListener {
 	 */
 	public synchronized void testStarted(Description description) {
 		MonitorGeneral monitorGeneral = new MonitorGeneral();
-		TestSession.logger.info("Monitoring listener invoked..on testStart");
+		System.out.println("Monitoring listener invoked..on testStart");
 		String cluster = System.getProperty("CLUSTER_NAME");
 		Class<?> descriptionOfTestClass = description.getTestClass();
-		TestSession.logger.info("Method that has this annotation:"
+		System.out.println("Method that has this annotation:"
 				+ description.getMethodName());
 		Collection<Annotation> annotations = description.getAnnotations();
 		
@@ -50,8 +50,8 @@ public class MonitoringListener extends RunListener {
 			if (annotation.annotationType().isAssignableFrom(Monitorable.class)) {
 				monitorGenerals
 						.put(description.getMethodName(), monitorGeneral);
-				TestSession.logger.info("START MJ size now:" + monitorGenerals.size());
-				TestSession.logger.info("Doing Monitoring..since annotation is "
+				System.out.println("START MJ size now:" + monitorGenerals.size());
+				System.out.println("Doing Monitoring..since annotation is "
 						+ annotation.annotationType().getCanonicalName());				
 				
 				HashMap<String, ArrayList<String>> componentToHostMapping = new HashMap<String, ArrayList<String>>();
@@ -72,7 +72,7 @@ public class MonitoringListener extends RunListener {
 						HadoopCluster.NODEMANAGER,
 						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.NODEMANAGER))));
 
-				TestSession.logger.info("COMPS:" + componentToHostMapping);
+				System.out.println("COMPS:" + componentToHostMapping);
 
 				// Add the CPU Monitor
 				CPUMonitor cpuMonitor = new CPUMonitor(cluster,
@@ -97,7 +97,7 @@ public class MonitoringListener extends RunListener {
 				// Start 'em monitors
 				monitorGeneral.startMonitors();
 			} else {
-				TestSession.logger.info("Skipping annotation..since annotation is "
+				System.out.println("Skipping annotation..since annotation is "
 						+ annotation.annotationType().getCanonicalName()
 						+ " in test named " + description.getMethodName());
 			}
@@ -111,7 +111,7 @@ public class MonitoringListener extends RunListener {
 	public synchronized void testFinished(Description description) {
 	if (monitorGenerals.size() == 0)
 		return;	
-		TestSession.logger.info("STOP MJ size now:" + monitorGenerals.size()
+		System.out.println("STOP MJ size now:" + monitorGenerals.size()
 				+ " called on method:" + description.getMethodName());
 		MonitorGeneral monitorGeneral = monitorGenerals.get(description
 				.getMethodName());
