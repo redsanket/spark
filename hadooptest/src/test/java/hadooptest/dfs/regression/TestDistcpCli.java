@@ -86,7 +86,7 @@ public class TestDistcpCli extends TestSession {
 //				{ "merry" }, // 2.0
 //				{ "betty" }, // 0.23
 				{System.getProperty("CLUSTER_NAME")},
-				{System.getProperty("CLUSTER_NAME2")},
+				{System.getProperty("REMOTE_CLUSTER")},
 		});
 	}
 
