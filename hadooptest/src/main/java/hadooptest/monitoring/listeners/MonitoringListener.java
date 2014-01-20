@@ -45,32 +45,39 @@ public class MonitoringListener extends RunListener {
 		System.out.println("Method that has this annotation:"
 				+ description.getMethodName());
 		Collection<Annotation> annotations = description.getAnnotations();
-		
+
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().isAssignableFrom(Monitorable.class)) {
 				monitorGenerals
 						.put(description.getMethodName(), monitorGeneral);
-				System.out.println("START MJ size now:" + monitorGenerals.size());
+				System.out.println("START MJ size now:"
+						+ monitorGenerals.size());
 				System.out.println("Doing Monitoring..since annotation is "
-						+ annotation.annotationType().getCanonicalName());				
-				
+						+ annotation.annotationType().getCanonicalName());
+
 				HashMap<String, ArrayList<String>> componentToHostMapping = new HashMap<String, ArrayList<String>>();
-				
+
 				componentToHostMapping.put(
 						HadoopCluster.DATANODE,
-						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.DATANODE))));
+						new ArrayList<String>(Arrays.asList(TestSession.cluster
+								.getNodeNames(HadoopCluster.DATANODE))));
 				componentToHostMapping.put(
 						HadoopCluster.NAMENODE,
-						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE))));
+						new ArrayList<String>(Arrays.asList(TestSession.cluster
+								.getNodeNames(HadoopCluster.NAMENODE))));
 				componentToHostMapping.put(
 						HadoopCluster.HISTORYSERVER,
-						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.HISTORYSERVER))));
-				componentToHostMapping.put(
-						HadoopCluster.RESOURCE_MANAGER,
-						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.RESOURCE_MANAGER))));
+						new ArrayList<String>(Arrays.asList(TestSession.cluster
+								.getNodeNames(HadoopCluster.HISTORYSERVER))));
+				componentToHostMapping
+						.put(HadoopCluster.RESOURCE_MANAGER,
+								new ArrayList<String>(
+										Arrays.asList(TestSession.cluster
+												.getNodeNames(HadoopCluster.RESOURCE_MANAGER))));
 				componentToHostMapping.put(
 						HadoopCluster.NODEMANAGER,
-						new ArrayList<String>(Arrays.asList(TestSession.cluster.getNodeNames(HadoopCluster.NODEMANAGER))));
+						new ArrayList<String>(Arrays.asList(TestSession.cluster
+								.getNodeNames(HadoopCluster.NODEMANAGER))));
 
 				System.out.println("COMPS:" + componentToHostMapping);
 
@@ -109,14 +116,16 @@ public class MonitoringListener extends RunListener {
 	 * This method invokes the {@link MonitorGeneral} to stop and remove all the monitors.
 	 */
 	public synchronized void testFinished(Description description) {
-	if (monitorGenerals.size() == 0)
-		return;	
+		if (monitorGenerals.size() == 0)
+			return;
+
 		System.out.println("STOP MJ size now:" + monitorGenerals.size()
 				+ " called on method:" + description.getMethodName());
 		MonitorGeneral monitorGeneral = monitorGenerals.get(description
 				.getMethodName());
 		monitorGeneral.stopMonitors();
 		monitorGeneral.removeAllMonitors();
+		monitorGenerals.remove(description.getMethodName());
 	}
 
 }
