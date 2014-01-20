@@ -4,7 +4,6 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -108,7 +107,12 @@ public class TestWebHdfsApi extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { "boromir" }, { "betty" }, });
+		return Arrays.asList(new Object[][] { 
+//				{ "boromir" }, 
+//				{ "betty" }, 
+				{System.getProperty("CLUSTER_NAME")},
+				{System.getProperty("REMOTE_CLUSTER")},				
+		});
 	}
 
 	/*

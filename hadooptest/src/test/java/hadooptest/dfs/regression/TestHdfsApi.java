@@ -102,7 +102,13 @@ public class TestHdfsApi extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { "betty" }, { "boromir" }, });
+		return Arrays.asList(new Object[][] { 
+				
+//				{ "betty" }, { "boromir" }, 
+				{System.getProperty("CLUSTER_NAME")},
+				{System.getProperty("REMOTE_CLUSTER")},
+		
+		});
 	}
 
 	/*
