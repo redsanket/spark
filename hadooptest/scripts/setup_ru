@@ -80,7 +80,7 @@ then
     fi 
     echo "--> Get roles from igor"
     # igor list -roles grid_re.clusters.$cluster.* > $ROLES_FILE
-    igor list -roles grid_re.clusters.$cluster* > $ROLES_FILE
+    /home/y/bin/igor list -roles grid_re.clusters.$cluster* > $ROLES_FILE
 else
     echo "--> Get roles using existing file '$ROLES_FILE'"
 fi
@@ -103,7 +103,7 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
         if [[ -f $MEMBERS_FILE ]]; then
             rm $MEMBERS_FILE
         fi
-        # for host in `igor list -roles grid_re.clusters.$cluster.*`;do 
+        # for host in `/home/y/bin/igor list -roles grid_re.clusters.$cluster.*`;do 
         echo "--> Get host member (from igor) and hadoop version (from host) as user hadoopqa"
         touch $MEMBERS_FILE
         # ls -l $MEMBERS_FILE
@@ -113,12 +113,12 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
 
             echo "---------------------------------------------------------------------------------" 2>&1 |tee -a $MEMBERS_FILE
 
-            # igor fetch -member grid_re.clusters.sam| tr '\n' ',' | sed 's/.$//'
+            # /home/y/bin/igor fetch -member grid_re.clusters.sam| tr '\n' ',' | sed 's/.$//'
             if [[ $role == "grid_re.clusters.$cluster" ]]; then
                 hosts=`yinst range -ir "(@grid_re.clusters.$cluster, -@grid_re.clusters.$cluster.gateway, -@grid_re.clusters.$cluster.jobtracker, -@grid_re.clusters.$cluster.namenode, -@grid_re.clusters.$cluster.namenode2)"| paste -d, -s`
             else
                 # Because we can only run igor from corp side, use yinst instead.
-                # hosts=`igor fetch -member $role| paste -d, -s`
+                # hosts=`/home/y/bin/igor fetch -member $role| paste -d, -s`
                 hosts=`yinst range -ir @$role| paste -d, -s`
             fi
 
@@ -139,7 +139,7 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
 
             sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"|sort -n" 2>&1 |tee -a $MEMBERS_FILE
 
-            # for host in `igor fetch -member $role`; do
+            # for host in `/home/y/bin/igor fetch -member $role`; do
             #     version=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host readlink -f /home/gs/gridre/yroot.$cluster|cut -d "." -f3- `
             #     echo "$host $version (role $role)" 2>&1 |tee -a $MEMBERS_FILE
             # done;
@@ -157,7 +157,7 @@ else
         if [[ -f $MEMBERS_FILE ]]; then
             rm $MEMBERS_FILE
         fi
-        # for host in `igor list -roles grid_re.clusters.$cluster.*`;do 
+        # for host in `/home/y/bin/igor list -roles grid_re.clusters.$cluster.*`;do 
         echo "--> Get host member from igor"
         touch $MEMBERS_FILE
         # ls -l $MEMBERS_FILE
@@ -165,7 +165,7 @@ else
             echo -n "role $role " 2>&1 |tee -a $MEMBERS_FILE;
 
             # Because we can only run igor from corp side, use yinst instead.
-            # igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
+            # /home/y/bin/igor fetch -member $role 2>&1 |tee -a $MEMBERS_FILE;
             yinst range -ir @$role 2>&1 |tee -a $MEMBERS_FILE;
         done;
     else
