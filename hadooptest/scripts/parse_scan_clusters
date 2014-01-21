@@ -8,13 +8,15 @@ use File::Copy;
 use File::Find::Rule;
 use File::Basename;
 
-my $res;
-my $percentage;
+my $line;
+my $fs_used_percentage;
+my $fs_used_threshold=90;
 my $df_header;
-my $cluster;
 my $show_df_header=1;
 my $show_cluster_header=1;
-my $df_threshold=90;
+my $cluster;
+my $prev_hostname="";
+my $hostname;
 
 sub print_cluster_header() {
     print("--------------------\n");
@@ -34,14 +36,16 @@ while (<>) {
     # $. keep track of the current line number
     # printf("line %2d: %s", $., $_);
 
-    if (($_ =~ /^\Q+\E/) || 
-	($_ =~ "Warning: Permanently added") ||
-	($_ =~ "---------")) {
+    $line = $_;
+
+    if (($line =~ /^\Q+\E/) || 
+        ($line =~ "Warning: Permanently added") ||
+        ($line =~ "---------")) {
         next;
     }
 
     # Save the cluster header
-    if ($_ =~ m/(^cluster)\s+(.*)/) {
+    if ($line =~ m/(^cluster)\s+(.*)/) {
         $cluster = $2;
         $show_cluster_header=1;
         $show_df_header=1;
@@ -49,24 +53,42 @@ while (<>) {
     }
 
     # Save the df header
-    if ($_ =~ /(.*)\s+(Filesystem)\s+(.*)/) {
-        $df_header = $_;
+    if ($line =~ /(.*)\s+(Filesystem)\s+(.*)/) {
+        $df_header = $line;
         next;
     }
 
     # Check percentage
-    if ($_ =~ m/(.*)\s+(\d+)(%)\s+(.*)/) {
-	$percentage=$2;
-	if ($percentage > $df_threshold) {
-	    print_cluster_header() if ($show_cluster_header == 1);
-	    print_df_header() if ($show_df_header == 1);
-	    print($_);
-	}
+    if ($line =~ m/(.*)\s+(\d+)(%)\s+(.*)/) {
+        $$fs_used_percentage=$2;
+        if ($$fs_used_percentage > $fs_used_threshold) {
+            print_cluster_header() if ($show_cluster_header == 1);
+            print_df_header() if ($show_df_header == 1);
+            print($line);
+        }
     } else {
-	if ($_ =~ "/vol/") {
-	    next;
-	}
-	print_cluster_header() if ($show_cluster_header == 1);
-	printf("%s", $_);
+        if ($line =~ "/vol/") {
+            next;
+        }
+        print_cluster_header() if ($show_cluster_header == 1);
+        printf("%s", $line);
+
+        # Attempt to reboot the node
+        if (($_ =~ m/(.*)\s+(gsbl.*)(:.*)/) || 
+            ($_ =~ m/(.*)\s+(gsta.*)(:.*)/) ||
+            ($_ =~ m/(.*)\s+(.*.ygrid.yahoo.com)\s+(.*)/) ) {
+            $hostname = $2;
+            unless ($hostname =~ $prev_hostname) {
+                # reboot the node
+                print("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n");
+
+                # system("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname");
+                # Sorry, user hadoopqa is not allowed to execute '/home/y/bin/flubber_conutil -m reboot dense28.blue.ygrid.yahoo.com' as hadoopqa on adm102.blue.ygrid.yahoo.com.
+
+                # bash-4.1$ ssh adm102.blue.ygrid.yahoo.com SUDO_USER=hadoopqa /home/y/bin/flubber_conutil -m reboot dense28.blue.ygrid.yahoo.com
+                # User : hadoopqa does not have the required permissions. at /home/y/bin/flubber_conutil line 39.
+            }
+            $prev_hostname = $hostname;
+        }       
     }
 }

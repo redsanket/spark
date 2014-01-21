@@ -12,7 +12,7 @@ for cluster in $CLUSTERS; do
     hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;
     # perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts "echo -n 'Connected successfully to ';hostname";
     set -x
-    perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -t 30 -u 30 -w $hosts "df -h";
+    PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -t 30 -u 30 $PDSH_OPT -w $hosts "df -h";
     set +x
 done
 
