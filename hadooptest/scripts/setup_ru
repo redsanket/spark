@@ -137,7 +137,13 @@ if ([[ $GET_VERSION == 1 ]] || [[ $GET_VERSIONS == 1 ]]); then
                 cmd="$sub_cmd | sed 's/^/$comp: /'"
             fi
 
-            sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"|sort -n" 2>&1 |tee -a $MEMBERS_FILE
+            # sudo su hadoopqa -c "ssh adm103.blue.ygrid.yahoo.com \"PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts $cmd\"|sort -n" 2>&1 |tee -a $MEMBERS_FILE
+            command="ssh adm103.blue.ygrid.yahoo.com PDSH_SSH_ARGS_APPEND=\"-q\" pdsh -w $hosts \"$cmd\"|sort -n"
+            if [ `whoami` == "hadoopqa" ]; then
+              $command 2>&1 |tee -a $MEMBERS_FILE
+            else
+               sudo su hadoopqa -c "$command" 2>&1 |tee -a $MEMBERS_FILE
+            fi
 
             # for host in `/home/y/bin/igor fetch -member $role`; do
             #     version=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host readlink -f /home/gs/gridre/yroot.$cluster|cut -d "." -f3- `
