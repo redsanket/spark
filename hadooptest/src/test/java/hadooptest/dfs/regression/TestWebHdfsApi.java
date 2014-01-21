@@ -4,7 +4,6 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -50,7 +49,7 @@ import coretest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestWebHdfsAPI extends TestSession {
+public class TestWebHdfsApi extends TestSession {
 
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";
@@ -76,14 +75,14 @@ public class TestWebHdfsAPI extends TestSession {
 	static String ACTION_MOVE_TO_LOCAL = "moveToLocal";
 	static String ACTION_CHECKSUM = "chucksum";
 
-	static Logger logger = Logger.getLogger(TestWebHdfsAPI.class);
+	static Logger logger = Logger.getLogger(TestWebHdfsApi.class);
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
 	private String schema;
 	private String nameNode;
 
-	public TestWebHdfsAPI(String cluster) {
+	public TestWebHdfsApi(String cluster) {
 
 		Properties crossClusterProperties = new Properties();
 		try {
@@ -108,7 +107,12 @@ public class TestWebHdfsAPI extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { "wilma" }, { "betty" }, });
+		return Arrays.asList(new Object[][] { 
+//				{ "boromir" }, 
+//				{ "betty" }, 
+				{System.getProperty("CLUSTER_NAME")},
+				{System.getProperty("REMOTE_CLUSTER")},				
+		});
 	}
 
 	/*
@@ -132,7 +136,7 @@ public class TestWebHdfsAPI extends TestSession {
 				+ HadooptestConstants.UserNames.HADOOPQA + "File");
 		fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS,
 				HadooptestConstants.UserNames.DFSLOAD);
-		TestWebHdfsAPI.supportingData.put(
+		TestWebHdfsApi.supportingData.put(
 				HadooptestConstants.UserNames.HADOOPQA, fileOwnerUserDetails);
 
 		// Populate the details for DFSLOAD
@@ -148,11 +152,11 @@ public class TestWebHdfsAPI extends TestSession {
 		fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS,
 				HadooptestConstants.UserNames.HADOOPQA);
 
-		TestWebHdfsAPI.supportingData.put(
+		TestWebHdfsApi.supportingData.put(
 				HadooptestConstants.UserNames.DFSLOAD, fileOwnerUserDetails);
-		logger.info("CHECK:" + TestWebHdfsAPI.supportingData);
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		logger.info("CHECK:" + TestWebHdfsApi.supportingData);
+		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
+			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Create a local file
 			createLocalFile(aFileName);
@@ -167,8 +171,8 @@ public class TestWebHdfsAPI extends TestSession {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aOwnersFileName = TestWebHdfsAPI.supportingData.get(aUser)
+		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
+			String aOwnersFileName = TestWebHdfsApi.supportingData.get(aUser)
 					.get(OWNED_FILE_WITH_COMPLETE_PATH);
 
 			Configuration aConf = getConfForRemoteFS(aUser);
@@ -191,8 +195,8 @@ public class TestWebHdfsAPI extends TestSession {
 
 	@Test(expected = AccessControlException.class)
 	public void checkPermissions() throws AccessControlException {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
+			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Get the config and UGI to make the call as the right user
 			Configuration aConf = getConfForRemoteFS(aUser);
@@ -200,7 +204,7 @@ public class TestWebHdfsAPI extends TestSession {
 			DoAs doAs;
 			try {
 				// Check Permissions
-				String userWithouPermission = TestWebHdfsAPI.supportingData
+				String userWithouPermission = TestWebHdfsApi.supportingData
 						.get(aUser).get(USER_WHO_DOESNT_HAVE_PERMISSIONS);
 				UserGroupInformation ugiNoPermission = getUgiForUser(userWithouPermission);
 
@@ -226,8 +230,8 @@ public class TestWebHdfsAPI extends TestSession {
 
 	@Test
 	public void appendToFile() throws Exception {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
+			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			// Get the config and UGI to make the call as the right user
@@ -248,8 +252,8 @@ public class TestWebHdfsAPI extends TestSession {
 
 	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() throws Exception {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
+			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Re-create the local file as it gets moved
 			createLocalFile(aFileName + FILE_GOES_AROUND);
@@ -306,8 +310,8 @@ public class TestWebHdfsAPI extends TestSession {
 
 //	@After
 	public void cleanupAfterTest() throws Exception {
-		for (String aUser : TestWebHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestWebHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
+			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			// Get the config and UGI to make the call as the right user
@@ -571,10 +575,10 @@ public class TestWebHdfsAPI extends TestSession {
 
 	UserGroupInformation getUgiForUser(String aUser) {
 
-		String keytabUser = TestWebHdfsAPI.supportingData.get(aUser).get(
+		String keytabUser = TestWebHdfsApi.supportingData.get(aUser).get(
 				KEYTAB_USER);
 		logger.info("Set keytab user=" + keytabUser);
-		String keytabDir = TestWebHdfsAPI.supportingData.get(aUser).get(
+		String keytabDir = TestWebHdfsApi.supportingData.get(aUser).get(
 				KEYTAB_DIR);
 		logger.info("Set keytab dir=" + keytabDir);
 		UserGroupInformation ugi;
