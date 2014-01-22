@@ -238,7 +238,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
      * After each test, fetch the job task reports.
      */
     @After
-    public void logTaskResportSummary() 
+    public void logTaskReportSummary() 
             throws InterruptedException, IOException {
         JobClient jobClient = TestSession.cluster.getJobClient();
         jobClient.validateTaskReportSummary(
