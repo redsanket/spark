@@ -61,7 +61,10 @@ public abstract class TestSession extends TestSessionCore {
     public static String TASKS_REPORT_LOG = "tasks_report.log";
     public static long startTime=System.currentTimeMillis();    
     public static long testStartTime;
+    public static String currentTestName;
     public static String currentTestMethodName;
+    
+    public static enum HTF_TEST { CLASS, METHOD }
     
     public static void printBanner(String msg) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -79,6 +82,8 @@ public abstract class TestSession extends TestSessionCore {
     @Rule
     public TestRule watcher = new TestWatcher() {
         protected void starting(Description description) {
+            currentTestName =
+                    description.getClassName();
             currentTestMethodName =
                     description.getClassName() + ": " + description.getMethodName();
             printBanner(currentTestMethodName);
@@ -125,6 +130,11 @@ public abstract class TestSession extends TestSessionCore {
         }
         */
         
+        if (Boolean.parseBoolean(
+                conf.getProperty("LOG_TASK_REPORT")) == false) {
+            return;
+        }
+        
         TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
 
         // Log the tasks report summary for jobs that ran as part of this test 
@@ -134,7 +144,7 @@ public abstract class TestSession extends TestSessionCore {
         jobClient.validateTaskReportSummary(
                 jobClient.logTaskReportSummary(
                         TestSession.TASKS_REPORT_LOG, 
-                        TestSession.testStartTime),
+                        TestSession.testStartTime, HTF_TEST.METHOD),
                         numAcceptableNonCompleteMapTasks,
                         numAcceptableNonCompleteReduceTasks);        
     }
@@ -163,7 +173,7 @@ public abstract class TestSession extends TestSessionCore {
 		
 		// Log Java Properties
 		initLogJavaProperties();
-		
+
 		// Check to see if the property GDM_ONLY is defined in the hadooptest
 		// configuration file.  If so, we want to exit the TestSession start
 		// method before we do any Hadoop-specific configuration and setup.
@@ -201,7 +211,7 @@ public abstract class TestSession extends TestSessionCore {
     }
 
     public static String getLogDateFormat(Date date) {
-        return getDateFormat(date, "yyyy-MM-dd HH:mm:ss z");
+        return getDateFormat(date, "yyyy-MM-dd HH:mm:ss.SSS z");
     }
 
 	public static String getFileDateFormat(long time) {
