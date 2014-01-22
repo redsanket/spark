@@ -497,9 +497,9 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
 
         TestSession.addLoggerFileAppender(fileName);
         // Log the current test method name
-        System.out.println("================================================================================");
+        TestSession.logger.info("================================================================================");
         TestSession.logger.info("Test Method Name: " + TestSession.currentTestMethodName);
-        System.out.println("================================================================================");
+        TestSession.logger.info("================================================================================");
         TestSession.logger.info("Get jobs with start time after '" + startTime +
                 "' (" + TestSession.getLogDateFormat(startTime) + ")");
         TestSession.removeLoggerFileAppender(fileName);
