@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Vector;
 
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -65,7 +62,7 @@ public abstract class TestSession extends TestSessionCore {
     public static long startTime=System.currentTimeMillis();    
     public static long testStartTime;
     public static String currentTestMethodName;
-
+    
     public static void printBanner(String msg) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
@@ -110,7 +107,7 @@ public abstract class TestSession extends TestSessionCore {
      * After each test, fetch the job task reports.
      */
     @After
-    public void logTaskResportSummary() 
+    public void logTaskReportSummary() 
             throws InterruptedException, IOException {
 
         // Do Nothing For GDM
@@ -118,7 +115,16 @@ public abstract class TestSession extends TestSessionCore {
             (conf.getProperty("GDM_ONLY").equalsIgnoreCase("true"))) {
             return;
         }
-
+        
+        /*
+        if (category.equals(ParallelMethodTests.class)) {
+            TestSession.logger.debug(
+                    "logTaskReportSummary currently does not support " +
+                    "parallel method tests.");
+            return;
+        }
+        */
+        
         TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
 
         // Log the tasks report summary for jobs that ran as part of this test 
