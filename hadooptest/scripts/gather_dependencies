@@ -7,6 +7,11 @@ set -x #echo on
 # in a directory "dependencies" at the top level of the framework.  The script
 # will wipe out the existing local m2 repository and run maven eclipse:eclipse
 # targets, so use with care.
+#
+# When adding new maven plugins to the maven configuration for the project,
+# you will need to add the plugin dependencies here.  The maven plugin 
+# dependencies need to be installed to the local repository so they are 
+# available in maven offline mode on the grid.
 
 # Set the base directory as the dir that the script lives in.
 BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
@@ -15,7 +20,34 @@ BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
 rm -rf ~/.m2/*
 
 # Clean the existing dependencies directory
-rm -rf $BASEDIR/../dependencies/*
+rm -rf $BASEDIR/../dependencies
+
+# install maven plugin dependencies to local repo.
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.codehaus.mojo:exec-maven-plugin:1.2.1:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-jar-plugin:2.2:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-javadoc-plugin:2.9:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-antrun-plugin:1.7:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-jar-plugin:2.4:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-surefire-plugin:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-compiler-plugin:2.3.2:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-resources-plugin:2.5:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-clean-plugin:2.4.1:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-install-plugin:2.3.1:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-site-plugin:3.0:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-plugins:21:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-parent:20:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-dependency-plugin:2.1:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-release-plugin:2.0:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:surefire-junit47:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:surefire-providers:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:common-junit48:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:common-junit4:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:common-junit3:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:common-java5:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.shared:maven-shared-components:18:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=com.google.code.findbugs:jsr305:2.0.1:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:surefire-grouper:2.13:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-help-plugin:2.2
 
 # Build and install coretest, and gather its dependencies
 cd $BASEDIR/../../../coretest/coretest

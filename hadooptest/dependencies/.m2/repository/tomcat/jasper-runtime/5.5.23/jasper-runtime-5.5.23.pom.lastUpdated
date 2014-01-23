@@ -1,5 +1,6 @@
-#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
-#Fri Jan 17 10:10:20 CST 2014
-http\://repository.apache.org/content/groups/snapshots-group/.lastUpdated=1389975020106
-http\://ymaven.corp.yahoo.com\:9999/proximity/repository/public/.lastUpdated=1389975020197
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Thu Jan 23 11:24:00 CST 2014
+http\://repo.maven.apache.org/maven2/.lastUpdated=1390497840778
+http\://repository.apache.org/content/groups/snapshots-group/.lastUpdated=1390497840645
+http\://ymaven.corp.yahoo.com\:9999/proximity/repository/public/.lastUpdated=1390497840648
 http\://repository.apache.org/content/groups/snapshots-group/.error=
