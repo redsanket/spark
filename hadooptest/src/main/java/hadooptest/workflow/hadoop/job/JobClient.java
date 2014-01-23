@@ -6,6 +6,7 @@ package hadooptest.workflow.hadoop.job;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.TestSession.HTF_TEST;
 import hadooptest.config.hadoop.HadoopConfiguration;
 
 import java.io.IOException;
@@ -494,12 +495,35 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
     public TaskReportSummary logTaskReportSummary(
             String fileName, long startTime) 
                     throws InterruptedException, IOException {
+        return logTaskReportSummary(
+                fileName,
+                startTime,
+                HTF_TEST.CLASS);
+    }
+
+    /**
+     * Log task report summary to external log file
+     * 
+     * @param long startTime
+     * @param String fileName
+     * @param HTF_TEST class or method
+     * 
+     * @throws InterruptedException 
+     * @throws IOException 
+     */
+    public TaskReportSummary logTaskReportSummary(
+            String fileName, long startTime, HTF_TEST test) 
+                    throws InterruptedException, IOException {
 
         TestSession.addLoggerFileAppender(fileName);
         // Log the current test method name
-        System.out.println("================================================================================");
-        TestSession.logger.info("Test Method Name: " + TestSession.currentTestMethodName);
-        System.out.println("================================================================================");
+        TestSession.logger.info("================================================================================");
+        if (test.equals(HTF_TEST.class)) {
+            TestSession.logger.info("Test Name: " + TestSession.currentTestName);
+        } else {
+            TestSession.logger.info("Test Method Name: " + TestSession.currentTestMethodName);
+        }
+        TestSession.logger.info("================================================================================");
         TestSession.logger.info("Get jobs with start time after '" + startTime +
                 "' (" + TestSession.getLogDateFormat(startTime) + ")");
         TestSession.removeLoggerFileAppender(fileName);

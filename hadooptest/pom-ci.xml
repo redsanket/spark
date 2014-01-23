@@ -742,7 +742,11 @@
 
                 <!-- coretest-1.0-SNAPSHOT.jar and yjava_byauth.jar are defined in 
                      parent-pom.xml --> 
-
+<dependency>
+	<groupId>com.jcraft</groupId>
+	<artifactId>jsch</artifactId>
+	<version>0.1.50</version>
+</dependency>
 	</dependencies>
 
 </project>

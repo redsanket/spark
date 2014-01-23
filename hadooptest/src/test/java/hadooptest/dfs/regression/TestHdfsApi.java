@@ -41,7 +41,7 @@ import coretest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestHdfsAPI extends TestSession {
+public class TestHdfsApi extends TestSession {
 
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";
@@ -67,7 +67,7 @@ public class TestHdfsAPI extends TestSession {
 	static String ACTION_MOVE_TO_LOCAL = "moveToLocal";
 	static String ACTION_CHECKSUM = "chucksum";
 
-	static Logger logger = Logger.getLogger(TestHdfsAPI.class);
+	static Logger logger = Logger.getLogger(TestHdfsApi.class);
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
@@ -77,7 +77,7 @@ public class TestHdfsAPI extends TestSession {
 	private String localHadoopVersion;
 	private String remoteHadoopVersion;
 
-	public TestHdfsAPI(String cluster) {
+	public TestHdfsApi(String cluster) {
 
 		Properties crossClusterProperties = new Properties();
 		try {
@@ -102,7 +102,13 @@ public class TestHdfsAPI extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { "betty" }, { "wilma" }, });
+		return Arrays.asList(new Object[][] { 
+				
+//				{ "betty" }, { "boromir" }, 
+				{System.getProperty("CLUSTER_NAME")},
+				{System.getProperty("REMOTE_CLUSTER")},
+		
+		});
 	}
 
 	/*
@@ -126,7 +132,7 @@ public class TestHdfsAPI extends TestSession {
 				+ HadooptestConstants.UserNames.HADOOPQA + "File");
 		fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS,
 				HadooptestConstants.UserNames.DFSLOAD);
-		TestHdfsAPI.supportingData.put(HadooptestConstants.UserNames.HADOOPQA,
+		TestHdfsApi.supportingData.put(HadooptestConstants.UserNames.HADOOPQA,
 				fileOwnerUserDetails);
 
 		// Populate the details for DFSLOAD
@@ -142,11 +148,11 @@ public class TestHdfsAPI extends TestSession {
 		fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS,
 				HadooptestConstants.UserNames.HADOOPQA);
 
-		TestHdfsAPI.supportingData.put(HadooptestConstants.UserNames.DFSLOAD,
+		TestHdfsApi.supportingData.put(HadooptestConstants.UserNames.DFSLOAD,
 				fileOwnerUserDetails);
-		logger.info("CHECK:" + TestHdfsAPI.supportingData);
-		for (String aUser : TestHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestHdfsAPI.supportingData.get(aUser).get(
+		logger.info("CHECK:" + TestHdfsApi.supportingData);
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Create a local file
 			createLocalFile(aFileName);
@@ -171,8 +177,8 @@ public class TestHdfsAPI extends TestSession {
 	public void copyFilesOntoHadoopFS() throws IOException,
 			InterruptedException {
 		logger.info("traceMethod:copyFilesOntoHadoopFS");
-		for (String aUser : TestHdfsAPI.supportingData.keySet()) {
-			String aOwnersFileName = TestHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aOwnersFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			Configuration aConf = getConfForRemoteFS(aUser);
@@ -244,8 +250,8 @@ public class TestHdfsAPI extends TestSession {
 		}
 		copyFilesOntoHadoopFS();
 		logger.info("traceMethod, after copyFiles");
-		for (String aUser : TestHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Get the config and UGI to make the call as the right user
 			Configuration aConf = getConfForRemoteFS(aUser);
@@ -253,7 +259,7 @@ public class TestHdfsAPI extends TestSession {
 			DoAs doAs;
 			try {
 				// Check Permissions
-				String userWithouPermission = TestHdfsAPI.supportingData.get(
+				String userWithouPermission = TestHdfsApi.supportingData.get(
 						aUser).get(USER_WHO_DOESNT_HAVE_PERMISSIONS);
 				UserGroupInformation ugiNoPermission = getUgiForUser(userWithouPermission);
 				logger.info("In traceMethod:checkPermissions, beginning processing for "
@@ -285,8 +291,8 @@ public class TestHdfsAPI extends TestSession {
 		// Copy over the files.
 		copyFilesOntoHadoopFS();
 
-		for (String aUser : TestHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			// Get the config and UGI to make the call as the right user
@@ -313,8 +319,8 @@ public class TestHdfsAPI extends TestSession {
 			return;
 		}
 
-		for (String aUser : TestHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 			// Re-create the local file as it gets moved
 			createLocalFile(aFileName + FILE_GOES_AROUND);
@@ -376,8 +382,8 @@ public class TestHdfsAPI extends TestSession {
 			return;
 		}
 
-		for (String aUser : TestHdfsAPI.supportingData.keySet()) {
-			String aFileName = TestHdfsAPI.supportingData.get(aUser).get(
+		for (String aUser : TestHdfsApi.supportingData.keySet()) {
+			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
 
 			// Get the config and UGI to make the call as the right user
@@ -646,10 +652,10 @@ public class TestHdfsAPI extends TestSession {
 
 	UserGroupInformation getUgiForUser(String aUser) {
 
-		String keytabUser = TestHdfsAPI.supportingData.get(aUser).get(
+		String keytabUser = TestHdfsApi.supportingData.get(aUser).get(
 				KEYTAB_USER);
 		logger.info("Set keytab user=" + keytabUser);
-		String keytabDir = TestHdfsAPI.supportingData.get(aUser)
+		String keytabDir = TestHdfsApi.supportingData.get(aUser)
 				.get(KEYTAB_DIR);
 		logger.info("Set keytab dir=" + keytabDir);
 		UserGroupInformation ugi;

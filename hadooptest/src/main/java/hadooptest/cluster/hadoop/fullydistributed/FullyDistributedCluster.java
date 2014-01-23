@@ -709,10 +709,14 @@ public class FullyDistributedCluster extends HadoopCluster {
 		String prog = (component.equals("datanode")) ? "jsvc.exec" : "java";
 
 		// Set connect time out from default value of 10 seconds to 5. 
-		String[] cmd = {"ssh", adminHost, "pdsh", "-t", "5", "-w",
-				StringUtils.join(daemonHosts, ","), 
-				"ps auxww", "|", "grep \"" + prog + " -Dproc_" + component +
-		        "\"", "|", "/usr/bin/cut", "-d':'", "-f1" };		        
+		String[] cmd = {
+                "ssh", adminHost, 
+                "PDSH_SSH_ARGS_APPEND=\"-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\"",
+                "pdsh", "-t", "5", "-u", "5", "-w",
+                StringUtils.join(daemonHosts, ","),
+                "ps auxww", "|", "grep \"" + prog + " -Dproc_" + component +
+                "\"", "|", "/usr/bin/cut", "-d':'", "-f1" };
+
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 
 		String[] daemonProcesses = StringUtils.split(output[1].trim(), "\n");
