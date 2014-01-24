@@ -53,7 +53,7 @@ public class TestConf extends TestSession {
                 (FullyDistributedCluster) TestSession.cluster;
         String confFile = HadoopConfiguration.HADOOP_CONF_YARN;
 	    cluster.getConf(component).setHadoopConfFileProp (
-	            "yarn.admin.acl",
+	            "yarn.admin.acl3",
 	            "gridadmin,hadoop,hadoopqa,philips,foo", confFile);
 	}
 
