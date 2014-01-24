@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 //import org.apache.hadoop.DFSClient.*;
 

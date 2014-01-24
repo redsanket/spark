@@ -14,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
 public class TestQuotaCli extends DfsBaseClass {
@@ -195,11 +195,11 @@ public class TestQuotaCli extends DfsBaseClass {
 		/*
 		 * Validate Name quota while sub-directory has name quota set
 		 */
-		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, "",
+		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, HadooptestConstants.Schema.NONE,
 				localCluster, TEST_1_DIR + L1 + "a");
-		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, "",
+		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, HadooptestConstants.Schema.NONE,
 				localCluster, TEST_1_DIR + L1 + "b");
-		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, "",
+		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, HadooptestConstants.Schema.NONE,
 				localCluster, TEST_1_DIR + L1 + "c");
 		dfsCliCommands.ls(null, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, TEST_1_DIR
@@ -211,7 +211,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		 * Create more files than quota in parentdir
 		 */
 		genericCliResponse = dfsCliCommands.touchz(null,
-				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
+				HadooptestConstants.UserNames.HDFSQA, HadooptestConstants.Schema.NONE, localCluster,
 				TEST_1_DIR + L1 + "d");
 		Assert.assertTrue(genericCliResponse.process.exitValue() != 0);
 		Assert.assertTrue(genericCliResponse.response.contains("is exceeded"));

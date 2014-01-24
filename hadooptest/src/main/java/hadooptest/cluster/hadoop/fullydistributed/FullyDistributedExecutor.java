@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import coretest.cluster.Executor;
+import hadooptest.cluster.Executor;
 
 /**
  * A class which represents an Executor for a fully distributed cluster.

@@ -44,7 +44,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 /*
  *  Runs the teragen and terasort test. Takes about 2 minutes to run.
@@ -238,7 +238,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
      * After each test, fetch the job task reports.
      */
     @After
-    public void logTaskResportSummary() 
+    public void logTaskReportSummary() 
             throws InterruptedException, IOException {
         JobClient jobClient = TestSession.cluster.getJobClient();
         jobClient.validateTaskReportSummary(

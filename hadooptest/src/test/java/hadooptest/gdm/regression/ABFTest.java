@@ -3,8 +3,8 @@ package hadooptest.gdm.regression;
 import java.util.ArrayList;
 import java.util.List;
 
-import coretest.SerialTests;
-import coretest.Util;
+import hadooptest.SerialTests;
+import hadooptest.Util;
 
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;

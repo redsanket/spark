@@ -10,7 +10,7 @@ import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 import java.io.File;
 import java.util.Enumeration;

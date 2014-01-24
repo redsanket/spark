@@ -8,7 +8,9 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.GenericJob;
+import hadooptest.workflow.hadoop.job.JobClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +23,8 @@ import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 //import org.apache.hadoop.yarn.client.YarnClientImpl; // H0.23
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -53,6 +57,35 @@ public class TestBenchmarksDFSIO extends TestSession {
         setupTestDir();
         initNumTT();        
     }
+
+    @After
+    public void logTaskReportSummary() 
+            throws InterruptedException, IOException {
+        TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
+        TestSession.logger.debug(
+                "logTaskReportSummary currently does not support " +
+                "parallel method tests.");
+    }
+
+    /*
+     * After each test, fetch the job task reports.
+     */
+    @AfterClass
+    public static void logTaskReportSummaryAfterClass() 
+            throws InterruptedException, IOException {
+        TestSession.logger.info("--------- @AfterClass: TestSession: logTaskResportSummary ----------------------------");
+
+        // Log the tasks report summary for jobs that ran as part of this test 
+        JobClient jobClient = TestSession.cluster.getJobClient();
+        int numAcceptableNonCompleteMapTasks = 20;
+        int numAcceptableNonCompleteReduceTasks = 20;
+        jobClient.validateTaskReportSummary(
+                jobClient.logTaskReportSummary(
+                        TestSession.TASKS_REPORT_LOG, 
+                        TestSession.startTime),
+                        numAcceptableNonCompleteMapTasks,
+                        numAcceptableNonCompleteReduceTasks);        
+    }    
 
     public static void setupTestConf() throws Exception {
         FullyDistributedCluster cluster =

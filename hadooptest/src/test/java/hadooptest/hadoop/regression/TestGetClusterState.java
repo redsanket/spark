@@ -8,8 +8,8 @@ import hadooptest.TestSession;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
-import coretest.cluster.ClusterState;
+import hadooptest.SerialTests;
+import hadooptest.cluster.ClusterState;
 
 /**
  * Checks to make sure that a cluster is running.

@@ -35,8 +35,8 @@ import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 
-import coretest.Util;
-import coretest.cluster.ClusterState;
+import hadooptest.Util;
+import hadooptest.cluster.ClusterState;
 
 /**
  * An interface which should represent the base capability of any cluster
@@ -435,6 +435,10 @@ public abstract class HadoopCluster {
     }
 
     public void setupSingleQueueCapacity() throws Exception {
+        this.setupSingleQueueCapacity(false);
+    }
+    
+    public void setupSingleQueueCapacity(boolean force) throws Exception {
         FullyDistributedCluster cluster =
                 (FullyDistributedCluster) TestSession.cluster;
         String component = HadoopCluster.RESOURCE_MANAGER;
@@ -454,7 +458,13 @@ public abstract class HadoopCluster {
             (Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
                 TestSession.logger.debug("Cluster is already setup properly. " +
                         "Nothing to do.");
-                return;
+                if (force == true) {
+                    TestSession.logger.debug("Force single queue setup.");                    
+                } else {
+                    TestSession.logger.debug("Cluster is already setup properly. " +
+                            "Nothing to do.");
+                    return;
+                }
         }
         
         // Backup the default configuration directory on the Resource Manager

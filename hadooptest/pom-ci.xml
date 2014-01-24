@@ -360,7 +360,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<groups>coretest.SetupTests</groups>
+							<groups>hadooptest.SetupTests</groups>
 						</configuration>
 					</execution>
 
@@ -372,7 +372,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<groups>coretest.SerialTests</groups>
+							<groups>hadooptest.SerialTests</groups>
 						</configuration>
 					</execution>
 
@@ -384,7 +384,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<groups>coretest.ParallelMethodTests</groups>
+							<groups>hadooptest.ParallelMethodTests</groups>
 							<parallel>methods</parallel>
 							<threadCount>${thread.count}</threadCount>
 						</configuration>
@@ -398,7 +398,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<groups>coretest.ParallelClassTests</groups>
+							<groups>hadooptest.ParallelClassTests</groups>
 							<parallel>class</parallel>
 							<threadCount>${thread.count}</threadCount>
 						</configuration>
@@ -412,7 +412,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<excludedGroups>coretest.SetupTests,coretest.SerialTests,coretest.ParallelClassTests,coretest.ParallelMethodTests,coretest.TearDownTests</excludedGroups>
+							<excludedGroups>hadooptest.SetupTests,hadooptest.SerialTests,hadooptest.ParallelClassTests,hadooptest.ParallelMethodTests,hadooptest.TearDownTests</excludedGroups>
 							<parallel>both</parallel>
 							<threadCount>${thread.count}</threadCount>
 						</configuration>
@@ -426,7 +426,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<groups>coretest.TearDownTests</groups>
+							<groups>hadooptest.TearDownTests</groups>
 						</configuration>
 					</execution>
 
@@ -740,13 +740,11 @@
 			<systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
 		</dependency>
 
-                <!-- coretest-1.0-SNAPSHOT.jar and yjava_byauth.jar are defined in 
-                     parent-pom.xml --> 
-<dependency>
-	<groupId>com.jcraft</groupId>
-	<artifactId>jsch</artifactId>
-	<version>0.1.50</version>
-</dependency>
+        <dependency>
+	        <groupId>com.jcraft</groupId>
+	        <artifactId>jsch</artifactId>
+	        <version>0.1.50</version>
+        </dependency>
 	</dependencies>
 
 </project>

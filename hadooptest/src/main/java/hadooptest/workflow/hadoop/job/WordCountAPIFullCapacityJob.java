@@ -30,8 +30,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-
-import coretest.Util;
+import hadooptest.Util;
 
 public class WordCountAPIFullCapacityJob extends Configured implements Tool {
     public static class Map extends Mapper<LongWritable, Text, Text, IntWritable> {

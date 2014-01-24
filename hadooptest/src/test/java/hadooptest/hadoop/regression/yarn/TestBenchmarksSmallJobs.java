@@ -25,8 +25,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
-import coretest.Util;
+import hadooptest.SerialTests;
+import hadooptest.Util;
 
 /*
  *  Runs the mrbench test. Takes about 2 minutes to run.

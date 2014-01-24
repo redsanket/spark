@@ -173,7 +173,12 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 		NodeList nodes =
 		        element.getElementsByTagName(tag).item(0).getChildNodes();
 		Node node = (Node) nodes.item(0);
-		return node.getNodeValue();
+		if (node == null) {
+			return "";
+		}
+		else {
+			return node.getNodeValue();
+		}
 	}
 	
     /**
@@ -347,6 +352,9 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 				String propName = getValue("name", element);
 				String propValue = getValue("value", element);
 
+				TestSession.logger.info("Insert/Replace property '" +
+						targetPropName + "'='" + targetPropValue + "' in file '" + 
+						filename + "'.");
 				TestSession.logger.trace("Config Property Name: " +
 						getValue("name", element));
 				TestSession.logger.trace("Config Property Value: " +

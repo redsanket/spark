@@ -12,8 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
-import coretest.Util;
+import hadooptest.SerialTests;
+import hadooptest.Util;
 
 @Category(SerialTests.class)
 public class TestVerifyAcqRepRetWorkFlowExecutionSingleDate extends TestSession {

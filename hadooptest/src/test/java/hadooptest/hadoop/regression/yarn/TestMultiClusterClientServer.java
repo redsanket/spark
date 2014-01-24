@@ -9,8 +9,8 @@ import hadooptest.cluster.hadoop.DFS;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
-import coretest.Util;
+import hadooptest.SerialTests;
+import hadooptest.Util;
 
 /**
  * Tests to exercise the multi-cluster functionality in the framework.

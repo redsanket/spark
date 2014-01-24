@@ -14,8 +14,8 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
-import coretest.Util;
+import hadooptest.SerialTests;
+import hadooptest.Util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

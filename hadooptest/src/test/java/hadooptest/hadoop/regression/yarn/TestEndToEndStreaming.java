@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import hadooptest.ParallelMethodTests;
-import coretest.Util;
+import hadooptest.Util;
 
 /**
  * YARN regression tests to exercise Hadoop streaming.

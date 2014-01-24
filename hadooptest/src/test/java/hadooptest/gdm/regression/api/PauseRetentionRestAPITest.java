@@ -19,7 +19,7 @@ import org.junit.experimental.categories.Category;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
 public class PauseRetentionRestAPITest extends TestSession {
