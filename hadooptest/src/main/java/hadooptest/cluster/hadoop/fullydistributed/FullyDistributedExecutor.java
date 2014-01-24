@@ -117,7 +117,13 @@ public class FullyDistributedExecutor extends Executor {
 	public Process runProcBuilderSecurityGetProcWithEnv(String[] commandArray,
 			String username, Map<String, String> env) throws Exception {
 		if (this.isHeadless(username)) {
-			env.put("KRB5CCNAME", this.obtainKerberosCache(username));
+			/*
+			 * Adding the check below to allow users to pass their own 
+			 * Kerb cache, as used in delegation token tests.
+			 */
+			if (!env.containsKey("KRB5CCNAME")){
+				env.put("KRB5CCNAME", this.obtainKerberosCache(username));
+			}
 			return runProcBuilderGetProc(commandArray, env);
 		} else {
 			return runProcBuilderGetProc(commandArray, env);
@@ -182,6 +188,8 @@ public class FullyDistributedExecutor extends Executor {
 		TestSession.logger.debug("kerberos cachename KRB5CCNAME=" + cacheName);
 		return cacheName;
 	}
+	
+
 
 	/**
 	 * Setup Kerberos authentication for a given user.
