@@ -48,7 +48,7 @@ import org.apache.hadoop.io.Text;
 
 import com.jcraft.jsch.*;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
 public class TestFsckCli extends TestSession {

@@ -1,6 +1,6 @@
 package hadooptest.cluster.gdm;
 
-import coretest.Util;
+import hadooptest.Util;
 import hadooptest.TestSession;
 import java.io.File;
 import java.io.IOException;

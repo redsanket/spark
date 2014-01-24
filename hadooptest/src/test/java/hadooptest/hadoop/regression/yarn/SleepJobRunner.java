@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.junit.Test;
 
-import coretest.Util;
+import hadooptest.Util;
 
 public class SleepJobRunner extends TestSession {
 	

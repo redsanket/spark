@@ -9,8 +9,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import coretest.TestSessionCore;
-import coretest.Util;
+import hadooptest.TestSessionCore;
+import hadooptest.Util;
 
 /**
  * A class which represents the server in the multi-cluster capability of the

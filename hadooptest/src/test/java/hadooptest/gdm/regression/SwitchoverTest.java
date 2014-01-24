@@ -8,8 +8,8 @@ import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.SingleDataSetInstanceAcquirer;
 
-import coretest.SerialTests;
-import coretest.Util;
+import hadooptest.SerialTests;
+import hadooptest.Util;
 
 import hadooptest.TestSession;
 

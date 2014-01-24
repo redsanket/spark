@@ -5,7 +5,6 @@ import hadooptest.automation.constants.HadooptestConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,7 +16,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
 public class TestDelegationTokens extends TestSession{

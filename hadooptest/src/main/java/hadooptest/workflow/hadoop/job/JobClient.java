@@ -20,7 +20,7 @@ import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.mapred.TaskReport;
 
-import coretest.Util;
+import hadooptest.Util;
 
 /**
  * Wrapper to the Apache Hadoop JobClient. Contains additional methods that are

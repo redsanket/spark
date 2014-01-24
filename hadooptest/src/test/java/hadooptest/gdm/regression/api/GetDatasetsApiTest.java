@@ -20,7 +20,7 @@ import org.junit.experimental.categories.Category;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

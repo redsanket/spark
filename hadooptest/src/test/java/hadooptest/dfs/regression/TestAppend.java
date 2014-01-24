@@ -3,9 +3,7 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 //import org.apache.hadoop.DFSClient.*;
 

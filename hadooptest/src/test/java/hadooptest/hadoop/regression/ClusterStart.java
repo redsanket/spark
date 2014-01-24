@@ -7,7 +7,7 @@ import hadooptest.TestSession;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 /**
  * Starts a cluster.

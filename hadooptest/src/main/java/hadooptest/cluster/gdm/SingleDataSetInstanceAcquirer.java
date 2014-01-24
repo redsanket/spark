@@ -1,6 +1,6 @@
 package hadooptest.cluster.gdm;
 
-import coretest.Util;
+import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.TestSession;
 

@@ -17,7 +17,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SetupTests;
+import hadooptest.SetupTests;
 
 @Category(SetupTests.class)
 public class TestSetupJacoco extends TestSession {
