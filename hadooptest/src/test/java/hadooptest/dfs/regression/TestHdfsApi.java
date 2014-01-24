@@ -41,7 +41,7 @@ import coretest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestHdfsApi extends TestSession {
+public class TestHdfsApi extends DfsBaseClass {
 
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";
@@ -102,12 +102,12 @@ public class TestHdfsApi extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { 
-				
-//				{ "betty" }, { "boromir" }, 
-				{System.getProperty("CLUSTER_NAME")},
-				{System.getProperty("REMOTE_CLUSTER")},
-		
+		return Arrays.asList(new Object[][] {
+
+				// { "betty" }, { "boromir" },
+				{ System.getProperty("CLUSTER_NAME") },
+				{ System.getProperty("REMOTE_CLUSTER") },
+
 		});
 	}
 
@@ -120,7 +120,7 @@ public class TestHdfsApi extends TestSession {
 	@BeforeClass
 	public static void testSessionStart() throws Exception {
 		TestSession.start();
-		
+
 		// Populate the details for HADOOPQA
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
 		fileOwnerUserDetails.put(KEYTAB_DIR,
@@ -280,7 +280,7 @@ public class TestHdfsApi extends TestSession {
 		}
 	}
 
-	 @Test
+	@Test
 	public void appendToFile() throws Exception {
 		logger.info("traceMethod:appendToFile");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
@@ -310,7 +310,7 @@ public class TestHdfsApi extends TestSession {
 		}
 	}
 
-	 @Test
+	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() {
 		logger.info("traceMethod:testdoAMovesInAndOutOfClusterAndChecksum");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
@@ -500,12 +500,12 @@ public class TestHdfsApi extends TestSession {
 							.println("=======================================================================");
 					logger.info("Canonical Service name:"
 							+ aRemoteFS.getCanonicalServiceName());
-//					logger.info("Default Block Size:"
-//							+ aRemoteFS.getDefaultBlockSize());
+					// logger.info("Default Block Size:"
+					// + aRemoteFS.getDefaultBlockSize());
 					logger.info("Default Block Size Path:"
 							+ aRemoteFS.getDefaultBlockSize(new Path(oneFile)));
-//					logger.info("Default Replication:"
-//							+ aRemoteFS.getDefaultReplication());
+					// logger.info("Default Replication:"
+					// + aRemoteFS.getDefaultReplication());
 					logger.info("Default Replication Path:"
 							+ aRemoteFS
 									.getDefaultReplication(new Path(oneFile)));

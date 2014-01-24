@@ -2,24 +2,15 @@ package hadooptest.dfs.regression;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.security.PrivilegedExceptionAction;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Hex;
@@ -35,7 +26,6 @@ import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -49,7 +39,7 @@ import coretest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestWebHdfsApi extends TestSession {
+public class TestWebHdfsApi extends DfsBaseClass {
 
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";
@@ -107,12 +97,11 @@ public class TestWebHdfsApi extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { 
-//				{ "boromir" }, 
-//				{ "betty" }, 
-				{System.getProperty("CLUSTER_NAME")},
-				{System.getProperty("REMOTE_CLUSTER")},				
-		});
+		return Arrays.asList(new Object[][] {
+				// { "boromir" },
+				// { "betty" },
+				{ System.getProperty("CLUSTER_NAME") },
+				{ System.getProperty("REMOTE_CLUSTER") }, });
 	}
 
 	/*
@@ -124,7 +113,7 @@ public class TestWebHdfsApi extends TestSession {
 	@BeforeClass
 	public static void testSessionStart() throws Exception {
 		TestSession.start();
-		
+
 		// Populate the details for HADOOPQA
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
 		fileOwnerUserDetails.put(KEYTAB_DIR,
@@ -297,7 +286,7 @@ public class TestWebHdfsApi extends TestSession {
 				doAs = new DoAs(ugi, ACTION_MOVE_TO_LOCAL, aConf,
 						previousFileName, newFileName);
 				doAs.doAction();
-				
+
 				cleanupAfterTest();
 
 			} catch (IOException e) {
@@ -308,7 +297,7 @@ public class TestWebHdfsApi extends TestSession {
 		}
 	}
 
-//	@After
+	// @After
 	public void cleanupAfterTest() throws Exception {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
 			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
@@ -423,12 +412,12 @@ public class TestWebHdfsApi extends TestSession {
 							.println("=======================================================================");
 					logger.info("Canonical Service name:"
 							+ aRemoteFS.getCanonicalServiceName());
-//					logger.info("Default Block Size:"
-//							+ aRemoteFS.getDefaultBlockSize());
+					// logger.info("Default Block Size:"
+					// + aRemoteFS.getDefaultBlockSize());
 					logger.info("Default Block Size Path:"
 							+ aRemoteFS.getDefaultBlockSize(new Path(oneFile)));
-//					logger.info("Default Replication:"
-//							+ aRemoteFS.getDefaultReplication());
+					// logger.info("Default Replication:"
+					// + aRemoteFS.getDefaultReplication());
 					logger.info("Default Replication Path:"
 							+ aRemoteFS
 									.getDefaultReplication(new Path(oneFile)));

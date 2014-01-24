@@ -96,6 +96,7 @@ public class HadooptestConstants {
 		public static String HDFS = "hdfs://";
 		public static String WEBHDFS = "webhdfs://";
 		public static String HFTP = "hftp://";
+		public static String NONE = "";
 	}
 	// Ports
 	public static class Ports {

@@ -2,10 +2,9 @@ package hadooptest.dfs.regression;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,8 +19,8 @@ import org.apache.hadoop.fs.FileChecksum;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Options.CreateOpts;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DFSClient;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,7 +39,7 @@ import coretest.SerialTests;
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestAppend {
-	private  String testName;
+	private String testName;
 	private static String FILE_SYSTEM_ENTITY_DIRECTORY = "DIRECTORY";
 	private static final String APPEND_OUTDIR = "/tmp/M";
 	private static final String LOCAL_SOURCE_FILES = "/homes/hdfsqa/hdfsMNNData/";
@@ -150,6 +149,7 @@ public class TestAppend {
 										// used by the writer in rw mode test
 
 	private String[] inputParams;
+
 	@Parameters
 	public static Collection<Object[]> getParameters() {
 
@@ -174,96 +174,250 @@ public class TestAppend {
 				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z904" },
 				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z905" },
 				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z906" },
-				{"",  "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z907" },
-				{"",  "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z908" },
+				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z907" },
+				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z908" },
 				/*
 				 * test101_CreateFC_RWThread
 				 */
 				{ "101", "-qt -f " + APPEND_OUTDIR + "/Z100" },
-				{ "102", "-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR + "/Z101" },
-				{ "103", "-useFC -rw -n 10 -s 10000 -p 1000 -f " + APPEND_OUTDIR+ "/Z102" },
-				{ "104", "-useFC -rw -n 10 -s 100000 -p 1000 -f " + APPEND_OUTDIR+ "/Z103" },
-				{ "105", "-useFC -rw -n 10 -s 1000000 -p 1000 -f " + APPEND_OUTDIR+ "/Z104" },
+				{
+						"102",
+						"-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR
+								+ "/Z101" },
+				{
+						"103",
+						"-useFC -rw -n 10 -s 10000 -p 1000 -f " + APPEND_OUTDIR
+								+ "/Z102" },
+				{
+						"104",
+						"-useFC -rw -n 10 -s 100000 -p 1000 -f "
+								+ APPEND_OUTDIR + "/Z103" },
+				{
+						"105",
+						"-useFC -rw -n 10 -s 1000000 -p 1000 -f "
+								+ APPEND_OUTDIR + "/Z104" },
 
 				/*
 				 * test401_CreateFC_RW_PosRead_NonFully_Many
 				 */
-				{ "401", "-useFC -rw -n 9         -s 100  -p 100  -f " + APPEND_OUTDIR+ "/Z401}" },
-				{ "402","-useFC -rw -n 100       -s 100  -p 100  -f " + APPEND_OUTDIR+ "/Z402" },
-				{ "411","-useFC -rw -n 9         -s 1000 -p 100  -f " + APPEND_OUTDIR+ "/Z411" },
-				{ "412","-useFC -rw -n 100       -s 1000 -p 100  -f " + APPEND_OUTDIR+ "/Z412" },
-				{ "421","-useFC -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z421" },
-				{ "422","-useFC -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z422" },
-				{ "431","-useFC -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z431" },
-				{ "432","-useFC -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z432" },
-				{"441", "-useFC -rw -n 9         -s 1000000 -p 100  -f "+ APPEND_OUTDIR + "/Z441" },
+				{
+						"401",
+						"-useFC -rw -n 9         -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z401}" },
+				{
+						"402",
+						"-useFC -rw -n 100       -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z402" },
+				{
+						"411",
+						"-useFC -rw -n 9         -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z411" },
+				{
+						"412",
+						"-useFC -rw -n 100       -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z412" },
+				{
+						"421",
+						"-useFC -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z421" },
+				{
+						"422",
+						"-useFC -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z422" },
+				{
+						"431",
+						"-useFC -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z431" },
+				{
+						"432",
+						"-useFC -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z432" },
+				{
+						"441",
+						"-useFC -rw -n 9         -s 1000000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z441" },
 
 				/*
 				 * test451_CreateFC_RW_PosRead_ManyFully
 				 */
-				{ "451", "-useFC -readFully -rw -n 9         -s 100  -p 100  -f "+ APPEND_OUTDIR + "/Z451" },
-				{ "452","-useFC -readFully -rw -n 100       -s 100  -p 100  -f "+ APPEND_OUTDIR + "/Z452" },
-				{ "461","-useFC -readFully -rw -n 9         -s 1000 -p 100  -f "+ APPEND_OUTDIR + "/Z461" },
-				{ "462","-useFC -readFully -rw -n 100       -s 1000 -p 100  -f "+ APPEND_OUTDIR + "/Z462" },
-				{ "457","-useFC -readFully -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z471" },
-				{ "471","-useFC -readFully -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z472" },
-				{ "481","-useFC -readFully -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z481" },
-				{"482", "-useFC -readFully -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z482" },
-				{"496", "-useFC -readFully -rw -n 9         -s 1000000 -p 100  -f "+ APPEND_OUTDIR + "/Z496" },
-				
+				{
+						"451",
+						"-useFC -readFully -rw -n 9         -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z451" },
+				{
+						"452",
+						"-useFC -readFully -rw -n 100       -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z452" },
+				{
+						"461",
+						"-useFC -readFully -rw -n 9         -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z461" },
+				{
+						"462",
+						"-useFC -readFully -rw -n 100       -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z462" },
+				{
+						"457",
+						"-useFC -readFully -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z471" },
+				{
+						"471",
+						"-useFC -readFully -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z472" },
+				{
+						"481",
+						"-useFC -readFully -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z481" },
+				{
+						"482",
+						"-useFC -readFully -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z482" },
+				{
+						"496",
+						"-useFC -readFully -rw -n 9         -s 1000000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z496" },
+
 				/*
 				 * test501_CreateFC_RW_SeqRead_NonFully_Many
 				 */
-				{"501",   "-useFC -seqRead -rw -n 9         -s 100  -p 100  -f "+ APPEND_OUTDIR + "/Z501"},       
-				{"502",   "-useFC -seqRead -rw -n 100       -s 100  -p 100  -f "+ APPEND_OUTDIR + "/Z502"},       
-				{"511",   "-useFC -seqRead -rw -n 9         -s 1000 -p 100  -f "+ APPEND_OUTDIR + "/Z511"},       
-				{"512",   "-useFC -seqRead -rw -n 100       -s 1000 -p 100  -f "+ APPEND_OUTDIR + "/Z512"},       
-				{"521",   "-useFC -seqRead -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z521"},      
-				{"522",   "-useFC -seqRead -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z522"},      
-				{"531",   "-useFC -seqRead -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z531"},      
-				{"532",   "-useFC -seqRead -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z532"},      
-				{"541",   "-useFC -seqRead -rw -n 9         -s 1000000 -p 100  -f "+ APPEND_OUTDIR + "/Z541"},    
-				{"542",   "-useFC -seqRead -rw -n 100       -s 1000000 -p 100  -f "+ APPEND_OUTDIR + "/Z542"},
-				
+				{
+						"501",
+						"-useFC -seqRead -rw -n 9         -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z501" },
+				{
+						"502",
+						"-useFC -seqRead -rw -n 100       -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z502" },
+				{
+						"511",
+						"-useFC -seqRead -rw -n 9         -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z511" },
+				{
+						"512",
+						"-useFC -seqRead -rw -n 100       -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z512" },
+				{
+						"521",
+						"-useFC -seqRead -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z521" },
+				{
+						"522",
+						"-useFC -seqRead -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z522" },
+				{
+						"531",
+						"-useFC -seqRead -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z531" },
+				{
+						"532",
+						"-useFC -seqRead -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z532" },
+				{
+						"541",
+						"-useFC -seqRead -rw -n 9         -s 1000000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z541" },
+				{
+						"542",
+						"-useFC -seqRead -rw -n 100       -s 1000000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z542" },
+
 				/*
 				 * test551_CreateFC_RW_SeqRead_ManyFully
 				 */
-				{"551",   "-useFC -readFully -seqRead -rw -n 9         -s 100  -p 100  -f "+ APPEND_OUTDIR + "/Z551"},       
-				{"552",   "-useFC -readFully -seqRead -rw -n 100       -s 100  -p 100  -f "+ APPEND_OUTDIR + "/Z552"},       
-				{"561",   "-useFC -readFully -seqRead -rw -n 9         -s 1000 -p 100  -f "+ APPEND_OUTDIR + "/Z561"},       
-				{"562",   "-useFC -readFully -seqRead -rw -n 100       -s 1000 -p 100  -f "+ APPEND_OUTDIR + "/Z562"},       
-				{"571",   "-useFC -readFully -seqRead -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z571"},       
-				{"572",   "-useFC -readFully -seqRead -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z572"},       
-				{"581",   "-useFC -readFully -seqRead -rw -n 9         -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z581"},      
-				{"582",   "-useFC -readFully -seqRead -rw -n 100       -s 10000 -p 100  -f "+ APPEND_OUTDIR + "/Z582"},  
-				{"596",   "-useFC -readFully -seqRead -rw -n 9         -s 1000000 -p 100  -f "+ APPEND_OUTDIR + "/Z596"},
-				{"597",   "-useFC -readFully -seqRead -rw -n 100       -s 1000000 -p 100  -f "+ APPEND_OUTDIR + "/Z597"},
-				
+				{
+						"551",
+						"-useFC -readFully -seqRead -rw -n 9         -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z551" },
+				{
+						"552",
+						"-useFC -readFully -seqRead -rw -n 100       -s 100  -p 100  -f "
+								+ APPEND_OUTDIR + "/Z552" },
+				{
+						"561",
+						"-useFC -readFully -seqRead -rw -n 9         -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z561" },
+				{
+						"562",
+						"-useFC -readFully -seqRead -rw -n 100       -s 1000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z562" },
+				{
+						"571",
+						"-useFC -readFully -seqRead -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z571" },
+				{
+						"572",
+						"-useFC -readFully -seqRead -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z572" },
+				{
+						"581",
+						"-useFC -readFully -seqRead -rw -n 9         -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z581" },
+				{
+						"582",
+						"-useFC -readFully -seqRead -rw -n 100       -s 10000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z582" },
+				{
+						"596",
+						"-useFC -readFully -seqRead -rw -n 9         -s 1000000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z596" },
+				{
+						"597",
+						"-useFC -readFully -seqRead -rw -n 100       -s 1000000 -p 100  -f "
+								+ APPEND_OUTDIR + "/Z597" },
+
 				/*
 				 * test301_ReadFC_OCFully
 				 */
-				{"301",   "-useFC -ro -oc -n 10 -p 1000 -readFully -f "+ APPEND_OUTDIR + "/Z101" },     
-				{"302",   "-useFC -ro -oc -n 100 -p 1000 -readFully -f "+ APPEND_OUTDIR + "/Z102"},     
+				{
+						"301",
+						"-useFC -ro -oc -n 10 -p 1000 -readFully -f "
+								+ APPEND_OUTDIR + "/Z101" },
+				{
+						"302",
+						"-useFC -ro -oc -n 100 -p 1000 -readFully -f "
+								+ APPEND_OUTDIR + "/Z102" },
 
-				
 		});
 	}
 
 	@BeforeClass
 	public static void setupData() throws Exception {
-			TestSession.start();
-			DfsCliCommands dfsCommonCli = new DfsCliCommands();
-			String cluster = System.getProperty("CLUSTER_NAME");
-			if (dfsCommonCli.doesFsEntityAlreadyExistOnDfs(cluster,
-					APPEND_OUTDIR, FILE_SYSTEM_ENTITY_DIRECTORY) == 0) {
-				System.out.println("Here deleting dir...!!");
-				dfsCommonCli.deleteDirectoriesFromThisPointOnwardsOnHdfs(
-						cluster, APPEND_OUTDIR);
-			}
-			dfsCommonCli.createDirectoriesOnHdfs(cluster, APPEND_OUTDIR);
-			dfsCommonCli.copyLocalFileIntoClusterUsingWebhdfs(cluster,
-					LOCAL_SOURCE_FILES, APPEND_OUTDIR);
+		TestSession.start();
+		DfsCliCommands dfsCommonCli = new DfsCliCommands();
+		String cluster = System.getProperty("CLUSTER_NAME");
+		GenericCliResponseBO genericResponseBO = dfsCommonCli.test(null,
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR,
+				FILE_SYSTEM_ENTITY_DIRECTORY);
+		if (genericResponseBO.process.exitValue() == 0) {
+			System.out.println("Here deleting dir...!!");
+			dfsCommonCli.rm(null, HadooptestConstants.UserNames.HDFSQA,
+					HadooptestConstants.Schema.WEBHDFS, cluster, true, true,
+					true, APPEND_OUTDIR);
+		}
+		dfsCommonCli.mkdir(null, HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR);
+		doChmodRecursively(cluster, APPEND_OUTDIR);
+		dfsCommonCli.copyFromLocal(null, HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.WEBHDFS, cluster,
+				LOCAL_SOURCE_FILES, APPEND_OUTDIR);
 
+	}
+
+	public static void doChmodRecursively(String cluster, String dirHierarchy)
+			throws Exception {
+		DfsCliCommands dfsCommonCli = new DfsCliCommands();
+		String pathSoFar = "/";
+		for (String aDir : dirHierarchy.split("/")) {
+			if (aDir.isEmpty())
+				continue;
+			TestSession.logger.info("Processing split:" + aDir);
+			pathSoFar = pathSoFar + aDir + "/";
+			TestSession.logger.info("PathSoFar:" + pathSoFar);
+			dfsCommonCli.chmod(null, HadooptestConstants.UserNames.HDFSQA,
+					HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
+					"777");
+		}
 	}
 
 	@Before
@@ -284,7 +438,7 @@ public class TestAppend {
 	@Test
 	public void test() throws IOException {
 		System.out.println("+++++++++++++++++++++++++++++++++++");
-		System.out.println("Running " + this.testName +" called with: ");
+		System.out.println("Running " + this.testName + " called with: ");
 		for (String temp : this.inputParams) {
 			System.out.print(temp + " ");
 		}
@@ -1220,7 +1374,6 @@ public class TestAppend {
 		}
 	}
 
-
 	public void getCmdlineOptions(String[] args) {
 
 		for (int i = 0; i < args.length; i++) {
@@ -1678,7 +1831,7 @@ public class TestAppend {
 		int stat = 0;
 
 		try {
-			TestAppend ta = new TestAppend("","");
+			TestAppend ta = new TestAppend("", "");
 
 			ta.getCmdlineOptions(args);
 			stat = 0;
@@ -1690,7 +1843,7 @@ public class TestAppend {
 			// temporary hack to test any new options
 			if (ta.miscOption) {
 				stat = ta.testMisc();
-				
+
 			} else if (ta.quickTestOption) {
 				stat = ta.testRWSanity();
 			} else if (ta.bothReadWriteOption) {
