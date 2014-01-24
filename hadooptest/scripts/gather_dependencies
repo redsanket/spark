@@ -49,6 +49,8 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=com.goog
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.surefire:surefire-grouper:2.13:jar
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.plugins:maven-help-plugin:2.2
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jacoco:jacoco-maven-plugin:0.6.2.201302030002
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jacoco:org.jacoco.agent:0.6.2.201302030002
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jacoco:org.jacoco.ant:0.6.2.201302030002
 
 # Build and install coretest, and gather its dependencies
 cd $BASEDIR/../../../coretest/coretest
