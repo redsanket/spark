@@ -35,6 +35,7 @@ import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -629,5 +630,10 @@ public class TestWebHdfsApi extends DfsBaseClass {
 			throw new RuntimeException(e);
 		}
 	}
+	@After
+	public void logTaskResportSummary() {
+		// Override to hide the Test Session logs
+	}
+
 
 }

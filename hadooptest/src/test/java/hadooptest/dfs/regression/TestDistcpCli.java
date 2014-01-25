@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -420,5 +421,10 @@ public class TestDistcpCli extends DfsBaseClass {
 					+ this.remoteHadoopVersion);
 		}
 	}
+	@After
+	public void logTaskResportSummary() {
+		// Override to hide the Test Session logs
+	}
+
 
 }

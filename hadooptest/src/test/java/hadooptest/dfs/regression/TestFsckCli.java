@@ -1035,5 +1035,9 @@ public class TestFsckCli extends DfsBaseClass {
 
 		return hostName;
 	}
+	@After
+	public void logTaskResportSummary() {
+		// Override to hide the Test Session logs
+	}
 
 }

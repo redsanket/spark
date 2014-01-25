@@ -68,6 +68,7 @@ public class TestHdfsApi extends DfsBaseClass {
 	static String ACTION_CHECKSUM = "chucksum";
 
 	static Logger logger = Logger.getLogger(TestHdfsApi.class);
+	private static HashMap<String, String> versionStore;
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
@@ -76,9 +77,10 @@ public class TestHdfsApi extends DfsBaseClass {
 	private String cluster;
 	private String localHadoopVersion;
 	private String remoteHadoopVersion;
+	private String parametrizedCluster;
 
 	public TestHdfsApi(String cluster) {
-
+		this.parametrizedCluster = cluster;
 		Properties crossClusterProperties = new Properties();
 		try {
 			crossClusterProperties
@@ -157,21 +159,48 @@ public class TestHdfsApi extends DfsBaseClass {
 			// Create a local file
 			createLocalFile(aFileName);
 		}
+		versionStore = new HashMap<String, String>();
 	}
 
 	@Before
 	public void getVersions() {
 		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
-		localHadoopVersion = rmUtils.getHadoopVersion(
-				System.getProperty("CLUSTER_NAME")).split("\\.")[0];
-		if (System.getProperty("CLUSTER_NAME").equals(this.cluster)) {
-			remoteHadoopVersion = localHadoopVersion;
+		if (versionStore.containsKey(this.localCluster)) {
+			// Do not make an unnecessary call to get the version, if you've
+			// already made it once.
+			localHadoopVersion = versionStore.get(this.localCluster);
 		} else {
-			remoteHadoopVersion = rmUtils.getHadoopVersion(this.cluster).split(
-					"\\.")[0];
+			localHadoopVersion = rmUtils.getHadoopVersion(this.localCluster);
+			localHadoopVersion = localHadoopVersion.split("\\.")[0];
+			versionStore.put(this.localCluster, localHadoopVersion);
+		}
+
+		if (versionStore.containsKey(this.parametrizedCluster)) {
+			// Do not make an unnecessary call to get the version, if you've
+			// already made it once.
+			remoteHadoopVersion = versionStore.get(this.parametrizedCluster);
+		} else {
+			remoteHadoopVersion = rmUtils
+					.getHadoopVersion(this.parametrizedCluster);
+			remoteHadoopVersion = remoteHadoopVersion.split("\\.")[0];
+			versionStore.put(this.parametrizedCluster, remoteHadoopVersion);
+
 		}
 
 	}
+
+//	public void getVersions() {
+//		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
+//		localHadoopVersion = rmUtils.getHadoopVersion(
+//				System.getProperty("CLUSTER_NAME")).split("\\.")[0];
+//		if (System.getProperty("CLUSTER_NAME").equals(this.cluster)) {
+//			remoteHadoopVersion = localHadoopVersion;
+//		} else {
+//			remoteHadoopVersion = rmUtils.getHadoopVersion(this.cluster).split(
+//					"\\.")[0];
+//		}
+//
+//	}
 
 	@Test
 	public void copyFilesOntoHadoopFS() throws IOException,
@@ -707,4 +736,9 @@ public class TestHdfsApi extends DfsBaseClass {
 			throw new RuntimeException(e);
 		}
 	}
+	@After
+	public void logTaskResportSummary() {
+		// Override to hide the Test Session logs
+	}
+
 }
