@@ -52,6 +52,7 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jaco
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jacoco:org.jacoco.agent:0.6.2.201302030002
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jacoco:org.jacoco.ant:0.6.2.201302030002
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=junit:junit:4.8.2
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=ant-contrib:ant-contrib:20020829
 
 # Get the dependencies for the project and build it
 cd $BASEDIR/..
