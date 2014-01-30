@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Jan 30 15:40:01 CST 2014
+ring-core-1.1.5.jar>=
+ring-core-1.1.5.jar>clojars=
+ring-core-1.1.5.pom>clojars=

@@ -227,6 +227,14 @@
 			<version>0.6.0</version>
 		</dependency>
         
+        <!-- STORM -->
+        
+        <dependency>
+          <groupId>yahoo.yinst.ystorm</groupId>
+          <artifactId>storm</artifactId>
+          <version>0.9.0_wip21.213</version>
+        </dependency>
+        
 	</dependencies>
 
 </project>
