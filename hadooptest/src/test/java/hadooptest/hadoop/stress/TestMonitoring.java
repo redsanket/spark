@@ -11,12 +11,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.monitoring.Monitorable;
 
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -24,12 +26,13 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
+//@Category(ParallelMethodTests.class)
 public class TestMonitoring extends TestSession {
 
 	Logger logger = Logger.getLogger(TestMonitoring.class);
 
 	@Test
-	@Monitorable(cpuPeriodicity = 5, memPeriodicity = 5)
+	@Monitorable(cpuPeriodicity = 30, memPeriodicity = 30)
 	public void testWithMonitoring() throws InterruptedException {
 
 		logger.info("Beginning Stress test.............sleeping for 10 secs");
@@ -45,7 +48,7 @@ public class TestMonitoring extends TestSession {
 		logger.info("2ns stress test finished");
 	}
 
-	@AfterClass
+//	@AfterClass
 	static public void collateExceptions() throws ParseException, IOException {
 		String cluster = System.getProperty("CLUSTER_NAME");
 		Class<?> clazzz = new Object() {
@@ -108,5 +111,12 @@ public class TestMonitoring extends TestSession {
 		return datesHangFromHere + formattedDateAndTime
 				+ "/FILES/home/gs/var/log/";
 	}
+	
+	@Override
+	@After
+	public void logTaskReportSummary() {
+		// Override to hide the Test Session logs
+	}
+
 
 }

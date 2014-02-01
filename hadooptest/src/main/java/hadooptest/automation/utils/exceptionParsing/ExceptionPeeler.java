@@ -1,11 +1,14 @@
 package hadooptest.automation.utils.exceptionParsing;
 
+import hadooptest.TestSession;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -22,11 +25,18 @@ public class ExceptionPeeler implements Runnable {
 	Logger logger = Logger.getLogger(ExceptionPeeler.class);
 	File aFile;
 	ExceptionBucketer exceptionBucketer;
+	List<ExceptionPeel> exceptionPeels;
 	private String dateTimeStampAtLineBeginningPattern = "^(\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2},\\d{3}).*";
 
 	ExceptionPeeler(File aFile, ExceptionBucketer exceptionBucketer) {
 		this.aFile = aFile;
 		this.exceptionBucketer = exceptionBucketer;
+	}
+	
+	ExceptionPeeler(File aFile, List<ExceptionPeel> exceptionPeels) {
+		this.aFile = aFile;
+		this.exceptionPeels = exceptionPeels;
+		this.exceptionBucketer = null;
 	}
 
 	public void run() {
@@ -59,9 +69,21 @@ public class ExceptionPeeler implements Runnable {
 								.matches(dateTimeStampAtLineBeginningPattern)) {
 					inTheMiddleOfRecordingExceptionLines = false;
 					sb.append("\n");
-					createAndRegisterExceptionPeel(aFile.getName(),
-							dateTimestampString, exceptionOneLiner,
-							sb.toString());
+					if (exceptionBucketer != null) {
+						/*
+						 * We are bucketing exceptions instead of logging.
+						 */
+						createAndRegisterExceptionPeel(aFile.getName(),
+								dateTimestampString, exceptionOneLiner,
+								sb.toString());
+					}else{
+						/*
+						 * We are logging/remembering exceptions instead of bucketing
+						 */
+						createAndRememberExceptionPeel(aFile.getName(),
+								dateTimestampString, exceptionOneLiner,
+								sb.toString());
+					}
 					sb = new StringBuilder();
 				}
 
@@ -87,6 +109,19 @@ public class ExceptionPeeler implements Runnable {
 			ExceptionPeel exceptionPeel = new ExceptionPeel(fileName,
 					timestamp, exceptionOneLiner, blurb);
 			exceptionBucketer.addException(exceptionPeel);
+
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	void createAndRememberExceptionPeel(String fileName, String timestamp,
+			String exceptionOneLiner, String blurb) {
+		try {
+			ExceptionPeel exceptionPeel = new ExceptionPeel(fileName,
+					timestamp, exceptionOneLiner, blurb);
+			exceptionPeels.add(exceptionPeel);
+			TestSession.logger.debug("In exceptionPeeler, concurrent size is now:" + exceptionPeels.size());
 
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
