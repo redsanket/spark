@@ -89,7 +89,7 @@ usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
 my $igor = "/home/y/bin/igor";
-my $re_host = "re103.ygrid.corp.gq1.yahoo.com";
+my $re_host = "re100.ygrid.corp.gq1.yahoo.com";
 if (!$remote_host) {
     my $rolename="grid_re.clusters.$cluster.gateway";
     note("fetch unspecified gateway host from igor role: '$rolename'");
