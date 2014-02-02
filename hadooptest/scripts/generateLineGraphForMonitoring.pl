@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl
 use perlchartdir;
+#use strict;
 
 my %options=();
 my ($chart_title, $x_axis_title, $y_axis_title, $graphFileName, $inputFileName);
@@ -10,7 +11,7 @@ my ($chart_title, $x_axis_title, $y_axis_title, $graphFileName, $inputFileName);
 use Getopt::Long;
 &Getopt::Long::Configure();
 my $result = GetOptions(\%options,
-"t|chart_title"         => \$chart_title,
+"t|chart_title=s"         => \$chart_title,
 "x|x=s"          => \$x_axis_title,
 "y|y=s"          => \$y_axis_title,
 "i|input_file_name=s"          => \$inputFileName,
@@ -45,35 +46,65 @@ open (FH, "< $file") or die "Can't open $file for read: $!";
 my @lines = <FH>;
 close FH or die "Cannot close $file: $!";
 my $headingDone=0;
-my @labels;
+my $xHeadingDone=0;
+my $yheadingDone=0;
+my $xDataDone=0;
+my $yDataDone=0;
+my @xlabels;
+my @ylabels;
 my $count=0;
+my @tempArr=();
 my $run;
-my %runAndData;
+my %xRunAndData;
+my %yRunAndData;
 foreach my $line (@lines){
 	if ($headingDone == 0){
-		$headingDone = 1;
-		$line =~ s/^\s+|\s+$//g;
-		@labels = split(/\s+/, $line);
-		$count = $count+1;
-		next;
+		if($xHeadingDone == 0){
+			chomp($line);
+			@xlabels = split(/\s/, $line);
+			$xHeadingDone=1;
+			next;
+		}
+		if($yheadingDone == 0){
+			chomp($line);
+			@ylabels = split(/\s/, $line);
+			#$yheadingDone=1;
+			$headingDone = 1;
+			next;
+		}
 	}
 	if ($line =~ m/^Run/){
-		$line =~ s/^\s+|\s+$//g;
-		print "Processing $line";
-		@runInfo = split(/:/,$line);
+		chomp($line);
+		print "Processing $line\n";
+		my @runInfo = split(/:/,$line);
 		$run = $runInfo[1];
 		next;
 	}else{
 		#Data lines now
-		$line =~ s/^\s+|\s+$//g;
-		print "Processing $line";
-		my @tempArr = split(/\s+/,$line);
-		$runAndData{$run} = \@tempArr;
-		print "Checking:" . $runAndData{$run} . "\n";
-		$count = $count + 2;
+		if($xDataDone ==0){
+			print "Processing X: $line\n";
+			chomp($line);
+			my @tempArr = split(/\s/,$line);
+			$xRunAndData{$run} = \@tempArr;
+			$xDataDone=1;
+			$yDataDone=0;
+			next;
+		}
+		if($yDataDone ==0){
+			print "Processing Y: $line\n";
+			chomp($line);
+			my @tempArr = split(/\s/,$line);
+			$yRunAndData{$run} = \@tempArr;
+			$xDataDone=0;
+			$yDataDone=1;
+			next;
+		}
 	}
 	
 }
+print "Checking:" . $xRunAndData{$run} . "\n";
+print "_____________________________________________\n";
+print "Checking:" . $yRunAndData{$run} . "\n";
 my $colors = [ 0xff0000,
 0x00ff00,
 0x0000ff,
@@ -104,63 +135,49 @@ my $colors = [ 0xff0000,
 # Create an XYChart object of size 900 x 500 pixels, with a light blue (EEEEFF)
 # background, black border, 1 pxiel 3D border effect and rounded corners
 #my $c = new XYChart(1800, 800, 0xeeeeff, 0x000000, 1);
-my $c = new XYChart(1800, 1000, 0xeeeeff, 0x000000, 1);
-$c->setRoundedFrame();
+my $c = new XYChart(2500, 1500, 0xeeeeff, 0x000000, 1);
+#$c->setRoundedFrame();
 
 # Set the plotarea at (55, 58) and of size 520 x 195 pixels, with white background.
 # Turn on both horizontal and vertical grid lines with light grey color (0xcccccc)
-#$c->setPlotArea(55, 58, 520, 195, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
-#$c->setPlotArea(55, 58, 1720, 400, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
-$c->setPlotArea(55, 58, 1720, 500, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
+#$c->setPlotArea(200, 58, 2200, 800, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
+$c->setPlotArea(200, 88, 2200, 1200, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
 
 # Add a legend box at (50, 30) (top of the chart) with horizontal layout. Use 9 pts
 # Arial Bold font. Set the background and border color to Transparent.
-$c->addLegend(50, 30, 0, "arialbd.ttf", 9)->setBackground($perlchartdir::Transparent) ;
+$c->addLegend(200, 40, 0, "arialbd.ttf", 9)->setBackground($perlchartdir::Transparent) ;
 
 # Add a title box to the chart using 15 pts Times Bold Italic font, on a light blue
 # (CCCCFF) background with glass effect. white (0xffffff) on a dark red (0x800000)
 # background, with a 1 pixel 3D border.
-$c->addTitle($chart_title, "timesbi.ttf", 15)->setBackground(
-0xccccff, 0x000000, perlchartdir::glassEffect());
-
+$c->addTitle($chart_title, "timesbi.ttf", 15);
 
 # Add a title to the y axis
-$c->yAxis()->setTitle($y_axis_title);
-
-
-# Set y-axis tick density to 30 pixels. ChartDirector auto-scaling will use this as
-# the guideline when putting ticks on the y-axis.
-$c->yAxis()->setTickDensity(30);
-# Set axis label style to 8pts Arial Bold
-$c->xAxis()->setLabelStyle("arialbd.ttf", 8);
-$c->yAxis()->setLabelStyle("arialbd.ttf", 8);
+$c->yAxis()->setTitle($y_axis_title, "arialbi.ttf", 12);
+$c->xAxis()->setTitle($x_axis_title, "arialbi.ttf", 12);
 
 # Set axis line width to 2 pixels
-$c->xAxis()->setWidth(2);
-$c->yAxis()->setWidth(2);
+$c->xAxis()->setWidth(3);
+$c->yAxis()->setWidth(3);
 
 # Set the labels on the x axis.
 #print "Setting labels" . join("|",@labels);
-$c->xAxis()->setLabels(\@labels);
+$c->xAxis()->setLabels(\@xlabels);
 $c->xAxis()->setLabelStyle("",8,TextColor, "90");
+$c->yAxis()->setLabels(\@ylabels);
+$c->yAxis()->setLabelStyle("",8,TextColor, "0");
 
 # Display 1 out of 2 labels on the x-axis.
 $c->xAxis()->setLabelStep(1);
-# Add a title to the x axis
-$c->xAxis()->setTitle($y_axis_title);
-
-# Add a line layer to the chart
-my $layer = $c->addLineLayer2();
-
-# Set the default line width to 2 pixels
-$layer->setLineWidth(3);
+$c->yAxis()->setLabelStep(1);
 
 # Add the three data sets to the line layer. For demo purpose, we use a dash line
 # color for the last line
 print "==============================================\n";
 $count=0;
-foreach my $runn (keys (%runAndData)){
-	$layer->addDataSet($runAndData{$runn}, $$colors[$count++], $runn)->setDataSymbol($perlchartdir::CircleSymbol, 9);
+foreach my $runn (keys (%xRunAndData)){
+	$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $perlchartdir::CircleSymbol, 15, $$colors[$count++]);
+	print "Loop-".$runn."\n";
 }
 
 # Output the chart

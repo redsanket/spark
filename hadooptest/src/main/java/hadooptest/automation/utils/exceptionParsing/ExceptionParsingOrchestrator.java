@@ -50,7 +50,7 @@ public class ExceptionParsingOrchestrator {
 		}
 		executor.shutdown();
 		// Wait until all threads finish
-		executor.awaitTermination(120, TimeUnit.SECONDS);
+//		executor.awaitTermination(120, TimeUnit.SECONDS);
 		TestSession.logger.trace("Finished all threads");
 	}
 

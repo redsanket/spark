@@ -25,6 +25,7 @@ public class ExceptionMonitor extends AbstractMonitor {
 	public void setExceptionPeels(List<ExceptionPeel> exceptionPeels){
 		this.exceptionPeels = exceptionPeels;
 	}
+	
 	public void logExceptions() {
 		String dumpLocation;
 		HashMap<String, Integer> exceptionCountHashMap = new HashMap<String, Integer>();

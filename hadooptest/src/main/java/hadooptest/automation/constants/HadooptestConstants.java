@@ -44,6 +44,8 @@ public class HadooptestConstants {
 		public static String FILES = "FILES";
 		public static String USER_DIR = "user.dir";
 		public static String SSH_AGENT_FILE = "SSH_AGENT_FILE";
+		public static String EXCEPTIONS = "EXCEPTIONS";
+		public static String TEST_STATUS = "TEST_STATUS";
 	}
 
 	// Commands

@@ -98,11 +98,11 @@ public class SshAgentLogMetadata {
 					if (i < 0)
 						break;
 					String outputFragment = new String(tmp, 0, i);
-					TestSession.logger.info(outputFragment);
+					TestSession.logger.trace(outputFragment);
 
 				}
 				if (channel.isClosed()) {
-					TestSession.logger.info("exit-status: "
+					TestSession.logger.trace("exit-status: "
 							+ channel.getExitStatus());
 					exitStatus = channel.getExitStatus();
 					break;

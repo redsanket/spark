@@ -63,7 +63,8 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 		 * ExceptionMonitor, for once the logs have been received.
 		 */
 		exceptionMonitor = new ExceptionMonitor(clusterName,
-				sentComponentToHostMapping, testClass, testMethodName, -1, "EXCEPTIONS");
+				sentComponentToHostMapping, testClass, testMethodName, -1,
+				HadooptestConstants.Miscellaneous.EXCEPTIONS);
 
 		initializeFileMetadata();
 
@@ -123,27 +124,41 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 		logger.info("Stop monitoring received in SshAgentLogMonitor for "
 				+ this.kind);
 		monitoringUnderway = false;
+		ChannelExec channelExec = null;
+		Session session = null;
 
 		for (String fileBeingMonitored : sshAgentRunFlags.keySet()) {
 			JavaSshClient execJsch = jschExecs.get(fileBeingMonitored);
-			execJsch.keepRunning = false;
+			if (execJsch != null){
+				execJsch.keepRunning = false;
+			}
 			printWritersToLocalFileDump.get(fileBeingMonitored).close();
-
-			ChannelExec channelExec = (ChannelExec) execJsch.channel;
-			Session session = execJsch.session;
-			TestSession.logger.debug("Disconnecting channel and session for:"
+			if (execJsch !=null){
+				channelExec = (ChannelExec) execJsch.channel;
+				session = execJsch.session;
+				TestSession.logger.debug("Disconnecting channel and session for:"
 					+ fileBeingMonitored);
-
+			}
 			try {
-				OutputStream out = channelExec.getOutputStream();
-				/*
-				 * Corresponds to sending CTL+C
-				 */
-				out.write(3);
-				out.flush();
+				if (channelExec != null) {
+					OutputStream out = channelExec.getOutputStream();
+					/*
+					 * Corresponds to sending CTL+C
+					 */
+					out.write(3);
+					out.flush();
+					/*
+					 * Disconnect from the "tail -F", else this would leave
+					 * zombie processes on the server.
+					 */
+					channelExec.disconnect();
+					session.disconnect();
+				}
+
 			} catch (IOException e1) {
-				TestSession.logger.debug("Exception Rx while executing test case:"
-						+ tailThreads.get(fileBeingMonitored).getName());
+				TestSession.logger
+						.debug("Exception Rx while executing test case:"
+								+ tailThreads.get(fileBeingMonitored).getName());
 				TestSession.logger.debug("channelExec was not null, it had id"
 						+ channelExec);
 				e1.printStackTrace();
@@ -153,8 +168,8 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 			 * Disconnect from the "tail -F", else this would leave zombie
 			 * processes on the server.
 			 */
-			channelExec.disconnect();
-			session.disconnect();
+//			channelExec.disconnect();
+//			session.disconnect();
 
 			sshAgentRunFlags.put(fileBeingMonitored, false);
 			for (final SshAgentLogMetadata sshAgentLogMetadata : fileMetadataList) {
@@ -163,18 +178,19 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 
 		}
 		/*
-		 * Once all the logs have been received,
-		 * Scour all the exceptions received for the test and log them.
+		 * Once all the logs have been received, Scour all the exceptions
+		 * received for the test and log them.
 		 */
 		ExceptionParsingOrchestrator exceptionO10R = new ExceptionParsingOrchestrator(
 				filesContainingExceptions);
 
 		try {
 			exceptionO10R.peelAndRememberExceptions();
-			List<ExceptionPeel> exceptionPeels= exceptionO10R.fetchExceptionPeels();
+			List<ExceptionPeel> exceptionPeels = exceptionO10R
+					.fetchExceptionPeels();
 			exceptionMonitor.setExceptionPeels(exceptionPeels);
 			exceptionMonitor.logExceptions();
-			
+
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

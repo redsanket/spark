@@ -9,6 +9,7 @@ import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.monitoring.Monitorable;
 import hadooptest.workflow.hadoop.job.JobState;
 import hadooptest.workflow.hadoop.job.StreamingJob;
 
@@ -64,135 +65,135 @@ public class TestEndToEndStreaming extends TestSession {
 		setupTestConf();
 	}
 
-	@Test public void testCacheArchives10() throws Exception { cacheArchivesFileOnCache(10, CACHE_TMP, JAR); }
-	@Test public void testCacheArchives20() throws Exception { cacheArchivesFileOnCache(20, CACHE_TMP, TAR); }
-	@Test public void testCacheArchives30() throws Exception { cacheArchivesFileOnCache(30, CACHE_TMP, TARGZ); }
-	@Test public void testCacheArchives40() throws Exception { cacheArchivesFileOnCache(40, CACHE_TMP, TGZ); }
-	@Test public void testCacheArchives50() throws Exception { cacheArchivesFileOnCache(50, CACHE_TMP, ZIP); }
-	@Test public void testCacheArchives60() throws Exception { cacheArchivesFileOnCache(60, CACHE_USER, JAR); }
-	@Test public void testCacheArchives70() throws Exception { cacheArchivesFileOnCache(70, CACHE_USER, TAR); }
-	@Test public void testCacheArchives80() throws Exception { cacheArchivesFileOnCache(80, CACHE_USER, TARGZ); }
-	@Test public void testCacheArchives90() throws Exception { cacheArchivesFileOnCache(90, CACHE_USER, TGZ); }
-	@Test public void testCacheArchives100() throws Exception { cacheArchivesFileOnCache(100, CACHE_USER, ZIP); }
+	@Test @Monitorable  public void testCacheArchives10() throws Exception { cacheArchivesFileOnCache(10, CACHE_TMP, JAR); }
+	@Test @Monitorable  public void testCacheArchives20() throws Exception { cacheArchivesFileOnCache(20, CACHE_TMP, TAR); }
+	@Test @Monitorable  public void testCacheArchives30() throws Exception { cacheArchivesFileOnCache(30, CACHE_TMP, TARGZ); }
+	@Test @Monitorable  public void testCacheArchives40() throws Exception { cacheArchivesFileOnCache(40, CACHE_TMP, TGZ); }
+	@Test @Monitorable  public void testCacheArchives50() throws Exception { cacheArchivesFileOnCache(50, CACHE_TMP, ZIP); }
+	@Test @Monitorable  public void testCacheArchives60() throws Exception { cacheArchivesFileOnCache(60, CACHE_USER, JAR); }
+	@Test @Monitorable  public void testCacheArchives70() throws Exception { cacheArchivesFileOnCache(70, CACHE_USER, TAR); }
+	@Test @Monitorable  public void testCacheArchives80() throws Exception { cacheArchivesFileOnCache(80, CACHE_USER, TARGZ); }
+	@Test @Monitorable  public void testCacheArchives90() throws Exception { cacheArchivesFileOnCache(90, CACHE_USER, TGZ); }
+	@Test @Monitorable  public void testCacheArchives100() throws Exception { cacheArchivesFileOnCache(100, CACHE_USER, ZIP); }
 	
-	@Test public void testCacheArchives110() throws Exception { cacheArchivesSymlinkOnBadCache(110, CACHE_TMP); }
-	@Test public void testCacheArchives120() throws Exception { cacheArchivesSymlinkOnBadCache(120, CACHE_USER); }
+	@Test @Monitorable  public void testCacheArchives110() throws Exception { cacheArchivesSymlinkOnBadCache(110, CACHE_TMP); }
+	@Test @Monitorable  public void testCacheArchives120() throws Exception { cacheArchivesSymlinkOnBadCache(120, CACHE_USER); }
 
-	@Test public void testCacheArchives130() throws Exception { cacheArchivesNoSymlinkOnCache(130, CACHE_TMP); }
-	@Test public void testCacheArchives140() throws Exception { cacheArchivesNoSymlinkOnCache(140, CACHE_USER); }
+	@Test @Monitorable  public void testCacheArchives130() throws Exception { cacheArchivesNoSymlinkOnCache(130, CACHE_TMP); }
+	@Test @Monitorable  public void testCacheArchives140() throws Exception { cacheArchivesNoSymlinkOnCache(140, CACHE_USER); }
 	
-	@Test public void testArchives160() throws Exception { archivesFileOnFS(160, CACHE_TMP, JAR, LOCALFS_BASE); }
-	@Test public void testArchives170() throws Exception { archivesFileOnFS(170, CACHE_TMP, JAR, hdfsBaseURL); }
-	@Test public void testArchives180() throws Exception { archivesFileOnFS(180, CACHE_TMP, TAR, LOCALFS_BASE); }
-	@Test public void testArchives190() throws Exception { archivesFileOnFS(190, CACHE_TMP, TAR, hdfsBaseURL); }
-	@Test public void testArchives200() throws Exception { archivesFileOnFS(200, CACHE_TMP, TARGZ, LOCALFS_BASE); }
-	@Test public void testArchives210() throws Exception { archivesFileOnFS(210, CACHE_TMP, TARGZ, hdfsBaseURL); }
-	@Test public void testArchives220() throws Exception { archivesFileOnFS(220, CACHE_TMP, TGZ, LOCALFS_BASE); }
-	@Test public void testArchives230() throws Exception { archivesFileOnFS(230, CACHE_TMP, TGZ, hdfsBaseURL); }
-	@Test public void testArchives240() throws Exception { archivesFileOnFS(240, CACHE_TMP, ZIP, LOCALFS_BASE); }
-	@Test public void testArchives250() throws Exception { archivesFileOnFS(250, CACHE_TMP, ZIP, hdfsBaseURL); }
-	@Test public void testArchives260() throws Exception { archivesFileOnFS(260, CACHE_USER, JAR, LOCALFS_BASE); }
-	@Test public void testArchives270() throws Exception { archivesFileOnFS(270, CACHE_USER, JAR, hdfsBaseURL); }
-	@Test public void testArchives280() throws Exception { archivesFileOnFS(280, CACHE_USER, TAR, LOCALFS_BASE); }
-	@Test public void testArchives290() throws Exception { archivesFileOnFS(290, CACHE_USER, TAR, hdfsBaseURL); }
-	@Test public void testArchives300() throws Exception { archivesFileOnFS(300, CACHE_USER, TARGZ, LOCALFS_BASE); }
-	@Test public void testArchives310() throws Exception { archivesFileOnFS(310, CACHE_USER, TARGZ, hdfsBaseURL); }
-	@Test public void testArchives320() throws Exception { archivesFileOnFS(320, CACHE_USER, TGZ, LOCALFS_BASE); }
-	@Test public void testArchives330() throws Exception { archivesFileOnFS(330, CACHE_USER, TGZ, hdfsBaseURL); }
-	@Test public void testArchives340() throws Exception { archivesFileOnFS(340, CACHE_USER, ZIP, LOCALFS_BASE); }
-	@Test public void testArchives350() throws Exception { archivesFileOnFS(350, CACHE_USER, ZIP, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives160() throws Exception { archivesFileOnFS(160, CACHE_TMP, JAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives170() throws Exception { archivesFileOnFS(170, CACHE_TMP, JAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives180() throws Exception { archivesFileOnFS(180, CACHE_TMP, TAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives190() throws Exception { archivesFileOnFS(190, CACHE_TMP, TAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives200() throws Exception { archivesFileOnFS(200, CACHE_TMP, TARGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives210() throws Exception { archivesFileOnFS(210, CACHE_TMP, TARGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives220() throws Exception { archivesFileOnFS(220, CACHE_TMP, TGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives230() throws Exception { archivesFileOnFS(230, CACHE_TMP, TGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives240() throws Exception { archivesFileOnFS(240, CACHE_TMP, ZIP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives250() throws Exception { archivesFileOnFS(250, CACHE_TMP, ZIP, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives260() throws Exception { archivesFileOnFS(260, CACHE_USER, JAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives270() throws Exception { archivesFileOnFS(270, CACHE_USER, JAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives280() throws Exception { archivesFileOnFS(280, CACHE_USER, TAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives290() throws Exception { archivesFileOnFS(290, CACHE_USER, TAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives300() throws Exception { archivesFileOnFS(300, CACHE_USER, TARGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives310() throws Exception { archivesFileOnFS(310, CACHE_USER, TARGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives320() throws Exception { archivesFileOnFS(320, CACHE_USER, TGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives330() throws Exception { archivesFileOnFS(330, CACHE_USER, TGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives340() throws Exception { archivesFileOnFS(340, CACHE_USER, ZIP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives350() throws Exception { archivesFileOnFS(350, CACHE_USER, ZIP, hdfsBaseURL); }
 
-	@Test public void testArchives360() throws Exception { archivesSymlinkOnBadCache(360, CACHE_TMP, LOCALFS_BASE); }
-	@Test public void testArchives370() throws Exception { archivesSymlinkOnBadCache(370, CACHE_TMP, hdfsBaseURL); }
-	@Test public void testArchives380() throws Exception { archivesSymlinkOnBadCache(380, CACHE_USER, LOCALFS_BASE); }
-	@Test public void testArchives390() throws Exception { archivesSymlinkOnBadCache(390, CACHE_USER, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives360() throws Exception { archivesSymlinkOnBadCache(360, CACHE_TMP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives370() throws Exception { archivesSymlinkOnBadCache(370, CACHE_TMP, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives380() throws Exception { archivesSymlinkOnBadCache(380, CACHE_USER, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives390() throws Exception { archivesSymlinkOnBadCache(390, CACHE_USER, hdfsBaseURL); }
 	
-	@Test public void testArchives400() throws Exception { archivesNoSymlinkOnCache(400, CACHE_TMP, JAR, LOCALFS_BASE); }
-	@Test public void testArchives410() throws Exception { archivesNoSymlinkOnCache(410, CACHE_TMP, JAR, hdfsBaseURL); }
-	@Test public void testArchives420() throws Exception { archivesNoSymlinkOnCache(420, CACHE_TMP, TAR, LOCALFS_BASE); }
-	@Test public void testArchives430() throws Exception { archivesNoSymlinkOnCache(430, CACHE_TMP, TAR, hdfsBaseURL); }
-	@Test public void testArchives440() throws Exception { archivesNoSymlinkOnCache(440, CACHE_TMP, TARGZ, LOCALFS_BASE); }
-	@Test public void testArchives450() throws Exception { archivesNoSymlinkOnCache(450, CACHE_TMP, TARGZ, hdfsBaseURL); }
-	@Test public void testArchives460() throws Exception { archivesNoSymlinkOnCache(460, CACHE_TMP, TGZ, LOCALFS_BASE); }
-	@Test public void testArchives470() throws Exception { archivesNoSymlinkOnCache(470, CACHE_TMP, TGZ, hdfsBaseURL); }
-	@Test public void testArchives480() throws Exception { archivesNoSymlinkOnCache(480, CACHE_TMP, ZIP, LOCALFS_BASE); }
-	@Test public void testArchives490() throws Exception { archivesNoSymlinkOnCache(490, CACHE_TMP, ZIP, hdfsBaseURL); }
-	@Test public void testArchives500() throws Exception { archivesNoSymlinkOnCache(500, CACHE_USER, JAR, LOCALFS_BASE); }
-	@Test public void testArchives510() throws Exception { archivesNoSymlinkOnCache(510, CACHE_USER, JAR, hdfsBaseURL); }
-	@Test public void testArchives520() throws Exception { archivesNoSymlinkOnCache(520, CACHE_USER, TAR, LOCALFS_BASE); }
-	@Test public void testArchives530() throws Exception { archivesNoSymlinkOnCache(530, CACHE_USER, TAR, hdfsBaseURL); }
-	@Test public void testArchives540() throws Exception { archivesNoSymlinkOnCache(540, CACHE_USER, TARGZ, LOCALFS_BASE); }
-	@Test public void testArchives550() throws Exception { archivesNoSymlinkOnCache(550, CACHE_USER, TARGZ, hdfsBaseURL); }
-	@Test public void testArchives560() throws Exception { archivesNoSymlinkOnCache(560, CACHE_USER, TGZ, LOCALFS_BASE); }
-	@Test public void testArchives570() throws Exception { archivesNoSymlinkOnCache(570, CACHE_USER, TGZ, hdfsBaseURL); }
-	@Test public void testArchives580() throws Exception { archivesNoSymlinkOnCache(580, CACHE_USER, ZIP, LOCALFS_BASE); }
-	@Test public void testArchives590() throws Exception { archivesNoSymlinkOnCache(590, CACHE_USER, ZIP, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives400() throws Exception { archivesNoSymlinkOnCache(400, CACHE_TMP, JAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives410() throws Exception { archivesNoSymlinkOnCache(410, CACHE_TMP, JAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives420() throws Exception { archivesNoSymlinkOnCache(420, CACHE_TMP, TAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives430() throws Exception { archivesNoSymlinkOnCache(430, CACHE_TMP, TAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives440() throws Exception { archivesNoSymlinkOnCache(440, CACHE_TMP, TARGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives450() throws Exception { archivesNoSymlinkOnCache(450, CACHE_TMP, TARGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives460() throws Exception { archivesNoSymlinkOnCache(460, CACHE_TMP, TGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives470() throws Exception { archivesNoSymlinkOnCache(470, CACHE_TMP, TGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives480() throws Exception { archivesNoSymlinkOnCache(480, CACHE_TMP, ZIP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives490() throws Exception { archivesNoSymlinkOnCache(490, CACHE_TMP, ZIP, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives500() throws Exception { archivesNoSymlinkOnCache(500, CACHE_USER, JAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives510() throws Exception { archivesNoSymlinkOnCache(510, CACHE_USER, JAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives520() throws Exception { archivesNoSymlinkOnCache(520, CACHE_USER, TAR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives530() throws Exception { archivesNoSymlinkOnCache(530, CACHE_USER, TAR, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives540() throws Exception { archivesNoSymlinkOnCache(540, CACHE_USER, TARGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives550() throws Exception { archivesNoSymlinkOnCache(550, CACHE_USER, TARGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives560() throws Exception { archivesNoSymlinkOnCache(560, CACHE_USER, TGZ, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives570() throws Exception { archivesNoSymlinkOnCache(570, CACHE_USER, TGZ, hdfsBaseURL); }
+	@Test @Monitorable  public void testArchives580() throws Exception { archivesNoSymlinkOnCache(580, CACHE_USER, ZIP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testArchives590() throws Exception { archivesNoSymlinkOnCache(590, CACHE_USER, ZIP, hdfsBaseURL); }
 	
 	//
 	// Tests 610, 630, 650, and 670 are currently commented out, because
 	// -cacheFile is now deprecated and these cases are no longer supported by
 	// Hadoop (at least as of 0.23.6).
 	//
-	//@Test public void testCacheFiles610() throws Exception { cacheFilesFileOnFS(610, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testCacheFiles620() throws Exception { cacheFilesFileOnFS(620, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
-	//@Test public void testCacheFiles630() throws Exception { cacheFilesFileOnFS(630, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testCacheFiles640() throws Exception { cacheFilesFileOnFS(640, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
-	//@Test public void testCacheFiles650() throws Exception { cacheFilesFileOnFS(650, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testCacheFiles660() throws Exception { cacheFilesFileOnFS(660, CACHE_USER, INPUTFILE, hdfsBaseURL); }
-	//@Test public void testCacheFiles670() throws Exception { cacheFilesFileOnFS(670, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testCacheFiles680() throws Exception { cacheFilesFileOnFS(680, CACHE_USER, INPUTDIR, hdfsBaseURL); }
+	//@Test @Monitorable  public void testCacheFiles610() throws Exception { cacheFilesFileOnFS(610, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles620() throws Exception { cacheFilesFileOnFS(620, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	//@Test @Monitorable  public void testCacheFiles630() throws Exception { cacheFilesFileOnFS(630, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles640() throws Exception { cacheFilesFileOnFS(640, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	//@Test @Monitorable  public void testCacheFiles650() throws Exception { cacheFilesFileOnFS(650, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles660() throws Exception { cacheFilesFileOnFS(660, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	//@Test @Monitorable  public void testCacheFiles670() throws Exception { cacheFilesFileOnFS(670, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles680() throws Exception { cacheFilesFileOnFS(680, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 
-	@Test public void testCacheFiles690() throws Exception { cacheFilesSymlinkOnBadCache(690, CACHE_TMP, LOCALFS_BASE); }
-	@Test public void testCacheFiles700() throws Exception { cacheFilesSymlinkOnBadCache(700, CACHE_TMP, hdfsBaseURL); }
-	@Test public void testCacheFiles710() throws Exception { cacheFilesSymlinkOnBadCache(710, CACHE_USER, LOCALFS_BASE); }
-	@Test public void testCacheFiles720() throws Exception { cacheFilesSymlinkOnBadCache(720, CACHE_USER, hdfsBaseURL); }
+	@Test @Monitorable  public void testCacheFiles690() throws Exception { cacheFilesSymlinkOnBadCache(690, CACHE_TMP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles700() throws Exception { cacheFilesSymlinkOnBadCache(700, CACHE_TMP, hdfsBaseURL); }
+	@Test @Monitorable  public void testCacheFiles710() throws Exception { cacheFilesSymlinkOnBadCache(710, CACHE_USER, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles720() throws Exception { cacheFilesSymlinkOnBadCache(720, CACHE_USER, hdfsBaseURL); }
 	
-	@Test public void testCacheFiles730() throws Exception { cacheFilesNoSymlinkOnCache(730, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testCacheFiles740() throws Exception { cacheFilesNoSymlinkOnCache(740, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
-	@Test public void testCacheFiles750() throws Exception { cacheFilesNoSymlinkOnCache(750, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testCacheFiles760() throws Exception { cacheFilesNoSymlinkOnCache(760, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
-	@Test public void testCacheFiles770() throws Exception { cacheFilesNoSymlinkOnCache(770, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testCacheFiles780() throws Exception { cacheFilesNoSymlinkOnCache(780, CACHE_USER, INPUTFILE, hdfsBaseURL); }
-	@Test public void testCacheFiles790() throws Exception { cacheFilesNoSymlinkOnCache(790, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testCacheFiles800() throws Exception { cacheFilesNoSymlinkOnCache(800, CACHE_USER, INPUTDIR, hdfsBaseURL); }
+	@Test @Monitorable  public void testCacheFiles730() throws Exception { cacheFilesNoSymlinkOnCache(730, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles740() throws Exception { cacheFilesNoSymlinkOnCache(740, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	@Test @Monitorable  public void testCacheFiles750() throws Exception { cacheFilesNoSymlinkOnCache(750, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles760() throws Exception { cacheFilesNoSymlinkOnCache(760, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	@Test @Monitorable  public void testCacheFiles770() throws Exception { cacheFilesNoSymlinkOnCache(770, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles780() throws Exception { cacheFilesNoSymlinkOnCache(780, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	@Test @Monitorable  public void testCacheFiles790() throws Exception { cacheFilesNoSymlinkOnCache(790, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testCacheFiles800() throws Exception { cacheFilesNoSymlinkOnCache(800, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 
-	@Test public void testFiles810() throws Exception { filesFilesOnFS(810, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testFiles820() throws Exception { filesFilesOnFS(820, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
-	@Test public void testFiles830() throws Exception { filesFilesOnFS(830, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testFiles840() throws Exception { filesFilesOnFS(840, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
-	@Test public void testFiles850() throws Exception { filesFilesOnFS(850, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testFiles860() throws Exception { filesFilesOnFS(860, CACHE_USER, INPUTFILE, hdfsBaseURL); }
-	@Test public void testFiles870() throws Exception { filesFilesOnFS(870, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testFiles880() throws Exception { filesFilesOnFS(880, CACHE_USER, INPUTDIR, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles810() throws Exception { filesFilesOnFS(810, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles820() throws Exception { filesFilesOnFS(820, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles830() throws Exception { filesFilesOnFS(830, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles840() throws Exception { filesFilesOnFS(840, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles850() throws Exception { filesFilesOnFS(850, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles860() throws Exception { filesFilesOnFS(860, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles870() throws Exception { filesFilesOnFS(870, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles880() throws Exception { filesFilesOnFS(880, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 	
-	@Test public void testFiles890() throws Exception { filesSymlinkOnBadCache(890, CACHE_TMP, LOCALFS_BASE); }
-	@Test public void testFiles900() throws Exception { filesSymlinkOnBadCache(900, CACHE_TMP, hdfsBaseURL); }
-	@Test public void testFiles910() throws Exception { filesSymlinkOnBadCache(910, CACHE_USER, LOCALFS_BASE); }
-	@Test public void testFiles920() throws Exception { filesSymlinkOnBadCache(920, CACHE_USER, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles890() throws Exception { filesSymlinkOnBadCache(890, CACHE_TMP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles900() throws Exception { filesSymlinkOnBadCache(900, CACHE_TMP, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles910() throws Exception { filesSymlinkOnBadCache(910, CACHE_USER, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles920() throws Exception { filesSymlinkOnBadCache(920, CACHE_USER, hdfsBaseURL); }
 	
-	@Test public void testFiles930() throws Exception { filesNoSymlinkOnCache(930, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testFiles940() throws Exception { filesNoSymlinkOnCache(940, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
-	@Test public void testFiles950() throws Exception { filesNoSymlinkOnCache(950, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testFiles960() throws Exception { filesNoSymlinkOnCache(960, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
-	@Test public void testFiles970() throws Exception { filesNoSymlinkOnCache(970, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
-	@Test public void testFiles980() throws Exception { filesNoSymlinkOnCache(980, CACHE_USER, INPUTFILE, hdfsBaseURL); }
-	@Test public void testFiles990() throws Exception { filesNoSymlinkOnCache(990, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
-	@Test public void testFiles1000() throws Exception { filesNoSymlinkOnCache(1000, CACHE_USER, INPUTDIR, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles930() throws Exception { filesNoSymlinkOnCache(930, CACHE_TMP, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles940() throws Exception { filesNoSymlinkOnCache(940, CACHE_TMP, INPUTFILE, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles950() throws Exception { filesNoSymlinkOnCache(950, CACHE_TMP, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles960() throws Exception { filesNoSymlinkOnCache(960, CACHE_TMP, INPUTDIR, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles970() throws Exception { filesNoSymlinkOnCache(970, CACHE_USER, INPUTFILE, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles980() throws Exception { filesNoSymlinkOnCache(980, CACHE_USER, INPUTFILE, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles990() throws Exception { filesNoSymlinkOnCache(990, CACHE_USER, INPUTDIR, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles1000() throws Exception { filesNoSymlinkOnCache(1000, CACHE_USER, INPUTDIR, hdfsBaseURL); }
 	
-	@Test public void testFiles1010() throws Exception { filesNonExistentInput(1010, CACHE_TMP, LOCALFS_BASE); }
-	@Test public void testFiles1020() throws Exception { filesNonExistentInput(1020, CACHE_TMP, hdfsBaseURL); }
-	@Test public void testFiles1030() throws Exception { filesNonExistentInput(1030, CACHE_USER, LOCALFS_BASE); }
-	@Test public void testFiles1040() throws Exception { filesNonExistentInput(1040, CACHE_USER, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles1010() throws Exception { filesNonExistentInput(1010, CACHE_TMP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles1020() throws Exception { filesNonExistentInput(1020, CACHE_TMP, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles1030() throws Exception { filesNonExistentInput(1030, CACHE_USER, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles1040() throws Exception { filesNonExistentInput(1040, CACHE_USER, hdfsBaseURL); }
 	
-	//@Test public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, CACHE_TMP, LOCALFS_BASE); }
-	//@Test public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, CACHE_TMP, hdfsBaseURL); }
-	//@Test public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, CACHE_USER, LOCALFS_BASE); }
-	//@Test public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, CACHE_USER, hdfsBaseURL); }
+	//@Test @Monitorable  public void testFiles1050() throws Exception { filesSymlinkSpecialChars(1050, CACHE_TMP, LOCALFS_BASE); }
+	//@Test @Monitorable  public void testFiles1060() throws Exception { filesSymlinkSpecialChars(1060, CACHE_TMP, hdfsBaseURL); }
+	//@Test @Monitorable  public void testFiles1070() throws Exception { filesSymlinkSpecialChars(1070, CACHE_USER, LOCALFS_BASE); }
+	//@Test @Monitorable  public void testFiles1080() throws Exception { filesSymlinkSpecialChars(1080, CACHE_USER, hdfsBaseURL); }
 
-	@Test public void testFiles1090() throws Exception { filesSymlinkSpecialCharsFail(1090, CACHE_TMP, LOCALFS_BASE); }
-	@Test public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, CACHE_TMP, hdfsBaseURL); }
-	@Test public void testFiles1110() throws Exception { filesSymlinkSpecialCharsFail(1110, CACHE_USER, LOCALFS_BASE); }
-	@Test public void testFiles1120() throws Exception { filesSymlinkSpecialCharsFail(1120, CACHE_USER, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles1090() throws Exception { filesSymlinkSpecialCharsFail(1090, CACHE_TMP, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles1100() throws Exception { filesSymlinkSpecialCharsFail(1100, CACHE_TMP, hdfsBaseURL); }
+	@Test @Monitorable  public void testFiles1110() throws Exception { filesSymlinkSpecialCharsFail(1110, CACHE_USER, LOCALFS_BASE); }
+	@Test @Monitorable  public void testFiles1120() throws Exception { filesSymlinkSpecialCharsFail(1120, CACHE_USER, hdfsBaseURL); }
 	
 	private void filesSymlinkSpecialCharsFail(int testcaseID, 
 			String publicPrivateCache, String fileSystem) 

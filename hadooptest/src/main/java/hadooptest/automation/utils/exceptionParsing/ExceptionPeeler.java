@@ -32,7 +32,7 @@ public class ExceptionPeeler implements Runnable {
 		this.aFile = aFile;
 		this.exceptionBucketer = exceptionBucketer;
 	}
-	
+
 	ExceptionPeeler(File aFile, List<ExceptionPeel> exceptionPeels) {
 		this.aFile = aFile;
 		this.exceptionPeels = exceptionPeels;
@@ -52,10 +52,28 @@ public class ExceptionPeeler implements Runnable {
 		try {
 			br = new BufferedReader(new FileReader(aFile));
 			while ((loggedLine = br.readLine()) != null) {
+				if (!inTheMiddleOfRecordingExceptionLines) {
+					if (loggedLine.contains("WARN")) {
+						/*
+						 * This is to do away with false positives like this
+						 * line 2014-02-01 18:00:00,295 [Trash Emptier] WARN
+						 * security.UserGroupInformation:
+						 * PriviledgedActionException
+						 * as:hdfs/gsbl90929.blue.ygrid
+						 * .yahoo.com@DEV.YGRID.YAHOO.COM (auth:KERBEROS)
+						 * cause:javax.security.sasl.SaslException: GSS initiate
+						 * failed [Caused by GSSException: No valid credentials
+						 * provided (Mechanism level: Failed to find any
+						 * Kerberos tgt)]
+						 */
+						continue;
+					}
+				}
 				if ((loggedLine.toLowerCase().contains("exception") || loggedLine
 						.toLowerCase().contains("error"))
 						&& loggedLine
 								.matches(dateTimeStampAtLineBeginningPattern)) {
+					TestSession.logger.trace("TRIPPED ON EXCEPTION LINE:" + loggedLine);
 					inTheMiddleOfRecordingExceptionLines = true;
 					dateTimestampString = loggedLine.replaceAll(
 							dateTimeStampAtLineBeginningPattern, "$1");
@@ -76,9 +94,10 @@ public class ExceptionPeeler implements Runnable {
 						createAndRegisterExceptionPeel(aFile.getName(),
 								dateTimestampString, exceptionOneLiner,
 								sb.toString());
-					}else{
+					} else {
 						/*
-						 * We are logging/remembering exceptions instead of bucketing
+						 * We are logging/remembering exceptions instead of
+						 * bucketing
 						 */
 						createAndRememberExceptionPeel(aFile.getName(),
 								dateTimestampString, exceptionOneLiner,
@@ -114,14 +133,16 @@ public class ExceptionPeeler implements Runnable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	void createAndRememberExceptionPeel(String fileName, String timestamp,
 			String exceptionOneLiner, String blurb) {
 		try {
 			ExceptionPeel exceptionPeel = new ExceptionPeel(fileName,
 					timestamp, exceptionOneLiner, blurb);
 			exceptionPeels.add(exceptionPeel);
-			TestSession.logger.debug("In exceptionPeeler, concurrent size is now:" + exceptionPeels.size());
+			TestSession.logger
+					.debug("In exceptionPeeler, concurrent size is now:"
+							+ exceptionPeels.size());
 
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
