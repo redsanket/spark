@@ -1,10 +1,14 @@
 package hadooptest.automation.utils.exceptionParsing;
 
+import hadooptest.TestSession;
+
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -25,10 +29,14 @@ public class ExceptionPeel {
 	Timestamp timestamp;
 	String fileName;
 	String exceptionOneLiner;
-
+	String exceptionName;
+	static Logger logger = Logger.getLogger(ExceptionPeel.class);
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("Name:");
+		sb.append(this.exceptionName);
 		sb.append("Filename:");
 		sb.append(this.fileName);
 		sb.append("\nTimestamp:");
@@ -40,7 +48,9 @@ public class ExceptionPeel {
 
 	public String printSummary() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\tFilename:[");
+		sb.append("\tName:[");
+		sb.append(this.exceptionName);
+		sb.append("]\tFilename:[");
 		sb.append(this.fileName);
 		sb.append("] One Line Summary[:");
 		sb.append(exceptionOneLiner);
@@ -53,9 +63,11 @@ public class ExceptionPeel {
 		this.fileName = fileName;
 		this.exceptionOneLiner = exceptionOneLiner;
 		this.blurb = blurb;
+		this.exceptionName = extractExceptionName(blurb);
 		Date date = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss,SSS",
 				Locale.ENGLISH).parse(timeStamp);
 		this.timestamp = new Timestamp(date.getTime());
+		TestSession.logger.trace("In ExceptionPeel Added new peel bearing details:" + this.toString());
 
 	}
 
@@ -70,5 +82,19 @@ public class ExceptionPeel {
 	public String getFilename() {
 		return fileName;
 	}
-
+	public String getExceptionName() {
+		return exceptionName;
+	}
+	
+	public String extractExceptionName(String blurb){
+		String exceptionName = null;
+		String[] lines = blurb.split("\n");
+		String lineOfInterest = lines[1];
+		if (lineOfInterest.contains(":")){
+			exceptionName=lineOfInterest.substring(0, lineOfInterest.indexOf(':'));
+		}else{
+			exceptionName=lineOfInterest;
+		}
+		return exceptionName;
+	}
 }

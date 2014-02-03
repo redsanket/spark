@@ -4,6 +4,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -122,17 +123,17 @@ public class TestDistcpCli extends DfsBaseClass {
 			for (String aCluster : clusters) {
 				for (String justTheFile : fileMetadata.keySet()) {
 					GenericCliResponseBO doesFileExistResponseBO = dfsCommonCliCommands
-							.test(null, HadooptestConstants.UserNames.HDFSQA,
+							.test(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 									HadooptestConstants.Schema.WEBHDFS,
 									aCluster, DATA_DIR_IN_HDFS + justTheFile,
 									DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
 					if (doesFileExistResponseBO.process.exitValue() != 0) {
-						dfsCommonCliCommands.mkdir(null,
+						dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 								HadooptestConstants.UserNames.HDFSQA,
 								HadooptestConstants.Schema.WEBHDFS, aCluster,
 								DATA_DIR_IN_HDFS);
 						doChmodRecursively(aCluster, DATA_DIR_IN_HDFS);
-						dfsCommonCliCommands.copyFromLocal(null,
+						dfsCommonCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
 								HadooptestConstants.UserNames.HDFSQA,
 								HadooptestConstants.Schema.WEBHDFS, aCluster,
 								DATA_DIR_IN_LOCAL_FS + justTheFile,
@@ -145,6 +146,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testWebhdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -164,7 +166,7 @@ public class TestDistcpCli extends DfsBaseClass {
 					HadooptestConstants.Schema.WEBHDFS);
 
 			dfsCommonCliCommands
-					.rm(null, HadooptestConstants.UserNames.HDFSQA,
+					.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.WEBHDFS,
 							this.parametrizedCluster, true, true, true,
 							destinationFile);
@@ -182,13 +184,14 @@ public class TestDistcpCli extends DfsBaseClass {
 					HadooptestConstants.Schema.WEBHDFS,
 					HadooptestConstants.Schema.WEBHDFS);
 
-			dfsCommonCliCommands.rm(null, HadooptestConstants.UserNames.HDFSQA,
+			dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, this.localCluster,
 					true, true, true, destinationFile);
 
 		}
 	}
 
+	@Monitorable
 	@Test
 	public void testWebhdfsToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -212,7 +215,7 @@ public class TestDistcpCli extends DfsBaseClass {
 						HadooptestConstants.Schema.WEBHDFS,
 						HadooptestConstants.Schema.HDFS);
 
-				dfsCommonCliCommands.rm(null,
+				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
 						this.parametrizedCluster, true, true, true,
@@ -230,7 +233,7 @@ public class TestDistcpCli extends DfsBaseClass {
 					HadooptestConstants.Schema.WEBHDFS,
 					HadooptestConstants.Schema.HDFS);
 
-			dfsCommonCliCommands.rm(null, HadooptestConstants.UserNames.HDFSQA,
+			dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, this.localCluster,
 					true, true, true, destinationFile);
 
@@ -238,6 +241,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHftpToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -260,7 +264,7 @@ public class TestDistcpCli extends DfsBaseClass {
 						HadooptestConstants.Schema.HFTP,
 						HadooptestConstants.Schema.WEBHDFS);
 
-				dfsCommonCliCommands.rm(null,
+				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
 						this.parametrizedCluster, true, true, true,
@@ -272,6 +276,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHftpToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -296,7 +301,7 @@ public class TestDistcpCli extends DfsBaseClass {
 						HadooptestConstants.Schema.HFTP,
 						HadooptestConstants.Schema.HDFS);
 
-				dfsCommonCliCommands.rm(null,
+				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
 						this.parametrizedCluster, true, true, true,
@@ -313,6 +318,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -332,7 +338,7 @@ public class TestDistcpCli extends DfsBaseClass {
 					HadooptestConstants.Schema.WEBHDFS);
 
 			dfsCommonCliCommands
-					.rm(null, HadooptestConstants.UserNames.HDFSQA,
+					.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.WEBHDFS,
 							this.parametrizedCluster, true, true, true,
 							destinationFile);
@@ -364,6 +370,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHdfsToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -388,7 +395,7 @@ public class TestDistcpCli extends DfsBaseClass {
 						HadooptestConstants.Schema.HDFS,
 						HadooptestConstants.Schema.HDFS);
 
-				dfsCommonCliCommands.rm(null,
+				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
 						this.parametrizedCluster, true, true, true,

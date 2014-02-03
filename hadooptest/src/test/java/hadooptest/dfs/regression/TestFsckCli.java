@@ -8,6 +8,7 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.dfs.regression.FsckResponseBO.FsckBlockDetailsBO;
 import hadooptest.dfs.regression.FsckResponseBO.FsckFileDetailsBO;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -129,16 +130,16 @@ public class TestFsckCli extends DfsBaseClass {
 
 		for (String justTheFileName : fileMetadata.keySet()) {
 			GenericCliResponseBO doesFileExistResponseBO = dfsCommonCli.test(
-					null, HadooptestConstants.UserNames.HDFSQA,
+					EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.NONE, aCluster, DATA_DIR_IN_HDFS
 							+ justTheFileName,
 					DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
 			if (doesFileExistResponseBO.process.exitValue() != 0) {
-				dfsCommonCli.mkdir(null, HadooptestConstants.UserNames.HDFSQA,
+				dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.NONE, aCluster,
 						DATA_DIR_IN_HDFS);
 				doChmodRecursively(DATA_DIR_IN_HDFS);
-				dfsCommonCli.copyFromLocal(null,
+				dfsCommonCli.copyFromLocal(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.NONE, aCluster,
 						DATA_DIR_IN_LOCAL_FS + justTheFileName,
@@ -190,17 +191,17 @@ public class TestFsckCli extends DfsBaseClass {
 		// getVersions();
 		ensureDataPresenceinCluster();
 
-		dfsCommonCli.mkdir(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				FSCK_TESTS_DIR_ON_HDFS);
 		doChmodRecursively(FSCK_TESTS_DIR_ON_HDFS);
 
-		dfsCommonCli.mkdir(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				FSCK_BAD_DATA_TESTS_DIR_ON_HDFS);
 		doChmodRecursively(FSCK_BAD_DATA_TESTS_DIR_ON_HDFS);
 
-		dfsCommonCli.mkdir(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				THREE_GB_DIR_ON_HDFS);
 		doChmodRecursively(THREE_GB_DIR_ON_HDFS);
@@ -209,7 +210,7 @@ public class TestFsckCli extends DfsBaseClass {
 		Assert.assertEquals(true,
 				create3GbFile(createLocal3GbFileInThisJUnitTempFolder));
 
-		dfsCommonCli.copyFromLocal(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.copyFromLocal(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				createLocal3GbFileInThisJUnitTempFolder.getRoot() + "/"
 						+ THREE_GB_FILE_NAME, THREE_GB_DIR_ON_HDFS
@@ -227,7 +228,7 @@ public class TestFsckCli extends DfsBaseClass {
 			pathSoFar = pathSoFar + aDir + "/";
 			TestSession.logger.info("PathSoFar:" + pathSoFar);
 			if (!pathsChmodedSoFar.containsKey(pathsChmodedSoFar)) {
-				dfsCommonCli.chmod(null, HadooptestConstants.UserNames.HDFSQA,
+				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.NONE, this.localCluster,
 						pathSoFar, "777");
 				pathsChmodedSoFar.put(pathSoFar, true);
@@ -262,7 +263,7 @@ public class TestFsckCli extends DfsBaseClass {
 		String randomWriterOutputDir = "testFsckResultsLeveragingRandomWriterAndSortJobs";
 		String sortJobOutputDir = "testFsckResultsLeveragingRandomWriterAndSortJobs";
 		logger.info("Hello this is testFsckResultsLeveragingRandomWriterAndSortJobs");
-		FsckResponseBO fsckResponse = dfsCommonCli.fsck(null,
+		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		// for (FsckResponseBO.FsckFileDetailsBO fsckFileDetails :
@@ -287,7 +288,7 @@ public class TestFsckCli extends DfsBaseClass {
 		runStdHadoopSortJob(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir,
 				SORT_JOB_DATA_DIR + sortJobOutputDir);
 
-		fsckResponse = dfsCommonCli.fsck(null,
+		fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		double totalFileSizeAfterRunningRandomWriterAndSortJobs = fsckResponse.fsckSummaryBO.totalSizeInBytes;
@@ -303,29 +304,28 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
-	// @Test
+	 @Test
 	// test_fsck_additional_01
 	public void testFsckWithSafemodeOn() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		TestSession.logger
 				.info("________Beginning test testFsckWithSafemodeOn");
-		Assert.assertEquals(dfsCommonCli.dfsadmin(null, "get", false, false, 0,
-				false, false, 0, null), true);
-		Assert.assertEquals(dfsCommonCli.dfsadmin(null, "get", false, false, 0,
-				false, false, 0, null), true);
-		Assert.assertEquals(dfsCommonCli.dfsadmin(null, "enter", false, false,
-				0, false, false, 0, null), true);
-		Assert.assertEquals(dfsCommonCli.dfsadmin(null, "get", false, false, 0,
-				false, false, 0, null), true);
-		FsckResponseBO fsckResponse = dfsCommonCli.fsck(null,
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
+				false, false, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "enter", false, false,
+				0, false, false, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
+				false, false, 0, null);
+		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		Assert.assertNotNull(fsckResponse);
 		Assert.assertEquals(fsckResponse.fsckSummaryBO.status, "HEALTHY");
-		Assert.assertEquals(dfsCommonCli.dfsadmin(null, "leave", false, false,
-				0, false, false, 0, null), true);
-		Assert.assertEquals(dfsCommonCli.dfsadmin(null, "get", false, false, 0,
-				false, false, 0, null), true);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", false, false,
+				0, false, false, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
+				false, false, 0, null);
+		
 
 	}
 
@@ -334,9 +334,9 @@ public class TestFsckCli extends DfsBaseClass {
 	public void testFsckWithBalancer() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		TestSession.logger.info("________Beginning test testFsckWithBalancer");
-		Assert.assertEquals(dfsCommonCli.balancer(null,
+		Assert.assertEquals(dfsCommonCli.balancer(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA), true);
-		FsckResponseBO fsckResponse = dfsCommonCli.fsck(null,
+		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		Assert.assertNotNull(fsckResponse);
@@ -344,6 +344,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testManuallyCorruptHdfsBlocksByModifyingContents()
 			throws Exception {
@@ -354,7 +355,7 @@ public class TestFsckCli extends DfsBaseClass {
 		HashMap<String, String> actualBlockPoolLocationsBeforeCorrupting = new HashMap<String, String>();
 		HashMap<String, String> actualBlockPoolLocationsAfterCorrupting = new HashMap<String, String>();
 		logger.info("Hello this is testManuallyCorruptHdfsBlocks");
-		FsckResponseBO fsckResponse = dfsCommonCli.fsck(null,
+		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS
 						+ ONE_BYTE_FILE, true, true, true);
 		Assert.assertNotNull(fsckResponse);
@@ -451,7 +452,7 @@ public class TestFsckCli extends DfsBaseClass {
 		}
 
 		// Run FSCK again
-		fsckResponse = dfsCommonCli.fsck(null,
+		fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS
 						+ ONE_BYTE_FILE, true, true, true);
 		Assert.assertNotNull(fsckResponse);
@@ -525,6 +526,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testManuallyCorruptHdfsBlocksByDeletingPhysicalBlocks()
 			throws Exception {
@@ -537,7 +539,7 @@ public class TestFsckCli extends DfsBaseClass {
 		String fileContentsBeforeCorrupting = null;
 		String fileContentsAfterCorrupting = null;
 
-		FsckResponseBO fsckResponse = dfsCommonCli.fsck(null,
+		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS
 						+ ONE_BYTE_FILE, true, true, true);
 		Assert.assertNotNull(fsckResponse);
@@ -642,7 +644,7 @@ public class TestFsckCli extends DfsBaseClass {
 		}
 
 		// Run FSCK again
-		fsckResponse = dfsCommonCli.fsck(null,
+		fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS
 						+ ONE_BYTE_FILE, true, true, true);
 		Assert.assertNotNull(fsckResponse);
@@ -707,6 +709,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testManuallyCorruptHdfsBlockByDeletingMetaFile()
 			throws Exception {
@@ -719,7 +722,7 @@ public class TestFsckCli extends DfsBaseClass {
 		String fileContentsBeforeCorrupting = null;
 		String fileContentsAfterCorrupting = null;
 		logger.info("Hello this is testManuallyCorruptHdfsBlocks");
-		FsckResponseBO fsckResponse = dfsCommonCli.fsck(null,
+		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS
 						+ ONE_BYTE_FILE, true, true, true);
 		Assert.assertNotNull(fsckResponse);
@@ -827,7 +830,7 @@ public class TestFsckCli extends DfsBaseClass {
 		}
 
 		// Run FSCK again
-		fsckResponse = dfsCommonCli.fsck(null,
+		fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS
 						+ ONE_BYTE_FILE, true, true, true);
 		Assert.assertNotNull(fsckResponse);

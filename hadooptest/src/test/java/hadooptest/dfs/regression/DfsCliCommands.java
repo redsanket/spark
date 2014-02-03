@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -16,6 +18,7 @@ public class DfsCliCommands {
 	private static Properties crossClusterProperties;
 	public static String FILE_SYSTEM_ENTITY_FILE = "FILE";
 	public static String FILE_SYSTEM_ENTITY_DIRECTORY = "DIRECTORY";
+	public static String KRB5CCNAME = "KRB5CCNAME";
 
 	public DfsCliCommands() {
 		crossClusterProperties = new Properties();
@@ -46,12 +49,18 @@ public class DfsCliCommands {
 	 * 'dfsload' is our superuser who can create directories in DFS. For some
 	 * reason it did not work with 'hadoopqa'.
 	 */
-	GenericCliResponseBO mkdir(String KRB5CCNAME, String user, String protocol,
-			String cluster, String directoryHierarchy) throws Exception {
+	GenericCliResponseBO mkdir(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster,
+			String directoryHierarchy) throws Exception {
 		String nameNodePrependedWithProtocol = "";
-		GenericCliResponseBO quickCheck = test(KRB5CCNAME,
+		HashMap<String, String> tempEnv = new HashMap<String, String>();
+		if (envMapSentByTest.containsKey(KRB5CCNAME)) {
+			tempEnv.put(KRB5CCNAME, envMapSentByTest.get(KRB5CCNAME));
+		}
+		GenericCliResponseBO quickCheck = test(tempEnv,
 				HadooptestConstants.UserNames.HDFSQA, protocol, cluster,
 				directoryHierarchy, FILE_SYSTEM_ENTITY_DIRECTORY);
+		
 		if (quickCheck.process.exitValue() == 0) {
 			// Do not need to re-create the directories
 			return null;
@@ -88,23 +97,21 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
 		return responseBO;
 	}
 
-	public GenericCliResponseBO chmod(String KRB5CCNAME, String user,
-			String protocol, String cluster, String completePath,
+	public GenericCliResponseBO chmod(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster, String completePath,
 			String permissions) throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
@@ -137,15 +144,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -154,7 +159,8 @@ public class DfsCliCommands {
 
 	}
 
-	public GenericCliResponseBO touchz(String KRB5CCNAME, String user,
+	public GenericCliResponseBO touchz(
+			HashMap<String, String> envMapSentByTest, String user,
 			String protocol, String cluster, String completePath)
 			throws Exception {
 		String nameNodePrependedWithProtocol = "";
@@ -187,15 +193,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -204,8 +208,8 @@ public class DfsCliCommands {
 
 	}
 
-	public GenericCliResponseBO test(String KRB5CCNAME, String user,
-			String protocol, String cluster, String completePath,
+	public GenericCliResponseBO test(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster, String completePath,
 			String entityType) throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
@@ -243,15 +247,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		if (process.exitValue() == 0) {
 			TestSession.logger.info("Entity:" + completePath
@@ -269,9 +271,10 @@ public class DfsCliCommands {
 	/*
 	 * Delete a dirctory on HDFS
 	 */
-	GenericCliResponseBO rm(String KRB5CCNAME, String user, String protocol,
-			String cluster, boolean recursive, boolean force,
-			boolean skipTrash, String completePath) throws Exception {
+	GenericCliResponseBO rm(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster, boolean recursive,
+			boolean force, boolean skipTrash, String completePath)
+			throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -313,15 +316,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
@@ -333,7 +334,7 @@ public class DfsCliCommands {
 	 * FSCK is run on the local cluster, hence does not need a protocol
 	 * parameter.
 	 */
-	FsckResponseBO fsck(String KRB5CCNAME, String user,
+	FsckResponseBO fsck(HashMap<String, String> envMapSentByTest, String user,
 			String completePathToFile, boolean includeFilesArg,
 			boolean includeBlocksArg, boolean includeRacksArg) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -362,15 +363,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		FsckResponseBO fsckResponseBO = new FsckResponseBO(process,
 				includeFilesArg, includeBlocksArg, includeRacksArg);
 		TestSession.logger.info(fsckResponseBO);
@@ -388,10 +387,10 @@ public class DfsCliCommands {
 	 * DFSADMIN is always run on the local cluster, hence does not need a
 	 * protocol argument
 	 */
-	GenericCliResponseBO dfsadmin(String KRB5CCNAME, String safemodeArg,
-			boolean clearQuota, boolean setQuota, long quota,
-			boolean clearSpaceQuota, boolean setSpaceQuota, long spaceQuota,
-			String fsEntity) throws Exception {
+	GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
+			String safemodeArg, boolean clearQuota, boolean setQuota,
+			long quota, boolean clearSpaceQuota, boolean setSpaceQuota,
+			long spaceQuota, String fsEntity) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -441,16 +440,14 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
 				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
+				environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
@@ -458,8 +455,8 @@ public class DfsCliCommands {
 
 	}
 
-	GenericCliResponseBO balancer(String KRB5CCNAME, String user)
-			throws Exception {
+	GenericCliResponseBO balancer(HashMap<String, String> envMapSentByTest,
+			String user) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -472,15 +469,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -489,9 +484,9 @@ public class DfsCliCommands {
 
 	}
 
-	GenericCliResponseBO ls(String KRB5CCNAME, String user, String protocol,
-			String cluster, String completePathToFile, boolean recursive)
-			throws Exception {
+	GenericCliResponseBO ls(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster,
+			String completePathToFile, boolean recursive) throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HADOOP);
@@ -525,15 +520,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
@@ -545,7 +538,8 @@ public class DfsCliCommands {
 	 * We use web-hdfs to move files across clusters, because there could be a
 	 * version incompatibility. Webhdfs is agnostic to that, unlike Hdfs.
 	 */
-	GenericCliResponseBO copyFromLocal(String KRB5CCNAME, String user,
+	GenericCliResponseBO copyFromLocal(
+			HashMap<String, String> envMapSentByTest, String user,
 			String protocol, String cluster, String completePathOfSource,
 			String completePathOfDest) throws Exception {
 		String nameNodePrependedWithProtocol = "";
@@ -562,7 +556,7 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append(completePathOfSource);
 		sb.append(" ");
-		
+
 		if (protocol.isEmpty()) {
 			nameNodePrependedWithProtocol = "";
 		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
@@ -575,19 +569,17 @@ public class DfsCliCommands {
 		}
 		sb.append(nameNodePrependedWithProtocol);
 		sb.append(completePathOfDest);
-		
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -596,9 +588,10 @@ public class DfsCliCommands {
 
 	}
 
-	GenericCliResponseBO put(String KRB5CCNAME, String user, String protocol,
-			String cluster, String completePathOfSource,
-			String completePathOfDest) throws Exception {
+	GenericCliResponseBO put(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster,
+			String completePathOfSource, String completePathOfDest)
+			throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -613,7 +606,7 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append(completePathOfSource);
 		sb.append(" ");
-		
+
 		if ((protocol.trim()).isEmpty()) {
 			nameNodePrependedWithProtocol = "";
 		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
@@ -626,19 +619,17 @@ public class DfsCliCommands {
 		}
 		sb.append(nameNodePrependedWithProtocol);
 		sb.append(completePathOfDest);
-		
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -647,9 +638,10 @@ public class DfsCliCommands {
 
 	}
 
-	GenericCliResponseBO cp(String KRB5CCNAME, String user, String protocol,
-			String cluster, String completePathOfSource,
-			String completePathOfDest) throws Exception {
+	GenericCliResponseBO cp(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster,
+			String completePathOfSource, String completePathOfDest)
+			throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -664,7 +656,7 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append(completePathOfSource);
 		sb.append(" ");
-		
+
 		if ((protocol.trim()).isEmpty()) {
 			nameNodePrependedWithProtocol = "";
 		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
@@ -677,19 +669,17 @@ public class DfsCliCommands {
 		}
 		sb.append(nameNodePrependedWithProtocol);
 		sb.append(completePathOfDest);
-		
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
@@ -697,9 +687,9 @@ public class DfsCliCommands {
 
 	}
 
-	GenericCliResponseBO mv(String KRB5CCNAME, String user, String cluster,
-			String completePathOfSource, String completePathOfDest)
-			throws Exception {
+	GenericCliResponseBO mv(HashMap<String, String> envMapSentByTest,
+			String user, String cluster, String completePathOfSource,
+			String completePathOfDest) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -713,20 +703,18 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append(completePathOfSource);
 		sb.append(" ");
-		
+
 		sb.append(completePathOfDest);
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -811,8 +799,9 @@ public class DfsCliCommands {
 		return sb.toString();
 	}
 
-	public GenericCliResponseBO distcpFileUsingProtocol(String KRB5CCNAME,
-			String user, String srcCluster, String dstCluster, String srcFile,
+	public GenericCliResponseBO distcpFileUsingProtocol(
+			HashMap<String, String> envMapSentByTest, String user,
+			String srcCluster, String dstCluster, String srcFile,
 			String dstFile, String srcProtocol, String dstProtocol)
 			throws Exception {
 		String nameNodePrependedWithProtocol = null;
@@ -859,15 +848,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
@@ -875,7 +862,8 @@ public class DfsCliCommands {
 
 	}
 
-	public GenericCliResponseBO fetchdt(String KRB5CCNAME, String user,
+	public GenericCliResponseBO fetchdt(
+			HashMap<String, String> envMapSentByTest, String user,
 			String protocol, String cluster, String webservice, String renewer,
 			String cancel, String renew, String print, String tokenFile,
 			String conf, String d, String jt, String files, String libjars,
@@ -979,15 +967,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
@@ -995,8 +981,8 @@ public class DfsCliCommands {
 
 	}
 
-	public GenericCliResponseBO count(String KRB5CCNAME, String user,
-			String cluster, String fsEntity) throws Exception {
+	public GenericCliResponseBO count(HashMap<String, String> envMapSentByTest,
+			String user, String cluster, String fsEntity) throws Exception {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -1012,15 +998,13 @@ public class DfsCliCommands {
 		String commandString = sb.toString();
 
 		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-		if (KRB5CCNAME != null) {
-			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
-		}
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, envToUnsetHadoopPrefix);
+				commandFrags, user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);

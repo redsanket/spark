@@ -195,13 +195,13 @@ public class TestQuotaCli extends DfsBaseClass {
 		/*
 		 * Validate Name quota while sub-directory has name quota set
 		 */
-		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, "",
+		dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "",
 				localCluster, TEST_1_DIR + L1 + "a");
-		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, "",
+		dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "",
 				localCluster, TEST_1_DIR + L1 + "b");
-		dfsCliCommands.touchz(null, HadooptestConstants.UserNames.HDFSQA, "",
+		dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "",
 				localCluster, TEST_1_DIR + L1 + "c");
-		dfsCliCommands.ls(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCliCommands.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, TEST_1_DIR
 						+ L1, true);
 		validateQuotaQueryResult(10, 6, -1, -1, 1, 3, 0, TEST_1_DIR + L1);
@@ -210,20 +210,20 @@ public class TestQuotaCli extends DfsBaseClass {
 		/*
 		 * Create more files than quota in parentdir
 		 */
-		genericCliResponse = dfsCliCommands.touchz(null,
+		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 				TEST_1_DIR + L1 + "d");
 		Assert.assertTrue(genericCliResponse.process.exitValue() != 0);
 		Assert.assertTrue(genericCliResponse.response.contains("is exceeded"));
 		dfsCliCommands.count(null, HadooptestConstants.UserNames.HDFSQA,
 				localCluster, TEST_1_DIR);
-		dfsCliCommands.ls(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCliCommands.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, TEST_1_DIR,
 				true);
 		/*
 		 * Create more directory than quota in parentdir
 		 */
-		genericCliResponse = dfsCliCommands.mkdir(null,
+		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, TEST_1_DIR
 						+ L1 + "d");
@@ -244,17 +244,17 @@ public class TestQuotaCli extends DfsBaseClass {
 		 */
 		mkdirsAndSetPermissions(TEST_1_DIR + L1 + L2);
 		mkdirsAndSetPermissions(TEST_1_DIR + L1 + L3);
-		dfsCliCommands.copyFromLocal(null,
+		dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster,
 				DATA_DIR_IN_LOCAL_FS + "file_64MB", TEST_1_DIR + L1 + L3);
 
-		dfsCliCommands.cp(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCliCommands.cp(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster, TEST_1_DIR + L1
 						+ L3,
 				TEST_1_DIR + L1 + L5.substring(0, L5.lastIndexOf('/')));
 
-		dfsCliCommands.copyFromLocal(null,
+		dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster,
 				DATA_DIR_IN_LOCAL_FS + "file_128MB", TEST_1_DIR + L1 + L5);
@@ -275,7 +275,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		 * Check copy after exceeding quota (this is different from the test
 		 * case in HIT)
 		 */
-		genericCliResponse = dfsCliCommands.cp(null,
+		genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster, TEST_1_DIR + L1
 						+ L3, TEST_1_DIR + L1 + L5);
@@ -283,7 +283,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		/*
 		 * Check move after exceeding quota
 		 */
-		genericCliResponse = dfsCliCommands.mv(null,
+		genericCliResponse = dfsCliCommands.mv(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, localCluster, TEST_1_DIR
 						+ L1 + L5 + "file_128MB", TEST_1_DIR + L1);
 		validateQuotaQueryResult(
@@ -304,7 +304,7 @@ public class TestQuotaCli extends DfsBaseClass {
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, false, true,
 				true, TEST_1_DIR + L1 + "file_128MB");
-		genericCliResponse = dfsCliCommands.put(null,
+		genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster,
 				DATA_DIR_IN_LOCAL_FS + ONE_BYTE_FILE, TEST_1_DIR + L1);
@@ -333,18 +333,18 @@ public class TestQuotaCli extends DfsBaseClass {
 		 */
 		// TODO: Check this test case. It was failing for me
 		if (false) {
-			genericCliResponse = dfsCliCommands.rm(null,
+			genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, localCluster, true,
 					true, true, USER + HDFSQA);
 			mkdirsAndSetPermissions(USER + HDFSQA);
 			runDfsadminCommand(SET_QUOTA, 7, USER + HDFSQA);
-			genericCliResponse = dfsCliCommands.put(null,
+			genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.NONE, localCluster,
 					DATA_DIR_IN_LOCAL_FS + ONE_BYTE_FILE, USER + HDFSQA);
 
-			genericCliResponse = dfsCliCommands.copyFromLocal(null,
+			genericCliResponse = dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.NONE, localCluster,
 					DATA_DIR_IN_LOCAL_FS + ONE_BYTE_FILE, USER + HDFSQA
@@ -389,7 +389,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		runDfsadminCommand(SET_SPACE_QUOTA, quota, TEST_2_DIR);
 		validateQuotaQueryResult(-1, -1, quota, quota, 1, 0, 0, TEST_2_DIR);
 
-		genericCliResponse = dfsCliCommands.put(null,
+		genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster,
 				DATA_DIR_IN_LOCAL_FS + ONE_BYTE_FILE, TEST_2_DIR);
@@ -414,7 +414,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		validateQuotaQueryResult(-1, -1, MIN_SPACE_QUOTA, MIN_SPACE_QUOTA
 				- (fileMetadata.get(ONE_BYTE_FILE).longValue() * replication),
 				1, 0, 0, TEST_2_DIR);
-		dfsCliCommands.put(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCliCommands.put(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster,
 				DATA_DIR_IN_LOCAL_FS + ONE_BYTE_FILE, TEST_2_DIR);
 
@@ -428,7 +428,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
-		genericCliResponse = dfsCliCommands.mkdir(null,
+		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, path);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
