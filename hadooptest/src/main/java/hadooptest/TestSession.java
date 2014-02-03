@@ -24,8 +24,8 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import coretest.TestSessionCore;
-import coretest.cluster.ClusterState;
+import hadooptest.TestSessionCore;
+import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.MultiClusterClient;
 import hadooptest.cluster.MultiClusterServer;
 import hadooptest.workflow.hadoop.job.JobClient;

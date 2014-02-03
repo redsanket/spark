@@ -23,7 +23,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath; 
 
-import coretest.Util;
+import hadooptest.Util;
 
 public final class ConsoleHandle
 {

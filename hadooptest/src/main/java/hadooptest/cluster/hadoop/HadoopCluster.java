@@ -35,8 +35,8 @@ import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 
-import coretest.Util;
-import coretest.cluster.ClusterState;
+import hadooptest.Util;
+import hadooptest.cluster.ClusterState;
 
 /**
  * An interface which should represent the base capability of any cluster

@@ -7,6 +7,7 @@
  * Rick Bernotas (rbernota)
  */
 
+/* DEPRECATED, NO LONGER USED, BUT RETAINING FOR HISTORY
 package hadooptest;
 
 import static org.junit.Assert.*;
@@ -39,3 +40,4 @@ public class VMWatcher {
 		new VMViewer("BREAK", "org.apache.hadoop.mapreduce.Reducer", "run");
 	}
 }
+*/

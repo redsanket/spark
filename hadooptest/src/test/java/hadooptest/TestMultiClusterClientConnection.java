@@ -2,7 +2,7 @@ package hadooptest;
 
 import org.junit.Test;
 
-import coretest.Util;
+import hadooptest.Util;
 import hadooptest.TestSession;
 
 /**

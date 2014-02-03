@@ -20,6 +20,7 @@ import hadooptest.TestSession;
  */
 public abstract class AbstractMonitor implements Runnable, IMonitor {
 
+	public static String formattedDateAndTime;
 	int periodicity;
 	String testClassBeingMonitored = null;
 	String testMethodBeingMonitored = null;
@@ -49,19 +50,15 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		this.testPackageBeingMonitored = testClass.getPackage().getName();
 		this.periodicity = periodicity;
 
-		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
-		String formattedDateAndTime = sdf.format(date);
 		this.startTime = formattedDateAndTime;
 		baseDirPathToDump = "/grid/0/tmp" + "/" + "stressMonitoring/"
-				+ this.clusterName + "/" 
-				+ this.testPackageBeingMonitored + "/"
+				+ this.clusterName + "/" + this.testPackageBeingMonitored + "/"
 				+ this.testClassBeingMonitored + "/"
-				+ this.testMethodBeingMonitored + "/"
-				+ formattedDateAndTime + "/";
-			synchronized(this){
+				+ this.testMethodBeingMonitored + "/" + formattedDateAndTime
+				+ "/";
+		synchronized (this) {
 			hostwiseReadings = new HashMap<String, HashMap<Integer, String>>();
-			}
+		}
 
 		commaSeperatedHosts = new String();
 		for (String aComponent : componentToHostMapping.keySet()) {
@@ -87,7 +84,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 	 * The thread run control variable. Thread stops once this is set.
 	 */
 	public void stopMonitoring() {
-		TestSession.logger.info("Stop monitoring received in AbstractMonotor for "
+		TestSession.logger.debug("Stop monitoring received in AbstractMonotor for "
 				+ this.kind);
 		monitoringUnderway = false;
 	}
@@ -97,8 +94,8 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		while (monitoringUnderway) {
 			try {
 				fetchResourceUsageIntoMemory(tick++);
-				TestSession.logger.trace(kind + " monitor sleeping for " + this.periodicity
-						+ " secs...");
+				TestSession.logger.trace(kind + " monitor sleeping for "
+						+ this.periodicity + " secs...");
 				Thread.sleep(this.periodicity * 1000);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -133,8 +130,12 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 			bw.write('\n');
 			for (int tt = 0; tt < maxTick; tt++) {
 				for (String aHost : hostwiseReadings.keySet()) {
-					bw.write(hostwiseReadings.get(aHost).get(tt));
-					bw.write(",");
+					if (hostwiseReadings.containsKey(aHost)) {
+						if (hostwiseReadings.get(aHost).containsKey(tt)) {
+							bw.write(hostwiseReadings.get(aHost).get(tt));
+							bw.write(",");
+						}
+					}
 				}
 				bw.write('\n');
 			}

@@ -21,7 +21,7 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Logger;
 
-import coretest.Util;
+import hadooptest.Util;
 import yjava.byauth.jaas.HttpClientBouncerAuth;
 import hadooptest.TestSession;
 

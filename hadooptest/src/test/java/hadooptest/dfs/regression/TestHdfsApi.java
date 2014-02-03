@@ -3,6 +3,7 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,11 +38,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestHdfsApi extends TestSession {
+public class TestHdfsApi extends DfsBaseClass {
 
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";
@@ -68,6 +69,7 @@ public class TestHdfsApi extends TestSession {
 	static String ACTION_CHECKSUM = "chucksum";
 
 	static Logger logger = Logger.getLogger(TestHdfsApi.class);
+	private static HashMap<String, String> versionStore;
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
@@ -76,9 +78,10 @@ public class TestHdfsApi extends TestSession {
 	private String cluster;
 	private String localHadoopVersion;
 	private String remoteHadoopVersion;
+	private String parametrizedCluster;
 
 	public TestHdfsApi(String cluster) {
-
+		this.parametrizedCluster = cluster;
 		Properties crossClusterProperties = new Properties();
 		try {
 			crossClusterProperties
@@ -102,12 +105,12 @@ public class TestHdfsApi extends TestSession {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { 
-				
-//				{ "betty" }, { "boromir" }, 
-				{System.getProperty("CLUSTER_NAME")},
-				{System.getProperty("REMOTE_CLUSTER")},
-		
+		return Arrays.asList(new Object[][] {
+
+				// { "betty" }, { "boromir" },
+				{ System.getProperty("CLUSTER_NAME") },
+				{ System.getProperty("REMOTE_CLUSTER") },
+
 		});
 	}
 
@@ -120,7 +123,7 @@ public class TestHdfsApi extends TestSession {
 	@BeforeClass
 	public static void testSessionStart() throws Exception {
 		TestSession.start();
-		
+
 		// Populate the details for HADOOPQA
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
 		fileOwnerUserDetails.put(KEYTAB_DIR,
@@ -157,22 +160,50 @@ public class TestHdfsApi extends TestSession {
 			// Create a local file
 			createLocalFile(aFileName);
 		}
+		versionStore = new HashMap<String, String>();
 	}
 
 	@Before
 	public void getVersions() {
 		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
-		localHadoopVersion = rmUtils.getHadoopVersion(
-				System.getProperty("CLUSTER_NAME")).split("\\.")[0];
-		if (System.getProperty("CLUSTER_NAME").equals(this.cluster)) {
-			remoteHadoopVersion = localHadoopVersion;
+		if (versionStore.containsKey(this.localCluster)) {
+			// Do not make an unnecessary call to get the version, if you've
+			// already made it once.
+			localHadoopVersion = versionStore.get(this.localCluster);
 		} else {
-			remoteHadoopVersion = rmUtils.getHadoopVersion(this.cluster).split(
-					"\\.")[0];
+			localHadoopVersion = rmUtils.getHadoopVersion(this.localCluster);
+			localHadoopVersion = localHadoopVersion.split("\\.")[0];
+			versionStore.put(this.localCluster, localHadoopVersion);
+		}
+
+		if (versionStore.containsKey(this.parametrizedCluster)) {
+			// Do not make an unnecessary call to get the version, if you've
+			// already made it once.
+			remoteHadoopVersion = versionStore.get(this.parametrizedCluster);
+		} else {
+			remoteHadoopVersion = rmUtils
+					.getHadoopVersion(this.parametrizedCluster);
+			remoteHadoopVersion = remoteHadoopVersion.split("\\.")[0];
+			versionStore.put(this.parametrizedCluster, remoteHadoopVersion);
+
 		}
 
 	}
 
+//	public void getVersions() {
+//		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
+//		localHadoopVersion = rmUtils.getHadoopVersion(
+//				System.getProperty("CLUSTER_NAME")).split("\\.")[0];
+//		if (System.getProperty("CLUSTER_NAME").equals(this.cluster)) {
+//			remoteHadoopVersion = localHadoopVersion;
+//		} else {
+//			remoteHadoopVersion = rmUtils.getHadoopVersion(this.cluster).split(
+//					"\\.")[0];
+//		}
+//
+//	}
+
+	@Monitorable
 	@Test
 	public void copyFilesOntoHadoopFS() throws IOException,
 			InterruptedException {
@@ -238,7 +269,8 @@ public class TestHdfsApi extends TestSession {
 			}
 		}
 	}
-
+	
+	@Monitorable
 	@Test(expected = AccessControlException.class)
 	public void checkPermissions() throws IOException, InterruptedException {
 		logger.info("traceMethod:checkPermissions");
@@ -280,7 +312,8 @@ public class TestHdfsApi extends TestSession {
 		}
 	}
 
-	 @Test
+	@Monitorable
+	@Test
 	public void appendToFile() throws Exception {
 		logger.info("traceMethod:appendToFile");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
@@ -310,7 +343,8 @@ public class TestHdfsApi extends TestSession {
 		}
 	}
 
-	 @Test
+	@Monitorable
+	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() {
 		logger.info("traceMethod:testdoAMovesInAndOutOfClusterAndChecksum");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
@@ -500,12 +534,12 @@ public class TestHdfsApi extends TestSession {
 							.println("=======================================================================");
 					logger.info("Canonical Service name:"
 							+ aRemoteFS.getCanonicalServiceName());
-//					logger.info("Default Block Size:"
-//							+ aRemoteFS.getDefaultBlockSize());
+					// logger.info("Default Block Size:"
+					// + aRemoteFS.getDefaultBlockSize());
 					logger.info("Default Block Size Path:"
 							+ aRemoteFS.getDefaultBlockSize(new Path(oneFile)));
-//					logger.info("Default Replication:"
-//							+ aRemoteFS.getDefaultReplication());
+					// logger.info("Default Replication:"
+					// + aRemoteFS.getDefaultReplication());
 					logger.info("Default Replication Path:"
 							+ aRemoteFS
 									.getDefaultReplication(new Path(oneFile)));
@@ -707,4 +741,9 @@ public class TestHdfsApi extends TestSession {
 			throw new RuntimeException(e);
 		}
 	}
+	@After
+	public void logTaskResportSummary() {
+		// Override to hide the Test Session logs
+	}
+
 }

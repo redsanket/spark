@@ -4,6 +4,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,14 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.Assert;
-
 public class DfsCliCommands {
 	private static Properties crossClusterProperties;
 	public static String FILE_SYSTEM_ENTITY_FILE = "FILE";
 	public static String FILE_SYSTEM_ENTITY_DIRECTORY = "DIRECTORY";
-	
-	public DfsCliCommands(){
+
+	public DfsCliCommands() {
 		crossClusterProperties = new Properties();
 		try {
 			crossClusterProperties
@@ -29,21 +28,37 @@ public class DfsCliCommands {
 		}
 
 	}
+
+	/*
+	 * A CLI Response Business Object. All CLI responses can conform to this.
+	 */
+	public class GenericCliResponseBO {
+		Process process;
+		String response;
+
+		public GenericCliResponseBO(Process process, String response) {
+			this.process = process;
+			this.response = response;
+		}
+	}
+
 	/*
 	 * 'dfsload' is our superuser who can create directories in DFS. For some
 	 * reason it did not work with 'hadoopqa'.
 	 */
-	void createDirectoriesOnHdfs(String cluster, String directoryHierarchy)
-			throws Exception {
-
-		if (doesFsEntityAlreadyExistOnDfs(cluster, directoryHierarchy, FILE_SYSTEM_ENTITY_DIRECTORY)==0){
-			//Do not need to re-create the directories
-			return;
+	GenericCliResponseBO mkdir(String KRB5CCNAME, String user, String protocol,
+			String cluster, String directoryHierarchy) throws Exception {
+		String nameNodePrependedWithProtocol = "";
+		GenericCliResponseBO quickCheck = test(KRB5CCNAME,
+				HadooptestConstants.UserNames.HDFSQA, protocol, cluster,
+				directoryHierarchy, FILE_SYSTEM_ENTITY_DIRECTORY);
+		if (quickCheck.process.exitValue() == 0) {
+			// Do not need to re-create the directories
+			return null;
 		}
-		if (directoryHierarchy.charAt(directoryHierarchy.length()-1) != '/'){
-			directoryHierarchy = directoryHierarchy +"/";
+		if (directoryHierarchy.charAt(directoryHierarchy.length() - 1) != '/') {
+			directoryHierarchy = directoryHierarchy + "/";
 		}
-		int lastIndexOfSlash = directoryHierarchy.lastIndexOf('/');
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -56,26 +71,42 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-mkdir -p");
 		sb.append(" ");
-		String nameNodeWithWebHdfsSchema = getNNUrlForWebhdfs(cluster);
-		sb.append(nameNodeWithWebHdfsSchema);
+
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
 		sb.append(directoryHierarchy);
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		Assert.assertEquals(commandString, 0, process.exitValue());
-
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
 	}
 
-	public void doChmod(String aCluster, String completePath, String permissions) throws Exception {
-
+	public GenericCliResponseBO chmod(String KRB5CCNAME, String user,
+			String protocol, String cluster, String completePath,
+			String permissions) throws Exception {
+		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -90,25 +121,93 @@ public class DfsCliCommands {
 		sb.append(permissions);
 		sb.append(" ");
 
-		String nameNodeWithWebHdfsSchema = getNNUrlForWebhdfs(aCluster);
-		sb.append(nameNodeWithWebHdfsSchema);
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
 		sb.append(completePath);
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		Assert.assertEquals(commandString, 0, process.exitValue());
-	}
-	
-	public int doesFsEntityAlreadyExistOnDfs(String aCluster, String completePath, String entityType) throws Exception {
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
 
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	public GenericCliResponseBO touchz(String KRB5CCNAME, String user,
+			String protocol, String cluster, String completePath)
+			throws Exception {
+		String nameNodePrependedWithProtocol = "";
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.HDFS);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("dfs");
+		sb.append(" ");
+		sb.append("-touchz");
+		sb.append(" ");
+
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(completePath);
+
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
+		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	public GenericCliResponseBO test(String KRB5CCNAME, String user,
+			String protocol, String cluster, String completePath,
+			String entityType) throws Exception {
+		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -120,43 +219,60 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-test");
 		sb.append(" ");
-		if (entityType.equalsIgnoreCase(FILE_SYSTEM_ENTITY_FILE)){
+		if (entityType.equalsIgnoreCase(FILE_SYSTEM_ENTITY_FILE)) {
 			sb.append("-f");
 			sb.append(" ");
-		}else{
+		} else {
 			sb.append("-d");
 			sb.append(" ");
 
 		}
-		String nameNodeWithWebHdfsSchema = getNNUrlForWebhdfs(aCluster);
-		sb.append(nameNodeWithWebHdfsSchema);
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
 		sb.append(completePath);
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		if (process.exitValue() ==0){
-			TestSession.logger.info("Entity:" + completePath + " exists on cluster:" + aCluster);
-		}else{
-			TestSession.logger.info("Entity:" + completePath + " does not exist on cluster:" + aCluster);
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		if (process.exitValue() == 0) {
+			TestSession.logger.info("Entity:" + completePath
+					+ " exists on cluster:" + cluster);
+		} else {
+			TestSession.logger.info("Entity:" + completePath
+					+ " does not exist on cluster:" + cluster);
 		}
-		return process.exitValue();
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
 	}
 
-	
 	/*
 	 * Delete a dirctory on HDFS
 	 */
-	void deleteDirectoriesFromThisPointOnwardsOnHdfs(String cluster,
-			String completePathToLeafDir) throws Exception {
-
+	GenericCliResponseBO rm(String KRB5CCNAME, String user, String protocol,
+			String cluster, boolean recursive, boolean force,
+			boolean skipTrash, String completePath) throws Exception {
+		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -166,28 +282,58 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("dfs");
 		sb.append(" ");
-		sb.append("-rm -r -f");
+		sb.append("-rm");
 		sb.append(" ");
-		sb.append("-skipTrash");
-		sb.append(" ");
-		String nameNodeWithWebHdfsSchema = getNNUrlForWebhdfs(cluster);
-		sb.append(nameNodeWithWebHdfsSchema);
-		sb.append(completePathToLeafDir);
+		if (recursive) {
+			sb.append("-r");
+			sb.append(" ");
+		}
+		if (force) {
+			sb.append("-f");
+			sb.append(" ");
+		}
+		if (skipTrash) {
+			sb.append("-skipTrash");
+			sb.append(" ");
+		}
+
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(completePath);
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		Assert.assertEquals(commandString, 0, process.exitValue());
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
 
 	}
-	FsckResponseBO executeFsckCommand(String cluster,
+
+	/*
+	 * FSCK is run on the local cluster, hence does not need a protocol
+	 * parameter.
+	 */
+	FsckResponseBO fsck(String KRB5CCNAME, String user,
 			String completePathToFile, boolean includeFilesArg,
 			boolean includeBlocksArg, boolean includeRacksArg) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -218,15 +364,17 @@ public class DfsCliCommands {
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
+				commandFrags, user, envToUnsetHadoopPrefix);
 		FsckResponseBO fsckResponseBO = new FsckResponseBO(process,
 				includeFilesArg, includeBlocksArg, includeRacksArg);
 		TestSession.logger.info(fsckResponseBO);
-		printAndScanResponse(process);
+		printResponseAndReturnItAsString(process);
 		if (process.exitValue() == 0) {
 			return fsckResponseBO;
 		} else {
@@ -236,7 +384,14 @@ public class DfsCliCommands {
 
 	}
 
-	boolean executeSafemodeCommand(String safemodeArg) throws Exception {
+	/*
+	 * DFSADMIN is always run on the local cluster, hence does not need a
+	 * protocol argument
+	 */
+	GenericCliResponseBO dfsadmin(String KRB5CCNAME, String safemodeArg,
+			boolean clearQuota, boolean setQuota, long quota,
+			boolean clearSpaceQuota, boolean setSpaceQuota, long spaceQuota,
+			String fsEntity) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -246,33 +401,65 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("dfsadmin");
 		sb.append(" ");
-		sb.append("-safemode");
-		sb.append(" ");
-		sb.append(safemodeArg);
-		sb.append(" ");
+		// Safemode
+		if ((safemodeArg != null)) {
+			sb.append("-safemode");
+			sb.append(" ");
+			sb.append(safemodeArg);
+			sb.append(" ");
+
+		}
+		// Quota
+		if (clearQuota) {
+			sb.append("-clrQuota");
+			sb.append(" ");
+			sb.append(fsEntity);
+		} else if (setQuota) {
+			if (quota > 0) {
+				sb.append("-setQuota");
+				sb.append(" ");
+				sb.append(quota);
+				sb.append(" ");
+				sb.append(fsEntity);
+			}
+		}
+		// Space Quota
+		if (clearSpaceQuota) {
+			sb.append("-clrSpaceQuota");
+			sb.append(" ");
+			sb.append(fsEntity);
+		} else if (setSpaceQuota) {
+			if (spaceQuota > 0) {
+				sb.append("-setSpaceQuota");
+				sb.append(" ");
+				sb.append(spaceQuota);
+				sb.append(" ");
+				sb.append(fsEntity);
+			}
+		}
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA, // This guy
-																	// is the
-																	// super-user
+				commandFrags, HadooptestConstants.UserNames.HDFSQA,
 				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		if (process.exitValue() == 0) {
-			return true;
-		} else {
-			return false;
-		}
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
 
 	}
 
-	boolean executeBalancerCommand() throws Exception {
+	GenericCliResponseBO balancer(String KRB5CCNAME, String user)
+			throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -287,24 +474,25 @@ public class DfsCliCommands {
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA, // This guy
-																	// is the
-																	// super-user
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		if (process.exitValue() == 0) {
-			return true;
-		} else {
-			return false;
-		}
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
 
 	}
 
-	boolean doLsOnFile(String cluster, String completePathToFile)
+	GenericCliResponseBO ls(String KRB5CCNAME, String user, String protocol,
+			String cluster, String completePathToFile, boolean recursive)
 			throws Exception {
+		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HADOOP);
 		sb.append(" ");
@@ -316,25 +504,40 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-ls");
 		sb.append(" ");
-		String nameNodeWithWebHdfsSchema = getNNUrlForWebhdfs(cluster);
-		sb.append(nameNodeWithWebHdfsSchema);
+		if (recursive) {
+			sb.append("-R");
+			sb.append(" ");
+
+		}
+		if (protocol.isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
 		sb.append(completePathToFile);
+
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		if (process.exitValue() == 0) {
-			return true;
-		} else {
-			return false;
-		}
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
 
 	}
 
@@ -342,9 +545,10 @@ public class DfsCliCommands {
 	 * We use web-hdfs to move files across clusters, because there could be a
 	 * version incompatibility. Webhdfs is agnostic to that, unlike Hdfs.
 	 */
-	void copyLocalFileIntoClusterUsingWebhdfs(String cluster,
-			String completePathOfSource, String completePathOfDest)
-			throws Exception {
+	GenericCliResponseBO copyFromLocal(String KRB5CCNAME, String user,
+			String protocol, String cluster, String completePathOfSource,
+			String completePathOfDest) throws Exception {
+		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -358,22 +562,178 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append(completePathOfSource);
 		sb.append(" ");
-		String nameNodeWithWebddfsSchema = getNNUrlForWebhdfs(cluster);
-		sb.append(nameNodeWithWebddfsSchema);
+		
+		if (protocol.isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(completePathOfDest);
+		
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
+		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	GenericCliResponseBO put(String KRB5CCNAME, String user, String protocol,
+			String cluster, String completePathOfSource,
+			String completePathOfDest) throws Exception {
+		String nameNodePrependedWithProtocol = "";
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.HDFS);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("dfs");
+		sb.append(" ");
+		sb.append("-put");
+		sb.append(" ");
+		sb.append(completePathOfSource);
+		sb.append(" ");
+		
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(completePathOfDest);
+		
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
+		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	GenericCliResponseBO cp(String KRB5CCNAME, String user, String protocol,
+			String cluster, String completePathOfSource,
+			String completePathOfDest) throws Exception {
+		String nameNodePrependedWithProtocol = "";
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.HDFS);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("dfs");
+		sb.append(" ");
+		sb.append("-cp");
+		sb.append(" ");
+		sb.append(completePathOfSource);
+		sb.append(" ");
+		
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(completePathOfDest);
+		
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
+		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	GenericCliResponseBO mv(String KRB5CCNAME, String user, String cluster,
+			String completePathOfSource, String completePathOfDest)
+			throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.HDFS);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("dfs");
+		sb.append(" ");
+		sb.append("-mv");
+		sb.append(" ");
+		sb.append(completePathOfSource);
+		sb.append(" ");
+		
 		sb.append(completePathOfDest);
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
+
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		boolean fileExists = printAndScanResponse(process);
-		Assert.assertEquals(commandString, 0, process.exitValue());
-	}
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
 
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
 
 	/*
 	 * Given a cluster, create the NameNode decorated with the proper schema. In
@@ -391,6 +751,7 @@ public class DfsCliCommands {
 		return nameNodeWithNoPortAndSchemaForWebhdfs;
 
 	}
+
 	/*
 	 * Given a cluster, create the NameNode decorated with the proper schema. In
 	 * this case hdfs://
@@ -426,40 +787,9 @@ public class DfsCliCommands {
 
 	}
 
-
-	/*
-	 * Remove the copied over file, at the end of a successful test.
-	 */
-	public void removeFile(String cluster, String pathToFile) throws Exception {
-
-		TestSession.logger.info("Initiating removal of " + pathToFile);
-		StringBuilder sb = new StringBuilder();
-		sb.append(HadooptestConstants.Location.Binary.HDFS);
-		sb.append(" ");
-		sb.append("--config");
-		sb.append(" ");
-		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
-		sb.append(" ");
-		sb.append("dfs -rm -f");
-		sb.append(" ");
-		String nnForWebhdfs = getNNUrlForWebhdfs(cluster);
-		sb.append(nnForWebhdfs + pathToFile);
-
-		String commandString = sb.toString();
-
-		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-
-		Process process = null;
-		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		Assert.assertEquals(commandString, 0, process.exitValue());
-	}
-
-	boolean printAndScanResponse(Process process) throws InterruptedException {
+	String printResponseAndReturnItAsString(Process process)
+			throws InterruptedException {
+		StringBuffer sb = new StringBuffer();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				process.getInputStream()));
 		boolean fileExists = false;
@@ -467,9 +797,8 @@ public class DfsCliCommands {
 		try {
 			line = reader.readLine();
 			while (line != null) {
-				if (line.contains("File exists")){
-					fileExists = true;
-				}
+				sb.append(line);
+				sb.append("/n");
 				TestSession.logger.debug(line);
 				line = reader.readLine();
 			}
@@ -479,12 +808,14 @@ public class DfsCliCommands {
 			e.printStackTrace();
 		}
 		process.waitFor();
-		return fileExists;
+		return sb.toString();
 	}
-	
-	public void distcpFileUsingProtocol(String srcCluster, String dstCluster,
-			String srcFile, String dstFile, String srcProtocol, String dstProtocol) throws Exception {
-		String nameNodePrependedWithProtocol=null;
+
+	public GenericCliResponseBO distcpFileUsingProtocol(String KRB5CCNAME,
+			String user, String srcCluster, String dstCluster, String srcFile,
+			String dstFile, String srcProtocol, String dstProtocol)
+			throws Exception {
+		String nameNodePrependedWithProtocol = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HADOOP);
 		sb.append(" ");
@@ -494,47 +825,61 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("distcp -pbugp");
 		sb.append(" ");
-		
-		if (srcProtocol.isEmpty()){
-			nameNodePrependedWithProtocol="";
-		}else if(srcProtocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)){
-			nameNodePrependedWithProtocol = getNNUrlForHdfs(srcCluster);			
-		}else if(srcProtocol.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)){
-			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(srcCluster);		
-		}else if(srcProtocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)){
+
+		if (srcProtocol.isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (srcProtocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(srcCluster);
+		} else if (srcProtocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(srcCluster);
+		} else if (srcProtocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
 			nameNodePrependedWithProtocol = getNNUrlForHftp(srcCluster);
 		}
 		sb.append(nameNodePrependedWithProtocol + srcFile);
 		sb.append(" ");
-		
-		if (dstProtocol.isEmpty()){
-			nameNodePrependedWithProtocol="";
-		}else if(dstProtocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)){
-			nameNodePrependedWithProtocol = getNNUrlForHdfs(dstCluster);			
-		}else if(dstProtocol.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)){
-			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(dstCluster);		
-		}else if(dstProtocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)){
+
+		if (dstProtocol.isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (dstProtocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(dstCluster);
+		} else if (dstProtocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(dstCluster);
+		} else if (dstProtocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
 			nameNodePrependedWithProtocol = getNNUrlForHftp(dstCluster);
 		}
 
 		sb.append(nameNodePrependedWithProtocol + dstFile);
-		
+
 		String commandString = sb.toString();
 
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		Assert.assertEquals(commandString, 0, process.exitValue());
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
 	}
-	
-	public void fetchDelegationTokenViaHdfsCli(String cluster,String user, String storeItInThisFile, String protocol) throws Exception {
-		String nameNodePrependedWithProtocol=null;
+
+	public GenericCliResponseBO fetchdt(String KRB5CCNAME, String user,
+			String protocol, String cluster, String webservice, String renewer,
+			String cancel, String renew, String print, String tokenFile,
+			String conf, String d, String jt, String files, String libjars,
+			String archives) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -542,230 +887,219 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("fetchdt -fs");
+		sb.append("fetchdt");
 		sb.append(" ");
-		
-		if (protocol.isEmpty()){
-			nameNodePrependedWithProtocol="";
-		}else if(protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)){
-			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);			
-		}else if(protocol.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)){
-			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);		
-		}else if(protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)){
-			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+
+		if (webservice != null) {
+			sb.append("--webservice");
+			sb.append(" ");
+			sb.append(webservice);
+			sb.append(" ");
 		}
-		sb.append(nameNodePrependedWithProtocol);		
-		
-		sb.append(" ");
-		sb.append(storeItInThisFile);
-		
+		if (renewer != null) {
+			sb.append("--renewer");
+			sb.append(" ");
+			sb.append(renewer);
+			sb.append(" ");
+		}
+		if (cancel != null) {
+			sb.append("--cancel");
+			sb.append(" ");
+		}
+		if (renew != null) {
+			sb.append("--renew");
+			sb.append(" ");
+		}
+		if (print != null) {
+			sb.append("--print");
+			sb.append(" ");
+		}
+		if (conf != null) {
+			sb.append("-conf");
+			sb.append(" ");
+			sb.append(conf);
+			sb.append(" ");
+		}
+		if (d != null) {
+			sb.append("-D");
+			sb.append(" ");
+			sb.append(d);
+			sb.append(" ");
+		}
+		if (protocol != null) {
+			if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+				// Commentedout because for HDFS, you cannot specify the fs
+				// sb.append(getNNUrlForHdfs(cluster));sb.append(" ");
+			} else if (protocol
+					.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+				sb.append("-fs");
+				sb.append(" ");
+				sb.append(getNNUrlForWebhdfs(cluster));
+				sb.append(" ");
+			} else if (protocol
+					.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+				sb.append("-fs");
+				sb.append(" ");
+				sb.append(getNNUrlForHftp(cluster));
+				sb.append(" ");
+			} else if ((protocol.trim()).equals("")) {
+				// Nothing to append
+			}
+
+		}
+		if (jt != null) {
+			sb.append("-jt");
+			sb.append(" ");
+			sb.append(jt);
+			sb.append(" ");
+		}
+		if (files != null) {
+			sb.append("-files");
+			sb.append(" ");
+			sb.append(files);
+			sb.append(" ");
+		}
+		if (libjars != null) {
+			sb.append("-libjars");
+			sb.append(" ");
+			sb.append(libjars);
+			sb.append(" ");
+		}
+		if (archives != null) {
+			sb.append("-archives");
+			sb.append(" ");
+			sb.append(archives);
+			sb.append(" ");
+		}
+		if (tokenFile != null) {
+			sb.append(tokenFile);
+			sb.append(" ");
+		}
+
 		String commandString = sb.toString();
 
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
 		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user,
-				envToUnsetHadoopPrefix);
-		printAndScanResponse(process);
-		Assert.assertEquals(commandString, 0, process.exitValue());
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
 	}
-	
-	
-//	public void distcpWebhdfsToWebhdfs(String srcCluster, String dstCluster,
-//			String srcFile, String dstFile) throws Exception {
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(HadooptestConstants.Location.Binary.HADOOP);
-//		sb.append(" ");
-//		sb.append("--config");
-//		sb.append(" ");
-//		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
-//		sb.append(" ");
-//		sb.append("distcp -pbugp");
-//		sb.append(" ");
-//		
-//		String nnForWebhdfsSrc = getNNUrlForWebhdfs(srcCluster);
-//		sb.append(nnForWebhdfsSrc + srcFile);
-//		sb.append(" ");
-//		String schemaDecoratedDestination = getNNUrlForWebhdfs(dstCluster)+ dstFile;
-//		sb.append(schemaDecoratedDestination);
-//		
-//		String commandString = sb.toString();
-//
-//		String[] commandFrags = commandString.split("\\s+");
-//		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-//		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-//
-//		Process process = null;
-//		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-//				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-//				envToUnsetHadoopPrefix);
-//		printAndScanResponse(process);
-//		Assert.assertEquals(commandString, 0, process.exitValue());
-//	}
-//	
-//	void distcpWebhdfsToHdfs(String srcCluster, String dstCluster,
-//			String srcFile, String dstFile) throws Exception {
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(HadooptestConstants.Location.Binary.HADOOP);
-//		sb.append(" ");
-//		sb.append("--config");
-//		sb.append(" ");
-//		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
-//		sb.append(" ");
-//		sb.append("distcp -pbugp");
-//		sb.append(" ");
-//		String nnForWebhdfsSrc = getNNUrlForWebhdfs(srcCluster);
-//		sb.append(nnForWebhdfsSrc + srcFile);
-//		
-//		sb.append(" ");
-//		String schemaDecoratedDestination = getNNUrlForHdfs(dstCluster)
-//				+ dstFile;
-//		sb.append(schemaDecoratedDestination);
-//		
-//		String commandString = sb.toString();
-//
-//		String[] commandFrags = commandString.split("\\s+");
-//		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-//		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-//
-//		Process process = null;
-//		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-//				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-//				envToUnsetHadoopPrefix);
-//		printAndScanResponse(process);
-//		Assert.assertEquals(commandString, 0, process.exitValue());
-//
-//	}
-//
-//	void distcpHftpToWebhdfs(String srcCluster, String dstCluster,
-//			String srcFile, String dstFile) throws Exception {
-//		
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(HadooptestConstants.Location.Binary.HADOOP);
-//		sb.append(" ");
-//		sb.append("--config");
-//		sb.append(" ");
-//		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
-//		sb.append(" ");
-//		sb.append("distcp -pbugp");
-//		sb.append(" ");
-//		String nnForWebhdfsSrc = getNNUrlForHftp(srcCluster);
-//		sb.append(nnForWebhdfsSrc + srcFile);
-//		sb.append(" ");
-//		String schemaDecoratedDestination = getNNUrlForWebhdfs(dstCluster)+ dstFile;
-//		sb.append(schemaDecoratedDestination);
-//		String commandString = sb.toString();
-//
-//		String[] commandFrags = commandString.split("\\s+");
-//		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-//		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-//
-//		Process process = null;
-//		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-//				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-//				envToUnsetHadoopPrefix);
-//		printAndScanResponse(process);
-//		Assert.assertEquals(commandString, 0, process.exitValue());
-//	}
-//	
-//	void distcpHftpToHdfs(String srcCluster, String dstCluster,
-//			String srcFile, String dstFile) throws Exception {
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(HadooptestConstants.Location.Binary.HADOOP);
-//		sb.append(" ");
-//		sb.append("--config");
-//		sb.append(" ");
-//		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
-//		sb.append(" ");
-//		sb.append("distcp -pbugp");
-//		sb.append(" ");
-//		String nnForWebhdfsSrc = getNNUrlForHftp(srcCluster);
-//		sb.append(nnForWebhdfsSrc + srcFile);
-//		sb.append(" ");
-//		String schemaDecoratedDestination = getNNUrlForHdfs(dstCluster)
-//				+ dstFile;
-//		sb.append(schemaDecoratedDestination);
-//		String commandString = sb.toString();
-//
-//		String[] commandFrags = commandString.split("\\s+");
-//		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-//		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-//
-//		Process process = null;
-//		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-//				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-//				envToUnsetHadoopPrefix);
-//		printAndScanResponse(process);
-//		Assert.assertEquals(commandString, 0, process.exitValue());
-//
-//	}
-//	void distcpHdfsToWebhdfs(String srcCluster, String dstCluster,
-//			String srcFile, String dstFile) throws Exception {
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(HadooptestConstants.Location.Binary.HADOOP);
-//		sb.append(" ");
-//		sb.append("--config");
-//		sb.append(" ");
-//		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
-//		sb.append(" ");
-//		sb.append("distcp -pbugp");
-//		sb.append(" ");
-//		String nnForWebhdfsSrc = getNNUrlForHdfs(srcCluster);
-//		sb.append(nnForWebhdfsSrc + srcFile);
-//		sb.append(" ");
-//		String schemaDecoratedDestination = getNNUrlForWebhdfs(dstCluster)
-//				+ dstFile ;
-//		sb.append(schemaDecoratedDestination);
-//		String commandString = sb.toString();
-//
-//		String[] commandFrags = commandString.split("\\s+");
-//		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-//		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-//
-//		Process process = null;
-//		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-//				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-//				envToUnsetHadoopPrefix);
-//		printAndScanResponse(process);
-//		Assert.assertEquals(commandString, 0, process.exitValue());
-//
-//	}
-//	
-//	void distcpHdfsToHdfs(String srcCluster, String dstCluster,
-//			String srcFile, String dstFile) throws Exception {
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(HadooptestConstants.Location.Binary.HADOOP);
-//		sb.append(" ");
-//		sb.append("--config");
-//		sb.append(" ");
-//		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
-//		sb.append(" ");
-//		sb.append("distcp -pbugp");
-//		sb.append(" ");
-//		String nnForWebhdfsSrc = getNNUrlForHdfs(srcCluster);
-//		sb.append(nnForWebhdfsSrc + srcFile);
-//		sb.append(" ");
-//		String schemaDecoratedDestination = getNNUrlForHdfs(dstCluster)
-//				+ dstFile;
-//		sb.append(schemaDecoratedDestination);
-//		String commandString = sb.toString();
-//		String[] commandFrags = commandString.split("\\s+");
-//
-//		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-//		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-//
-//		Process process = null;
-//		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-//				commandFrags, HadooptestConstants.UserNames.HDFSQA,
-//				envToUnsetHadoopPrefix);
-//		printAndScanResponse(process);
-//		Assert.assertEquals(commandString, 0, process.exitValue());
-//
-//	}
 
+	public GenericCliResponseBO count(String KRB5CCNAME, String user,
+			String cluster, String fsEntity) throws Exception {
 
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.HDFS);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("dfs -count -q");
+		sb.append(" ");
+		sb.append(fsEntity);
+
+		String commandString = sb.toString();
+
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
+		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		if (KRB5CCNAME != null) {
+			envToUnsetHadoopPrefix.put("KRB5CCNAME", KRB5CCNAME);
+		}
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, envToUnsetHadoopPrefix);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	public void createCustomizedKerberosTicket(String user, String destination,
+			String lifetime) throws Exception {
+		String keytabFileSuffix = user + ".dev.headless.keytab";
+		String translatedUserName;
+		String keytabFileDir;
+		TestSession.logger.info("createKerberosTicketWithLocation '" + user
+				+ "':" + "'" + destination + "':" + "'" + lifetime + "':");
+
+		File file = new File(destination);
+		file.mkdirs();
+		// Point to the keytab
+		if (user.equals(HadooptestConstants.UserNames.HADOOPQA)) {
+			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.HADOOPQA;
+		} else if (user.equals(HadooptestConstants.UserNames.DFSLOAD)) {
+			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.DFSLOAD;
+		} else {
+			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.HDFSQA
+					+ "/etc/keytabs/";
+		}
+		// Translate the user
+		if (user.equals(HadooptestConstants.UserNames.HDFS)) {
+			translatedUserName = user
+					+ "/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM";
+		} else if (user.equals(HadooptestConstants.UserNames.DFSLOAD)) {
+			translatedUserName = user + "@DEV.YGRID.YAHOO.COM";
+		} else {
+			translatedUserName = user;
+		}
+
+		Map<String, String> newEnv = new HashMap<String, String>();
+		newEnv.put("PATH", System.getenv("PATH")
+				+ ":/usr/kerberos/bin/:/usr/local/bin:/usr/bin");
+		StringBuilder sb = new StringBuilder();
+		sb.append("kinit");
+		sb.append(" ");
+		if (lifetime != null) {
+			if (!lifetime.isEmpty()) {
+				sb.append("-l");
+				sb.append(" ");
+				sb.append(lifetime);
+				sb.append(" ");
+			}
+		}
+		sb.append("-c");
+		sb.append(" ");
+		sb.append(destination);
+		sb.append(" ");
+		sb.append("-k");
+		sb.append(" ");
+		sb.append("-t");
+		sb.append(" ");
+		sb.append(" ");
+		sb.append(keytabFileDir + "/" + keytabFileSuffix);
+		sb.append(" ");
+		sb.append(translatedUserName);
+
+		TestSession.exec.runProcBuilder(sb.toString().split("\\s+"));
+	}
+
+	public void kdestroy(String cache) throws Exception {
+
+		Map<String, String> newEnv = new HashMap<String, String>();
+		newEnv.put("PATH", System.getenv("PATH")
+				+ ":/usr/kerberos/bin/:/usr/local/bin:/usr/bin");
+		StringBuilder sb = new StringBuilder();
+		sb.append("kdestroy");
+		sb.append(" ");
+		sb.append("-c");
+		sb.append(" ");
+		sb.append(cache);
+
+		TestSession.exec.runProcBuilder(sb.toString().split("\\s+"));
+	}
 
 }

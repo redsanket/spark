@@ -52,6 +52,7 @@ public class MonitorGeneral implements IMonitoringControl {
 	 */
 	public synchronized void stopMonitors() {
 		for (IMonitor aMonitor : monitors) {
+			System.out.println("Received stop monitoring..hence stopping monitor");
 			aMonitor.stopMonitoring();
 			aMonitor.dumpData();
 		}

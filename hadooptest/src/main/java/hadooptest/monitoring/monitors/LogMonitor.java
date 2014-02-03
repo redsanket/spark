@@ -17,6 +17,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
+ * <p>Deprecated: in favor of {@link SshAgentLogMonitor}
  * <p>
  * Fetches the logs relevant from the start to finish of a test run. When the
  * test starts, this fetches the metadata {@link LogMetadata} for each file.
@@ -25,9 +26,11 @@ import org.apache.log4j.Logger;
  * the end of the test.
  * </p>
  * 
+ * 
  * @author tiwari
  * 
  */
+@Deprecated
 public class LogMonitor extends AbstractMonitor {
 	Logger logger = Logger.getLogger(LogMonitor.class);
 	List<LogMetadata> fileMetadataList;

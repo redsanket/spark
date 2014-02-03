@@ -20,7 +20,7 @@ import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TaskReport;
 
-import coretest.Util;
+import hadooptest.Util;
 
 /**
  * A class which should represent the base capability of any job

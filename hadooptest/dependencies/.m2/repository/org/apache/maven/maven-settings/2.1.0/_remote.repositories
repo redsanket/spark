@@ -1,0 +1,4 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Jan 30 15:35:25 CST 2014
+maven-settings-2.1.0.jar>local\ central\ mirror=
+maven-settings-2.1.0.pom>local\ central\ mirror=
