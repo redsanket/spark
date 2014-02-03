@@ -7,6 +7,7 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -26,6 +27,11 @@ import java.util.Random;
 @Category(SerialTests.class)
 public class TestRollingUpgradeResetDaemon extends TestSession {
 
+    @BeforeClass
+    public static void setupTestClassConfig() throws Exception {
+        TestSession.cluster.setupSingleQueueCapacity(true);
+    }    
+
     @Test
     public void testResetDaemons() throws Exception {
         // Initialize max duration, default is "5" minutes.
@@ -40,6 +46,7 @@ public class TestRollingUpgradeResetDaemon extends TestSession {
         String filePath = "/tmp/foo";
         File file = new File(filePath);
         int index = 0;
+        int waitSec = 0;
         while ((!file.exists()) && (elapsedTime < maxDurationMs))  {
             // Reset each components
             TestSession.logger.info("---> Reset Daemons #" + ++index + ":");
@@ -50,9 +57,8 @@ public class TestRollingUpgradeResetDaemon extends TestSession {
                     TestSession.cluster.getComponents();
             Enumeration<String> components = hadoopComponents.keys();
             while(components.hasMoreElements()) {
-                resetDaemon(
-                        (String) components.nextElement(),
-                        random.nextInt(maxSec+1));
+                waitSec = random.nextInt(maxSec+1);
+                resetDaemon((String) components.nextElement(), waitSec);
             }
             
             currentTime = System.currentTimeMillis();
