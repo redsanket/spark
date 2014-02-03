@@ -25,6 +25,10 @@ public class DfsBaseClass extends TestSession {
 			+ "HTF/testdata/dfs/";
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
+	
+	public final HashMap<String,String> EMPTY_ENV_HASH_MAP = new HashMap<String,String>();
+	public final String KRB5CCNAME = "KRB5CCNAME";
+	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
 	HashMap<String, Boolean> pathsChmodedSoFar;
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
@@ -89,7 +93,7 @@ public class DfsBaseClass extends TestSession {
 			pathSoFar = pathSoFar + aDir + "/";
 			TestSession.logger.info("PathSoFar:" + pathSoFar);
 			if (!pathsChmodedSoFar.containsKey(pathSoFar)) {
-				dfsCommonCli.chmod(null, HadooptestConstants.UserNames.HDFSQA,
+				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
 						"777");
 				pathsChmodedSoFar.put(pathSoFar, true);

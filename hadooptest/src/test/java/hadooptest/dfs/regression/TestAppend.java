@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
@@ -24,6 +25,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Options.CreateOpts;
 import org.apache.hadoop.hdfs.DFSClient;
+import org.apache.hadoop.mapred.join.ResetableIterator.EMPTY;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -387,20 +389,20 @@ public class TestAppend {
 		TestSession.start();
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		String cluster = System.getProperty("CLUSTER_NAME");
-		GenericCliResponseBO genericResponseBO = dfsCommonCli.test(null,
+		GenericCliResponseBO genericResponseBO = dfsCommonCli.test(new HashMap<String, String>(),
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR,
 				FILE_SYSTEM_ENTITY_DIRECTORY);
 		if (genericResponseBO.process.exitValue() == 0) {
 			System.out.println("Here deleting dir...!!");
-			dfsCommonCli.rm(null, HadooptestConstants.UserNames.HDFSQA,
+			dfsCommonCli.rm(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, cluster, true, true,
 					true, APPEND_OUTDIR);
 		}
-		dfsCommonCli.mkdir(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR);
 		doChmodRecursively(cluster, APPEND_OUTDIR);
-		dfsCommonCli.copyFromLocal(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.copyFromLocal(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, cluster,
 				LOCAL_SOURCE_FILES, APPEND_OUTDIR);
 
@@ -416,7 +418,7 @@ public class TestAppend {
 			TestSession.logger.info("Processing split:" + aDir);
 			pathSoFar = pathSoFar + aDir + "/";
 			TestSession.logger.info("PathSoFar:" + pathSoFar);
-			dfsCommonCli.chmod(null, HadooptestConstants.UserNames.HDFSQA,
+			dfsCommonCli.chmod(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
 					"777");
 		}
