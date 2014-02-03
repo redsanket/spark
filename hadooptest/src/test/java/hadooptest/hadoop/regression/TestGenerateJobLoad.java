@@ -1,6 +1,8 @@
 package hadooptest.hadoop.regression;
 
 import hadooptest.TestSession;
+import hadooptest.TestSession.HTF_TEST;
+import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_JOB_TYPE;
 import hadooptest.workflow.hadoop.job.JobClient;
@@ -12,6 +14,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -39,6 +42,23 @@ public class TestGenerateJobLoad extends TestSession {
 	@BeforeClass
 	public static void setupTestClassConfig() throws Exception {
 		TestSession.cluster.setupSingleQueueCapacity();
+	}
+	
+	@Before
+	public void checkClusterStatus() throws Exception {
+	    TestSession.logger.info("Check cluster state is up:");
+	    try {
+	        ClusterState clusterState = cluster.getState();
+	        if (clusterState == ClusterState.UP) {
+	            logger.info("Cluster is fully up and ready to go.");                
+	        } else {                
+	            logger.warn("Cluster is not fully up: cluster state='" +
+	                    clusterState.toString() + "'.'");
+	        }
+	    }
+	    catch (Exception e) {
+	        logger.error("Failed to get the cluster state.", e);
+	    }
 	}
 	
     /* Generate traffic by submitting jobs
