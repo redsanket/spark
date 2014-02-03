@@ -123,7 +123,7 @@ public abstract class TestSessionCore {
 				+ ".config", userHome + "/" + frameworkName + ".conf");
 		System.out.println("Framework configuration file location: "
 				+ strFrameworkConfig);
-		System.out.println("To specify a different location, use -Dstormtest.config=");
+		System.out.println("To specify a different location, use -Dhadooptest.config=");
 
 		conf_location = new File(strFrameworkConfig);
 

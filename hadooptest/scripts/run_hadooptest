@@ -27,6 +27,7 @@ The options
         [ -m|--mvn                          ] : run tests via maven instead of via java directly
         [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
+        [ -storm                            ] : Run with a Storm environment
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -a|--adm_box                      ] : The admin box to be used by the framework (adm103.blue.ygrid.yahoo.com is the default)
@@ -65,6 +66,7 @@ my $conf = glob("~/hadooptest.conf");
 my $use_mvn = 1;
 my $gdm = 0;
 my $spark = 0; 
+my $storm = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $username = getpwuid($<);
@@ -84,6 +86,7 @@ GetOptions(\%options,
     "java|j"             => sub { $use_mvn = 0 },
     "gdm"                => \$gdm,
     "spark"              => \$spark,
+    "storm"              => \$storm,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
     "adm_box|a=s"        => \$adm_box, 
@@ -146,12 +149,21 @@ execute("stty -echo; /usr/kerberos/bin/kinit $username\@DS.CORP.YAHOO.COM; stty 
 my $pom_opt="-f pom-ci.xml";
 my $mvn_settings_opt="-o -gs $workspace/resources/yjava_maven/settings.xml.gw ";
 my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hadoop/lib/native/Linux-amd64-64/";
+
+my $dependencies_opt;
+if ($storm) {
+    $dependencies_opt = "-Dmaven.repo.local=$workspace/dependencies/.m2/repository";
+}
+else {
+    $dependencies_opt = "-Pprofile-hadoop -Dmaven.repo.local=$workspace/dependencies/.m2/repository";
+}
+
 my @common_args = (
     "-DCLUSTER_NAME=$cluster",
     "-DWORKSPACE=$workspace",
     "-DADM_BOX=$adm_box", 
     "-Dhadooptest.config=$conf",
-    "-Dmaven.repo.local=$workspace/dependencies/.m2/repository",
+    $dependencies_opt,
     join(" ", @ARGV)
     );
 
@@ -198,28 +210,8 @@ if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
 
-    ############################################################################
-    # Auto-set maven compile and runtime profiles for the corresponding 
-    # Hadoop version if it is not set via external parameters. 
-    ############################################################################
-    # Check for maven compile profile for Hadoop. This is the compile time 
-    # version reference. Should use the default profile here. 
-    # E.g. Code on branch 23 will need to compile against H23, but may be able 
-    # to run some tests on H2.0.
-    # my $found_compile_profile = grep( /profile-compile/, @common_args);
-    # my $hadoop_compile_profile;
-    # unless ($found_compile_profile) {
-    #     $hadoop_compile_profile = ($hadoop_version =~ "^0.23") ? "profile-compile-0.23.7" : "profile-compile-2.0";
-    #     $pom_opt .= " -P$hadoop_compile_profile";
-    # }
-
-    # Check for maven runtime profile for Hadoop. This should correspod to the
-    # Hadoop version deployed on the cluster under test.
-    my $found_runtime_profile = grep( /profile-runtime/, @common_args);
-    my $hadoop_runtime_profile;
-    unless ($found_runtime_profile) {
-        $hadoop_runtime_profile = ($hadoop_version =~ "^0.23") ? "profile-runtime-0.23.7" : "profile-runtime-2.0";
-        $pom_opt .= " -P$hadoop_runtime_profile";
+    unless ($storm) {
+        $pom_opt .= " -Pprofile-hadoop";
     }
 
     my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/";
@@ -269,15 +261,29 @@ if ($use_mvn) {
         } 
     }
     
+    if ($storm) {
+        # Clean the project and build the jars so that we can have a test 
+        # jar with dependencies for Storm topologies.
+        execute("/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");
+    }
+    else {
+        # Just clean the project.
+    	execute("CLUSTER=$cluster " .
+            "HADOOP_VERSION=$hadoop_version " .
+            "HADOOP_INSTALL=$hadoop_install " .
+            "HADOOP_SHARE=$hadoop_share " .
+            "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean -DskipTests $dependencies_opt");
+    }
+    
     ############################################################################
-    # Execute the maven command
+    # Execute the tests.
     ############################################################################
     execute("CLUSTER=$cluster ".
-            "HADOOP_VERSION=$hadoop_version ".
-            "HADOOP_INSTALL=$hadoop_install ".
-            "HADOOP_SHARE=$hadoop_share ".
-            "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean test -DfailIfNoTests=false ".
-            join(" ", @common_args)." ".
+            "HADOOP_VERSION=$hadoop_version " .
+            "HADOOP_INSTALL=$hadoop_install " .
+            "HADOOP_SHARE=$hadoop_share " .
+            "/home/y/bin/mvn $pom_opt $mvn_settings_opt test -DfailIfNoTests=false ".
+            join(" ", @common_args) . " " .
             $test_opt);
 
 } else {

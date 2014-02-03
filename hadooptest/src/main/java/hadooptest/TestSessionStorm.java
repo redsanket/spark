@@ -29,7 +29,6 @@ public abstract class TestSessionStorm extends TestSessionCore {
 
     /** The Storm Cluster to use for the test session */
     public static StormCluster cluster;
-    private static int count = 0;    
 
     /**
      * Initializes the test session in the following order:
@@ -41,40 +40,32 @@ public abstract class TestSessionStorm extends TestSessionCore {
      * TestSession for a test class.
      */
     public static synchronized void start() throws Exception {
-        if (cluster == null) {
-            // Initialize the framework name
-            initFrameworkName();
-       
-            // Initialize the framework configuration
-            initConfiguration();
-            if (conf.get("STORM_TEST_HOME") == null) {
-                String sth = System.getProperty("stormtest.home");
-                if (sth != null) {
-                    conf.put("STORM_TEST_HOME", sth);
-                } else {
-                    throw new IllegalArgumentException("Could not find STORM_TEST_HOME");
-                }
-            }
-        
-            // Intitialize the framework logger
-            initLogging();
+    	// Initialize the framework name
+    	initFrameworkName();
 
-            // Log Java Properties
-            initLogJavaProperties();
-        
-            // Initialize the cluster to be used in the framework
-            initCluster();
-        } else if (count == 0) {
-            initCluster();
-        }
-        count++;
+    	// Initialize the framework configuration
+    	initConfiguration();
+    	if (conf.get("STORM_TEST_HOME") == null) {
+    		String sth = System.getProperty("stormtest.home");
+    		if (sth != null) {
+    			conf.put("STORM_TEST_HOME", sth);
+    		} else {
+    			throw new IllegalArgumentException("Could not find STORM_TEST_HOME");
+    		}
+    	}
+
+    	// Intitialize the framework logger
+    	initLogging();
+
+    	// Log Java Properties
+    	initLogJavaProperties();
+
+    	// Initialize the cluster to be used in the framework
+    	initCluster();
     }
    
     public static synchronized void stop() throws Exception {
-        count--;
-        if (count == 0) {
-            cleanupCluster();
-        }
+        cleanupCluster();
     }
  
     /**
@@ -90,7 +81,7 @@ public abstract class TestSessionStorm extends TestSessionCore {
      * Initialize the framework name.
      */
     private static void initFrameworkName() {
-        frameworkName = "stormtest";
+        frameworkName = "hadooptest";
     }
    
     private static void reinitCluster() throws Exception {
@@ -116,7 +107,7 @@ public abstract class TestSessionStorm extends TestSessionCore {
         
         // Retrieve the cluster type from the framework configuration file.
         // This should be in the format of package.package.class
-        String strClusterType = conf.getProperty("CLUSTER_TYPE", "stormtest.cluster.storm.LocalModeStormCluster");
+        String strClusterType = conf.getProperty("CLUSTER_TYPE", "hadooptest.cluster.storm.LocalModeStormCluster");
         logger.info("Running with StormCluster "+strClusterType);
         exec = new StormExecutor();
 

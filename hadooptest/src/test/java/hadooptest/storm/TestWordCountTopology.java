@@ -65,7 +65,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         config.setNumWorkers(3);
         config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
         //TODO turn this into a utility that has a conf setting
-        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/topologies/target/topologies-1.0.0-SNAPSHOT-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
             
@@ -104,7 +104,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             reader.close();
         
             //get expected results
-            String file = conf.getProperty("STORM_TEST_HOME") + "/stormtest/resources/testinputoutput/WordCountFromFile/expected_results";
+            String file = conf.getProperty("STORM_TEST_HOME") + "/resources/storm/testinputoutput/WordCountFromFile/expected_results";
             reader = new BufferedReader(new FileReader(file));
         
             HashMap<String, Integer> expectedWordCount = new HashMap<String, Integer>();

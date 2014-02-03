@@ -53,6 +53,15 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jaco
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.jacoco:org.jacoco.ant:0.6.2.201302030002
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=junit:junit:4.8.2
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=ant-contrib:ant-contrib:20020829
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.shared:maven-common-artifact-filters:1.1:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.codehaus.plexus:plexus-interpolation:1.7:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.codehaus.plexus:plexus-archiver:1.0-alpha-12:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.shared:maven-filtering:1.0-beta-2:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.codehaus.plexus:plexus-active-collections:1.0-beta-2:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.codehaus.plexus:plexus-io:1.0-alpha-4:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven:maven-archiver:2.4:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.codehaus.plexus:plexus-utils:2.0.1:jar
+mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=org.apache.maven.shared:maven-repository-builder:1.0-alpha-2:jar
 
 # Get the dependencies for the project and build it
 cd $BASEDIR/..

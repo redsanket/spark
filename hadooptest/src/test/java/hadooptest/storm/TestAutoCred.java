@@ -60,9 +60,9 @@ public class TestAutoCred extends TestSessionStorm {
         config.setNumWorkers(2);
         config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
         config.put("name.to.use","me");
-        config.put(Config.TOPOLOGY_AUTO_CREDENTIALS, Arrays.asList("stormtest.workflow.storm.topology.NamedAutoCredentials"));
+        config.put(Config.TOPOLOGY_AUTO_CREDENTIALS, Arrays.asList("hadooptest.workflow.storm.topology.NamedAutoCredentials"));
         //TODO turn this into a utility that has a conf setting
-        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/topologies/target/topologies-1.0.0-SNAPSHOT-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
             int uptime = 10;
