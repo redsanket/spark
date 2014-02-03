@@ -4,6 +4,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -145,6 +146,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testWebhdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -189,6 +191,7 @@ public class TestDistcpCli extends DfsBaseClass {
 		}
 	}
 
+	@Monitorable
 	@Test
 	public void testWebhdfsToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -238,6 +241,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHftpToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -272,6 +276,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHftpToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -313,6 +318,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -364,6 +370,7 @@ public class TestDistcpCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testHdfsToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();

@@ -3,6 +3,7 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -202,6 +203,7 @@ public class TestHdfsApi extends DfsBaseClass {
 //
 //	}
 
+	@Monitorable
 	@Test
 	public void copyFilesOntoHadoopFS() throws IOException,
 			InterruptedException {
@@ -267,7 +269,8 @@ public class TestHdfsApi extends DfsBaseClass {
 			}
 		}
 	}
-
+	
+	@Monitorable
 	@Test(expected = AccessControlException.class)
 	public void checkPermissions() throws IOException, InterruptedException {
 		logger.info("traceMethod:checkPermissions");
@@ -309,6 +312,7 @@ public class TestHdfsApi extends DfsBaseClass {
 		}
 	}
 
+	@Monitorable
 	@Test
 	public void appendToFile() throws Exception {
 		logger.info("traceMethod:appendToFile");
@@ -339,6 +343,7 @@ public class TestHdfsApi extends DfsBaseClass {
 		}
 	}
 
+	@Monitorable
 	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() {
 		logger.info("traceMethod:testdoAMovesInAndOutOfClusterAndChecksum");

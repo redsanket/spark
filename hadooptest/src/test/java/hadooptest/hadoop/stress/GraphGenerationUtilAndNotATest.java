@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -30,9 +31,9 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	HashMap<String, ArrayList<HashMap<String, Integer>>> table2TestRunHash;
 	HashMap<String, ArrayList<HashMap<String, String>>> table3TestRunHash;
 
-	HashSet<String> exceptionFootprint = new HashSet<String>();
-	HashSet<String> testFootprint = new HashSet<String>();
-	HashSet<String> runHandprint = new HashSet<String>();
+	LinkedHashSet<String> exceptionFootprint = new LinkedHashSet<String>();
+	LinkedHashSet<String> testFootprint = new LinkedHashSet<String>();
+	LinkedHashSet<String> runHandprint = new LinkedHashSet<String>();
 	HashSet<String> testFootprintPrecededWithNumber = new HashSet<String>();
 
 	private PrintWriter printWriter;
@@ -47,7 +48,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table2XAxisTitle = "Exceptions";
 	private String table2YAxisTitle = "Count_of_Exceptions";
 	private String table3XAxisTitle = "Test_Names";
-	private String table3YAxisTitle = "Count_of_Test_Failures";
+	private String table3YAxisTitle = "Test_Runs_Where_It_Failed";
 
 	private String table1OutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE") + "/target/surefire-reports/table1.png";
@@ -397,6 +398,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		}
 
 		printWriter.println();
+		
 		for (String aRun : table1TestRunHash.keySet()) {
 			printWriter.println("Run:" + aRun);
 			for (Object aTestNameOnXAxis : testFootPrintArray) {

@@ -8,6 +8,7 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.dfs.regression.FsckResponseBO.FsckBlockDetailsBO;
 import hadooptest.dfs.regression.FsckResponseBO.FsckFileDetailsBO;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -344,6 +345,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testManuallyCorruptHdfsBlocksByModifyingContents()
 			throws Exception {
@@ -525,6 +527,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testManuallyCorruptHdfsBlocksByDeletingPhysicalBlocks()
 			throws Exception {
@@ -707,6 +710,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
+	@Monitorable
 	@Test
 	public void testManuallyCorruptHdfsBlockByDeletingMetaFile()
 			throws Exception {

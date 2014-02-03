@@ -3,6 +3,7 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -193,6 +194,7 @@ public class TestWebHdfsApi extends DfsBaseClass {
 		}
 	}
 
+	@Monitorable
 	@Test(expected = AccessControlException.class)
 	public void checkPermissions() throws AccessControlException {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
@@ -228,6 +230,7 @@ public class TestWebHdfsApi extends DfsBaseClass {
 		}
 	}
 
+	@Monitorable
 	@Test
 	public void appendToFile() throws Exception {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
@@ -250,6 +253,7 @@ public class TestWebHdfsApi extends DfsBaseClass {
 		cleanupAfterTest();
 	}
 
+	@Monitorable
 	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() throws Exception {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
