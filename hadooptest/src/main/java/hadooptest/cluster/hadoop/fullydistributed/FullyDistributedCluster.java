@@ -515,7 +515,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 		for (String component : HadoopCluster.components) {
 		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
 			  componentStatus = this.isComponentFullyUp(component);
-			  TestSession.logger.info("Get Cluster Status: " + component +
+			  TestSession.logger.debug("Cluster Status: " + component +
 			          " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
 			  if (componentStatus == false) {
@@ -527,7 +527,8 @@ public class FullyDistributedCluster extends HadoopCluster {
 	}
 
 	public void printClusterStatus(Action action) {
-	    // Show cluster state summary       
+	    // Show cluster state summary
+        TestSession.addLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
         TestSession.logger.info("--> Cluster Component Status Summary:");
         TestSession.logger.info("******************************");        
         Enumeration<String> componentKeys = hadoopComponents.keys(); 
@@ -547,6 +548,7 @@ public class FullyDistributedCluster extends HadoopCluster {
             TestSession.logger.info(str);
         }
         TestSession.logger.info("******************************");
+        TestSession.removeLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
 	}
 	
     /**
@@ -562,9 +564,9 @@ public class FullyDistributedCluster extends HadoopCluster {
 		boolean overallStatus = true;
 		boolean componentStatus = true;
 		for (String component : HadoopCluster.components) {
-	          if (component.equals(HadoopCluster.GATEWAY)) { continue; }
+		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
 			  componentStatus = this.isComponentFullyDown(component);
-			  TestSession.logger.info("Get Cluster Status: " + component +
+			  TestSession.logger.debug("Cluster Status: " + component +
 			          " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
 			  if (componentStatus == false) {
