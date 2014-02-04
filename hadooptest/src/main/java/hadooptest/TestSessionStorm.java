@@ -4,7 +4,9 @@ import java.lang.reflect.Constructor;
 
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
+import hadooptest.config.storm.StormTestConfiguration;
 import hadooptest.TestSessionCore;
+import hadooptest.ConfigProperties;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -38,9 +40,6 @@ public abstract class TestSessionStorm extends TestSessionCore {
      * TestSession for a test class.
      */
     public static synchronized void start() throws Exception {
-	    // Pass the caller class name
-	    printBanner(Thread.currentThread().getStackTrace()[2].getClassName());
-	    
     	// Initialize the framework name
     	initFrameworkName();
 
@@ -76,6 +75,17 @@ public abstract class TestSessionStorm extends TestSessionCore {
      */
     public static StormCluster getCluster() {
         return cluster;
+    }
+    
+    /**
+     * Initialize the framework name.
+     */
+    private static void initFrameworkName() {
+        frameworkName = "hadooptest";
+    }
+   
+    private static void reinitCluster() throws Exception {
+        cluster.init(conf);
     }
  
     private static void cleanupCluster() throws Exception {

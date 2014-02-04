@@ -12,7 +12,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import hadooptest.TestSessionCore;
 import hadooptest.cluster.ClusterState;
@@ -49,9 +59,54 @@ public abstract class TestSession extends TestSessionCore {
 	public static MultiClusterClient multiClusterClient;
 
     public static String TASKS_REPORT_LOG = "tasks_report.log";
-    public static long startTime=System.currentTimeMillis();
+    public static long startTime=System.currentTimeMillis();    
+    public static long testStartTime;
+    public static String currentTestName;
+    public static String currentTestMethodName;
     
     public static enum HTF_TEST { CLASS, METHOD }
+    
+    public static void printBanner(String msg) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
+        System.out.println("********************************************************************************");
+        System.out.println(sdf.format(new Date(System.currentTimeMillis())) + " " +
+                currentThreadClassName + " - starting test: " + msg);
+        System.out.println("********************************************************************************");
+    }
+
+    /*
+     * Print method names for all tests in a class:
+     * Print name of currently executing test 
+     */
+    @Rule
+    public TestRule watcher = new TestWatcher() {
+        protected void starting(Description description) {
+            currentTestName =
+                    description.getClassName();
+            currentTestMethodName =
+                    description.getClassName() + ": " + description.getMethodName();
+            printBanner(currentTestMethodName);
+        }
+    };
+
+    /*
+     * Run before the start of each test class.
+     */
+    @BeforeClass
+    public static void startTestSession() throws Exception {
+        System.out.println("--------- @BeforeClass: TestSession: startTestSession ---------------------------");
+        TestSession.start();
+    }
+
+    /*
+     * Run before the start of each test class.
+     */
+    @Before
+    public void startTest() throws Exception {
+        TestSession.logger.info("--------- @Before: TestSession: startTest ----------------------------------");
+        testStartTime = System.currentTimeMillis();
+    }
 
     /*
      * After each test, fetch the job task reports.
@@ -174,6 +229,13 @@ public abstract class TestSession extends TestSessionCore {
 	 */
 	public static HadoopCluster getCluster() {
 		return cluster;
+	}
+	
+	/**
+	 * Initialize the framework name.
+	 */
+	private static void initFrameworkName() {
+		frameworkName = "hadooptest";
 	}
 	
 	private static void initExecutor() {
@@ -369,4 +431,29 @@ public abstract class TestSession extends TestSessionCore {
 			}
 		}
 	}
+	
+    /**
+     * add File Appender to Logger
+     */
+    public static void addLoggerFileAppender(String fileName) {
+        Logger logger = TestSession.logger;
+        FileAppender fileAppender = new FileAppender();
+        fileAppender.setName(fileName);        
+        fileAppender.setFile(
+                TestSession.conf.getProperty("WORKSPACE_SF_REPORTS") +
+                "/" + fileName);
+        fileAppender.setLayout(new PatternLayout("%d %-5p %m%n"));
+        fileAppender.setThreshold(Level.INFO);
+        fileAppender.setAppend(true);
+        fileAppender.activateOptions();
+        logger.addAppender(fileAppender);
+    }
+
+    /**
+     * add File Appender to Logger
+     */
+    public static void removeLoggerFileAppender(String fileName) {
+        Logger logger = TestSession.logger;
+        logger.removeAppender(fileName);
+    }    
 }
