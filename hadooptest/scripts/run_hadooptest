@@ -26,8 +26,8 @@ The options
         [ -j|--java                         ] : run tests via java directly instead of via maven
         [ -m|--mvn                          ] : run tests via maven instead of via java directly
         [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test
-        [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -storm                            ] : Run with a Storm environment
+        [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -a|--adm_box                      ] : The admin box to be used by the framework (adm103.blue.ygrid.yahoo.com is the default)
@@ -65,8 +65,8 @@ my $cluster;
 my $conf = glob("~/hadooptest.conf");
 my $use_mvn = 1;
 my $gdm = 0;
-my $spark = 0; 
 my $storm = 0;
+my $spark = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $username = getpwuid($<);
@@ -189,10 +189,10 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 }
 
 # If the user has provided the -spark option to the script, install the Spark
-# package so that we can run tests against the Spark jars.
+# 0.9.x package so that we can run tests against the Spark jars.
 if ($spark) {
-    execute("yinst i yspark_yarn -br quarantine -live");
-} 
+    execute("yinst i yspark_yarn -tag yspark_yarn_0_9_latest -live -downgrade -br quarantine");
+}
 
 my $hadoop_version;
 my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
