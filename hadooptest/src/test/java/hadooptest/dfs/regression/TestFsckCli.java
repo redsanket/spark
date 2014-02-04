@@ -242,10 +242,10 @@ public class TestFsckCli extends DfsBaseClass {
 	@After
 	public void afterEachTest() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
-		dfsCommonCli.rm(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster, true, true,
 				true, FSCK_TESTS_DIR_ON_HDFS);
-		dfsCommonCli.rm(null, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster, false,
 				true, true, DATA_DIR_IN_HDFS + ONE_BYTE_FILE);
 
