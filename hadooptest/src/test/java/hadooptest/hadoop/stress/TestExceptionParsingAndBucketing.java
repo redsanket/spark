@@ -3,7 +3,7 @@ package hadooptest.hadoop.stress;
 import java.util.ArrayList;
 import java.util.List;
 
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
+import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
 
 import org.junit.Test;
 

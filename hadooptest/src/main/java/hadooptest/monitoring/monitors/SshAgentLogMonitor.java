@@ -3,8 +3,8 @@ package hadooptest.monitoring.monitors;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.constants.LoggingNomenclature;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
-import hadooptest.automation.utils.exceptionParsing.ExceptionPeel;
+import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
+import hadooptest.monitoring.exceptionParsing.ExceptionPeel;
 
 import java.io.File;
 import java.io.FileNotFoundException;

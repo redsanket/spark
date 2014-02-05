@@ -1,4 +1,4 @@
-package hadooptest.automation.utils.exceptionParsing;
+package hadooptest.monitoring.exceptionParsing;
 
 import java.io.BufferedWriter;
 import java.io.File;

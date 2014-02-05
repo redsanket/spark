@@ -2,7 +2,7 @@ package hadooptest.monitoring.monitors;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionPeel;
+import hadooptest.monitoring.exceptionParsing.ExceptionPeel;
 import hadooptest.monitoring.listeners.MonitoringListener;
 
 import java.io.File;

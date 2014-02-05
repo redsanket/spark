@@ -1,6 +1,6 @@
 package hadooptest.monitoring.monitors;
 
-import hadooptest.automation.utils.exceptionParsing.ExceptionPeel;
+import hadooptest.monitoring.exceptionParsing.ExceptionPeel;
 
 import java.io.File;
 import java.io.FileNotFoundException;

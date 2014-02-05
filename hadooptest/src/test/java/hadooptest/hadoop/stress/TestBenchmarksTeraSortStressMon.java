@@ -2,16 +2,15 @@ package hadooptest.hadoop.stress;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.monitoring.Monitorable;
+import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobClient;
 

@@ -340,9 +340,11 @@ public class TestFsckCli extends DfsBaseClass {
 	// test_fsck_additional_02
 	public void testFsckWithBalancer() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponseBO;
 		TestSession.logger.info("________Beginning test testFsckWithBalancer");
-		Assert.assertEquals(dfsCommonCli.balancer(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA), true);
+		genericCliResponseBO = dfsCommonCli.balancer(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA);
+		Assert.assertTrue(genericCliResponseBO.process.exitValue() ==0);
 		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);

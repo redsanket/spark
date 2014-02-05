@@ -15,8 +15,8 @@ import junit.framework.Assert;
 import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.monitoring.Monitorable;
+import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
