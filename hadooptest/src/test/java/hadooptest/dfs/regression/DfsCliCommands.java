@@ -2,6 +2,13 @@ package hadooptest.dfs.regression;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
+import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
+import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
+import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
+import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -272,8 +279,8 @@ public class DfsCliCommands {
 	 * Delete a dirctory on HDFS
 	 */
 	GenericCliResponseBO rm(HashMap<String, String> envMapSentByTest,
-			String user, String protocol, String cluster, boolean recursive,
-			boolean force, boolean skipTrash, String completePath)
+			String user, String protocol, String cluster, Recursive recursive,
+			Force force, SkipTrash skipTrash, String completePath)
 			throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
@@ -287,15 +294,15 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-rm");
 		sb.append(" ");
-		if (recursive) {
+		if (recursive == Recursive.YES) {
 			sb.append("-r");
 			sb.append(" ");
 		}
-		if (force) {
+		if (force==Force.YES) {
 			sb.append("-f");
 			sb.append(" ");
 		}
-		if (skipTrash) {
+		if (skipTrash==SkipTrash.YES) {
 			sb.append("-skipTrash");
 			sb.append(" ");
 		}
@@ -388,8 +395,8 @@ public class DfsCliCommands {
 	 * protocol argument
 	 */
 	GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
-			String safemodeArg, boolean clearQuota, boolean setQuota,
-			long quota, boolean clearSpaceQuota, boolean setSpaceQuota,
+			String safemodeArg, ClearQuota clearQuota, SetQuota setQuota,
+			long quota, ClearSpaceQuota clearSpaceQuota, SetSpaceQuota setSpaceQuota,
 			long spaceQuota, String fsEntity) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -409,11 +416,11 @@ public class DfsCliCommands {
 
 		}
 		// Quota
-		if (clearQuota) {
+		if (clearQuota == ClearQuota.YES) {
 			sb.append("-clrQuota");
 			sb.append(" ");
 			sb.append(fsEntity);
-		} else if (setQuota) {
+		} else if (setQuota == SetQuota.YES) {
 			if (quota > 0) {
 				sb.append("-setQuota");
 				sb.append(" ");
@@ -423,11 +430,11 @@ public class DfsCliCommands {
 			}
 		}
 		// Space Quota
-		if (clearSpaceQuota) {
+		if (clearSpaceQuota==ClearSpaceQuota.YES) {
 			sb.append("-clrSpaceQuota");
 			sb.append(" ");
 			sb.append(fsEntity);
-		} else if (setSpaceQuota) {
+		} else if (setSpaceQuota == SetSpaceQuota.YES) {
 			if (spaceQuota > 0) {
 				sb.append("-setSpaceQuota");
 				sb.append(" ");
@@ -486,7 +493,7 @@ public class DfsCliCommands {
 
 	GenericCliResponseBO ls(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
-			String completePathToFile, boolean recursive) throws Exception {
+			String completePathToFile, Recursive recursive) throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HADOOP);
@@ -499,7 +506,7 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-ls");
 		sb.append(" ");
-		if (recursive) {
+		if (recursive== Recursive.YES) {
 			sb.append("-R");
 			sb.append(" ");
 
@@ -744,7 +751,7 @@ public class DfsCliCommands {
 	 * Given a cluster, create the NameNode decorated with the proper schema. In
 	 * this case hdfs://
 	 */
-	private String getNNUrlForHdfs(String cluster) {
+	public String getNNUrlForHdfs(String cluster) {
 		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
 				.trim().toLowerCase()
 				+ "."
@@ -1012,6 +1019,7 @@ public class DfsCliCommands {
 
 	}
 
+	
 	public void createCustomizedKerberosTicket(String user, String destination,
 			String lifetime) throws Exception {
 		String keytabFileSuffix = user + ".dev.headless.keytab";

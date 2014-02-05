@@ -35,6 +35,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import hadooptest.SerialTests;
+import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
 
 //import org.apache.hadoop.DFSClient.*;
 
@@ -396,8 +399,8 @@ public class TestAppend {
 		if (genericResponseBO.process.exitValue() == 0) {
 			System.out.println("Here deleting dir...!!");
 			dfsCommonCli.rm(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.WEBHDFS, cluster, true, true,
-					true, APPEND_OUTDIR);
+					HadooptestConstants.Schema.WEBHDFS, cluster, Recursive.YES, Force.YES,
+					SkipTrash.YES, APPEND_OUTDIR);
 		}
 		dfsCommonCli.mkdir(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR);

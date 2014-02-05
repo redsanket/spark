@@ -3,6 +3,9 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
+import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.monitoring.Monitorable;
 
@@ -168,7 +171,8 @@ public class TestDistcpCli extends DfsBaseClass {
 			dfsCommonCliCommands
 					.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.WEBHDFS,
-							this.parametrizedCluster, true, true, true,
+							this.parametrizedCluster, Recursive.YES, Force.YES,
+							SkipTrash.YES,
 							destinationFile);
 
 			// Pull
@@ -186,7 +190,8 @@ public class TestDistcpCli extends DfsBaseClass {
 
 			dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, this.localCluster,
-					true, true, true, destinationFile);
+					Recursive.YES, Force.YES,
+					SkipTrash.YES, destinationFile);
 
 		}
 	}
@@ -218,7 +223,8 @@ public class TestDistcpCli extends DfsBaseClass {
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
-						this.parametrizedCluster, true, true, true,
+						this.parametrizedCluster, Recursive.YES, Force.YES,
+						SkipTrash.YES,
 						destinationFile);
 
 			}
@@ -235,7 +241,8 @@ public class TestDistcpCli extends DfsBaseClass {
 
 			dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, this.localCluster,
-					true, true, true, destinationFile);
+					Recursive.YES, Force.YES,
+					SkipTrash.YES, destinationFile);
 
 		}
 
@@ -267,7 +274,8 @@ public class TestDistcpCli extends DfsBaseClass {
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
-						this.parametrizedCluster, true, true, true,
+						this.parametrizedCluster, Recursive.YES, Force.YES,
+						SkipTrash.YES,
 						destinationFile);
 
 			}
@@ -304,7 +312,8 @@ public class TestDistcpCli extends DfsBaseClass {
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
-						this.parametrizedCluster, true, true, true,
+						this.parametrizedCluster, Recursive.YES, Force.YES,
+						SkipTrash.YES,
 						destinationFile);
 
 				// No Pull, since HFTP is readonly
@@ -340,7 +349,8 @@ public class TestDistcpCli extends DfsBaseClass {
 			dfsCommonCliCommands
 					.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.WEBHDFS,
-							this.parametrizedCluster, true, true, true,
+							this.parametrizedCluster, Recursive.YES, Force.YES,
+							SkipTrash.YES,
 							destinationFile);
 
 			// Pull
@@ -363,7 +373,8 @@ public class TestDistcpCli extends DfsBaseClass {
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS, this.localCluster,
-						true, true, true, destinationFile);
+						Recursive.YES, Force.YES,
+						SkipTrash.YES, destinationFile);
 
 			}
 		}
@@ -398,7 +409,8 @@ public class TestDistcpCli extends DfsBaseClass {
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS,
-						this.parametrizedCluster, true, true, true,
+						this.parametrizedCluster, Recursive.YES, Force.YES,
+						SkipTrash.YES,
 						destinationFile);
 
 				// Pull
@@ -417,7 +429,8 @@ public class TestDistcpCli extends DfsBaseClass {
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS, this.localCluster,
-						true, true, true, destinationFile);
+						Recursive.YES, Force.YES,
+						SkipTrash.YES, destinationFile);
 
 			}
 

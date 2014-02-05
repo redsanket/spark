@@ -5,6 +5,13 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
+import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
+import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
+import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
+import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.dfs.regression.FsckResponseBO.FsckBlockDetailsBO;
 import hadooptest.dfs.regression.FsckResponseBO.FsckFileDetailsBO;
@@ -243,17 +250,17 @@ public class TestFsckCli extends DfsBaseClass {
 	public void afterEachTest() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		dfsCommonCli.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.NONE, this.localCluster, true, true,
-				true, FSCK_TESTS_DIR_ON_HDFS);
+				HadooptestConstants.Schema.NONE, this.localCluster, Recursive.YES, Force.YES,
+				SkipTrash.YES, FSCK_TESTS_DIR_ON_HDFS);
 		dfsCommonCli.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.NONE, this.localCluster, false,
-				true, true, DATA_DIR_IN_HDFS + ONE_BYTE_FILE);
+				HadooptestConstants.Schema.NONE, this.localCluster, Recursive.NO, Force.YES,
+				SkipTrash.YES, DATA_DIR_IN_HDFS + ONE_BYTE_FILE);
 
 		// The 3gb file on the local file system is automatically deleted
 		// after every test run, by JUnit
 	};
 
-	// @Test
+//	 @Test
 	// test_fsck_02
 	public void testFsckResultsLeveragingRandomWriterAndSortJobs()
 			throws Exception {
@@ -310,26 +317,26 @@ public class TestFsckCli extends DfsBaseClass {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		TestSession.logger
 				.info("________Beginning test testFsckWithSafemodeOn");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "enter", false, false,
-				0, false, false, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "enter", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		Assert.assertNotNull(fsckResponse);
 		Assert.assertEquals(fsckResponse.fsckSummaryBO.status, "HEALTHY");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", false, false,
-				0, false, false, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 		
 
 	}
 
-	// @Test
+	 @Test
 	// test_fsck_additional_02
 	public void testFsckWithBalancer() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();

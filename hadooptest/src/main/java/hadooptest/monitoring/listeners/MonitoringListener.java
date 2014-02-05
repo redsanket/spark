@@ -163,7 +163,7 @@ public class MonitoringListener extends RunListener {
 
 	@Override
 	public void testFailure(Failure failure) throws Exception {
-		TestSession.logger.info("Dang the test failed..............\n");
+		TestSession.logger.trace("Dang the test failed..............\n");
 		String testName = failure.getDescription().getMethodName();
 		if (testStatusesWhereTrueMeansPassAndFalseMeansFailed
 				.containsKey(testName)) {

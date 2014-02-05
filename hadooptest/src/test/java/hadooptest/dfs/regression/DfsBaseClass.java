@@ -33,6 +33,14 @@ public class DfsBaseClass extends TestSession {
 	HashMap<String, Boolean> pathsChmodedSoFar;
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
+	public enum Recursive {YES, NO };
+	public enum Force {YES, NO };
+	public enum SkipTrash {YES, NO };
+	public enum ClearQuota {YES, NO };
+	public enum SetQuota {YES, NO };
+	public enum ClearSpaceQuota {YES, NO };
+	public enum SetSpaceQuota {YES, NO };
+	
 	@Before
 	public void ensureDataBeforeTestRun() {
 

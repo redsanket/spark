@@ -3,6 +3,13 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.config.hadoop.HadoopConfiguration;
+import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
+import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
+import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
+import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
+import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 
 import java.util.HashMap;
@@ -145,17 +152,19 @@ public class TestQuotaCli extends DfsBaseClass {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponseBO = null;
 		if (command.equals(SET_QUOTA)) {
-			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, false,
-					true, quota, false, false, 0, fsEntity);
+			
+			
+			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, ClearQuota.NO,
+					SetQuota.YES, quota, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, fsEntity);
 		} else if (command.equals(SET_SPACE_QUOTA)) {
-			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, false,
-					false, 0, false, true, quota, fsEntity);
+			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, ClearQuota.NO,
+					SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.YES, quota, fsEntity);
 		} else if (command.equals(CLEAR_QUOTA)) {
-			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, true,
-					false, 0, false, false, 0, fsEntity);
+			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, ClearQuota.YES,
+					SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, fsEntity);
 		} else if (command.equals(CLEAR_SPACE_QUOTA)) {
-			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, false,
-					false, 0, true, false, 0, fsEntity);
+			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, null, ClearQuota.NO,
+					SetQuota.NO, 0, ClearSpaceQuota.YES, SetSpaceQuota.NO, 0, fsEntity);
 		}
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 		return genericCliResponseBO;
@@ -203,7 +212,7 @@ public class TestQuotaCli extends DfsBaseClass {
 				localCluster, TEST_1_DIR + L1 + "c");
 		dfsCliCommands.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, TEST_1_DIR
-						+ L1, true);
+						+ L1, Recursive.YES);
 		validateQuotaQueryResult(10, 6, -1, -1, 1, 3, 0, TEST_1_DIR + L1);
 		validateQuotaQueryResult(5, 0, -1, -1, 2, 3, 0, TEST_1_DIR);
 
@@ -219,7 +228,7 @@ public class TestQuotaCli extends DfsBaseClass {
 				localCluster, TEST_1_DIR);
 		dfsCliCommands.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, TEST_1_DIR,
-				true);
+				Recursive.YES);
 		/*
 		 * Create more directory than quota in parentdir
 		 */
@@ -302,8 +311,8 @@ public class TestQuotaCli extends DfsBaseClass {
 		 */
 		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.WEBHDFS, localCluster, false, true,
-				true, TEST_1_DIR + L1 + "file_128MB");
+				HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.NO, Force.YES,
+				SkipTrash.YES, TEST_1_DIR + L1 + "file_128MB");
 		genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster,
@@ -324,8 +333,8 @@ public class TestQuotaCli extends DfsBaseClass {
 		 */
 		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.WEBHDFS, localCluster, true, true,
-				true, TEST_1_DIR + L1);
+				HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.YES, Force.YES,
+				SkipTrash.YES, TEST_1_DIR + L1);
 		mkdirsAndSetPermissions(TEST_1_DIR + L1);
 		validateQuotaQueryResult(-1, -1, -1, -1, 1, 0, 0, TEST_1_DIR + L1);
 		/*
@@ -335,8 +344,8 @@ public class TestQuotaCli extends DfsBaseClass {
 		if (false) {
 			genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.WEBHDFS, localCluster, true,
-					true, true, USER + HDFSQA);
+					HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.YES, Force.YES,
+					SkipTrash.YES, USER + HDFSQA);
 			mkdirsAndSetPermissions(USER + HDFSQA);
 			runDfsadminCommand(SET_QUOTA, 7, USER + HDFSQA);
 			genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
@@ -351,13 +360,13 @@ public class TestQuotaCli extends DfsBaseClass {
 							+ "file_1B_1");
 			genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.WEBHDFS, localCluster, false,
-					true, false, USER + HDFSQA + ONE_BYTE_FILE);
+					HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.NO, Force.YES,
+					SkipTrash.NO, USER + HDFSQA + ONE_BYTE_FILE);
 			validateQuotaQueryResult(7, 0, -1, -1, 5, 2, 4, TEST_1_DIR + L1);
 			genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.WEBHDFS, localCluster, false,
-					true, false, USER + HDFSQA + "file_1B_1");
+					HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.NO, Force.YES,
+					SkipTrash.NO, USER + HDFSQA + "file_1B_1");
 			validateQuotaQueryResult(7, 0, -1, -1, 5, 2, 4, TEST_1_DIR + L1);
 		}
 
@@ -406,8 +415,8 @@ public class TestQuotaCli extends DfsBaseClass {
 		 * Setting space dfs.replication * dfs.blocksize"
 		 */
 		dfsCliCommands.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.WEBHDFS, localCluster, true, true,
-				true, TEST_2_DIR);
+				HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.YES, Force.YES,
+				SkipTrash.YES, TEST_2_DIR);
 
 		mkdirsAndSetPermissions(TEST_2_DIR);
 		runDfsadminCommand(SET_SPACE_QUOTA, MIN_SPACE_QUOTA, TEST_2_DIR);
@@ -443,16 +452,16 @@ public class TestQuotaCli extends DfsBaseClass {
 		runDfsadminCommand(CLEAR_SPACE_QUOTA, 0, USER + HDFSQA);
 		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.WEBHDFS, localCluster, true, true,
-				true, TEST_1_DIR);
+				HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.YES, Force.YES,
+				SkipTrash.YES, TEST_1_DIR);
 		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.WEBHDFS, localCluster, true, true,
-				true, TEST_2_DIR);
+				HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.YES, Force.YES,
+				SkipTrash.YES, TEST_2_DIR);
 		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.WEBHDFS, localCluster, true, true,
-				true, USER + HDFSQA + ".Trash");
+				HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.YES, Force.YES,
+				SkipTrash.YES, USER + HDFSQA + ".Trash");
 
 	}
 
