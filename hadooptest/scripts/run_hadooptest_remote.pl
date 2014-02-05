@@ -143,6 +143,7 @@ execute("scp $tgz_dir/$tgz_file_ht $remote_host:$remote_ws_ht");
 execute("ssh -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
 execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
 execute("scp $local_ws_ht/target/*.jar $remote_host:$remote_ws_ht/target");
+execute("ssh -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
 
 execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
     if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa"));
