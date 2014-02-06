@@ -1,28 +1,18 @@
 package hadooptest.dfs.regression;
 
+import hadooptest.SerialTests;
+import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.config.hadoop.HadoopConfiguration;
-import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
-import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
-import hadooptest.dfs.regression.DfsBaseClass.Force;
-import hadooptest.dfs.regression.DfsBaseClass.Recursive;
-import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
-import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
-import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,9 +22,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import hadooptest.SerialTests;
-import hadooptest.TestSession;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)

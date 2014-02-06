@@ -463,7 +463,8 @@ public class DfsCliCommands {
 	}
 
 	GenericCliResponseBO balancer(HashMap<String, String> envMapSentByTest,
-			String user) throws Exception {
+			String user, String policyValue, String thresholdValue)
+			throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -472,6 +473,20 @@ public class DfsCliCommands {
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
 		sb.append("balancer");
+		if (policyValue != null) {
+			sb.append(" ");
+			sb.append("-policy");
+			sb.append(" ");
+			sb.append(policyValue);
+
+		}
+		if (thresholdValue != null) {
+			sb.append(" ");
+			sb.append("-threshold");
+			sb.append(" ");
+			sb.append(thresholdValue);
+
+		}
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
