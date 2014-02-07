@@ -110,8 +110,8 @@ $c->xAxis()->setLabelStyle("",8,TextColor, "45");
 # Add a line layer to the chart
 my $layer = $c->addBarLayer2($perlchartdir::Side, 3);
 
-$layer->addDataSet(\@succeeded, 0xff8080, "Succeeed");
-$layer->addDataSet(\@failed, 0x80ff80, "Failed");
+$layer->addDataSet(\@succeeded, 0x80ff80, "Succeeed");
+$layer->addDataSet(\@failed, 0xff8080, "Failed");
 $layer->addDataSet(\@killed, 0x8080ff, "Killed");
 $layer->addDataSet(\@unknown, 0x6600CC, "Unknown");
 
