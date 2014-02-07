@@ -4,6 +4,7 @@ import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.monitoring.Monitorable;
 import hadooptest.monitoring.monitors.AbstractMonitor;
 import hadooptest.monitoring.monitors.CPUMonitor;
+import hadooptest.monitoring.monitors.JobStatusMonitor;
 import hadooptest.monitoring.monitors.LogMonitor;
 import hadooptest.monitoring.monitors.MemoryMonitor;
 import hadooptest.monitoring.monitors.MonitorGeneral;
@@ -40,9 +41,7 @@ import org.junit.rules.TestWatcher;
  * 
  */
 public class MonitoringListener extends RunListener {
-	Date date = new Date();
-	static SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
-
+	static Date date = new Date();	
 	HashMap<String, MonitorGeneral> monitorGenerals = new HashMap<String, MonitorGeneral>();
 	public static ConcurrentHashMap<String, Boolean> testStatusesWhereTrueMeansPassAndFalseMeansFailed = new ConcurrentHashMap<String, Boolean>();
 
@@ -94,7 +93,8 @@ public class MonitoringListener extends RunListener {
 								.getNodeNames(HadoopCluster.NODEMANAGER))));
 
 				TestSession.logger.trace("COMPS:" + componentToHostMapping);
-
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("MMM_dd_yyyy_HH_mm_ss");
 				AbstractMonitor.formattedDateAndTime = sdf.format(date);
 
 				// Add the CPU Monitor
@@ -122,6 +122,12 @@ public class MonitoringListener extends RunListener {
 						componentToHostMapping, descriptionOfTestClass,
 						description.getMethodName());
 				monitorGeneral.registerMonitor(testStatusMonitor);
+
+				// Add the JOb Status Monitor
+				JobStatusMonitor jobStatusMonitor = new JobStatusMonitor(cluster,
+						componentToHostMapping, descriptionOfTestClass,
+						description.getMethodName());
+				monitorGeneral.registerMonitor(jobStatusMonitor);
 
 				// Start 'em monitors
 				monitorGeneral.startMonitors();

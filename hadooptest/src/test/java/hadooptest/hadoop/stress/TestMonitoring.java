@@ -18,39 +18,102 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.monitoring.Monitorable;
 import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.examples.RandomWriter;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
 
 import hadooptest.SerialTests;
 
-@Category(SerialTests.class)
-//@Category(ParallelMethodTests.class)
+//@Category(SerialTests.class)
+@Category(ParallelMethodTests.class)
 public class TestMonitoring extends TestSession {
-
+	public static final String BYTES_PER_MAP = "mapreduce.randomwriter.bytespermap";
 	Logger logger = Logger.getLogger(TestMonitoring.class);
 
-	@Test
-	@Monitorable(cpuPeriodicity = 30, memPeriodicity = 30)
+	@Rule
+	public TemporaryFolder aTempFolderCreatedByJunit = new TemporaryFolder();
+
+//	@Test
+//	@Monitorable(cpuPeriodicity = 30, memPeriodicity = 30)
 	public void testWithMonitoring() throws InterruptedException {
 		
 		
 		logger.info("Beginning Stress test.............sleeping for 10 secs");
-		Assert.assertTrue(1==0);
+//		Assert.assertTrue(1==0);
 		Thread.sleep(30000);
 		logger.info("Test waking up, to finish!!!!!!!");
 	}
 
-	@Test
-	@Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
-	public void secondTestBeingMonitored() throws InterruptedException {
+//	@Test
+//	@Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
+	public void testWithMonitoringBuddy() throws InterruptedException {
 		logger.info("Beginning 2nd Stress test.............for the 2nd test!");
-		Assert.assertTrue(1==0);
+//		Assert.assertTrue(1==0);
 		Thread.sleep(30000);
 		logger.info("2ns stress test finished");
 	}
+	
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest1(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest2(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter2");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest3(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter3");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest4(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter3");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void runStdHadoopRandomWriter(String randomWriterOutputDirOnHdfs)
+			throws Exception {
+		logger.info("running RandomWriter.............");
+		Configuration conf = TestSession.cluster.getConf();
+		conf.setLong(BYTES_PER_MAP, 256000);
+		int res = ToolRunner.run(conf, new RandomWriter(),
+				new String[] { randomWriterOutputDirOnHdfs });
+
+	}
+
 
 //	@AfterClass
 	static public void collateExceptions() throws ParseException, IOException {
