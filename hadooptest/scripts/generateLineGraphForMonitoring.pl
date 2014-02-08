@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl
 use perlchartdir;
+use Time::Local;
 
 my %options=();
 my ($chart_title, $x_axis_title, $y_axis_title, $graphFileName, $inputFileName);
@@ -49,31 +50,7 @@ my @labels;
 my $count=0;
 my $run;
 my %runAndData;
-foreach my $line (@lines){
-	if ($headingDone == 0){
-		$headingDone = 1;
-		$line =~ s/^\s+|\s+$//g;
-		@labels = split(/\s+/, $line);
-		$count = $count+1;
-		next;
-	}
-	if ($line =~ m/^Run/){
-		$line =~ s/^\s+|\s+$//g;
-		print "Processing $line";
-		@runInfo = split(/:/,$line);
-		$run = $runInfo[1];
-		next;
-	}else{
-		#Data lines now
-		$line =~ s/^\s+|\s+$//g;
-		print "Processing $line";
-		my @tempArr = split(/\s+/,$line);
-		$runAndData{$run} = \@tempArr;
-		print "Checking:" . $runAndData{$run} . "\n";
-		$count = $count + 2;
-	}
-	
-}
+my %runAndColor;
 my $colors = [ 0xff0000,
 0x00ff00,
 0x0000ff,
@@ -100,6 +77,68 @@ my $colors = [ 0xff0000,
 0x99FF00,
 0x00FFFF,
 0x99CC33, ];
+
+foreach my $line (@lines){
+	if ($headingDone == 0){
+		$headingDone = 1;
+		$line =~ s/^\s+|\s+$//g;
+		@labels = split(/\s+/, $line);
+		$count = $count+1;
+		next;
+	}
+	if ($line =~ m/^Run/){
+		$line =~ s/^\s+|\s+$//g;
+		print "Processing $line";
+		@runInfo = split(/:/,$line);
+		$run = $runInfo[1];
+        if ($run =~ /([a-zA-Z]+)_([0-9]+)_.*/){
+            print $1 ." ". $2 . "\n";
+            print "===========================\n";
+            print "Colors size: " . scalar(@$colors) . "\n";
+            $dateInSecs = convertDateIntoNumber($run);
+            print "Converted date in secs is:" . $dateInSecs ."\n";
+            my $mod = $dateInSecs % scalar(@$colors);
+            print "Adding color: " . @$colors[$mod];
+            print "===========================\n";
+            $runAndColor{$run}=@$colors[$mod];
+        }
+		next;
+	}else{
+		#Data lines now
+		$line =~ s/^\s+|\s+$//g;
+		print "Processing $line";
+		my @tempArr = split(/\s+/,$line);
+		$runAndData{$run} = \@tempArr;
+		print "Checking:" . $runAndData{$run} . "\n";
+		$count = $count + 2;
+	}
+	
+}
+sub convertDateIntoNumber{
+    my $dateString = shift;
+    my %dateLookup=();
+	$dateLookup{"Jan"} = 1;
+	$dateLookup{"Feb"} = 2;
+	$dateLookup{"Mar"} = 3;
+	$dateLookup{"Apr"} = 4;
+	$dateLookup{"May"} = 5;
+	$dateLookup{"Jun"} = 6;
+	$dateLookup{"Jul"} = 7;
+	$dateLookup{"Aug"} = 8;
+	$dateLookup{"Sep"} = 9;
+	$dateLookup{"Oct"} = 10;
+	$dateLookup{"Nov"} = 11;
+	$dateLookup{"Dec"} = 12;
+    my @dateComponents = split(/_/, $dateString);
+    print "Sec = " . $dateComponents[5] . "\n";
+    print "Min = " . $dateComponents[4] . "\n";
+    print "Hour = " . $dateComponents[3] . "\n";
+    print "day = " . $dateComponents[1] . "\n";
+    print "Month = " . $dateComponents[0] . "\n";
+    print "Year = " . $dateComponents[2] . "\n";
+    my $seconds = timelocal($dateComponents[5], $dateComponents[4], $dateComponents[3], $dateComponents[1], $dateLookup{$dateComponents[0]}, $dateComponents[2]);
+    return $seconds;
+}
 
 # Create an XYChart object of size 900 x 500 pixels, with a light blue (EEEEFF)
 # background, black border, 1 pxiel 3D border effect and rounded corners
@@ -160,7 +199,10 @@ $layer->setLineWidth(3);
 print "==============================================\n";
 $count=0;
 foreach my $runn (keys (%runAndData)){
-	$layer->addDataSet($runAndData{$runn}, $$colors[$count++], $runn)->setDataSymbol($perlchartdir::CircleSymbol, 9);
+    
+	#$layer->addDataSet($runAndData{$runn}, $$colors[$count++], $runn)->setDataSymbol($perlchartdir::CircleSymbol, 9);
+	print "Finally applying color " . $runAndColor{$runn} . " for run " . $runn . "\n";
+    $layer->addDataSet($runAndData{$runn}, $runAndColor{$runn}, $runn)->setDataSymbol($perlchartdir::CircleSymbol, 9);
 }
 
 # Output the chart

@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl
 use perlchartdir;
+use Time::Local;
 #use strict;
 
 my %options=();
@@ -45,6 +46,32 @@ my $file =$inputFileName;
 open (FH, "< $file") or die "Can't open $file for read: $!";
 my @lines = <FH>;
 close FH or die "Cannot close $file: $!";
+my $colors = [ 0xff0000,
+0x00ff00,
+0x0000ff,
+0xff00ff,
+0xffff00,
+0x00ffff,
+0x6600CC,
+0x660099,
+0x999999,
+0x999966,
+0x999933,
+0x9933FF,
+0x9933CC,
+0x66FF99,
+0x99CCFF,
+0x66CCFF,
+0x00FFFF,
+0x000000,
+0x660000,
+0x003300,
+0x666666,
+0x99CC00,
+0xFF66CC,
+0x99FF00,
+0x00FFFF,
+0x99CC33, ];
 my $headingDone=0;
 my $xHeadingDone=0;
 my $yheadingDone=0;
@@ -78,6 +105,14 @@ foreach my $line (@lines){
 		print "Processing $line\n";
 		my @runInfo = split(/:/,$line);
 		$run = $runInfo[1];
+        print "===========================\n";
+        print "Colors size: " . scalar(@$colors) . "\n";
+        $dateInSecs = convertDateIntoNumber($run);
+        print "Converted date in secs is:" . $dateInSecs ."\n";
+        my $mod = $dateInSecs % scalar(@$colors);
+        print "Adding color: " . @$colors[$mod];
+        print "===========================\n";
+        $runAndColor{$run}=@$colors[$mod];
 		next;
 	}else{
 		#Data lines now
@@ -102,35 +137,36 @@ foreach my $line (@lines){
 	}
 	
 }
+sub convertDateIntoNumber{
+    my $dateString = shift;
+    my %dateLookup=();
+	$dateLookup{"Jan"} = 1;
+	$dateLookup{"Feb"} = 2;
+	$dateLookup{"Mar"} = 3;
+	$dateLookup{"Apr"} = 4;
+	$dateLookup{"May"} = 5;
+	$dateLookup{"Jun"} = 6;
+	$dateLookup{"Jul"} = 7;
+	$dateLookup{"Aug"} = 8;
+	$dateLookup{"Sep"} = 9;
+	$dateLookup{"Oct"} = 10;
+	$dateLookup{"Nov"} = 11;
+	$dateLookup{"Dec"} = 12;
+    my @splits= split(/-/, $dateString);   #Get rid of the "1-" or "2-" sequences
+    $dateString = $splits[1];
+    my @dateComponents = split(/_/, $dateString);
+    print "Sec = " . $dateComponents[5] . "\n";
+    print "Min = " . $dateComponents[4] . "\n";
+    print "Hour = " . $dateComponents[3] . "\n";
+    print "day = " . $dateComponents[1] . "\n";
+    print "Month = " . $dateComponents[0] . "\n";
+    print "Year = " . $dateComponents[2] . "\n";
+    my $seconds = timelocal($dateComponents[5], $dateComponents[4], $dateComponents[3], $dateComponents[1], $dateLookup{$dateComponents[0]}, $dateComponents[2]);
+    return $seconds;
+}
 print "Checking:" . $xRunAndData{$run} . "\n";
 print "_____________________________________________\n";
 print "Checking:" . $yRunAndData{$run} . "\n";
-my $colors = [ 0xff0000,
-0x00ff00,
-0x0000ff,
-0xff00ff,
-0xffff00,
-0x00ffff,
-0x6600CC,
-0x660099,
-0x999999,
-0x999966,
-0x999933,
-0x9933FF,
-0x9933CC,
-0x66FF99,
-0x99CCFF,
-0x66CCFF,
-0x00FFFF,
-0x000000,
-0x660000,
-0x003300,
-0x666666,
-0x99CC00,
-0xFF66CC,
-0x99FF00,
-0x00FFFF,
-0x99CC33, ];
 
 my $symbols = [
 1,
@@ -198,8 +234,8 @@ $c->yAxis()->setLabelStep(1);
 print "==============================================\n";
 $count=0;
 foreach my $runn (keys (%xRunAndData)){
-	#$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $perlchartdir::CircleSymbol, 15, $$colors[$count++]);
-	$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $$symbols[$count], 15, $$colors[$count]);
+	#$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $$symbols[$count], 15, $$colors[$count]);
+	$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $$symbols[$count], 15, $runAndColor{$runn});
 	$count++;
 	print "Loop-".$runn."\n";
 }
