@@ -111,33 +111,46 @@ public class TestQuotaCli extends DfsBaseClass {
 
 		QuotaResponseBO quotaResponseBO = new QuotaResponseBO(
 				countResponse.response.trim());
+		
+		TestSession.logger.info("Beginning comparison of (totalQuota):"
+				+ quotaResponseBO.totalQuota + " with expected:"
+				+ expectedQuota);
+
 		if (expectedQuota == -1) {
 			Assert.assertTrue(((String) quotaResponseBO.totalQuota)
 					.equals(NONE));
 		} else {
-			Assert.assertTrue(Integer.parseInt(quotaResponseBO.totalQuota) == expectedQuota);
+			Assert.assertTrue(Long.parseLong(quotaResponseBO.totalQuota) == expectedQuota);
 		}
+		
+		TestSession.logger.info("Beginning comparison of (remainingQuota):"
+				+ quotaResponseBO.remainingQuota + " with expected:"
+				+ expectedRemainingQuota);
 
 		if (expectedRemainingQuota == -1) {
 			Assert.assertTrue(((String) quotaResponseBO.remainingQuota)
 					.equals(INF));
 		} else {
-			Assert.assertTrue(Integer.parseInt(quotaResponseBO.remainingQuota) == expectedRemainingQuota);
+			Assert.assertTrue(Long.parseLong(quotaResponseBO.remainingQuota) == expectedRemainingQuota);
 		}
+		TestSession.logger.info("Comparing (spaceQuota):"
+				+ quotaResponseBO.spaceQuota + " with expected:"
+				+ spaceQuota);
+
 		if (spaceQuota == -1) {
 			Assert.assertTrue(((String) quotaResponseBO.spaceQuota)
 					.equals(NONE));
 		} else {
-			Assert.assertTrue(Integer.parseInt(quotaResponseBO.spaceQuota) == spaceQuota);
+			Assert.assertTrue(Long.parseLong(quotaResponseBO.spaceQuota) == spaceQuota);
 		}
+		TestSession.logger.info("Comparing (remainingSpaceQuota):"
+				+ quotaResponseBO.remainingSpaceQuota + " with expected:"
+				+ remainingSpaceQuota);
 
 		if (remainingSpaceQuota == -1) {
 			Assert.assertTrue(((String) quotaResponseBO.remainingSpaceQuota)
 					.equals(INF));
 		} else {
-			System.out.println("Comparing:"
-					+ quotaResponseBO.remainingSpaceQuota + " with expected:"
-					+ remainingSpaceQuota);
 			Assert.assertTrue(Long
 					.parseLong(quotaResponseBO.remainingSpaceQuota) == remainingSpaceQuota);
 		}
@@ -396,17 +409,18 @@ public class TestQuotaCli extends DfsBaseClass {
 		int replication = conf.getInt("dfs.replication", 3);
 		int blockSize = conf.getInt("dfs.blocksize", 134217728);
 
-		long MIN_SPACE_QUOTA_MB = replication * blockSize / 1024 / 1024;
-		long MIN_SPACE_QUOTA = MIN_SPACE_QUOTA_MB * 1024 * 1024;
+		long MIN_SPACE_QUOTA = replication * blockSize;
+		long MIN_SPACE_QUOTA_MB = MIN_SPACE_QUOTA / 1024 / 1024;
+		
 		/*
 		 * Setting space less than dfs.replication * dfs.blocksize Bug-4524822
 		 */
-		long quotaMB = MIN_SPACE_QUOTA_MB - 1;
-		long quota = quotaMB * 1024 * 1024;
+		long quotaInMbHoldingOneMbLessThanMinSpaceQuota = MIN_SPACE_QUOTA_MB - 1;
+		long quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota = quotaInMbHoldingOneMbLessThanMinSpaceQuota * 1024 * 1024;
 
 		mkdirsAndSetPermissions(TEST_2_DIR);
-		runDfsadminCommand(SET_SPACE_QUOTA, quota, TEST_2_DIR);
-		validateQuotaQueryResult(-1, -1, quota, quota, 1, 0, 0, TEST_2_DIR);
+		runDfsadminCommand(SET_SPACE_QUOTA, quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota, TEST_2_DIR);
+		validateQuotaQueryResult(-1, -1, quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota, quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota, 1, 0, 0, TEST_2_DIR);
 
 		genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
@@ -431,16 +445,18 @@ public class TestQuotaCli extends DfsBaseClass {
 
 		mkdirsAndSetPermissions(TEST_2_DIR);
 		runDfsadminCommand(SET_SPACE_QUOTA, MIN_SPACE_QUOTA, TEST_2_DIR);
+		
 		validateQuotaQueryResult(-1, -1, MIN_SPACE_QUOTA, MIN_SPACE_QUOTA, 1,
 				0, 0, TEST_2_DIR);
+		
 		dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster,
 				DATA_DIR_IN_LOCAL_FS + ONE_BYTE_FILE, TEST_2_DIR);
 
 		// file_1B has just 1 byte there
-		long remainingSpaceQuota = (quota - (1 * replication));
-		validateQuotaQueryResult(-1, -1, quota, remainingSpaceQuota, 1, 1,
+		long remainingSpaceQuota = (MIN_SPACE_QUOTA - (1 * replication));
+		validateQuotaQueryResult(-1, -1, MIN_SPACE_QUOTA, remainingSpaceQuota, 1, 1,
 				fileMetadata.get(ONE_BYTE_FILE).longValue(), TEST_2_DIR);
 	}
 
