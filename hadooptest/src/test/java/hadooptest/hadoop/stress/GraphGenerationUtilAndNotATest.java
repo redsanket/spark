@@ -18,6 +18,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobID;
+import org.apache.hadoop.mapred.JobStatus;
+import org.apache.hadoop.mapred.TaskCompletionEvent;
+import org.apache.hadoop.mapred.TaskReport;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,8 +36,9 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	HashMap<String, ArrayList<HashMap<String, Integer>>> table1TestRunHash;
 	HashMap<String, ArrayList<HashMap<String, Integer>>> table2TestRunHash;
 	HashMap<String, ArrayList<HashMap<String, String>>> table3TestRunHash;
-	HashMap<String, LinkedHashSet<String>> temporaryTable4TestRunHash;
-	HashMap<String, JobStatusCountStructure> realTable4TestRunHash;
+	HashMap<String, LinkedHashSet<String>> uniqueJobSetAgainstEachRun;
+	HashMap<String, JobStatusCountStructure> realTable4TestRunHashForJobStatus;
+	HashMap<String, TaskStatusCountStructure> realTable4TestRunHashForTaskStatus;
 
 	LinkedHashSet<String> exceptionFootprint = new LinkedHashSet<String>();
 	LinkedHashSet<String> testFootprint = new LinkedHashSet<String>();
@@ -124,6 +131,31 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		}
 	}
 
+	class TaskStatusCountStructure {
+		public TaskStatusCountStructure(int succeeded, int failed, int killed) {
+			this.succeeded = succeeded;
+			this.failed = failed;
+			this.killed = killed;
+
+		}
+
+		int succeeded;
+		int failed;
+		int killed;
+
+		int get(String status) {
+			if (status.equals(SUCCEEDED)) {
+				return succeeded;
+			} else if (status.equals(FAILED)) {
+				return failed;
+			} else if (status.equals(KILLED)) {
+				return killed;
+			} else {
+				return -1;
+			}
+		}
+	}
+
 	@Test
 	public void testProcessExcetions() throws Exception {
 		// Table-1 vars
@@ -139,7 +171,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		table3TestRunHash = new HashMap<String, ArrayList<HashMap<String, String>>>();
 
 		// Table-4 vars
-		temporaryTable4TestRunHash = new HashMap<String, LinkedHashSet<String>>();
+		uniqueJobSetAgainstEachRun = new HashMap<String, LinkedHashSet<String>>();
 
 		int exceptionCountPerTest = 0;
 
@@ -333,9 +365,9 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 										+ "/" + test + "/" + aRunDate + "/"
 										+ "JOB_STATUS"));
 
-						if (!temporaryTable4TestRunHash.containsKey(aRunDate)) {
+						if (!uniqueJobSetAgainstEachRun.containsKey(aRunDate)) {
 							LinkedHashSet<String> aSetOfjobStatusLines = new LinkedHashSet<String>();
-							temporaryTable4TestRunHash.put(aRunDate,
+							uniqueJobSetAgainstEachRun.put(aRunDate,
 									aSetOfjobStatusLines);
 						}
 
@@ -343,7 +375,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						while ((jobStatusLine = jobStatusBufferedReader
 								.readLine()) != null) {
 
-							LinkedHashSet<String> uniqueJobStatuses = temporaryTable4TestRunHash
+							LinkedHashSet<String> uniqueJobStatuses = uniqueJobSetAgainstEachRun
 									.get(aRunDate);
 							uniqueJobStatuses.add(jobStatusLine);
 
@@ -363,6 +395,16 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		System.out
 				.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		TestSession.logger.trace(table3TestRunHash);
+
+	}
+
+	@After
+	public void countTaskStatuses() {
+		realTable4TestRunHashForTaskStatus = new HashMap<String, TaskStatusCountStructure>();
+		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
+//			realTable4TestRunHashForTaskStatus.put(aRun,
+//					getTaskStatusCountsForRun(aRun));
+		}
 
 	}
 
@@ -401,11 +443,11 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				table3OutputGraphFileName);
 
 		// Table-4
-		realTable4TestRunHash = new HashMap<String, JobStatusCountStructure>();
-		for (String aRun : temporaryTable4TestRunHash.keySet()) {
-			realTable4TestRunHash.put(aRun, getJobStatusCountsForRun(aRun));
+		realTable4TestRunHashForJobStatus = new HashMap<String, JobStatusCountStructure>();
+		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
+			realTable4TestRunHashForJobStatus.put(aRun,
+					getJobStatusCountsForRun(aRun));
 		}
-		
 		generateTabe4Data(table4DataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateBarGraphForMonitoring,
 				table4GraphTitle, table4XAxisTitle, table4YAxisTitle,
@@ -420,7 +462,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		int killed = 0;
 		int unknown = 0;
 
-		LinkedHashSet<String> aSetOfjobStatusLines = temporaryTable4TestRunHash
+		LinkedHashSet<String> aSetOfjobStatusLines = uniqueJobSetAgainstEachRun
 				.get(aDate);
 		for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
 			String aStatusLineWithoutJobId = aStatusLineWithJobId.split(":")[1];
@@ -454,6 +496,40 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		JobStatusCountStructure jobStatusCounts = new JobStatusCountStructure(
 				succeeded, failed, killed, unknown);
 		return jobStatusCounts;
+	}
+
+	TaskStatusCountStructure getTaskStatusCountsForRun(String aDate) {
+		int succeeded = 0;
+		int failed = 0;
+		int killed = 0;
+		JobClient jobClient = null;
+		HashMap<String, JobStatus> allJobs = new HashMap<String, JobStatus>();
+		LinkedHashSet<String> aSetOfjobStatusLines = uniqueJobSetAgainstEachRun
+				.get(aDate);
+
+		try {
+			jobClient = new JobClient(TestSession.cluster.getConf());
+
+			for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
+				String aJobId = aStatusLineWithJobId.split(":")[0];
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
+			String aJobId = aStatusLineWithJobId.split(":")[0];
+			JobID aJobID = allJobs.get(aJobId).getJobID();
+
+//			TaskReport[] taskRep = jobClient.getReduceTaskReports(jobId);
+//			for (TaskReport aTaskReport:taskRep){
+//				aTaskReport.getTaskID().g
+//			}
+		}
+		TaskStatusCountStructure taskStatusCounts = new TaskStatusCountStructure(
+				succeeded, failed, killed);
+		return taskStatusCounts;
 	}
 
 	public void runPerlScriptToGenerateGraph(String script, String graphTitle,
@@ -531,8 +607,8 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		String[] jobStatuses = new String[] { SUCCEEDED, FAILED, KILLED,
 				UNKNOWN };
 		for (String ajobStatus : jobStatuses) {
-			for (String aRun : realTable4TestRunHash.keySet()) {
-				JobStatusCountStructure jobStatusStruct = realTable4TestRunHash
+			for (String aRun : realTable4TestRunHashForJobStatus.keySet()) {
+				JobStatusCountStructure jobStatusStruct = realTable4TestRunHashForJobStatus
 						.get(aRun);
 				printWriter.print(jobStatusStruct.get(ajobStatus) + " ");
 			}
