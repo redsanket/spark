@@ -50,9 +50,10 @@ public class TestDelegationTokens extends DfsBaseClass {
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] {
 		// Schemas
-		// { HadooptestConstants.Schema.WEBHDFS },
+		 { HadooptestConstants.Schema.WEBHDFS },
 		// { "" },
-		{ HadooptestConstants.Schema.HDFS }, });
+		{ HadooptestConstants.Schema.HDFS }, 
+		});
 	}
 
 	@Rule
@@ -115,7 +116,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 				fileStoringDelegationTokenReceivedViaKinit.getPath());
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() != 0);
 
 		// Now, use the token received via fetchdt, it should work
@@ -124,7 +125,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 				fileStoringDelagationTokenReceivedViaFetchdt.getPath());
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 
 		logger.info("Absolute file:"
@@ -160,7 +161,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() != 0);
 
 		// Now, use the token received via fetchdt, it should work
@@ -170,7 +171,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 
 		logger.info("Absolute file:"
@@ -240,12 +241,12 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		}
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", false, false, 0,
-				false, false, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 		/*
 		 * Fetch and store a delegation token locally.
 		 */
@@ -268,14 +269,14 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 
 		// Wait 2 mins, let the token expire
 		Thread.sleep(120000);
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() != 0);
 
 		for (String aComponentToUpdate : componentsToUpdate) {
@@ -286,10 +287,10 @@ public class TestDelegationTokens extends DfsBaseClass {
 		}
 
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", false, false, 0,
-				false, false, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 	}
 
@@ -319,7 +320,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() != 0);
 
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
@@ -330,12 +331,12 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		}
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", false, false, 0,
-				false, false, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 		testSpecificEnvVars = new HashMap<String, String>();
 		testSpecificEnvVars.put(HADOOP_TOKEN_FILE_LOCATION,
@@ -343,7 +344,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 
 	}
@@ -376,7 +377,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() != 0);
 
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
@@ -391,12 +392,12 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		}
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", false, false, 0,
-				false, false, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", false, false, 0,
-				false, false, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 		testSpecificEnvVars = new HashMap<String, String>();
 		testSpecificEnvVars.put(HADOOP_TOKEN_FILE_LOCATION,
@@ -404,7 +405,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 
 	}
@@ -429,7 +430,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 
 		
@@ -445,7 +446,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		genericCliResponseBO = dfsCliCommands.ls(testSpecificEnvVars,
 				HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-				"/", false);
+				"/", Recursive.NO);
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() != 0);
 
 	}
@@ -456,7 +457,7 @@ public class TestDelegationTokens extends DfsBaseClass {
 		GenericCliResponseBO genericCliResponse = null;
 		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				true, true, true, DELEGATION_TOKEN_TESTS_DIR_ON_DFS);
+				Recursive.YES, Force.YES, SkipTrash.YES, DELEGATION_TOKEN_TESTS_DIR_ON_DFS);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 	}

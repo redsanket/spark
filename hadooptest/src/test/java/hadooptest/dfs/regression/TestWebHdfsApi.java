@@ -2,8 +2,8 @@ package hadooptest.dfs.regression;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.monitoring.Monitorable;
+import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
 
 import java.io.File;
 import java.io.FileInputStream;
