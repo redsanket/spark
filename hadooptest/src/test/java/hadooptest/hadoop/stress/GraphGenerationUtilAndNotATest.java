@@ -513,7 +513,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 			for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
 				String aJobId = aStatusLineWithJobId.split(":")[0];
 				for (TaskReport aTaskReport:jobClient.getMapTaskReports(JobID.forName(aJobId))){
-					TestSession.logger.trace("Job:" + aJobId + " had a task " + aTaskReport.getTaskId() + " that had state " + aTaskReport.getCurrentStatus());
+					TestSession.logger.info("Job:" + aJobId + " had a task " + aTaskReport.getTaskId() + " that had state " + aTaskReport.getCurrentStatus());
 					
 				}
 			}
