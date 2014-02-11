@@ -142,7 +142,8 @@ public class TestFsckCli extends DfsBaseClass {
 							+ justTheFileName,
 					DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
 			if (doesFileExistResponseBO.process.exitValue() != 0) {
-				dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+				dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.NONE, aCluster,
 						DATA_DIR_IN_HDFS);
 				doChmodRecursively(DATA_DIR_IN_HDFS);
@@ -198,17 +199,20 @@ public class TestFsckCli extends DfsBaseClass {
 		// getVersions();
 		ensureDataPresenceinCluster();
 
-		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				FSCK_TESTS_DIR_ON_HDFS);
 		doChmodRecursively(FSCK_TESTS_DIR_ON_HDFS);
 
-		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				FSCK_BAD_DATA_TESTS_DIR_ON_HDFS);
 		doChmodRecursively(FSCK_BAD_DATA_TESTS_DIR_ON_HDFS);
 
-		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				THREE_GB_DIR_ON_HDFS);
 		doChmodRecursively(THREE_GB_DIR_ON_HDFS);
@@ -217,7 +221,8 @@ public class TestFsckCli extends DfsBaseClass {
 		Assert.assertEquals(true,
 				create3GbFile(createLocal3GbFileInThisJUnitTempFolder));
 
-		dfsCommonCli.copyFromLocal(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.copyFromLocal(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, this.localCluster,
 				createLocal3GbFileInThisJUnitTempFolder.getRoot() + "/"
 						+ THREE_GB_FILE_NAME, THREE_GB_DIR_ON_HDFS
@@ -235,7 +240,8 @@ public class TestFsckCli extends DfsBaseClass {
 			pathSoFar = pathSoFar + aDir + "/";
 			TestSession.logger.info("PathSoFar:" + pathSoFar);
 			if (!pathsChmodedSoFar.containsKey(pathsChmodedSoFar)) {
-				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.NONE, this.localCluster,
 						pathSoFar, "777");
 				pathsChmodedSoFar.put(pathSoFar, true);
@@ -249,18 +255,22 @@ public class TestFsckCli extends DfsBaseClass {
 	@After
 	public void afterEachTest() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
-		dfsCommonCli.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.NONE, this.localCluster, Recursive.YES, Force.YES,
-				SkipTrash.YES, FSCK_TESTS_DIR_ON_HDFS);
-		dfsCommonCli.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
-				HadooptestConstants.Schema.NONE, this.localCluster, Recursive.NO, Force.YES,
-				SkipTrash.YES, DATA_DIR_IN_HDFS + ONE_BYTE_FILE);
+		dfsCommonCli
+				.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+						HadooptestConstants.Schema.NONE, this.localCluster,
+						Recursive.YES, Force.YES, SkipTrash.YES,
+						FSCK_TESTS_DIR_ON_HDFS);
+		dfsCommonCli.rm(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.NONE, this.localCluster,
+				Recursive.NO, Force.YES, SkipTrash.YES, DATA_DIR_IN_HDFS
+						+ ONE_BYTE_FILE);
 
 		// The 3gb file on the local file system is automatically deleted
 		// after every test run, by JUnit
 	};
 
-//	 @Test
+	// @Test
 	// test_fsck_02
 	public void testFsckResultsLeveragingRandomWriterAndSortJobs()
 			throws Exception {
@@ -311,32 +321,31 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
-	 @Test
+	@Test
 	// test_fsck_additional_01
 	public void testFsckWithSafemodeOn() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		TestSession.logger
 				.info("________Beginning test testFsckWithSafemodeOn");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "enter", ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO,
+				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "enter", ClearQuota.NO,
+				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO,
+				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		Assert.assertNotNull(fsckResponse);
 		Assert.assertEquals(fsckResponse.fsckSummaryBO.status, "HEALTHY");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO,
+				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO,
+				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 	}
 
-	 @Test
+	@Test
 	// test_fsck_additional_02
 	public void testFsckWithBalancer() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -344,7 +353,7 @@ public class TestFsckCli extends DfsBaseClass {
 		TestSession.logger.info("________Beginning test testFsckWithBalancer");
 		genericCliResponseBO = dfsCommonCli.balancer(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, null, null);
-		Assert.assertTrue(genericCliResponseBO.process.exitValue() ==0);
+		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
@@ -407,7 +416,8 @@ public class TestFsckCli extends DfsBaseClass {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
 						+ " -name " + blockName;
 				String blockLocationReadOffOfDatanode = doJavaSSHClientExec(
-						aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+						"hdfsqa", aDatanode, command,
+						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 				if (!blockLocationReadOffOfDatanode.isEmpty()) {
 					actualBlockPoolLocationsBeforeCorrupting.put(aDatanode,
 							blockLocationReadOffOfDatanode);
@@ -438,7 +448,7 @@ public class TestFsckCli extends DfsBaseClass {
 				command = " echo \"xx\" > "
 						+ actualBlockPoolLocationsBeforeCorrupting
 								.get(corruptOnThisDatanodeIP);
-				doJavaSSHClientExec(corruptOnThisDatanodeIP, command,
+				doJavaSSHClientExec("hdfsqa", corruptOnThisDatanodeIP, command,
 						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 				Thread aThreadThatWillBounceDataNode = new Thread() {
 					@Override
@@ -500,7 +510,8 @@ public class TestFsckCli extends DfsBaseClass {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
 						+ " -name " + blockName;
 				String blockLocationReadOffOfDatanode = doJavaSSHClientExec(
-						aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+						"hdfsqa", aDatanode, command,
+						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 				if (!blockLocationReadOffOfDatanode.isEmpty()) {
 					TestSession.logger.info("Adding " + aDatanode
 							+ " Block Location:"
@@ -591,7 +602,8 @@ public class TestFsckCli extends DfsBaseClass {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
 						+ " -name " + blockName;
 				String blockLocationReadOffOfDatanode = doJavaSSHClientExec(
-						aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+						"hdfsqa", aDatanode, command,
+						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 
 				if (!blockLocationReadOffOfDatanode.isEmpty()) {
 					actualBlockPoolLocationsBeforeCorrupting.put(aDatanode,
@@ -600,7 +612,7 @@ public class TestFsckCli extends DfsBaseClass {
 							+ actualBlockPoolLocationsBeforeCorrupting
 									.get(aDatanode);
 					fileContentsBeforeCorrupting = doJavaSSHClientExec(
-							aDatanode, command,
+							"hdfsqa", aDatanode, command,
 							HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 
 				}
@@ -630,7 +642,7 @@ public class TestFsckCli extends DfsBaseClass {
 				command = "rm  "
 						+ actualBlockPoolLocationsBeforeCorrupting
 								.get(corruptOnThisDatanodeIP);
-				doJavaSSHClientExec(corruptOnThisDatanodeIP, command,
+				doJavaSSHClientExec("hdfsqa", corruptOnThisDatanodeIP, command,
 						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 				Thread aThreadThatWillBounceDataNode = new Thread() {
 					@Override
@@ -692,7 +704,8 @@ public class TestFsckCli extends DfsBaseClass {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
 						+ " -name " + blockName;
 				String blockLocationReadOffOfDatanode = doJavaSSHClientExec(
-						aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+						"hdfsqa", aDatanode, command,
+						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 				if (!blockLocationReadOffOfDatanode.isEmpty()) {
 					TestSession.logger.info("Adding " + aDatanode
 							+ " Block Location:"
@@ -710,8 +723,8 @@ public class TestFsckCli extends DfsBaseClass {
 				.keySet()) {
 			command = "cat  "
 					+ actualBlockPoolLocationsAfterCorrupting.get(aDatanode);
-			fileContentsAfterCorrupting = doJavaSSHClientExec(aDatanode,
-					command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+			fileContentsAfterCorrupting = doJavaSSHClientExec("hdfsqa",
+					aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 			Assert.assertTrue(fileContentsAfterCorrupting
 					.equals(fileContentsBeforeCorrupting));
 		}
@@ -776,7 +789,8 @@ public class TestFsckCli extends DfsBaseClass {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
 						+ " -name " + blockName;
 				String blockLocationReadOffOfDatanode = doJavaSSHClientExec(
-						aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+						"hdfsqa", aDatanode, command,
+						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 
 				if (!blockLocationReadOffOfDatanode.isEmpty()) {
 					actualBlockPoolLocationsBeforeCorrupting.put(aDatanode,
@@ -785,7 +799,7 @@ public class TestFsckCli extends DfsBaseClass {
 							+ actualBlockPoolLocationsBeforeCorrupting
 									.get(aDatanode);
 					fileContentsBeforeCorrupting = doJavaSSHClientExec(
-							aDatanode, command,
+							"hdfsqa", aDatanode, command,
 							HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 
 				}
@@ -816,7 +830,7 @@ public class TestFsckCli extends DfsBaseClass {
 						+ actualBlockPoolLocationsBeforeCorrupting
 								.get(corruptOnThisDatanodeIP) + "_"
 						+ blockNamesuffix;
-				doJavaSSHClientExec(corruptOnThisDatanodeIP, command,
+				doJavaSSHClientExec("hdfsqa", corruptOnThisDatanodeIP, command,
 						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 				Thread aThreadThatWillBounceDataNode = new Thread() {
 					@Override
@@ -878,7 +892,8 @@ public class TestFsckCli extends DfsBaseClass {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
 						+ " -name " + blockName;
 				String blockLocationReadOffOfDatanode = doJavaSSHClientExec(
-						aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+						"hdfsqa", aDatanode, command,
+						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 				if (!blockLocationReadOffOfDatanode.isEmpty()) {
 					TestSession.logger.info("Adding " + aDatanode
 							+ " Block Location:"
@@ -896,8 +911,8 @@ public class TestFsckCli extends DfsBaseClass {
 				.keySet()) {
 			command = "cat  "
 					+ actualBlockPoolLocationsAfterCorrupting.get(aDatanode);
-			fileContentsAfterCorrupting = doJavaSSHClientExec(aDatanode,
-					command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+			fileContentsAfterCorrupting = doJavaSSHClientExec("hdfsqa",
+					aDatanode, command, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 			Assert.assertTrue(fileContentsAfterCorrupting
 					.equals(fileContentsBeforeCorrupting));
 		}
@@ -919,97 +934,6 @@ public class TestFsckCli extends DfsBaseClass {
 				+ " got return code:" + returnCode
 				+ " gonna wait for 2 minutes before returning, from function");
 		Thread.sleep(120000);
-	}
-
-	public String doJavaSSHClientExec(String host, String command,
-			String identityFile) {
-		JSch jsch = new JSch();
-		String user = "hdfsqa";
-		TestSession.logger.info("SSH Client is about to run command:" + command
-				+ "on host:" + host);
-		Session session;
-		StringBuilder sb = new StringBuilder();
-		try {
-			session = jsch.getSession(user, host, 22);
-			jsch.addIdentity(identityFile);
-			UserInfo ui = new MyUserInfo();
-			session.setUserInfo(ui);
-			session.setConfig("StrictHostKeyChecking", "no");
-			session.connect();
-			Channel channel = session.openChannel("exec");
-			((ChannelExec) channel).setCommand(command);
-			channel.setInputStream(null);
-			((ChannelExec) channel).setErrStream(System.err);
-
-			InputStream in = channel.getInputStream();
-
-			channel.connect();
-
-			byte[] tmp = new byte[1024];
-			while (true) {
-				while (in.available() > 0) {
-					int i = in.read(tmp, 0, 1024);
-					if (i < 0)
-						break;
-					String outputFragment = new String(tmp, 0, i);
-					TestSession.logger.info(outputFragment);
-					sb.append(outputFragment);
-				}
-				if (channel.isClosed()) {
-					TestSession.logger.info("exit-status: "
-							+ channel.getExitStatus());
-					break;
-				}
-				try {
-					Thread.sleep(1000);
-				} catch (Exception ee) {
-				}
-			}
-			channel.disconnect();
-			session.disconnect();
-
-		} catch (JSchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return sb.toString();
-	}
-
-	public class MyUserInfo implements UserInfo {
-
-		public String getPassphrase() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public String getPassword() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public boolean promptPassphrase(String arg0) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public boolean promptPassword(String arg0) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public boolean promptYesNo(String arg0) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public void showMessage(String arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
 	}
 
 	String getHostNameFromIp(String ip) throws Exception {
@@ -1047,6 +971,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 		return hostName;
 	}
+
 	@After
 	public void logTaskResportSummary() {
 		// Override to hide the Test Session logs

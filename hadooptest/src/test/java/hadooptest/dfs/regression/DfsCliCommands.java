@@ -808,7 +808,7 @@ public class DfsCliCommands {
 			line = reader.readLine();
 			while (line != null) {
 				sb.append(line);
-				sb.append("/n");
+				sb.append("\n");
 				TestSession.logger.debug(line);
 				line = reader.readLine();
 			}

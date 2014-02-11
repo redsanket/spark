@@ -402,8 +402,8 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	public void countTaskStatuses() {
 		realTable4TestRunHashForTaskStatus = new HashMap<String, TaskStatusCountStructure>();
 		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
-//			realTable4TestRunHashForTaskStatus.put(aRun,
-//					getTaskStatusCountsForRun(aRun));
+			realTable4TestRunHashForTaskStatus.put(aRun,
+					getTaskStatusCountsForRun(aRun));
 		}
 
 	}
@@ -512,21 +512,16 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 			for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
 				String aJobId = aStatusLineWithJobId.split(":")[0];
+				for (TaskReport aTaskReport:jobClient.getMapTaskReports(JobID.forName(aJobId))){
+					TestSession.logger.trace("Job:" + aJobId + " had a task " + aTaskReport.getTaskId() + " that had state " + aTaskReport.getCurrentStatus());
+					
+				}
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
-			String aJobId = aStatusLineWithJobId.split(":")[0];
-			JobID aJobID = allJobs.get(aJobId).getJobID();
-
-//			TaskReport[] taskRep = jobClient.getReduceTaskReports(jobId);
-//			for (TaskReport aTaskReport:taskRep){
-//				aTaskReport.getTaskID().g
-//			}
-		}
 		TaskStatusCountStructure taskStatusCounts = new TaskStatusCountStructure(
 				succeeded, failed, killed);
 		return taskStatusCounts;

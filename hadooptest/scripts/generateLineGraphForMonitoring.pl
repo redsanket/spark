@@ -95,9 +95,9 @@ foreach my $line (@lines){
             print $1 ." ". $2 . "\n";
             print "===========================\n";
             print "Colors size: " . scalar(@$colors) . "\n";
-            $dateInSecs = convertDateIntoNumber($run);
-            print "Converted date in secs is:" . $dateInSecs ."\n";
-            my $mod = $dateInSecs % scalar(@$colors);
+            $hashNum = generateHashCode($run);
+            print "Converted date in secs is:" . $hashNum ."\n";
+            my $mod = $hashNum % scalar(@$colors);
             print "Adding color: " . @$colors[$mod];
             print "===========================\n";
             $runAndColor{$run}=@$colors[$mod];
@@ -113,6 +113,39 @@ foreach my $line (@lines){
 		$count = $count + 2;
 	}
 	
+}
+sub generateHashCode{
+    my $dateString = shift;
+    my %dateLookup=();
+    $dateLookup{"Jan"} = 1;
+    $dateLookup{"Feb"} = 2;
+    $dateLookup{"Mar"} = 3;
+    $dateLookup{"Apr"} = 4;
+    $dateLookup{"May"} = 5;
+    $dateLookup{"Jun"} = 6;
+    $dateLookup{"Jul"} = 7;
+    $dateLookup{"Aug"} = 8;
+    $dateLookup{"Sep"} = 9;
+    $dateLookup{"Oct"} = 10;
+    $dateLookup{"Nov"} = 11;
+    $dateLookup{"Dec"} = 12;
+    my @dateComponents = split(/_/, $dateString);
+    print "Sec = " . $dateComponents[5] . "\n";
+    print "Min = " . $dateComponents[4] . "\n";
+    print "Hour = " . $dateComponents[3] . "\n";
+    print "day = " . $dateComponents[1] . "\n";
+    print "Month = " . $dateComponents[0] . "\n";
+    print "Year = " . $dateComponents[2] . "\n";
+    my $hash = 1;
+    $hash = $hash * 17 + $dateComponents[0];
+    $hash = $hash * 17 + $dateComponents[1];
+    $hash = $hash * 17 + $dateComponents[2];
+    $hash = $hash * 17 + $dateComponents[3];
+    $hash = $hash * 17 + $dateComponents[4];
+    $hash = $hash * 17 + $dateComponents[5];
+    
+    return $hash;
+    
 }
 sub convertDateIntoNumber{
     my $dateString = shift;

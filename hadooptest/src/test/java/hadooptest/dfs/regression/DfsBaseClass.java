@@ -6,6 +6,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,6 +14,13 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.rules.TemporaryFolder;
+
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UserInfo;
 
 public class DfsBaseClass extends TestSession {
 	static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
@@ -225,5 +233,97 @@ public class DfsBaseClass extends TestSession {
 		}
 
 	}
+	
+	public String doJavaSSHClientExec(String user, String host, String command,
+			String identityFile) {
+		JSch jsch = new JSch();
+		TestSession.logger.info("SSH Client is about to run command:" + command
+				+ " on host:" + host);
+		Session session;
+		StringBuilder sb = new StringBuilder();
+		try {
+			session = jsch.getSession(user, host, 22);
+			jsch.addIdentity(identityFile);
+			UserInfo ui = new MyUserInfo();
+			session.setUserInfo(ui);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.connect();
+			Channel channel = session.openChannel("exec");
+			((ChannelExec) channel).setCommand(command);
+			channel.setInputStream(null);
+			((ChannelExec) channel).setErrStream(System.err);
+
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			byte[] tmp = new byte[1024];
+			while (true) {
+				while (in.available() > 0) {
+					int i = in.read(tmp, 0, 1024);
+					if (i < 0)
+						break;
+					String outputFragment = new String(tmp, 0, i);
+					TestSession.logger.info(outputFragment);
+					sb.append(outputFragment);
+				}
+				if (channel.isClosed()) {
+					TestSession.logger.info("exit-status: "
+							+ channel.getExitStatus());
+					break;
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (Exception ee) {
+				}
+			}
+			channel.disconnect();
+			session.disconnect();
+
+		} catch (JSchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return sb.toString();
+	}
+
+	
+	public class MyUserInfo implements UserInfo {
+
+		public String getPassphrase() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public String getPassword() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public boolean promptPassphrase(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean promptPassword(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean promptYesNo(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public void showMessage(String arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
 
 }
