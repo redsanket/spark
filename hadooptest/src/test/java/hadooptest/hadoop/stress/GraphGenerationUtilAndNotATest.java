@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.JobStatus;
+import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.mapred.TaskCompletionEvent;
 import org.apache.hadoop.mapred.TaskReport;
 import org.apache.hadoop.yarn.client.api.YarnClient;
@@ -38,7 +39,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	HashMap<String, ArrayList<HashMap<String, String>>> table3TestRunHash;
 	HashMap<String, LinkedHashSet<String>> uniqueJobSetAgainstEachRun;
 	HashMap<String, JobStatusCountStructure> realTable4TestRunHashForJobStatus;
-	HashMap<String, TaskStatusCountStructure> realTable4TestRunHashForTaskStatus;
+	HashMap<String, TaskStatusCountStructure> realTable5TestRunHashForTaskStatus;
 
 	LinkedHashSet<String> exceptionFootprint = new LinkedHashSet<String>();
 	LinkedHashSet<String> testFootprint = new LinkedHashSet<String>();
@@ -50,10 +51,13 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table2DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table2GraphData.txt";
 	private String table3DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table3GraphData.txt";
 	private String table4DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table4GraphData.txt";
+	private String table5DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table45raphData.txt";
 	private String table1GraphTitle = "Count_of_exceptions_per_Test_across_different_test_runs";
 	private String table2GraphTitle = "Total_count_of_exceptions_across_different_test_runs";
 	private String table3GraphTitle = "Test_Failures";
 	private String table4GraphTitle = "Job_Statuses";
+	private String table5GraphTitle = "Task_Statuses";
+	// Axes
 	private String table1XAxisTitle = "Test_Names";
 	private String table1YAxisTitle = "Count_of_Exceptions";
 	private String table2XAxisTitle = "Exceptions";
@@ -62,15 +66,19 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table3YAxisTitle = "Test_Runs_Where_It_Failed";
 	private String table4XAxisTitle = "Runs";
 	private String table4YAxisTitle = "Counts";
+	private String table5XAxisTitle = "Runs";
+	private String table5YAxisTitle = "Counts";
 
 	private String table1OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/table1.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/testsVrsCountOfExceptions.png";
 	private String table2OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/table2.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/countOfExceptions.png";
 	private String table3OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/table3.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/testSuccessesFailures.png";
 	private String table4OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/table4.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/jobStats.png";
+	private String table5OutputGraphFileName = TestSession.conf
+			.getProperty("WORKSPACE") + "/target/surefire-reports/taskStats.png";
 
 	private String generateLineGraphForMonitoring = TestSession.conf
 			.getProperty("WORKSPACE")
@@ -400,9 +408,9 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 	@After
 	public void countTaskStatuses() {
-		realTable4TestRunHashForTaskStatus = new HashMap<String, TaskStatusCountStructure>();
+		realTable5TestRunHashForTaskStatus = new HashMap<String, TaskStatusCountStructure>();
 		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
-			realTable4TestRunHashForTaskStatus.put(aRun,
+			realTable5TestRunHashForTaskStatus.put(aRun,
 					getTaskStatusCountsForRun(aRun));
 		}
 
@@ -424,19 +432,19 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		}
 
 		// Table-1
-		generateTabe1Data(table1DataConsumedByPerlForGraphGeneration);
+		generateTable1Data(table1DataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateLineGraphForMonitoring,
 				table1GraphTitle, table1XAxisTitle, table1YAxisTitle,
 				table1DataConsumedByPerlForGraphGeneration,
 				table1OutputGraphFileName);
 		// Table-2
-		generateTabe2Data(table2DataConsumedByPerlForGraphGeneration);
+		generateTable2Data(table2DataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateLineGraphForMonitoring,
 				table2GraphTitle, table2XAxisTitle, table2YAxisTitle,
 				table2DataConsumedByPerlForGraphGeneration,
 				table2OutputGraphFileName);
 		// Table-3
-		generateTabe3Data(table3DataConsumedByPerlForGraphGeneration);
+		generateTable3Data(table3DataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateScatterPlotForMonitoring,
 				table3GraphTitle, table3XAxisTitle, table3YAxisTitle,
 				table3DataConsumedByPerlForGraphGeneration,
@@ -448,11 +456,18 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 			realTable4TestRunHashForJobStatus.put(aRun,
 					getJobStatusCountsForRun(aRun));
 		}
-		generateTabe4Data(table4DataConsumedByPerlForGraphGeneration);
+		generateTable4Data(table4DataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateBarGraphForMonitoring,
 				table4GraphTitle, table4XAxisTitle, table4YAxisTitle,
 				table4DataConsumedByPerlForGraphGeneration,
 				table4OutputGraphFileName);
+		
+		// Table-5
+		generateTable5Data(table5DataConsumedByPerlForGraphGeneration);
+		runPerlScriptToGenerateGraph(generateBarGraphForMonitoring,
+				table5GraphTitle, table5XAxisTitle, table5YAxisTitle,
+				table5DataConsumedByPerlForGraphGeneration,
+				table5OutputGraphFileName);
 
 	}
 
@@ -499,11 +514,10 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	}
 
 	TaskStatusCountStructure getTaskStatusCountsForRun(String aDate) {
-		int succeeded = 0;
+		int complete = 0;
 		int failed = 0;
 		int killed = 0;
 		JobClient jobClient = null;
-		HashMap<String, JobStatus> allJobs = new HashMap<String, JobStatus>();
 		LinkedHashSet<String> aSetOfjobStatusLines = uniqueJobSetAgainstEachRun
 				.get(aDate);
 
@@ -514,6 +528,13 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				String aJobId = aStatusLineWithJobId.split(":")[0];
 				for (TaskReport aTaskReport:jobClient.getMapTaskReports(JobID.forName(aJobId))){
 					TestSession.logger.info("Job:" + aJobId + " had a task " + aTaskReport.getTaskId() + " that had state " + aTaskReport.getCurrentStatus());
+					if (aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE){
+						complete++;
+					}else if (aTaskReport.getCurrentStatus() == TIPStatus.FAILED){
+						failed++;
+					}else if(aTaskReport.getCurrentStatus() == TIPStatus.KILLED){
+						killed++;
+					}
 					
 				}
 			}
@@ -523,7 +544,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		}
 
 		TaskStatusCountStructure taskStatusCounts = new TaskStatusCountStructure(
-				succeeded, failed, killed);
+				complete, failed, killed);
 		return taskStatusCounts;
 	}
 
@@ -588,7 +609,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	/*
 	 * Bar-graph depicting, job status (success/failed/killed/unknown)
 	 */
-	public void generateTabe4Data(String dataOutputFile)
+	public void generateTable4Data(String dataOutputFile)
 			throws FileNotFoundException {
 		TestSession.logger.trace("Printing TABLE-4....");
 		printWriter = new PrintWriter(dataOutputFile);
@@ -614,10 +635,37 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	}
 
 	/*
+	 * Bar-graph depicting, task status (success/failed/killed)
+	 */
+	public void generateTable5Data(String dataOutputFile)
+			throws FileNotFoundException {
+		TestSession.logger.trace("Printing TABLE-5....");
+		printWriter = new PrintWriter(dataOutputFile);
+		Object[] runFootPrintArray = runFootprint.toArray();
+		Arrays.sort(runFootPrintArray);
+		for (Object aRunName : runFootPrintArray) {
+			printWriter.print(aRunName + " ");
+		}
+
+		printWriter.println();
+		String[] taskStatuses = new String[] { SUCCEEDED, FAILED, KILLED};
+		for (String aTaskStatus : taskStatuses) {
+			for (String aRun : realTable5TestRunHashForTaskStatus.keySet()) {
+				TaskStatusCountStructure taskStatusStruct = realTable5TestRunHashForTaskStatus
+						.get(aRun);
+				printWriter.print(taskStatusStruct.get(aTaskStatus) + " ");
+			}
+			printWriter.println();
+
+		}
+		printWriter.close();
+	}
+
+	/*
 	 * Line graph, with Test cases in the X-axis Count of exceptions per test,
 	 * on the Y-axis
 	 */
-	public void generateTabe1Data(String dataOutputFile)
+	public void generateTable1Data(String dataOutputFile)
 			throws FileNotFoundException {
 		boolean nodeFoundInRun = false;
 		TestSession.logger.trace("Printing TABLE-1....");
@@ -660,7 +708,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	 * Data for plotting Exceptions in the X-axis Count of those exceptions/per
 	 * run, in the Y-axis
 	 */
-	public void generateTabe2Data(String dataOutputFile)
+	public void generateTable2Data(String dataOutputFile)
 			throws FileNotFoundException {
 		boolean nodeFoundInRun = false;
 		TestSession.logger.trace("Printing TABLE-2....");
@@ -698,7 +746,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	 * Data for plotting test faiures X-Axis: test names Y-Axis: failures in a
 	 * run
 	 */
-	public void generateTabe3Data(String dataOutputFile)
+	public void generateTable3Data(String dataOutputFile)
 			throws FileNotFoundException {
 		boolean nodeFoundInRun = false;
 		TestSession.logger.trace("Printing TABLE-3....");
