@@ -609,8 +609,6 @@
 					<additionalClasspathElements>
 						<additionalClasspathElement>${basedir}</additionalClasspathElement>
 						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
-						<!--  TODO: why is this hardcoded here ??? -->
-						<additionalClasspathElement>/tmp/hadooptest-hadoopqa-betty/target/hadooptest-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
 						<additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
 					</additionalClasspathElements>
 					<trimStackTrace>false</trimStackTrace>
