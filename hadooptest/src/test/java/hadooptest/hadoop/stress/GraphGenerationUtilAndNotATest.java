@@ -406,7 +406,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 	}
 
-	@After
+	
 	public void countTaskStatuses() {
 		realTable5TestRunHashForTaskStatus = new HashMap<String, TaskStatusCountStructure>();
 		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
@@ -418,6 +418,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 	@After
 	public void generateGraphs() throws Exception {
+		countTaskStatuses();
 		String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE")
 				+ "/target/surefire-reports";
 		File outputDir = new File(outputBaseDirPath);
@@ -521,12 +522,24 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		LinkedHashSet<String> aSetOfjobStatusLines = uniqueJobSetAgainstEachRun
 				.get(aDate);
 
-		try {
-			jobClient = new JobClient(TestSession.cluster.getConf());
+
+			try {
+				jobClient = new JobClient(TestSession.cluster.getConf());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
 				String aJobId = aStatusLineWithJobId.split(":")[0];
-				for (TaskReport aTaskReport:jobClient.getMapTaskReports(JobID.forName(aJobId))){
+				TaskReport[] taskReports = null;
+				try {
+					taskReports = jobClient.getMapTaskReports(JobID.forName(aJobId));
+				} catch (IllegalArgumentException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				for (TaskReport aTaskReport:taskReports){
 					TestSession.logger.info("Job:" + aJobId + " had a task " + aTaskReport.getTaskId() + " that had state " + aTaskReport.getCurrentStatus());
 					if (aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE){
 						complete++;
@@ -538,10 +551,6 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 					
 				}
 			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
 		TaskStatusCountStructure taskStatusCounts = new TaskStatusCountStructure(
 				complete, failed, killed);
