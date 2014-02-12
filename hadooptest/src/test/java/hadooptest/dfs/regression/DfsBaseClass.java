@@ -27,6 +27,8 @@ public class DfsBaseClass extends TestSession {
 	private Set<String> setOfTestDataFilesInHdfs;
 	private Set<String> setOfTestDataFilesInLocalFs;
 
+	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+	
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
@@ -48,6 +50,7 @@ public class DfsBaseClass extends TestSession {
 	public enum SetQuota {YES, NO };
 	public enum ClearSpaceQuota {YES, NO };
 	public enum SetSpaceQuota {YES, NO };
+	public enum Report {YES, NO };
 	
 	@Before
 	public void ensureDataBeforeTestRun() {

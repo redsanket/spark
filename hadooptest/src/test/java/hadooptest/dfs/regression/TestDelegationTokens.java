@@ -241,11 +241,11 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		}
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 		/*
 		 * Fetch and store a delegation token locally.
@@ -287,9 +287,9 @@ public class TestDelegationTokens extends DfsBaseClass {
 		}
 
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 	}
@@ -331,11 +331,11 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		}
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 		testSpecificEnvVars = new HashMap<String, String>();
@@ -392,11 +392,11 @@ public class TestDelegationTokens extends DfsBaseClass {
 
 		}
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO, SetQuota.NO, 0,
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO, SetQuota.NO, 0,
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 		testSpecificEnvVars = new HashMap<String, String>();

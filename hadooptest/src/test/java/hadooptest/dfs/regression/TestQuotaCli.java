@@ -7,6 +7,7 @@ import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
 import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.Force;
 import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
 import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
@@ -166,19 +167,19 @@ public class TestQuotaCli extends DfsBaseClass {
 		GenericCliResponseBO genericCliResponseBO = null;
 		if (command.equals(SET_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
-					null, ClearQuota.NO, SetQuota.YES, quota,
+					Report.NO, null, ClearQuota.NO, SetQuota.YES, quota,
 					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, fsEntity);
 		} else if (command.equals(SET_SPACE_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
-					null, ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+					Report.NO, null, ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
 					SetSpaceQuota.YES, quota, fsEntity);
 		} else if (command.equals(CLEAR_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
-					null, ClearQuota.YES, SetQuota.NO, 0, ClearSpaceQuota.NO,
+					Report.NO, null, ClearQuota.YES, SetQuota.NO, 0, ClearSpaceQuota.NO,
 					SetSpaceQuota.NO, 0, fsEntity);
 		} else if (command.equals(CLEAR_SPACE_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
-					null, ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.YES,
+					Report.NO, null, ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.YES,
 					SetSpaceQuota.NO, 0, fsEntity);
 		}
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);

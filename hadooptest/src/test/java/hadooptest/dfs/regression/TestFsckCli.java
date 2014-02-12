@@ -9,6 +9,7 @@ import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
 import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.Force;
 import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
 import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
@@ -327,20 +328,20 @@ public class TestFsckCli extends DfsBaseClass {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		TestSession.logger
 				.info("________Beginning test testFsckWithSafemodeOn");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO,
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
 				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "enter", ClearQuota.NO,
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "enter", ClearQuota.NO,
 				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO,
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
 				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		Assert.assertNotNull(fsckResponse);
 		Assert.assertEquals(fsckResponse.fsckSummaryBO.status, "HEALTHY");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "leave", ClearQuota.NO,
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO,
 				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, "get", ClearQuota.NO,
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
 				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 
 	}

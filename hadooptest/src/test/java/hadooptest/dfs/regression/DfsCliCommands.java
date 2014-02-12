@@ -6,6 +6,7 @@ import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
 import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.Force;
 import hadooptest.dfs.regression.DfsBaseClass.Recursive;
+import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
 import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
@@ -395,7 +396,7 @@ public class DfsCliCommands {
 	 * protocol argument
 	 */
 	GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
-			String safemodeArg, ClearQuota clearQuota, SetQuota setQuota,
+			Report runReport, String safemodeArg, ClearQuota clearQuota, SetQuota setQuota,
 			long quota, ClearSpaceQuota clearSpaceQuota, SetSpaceQuota setSpaceQuota,
 			long spaceQuota, String fsEntity) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -407,6 +408,13 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("dfsadmin");
 		sb.append(" ");
+		
+		// Report
+		if (runReport == Report.YES) {
+			sb.append("-report");
+			sb.append(" ");
+		}
+		
 		// Safemode
 		if ((safemodeArg != null)) {
 			sb.append("-safemode");
