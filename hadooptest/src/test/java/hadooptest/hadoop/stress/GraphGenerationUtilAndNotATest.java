@@ -535,8 +535,10 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				TaskReport[] taskReports = null;
 				try {
 					taskReports = jobClient.getMapTaskReports(JobID.forName(aJobId));
-				} catch (IllegalArgumentException | IOException e) {
+				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}catch ( IOException e){
 					e.printStackTrace();
 				}
 				for (TaskReport aTaskReport:taskReports){
