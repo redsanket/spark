@@ -538,8 +538,10 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					continue;
 				}catch ( IOException e){
 					e.printStackTrace();
+					continue;
 				}
 				for (TaskReport aTaskReport:taskReports){
 					TestSession.logger.info("Job:" + aJobId + " had a task " + aTaskReport.getTaskId() + " that had state " + aTaskReport.getCurrentStatus());
