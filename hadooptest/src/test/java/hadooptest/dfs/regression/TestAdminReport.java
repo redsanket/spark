@@ -42,17 +42,24 @@ public class TestAdminReport extends DfsBaseClass {
 	private static String TEMPORARY_DFS_EXCLUDE_PATH = "/tmp/adminReport_conf/";
 	private static String TEMPORARY_DFS_EXCLUDE_FILE = "dfs.exclude";
 
+	ArrayList<String> killedOrExcludedNodes;
+
 	static Logger logger = Logger.getLogger(TestAdminReport.class);
+
+	@Before
+	public void beforeTest() {
+		killedOrExcludedNodes = new ArrayList<String>();
+	}
 
 	/**
 	 * While porting, I've combined these 3 tests into a single test case.
-	 * checkDeadNodesReported checkLiveNodesReported checkRestart
+	 * checkDeadNodesReported, checkLiveNodesReported, checkRestart
 	 * 
 	 * @throws Exception
 	 */
-	@Test
+	 @Test
 	public void testCheckDeadNodesReported() throws Exception {
-		ArrayList<String> killedNodes = new ArrayList<String>();
+
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
@@ -60,6 +67,7 @@ public class TestAdminReport extends DfsBaseClass {
 				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
 		DfsadminReportBO dfsadminReportBO = new DfsadminReportBO(
 				genericCliResponse.response);
+		
 		if (dfsadminReportBO.liveDatanodes.size() < NUM_NODES_TO_KILL) {
 			fail("Just " + dfsadminReportBO.liveDatanodes.size()
 					+ " datanodes are alive. Need greater than "
@@ -78,7 +86,7 @@ public class TestAdminReport extends DfsBaseClass {
 			cluster.hadoopDaemon(Action.STOP,
 					HadooptestConstants.NodeTypes.DATANODE,
 					new String[] { aDatanodeBO.hostname });
-			killedNodes.add(aDatanodeBO.hostname);
+			killedOrExcludedNodes.add(aDatanodeBO.hostname);
 			TestSession.logger.info("Killed datanode:" + aDatanodeBO.hostname);
 
 		}
@@ -121,7 +129,7 @@ public class TestAdminReport extends DfsBaseClass {
 				numberOfDeadDatanodesAfterBouncingNamenode == numberOfDeadDatanodesBeforeBouncingNamenode);
 
 		// Revive nodes (checkLiveNodesReported)
-		for (String aNodeToRevive : killedNodes) {
+		for (String aNodeToRevive : killedOrExcludedNodes) {
 			cluster.hadoopDaemon(Action.START,
 					HadooptestConstants.NodeTypes.DATANODE,
 					new String[] { aNodeToRevive });
@@ -144,7 +152,7 @@ public class TestAdminReport extends DfsBaseClass {
 
 	@Test
 	public void testCheckRevivalOfExcludedNodes() throws Exception {
-		ArrayList<String> excludedNodes = new ArrayList<String>();
+
 		int NUM_NODES_TO_EXCLUDE = NUM_NODES_TO_KILL;
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -160,7 +168,8 @@ public class TestAdminReport extends DfsBaseClass {
 					+ " datanodes are alive. Need greater than "
 					+ NUM_NODES_TO_EXCLUDE);
 		}
-		
+		int countOfLiveNodesBeforeExcludingDataNodes = dfsadminReportBO.liveDatanodes
+				.size();
 		TestSession.logger.info("Number of livenodes, before excluding:"
 				+ dfsadminReportBO.liveDatanodes.size());
 
@@ -172,7 +181,7 @@ public class TestAdminReport extends DfsBaseClass {
 			cluster.hadoopDaemon(Action.STOP,
 					HadooptestConstants.NodeTypes.DATANODE,
 					new String[] { aDatanodeBO.hostname });
-			excludedNodes.add(aDatanodeBO.hostname);
+			killedOrExcludedNodes.add(aDatanodeBO.hostname);
 			TestSession.logger.info("stopped datanode, for exclusion:"
 					+ aDatanodeBO.hostname);
 
@@ -199,7 +208,8 @@ public class TestAdminReport extends DfsBaseClass {
 					HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 
 			// Chmod 755 on the temp folder
-			sb.append("chmod 755");
+			sb = new StringBuilder();
+			sb.append("chmod 755 ");
 			sb.append(TEMPORARY_DFS_EXCLUDE_PATH);
 
 			sshClientResponse = doJavaSSHClientExec("hdfsqa",
@@ -207,28 +217,95 @@ public class TestAdminReport extends DfsBaseClass {
 					HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 
 			// Write the excluded data nodes in the temp file
-			for (String aDatanode : excludedNodes) {
+			for (String aDatanode : killedOrExcludedNodes) {
 				sb = new StringBuilder();
-				sb.append("echo " + "\"" + aDatanode + "\"" + " >>");
+				sb.append("echo " + aDatanode + " >>");
 				sb.append(TEMPORARY_DFS_EXCLUDE_PATH
 						+ TEMPORARY_DFS_EXCLUDE_FILE);
 				sshClientResponse = doJavaSSHClientExec("hdfsqa",
 						namenode.getHostname(), sb.toString(),
 						HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 			}
-			
+			// Read back the contents of the exclude file
+			sb = new StringBuilder();
+			sb.append("cat ");
+			sb.append(TEMPORARY_DFS_EXCLUDE_PATH + TEMPORARY_DFS_EXCLUDE_FILE);
+			sshClientResponse = doJavaSSHClientExec("hdfsqa",
+					namenode.getHostname(), sb.toString(),
+					HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+
+			TestSession.logger.info("Read back file contents as ["
+					+ sshClientResponse + "]");
+
 			// Point the namenode conf to read that temp file
 			String hdfsSiteXml = HadooptestConstants.ConfFileNames.HDFS_SITE_XML;
+
 			cluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
 					.setHadoopConfFileProp(
 							"dfs.hosts.exclude",
 							TEMPORARY_DFS_EXCLUDE_PATH
 									+ TEMPORARY_DFS_EXCLUDE_FILE, hdfsSiteXml);
-			
-			//Bounce the namenode
-			cluster.hadoopDaemon(Action.STOP, HadooptestConstants.NodeTypes.NAMENODE);
-			cluster.hadoopDaemon(Action.START, HadooptestConstants.NodeTypes.NAMENODE);
 
+			// Bounce the namenode
+			cluster.hadoopDaemon(Action.STOP,
+					HadooptestConstants.NodeTypes.NAMENODE);
+			cluster.hadoopDaemon(Action.START,
+					HadooptestConstants.NodeTypes.NAMENODE);
+
+			// Run the adminreport again
+			genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
+					Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
+					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+			dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
+			int countOfLiveNodesAfterExcludingDataNodes = dfsadminReportBO.liveDatanodes
+					.size();
+
+			Assert.assertTrue(
+					"Expected count of downed data nodes:"
+							+ killedOrExcludedNodes.size()
+							+ " did not match actual count of downed nodes:"
+							+ (countOfLiveNodesBeforeExcludingDataNodes - countOfLiveNodesAfterExcludingDataNodes),
+					(countOfLiveNodesBeforeExcludingDataNodes - countOfLiveNodesAfterExcludingDataNodes) == 2);
+
+			sb = new StringBuilder();
+			sb.append("rm " + TEMPORARY_DFS_EXCLUDE_PATH
+					+ TEMPORARY_DFS_EXCLUDE_FILE);
+			sshClientResponse = doJavaSSHClientExec("hdfsqa",
+					namenode.getHostname(), sb.toString(),
+					HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+
+			// Start the datanodes
+			for (String aNodeToRevive : killedOrExcludedNodes) {
+				cluster.hadoopDaemon(Action.START,
+						HadooptestConstants.NodeTypes.DATANODE,
+						new String[] { aNodeToRevive });
+			}
+
+			// Reset the configurations, to the default
+			namenode.getConf().resetHadoopConfDir();
+
+			// Bounce the namenode
+			cluster.hadoopDaemon(Action.STOP,
+					HadooptestConstants.NodeTypes.NAMENODE);
+			cluster.hadoopDaemon(Action.START,
+					HadooptestConstants.NodeTypes.NAMENODE);
+
+		}
+
+		// Every thing should be back to normal from this point onwards
+		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
+				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
+
+	}
+
+	@After
+	public void afterTest() throws Exception {
+		for (String aNodeToRevive : killedOrExcludedNodes) {
+			cluster.hadoopDaemon(Action.START,
+					HadooptestConstants.NodeTypes.DATANODE,
+					new String[] { aNodeToRevive });
 		}
 
 	}
