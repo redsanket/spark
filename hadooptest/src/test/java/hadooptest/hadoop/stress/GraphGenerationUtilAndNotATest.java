@@ -410,6 +410,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	public void countTaskStatuses() {
 		realTable5TestRunHashForTaskStatus = new HashMap<String, TaskStatusCountStructure>();
 		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
+			TestSession.logger.info("Generating task reports for run:" + aRun);
 			realTable5TestRunHashForTaskStatus.put(aRun,
 					getTaskStatusCountsForRun(aRun));
 		}
