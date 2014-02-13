@@ -28,30 +28,54 @@ public class DfsBaseClass extends TestSession {
 	private Set<String> setOfTestDataFilesInLocalFs;
 
 	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
-	
+	public static final String HADOOPQA_BLUE_DSA = "/homes/hadoopqa/.ssh/blue_dsa";
+
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
 			+ "HTF/testdata/dfs/";
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
-	
-	public final HashMap<String,String> EMPTY_ENV_HASH_MAP = new HashMap<String,String>();
+
+	public final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
 	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
 	HashMap<String, Boolean> pathsChmodedSoFar;
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
-	public enum Recursive {YES, NO };
-	public enum Force {YES, NO };
-	public enum SkipTrash {YES, NO };
-	public enum ClearQuota {YES, NO };
-	public enum SetQuota {YES, NO };
-	public enum ClearSpaceQuota {YES, NO };
-	public enum SetSpaceQuota {YES, NO };
-	public enum Report {YES, NO };
-	
+	public enum Recursive {
+		YES, NO
+	};
+
+	public enum Force {
+		YES, NO
+	};
+
+	public enum SkipTrash {
+		YES, NO
+	};
+
+	public enum ClearQuota {
+		YES, NO
+	};
+
+	public enum SetQuota {
+		YES, NO
+	};
+
+	public enum ClearSpaceQuota {
+		YES, NO
+	};
+
+	public enum SetSpaceQuota {
+		YES, NO
+	};
+
+	public enum Report {
+		YES, NO
+	};
+
 	@Before
 	public void ensureDataBeforeTestRun() {
 
@@ -112,7 +136,8 @@ public class DfsBaseClass extends TestSession {
 			pathSoFar = pathSoFar + aDir + "/";
 			TestSession.logger.info("PathSoFar:" + pathSoFar);
 			if (!pathsChmodedSoFar.containsKey(pathSoFar)) {
-				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
 						"777");
 				pathsChmodedSoFar.put(pathSoFar, true);
@@ -236,12 +261,36 @@ public class DfsBaseClass extends TestSession {
 		}
 
 	}
-	
+
+	public static class MyLogger implements com.jcraft.jsch.Logger {
+		static java.util.Hashtable name = new java.util.Hashtable();
+		static {
+			name.put(new Integer(DEBUG), "DEBUG: ");
+			name.put(new Integer(INFO), "INFO: ");
+			name.put(new Integer(WARN), "WARN: ");
+			name.put(new Integer(ERROR), "ERROR: ");
+			name.put(new Integer(FATAL), "FATAL: ");
+		}
+
+		public boolean isEnabled(int level) {
+			return true;
+		}
+
+		public void log(int level, String message) {
+			System.err.print(name.get(new Integer(level)));
+			System.err.println(message);
+		}
+	}
+
 	public String doJavaSSHClientExec(String user, String host, String command,
 			String identityFile) {
 		JSch jsch = new JSch();
+		
+//		JSch.setLogger(new MyLogger());
+		
 		TestSession.logger.info("SSH Client is about to run command:" + command
-				+ " on host:" + host);
+				+ " on host:" + host + "as user:" + user
+				+ " using identity file:" + identityFile);
 		Session session;
 		StringBuilder sb = new StringBuilder();
 		try {
@@ -293,7 +342,6 @@ public class DfsBaseClass extends TestSession {
 		return sb.toString();
 	}
 
-	
 	public class MyUserInfo implements UserInfo {
 
 		public String getPassphrase() {
@@ -327,6 +375,5 @@ public class DfsBaseClass extends TestSession {
 		}
 
 	}
-
 
 }
