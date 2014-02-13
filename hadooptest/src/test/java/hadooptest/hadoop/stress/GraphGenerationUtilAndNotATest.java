@@ -70,15 +70,15 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table5YAxisTitle = "Counts";
 
 	private String table1OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/testsVrsCountOfExceptions.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphTestsVrsCountOfExceptions.png";
 	private String table2OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/countOfExceptions.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphCountOfExceptions.png";
 	private String table3OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/testSuccessesFailures.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphTestSuccessesFailures.png";
 	private String table4OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/jobStats.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphJobStats.png";
 	private String table5OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/taskStats.png";
+			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphTaskStats.png";
 
 	private String generateLineGraphForMonitoring = TestSession.conf
 			.getProperty("WORKSPACE")
@@ -527,21 +527,26 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 			try {
 				jobClient = new JobClient(TestSession.cluster.getConf());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
 				String aJobId = aStatusLineWithJobId.split(":")[0];
 				TaskReport[] taskReports = null;
+				
 				try {
+					/**
+					 * Since this class may be invoked, in some cases days after
+					 * the original test may have run, it is likely when it queries
+					 * for Jobs/Task, it would not be able to look them up.
+					 */
+
 					taskReports = jobClient.getMapTaskReports(JobID.forName(aJobId));
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					TestSession.logger.error("Check why you received this exception, when looking up jobId: " + aJobId);
 					continue;
-				}catch ( IOException e){
-					e.printStackTrace();
+				}catch ( IOException e){				
+					TestSession.logger.info("Not able to lookup " + aJobId);
 					continue;
 				}
 				for (TaskReport aTaskReport:taskReports){
