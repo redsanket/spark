@@ -186,7 +186,7 @@ public class TestAppend {
 				/*
 				 * test101_CreateFC_RWThread
 				 */
-				{ "101", "-qt -f " + APPEND_OUTDIR + "/Z100" },
+//				{ "101", "-qt -f " + APPEND_OUTDIR + "/Z100" },
 				{
 						"102",
 						"-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR
@@ -210,7 +210,7 @@ public class TestAppend {
 				{
 						"401",
 						"-useFC -rw -n 9         -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z401}" },
+								+ APPEND_OUTDIR + "/Z401" },
 				{
 						"402",
 						"-useFC -rw -n 100       -s 100  -p 100  -f "

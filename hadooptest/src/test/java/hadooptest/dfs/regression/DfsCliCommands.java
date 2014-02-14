@@ -5,6 +5,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
 import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
 import hadooptest.dfs.regression.DfsBaseClass.Recursive;
 import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
@@ -68,7 +69,7 @@ public class DfsCliCommands {
 		GenericCliResponseBO quickCheck = test(tempEnv,
 				HadooptestConstants.UserNames.HDFSQA, protocol, cluster,
 				directoryHierarchy, FILE_SYSTEM_ENTITY_DIRECTORY);
-		
+
 		if (quickCheck.process.exitValue() == 0) {
 			// Do not need to re-create the directories
 			return null;
@@ -299,11 +300,11 @@ public class DfsCliCommands {
 			sb.append("-r");
 			sb.append(" ");
 		}
-		if (force==Force.YES) {
+		if (force == Force.YES) {
 			sb.append("-f");
 			sb.append(" ");
 		}
-		if (skipTrash==SkipTrash.YES) {
+		if (skipTrash == SkipTrash.YES) {
 			sb.append("-skipTrash");
 			sb.append(" ");
 		}
@@ -396,9 +397,10 @@ public class DfsCliCommands {
 	 * protocol argument
 	 */
 	GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
-			Report runReport, String safemodeArg, ClearQuota clearQuota, SetQuota setQuota,
-			long quota, ClearSpaceQuota clearSpaceQuota, SetSpaceQuota setSpaceQuota,
-			long spaceQuota, String fsEntity) throws Exception {
+			Report runReport, String safemodeArg, ClearQuota clearQuota,
+			SetQuota setQuota, long quota, ClearSpaceQuota clearSpaceQuota,
+			SetSpaceQuota setSpaceQuota, long spaceQuota,
+			PrintTopology printTopology, String fsEntity) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -408,13 +410,20 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("dfsadmin");
 		sb.append(" ");
-		
+
 		// Report
 		if (runReport == Report.YES) {
 			sb.append("-report");
 			sb.append(" ");
 		}
 		
+		// Print Topology
+		if (printTopology == PrintTopology.YES) {
+			sb.append(" ");
+			sb.append("-printTopology");
+			sb.append(" ");
+		}
+
 		// Safemode
 		if ((safemodeArg != null)) {
 			sb.append("-safemode");
@@ -438,7 +447,7 @@ public class DfsCliCommands {
 			}
 		}
 		// Space Quota
-		if (clearSpaceQuota==ClearSpaceQuota.YES) {
+		if (clearSpaceQuota == ClearSpaceQuota.YES) {
 			sb.append("-clrSpaceQuota");
 			sb.append(" ");
 			sb.append(fsEntity);
@@ -451,6 +460,7 @@ public class DfsCliCommands {
 				sb.append(fsEntity);
 			}
 		}
+		
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
@@ -529,7 +539,7 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-ls");
 		sb.append(" ");
-		if (recursive== Recursive.YES) {
+		if (recursive == Recursive.YES) {
 			sb.append("-R");
 			sb.append(" ");
 
@@ -1042,7 +1052,6 @@ public class DfsCliCommands {
 
 	}
 
-	
 	public void createCustomizedKerberosTicket(String user, String destination,
 			String lifetime) throws Exception {
 		String keytabFileSuffix = user + ".dev.headless.keytab";

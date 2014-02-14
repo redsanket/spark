@@ -412,6 +412,12 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 			realTable5TestRunHashForTaskStatus.put(aRun,
 					getTaskStatusCountsForRun(aRun));
 		}
+		/**
+		 * Since the task stats are collected after the current test has run, and
+		 * since one cannot retrieve for very old tasks, in order to cut down on
+		 * the time whatever data has been collected go and write it to the respective
+		 * run folders, so save time later.
+		 */
 
 	}
 

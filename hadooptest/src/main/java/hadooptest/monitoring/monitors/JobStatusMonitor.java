@@ -69,11 +69,6 @@ public class JobStatusMonitor extends AbstractMonitor {
 			for (String aJobThatRanDuringTest : jobSetOfInterest) {
 				TestSession.logger.info("aJobThatRanDuringTest:"
 						+ aJobThatRanDuringTest);
-				try {
-					Thread.sleep(0);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				
 				for (JobStatus aJobStatus : jobClient.getAllJobs()) {
 					if (aJobStatus.getJobID().toString().trim()

@@ -6,6 +6,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.dfs.regression.DfsadminReportBO.DatanodeBO;
 import hadooptest.node.hadoop.HadoopNode;
@@ -42,13 +43,14 @@ public class TestAdminReport extends DfsBaseClass {
 	/**
 	 * Port of: checkDeadNodesReported, checkLiveNodesReported, checkRestart.
 	 * 
-	 * Essentially here is what this test does
-	 * 1. Check live/dead datanodes before/after stopping datanodes
-	 * 2. Bounce the namenode, to ensure that the counts remain consistent
-	 * Revide the deadnodes, and check that they re-appear
+	 * Essentially here is what this test does 1. Check live/dead datanodes
+	 * before/after stopping datanodes 2. Bounce the namenode, to ensure that
+	 * the counts remain consistent Revide the deadnodes, and check that they
+	 * re-appear
+	 * 
 	 * @throws Exception
 	 */
-	 @Test
+	@Test
 	public void testCheckDeadNodesReported() throws Exception {
 
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
@@ -56,7 +58,8 @@ public class TestAdminReport extends DfsBaseClass {
 		// Dfsadmin
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+				EMPTY_FS_ENTITY);
 		DfsadminReportBO dfsadminReportBO = new DfsadminReportBO(
 				genericCliResponse.response);
 
@@ -65,8 +68,9 @@ public class TestAdminReport extends DfsBaseClass {
 					+ " datanodes are alive. Need greater than "
 					+ NUM_NODES_TO_KILL);
 		}
-		TestSession.logger.info("Number of livenodes, before stopping datanodes:"
-				+ dfsadminReportBO.liveDatanodes.size());
+		TestSession.logger
+				.info("Number of livenodes, before stopping datanodes:"
+						+ dfsadminReportBO.liveDatanodes.size());
 
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
 
@@ -84,12 +88,13 @@ public class TestAdminReport extends DfsBaseClass {
 		// Dfsadmin again
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+				EMPTY_FS_ENTITY);
 		dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
 
 		TestSession.logger.info("Number of livenodes, after stopping:"
 				+ dfsadminReportBO.liveDatanodes.size());
-		
+
 		int numberOfDeadDatanodesBeforeBouncingNamenode = dfsadminReportBO.deadDatanodes
 				.size();
 
@@ -101,7 +106,7 @@ public class TestAdminReport extends DfsBaseClass {
 				.info("Bouncing namenode....to check that dead host counts are "
 						+ "consistent across namenode restarts. "
 						+ "Test case-3 (check restart)");
-		
+
 		cluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.NAMENODE);
 		cluster.hadoopDaemon(Action.START,
@@ -110,7 +115,8 @@ public class TestAdminReport extends DfsBaseClass {
 		// Run the dfsadmin command again, to read in the dead nodes
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+				EMPTY_FS_ENTITY);
 		dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
 		int numberOfDeadDatanodesAfterBouncingNamenode = dfsadminReportBO.deadDatanodes
 				.size();
@@ -132,12 +138,13 @@ public class TestAdminReport extends DfsBaseClass {
 		for (int revivalLoop = 0; revivalLoop < (MAX_WAIT / POLL_INTERVAL); revivalLoop++) {
 			genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 					Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+					EMPTY_FS_ENTITY);
 			dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
 			if (dfsadminReportBO.deadDatanodes.size() == 0)
 				break;
 		}
-		
+
 		Assert.assertTrue(dfsadminReportBO.deadDatanodes.size()
 				+ " datanodes could not be revived, even after waiting for "
 				+ MAX_WAIT + " seconds!",
@@ -145,16 +152,15 @@ public class TestAdminReport extends DfsBaseClass {
 
 	}
 
-	 /**
-	  * Port of: checkRevivalOfExcludedNodes
-	  * Essentially the test checks these:
-	  * 1. Move the config dir to a new one
-	  * 2. Edit the hdfs-site.xml to point to an empty dfs.exclude
-	  * 3. Bounce the namenodes, to read in the new config
-	  * 4. Assert that the excluded nodes are left out. 
-	  * @throws Exception
-	  */
-	 @Test
+	/**
+	 * Port of: checkRevivalOfExcludedNodes Essentially the test checks these:
+	 * 1. Move the config dir to a new one 2. Edit the hdfs-site.xml to point to
+	 * an empty dfs.exclude 3. Bounce the namenodes, to read in the new config
+	 * 4. Assert that the excluded nodes are left out.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
 	public void testCheckRevivalOfExcludedNodes() throws Exception {
 
 		int NUM_NODES_TO_EXCLUDE = NUM_NODES_TO_KILL;
@@ -163,7 +169,8 @@ public class TestAdminReport extends DfsBaseClass {
 
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+				EMPTY_FS_ENTITY);
 		DfsadminReportBO dfsadminReportBO = new DfsadminReportBO(
 				genericCliResponse.response);
 
@@ -259,7 +266,8 @@ public class TestAdminReport extends DfsBaseClass {
 			// Run the adminreport again
 			genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 					Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+					EMPTY_FS_ENTITY);
 			dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
 			int countOfLiveNodesAfterExcludingDataNodes = dfsadminReportBO.liveDatanodes
 					.size();
@@ -299,20 +307,20 @@ public class TestAdminReport extends DfsBaseClass {
 		// Every thing should be back to normal from this point onwards
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+				EMPTY_FS_ENTITY);
 		dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
 
 	}
 
-	 /**
-	  * Port of: checkZeroDataNodes
-	  * Essentially this test checks:
-	  * 1. Backup the config directory
-	  * 2. Delete the 'slaves' file from the config directory
-	  * 3. Bounce the cluster
-	  * 4. None of the datanodes should show up in the admin report.
-	  * @throws Exception
-	  */
+	/**
+	 * Port of: checkZeroDataNodes Essentially this test checks: 1. Backup the
+	 * config directory 2. Delete the 'slaves' file from the config directory 3.
+	 * Bounce the cluster 4. None of the datanodes should show up in the admin
+	 * report.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testCheckZeroDataNodes() throws Exception {
 
@@ -322,7 +330,8 @@ public class TestAdminReport extends DfsBaseClass {
 
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+				EMPTY_FS_ENTITY);
 		DfsadminReportBO dfsadminReportBO = new DfsadminReportBO(
 				genericCliResponse.response);
 
@@ -355,20 +364,19 @@ public class TestAdminReport extends DfsBaseClass {
 			sb.append(newConfDirLocation + "/slaves");
 
 			String sshClientResponse = doJavaSSHClientExec("hadoopqa",
-					namenode.getHostname(), sb.toString(),
-					HADOOPQA_BLUE_DSA);
+					namenode.getHostname(), sb.toString(), HADOOPQA_BLUE_DSA);
 
 			// Bounce the cluster
 			cluster.stop();
-//			cluster.start();
+			// cluster.start();
 			cluster.hadoopDaemon(Action.START,
 					HadooptestConstants.NodeTypes.NAMENODE);
-
 
 			// Run the adminreport again
 			genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 					Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+					EMPTY_FS_ENTITY);
 			dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
 
 			Assert.assertTrue(
@@ -388,7 +396,8 @@ public class TestAdminReport extends DfsBaseClass {
 		// Every thing should be back to normal from this point onwards
 		genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 				Report.YES, null, ClearQuota.NO, SetQuota.NO, 0,
-				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+				ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+				EMPTY_FS_ENTITY);
 		dfsadminReportBO = new DfsadminReportBO(genericCliResponse.response);
 
 		int countOfLiveNodesAfterTestFinished = dfsadminReportBO.liveDatanodes

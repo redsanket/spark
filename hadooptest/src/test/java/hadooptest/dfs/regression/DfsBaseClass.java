@@ -3,10 +3,13 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,6 +41,8 @@ public class DfsBaseClass extends TestSession {
 	public static final String ONE_BYTE_FILE = "file_1B";
 
 	public final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
+	public static final String EMPTY_FS_ENTITY = "";
+	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
 	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
@@ -75,6 +80,13 @@ public class DfsBaseClass extends TestSession {
 	public enum Report {
 		YES, NO
 	};
+	
+	public enum PrintTopology {
+		YES, NO
+	};
+	
+	
+
 
 	@Before
 	public void ensureDataBeforeTestRun() {
@@ -375,5 +387,42 @@ public class DfsBaseClass extends TestSession {
 		}
 
 	}
+	
+	String getHostNameFromIp(String ip) throws Exception {
+		String hostName = null;
+		StringBuilder sb = new StringBuilder();
+		sb.append("/usr/bin/nslookup");
+		sb.append(" ");
+		sb.append(ip);
+
+		String commandString = sb.toString();
+		logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
+		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, HadooptestConstants.UserNames.DFSLOAD,
+				envToUnsetHadoopPrefix);
+
+		final String nslookupPattern = "([\\w\\.-]+)\\s+name\\s+=\\s+([\\w\\.]+)\\.";
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				process.getInputStream()));
+		String aLineFromNslookupResponse = reader.readLine();
+		while (aLineFromNslookupResponse != null) {
+			if (aLineFromNslookupResponse.matches(nslookupPattern)) {
+				hostName = aLineFromNslookupResponse.replaceAll(
+						nslookupPattern, "$2");
+				break;
+			}
+			TestSession.logger.info(aLineFromNslookupResponse
+					+ " is not what I am looking for");
+			aLineFromNslookupResponse = reader.readLine();
+		}
+
+		return hostName;
+	}
+
 
 }

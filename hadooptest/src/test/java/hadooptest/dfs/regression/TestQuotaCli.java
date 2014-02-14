@@ -6,6 +6,7 @@ import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
 import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
 import hadooptest.dfs.regression.DfsBaseClass.Recursive;
 import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
@@ -112,7 +113,7 @@ public class TestQuotaCli extends DfsBaseClass {
 
 		QuotaResponseBO quotaResponseBO = new QuotaResponseBO(
 				countResponse.response.trim());
-		
+
 		TestSession.logger.info("Beginning comparison of (totalQuota):"
 				+ quotaResponseBO.totalQuota + " with expected:"
 				+ expectedQuota);
@@ -123,7 +124,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		} else {
 			Assert.assertTrue(Long.parseLong(quotaResponseBO.totalQuota) == expectedQuota);
 		}
-		
+
 		TestSession.logger.info("Beginning comparison of (remainingQuota):"
 				+ quotaResponseBO.remainingQuota + " with expected:"
 				+ expectedRemainingQuota);
@@ -135,8 +136,7 @@ public class TestQuotaCli extends DfsBaseClass {
 			Assert.assertTrue(Long.parseLong(quotaResponseBO.remainingQuota) == expectedRemainingQuota);
 		}
 		TestSession.logger.info("Comparing (spaceQuota):"
-				+ quotaResponseBO.spaceQuota + " with expected:"
-				+ spaceQuota);
+				+ quotaResponseBO.spaceQuota + " with expected:" + spaceQuota);
 
 		if (spaceQuota == -1) {
 			Assert.assertTrue(((String) quotaResponseBO.spaceQuota)
@@ -168,19 +168,23 @@ public class TestQuotaCli extends DfsBaseClass {
 		if (command.equals(SET_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
 					Report.NO, null, ClearQuota.NO, SetQuota.YES, quota,
-					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, fsEntity);
+					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+					fsEntity);
 		} else if (command.equals(SET_SPACE_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
-					Report.NO, null, ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-					SetSpaceQuota.YES, quota, fsEntity);
+					Report.NO, null, ClearQuota.NO, SetQuota.NO, 0,
+					ClearSpaceQuota.NO, SetSpaceQuota.YES, quota,
+					PrintTopology.NO, fsEntity);
 		} else if (command.equals(CLEAR_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
-					Report.NO, null, ClearQuota.YES, SetQuota.NO, 0, ClearSpaceQuota.NO,
-					SetSpaceQuota.NO, 0, fsEntity);
+					Report.NO, null, ClearQuota.YES, SetQuota.NO, 0,
+					ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, PrintTopology.NO,
+					fsEntity);
 		} else if (command.equals(CLEAR_SPACE_QUOTA)) {
 			genericCliResponseBO = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP,
-					Report.NO, null, ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.YES,
-					SetSpaceQuota.NO, 0, fsEntity);
+					Report.NO, null, ClearQuota.NO, SetQuota.NO, 0,
+					ClearSpaceQuota.YES, SetSpaceQuota.NO, 0, PrintTopology.NO,
+					fsEntity);
 		}
 		Assert.assertTrue(genericCliResponseBO.process.exitValue() == 0);
 		return genericCliResponseBO;
@@ -412,7 +416,7 @@ public class TestQuotaCli extends DfsBaseClass {
 
 		long MIN_SPACE_QUOTA = replication * blockSize;
 		long MIN_SPACE_QUOTA_MB = MIN_SPACE_QUOTA / 1024 / 1024;
-		
+
 		/*
 		 * Setting space less than dfs.replication * dfs.blocksize Bug-4524822
 		 */
@@ -420,8 +424,13 @@ public class TestQuotaCli extends DfsBaseClass {
 		long quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota = quotaInMbHoldingOneMbLessThanMinSpaceQuota * 1024 * 1024;
 
 		mkdirsAndSetPermissions(TEST_2_DIR);
-		runDfsadminCommand(SET_SPACE_QUOTA, quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota, TEST_2_DIR);
-		validateQuotaQueryResult(-1, -1, quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota, quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota, 1, 0, 0, TEST_2_DIR);
+		runDfsadminCommand(SET_SPACE_QUOTA,
+				quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota,
+				TEST_2_DIR);
+		validateQuotaQueryResult(-1, -1,
+				quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota,
+				quotaInBytesHoldingOneMillionLessBytesThanMinSpaceQuota, 1, 0,
+				0, TEST_2_DIR);
 
 		genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
@@ -446,10 +455,10 @@ public class TestQuotaCli extends DfsBaseClass {
 
 		mkdirsAndSetPermissions(TEST_2_DIR);
 		runDfsadminCommand(SET_SPACE_QUOTA, MIN_SPACE_QUOTA, TEST_2_DIR);
-		
+
 		validateQuotaQueryResult(-1, -1, MIN_SPACE_QUOTA, MIN_SPACE_QUOTA, 1,
 				0, 0, TEST_2_DIR);
-		
+
 		dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.NONE, localCluster,
@@ -457,8 +466,8 @@ public class TestQuotaCli extends DfsBaseClass {
 
 		// file_1B has just 1 byte there
 		long remainingSpaceQuota = (MIN_SPACE_QUOTA - (1 * replication));
-		validateQuotaQueryResult(-1, -1, MIN_SPACE_QUOTA, remainingSpaceQuota, 1, 1,
-				fileMetadata.get(ONE_BYTE_FILE).longValue(), TEST_2_DIR);
+		validateQuotaQueryResult(-1, -1, MIN_SPACE_QUOTA, remainingSpaceQuota,
+				1, 1, fileMetadata.get(ONE_BYTE_FILE).longValue(), TEST_2_DIR);
 	}
 
 	void mkdirsAndSetPermissions(String path) throws Exception {
