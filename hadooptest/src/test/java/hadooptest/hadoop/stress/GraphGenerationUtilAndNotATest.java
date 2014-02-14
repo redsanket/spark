@@ -20,11 +20,8 @@ import java.util.LinkedHashSet;
 
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobID;
-import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.TIPStatus;
-import org.apache.hadoop.mapred.TaskCompletionEvent;
 import org.apache.hadoop.mapred.TaskReport;
-import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,7 +48,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table2DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table2GraphData.txt";
 	private String table3DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table3GraphData.txt";
 	private String table4DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table4GraphData.txt";
-	private String table5DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table45raphData.txt";
+	private String table5DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table4GraphData.txt";
 	private String table1GraphTitle = "Count_of_exceptions_per_Test_across_different_test_runs";
 	private String table2GraphTitle = "Total_count_of_exceptions_across_different_test_runs";
 	private String table3GraphTitle = "Test_Failures";
@@ -144,6 +141,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 			this.succeeded = succeeded;
 			this.failed = failed;
 			this.killed = killed;
+			TestSession.logger.info("Created task with details: succeeded[" + succeeded+"] failed[" + failed +"] killed[" + killed +"]");
 
 		}
 
@@ -669,9 +667,9 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		printWriter.println();
 		String[] taskStatuses = new String[] { SUCCEEDED, FAILED, KILLED};
 		for (String aTaskStatus : taskStatuses) {
-			for (String aRun : realTable5TestRunHashForTaskStatus.keySet()) {
+			for (Object aRun : runFootPrintArray) {
 				TaskStatusCountStructure taskStatusStruct = realTable5TestRunHashForTaskStatus
-						.get(aRun);
+						.get((String)aRun);
 				printWriter.print(taskStatusStruct.get(aTaskStatus) + " ");
 			}
 			printWriter.println();
