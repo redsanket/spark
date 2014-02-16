@@ -95,8 +95,20 @@ public class TestQuotaCli extends DfsBaseClass {
 	}
 
 	@Before
-	public void beforeEachTest() {
+	public void beforeEachTest() throws Exception {
 		pathsChmodedSoFar = new HashMap<String, Boolean>();
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse = null;
+
+		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.WEBHDFS, localCluster,
+				Recursive.YES, Force.YES, SkipTrash.YES, TEST_1_DIR);
+		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.WEBHDFS, localCluster,
+				Recursive.YES, Force.YES, SkipTrash.YES, TEST_2_DIR);
+
 	}
 
 	void validateQuotaQueryResult(long expectedQuota,

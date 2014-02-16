@@ -153,7 +153,7 @@ sub generateHashCode{
     $dateLookup{"Oct"} = 10;
     $dateLookup{"Nov"} = 11;
     $dateLookup{"Dec"} = 12;
-    my @splits= split(/-/, $dateString);   #Get rid of the "1-" or "2-" sequences
+    my @splits= split(/-----/, $dateString);   #Get rid of the "1-" or "2-" sequences
     $dateString = $splits[1];
     my @dateComponents = split(/_/, $dateString);
     print "Sec = " . $dateComponents[5] . "\n";

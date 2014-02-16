@@ -46,7 +46,10 @@ public class HadooptestConstants {
 		public static String SSH_AGENT_FILE = "SSH_AGENT_FILE";
 		public static String EXCEPTIONS = "EXCEPTIONS";
 		public static String TEST_STATUS = "TEST_STATUS";
+		public static String TEST_DURATION = "TEST_DURATION";
 		public static String JOB_STATUS = "JOB_STATUS";
+		public static String MAP_TASK_STATUS = "MAP_TASK_STATUS";
+		public static String REDUCE_TASK_STATUS = "REDUCE_TASK_STATUS";
 	}
 
 	// Commands

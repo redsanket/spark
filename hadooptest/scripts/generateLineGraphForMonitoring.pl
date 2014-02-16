@@ -241,6 +241,8 @@ $c->yAxis()->setLabelStyle("timesbd.ttf", 8);
 $c->xAxis()->setWidth(2);
 $c->yAxis()->setWidth(2);
 
+$c->yAxis()->setLabelStep(2);
+
 # Set the labels on the x axis.
 #print "Setting labels" . join("|",@labels);
 $c->xAxis()->setLabels(\@labels);

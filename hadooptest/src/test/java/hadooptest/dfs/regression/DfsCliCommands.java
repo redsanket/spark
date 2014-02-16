@@ -72,7 +72,7 @@ public class DfsCliCommands {
 
 		if (quickCheck.process.exitValue() == 0) {
 			// Do not need to re-create the directories
-			return null;
+			return quickCheck;
 		}
 		if (directoryHierarchy.charAt(directoryHierarchy.length() - 1) != '/') {
 			directoryHierarchy = directoryHierarchy + "/";

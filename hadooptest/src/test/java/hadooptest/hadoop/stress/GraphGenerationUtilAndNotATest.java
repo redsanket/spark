@@ -18,10 +18,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobID;
-import org.apache.hadoop.mapred.TIPStatus;
-import org.apache.hadoop.mapred.TaskReport;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,8 +31,11 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	HashMap<String, ArrayList<HashMap<String, Integer>>> table2TestRunHash;
 	HashMap<String, ArrayList<HashMap<String, String>>> table3TestRunHash;
 	HashMap<String, LinkedHashSet<String>> uniqueJobSetAgainstEachRun;
+	HashMap<String, LinkedHashSet<String>> uniqueMapTaskSetAgainstEachRun;
+	HashMap<String, LinkedHashSet<String>> uniqueReduceTaskSetAgainstEachRun;
 	HashMap<String, JobStatusCountStructure> realTable4TestRunHashForJobStatus;
-	HashMap<String, TaskStatusCountStructure> realTable5TestRunHashForTaskStatus;
+	HashMap<String, TaskStatusCountStructure> realTable5aTestRunHashForMapTaskStatus;
+	HashMap<String, TaskStatusCountStructure> realTable5bTestRunHashForReduceTaskStatus;
 
 	LinkedHashSet<String> exceptionFootprint = new LinkedHashSet<String>();
 	LinkedHashSet<String> testFootprint = new LinkedHashSet<String>();
@@ -48,12 +47,15 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table2DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table2GraphData.txt";
 	private String table3DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table3GraphData.txt";
 	private String table4DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table4GraphData.txt";
-	private String table5DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table4GraphData.txt";
+	private String table5aDataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table5aGraphData.txt";
+	private String table5bDataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table5bGraphData.txt";
+
 	private String table1GraphTitle = "Count_of_exceptions_per_Test_across_different_test_runs";
 	private String table2GraphTitle = "Total_count_of_exceptions_across_different_test_runs";
 	private String table3GraphTitle = "Test_Failures";
 	private String table4GraphTitle = "Job_Statuses";
-	private String table5GraphTitle = "Task_Statuses";
+	private String table5aGraphTitle = "Map_Task_Statuses";
+	private String table5bGraphTitle = "Reduce_Task_Statuses";
 	// Axes
 	private String table1XAxisTitle = "Test_Names";
 	private String table1YAxisTitle = "Count_of_Exceptions";
@@ -63,19 +65,29 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table3YAxisTitle = "Test_Runs_Where_It_Failed";
 	private String table4XAxisTitle = "Runs";
 	private String table4YAxisTitle = "Counts";
-	private String table5XAxisTitle = "Runs";
-	private String table5YAxisTitle = "Counts";
+	private String table5aXAxisTitle = "Runs";
+	private String table5aYAxisTitle = "Counts";
+	private String table5bXAxisTitle = "Runs";
+	private String table5bYAxisTitle = "Counts";
 
 	private String table1OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphTestsVrsCountOfExceptions.png";
+			.getProperty("WORKSPACE")
+			+ "/target/surefire-reports/Graph1_TestsVrsCountOfExceptions.jpeg";
 	private String table2OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphCountOfExceptions.png";
+			.getProperty("WORKSPACE")
+			+ "/target/surefire-reports/Graph2_CountOfExceptions.jpeg";
 	private String table3OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphTestSuccessesFailures.png";
+			.getProperty("WORKSPACE")
+			+ "/target/surefire-reports/Graph3_TestFailures.jpeg";
 	private String table4OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphJobStats.png";
-	private String table5OutputGraphFileName = TestSession.conf
-			.getProperty("WORKSPACE") + "/target/surefire-reports/GraphTaskStats.png";
+			.getProperty("WORKSPACE")
+			+ "/target/surefire-reports/Graph4_JobStats.jpeg";
+	private String table5aOutputGraphFileName = TestSession.conf
+			.getProperty("WORKSPACE")
+			+ "/target/surefire-reports/Graph5a_MapTaskStats.jpeg";
+	private String table5bOutputGraphFileName = TestSession.conf
+			.getProperty("WORKSPACE")
+			+ "/target/surefire-reports/Graph5b_ReduceTaskStats.jpeg";
 
 	private String generateLineGraphForMonitoring = TestSession.conf
 			.getProperty("WORKSPACE")
@@ -90,11 +102,16 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 			+ "/scripts/generateBarGraphForMonitoring.pl";
 
 	private String EITHER_PASSED_OR_NOT_RUN = "EITHER_PASSED_OR_NOT_RUN";
-
+	private static final String MONITORING_DATA_DUMP = "/grid/0/tmp/stressMonitoring/";
 	private static final String SUCCEEDED = "SUCCEEDED";
+	private static final String COMPLETE = "COMPLETE";
 	private static final String FAILED = "FAILED";
 	private static final String KILLED = "KILLED";
 	private static final String UNKNOWN = "UNKNOWN";
+	private static final String RUNNING = "RUNNING";
+
+	private static final String MAP_TASK_STATUS = "MAP_TASK_STATUS";
+	private static final String REDUCE_TASK_STATUS = "REDUCE_TASK_STATUS";
 
 	public GraphGenerationUtilAndNotATest() {
 		this.packageFilters = System.getProperty("PACKAGE_FILTERS");
@@ -137,25 +154,31 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	}
 
 	class TaskStatusCountStructure {
-		public TaskStatusCountStructure(int succeeded, int failed, int killed) {
-			this.succeeded = succeeded;
+		public TaskStatusCountStructure(int completed, int failed, int killed, int running) {
+			this.completed = completed;
 			this.failed = failed;
 			this.killed = killed;
-			TestSession.logger.info("Created task with details: succeeded[" + succeeded+"] failed[" + failed +"] killed[" + killed +"]");
+			this.running = running;
+			TestSession.logger.info("Created task with details: succeeded["
+					+ completed + "] failed[" + failed + "] killed[" + killed
+					+ "] running[" + running+"]");
 
 		}
 
-		int succeeded;
+		int completed;
 		int failed;
 		int killed;
+		int running;
 
 		int get(String status) {
-			if (status.equals(SUCCEEDED)) {
-				return succeeded;
+			if (status.equals(COMPLETE)) {
+				return completed;
 			} else if (status.equals(FAILED)) {
 				return failed;
 			} else if (status.equals(KILLED)) {
 				return killed;
+			}else if (status.equals(RUNNING)) {
+				return running;
 			} else {
 				return -1;
 			}
@@ -164,25 +187,22 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 	@Test
 	public void testProcessExcetions() throws Exception {
-		// Table-1 vars
+		collateDataForTable1();
+		collateDataForTable2();
+		collateDataForTable3();
+		collateDataForTable4();
+		collateDataForTable5(MAP_TASK_STATUS);
+		collateDataForTable5(REDUCE_TASK_STATUS);
+
+	}
+
+	private void collateDataForTable1() throws NumberFormatException,
+			IOException {
 		HashMap<String, Integer> perTestExceptionCountHashNode;
 		table1TestRunHash = new HashMap<String, ArrayList<HashMap<String, Integer>>>();
 
-		// Table-2 vars
-		HashMap<String, Integer> perRunExceptionCountHashNode;
-		table2TestRunHash = new HashMap<String, ArrayList<HashMap<String, Integer>>>();
-
-		// Table-3 vars
-		HashMap<String, String> perRunTestStatusHashNode;
-		table3TestRunHash = new HashMap<String, ArrayList<HashMap<String, String>>>();
-
-		// Table-4 vars
-		uniqueJobSetAgainstEachRun = new HashMap<String, LinkedHashSet<String>>();
-
-		int exceptionCountPerTest = 0;
-
 		String cluster = System.getProperty("CLUSTER_NAME");
-		File clusterDir = new File("/grid/0/tmp/stressMonitoring/" + cluster);
+		File clusterDir = new File(MONITORING_DATA_DUMP + cluster);
 		String[] packazes = clusterDir.list();
 		for (String packaze : packazes) {
 			if (this.packageFilters != null) {
@@ -193,9 +213,10 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 					continue;
 				}
 			}
-			File packageDir = new File("/grid/0/tmp/stressMonitoring/"
-					+ cluster + "/" + packaze);
-			TestSession.logger.trace("Processing Package:" + packaze);
+
+			File packageDir = new File(clusterDir.getAbsolutePath() + "/"
+					+ packaze);
+			TestSession.logger.info("Processing Package:" + packaze);
 			String[] classes = packageDir.list();
 			for (String clazz : classes) {
 				if (this.classFilters != null) {
@@ -206,40 +227,125 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						continue;
 					}
 				}
-				TestSession.logger.trace("Processing Class:" + clazz);
-				File classDir = new File("/grid/0/tmp/stressMonitoring/"
-						+ cluster + "/" + packaze + "/" + clazz);
+				TestSession.logger.info("Processing Class:" + clazz);
+				File classDir = new File(packageDir.getAbsolutePath() + "/"
+						+ clazz);
 				String[] tests = classDir.list();
 				for (String test : tests) {
-					TestSession.logger.trace("Processing test:" + test);
-					testFootprint.add(test);
-					TestSession.logger.trace("=====>[" + test + "]<=======");
-					File testDir = new File("/grid/0/tmp/stressMonitoring/"
-							+ cluster + "/" + packaze + "/" + clazz + "/"
+					TestSession.logger.info("Processing test:" + test);
+					testFootprint.add(clazz + "::" + test);
+					TestSession.logger.info("=====>[" + test + "]<=======");
+					File testDir = new File(classDir.getAbsolutePath() + "/"
 							+ test);
 					String[] runDates = testDir.list();
 					Arrays.sort(runDates);
 					for (String aRunDate : runDates) {
 						runFootprint.add(aRunDate);
-						/*
-						 * Process Exceptions here. NOTE: TestStatus (failures)
-						 * are processed later (in the same loop)
-						 */
-						TestSession.logger.trace("Processing testRun:"
-								+ aRunDate);
-						exceptionCountPerTest = 0;
+						int exceptionCountPerTest = 0;
 						File exceptionsFile = new File(
-								"/grid/0/tmp/stressMonitoring/" + cluster + "/"
-										+ packaze + "/" + clazz + "/" + test
-										+ "/" + aRunDate + "/" + "EXCEPTIONS");
+								testDir.getAbsolutePath() + "/" + aRunDate
+										+ "/" + "EXCEPTIONS");
 						if (!exceptionsFile.exists()) {
 							continue;
 						}
 						BufferedReader exceptionsBufferedReader = new BufferedReader(
-								new FileReader("/grid/0/tmp/stressMonitoring/"
-										+ cluster + "/" + packaze + "/" + clazz
-										+ "/" + test + "/" + aRunDate + "/"
-										+ "EXCEPTIONS"));
+								new FileReader(testDir.getAbsolutePath() + "/"
+										+ aRunDate + "/" + "EXCEPTIONS"));
+						String line = null;
+						while ((line = exceptionsBufferedReader.readLine()) != null) {
+
+							String[] exceptionDetails = line.split(":");
+							String exceptionName = exceptionDetails[0];
+							exceptionFootprint.add(exceptionName);
+							int exceptionCount = Integer
+									.parseInt(exceptionDetails[1]);
+							exceptionCountPerTest += exceptionCount;
+
+						}// End of Exception file processing (while - loop)
+						exceptionsBufferedReader.close();
+						perTestExceptionCountHashNode = new HashMap<String, Integer>();
+						perTestExceptionCountHashNode.put(clazz + "::" + test,
+								exceptionCountPerTest);
+
+						if (!table1TestRunHash.containsKey(aRunDate)) {
+							ArrayList<HashMap<String, Integer>> emptyListOfExceptionsCountPerTest = new ArrayList<HashMap<String, Integer>>();
+							table1TestRunHash.put(aRunDate,
+									emptyListOfExceptionsCountPerTest);
+						}
+
+						table1TestRunHash.get(aRunDate).add(
+								perTestExceptionCountHashNode);
+
+					}
+
+				}// End of Test Run (for - loop)
+
+			}
+
+		}
+		TestSession.logger.info(table1TestRunHash);
+		System.out
+				.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
+	}
+
+	private void collateDataForTable2() throws IOException {
+
+		table2TestRunHash = new HashMap<String, ArrayList<HashMap<String, Integer>>>();
+
+		String cluster = System.getProperty("CLUSTER_NAME");
+		File clusterDir = new File(MONITORING_DATA_DUMP + cluster);
+		String[] packazes = clusterDir.list();
+		for (String packaze : packazes) {
+			if (this.packageFilters != null) {
+				if (!this.packageFilters.contains(packaze)) {
+					/*
+					 * Disregard the packages we are not interested in.
+					 */
+					continue;
+				}
+			}
+			File packageDir = new File(clusterDir.getAbsolutePath() + "/"
+					+ packaze);
+			TestSession.logger.info("Processing Package (Table2):" + packaze);
+			String[] classes = packageDir.list();
+			for (String clazz : classes) {
+				if (this.classFilters != null) {
+					if (!this.classFilters.contains(clazz)) {
+						/*
+						 * Disregard the classes we are not interested in.
+						 */
+						continue;
+					}
+				}
+				TestSession.logger.info("Processing Class(Table2):" + clazz);
+				File classDir = new File(packageDir.getAbsolutePath() + "/"
+						+ clazz);
+				String[] tests = classDir.list();
+
+				for (String test : tests) {
+					TestSession.logger.info("Processing test(Table2):" + test);
+					testFootprint.add(clazz + "::" + test);
+					TestSession.logger.info("=====>[" + clazz + "::" + test
+							+ "]<=======");
+					File testDir = new File(classDir.getAbsolutePath() + "/"
+							+ test);
+					String[] runDates = testDir.list();
+					Arrays.sort(runDates);
+
+					for (String aRunDate : runDates) {
+						TestSession.logger.info("Processing rundates(Table2):"
+								+ aRunDate);
+						runFootprint.add(aRunDate);
+						File exceptionsFile = new File(
+								testDir.getAbsolutePath() + "/" + aRunDate
+										+ "/" + "EXCEPTIONS");
+						if (!exceptionsFile.exists()) {
+							continue;
+						}
+						BufferedReader exceptionsBufferedReader = new BufferedReader(
+								new FileReader(testDir.getAbsolutePath() + "/"
+										+ aRunDate + "/" + "EXCEPTIONS"));
 						String line = null;
 						while ((line = exceptionsBufferedReader.readLine()) != null) {
 
@@ -248,89 +354,113 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 							int newExceptionCount = Integer
 									.parseInt(exceptionDetails[1]);
 							exceptionFootprint.add(exceptionName);
-							exceptionCountPerTest += newExceptionCount;
-							/*
-							 * Care for populating Table-2 here, as you run into
-							 * new exceptions, as you will be plotting: X-Axis:
-							 * Exceptions (kinds) Y-Axis: Exception (count)
-							 */
-							perRunExceptionCountHashNode = new HashMap<String, Integer>();
-							perRunExceptionCountHashNode.put(exceptionName,
-									newExceptionCount);
 
-							if (table2TestRunHash.containsKey(aRunDate)) {
-								boolean exceptionPresent = false;
-								for (HashMap<String, Integer> exceptionTuple : table2TestRunHash
-										.get(aRunDate)) {
-									// Is our exception already present in the
-									// list?
-									if (exceptionTuple
-											.containsKey(exceptionName)) {
-										exceptionPresent = true;
-										int registeredExceptionCount = exceptionTuple
-												.get(exceptionName);
-										exceptionTuple.put(exceptionName,
-												registeredExceptionCount
-														+ newExceptionCount);
-										break;
-									}
-								}
-								// Make an entry, if exception not present
-								if (!exceptionPresent) {
-									table2TestRunHash.get(aRunDate).add(
-											perRunExceptionCountHashNode);
-
-								}
-
-							} else {
-								ArrayList<HashMap<String, Integer>> listOfExceptionsCountPerRun = new ArrayList<HashMap<String, Integer>>();
-								listOfExceptionsCountPerRun
-										.add(perRunExceptionCountHashNode);
+							if (!table2TestRunHash.containsKey(aRunDate)) {
+								TestSession.logger
+										.info("TABLE2: does not cotain run:"
+												+ aRunDate
+												+ " hence adding it!");
+								ArrayList<HashMap<String, Integer>> emptyListOfExceptionsCountPerRun = new ArrayList<HashMap<String, Integer>>();
 								table2TestRunHash.put(aRunDate,
-										listOfExceptionsCountPerRun);
+										emptyListOfExceptionsCountPerRun);
+							} else {
+								TestSession.logger.info("TABLE2: cotains run:"
+										+ aRunDate);
+							}
+							boolean exceptionPresent = false;
+							for (HashMap<String, Integer> exceptionTuple : table2TestRunHash
+									.get(aRunDate)) {
+								if (exceptionTuple.containsKey(exceptionName)) {
+									exceptionPresent = true;
+									int registeredExceptionCount = exceptionTuple
+											.get(exceptionName);
+									exceptionTuple.put(exceptionName,
+											registeredExceptionCount
+													+ newExceptionCount);
+									break;
+								}
+							}
+							// Make an entry, if exception not present
+							if (!exceptionPresent) {
+								HashMap<String, Integer> uniqueExceptionAndItsCount = new HashMap<String, Integer>();
+								uniqueExceptionAndItsCount.put(exceptionName,
+										newExceptionCount);
+								table2TestRunHash.get(aRunDate).add(
+										uniqueExceptionAndItsCount);
 
 							}
 
 						}// End of Exception file processing (while - loop)
 						exceptionsBufferedReader.close();
-						perTestExceptionCountHashNode = new HashMap<String, Integer>();
-						perTestExceptionCountHashNode.put(test,
-								exceptionCountPerTest);
+					}
 
-						/*
-						 * Care for Table-1 here. X:axis T1, T2, T3..
-						 * Y:Axis:Count of Exceptions encountered/test
-						 */
-						if (table1TestRunHash.containsKey(aRunDate)) {
-							table1TestRunHash.get(aRunDate).add(
-									perTestExceptionCountHashNode);
-						} else {
-							ArrayList<HashMap<String, Integer>> listOfExceptionsCountPerTest = new ArrayList<HashMap<String, Integer>>();
-							listOfExceptionsCountPerTest
-									.add(perTestExceptionCountHashNode);
-							table1TestRunHash.put(aRunDate,
-									listOfExceptionsCountPerTest);
+				}
+			}
+			TestSession.logger.info(table2TestRunHash);
+			System.out
+					.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+		}
+	}
 
-						}
+	private void collateDataForTable3() throws IOException {
+		// Table-3 vars
+		HashMap<String, String> perRunTestStatusHashNode;
+		table3TestRunHash = new HashMap<String, ArrayList<HashMap<String, String>>>();
+
+		String cluster = System.getProperty("CLUSTER_NAME");
+		File clusterDir = new File(MONITORING_DATA_DUMP + cluster);
+		String[] packazes = clusterDir.list();
+		for (String packaze : packazes) {
+			if (this.packageFilters != null) {
+				if (!this.packageFilters.contains(packaze)) {
+					/*
+					 * Disregard the packages we are not interested in.
+					 */
+					continue;
+				}
+			}
+			File packageDir = new File(clusterDir.getAbsolutePath() + "/"
+					+ packaze);
+			TestSession.logger.info("Processing Package:" + packaze);
+			String[] classes = packageDir.list();
+			for (String clazz : classes) {
+				if (this.classFilters != null) {
+					if (!this.classFilters.contains(clazz)) {
 						/*
-						 * ---------------------------- Table-3
-						 * --------------------
+						 * Disregard the classes we are not interested in.
 						 */
+						continue;
+					}
+				}
+				TestSession.logger.info("Processing Class:" + clazz);
+				File classDir = new File(packageDir.getAbsolutePath() + "/"
+						+ clazz);
+				String[] tests = classDir.list();
+				for (String test : tests) {
+					TestSession.logger.info("Processing test:" + clazz + "::"
+							+ test);
+					testFootprint.add(clazz + "::" + test);
+					TestSession.logger.info("(Table 3): =====>[" + clazz + "::"
+							+ test + "]<=======");
+					File testDir = new File(classDir.getAbsolutePath() + "/"
+							+ test);
+					String[] runDates = testDir.list();
+					Arrays.sort(runDates);
+					for (String aRunDate : runDates) {
+						TestSession.logger.info("Processing run(Table 3):"
+								+ aRunDate);
+						runFootprint.add(aRunDate);
 						BufferedReader testStatusBufferedReader = new BufferedReader(
-								new FileReader("/grid/0/tmp/stressMonitoring/"
-										+ cluster + "/" + packaze + "/" + clazz
-										+ "/" + test + "/" + aRunDate + "/"
+								new FileReader(classDir.getAbsolutePath() + "/"
+										+ test + "/" + aRunDate + "/"
 										+ "TEST_STATUS"));
 						String failureLine = null;
 						while ((failureLine = testStatusBufferedReader
 								.readLine()) != null) {
-							/*
-							 * Care for Table-3 here X:axis failed tests, T1,
-							 * T2, T3.. Y:Axis:Run
-							 */
 							perRunTestStatusHashNode = new HashMap<String, String>();
 							if (failureLine.equals("FAILED")) {
-								perRunTestStatusHashNode.put(test, aRunDate);
+								perRunTestStatusHashNode.put(clazz + "::"
+										+ test, aRunDate);
 								if (table3TestRunHash.containsKey(aRunDate)) {
 									table3TestRunHash.get(aRunDate).add(
 											perRunTestStatusHashNode);
@@ -343,8 +473,8 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 								}
 							} else {
 								// Test has PASSED
-								perRunTestStatusHashNode.put(test,
-										EITHER_PASSED_OR_NOT_RUN);
+								perRunTestStatusHashNode.put(clazz + "::"
+										+ test, EITHER_PASSED_OR_NOT_RUN);
 								if (table3TestRunHash.containsKey(aRunDate)) {
 									table3TestRunHash.get(aRunDate).add(
 											perRunTestStatusHashNode);
@@ -361,15 +491,61 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						}// End of testStatus (failed) file processing (while -
 							// loop)
 						testStatusBufferedReader.close();
+					}// End of Test Run (for - loop)
+				}
+			}
+		}
+	}
 
+	private void collateDataForTable4() throws IOException {
+		// Table-4 vars
+		uniqueJobSetAgainstEachRun = new HashMap<String, LinkedHashSet<String>>();
+
+		String cluster = System.getProperty("CLUSTER_NAME");
+		File clusterDir = new File(MONITORING_DATA_DUMP + cluster);
+		String[] packazes = clusterDir.list();
+		for (String packaze : packazes) {
+			if (this.packageFilters != null) {
+				if (!this.packageFilters.contains(packaze)) {
+					/*
+					 * Disregard the packages we are not interested in.
+					 */
+					continue;
+				}
+			}
+			File packageDir = new File(clusterDir.getAbsolutePath() + "/"
+					+ packaze);
+			TestSession.logger.info("Processing Package:" + packaze);
+			String[] classes = packageDir.list();
+			for (String clazz : classes) {
+				if (this.classFilters != null) {
+					if (!this.classFilters.contains(clazz)) {
 						/*
-						 * Table-4 Processing.............
+						 * Disregard the classes we are not interested in.
 						 */
+						continue;
+					}
+				}
+				TestSession.logger.info("Processing Class:" + clazz);
+				File classDir = new File(packageDir.getAbsolutePath() + "/"
+						+ clazz);
+				String[] tests = classDir.list();
+				for (String test : tests) {
+					TestSession.logger.info("Processing test:" + clazz + "::"
+							+ test);
+					testFootprint.add(clazz + "::" + test);
+					TestSession.logger.info("=====>[" + clazz + "::" + test
+							+ "]<=======");
+					File testDir = new File(packageDir.getAbsolutePath() + "/"
+							+ clazz + "/" + test);
+					String[] runDates = testDir.list();
+					Arrays.sort(runDates);
+
+					for (String aRunDate : runDates) {
+						runFootprint.add(aRunDate);
 						BufferedReader jobStatusBufferedReader = new BufferedReader(
-								new FileReader("/grid/0/tmp/stressMonitoring/"
-										+ cluster + "/" + packaze + "/" + clazz
-										+ "/" + test + "/" + aRunDate + "/"
-										+ "JOB_STATUS"));
+								new FileReader(testDir.getAbsolutePath() + "/"
+										+ aRunDate + "/" + "JOB_STATUS"));
 
 						if (!uniqueJobSetAgainstEachRun.containsKey(aRunDate)) {
 							LinkedHashSet<String> aSetOfjobStatusLines = new LinkedHashSet<String>();
@@ -394,36 +570,111 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 			}
 		}
-		TestSession.logger.trace(table1TestRunHash);
-		System.out
-				.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-		TestSession.logger.trace(table2TestRunHash);
-		System.out
-				.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-		TestSession.logger.trace(table3TestRunHash);
 
 	}
 
-	
-	public void countTaskStatuses() {
-		realTable5TestRunHashForTaskStatus = new HashMap<String, TaskStatusCountStructure>();
-		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
-			TestSession.logger.info("Generating task reports for run:" + aRun);
-			realTable5TestRunHashForTaskStatus.put(aRun,
-					getTaskStatusCountsForRun(aRun));
+	private void collateDataForTable5(String taskTypeStatus) throws IOException {
+		// Table-4 vars
+		if (taskTypeStatus.equals(MAP_TASK_STATUS)) {
+			uniqueMapTaskSetAgainstEachRun = new HashMap<String, LinkedHashSet<String>>();
+		} else {
+			uniqueReduceTaskSetAgainstEachRun = new HashMap<String, LinkedHashSet<String>>();
 		}
-		/**
-		 * Since the task stats are collected after the current test has run, and
-		 * since one cannot retrieve for very old tasks, in order to cut down on
-		 * the time whatever data has been collected go and write it to the respective
-		 * run folders, so save time later.
-		 */
+
+		String cluster = System.getProperty("CLUSTER_NAME");
+		File clusterDir = new File(MONITORING_DATA_DUMP + cluster);
+		String[] packazes = clusterDir.list();
+		for (String packaze : packazes) {
+			if (this.packageFilters != null) {
+				if (!this.packageFilters.contains(packaze)) {
+					/*
+					 * Disregard the packages we are not interested in.
+					 */
+					continue;
+				}
+			}
+			File packageDir = new File(clusterDir.getAbsolutePath() + "/"
+					+ packaze);
+			TestSession.logger.info("Processing Package:" + packaze);
+			String[] classes = packageDir.list();
+			for (String clazz : classes) {
+				if (this.classFilters != null) {
+					if (!this.classFilters.contains(clazz)) {
+						/*
+						 * Disregard the classes we are not interested in.
+						 */
+						continue;
+					}
+				}
+				TestSession.logger.info("Processing Class:" + clazz);
+				File classDir = new File(packageDir.getAbsolutePath() + "/"
+						+ clazz);
+				String[] tests = classDir.list();
+				for (String test : tests) {
+					TestSession.logger.info("Processing test:" + clazz + "::"
+							+ test);
+					testFootprint.add(clazz + "::" + test);
+					TestSession.logger.info("=====>[" + clazz + "::" + test
+							+ "]<=======");
+					File testDir = new File(packageDir.getAbsolutePath() + "/"
+							+ clazz + "/" + test);
+					String[] runDates = testDir.list();
+					Arrays.sort(runDates);
+
+					for (String aRunDate : runDates) {
+						runFootprint.add(aRunDate);
+						String fileLocation;
+						if (taskTypeStatus.equals(MAP_TASK_STATUS)) {
+							fileLocation = testDir.getAbsolutePath() + "/"
+									+ aRunDate + "/" + MAP_TASK_STATUS;
+						} else {
+							fileLocation = testDir.getAbsolutePath() + "/"
+									+ aRunDate + "/" + REDUCE_TASK_STATUS;
+
+						}
+						BufferedReader taskStatusBufferedReader = new BufferedReader(
+								new FileReader(fileLocation));
+						if (taskTypeStatus.equals(MAP_TASK_STATUS)) {
+							if (!uniqueMapTaskSetAgainstEachRun
+									.containsKey(aRunDate)) {
+								LinkedHashSet<String> aSetOfTaskStatusLines = new LinkedHashSet<String>();
+								uniqueMapTaskSetAgainstEachRun.put(aRunDate,
+										aSetOfTaskStatusLines);
+							}
+
+							String taskStatusLine = null;
+							while ((taskStatusLine = taskStatusBufferedReader.readLine()) != null) {
+								LinkedHashSet<String> uniqueTaskStatuses = uniqueMapTaskSetAgainstEachRun
+										.get(aRunDate);
+								uniqueTaskStatuses.add(taskStatusLine);
+							}// End of jobStatus file processing (while-loop)
+						} else if (taskTypeStatus.equals(REDUCE_TASK_STATUS)) {
+							if (!uniqueReduceTaskSetAgainstEachRun.containsKey(aRunDate)) {
+								LinkedHashSet<String> aSetOfTaskStatusLines = new LinkedHashSet<String>();
+								uniqueReduceTaskSetAgainstEachRun.put(aRunDate,
+										aSetOfTaskStatusLines);
+							}
+
+							String taskStatusLine = null;
+							while ((taskStatusLine = taskStatusBufferedReader
+									.readLine()) != null) {
+								LinkedHashSet<String> uniqueTaskStatuses = uniqueReduceTaskSetAgainstEachRun
+										.get(aRunDate);
+								uniqueTaskStatuses.add(taskStatusLine);
+							}
+						}
+						taskStatusBufferedReader.close();
+
+					}// End of Test Run (for - loop)
+
+				}
+			}
+		}
 
 	}
 
 	@After
 	public void generateGraphs() throws Exception {
-		countTaskStatuses();
 		String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE")
 				+ "/target/surefire-reports";
 		File outputDir = new File(outputBaseDirPath);
@@ -467,13 +718,30 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				table4GraphTitle, table4XAxisTitle, table4YAxisTitle,
 				table4DataConsumedByPerlForGraphGeneration,
 				table4OutputGraphFileName);
-		
-		// Table-5
-		generateTable5Data(table5DataConsumedByPerlForGraphGeneration);
+
+		// Table-5(a)
+		realTable5aTestRunHashForMapTaskStatus = new HashMap<String, TaskStatusCountStructure>();
+		for (String aRun : uniqueMapTaskSetAgainstEachRun.keySet()) {
+			realTable5aTestRunHashForMapTaskStatus.put(aRun,
+					getTaskStatusCountsForRun(MAP_TASK_STATUS, aRun));
+		}
+		generateTable5aData(table5aDataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateBarGraphForMonitoring,
-				table5GraphTitle, table5XAxisTitle, table5YAxisTitle,
-				table5DataConsumedByPerlForGraphGeneration,
-				table5OutputGraphFileName);
+				table5aGraphTitle, table5aXAxisTitle, table5aYAxisTitle,
+				table5aDataConsumedByPerlForGraphGeneration,
+				table5aOutputGraphFileName);
+		
+		// Table-5(b)
+		realTable5bTestRunHashForReduceTaskStatus = new HashMap<String, TaskStatusCountStructure>();
+		for (String aRun : uniqueReduceTaskSetAgainstEachRun.keySet()) {
+			realTable5bTestRunHashForReduceTaskStatus.put(aRun,
+					getTaskStatusCountsForRun(REDUCE_TASK_STATUS, aRun));
+		}
+		generateTable5aData(table5bDataConsumedByPerlForGraphGeneration);
+		runPerlScriptToGenerateGraph(generateBarGraphForMonitoring,
+				table5bGraphTitle, table5bXAxisTitle, table5bYAxisTitle,
+				table5bDataConsumedByPerlForGraphGeneration,
+				table5bOutputGraphFileName);
 
 	}
 
@@ -519,55 +787,49 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		return jobStatusCounts;
 	}
 
-	TaskStatusCountStructure getTaskStatusCountsForRun(String aDate) {
-		int complete = 0;
+	TaskStatusCountStructure getTaskStatusCountsForRun(String taskType,
+			String aDate) {
+		int completed = 0;
 		int failed = 0;
 		int killed = 0;
-		JobClient jobClient = null;
-		LinkedHashSet<String> aSetOfjobStatusLines = uniqueJobSetAgainstEachRun
-				.get(aDate);
-
-
-			try {
-				jobClient = new JobClient(TestSession.cluster.getConf());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			for (String aStatusLineWithJobId : aSetOfjobStatusLines) {
-				String aJobId = aStatusLineWithJobId.split(":")[0];
-				TaskReport[] taskReports = null;
-				
-				try {
-					/**
-					 * Since this class may be invoked, in some cases days after
-					 * the original test may have run, it is likely when it queries
-					 * for Jobs/Task, it would not be able to look them up.
-					 */
-
-					taskReports = jobClient.getMapTaskReports(JobID.forName(aJobId));
-				} catch (IllegalArgumentException e) {
-					TestSession.logger.error("Check why you received this exception, when looking up jobId: " + aJobId);
-					continue;
-				}catch ( IOException e){				
-					TestSession.logger.info("Not able to lookup " + aJobId);
-					continue;
-				}
-				for (TaskReport aTaskReport:taskReports){
-					TestSession.logger.info("Job:" + aJobId + " had a task " + aTaskReport.getTaskId() + " that had state " + aTaskReport.getCurrentStatus());
-					if (aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE){
-						complete++;
-					}else if (aTaskReport.getCurrentStatus() == TIPStatus.FAILED){
+		int running = 0;
+		LinkedHashSet<String> aSetOftaskStatusLines;
+		if (taskType.equals(MAP_TASK_STATUS)) {
+			aSetOftaskStatusLines = uniqueMapTaskSetAgainstEachRun.get(aDate);
+		} else {
+			aSetOftaskStatusLines = uniqueReduceTaskSetAgainstEachRun
+					.get(aDate);
+		}
+		for (String aStatusLineWithTaskId : aSetOftaskStatusLines) {
+			String aStatusLineWithoutTaskId = aStatusLineWithTaskId.split(":")[1];
+			for (String aStatus : aStatusLineWithoutTaskId.split("\\s+")) {
+				String aCounter = aStatus.split("=")[1];
+				if (aStatus.contains(COMPLETE)) {
+					if (aCounter.equals("1")) {
+						completed++;
+					}
+				} else if (aStatus.contains(FAILED)) {
+					if (aCounter.equals("1")) {
 						failed++;
-					}else if(aTaskReport.getCurrentStatus() == TIPStatus.KILLED){
+					}
+
+				} else if (aStatus.contains(KILLED)) {
+					if (aCounter.equals("1")) {
 						killed++;
 					}
-					
+
+				} else if (aStatus.contains(RUNNING)) {
+					if (aCounter.equals("1")) {
+						running++;
+					}
+
+				}else {
+					// Don't care
 				}
 			}
-
+		}
 		TaskStatusCountStructure taskStatusCounts = new TaskStatusCountStructure(
-				complete, failed, killed);
+				completed, failed, killed, running);
 		return taskStatusCounts;
 	}
 
@@ -602,7 +864,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		Process process = TestSession.exec.runProcBuilderGetProc(sb.toString()
 				.split("\\s+"));
 		printResponseAndReturnItAsString(process);
-		TestSession.logger.trace("Xit value:" + process.exitValue());
+		TestSession.logger.info("Xit value:" + process.exitValue());
 	}
 
 	String printResponseAndReturnItAsString(Process process)
@@ -634,7 +896,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	 */
 	public void generateTable4Data(String dataOutputFile)
 			throws FileNotFoundException {
-		TestSession.logger.trace("Printing TABLE-4....");
+		TestSession.logger.info("Printing TABLE-4....");
 		printWriter = new PrintWriter(dataOutputFile);
 		Object[] runFootPrintArray = runFootprint.toArray();
 		Arrays.sort(runFootPrintArray);
@@ -658,11 +920,11 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	}
 
 	/*
-	 * Bar-graph depicting, task status (success/failed/killed)
+	 * Bar-graph depicting, job status (success/failed/killed/unknown)
 	 */
-	public void generateTable5Data(String dataOutputFile)
+	public void generateTable5aData(String dataOutputFile)
 			throws FileNotFoundException {
-		TestSession.logger.trace("Printing TABLE-5....");
+		TestSession.logger.info("Printing TABLE-5a....");
 		printWriter = new PrintWriter(dataOutputFile);
 		Object[] runFootPrintArray = runFootprint.toArray();
 		Arrays.sort(runFootPrintArray);
@@ -671,11 +933,11 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		}
 
 		printWriter.println();
-		String[] taskStatuses = new String[] { SUCCEEDED, FAILED, KILLED};
+		String[] taskStatuses = new String[] { COMPLETE, FAILED, KILLED, RUNNING };
 		for (String aTaskStatus : taskStatuses) {
-			for (Object aRun : runFootPrintArray) {
-				TaskStatusCountStructure taskStatusStruct = realTable5TestRunHashForTaskStatus
-						.get((String)aRun);
+			for (String aRun : realTable5aTestRunHashForMapTaskStatus.keySet()) {
+				TaskStatusCountStructure taskStatusStruct = realTable5aTestRunHashForMapTaskStatus
+						.get(aRun);
 				printWriter.print(taskStatusStruct.get(aTaskStatus) + " ");
 			}
 			printWriter.println();
@@ -691,7 +953,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	public void generateTable1Data(String dataOutputFile)
 			throws FileNotFoundException {
 		boolean nodeFoundInRun = false;
-		TestSession.logger.trace("Printing TABLE-1....");
+		TestSession.logger.info("Printing TABLE-1....");
 		printWriter = new PrintWriter(dataOutputFile);
 		Object[] testFootPrintArray = testFootprint.toArray();
 		Arrays.sort(testFootPrintArray);
@@ -734,7 +996,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	public void generateTable2Data(String dataOutputFile)
 			throws FileNotFoundException {
 		boolean nodeFoundInRun = false;
-		TestSession.logger.trace("Printing TABLE-2....");
+		TestSession.logger.info("Printing TABLE-2....");
 		printWriter = new PrintWriter(dataOutputFile);
 		Object[] exceptionFootPrintArray = exceptionFootprint.toArray();
 		Arrays.sort(exceptionFootPrintArray);
@@ -772,7 +1034,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	public void generateTable3Data(String dataOutputFile)
 			throws FileNotFoundException {
 		boolean nodeFoundInRun = false;
-		TestSession.logger.trace("Printing TABLE-3....");
+		TestSession.logger.info("Printing TABLE-3....");
 		HashMap<String, String> aTestLookupHashMap = new HashMap<String, String>();
 		int count = 1;
 		for (String aTest : testFootprint) {
@@ -788,7 +1050,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		count = 1;
 		while (iterator.hasNext()) {
 			String aRunn = iterator.next();
-			aRunLookupHashMap.put(aRunn, count + "-" + aRunn);
+			aRunLookupHashMap.put(aRunn, count + "-----" + aRunn);
 			aRunList.add(aRunn);
 			count++;
 		}
@@ -804,6 +1066,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 			printWriter.print(aTestLookupHashMap.get(aTestName) + " ");
 		}
 		printWriter.println();
+
 		// Print the runs row
 		for (Object aRun : aRunList) {
 			printWriter.print(aRunLookupHashMap.get((String) aRun) + " ");
