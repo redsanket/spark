@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TestDurationMonitor extends AbstractMonitor {
-	long testStartTime;
-	long testEndTime;
+	long testStartTimeInMilliseconds;
+	long testEndTimeInMilliseconds;
 	public TestDurationMonitor(String clusterName,
 			HashMap<String, ArrayList<String>> sentComponentToHostMapping,
 			Class<?> testClass, String testMethodName) {
@@ -42,8 +42,8 @@ public class TestDurationMonitor extends AbstractMonitor {
 			testDurationFileHandle.createNewFile();
 
 			printWriter = new PrintWriter(testDurationFileHandle);
-			//Log the time in seconds
-			printWriter.println((testEndTime-testStartTime)/1000);
+			//Log the time in minutes
+			printWriter.println((float)(testEndTimeInMilliseconds-testStartTimeInMilliseconds)/(1000*60));
 			printWriter.flush();
 
 		} catch (FileNotFoundException e) {
@@ -67,12 +67,12 @@ public class TestDurationMonitor extends AbstractMonitor {
 	}
 
 	public void startMonitoring() {
-		testStartTime = System.currentTimeMillis();
+		testStartTimeInMilliseconds = System.currentTimeMillis();
 	}
 
 	@Override
 	public void stopMonitoring() {
-		testEndTime = System.currentTimeMillis();
+		testEndTimeInMilliseconds = System.currentTimeMillis();
 		logTestStatus();
 	}
 

@@ -36,6 +36,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	HashMap<String, JobStatusCountStructure> realTable4TestRunHashForJobStatus;
 	HashMap<String, TaskStatusCountStructure> realTable5aTestRunHashForMapTaskStatus;
 	HashMap<String, TaskStatusCountStructure> realTable5bTestRunHashForReduceTaskStatus;
+	HashMap<String, ArrayList<HashMap<String, Float>>> table6TestRunHash;
 
 	LinkedHashSet<String> exceptionFootprint = new LinkedHashSet<String>();
 	LinkedHashSet<String> testFootprint = new LinkedHashSet<String>();
@@ -49,6 +50,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table4DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table4GraphData.txt";
 	private String table5aDataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table5aGraphData.txt";
 	private String table5bDataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table5bGraphData.txt";
+	private String table6DataConsumedByPerlForGraphGeneration = "/homes/hadoopqa/table6GraphData.txt";
 
 	private String table1GraphTitle = "Count_of_exceptions_per_Test_across_different_test_runs";
 	private String table2GraphTitle = "Total_count_of_exceptions_across_different_test_runs";
@@ -56,6 +58,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table4GraphTitle = "Job_Statuses";
 	private String table5aGraphTitle = "Map_Task_Statuses";
 	private String table5bGraphTitle = "Reduce_Task_Statuses";
+	private String table6GraphTitle = "Test_Durations_in_minutes";
 	// Axes
 	private String table1XAxisTitle = "Test_Names";
 	private String table1YAxisTitle = "Count_of_Exceptions";
@@ -69,6 +72,8 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table5aYAxisTitle = "Counts";
 	private String table5bXAxisTitle = "Runs";
 	private String table5bYAxisTitle = "Counts";
+	private String table6XAxisTitle = "Test_Names";
+	private String table6YAxisTitle = "Duration_in_minutes";
 
 	private String table1OutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
@@ -88,6 +93,9 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private String table5bOutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
 			+ "/target/surefire-reports/Graph5b_ReduceTaskStats.jpeg";
+	private String table6OutputGraphFileName = TestSession.conf
+			.getProperty("WORKSPACE")
+			+ "/target/surefire-reports/Graph6_TestDurations.jpeg";
 
 	private String generateLineGraphForMonitoring = TestSession.conf
 			.getProperty("WORKSPACE")
@@ -110,8 +118,6 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	private static final String UNKNOWN = "UNKNOWN";
 	private static final String RUNNING = "RUNNING";
 
-	private static final String MAP_TASK_STATUS = "MAP_TASK_STATUS";
-	private static final String REDUCE_TASK_STATUS = "REDUCE_TASK_STATUS";
 
 	public GraphGenerationUtilAndNotATest() {
 		this.packageFilters = System.getProperty("PACKAGE_FILTERS");
@@ -154,14 +160,15 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	}
 
 	class TaskStatusCountStructure {
-		public TaskStatusCountStructure(int completed, int failed, int killed, int running) {
+		public TaskStatusCountStructure(int completed, int failed, int killed,
+				int running) {
 			this.completed = completed;
 			this.failed = failed;
 			this.killed = killed;
 			this.running = running;
 			TestSession.logger.info("Created task with details: succeeded["
 					+ completed + "] failed[" + failed + "] killed[" + killed
-					+ "] running[" + running+"]");
+					+ "] running[" + running + "]");
 
 		}
 
@@ -177,7 +184,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				return failed;
 			} else if (status.equals(KILLED)) {
 				return killed;
-			}else if (status.equals(RUNNING)) {
+			} else if (status.equals(RUNNING)) {
 				return running;
 			} else {
 				return -1;
@@ -191,8 +198,9 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		collateDataForTable2();
 		collateDataForTable3();
 		collateDataForTable4();
-		collateDataForTable5(MAP_TASK_STATUS);
-		collateDataForTable5(REDUCE_TASK_STATUS);
+		collateDataForTable5(HadooptestConstants.Miscellaneous.MAP_TASK_STATUS);
+		collateDataForTable5(HadooptestConstants.Miscellaneous.REDUCE_TASK_STATUS);
+		collateDataForTable6();
 
 	}
 
@@ -244,13 +252,14 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						int exceptionCountPerTest = 0;
 						File exceptionsFile = new File(
 								testDir.getAbsolutePath() + "/" + aRunDate
-										+ "/" + "EXCEPTIONS");
+										+ "/" + HadooptestConstants.Miscellaneous.EXCEPTIONS);
 						if (!exceptionsFile.exists()) {
+							TestSession.logger.info(exceptionsFile.getAbsoluteFile() + " does not exist, hence contnuing");
 							continue;
 						}
 						BufferedReader exceptionsBufferedReader = new BufferedReader(
 								new FileReader(testDir.getAbsolutePath() + "/"
-										+ aRunDate + "/" + "EXCEPTIONS"));
+										+ aRunDate + "/" + HadooptestConstants.Miscellaneous.EXCEPTIONS));
 						String line = null;
 						while ((line = exceptionsBufferedReader.readLine()) != null) {
 
@@ -345,7 +354,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						}
 						BufferedReader exceptionsBufferedReader = new BufferedReader(
 								new FileReader(testDir.getAbsolutePath() + "/"
-										+ aRunDate + "/" + "EXCEPTIONS"));
+										+ aRunDate + "/" + HadooptestConstants.Miscellaneous.EXCEPTIONS));
 						String line = null;
 						while ((line = exceptionsBufferedReader.readLine()) != null) {
 
@@ -453,7 +462,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						BufferedReader testStatusBufferedReader = new BufferedReader(
 								new FileReader(classDir.getAbsolutePath() + "/"
 										+ test + "/" + aRunDate + "/"
-										+ "TEST_STATUS"));
+										+ HadooptestConstants.Miscellaneous.TEST_STATUS));
 						String failureLine = null;
 						while ((failureLine = testStatusBufferedReader
 								.readLine()) != null) {
@@ -545,7 +554,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						runFootprint.add(aRunDate);
 						BufferedReader jobStatusBufferedReader = new BufferedReader(
 								new FileReader(testDir.getAbsolutePath() + "/"
-										+ aRunDate + "/" + "JOB_STATUS"));
+										+ aRunDate + "/" + HadooptestConstants.Miscellaneous.JOB_STATUS));
 
 						if (!uniqueJobSetAgainstEachRun.containsKey(aRunDate)) {
 							LinkedHashSet<String> aSetOfjobStatusLines = new LinkedHashSet<String>();
@@ -575,7 +584,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 	private void collateDataForTable5(String taskTypeStatus) throws IOException {
 		// Table-4 vars
-		if (taskTypeStatus.equals(MAP_TASK_STATUS)) {
+		if (taskTypeStatus.equals(HadooptestConstants.Miscellaneous.MAP_TASK_STATUS)) {
 			uniqueMapTaskSetAgainstEachRun = new HashMap<String, LinkedHashSet<String>>();
 		} else {
 			uniqueReduceTaskSetAgainstEachRun = new HashMap<String, LinkedHashSet<String>>();
@@ -624,17 +633,20 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 					for (String aRunDate : runDates) {
 						runFootprint.add(aRunDate);
 						String fileLocation;
-						if (taskTypeStatus.equals(MAP_TASK_STATUS)) {
+						if (taskTypeStatus.equals(HadooptestConstants.Miscellaneous.MAP_TASK_STATUS)) {
 							fileLocation = testDir.getAbsolutePath() + "/"
-									+ aRunDate + "/" + MAP_TASK_STATUS;
+									+ aRunDate + "/" + HadooptestConstants.Miscellaneous.MAP_TASK_STATUS;
 						} else {
 							fileLocation = testDir.getAbsolutePath() + "/"
-									+ aRunDate + "/" + REDUCE_TASK_STATUS;
+									+ aRunDate + "/" + HadooptestConstants.Miscellaneous.REDUCE_TASK_STATUS;
 
 						}
+						File fileCheck = new File(fileLocation);
+						if (!fileCheck.exists())
+							continue;
 						BufferedReader taskStatusBufferedReader = new BufferedReader(
 								new FileReader(fileLocation));
-						if (taskTypeStatus.equals(MAP_TASK_STATUS)) {
+						if (taskTypeStatus.equals(HadooptestConstants.Miscellaneous.MAP_TASK_STATUS)) {
 							if (!uniqueMapTaskSetAgainstEachRun
 									.containsKey(aRunDate)) {
 								LinkedHashSet<String> aSetOfTaskStatusLines = new LinkedHashSet<String>();
@@ -643,13 +655,15 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 							}
 
 							String taskStatusLine = null;
-							while ((taskStatusLine = taskStatusBufferedReader.readLine()) != null) {
+							while ((taskStatusLine = taskStatusBufferedReader
+									.readLine()) != null) {
 								LinkedHashSet<String> uniqueTaskStatuses = uniqueMapTaskSetAgainstEachRun
 										.get(aRunDate);
 								uniqueTaskStatuses.add(taskStatusLine);
 							}// End of jobStatus file processing (while-loop)
-						} else if (taskTypeStatus.equals(REDUCE_TASK_STATUS)) {
-							if (!uniqueReduceTaskSetAgainstEachRun.containsKey(aRunDate)) {
+						} else if (taskTypeStatus.equals(HadooptestConstants.Miscellaneous.REDUCE_TASK_STATUS)) {
+							if (!uniqueReduceTaskSetAgainstEachRun
+									.containsKey(aRunDate)) {
 								LinkedHashSet<String> aSetOfTaskStatusLines = new LinkedHashSet<String>();
 								uniqueReduceTaskSetAgainstEachRun.put(aRunDate,
 										aSetOfTaskStatusLines);
@@ -670,6 +684,89 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				}
 			}
 		}
+
+	}
+
+	private void collateDataForTable6() throws NumberFormatException,
+			IOException {
+		HashMap<String, Float> perTestDurationHashNode;
+		table6TestRunHash = new HashMap<String, ArrayList<HashMap<String, Float>>>();
+
+		String cluster = System.getProperty("CLUSTER_NAME");
+		File clusterDir = new File(MONITORING_DATA_DUMP + cluster);
+		String[] packazes = clusterDir.list();
+		for (String packaze : packazes) {
+			if (this.packageFilters != null) {
+				if (!this.packageFilters.contains(packaze)) {
+					/*
+					 * Disregard the packages we are not interested in.
+					 */
+					continue;
+				}
+			}
+
+			File packageDir = new File(clusterDir.getAbsolutePath() + "/"
+					+ packaze);
+			TestSession.logger.info("Processing Package(table 6):" + packaze);
+			String[] classes = packageDir.list();
+			for (String clazz : classes) {
+				if (this.classFilters != null) {
+					if (!this.classFilters.contains(clazz)) {
+						/*
+						 * Disregard the classes we are not interested in.
+						 */
+						continue;
+					}
+				}
+				TestSession.logger.info("Processing Class(table 6):" + clazz);
+				File classDir = new File(packageDir.getAbsolutePath() + "/"
+						+ clazz);
+				String[] tests = classDir.list();
+				for (String test : tests) {
+					TestSession.logger.info("Processing test(table 6):" + test);
+					testFootprint.add(clazz + "::" + test);
+					TestSession.logger.info("=====>(table 6)[" + test + "]<=======");
+					File testDir = new File(classDir.getAbsolutePath() + "/"
+							+ test);
+					String[] runDates = testDir.list();
+					Arrays.sort(runDates);
+					for (String aRunDate : runDates) {
+						runFootprint.add(aRunDate);						
+						File durationsFile = new File(
+								testDir.getAbsolutePath() + "/" + aRunDate
+										+ "/" + HadooptestConstants.Miscellaneous.TEST_DURATION);
+						if (!durationsFile.exists()) {
+							TestSession.logger.info(durationsFile.getAbsoluteFile() + " does not exist, hence contnuing");
+							continue;
+						}
+						
+						BufferedReader testDurationsBufferedReader = new BufferedReader(
+								new FileReader(durationsFile.getAbsoluteFile()));
+						String line = testDurationsBufferedReader.readLine().trim();
+						TestSession.logger.info(durationsFile.getAbsoluteFile() + " exists.... and it contains " + line);
+						testDurationsBufferedReader.close();
+						perTestDurationHashNode = new HashMap<String, Float>();
+						perTestDurationHashNode.put(clazz + "::" + test,
+								Float.parseFloat(line));
+
+						if (!table6TestRunHash.containsKey(aRunDate)) {
+							ArrayList<HashMap<String, Float>> emptyListOfDurationsPerTest = new ArrayList<HashMap<String, Float>>();
+							table6TestRunHash.put(aRunDate,
+									emptyListOfDurationsPerTest);
+						}
+
+						table6TestRunHash.get(aRunDate).add(perTestDurationHashNode);
+
+					}
+
+				}// End of Test Run (for - loop)
+
+			}
+
+		}
+		TestSession.logger.info(table6TestRunHash);
+		System.out
+				.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
 	}
 
@@ -707,7 +804,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				table3DataConsumedByPerlForGraphGeneration,
 				table3OutputGraphFileName);
 
-		// Table-4
+		// Table-4 Job Status
 		realTable4TestRunHashForJobStatus = new HashMap<String, JobStatusCountStructure>();
 		for (String aRun : uniqueJobSetAgainstEachRun.keySet()) {
 			realTable4TestRunHashForJobStatus.put(aRun,
@@ -719,29 +816,36 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 				table4DataConsumedByPerlForGraphGeneration,
 				table4OutputGraphFileName);
 
-		// Table-5(a)
+		// Table-5(a) Map Task
 		realTable5aTestRunHashForMapTaskStatus = new HashMap<String, TaskStatusCountStructure>();
 		for (String aRun : uniqueMapTaskSetAgainstEachRun.keySet()) {
 			realTable5aTestRunHashForMapTaskStatus.put(aRun,
-					getTaskStatusCountsForRun(MAP_TASK_STATUS, aRun));
+					getTaskStatusCountsForRun(HadooptestConstants.Miscellaneous.MAP_TASK_STATUS, aRun));
 		}
-		generateTable5aData(table5aDataConsumedByPerlForGraphGeneration);
+		generateTable5Data(table5aDataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateBarGraphForMonitoring,
 				table5aGraphTitle, table5aXAxisTitle, table5aYAxisTitle,
 				table5aDataConsumedByPerlForGraphGeneration,
 				table5aOutputGraphFileName);
-		
-		// Table-5(b)
+
+		// Table-5(b) Reduce Task
 		realTable5bTestRunHashForReduceTaskStatus = new HashMap<String, TaskStatusCountStructure>();
 		for (String aRun : uniqueReduceTaskSetAgainstEachRun.keySet()) {
 			realTable5bTestRunHashForReduceTaskStatus.put(aRun,
-					getTaskStatusCountsForRun(REDUCE_TASK_STATUS, aRun));
+					getTaskStatusCountsForRun(HadooptestConstants.Miscellaneous.REDUCE_TASK_STATUS, aRun));
 		}
-		generateTable5aData(table5bDataConsumedByPerlForGraphGeneration);
+		generateTable5Data(table5bDataConsumedByPerlForGraphGeneration);
 		runPerlScriptToGenerateGraph(generateBarGraphForMonitoring,
 				table5bGraphTitle, table5bXAxisTitle, table5bYAxisTitle,
 				table5bDataConsumedByPerlForGraphGeneration,
 				table5bOutputGraphFileName);
+
+		// Table-6 (Test Durations)
+		generateTable6Data(table6DataConsumedByPerlForGraphGeneration);
+		runPerlScriptToGenerateGraph(generateLineGraphForMonitoring,
+				table6GraphTitle, table6XAxisTitle, table6YAxisTitle,
+				table6DataConsumedByPerlForGraphGeneration,
+				table6OutputGraphFileName);
 
 	}
 
@@ -794,7 +898,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		int killed = 0;
 		int running = 0;
 		LinkedHashSet<String> aSetOftaskStatusLines;
-		if (taskType.equals(MAP_TASK_STATUS)) {
+		if (taskType.equals(HadooptestConstants.Miscellaneous.MAP_TASK_STATUS)) {
 			aSetOftaskStatusLines = uniqueMapTaskSetAgainstEachRun.get(aDate);
 		} else {
 			aSetOftaskStatusLines = uniqueReduceTaskSetAgainstEachRun
@@ -823,7 +927,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 						running++;
 					}
 
-				}else {
+				} else {
 					// Don't care
 				}
 			}
@@ -889,61 +993,6 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		}
 		process.waitFor();
 		return sb.toString();
-	}
-
-	/*
-	 * Bar-graph depicting, job status (success/failed/killed/unknown)
-	 */
-	public void generateTable4Data(String dataOutputFile)
-			throws FileNotFoundException {
-		TestSession.logger.info("Printing TABLE-4....");
-		printWriter = new PrintWriter(dataOutputFile);
-		Object[] runFootPrintArray = runFootprint.toArray();
-		Arrays.sort(runFootPrintArray);
-		for (Object aRunName : runFootPrintArray) {
-			printWriter.print(aRunName + " ");
-		}
-
-		printWriter.println();
-		String[] jobStatuses = new String[] { SUCCEEDED, FAILED, KILLED,
-				UNKNOWN };
-		for (String ajobStatus : jobStatuses) {
-			for (String aRun : realTable4TestRunHashForJobStatus.keySet()) {
-				JobStatusCountStructure jobStatusStruct = realTable4TestRunHashForJobStatus
-						.get(aRun);
-				printWriter.print(jobStatusStruct.get(ajobStatus) + " ");
-			}
-			printWriter.println();
-
-		}
-		printWriter.close();
-	}
-
-	/*
-	 * Bar-graph depicting, job status (success/failed/killed/unknown)
-	 */
-	public void generateTable5aData(String dataOutputFile)
-			throws FileNotFoundException {
-		TestSession.logger.info("Printing TABLE-5a....");
-		printWriter = new PrintWriter(dataOutputFile);
-		Object[] runFootPrintArray = runFootprint.toArray();
-		Arrays.sort(runFootPrintArray);
-		for (Object aRunName : runFootPrintArray) {
-			printWriter.print(aRunName + " ");
-		}
-
-		printWriter.println();
-		String[] taskStatuses = new String[] { COMPLETE, FAILED, KILLED, RUNNING };
-		for (String aTaskStatus : taskStatuses) {
-			for (String aRun : realTable5aTestRunHashForMapTaskStatus.keySet()) {
-				TaskStatusCountStructure taskStatusStruct = realTable5aTestRunHashForMapTaskStatus
-						.get(aRun);
-				printWriter.print(taskStatusStruct.get(aTaskStatus) + " ");
-			}
-			printWriter.println();
-
-		}
-		printWriter.close();
 	}
 
 	/*
@@ -1102,6 +1151,105 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 		}
 		printWriter.close();
 	}
+	/*
+	 * Bar-graph depicting, job status (success/failed/killed/unknown)
+	 */
+	public void generateTable4Data(String dataOutputFile)
+			throws FileNotFoundException {
+		TestSession.logger.info("Printing TABLE-4....");
+		printWriter = new PrintWriter(dataOutputFile);
+		Object[] runFootPrintArray = runFootprint.toArray();
+		Arrays.sort(runFootPrintArray);
+		for (Object aRunName : runFootPrintArray) {
+			printWriter.print(aRunName + " ");
+		}
+
+		printWriter.println();
+		String[] jobStatuses = new String[] { SUCCEEDED, FAILED, KILLED,
+				UNKNOWN };
+		for (String ajobStatus : jobStatuses) {
+			for (String aRun : realTable4TestRunHashForJobStatus.keySet()) {
+				JobStatusCountStructure jobStatusStruct = realTable4TestRunHashForJobStatus
+						.get(aRun);
+				printWriter.print(jobStatusStruct.get(ajobStatus) + " ");
+			}
+			printWriter.println();
+
+		}
+		printWriter.close();
+	}
+
+	/*
+	 * Bar-graph depicting, job status (success/failed/killed/unknown)
+	 */
+	public void generateTable5Data(String dataOutputFile)
+			throws FileNotFoundException {
+		TestSession.logger.info("Printing TABLE-5a....");
+		printWriter = new PrintWriter(dataOutputFile);
+		Object[] runFootPrintArray = runFootprint.toArray();
+		Arrays.sort(runFootPrintArray);
+		for (Object aRunName : runFootPrintArray) {
+			printWriter.print(aRunName + " ");
+		}
+
+		printWriter.println();
+		String[] taskStatuses = new String[] { COMPLETE, FAILED, KILLED,
+				RUNNING };
+		for (String aTaskStatus : taskStatuses) {
+			for (String aRun : realTable5aTestRunHashForMapTaskStatus.keySet()) {
+				TaskStatusCountStructure taskStatusStruct = realTable5aTestRunHashForMapTaskStatus
+						.get(aRun);
+				printWriter.print(taskStatusStruct.get(aTaskStatus) + " ");
+			}
+			printWriter.println();
+
+		}
+		printWriter.close();
+	}
+	
+	/*
+	 * Line graph, with Test cases in the X-axis Count of exceptions per test,
+	 * on the Y-axis
+	 */
+	public void generateTable6Data(String dataOutputFile)
+			throws FileNotFoundException {
+		boolean nodeFoundInRun = false;
+		TestSession.logger.info("Printing TABLE-6....");
+		printWriter = new PrintWriter(dataOutputFile);
+		Object[] testFootPrintArray = testFootprint.toArray();
+		Arrays.sort(testFootPrintArray);
+		for (Object aTestName : testFootPrintArray) {
+			printWriter.print(aTestName + " ");
+		}
+
+		printWriter.println();
+
+		for (String aRun : table6TestRunHash.keySet()) {
+			printWriter.println("Run:" + aRun);
+			for (Object aTestNameOnXAxis : testFootPrintArray) {
+				for (HashMap<String, Float> dataNodeInTable6InSomeRun : table6TestRunHash
+						.get(aRun)) {
+					if (dataNodeInTable6InSomeRun
+							.containsKey((String) aTestNameOnXAxis)) {
+						nodeFoundInRun = true;
+						printWriter.print(dataNodeInTable6InSomeRun
+								.get((String) aTestNameOnXAxis) + " ");
+						break;
+					}
+				}
+				if (!nodeFoundInRun) {
+					printWriter.print(0 + " ");
+				} else {
+					nodeFoundInRun = false;
+				}
+
+			}
+
+			printWriter.println();
+		}
+		printWriter.close();
+	}
+
 
 	@After
 	public void logTaskResportSummary() {
