@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Fri Feb 14 00:34:44 UTC 2014
+avro-1.7.4.jar>=
+avro-1.7.4.pom>local\ central\ mirror=
+avro-1.7.4.jar>local\ central\ mirror=

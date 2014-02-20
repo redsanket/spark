@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-parent</artifactId>
+        <version>20</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.mortbay.jetty.npn</groupId>
+    <artifactId>npn-project</artifactId>
+    <version>1.1.6.v20130911</version>
+    <packaging>pom</packaging>
+    <name>Jetty :: Next Protocol Negotiation :: Project</name>
+
+    <description>
+        A pure Java(TM) implementation of the Next Protocol Negotiation TLS Extension
+    </description>
+
+    <inceptionYear>2012</inceptionYear>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/jetty-project/jetty-npn/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>sbordet</id>
+            <name>Simone Bordet</name>
+            <email>simone.bordet@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+        <license>
+            <name>GPL v2 with ClassPath Exception</name>
+            <url>http://openjdk.java.net/legal/gplv2+ce.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/jetty-project/jetty-npn.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jetty-project/jetty-npn.git</developerConnection>
+        <url>https://github.com/jetty-project/jetty-npn</url>
+    </scm>
+
+    <properties>
+        <npn-api-version>1.1.0.v20120525</npn-api-version>
+    </properties>
+
+    <modules>
+        <module>npn-boot</module>
+        <module>npn-tests</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>require-jdk7</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[1.7,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
