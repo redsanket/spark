@@ -283,7 +283,7 @@ public class JobStatusMonitor extends AbstractMonitor {
 
 
 	@Override
-	public void fetchResourceUsageIntoMemory(int tick) throws IOException {
+	public void monitorDoYourThing(int tick) throws IOException {
 		/*
 		 * Not applicable, because TestStatusMonitor is not a monitor in a true
 		 * sense

@@ -64,7 +64,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	static Logger logger = Logger.getLogger(TestFsckCli.class);
 
-	public static final String BYTES_PER_MAP = "mapreduce.randomwriter.bytespermap";
+	
 	private static final String FSCK_TESTS_DIR_ON_HDFS = DATA_DIR_IN_HDFS
 			+ "fsck_tests/";
 	private static final String RANDOM_WRITER_DATA_DIR = FSCK_TESTS_DIR_ON_HDFS
@@ -160,32 +160,6 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
-	/*
-	 * called by @Before
-	 */
-	public void runStdHadoopRandomWriter(String randomWriterOutputDirOnHdfs)
-			throws Exception {
-		logger.info("running RandomWriter.............");
-		Configuration conf = TestSession.cluster.getConf();
-		conf.setLong(BYTES_PER_MAP, 256000);
-		int res = ToolRunner.run(conf, new RandomWriter(),
-				new String[] { randomWriterOutputDirOnHdfs });
-		Assert.assertEquals(0, res);
-
-	}
-
-	/*
-	 * Run a sort Job, from package org.apache.hadoop.examples;
-	 */
-	public void runStdHadoopSortJob(String sortInputDataLocation,
-			String sortOutputDataLocation) throws Exception {
-		logger.info("running Sort Job.................");
-		Configuration conf = TestSession.cluster.getConf();
-		int res = ToolRunner.run(conf, new Sort<Text, Text>(), new String[] {
-				sortInputDataLocation, sortOutputDataLocation });
-		Assert.assertEquals(0, res);
-
-	}
 
 	/*
 	 * Creates a temporary directory before each test run to create a 3gb file.
@@ -271,9 +245,9 @@ public class TestFsckCli extends DfsBaseClass {
 		// The 3gb file on the local file system is automatically deleted
 		// after every test run, by JUnit
 	};
-
-	// @Test
+	
 	// test_fsck_02
+	 @Test
 	public void testFsckResultsLeveragingRandomWriterAndSortJobs()
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -302,8 +276,9 @@ public class TestFsckCli extends DfsBaseClass {
 		TestSession.logger
 				.info("Number of racks before running RandomWriterAndSortJobs: "
 						+ numberOfRacksBeforeRunningRandomWriterAndSortJobs);
-
-		runStdHadoopRandomWriter(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir);
+		HashMap<String, String> jobParams = new HashMap<String, String>();
+		jobParams.put("mapreduce.randomwriter.bytespermap", "256000");
+		runStdHadoopRandomWriter(jobParams, RANDOM_WRITER_DATA_DIR + randomWriterOutputDir);
 		runStdHadoopSortJob(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir,
 				SORT_JOB_DATA_DIR + sortJobOutputDir);
 

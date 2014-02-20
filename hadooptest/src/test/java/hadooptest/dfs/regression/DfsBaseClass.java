@@ -9,12 +9,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.examples.RandomWriter;
+import org.apache.hadoop.examples.Sort;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.ToolRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.rules.TemporaryFolder;
 
@@ -26,12 +33,19 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
 public class DfsBaseClass extends TestSession {
-	static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
-	private Set<String> setOfTestDataFilesInHdfs;
-	private Set<String> setOfTestDataFilesInLocalFs;
-
+	/**
+	 * Identity files needed for SSH
+	 */
 	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
 	public static final String HADOOPQA_BLUE_DSA = "/homes/hadoopqa/.ssh/blue_dsa";
+	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
+
+	/**
+	 * Data structures for creating initial files
+	 */
+	static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
+	protected Set<String> setOfTestDataFilesInHdfs;
+	protected Set<String> setOfTestDataFilesInLocalFs;
 
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
@@ -44,11 +58,19 @@ public class DfsBaseClass extends TestSession {
 	public static final String EMPTY_FS_ENTITY = "";
 	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
-	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
 	HashMap<String, Boolean> pathsChmodedSoFar;
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
+	/**
+	 * Hadoop job defines
+	 */
+	
+
+	/**
+	 * Options passed to CLI commands
+	 * 
+	 */
 	public enum Recursive {
 		YES, NO
 	};
@@ -80,14 +102,12 @@ public class DfsBaseClass extends TestSession {
 	public enum Report {
 		YES, NO
 	};
-	
+
 	public enum PrintTopology {
 		YES, NO
 	};
-	
-	
 
-
+	// ----------------------------------------------------------//
 	@Before
 	public void ensureDataBeforeTestRun() {
 
@@ -118,7 +138,7 @@ public class DfsBaseClass extends TestSession {
 		fileMetadata.put("file_767MB", new Double((double) 767 * 1024 * 1024));
 		fileMetadata.put("file_768MB", new Double((double) 768 * 1024 * 1024));
 		fileMetadata.put("file_769MB", new Double((double) 769 * 1024 * 1024));
-		// // Huge file
+		// Huge file
 		fileMetadata.put("file_11GB",
 				new Double(((double) ((double) (double) 10 * (double) 1024
 						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
@@ -297,9 +317,9 @@ public class DfsBaseClass extends TestSession {
 	public String doJavaSSHClientExec(String user, String host, String command,
 			String identityFile) {
 		JSch jsch = new JSch();
-		
-//		JSch.setLogger(new MyLogger());
-		
+
+		// JSch.setLogger(new MyLogger());
+
 		TestSession.logger.info("SSH Client is about to run command:" + command
 				+ " on host:" + host + "as user:" + user
 				+ " using identity file:" + identityFile);
@@ -387,42 +407,44 @@ public class DfsBaseClass extends TestSession {
 		}
 
 	}
-	
+
 	String getHostNameFromIp(String ip) throws Exception {
-		String hostName = null;
-		StringBuilder sb = new StringBuilder();
-		sb.append("/usr/bin/nslookup");
-		sb.append(" ");
-		sb.append(ip);
 
-		String commandString = sb.toString();
-		logger.info(commandString);
-		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
+		InetAddress iaddr = InetAddress.getByName(ip);
+		System.out.println("And the Host name of the g/w is:"
+				+ iaddr.getHostName());
+		return iaddr.getHostName();
 
-		Process process = null;
-		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.DFSLOAD,
-				envToUnsetHadoopPrefix);
-
-		final String nslookupPattern = "([\\w\\.-]+)\\s+name\\s+=\\s+([\\w\\.]+)\\.";
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				process.getInputStream()));
-		String aLineFromNslookupResponse = reader.readLine();
-		while (aLineFromNslookupResponse != null) {
-			if (aLineFromNslookupResponse.matches(nslookupPattern)) {
-				hostName = aLineFromNslookupResponse.replaceAll(
-						nslookupPattern, "$2");
-				break;
-			}
-			TestSession.logger.info(aLineFromNslookupResponse
-					+ " is not what I am looking for");
-			aLineFromNslookupResponse = reader.readLine();
-		}
-
-		return hostName;
 	}
 
+	/*
+	 * called by @Before
+	 */
+	public void runStdHadoopRandomWriter(HashMap<String, String> jobParams, String randomWriterOutputDirOnHdfs)
+			throws Exception {
+		logger.info("running RandomWriter.............");
+		Configuration conf = TestSession.cluster.getConf();
+		for (String key:jobParams.keySet()){
+			conf.set(key,  jobParams.get(key));
+//			conf.setLong(BYTES_PER_MAP, 256000);
+		}
+		int res = ToolRunner.run(conf, new RandomWriter(),
+				new String[] { randomWriterOutputDirOnHdfs });
+		Assert.assertEquals(0, res);
+
+	}
+
+	/*
+	 * Run a sort Job, from package org.apache.hadoop.examples;
+	 */
+	public void runStdHadoopSortJob(String sortInputDataLocation,
+			String sortOutputDataLocation) throws Exception {
+		logger.info("running Sort Job.................");
+		Configuration conf = TestSession.cluster.getConf();
+		int res = ToolRunner.run(conf, new Sort<Text, Text>(), new String[] {
+				sortInputDataLocation, sortOutputDataLocation });
+		Assert.assertEquals(0, res);
+
+	}
 
 }

@@ -186,7 +186,7 @@ public class TestAppend {
 				/*
 				 * test101_CreateFC_RWThread
 				 */
-//				{ "101", "-qt -f " + APPEND_OUTDIR + "/Z100" },
+				// { "101", "-qt -f " + APPEND_OUTDIR + "/Z100" },
 				{
 						"102",
 						"-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR
@@ -392,20 +392,24 @@ public class TestAppend {
 		TestSession.start();
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		String cluster = System.getProperty("CLUSTER_NAME");
-		GenericCliResponseBO genericResponseBO = dfsCommonCli.test(new HashMap<String, String>(),
+		GenericCliResponseBO genericResponseBO = dfsCommonCli.test(
+				new HashMap<String, String>(),
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR,
 				FILE_SYSTEM_ENTITY_DIRECTORY);
 		if (genericResponseBO.process.exitValue() == 0) {
 			System.out.println("Here deleting dir...!!");
-			dfsCommonCli.rm(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.WEBHDFS, cluster, Recursive.YES, Force.YES,
-					SkipTrash.YES, APPEND_OUTDIR);
+			dfsCommonCli.rm(new HashMap<String, String>(),
+					HadooptestConstants.UserNames.HDFSQA,
+					HadooptestConstants.Schema.WEBHDFS, cluster, Recursive.YES,
+					Force.YES, SkipTrash.YES, APPEND_OUTDIR);
 		}
-		dfsCommonCli.mkdir(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.mkdir(new HashMap<String, String>(),
+				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR);
 		doChmodRecursively(cluster, APPEND_OUTDIR);
-		dfsCommonCli.copyFromLocal(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
+		dfsCommonCli.copyFromLocal(new HashMap<String, String>(),
+				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, cluster,
 				LOCAL_SOURCE_FILES, APPEND_OUTDIR);
 
@@ -421,7 +425,8 @@ public class TestAppend {
 			TestSession.logger.info("Processing split:" + aDir);
 			pathSoFar = pathSoFar + aDir + "/";
 			TestSession.logger.info("PathSoFar:" + pathSoFar);
-			dfsCommonCli.chmod(new HashMap<String, String>(), HadooptestConstants.UserNames.HDFSQA,
+			dfsCommonCli.chmod(new HashMap<String, String>(),
+					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
 					"777");
 		}
@@ -1269,37 +1274,44 @@ public class TestAppend {
 	// Use FileContext"
 	// CREATE: can work with CREATE|APPEND, and CREATE|OVERWRITE (TRUNC)
 	public FSDataOutputStream createAppendFileFC(Path path,
-			boolean overwriteOption, boolean appendOption) throws IOException {
-		FSDataOutputStream out;
+			boolean overwriteOption, boolean appendOption) {
+		FSDataOutputStream out = null;
+		
 
 		// if exist, do OVERWRITE or APPEND based on -overwrite flag), else
 		// create it with CREATE|APPEND
-		if (ifExists(path)) {
-			if (overwriteOption) {
-				System.out
-						.println("File already exists. Truncate file. FileContext Open OVERWRITE: "
-								+ path);
-				out = mfc.create(path, EnumSet.of(CreateFlag.OVERWRITE));
-			} else if (appendOption) {
-				System.out
-						.println("File already exists. FileContext Open with APPEND only: "
-								+ path);
-				out = mfc.create(path, EnumSet.of(CreateFlag.APPEND));
+		try {
+			if (ifExists(path)) {
+				if (overwriteOption) {
+					System.out
+							.println("File already exists. Truncate file. FileContext Open OVERWRITE: "
+									+ path);
+					out = mfc.create(path, EnumSet.of(CreateFlag.OVERWRITE));
+				} else if (appendOption) {
+					System.out
+							.println("File already exists. FileContext Open with APPEND only: "
+									+ path);
+					out = mfc.create(path, EnumSet.of(CreateFlag.APPEND));
+				} else {
+					System.out
+							.println("File exist, but neither overwrite nor append is specified. Aborted."
+									+ path);
+					throw new IllegalArgumentException();
+				}
 			} else {
+				// System.out.println("File does not exists. Open with CREATE + APPEND: "
+				// + path);
+				// out = mfc.create(path, EnumSet.of( CreateFlag.APPEND,
+				// CreateFlag.CREATE));
 				System.out
-						.println("File exist, but neither overwrite nor append is specified. Aborted."
+						.println("File does not exists. FileContext Open with CREATE: "
 								+ path);
-				throw new IllegalArgumentException();
+				out = mfc.create(path, EnumSet.of(CreateFlag.CREATE));
+				System.out.println("Successfully created file, via mfc: "
+						+ path);
 			}
-		} else {
-			// System.out.println("File does not exists. Open with CREATE + APPEND: "
-			// + path);
-			// out = mfc.create(path, EnumSet.of( CreateFlag.APPEND,
-			// CreateFlag.CREATE));
-			System.out
-					.println("File does not exists. FileContext Open with CREATE: "
-							+ path);
-			out = mfc.create(path, EnumSet.of(CreateFlag.CREATE));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return out;
 	}

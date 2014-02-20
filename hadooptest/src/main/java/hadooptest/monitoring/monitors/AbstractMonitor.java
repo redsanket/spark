@@ -93,7 +93,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		int tick = 0;
 		while (monitoringUnderway) {
 			try {
-				fetchResourceUsageIntoMemory(tick++);
+				monitorDoYourThing(tick++);
 				TestSession.logger.trace(kind + " monitor sleeping for "
 						+ this.periodicity + " secs...");
 				Thread.sleep(this.periodicity * 1000);
@@ -145,7 +145,7 @@ public abstract class AbstractMonitor implements Runnable, IMonitor {
 		}
 	}
 
-	abstract public void fetchResourceUsageIntoMemory(int tick)
+	abstract public void monitorDoYourThing(int tick)
 			throws IOException;
 
 }

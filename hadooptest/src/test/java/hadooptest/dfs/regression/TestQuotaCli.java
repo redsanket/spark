@@ -120,7 +120,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		GenericCliResponseBO countResponse = null;
 
 		countResponse = dfsCliCommands.count(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, localCluster, fsEntity);
+				HadooptestConstants.UserNames.HDFSQA, "", localCluster, fsEntity);
 		Assert.assertTrue(countResponse.process.exitValue() == 0);
 
 		QuotaResponseBO quotaResponseBO = new QuotaResponseBO(
@@ -261,7 +261,7 @@ public class TestQuotaCli extends DfsBaseClass {
 		Assert.assertTrue(genericCliResponse.process.exitValue() != 0);
 		Assert.assertTrue(genericCliResponse.response.contains("is exceeded"));
 		dfsCliCommands.count(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, localCluster, TEST_1_DIR);
+				HadooptestConstants.UserNames.HDFSQA, "",localCluster, TEST_1_DIR);
 		dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, TEST_1_DIR,

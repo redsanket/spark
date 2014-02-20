@@ -58,6 +58,16 @@ public class DfsCliCommands {
 	 * 'dfsload' is our superuser who can create directories in DFS. For some
 	 * reason it did not work with 'hadoopqa'.
 	 */
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param directoryHierarchy
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO mkdir(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String directoryHierarchy) throws Exception {
@@ -119,6 +129,17 @@ public class DfsCliCommands {
 		return responseBO;
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePath
+	 * @param permissions
+	 * @return
+	 * @throws Exception
+	 */
 	public GenericCliResponseBO chmod(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster, String completePath,
 			String permissions) throws Exception {
@@ -168,6 +189,16 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePath
+	 * @return
+	 * @throws Exception
+	 */
 	public GenericCliResponseBO touchz(
 			HashMap<String, String> envMapSentByTest, String user,
 			String protocol, String cluster, String completePath)
@@ -217,6 +248,17 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePath
+	 * @param entityType
+	 * @return
+	 * @throws Exception
+	 */
 	public GenericCliResponseBO test(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster, String completePath,
 			String entityType) throws Exception {
@@ -280,6 +322,19 @@ public class DfsCliCommands {
 	/*
 	 * Delete a dirctory on HDFS
 	 */
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param recursive
+	 * @param force
+	 * @param skipTrash
+	 * @param completePath
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO rm(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster, Recursive recursive,
 			Force force, SkipTrash skipTrash, String completePath)
@@ -340,8 +395,76 @@ public class DfsCliCommands {
 	}
 
 	/*
+	 * Delete a dirctory on HDFS
+	 */
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePath
+	 * @return
+	 * @throws Exception
+	 */
+	GenericCliResponseBO rmdir(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster, String completePath)
+			throws Exception {
+		String nameNodePrependedWithProtocol = "";
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.HDFS);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("dfs");
+		sb.append(" ");
+		sb.append("-rmdir");
+		sb.append(" ");
+
+		if ((protocol.trim()).isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(completePath);
+
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, environmentVariablesWrappingTheCommand);
+		String response = printResponseAndReturnItAsString(process);
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	/*
 	 * FSCK is run on the local cluster, hence does not need a protocol
 	 * parameter.
+	 */
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param completePathToFile
+	 * @param includeFilesArg
+	 * @param includeBlocksArg
+	 * @param includeRacksArg
+	 * @return
+	 * @throws Exception
 	 */
 	FsckResponseBO fsck(HashMap<String, String> envMapSentByTest, String user,
 			String completePathToFile, boolean includeFilesArg,
@@ -396,6 +519,22 @@ public class DfsCliCommands {
 	 * DFSADMIN is always run on the local cluster, hence does not need a
 	 * protocol argument
 	 */
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param runReport
+	 * @param safemodeArg
+	 * @param clearQuota
+	 * @param setQuota
+	 * @param quota
+	 * @param clearSpaceQuota
+	 * @param setSpaceQuota
+	 * @param spaceQuota
+	 * @param printTopology
+	 * @param fsEntity
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
 			Report runReport, String safemodeArg, ClearQuota clearQuota,
 			SetQuota setQuota, long quota, ClearSpaceQuota clearSpaceQuota,
@@ -416,7 +555,7 @@ public class DfsCliCommands {
 			sb.append("-report");
 			sb.append(" ");
 		}
-		
+
 		// Print Topology
 		if (printTopology == PrintTopology.YES) {
 			sb.append(" ");
@@ -460,7 +599,6 @@ public class DfsCliCommands {
 				sb.append(fsEntity);
 			}
 		}
-		
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
@@ -480,6 +618,15 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param policyValue
+	 * @param thresholdValue
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO balancer(HashMap<String, String> envMapSentByTest,
 			String user, String policyValue, String thresholdValue)
 			throws Exception {
@@ -524,6 +671,17 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePathToFile
+	 * @param recursive
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO ls(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String completePathToFile, Recursive recursive) throws Exception {
@@ -578,6 +736,17 @@ public class DfsCliCommands {
 	 * We use web-hdfs to move files across clusters, because there could be a
 	 * version incompatibility. Webhdfs is agnostic to that, unlike Hdfs.
 	 */
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePathOfSource
+	 * @param completePathOfDest
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO copyFromLocal(
 			HashMap<String, String> envMapSentByTest, String user,
 			String protocol, String cluster, String completePathOfSource,
@@ -628,6 +797,17 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePathOfSource
+	 * @param completePathOfDest
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO put(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String completePathOfSource, String completePathOfDest)
@@ -678,6 +858,17 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param completePathOfSource
+	 * @param completePathOfDest
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO cp(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String completePathOfSource, String completePathOfDest)
@@ -727,6 +918,16 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param cluster
+	 * @param completePathOfSource
+	 * @param completePathOfDest
+	 * @return
+	 * @throws Exception
+	 */
 	GenericCliResponseBO mv(HashMap<String, String> envMapSentByTest,
 			String user, String cluster, String completePathOfSource,
 			String completePathOfDest) throws Exception {
@@ -763,9 +964,101 @@ public class DfsCliCommands {
 
 	}
 
-	/*
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param archiveName
+	 * @param parentPath
+	 * @param source
+	 * @param destinationPath
+	 * @return
+	 * @throws Exception
+	 */
+	GenericCliResponseBO archive(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster, String archiveName,
+			String parentPath, String source, String destinationPath)
+			throws Exception {
+		// USAGE: /home/gs/gridre/yroot.merry/share/hadoop/bin/hadoop
+		// --config /home/gs/gridre/yroot.merry/conf/hadoop/
+		// archive -archiveName
+		// eventual.har -p /user/hadoopqa/parent
+		// stuffThatUWantArchived
+		// /user/hadoopqa/dst
+
+		String nameNodePrependedWithProtocol = "";
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.HADOOP);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("archive");
+		sb.append(" ");
+		sb.append("-archiveName");
+		sb.append(" ");
+		sb.append(archiveName);
+		sb.append(" ");
+		sb.append("-p");
+		sb.append(" ");
+
+		if (protocol.isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(parentPath);
+
+		sb.append(" ");
+		sb.append(source);
+		sb.append(" ");
+
+		if (protocol.isEmpty()) {
+			nameNodePrependedWithProtocol = "";
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+		} else if (protocol
+				.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+			nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+		} else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+			nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+		}
+		sb.append(nameNodePrependedWithProtocol);
+		sb.append(destinationPath);
+
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, environmentVariablesWrappingTheCommand);
+		String response = printResponseAndReturnItAsString(process);
+
+		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+				response);
+		return responseBO;
+
+	}
+
+	/**
 	 * Given a cluster, create the NameNode decorated with the proper schema. In
 	 * this case webhdfs://
+	 * 
+	 * @param cluster
+	 * @return
 	 */
 	private String getNNUrlForWebhdfs(String cluster) {
 		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
@@ -780,9 +1073,12 @@ public class DfsCliCommands {
 
 	}
 
-	/*
+	/**
 	 * Given a cluster, create the NameNode decorated with the proper schema. In
 	 * this case hdfs://
+	 * 
+	 * @param cluster
+	 * @return
 	 */
 	public String getNNUrlForHdfs(String cluster) {
 		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
@@ -799,9 +1095,12 @@ public class DfsCliCommands {
 
 	}
 
-	/*
+	/**
 	 * Given a cluster, create the NameNode decorated with the proper schema. In
 	 * this case hftp://
+	 * 
+	 * @param cluster
+	 * @return
 	 */
 	private String getNNUrlForHftp(String cluster) {
 		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
@@ -839,7 +1138,20 @@ public class DfsCliCommands {
 		return sb.toString();
 	}
 
-	public GenericCliResponseBO distcpFileUsingProtocol(
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param srcCluster
+	 * @param dstCluster
+	 * @param srcFile
+	 * @param dstFile
+	 * @param srcProtocol
+	 * @param dstProtocol
+	 * @return
+	 * @throws Exception
+	 */
+	public GenericCliResponseBO distcp(
 			HashMap<String, String> envMapSentByTest, String user,
 			String srcCluster, String dstCluster, String srcFile,
 			String dstFile, String srcProtocol, String dstProtocol)
@@ -902,6 +1214,27 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param protocol
+	 * @param cluster
+	 * @param webservice
+	 * @param renewer
+	 * @param cancel
+	 * @param renew
+	 * @param print
+	 * @param tokenFile
+	 * @param conf
+	 * @param d
+	 * @param jt
+	 * @param files
+	 * @param libjars
+	 * @param archives
+	 * @return
+	 * @throws Exception
+	 */
 	public GenericCliResponseBO fetchdt(
 			HashMap<String, String> envMapSentByTest, String user,
 			String protocol, String cluster, String webservice, String renewer,
@@ -1021,8 +1354,17 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param cluster
+	 * @param fsEntity
+	 * @return
+	 * @throws Exception
+	 */
 	public GenericCliResponseBO count(HashMap<String, String> envMapSentByTest,
-			String user, String cluster, String fsEntity) throws Exception {
+			String user, String protocol, String cluster, String fsEntity) throws Exception {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -1033,7 +1375,19 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("dfs -count -q");
 		sb.append(" ");
-		sb.append(fsEntity);
+		if (protocol != null) {
+			if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+				 sb.append(getNNUrlForHdfs(cluster));sb.append(fsEntity);sb.append(" ");
+			} else if (protocol
+					.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+				sb.append(getNNUrlForWebhdfs(cluster));sb.append(fsEntity);sb.append(" ");
+			} else if (protocol
+					.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+				sb.append(getNNUrlForHftp(cluster));sb.append(fsEntity);sb.append(" ");
+			} else if ((protocol.trim()).equals("")) {
+				sb.append(fsEntity);
+			}
+		}
 
 		String commandString = sb.toString();
 
@@ -1052,6 +1406,13 @@ public class DfsCliCommands {
 
 	}
 
+	/**
+	 * 
+	 * @param user
+	 * @param destination
+	 * @param lifetime
+	 * @throws Exception
+	 */
 	public void createCustomizedKerberosTicket(String user, String destination,
 			String lifetime) throws Exception {
 		String keytabFileSuffix = user + ".dev.headless.keytab";
