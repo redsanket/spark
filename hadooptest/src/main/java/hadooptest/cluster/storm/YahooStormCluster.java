@@ -8,8 +8,16 @@ import java.util.ArrayList;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 
 import hadooptest.ConfigProperties;
+import hadooptest.cluster.storm.ClusterUtil;
+
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpRequest;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+
 
 import org.apache.thrift7.TException;
 import backtype.storm.Config;
@@ -19,19 +27,24 @@ import backtype.storm.generated.*;
 import backtype.storm.utils.NimbusClient;
 import backtype.storm.utils.Utils;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The current storm cluster, assumed to be installed through yinst.
  */
 public class YahooStormCluster implements ModifiableStormCluster {
+    final static Logger LOG = LoggerFactory.getLogger(YahooStormCluster.class);
     private NimbusClient cluster;
-    private Map<String,String> origConf;
-    private boolean confChanged;
+    private ClusterUtil ystormConf = new ClusterUtil("ystorm");
+    private ClusterUtil registryConf = new ClusterUtil("ystorm_registry");
+    private String registryURI;
 
     public void init(ConfigProperties conf) throws Exception {
         System.err.println("INIT CLUSTER");
         setupClient();
-        origConf = getYinstConf();
-        confChanged = false;
+	ystormConf.init("ystorm");
     }
 
     private void setupClient() throws Exception {
@@ -131,42 +144,12 @@ public class YahooStormCluster implements ModifiableStormCluster {
 
     public void resetConfigsAndRestart() throws Exception {
         System.err.println("RESET CONFIGS AND RESTART");
-        if (!confChanged) {
+        if (!ystormConf.changed()) {
             return;
         }
-        //TODO allow this to run on multiple nodes
-        Map<String,String> current = getYinstConf();
-        HashSet<String> toRemove = new HashSet<String>(current.keySet());
-        toRemove.removeAll(origConf.keySet());
 
-        if (!toRemove.isEmpty()) {
-            List<String> command = new ArrayList<String>();
-            command.add("yinst");
-            command.add("unset");
-            command.addAll(toRemove);
-            System.err.println("Running "+command);
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.inheritIO();
-            Process p = pb.start();
-            if (p.waitFor() != 0) {
-                throw new RuntimeException("yinst returned an error code "+p.exitValue());
-            }
-        }
+	ystormConf.resetConfigs();
 
-        List<String> command = new ArrayList<String>();
-        command.add("yinst");
-        command.add("set");
-        for (Map.Entry<String,String> entry: origConf.entrySet()) {
-            command.add(entry.getKey()+"="+entry.getValue());
-        }
-        System.err.println("Running "+command);
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
-        confChanged = false;
         restartCluster();
     }
 
@@ -185,52 +168,11 @@ public class YahooStormCluster implements ModifiableStormCluster {
     }
 
     public void unsetConf(String key) throws Exception {
-        System.err.println("Unsetting "+key);
-        confChanged = true;
-        String strKey = "ystorm."+key.replace('.','_');
-        //TODO for all of the nodes (May want something that allows for a specific class of node to be set)
-        ProcessBuilder pb = new ProcessBuilder("yinst","unset",strKey);
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+	ystormConf.unsetConf(key);
     }
 
     public void setConf(String key, Object value) throws Exception {
-        System.err.println("setting "+key+"="+value);
-        confChanged = true;
-        String strVal = value.toString();
-        if (value instanceof Map) {
-            StringBuffer b = new StringBuffer();
-            for (Map.Entry<?,?> entry: ((Map<?,?>)value).entrySet()) {
-                if (b.length() != 0) {
-                    b.append(",");
-                }
-                b.append(entry.getKey().toString());
-                b.append(",");
-                b.append(entry.getValue().toString());
-            }
-            strVal = b.toString();
-        } else if (value instanceof Iterable) {
-            StringBuffer b = new StringBuffer();
-            for (Object o: ((Iterable<?>)value)) {
-                if (b.length() != 0) {
-                    b.append(",");
-                }
-                b.append(o.toString());
-            }
-            strVal = b.toString();
-        }
-
-        String strKey = "ystorm."+key.replace('.','_');
-        //TODO for all of the nodes (May want something that allows for a specific class of node to be set)
-        ProcessBuilder pb = new ProcessBuilder("yinst","set",strKey+"="+strVal);
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+	ystormConf.setConf(key, value);
     }
 
     public void stopCluster() throws Exception {
@@ -259,4 +201,83 @@ public class YahooStormCluster implements ModifiableStormCluster {
         setupClient();
     }
 
+    public void unsetRegistryConf(String key) throws Exception {
+	registryConf.unsetConf(key);
+    }
+
+    public void setRegistryConf(String key, Object value) throws Exception {
+	registryConf.setConf(key, value);
+    }
+
+    public void stopRegistryServer() throws Exception {
+        System.err.println("STOPPING REGISTRY SERVER"); 
+        //TODO allow this to run on multiple nodes
+        ProcessBuilder pb = new ProcessBuilder("yinst","stop","ystorm_registry");
+        pb.inheritIO();
+        Process p = pb.start();
+        if (p.waitFor() != 0) {
+            throw new RuntimeException("yinst returned an error code "+p.exitValue());
+        }
+    }
+
+    public void startRegistryServer() throws Exception {
+        System.err.println("STARTING REGISTRY SERVER"); 
+        //TODO allow this to run on multiple nodes
+        ProcessBuilder pb = new ProcessBuilder("yinst","start","ystorm_registry");
+        pb.inheritIO();
+        Process p = pb.start();
+        if (p.waitFor() != 0) {
+            throw new RuntimeException("yinst returned an error code "+p.exitValue());
+        }
+        Thread.sleep(30000);//TODO replace this with something to detect the registry server is up.
+	// Let's periodically poll the server's status api until it comes back clean or until we think it's been too long.
+	
+	// Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
+	// Create and start client
+	HttpClient client = new HttpClient();
+	try {
+		client.start();
+	} catch (Exception e) {
+		throw new IOException("Could not start Http Client", e);
+	}
+
+	// Get the URI to ping
+	String statusURL = registryURI + "status/";
+
+	// Let's try for 2 minutes, or until we get a 200 back.
+	boolean done = false;
+	int tryCount = 100;
+	while (!done && tryCount > 0) {
+        	Thread.sleep(1000);
+		Request req = client.newRequest(statusURL);
+		ContentResponse resp = null;
+		LOG.warn("Trying to get status at " + statusURL);
+		try {
+			resp = req.send();
+		} catch (Exception e) {
+			tryCount -= 1;
+		}
+
+		if (resp != null && resp.getStatus() == 200) {
+			done = true;
+		}
+	}
+	
+	// Stop client
+        try {
+          client.stop();
+        } catch (Exception e) {
+          throw new IOException("Could not stop http client", e);
+        }
+
+	// Did we fail?
+	if (!done) {
+		throw new IOException("Timed out trying to get Registry Server Status\n");
+	}
+    }
+
+    public void setRegistryServerURI(String uri) throws Exception {
+	registryURI = uri;
+	setRegistryConf("yarn_registry_uri", uri);
+    }
 }
