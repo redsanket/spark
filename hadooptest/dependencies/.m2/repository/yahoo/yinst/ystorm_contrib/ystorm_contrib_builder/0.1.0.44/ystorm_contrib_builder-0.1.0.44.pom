@@ -5,7 +5,7 @@
     <groupId>yahoo.yinst.ystorm_contrib</groupId>
     <artifactId>ystorm_contrib_builder</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.0.22</version>
+    <version>0.1.0.44</version>
     <name>ystorm_contrib_builder</name>
     <description>ystorm_contrib_builder</description>
 

@@ -125,8 +125,8 @@
   <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-yarn-server-resourcemanager/2.2.0/hadoop-yarn-server-resourcemanager-2.2.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/hadoop/hadoop-mapreduce-examples/2.2.0/hadoop-mapreduce-examples-2.2.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/yjava_byauth/yjava_byauth/0.6.0/yjava_byauth-0.6.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/yahoo/yinst/ystorm_contrib/http_spout/0.1.0.22/http_spout-0.1.0.22.jar"/>
-  <classpathentry kind="var" path="M2_REPO/yahoo/yinst/ystorm_contrib/yamas_metrics_consumer/0.1.0.22/yamas_metrics_consumer-0.1.0.22.jar"/>
+  <classpathentry kind="var" path="M2_REPO/yahoo/yinst/ystorm_contrib/http_spout/0.1.0.44/http_spout-0.1.0.44.jar"/>
+  <classpathentry kind="var" path="M2_REPO/yahoo/yinst/ystorm_contrib/yamas_metrics_consumer/0.1.0.44/yamas_metrics_consumer-0.1.0.44.jar"/>
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/mon_metrics_java/mon_metrics_java/1.0.0_0/mon_metrics_java-1.0.0_0.jar"/>
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/yjava_jetty/yjava_jetty/9.0.6.v20130930_0.47/yjava_jetty-9.0.6.v20130930_0.47.jar"/>
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/bouncer_auth_java/bouncer_auth_java/0.9.83/bouncer_auth_java-0.9.83.jar"/>
@@ -199,7 +199,7 @@
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/jports_org_apache_avro__avro/org_apache_avro__avro/1.7.3_1/org_apache_avro__avro-1.7.3_1.jar"/>
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/dh_rainbow_util_java/dh_rainbow_util_java/0.1.0.22022.444/dh_rainbow_util_java-0.1.0.22022.444.jar"/>
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/dh_rainbow_util_batch_java/dh_rainbow_util_batch_java/0.0.0.0.22307.1/dh_rainbow_util_batch_java-0.0.0.0.22307.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/yahoo/yinst/ystorm_contrib/rainbow_spout_example/0.1.0.22/rainbow_spout_example-0.1.0.22.jar"/>
+  <classpathentry kind="var" path="M2_REPO/yahoo/yinst/ystorm_contrib/rainbow_spout_example/0.1.0.44/rainbow_spout_example-0.1.0.44.jar"/>
   <classpathentry kind="var" path="M2_REPO/args4j/args4j/2.0.16/args4j-2.0.16.jar"/>
   <classpathentry kind="var" path="M2_REPO/yahoo/yinst/ystorm/storm/0.9.0_wip21.216/storm-0.9.0_wip21.216.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar"/>

@@ -6,6 +6,6 @@ import java.net.URI;
 public class TestDHSpout extends RainbowSpout {
 
 	public TestDHSpout(URI serviceURI) {
-		super(serviceURI);
+		super(serviceURI, false, null);
 	}
 }
