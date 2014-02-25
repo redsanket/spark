@@ -129,15 +129,16 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 
 		for (String fileBeingMonitored : sshAgentRunFlags.keySet()) {
 			JavaSshClient execJsch = jschExecs.get(fileBeingMonitored);
-			if (execJsch != null){
+			if (execJsch != null) {
 				execJsch.keepRunning = false;
 			}
 			printWritersToLocalFileDump.get(fileBeingMonitored).close();
-			if (execJsch !=null){
+			if (execJsch != null) {
 				channelExec = (ChannelExec) execJsch.channel;
 				session = execJsch.session;
-				TestSession.logger.debug("Disconnecting channel and session for:"
-					+ fileBeingMonitored);
+				TestSession.logger
+						.debug("Disconnecting channel and session for:"
+								+ fileBeingMonitored);
 			}
 			try {
 				if (channelExec != null) {
@@ -168,8 +169,8 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 			 * Disconnect from the "tail -F", else this would leave zombie
 			 * processes on the server.
 			 */
-//			channelExec.disconnect();
-//			session.disconnect();
+			// channelExec.disconnect();
+			// session.disconnect();
 
 			sshAgentRunFlags.put(fileBeingMonitored, false);
 			for (final SshAgentLogMetadata sshAgentLogMetadata : fileMetadataList) {
@@ -198,7 +199,7 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 	}
 
 	@Override
-	public void fetchResourceUsageIntoMemory(int tick) throws IOException {
+	public void monitorDoYourThing(int tick) throws IOException {
 		TestSession.logger.info("SSH tick count:" + tick
 				+ " && fileMetadataList size=" + fileMetadataList.size());
 		Thread aThread = null;
@@ -223,8 +224,6 @@ public class SshAgentLogMonitor extends AbstractMonitor {
 				aThread.setName(sshAgentLogMetadata.fileName);
 				tailThreads.put(sshAgentLogMetadata.fileName, aThread);
 				aThread.start();
-				// sshAgentInputStreams.put(fileBeingMonitored,
-				// execJsch.inputStream);
 			}
 		}
 		for (final SshAgentLogMetadata sshAgentLogMetadata : fileMetadataList) {

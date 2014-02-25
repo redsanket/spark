@@ -80,7 +80,6 @@ public class JavaSshClient {
 					if (i < 0)
 						break;
 					String outputFragment = new String(tmp, 0, i);
-//					System.out.println(outputFragment);
 					printWriterToLocalFile.print(outputFragment);
 				}
 
@@ -98,7 +97,6 @@ public class JavaSshClient {
 			session.disconnect();
 
 		} catch (JSchException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();

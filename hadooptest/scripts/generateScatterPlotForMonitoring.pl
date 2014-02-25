@@ -153,7 +153,7 @@ sub generateHashCode{
     $dateLookup{"Oct"} = 10;
     $dateLookup{"Nov"} = 11;
     $dateLookup{"Dec"} = 12;
-    my @splits= split(/-/, $dateString);   #Get rid of the "1-" or "2-" sequences
+    my @splits= split(/-----/, $dateString);   #Get rid of the "1-" or "2-" sequences
     $dateString = $splits[1];
     my @dateComponents = split(/_/, $dateString);
     print "Sec = " . $dateComponents[5] . "\n";
@@ -227,7 +227,9 @@ perlchartdir::PolygonShape(5),
 perlchartdir::PolygonShape(6),
 perlchartdir::Polygon2Shape(5),
 perlchartdir::Polygon2Shape(6),
-perlchartdir::CrossShape(6), ];
+perlchartdir::CrossShape(6),
+
+];
 
 # Create an XYChart object of size 900 x 500 pixels, with a light blue (EEEEFF)
 # background, black border, 1 pxiel 3D border effect and rounded corners
@@ -272,8 +274,7 @@ $c->yAxis()->setLabelStep(1);
 print "==============================================\n";
 $count=0;
 foreach my $runn (keys (%xRunAndData)){
-	#$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $$symbols[$count], 15, $$colors[$count]);
-	$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $$symbols[$count], 15, $runAndColor{$runn});
+	$c->addScatterLayer($xRunAndData{$runn}, $yRunAndData{$runn}, "Run-".$runn, $$symbols[$count % scalar(@$symbols)], 15, $runAndColor{$runn});
 	$count++;
 	print "Loop-".$runn."\n";
 }

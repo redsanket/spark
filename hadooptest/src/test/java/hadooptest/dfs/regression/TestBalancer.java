@@ -3,28 +3,15 @@ package hadooptest.dfs.regression;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.cluster.hadoop.HadoopCluster.Action;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
-import hadooptest.workflow.hadoop.job.JobClient;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.hadoop.mapred.JobStatus;
-import org.apache.hadoop.mapred.JobTracker;
-import org.apache.hadoop.mapred.TIPStatus;
-import org.apache.hadoop.mapreduce.JobStatus.State;
-import org.apache.hadoop.mapreduce.TaskTrackerInfo;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;

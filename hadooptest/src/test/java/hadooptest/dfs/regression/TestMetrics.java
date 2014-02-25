@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
 import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 
@@ -44,7 +45,6 @@ public class TestMetrics extends DfsBaseClass {
 	private int PROP_REFRESH_TIME = 0;
 	private int CURRENT_VALUE = 0;
 	private static String METRICS_PROP = "'*.period'";
-	
 
 	private String namenodeHostname;
 	private static String localCluster = System.getProperty("CLUSTER_NAME");
@@ -52,10 +52,9 @@ public class TestMetrics extends DfsBaseClass {
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] {
-		// Schemas
-		 { HadooptestConstants.Schema.WEBHDFS },
-		 { "" },
-		{ HadooptestConstants.Schema.HDFS }, });
+				// Schemas
+				{ HadooptestConstants.Schema.WEBHDFS }, { "" },
+				{ HadooptestConstants.Schema.HDFS }, });
 	}
 
 	@Before
@@ -145,156 +144,122 @@ public class TestMetrics extends DfsBaseClass {
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		// Create files, under DATA_DIR
-		genericCliResponse = dfsCliCommands
-				.touchz(EMPTY_ENV_HASH_MAP,
-						HadooptestConstants.UserNames.HADOOPQA, protocol,
-						localCluster,
-						TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR
-								+ "file00.txt");
+		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR + "file00.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
-		genericCliResponse = dfsCliCommands
-				.touchz(EMPTY_ENV_HASH_MAP,
-						HadooptestConstants.UserNames.HADOOPQA, protocol,
-						localCluster,
-						TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR
-								+ "file01.txt");
+		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR + "file01.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
-		genericCliResponse = dfsCliCommands
-				.touchz(EMPTY_ENV_HASH_MAP,
-						HadooptestConstants.UserNames.HADOOPQA, protocol,
-						localCluster,
-						TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR
-								+ "file02.txt");
+		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR + "file02.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		// Create files, under DATA_DIR00
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file10.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file10.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file11.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file11.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file12.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file12.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file13.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file13.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file14.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file14.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file15.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file15.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file16.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file16.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file17.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file17.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file18.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file18.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00
-						+ "file19.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 + "file19.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		// Create 5 files, under DATA_DIR01
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "file10.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "file10.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "file11.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "file11.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "file12.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "file12.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "file13.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "file13.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.touchz(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "file14.txt");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "file14.txt");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		// Create 10 dirs under dir01
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir10/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir10/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir11/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir11/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir12/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir12/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir13/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir13/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir14/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir14/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir15/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir15/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir16/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir16/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir17/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir17/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir18/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir18/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01
-						+ "dir19/");
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 + "dir19/");
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 	}
@@ -358,7 +323,7 @@ public class TestMetrics extends DfsBaseClass {
 
 	}
 
-	 @Test
+	@Test
 	public void test_FilesInGetListingOps1() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -367,8 +332,7 @@ public class TestMetrics extends DfsBaseClass {
 		resetInfo();
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00,
-				Recursive.NO);
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00, Recursive.NO);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		waitForRefresh();
@@ -383,7 +347,7 @@ public class TestMetrics extends DfsBaseClass {
 
 	}
 
-	 @Test
+	@Test
 	public void test_FilesInGetListingOps2() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -391,11 +355,9 @@ public class TestMetrics extends DfsBaseClass {
 		waitForRefresh();
 
 		resetInfo();
-		genericCliResponse = dfsCliCommands
-				.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA,
-						protocol, localCluster,
-						TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR,
-						Recursive.YES);
+		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR, Recursive.YES);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		waitForRefresh();
@@ -410,7 +372,7 @@ public class TestMetrics extends DfsBaseClass {
 
 	}
 
-	 @Test
+	@Test
 	public void test_FilesInGetListingOps4() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -420,8 +382,7 @@ public class TestMetrics extends DfsBaseClass {
 		resetInfo();
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00,
-				Recursive.YES);
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00, Recursive.YES);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		waitForRefresh();
@@ -441,10 +402,12 @@ public class TestMetrics extends DfsBaseClass {
 				HadooptestConstants.NodeTypes.NAMENODE);
 
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 
 		resetInfo();
 		Assert.assertTrue("The current value for property " + PROPERTY
@@ -453,7 +416,7 @@ public class TestMetrics extends DfsBaseClass {
 
 	}
 
-	 @Test
+	@Test
 	public void test_FilesInGetListingOps5() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -463,11 +426,9 @@ public class TestMetrics extends DfsBaseClass {
 		resetInfo();
 
 		// Issue dfs -ls command on DATA_DIR, it has 31 items
-		genericCliResponse = dfsCliCommands
-				.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA,
-						protocol, localCluster,
-						TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR,
-						Recursive.YES);
+		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR, Recursive.YES);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		int numOfItemsListed = genericCliResponse.response.split("\n").length;
 		TestSession.logger.info("Read back count of items as:"
@@ -485,19 +446,16 @@ public class TestMetrics extends DfsBaseClass {
 		// Issue dfs -ls command on dir01, it has 15 items
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01,
-				Recursive.NO);
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01, Recursive.NO);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		numOfItemsListed = genericCliResponse.response.split("\n").length;
 		TestSession.logger.info("Read back count of items as:"
 				+ numOfItemsListed + " was expecting 15");
 
 		// Issue dfs -ls command on DATA_DIR, it has 31 items
-		genericCliResponse = dfsCliCommands
-				.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA,
-						protocol, localCluster,
-						TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR,
-						Recursive.YES);
+		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR, Recursive.YES);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		numOfItemsListed = genericCliResponse.response.split("\n").length;
 		TestSession.logger.info("Read back count of items as:"
@@ -524,10 +482,11 @@ public class TestMetrics extends DfsBaseClass {
 
 		resetInfo();
 
-		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR_EMPTY,
-				Recursive.NO);
+		genericCliResponse = dfsCliCommands
+				.ls(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA,
+						protocol, localCluster,
+						TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR_EMPTY,
+						Recursive.NO);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		waitForRefresh();

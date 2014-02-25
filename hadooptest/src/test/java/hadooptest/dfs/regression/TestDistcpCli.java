@@ -144,6 +144,8 @@ public class TestDistcpCli extends DfsBaseClass {
 					}
 				}
 			}
+			//Reset it for each cluster
+			pathsChmodedSoFar = new HashMap<String, Boolean>();
 		}
 		isDataCopiedAcrossConcernedClusters = true;
 
@@ -162,7 +164,7 @@ public class TestDistcpCli extends DfsBaseClass {
 					+ this.parametrizedCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFile
 					+ appendStringOnCopiedFile;
-			dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, this.localCluster,
 					this.parametrizedCluster, DATA_DIR_IN_HDFS + justTheFile,
 					destinationFile, HadooptestConstants.Schema.WEBHDFS,
@@ -181,7 +183,7 @@ public class TestDistcpCli extends DfsBaseClass {
 					+ this.localCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFile
 					+ appendStringOnCopiedFile;
-			dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					this.parametrizedCluster, this.localCluster,
 					DATA_DIR_IN_HDFS + justTheFile, destinationFile,
@@ -213,7 +215,7 @@ public class TestDistcpCli extends DfsBaseClass {
 				appendString = ".srcWebhdfs." + this.localCluster + ".dstHdfs."
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
-				dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFile, destinationFile,
@@ -232,7 +234,7 @@ public class TestDistcpCli extends DfsBaseClass {
 			appendString = ".srcWebhdfs." + this.parametrizedCluster
 					+ ".dstHdfs." + this.localCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
-			dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					this.parametrizedCluster, this.localCluster,
 					DATA_DIR_IN_HDFS + justTheFile, destinationFile,
@@ -264,7 +266,7 @@ public class TestDistcpCli extends DfsBaseClass {
 				appendString = ".srcHftp." + this.localCluster + ".dstWebHdfs."
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
-				dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFile, destinationFile,
@@ -302,7 +304,7 @@ public class TestDistcpCli extends DfsBaseClass {
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
-				dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,
@@ -339,7 +341,7 @@ public class TestDistcpCli extends DfsBaseClass {
 			appendString = ".srcHdfs." + this.localCluster + ".dstWebhdfs."
 					+ this.parametrizedCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFileName + appendString;
-			dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, this.localCluster,
 					this.parametrizedCluster, DATA_DIR_IN_HDFS
 							+ justTheFileName, destinationFile,
@@ -363,7 +365,7 @@ public class TestDistcpCli extends DfsBaseClass {
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
 
-				dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.parametrizedCluster, this.localCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,
@@ -399,7 +401,7 @@ public class TestDistcpCli extends DfsBaseClass {
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
-				dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,
@@ -419,7 +421,7 @@ public class TestDistcpCli extends DfsBaseClass {
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
 
-				dfsCommonCliCommands.distcpFileUsingProtocol(EMPTY_ENV_HASH_MAP,
+				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.parametrizedCluster, this.localCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,

@@ -73,7 +73,7 @@ public class LogMonitor extends AbstractMonitor {
 	 * end of the test run.
 	 */
 	@Override
-	public void fetchResourceUsageIntoMemory(int tick) throws IOException {
+	public void monitorDoYourThing(int tick) throws IOException {
 		// Just so that the thread stops, since logs just need to be collected
 		// at the end as a one time thinggy.
 		stopMonitoring();

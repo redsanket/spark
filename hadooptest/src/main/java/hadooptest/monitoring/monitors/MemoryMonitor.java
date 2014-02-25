@@ -59,7 +59,7 @@ public class MemoryMonitor extends AbstractMonitor {
 	 * memory is dumped into a file, once the test finishes.
 	 */
 	@Override
-	public void fetchResourceUsageIntoMemory(int tick) throws IOException {
+	public void monitorDoYourThing(int tick) throws IOException {
 		String responseLine;
 		Process p = Runtime.getRuntime().exec(commandStrings);
 		BufferedReader r = new BufferedReader(new InputStreamReader(

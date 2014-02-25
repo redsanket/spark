@@ -9,6 +9,7 @@ import hadooptest.monitoring.monitors.LogMonitor;
 import hadooptest.monitoring.monitors.MemoryMonitor;
 import hadooptest.monitoring.monitors.MonitorGeneral;
 import hadooptest.monitoring.monitors.SshAgentLogMonitor;
+import hadooptest.monitoring.monitors.TestDurationMonitor;
 import hadooptest.monitoring.monitors.TestStatusMonitor;
 
 import java.lang.annotation.Annotation;
@@ -123,11 +124,17 @@ public class MonitoringListener extends RunListener {
 						description.getMethodName());
 				monitorGeneral.registerMonitor(testStatusMonitor);
 
-				// Add the JOb Status Monitor
+				// Add the Job Status Monitor
 				JobStatusMonitor jobStatusMonitor = new JobStatusMonitor(cluster,
 						componentToHostMapping, descriptionOfTestClass,
 						description.getMethodName());
 				monitorGeneral.registerMonitor(jobStatusMonitor);
+
+				// Add the Test Duration Monitor
+				TestDurationMonitor testDurationMonitor = new TestDurationMonitor(cluster,
+						componentToHostMapping, descriptionOfTestClass,
+						description.getMethodName());
+				monitorGeneral.registerMonitor(testDurationMonitor);
 
 				// Start 'em monitors
 				monitorGeneral.startMonitors();

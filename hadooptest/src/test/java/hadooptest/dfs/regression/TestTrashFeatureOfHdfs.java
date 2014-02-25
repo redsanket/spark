@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
 import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 
@@ -281,7 +282,7 @@ public class TestTrashFeatureOfHdfs extends DfsBaseClass {
 	 * Not:ported, because do not have permissions to edit core-site.xml
 	 */
 	@Deprecated
-	 //\\//\\//@Test
+	// \\//\\//@Test
 	public void test_FsTrashIntervalZERO_Filedelete() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		String coreSiteXml = HadooptestConstants.ConfFileNames.CORE_SITE_XML;
@@ -590,10 +591,12 @@ public class TestTrashFeatureOfHdfs extends DfsBaseClass {
 
 		}
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 
 		// copyFromLocal
 		genericCliResponse = dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
@@ -641,10 +644,12 @@ public class TestTrashFeatureOfHdfs extends DfsBaseClass {
 		}
 		skipRemovingDotTrashInAfterMethod = true;
 		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 
 	}
 

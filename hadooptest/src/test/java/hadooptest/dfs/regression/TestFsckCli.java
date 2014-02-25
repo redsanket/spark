@@ -8,6 +8,7 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
 import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
 import hadooptest.dfs.regression.DfsBaseClass.Force;
+import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
 import hadooptest.dfs.regression.DfsBaseClass.Recursive;
 import hadooptest.dfs.regression.DfsBaseClass.Report;
 import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
@@ -63,7 +64,7 @@ public class TestFsckCli extends DfsBaseClass {
 
 	static Logger logger = Logger.getLogger(TestFsckCli.class);
 
-	public static final String BYTES_PER_MAP = "mapreduce.randomwriter.bytespermap";
+	
 	private static final String FSCK_TESTS_DIR_ON_HDFS = DATA_DIR_IN_HDFS
 			+ "fsck_tests/";
 	private static final String RANDOM_WRITER_DATA_DIR = FSCK_TESTS_DIR_ON_HDFS
@@ -159,32 +160,6 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
-	/*
-	 * called by @Before
-	 */
-	public void runStdHadoopRandomWriter(String randomWriterOutputDirOnHdfs)
-			throws Exception {
-		logger.info("running RandomWriter.............");
-		Configuration conf = TestSession.cluster.getConf();
-		conf.setLong(BYTES_PER_MAP, 256000);
-		int res = ToolRunner.run(conf, new RandomWriter(),
-				new String[] { randomWriterOutputDirOnHdfs });
-		Assert.assertEquals(0, res);
-
-	}
-
-	/*
-	 * Run a sort Job, from package org.apache.hadoop.examples;
-	 */
-	public void runStdHadoopSortJob(String sortInputDataLocation,
-			String sortOutputDataLocation) throws Exception {
-		logger.info("running Sort Job.................");
-		Configuration conf = TestSession.cluster.getConf();
-		int res = ToolRunner.run(conf, new Sort<Text, Text>(), new String[] {
-				sortInputDataLocation, sortOutputDataLocation });
-		Assert.assertEquals(0, res);
-
-	}
 
 	/*
 	 * Creates a temporary directory before each test run to create a 3gb file.
@@ -270,9 +245,9 @@ public class TestFsckCli extends DfsBaseClass {
 		// The 3gb file on the local file system is automatically deleted
 		// after every test run, by JUnit
 	};
-
-	// @Test
+	
 	// test_fsck_02
+	 @Test
 	public void testFsckResultsLeveragingRandomWriterAndSortJobs()
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -301,8 +276,9 @@ public class TestFsckCli extends DfsBaseClass {
 		TestSession.logger
 				.info("Number of racks before running RandomWriterAndSortJobs: "
 						+ numberOfRacksBeforeRunningRandomWriterAndSortJobs);
-
-		runStdHadoopRandomWriter(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir);
+		HashMap<String, String> jobParams = new HashMap<String, String>();
+		jobParams.put("mapreduce.randomwriter.bytespermap", "256000");
+		runStdHadoopRandomWriter(jobParams, RANDOM_WRITER_DATA_DIR + randomWriterOutputDir);
 		runStdHadoopSortJob(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir,
 				SORT_JOB_DATA_DIR + sortJobOutputDir);
 
@@ -328,21 +304,26 @@ public class TestFsckCli extends DfsBaseClass {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		TestSession.logger
 				.info("________Beginning test testFsckWithSafemodeOn");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "enter", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "enter",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS, true,
 				true, true);
 		Assert.assertNotNull(fsckResponse);
 		Assert.assertEquals(fsckResponse.fsckSummaryBO.status, "HEALTHY");
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
-		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get", ClearQuota.NO,
-				SetQuota.NO, 0, ClearSpaceQuota.NO, SetSpaceQuota.NO, 0, null);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+		dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 
 	}
 
@@ -937,41 +918,6 @@ public class TestFsckCli extends DfsBaseClass {
 		Thread.sleep(120000);
 	}
 
-	String getHostNameFromIp(String ip) throws Exception {
-		String hostName = null;
-		StringBuilder sb = new StringBuilder();
-		sb.append("/usr/bin/nslookup");
-		sb.append(" ");
-		sb.append(ip);
-
-		String commandString = sb.toString();
-		logger.info(commandString);
-		String[] commandFrags = commandString.split("\\s+");
-		Map<String, String> envToUnsetHadoopPrefix = new HashMap<String, String>();
-		envToUnsetHadoopPrefix.put("HADOOP_PREFIX", "");
-
-		Process process = null;
-		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, HadooptestConstants.UserNames.DFSLOAD,
-				envToUnsetHadoopPrefix);
-
-		final String nslookupPattern = "([\\w\\.-]+)\\s+name\\s+=\\s+([\\w\\.]+)\\.";
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				process.getInputStream()));
-		String aLineFromNslookupResponse = reader.readLine();
-		while (aLineFromNslookupResponse != null) {
-			if (aLineFromNslookupResponse.matches(nslookupPattern)) {
-				hostName = aLineFromNslookupResponse.replaceAll(
-						nslookupPattern, "$2");
-				break;
-			}
-			TestSession.logger.info(aLineFromNslookupResponse
-					+ " is not what I am looking for");
-			aLineFromNslookupResponse = reader.readLine();
-		}
-
-		return hostName;
-	}
 
 	@After
 	public void logTaskResportSummary() {

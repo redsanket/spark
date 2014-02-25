@@ -1,5 +1,7 @@
 package hadooptest.dfs.regression;
 
+import hadooptest.TestSession;
+
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
@@ -66,6 +68,7 @@ public class DfsadminReportBO {
 	public DfsadminReportBO(String blurb) {
 		boolean processingLiveDatanodes = false;
 		boolean processingDeadDatanodes = false;
+		DatanodeBO aDatanodeBO = null;
 		for (String aLineBeingProcessed : blurb.split("\n")) {
 			if (!processingLiveDatanodes && !processingDeadDatanodes) {
 				if (aLineBeingProcessed.contains(LIVE_DATANODES_COLON)) {
@@ -132,69 +135,85 @@ public class DfsadminReportBO {
 					continue;
 				}
 			}
-
-			DatanodeBO aDatanodeBO = null;
+			
 
 			if (aLineBeingProcessed.contains(NAME_COLON)) {
 				aDatanodeBO = new DatanodeBO();
+				TestSession.logger.info("Allocated aDatanodeBO, after tripping on " + aLineBeingProcessed);
 				aDatanodeBO.name = aLineBeingProcessed.replace(NAME_COLON, "")
 						.trim();
+				
+				continue;
 			}
 			if (aLineBeingProcessed.contains(HOSTNAME_COLON)) {
 				aDatanodeBO.hostname = aLineBeingProcessed.replace(
 						HOSTNAME_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(RACK_COLON)) {
 				aDatanodeBO.rack = aLineBeingProcessed.replace(RACK_COLON, "")
 						.trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(DECOMMISSION_STATUS_COLON)) {
 				aDatanodeBO.decommissionStatus = aLineBeingProcessed.replace(
 						DECOMMISSION_STATUS_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(CONFIGURED_CAPACITY_COLON)) {
 				aDatanodeBO.configuredCapacity = aLineBeingProcessed.replace(
 						CONFIGURED_CAPACITY_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(DFS_USED_COLON)) {
 				aDatanodeBO.dfsUsed = aLineBeingProcessed.replace(
 						DFS_USED_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(NON_DFS_USED_COLON)) {
 				aDatanodeBO.nonDfsUsed = aLineBeingProcessed.replace(
 						NON_DFS_USED_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(DFS_REMAINING_COLON)) {
 				aDatanodeBO.dfsRemaining = aLineBeingProcessed.replace(
 						DFS_REMAINING_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(DFS_USED_PERCENTAGE_COLON)) {
 				aDatanodeBO.dfsUsedPercentage = aLineBeingProcessed.replace(
 						DFS_USED_PERCENTAGE_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(DFS_REMAINING_PERCENTAGE_COLON)) {
 				aDatanodeBO.dfsRemainingPercentage = aLineBeingProcessed
 						.replace(DFS_REMAINING_PERCENTAGE_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(CONFIGURED_CACHE_CAPACITY_COLON)) {
 				aDatanodeBO.configuredCacheCapacity = aLineBeingProcessed
 						.replace(CONFIGURED_CACHE_CAPACITY_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(CACHE_USED_COLON)) {
 				aDatanodeBO.cacheUsed = aLineBeingProcessed.replace(
 						CACHE_USED_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(CACHE_REMAINING_COLON)) {
 				aDatanodeBO.cacheRemaining = aLineBeingProcessed.replace(
 						CACHE_REMAINING_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(CACHE_USED_PERCENTAGE_COLON)) {
 				aDatanodeBO.cacheUsedPercentage = aLineBeingProcessed.replace(
 						CACHE_USED_PERCENTAGE_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(CACHE_REMAINING_PERCENTAGE_COLON)) {
 				aDatanodeBO.cacheRemainingPercentage = aLineBeingProcessed
 						.replace(CACHE_REMAINING_PERCENTAGE_COLON, "").trim();
+				continue;
 			}
 			if (aLineBeingProcessed.contains(LAST_CONTACT_COLON)) {
 				aDatanodeBO.lastContact = aLineBeingProcessed.replace(

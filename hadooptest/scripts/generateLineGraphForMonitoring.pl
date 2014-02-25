@@ -51,6 +51,7 @@ my $count=0;
 my $run;
 my %runAndData;
 my %runAndColor;
+my %runAndSymbol;
 my $colors = [ 0xff0000,
 0x00ff00,
 0x0000ff,
@@ -78,6 +79,30 @@ my $colors = [ 0xff0000,
 0x00FFFF,
 0x99CC33, ];
 
+my $symbols = [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+15,
+16,
+17,
+perlchartdir::StarShape(5),
+perlchartdir::StarShape(6),
+perlchartdir::StarShape(7),
+perlchartdir::StarShape(8),
+perlchartdir::StarShape(9),
+perlchartdir::StarShape(10),
+perlchartdir::PolygonShape(5),
+perlchartdir::PolygonShape(6),
+perlchartdir::Polygon2Shape(5),
+perlchartdir::Polygon2Shape(6),
+perlchartdir::CrossShape(6), ];
+
+
 foreach my $line (@lines){
 	if ($headingDone == 0){
 		$headingDone = 1;
@@ -95,12 +120,17 @@ foreach my $line (@lines){
             print $1 ." ". $2 . "\n";
             print "===========================\n";
             print "Colors size: " . scalar(@$colors) . "\n";
-            $hashNum = generateHashCode($run);
-            print "Converted date in secs is:" . $hashNum ."\n";
-            my $mod = $hashNum % scalar(@$colors);
-            print "Adding color: " . @$colors[$mod];
+            $hashCodeForColor = generateHashCodeToDetermineLineColor($run);
+            print "Converted date in secs is:" . $hashCodeForColor ."\n";
+            my $modIdxForColor = $hashCodeForColor % scalar(@$colors);
+            print "Adding color: " . @$colors[$modIdxForColor];
+
+            #Get a unique symbol for the run
+            $hashCodeForSymbol = convertDateIntoNumber($run);
+            my $modIdxForSymbol = $hashCodeForSymbol % scalar(@$symbols);
             print "===========================\n";
-            $runAndColor{$run}=@$colors[$mod];
+            $runAndColor{$run}=@$colors[$modIdxForColor];
+            $runAndSymbol{$run}=@$symbols[$modIdxForSymbol];
         }
 		next;
 	}else{
@@ -114,7 +144,7 @@ foreach my $line (@lines){
 	}
 	
 }
-sub generateHashCode{
+sub generateHashCodeToDetermineLineColor{
     my $dateString = shift;
     my %dateLookup=();
     $dateLookup{"Jan"} = 1;
@@ -211,6 +241,8 @@ $c->yAxis()->setLabelStyle("timesbd.ttf", 8);
 $c->xAxis()->setWidth(2);
 $c->yAxis()->setWidth(2);
 
+$c->yAxis()->setLabelStep(2);
+
 # Set the labels on the x axis.
 #print "Setting labels" . join("|",@labels);
 $c->xAxis()->setLabels(\@labels);
@@ -233,9 +265,11 @@ print "==============================================\n";
 $count=0;
 foreach my $runn (keys (%runAndData)){
     
-	#$layer->addDataSet($runAndData{$runn}, $$colors[$count++], $runn)->setDataSymbol($perlchartdir::CircleSymbol, 9);
 	print "Finally applying color " . $runAndColor{$runn} . " for run " . $runn . "\n";
-    $layer->addDataSet($runAndData{$runn}, $runAndColor{$runn}, $runn)->setDataSymbol($perlchartdir::CircleSymbol, 9);
+    #$layer->addDataSet($runAndData{$runn}, $runAndColor{$runn}, $runn)->setDataSymbol($perlchartdir::CircleSymbol, 9);
+    $layer->addDataSet($runAndData{$runn}, $runAndColor{$runn}, $runn)->setDataSymbol($runAndSymbol{$runn}, 9);
+    
+    
 }
 
 # Output the chart

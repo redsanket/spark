@@ -40,22 +40,20 @@ public class TestMonitoring extends TestSession {
 	@Rule
 	public TemporaryFolder aTempFolderCreatedByJunit = new TemporaryFolder();
 
-//	@Test
-//	@Monitorable(cpuPeriodicity = 30, memPeriodicity = 30)
+	@Test
+	@Monitorable(cpuPeriodicity = 30, memPeriodicity = 30)
 	public void testWithMonitoring() throws InterruptedException {
 		
 		
 		logger.info("Beginning Stress test.............sleeping for 10 secs");
-//		Assert.assertTrue(1==0);
 		Thread.sleep(30000);
 		logger.info("Test waking up, to finish!!!!!!!");
 	}
 
-//	@Test
-//	@Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
+	@Test
+	@Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
 	public void testWithMonitoringBuddy() throws InterruptedException {
 		logger.info("Beginning 2nd Stress test.............for the 2nd test!");
-//		Assert.assertTrue(1==0);
 		Thread.sleep(30000);
 		logger.info("2ns stress test finished");
 	}

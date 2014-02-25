@@ -3,15 +3,25 @@ package hadooptest.dfs.regression;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.examples.RandomWriter;
+import org.apache.hadoop.examples.Sort;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.ToolRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.rules.TemporaryFolder;
 
@@ -23,35 +33,81 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
 public class DfsBaseClass extends TestSession {
-	static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
-	private Set<String> setOfTestDataFilesInHdfs;
-	private Set<String> setOfTestDataFilesInLocalFs;
-
+	/**
+	 * Identity files needed for SSH
+	 */
 	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
-	
+	public static final String HADOOPQA_BLUE_DSA = "/homes/hadoopqa/.ssh/blue_dsa";
+	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
+
+	/**
+	 * Data structures for creating initial files
+	 */
+	static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
+	protected Set<String> setOfTestDataFilesInHdfs;
+	protected Set<String> setOfTestDataFilesInLocalFs;
+
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
 			+ "HTF/testdata/dfs/";
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
-	
-	public final HashMap<String,String> EMPTY_ENV_HASH_MAP = new HashMap<String,String>();
+
+	public final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
+	public static final String EMPTY_FS_ENTITY = "";
+	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
-	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
 	HashMap<String, Boolean> pathsChmodedSoFar;
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
-	public enum Recursive {YES, NO };
-	public enum Force {YES, NO };
-	public enum SkipTrash {YES, NO };
-	public enum ClearQuota {YES, NO };
-	public enum SetQuota {YES, NO };
-	public enum ClearSpaceQuota {YES, NO };
-	public enum SetSpaceQuota {YES, NO };
-	public enum Report {YES, NO };
+	/**
+	 * Hadoop job defines
+	 */
 	
+
+	/**
+	 * Options passed to CLI commands
+	 * 
+	 */
+	public enum Recursive {
+		YES, NO
+	};
+
+	public enum Force {
+		YES, NO
+	};
+
+	public enum SkipTrash {
+		YES, NO
+	};
+
+	public enum ClearQuota {
+		YES, NO
+	};
+
+	public enum SetQuota {
+		YES, NO
+	};
+
+	public enum ClearSpaceQuota {
+		YES, NO
+	};
+
+	public enum SetSpaceQuota {
+		YES, NO
+	};
+
+	public enum Report {
+		YES, NO
+	};
+
+	public enum PrintTopology {
+		YES, NO
+	};
+
+	// ----------------------------------------------------------//
 	@Before
 	public void ensureDataBeforeTestRun() {
 
@@ -82,7 +138,7 @@ public class DfsBaseClass extends TestSession {
 		fileMetadata.put("file_767MB", new Double((double) 767 * 1024 * 1024));
 		fileMetadata.put("file_768MB", new Double((double) 768 * 1024 * 1024));
 		fileMetadata.put("file_769MB", new Double((double) 769 * 1024 * 1024));
-		// // Huge file
+		// Huge file
 		fileMetadata.put("file_11GB",
 				new Double(((double) ((double) (double) 10 * (double) 1024
 						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
@@ -112,7 +168,8 @@ public class DfsBaseClass extends TestSession {
 			pathSoFar = pathSoFar + aDir + "/";
 			TestSession.logger.info("PathSoFar:" + pathSoFar);
 			if (!pathsChmodedSoFar.containsKey(pathSoFar)) {
-				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
+				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
 						"777");
 				pathsChmodedSoFar.put(pathSoFar, true);
@@ -236,12 +293,36 @@ public class DfsBaseClass extends TestSession {
 		}
 
 	}
-	
+
+	public static class MyLogger implements com.jcraft.jsch.Logger {
+		static java.util.Hashtable name = new java.util.Hashtable();
+		static {
+			name.put(new Integer(DEBUG), "DEBUG: ");
+			name.put(new Integer(INFO), "INFO: ");
+			name.put(new Integer(WARN), "WARN: ");
+			name.put(new Integer(ERROR), "ERROR: ");
+			name.put(new Integer(FATAL), "FATAL: ");
+		}
+
+		public boolean isEnabled(int level) {
+			return true;
+		}
+
+		public void log(int level, String message) {
+			System.err.print(name.get(new Integer(level)));
+			System.err.println(message);
+		}
+	}
+
 	public String doJavaSSHClientExec(String user, String host, String command,
 			String identityFile) {
 		JSch jsch = new JSch();
+
+		// JSch.setLogger(new MyLogger());
+
 		TestSession.logger.info("SSH Client is about to run command:" + command
-				+ " on host:" + host);
+				+ " on host:" + host + "as user:" + user
+				+ " using identity file:" + identityFile);
 		Session session;
 		StringBuilder sb = new StringBuilder();
 		try {
@@ -293,7 +374,6 @@ public class DfsBaseClass extends TestSession {
 		return sb.toString();
 	}
 
-	
 	public class MyUserInfo implements UserInfo {
 
 		public String getPassphrase() {
@@ -328,5 +408,43 @@ public class DfsBaseClass extends TestSession {
 
 	}
 
+	String getHostNameFromIp(String ip) throws Exception {
+
+		InetAddress iaddr = InetAddress.getByName(ip);
+		System.out.println("And the Host name of the g/w is:"
+				+ iaddr.getHostName());
+		return iaddr.getHostName();
+
+	}
+
+	/*
+	 * called by @Before
+	 */
+	public void runStdHadoopRandomWriter(HashMap<String, String> jobParams, String randomWriterOutputDirOnHdfs)
+			throws Exception {
+		logger.info("running RandomWriter.............");
+		Configuration conf = TestSession.cluster.getConf();
+		for (String key:jobParams.keySet()){
+			conf.set(key,  jobParams.get(key));
+//			conf.setLong(BYTES_PER_MAP, 256000);
+		}
+		int res = ToolRunner.run(conf, new RandomWriter(),
+				new String[] { randomWriterOutputDirOnHdfs });
+		Assert.assertEquals(0, res);
+
+	}
+
+	/*
+	 * Run a sort Job, from package org.apache.hadoop.examples;
+	 */
+	public void runStdHadoopSortJob(String sortInputDataLocation,
+			String sortOutputDataLocation) throws Exception {
+		logger.info("running Sort Job.................");
+		Configuration conf = TestSession.cluster.getConf();
+		int res = ToolRunner.run(conf, new Sort<Text, Text>(), new String[] {
+				sortInputDataLocation, sortOutputDataLocation });
+		Assert.assertEquals(0, res);
+
+	}
 
 }
