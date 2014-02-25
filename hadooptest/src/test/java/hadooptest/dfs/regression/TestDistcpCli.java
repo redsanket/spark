@@ -144,6 +144,8 @@ public class TestDistcpCli extends DfsBaseClass {
 					}
 				}
 			}
+			//Reset it for each cluster
+			pathsChmodedSoFar = new HashMap<String, Boolean>();
 		}
 		isDataCopiedAcrossConcernedClusters = true;
 
