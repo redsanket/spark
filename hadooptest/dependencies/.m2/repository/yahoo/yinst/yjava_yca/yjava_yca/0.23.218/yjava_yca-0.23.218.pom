@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<groupId>yahoo.yinst.yjava_base_build</groupId>
+		<artifactId>yjava_base_build_jni</artifactId>
+		<version>3.1.6.198</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>yahoo.yinst.yjava_yca</groupId>
+	<artifactId>yjava_yca</artifactId>
+	<packaging>jar</packaging>
+	<version>0.23.${build}</version>
+	<name>yjava_yca</name>
+	<url>http://twiki.corp.yahoo.com/view/JavaPlatform/PackageYJavaYCA</url>
+	<description>Java wrappers for YCA</description>
+
+	<properties>
+		<bug.component>yjava_yca</bug.component>
+		<scm.path>yahoo/yjava/yinfra/yca/trunk</scm.path>
+		<mailingList.name>java-platform-devel</mailingList.name>
+		<javadocs.package.exclude>yjava.security.yca.internal</javadocs.package.exclude>
+	</properties>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.3.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>yahoo.yinst.yjava_junit_extensions</groupId>
+			<artifactId>yjava_junit_extensions</artifactId>
+			<version>0.0.7</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+			<scope>provided</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<showDeprecation>false</showDeprecation>
+					<optimize>false</optimize>
+					<debug>true</debug>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.3</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>yjava.security.yca</Bundle-SymbolicName>
+						<Bundle-Name>${pom.name}</Bundle-Name>
+						<Bundle-Version>${version}</Bundle-Version>
+						<Import-Package>*;resolution:=optional</Import-Package>
+						<Export-Package>
+							com.yahoo.yjava.yca;version="${version}",
+							yjava.security.yca;version="${version}",
+							yjava.security.yca.internal;version="${version}"
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<activation>
+				<jdk>1.7</jdk>
+			</activation>
+			<id>fix-javadocs</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.9.1</version>
+						<configuration>
+							<debug>true</debug>
+							<additionalJOptions>
+								<additionalJOption>-XDiag</additionalJOption>
+								<!-- SR 3-7600023701 -->
+								<additionalJOption>-J-XX:-UseG1GC -J-Xms20m</additionalJOption>
+							</additionalJOptions>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

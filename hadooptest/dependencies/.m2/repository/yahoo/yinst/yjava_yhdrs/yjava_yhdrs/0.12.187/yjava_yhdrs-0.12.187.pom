@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<groupId>yahoo.yinst.yjava_base_build</groupId>
+		<artifactId>yjava_base_build</artifactId>
+		<version>3.1.6.173</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>yahoo.yinst.yjava_yhdrs</groupId>
+	<artifactId>yjava_yhdrs</artifactId>
+	<packaging>jar</packaging>
+	<version>0.12.${build}</version>
+	<name>yjava_yhdrs</name>
+	<url>http://twiki.corp.yahoo.com/view/JavaPlatform/PackageYJavaYhdrs</url>
+	<description>Java wrappers for yhdrs</description>
+
+	<properties>
+		<bug.component>yjava_yhdrs</bug.component>
+		<scm.path>yahoo/yjava/yinfra/yhdrs/trunk</scm.path>
+		<mailingList.name>java-platform-devel</mailingList.name>
+		<javadocs.package.exclude>yjava.security.yhdrs.swig</javadocs.package.exclude>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>yahoo.yinst.yjava_ynet</groupId>
+			<artifactId>yjava_ynet</artifactId>
+			<version>0.10.102</version>
+			<scope>provided</scope>
+		</dependency>
+        <dependency>
+            <groupId>yahoo.yinst.yjava_ysecure</groupId>
+            <artifactId>yjava_ysecure</artifactId>
+            <version>1.12.72</version>
+            <scope>provided</scope>
+        </dependency>
+		<dependency>
+			<groupId>yahoo.yinst.yjava_ysecure_native</groupId>
+			<artifactId>yjava_ysecure_native</artifactId>
+			<version>1.12.139</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.3.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>yjava.security.yhdrs</Bundle-SymbolicName>
+						<Bundle-Name>${pom.name}</Bundle-Name>
+						<Bundle-Version>${version}</Bundle-Version>
+						<Import-Package>*;resolution:=optional</Import-Package>
+						<Export-Package>
+							yjava.security.yhdrs;version="${version}",
+							yjava.security.yhdrs.execeptions;version="${version}",
+							yjava.security.yhdrs.internal;version="${version}"
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

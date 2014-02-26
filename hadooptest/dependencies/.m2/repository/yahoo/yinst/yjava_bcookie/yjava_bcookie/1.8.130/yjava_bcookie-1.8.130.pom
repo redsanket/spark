@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<groupId>yahoo.yinst.yjava_base_build</groupId>
+		<artifactId>yjava_base_build</artifactId>
+		<version>3.1.6.180</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>yahoo.yinst.yjava_bcookie</groupId>
+	<artifactId>yjava_bcookie</artifactId>
+	<packaging>jar</packaging>
+	<version>1.8.${build}</version>
+	<name>yjava_bcookie</name>
+	<url>http://twiki.corp.yahoo.com/view/JavaPlatform/PackageYJavaBCookie</url>
+	<description>Java wrappers for bcookie</description>
+
+	<properties>
+		<bug.component>yjava_bcookie</bug.component>
+		<scm.path>yahoo/yjava/yinfra/bcookie/trunk</scm.path>
+		<mailingList.name>java-platform-devel</mailingList.name>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.3.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>yahoo.yinst.yjava_junit_extensions</groupId>
+			<artifactId>yjava_junit_extensions</artifactId>
+			<version>0.0.8</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>yahoo.yinst.yjava_ysecure</groupId>
+			<artifactId>yjava_ysecure</artifactId>
+			<version>1.14.81</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>yahoo.yinst.yjava_ysecure_native</groupId>
+			<artifactId>yjava_ysecure_native</artifactId>
+			<version>1.14.141</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<configuration>
+		                    <archive>
+		                        <manifestFile>${project.build.outputDirectory}/META-INF/DEFAULT/MANIFEST.MF</manifestFile>
+		                    </archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+	            <groupId>org.apache.felix</groupId>
+	            <artifactId>maven-bundle-plugin</artifactId>
+	            <extensions>true</extensions>
+	            <executions>
+	                <execution>
+	                    <id>bundle-manifest</id>
+	                    <phase>process-classes</phase>
+	                    <goals>
+	                        <goal>manifest</goal>
+	                    </goals>
+			            <configuration>
+		                    <manifestLocation>${project.build.outputDirectory}/META-INF/DEFAULT</manifestLocation>
+			                <instructions>
+			                    <Bundle-SymbolicName>yjava.security.bcookie</Bundle-SymbolicName>
+			                    <Bundle-Name>${pom.name}</Bundle-Name>
+			                    <Bundle-Version>${version}</Bundle-Version>
+								<Import-Package>*;resolution:=optional</Import-Package>
+			                    <Export-Package>
+			                        yjava.security.bcookie;version="${version}" 
+			                        yjava.security.bcookie.jni;version="${version}" 
+			                    </Export-Package>
+			                </instructions>
+			            </configuration>
+	                </execution>
+	            </executions>
+	        </plugin>			
+		</plugins>
+	</build>
+
+</project>

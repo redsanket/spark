@@ -605,7 +605,7 @@
                          all framework access of the hadoop API) is done through a 64-bit JVM.
                          Setting the java.library.path to 64-bit native libraries here allows
                          Hadoop API access via 64-bit java from the gateways. -->
-					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/ -Xmx3g</argLine>
+					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/:/home/y/lib64 -Xmx3g</argLine>
 					<additionalClasspathElements>
 						<additionalClasspathElement>${basedir}</additionalClasspathElement>
 						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>

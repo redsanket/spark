@@ -53,11 +53,6 @@
       <name>Maven Checkstyle Plugin</name>
     </plugin>
     <plugin>
-      <prefix>checkstyle</prefix>
-      <artifactId>maven-checkstyle-plugin</artifactId>
-      <name>Apache Maven Checkstyle Plugin</name>
-    </plugin>
-    <plugin>
       <prefix>clean</prefix>
       <artifactId>maven-clean-plugin</artifactId>
       <name>Maven Clean Plugin</name>
@@ -91,11 +86,6 @@
       <prefix>deploy</prefix>
       <artifactId>maven-deploy-plugin</artifactId>
       <name>Maven Deploy Plugin</name>
-    </plugin>
-    <plugin>
-      <prefix>deploy</prefix>
-      <artifactId>maven-deploy-plugin</artifactId>
-      <name>Apache Maven Deploy Plugin</name>
     </plugin>
     <plugin>
       <prefix>doap</prefix>
@@ -171,11 +161,6 @@
       <prefix>install</prefix>
       <artifactId>maven-install-plugin</artifactId>
       <name>Maven Install Plugin</name>
-    </plugin>
-    <plugin>
-      <prefix>install</prefix>
-      <artifactId>maven-install-plugin</artifactId>
-      <name>Apache Maven Install Plugin</name>
     </plugin>
     <plugin>
       <prefix>invoker</prefix>

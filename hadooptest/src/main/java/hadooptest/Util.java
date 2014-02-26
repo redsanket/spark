@@ -2,6 +2,12 @@ package hadooptest;
 
 import java.net.URL;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+
 import hadooptest.TestSessionCore;
 
 /**
@@ -36,5 +42,30 @@ public class Util {
 		TestSessionCore.logger.debug("Resource URL path=" + fullPath);
 
 		return fullPath;
+	}
+
+	/**
+         * Reads a file of the following format,
+         * 
+         * Key1: value1
+         * Key2: value2
+         *
+         * into a map and return it.
+         */
+	public static HashMap<String, Integer> readMapFromFile(String filePath) throws Exception {
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+            String line;
+            HashMap<String, Integer> resultWordCount = new HashMap<String, Integer>();
+
+            while ((line = reader.readLine()) != null) {
+                if (line.length()>0){
+                    String word = line.split(":")[0];
+                    Integer count = Integer.parseInt(line.split(":")[1].trim());
+                    resultWordCount.put(word, count);
+                }
+            }
+            reader.close();
+
+	    return resultWordCount;
 	}
 }

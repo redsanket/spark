@@ -245,12 +245,41 @@
         
         <!-- STORM -->
         
-        <dependency>
-          <groupId>yahoo.yinst.ystorm</groupId>
-          <artifactId>storm</artifactId>
-          <version>0.9.0_wip21.213</version>
-        </dependency>
-        
+		<dependency>
+			<groupId>yahoo.yinst.ystorm_contrib</groupId>
+			<artifactId>http_spout</artifactId>
+			<version>0.1.0.44</version>
+		</dependency>
+		<dependency>
+			<groupId>yahoo.yinst.ystorm_contrib</groupId>
+			<artifactId>rainbow_spout_example</artifactId>
+			<version>0.1.0.44</version>
+		</dependency>
+		<dependency>
+			<groupId>yahoo.yinst.ystorm</groupId>
+			<artifactId>storm</artifactId>
+			<version>0.9.0_wip21.216</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ring</groupId>
+					<artifactId>ring-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ring</groupId>
+					<artifactId>ring-jetty-adapter</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.mortbay.jetty</groupId>
+					<artifactId>jetty</artifactId>
+				</exclusion>
+			</exclusions>
+			<!-- keep storm out of the jar-with-dependencies -->
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 </project>

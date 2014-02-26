@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Fri Feb 21 17:52:03 UTC 2014
+commons-codec-1.4.jar>=
+commons-codec-1.4.pom>local\ central\ mirror=
+commons-codec-1.4.jar>local\ central\ mirror=
