@@ -6,6 +6,7 @@ package hadooptest.cluster.hadoop;
 
 import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.dfs.DFS;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.node.hadoop.HadoopNode;

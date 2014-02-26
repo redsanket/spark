@@ -3,7 +3,8 @@ package hadooptest.hadoop.regression;
 import static org.junit.Assert.*;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.dfs.DFS;
+
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;

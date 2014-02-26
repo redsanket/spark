@@ -4,7 +4,7 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.dfs.DFS;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
