@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import hadooptest.ConfigProperties;
 import hadooptest.cluster.storm.ClusterUtil;
+import hadooptest.TestSessionStorm;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpRequest;
@@ -35,7 +36,6 @@ import org.slf4j.LoggerFactory;
  * The current storm cluster, assumed to be installed through yinst.
  */
 public class YahooStormCluster implements ModifiableStormCluster {
-    final static Logger LOG = LoggerFactory.getLogger(YahooStormCluster.class);
     private NimbusClient cluster;
     private ClusterUtil ystormConf = new ClusterUtil("ystorm");
     private ClusterUtil registryConf = new ClusterUtil("ystorm_registry");
@@ -251,7 +251,7 @@ public class YahooStormCluster implements ModifiableStormCluster {
         	Thread.sleep(1000);
 		Request req = client.newRequest(statusURL);
 		ContentResponse resp = null;
-		LOG.warn("Trying to get status at " + statusURL);
+		TestSessionStorm.logger.warn("Trying to get status at " + statusURL);
 		try {
 			resp = req.send();
 		} catch (Exception e) {
