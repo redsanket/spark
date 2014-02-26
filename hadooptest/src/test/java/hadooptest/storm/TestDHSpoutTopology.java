@@ -38,7 +38,6 @@ import backtype.storm.tuple.Fields;
 
 public class TestDHSpoutTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
-    //static String serverURI="http://fsbl350n13.blue.ygrid.yahoo.com:9080/registry/v1/";
     static String configURI="http://0.0.0.0:9080/registry/v1/";
     static String serverURI=configURI;
     static String vhURI="http://myvh-stormtest.corp.yahoo.com:4080/";
