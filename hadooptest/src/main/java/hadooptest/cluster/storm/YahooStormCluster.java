@@ -244,9 +244,9 @@ public class YahooStormCluster implements ModifiableStormCluster {
 	// Get the URI to ping
 	String statusURL = registryURI + "status/";
 
-	// Let's try for 2 minutes, or until we get a 200 back.
+	// Let's try for 3 minutes, or until we get a 200 back.
 	boolean done = false;
-	int tryCount = 100;
+	int tryCount = 200;
 	while (!done && tryCount > 0) {
         	Thread.sleep(1000);
 		Request req = client.newRequest(statusURL);
