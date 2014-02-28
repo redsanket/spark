@@ -1,8 +1,7 @@
-package hadooptest.dfs.regression;
+package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,9 +34,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import hadooptest.SerialTests;
-import hadooptest.dfs.regression.DfsBaseClass.Force;
-import hadooptest.dfs.regression.DfsBaseClass.Recursive;
-import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.SkipTrash;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 //import org.apache.hadoop.DFSClient.*;
 
