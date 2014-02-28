@@ -6,7 +6,6 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsadminReportBO.DatanodeBO;
 import hadooptest.node.hadoop.HadoopNode;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.apache.log4j.TestSession.logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
