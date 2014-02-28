@@ -1,22 +1,22 @@
-package hadooptest.dfs.regression;
+package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
-import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
-import hadooptest.dfs.regression.DfsBaseClass.Force;
-import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
-import hadooptest.dfs.regression.DfsBaseClass.Recursive;
-import hadooptest.dfs.regression.DfsBaseClass.Report;
-import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
-import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
-import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
-import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
-import hadooptest.dfs.regression.FsckResponseBO.FsckBlockDetailsBO;
-import hadooptest.dfs.regression.FsckResponseBO.FsckFileDetailsBO;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.ClearQuota;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.ClearSpaceQuota;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.PrintTopology;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.Report;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.SetQuota;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.SetSpaceQuota;
+import hadooptest.hadoop.regression.dfs.DfsBaseClass.SkipTrash;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.FsckResponseBO.FsckBlockDetailsBO;
+import hadooptest.hadoop.regression.dfs.FsckResponseBO.FsckFileDetailsBO;
 import hadooptest.monitoring.Monitorable;
 
 import java.io.BufferedReader;

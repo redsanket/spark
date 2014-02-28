@@ -1,9 +1,9 @@
-package hadooptest.dfs.regression;
+package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.util.Arrays;
 import java.util.Collection;
