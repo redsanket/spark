@@ -51,7 +51,7 @@ import hadooptest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestWebHdfsApi extends DfsBaseClass {
+public class TestWebHdfsApi extends DfsTestsBaseClass {
 
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";

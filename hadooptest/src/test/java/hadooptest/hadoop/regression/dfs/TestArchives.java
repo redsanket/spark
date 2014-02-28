@@ -1,16 +1,9 @@
 package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.SerialTests;
-import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.cluster.hadoop.HadoopCluster.Action;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.PrintTopology;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.Report;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.SkipTrash;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +21,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestArchives extends DfsBaseClass {
+public class TestArchives extends DfsTestsBaseClass {
 	String protocol;
 
 	public TestArchives(String protocol) {
@@ -367,7 +360,8 @@ public class TestArchives extends DfsBaseClass {
 		// Run a Random-writer job
 		HashMap<String, String> jobParams = new HashMap<String, String>();
 		jobParams.put("mapreduce.randomwriter.bytespermap", "256000");
-		runStdHadoopRandomWriter(jobParams,
+		YarnTestsBaseClass yarnTestBaseClass = new YarnTestsBaseClass();
+		yarnTestBaseClass.runStdHadoopRandomWriter(jobParams,
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_SRC_DIR
 						+ testCaseDesc);
 
@@ -398,9 +392,10 @@ public class TestArchives extends DfsBaseClass {
 		// Run a Random-writer job
 		HashMap<String, String> jobParams = new HashMap<String, String>();
 		jobParams.put("mapreduce.randomwriter.bytespermap", "256000");
-		runStdHadoopRandomWriter(jobParams,
+		YarnTestsBaseClass yarnTestBaseClass = new YarnTestsBaseClass();
+		yarnTestBaseClass.runStdHadoopRandomWriter(jobParams,
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_SRC_DIR
-						+ testCaseDesc);
+				+ testCaseDesc);
 
 		genericCliResponse = dfsCliCommands.archive(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
@@ -415,7 +410,7 @@ public class TestArchives extends DfsBaseClass {
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ testCaseDesc + ".har", Recursive.NO);
 
-		runStdHadoopSortJob(
+		yarnTestBaseClass.runStdHadoopSortJob(
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ testCaseDesc + ".har/" + testCaseDesc
 						+ "/part-m-0000",

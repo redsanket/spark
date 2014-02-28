@@ -3,12 +3,10 @@ package hadooptest.hadoop.regression.dfs;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,12 +14,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.examples.RandomWriter;
-import org.apache.hadoop.examples.Sort;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.util.ToolRunner;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.rules.TemporaryFolder;
 
@@ -32,7 +24,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
-public class DfsBaseClass extends TestSession {
+public class DfsTestsBaseClass extends TestSession {
 	/**
 	 * Identity files needed for SSH
 	 */
@@ -276,7 +268,7 @@ public class DfsBaseClass extends TestSession {
 		sb.append("count=300000");
 		sb.append(" ");
 		String commandString = sb.toString();
-		logger.info(commandString);
+		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 
 		Process process = null;
@@ -416,35 +408,4 @@ public class DfsBaseClass extends TestSession {
 		return iaddr.getHostName();
 
 	}
-
-	/*
-	 * called by @Before
-	 */
-	public void runStdHadoopRandomWriter(HashMap<String, String> jobParams, String randomWriterOutputDirOnHdfs)
-			throws Exception {
-		logger.info("running RandomWriter.............");
-		Configuration conf = TestSession.cluster.getConf();
-		for (String key:jobParams.keySet()){
-			conf.set(key,  jobParams.get(key));
-//			conf.setLong(BYTES_PER_MAP, 256000);
-		}
-		int res = ToolRunner.run(conf, new RandomWriter(),
-				new String[] { randomWriterOutputDirOnHdfs });
-		Assert.assertEquals(0, res);
-
-	}
-
-	/*
-	 * Run a sort Job, from package org.apache.hadoop.examples;
-	 */
-	public void runStdHadoopSortJob(String sortInputDataLocation,
-			String sortOutputDataLocation) throws Exception {
-		logger.info("running Sort Job.................");
-		Configuration conf = TestSession.cluster.getConf();
-		int res = ToolRunner.run(conf, new Sort<Text, Text>(), new String[] {
-				sortInputDataLocation, sortOutputDataLocation });
-		Assert.assertEquals(0, res);
-
-	}
-
 }
