@@ -10,7 +10,7 @@ import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.*;
 
-public class LocalModeStormCluster implements StormCluster {
+public class LocalModeStormCluster extends StormCluster {
     private LocalCluster cluster;
 
     public void init(ConfigProperties conf) {

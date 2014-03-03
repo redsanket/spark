@@ -1,15 +1,15 @@
 package hadooptest.cluster.storm;
 
-public interface ModifiableStormCluster extends StormCluster {
-    public void resetConfigsAndRestart() throws Exception;
-    public void restartCluster() throws Exception;
-    public void setConf(String key, Object value) throws Exception;
-    public void unsetConf(String key) throws Exception;
-    public void stopCluster() throws Exception;
-    public void startCluster() throws Exception;
-    public void stopRegistryServer() throws Exception;
-    public void startRegistryServer() throws Exception;
-    public void setRegistryServerURI(String uri) throws Exception;
-    public void unsetRegistryConf(String key) throws Exception;
-    public void setRegistryConf(String key, Object value) throws Exception;
+public abstract class ModifiableStormCluster extends StormCluster {
+    public abstract void resetConfigsAndRestart() throws Exception;
+    public abstract void restartCluster() throws Exception;
+    public abstract void setConf(String key, Object value) throws Exception;
+    public abstract void unsetConf(String key) throws Exception;
+    public abstract void stopCluster() throws Exception;
+    public abstract void startCluster() throws Exception;
+    public abstract void stopRegistryServer() throws Exception;
+    public abstract void startRegistryServer() throws Exception;
+    public abstract void setRegistryServerURI(String uri) throws Exception;
+    public abstract void unsetRegistryConf(String key) throws Exception;
+    public abstract void setRegistryConf(String key, Object value) throws Exception;
 }

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The current storm cluster, assumed to be installed through yinst.
  */
-public class YahooStormCluster implements ModifiableStormCluster {
+public class YahooStormCluster extends ModifiableStormCluster {
     private NimbusClient cluster;
     private ClusterUtil ystormConf = new ClusterUtil("ystorm");
     private ClusterUtil registryConf = new ClusterUtil("ystorm_registry");
