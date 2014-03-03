@@ -18,7 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestBalancer extends DfsBaseClass {
+public class TestBalancer extends DfsTestsBaseClass {
 
 	String testName;
 	String expectedOutput;

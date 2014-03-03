@@ -5,8 +5,8 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.PrintTopology;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.Report;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestMetrics extends DfsBaseClass {
+public class TestMetrics extends DfsTestsBaseClass {
 	String protocol;
 
 	public TestMetrics(String protocol) {

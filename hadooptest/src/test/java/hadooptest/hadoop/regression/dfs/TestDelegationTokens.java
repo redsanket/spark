@@ -4,7 +4,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.PrintTopology;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.io.BufferedReader;
@@ -31,7 +31,7 @@ import hadooptest.TestSession;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestDelegationTokens extends DfsBaseClass {
+public class TestDelegationTokens extends DfsTestsBaseClass {
 	String protocol;
 
 	public TestDelegationTokens(String protocol) {

@@ -5,18 +5,19 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.ClearQuota;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.ClearSpaceQuota;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.PrintTopology;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.Report;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.SetQuota;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.SetSpaceQuota;
-import hadooptest.hadoop.regression.dfs.DfsBaseClass.SkipTrash;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearSpaceQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.FsckResponseBO.FsckBlockDetailsBO;
 import hadooptest.hadoop.regression.dfs.FsckResponseBO.FsckFileDetailsBO;
+import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 import hadooptest.monitoring.Monitorable;
 
 import java.io.BufferedReader;
@@ -60,11 +61,10 @@ import com.jcraft.jsch.UserInfo;
 import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
-public class TestFsckCli extends DfsBaseClass {
+public class TestFsckCli extends DfsTestsBaseClass {
 
 	static Logger logger = Logger.getLogger(TestFsckCli.class);
 
-	
 	private static final String FSCK_TESTS_DIR_ON_HDFS = DATA_DIR_IN_HDFS
 			+ "fsck_tests/";
 	private static final String RANDOM_WRITER_DATA_DIR = FSCK_TESTS_DIR_ON_HDFS
@@ -160,7 +160,6 @@ public class TestFsckCli extends DfsBaseClass {
 
 	}
 
-
 	/*
 	 * Creates a temporary directory before each test run to create a 3gb file.
 	 */
@@ -245,9 +244,9 @@ public class TestFsckCli extends DfsBaseClass {
 		// The 3gb file on the local file system is automatically deleted
 		// after every test run, by JUnit
 	};
-	
+
 	// test_fsck_02
-	 @Test
+	@Test
 	public void testFsckResultsLeveragingRandomWriterAndSortJobs()
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -278,8 +277,12 @@ public class TestFsckCli extends DfsBaseClass {
 						+ numberOfRacksBeforeRunningRandomWriterAndSortJobs);
 		HashMap<String, String> jobParams = new HashMap<String, String>();
 		jobParams.put("mapreduce.randomwriter.bytespermap", "256000");
-		runStdHadoopRandomWriter(jobParams, RANDOM_WRITER_DATA_DIR + randomWriterOutputDir);
-		runStdHadoopSortJob(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir,
+
+		YarnTestsBaseClass yarnTestBaseClass = new YarnTestsBaseClass();
+		yarnTestBaseClass.runStdHadoopRandomWriter(jobParams,
+				RANDOM_WRITER_DATA_DIR + randomWriterOutputDir);
+		
+		yarnTestBaseClass.runStdHadoopSortJob(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir,
 				SORT_JOB_DATA_DIR + sortJobOutputDir);
 
 		fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
@@ -917,7 +920,6 @@ public class TestFsckCli extends DfsBaseClass {
 				+ " gonna wait for 2 minutes before returning, from function");
 		Thread.sleep(120000);
 	}
-
 
 	@After
 	public void logTaskResportSummary() {
