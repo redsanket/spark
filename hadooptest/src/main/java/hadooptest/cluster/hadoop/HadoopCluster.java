@@ -6,6 +6,7 @@ package hadooptest.cluster.hadoop;
 
 import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
+import hadooptest.TestSessionCore;
 import hadooptest.cluster.hadoop.dfs.DFS;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
@@ -137,6 +138,100 @@ public abstract class HadoopCluster {
                 "/" + component + "-" + hostname;        
     }
 
+    /**
+     * Lookup an Igor role and get the role members.
+     * 
+     * @param roleName The name of the role.
+     * 
+     * @return ArrayList<String> a list of all of the role members.
+     * 
+     * @throws Exception
+     */
+	public ArrayList<String> lookupIgorRole(String roleName) throws Exception {
+		ArrayList<String> roleMembers = new ArrayList<String>();
+		
+		TestSession.logger.debug("Fetching role members from Igor for role: " + roleName);
+		String[] members = TestSession.exec.runProcBuilder(new String[] {"yinst", "range", "-ir", "@" + roleName});
+		TestSession.logger.debug(members);
+		
+		for(String s: members) {
+			if (s.contains("ygrid.yahoo.com")) {
+				roleMembers.add(s);
+			}
+		}
+		
+		return roleMembers;
+	}
+	
+	/**
+	 * Lookup the Igor role members for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the nodes in the cluster.
+     *
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterAllNodes(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName);
+	}
+    
+	/**
+	 * Lookup the Igor-defined gateway node for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the gateway nodes.
+	 * 
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterGateway(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".gateway");
+	}
+	
+	/**
+	 * Lookup the Igor-defined jobtracker node for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the jobtracker nodes.
+	 * 
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterJobtracker(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".jobtracker");
+	}
+	
+	/**
+	 * Lookup the Igor-defined namenode for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the namenodes.
+	 * 
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterNamenode(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".namenode");
+	}
+	
+	/**
+	 * Lookup the Igor-defined secondary namenodes for a cluster.
+	 * 
+	 * @param clusterName
+	 * @return
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterSecondaryNamenode(
+			String clusterName) 
+					throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".namenode2");
+	}
+	
 	/**
 	 * Start the cluster from a stopped state.
 	 *
