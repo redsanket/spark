@@ -1,7 +1,7 @@
 package hadooptest.cluster;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.dfs.DFS;
 
 import java.io.IOException;
 

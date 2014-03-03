@@ -1,18 +1,18 @@
-package hadooptest.dfs.regression;
+package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.config.hadoop.HadoopConfiguration;
-import hadooptest.dfs.regression.DfsBaseClass.ClearQuota;
-import hadooptest.dfs.regression.DfsBaseClass.ClearSpaceQuota;
-import hadooptest.dfs.regression.DfsBaseClass.Force;
-import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
-import hadooptest.dfs.regression.DfsBaseClass.Recursive;
-import hadooptest.dfs.regression.DfsBaseClass.Report;
-import hadooptest.dfs.regression.DfsBaseClass.SetQuota;
-import hadooptest.dfs.regression.DfsBaseClass.SetSpaceQuota;
-import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
-import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearSpaceQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.util.HashMap;
 
@@ -26,7 +26,7 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
-public class TestQuotaCli extends DfsBaseClass {
+public class TestQuotaCli extends DfsTestsBaseClass {
 	private static final String TEST_1_DIR = "/quota_test_1_dir/";
 	private static final String TEST_2_DIR = "/quota_test_2_dir/";
 

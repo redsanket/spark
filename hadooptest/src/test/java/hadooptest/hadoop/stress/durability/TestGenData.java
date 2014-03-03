@@ -1,7 +1,7 @@
 package hadooptest.hadoop.stress.durability;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.dfs.DFS;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

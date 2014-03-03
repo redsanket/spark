@@ -1,7 +1,12 @@
-package hadooptest.cluster.hadoop;
+package hadooptest.cluster.hadoop.dfs;
 
 import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopCluster;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -15,6 +20,7 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
+import org.apache.hadoop.security.UserGroupInformation;
 
 /**
  * A class which handles common test funcions of a DFS.
@@ -26,6 +32,261 @@ public class DFS {
 	 */
 	public DFS() {
 		
+	}
+	
+	/**
+	 * Create a local binary file to use for test purposes.
+	 * 
+	 * @param aFileName The full path and name of the file.
+	 * 
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static void createLocalFile(String aFileName) 
+			throws FileNotFoundException, IOException {
+		
+		TestSession.logger.info("!!!!!!! Creating local file:" + aFileName);
+		File attemptedFile = new File(aFileName);
+
+		if (attemptedFile.exists()) {
+			attemptedFile.delete();
+		}
+		// create a file on the local fs
+		if (!attemptedFile.getParentFile().exists()) {
+			attemptedFile.getParentFile().mkdirs();
+		}
+
+		FileOutputStream fout;
+
+		fout = new FileOutputStream(attemptedFile);
+		// create a byte array of 350MB (367001600) bytes
+		int len = 36700;
+		byte[] data = new byte[len];
+		for (int i = 0; i < len; i++) {
+			data[i] = new Integer(i).byteValue();
+		}
+		fout.write(data);
+		fout.close();
+	}
+	
+	/**
+	 * Check if a file exists on a remote DFS.
+	 * 
+	 * @param destFile The path to the file to check
+	 * @param nameNode The namenode address of the target DFS, in a format like:
+	 *                 http://gsbl90639.blue.ygrid.yahoo.com:50070
+	 * @param user The user to perform the operation as.
+	 * @param userKeytab The keytab file of the user to perform the operation as
+	 * @param schema The schema to perform the operation as (hdfs or webhdfs)
+	 * 
+	 * @return boolean true if the file was found on the remote DFS.
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static boolean fileExistsOnRemoteDFS(String destFile, 
+			String nameNode, String user, String userKeytab, String schema) 
+					throws IOException, InterruptedException {
+		
+		Configuration aConf = DFS.getConfForRemoteFS(nameNode, user, schema);
+		UserGroupInformation ugi = DFS.getUgiForUser(user, userKeytab, aConf);
+
+		DoAs doAs;
+		// Check if the file was created
+		doAs = new DoAs(ugi, PrivilegedExceptionActionImpl.ACTION_FILE_EXISTS, 
+				aConf, destFile, null);
+		Boolean fileExists = Boolean.valueOf(doAs.doAction());
+		
+		if (fileExists) {
+			TestSession.logger.info("File exists on DFS: " + destFile);
+		}
+		else {
+			TestSession.logger.info("File does not exist on DFS: " + destFile);
+		}
+		
+		return fileExists;
+	}
+	
+	/**
+	 * Copy a local file to a remote DFS.
+	 * 
+	 * @param localFile The path to the local system file to copy.
+	 * @param destFile The destination of the file copy.
+	 * @param nameNode The namenode address of the target DFS, in a format like:
+	 *                 http://gsbl90639.blue.ygrid.yahoo.com:50070
+	 * @param user The user to perform the operation as.
+	 * @param userKeytab The keytab file of the user to perform the operation as
+	 * @param schema The schema to perform the operation as (hdfs or webhdfs)
+	 * 
+	 * @return boolean true if the file was successfully copied.
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static boolean copyFileToRemoteDFS(String localFile, String destFile, 
+			String nameNode, String user, String userKeytab, String schema) 
+					throws IOException, InterruptedException {
+		
+		Configuration aConf = DFS.getConfForRemoteFS(nameNode, user, schema);
+		UserGroupInformation ugi = DFS.getUgiForUser(user, userKeytab, aConf);
+
+		DoAs doAs;
+		// First copy the file to the remote DFS'es
+		doAs = new DoAs(ugi, 
+				PrivilegedExceptionActionImpl.ACTION_COPY_FROM_LOCAL, aConf,
+				localFile, destFile);
+		doAs.doAction();
+
+		// Check if the file was created
+		Boolean fileExists = fileExistsOnRemoteDFS(destFile, nameNode, user, 
+				userKeytab, schema);
+		
+		if (fileExists) {
+			TestSession.logger.info("File was created on DFS: " + destFile);
+		}
+		else {
+			TestSession.logger.info("File was not created on DFS: " + destFile);
+		}
+		
+		return fileExists;
+	}
+	
+	/**
+	 * Delete a file from a remote DFS.
+	 * 
+	 * @param destFile The destination of the file delete.
+	 * @param nameNode The namenode address of the target DFS, in a format like:
+	 *                 http://gsbl90639.blue.ygrid.yahoo.com:50070
+	 * @param user The user to perform the operation as.
+	 * @param userKeytab The keytab file of the user to perform the operation as
+	 * @param schema The schema to perform the operation as (hdfs or webhdfs)
+	 * 
+	 * @return boolean true if the file was successfully deleted.
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static boolean deleteFileFromRemoteDFS(String destFile, 
+			String nameNode, String user, String userKeytab, String schema) 
+					throws IOException, InterruptedException {
+		
+		Configuration aConf = DFS.getConfForRemoteFS(nameNode, user, schema);
+		UserGroupInformation ugi = DFS.getUgiForUser(user, userKeytab, aConf);
+
+		DoAs doAs;
+		// First delete the file on the remote DFS
+		doAs = new DoAs(ugi, PrivilegedExceptionActionImpl.ACTION_RM, aConf,
+				destFile, null);
+		doAs.doAction();
+
+		// Check if the file was deleted
+		Boolean fileExists = fileExistsOnRemoteDFS(destFile, nameNode, user, 
+				userKeytab, schema);
+		
+		if (!fileExists) {
+			TestSession.logger.info("File was deleted on DFS: " + destFile);
+		}
+		else {
+			TestSession.logger.info("File was not deleted on DFS: " + destFile);
+		}
+		
+		return !fileExists;
+	}
+	
+	/**
+	 * Get the UGI for a given keytab user.
+	 * 
+	 * @param keytabUser The user to get the UGI for.
+	 * @param keytabDir The path to the user's keytab file.
+	 * @param aConf The Hadoop Configuration for the DFS you're connecting to.
+	 * 
+	 * @return UserGroupInformation
+	 * 
+	 * @throws IOException
+	 */
+	public static UserGroupInformation getUgiForUser(String keytabUser, 
+			String keytabDir, Configuration aConf) 
+					throws IOException {
+		
+		TestSession.logger.info("Set keytab user=" + keytabUser);
+		TestSession.logger.info("Set keytab dir=" + keytabDir);
+		UserGroupInformation ugi;
+
+		UserGroupInformation.setConfiguration(aConf);
+		ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(
+				keytabUser, keytabDir);
+		TestSession.logger.info("UGI=" + ugi);
+		TestSession.logger.info("credentials:" + ugi.getCredentials());
+		TestSession.logger.info("group names" + ugi.getGroupNames());
+		TestSession.logger.info("real user:" + ugi.getRealUser());
+		TestSession.logger.info("short user name:" + ugi.getShortUserName());
+		TestSession.logger.info("token identifiers:" + ugi.getTokenIdentifiers());
+		TestSession.logger.info("tokens:" + ugi.getTokens());
+		TestSession.logger.info("username:" + ugi.getUserName());
+		TestSession.logger.info("current user:" + UserGroupInformation.getCurrentUser());
+		TestSession.logger.info("login user:" + UserGroupInformation.getLoginUser());
+
+		return ugi;
+	}
+	
+	/**
+	 * Get a basic Hadoop Configuration to use for connecting to a secure 
+	 * remote DFS.
+	 * 
+	 * @param nameNode The namenode address of the target DFS, in a format like:
+	 *                 http://gsbl90639.blue.ygrid.yahoo.com:50070 
+	 * @param aUser The user to connect as.
+	 * @param schema The schema to connect as (hdfs or webhdfs)
+	 * 
+	 * @return Configuration a Hadoop Configuration object representing the 
+	 *         basic configuration necessary to connect to a secure remote DFS.
+	 */
+	public static Configuration getConfForRemoteFS(String nameNode, 
+			String aUser, String schema) {
+		
+		Configuration conf = new Configuration(false);
+
+		if (schema.equals(HadooptestConstants.Schema.HDFS)) {
+			// HDFS
+			String namenodeWithChangedSchema = nameNode.replace(
+					HadooptestConstants.Schema.HTTP,
+					HadooptestConstants.Schema.HDFS);
+			String namenodeWithChangedSchemaAndPort = namenodeWithChangedSchema
+					.replace("50070", HadooptestConstants.Ports.HDFS);
+			TestSession.logger.info("For HDFS set the namenode to:["
+					+ namenodeWithChangedSchemaAndPort + "]");
+			conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
+		} else {
+			// WEBHDFS
+			String namenodeWithChangedSchema = nameNode.replace(
+					HadooptestConstants.Schema.HTTP,
+					HadooptestConstants.Schema.WEBHDFS);
+			String namenodeWithChangedSchemaAndNoPort = namenodeWithChangedSchema
+					.replace(":50070", "");
+			TestSession.logger.info("For WEBHDFS set the namenode to:["
+					+ namenodeWithChangedSchemaAndNoPort + "]");
+			conf.set("fs.defaultFS", namenodeWithChangedSchemaAndNoPort);
+		}
+		if (aUser.equals(HadooptestConstants.UserNames.HADOOPQA)) {
+			conf.set("hadoop.job.ugi", HadooptestConstants.UserNames.HADOOPQA);
+		} else {
+			conf.set("hadoop.job.ugi", HadooptestConstants.UserNames.DFSLOAD);
+		}
+		
+		conf.set("hadoop.security.authentication", "kerberos");
+		conf.set("hadoop.security.authorization", "true");
+		conf.set("fs.file.impl", "org.apache.hadoop.fs.LocalFileSystem");
+		conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+		conf.set("fs.webhdfs.impl", "org.apache.hadoop.hdfs.web.WebHdfsFileSystem");
+		conf.set("dfs.block.access.token.enable", "true");
+		conf.set("dfs.web.authentication.kerberos.principal", "HTTP/_HOST@DEV.YGRID.YAHOO.COM");
+		conf.set("dfs.web.authentication.kerberos.keytab", "/etc/grid-keytabs/gsbl90639.dev.service.keytab");
+		conf.set("dfs.namenode.keytab.file", "/etc/grid-keytabs/gsbl90639.dev.service.keytab");
+		conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
+		conf.set("dfs.namenode.kerberos.https.principal", "host/gsbl90639.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM");
+		
+		TestSession.logger.info(conf);
+		return conf;
 	}
 	
 	/**

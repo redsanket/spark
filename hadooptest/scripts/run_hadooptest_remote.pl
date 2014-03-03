@@ -88,6 +88,7 @@ usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
+# Retrieve the cluster gateway from Igor if not specified by remote_host.
 my $igor = "/home/y/bin/igor";
 my $re_host = "re103.ygrid.corp.gq1.yahoo.com";
 if (!$remote_host) {

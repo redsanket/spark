@@ -3,7 +3,7 @@ package hadooptest.hadoop.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.dfs.DFS;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.BeforeClass;

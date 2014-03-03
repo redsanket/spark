@@ -6,7 +6,7 @@ package hadooptest.workflow.hadoop.data;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.dfs.DFS;
 import hadooptest.workflow.hadoop.job.RandomWriterJob;
 
 import org.apache.commons.lang.StringUtils;

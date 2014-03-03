@@ -1,4 +1,4 @@
-package hadooptest.dfs.regression;
+package hadooptest.hadoop.regression.dfs;
 
 import static org.junit.Assert.fail;
 import hadooptest.SerialTests;
@@ -6,9 +6,8 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.dfs.regression.DfsBaseClass.PrintTopology;
-import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
-import hadooptest.dfs.regression.DfsadminReportBO.DatanodeBO;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsadminReportBO.DatanodeBO;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.node.hadoop.fullydistributed.FullyDistributedNode;
 
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,7 +22,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestAdminReport extends DfsBaseClass {
+public class TestAdminReport extends DfsTestsBaseClass {
 	private static final int MAX_WAIT = 60;
 	private static final int POLL_INTERVAL = 5;
 	private static final int NUM_NODES_TO_KILL = 2;
@@ -33,7 +31,6 @@ public class TestAdminReport extends DfsBaseClass {
 
 	ArrayList<String> killedOrExcludedNodes;
 
-	static Logger logger = Logger.getLogger(TestAdminReport.class);
 
 	@Before
 	public void beforeTest() {

@@ -1,4 +1,4 @@
-package hadooptest.dfs.regression;
+package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 

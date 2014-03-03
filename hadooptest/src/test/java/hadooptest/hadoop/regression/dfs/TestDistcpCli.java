@@ -1,12 +1,12 @@
-package hadooptest.dfs.regression;
+package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
-import hadooptest.dfs.regression.DfsBaseClass.Force;
-import hadooptest.dfs.regression.DfsBaseClass.Recursive;
-import hadooptest.dfs.regression.DfsBaseClass.SkipTrash;
-import hadooptest.dfs.regression.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
@@ -34,7 +34,7 @@ import hadooptest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestDistcpCli extends DfsBaseClass {
+public class TestDistcpCli extends DfsTestsBaseClass {
 
 	static Logger logger = Logger.getLogger(TestDistcpCli.class);
 
