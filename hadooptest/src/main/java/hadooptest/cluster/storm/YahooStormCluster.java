@@ -1,36 +1,34 @@
 package hadooptest.cluster.storm;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-
 import hadooptest.ConfigProperties;
-import hadooptest.cluster.storm.ClusterUtil;
 import hadooptest.TestSessionStorm;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.thrift7.TException;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 
-
-import org.apache.thrift7.TException;
-import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
-import backtype.storm.generated.*;
-
+import backtype.storm.generated.AlreadyAliveException;
+import backtype.storm.generated.AuthorizationException;
+import backtype.storm.generated.ClusterSummary;
+import backtype.storm.generated.InvalidTopologyException;
+import backtype.storm.generated.KillOptions;
+import backtype.storm.generated.NotAliveException;
+import backtype.storm.generated.RebalanceOptions;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.SubmitOptions;
+import backtype.storm.generated.TopologyInfo;
 import backtype.storm.utils.NimbusClient;
 import backtype.storm.utils.Utils;
-
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The current storm cluster, assumed to be installed through yinst.
@@ -42,19 +40,19 @@ public class YahooStormCluster extends ModifiableStormCluster {
     private String registryURI;
 
     public void init(ConfigProperties conf) throws Exception {
-        System.err.println("INIT CLUSTER");
+    	TestSessionStorm.logger.info("INIT CLUSTER");
         setupClient();
-	ystormConf.init("ystorm");
+        ystormConf.init("ystorm");
     }
 
     private void setupClient() throws Exception {
-        System.err.println("SETUP CLIENT");
+        TestSessionStorm.logger.info("SETUP CLIENT");
         Map stormConf = Utils.readStormConfig();
         cluster = NimbusClient.getConfiguredClient(stormConf);
     }
 
     public void cleanup() {
-        System.err.println("CLEANUP CLIENT");
+    	TestSessionStorm.logger.info("CLEANUP CLIENT");
         cluster.close();
         cluster = null;
     }
@@ -143,30 +141,151 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
 
     public void resetConfigsAndRestart() throws Exception {
-        System.err.println("RESET CONFIGS AND RESTART");
+    	TestSessionStorm.logger.info("RESET CONFIGS AND RESTART");
         if (!ystormConf.changed()) {
             return;
         }
 
-	ystormConf.resetConfigs();
+        ystormConf.resetConfigs();
 
         restartCluster();
     }
 
     public void restartCluster() throws Exception {
-        //TODO allow this to run on multiple nodes
-        System.err.println("RESTARTING...");
-        ProcessBuilder pb = new ProcessBuilder("yinst","restart","ystorm_nimbus","ystorm_ui","ystorm_supervisor","ystorm_logviewer");
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+    	restartDaemon(StormDaemon.NIMBUS);
+    	restartDaemon(StormDaemon.UI);
+    	restartDaemon(StormDaemon.SUPERVISOR);
+    	restartDaemon(StormDaemon.LOGVIEWER);
+    	
         Thread.sleep(120000);//TODO replace this with something to detect the cluster is up.
         cleanup();
         setupClient();
     }
+    
+    /**
+     * Restart daemons on all nodes the daemon is acting on.
+     * 
+     * @param daemon The daemon to restart.
+     */
+    public void restartDaemon(StormDaemon daemon) throws Exception {
+    	
+    	ArrayList<String> dnsNames = 
+    			StormDaemon.lookupIgorRoles(daemon, 
+    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	
+    	// restart each node specified for that daemon in Igor config
+    	for (String nodeDNSName: dnsNames) {
+    		restartDaemonNode(daemon, nodeDNSName);
+    	}
+    }
+    
+    /**
+     * Restart a daemon on a given node.
+     * 
+     * @param daemon The daemon to restart.
+     * @param nodeDNSName The DNS name of the node to restart the daemon on.
+     * 
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void restartDaemonNode(StormDaemon daemon, String nodeDNSName) 
+    		throws Exception {
+    	
+    	String[] output = TestSessionStorm.exec.runProcBuilder(new String[] {"ssh", nodeDNSName, "yinst", 
+    			"restart", StormDaemon.getDaemonYinstString(daemon) } );
+    	
+		if (!output[0].equals("0")) {
+			TestSessionStorm.logger.info("Got unexpected non-zero exit code: " + 
+					output[0]);
+			TestSessionStorm.logger.info("stdout" + output[1]);
+			TestSessionStorm.logger.info("stderr" + output[2]);	
+            throw new RuntimeException(
+            		"ssh and yinst returned an error code.");		
+		}
+    }
+    
+    /**
+     * Stop daemons on all nodes the daemon is acting on.
+     * 
+     * @param daemon The daemon to stop.
+     */
+    public void stopDaemon(StormDaemon daemon) throws Exception {
 
+    	ArrayList<String> dnsNames = 
+    			StormDaemon.lookupIgorRoles(daemon, 
+    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	
+    	// restart each node specified for that daemon in Igor config
+    	for (String nodeDNSName: dnsNames) {
+    		stopDaemonNode(daemon, nodeDNSName);
+    	}
+    }
+    
+    /**
+     * Stop a daemon on a given node.
+     * 
+     * @param daemon The daemon to stop.
+     * @param nodeDNSName The DNS name of the node to restart the daemon on.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void stopDaemonNode(StormDaemon daemon, String nodeDNSName) 
+    		throws Exception {
+        
+    	String[] output = TestSessionStorm.exec.runProcBuilder(new String[] {"ssh", nodeDNSName, "yinst",
+    			"stop", StormDaemon.getDaemonYinstString(daemon) } );
+    	
+		if (!output[0].equals("0")) {
+			TestSessionStorm.logger.info("Got unexpected non-zero exit code: " + 
+					output[0]);
+			TestSessionStorm.logger.info("stdout" + output[1]);
+			TestSessionStorm.logger.info("stderr" + output[2]);	
+            throw new RuntimeException(
+            		"ssh and yinst returned an error code.");		
+		}
+    }
+
+    /**
+     * Start daemons on all nodes the daemon is acting on.
+     * 
+     * @param daemon The daemon to start.
+     */
+    public void startDaemon(StormDaemon daemon) throws Exception {
+
+    	ArrayList<String> dnsNames = 
+    			StormDaemon.lookupIgorRoles(daemon, 
+    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	
+    	// restart each node specified for that daemon in Igor config
+    	for (String nodeDNSName: dnsNames) {
+    		startDaemonNode(daemon, nodeDNSName);
+    	}
+    }
+    
+    /**
+     * Stop a daemon on a given node.
+     * 
+     * @param daemon The daemon to stop.
+     * @param nodeDNSName The DNS name of the node to restart the daemon on.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void startDaemonNode(StormDaemon daemon, String nodeDNSName) 
+    		throws Exception {
+        
+    	String[] output = TestSessionStorm.exec.runProcBuilder(new String[] {"ssh", nodeDNSName, "yinst",
+    			"start", StormDaemon.getDaemonYinstString(daemon) } );
+    	
+		if (!output[0].equals("0")) {
+			TestSessionStorm.logger.info("Got unexpected non-zero exit code: " + 
+					output[0]);
+			TestSessionStorm.logger.info("stdout" + output[1]);
+			TestSessionStorm.logger.info("stderr" + output[2]);	
+            throw new RuntimeException(
+            		"ssh and yinst returned an error code.");		
+		}
+    }
+    
     public void unsetConf(String key) throws Exception {
 	ystormConf.unsetConf(key);
     }
@@ -176,26 +295,24 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
 
     public void stopCluster() throws Exception {
-        System.err.println("STOPPING CLUSTER YINST"); 
-        //TODO allow this to run on multiple nodes
-        ProcessBuilder pb = new ProcessBuilder("yinst","stop","ystorm_nimbus","ystorm_ui","ystorm_supervisor","ystorm_logviewer");
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+    	TestSessionStorm.logger.info("STOPPING CLUSTER YINST");
+        
+        stopDaemon(StormDaemon.NIMBUS);
+        stopDaemon(StormDaemon.UI);
+        stopDaemon(StormDaemon.SUPERVISOR);
+        stopDaemon(StormDaemon.LOGVIEWER);
+        
         cleanup();
     }
 
     public void startCluster() throws Exception {
-        System.err.println("STARTING CLUSTERi YINST"); 
-        //TODO allow this to run on multiple nodes
-        ProcessBuilder pb = new ProcessBuilder("yinst","start","ystorm_nimbus","ystorm_ui","ystorm_supervisor","ystorm_logviewer");
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+    	TestSessionStorm.logger.info("STARTING CLUSTER YINST"); 
+
+        startDaemon(StormDaemon.NIMBUS);
+        startDaemon(StormDaemon.UI);
+        startDaemon(StormDaemon.SUPERVISOR);
+        startDaemon(StormDaemon.LOGVIEWER);
+        
         Thread.sleep(30000);//TODO replace this with something to detect the cluster is up.
         cleanup();
         setupClient();
@@ -210,74 +327,64 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
 
     public void stopRegistryServer() throws Exception {
-        System.err.println("STOPPING REGISTRY SERVER"); 
-        //TODO allow this to run on multiple nodes
-        ProcessBuilder pb = new ProcessBuilder("yinst","stop","ystorm_registry");
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+        TestSessionStorm.logger.info("STOPPING REGISTRY SERVER");
+    	stopDaemon(StormDaemon.REGISTRY);
     }
 
     public void startRegistryServer() throws Exception {
-        System.err.println("STARTING REGISTRY SERVER"); 
-        //TODO allow this to run on multiple nodes
-        ProcessBuilder pb = new ProcessBuilder("yinst","start","ystorm_registry");
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
-        Thread.sleep(30000);//TODO replace this with something to detect the registry server is up.
-	// Let's periodically poll the server's status api until it comes back clean or until we think it's been too long.
-	
-	// Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
-	// Create and start client
-	HttpClient client = new HttpClient();
-	try {
-		client.start();
-	} catch (Exception e) {
-		throw new IOException("Could not start Http Client", e);
-	}
 
-	// Get the URI to ping
-	String statusURL = registryURI + "status/";
+        TestSessionStorm.logger.info("STARTING REGISTRY SERVER");
+    	startDaemon(StormDaemon.REGISTRY);
 
-	// Let's try for 3 minutes, or until we get a 200 back.
-	boolean done = false;
-	int tryCount = 200;
-	while (!done && tryCount > 0) {
-        	Thread.sleep(1000);
-		Request req = client.newRequest(statusURL);
-		ContentResponse resp = null;
-		TestSessionStorm.logger.warn("Trying to get status at " + statusURL);
-		try {
-			resp = req.send();
-		} catch (Exception e) {
-			tryCount -= 1;
-		}
+    	Thread.sleep(30000);//TODO replace this with something to detect the registry server is up.
+    	// Let's periodically poll the server's status api until it comes back clean or until we think it's been too long.
 
-		if (resp != null && resp.getStatus() == 200) {
-			done = true;
-		}
-	}
-	
-	// Stop client
-        try {
-          client.stop();
-        } catch (Exception e) {
-          throw new IOException("Could not stop http client", e);
-        }
+    	// Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
+    	// Create and start client
+    	HttpClient client = new HttpClient();
+    	try {
+    		client.start();
+    	} catch (Exception e) {
+    		throw new IOException("Could not start Http Client", e);
+    	}
 
-	// Did we fail?
-	if (!done) {
-		throw new IOException("Timed out trying to get Registry Server Status\n");
-	}
+    	// Get the URI to ping
+    	String statusURL = registryURI + "status/";
+
+    	// Let's try for 3 minutes, or until we get a 200 back.
+    	boolean done = false;
+    	int tryCount = 200;
+    	while (!done && tryCount > 0) {
+    		Thread.sleep(1000);
+    		Request req = client.newRequest(statusURL);
+    		ContentResponse resp = null;
+    		TestSessionStorm.logger.warn("Trying to get status at " + statusURL);
+    		try {
+    			resp = req.send();
+    		} catch (Exception e) {
+    			tryCount -= 1;
+    		}
+
+    		if (resp != null && resp.getStatus() == 200) {
+    			done = true;
+    		}
+    	}
+
+    	// Stop client
+    	try {
+    		client.stop();
+    	} catch (Exception e) {
+    		throw new IOException("Could not stop http client", e);
+    	}
+
+    	// Did we fail?
+    	if (!done) {
+    		throw new IOException("Timed out trying to get Registry Server Status\n");
+    	}
     }
 
     public void setRegistryServerURI(String uri) throws Exception {
-	registryURI = uri;
-	setRegistryConf("yarn_registry_uri", uri);
+    	registryURI = uri;
+    	setRegistryConf("yarn_registry_uri", uri);
     }
 }

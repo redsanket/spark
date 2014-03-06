@@ -156,7 +156,7 @@ public abstract class HadoopCluster {
 		
 		for(String s: members) {
 			if (s.contains("ygrid.yahoo.com")) {
-				roleMembers.add(s);
+				roleMembers.add(s.trim());
 			}
 		}
 		

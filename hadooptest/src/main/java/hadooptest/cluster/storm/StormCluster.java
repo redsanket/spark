@@ -41,7 +41,7 @@ public abstract class StormCluster {
      * 
      * @throws Exception
      */
-	public ArrayList<String> lookupIgorRole(String roleName) throws Exception {
+	public static ArrayList<String> lookupIgorRole(String roleName) throws Exception {
 		ArrayList<String> roleMembers = new ArrayList<String>();
 		
 		TestSessionStorm.logger.debug("Fetching role members from Igor for role: " + roleName);
@@ -50,7 +50,7 @@ public abstract class StormCluster {
 		
 		for(String s: members) {
 			if (s.contains("ygrid.yahoo.com")) {
-				roleMembers.add(s);
+				roleMembers.add(s.trim());
 			}
 		}
 		
@@ -66,7 +66,7 @@ public abstract class StormCluster {
      *
 	 * @throws Exception
 	 */
-	public ArrayList<String> lookupIgorRoleClusterAllNodes(String clusterName) 
+	public static ArrayList<String> lookupIgorRoleClusterAllNodes(String clusterName) 
 			throws Exception {
 		return lookupIgorRole("grid_re.storm." + clusterName);
 	}
@@ -80,7 +80,7 @@ public abstract class StormCluster {
 	 * 
 	 * @throws Exception
 	 */
-	public ArrayList<String> lookupIgorRoleClusterContrib(String clusterName) 
+	public static ArrayList<String> lookupIgorRoleClusterContrib(String clusterName) 
 			throws Exception {
 		return lookupIgorRole("grid_re.storm." + clusterName + ".contrib");
 	}
@@ -94,7 +94,7 @@ public abstract class StormCluster {
 	 * 
 	 * @throws Exception
 	 */
-	public ArrayList<String> lookupIgorRoleClusterDrpc(String clusterName) 
+	public static ArrayList<String> lookupIgorRoleClusterDrpc(String clusterName) 
 			throws Exception {
 		return lookupIgorRole("grid_re.storm." + clusterName + ".drpc");
 	}
@@ -108,7 +108,7 @@ public abstract class StormCluster {
 	 * 
 	 * @throws Exception
 	 */
-	public ArrayList<String> lookupIgorRoleClusterNimbus(String clusterName) 
+	public static ArrayList<String> lookupIgorRoleClusterNimbus(String clusterName) 
 			throws Exception {
 		return lookupIgorRole("grid_re.storm." + clusterName + ".nimbus");
 	}
@@ -122,7 +122,7 @@ public abstract class StormCluster {
 	 * 
 	 * @throws Exception
 	 */
-	public ArrayList<String> lookupIgorRoleClusterRegistry(String clusterName) 
+	public static ArrayList<String> lookupIgorRoleClusterRegistry(String clusterName) 
 			throws Exception {
 		return lookupIgorRole("grid_re.storm." + clusterName + ".registry");
 	}
@@ -136,7 +136,7 @@ public abstract class StormCluster {
 	 * 
 	 * @throws Exception
 	 */
-	public ArrayList<String> lookupIgorRoleClusterSupervisor(String clusterName) 
+	public static ArrayList<String> lookupIgorRoleClusterSupervisor(String clusterName) 
 			throws Exception {
 		return lookupIgorRole("grid_re.storm." + clusterName + ".supervisor");
 	}
@@ -150,7 +150,7 @@ public abstract class StormCluster {
 	 * 
 	 * @throws Exception
 	 */
-	public ArrayList<String> lookupIgorRoleClusterUI(String clusterName) 
+	public static ArrayList<String> lookupIgorRoleClusterUI(String clusterName) 
 			throws Exception {
 		return lookupIgorRole("grid_re.storm." + clusterName + ".ui");
 	}
