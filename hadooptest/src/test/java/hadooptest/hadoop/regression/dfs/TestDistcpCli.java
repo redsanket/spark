@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -156,6 +157,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	public void testWebhdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
 		String destinationFile;
+		GenericCliResponseBO genericCliResponse;
 
 		for (String justTheFile : fileMetadata.keySet()) {
 			// Push
@@ -164,11 +166,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 					+ this.parametrizedCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFile
 					+ appendStringOnCopiedFile;
-			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+			genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, this.localCluster,
 					this.parametrizedCluster, DATA_DIR_IN_HDFS + justTheFile,
 					destinationFile, HadooptestConstants.Schema.WEBHDFS,
 					HadooptestConstants.Schema.WEBHDFS);
+			Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
+
 
 			dfsCommonCliCommands
 					.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
@@ -183,12 +187,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 					+ this.localCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFile
 					+ appendStringOnCopiedFile;
-			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+			genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					this.parametrizedCluster, this.localCluster,
 					DATA_DIR_IN_HDFS + justTheFile, destinationFile,
 					HadooptestConstants.Schema.WEBHDFS,
 					HadooptestConstants.Schema.WEBHDFS);
+			Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 			dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, this.localCluster,
@@ -202,6 +207,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@Test
 	public void testWebhdfsToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
 		String destinationFile;
 		String appendString;
 
@@ -215,12 +221,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 				appendString = ".srcWebhdfs." + this.localCluster + ".dstHdfs."
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
-				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+				genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFile, destinationFile,
 						HadooptestConstants.Schema.WEBHDFS,
 						HadooptestConstants.Schema.HDFS);
+				Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
@@ -234,12 +241,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 			appendString = ".srcWebhdfs." + this.parametrizedCluster
 					+ ".dstHdfs." + this.localCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
-			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+			genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					this.parametrizedCluster, this.localCluster,
 					DATA_DIR_IN_HDFS + justTheFile, destinationFile,
 					HadooptestConstants.Schema.WEBHDFS,
 					HadooptestConstants.Schema.HDFS);
+			Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 			dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, this.localCluster,
@@ -254,6 +262,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@Test
 	public void testHftpToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
 		String destinationFile;
 		String appendString;
 
@@ -266,12 +275,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 				appendString = ".srcHftp." + this.localCluster + ".dstWebHdfs."
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
-				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+				genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFile, destinationFile,
 						HadooptestConstants.Schema.HFTP,
 						HadooptestConstants.Schema.WEBHDFS);
+				Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
@@ -290,6 +300,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@Test
 	public void testHftpToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
 		String destinationFile;
 		String appendString;
 
@@ -304,12 +315,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
-				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+				genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,
 						HadooptestConstants.Schema.HFTP,
 						HadooptestConstants.Schema.HDFS);
+				Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
@@ -333,6 +345,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@Test
 	public void testHdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
 		String destinationFile;
 		String appendString;
 
@@ -341,12 +354,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 			appendString = ".srcHdfs." + this.localCluster + ".dstWebhdfs."
 					+ this.parametrizedCluster;
 			destinationFile = DATA_DIR_IN_HDFS + justTheFileName + appendString;
-			dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+			genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, this.localCluster,
 					this.parametrizedCluster, DATA_DIR_IN_HDFS
 							+ justTheFileName, destinationFile,
 					HadooptestConstants.Schema.HDFS,
 					HadooptestConstants.Schema.WEBHDFS);
+			Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 			dfsCommonCliCommands
 					.rm(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA,
@@ -365,12 +379,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
 
-				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+				genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.parametrizedCluster, this.localCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,
 						HadooptestConstants.Schema.HDFS,
 						HadooptestConstants.Schema.WEBHDFS);
+				Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
@@ -387,6 +402,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@Test
 	public void testHdfsToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
 		String destinationFile;
 		String appendString;
 
@@ -401,12 +417,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 						+ this.parametrizedCluster;
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
-				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+				genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.localCluster, this.parametrizedCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,
 						HadooptestConstants.Schema.HDFS,
 						HadooptestConstants.Schema.HDFS);
+				Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
@@ -421,12 +438,13 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 				destinationFile = DATA_DIR_IN_HDFS + justTheFileName
 						+ appendString;
 
-				dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
+				genericCliResponse = dfsCommonCliCommands.distcp(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						this.parametrizedCluster, this.localCluster,
 						DATA_DIR_IN_HDFS + justTheFileName, destinationFile,
 						HadooptestConstants.Schema.HDFS,
 						HadooptestConstants.Schema.HDFS);
+				Assert.assertTrue("distcp exited with non-zero exit code", genericCliResponse.process.exitValue()==0);
 
 				dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
