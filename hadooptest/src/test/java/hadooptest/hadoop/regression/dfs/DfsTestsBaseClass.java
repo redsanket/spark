@@ -46,7 +46,7 @@ public class DfsTestsBaseClass extends TestSession {
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
 
-	public final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
+	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public static final String EMPTY_FS_ENTITY = "";
 	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
@@ -63,39 +63,39 @@ public class DfsTestsBaseClass extends TestSession {
 	 * Options passed to CLI commands
 	 * 
 	 */
-	public enum Recursive {
+	public static enum Recursive {
 		YES, NO
 	};
 
-	public enum Force {
+	public static enum Force {
 		YES, NO
 	};
 
-	public enum SkipTrash {
+	public static enum SkipTrash {
 		YES, NO
 	};
 
-	public enum ClearQuota {
+	public static enum ClearQuota {
 		YES, NO
 	};
 
-	public enum SetQuota {
+	public static enum SetQuota {
 		YES, NO
 	};
 
-	public enum ClearSpaceQuota {
+	public static enum ClearSpaceQuota {
 		YES, NO
 	};
 
-	public enum SetSpaceQuota {
+	public static enum SetSpaceQuota {
 		YES, NO
 	};
 
-	public enum Report {
+	public static enum Report {
 		YES, NO
 	};
 
-	public enum PrintTopology {
+	public static enum PrintTopology {
 		YES, NO
 	};
 
