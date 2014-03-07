@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Mar 06 17:54:22 CST 2014
+commons-beanutils-1.8.0.jar>=
+commons-beanutils-1.8.0.jar>local\ central\ mirror=
+commons-beanutils-1.8.0.pom>local\ central\ mirror=

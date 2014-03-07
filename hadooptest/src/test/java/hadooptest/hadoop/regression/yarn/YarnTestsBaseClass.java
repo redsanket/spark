@@ -12,7 +12,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
 
-public class YarnTestsBaseClass { 
+public class YarnTestsBaseClass extends TestSession{ 
 	
 	/*
 	 * Run a Sleep Job, from org.apache.hadoop.mapreduce
