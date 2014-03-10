@@ -10,12 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
 
+import java.nio.file.Paths;
+
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.Util;
@@ -34,6 +38,7 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 
 @SuppressWarnings("deprecation")
+@Category(SerialTests.class)
 public class TestBasicDRPC extends TestSessionStorm {
     static ModifiableStormCluster mc;
     private backtype.storm.Config _conf;
@@ -81,7 +86,8 @@ public class TestBasicDRPC extends TestSessionStorm {
     }
 
     public TestBasicDRPC(){
-        //empty constructor
+        _conf = new backtype.storm.Config();
+        _conf.putAll(backtype.storm.utils.Utils.readStormConfig());
     }
 
     @Test
@@ -89,10 +95,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         logger.info("Starting TestDRPCTopologyHTTP");
         StormTopology topology = buildTopology();
 
-        String topoName = "drpc-topology-test";
-
-        _conf = new backtype.storm.Config();
-        _conf.putAll(backtype.storm.utils.Utils.readStormConfig());
+        String topoName = "drpc-topology-test1";
 
         _conf.setDebug(true);
         _conf.setNumWorkers(3);
@@ -153,6 +156,94 @@ public class TestBasicDRPC extends TestSessionStorm {
                 String respString = resp.getContentAsString();
                 logger.info("Got back " + respString + " from drpc.");
                 if (respString.equals("hello!")) {
+                    passed = true;
+                }
+            }
+        }
+        
+        cluster.killTopology(topoName);
+
+        // Stop client
+        try {
+            client.stop();
+        } catch (Exception e) {
+            throw new IOException("Could not stop http client", e);
+        }
+
+        // Did we fail?
+        if (!done) {
+            throw new IOException("Timed out trying to get DRPC response\n");
+        }
+
+        if (!passed) {
+            logger.error("A test case failed.  Throwing error");
+            throw new Exception();
+        }
+    }
+    
+    @Test
+    public void TestDRPCTopologyHTTPPut() throws Exception{
+        logger.info("Starting TestDRPCTopologyHTTPPost");
+        StormTopology topology = buildTopology();
+
+        String topoName = "drpc-topology-test-post";
+
+        _conf.setDebug(true);
+        _conf.setNumWorkers(3);
+
+        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        try {
+            cluster.submitTopology(jar, topoName, _conf, topology);
+        } catch (Exception e) {
+            logger.error("Couldn't launch topology: " + e );
+            throw new Exception();
+        }
+        
+        String inputFileDir = new String(conf.getProperty("STORM_TEST_HOME") + "/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
+        java.nio.file.Path inputPath = Paths.get(inputFileDir);
+
+        boolean passed = false;
+        // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
+        // Create and start client
+        HttpClient client = new HttpClient();
+        client.setIdleTimeout(30000);
+        try {
+            client.start();
+        } catch (Exception e) {
+            cluster.killTopology(topoName);
+            throw new IOException("Could not start Http Client", e);
+        }
+        // Get the URI to ping
+        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
+        if(servers == null || servers.isEmpty()) {
+            cluster.killTopology(topoName);
+            throw new RuntimeException("No DRPC servers configured for topology");   
+        }
+
+        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/exclamation";
+        logger.info("Attempting to connect to drpc server with " + DRPCURI);
+
+        // Let's try for 3 minutes, or until we get a 200 back.
+        boolean done = false;
+        int tryCount = 200;
+        while (!done && tryCount > 0) {
+            Thread.sleep(1000);
+            ContentResponse putResp = null;
+            
+            try {
+                putResp = client.POST(DRPCURI).file(inputPath).send();
+            } catch (Exception e) {
+                TestSessionStorm.logger.error("Put failed to URL " + DRPCURI + e);
+                cluster.killTopology(topoName);
+                throw new IOException("Could not put to DRPC", e);
+            }
+
+            if (putResp != null && putResp.getStatus() == 200) {
+                done = true;
+                // Check the response value.  Should be "Hello World!"
+                String respString = putResp.getContentAsString();
+                logger.info("Got back " + respString + " from drpc.");
+                if (respString.equals("Hello World!")) {
                     passed = true;
                 }
             }
