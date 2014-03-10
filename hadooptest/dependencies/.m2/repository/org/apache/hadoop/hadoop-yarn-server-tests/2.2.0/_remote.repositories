@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Mar 06 17:54:22 CST 2014
+hadoop-yarn-server-tests-2.2.0.pom>local\ central\ mirror=
+hadoop-yarn-server-tests-2.2.0-tests.jar>=
+hadoop-yarn-server-tests-2.2.0-tests.jar>local\ central\ mirror=

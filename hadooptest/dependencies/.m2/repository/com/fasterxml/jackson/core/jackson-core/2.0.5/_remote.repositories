@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Mar 06 17:54:22 CST 2014
+jackson-core-2.0.5.jar>=
+jackson-core-2.0.5.pom>local\ central\ mirror=
+jackson-core-2.0.5.jar>local\ central\ mirror=

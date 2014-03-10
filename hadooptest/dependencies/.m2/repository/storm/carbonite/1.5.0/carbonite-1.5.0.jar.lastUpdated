@@ -1,7 +1,7 @@
-#NOTE: This is an internal implementation file, its format can be changed without prior notice.
-#Fri Feb 21 17:51:58 UTC 2014
-http\://repository.apache.org/content/groups/snapshots-group/.lastUpdated=1393005117635
-https\://clojars.org/repo/.lastUpdated=1393005118024
-http\://ymaven.corp.yahoo.com\:9999/proximity/repository/public/.lastUpdated=1393005117777
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Mar 06 17:54:18 CST 2014
+http\://repository.apache.org/content/groups/snapshots-group/.lastUpdated=1394150058225
+https\://clojars.org/repo/.lastUpdated=1394150058565
+http\://ymaven.corp.yahoo.com\:9999/proximity/repository/public/.lastUpdated=1394150058372
 http\://repository.apache.org/content/groups/snapshots-group/.error=
 http\://ymaven.corp.yahoo.com\:9999/proximity/repository/public/.error=

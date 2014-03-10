@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Mar 06 17:54:23 CST 2014
+org.eclipse.jdt.core-3.8.2.v20130121.jar>=
+org.eclipse.jdt.core-3.8.2.v20130121.jar>local\ central\ mirror=
+org.eclipse.jdt.core-3.8.2.v20130121.pom>local\ central\ mirror=
