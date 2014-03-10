@@ -156,7 +156,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	restartDaemon(StormDaemon.UI);
     	restartDaemon(StormDaemon.SUPERVISOR);
     	restartDaemon(StormDaemon.LOGVIEWER);
-    	
+        restartDaemon(StormDaemon.DRPC);
+
         Thread.sleep(120000);//TODO replace this with something to detect the cluster is up.
         cleanup();
         setupClient();
@@ -301,7 +302,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
         stopDaemon(StormDaemon.UI);
         stopDaemon(StormDaemon.SUPERVISOR);
         stopDaemon(StormDaemon.LOGVIEWER);
-        
+        stopDaemon(StormDaemon.DRPC);
+
         cleanup();
     }
 
@@ -312,7 +314,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
         startDaemon(StormDaemon.UI);
         startDaemon(StormDaemon.SUPERVISOR);
         startDaemon(StormDaemon.LOGVIEWER);
-        
+        startDaemon(StormDaemon.DRPC);
+
         Thread.sleep(30000);//TODO replace this with something to detect the cluster is up.
         cleanup();
         setupClient();

@@ -610,6 +610,7 @@
 						<additionalClasspathElement>${basedir}</additionalClasspathElement>
 						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
 						<additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
+						<additionalClasspathElement>/home/y/lib/storm/current/conf</additionalClasspathElement>
 					</additionalClasspathElements>
 					<trimStackTrace>false</trimStackTrace>
 					<excludes>
