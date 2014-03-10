@@ -2,6 +2,7 @@ package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.TestSession;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.hadoop.SleepJob;
@@ -13,6 +14,19 @@ import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
 
 public class YarnTestsBaseClass extends TestSession {
+	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
+	public final String KRB5CCNAME = "KRB5CCNAME";
+	protected String localCluster = System.getProperty("CLUSTER_NAME");
+	
+	public static enum YarnAdminSubCommand {
+		REFRESH_QUEUES, 
+		REFRESH_NODES,
+		REFRESH_SUPERUSER_GROUPS_CONFIGURATION,
+		REFRESH_USER_TO_GROUPS_MAPPING,
+		REFRESH_ADMIN_ACLS,
+		REFRESH_SERVICE_ACL,
+		GET_GROUPS
+	};
 
 	/*
 	 * Run a Sleep Job, from org.apache.hadoop.mapreduce
