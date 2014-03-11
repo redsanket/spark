@@ -23,29 +23,29 @@ public class TestMR1178 extends TestSession {
 	public static void startTestSession() throws Exception {
 		TestSession.start();
 	}
-	
+
 	@Test
 	public void testJobWithMultipleInputFiles() throws Exception {
 		
 		//Delete the Existing HDFS Directory (if exists)
 		//And create a new directory
 		String dirPath = "/tmp/MR1178";
-		
+
 		logger.info("Deleting existing Directory \"" + dirPath +
 				"\" (if exists) and creating new directory of same name");
-		
+
 		hdfs.mkdir(dirPath);
 
 		logger.info("STARTING MAPREDUCE:1178");
 
 		dirPath += "/MR1178_MultipleInputs";
 		hdfs.mkdir(dirPath);
-		
+
 		HadoopConfiguration conf = cluster.getConf();
 		conf.setLong(BYTES_PER_MAP, 256000);
-		
+
 		String randomWriterOutput = dirPath + "/randomWriterOutput";
-		
+
 		//Run RandomWriter
 		
 		/*
@@ -53,15 +53,15 @@ public class TestMR1178 extends TestSession {
 		 * It will return 0 on successful job completion
 		 * It will return a non-zero number on failure
 		*/
-		
+
 		int result = ToolRunner.run(conf, new RandomWriter(),
 				new String[] { randomWriterOutput });
 		Assert.assertEquals(0, result);
-		
+
 		String wordcountOutput = dirPath + "/wordcountOutput";
-		
+
 		//Run WordCount
-		
+
 		/*
 		 * WordCount can be run in the same way as RandomWriter Above
 		 * Only difference will be, the 3rd argument will have two
@@ -73,9 +73,9 @@ public class TestMR1178 extends TestSession {
 		 * 
 		 * You will need to import org.apache.hadoop.mapred.WordCount;
 		*/
-		
+
 		WordCountJob wcJob = new WordCountJob();
-		
+
 		wcJob.setInputFile(randomWriterOutput);
 		wcJob.setOutputPath(wordcountOutput);
 
@@ -89,6 +89,6 @@ public class TestMR1178 extends TestSession {
 		int waitTime = 3;
 		assertTrue("WordCount Job did not succeed.",
 				wcJob.waitForSuccess(waitTime));
-		
+
 	}
 }
