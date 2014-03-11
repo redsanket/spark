@@ -12,6 +12,11 @@
       <artifactId>adapps_maven_plugins_version</artifactId>
     </plugin>
     <plugin>
+      <name>coretech_maven_plugins_rdl plugin</name>
+      <prefix>rdl</prefix>
+      <artifactId>coretech_maven_plugins_rdl</artifactId>
+    </plugin>
+    <plugin>
       <name>hadoop_maven_plugins_nova plugin</name>
       <prefix>nova</prefix>
       <artifactId>hadoop_maven_plugins_nova</artifactId>

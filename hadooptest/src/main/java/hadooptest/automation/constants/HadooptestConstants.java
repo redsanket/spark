@@ -92,6 +92,7 @@ public class HadooptestConstants {
 		public static class Binary {
 			public static String HADOOP = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hadoop";
 			public static String HDFS = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hdfs";
+			public static String YARN = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/yarn";
 			public static String PERL = "/usr/local/bin/perl";
 		}
 		public static class Conf {
