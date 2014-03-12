@@ -79,7 +79,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         #echo "    -set $confpkg.TODO_ENABLE_DFS_HA='<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\"/>' \\"
     fi
     # The following is kept here to make old config work
-    echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn:8020 \\
+    echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://$nn:8020 \\
     if [ "$USE_DEFAULT_QUEUE_CONFIG" = true ]; then
         echo "  " -set $confpkg.TODO_YARN_LOCAL_CAPACITY_SCHEDULER=EXAMPLE-local-capacity-scheduler.xml \\
     fi
