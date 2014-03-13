@@ -21,7 +21,7 @@ case "$CLUSTER" in
    *) export scriptnames=generic10node ;;
 esac
 export confpkg=HadoopConfig${scriptnames}blue
-export localconfpkg=hadooplocalconfigs-openstack-large
+export localconfpkg=hadooplocalconfigs_openstack_large
 
 echo =========================================
 echo Beginning of Hudson-driven deployment job.
