@@ -28,7 +28,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
     static String configURI="http://0.0.0.0:9080/registry/v1/";
     static String serverURI=configURI;
-    static String vhURI="http://myvh-stormtest.corp.yahoo.com:4080/";
+    static String vhURI="http://myvh-stormtest.corp.yahoo.com:9153/";
     private backtype.storm.Config _conf;
     private String _ycaV1Role;
     private TestEventCountBolt theBolt = null;
