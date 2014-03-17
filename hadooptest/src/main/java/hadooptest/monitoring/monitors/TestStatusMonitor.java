@@ -56,14 +56,14 @@ public class TestStatusMonitor extends AbstractMonitor {
 				/*
 				 * means test passed
 				 */
-				TestSession.logger.trace("TestStatusMonitor sees "
+				TestSession.logger.info("TestStatusMonitor sees "
 						+ testMethodBeingMonitored + " as passed");
 				printWriter.println("PASSED");
 			} else {
 				/*
 				 * means test failed
 				 */
-				TestSession.logger.trace("TestStatusMonitor sees "
+				TestSession.logger.info("TestStatusMonitor sees "
 						+ testMethodBeingMonitored + " as failed");
 				printWriter.println("FAILED");
 			}
@@ -105,7 +105,7 @@ public class TestStatusMonitor extends AbstractMonitor {
 
 	@Override
 	public void stopMonitoring() {
-		TestSession.logger.trace("Stop monitoring received for Test Status for"
+		TestSession.logger.info("Stop monitoring received for Test Status for"
 				+ testMethodBeingMonitored);
 		logTestStatus();
 	}

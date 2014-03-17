@@ -8,17 +8,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 
 import org.apache.thrift7.TException;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 
+import org.apache.thrift7.TException;
+
 import backtype.storm.StormSubmitter;
+import backtype.storm.Config;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.AuthorizationException;
 import backtype.storm.generated.ClusterSummary;
 import backtype.storm.generated.InvalidTopologyException;
+import backtype.storm.generated.DRPCExecutionException;
 import backtype.storm.generated.KillOptions;
 import backtype.storm.generated.NotAliveException;
 import backtype.storm.generated.RebalanceOptions;
@@ -27,6 +32,9 @@ import backtype.storm.generated.SubmitOptions;
 import backtype.storm.generated.TopologyInfo;
 import backtype.storm.utils.NimbusClient;
 import backtype.storm.utils.Utils;
+import backtype.storm.utils.DRPCClient;
+import storm.trident.TridentTopology;
+import storm.trident.Stream;
 
 /**
  * The current storm cluster, assumed to be installed through yinst.
@@ -36,6 +44,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     private ClusterUtil ystormConf = new ClusterUtil("ystorm");
     private ClusterUtil registryConf = new ClusterUtil("ystorm_registry");
     private String registryURI;
+    private DRPCClient drpc;
 
     public void init(ConfigProperties conf) throws Exception {
     	TestSessionStorm.logger.info("INIT CLUSTER");
@@ -45,14 +54,20 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     private void setupClient() throws Exception {
         TestSessionStorm.logger.info("SETUP CLIENT");
-        Map stormConf = Utils.readStormConfig();
+        backtype.storm.Config stormConf = new backtype.storm.Config();
+	stormConf.putAll(Utils.readStormConfig());
         cluster = NimbusClient.getConfiguredClient(stormConf);
+        List<String> servers = (List<String>) stormConf.get(backtype.storm.Config.DRPC_SERVERS);
+	int port = Integer.parseInt(stormConf.get(backtype.storm.Config.DRPC_HTTP_PORT).toString());
+        drpc = new DRPCClient( stormConf, servers.get(0), port );
     }
 
     public void cleanup() {
     	TestSessionStorm.logger.info("CLEANUP CLIENT");
         cluster.close();
         cluster = null;
+	drpc.close();
+	drpc = null;
     }
 
     public void submitTopology(File jar, String name, Map stormConf, 
@@ -167,7 +182,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	restartDaemon(StormDaemon.UI);
     	restartDaemon(StormDaemon.SUPERVISOR);
     	restartDaemon(StormDaemon.LOGVIEWER);
-    	
+        restartDaemon(StormDaemon.DRPC);
+
         Thread.sleep(120000);//TODO replace this with something to detect the cluster is up.
         cleanup();
         setupClient();
@@ -336,7 +352,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
         stopDaemon(StormDaemon.UI);
         stopDaemon(StormDaemon.SUPERVISOR);
         stopDaemon(StormDaemon.LOGVIEWER);
-        
+        stopDaemon(StormDaemon.DRPC);
+
         cleanup();
     }
 
@@ -347,7 +364,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
         startDaemon(StormDaemon.UI);
         startDaemon(StormDaemon.SUPERVISOR);
         startDaemon(StormDaemon.LOGVIEWER);
-        
+        startDaemon(StormDaemon.DRPC);
+
         Thread.sleep(30000);//TODO replace this with something to detect the cluster is up.
         cleanup();
         setupClient();
@@ -422,5 +440,13 @@ public class YahooStormCluster extends ModifiableStormCluster {
     public void setRegistryServerURI(String uri) throws Exception {
     	registryURI = uri;
     	setRegistryConf("yarn_registry_uri", uri);
+    }
+
+    public Stream newDRPCStream(TridentTopology topology, String function) {
+        return topology.newDRPCStream(function, null);
+    }
+
+    public String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException {
+        return drpc.execute(func, args);
     }
 }

@@ -9,9 +9,12 @@ import java.util.Map;
 
 import org.apache.thrift7.TException;
 
+import storm.trident.Stream;
+import storm.trident.TridentTopology;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.AuthorizationException;
 import backtype.storm.generated.ClusterSummary;
+import backtype.storm.generated.DRPCExecutionException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.KillOptions;
 import backtype.storm.generated.NotAliveException;
@@ -40,6 +43,8 @@ public abstract class StormCluster {
     public abstract String getTopologyConf(String topologyId) throws NotAliveException, AuthorizationException, TException;
     public abstract StormTopology getTopology(String topologyId) throws NotAliveException, AuthorizationException, TException;
     public abstract StormTopology getUserTopology(String topologyId) throws NotAliveException, AuthorizationException, TException;
+    public abstract Stream newDRPCStream(TridentTopology topology, String function);
+    public abstract String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException;
     
     /**
      * Lookup an Igor role and get the role members.

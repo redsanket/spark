@@ -90,11 +90,7 @@ public class ClusterUtil {
                     TestSessionStorm.logger.debug(line);
                     
         			String[] parts = line.split(": ", 2);
-        			if (parts.length != 2) {
-        				//throw new IllegalArgumentException(
-        				//		"Error parsing yinst output " + line);
-        			}
-        			else {
+        			if (parts.length == 2) {
         				nodeYinst.put(parts[0], parts[1]);
         				ret.put(nodeDNSName, nodeYinst);
         			}
@@ -333,8 +329,6 @@ public class ClusterUtil {
     					"Got unexpected non-zero exit code: " + output[0]);
     			TestSessionStorm.logger.info("stdout" + output[1]);
     			TestSessionStorm.logger.info("stderr" + output[2]);	
-                //throw new RuntimeException(
-                //		"ssh and yinst returned an error code.");		
     		}
     	}
     }

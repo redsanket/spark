@@ -68,7 +68,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO mkdir(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO mkdir(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String directoryHierarchy) throws Exception {
 		String nameNodePrependedWithProtocol = "";
@@ -335,7 +335,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO rm(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO rm(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster, Recursive recursive,
 			Force force, SkipTrash skipTrash, String completePath)
 			throws Exception {
@@ -407,7 +407,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO rmdir(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO rmdir(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster, String completePath)
 			throws Exception {
 		String nameNodePrependedWithProtocol = "";
@@ -466,7 +466,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	FsckResponseBO fsck(HashMap<String, String> envMapSentByTest, String user,
+	public FsckResponseBO fsck(HashMap<String, String> envMapSentByTest, String user,
 			String completePathToFile, boolean includeFilesArg,
 			boolean includeBlocksArg, boolean includeRacksArg) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -535,7 +535,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
 			Report runReport, String safemodeArg, ClearQuota clearQuota,
 			SetQuota setQuota, long quota, ClearSpaceQuota clearSpaceQuota,
 			SetSpaceQuota setSpaceQuota, long spaceQuota,
@@ -627,7 +627,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO balancer(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO balancer(HashMap<String, String> envMapSentByTest,
 			String user, String policyValue, String thresholdValue)
 			throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -682,7 +682,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO ls(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO ls(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String completePathToFile, Recursive recursive) throws Exception {
 		String nameNodePrependedWithProtocol = "";
@@ -747,7 +747,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO copyFromLocal(
+	public GenericCliResponseBO copyFromLocal(
 			HashMap<String, String> envMapSentByTest, String user,
 			String protocol, String cluster, String completePathOfSource,
 			String completePathOfDest) throws Exception {
@@ -808,7 +808,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO put(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO put(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String completePathOfSource, String completePathOfDest)
 			throws Exception {
@@ -869,7 +869,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO cp(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO cp(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			String completePathOfSource, String completePathOfDest)
 			throws Exception {
@@ -928,7 +928,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO mv(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO mv(HashMap<String, String> envMapSentByTest,
 			String user, String cluster, String completePathOfSource,
 			String completePathOfDest) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -977,7 +977,7 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	GenericCliResponseBO archive(HashMap<String, String> envMapSentByTest,
+	public GenericCliResponseBO archive(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster, String archiveName,
 			String parentPath, String source, String destinationPath)
 			throws Exception {
