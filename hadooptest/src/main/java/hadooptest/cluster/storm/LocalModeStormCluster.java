@@ -7,19 +7,30 @@ import hadooptest.ConfigProperties;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
+import backtype.storm.LocalDRPC;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.*;
+import storm.trident.TridentTopology;
+import storm.trident.Stream;
+
+import backtype.storm.generated.DRPCExecutionException;
+import org.apache.thrift7.TException;
+import backtype.storm.generated.AuthorizationException;
 
 public class LocalModeStormCluster extends StormCluster {
     private LocalCluster cluster;
+    private LocalDRPC drpcServer=null;
 
     public void init(ConfigProperties conf) {
+        drpcServer = new LocalDRPC();
         cluster = new LocalCluster();
         StormSubmitter.setLocalNimbus(cluster);
     }
 
     public void cleanup() {
         cluster.shutdown();
+	drpcServer.shutdown();
+	drpcServer = null;
         cluster = null;
     }
 
@@ -85,5 +96,13 @@ public class LocalModeStormCluster extends StormCluster {
     public StormTopology getUserTopology(String topologyId) throws NotAliveException, AuthorizationException {
         //TODO
         throw new IllegalStateException("NOT IMPLEMENTED YET");
+    }
+
+    public Stream newDRPCStream(TridentTopology topology, String function) {
+        return topology.newDRPCStream(function, drpcServer);
+    }
+
+    public String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException {
+        return drpcServer.execute(func, args);
     }
 }

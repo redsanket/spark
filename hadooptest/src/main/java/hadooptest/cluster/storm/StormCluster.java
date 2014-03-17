@@ -10,6 +10,10 @@ import hadooptest.TestSessionStorm;
 import backtype.storm.Config;
 import backtype.storm.generated.*;
 import org.apache.thrift7.TException;
+import backtype.storm.generated.AuthorizationException;
+import backtype.storm.generated.DRPCExecutionException;
+import storm.trident.TridentTopology;
+import storm.trident.Stream;
 
 public abstract class StormCluster {
     public abstract void init(ConfigProperties conf) throws Exception;
@@ -31,6 +35,8 @@ public abstract class StormCluster {
     public abstract String getTopologyConf(String topologyId) throws NotAliveException, AuthorizationException, TException;
     public abstract StormTopology getTopology(String topologyId) throws NotAliveException, AuthorizationException, TException;
     public abstract StormTopology getUserTopology(String topologyId) throws NotAliveException, AuthorizationException, TException;
+    public abstract Stream newDRPCStream(TridentTopology topology, String function);
+    public abstract String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException;
     
     /**
      * Lookup an Igor role and get the role members.
