@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,8 +28,26 @@ import backtype.storm.Config;
 import backtype.storm.generated.*;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Values;
+import backtype.storm.utils.DRPCClient;
+
+import storm.trident.TridentState;
+import storm.trident.TridentTopology;
+import storm.trident.operation.BaseFunction;
+import storm.trident.operation.TridentCollector;
+import storm.trident.operation.builtin.Count;
+import storm.trident.operation.builtin.FilterNull;
+import storm.trident.operation.builtin.MapGet;
+import storm.trident.operation.builtin.Sum;
+import storm.trident.planner.processor.StateQueryProcessor;
+import storm.trident.testing.MemoryMapState;
+import storm.trident.tuple.TridentTuple;
+import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
+
 
 public class TestWordCountTopology extends TestSessionStorm {
+    static int numSpouts = 2; //This must match the topology
+
     @BeforeClass
     public static void setup() throws Exception {
         start();
@@ -69,7 +89,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         cluster.submitTopology(jar, topoName, config, topology);
         try {
             
-            int uptime = 10;
+            int uptime = 20;
             int cur_uptime = 0;
 
             cur_uptime = getUptime(topoName);
@@ -85,68 +105,74 @@ public class TestWordCountTopology extends TestSessionStorm {
                 cur_uptime = getUptime(topoName);
             }
             
-            //TopologyInfo topo = getTS(topoName);
-       
-            BufferedReader reader = new BufferedReader(new FileReader(outputLoc));
-        
-            //get results
-            String line;
-            HashMap<String, Integer> resultWordCount = new HashMap<String, Integer>();
-            System.out.println("Read results from: "+outputLoc);
-
-            while ((line = reader.readLine()) != null) {
-                if (line.length()>0){
-                    String word = line.split(":")[0];
-                    Integer count = Integer.parseInt(line.split(":")[1].trim());
-                    resultWordCount.put(word, count);
-                }
-            }
-            reader.close();
-        
             //get expected results
             String file = conf.getProperty("STORM_TEST_HOME") + "/resources/storm/testinputoutput/WordCountFromFile/expected_results";
-            reader = new BufferedReader(new FileReader(file));
         
-            HashMap<String, Integer> expectedWordCount = new HashMap<String, Integer>();
-            logger.info("Read epected results from: "+ file);
+            HashMap<String, Integer> expectedWordCount = Util.readMapFromFile(file);
 
-            while ((line = reader.readLine()) != null) {
-                String word = line.split(":")[0];
-                logger.info("Word = " + word);
-                Integer count = Integer.parseInt(line.split(":")[1].trim());
-                logger.info("Count = " + count);
-                expectedWordCount.put(word, count);                       
-            }
-            reader.close();
+            // TODO FIX ME assertEquals (expectedWordCount.size(), resultWordCount.size());
         
-            assertEquals (expectedWordCount.size(), resultWordCount.size());
-        
-            //int num_spouts = cluster.getExecutors(topo, "sentence_spout").size();
-            int num_spouts = 1; //This must match the topology
-            logger.info("Number of spouts: " + num_spouts);
+            //int numSpouts = cluster.getExecutors(topo, "sentence_spout").size();
+            logger.info("Number of spouts: " + numSpouts);
+            Pattern pattern = Pattern.compile("(\\d+)", Pattern.CASE_INSENSITIVE);
             for (String key: expectedWordCount.keySet()){
                 //for WordCount from file the output depends on how many spouts are created
-                assertEquals(key, (int)expectedWordCount.get(key)*num_spouts, (int)resultWordCount.get(key));
+                //todo.  Abstarcted drpc execute call.  Need to add cluster interface so that local mode and non-local mode are the same
+                String drpcResult = cluster.DRPCExecute( "words", key );
+                logger.info("The value for " + key + " is " + drpcResult );
+		System.out.println("The value for " + key + " is " + drpcResult);
+                Matcher matcher = pattern.matcher(drpcResult);
+		int thisCount = -1;
+                if (matcher.find()) {
+                    logger.info("Matched " + matcher.group(0));
+                    thisCount = Integer.parseInt(matcher.group(0));
+                } else {
+                    logger.warn("Did not match.");
+                }
+                assertEquals(key, thisCount, (int)expectedWordCount.get(key)*numSpouts);
             }
         } finally {
             cluster.killTopology(topoName);
         }
     }    
+
+    public static class Split extends BaseFunction {
+        @Override
+        public void execute(TridentTuple tuple, TridentCollector collector) {
+            String sentence = tuple.getString(0);
+            for(String word: sentence.split(" ")) {
+                collector.emit(new Values(word));                
+            }
+        }
+    }
+
         
     public static StormTopology buildTopology() {
-        TopologyBuilder builder = new TopologyBuilder();
-        
-        builder.setSpout("sentence_spout", new FiniteSentenceSpout(), 1);
-        
-        builder.setBolt("split", new SplitSentence(), 8)
-                 .shuffleGrouping("sentence_spout");
-        
-        builder.setBolt("count", new WordCount(), 12)
-                 .fieldsGrouping("split", new Fields("word"));
-        
-        builder.setBolt("aggregator", new Aggregator())
-                .globalGrouping("count");
-        
-        return builder.createTopology();
+        FixedBatchSpout spout = new FixedBatchSpout(new Fields("sentence"), 3,
+                new Values ("the cow jumped over the moon"),
+                new Values ("an apple a day keeps the doctor away"),
+                new Values ("four score and seven years ago"),
+                new Values ("snow white and the seven dwarfs"),
+                new Values ("i am at two"));
+
+        spout.setCycle(numSpouts);
+
+        TridentTopology topology = new TridentTopology();
+        TridentState wordCounts = topology.newStream("spout1", spout)
+                .parallelismHint(1)
+                .each(new Fields("sentence"), new Split(), new Fields("word"))
+                .groupBy(new Fields("word"))
+                .persistentAggregate(new MemoryMapState.Factory(),
+                        new Count(), new Fields("count"))         
+                        .parallelismHint(16);
+
+        cluster.newDRPCStream(topology, "words")
+            .each(new Fields("args"), new Split(), new Fields("word"))
+            .groupBy(new Fields("word"))
+            .stateQuery(wordCounts, new Fields("word"), new MapGet(), new Fields("count"))
+            .each(new Fields("count"), new FilterNull())
+            .aggregate(new Fields("count"), new Sum(), new Fields("sum"))
+            ;
+        return topology.build();
     }    
 }

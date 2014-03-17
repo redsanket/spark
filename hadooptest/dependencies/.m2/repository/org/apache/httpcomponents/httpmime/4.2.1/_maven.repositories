@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Fri Mar 14 23:06:15 UTC 2014
+httpmime-4.2.1.jar>=
+httpmime-4.2.1.pom>local\ central\ mirror=
+httpmime-4.2.1.jar>local\ central\ mirror=

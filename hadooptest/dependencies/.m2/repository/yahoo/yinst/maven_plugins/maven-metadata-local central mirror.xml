@@ -52,6 +52,11 @@
       <artifactId>yjava_maven_plugins_effective_pom</artifactId>
     </plugin>
     <plugin>
+      <name>yjava_maven_plugins_jarstamper plugin</name>
+      <prefix>jarstamper</prefix>
+      <artifactId>yjava_maven_plugins_jarstamper</artifactId>
+    </plugin>
+    <plugin>
       <name>yjava_maven_plugins_lint plugin</name>
       <prefix>lint</prefix>
       <artifactId>yjava_maven_plugins_lint</artifactId>

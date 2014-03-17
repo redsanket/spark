@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Fri Mar 14 23:06:15 UTC 2014
+jsch-0.1.50.jar>=
+jsch-0.1.50.pom>local\ central\ mirror=
+jsch-0.1.50.jar>local\ central\ mirror=
