@@ -60,7 +60,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
 	stormConf.putAll(Utils.readStormConfig());
         cluster = NimbusClient.getConfiguredClient(stormConf);
         List<String> servers = (List<String>) stormConf.get(backtype.storm.Config.DRPC_SERVERS);
-	int port = Integer.parseInt(stormConf.get(backtype.storm.Config.DRPC_HTTP_PORT).toString());
+	int port = Integer.parseInt(stormConf.get(backtype.storm.Config.DRPC_PORT).toString());
         drpc = new DRPCClient( stormConf, servers.get(0), port );
     }
 
