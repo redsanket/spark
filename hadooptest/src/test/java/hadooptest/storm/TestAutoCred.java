@@ -1,27 +1,28 @@
 package hadooptest.storm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import hadooptest.SerialTests;
+import hadooptest.TestSessionStorm;
+import hadooptest.Util;
+import hadooptest.workflow.storm.topology.bolt.CheckSubjectBolt;
+import hadooptest.workflow.storm.topology.spout.CheckSubjectSpout;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.File;
-import java.util.HashMap;
+import java.io.FileReader;
 import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import hadooptest.TestSessionStorm;
-import hadooptest.Util;
-import hadooptest.workflow.storm.topology.spout.CheckSubjectSpout;
-import hadooptest.workflow.storm.topology.bolt.CheckSubjectBolt;
+import org.junit.experimental.categories.Category;
 
 import backtype.storm.Config;
-import backtype.storm.generated.*;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.TopologySummary;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
 
+@Category(SerialTests.class)
 public class TestAutoCred extends TestSessionStorm {
     @BeforeClass
     public static void setup() throws Exception {

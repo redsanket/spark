@@ -1,15 +1,24 @@
 package hadooptest.cluster.storm;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.io.File;
-
 import hadooptest.ConfigProperties;
 import hadooptest.TestSessionStorm;
 
-import backtype.storm.Config;
-import backtype.storm.generated.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.apache.thrift7.TException;
+
+import backtype.storm.generated.AlreadyAliveException;
+import backtype.storm.generated.AuthorizationException;
+import backtype.storm.generated.ClusterSummary;
+import backtype.storm.generated.InvalidTopologyException;
+import backtype.storm.generated.KillOptions;
+import backtype.storm.generated.NotAliveException;
+import backtype.storm.generated.RebalanceOptions;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.SubmitOptions;
+import backtype.storm.generated.TopologyInfo;
 
 public abstract class StormCluster {
     public abstract void init(ConfigProperties conf) throws Exception;
@@ -44,15 +53,30 @@ public abstract class StormCluster {
 	public static ArrayList<String> lookupIgorRole(String roleName) throws Exception {
 		ArrayList<String> roleMembers = new ArrayList<String>();
 		
-		TestSessionStorm.logger.debug("Fetching role members from Igor for role: " + roleName);
-		String[] members = TestSessionStorm.exec.runProcBuilder(new String[] {"yinst", "range", "-ir", "@" + roleName});
+		TestSessionStorm.logger.debug(
+				"*** Fetching role members from Igor for role: " + 
+						roleName + " ***");
+		String[] members = TestSessionStorm.exec.runProcBuilder(
+				new String[] {"yinst", "range", "-ir", "@" + roleName});
 		TestSessionStorm.logger.debug(members);
 		
 		for(String s: members) {
-			if (s.contains("ygrid.yahoo.com")) {
-				roleMembers.add(s.trim());
+			s = s.replaceAll("(\n|\r|\t)", " ");
+			String[] splitString = s.split("\\s+");
+			
+			for(String t: splitString) {
+				if (t.contains("ygrid.yahoo.com")) {
+					roleMembers.add(t.trim());
+				}
 			}
 		}
+		
+		TestSessionStorm.logger.info("*********************");
+		TestSessionStorm.logger.info("Igor role members are:");
+		for(String m: roleMembers) {
+			TestSessionStorm.logger.info(m);
+		}
+		TestSessionStorm.logger.info("*********************");
 		
 		return roleMembers;
 	}

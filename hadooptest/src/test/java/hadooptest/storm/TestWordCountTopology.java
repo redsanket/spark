@@ -1,12 +1,17 @@
 package hadooptest.storm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import hadooptest.SerialTests;
+import hadooptest.TestSessionStorm;
+import hadooptest.Util;
+import hadooptest.workflow.storm.topology.bolt.Aggregator;
+import hadooptest.workflow.storm.topology.bolt.SplitSentence;
+import hadooptest.workflow.storm.topology.bolt.WordCount;
+import hadooptest.workflow.storm.topology.spout.FiniteSentenceSpout;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.net.URI;
+import java.io.FileReader;
 import java.util.HashMap;
 
 import org.junit.AfterClass;
@@ -14,19 +19,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import hadooptest.SerialTests;
-import hadooptest.TestSessionStorm;
-import hadooptest.Util;
-import hadooptest.workflow.storm.topology.spout.FiniteSentenceSpout;
-import hadooptest.workflow.storm.topology.bolt.Aggregator;
-import hadooptest.workflow.storm.topology.bolt.SplitSentence;
-import hadooptest.workflow.storm.topology.bolt.WordCount;
-
 import backtype.storm.Config;
-import backtype.storm.generated.*;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.TopologySummary;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
+@Category(SerialTests.class)
 public class TestWordCountTopology extends TestSessionStorm {
     @BeforeClass
     public static void setup() throws Exception {

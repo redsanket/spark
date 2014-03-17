@@ -1,18 +1,13 @@
 package hadooptest.cluster.storm;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.File;
+import hadooptest.TestSessionStorm;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
-import hadooptest.ConfigProperties;
-
-import org.apache.thrift7.TException;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * The current storm cluster, assumed to be installed through yinst.
@@ -20,135 +15,327 @@ import org.apache.thrift7.TException;
 public class ClusterUtil {
     private String namespace = "ystorm";
 
-    private Map<String,String> origConf;
+    private Map<String, Map<String, String>> origConf;
     private boolean confChanged;
 
+    public ClusterUtil(String confNS) {
+    	try {
+    		init(confNS);
+    	}
+    	catch (Exception e) {
+    		TestSessionStorm.logger.info(
+    				"ClusterUtil: Caught excpetion: " + e.getMessage());
+    	}
+    }
+    
     public boolean changed() {
         return confChanged;
     }
 
-    public void init(String confNS) throws Exception {
-        System.err.println("INIT CLUSTER UTIL");
-	namespace = confNS;
+    public void init(String confNS) 
+    		throws Exception {
+    	
+    	TestSessionStorm.logger.info("INIT CLUSTER UTIL");
+        namespace = confNS;
         origConf = getYinstConf();
         confChanged = false;
     }
 
-    public ClusterUtil(String confNS) {
-	try {
-            init(confNS);
-	} catch (Exception e) {
-		System.err.println("ClusterUtil:  Caught excpetion: " + e.getMessage());
-	}
-    }
+    /**
+     * Get the Map of yinst configuration for all nodes in a Storm cluster.
+     * 
+     * @return A Map containing keys of the DNS names of the cluster nodes,
+     *         and elements corresponding to Maps of the yinst configuration
+     *         on each node.
+     *         
+     * @throws Exception
+     */
+    public Map<String, Map<String, String>> getYinstConf() 
+    		throws Exception {
 
-    public Map<String,String> getYinstConf() throws Exception {
-        //TODO save stats for multiple nodes
-        Map<String,String> ret = new HashMap<String,String>();
-        ProcessBuilder pb = new ProcessBuilder("yinst", "set", namespace);
-        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-        Process p = pb.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        Map<String, Map<String, String>> ret = 
+        		new HashMap<String, Map<String, String>>();
+        
+    	ArrayList<String> dnsNames = 
+    			StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+
+    	TestSessionStorm.logger.info(
+    			"*** GETTING YINST CONFIGURATION FOR ALL STORM NODES ***");
+    	
+        Process p = null;
+        BufferedReader reader;
         String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split(": ", 2);
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("Error parsing yinst output "+line);
-            }
-            ret.put(parts[0], parts[1]);
+        Map<String, String> nodeYinst;
+        for (String nodeDNSName: dnsNames) {
+        	TestSessionStorm.logger.info(
+        			"*** GETTING YINST CONFIGURATION FOR NODE:  " + 
+        					nodeDNSName + " ***");
+        	
+        	try {
+        		nodeYinst = new HashMap<String, String>();
+        		
+        		p = TestSessionStorm.exec.runProcBuilderGetProc(
+        				new String[] {
+        						"ssh", 
+        						nodeDNSName, 
+        						"yinst", 
+        						"set", 
+        						namespace } );
+        		reader = new BufferedReader(new InputStreamReader(
+        				p.getInputStream()));
+        		line = reader.readLine();
+
+        		while (line != null) {
+                    TestSessionStorm.logger.debug(line);
+                    
+        			String[] parts = line.split(": ", 2);
+        			if (parts.length != 2) {
+        				//throw new IllegalArgumentException(
+        				//		"Error parsing yinst output " + line);
+        			}
+        			else {
+        				nodeYinst.put(parts[0], parts[1]);
+        				ret.put(nodeDNSName, nodeYinst);
+        			}
+        			
+                    line = reader.readLine();
+        		}
+        	}
+        	catch (Exception e) {
+        		if (p != null) {
+        			p.destroy();
+        		}
+
+        		TestSessionStorm.logger.error("Exception " + e.getMessage(), e);
+        		throw e;
+        	}
         }
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+
         return ret;
     }
 
+    /**
+     * Reset the yinst configuration for every node in a Storm cluster to its
+     * default configuration.
+     * 
+     * @throws Exception
+     */
     public void resetConfigs() throws Exception {
-        System.err.println("RESET CONFIGS AND RESTART");
+    	TestSessionStorm.logger.info(
+    			"*** RESET CONFIGS FOR ALL STORM NODES AND RESTART ***");
+    	
         if (!confChanged) {
             return;
         }
-        //TODO allow this to run on multiple nodes
-        Map<String,String> current = getYinstConf();
-        HashSet<String> toRemove = new HashSet<String>(current.keySet());
-        toRemove.removeAll(origConf.keySet());
 
-        if (!toRemove.isEmpty()) {
-            List<String> command = new ArrayList<String>();
-            command.add("yinst");
-            command.add("unset");
-            command.addAll(toRemove);
-            System.err.println("Running "+command);
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.inheritIO();
-            Process p = pb.start();
-            if (p.waitFor() != 0) {
-                throw new RuntimeException("yinst returned an error code "+p.exitValue());
+        // Get the current yinst state on all nodes.
+        Map<String, Map<String, String>> allConfigCurrent = getYinstConf();
+        
+        // For each node in the current yinst state Map...
+        for (Map.Entry<String, 
+        		Map<String, String>> nodewiseNameConfCurrent: 
+        			allConfigCurrent.entrySet()) {
+        	
+        	// Get the original yinst conf for this node...
+        	Map<String, String> nodewiseConfOrig = 
+        			origConf.get(nodewiseNameConfCurrent.getKey());
+        	// Get the current yinst conf for this node...
+        	Map<String, String> nodewiseConfCurrent = 
+        			nodewiseNameConfCurrent.getValue();
+        	
+        	TestSessionStorm.logger.info("*** CURRENT CONF FOR THIS NODE ***");
+        	for (String key: nodewiseConfCurrent.keySet()) {
+        		TestSessionStorm.logger.info("CURRENT KEY = " + key);
+        	}
+        	
+        	TestSessionStorm.logger.info("*** ORIGINAL CONF FOR THIS NODE ***");
+        	for (String oKey: nodewiseConfOrig.keySet()) {
+        		TestSessionStorm.logger.info("ORIG KEY = " + oKey);
+        	}
+        	
+        	// Get a hash of all of the keys in the current yinst conf for this
+        	// node.
+            HashSet<String> toRemove = 
+            		new HashSet<String>(nodewiseConfCurrent.keySet());            
+            
+            // Remove all keys that are already in the original configuration.
+            toRemove.removeAll(nodewiseConfOrig.keySet());
+            
+            TestSessionStorm.logger.info("*** TOREMOVE CONTAINS *** " + toRemove.toString());
+
+            // If there were new keys added that we now need to remove, yinst
+            // unset those keys.
+            if (!toRemove.isEmpty()) {
+                ArrayList<String> unsetCmd = new ArrayList<String>();
+                unsetCmd.add("ssh");
+                unsetCmd.add(nodewiseNameConfCurrent.getKey());
+                unsetCmd.add("yinst");
+                unsetCmd.add("unset");
+                unsetCmd.addAll(toRemove);
+                
+                TestSessionStorm.logger.info("Running " + unsetCmd);
+                
+                String[] unsetCommand = new String[unsetCmd.size()];
+                unsetCommand = unsetCmd.toArray(unsetCommand);
+                
+            	String[] output = 
+            			TestSessionStorm.exec.runProcBuilder(unsetCommand);
+            	
+        		if (!output[0].equals("0")) {
+        			TestSessionStorm.logger.info(
+        					"Got unexpected non-zero exit code: " + output[0]);
+        			TestSessionStorm.logger.info("stdout" + output[1]);
+        			TestSessionStorm.logger.info("stderr" + output[2]);	
+                    throw new RuntimeException(
+                    		"ssh and yinst returned an error code.");		
+        		}
             }
-        }
+            
+            TestSessionStorm.logger.info(
+            		"*** RESETTING YINST CONFIGURATION FOR NODE: " + 
+            				nodewiseNameConfCurrent.getKey() + " ***");
+            
+            // Now, yinst set the original conf back on the node.
+            ArrayList<String> setCmd = new ArrayList<String>();
+            setCmd.add("ssh");
+            setCmd.add(nodewiseNameConfCurrent.getKey());
+            setCmd.add("yinst");
+            setCmd.add("set");
+            
+            // Add each original key-value pair to the yinst set command.
+            for (Map.Entry<String,String> entry: nodewiseConfOrig.entrySet()) {
+                setCmd.add(entry.getKey()+"="+entry.getValue());
+            }
 
-        List<String> command = new ArrayList<String>();
-        command.add("yinst");
-        command.add("set");
-        for (Map.Entry<String,String> entry: origConf.entrySet()) {
-            command.add(entry.getKey()+"="+entry.getValue());
+            String[] setCommand = new String[setCmd.size()];
+            setCommand = setCmd.toArray(setCommand);
+            
+        	String[] output = TestSessionStorm.exec.runProcBuilder(setCommand);
+        	
+    		if (!output[0].equals("0")) {
+    			TestSessionStorm.logger.info(
+    					"Got unexpected non-zero exit code: " + output[0]);
+    			TestSessionStorm.logger.info("stdout" + output[1]);
+    			TestSessionStorm.logger.info("stderr" + output[2]);	
+                throw new RuntimeException(
+                		"ssh and yinst returned an error code.");		
+    		}
         }
-        System.err.println("Running "+command);
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+        
         confChanged = false;
     }
 
+    /**
+     * Unset a yinst configuration variable on all nodes in a Storm cluster.
+     * 
+     * @param key The key to unset.
+     * 
+     * @throws Exception
+     */
     public void unsetConf(String key) throws Exception {
-        System.err.println("Unsetting "+key);
-        confChanged = true;
-        String strKey = namespace+"."+key.replace('.','_');
-        //TODO for all of the nodes (May want something that allows for a specific class of node to be set)
-        ProcessBuilder pb = new ProcessBuilder("yinst","unset",strKey);
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+    	
+    	ArrayList<String> dnsNames = 
+    			StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	
+    	TestSessionStorm.logger.info("Unsetting " + key);
+    	TestSessionStorm.logger.info(
+    			"*** UNSETTING CONFIGURATION FOR ALL STORM NODES:  " + 
+    					key + " ***");
+
+		confChanged = true;
+		String strKey = namespace+"."+key.replace('.','_');
+    	
+    	for (String nodeDNSName: dnsNames) {
+        	TestSessionStorm.logger.info(
+        			"*** UNSETTING CONFIGURATION FOR NODE:  " + nodeDNSName + 
+        				" - KEY:  " + key + " ***");
+        	
+        	String[] output = TestSessionStorm.exec.runProcBuilder(
+        			new String[] {"ssh", nodeDNSName, "yinst", "unset", 
+        					strKey } );
+        	
+    		if (!output[0].equals("0")) {
+    			TestSessionStorm.logger.info(
+    					"Got unexpected non-zero exit code: " + output[0]);
+    			TestSessionStorm.logger.info("stdout" + output[1]);
+    			TestSessionStorm.logger.info("stderr" + output[2]);	
+                throw new RuntimeException(
+                		"ssh and yinst returned an error code.");		
+    		}
+    	}
     }
 
+    /**
+     * Set a yinst configuration variable on all nodes in a Storm cluster.
+     * 
+     * @param key The key to set.
+     * @param value The value of the key to set.
+     * 
+     * @throws Exception
+     */
     public void setConf(String key, Object value) throws Exception {
-        System.err.println("setting "+key+"="+value);
+    	TestSessionStorm.logger.info("Setting " + key + "=" + value);
+    	TestSessionStorm.logger.info(
+    			"*** SETTING CONFIGURATION FOR ALL STORM NODES:  " + 
+    					key + " ***");
+
         confChanged = true;
         String strVal = value.toString();
+        
         if (value instanceof Map) {
-            StringBuffer b = new StringBuffer();
-            for (Map.Entry<?,?> entry: ((Map<?,?>)value).entrySet()) {
-                if (b.length() != 0) {
-                    b.append(",");
-                }
-                b.append(entry.getKey().toString());
-                b.append(",");
-                b.append(entry.getValue().toString());
-            }
-            strVal = b.toString();
-        } else if (value instanceof Iterable) {
-            StringBuffer b = new StringBuffer();
-            for (Object o: ((Iterable<?>)value)) {
-                if (b.length() != 0) {
-                    b.append(",");
-                }
-                b.append(o.toString());
-            }
-            strVal = b.toString();
+        	StringBuffer b = new StringBuffer();
+        	
+        	for (Map.Entry<?,?> entry: ((Map<?,?>)value).entrySet()) {
+        		if (b.length() != 0) {
+        			b.append(",");
+        		}
+        		
+        		b.append(entry.getKey().toString());
+        		b.append(",");
+        		b.append(entry.getValue().toString());
+        	}
+        	
+        	strVal = b.toString();	
+        } 
+        else if (value instanceof Iterable) {
+        	StringBuffer b = new StringBuffer();
+        	
+        	for (Object o: ((Iterable<?>)value)) {
+        		if (b.length() != 0) {
+        			b.append(",");
+        		}
+        		
+        		b.append(o.toString());
+        	}
+        	
+        	strVal = b.toString();
         }
 
         String strKey = namespace+"."+key.replace('.','_');
-        //TODO for all of the nodes (May want something that allows for a specific class of node to be set)
-        ProcessBuilder pb = new ProcessBuilder("yinst","set",strKey+"="+strVal);
-        pb.inheritIO();
-        Process p = pb.start();
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
+
+    	ArrayList<String> dnsNames = 
+    			StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+
+    	for (String nodeDNSName: dnsNames) {   
+        	TestSessionStorm.logger.info(
+        			"*** SETTING CONFIGURATION FOR NODE:  " + nodeDNSName + 
+        				" - KEY:  " + strKey + " - VALUE:  " + strVal + " ***");
+        	
+        	String[] output = TestSessionStorm.exec.runProcBuilder(
+        			new String[] {"ssh", nodeDNSName, "yinst", "set", 
+        					strKey+"="+strVal } );
+        	
+    		if (!output[0].equals("0")) {
+    			TestSessionStorm.logger.info(
+    					"Got unexpected non-zero exit code: " + output[0]);
+    			TestSessionStorm.logger.info("stdout" + output[1]);
+    			TestSessionStorm.logger.info("stderr" + output[2]);	
+                //throw new RuntimeException(
+                //		"ssh and yinst returned an error code.");		
+    		}
+    	}
     }
 }

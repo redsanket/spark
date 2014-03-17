@@ -1,46 +1,40 @@
 package hadooptest.storm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
+import hadooptest.SerialTests;
+import hadooptest.TestSessionStorm;
+import hadooptest.Util;
+import hadooptest.cluster.storm.ModifiableStormCluster;
+import hadooptest.workflow.storm.topology.bolt.Aggregator;
+import hadooptest.workflow.storm.topology.bolt.TestEventCountBolt;
+import hadooptest.workflow.storm.topology.spout.TestDHSpout;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
 import java.net.URI;
-import java.util.Map;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.TopologySummary;
+import backtype.storm.topology.TopologyBuilder;
 
-import hadooptest.SerialTests;
-import hadooptest.TestSessionStorm;
-import hadooptest.cluster.storm.ModifiableStormCluster;
-import hadooptest.Util;
-import hadooptest.workflow.storm.topology.spout.TestDHSpout;
-import hadooptest.workflow.storm.topology.bolt.TestEventCountBolt;
-import hadooptest.workflow.storm.topology.bolt.Aggregator;
-
+import com.yahoo.dhrainbow.dhapi.AvroEventRecord;
 import com.yahoo.spout.http.Config;
 import com.yahoo.spout.http.RegistryStub;
-import com.yahoo.spout.http.rainbow.KryoEventRecord;
 import com.yahoo.spout.http.rainbow.DHSimulator;
-import com.yahoo.dhrainbow.dhapi.AvroEventRecord;
-import backtype.storm.generated.*;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
+import com.yahoo.spout.http.rainbow.KryoEventRecord;
 
+@Category(SerialTests.class)
 public class TestDHSpoutTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
     static String configURI="http://0.0.0.0:9080/registry/v1/";
     static String serverURI=configURI;
-    static String vhURI="http://myvh-stormtest.corp.yahoo.com:4080/";
+    static String vhURI="http://myvh-stormtest.corp.yahoo.com:4081/";
     private backtype.storm.Config _conf;
     private String _ycaV1Role;
     private TestEventCountBolt theBolt = null;

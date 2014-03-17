@@ -2,13 +2,11 @@ package hadooptest.cluster.storm;
 
 import hadooptest.ConfigProperties;
 import hadooptest.TestSessionStorm;
+import hadooptest.Util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.thrift7.TException;
@@ -57,41 +55,64 @@ public class YahooStormCluster extends ModifiableStormCluster {
         cluster = null;
     }
 
-    public void submitTopology(File jar, String name, Map stormConf, StormTopology topology) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException {
+    public void submitTopology(File jar, String name, Map stormConf, 
+    		StormTopology topology) 
+    				throws AlreadyAliveException, InvalidTopologyException, 
+    				AuthorizationException {
+    	
         synchronized (YahooStormCluster.class) {
             System.setProperty("storm.jar", jar.getPath());
             StormSubmitter.submitTopology(name, stormConf, topology);
         }
     }
 
-    public void submitTopology(File jar, String name, Map stormConf, StormTopology topology, SubmitOptions opts) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException {
+    public void submitTopology(File jar, String name, Map stormConf, 
+    		StormTopology topology, SubmitOptions opts) 
+    				throws AlreadyAliveException, InvalidTopologyException, 
+    				AuthorizationException {
+    	
         synchronized (YahooStormCluster.class) {
             System.setProperty("storm.jar", jar.getPath());
             StormSubmitter.submitTopology(name, stormConf, topology, opts);
         }
     }
 
-    public void pushCredentials(String name, Map stormConf, Map<String,String> credentials) throws NotAliveException, InvalidTopologyException, AuthorizationException {
+    public void pushCredentials(String name, Map stormConf, 
+    		Map<String,String> credentials) 
+    				throws NotAliveException, InvalidTopologyException, 
+    				AuthorizationException {
+    	
         StormSubmitter.pushCredentials(name, stormConf, credentials);
     }
 
-    public void killTopology(String name) throws NotAliveException, AuthorizationException, TException {
+    public void killTopology(String name) 
+    		throws NotAliveException, AuthorizationException, TException {
+    	
         cluster.getClient().killTopology(name);
     }
 
-    public void killTopology(String name, KillOptions opts) throws NotAliveException, AuthorizationException, TException {
+    public void killTopology(String name, KillOptions opts) 
+    		throws NotAliveException, AuthorizationException, TException {
+    	
         cluster.getClient().killTopologyWithOpts(name, opts);
     }
 
-    public void activate(String name) throws NotAliveException, AuthorizationException, TException {
+    public void activate(String name) 
+    		throws NotAliveException, AuthorizationException, TException {
+    	
         cluster.getClient().activate(name);
     }
 
-    public void deactivate(String name) throws NotAliveException, AuthorizationException, TException {
+    public void deactivate(String name) 
+    		throws NotAliveException, AuthorizationException, TException {
+    	
         cluster.getClient().deactivate(name);
     }
 
-    public void rebalance(String name, RebalanceOptions options) throws NotAliveException, InvalidTopologyException, AuthorizationException, TException {
+    public void rebalance(String name, RebalanceOptions options) 
+    		throws NotAliveException, InvalidTopologyException, 
+    		AuthorizationException, TException {
+    	
         cluster.getClient().rebalance(name, options);
     }
 
@@ -99,45 +120,33 @@ public class YahooStormCluster extends ModifiableStormCluster {
         return cluster.getClient().getNimbusConf();
     }
 
-    public ClusterSummary getClusterInfo() throws AuthorizationException, TException {
+    public ClusterSummary getClusterInfo() 
+    		throws AuthorizationException, TException {
+    	
         return cluster.getClient().getClusterInfo();
     }
 
-    public TopologyInfo getTopologyInfo(String topologyId) throws NotAliveException, AuthorizationException, TException {
+    public TopologyInfo getTopologyInfo(String topologyId) 
+    		throws NotAliveException, AuthorizationException, TException {
+    	
         return cluster.getClient().getTopologyInfo(topologyId);
     }
 
-    public String getTopologyConf(String topologyId) throws NotAliveException, AuthorizationException, TException {
+    public String getTopologyConf(String topologyId) 
+    		throws NotAliveException, AuthorizationException, TException {
+    	
         return cluster.getClient().getTopologyConf(topologyId);
     }
 
-    public StormTopology getTopology(String topologyId) throws NotAliveException, AuthorizationException, TException {
+    public StormTopology getTopology(String topologyId) 
+    		throws NotAliveException, AuthorizationException, TException {
         return cluster.getClient().getTopology(topologyId);
     }
 
-    public StormTopology getUserTopology(String topologyId) throws NotAliveException, AuthorizationException, TException {
+    public StormTopology getUserTopology(String topologyId) 
+    		throws NotAliveException, AuthorizationException, TException {
+    	
         return cluster.getClient().getUserTopology(topologyId);
-    }
-
-    public static Map<String,String> getYinstConf() throws Exception {
-        //TODO save stats for multiple nodes
-        Map<String,String> ret = new HashMap<String,String>();
-        ProcessBuilder pb = new ProcessBuilder("yinst", "set", "ystorm");
-        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-        Process p = pb.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split(": ", 2);
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("Error parsing yinst output "+line);
-            }
-            ret.put(parts[0], parts[1]);
-        }
-        if (p.waitFor() != 0) {
-            throw new RuntimeException("yinst returned an error code "+p.exitValue());
-        }
-        return ret;
     }
 
     public void resetConfigsAndRestart() throws Exception {
@@ -152,6 +161,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
 
     public void restartCluster() throws Exception {
+    	TestSessionStorm.logger.info("*** RESTARTING CLUSTER ***");
+    	
     	restartDaemon(StormDaemon.NIMBUS);
     	restartDaemon(StormDaemon.UI);
     	restartDaemon(StormDaemon.SUPERVISOR);
@@ -168,6 +179,10 @@ public class YahooStormCluster extends ModifiableStormCluster {
      * @param daemon The daemon to restart.
      */
     public void restartDaemon(StormDaemon daemon) throws Exception {
+    	
+    	TestSessionStorm.logger.info(
+    			"*** RESTARTING DAEMON ON ALL MEMBER NODES FOR DAEMON:  " + 
+    					daemon + " ***");
     	
     	ArrayList<String> dnsNames = 
     			StormDaemon.lookupIgorRoles(daemon, 
@@ -191,8 +206,12 @@ public class YahooStormCluster extends ModifiableStormCluster {
     public void restartDaemonNode(StormDaemon daemon, String nodeDNSName) 
     		throws Exception {
     	
-    	String[] output = TestSessionStorm.exec.runProcBuilder(new String[] {"ssh", nodeDNSName, "yinst", 
-    			"restart", StormDaemon.getDaemonYinstString(daemon) } );
+    	TestSessionStorm.logger.info("*** RESTARTING DAEMON:  " + daemon + 
+    			" ON NODE:  " + nodeDNSName + " ***");
+    	
+    	String[] output = TestSessionStorm.exec.runProcBuilder(
+    			new String[] {"ssh", nodeDNSName, "yinst", "restart", 
+    					StormDaemon.getDaemonYinstString(daemon) } );
     	
 		if (!output[0].equals("0")) {
 			TestSessionStorm.logger.info("Got unexpected non-zero exit code: " + 
@@ -211,6 +230,10 @@ public class YahooStormCluster extends ModifiableStormCluster {
      */
     public void stopDaemon(StormDaemon daemon) throws Exception {
 
+    	TestSessionStorm.logger.info(
+    			"*** STOPPING DAEMON ON ALL MEMBER NODES FOR DAEMON:  " + 
+    					daemon + " ***");
+    	
     	ArrayList<String> dnsNames = 
     			StormDaemon.lookupIgorRoles(daemon, 
     					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
@@ -231,9 +254,13 @@ public class YahooStormCluster extends ModifiableStormCluster {
      */
     public void stopDaemonNode(StormDaemon daemon, String nodeDNSName) 
     		throws Exception {
-        
-    	String[] output = TestSessionStorm.exec.runProcBuilder(new String[] {"ssh", nodeDNSName, "yinst",
-    			"stop", StormDaemon.getDaemonYinstString(daemon) } );
+
+    	TestSessionStorm.logger.info("*** STOPPING DAEMON:  " + daemon + 
+    			" ON NODE:  " + nodeDNSName + " ***");
+    	
+    	String[] output = TestSessionStorm.exec.runProcBuilder(
+    			new String[] {"ssh", nodeDNSName, "yinst", "stop", 
+    					StormDaemon.getDaemonYinstString(daemon) } );
     	
 		if (!output[0].equals("0")) {
 			TestSessionStorm.logger.info("Got unexpected non-zero exit code: " + 
@@ -252,6 +279,10 @@ public class YahooStormCluster extends ModifiableStormCluster {
      */
     public void startDaemon(StormDaemon daemon) throws Exception {
 
+    	TestSessionStorm.logger.info(
+    			"*** STARTING DAEMON ON ALL MEMBER NODES FOR DAEMON:  " + 
+    					daemon + " ***");
+    	
     	ArrayList<String> dnsNames = 
     			StormDaemon.lookupIgorRoles(daemon, 
     					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
@@ -272,9 +303,13 @@ public class YahooStormCluster extends ModifiableStormCluster {
      */
     public void startDaemonNode(StormDaemon daemon, String nodeDNSName) 
     		throws Exception {
-        
-    	String[] output = TestSessionStorm.exec.runProcBuilder(new String[] {"ssh", nodeDNSName, "yinst",
-    			"start", StormDaemon.getDaemonYinstString(daemon) } );
+
+    	TestSessionStorm.logger.info("*** STARTING DAEMON:  " + daemon + 
+    			" ON NODE:  " + nodeDNSName + " ***");
+    	
+    	String[] output = TestSessionStorm.exec.runProcBuilder(
+    			new String[] {"ssh", nodeDNSName, "yinst", "start", 
+    					StormDaemon.getDaemonYinstString(daemon) } );
     	
 		if (!output[0].equals("0")) {
 			TestSessionStorm.logger.info("Got unexpected non-zero exit code: " + 
@@ -287,15 +322,15 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
     
     public void unsetConf(String key) throws Exception {
-	ystormConf.unsetConf(key);
+    	ystormConf.unsetConf(key);
     }
 
     public void setConf(String key, Object value) throws Exception {
-	ystormConf.setConf(key, value);
+    	ystormConf.setConf(key, value);
     }
 
     public void stopCluster() throws Exception {
-    	TestSessionStorm.logger.info("STOPPING CLUSTER YINST");
+    	TestSessionStorm.logger.info("*** STOPPING CLUSTER ***");
         
         stopDaemon(StormDaemon.NIMBUS);
         stopDaemon(StormDaemon.UI);
@@ -306,7 +341,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
 
     public void startCluster() throws Exception {
-    	TestSessionStorm.logger.info("STARTING CLUSTER YINST"); 
+    	TestSessionStorm.logger.info("*** STARTING CLUSTER ***"); 
 
         startDaemon(StormDaemon.NIMBUS);
         startDaemon(StormDaemon.UI);
@@ -319,21 +354,21 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
 
     public void unsetRegistryConf(String key) throws Exception {
-	registryConf.unsetConf(key);
+    	registryConf.unsetConf(key);
     }
 
     public void setRegistryConf(String key, Object value) throws Exception {
-	registryConf.setConf(key, value);
+    	registryConf.setConf(key, value);
     }
 
     public void stopRegistryServer() throws Exception {
-        TestSessionStorm.logger.info("STOPPING REGISTRY SERVER");
+        TestSessionStorm.logger.info("*** STOPPING REGISTRY SERVER ***");
     	stopDaemon(StormDaemon.REGISTRY);
     }
 
     public void startRegistryServer() throws Exception {
 
-        TestSessionStorm.logger.info("STARTING REGISTRY SERVER");
+        TestSessionStorm.logger.info("*** STARTING REGISTRY SERVER ***");
     	startDaemon(StormDaemon.REGISTRY);
 
     	Thread.sleep(30000);//TODO replace this with something to detect the registry server is up.
@@ -379,7 +414,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     	// Did we fail?
     	if (!done) {
-    		throw new IOException("Timed out trying to get Registry Server Status\n");
+    		throw new IOException(
+    				"Timed out trying to get Registry Server Status\n");
     	}
     }
 
