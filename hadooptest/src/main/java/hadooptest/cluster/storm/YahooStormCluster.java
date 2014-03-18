@@ -2,39 +2,35 @@ package hadooptest.cluster.storm;
 
 import hadooptest.ConfigProperties;
 import hadooptest.TestSessionStorm;
-import hadooptest.Util;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.thrift7.TException;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 
-import org.apache.thrift7.TException;
-
+import storm.trident.Stream;
+import storm.trident.TridentTopology;
 import backtype.storm.StormSubmitter;
-import backtype.storm.Config;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.AuthorizationException;
 import backtype.storm.generated.ClusterSummary;
-import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.DRPCExecutionException;
+import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.KillOptions;
 import backtype.storm.generated.NotAliveException;
 import backtype.storm.generated.RebalanceOptions;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.SubmitOptions;
 import backtype.storm.generated.TopologyInfo;
+import backtype.storm.utils.DRPCClient;
 import backtype.storm.utils.NimbusClient;
 import backtype.storm.utils.Utils;
-import backtype.storm.utils.DRPCClient;
-import storm.trident.TridentTopology;
-import storm.trident.Stream;
 
 /**
  * The current storm cluster, assumed to be installed through yinst.

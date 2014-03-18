@@ -45,14 +45,6 @@ public abstract class TestSessionStorm extends TestSessionCore {
 
     	// Initialize the framework configuration
     	initConfiguration();
-    	if (conf.get("STORM_TEST_HOME") == null) {
-    		String sth = System.getProperty("stormtest.home");
-    		if (sth != null) {
-    			conf.put("STORM_TEST_HOME", sth);
-    		} else {
-    			throw new IllegalArgumentException("Could not find STORM_TEST_HOME");
-    		}
-    	}
 
     	// Intitialize the framework logger
     	initLogging();

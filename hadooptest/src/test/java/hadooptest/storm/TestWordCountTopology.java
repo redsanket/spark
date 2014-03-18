@@ -4,14 +4,9 @@ import static org.junit.Assert.assertEquals;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.Util;
-import hadooptest.workflow.storm.topology.bolt.Aggregator;
-import hadooptest.workflow.storm.topology.bolt.SplitSentence;
-import hadooptest.workflow.storm.topology.bolt.WordCount;
-import hadooptest.workflow.storm.topology.spout.FiniteSentenceSpout;
+import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,14 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import backtype.storm.Config;
-import backtype.storm.generated.StormTopology;
-import backtype.storm.generated.TopologySummary;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Values;
-import backtype.storm.utils.DRPCClient;
-
 import storm.trident.TridentState;
 import storm.trident.TridentTopology;
 import storm.trident.operation.BaseFunction;
@@ -37,10 +24,13 @@ import storm.trident.operation.builtin.Count;
 import storm.trident.operation.builtin.FilterNull;
 import storm.trident.operation.builtin.MapGet;
 import storm.trident.operation.builtin.Sum;
-import storm.trident.planner.processor.StateQueryProcessor;
 import storm.trident.testing.MemoryMapState;
 import storm.trident.tuple.TridentTuple;
-import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
+import backtype.storm.Config;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.TopologySummary;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Values;
 
 
 @Category(SerialTests.class)
@@ -84,7 +74,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         config.setNumWorkers(3);
         config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
         //TODO turn this into a utility that has a conf setting
-        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
             
@@ -105,7 +95,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             }
             
             //get expected results
-            String file = conf.getProperty("STORM_TEST_HOME") + "/resources/storm/testinputoutput/WordCountFromFile/expected_results";
+            String file = conf.getProperty("WORKSPACE") + "/resources/storm/testinputoutput/WordCountFromFile/expected_results";
         
             HashMap<String, Integer> expectedWordCount = Util.readMapFromFile(file);
 
