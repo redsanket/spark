@@ -8,8 +8,15 @@ import java.util.ArrayList;
  */
 public enum StormDaemon {
 	
-	NIMBUS, UI, SUPERVISOR, LOGVIEWER, REGISTRY, CONTRIB, DRPC;
+	ALL, NIMBUS, UI, SUPERVISOR, LOGVIEWER, REGISTRY, CONTRIB, DRPC;
 
+	/**
+	 * Get the yinst package name for a particular Storm daemon.
+	 * 
+	 * @param daemon The daemon type.
+	 * 
+	 * @return String the yinst package name corresponding to the daemon type.
+	 */
 	public static String getDaemonYinstString(StormDaemon daemon) {
     	String daemonString = "";
     	
@@ -38,6 +45,17 @@ public enum StormDaemon {
     	return daemonString;
 	}
 	
+	/**
+	 * Get the list of DNS names stored in Igor, that correspond to a given
+	 * Storm daemon type.
+	 * 
+	 * @param daemon The daemon type to lookup.
+	 * @param clusterName The name of the Storm cluster in Igor.
+	 * 
+	 * @return A list of DNS names that correspond to the daemon type.
+	 * 
+	 * @throws Exception
+	 */
 	public static ArrayList<String> lookupIgorRoles(StormDaemon daemon, 
 			String clusterName) throws Exception {
 		
@@ -64,6 +82,9 @@ public enum StormDaemon {
     	}
     	else if (daemon.equals(StormDaemon.DRPC)) {
     		dnsNames = StormCluster.lookupIgorRoleClusterDrpc(clusterName);
+    	}
+    	else if (daemon.equals(StormDaemon.ALL)) {
+    		dnsNames = StormCluster.lookupIgorRoleClusterAllNodes(clusterName);
     	}
     	
     	return dnsNames;

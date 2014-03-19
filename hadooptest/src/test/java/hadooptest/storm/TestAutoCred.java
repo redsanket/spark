@@ -1,27 +1,28 @@
 package hadooptest.storm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import hadooptest.SerialTests;
+import hadooptest.TestSessionStorm;
+import hadooptest.Util;
+import hadooptest.workflow.storm.topology.bolt.CheckSubjectBolt;
+import hadooptest.workflow.storm.topology.spout.CheckSubjectSpout;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.File;
-import java.util.HashMap;
+import java.io.FileReader;
 import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import hadooptest.TestSessionStorm;
-import hadooptest.Util;
-import hadooptest.workflow.storm.topology.spout.CheckSubjectSpout;
-import hadooptest.workflow.storm.topology.bolt.CheckSubjectBolt;
+import org.junit.experimental.categories.Category;
 
 import backtype.storm.Config;
-import backtype.storm.generated.*;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.TopologySummary;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
 
+@Category(SerialTests.class)
 public class TestAutoCred extends TestSessionStorm {
     @BeforeClass
     public static void setup() throws Exception {
@@ -62,7 +63,7 @@ public class TestAutoCred extends TestSessionStorm {
         config.put("name.to.use","me");
         config.put(Config.TOPOLOGY_AUTO_CREDENTIALS, Arrays.asList("hadooptest.workflow.storm.topology.NamedAutoCredentials"));
         //TODO turn this into a utility that has a conf setting
-        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
             int uptime = 10;
