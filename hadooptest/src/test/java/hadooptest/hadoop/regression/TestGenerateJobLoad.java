@@ -9,6 +9,7 @@ import hadooptest.workflow.hadoop.job.JobClient;
 import hadooptest.workflow.hadoop.job.SleepJob;
 import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 import hadooptest.workflow.hadoop.job.WordCountJob;
+import hadooptest.workflow.hadoop.job.TeraGenJob;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -131,8 +132,12 @@ public class TestGenerateJobLoad extends TestSession {
                         "Current capacity '" + currentCapacity + 
                         "' is < the threshold value of '" +
                         capacityThreshold + "'");
-
-                submitJobs(jobTypes, batchSize, HADOOP_EXEC_MODE.CLI);
+                try {
+                    submitJobs(jobTypes, batchSize, HADOOP_EXEC_MODE.CLI);
+                } catch (Exception e) {
+                    TestSession.logger.error("Job failed with exception: " +
+                            e.toString());
+                }
             } else {
                 TestSession.logger.info(
                         "Current capacity '" + currentCapacity + 
@@ -182,8 +187,58 @@ public class TestGenerateJobLoad extends TestSession {
         }        
     }
         
+    /*
+     * Run a batch of sleep jobs in the background in API mode
+     */
+    public void submitSleepJobCLI(String username) {
+        TestSession.logger.info("Submit Sleep Job for user " + username + ":");
+        SleepJob job = new SleepJob();
+        job.setNumMappers(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_NUM_MAPPER", "100")));
+        job.setNumReducers(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_NUM_REDUCER", "100")));
+        job.setMapDuration(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_MAP_SLEEP_TIME", "30000")));
+        job.setReduceDuration(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_RED_SLEEP_TIME", "30000")));
+        job.setUser(username);
+        job.setJobInitSetID(false);
+        job.start();                        
+    }
+
+    /* 
+     * Submit a teragen job
+     */
+    public void submitTeraGenJobCLI(String username) throws Exception {
+        String outputDir = null; 
+
+        TestSession.cluster.getFS();    
+                
+        outputDir = "/user/" + username + "/teragen/"; 
+        TestSession.logger.info("Target HDFS Directory is: "+ outputDir);
+        
+        TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
+        TestSession.cluster.getFS().mkdirs(new Path(outputDir));
+        
+        TeraGenJob job = new TeraGenJob();        
+        job.setOutputPath(outputDir);
+        job.setUser(username);
+        job.setNumMapTasks(
+                Long.parseLong(
+                        System.getProperty("TERAGEN_NUM_MAP_TASKS", "8000")));
+        /*
+         * 10,000,000,000 rows of 100-byte per row = 1,000,000,000,000 TB
+         */
+        job.setNumDataRows(
+                Long.parseLong(
+                        System.getProperty("TERAGEN_NUM_DATA_ROWS", "10000000000")));
+        job.setJobInitSetID(false);
+        job.start();
+    }    
     
-    /* From src/test/java/hadooptest/hadoop/regression/yarn/TestWordCountCLI.java
+    
+    /* 
+     * Submit a wordcount job
      */
     public void submitWordCountJobCLI(String username) throws Exception {
         String localDir = null; 
@@ -214,18 +269,22 @@ public class TestGenerateJobLoad extends TestSession {
         job.start();
     }    
     
+    
+    /* 
+     * Submit a wordcount job via API call (WIP)
+     */
     public void submitWordCountJobAPI() throws Exception {
         String[] args = { };
         /*
         String[] args = {inpath.toString(), outputDir + outputFile+"/"+Integer.toString(run_times), Integer.toString(jobNum), Integer.toString(qNum)};
         for (int i = 0; i < qNum ; i++) {
             args = append(args, qName[i]);
-        }	                
+        }                   
         for (int i = 0; i < args.length; i++){
             TestSession.logger.info("args["+Integer.toString(i) + "]: " + args[i]);
         }
         */
-	    
+        
         int rc;
         TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
         rc = ToolRunner.run(
@@ -275,6 +334,8 @@ public class TestGenerateJobLoad extends TestSession {
                     */
             if (jobType.equals(HADOOP_JOB_TYPE.WORDCOUNT)) {
                 this.submitWordCountJobCLI("hadoop" + ((index%20)+1));                
+            } else if (jobType.equals(HADOOP_JOB_TYPE.WORDCOUNT)) {
+                this.submitTeraGenJobCLI("hadoop" + ((index%20)+1));                
             } else {
                 this.submitSleepJobCLI("hadoop" + ((index%20)+1));
             }
@@ -307,22 +368,4 @@ public class TestGenerateJobLoad extends TestSession {
         }
     }
     
-    /*
-     * Run a batch of sleep jobs in the background in API mode
-     */
-    public void submitSleepJobCLI(String username) {
-        TestSession.logger.info("Submit Sleep Job for user " + username + ":");
-        SleepJob job = new SleepJob();
-        job.setNumMappers(
-                Integer.parseInt(System.getProperty("SLEEP_JOB_NUM_MAPPER", "100")));
-        job.setNumReducers(
-                Integer.parseInt(System.getProperty("SLEEP_JOB_NUM_REDUCER", "100")));
-        job.setMapDuration(
-                Integer.parseInt(System.getProperty("SLEEP_JOB_MAP_SLEEP_TIME", "30000")));
-        job.setReduceDuration(
-                Integer.parseInt(System.getProperty("SLEEP_JOB_RED_SLEEP_TIME", "30000")));
-        job.setUser(username);
-        job.setJobInitSetID(false);
-        job.start();                        
-    }
 }
