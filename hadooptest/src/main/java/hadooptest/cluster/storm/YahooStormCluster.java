@@ -398,7 +398,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	}
 
     	// Get the URI to ping
-    	String statusURL = registryURI + "status/";
+    	String statusURL = registryURI.split(",")[0] + "status/";
 
     	// Let's try for 3 minutes, or until we get a 200 back.
     	boolean done = false;
