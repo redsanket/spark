@@ -1,7 +1,6 @@
 package hadooptest.hadoop.regression;
 
 import hadooptest.TestSession;
-import hadooptest.TestSession.HTF_TEST;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_JOB_TYPE;
@@ -11,8 +10,11 @@ import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 import hadooptest.workflow.hadoop.job.TeraGenJob;
 
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.junit.Before;
@@ -23,8 +25,10 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +43,8 @@ import java.util.Map;
 public class TestGenerateJobLoad extends TestSession {
     
     int jobIndex = 0;
+    String dataRootDir = "/tmp/genjobload." + 
+            new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
 
 	@BeforeClass
 	public static void setupTestClassConfig() throws Exception {
@@ -104,6 +110,7 @@ public class TestGenerateJobLoad extends TestSession {
             int maxDurationMin,
             String fileName,
             float capacityThreshold) throws Exception {
+        
         TestSession.logger.info("Submit jobs until time limit '" +
             maxDurationMin + "' minutes is reached or file '" + fileName +
             "' is found.");
@@ -112,8 +119,25 @@ public class TestGenerateJobLoad extends TestSession {
         long startTime = System.currentTimeMillis();
         long elapsedTime = System.currentTimeMillis() - startTime;
         int elapsedTimeMin = (int) (elapsedTime / 1000) / 60;
-        File terminationFile = new File(fileName);        
+        File terminationFile = new File(fileName);
 
+        TestSession.logger.info("Test data root dir is: "+ dataRootDir);
+        Path dataRootDirPath = new Path(dataRootDir);
+        FileSystem fs = TestSession.cluster.getFS();
+        if (!fs.exists(dataRootDirPath)) {
+	    TestSession.logger.info("Create test data root dir: "+ dataRootDir);
+	    // TODO: mkdirs with FsPermission did not work. 
+	    // might be a config issue.
+            fs.mkdirs(dataRootDirPath,new FsPermission("777"));
+            String[] cmd = {
+		TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
+		"--config",
+		TestSession.cluster.getConf().getHadoopConfDir(),
+		"fs", "-chmod", "777", dataRootDir,
+	    };
+	    TestSession.exec.runProcBuilderSecurity(cmd, "hdfsqa");
+        }
+        
         /* While elapsed time is less than the max duration, and 
          * the terminate flag file does not exist 
          */
@@ -165,7 +189,7 @@ public class TestGenerateJobLoad extends TestSession {
         }
         
         // Wait for all the jobs to succeed.
-        int durationMin = 10;
+        int durationMin = 15;
         TestSession.logger.info("----------- Wait for all jobs to succeed: " +
                 "for " + durationMin + " ---------------");
 
@@ -184,7 +208,20 @@ public class TestGenerateJobLoad extends TestSession {
             TestSession.logger.info("Delete termination file '" + 
                     terminationFile.toString() + "'");
             terminationFile.delete();            
-        }        
+        }
+        
+        // Cleanup                                                                                                                                                      
+        TestSession.logger.info("----------- Clean Up: ---------------");
+	// TODO: was not able to delete the directory via the API call due to 
+	// permission issue. 
+        // fs.delete(dataRootDirPath, true);
+	String[] cmd = {
+	    TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
+	    "--config",
+	    TestSession.cluster.getConf().getHadoopConfDir(),
+	    "fs", "-rm", "-r", "-skipTrash", dataRootDir,
+	};
+	TestSession.exec.runProcBuilderSecurity(cmd, "hdfsqa");
     }
         
     /*
@@ -211,14 +248,22 @@ public class TestGenerateJobLoad extends TestSession {
      */
     public void submitTeraGenJobCLI(String username) throws Exception {
         String outputDir = null; 
-
-        TestSession.cluster.getFS();    
-                
-        outputDir = "/user/" + username + "/teragen/"; 
+        
+        String date = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());        
+        outputDir = dataRootDir + "/teragen." + username + "." + date; 
         TestSession.logger.info("Target HDFS Directory is: "+ outputDir);
+
+        Path outputDirPath = new Path(outputDir);
+        FileSystem fs = TestSession.cluster.getFS();            
+        if (fs.exists(outputDirPath)) {
+            fs.delete(outputDirPath, true);
+        }
         
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
-        TestSession.cluster.getFS().mkdirs(new Path(outputDir));
+        // TODO: This caused the job to fail because teragen expects the directory                                                                                                                                                        
+        // not to exist. However this fails silently. Need to make some changes                                                                                                                                                           
+        // to output the error to help with future debugging.   
+        // TestSession.cluster.getFS().mkdirs(new Path(outputDir));
         
         TeraGenJob job = new TeraGenJob();        
         job.setOutputPath(outputDir);
@@ -334,7 +379,7 @@ public class TestGenerateJobLoad extends TestSession {
                     */
             if (jobType.equals(HADOOP_JOB_TYPE.WORDCOUNT)) {
                 this.submitWordCountJobCLI("hadoop" + ((index%20)+1));                
-            } else if (jobType.equals(HADOOP_JOB_TYPE.WORDCOUNT)) {
+            } else if (jobType.equals(HADOOP_JOB_TYPE.TERAGEN)) {
                 this.submitTeraGenJobCLI("hadoop" + ((index%20)+1));                
             } else {
                 this.submitSleepJobCLI("hadoop" + ((index%20)+1));
