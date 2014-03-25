@@ -100,7 +100,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         _conf.setDebug(true);
         _conf.setNumWorkers(3);
 
-        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
@@ -191,7 +191,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         _conf.setDebug(true);
         _conf.setNumWorkers(3);
 
-        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
@@ -199,7 +199,7 @@ public class TestBasicDRPC extends TestSessionStorm {
             throw new Exception();
         }
         
-        String inputFileDir = new String(conf.getProperty("STORM_TEST_HOME") + "/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
+        String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
         java.nio.file.Path inputPath = Paths.get(inputFileDir);
 
         boolean passed = false;

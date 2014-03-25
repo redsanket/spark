@@ -1,14 +1,14 @@
 package hadooptest.storm;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
-import hadooptest.Util;
-import org.junit.Test;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)

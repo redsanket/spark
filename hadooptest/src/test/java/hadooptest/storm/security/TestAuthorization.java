@@ -1,19 +1,17 @@
 package hadooptest.storm.security;
 
-import java.io.IOException;
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
-
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
-import backtype.storm.generated.*;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import backtype.storm.generated.AuthorizationException;
 
 @Category(SerialTests.class)
 public class TestAuthorization extends TestSessionStorm {

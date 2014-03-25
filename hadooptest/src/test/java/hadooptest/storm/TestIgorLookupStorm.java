@@ -1,13 +1,17 @@
 package hadooptest.storm;
 
+import static org.junit.Assert.fail;
+import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.BeforeClass;
 import java.util.ArrayList;
-import static org.junit.Assert.fail;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+@Category(SerialTests.class)
 public class TestIgorLookupStorm extends TestSessionStorm {
 
 	private static String CLUSTER_NAME;

@@ -1,29 +1,35 @@
 package hadooptest.storm;
 
+import static org.junit.Assume.assumeTrue;
+import hadooptest.SerialTests;
+import hadooptest.TestSessionStorm;
+import hadooptest.Util;
+import hadooptest.cluster.storm.ModifiableStormCluster;
+import hadooptest.workflow.storm.topology.bolt.Aggregator;
+import hadooptest.workflow.storm.topology.bolt.TestEventCountBolt;
+import hadooptest.workflow.storm.topology.spout.TestDHSpout;
+
 import java.io.File;
-import static org.junit.Assume.*;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import hadooptest.TestSessionStorm;
-import hadooptest.cluster.storm.ModifiableStormCluster;
-import hadooptest.Util;
-import hadooptest.workflow.storm.topology.spout.TestDHSpout;
-import hadooptest.workflow.storm.topology.bolt.TestEventCountBolt;
-import hadooptest.workflow.storm.topology.bolt.Aggregator;
+import org.junit.experimental.categories.Category;
 
-import com.yahoo.spout.http.Config;
-import com.yahoo.spout.http.RegistryStub;
-import com.yahoo.spout.http.rainbow.KryoEventRecord;
-import com.yahoo.spout.http.rainbow.DHSimulator;
-import com.yahoo.dhrainbow.dhapi.AvroEventRecord;
-import backtype.storm.generated.*;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.generated.TopologySummary;
 import backtype.storm.topology.TopologyBuilder;
 
+import com.yahoo.dhrainbow.dhapi.AvroEventRecord;
+import com.yahoo.spout.http.Config;
+import com.yahoo.spout.http.RegistryStub;
+import com.yahoo.spout.http.rainbow.DHSimulator;
+import com.yahoo.spout.http.rainbow.KryoEventRecord;
+
+@Category(SerialTests.class)
 public class TestDHSpoutTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
     static String configURI="http://0.0.0.0:9080/registry/v1/";
@@ -113,7 +119,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
 
         addVirtualHost(new URI(vhURI));
         //TODO turn this into a utility that has a conf setting
-        File jar = new File(conf.getProperty("STORM_TEST_HOME") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
@@ -168,7 +174,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
             HashMap<String, Integer> resultWordCount = Util.readMapFromFile(outputLoc);
 
             //get expected results
-            String file = conf.getProperty("STORM_TEST_HOME") + "/resources/storm/testinputoutput/TestDHSpoutTopology/expected_results";
+            String file = conf.getProperty("WORKSPACE") + "/resources/storm/testinputoutput/TestDHSpoutTopology/expected_results";
             logger.info("Read epected results from: "+ file);
             HashMap<String, Integer> expectedWordCount = Util.readMapFromFile(file);
 
