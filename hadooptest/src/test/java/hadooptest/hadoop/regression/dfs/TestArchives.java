@@ -245,7 +245,7 @@ public class TestArchives extends DfsTestsBaseClass {
 		genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS, localCluster, Recursive.NO,
-				Force.YES, SkipTrash.YES,
+				Force.YES, SkipTrash.NO,
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ testCaseDesc + ".har/" + "_masterindex");
 		Assert.assertTrue(
@@ -253,9 +253,8 @@ public class TestArchives extends DfsTestsBaseClass {
 						+ TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ testCaseDesc + ".har/" + "_masterindex FAILED",
 				genericCliResponse.response
-						.contains("Moved: '"
-								+ TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
-								+ testCaseDesc + "/" + "_masterindex' to trash"));
+						.contains(TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR + testCaseDesc +".har/_masterindex' to trash"));
+
 
 	}
 
@@ -288,8 +287,8 @@ public class TestArchives extends DfsTestsBaseClass {
 
 		genericCliResponse = dfsCliCommands.mv(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
-				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
-						+ testCaseDesc + ".har/" + "_index", localCluster,
+				localCluster, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
+						+ testCaseDesc + ".har/" + "_index",
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ testCaseDesc + ".har/" + "_index2");
 		Assert.assertTrue("Wasn't able to move a file withn a .har archive",
@@ -410,10 +409,17 @@ public class TestArchives extends DfsTestsBaseClass {
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ testCaseDesc + ".har", Recursive.NO);
 
+//		yarnTestBaseClass.runStdHadoopSortJob(
+//				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
+//						+ testCaseDesc + ".har/" + testCaseDesc
+//						+ "/part-m-0000",
+//				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
+//						+ "sortOutput");
+
 		yarnTestBaseClass.runStdHadoopSortJob(
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ testCaseDesc + ".har/" + testCaseDesc
-						+ "/part-m-0000",
+						+ "/part-0",
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR
 						+ "sortOutput");
 

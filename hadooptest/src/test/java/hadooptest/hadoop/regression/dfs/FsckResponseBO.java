@@ -35,7 +35,7 @@ public class FsckResponseBO {
 					if ((aLineFromFsckResponse != null)
 							&& (!aLineFromFsckResponse.isEmpty() && aLineFromFsckResponse
 									.matches(FsckFileDetailsBO.pattern))) {
-						TestSession.logger.info("Processing line:"
+						TestSession.logger.info("Processing line for context (filesArgPassed):"
 								+ aLineFromFsckResponse);
 						fileDetailsBO = new FsckFileDetailsBO(
 								aLineFromFsckResponse);
@@ -49,7 +49,7 @@ public class FsckResponseBO {
 					if ((aLineFromFsckResponse != null)
 							&& (!aLineFromFsckResponse.isEmpty() && aLineFromFsckResponse
 									.matches(FsckBlockDetailsBO.blocksAndRacksPattern))) {
-						TestSession.logger.info("Processing line:"
+						TestSession.logger.info("Processing line for context (blocksArgPassed && racksArgPassed):"
 								+ aLineFromFsckResponse);
 						blockDetailsBO = new FsckBlockDetailsBO(
 								aLineFromFsckResponse, racksArgPassed);
@@ -61,7 +61,7 @@ public class FsckResponseBO {
 					if ((aLineFromFsckResponse != null)
 							&& (!aLineFromFsckResponse.isEmpty() && aLineFromFsckResponse
 									.matches(FsckBlockDetailsBO.blocksAndNoRacksPattern))) {
-						TestSession.logger.info("Processing line:"
+						TestSession.logger.info("Processing line for context (blocksArgPassed && !racksArgPassed):"
 								+ aLineFromFsckResponse);
 						blockDetailsBO = new FsckBlockDetailsBO(
 								aLineFromFsckResponse, racksArgPassed);
