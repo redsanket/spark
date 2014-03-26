@@ -2,10 +2,18 @@ package hadooptest;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import hadooptest.cluster.Executor;
 
@@ -35,6 +43,10 @@ public abstract class TestSessionCore {
 
 	public static String frameworkName = "uninitialized";
 
+    public static String currentTestName;
+    public static String currentTestMethodName;
+    public static long testStartTime;
+	
 	/**
 	 * In the JUnit architecture, this constructor will be called before every
 	 * test (per JUnit). Therefore, it is better to leave the constructor here
@@ -49,6 +61,55 @@ public abstract class TestSessionCore {
 	public TestSessionCore() {
 	}
 
+    /*
+     * Run before the start of each test class.
+     */
+    @BeforeClass
+    public static void startTestSession() throws Exception {
+        System.out.println("--------- @BeforeClass: TestSession: startTestSession ---------------------------");
+        TestSession.start();
+    }
+
+    /*
+     * Run before the start of each test class.
+     */
+    @Before
+    public void startTest() throws Exception {
+        TestSession.logger.info("--------- @Before: TestSession: startTest ----------------------------------");
+        testStartTime = System.currentTimeMillis();
+    }
+	
+    public static void printBanner(String msg) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
+        System.out.println("********************************************************************************");
+        System.out.println(sdf.format(new Date(System.currentTimeMillis())) + " " +
+                currentThreadClassName + " - starting test: " + msg);
+        System.out.println("********************************************************************************");
+    }
+
+    /*
+     * Print method names for all tests in a class:
+     * Print name of currently executing test 
+     */
+    @Rule
+    public TestRule watcher = new TestWatcher() {
+        protected void starting(Description description) {
+            currentTestName =
+                    description.getClassName();
+            currentTestMethodName =
+                    description.getClassName() + ": " + description.getMethodName();
+            printBanner(currentTestMethodName);
+        }
+    };
+	
+    /**
+     * Initialize the framework name.
+     */
+    public static void initFrameworkName() {
+        frameworkName = "hadooptest";
+    }
+    
 	/**
 	 * Log the basic java properties used by the framework.
 	 */

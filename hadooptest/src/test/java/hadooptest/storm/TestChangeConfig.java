@@ -17,7 +17,6 @@ public class TestChangeConfig extends TestSessionStorm {
 
     @BeforeClass
     public static void setup() throws Exception {
-        start();
         assumeTrue(cluster instanceof ModifiableStormCluster);
         mc = (ModifiableStormCluster)cluster;
     }

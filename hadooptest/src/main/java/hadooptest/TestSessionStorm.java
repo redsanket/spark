@@ -40,6 +40,9 @@ public abstract class TestSessionStorm extends TestSessionCore {
      * TestSession for a test class.
      */
     public static synchronized void start() throws Exception {
+        // Pass the caller class name
+        printBanner(Thread.currentThread().getStackTrace()[2].getClassName());
+        
     	// Initialize the framework name
     	initFrameworkName();
 
@@ -67,13 +70,6 @@ public abstract class TestSessionStorm extends TestSessionCore {
      */
     public static StormCluster getCluster() {
         return cluster;
-    }
-    
-    /**
-     * Initialize the framework name.
-     */
-    private static void initFrameworkName() {
-        frameworkName = "hadooptest";
     }
    
     private static void reinitCluster() throws Exception {

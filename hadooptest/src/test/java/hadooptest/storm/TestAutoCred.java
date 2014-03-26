@@ -24,10 +24,6 @@ import backtype.storm.topology.TopologyBuilder;
 
 @Category(SerialTests.class)
 public class TestAutoCred extends TestSessionStorm {
-    @BeforeClass
-    public static void setup() throws Exception {
-        start();
-    }
 
     @AfterClass
     public static void cleanup() throws Exception {
