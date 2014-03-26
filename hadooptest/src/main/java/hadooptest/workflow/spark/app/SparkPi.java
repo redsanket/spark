@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public class SparkPi extends App {
 
     /** master */
-    private String master = "yarn-standalone";
+    private AppMaster master = AppMaster.YARN_STANDALONE; 
 
     /** slices for the Pi */
     private int slices = 2;
@@ -59,7 +59,7 @@ public class SparkPi extends App {
      * 
      * @param master 
      */
-    public void setMaster(String master) {
+    public void setMaster(AppMaster master) { 
         this.master = master;
     }
 
@@ -160,9 +160,18 @@ public class SparkPi extends App {
      * @throws Exception if there is a fatal error running the process to submit the app.
      */
     protected void submit() throws Exception {
-        String appPatternStr = " application identifier: (.*)$";
-        String errorPatternStr = "ERROR (.*)Client: (.*)$";
+        String appPatternStr = null;
+
+        if (this.master == AppMaster.YARN_CLIENT) {
+            appPatternStr = " Submitted application (.*) to ResourceManager";
+        }
+        else if (this.master == AppMaster.YARN_STANDALONE) {
+            appPatternStr = " application identifier: (.*)$";
+        }
+
         Pattern appPattern = Pattern.compile(appPatternStr);
+
+        String errorPatternStr = "ERROR (.*)Client: (.*)$";
         Pattern errorPattern = Pattern.compile(errorPatternStr);
 
         // setup spark env
@@ -180,6 +189,29 @@ public class SparkPi extends App {
             newEnv.put("SPARK_JAR", sparkJar);
         }
         newEnv.put("JAVA_HOME", TestSession.conf.getProperty("JAVA_HOME"));
+        
+        TestSession.logger.info("SPARK_JAR=" + sparkJar);
+        TestSession.logger.info("JAVA_HOME=" + TestSession.conf.getProperty("JAVA_HOME"));
+
+        // for yarn-client mode
+        newEnv.put("SPARK_YARN_APP_JAR", TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"));
+        newEnv.put("SPARK_WORKER_INSTANCES", Integer.toString(this.numWorkers));
+        newEnv.put("SPARK_WORKER_MEMORY", this.workerMemory);
+        newEnv.put("SPARK_WORKER_CORES", Integer.toString(this.workerCores));
+        newEnv.put("SPARK_YARN_QUEUE", this.QUEUE);
+        newEnv.put("HADOOP_CONF_DIR", TestSession.cluster.getConf().getHadoopConfDir());
+
+        if (shouldPassName) { 
+            newEnv.put("SPARK_YARN_APP_NAME", this.appName);
+            TestSession.logger.info("SPARK_YARN_APP_NAME=" + this.appName);
+        }
+
+        TestSession.logger.info("SPARK_YARN_APP_JAR=" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"));
+        TestSession.logger.info("SPARK_WORKER_INSTANCES=" + Integer.toString(this.numWorkers));
+        TestSession.logger.info("SPARK_WORKER_MEMORY=" + this.workerMemory);
+        TestSession.logger.info("SPARK_WORKER_CORES=" + Integer.toString(this.workerCores));
+        TestSession.logger.info("SPARK_YARN_QUEUE=" + this.QUEUE);
+        TestSession.logger.info("HADOOP_CONF_DIR=" + TestSession.cluster.getConf().getHadoopConfDir()); 
         
         if (!((sparkJavaOpts == null) || (sparkJavaOpts.isEmpty()))) {
         	TestSession.logger.info("SPARK_JAVA_OPTS is being set to: " + sparkJavaOpts);
@@ -203,12 +235,14 @@ public class SparkPi extends App {
                 if (appMatcher.find()) {
                     this.ID = appMatcher.group(1);
                     TestSession.logger.debug("JOB ID: " + this.ID);
+                    reader.close();
                     break;
                 }
 
                 if (errorMatcher.find()) {
                     this.ERROR = errorMatcher.group(2);
                     TestSession.logger.error("ERROR is: " + errorMatcher.group(2));
+                    reader.close();
                     break;
                 }
 
@@ -250,39 +284,66 @@ public class SparkPi extends App {
      * 
      * @return String[] the string array representation of the system command to launch the app.
      */
-    private String[] assembleCommand() {        
-        String sparkBin = TestSession.conf.getProperty("SPARK_BIN");
-        if ((sparkBin == null) || (sparkBin.isEmpty())) {
-            TestSession.logger.error("Error SPARK_BIN is not set!");
+    private String[] assembleCommand() throws Exception {
+        String[] ret = null;     
+
+        if (this.master == AppMaster.YARN_CLIENT) {
+            String hadoopHome = TestSession.cluster.getConf().getHadoopProp("HADOOP_COMMON_HOME") + "/share/hadoop/";
+            String jarPath = hadoopHome + "hdfs/lib/YahooDNSToSwitchMapping-*.jar";
+            String[] output = TestSession.exec.runProcBuilder(new String[] {"bash", "-c", "ls " + jarPath});
+            String yahooDNSjar = output[1].trim();
+            TestSession.logger.info("YAHOO DNS JAR = " + yahooDNSjar);
+
+            String classpath = TestSession.cluster.getConf().getHadoopConfDir()
+                    + ":" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR")
+                    + ":" + hadoopHome + "common/hadoop-gpl-compression.jar"
+                    + ":" + yahooDNSjar
+                    + ":" + hadoopHome + "common/hadoop-common-" + TestSession.cluster.getVersion() + ".jar"
+                    + ":" + TestSession.conf.getProperty("SPARK_JAR");
+
+            ret = new String[] { "java",
+                    "-DSPARK_YARN_MODE=true",
+                    "-cp",
+                    classpath,
+                    "org.apache.spark.examples.SparkPi",
+                    AppMaster.getString(this.master) };
         }
-        ArrayList<String> cmd = new ArrayList<String>(16);
-        cmd.add(sparkBin); 
-        cmd.add("org.apache.spark.deploy.yarn.Client"); 
+        else if (this.master == AppMaster.YARN_STANDALONE) {
 
-        if (shouldPassJar) {
-          cmd.add("--jar");
-          cmd.add(TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"));
+            String sparkBin = TestSession.conf.getProperty("SPARK_BIN");
+            if ((sparkBin == null) || (sparkBin.isEmpty())) {
+                TestSession.logger.error("Error SPARK_BIN is not set!");
+            }
+            ArrayList<String> cmd = new ArrayList<String>(16);
+            cmd.add(sparkBin); 
+            cmd.add("org.apache.spark.deploy.yarn.Client"); 
+
+            if (shouldPassJar) {
+                cmd.add("--jar");
+                cmd.add(TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"));
+            }
+
+            if (shouldPassClass) { 
+                cmd.add("--class");
+                cmd.add("org.apache.spark.examples.SparkPi");
+            }
+
+            if (shouldPassName) { 
+                cmd.add("--name");
+                cmd.add(this.appName);
+            }
+
+            cmd.addAll(Arrays.asList( new String[] { 
+                    "--args", AppMaster.getString(this.master),
+                    "--num-workers", Integer.toString(this.numWorkers),
+                    "--worker-memory", this.workerMemory,
+                    "--master-memory", this.masterMemory,
+                    "--worker-cores", Integer.toString(this.workerCores),
+                    "--queue", this.QUEUE} ));
+
+            ret = cmd.toArray(new String[0]);
         }
 
-        if (shouldPassClass) { 
-          cmd.add("--class");
-          cmd.add("org.apache.spark.examples.SparkPi");
-        }
-
-        if (shouldPassName) { 
-          cmd.add("--name");
-          cmd.add(this.appName);
-        }
-
-        cmd.addAll(Arrays.asList( new String[] { 
-                "--args", this.master,
-                "--num-workers", Integer.toString(this.numWorkers),
-                "--worker-memory", this.workerMemory,
-                "--master-memory", this.masterMemory,
-                "--worker-cores", Integer.toString(this.workerCores),
-                "--queue", this.QUEUE} ));
-
-        String[] retCmd = cmd.toArray(new String[0]);
-        return retCmd;
-    }
+        return ret;
+    } 
 }
