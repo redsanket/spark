@@ -1,10 +1,14 @@
 package hadooptest;
 
+import hadooptest.cluster.ClusterState;
+import hadooptest.cluster.MultiClusterClient;
+import hadooptest.cluster.MultiClusterServer;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
+import hadooptest.workflow.hadoop.job.JobClient;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -17,18 +21,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-
-import hadooptest.TestSessionCore;
-import hadooptest.cluster.ClusterState;
-import hadooptest.cluster.MultiClusterClient;
-import hadooptest.cluster.MultiClusterServer;
-import hadooptest.workflow.hadoop.job.JobClient;
 
 /**
  * TestSession is the main driver for the automation framework.  It

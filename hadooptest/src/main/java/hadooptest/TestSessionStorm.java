@@ -1,14 +1,11 @@
 package hadooptest;
 
+import hadooptest.cluster.storm.StormCluster;
+import hadooptest.cluster.storm.StormExecutor;
+
 import java.lang.reflect.Constructor;
 
 import org.junit.BeforeClass;
-
-import hadooptest.cluster.storm.StormCluster;
-import hadooptest.cluster.storm.StormExecutor;
-import hadooptest.config.storm.StormTestConfiguration;
-import hadooptest.TestSessionCore;
-import hadooptest.ConfigProperties;
 
 /**
  * TestSession is the main driver for the automation framework.  It

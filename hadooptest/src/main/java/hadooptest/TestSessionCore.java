@@ -1,5 +1,7 @@
 package hadooptest;
 
+import hadooptest.cluster.Executor;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -9,13 +11,10 @@ import java.util.Enumeration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-
-import hadooptest.cluster.Executor;
 
 /**
  * TestSessionCore is the main driver for the automation framework. It maintains
