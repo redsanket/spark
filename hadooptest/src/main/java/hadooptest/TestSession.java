@@ -64,6 +64,15 @@ public abstract class TestSession extends TestSessionCore {
     public static enum HTF_TEST { CLASS, METHOD }
 
     /*
+     * Run before the start of each test class.
+     */
+    @BeforeClass
+    public static void startTestSession() throws Exception {
+        System.out.println("--------- @BeforeClass: TestSession: startTestSession ---------------------------");
+        start();
+    }
+    
+    /*
      * After each test, fetch the job task reports.
      */
     @After

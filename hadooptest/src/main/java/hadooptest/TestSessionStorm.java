@@ -2,6 +2,8 @@ package hadooptest;
 
 import java.lang.reflect.Constructor;
 
+import org.junit.BeforeClass;
+
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
 import hadooptest.config.storm.StormTestConfiguration;
@@ -30,6 +32,15 @@ public abstract class TestSessionStorm extends TestSessionCore {
     /** The Storm Cluster to use for the test session */
     public static StormCluster cluster;
 
+    /*
+     * Run before the start of each test class.
+     */
+    @BeforeClass
+    public static void startTestSession() throws Exception {
+        System.out.println("--------- @BeforeClass: TestSession: startTestSession ---------------------------");
+        start();
+    }
+    
     /**
      * Initializes the test session in the following order:
      * initilizes framework configuration, initializes the

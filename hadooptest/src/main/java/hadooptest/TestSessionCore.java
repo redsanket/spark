@@ -64,15 +64,6 @@ public abstract class TestSessionCore {
     /*
      * Run before the start of each test class.
      */
-    @BeforeClass
-    public static void startTestSession() throws Exception {
-        System.out.println("--------- @BeforeClass: TestSession: startTestSession ---------------------------");
-        TestSession.start();
-    }
-
-    /*
-     * Run before the start of each test class.
-     */
     @Before
     public void startTest() throws Exception {
         TestSession.logger.info("--------- @Before: TestSession: startTest ----------------------------------");
