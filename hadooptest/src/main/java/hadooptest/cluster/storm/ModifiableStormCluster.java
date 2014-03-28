@@ -12,4 +12,6 @@ public abstract class ModifiableStormCluster extends StormCluster {
     public abstract void setRegistryServerURI(String uri) throws Exception;
     public abstract void unsetRegistryConf(String key) throws Exception;
     public abstract void setRegistryConf(String key, Object value) throws Exception;
+    public abstract String getFromRegistryServer(String endpoint) throws Exception ;
+    public abstract boolean isVirtualHostDefined(String vhName);
 }
