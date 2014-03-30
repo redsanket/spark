@@ -249,9 +249,9 @@ public class TestRegistryClient extends TestSessionStorm {
 
     @Test
     public void TestAddWithYCAV1() throws Exception {
-       String v1Role = "grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+       String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
 	String vhName = "testgetvhycav1.basic.com";
-	String vhURI = "http://" + vhName + ":9999";
+	String vhURI = "https://" + vhName + ":9999";
         String[] output = runRegistryClientCommand(new String[] { RegClientCommand, "addvh", vhURI, "--yca_v1_role", v1Role } );
 	JSONUtil json = new JSONUtil();
 	
@@ -264,5 +264,75 @@ public class TestRegistryClient extends TestSessionStorm {
 
         // Now use the REST API to see if we really did add the virtual host.
         assertTrue("Did not get VH from REST api", mc.isVirtualHostDefined(vhName));
+    }
+
+    @Test
+    public void TestDelWithYCAV1() throws Exception {
+       String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+	String vhName = "testgetvhycav1.basic.com";
+	String vhURI = "https://" + vhName + ":9999";
+        String[] output = runRegistryClientCommand(new String[] { RegClientCommand, "addvh", vhURI, "--yca_v1_role", v1Role } );
+	JSONUtil json = new JSONUtil();
+	
+	assertTrue("AddVH return value was not 0", output[0].equals("0"));
+	// Output should be json object from server.
+	json.setContent(output[1]);
+	String fromJsonVH = json.getElement("virtualHost/name").toString();
+        logger.info("Command returned the following vh name " + fromJsonVH);
+	assertTrue("Names did not match", fromJsonVH.equals(vhName));
+
+        // Now use the REST API to see if we really did add the virtual host.
+        assertTrue("Did not get VH from REST api", mc.isVirtualHostDefined(vhName));
+
+	// Now let's do the delete
+        output = runRegistryClientCommand(new String[] { RegClientCommand, "delvh", vhURI , "--yca_v1_role", v1Role } );
+	assertTrue("DelVH return value was not 0", output[0].equals("0"));
+        assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
+    }
+
+    @Test
+    public void TestDelWithoutYCAV1() throws Exception {
+       String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+	String vhName = "testgetvhyxxcav1.basic.com";
+	String vhURI = "https://" + vhName + ":9999";
+        String[] output = runRegistryClientCommand(new String[] { RegClientCommand, "addvh", vhURI, "--yca_v1_role", v1Role } );
+	JSONUtil json = new JSONUtil();
+	
+	assertTrue("AddVH return value was not 0", output[0].equals("0"));
+	// Output should be json object from server.
+	json.setContent(output[1]);
+	String fromJsonVH = json.getElement("virtualHost/name").toString();
+        logger.info("Command returned the following vh name " + fromJsonVH);
+	assertTrue("Names did not match", fromJsonVH.equals(vhName));
+
+        // Now use the REST API to see if we really did add the virtual host.
+        assertTrue("Did not get VH from REST api", mc.isVirtualHostDefined(vhName));
+
+	// Now try the bad delete
+        logger.info("About to try delete with different yca v1 role" + fromJsonVH);
+        output = runRegistryClientCommand(new String[] { RegClientCommand, "delvh", vhURI , "--yca_v1_role", v1Role + ".nimbus" } ); 
+        logger.info("rc=" + output[0]);
+        logger.info("stdout=" + output[1]);
+        logger.info("stderr=" + output[2]);
+	assertTrue("DelVH did not return error.", !output[0].equals("0") || !output[2].equals(""));
+        assertTrue("Falsely removed VH from REST api", mc.isVirtualHostDefined(vhName));
+
+	// Now try another bad delete
+        logger.info("About to try delete with nonexistent yca v1 role" + fromJsonVH);
+        output = runRegistryClientCommand(new String[] { RegClientCommand, "delvh", vhURI , "--yca_v1_role", "bogus.yca.role.nimbus" } ); 
+        logger.info("rc=" + output[0]);
+        logger.info("stdout=" + output[1]);
+        logger.info("stderr=" + output[2]);
+	assertTrue("DelVH did not return error.", !output[0].equals("0") || !output[2].equals(""));
+        assertTrue("Falsely removed VH from REST api", mc.isVirtualHostDefined(vhName));
+
+	// Now let's do the real delete
+        logger.info("About to try real delete with valid yca v1 role" + fromJsonVH);
+        output = runRegistryClientCommand(new String[] { RegClientCommand, "delvh", vhURI , "--yca_v1_role", v1Role } );
+        logger.info("rc=" + output[0]);
+        logger.info("stdout=" + output[1]);
+        logger.info("stderr=" + output[2]);
+	assertTrue("DelVH return value was not 0", output[0].equals("0"));
+        assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
     }
 }
