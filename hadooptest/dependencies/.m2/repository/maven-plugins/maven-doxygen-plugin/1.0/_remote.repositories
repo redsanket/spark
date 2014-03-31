@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Mon Mar 31 15:14:37 CDT 2014
+maven-doxygen-plugin-1.0.jar>=
+maven-doxygen-plugin-1.0.pom>local\ central\ mirror=
+maven-doxygen-plugin-1.0.jar>local\ central\ mirror=
