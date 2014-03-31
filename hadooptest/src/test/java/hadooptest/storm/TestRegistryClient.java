@@ -363,10 +363,29 @@ public class TestRegistryClient extends TestSessionStorm {
 	// Now let's do the real delete
         logger.info("About to try real delete with valid yca v2 role " + fromJsonVH);
         output = runRegistryClientCommand(new String[] { RegClientCommand, "delvh", vhURI , "--yca_v1_role", v1Role,  "--yca_v2_role", v2Role, "--yca_proxy_role", "grid.blue.flubber.httpproxy" } );
+	assertTrue("DelVH return value was not 0", output[0].equals("0"));
+        assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
+    }
+
+    @Test
+    public void TestAddWithBadYCAV2() throws Exception {
+        String v1Role = "yahoo.griduser.hadoopqa";
+        String badv1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+        String v2Role = "ystorm.test.yca.users";
+        String httpProxyRole = "grid.blue.flubber.httpproxy";
+
+        // See if we are part of this v1role.  If not, skip this test.   We are running it somewhere it cannot work.
+        String[] returnValue = exec.runProcBuilder(new String [] {"yca-cert-util", "--show", v1Role}, true);
+        assumeTrue( returnValue[1].indexOf("NOT FOUND") < 0 );
+
+	// So, we are running somewhere that has this V1 role.  Try to use it to get a v2 cert.
+	String vhName = "testfailonycav2.basic.com";
+	String vhURI = "https://" + vhName + ":9999";
+        String[] output = runRegistryClientCommand(new String[] { RegClientCommand, "addvh", vhURI, "--yca_v1_role", badv1Role, "--yca_v2_role", v2Role, "--yca_proxy_role", "grid.blue.flubber.httpproxy" } );
         logger.info("rc=" + output[0]);
         logger.info("stdout=" + output[1]);
         logger.info("stderr=" + output[2]);
-	assertTrue("DelVH return value was not 0", output[0].equals("0"));
-        assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
+	
+	assertFalse("AddVH return value was 0, when we expected command to fail", output[0].equals("0"));
     }
 }
