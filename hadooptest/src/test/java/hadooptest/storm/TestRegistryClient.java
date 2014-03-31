@@ -1,6 +1,7 @@
 package hadooptest.storm;
 
 import static org.junit.Assume.assumeTrue;
+import static org.junit.Assume.assumeFalse;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.Util;
@@ -329,6 +330,39 @@ public class TestRegistryClient extends TestSessionStorm {
 	// Now let's do the real delete
         logger.info("About to try real delete with valid yca v1 role" + fromJsonVH);
         output = runRegistryClientCommand(new String[] { RegClientCommand, "delvh", vhURI , "--yca_v1_role", v1Role } );
+        logger.info("rc=" + output[0]);
+        logger.info("stdout=" + output[1]);
+        logger.info("stderr=" + output[2]);
+	assertTrue("DelVH return value was not 0", output[0].equals("0"));
+        assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
+    }
+
+    @Test
+    public void TestAddWithYCAV2() throws Exception {
+        String v1Role = "yahoo.griduser.hadoopqa";
+        String v2Role = "ystorm.test.yca.users";
+        String httpProxyRole = "grid.blue.flubber.httpproxy";
+
+        // See if we are part of this v1role.  If not, skip this test.   We are running it somewhere it cannot work.
+        String[] returnValue = exec.runProcBuilder(new String [] {"yca-cert-util", "--show", v1Role}, true);
+        assumeTrue( returnValue[1].indexOf("NOT FOUND") < 0 );
+
+	// So, we are running somewhere that has this V1 role.  Try to use it to get a v2 cert.
+	String vhName = "testgetvhyxxcav2.basic.com";
+	String vhURI = "https://" + vhName + ":9999";
+        String[] output = runRegistryClientCommand(new String[] { RegClientCommand, "addvh", vhURI, "--yca_v1_role", v1Role, "--yca_v2_role", v2Role, "--yca_proxy_role", "grid.blue.flubber.httpproxy" } );
+	JSONUtil json = new JSONUtil();
+	
+	assertTrue("AddVH return value was not 0", output[0].equals("0"));
+	// Output should be json object from server.
+	json.setContent(output[1]);
+	String fromJsonVH = json.getElement("virtualHost/name").toString();
+        logger.info("Command returned the following vh name " + fromJsonVH);
+	assertTrue("Names did not match", fromJsonVH.equals(vhName));
+     
+	// Now let's do the real delete
+        logger.info("About to try real delete with valid yca v2 role " + fromJsonVH);
+        output = runRegistryClientCommand(new String[] { RegClientCommand, "delvh", vhURI , "--yca_v1_role", v1Role,  "--yca_v2_role", v2Role, "--yca_proxy_role", "grid.blue.flubber.httpproxy" } );
         logger.info("rc=" + output[0]);
         logger.info("stdout=" + output[1]);
         logger.info("stderr=" + output[2]);
