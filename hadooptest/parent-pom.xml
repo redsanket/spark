@@ -30,6 +30,7 @@
 		<hadoop.version.ut.old>2.0.4.0.1304041432</hadoop.version.ut.old>
 		<hadoop.version.current>2.2.0</hadoop.version.current>
 		<hadoop.version>${hadoop.version.current}</hadoop.version>
+		<scala.version>2.10.3</scala.version>
 	</properties>
 
 	<build>
@@ -42,8 +43,42 @@
 			</resource>
 		</resources>
 
-		<plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>net.alchim31.maven</groupId>
+					<artifactId>scala-maven-plugin</artifactId>
+					<version>3.1.5</version>
+					<executions>
+						<execution>
+							<goals>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<jvmArgs>
+						<jvmArg>-Xms64m</jvmArg>
+						<jvmArg>-Xmx1024m</jvmArg>
+						</jvmArgs>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 
+		<plugins>
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+				<configuration>
+					<args>
+					<arg>-unchecked</arg>
+					<arg>-optimise</arg>
+					<arg>${project.assertions}</arg>
+					</args>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -92,6 +127,21 @@
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-compiler</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scalap</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -248,7 +298,7 @@
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.2.1</version>
 		</dependency>
-        
+
                 <dependency>
                         <groupId>yahoo.yinst.yspark_yarn</groupId>
                         <artifactId>spark-assembly_2.10-0.9.0.1-hadoop2</artifactId>
@@ -256,6 +306,7 @@
                         <scope>compile</scope>
                 </dependency>
 
+        
         <!-- STORM -->
         
 		<dependency>

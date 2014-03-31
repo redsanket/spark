@@ -55,7 +55,7 @@ public class TestSparkPipes extends TestSession {
         }
 
 	/*
-	 * A test for saving file to hdfs
+	 * A test for running pipes and verifiying the properly environment variables are set
 	 * 
 	 */
 	@Test
@@ -68,6 +68,43 @@ public class TestSparkPipes extends TestSession {
 			appUserDefault.setWorkerCores(1);
 			//appUserDefault.setLRDataFile(lrDatafile);
 			appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
+			appUserDefault.setJarName(localJar);
+                        String[] argsArray = {lrDatafile};
+                        appUserDefault.setArgs(argsArray);
+
+			appUserDefault.start();
+
+			assertTrue("App (default user) was not assigned an ID within 30 seconds.", 
+					appUserDefault.waitForID(30));
+			assertTrue("App ID for sleep app (default user) is invalid.", 
+					appUserDefault.verifyID());
+            		assertEquals("App name for sleep app is invalid.", 
+                    		"Spark", appUserDefault.getAppName());
+
+			int waitTime = 30;
+			assertTrue("Job (default user) did not succeed.",
+				appUserDefault.waitForSuccess(waitTime));
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
+	}
+	
+	/*
+	 * A test for running pipes and it uses separate task dirs when specified
+	 * 
+	 */
+	@Test
+	public void runSparkPipesTaskDirs() {
+		try {
+			SparkRunClass appUserDefault = new SparkRunClass();
+
+			appUserDefault.setWorkerMemory("2g");
+			appUserDefault.setNumWorkers(3);
+			appUserDefault.setWorkerCores(1);
+			//appUserDefault.setLRDataFile(lrDatafile);
+			appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesTaskDirs");
 			appUserDefault.setJarName(localJar);
                         String[] argsArray = {lrDatafile};
                         appUserDefault.setArgs(argsArray);
