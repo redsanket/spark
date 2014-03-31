@@ -13,9 +13,11 @@ import java.util.regex.Pattern;
  */
 public class TeraGenJob extends Job {
 	
-	/** The output path for the wordcount job */
+	/** The output path for the teragen job */
 	private String outputPath;
-	private long fileSize = 1000;
+	// Number of 100-byte rows
+	private long numInputDataRows = 1000;
+	private long numMapTasks=1000;
 	
 	/**
 	 * Set the -output path for the streaming job.
@@ -26,8 +28,12 @@ public class TeraGenJob extends Job {
 		this.outputPath = path;
 	}
 	
-	public void setFileSize(long size){
-		this.fileSize = size;
+	public void setNumDataRows(long numRows){
+		this.numInputDataRows = numRows;
+	}
+
+	public void setNumMapTasks(long size){
+	    this.numMapTasks = size;
 	}
 
 	/**
@@ -56,6 +62,7 @@ public class TeraGenJob extends Job {
 				if (jobMatcher.find()) {
 					this.ID = jobMatcher.group(1);
 					TestSession.logger.debug("JOB ID: " + this.ID);
+					reader.close();
 					break;
 				}
 
@@ -109,7 +116,8 @@ public class TeraGenJob extends Job {
         if (this.QUEUE != "") {
             cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
         }
-		cmd.add(Long.toString(fileSize));
+        cmd.add("-Dmapred.map.tasks=" + Long.toString(numMapTasks));            
+		cmd.add(Long.toString(numInputDataRows));
         cmd.add(this.outputPath);
         
         String[] command = cmd.toArray(new String[0]);

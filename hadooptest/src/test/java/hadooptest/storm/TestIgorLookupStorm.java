@@ -18,7 +18,6 @@ public class TestIgorLookupStorm extends TestSessionStorm {
 	
     @BeforeClass
     public static void setup() throws Exception {
-        start();
 		CLUSTER_NAME = "ystormQE_CI";
     }
 	

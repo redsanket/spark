@@ -187,6 +187,7 @@ public class StreamingJob extends Job {
 				if (jobMatcher.find()) {
 					this.ID = jobMatcher.group(1);
 					TestSession.logger.debug("JOB ID: " + this.ID);
+					reader.close();
 					break;
 				}
 

@@ -357,7 +357,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		String command;
 		HashMap<String, String> actualBlockPoolLocationsBeforeCorrupting = new HashMap<String, String>();
 		HashMap<String, String> actualBlockPoolLocationsAfterCorrupting = new HashMap<String, String>();
-		logger.info("Hello this is testManuallyCorruptHdfsBlocks");
+
 		FsckResponseBO fsckResponse = dfsCommonCli.fsck(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, DATA_DIR_IN_HDFS
 						+ ONE_BYTE_FILE, true, true, true);

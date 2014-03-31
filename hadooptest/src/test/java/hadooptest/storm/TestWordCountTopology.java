@@ -37,11 +37,6 @@ import backtype.storm.tuple.Values;
 public class TestWordCountTopology extends TestSessionStorm {
     static int numSpouts = 2; //This must match the topology
 
-    @BeforeClass
-    public static void setup() throws Exception {
-        start();
-    }
-
     @AfterClass
     public static void cleanup() throws Exception {
         stop();

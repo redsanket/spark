@@ -2,6 +2,7 @@ package hadooptest.cluster.storm;
 
 import hadooptest.ConfigProperties;
 import hadooptest.TestSessionStorm;
+import hadooptest.automation.utils.http.JSONUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -380,6 +381,69 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	stopDaemon(StormDaemon.REGISTRY);
     }
 
+    /**
+     * Performs an http get to an endpoing in the Registry Server REST API
+     * 
+     * @param endpoint The endpoint to hit to stop.  URL will be VH + endpoint
+     * @return String containing the data returned from the server
+     */
+    public String getFromRegistryServer(String endpoint) throws Exception {
+    	HttpClient client = new HttpClient();
+    	try {
+    		client.start();
+    	} catch (Exception e) {
+    		throw new IOException("Could not start Http Client", e);
+    	}
+    	String theURL = registryURI.split(",")[0] + endpoint;
+
+	Request req = client.newRequest(theURL);
+	ContentResponse resp = null;
+	TestSessionStorm.logger.warn("Trying to get from " + theURL);
+	resp = req.send();
+
+	if (resp == null) {
+		throw new IOException("Response was null");
+	}
+
+	if (resp != null && resp.getStatus() != 200) {
+		throw new Exception("Response code " + Integer.toString(resp.getStatus()) + " was not 200.");
+	}
+
+    	// Stop client
+    	try {
+    		client.stop();
+    	} catch (Exception e) {
+    		throw new IOException("Could not stop http client", e);
+    	}
+
+	// Return the data returned from the get.
+	if ( resp == null ) {
+		return null;
+	}
+	return resp.getContentAsString();
+    }
+
+    /**
+     * See if the virtual host exists on the server
+     * 
+     * @param vhName The virutal host fqdn to test
+     * @return boolean true if host is present in registry
+     */
+    public boolean isVirtualHostDefined(String vhName) {
+	String endpoint = "virtualHost/" + vhName;
+	try {
+		String host = getFromRegistryServer(endpoint);
+		TestSessionStorm.logger.info("Host Definition Get returned " + host);
+		JSONUtil json = new JSONUtil();
+	
+		json.setContent(host);
+	        String fromJsonVH = json.getElement("virtualHost/name").toString();
+                return fromJsonVH.equals(vhName);
+        } catch (Exception e) {
+		return false;
+        }
+    }
+
     public void startRegistryServer() throws Exception {
 
         TestSessionStorm.logger.info("*** STARTING REGISTRY SERVER ***");
@@ -398,7 +462,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	}
 
     	// Get the URI to ping
-    	String statusURL = registryURI + "status/";
+    	String statusURL = registryURI.split(",")[0] + "status/";
 
     	// Let's try for 3 minutes, or until we get a 200 back.
     	boolean done = false;
