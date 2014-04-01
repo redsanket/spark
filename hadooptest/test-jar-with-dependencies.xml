@@ -22,6 +22,10 @@
 	        <exclude>org.slf4j:log4j-over-slf4j</exclude>
 	        <exclude>org.slf4j:slf4j-log4j12</exclude>
 	        <exclude>system:system3</exclude>
+	        <exclude>net.alchim31.maven:scala-maven-plugin</exclude>
+	        <exclude>org.scala-lang:scala-compiler</exclude>
+	        <exclude>org.scala-lang:scala-library</exclude>
+	        <exclude>org.scala-lang:scalap</exclude>
 	    </excludes>
         </dependencySet>
     </dependencySets>
