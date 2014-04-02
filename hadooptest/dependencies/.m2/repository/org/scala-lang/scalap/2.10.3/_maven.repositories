@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Tue Apr 01 23:29:07 UTC 2014
+scalap-2.10.3.jar>=
+scalap-2.10.3.pom>local\ central\ mirror=
+scalap-2.10.3.jar>local\ central\ mirror=
