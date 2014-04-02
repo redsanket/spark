@@ -91,6 +91,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.2</version>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -127,6 +132,11 @@
 	</build>
 
 	<dependencies>
+        <dependency>
+            <groupId>yahoo.yinst.yjava_jetty</groupId>
+            <artifactId>yjava_jetty</artifactId>
+            <version>9.0.6.v20130930_0.47</version>
+        </dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-compiler</artifactId>
