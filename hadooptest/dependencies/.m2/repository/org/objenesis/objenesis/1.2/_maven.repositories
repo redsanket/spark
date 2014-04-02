@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Tue Apr 01 23:29:07 UTC 2014
+objenesis-1.2.jar>=
+objenesis-1.2.pom>local\ central\ mirror=
+objenesis-1.2.jar>local\ central\ mirror=
