@@ -1,7 +1,7 @@
 t=/grid/0/tmp/deploy.$cluster.hdfsinfo
 [ -e $t ] && rm -rf  $t
 mkdir -p $t
-
+echo "Hadoop version is $HADOOPVERSION"
 cp namenodes.$cluster.txt /grid/0/tmp/
 cp secondarynamenodes.$cluster.txt /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
@@ -92,7 +92,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         exit 1
         ;;
     esac
-    
+
     if [ "$USE_DEFAULT_QUEUE_CONFIG" = true ]; then
         echo "  " -set $confpkg.TODO_YARN_LOCAL_CAPACITY_SCHEDULER=EXAMPLE-local-capacity-scheduler.xml \\
     fi
