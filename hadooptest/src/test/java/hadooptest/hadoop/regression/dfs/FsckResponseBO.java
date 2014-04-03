@@ -7,7 +7,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-
+/**
+ * The FSCK Response Business Object
+ * @author tiwari
+ *
+ */
 public class FsckResponseBO {
 	public HashMap<FsckFileDetailsBO, ArrayList<FsckBlockDetailsBO>> fileAndBlockDetails;
 	public FsckSummaryBO fsckSummaryBO;
