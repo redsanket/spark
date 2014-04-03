@@ -62,6 +62,7 @@ then
     done
     export HADOOP_CORETREE_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
     export LOCAL_CONFIG_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
+    export HADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
     then
