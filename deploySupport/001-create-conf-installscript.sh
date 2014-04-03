@@ -2,6 +2,8 @@ t=/grid/0/tmp/deploy.$cluster.hdfsinfo
 [ -e $t ] && rm -rf  $t
 mkdir -p $t
 echo "Hadoop version is $HADOOPVERSION"
+echo "and I'm on `hostname`"
+echo "and I am `whomai`"
 cp namenodes.$cluster.txt /grid/0/tmp/
 cp secondarynamenodes.$cluster.txt /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
