@@ -3,7 +3,7 @@ t=/grid/0/tmp/deploy.$cluster.hdfsinfo
 mkdir -p $t
 echo "Hadoop version is $HADOOPVERSION"
 echo "and I'm on `hostname`"
-echo "and I am `whomai`"
+echo "and I am `whoami`"
 cp namenodes.$cluster.txt /grid/0/tmp/
 cp secondarynamenodes.$cluster.txt /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
@@ -90,7 +90,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn:8020/ \\
             ;;
     *)
-        echo "Invalid Hadoop version $HadoopVersion"
+        echo "Invalid Hadoop version $HADOOPVERSION"
         exit 1
         ;;
     esac
