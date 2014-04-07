@@ -76,9 +76,10 @@ public class PseudoDistributedCluster extends HadoopCluster {
     public void initNodes() throws Exception {        
         String[] gwHosts = new String[] {"localhost"};
         String[] nnHosts = new String[] {"localhost"};
+        String[] nn2Hosts = new String[] {"localhost"};
         String[] rmHosts = new String[] {"localhost"};
         String[] dnHosts = new String[] {"localhost"};       
-        super.initNodes(gwHosts, nnHosts, rmHosts, dnHosts);
+        super.initNodes(gwHosts, nnHosts, nn2Hosts, rmHosts, dnHosts);
     }
 	
     /**
