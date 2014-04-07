@@ -9,6 +9,7 @@ public class HadooptestConstants {
 		public static String SECONDARY_NAMENODE = "secondarynamenode";
 		public static String RESOURCE_MANAGER = "resourcemanager";
 		public static String HISTORY_SERVER = "historyserver";
+		public static String NODE_MANAGER = "nodemanager";
 	}
 
 	// Config file names
@@ -42,6 +43,13 @@ public class HadooptestConstants {
 		public static String CPU = "CPU";
 		public static String FILES = "FILES";
 		public static String USER_DIR = "user.dir";
+		public static String SSH_AGENT_FILE = "SSH_AGENT_FILE";
+		public static String EXCEPTIONS = "EXCEPTIONS";
+		public static String TEST_STATUS = "TEST_STATUS";
+		public static String TEST_DURATION = "TEST_DURATION";
+		public static String JOB_STATUS = "JOB_STATUS";
+		public static String MAP_TASK_STATUS = "MAP_TASK_STATUS";
+		public static String REDUCE_TASK_STATUS = "REDUCE_TASK_STATUS";
 	}
 
 	// Commands
@@ -52,6 +60,7 @@ public class HadooptestConstants {
 		public static String CAT = "/bin/cat";
 		public static String SED = "/bin/sed";
 		public static String PIPE = "|";
+		
 	}
 
 	// Locations
@@ -82,6 +91,9 @@ public class HadooptestConstants {
 		}
 		public static class Binary {
 			public static String HADOOP = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hadoop";
+			public static String HDFS = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hdfs";
+			public static String YARN = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/yarn";
+			public static String PERL = "/usr/local/bin/perl";
 		}
 		public static class Conf {
 			public static String DIRECTORY = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
@@ -95,6 +107,7 @@ public class HadooptestConstants {
 		public static String HDFS = "hdfs://";
 		public static String WEBHDFS = "webhdfs://";
 		public static String HFTP = "hftp://";
+		public static String NONE = "";
 	}
 	// Ports
 	public static class Ports {

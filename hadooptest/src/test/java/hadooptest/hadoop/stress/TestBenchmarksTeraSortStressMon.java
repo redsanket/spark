@@ -2,16 +2,15 @@ package hadooptest.hadoop.stress;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
-import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
+import hadooptest.cluster.hadoop.dfs.DFS;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.monitoring.Monitorable;
+import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobClient;
 
@@ -44,7 +43,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 /*
  *  Runs the teragen and terasort test. Takes about 2 minutes to run.
@@ -238,7 +237,7 @@ public class TestBenchmarksTeraSortStressMon extends TestSession {
      * After each test, fetch the job task reports.
      */
     @After
-    public void logTaskResportSummary() 
+    public void logTaskReportSummary() 
             throws InterruptedException, IOException {
         JobClient jobClient = TestSession.cluster.getJobClient();
         jobClient.validateTaskReportSummary(

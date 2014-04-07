@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.TearDownTests;
+import hadooptest.TearDownTests;
 
 @Category(TearDownTests.class)
 public class TestTearDownJacoco extends TestSession {

@@ -1,37 +1,27 @@
 package hadooptest;
 
+import hadooptest.cluster.ClusterState;
+import hadooptest.cluster.MultiClusterClient;
+import hadooptest.cluster.MultiClusterServer;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedCluster;
 import hadooptest.cluster.hadoop.pseudodistributed.PseudoDistributedExecutor;
+import hadooptest.workflow.hadoop.job.JobClient;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Vector;
 
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-
-import coretest.TestSessionCore;
-import coretest.cluster.ClusterState;
-import hadooptest.cluster.MultiClusterClient;
-import hadooptest.cluster.MultiClusterServer;
-import hadooptest.workflow.hadoop.job.JobClient;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -62,31 +52,9 @@ public abstract class TestSession extends TestSessionCore {
 	public static MultiClusterClient multiClusterClient;
 
     public static String TASKS_REPORT_LOG = "tasks_report.log";
-    public static long startTime=System.currentTimeMillis();    
-    public static long testStartTime;
-    public static String currentTestMethodName;
-
-    public static void printBanner(String msg) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String currentThreadClassName = Thread.currentThread().getStackTrace()[1].getClassName();
-        System.out.println("********************************************************************************");
-        System.out.println(sdf.format(new Date(System.currentTimeMillis())) + " " +
-                currentThreadClassName + " - starting test: " + msg);
-        System.out.println("********************************************************************************");
-    }
-
-    /*
-     * Print method names for all tests in a class:
-     * Print name of currently executing test 
-     */
-    @Rule
-    public TestRule watcher = new TestWatcher() {
-        protected void starting(Description description) {
-            currentTestMethodName =
-                    description.getClassName() + ": " + description.getMethodName();
-            printBanner(currentTestMethodName);
-        }
-    };
+    public static long startTime=System.currentTimeMillis();
+    
+    public static enum HTF_TEST { CLASS, METHOD }
 
     /*
      * Run before the start of each test class.
@@ -94,23 +62,14 @@ public abstract class TestSession extends TestSessionCore {
     @BeforeClass
     public static void startTestSession() throws Exception {
         System.out.println("--------- @BeforeClass: TestSession: startTestSession ---------------------------");
-        TestSession.start();
+        start();
     }
-
-    /*
-     * Run before the start of each test class.
-     */
-    @Before
-    public void startTest() throws Exception {
-        TestSession.logger.info("--------- @Before: TestSession: startTest ----------------------------------");
-        testStartTime = System.currentTimeMillis();
-    }
-
+    
     /*
      * After each test, fetch the job task reports.
      */
     @After
-    public void logTaskResportSummary() 
+    public void logTaskReportSummary() 
             throws InterruptedException, IOException {
 
         // Do Nothing For GDM
@@ -118,7 +77,21 @@ public abstract class TestSession extends TestSessionCore {
             (conf.getProperty("GDM_ONLY").equalsIgnoreCase("true"))) {
             return;
         }
-
+        
+        /*
+        if (category.equals(ParallelMethodTests.class)) {
+            TestSession.logger.debug(
+                    "logTaskReportSummary currently does not support " +
+                    "parallel method tests.");
+            return;
+        }
+        */
+        
+        if (Boolean.parseBoolean(
+                conf.getProperty("LOG_TASK_REPORT")) == false) {
+            return;
+        }
+        
         TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
 
         // Log the tasks report summary for jobs that ran as part of this test 
@@ -128,7 +101,7 @@ public abstract class TestSession extends TestSessionCore {
         jobClient.validateTaskReportSummary(
                 jobClient.logTaskReportSummary(
                         TestSession.TASKS_REPORT_LOG, 
-                        TestSession.testStartTime),
+                        TestSession.testStartTime, HTF_TEST.METHOD),
                         numAcceptableNonCompleteMapTasks,
                         numAcceptableNonCompleteReduceTasks);        
     }
@@ -157,7 +130,7 @@ public abstract class TestSession extends TestSessionCore {
 		
 		// Log Java Properties
 		initLogJavaProperties();
-		
+
 		// Check to see if the property GDM_ONLY is defined in the hadooptest
 		// configuration file.  If so, we want to exit the TestSession start
 		// method before we do any Hadoop-specific configuration and setup.
@@ -195,7 +168,7 @@ public abstract class TestSession extends TestSessionCore {
     }
 
     public static String getLogDateFormat(Date date) {
-        return getDateFormat(date, "yyyy-MM-dd HH:mm:ss z");
+        return getDateFormat(date, "yyyy-MM-dd HH:mm:ss.SSS z");
     }
 
 	public static String getFileDateFormat(long time) {
@@ -213,13 +186,6 @@ public abstract class TestSession extends TestSessionCore {
 	 */
 	public static HadoopCluster getCluster() {
 		return cluster;
-	}
-	
-	/**
-	 * Initialize the framework name.
-	 */
-	private static void initFrameworkName() {
-		frameworkName = "hadooptest";
 	}
 	
 	private static void initExecutor() {

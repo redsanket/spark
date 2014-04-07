@@ -1,0 +1,32 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>test-jar-with-dependencies</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <!-- we're creating the test-jar as an attachement -->
+            <useProjectAttachments>true</useProjectAttachments>
+            <unpack>true</unpack>
+            <scope>test</scope>
+	    <excludes>
+	        <exclude>storm:storm</exclude>
+	        <exclude>yahoo.yinst.ystorm:storm</exclude>
+	        <exclude>junit:junit</exclude>
+	        <exclude>log4j:log4j</exclude>
+	        <exclude>org.slf4j:log4j-over-slf4j</exclude>
+	        <exclude>org.slf4j:slf4j-log4j12</exclude>
+	        <exclude>system:system3</exclude>
+	        <exclude>net.alchim31.maven:scala-maven-plugin</exclude>
+	        <exclude>org.scala-lang:scala-compiler</exclude>
+	        <exclude>org.scala-lang:scala-library</exclude>
+	        <exclude>org.scala-lang:scalap</exclude>
+	    </excludes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

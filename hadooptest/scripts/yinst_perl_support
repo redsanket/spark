@@ -5,8 +5,9 @@
 # scripts. This is most useful on a system or yroot that didn't previously
 # have any yahoo perl support installed on it. Many existing systems will
 # already have many of these packages installed.
-yinst i perl -same -live
-yinst i perlbase -same -live
-yinst i local_perl_compat -same -live
+yinst i perl
+yinst i perlbase
+yinst i local_perl_compat
 yinst i perl_Yahoo_Backyard_SingleSignOn
 yinst i perl-File-Find-Rule
+yinst i chartdirector_perl

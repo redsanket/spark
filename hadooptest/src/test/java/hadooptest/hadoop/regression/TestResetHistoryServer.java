@@ -7,7 +7,7 @@ import hadooptest.cluster.hadoop.HadoopCluster.Action;
 
 import org.junit.Test;
 
-import coretest.Util;
+import hadooptest.Util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

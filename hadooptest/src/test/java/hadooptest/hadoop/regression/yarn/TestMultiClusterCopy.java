@@ -3,7 +3,7 @@ package hadooptest.hadoop.regression.yarn;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
+import hadooptest.cluster.hadoop.dfs.DFS;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.BeforeClass;
@@ -11,7 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
 public class TestMultiClusterCopy extends TestSession {

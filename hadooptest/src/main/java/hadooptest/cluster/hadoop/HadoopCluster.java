@@ -6,6 +6,8 @@ package hadooptest.cluster.hadoop;
 
 import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
+import hadooptest.TestSessionCore;
+import hadooptest.cluster.hadoop.dfs.DFS;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.node.hadoop.HadoopNode;
@@ -35,8 +37,8 @@ import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x
 
-import coretest.Util;
-import coretest.cluster.ClusterState;
+import hadooptest.Util;
+import hadooptest.cluster.ClusterState;
 
 /**
  * An interface which should represent the base capability of any cluster
@@ -83,7 +85,7 @@ public abstract class HadoopCluster {
     
     public static enum HADOOP_EXEC_MODE { CLI, API }
     public static enum HADOOP_JOB_TYPE {
-        SLEEP, WORDCOUNT, RANDOM_WRITER, RANDOM_TEXT_WRITER }
+        SLEEP, WORDCOUNT, RANDOM_WRITER, RANDOM_TEXT_WRITER, TERAGEN }
     
     public static final String[] COMPRESS_ON = {
         "-Dmapreduce.map.output.compress=true",
@@ -138,6 +140,100 @@ public abstract class HadoopCluster {
                 "/" + component + "-" + hostname;        
     }
 
+    /**
+     * Lookup an Igor role and get the role members.
+     * 
+     * @param roleName The name of the role.
+     * 
+     * @return ArrayList<String> a list of all of the role members.
+     * 
+     * @throws Exception
+     */
+	public ArrayList<String> lookupIgorRole(String roleName) throws Exception {
+		ArrayList<String> roleMembers = new ArrayList<String>();
+		
+		TestSession.logger.debug("Fetching role members from Igor for role: " + roleName);
+		String[] members = TestSession.exec.runProcBuilder(new String[] {"yinst", "range", "-ir", "@" + roleName});
+		TestSession.logger.debug(members);
+		
+		for(String s: members) {
+			if (s.contains("ygrid.yahoo.com")) {
+				roleMembers.add(s.trim());
+			}
+		}
+		
+		return roleMembers;
+	}
+	
+	/**
+	 * Lookup the Igor role members for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the nodes in the cluster.
+     *
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterAllNodes(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName);
+	}
+    
+	/**
+	 * Lookup the Igor-defined gateway node for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the gateway nodes.
+	 * 
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterGateway(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".gateway");
+	}
+	
+	/**
+	 * Lookup the Igor-defined jobtracker node for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the jobtracker nodes.
+	 * 
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterJobtracker(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".jobtracker");
+	}
+	
+	/**
+	 * Lookup the Igor-defined namenode for a cluster.
+	 * 
+	 * @param clusterName The name of the cluster.
+	 * 
+	 * @return ArrayList<String> the namenodes.
+	 * 
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterNamenode(String clusterName) 
+			throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".namenode");
+	}
+	
+	/**
+	 * Lookup the Igor-defined secondary namenodes for a cluster.
+	 * 
+	 * @param clusterName
+	 * @return
+	 * @throws Exception
+	 */
+	public ArrayList<String> lookupIgorRoleClusterSecondaryNamenode(
+			String clusterName) 
+					throws Exception {
+		return lookupIgorRole("grid_re.clusters." + clusterName + ".namenode2");
+	}
+	
 	/**
 	 * Start the cluster from a stopped state.
 	 *
@@ -447,6 +543,10 @@ public abstract class HadoopCluster {
     }
 
     public void setupSingleQueueCapacity() throws Exception {
+        this.setupSingleQueueCapacity(false);
+    }
+    
+    public void setupSingleQueueCapacity(boolean force) throws Exception {
         FullyDistributedCluster cluster =
                 (FullyDistributedCluster) TestSession.cluster;
         String component = HadoopCluster.RESOURCE_MANAGER;
@@ -466,7 +566,13 @@ public abstract class HadoopCluster {
             (Float.compare(queues.get(0).getCapacity(), 1.0f) == 0)) {
                 TestSession.logger.debug("Cluster is already setup properly. " +
                         "Nothing to do.");
-                return;
+                if (force == true) {
+                    TestSession.logger.debug("Force single queue setup.");                    
+                } else {
+                    TestSession.logger.debug("Cluster is already setup properly. " +
+                            "Nothing to do.");
+                    return;
+                }
         }
         
         // Backup the default configuration directory on the Resource Manager

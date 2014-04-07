@@ -3,9 +3,9 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
+import hadooptest.cluster.hadoop.dfs.DFS;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.workflow.hadoop.job.GenericJob;
 
@@ -25,8 +25,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import coretest.SerialTests;
-import coretest.Util;
+import hadooptest.SerialTests;
+import hadooptest.Util;
 
 /*
  *  Runs the mrbench test. Takes about 2 minutes to run.

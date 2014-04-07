@@ -16,8 +16,8 @@ import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
 
-import coretest.Util;
-import coretest.cluster.ClusterState;
+import hadooptest.Util;
+import hadooptest.cluster.ClusterState;
 
 /**
  * A Cluster subclass that implements a Fully Distributed Hadoop cluster.
@@ -515,7 +515,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 		for (String component : HadoopCluster.components) {
 		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
 			  componentStatus = this.isComponentFullyUp(component);
-			  TestSession.logger.info("Get Cluster Status: " + component +
+			  TestSession.logger.debug("Cluster Status: " + component +
 			          " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
 			  if (componentStatus == false) {
@@ -527,7 +527,8 @@ public class FullyDistributedCluster extends HadoopCluster {
 	}
 
 	public void printClusterStatus(Action action) {
-	    // Show cluster state summary       
+	    // Show cluster state summary
+        TestSession.addLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
         TestSession.logger.info("--> Cluster Component Status Summary:");
         TestSession.logger.info("******************************");        
         Enumeration<String> componentKeys = hadoopComponents.keys(); 
@@ -547,6 +548,7 @@ public class FullyDistributedCluster extends HadoopCluster {
             TestSession.logger.info(str);
         }
         TestSession.logger.info("******************************");
+        TestSession.removeLoggerFileAppender(TestSession.TASKS_REPORT_LOG);
 	}
 	
     /**
@@ -562,9 +564,9 @@ public class FullyDistributedCluster extends HadoopCluster {
 		boolean overallStatus = true;
 		boolean componentStatus = true;
 		for (String component : HadoopCluster.components) {
-	          if (component.equals(HadoopCluster.GATEWAY)) { continue; }
+		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
 			  componentStatus = this.isComponentFullyDown(component);
-			  TestSession.logger.info("Get Cluster Status: " + component +
+			  TestSession.logger.debug("Cluster Status: " + component +
 			          " status is " +
 					  ((componentStatus == true) ? "up" : "down"));
 			  if (componentStatus == false) {
@@ -709,10 +711,14 @@ public class FullyDistributedCluster extends HadoopCluster {
 		String prog = (component.equals("datanode")) ? "jsvc.exec" : "java";
 
 		// Set connect time out from default value of 10 seconds to 5. 
-		String[] cmd = {"ssh", adminHost, "pdsh", "-t", "5", "-w",
-				StringUtils.join(daemonHosts, ","), 
-				"ps auxww", "|", "grep \"" + prog + " -Dproc_" + component +
-		        "\"", "|", "/usr/bin/cut", "-d':'", "-f1" };		        
+		String[] cmd = {
+                "ssh", adminHost, 
+                "PDSH_SSH_ARGS_APPEND=\"-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\"",
+                "pdsh", "-t", "5", "-u", "5", "-w",
+                StringUtils.join(daemonHosts, ","),
+                "ps auxww", "|", "grep \"" + prog + " -Dproc_" + component +
+                "\"", "|", "/usr/bin/cut", "-d':'", "-f1" };
+
 		String output[] = TestSession.exec.runProcBuilder(cmd);
 
 		String[] daemonProcesses = StringUtils.split(output[1].trim(), "\n");

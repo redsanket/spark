@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import coretest.Util;
-import coretest.cluster.ClusterState;
+import hadooptest.Util;
+import hadooptest.cluster.ClusterState;
 
 /**
  * A Cluster subclass that implements a Pseudodistributed Hadoop cluster.

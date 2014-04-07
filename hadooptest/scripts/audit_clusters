@@ -1,0 +1,28 @@
+#!/bin/bash
+
+clusters=$*
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+TIMESTAMP=`date +%y%m%d-%T`
+filename="/tmp/scan.log.$TIMESTAMP"
+
+if [ $clusters == "(all)" ]; then
+    set -x
+    $script_dir/scan_clusters 2>&1 | tee $filename
+    set +x
+else
+    set -x
+    $script_dir/scan_clusters $clusters 2>&1 | tee $filename
+    set +x
+fi
+
+echo
+echo "==========================================="
+echo "SUMMARY"
+echo "==========================================="
+$script_dir/parse_scan_clusters $filename
+echo 
+
+rm $filename
+

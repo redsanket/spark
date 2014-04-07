@@ -11,27 +11,40 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import junit.framework.Assert;
+import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.exceptionParsing.ExceptionParsingOrchestrator;
 import hadooptest.monitoring.Monitorable;
+import hadooptest.monitoring.exceptionParsing.ExceptionParsingOrchestrator;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.examples.RandomWriter;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
 
-import coretest.SerialTests;
+import hadooptest.SerialTests;
 
-@Category(SerialTests.class)
+//@Category(SerialTests.class)
+@Category(ParallelMethodTests.class)
 public class TestMonitoring extends TestSession {
-
+	public static final String BYTES_PER_MAP = "mapreduce.randomwriter.bytespermap";
 	Logger logger = Logger.getLogger(TestMonitoring.class);
 
-	@Test
-	@Monitorable(cpuPeriodicity = 5, memPeriodicity = 5)
-	public void testWithMonitoring() throws InterruptedException {
+	@Rule
+	public TemporaryFolder aTempFolderCreatedByJunit = new TemporaryFolder();
 
+	@Test
+	@Monitorable(cpuPeriodicity = 30, memPeriodicity = 30)
+	public void testWithMonitoring() throws InterruptedException {
+		
+		
 		logger.info("Beginning Stress test.............sleeping for 10 secs");
 		Thread.sleep(30000);
 		logger.info("Test waking up, to finish!!!!!!!");
@@ -39,13 +52,68 @@ public class TestMonitoring extends TestSession {
 
 	@Test
 	@Monitorable(cpuPeriodicity = 10, memPeriodicity = 10)
-	public void secondTestBeingMonitored() throws InterruptedException {
+	public void testWithMonitoringBuddy() throws InterruptedException {
 		logger.info("Beginning 2nd Stress test.............for the 2nd test!");
 		Thread.sleep(30000);
 		logger.info("2ns stress test finished");
 	}
+	
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest1(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	@AfterClass
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest2(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter2");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest3(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter3");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	@Monitorable
+	public void fireJobsInTheCourseOfTest4(){
+		try {
+			File tempRandomWriterFolder = aTempFolderCreatedByJunit.newFolder("randomWriter3");
+			runStdHadoopRandomWriter(tempRandomWriterFolder.getPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void runStdHadoopRandomWriter(String randomWriterOutputDirOnHdfs)
+			throws Exception {
+		logger.info("running RandomWriter.............");
+		Configuration conf = TestSession.cluster.getConf();
+		conf.setLong(BYTES_PER_MAP, 256000);
+		int res = ToolRunner.run(conf, new RandomWriter(),
+				new String[] { randomWriterOutputDirOnHdfs });
+
+	}
+
+
+//	@AfterClass
 	static public void collateExceptions() throws ParseException, IOException {
 		String cluster = System.getProperty("CLUSTER_NAME");
 		Class<?> clazzz = new Object() {
@@ -108,5 +176,12 @@ public class TestMonitoring extends TestSession {
 		return datesHangFromHere + formattedDateAndTime
 				+ "/FILES/home/gs/var/log/";
 	}
+	
+	@Override
+	@After
+	public void logTaskReportSummary() {
+		// Override to hide the Test Session logs
+	}
+
 
 }

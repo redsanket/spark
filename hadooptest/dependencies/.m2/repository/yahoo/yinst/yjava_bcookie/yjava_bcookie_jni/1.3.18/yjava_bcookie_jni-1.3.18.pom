@@ -1,0 +1,7 @@
+<project>
+  <!-- extracted from: yjava_bcookie-1.3.18 -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>yahoo.yinst.yjava_bcookie</groupId>
+  <artifactId>yjava_bcookie_jni</artifactId>
+  <version>1.3.18</version>
+</project>

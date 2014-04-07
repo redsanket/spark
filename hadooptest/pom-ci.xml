@@ -20,10 +20,7 @@
 		<!-- PROFILES FOR CODE COVERAGE -->
 		<!-- PROFILE FOR JACOCO FOR SYSTEM TEST -->
 		<!-- PROFILE FOR CLOVER FOR UNIT TEST -->
-
-		<!-- PROFILES FOR RUNTIME ENVIRONMENT (E.G. IN CLUSTER DEPLOYMENT) -->
-		<!-- PROFILE FOR 0.23.7 (DEFAULT) -->
-		<!-- PROFILE FOR 2.0 -->
+		<!-- PROFILE FOR HADOOP -->
 
 		<!-- PROFILE FOR JACOCO -->
 		<profile>
@@ -234,36 +231,11 @@
 			</build>
 		</profile>
 
-		<!-- PROFILE FOR 0.23.7 -->
+		<!-- BASE PROFILE FOR HADDOP -->
 		<profile>
-			<id>profile-runtime-0.23.7</id>
+			<id>profile-hadoop</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>system-protobuf</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${HADOOP_SHARE}/yarn/lib/protobuf-java-2.4.0a.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>system-snappy-java</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${HADOOP_SHARE}/common/lib/snappy-java-1.0.3.2.jar</systemPath>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<!-- PROFILE FOR 2.0 -->
-		<!-- If the deploy jars use different version than ones in 0.23.7 -->
-		<profile>
-			<id>profile-runtime-2.0</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
 			</activation>
 			<dependencies>
 				<dependency>
@@ -280,164 +252,7 @@
 					<scope>system</scope>
 					<systemPath>${HADOOP_SHARE}/common/lib/snappy-java-1.0.4.1.jar</systemPath>
 				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
-
-	<build>
-		<plugins>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<outputDirectory>${basedir}/target</outputDirectory>
-					<finalName>RandomWriter</finalName>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>test</phase>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.13</version>
-				<configuration>
-					<!-- Skip the default running of this plug-in (or everything will run 
-						twice... see below) -->
-					<skip>true</skip>
-					<!-- Skip the default running of this plug-in (or everything will run 
-						twice... see below) -->
-					<!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
-					<testFailureIgnore>true</testFailureIgnore>
-					<exclusions>
-						<exclusion>
-							<groupId>org.apache.hadoop</groupId>
-							<artifactId>excluded-artifact</artifactId>
-						</exclusion>
-					</exclusions>
-					<!-- Set JVM heap max size -->
-					<!-- The compression job submission explicity needs to use the 64-bit
-                         compression libraries (i386-32) for the jobs to run successfully
-                         as the nodes in the cluster run in 32-bit mode JVMs. The
-                         verification of the jobs needs to be done with the 64-bit
-                         compression libraries (amd64-64) as the gateway node JVM (and thus
-                         all framework access of the hadoop API) is done through a 64-bit JVM.
-                         Setting the java.library.path to 64-bit native libraries here allows
-                         Hadoop API access via 64-bit java from the gateways. -->
-					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/ -Xmx3g</argLine>
-					<additionalClasspathElements>
-						<additionalClasspathElement>${basedir}</additionalClasspathElement>
-						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
-						<!--  TODO: why is this hardcoded here ??? -->
-						<additionalClasspathElement>/tmp/hadooptest-hadoopqa-betty/target/hadooptest-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
-						<additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
-					</additionalClasspathElements>
-					<trimStackTrace>false</trimStackTrace>
-					<excludes>
-						<exclude>**/TestEndToEndCompression.java</exclude>
-					</excludes>
-                                        <properties>
-                                            <property>
-                                                <name>listener</name>
-                                                <value>hadooptest.monitoring.listeners.MonitoringListener</value>
-                                            </property>
-                                        </properties>
-				</configuration>
-
-				<executions>
-
-					<execution>
-						<id>setup-tests</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<skip>false</skip>
-							<groups>coretest.SetupTests</groups>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>serial-tests</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<skip>false</skip>
-							<groups>coretest.SerialTests</groups>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>parallel-methods-tests</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<skip>false</skip>
-							<groups>coretest.ParallelMethodTests</groups>
-							<parallel>methods</parallel>
-							<threadCount>${thread.count}</threadCount>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>parallel-class-tests</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<skip>false</skip>
-							<groups>coretest.ParallelClassTests</groups>
-							<parallel>class</parallel>
-							<threadCount>${thread.count}</threadCount>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>parallel-class-and-method-tests</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<skip>false</skip>
-							<excludedGroups>coretest.SetupTests,coretest.SerialTests,coretest.ParallelClassTests,coretest.ParallelMethodTests,coretest.TearDownTests</excludedGroups>
-							<parallel>both</parallel>
-							<threadCount>${thread.count}</threadCount>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>tear-down-tests</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<skip>false</skip>
-							<groups>coretest.TearDownTests</groups>
-						</configuration>
-					</execution>
-
-				</executions>
-			</plugin>
-		</plugins>
-
-	</build>
-
-	<!-- Dependency To Hadoop Deployment -->
-	<dependencies>
+				
 		<dependency>
 			<groupId>system</groupId>
 			<artifactId>system32</artifactId>
@@ -739,10 +554,160 @@
 			<scope>system</scope>
 			<systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
 		</dependency>
+				
+			</dependencies>
+		</profile>
+	</profiles>
 
-                <!-- coretest-1.0-SNAPSHOT.jar and yjava_byauth.jar are defined in 
-                     parent-pom.xml --> 
+	<build>
+		<plugins>
 
-	</dependencies>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>${basedir}/target</outputDirectory>
+					<finalName>RandomWriter</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>test</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.13</version>
+				<configuration>
+					<!-- Skip the default running of this plug-in (or everything will run 
+						twice... see below) -->
+					<skip>true</skip>
+					<!-- Skip the default running of this plug-in (or everything will run 
+						twice... see below) -->
+					<!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
+					<testFailureIgnore>true</testFailureIgnore>
+					<exclusions>
+						<exclusion>
+							<groupId>org.apache.hadoop</groupId>
+							<artifactId>excluded-artifact</artifactId>
+						</exclusion>
+					</exclusions>
+					<!-- Set JVM heap max size -->
+					<!-- The compression job submission explicity needs to use the 64-bit
+                         compression libraries (i386-32) for the jobs to run successfully
+                         as the nodes in the cluster run in 32-bit mode JVMs. The
+                         verification of the jobs needs to be done with the 64-bit
+                         compression libraries (amd64-64) as the gateway node JVM (and thus
+                         all framework access of the hadoop API) is done through a 64-bit JVM.
+                         Setting the java.library.path to 64-bit native libraries here allows
+                         Hadoop API access via 64-bit java from the gateways. -->
+					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/:/home/y/lib64 -Xmx3g</argLine>
+					<additionalClasspathElements>
+						<additionalClasspathElement>${basedir}</additionalClasspathElement>
+						<additionalClasspathElement>${basedir}/target/RandomWriter-tests.jar</additionalClasspathElement>
+						<additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
+						<additionalClasspathElement>/home/y/lib/storm/current/conf</additionalClasspathElement>
+					</additionalClasspathElements>
+					<trimStackTrace>false</trimStackTrace>
+					<excludes>
+						<exclude>**/TestEndToEndCompression.java</exclude>
+					</excludes>
+                                        <properties>
+                                            <property>
+                                                <name>listener</name>
+                                                <value>hadooptest.monitoring.listeners.MonitoringListener</value>
+                                            </property>
+                                        </properties>
+				</configuration>
+
+				<executions>
+
+					<execution>
+						<id>setup-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>hadooptest.SetupTests</groups>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>serial-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>hadooptest.SerialTests</groups>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>parallel-methods-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>hadooptest.ParallelMethodTests</groups>
+							<parallel>methods</parallel>
+							<threadCount>${thread.count}</threadCount>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>parallel-class-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>hadooptest.ParallelClassTests</groups>
+							<parallel>class</parallel>
+							<threadCount>${thread.count}</threadCount>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>parallel-class-and-method-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<excludedGroups>hadooptest.SetupTests,hadooptest.SerialTests,hadooptest.ParallelClassTests,hadooptest.ParallelMethodTests,hadooptest.TearDownTests</excludedGroups>
+							<parallel>both</parallel>
+							<threadCount>${thread.count}</threadCount>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tear-down-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<groups>hadooptest.TearDownTests</groups>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+		</plugins>
+
+	</build>
 
 </project>

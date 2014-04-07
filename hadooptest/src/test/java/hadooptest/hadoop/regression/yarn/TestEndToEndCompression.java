@@ -3,11 +3,13 @@ package hadooptest.hadoop.regression.yarn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.DFS;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.dfs.DFS;
 import hadooptest.config.hadoop.HadoopConfiguration;
 import hadooptest.workflow.hadoop.job.GenericJob;
+import hadooptest.workflow.hadoop.job.JobClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -20,6 +22,8 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.SortValidator;
 import org.apache.hadoop.util.ToolRunner;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,6 +33,35 @@ import hadooptest.ParallelMethodTests;
 @Category(ParallelMethodTests.class)
 public class TestEndToEndCompression extends TestSession {
 
+    @After
+    public void logTaskReportSummary() 
+            throws InterruptedException, IOException {
+        TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
+        TestSession.logger.debug(
+                "logTaskReportSummary currently does not support " +
+                "parallel method tests.");
+    }
+
+    /*
+     * After each test, fetch the job task reports.
+     */
+    @AfterClass
+    public static void logTaskReportSummaryAfterClass() 
+            throws InterruptedException, IOException {
+        TestSession.logger.info("--------- @AfterClass: TestSession: logTaskResportSummary ----------------------------");
+
+        // Log the tasks report summary for jobs that ran as part of this test 
+        JobClient jobClient = TestSession.cluster.getJobClient();
+        int numAcceptableNonCompleteMapTasks = 20;
+        int numAcceptableNonCompleteReduceTasks = 20;
+        jobClient.validateTaskReportSummary(
+                jobClient.logTaskReportSummary(
+                        TestSession.TASKS_REPORT_LOG, 
+                        TestSession.startTime),
+                        numAcceptableNonCompleteMapTasks,
+                        numAcceptableNonCompleteReduceTasks);        
+    }
+    
 	private static final String[] CODECS = {
 		"org.apache.hadoop.io.compress.GzipCodec",
 		"org.apache.hadoop.io.compress.DefaultCodec",
