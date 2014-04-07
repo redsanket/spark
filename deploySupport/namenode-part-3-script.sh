@@ -64,7 +64,7 @@ namenode=`hostname`
     if [ "$ERASEENABLED" = true ]
     then
 	echo ============ starting hdfs janitorial services...
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem  /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem  /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs  /sharelib/v1/mapred/
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapredsystem 
 	echo ============ chown of /mapredsystem/hadoop to user ${MAPREDUSER}
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate
@@ -72,11 +72,13 @@ namenode=`hostname`
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapredsystem
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapred 
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapred
+  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /sharelib
+  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /sharelib
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/history/done_intermediate
-        $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/logs
+  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/logs
 	echo ============ almost done with hdfs janitorial services...
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/history
-        $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/logs
+  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/logs
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /data
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /data
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /tmp
@@ -85,6 +87,10 @@ namenode=`hostname`
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /user/
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
+  echo =========== Installing mapreduceonhdfs...
+  $HADOOP_HDFS_HOME/bin/hdfs  dfs -put ${yroothome}/share/mapred/framework/hadoopmapreduceonhdfs-${hadoopversion}.tgz /sharelib/v1/mapred/hadoopmapreduceonhdfs-current.tgz
+  $HADOOP_HDFS_HOME/bin/hadoop fs -setrep 50 /sharelib/v1/mapred/hadoopmapreduceonhdfs-current.tgz
+  $HADOOP_HDFS_HOME/bin/hadoop fs -chmod 444 /sharelib/v1/mapred/hadoopmapreduceonhdfs-current.tgz
     fi
 elif [ $CMD == "stop" ]; then 
     echo "Part 3: the stop is part of part 2; there is no part 3 for stop.."
