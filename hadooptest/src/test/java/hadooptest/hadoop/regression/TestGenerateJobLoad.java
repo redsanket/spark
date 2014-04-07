@@ -1,6 +1,7 @@
 package hadooptest.hadoop.regression;
 
 import hadooptest.TestSession;
+import hadooptest.TestSession.HTF_TEST;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_JOB_TYPE;
@@ -17,6 +18,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,7 +194,7 @@ public class TestGenerateJobLoad extends TestSession {
         // Wait for all the jobs to succeed.
         int durationMin = 15;
         TestSession.logger.info("----------- Wait for all jobs to succeed: " +
-                "for " + durationMin + " ---------------");
+                "for " + durationMin + " minute(s) ---------------");
 
         JobClient jobClient = TestSession.cluster.getJobClient();
         TestSession.cluster.getJobClient().waitForSuccess(
@@ -210,18 +213,18 @@ public class TestGenerateJobLoad extends TestSession {
             terminationFile.delete();            
         }
         
-        // Cleanup                                                                                                                                                      
+        // Cleanup
         TestSession.logger.info("----------- Clean Up: ---------------");
-	// TODO: was not able to delete the directory via the API call due to 
-	// permission issue. 
+        // TODO: was not able to delete the directory via the API call due to 
+        // permission issue. 
         // fs.delete(dataRootDirPath, true);
-	String[] cmd = {
-	    TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
-	    "--config",
-	    TestSession.cluster.getConf().getHadoopConfDir(),
-	    "fs", "-rm", "-r", "-skipTrash", dataRootDir,
-	};
-	TestSession.exec.runProcBuilderSecurity(cmd, "hdfsqa");
+        String[] cmd = {
+                TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
+                "--config",
+                TestSession.cluster.getConf().getHadoopConfDir(),
+                "fs", "-rm", "-r", "-skipTrash", dataRootDir,
+        };
+        TestSession.exec.runProcBuilderSecurity(cmd, "hdfsqa");
     }
         
     /*
