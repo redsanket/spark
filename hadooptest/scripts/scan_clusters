@@ -6,6 +6,9 @@ CHECK_FOR_ERROR=0
 while :
 do
     case "$1" in
+	-a | --all)
+            shift 1
+	    ;;
 	-c | --check_error)
             CHECK_FOR_ERROR=1
             shift 1
