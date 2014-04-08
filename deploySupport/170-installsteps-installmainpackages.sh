@@ -6,9 +6,8 @@ then
     slownogwfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
     fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
 
-#
-#
-#
+    # only install mapreduceonhdfs on the namenode (for promotion to HDFS)
+    fanoutNN "$yinst install -branch test -yes -os rhel-6.x -root ${yroothome} hadoopmapreduceonhdfs -same -live -downgrade"
 #
 # At this point, the packages are installed - except the configs.
 #
