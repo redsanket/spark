@@ -51,6 +51,7 @@ public abstract class HadoopCluster {
 
     /** String representing the cluster components. */
     public static final String NAMENODE = "namenode";
+    public static final String SECONDARY_NAMENODE = "secondarynamenode";
     public static final String RESOURCE_MANAGER = "resourcemanager";
     public static final String DATANODE = "datanode";
     public static final String NODEMANAGER = "nodemanager";
@@ -60,6 +61,7 @@ public abstract class HadoopCluster {
     /** String array for the cluster components */
     public static final String[] components = {
         HadoopCluster.NAMENODE,
+        HadoopCluster.SECONDARY_NAMENODE,
         HadoopCluster.RESOURCE_MANAGER,
         HadoopCluster.HISTORYSERVER,
         HadoopCluster.DATANODE,
@@ -473,11 +475,11 @@ public abstract class HadoopCluster {
 	}
 
     public void initNodes () throws Exception {
-        initNodes(null, null, null, null);
+        initNodes(null, null, null, null, null);
     }
     
-    public void initNodes (String[] gwHosts, String[] nnHosts, String[] rmHosts,
-            String[] dnHosts) throws Exception {
+    public void initNodes (String[] gwHosts, String[] nnHosts, String[] nn2Hosts, 
+    		String[] rmHosts, String[] dnHosts) throws Exception {
         // Gateway
         TestSession.logger.info("Initialize the gateway client node:");
         if (gwHosts == null || gwHosts.length == 0) {
@@ -494,6 +496,16 @@ public abstract class HadoopCluster {
             nnHosts = new String[] {namenode};
         }
         initComponentNodes(HadoopCluster.NAMENODE, nnHosts);
+        
+        // Secondary Namenode
+        TestSession.logger.info("Initialize the secondary namenode node(s):");
+        if (nn2Hosts == null || nn2Hosts.length == 0) {
+            String secondary_namenode_addr =
+                    this.getConf().get("dfs.namenode.secondary.http-address");
+            String secondarynamenode = secondary_namenode_addr.split(":")[0];
+            nn2Hosts = new String[] {secondarynamenode};
+        }
+        initComponentNodes(HadoopCluster.SECONDARY_NAMENODE, nn2Hosts);
         
         // Resource Manager
         TestSession.logger.info("Initialize the resource manager node(s):");
