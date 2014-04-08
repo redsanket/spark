@@ -35,6 +35,7 @@ esac
 # echo "Part 3: beginning."
 if [ $CMD == "start" ]; then
 namenode=`hostname`
+hadoopversion=`${yroothome}/share/hadoop/bin/hadoop version | sed -n 1p | sed -e 's/Hadoop //' `
 
     shortname=`expr  $namenode : '(' '\([^\.]*\)\..*$' ')'`
     echo name=$namenode shortname=$shortname
