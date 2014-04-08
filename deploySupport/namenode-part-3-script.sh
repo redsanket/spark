@@ -89,9 +89,9 @@ hadoopversion=`${yroothome}/share/hadoop/bin/hadoop version | sed -n 1p | sed -e
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
   echo =========== Installing mapreduceonhdfs...
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -put ${yroothome}/share/mapred/framework/hadoopmapreduceonhdfs-${hadoopversion}.tgz /sharelib/v1/mapred/hadoopmapreduceonhdfs-current.tgz
-  $HADOOP_HDFS_HOME/bin/hadoop fs -setrep 50 /sharelib/v1/mapred/hadoopmapreduceonhdfs-current.tgz
-  $HADOOP_HDFS_HOME/bin/hadoop fs -chmod 444 /sharelib/v1/mapred/hadoopmapreduceonhdfs-current.tgz
+  $HADOOP_HDFS_HOME/bin/hdfs  dfs -put ${yroothome}/share/mapred/framework/hadoopmapreduceonhdfs-${hadoopversion}.tgz /sharelib/v1/mapred
+  $HADOOP_HDFS_HOME/bin/hadoop fs -setrep 50 /sharelib/v1/mapred/hadoopmapreduceonhdfs-${hadoopversion}.tgz
+  $HADOOP_HDFS_HOME/bin/hadoop fs -chmod 444 /sharelib/v1/mapred/hadoopmapreduceonhdfs-${hadoopversion}.tgz
     fi
 elif [ $CMD == "stop" ]; then 
     echo "Part 3: the stop is part of part 2; there is no part 3 for stop.."
