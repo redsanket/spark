@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# for cluster in `IGOR_NS="grid_re.clusters";igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$|cut -d "." -f3`;do echo -e "**********\n$cluster\n**********";hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts echo "Connected successfully";done
+# for cluster in `IGOR_NS="grid_re.clusters";/home/y/bin/igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$|cut -d "." -f3`;do echo -e "**********\n$cluster\n**********";hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts echo "Connected successfully";done
 
 CLUSTERS_PARAM=$*
-CLUSTERS=${CLUSTERS_PARAM:=`IGOR_NS="grid_re.clusters";igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$|cut -d "." -f3`}
+CLUSTERS=${CLUSTERS_PARAM:=`IGOR_NS="grid_re.clusters";/home/y/bin/igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$|cut -d "." -f3`}
 
 for cluster in $CLUSTERS; do
     echo "--------------------"
