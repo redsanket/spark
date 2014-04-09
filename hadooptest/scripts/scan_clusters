@@ -13,6 +13,10 @@ do
             CHECK_FOR_ERROR=1
             shift 1
 	    ;;
+	-n | --no_error_checking)
+            CHECK_FOR_ERROR=0
+            shift 1
+	    ;;
 	*)  # No more options
 	    break
 	    ;;
