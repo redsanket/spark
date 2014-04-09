@@ -270,7 +270,9 @@ if ($use_mvn) {
         } 
     }
     
-    execute("$workspace/scripts/ci_install_jar");
+    # Call the script that gets a number of required system dependencies
+    # through "yinst fetch".
+    execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
     
     if ($storm) {
         # Clean the project and build the jars so that we can have a test 
