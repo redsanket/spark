@@ -17,6 +17,9 @@ my $show_cluster_header=1;
 my $cluster;
 my $prev_hostname="";
 my $hostname;
+my $version;
+my $time;
+my $tmpfile="/tmp/clusterinfo.raw";
 
 sub print_cluster_header() {
     print("--------------------\n");
@@ -29,6 +32,8 @@ sub print_df_header() {
     print($df_header);
     $show_df_header=0;
 }
+
+system("rm -f $tmpfile");
 
 # open call is not needed when opening the file specified as the first argument
 # open(FILE1, $ARGV[0]);
@@ -47,6 +52,7 @@ while (<>) {
     # Save the cluster header
     if ($line =~ m/(^cluster)\s+(.*)/) {
         $cluster = $2;
+	system("echo -n \"$cluster, \" >> $tmpfile");
         $show_cluster_header=1;
         $show_df_header=1;
         next;
@@ -55,6 +61,22 @@ while (<>) {
     # Save the df header
     if ($line =~ /(.*)\s+(Filesystem)\s+(.*)/) {
         $df_header = $line;
+        next;
+    }
+
+    $version="UNKNOWN";
+    $time="UNKNOWN";
+
+    if ($line =~ m/(^Hadoop.*:)\s+(.*)/) {
+        $version = $2;
+	system("echo -n \"$version, \" >> $tmpfile");
+        next;
+    }
+
+    if ($line =~ m/(^Time.*:)\s+(.*)/) {
+        $time = $2;
+	system("echo -n \"$time, \" >> $tmpfile");
+	system("echo `date -d $time +%s` >> $tmpfile");
         next;
     }
 
@@ -92,3 +114,9 @@ while (<>) {
         }       
     }
 }
+
+system("echo");
+system("echo '-------------------------------------------'");
+system("echo 'cluster, version, last job ran'");
+system("echo '-------------------------------------------'");
+system("sort -k4 $tmpfile|cut -d, -f1-3");
