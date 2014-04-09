@@ -147,15 +147,24 @@ execute("stty -echo; /usr/kerberos/bin/kinit $username\@DS.CORP.YAHOO.COM; stty 
 # the metadata from a versionless instance of the plugin.
 # my $pom_opt="-f pom-ci.xml help:active-profiles";
 my $pom_opt="-f pom-ci.xml";
-my $mvn_settings_opt="-o -gs $workspace/resources/yjava_maven/settings.xml.gw ";
+my $mvn_settings_opt="-gs $workspace/resources/yjava_maven/settings.xml.gw ";
 my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hadoop/lib/native/Linux-amd64-64/";
 
 my $dependencies_opt;
 if ($storm) {
-    $dependencies_opt = "-Dmaven.repo.local=$workspace/dependencies/.m2/repository";
+    $dependencies_opt = "-Pprofile-ci";
 }
 else {
-    $dependencies_opt = "-Pprofile-hadoop -Dmaven.repo.local=$workspace/dependencies/.m2/repository";
+	# When Hadoop is used, this profile must be called before profile-ci
+	# or any other profile.  If another profile is used first, the
+	# dependency jars from that profile might have Hadoop configuration
+	# or classes that will upset the classpath assembled by maven,
+	# and can lead to unexpected configuration or classes ending up in
+	# the classpath before the necessary Hadoop support.  By putting
+	# profile-hadoop first in the maven profile order, it ensures
+	# that Hadoop API calls and configuration will be using the 
+	# deployed Hadoop jars. -->
+    $dependencies_opt = "-Pprofile-hadoop -Pprofile-ci";
 }
 
 my @common_args = (
@@ -260,6 +269,8 @@ if ($use_mvn) {
             }
         } 
     }
+    
+    execute("$workspace/scripts/ci_install_jar");
     
     if ($storm) {
         # Clean the project and build the jars so that we can have a test 

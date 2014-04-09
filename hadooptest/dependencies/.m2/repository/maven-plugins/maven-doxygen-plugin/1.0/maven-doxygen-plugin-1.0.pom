@@ -1,6 +1,0 @@
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>maven-plugins</groupId>
-  <artifactId>maven-doxygen-plugin</artifactId>
-  <version>1.0</version>
-</project>

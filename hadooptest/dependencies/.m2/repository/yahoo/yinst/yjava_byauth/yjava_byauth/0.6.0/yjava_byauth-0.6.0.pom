@@ -1,7 +1,0 @@
-<project>
-  <!-- extracted from: yjava_byauth-0.6.0 -->
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>yahoo.yinst.yjava_byauth</groupId>
-  <artifactId>yjava_byauth</artifactId>
-  <version>0.6.0</version>
-</project>

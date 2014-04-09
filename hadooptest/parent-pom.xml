@@ -110,6 +110,7 @@
 					<excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>
 				</configuration>
 			</plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -132,26 +133,7 @@
 	</build>
 
 	<dependencies>
-        <dependency>
-            <groupId>yahoo.yinst.yjava_jetty</groupId>
-            <artifactId>yjava_jetty</artifactId>
-            <version>9.0.6.v20130930_0.47</version>
-        </dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-compiler</artifactId>
-			<version>${scala.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>${scala.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scalap</artifactId>
-			<version>${scala.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -177,22 +159,51 @@
 			<classifier>jdk15</classifier>
 		</dependency>
 
-        <!-- GDM automation dependencies for using REST API -->
-        <dependency>
-            <groupId>com.jayway.restassured</groupId>
-            <artifactId>rest-assured</artifactId>
-            <version>1.8.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.restassured</groupId>
-            <artifactId>json-path</artifactId>
-            <version>1.8.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.restassured</groupId>
-            <artifactId>xml-path</artifactId>
-            <version>1.8.1</version>
-        </dependency> 
+		<!-- GDM automation dependencies for using REST API -->
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>1.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>json-path</artifactId>
+			<version>1.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>xml-path</artifactId>
+			<version>1.8.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-compiler</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scalap</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.11</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
@@ -291,69 +302,93 @@
 		</dependency>
 
 		<dependency>
-		  <groupId>org.apache.hadoop</groupId>
-		  <artifactId>hadoop-mapreduce-examples</artifactId> 
-		  <version>${hadoop.version}</version>
-		  <scope>provided</scope> 
-		</dependency>
-        
-		<dependency>
-			<groupId>yahoo.yinst.yjava_byauth</groupId>
-			<artifactId>yjava_byauth</artifactId>
-			<version>0.6.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.2.1</version>
-		</dependency>
-
-                <dependency>
-                        <groupId>yahoo.yinst.yspark_yarn</groupId>
-                        <artifactId>spark-assembly_2.10-0.9.0.1-hadoop2</artifactId>
-                        <version>0.9.1_2.2.0_1403200042</version>
-                        <scope>compile</scope>
-                </dependency>
-
-        
-        <!-- STORM -->
-        
-		<dependency>
-			<groupId>yahoo.yinst.ystorm_contrib</groupId>
-			<artifactId>http_spout</artifactId>
-			<version>0.1.0.44</version>
-		</dependency>
-		<dependency>
-			<groupId>yahoo.yinst.ystorm_contrib</groupId>
-			<artifactId>rainbow_spout_example</artifactId>
-			<version>0.1.0.44</version>
-		</dependency>
-		<dependency>
-			<groupId>yahoo.yinst.ystorm</groupId>
-			<artifactId>storm</artifactId>
-			<version>0.9.0_wip21.216</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>ring</groupId>
-					<artifactId>ring-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>ring</groupId>
-					<artifactId>ring-jetty-adapter</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.mortbay.jetty</groupId>
-					<artifactId>jetty</artifactId>
-				</exclusion>
-			</exclusions>
-			<!-- keep storm out of the jar-with-dependencies -->
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-examples</artifactId>
+			<version>${hadoop.version}</version>
 			<scope>provided</scope>
 		</dependency>
+
 	</dependencies>
 
+	<profiles>
+		<!-- This profile should only be used from a corp box that has
+		     access to ymaven.corp.yahoo.com to download yahoo.yinst 
+		     dependencies.  It will not work from the grid.  On the
+		     grid, use system dependencies from the pom-ci. -->
+		<profile>
+			<id>profile-corp</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+
+				<!-- YJAVA_JETTY -->
+				
+				<dependency>
+					<groupId>yahoo.yinst.yjava_jetty</groupId>
+					<artifactId>yjava_jetty</artifactId>
+					<version>9.0.6.v20130930_0.47</version>
+					<scope>provided</scope>
+				</dependency>
+
+				<!-- YJAVA_BYAUTH -->
+				
+				<dependency>
+					<groupId>yahoo.yinst.yjava_byauth</groupId>
+					<artifactId>yjava_byauth</artifactId>
+					<version>0.6.0</version>
+					<scope>provided</scope>
+				</dependency>
+
+				<!-- SPARK -->
+				
+				<dependency>
+					<groupId>yahoo.yinst.yspark_yarn</groupId>
+					<artifactId>spark-assembly_2.10-0.9.0.1-hadoop2</artifactId>
+					<version>0.9.1_2.2.0_1403200042</version>
+					<scope>provided</scope>
+				</dependency>
+
+				<!-- STORM -->
+
+				<dependency>
+					<groupId>yahoo.yinst.ystorm_contrib</groupId>
+					<artifactId>http_spout</artifactId>
+					<version>0.1.0.44</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>yahoo.yinst.ystorm_contrib</groupId>
+					<artifactId>rainbow_spout_example</artifactId>
+					<version>0.1.0.44</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>yahoo.yinst.ystorm</groupId>
+					<artifactId>storm</artifactId>
+					<version>0.9.0_wip21.216</version>
+					<exclusions>
+						<exclusion>
+							<groupId>javax.servlet</groupId>
+							<artifactId>servlet-api</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>ring</groupId>
+							<artifactId>ring-core</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>ring</groupId>
+							<artifactId>ring-jetty-adapter</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.mortbay.jetty</groupId>
+							<artifactId>jetty</artifactId>
+						</exclusion>
+					</exclusions>
+					<!-- keep storm out of the jar-with-dependencies -->
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

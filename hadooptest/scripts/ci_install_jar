@@ -1,12 +1,23 @@
 #!/bin/bash
 
-# This script needs to be run before maven build can be run with the profile
-# "profile-ci" for building the maven package. The maven build is run primarily
-# on the RE hosts (corp side), and occasionally on the gateway client
-# (colo side). This script pulls in the depedent jar files. The reason this is 
-# separate process and is not integrated with maven dependency is that 
-# yjava_byauth is accessible only from corp side via the ymaven repository, 
-# but cannot be accessed if building on the gateway client on the colo.
-
 set -x
-/usr/local/bin/yinst install yjava_byauth
+
+/usr/local/bin/yinst fetch yjava_byauth -outputfile /tmp/yjava_byauth_fetch/yjava_byauth.tgz
+gunzip -f /tmp/yjava_byauth_fetch/yjava_byauth.tgz
+tar -xf /tmp/yjava_byauth_fetch/yjava_byauth.tar -C /tmp/yjava_byauth_fetch/
+
+/usr/local/bin/yinst fetch yjava_jetty-9.0.6.v20130930_0.47 -br current -outputfile /tmp/yjava_jetty_fetch/yjava_jetty.tgz
+gunzip -f /tmp/yjava_jetty_fetch/yjava_jetty.tgz
+tar -xf /tmp/yjava_jetty_fetch/yjava_jetty.tar -C /tmp/yjava_jetty_fetch/
+
+/usr/local/bin/yinst fetch yspark_yarn-0.9.0.1.1403181145_hadoop2 -br quarantine -outputfile /tmp/yspark_yarn_fetch/yspark_yarn.tgz
+gunzip -f /tmp/yspark_yarn_fetch/yspark_yarn.tgz
+tar -xf /tmp/yspark_yarn_fetch/yspark_yarn.tar -C /tmp/yspark_yarn_fetch/
+
+/usr/local/bin/yinst fetch ystorm_contrib -br quarantine -outputfile /tmp/ystorm_contrib_fetch/ystorm_contrib.tgz
+gunzip -f /tmp/ystorm_contrib_fetch/ystorm_contrib.tgz
+tar -xf /tmp/ystorm_contrib_fetch/ystorm_contrib.tar -C /tmp/ystorm_contrib_fetch/
+
+/usr/local/bin/yinst fetch ystorm -br quarantine -outputfile /tmp/ystorm_fetch/ystorm.tgz
+gunzip -f /tmp/ystorm_fetch/ystorm.tgz
+tar -xf /tmp/ystorm_fetch/ystorm.tar -C /tmp/ystorm_fetch/

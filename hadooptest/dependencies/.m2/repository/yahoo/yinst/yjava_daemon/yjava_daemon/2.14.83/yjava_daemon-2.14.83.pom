@@ -1,7 +1,0 @@
-<project>
-  <!-- extracted from: yjava_daemon-2.14.83 -->
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>yahoo.yinst.yjava_daemon</groupId>
-  <artifactId>yjava_daemon</artifactId>
-  <version>2.14.83</version>
-</project>
