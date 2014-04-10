@@ -277,7 +277,7 @@ if ($use_mvn) {
     if ($storm) {
         # Clean the project and build the jars so that we can have a test 
         # jar with dependencies for Storm topologies.
-        execute("/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");
+        execute("HTF_WORKSPACE=$workspace /home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");
     }
     else {
         # Just clean the project.
@@ -285,6 +285,7 @@ if ($use_mvn) {
             "HADOOP_VERSION=$hadoop_version " .
             "HADOOP_INSTALL=$hadoop_install " .
             "HADOOP_SHARE=$hadoop_share " .
+            "HTF_WORKSPACE=$workspace " .
             "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean -DskipTests $dependencies_opt");
     }
     
@@ -295,6 +296,7 @@ if ($use_mvn) {
             "HADOOP_VERSION=$hadoop_version " .
             "HADOOP_INSTALL=$hadoop_install " .
             "HADOOP_SHARE=$hadoop_share " .
+            "HTF_WORKSPACE=$workspace " .
             "/home/y/bin/mvn $pom_opt $mvn_settings_opt test -DfailIfNoTests=false ".
             join(" ", @common_args) . " " .
             $test_opt);
