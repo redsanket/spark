@@ -534,7 +534,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 			 */
 			boolean isConfDirNFS = true;			
             String[] pdshCmd = {
-                    "/home/y/bin/pdsh",
+                    "/usr/bin/pdsh",
                     "-w", this.hostname};
 			ArrayList<String> temp = new ArrayList<String>();
 			temp.addAll(Arrays.asList(pdshCmd));
@@ -593,7 +593,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
             String targetHost = (isConfDirNFS) ? daemonHost[0] :
                 StringUtils.join(daemonHost, "," );
             String[] pdshCmd = {
-                    "/home/y/bin/pdsh",
+                    "/usr/bin/pdsh",
                     "-w", targetHost};
 	        ArrayList<String> temp = new ArrayList<String>();
 	        temp.addAll(Arrays.asList(pdshCmd));
@@ -653,7 +653,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
             String targetHost = (isConfDirNFS) ? daemonHost[0] :
                 StringUtils.join(daemonHost, "," );
             String[] pdshCmd = {
-                    "/home/y/bin/pdsh",
+                    "/usr/bin/pdsh",
                     "-w", targetHost};
             ArrayList<String> temp = new ArrayList<String>();
             temp.addAll(Arrays.asList(pdshCmd));
@@ -706,7 +706,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 					"directory to '" + customConfDir + "' on " + "the '" + 
 					this.component + "' host of '" + this.hostname +	"'.");
 			String[] pdshCmd = { 
-			        "/home/y/bin/pdsh",
+			        "/usr/bin/pdsh",
 			        "-w", this.hostname};
 			ArrayList<String> temp = new ArrayList<String>();
 			temp.addAll(Arrays.asList(pdshCmd));

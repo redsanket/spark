@@ -346,7 +346,7 @@ public class FullyDistributedCluster extends HadoopCluster {
 		                HadoopCluster.START : HadoopCluster.STOP;
 		FullyDistributedConfiguration conf =
 		        (FullyDistributedConfiguration) getNode(component).getConf();
-		String[] cmd1 = { "/home/y/bin/pdsh", "-w",
+		String[] cmd1 = { "/usr/bin/pdsh", "-w",
 		        StringUtils.join(daemonHost, ",") };
 		String[] cmd2 = { "/usr/bin/sudo", "/usr/local/bin/yinst",
 		        "set", "-root", conf.getHadoopProp("HADOOP_INSTALL"),
