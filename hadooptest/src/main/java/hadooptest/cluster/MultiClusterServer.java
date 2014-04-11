@@ -252,7 +252,7 @@ public class MultiClusterServer extends Thread {
 				"MultiCluster client framework configuration file is: " + 
 						clientFrameworkConf);
 		
-		String[] clientInitCmd = { "/usr/bin/pdsh", "-w", 
+		String[] clientInitCmd = { "pdsh", "-w", 
 				gateway, "pushd /tmp/hadooptest-" + user + "-" + cluster + 
 				"/hadooptest/;/tmp/hadooptest-" + user + "-" + cluster + 
 				"/hadooptest/scripts/run_hadooptest -c " + cluster + " -f " + 
