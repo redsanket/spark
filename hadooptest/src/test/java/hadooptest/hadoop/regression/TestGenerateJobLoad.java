@@ -1,15 +1,16 @@
 package hadooptest.hadoop.regression;
 
 import hadooptest.TestSession;
-import hadooptest.TestSession.HTF_TEST;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_JOB_TYPE;
+import hadooptest.hadoop.stress.TestBenchmarksTeraSortStressMon;
 import hadooptest.workflow.hadoop.job.JobClient;
 import hadooptest.workflow.hadoop.job.SleepJob;
 import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 import hadooptest.workflow.hadoop.job.TeraGenJob;
+import hadooptest.workflow.hadoop.job.TeraSortJob;
 
 
 import org.apache.hadoop.conf.Configuration;
@@ -18,7 +19,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +27,6 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,9 +34,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import junit.extensions.ActiveTestSuite;
+
 /*
- * Generate the Hadoop job load (e.g. for testing Hadoop Rolling Upgrade) 
- * based on one or more of the following parameters: 
+ * Generate continuous Hadoop job load. This can be used for testing Hadoop 
+ * Rolling Upgrade, or other types of stress or load testing.  
+ * It takes one or more of the following parameters: 
  * job types, batch size, job submission interval, runtime duration, 
  * termination file, and capacity threshold.
  * 
@@ -46,12 +48,27 @@ import java.util.Map;
 public class TestGenerateJobLoad extends TestSession {
     
     int jobIndex = 0;
+    static float threshold = 1.0f;
+    static String terminationFilename = null;
+    static int batchSize = 6; 
+    static int interval = 60;
+    static int maxDurationMin = 60;
     String dataRootDir = "/tmp/genjobload." + 
             new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
 
 	@BeforeClass
 	public static void setupTestClassConfig() throws Exception {
-		TestSession.cluster.setupSingleQueueCapacity();
+		TestSession.cluster.setupSingleQueueCapacity();		
+		threshold = Float.parseFloat(
+		        System.getProperty("CAPACITY_THRESHOLD", "1.0f"));
+		terminationFilename = 
+		        System.getProperty("TERMINATION_FILE", "/tmp/test-ru.done");
+	    batchSize =
+	            Integer.parseInt(System.getProperty("JOB_BATCH_SIZE", "6")); 
+	    interval =
+	            Integer.parseInt(System.getProperty("RUNTIME_INTERVAL_SEC", "60"));
+	    maxDurationMin = 
+	            Integer.parseInt(System.getProperty("RUNTIME_DURATION_MIN", "60"));
 	}
 	
 	@Before
@@ -71,106 +88,93 @@ public class TestGenerateJobLoad extends TestSession {
 	    }
 	}
 	
-    /* Generate traffic by submitting jobs
+	/* 
+	 * Initialize the Job Types to run.
+	 */
+	private HADOOP_JOB_TYPE[] getJobTypes() {
+	    String DEFAULT_JOB_TYPES = "SLEEP, WORDCOUNT";
+	    String jobTypesStr = System.getProperty("JOB_TYPES", DEFAULT_JOB_TYPES);
+	    List<String> jobTypesStrList =
+	            Arrays.asList(jobTypesStr.split("\\s*,\\s*"));
+	    ArrayList<HADOOP_JOB_TYPE> jobTypesList = 
+	            new ArrayList<HADOOP_JOB_TYPE>();
+	    for (String typeStr : jobTypesStrList) {
+	        TestSession.logger.debug("job type = " + typeStr);
+	        jobTypesList.add(HADOOP_JOB_TYPE.valueOf(typeStr));
+	    }
+	    HADOOP_JOB_TYPE[] jobTypes = 
+            jobTypesList.toArray(new HADOOP_JOB_TYPE[jobTypesList.size()]);    
+        return jobTypes;
+    }
+
+    /* 
+     * Setup the test directories
      */
-    @Test
-    public void testTraffic() throws Exception {                
-        String jobTypesStr = System.getProperty("JOB_TYPES",
-                "SLEEP, WORDCOUNT");
-        List<String> jobTypesStrList =
-                Arrays.asList(jobTypesStr.split("\\s*,\\s*"));
-        ArrayList<HADOOP_JOB_TYPE> jobTypesList =
-                new ArrayList<HADOOP_JOB_TYPE>();
-        for (String typeStr : jobTypesStrList) {
-            TestSession.logger.debug("job type = " + typeStr);
-            jobTypesList.add(HADOOP_JOB_TYPE.valueOf(typeStr));
-        }
-        HADOOP_JOB_TYPE[] jobTypes = 
-                jobTypesList.toArray(new HADOOP_JOB_TYPE[jobTypesList.size()]);
-        
-        submitJobsUntilTimeoutOrFileFound(
-                jobTypes,
-                Integer.parseInt(System.getProperty("JOB_BATCH_SIZE", "6")),
-                Integer.parseInt(System.getProperty("RUNTIME_INTERVAL_SEC", "60")),
-                Integer.parseInt(System.getProperty("RUNTIME_DURATION_MIN", "60")),
-                System.getProperty("TERMINATION_FILE", "/tmp/test-ru.done"),
-                Float.parseFloat(System.getProperty("CAPACITY_THRESHOLD", "1.0f")));
+    private void setupTestDir()  throws Exception {
+        TestSession.logger.info("Test data root dir is: "+ dataRootDir);
+        Path dataRootDirPath = new Path(dataRootDir);
+        FileSystem fs = TestSession.cluster.getFS();
+        if (!fs.exists(dataRootDirPath)) {
+            TestSession.logger.info("Create test data root dir: "+ dataRootDir);
+            // TODO: mkdirs with FsPermission did not work. 
+            // might be a config issue.
+            fs.mkdirs(dataRootDirPath,new FsPermission("777"));
+            String[] cmd = {
+                TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
+                "--config",
+                TestSession.cluster.getConf().getHadoopConfDir(),
+                "fs", "-chmod", "777", dataRootDir,
+            };
+            TestSession.exec.runProcBuilderSecurity(cmd, "hdfsqa");
+        }    
     }
     
-    /* Submit jobs until timeout or file is found by
+    /*
+     * Generate job load by submitting jobs continuously until either:
+     * 1) set time limit is reached or 
+     * 2) file used to indicate termination is found
      *
-     * @param job types
-     * @param batch size
-     * @param interval
-     * @param duration
-     * @param termination file
-     * @param capacity threshold
+     * Jobs submissions are dependent on the following criteria: 
+     * job types, batch size, interval, duration, termination file, and
+     * capacity threshold.
      */
-    public void submitJobsUntilTimeoutOrFileFound(
-            HADOOP_JOB_TYPE[] jobTypes,
-            int batchSize, 
-            int interval, 
-            int maxDurationMin,
-            String fileName,
-            float capacityThreshold) throws Exception {
+    @Test
+    public void submitJobsContinuously() throws Exception {
+        
+        HADOOP_JOB_TYPE[] jobTypes = this.getJobTypes();
+        int batchSize = TestGenerateJobLoad.batchSize;
+        int interval = TestGenerateJobLoad.interval;
+        int maxDurationMin = TestGenerateJobLoad.maxDurationMin;
+        String fileName = TestGenerateJobLoad.terminationFilename;
         
         TestSession.logger.info("Submit jobs until time limit '" +
             maxDurationMin + "' minutes is reached or file '" + fileName +
             "' is found.");
 
+        // Setup the required test directories
+        this.setupTestDir();        
+
         long maxDurationMs = maxDurationMin*60*1000; 
         long startTime = System.currentTimeMillis();
-        long elapsedTime = System.currentTimeMillis() - startTime;
-        int elapsedTimeMin = (int) (elapsedTime / 1000) / 60;
-        File terminationFile = new File(fileName);
+        long elapsedTime; 
+        int elapsedTimeMin;
+        File terminationFile = new File(fileName);            
 
-        TestSession.logger.info("Test data root dir is: "+ dataRootDir);
-        Path dataRootDirPath = new Path(dataRootDir);
-        FileSystem fs = TestSession.cluster.getFS();
-        if (!fs.exists(dataRootDirPath)) {
-	    TestSession.logger.info("Create test data root dir: "+ dataRootDir);
-	    // TODO: mkdirs with FsPermission did not work. 
-	    // might be a config issue.
-            fs.mkdirs(dataRootDirPath,new FsPermission("777"));
-            String[] cmd = {
-		TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"),
-		"--config",
-		TestSession.cluster.getConf().getHadoopConfDir(),
-		"fs", "-chmod", "777", dataRootDir,
-	    };
-	    TestSession.exec.runProcBuilderSecurity(cmd, "hdfsqa");
-        }
-        
         /* While elapsed time is less than the max duration, and 
          * the terminate flag file does not exist 
          */
-        while ((elapsedTime < maxDurationMs) && (!terminationFile.exists())) {
+        do {
             TestSession.logger.info("Submit " + batchSize + " jobs every " +
                     interval + " seconds.");
-            // TODO: CLI is fully working. API will submit only serially.
-            // Get the current capacity, if greater than threshold...
-            
-            Map<String, QueueInfo> queueInfo =
-                    TestSession.cluster.getQueueInfo();
-            float currentCapacity =
-                    queueInfo.get("default").getCurrentCapacity();
-            if (currentCapacity < capacityThreshold) {
-                TestSession.logger.info(
-                        "Current capacity '" + currentCapacity + 
-                        "' is < the threshold value of '" +
-                        capacityThreshold + "'");
-                try {
-                    submitJobs(jobTypes, batchSize, HADOOP_EXEC_MODE.CLI);
-                } catch (Exception e) {
-                    TestSession.logger.error("Job failed with exception: " +
-                            e.toString());
-                }
-            } else {
-                TestSession.logger.info(
-                        "Current capacity '" + currentCapacity + 
-                        "' is > the threshold value of '" +
-                        capacityThreshold + "': wait a turn");
-            }            
+            try {
+                // TODO: CLI is fully working. API will submit only serially.
+                // Get the current capacity, if greater than threshold...
+                submitBatchJobs(
+                        jobTypes, batchSize, HADOOP_EXEC_MODE.CLI);
+            } catch (Exception e) {
+                TestSession.logger.error("Job failed with exception: " +
+                        e.toString());
+            }
             
             elapsedTime = System.currentTimeMillis() - startTime;
             elapsedTimeMin = (int) (elapsedTime / 1000) / 60;
@@ -178,43 +182,50 @@ public class TestGenerateJobLoad extends TestSession {
                     "' minutes.");            
             if (elapsedTime >= maxDurationMs) {
                 TestSession.logger.info("Max duration has been reached.");
-                break;
-            }
-            if (terminationFile.exists()){
+            } else if (terminationFile.exists()) {
                 TestSession.logger.info("Found file signaling termination.");
-                break;
-            }
-
-            if ((elapsedTime < maxDurationMs) && (!terminationFile.exists())) {
+            } else {
                 TestSession.logger.info("Sleep for " + interval + " seconds.");
                 Thread.sleep(interval*1000);
             }
-        }
+        } while ((elapsedTime < maxDurationMs) && (!terminationFile.exists()));
         
         // Wait for all the jobs to succeed.
-        int durationMin = 15;
+        this.waitForSuccessForAllJobs(15);
+        
+        // Cleanup
+        this.cleanUp(terminationFile);
+    }
+
+    /* 
+     * Wait for all jobs to succeed.
+     * TODO: checking it twice since there could be jobs queued up.
+     */
+    private void waitForSuccessForAllJobs(int durationMin) throws Exception {
         TestSession.logger.info("----------- Wait for all jobs to succeed: " +
                 "for " + durationMin + " minute(s) ---------------");
+        JobClient jobClient = TestSession.cluster.getJobClient();        
+        int count = 1;
+        do {
+            TestSession.cluster.getJobClient().waitForSuccess(
+                    jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
+                    durationMin);
+            count++;
+        } while( count <= 2 );        
+    }
 
-        JobClient jobClient = TestSession.cluster.getJobClient();
-        TestSession.cluster.getJobClient().waitForSuccess(
-                jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
-                durationMin);
-        
-        // Check again after the first set of jobs all succeeded
-        TestSession.cluster.getJobClient().waitForSuccess(
-                jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
-                durationMin);
-        
+    /* 
+     * Initialize the Job Types to run.
+     */
+    private void cleanUp(File terminationFile) throws Exception {
+        TestSession.logger.info("----------- Clean Up: ---------------");
+
         // Remove the termination indicator file if it exists
         if (terminationFile.exists()) {
             TestSession.logger.info("Delete termination file '" + 
                     terminationFile.toString() + "'");
             terminationFile.delete();            
         }
-        
-        // Cleanup
-        TestSession.logger.info("----------- Clean Up: ---------------");
         // TODO: was not able to delete the directory via the API call due to 
         // permission issue. 
         // fs.delete(dataRootDirPath, true);
@@ -226,7 +237,137 @@ public class TestGenerateJobLoad extends TestSession {
         };
         TestSession.exec.runProcBuilderSecurity(cmd, "hdfsqa");
     }
+    
         
+    /*
+     * Run a batch of sleep jobs in the background
+     * 
+     * @param int Number of jobs
+     * @param mode CLI or API mode
+     * 
+     */
+    public void submitBatchJobs(
+            HADOOP_JOB_TYPE[] jobTypes, int numJobs, HADOOP_EXEC_MODE mode)
+            throws Exception {
+        if (mode.equals(HADOOP_EXEC_MODE.CLI)) {
+            submitBatchJobsCLI(jobTypes, numJobs);
+        } else {
+            submitBatchJobsAPI(jobTypes, numJobs);            
+        }
+    }
+
+    /*
+     * *************************************************************************
+     * API BATCH JOBS 
+     * TODO: NOT FULLY IMPLEMENTED
+     * *************************************************************************
+     */
+    
+    /*
+     * Run a batch of jobs in the background in API mode
+     * TODO: NOT FULLY IMPLEMENTED
+     */
+    public void submitBatchJobsAPI(HADOOP_JOB_TYPE[] jobTypes, int numJobs)
+            throws Exception {
+        TestSession.logger.info("---> Run '" + numJobs + "' sleep jobs:");
+        int index = 0;
+        int rc;
+        String[] args = { "-m", "10", "-r", "10", "-mt", "10000", "-rt", "10000"};
+        Configuration conf = TestSession.cluster.getConf();
+        while (index < numJobs) {
+            String username = "hadoop" + ((index%20)+1);
+            TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
+            TestSession.logger.info("---------- Submit job #" + (index+1) + " --------------");
+            
+            // TODO: this runs serially right now.
+            rc = ToolRunner.run(conf, new org.apache.hadoop.SleepJob(), args);
+            if (rc != 0) {
+                TestSession.logger.error("Job failed!!!");
+            }
+            index++;
+        }
+    }
+
+    /* 
+     * Submit a wordcount job via API call (WIP)
+     */
+    public void submitWordCountJobAPI() throws Exception {
+        String[] args = { };
+        /*
+        String[] args = {inpath.toString(), outputDir + outputFile+"/"+Integer.toString(run_times), Integer.toString(jobNum), Integer.toString(qNum)};
+        for (int i = 0; i < qNum ; i++) {
+            args = append(args, qName[i]);
+        }                   
+        for (int i = 0; i < args.length; i++){
+            TestSession.logger.info("args["+Integer.toString(i) + "]: " + args[i]);
+        }
+        */
+        
+        int rc;
+        TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
+        rc = ToolRunner.run(
+                TestSession.cluster.getConf(), 
+                new WordCountAPIJob(), 
+                args);
+        if (rc != 0) {
+            TestSession.logger.error("Job failed!!!");
+        }
+    }
+
+    /*
+     * *************************************************************************
+     * CLI BATCH JOBS 
+     * *************************************************************************
+     */
+    
+    /*
+     * Run a batch of jobs in the background in CLI mode
+     */
+    public void submitBatchJobsCLI(HADOOP_JOB_TYPE[] jobTypes, int numJobs)
+            throws Exception {
+        TestSession.logger.info("---> Submit '" + numJobs + "' jobs:");
+        int index = 0;
+        int numJobTypes = jobTypes.length;
+        HADOOP_JOB_TYPE jobType;
+        float capacityThreshold = TestGenerateJobLoad.threshold;
+        Map<String, QueueInfo> queueInfo =
+                TestSession.cluster.getQueueInfo();
+        while (index < numJobs) {
+
+            // Check capacity before submitting each job
+            float currentCapacity =
+                    queueInfo.get("default").getCurrentCapacity();
+            if (currentCapacity >= capacityThreshold) {
+                TestSession.logger.info(
+                        "Current capacity '" + currentCapacity + 
+                        "' is > the threshold value of '" +
+                        capacityThreshold + "': skip to next turn");
+                break;
+            }                        
+            
+            jobType = jobTypes[index%numJobTypes];
+            jobIndex++;
+            TestSession.logger.info("---------- Submit job #" + jobIndex +
+                    " " + jobType + " (batch " + (index+1) + "/" + numJobs +
+                    ") ---------------");
+            switch (jobType) {
+                case WORDCOUNT: 
+                    this.submitWordCountJobCLI("hadoop" + ((index%20)+1));                
+                    break;
+                case TERAGEN: 
+                    this.submitTeraGenJobCLI("hadoop" + ((index%20)+1));                
+                    break;
+                case TERASORT:
+                    this.submitTeraSortJobCLI("hadoop" + ((index%20)+1));                
+                    break;
+                default:
+                    this.submitSleepJobCLI("hadoop" + ((index%20)+1));
+                    break;
+            }
+            index++;                        
+        }
+    }
+
     /*
      * Run a batch of sleep jobs in the background in API mode
      */
@@ -284,7 +425,77 @@ public class TestGenerateJobLoad extends TestSession {
         job.start();
     }    
     
-    
+    /* 
+     * Submit a terasort job
+     */
+    public void submitTeraSortJobCLI(String username) throws Exception {
+        
+        // submitTeraGenJobCLI(String username);
+        // but have to wait until the job is done ....
+        
+        String teraGenOutputDir = null; 
+        String teraSortOutputDir = null; 
+        
+        String date = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+        teraGenOutputDir = dataRootDir + "/teragen." + username + "." + date; 
+        TestSession.logger.info("Target HDFS Directory (teragen) is: " +
+                teraGenOutputDir);
+        teraSortOutputDir = dataRootDir + "/teragsort." + username + "." + date; 
+        TestSession.logger.info("Target HDFS Directory (terasort) is: " +
+                teraGenOutputDir);
+
+        Path outputDirPath = new Path(teraGenOutputDir);
+        FileSystem fs = TestSession.cluster.getFS();            
+        if (fs.exists(outputDirPath)) {
+            fs.delete(outputDirPath, true);
+        }
+        
+        TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
+        // TODO: This caused the job to fail because teragen expects the directory                                                                                                                                                        
+        // not to exist. However this fails silently. Need to make some changes                                                                                                                                                           
+        // to output the error to help with future debugging.   
+        // TestSession.cluster.getFS().mkdirs(new Path(outputDir));
+        
+        // hdfs://gsbl90741.blue.ygrid.yahoo.com/user/hadoopqa/terasort/teraInputDir 
+        // hdfs://gsbl90741.blue.ygrid.yahoo.com/user/hadoopqa/terasort/teraOutputDir 
+
+        /*
+        DFS dfs = new DFS();
+        String testDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/terasort";
+        
+        // Generate sort data
+        String dataDir = testDir + "/teraInputDir";
+        createData(dataDir);
+        
+        // Sort the data
+        String sortInputDir = dataDir;
+        String sortOutputDir = testDir + "/teraOutputDir";
+        runSortJob(sortInputDir, sortOutputDir);
+
+        // Validate the data
+        String sortReport = testDir + "/teraReport";
+        validateSortResults(sortOutputDir, sortReport);
+        */
+        
+        
+        TeraSortJob job = new TeraSortJob();
+        job.setTeraGenOutputPath(teraGenOutputDir);
+        job.setTeraSortOutputPath(teraSortOutputDir);
+        job.setUser(username);
+        job.setNumMapTasks(
+                Long.parseLong(
+                        System.getProperty("TERAGEN_NUM_MAP_TASKS", "8000")));
+        /*
+         * 10,000,000,000 rows of 100-byte per row = 1,000,000,000,000 TB
+         */
+        job.setNumDataRows(
+                Long.parseLong(
+                        System.getProperty("TERAGEN_NUM_DATA_ROWS", "10000000000")));
+        job.setJobInitSetID(false);
+        job.start();
+    }    
+        
     /* 
      * Submit a wordcount job
      */
@@ -315,105 +526,5 @@ public class TestGenerateJobLoad extends TestSession {
         job.setUser(username);
         job.setJobInitSetID(false);
         job.start();
-    }    
-    
-    
-    /* 
-     * Submit a wordcount job via API call (WIP)
-     */
-    public void submitWordCountJobAPI() throws Exception {
-        String[] args = { };
-        /*
-        String[] args = {inpath.toString(), outputDir + outputFile+"/"+Integer.toString(run_times), Integer.toString(jobNum), Integer.toString(qNum)};
-        for (int i = 0; i < qNum ; i++) {
-            args = append(args, qName[i]);
-        }                   
-        for (int i = 0; i < args.length; i++){
-            TestSession.logger.info("args["+Integer.toString(i) + "]: " + args[i]);
-        }
-        */
-        
-        int rc;
-        TestSession.cluster.setSecurityAPI("keytab-hadoopqa", "user-hadoopqa");
-        rc = ToolRunner.run(
-                TestSession.cluster.getConf(), 
-                new WordCountAPIJob(), 
-                args);
-        if (rc != 0) {
-            TestSession.logger.error("Job failed!!!");
-        }
     }
-
-    /*
-     * Run a batch of sleep jobs in the background
-     * 
-     * @param int Number of jobs
-     * @param mode CLI or API mode
-     * 
-     */
-    public void submitJobs(
-            HADOOP_JOB_TYPE[] jobTypes, int numJobs, HADOOP_EXEC_MODE mode)
-            throws Exception {
-        if (mode.equals(HADOOP_EXEC_MODE.CLI)) {
-            submitJobsCLI(jobTypes, numJobs);
-        } else {
-            submitJobsAPI(jobTypes, numJobs);            
-        }
-    }
-
-    /*
-     * Run a batch of sleep jobs in the background in CLI mode
-     */
-    public void submitJobsCLI(HADOOP_JOB_TYPE[] jobTypes, int numJobs)
-            throws Exception {
-        TestSession.logger.info("---> Submit '" + numJobs + "' jobs:");
-        int index = 0;
-        int numJobTypes = jobTypes.length;
-        HADOOP_JOB_TYPE jobType;
-        while (index < numJobs) {
-            jobType = jobTypes[index%numJobTypes];
-            jobIndex++;
-            TestSession.logger.info("---------- Submit job #" + jobIndex +
-                    " " + jobType + " (batch " + (index+1) + "/" + numJobs +
-                    ") ---------------");
-            /*
-            TestSession.logger.info("-----------Submit job #" + (index+1) +
-                    " " + jobType + "---------------");
-                    */
-            if (jobType.equals(HADOOP_JOB_TYPE.WORDCOUNT)) {
-                this.submitWordCountJobCLI("hadoop" + ((index%20)+1));                
-            } else if (jobType.equals(HADOOP_JOB_TYPE.TERAGEN)) {
-                this.submitTeraGenJobCLI("hadoop" + ((index%20)+1));                
-            } else {
-                this.submitSleepJobCLI("hadoop" + ((index%20)+1));
-            }
-            index++;
-            // Thread.sleep(1000);
-        }
-    }
-
-    /*
-     * Run a batch of sleep jobs in the background in API mode
-     */
-    public void submitJobsAPI(HADOOP_JOB_TYPE[] jobTypes, int numJobs)
-            throws Exception {
-        TestSession.logger.info("---> Run '" + numJobs + "' sleep jobs:");
-        int index = 0;
-        int rc;
-        String[] args = { "-m", "10", "-r", "10", "-mt", "10000", "-rt", "10000"};
-        Configuration conf = TestSession.cluster.getConf();
-        while (index < numJobs) {
-            String username = "hadoop" + ((index%20)+1);
-            TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
-            TestSession.logger.info("---------- Submit job #" + (index+1) + " --------------");
-            
-            // TODO: this runs serially right now.
-            rc = ToolRunner.run(conf, new org.apache.hadoop.SleepJob(), args);
-            if (rc != 0) {
-                TestSession.logger.error("Job failed!!!");
-            }
-            index++;
-        }
-    }
-    
 }
