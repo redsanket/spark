@@ -54,7 +54,7 @@ public class HadooptestConstants {
 
 	// Commands
 	public static class ShellCommand {
-		public static String PDSH = "/home/y/bin/pdsh";
+		public static String PDSH = "pdsh";
 		public static String GREP = "/bin/grep";
 		public static String TAC = "/usr/bin/tac";
 		public static String CAT = "/bin/cat";

@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * An instance of Job that represents a sleep job.
+ * An instance of Job that represents a TeraGen job.
  */
 public class TeraGenJob extends Job {
 	
@@ -100,7 +100,7 @@ public class TeraGenJob extends Job {
 	} 
 
 	/**
-	 * Assemble the system command to launch the sleep job.
+	 * Assemble the system command to launch the job.
 	 * 
 	 * @return String[] the string array representation of the system command to launch the job.
 	 */

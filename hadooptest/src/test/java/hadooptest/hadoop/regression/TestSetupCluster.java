@@ -58,6 +58,8 @@ public class TestSetupCluster extends TestSession {
                 }
                 break;
             case RESET:
+                // TODO: Does not currently work for individual node
+
                 TestSession.logger.info("--> Reset Cluster:");
 
                 // TODO: Consider support for resetting a specified component
