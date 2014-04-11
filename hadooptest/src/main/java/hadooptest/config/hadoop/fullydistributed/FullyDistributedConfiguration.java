@@ -169,16 +169,32 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      * 
      * @return String node value.
      */
-	private static String getValue(String tag, Element element) {
-		NodeList nodes =
-		        element.getElementsByTagName(tag).item(0).getChildNodes();
-		Node node = (Node) nodes.item(0);
-		if (node == null) {
-			return "";
-		}
-		else {
-			return node.getNodeValue();
-		}
+	private static String getValue(String tag, Element element) { 
+	    TestSession.logger.trace("XML tag =" + tag);
+	    NodeList nodes =
+	            element.getElementsByTagName(tag).item(0).getChildNodes();
+	    Node node = (Node) nodes.item(0);
+	    if (node == null) {
+	        TestSession.logger.info("XML node is null");
+	        return "";
+	    }
+	    else {
+	        try {
+	            String nodeValue = node.getNodeValue();            
+	            if (nodeValue == null) {
+	                TestSession.logger.info("XML Node value for " + 
+	                        node.getNodeName() + " is null.");
+	                return "";
+	            } else {
+	                return nodeValue; 
+                }
+	        } catch (Exception e) {
+	            TestSession.logger.info(
+	                    "Exception getting XML node value for " +
+	                    node.getNodeName() + ".");
+	            return "";
+	        }
+	    }
 	}
 	
     /**
@@ -325,7 +341,8 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 					TransformerConfigurationException {
 
 		TestSession.logger.info("Insert/Replace property '" +
-				targetPropName + "'='" + targetPropValue + "'.");
+				targetPropName + "'='" + targetPropValue + "' in file '" + 
+		            filename + "'.");
 		
 		boolean foundPropName = false;
 		
@@ -352,9 +369,6 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 				String propName = getValue("name", element);
 				String propValue = getValue("value", element);
 
-				TestSession.logger.info("Insert/Replace property '" +
-						targetPropName + "'='" + targetPropValue + "' in file '" + 
-						filename + "'.");
 				TestSession.logger.trace("Config Property Name: " +
 						getValue("name", element));
 				TestSession.logger.trace("Config Property Value: " +
