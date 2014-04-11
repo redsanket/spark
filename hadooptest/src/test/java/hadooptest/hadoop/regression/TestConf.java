@@ -30,7 +30,13 @@ public class TestConf extends TestSession {
 	     */
 	    FullyDistributedCluster cluster =
 	            (FullyDistributedCluster) TestSession.cluster;
+        TestSession.logger.info("Hadoop conf dir on component '" + component +
+                "' is '" + cluster.getConf(component).getHadoopConfDir() +
+                "'");
 	    cluster.getConf(component).backupConfDir();
+        TestSession.logger.info("Hadoop conf dir on component '" + component +
+                "' is '" + cluster.getConf(component).getHadoopConfDir() +
+                "'");
 	}
 
 	@Test
@@ -41,6 +47,9 @@ public class TestConf extends TestSession {
         FullyDistributedCluster cluster =
                 (FullyDistributedCluster) TestSession.cluster;
 	    String sourceDir = "./conf/TestConf/";
+        TestSession.logger.info("Hadoop conf dir on component '" + component +
+                "' is '" + cluster.getConf(component).getHadoopConfDir() +
+                "'");
 	    cluster.getConf(component).copyFilesToConfDir(sourceDir);
 	}
 
@@ -52,6 +61,9 @@ public class TestConf extends TestSession {
         FullyDistributedCluster cluster =
                 (FullyDistributedCluster) TestSession.cluster;
         String confFile = HadoopConfiguration.HADOOP_CONF_YARN;
+        TestSession.logger.info("Hadoop conf dir on component '" + component +
+                    "' is '" + cluster.getConf(component).getHadoopConfDir() +
+                    "'");
 	    cluster.getConf(component).setHadoopConfFileProp (
 	            "yarn.admin.acl3",
 	            "gridadmin,hadoop,hadoopqa,philips,foo", confFile);
