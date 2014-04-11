@@ -348,15 +348,20 @@ public class TestGenerateJobLoad extends TestSession {
             if (currentCapacity >= capacityThreshold) {
                 TestSession.logger.info(
                         "Current capacity '" + currentCapacity + 
-                        "' is > the threshold value of '" +
+                        "' is >= the threshold value of '" +
                         capacityThreshold + "': skip to next turn");
                 break;
-            }                        
+            } else {
+                TestSession.logger.info(
+                        "Current capacity '" + currentCapacity + 
+                        "' is < the threshold value of '" +
+                        capacityThreshold + "': proceed");                
+            }
             
             jobType = jobTypes[index%numJobTypes];
             jobIndex++;
             TestSession.logger.info("---------- Submit job #" + jobIndex +
-                    " " + jobType + " (batch " + (index+1) + "/" + numJobs +
+                    " " + jobType + " (batch job " + (index+1) + "/" + numJobs +
                     ") ---------------");
             switch (jobType) {
                 case WORDCOUNT: 
