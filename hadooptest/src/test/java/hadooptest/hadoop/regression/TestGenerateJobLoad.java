@@ -63,13 +63,20 @@ public class TestGenerateJobLoad extends TestSession {
 		terminationFilename = 
 		        System.getProperty("TERMINATION_FILE", "/tmp/test-ru.done");
 	    batchSize =
-	            Integer.parseInt(System.getProperty("JOB_BATCH_SIZE", "6")); 
+	            Integer.parseInt(System.getProperty("JOB_BATCH_SIZE", "6"));
 	    interval =
 	            Integer.parseInt(System.getProperty("RUNTIME_INTERVAL_SEC", "60"));
 	    maxDurationMin = 
 	            Integer.parseInt(System.getProperty("RUNTIME_DURATION_MIN", "60"));
         waitForJobId = 
                 Boolean.parseBoolean(System.getProperty("WAIT_FOR_JOB_ID", "false"));
+        
+        TestSession.logger.info("threshold='" + threshold);
+        TestSession.logger.info("terminationFilename='" + terminationFilename + "'");
+        TestSession.logger.info("batchSize='" + batchSize + "'");
+        TestSession.logger.info("interval='" + interval + "'");
+        TestSession.logger.info("maxDurationMin='" + maxDurationMin + "'");
+        TestSession.logger.info("waitForJobId='" + waitForJobId + "'");
 	}
 	
 	@Before
