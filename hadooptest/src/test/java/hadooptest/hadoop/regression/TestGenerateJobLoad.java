@@ -4,7 +4,6 @@ import hadooptest.TestSession;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_JOB_TYPE;
-import hadooptest.hadoop.stress.TestBenchmarksTeraSortStressMon;
 import hadooptest.workflow.hadoop.job.JobClient;
 import hadooptest.workflow.hadoop.job.SleepJob;
 import hadooptest.workflow.hadoop.job.WordCountAPIJob;
@@ -34,7 +33,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import junit.extensions.ActiveTestSuite;
 
 /*
  * Generate continuous Hadoop job load. This can be used for testing Hadoop 
@@ -53,6 +51,7 @@ public class TestGenerateJobLoad extends TestSession {
     static int batchSize = 6; 
     static int interval = 60;
     static int maxDurationMin = 60;
+    static boolean waitForJobId = false;
     String dataRootDir = "/tmp/genjobload." + 
             new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
 
@@ -69,6 +68,8 @@ public class TestGenerateJobLoad extends TestSession {
 	            Integer.parseInt(System.getProperty("RUNTIME_INTERVAL_SEC", "60"));
 	    maxDurationMin = 
 	            Integer.parseInt(System.getProperty("RUNTIME_DURATION_MIN", "60"));
+        waitForJobId = 
+                Boolean.parseBoolean(System.getProperty("WAIT_FOR_JOB_ID", "false"));
 	}
 	
 	@Before
@@ -383,7 +384,7 @@ public class TestGenerateJobLoad extends TestSession {
         job.setReduceDuration(
                 Integer.parseInt(System.getProperty("SLEEP_JOB_RED_SLEEP_TIME", "30000")));
         job.setUser(username);
-        job.setJobInitSetID(false);
+        job.setJobInitSetID(waitForJobId);
         job.start();                        
     }
 
@@ -421,7 +422,7 @@ public class TestGenerateJobLoad extends TestSession {
         job.setNumDataRows(
                 Long.parseLong(
                         System.getProperty("TERAGEN_NUM_DATA_ROWS", "10000000000")));
-        job.setJobInitSetID(false);
+        job.setJobInitSetID(waitForJobId);
         job.start();
     }    
     
@@ -492,7 +493,7 @@ public class TestGenerateJobLoad extends TestSession {
         job.setNumDataRows(
                 Long.parseLong(
                         System.getProperty("TERAGEN_NUM_DATA_ROWS", "10000000000")));
-        job.setJobInitSetID(false);
+        job.setJobInitSetID(waitForJobId);
         job.start();
     }    
         
@@ -524,7 +525,7 @@ public class TestGenerateJobLoad extends TestSession {
         job.setInputFile(outputDir + localFile);
         job.setOutputPath(outputDir + outputFile);
         job.setUser(username);
-        job.setJobInitSetID(false);
+        job.setJobInitSetID(waitForJobId);
         job.start();
     }
 }
