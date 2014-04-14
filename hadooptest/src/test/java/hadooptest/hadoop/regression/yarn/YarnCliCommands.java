@@ -55,10 +55,6 @@ public class YarnCliCommands {
 		}
 	}
 
-	/*
-	 * 'dfsload' is our superuser who can create directories in DFS. For some
-	 * reason it did not work with 'hadoopqa'.
-	 */
 	/**
 	 * 
 	 * @param envMapSentByTest

@@ -28,20 +28,20 @@ import org.xml.sax.SAXException;
  * @author tiwari
  * 
  */
-public class CapacityBO {
+public class CapacityLimitsBO {
 
 	int clusterCapacity;
-	ArrayList<QueueDetails> queueDetails;
+	public ArrayList<QueueCapacityDetail> queueCapacityDetails;
 	String localXmlFilename;
 
-	public CapacityBO(String localXmlFilename) {
+	public CapacityLimitsBO(String localXmlFilename) {
 		this.localXmlFilename = localXmlFilename;
 		clusterCapacity = getClusterCapacity();
-		queueDetails = new ArrayList<QueueDetails>();
+		queueCapacityDetails = new ArrayList<QueueCapacityDetail>();
 
 		try {
 			for (JobQueueInfo aJobQueueInfo : getQueues()) {
-				QueueDetails queueDetail = new QueueDetails();
+				QueueCapacityDetail queueDetail = new QueueCapacityDetail();
 				queueDetail.queueName = aJobQueueInfo.getQueueName();
 				queueDetail.queueCapacity = getQueueCapacity(aJobQueueInfo
 						.getQueueName());
@@ -58,7 +58,7 @@ public class CapacityBO {
 						.min(Math
 								.ceil((queueDetail.queueCapacity * queueDetail.minUserLimitPercent) / 100),
 								queueDetail.queueCapacity);
-				queueDetails.add(queueDetail);
+				queueCapacityDetails.add(queueDetail);
 
 			}
 		} catch (IOException e) {
@@ -85,7 +85,7 @@ public class CapacityBO {
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
-		TestSession.logger.info("Retrieved max capacity for queue '"
+		TestSession.logger.info("Retrieved min user limit percent for queue '"
 				+ "yarn.scheduler.capacity.root." + queueName
 				+ ".minimum-user-limit-percent" + "' as:["
 				+ minUserLimitPercent + "]");
@@ -117,7 +117,7 @@ public class CapacityBO {
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
-		TestSession.logger.info("Retrieved max capacity for queue '"
+		TestSession.logger.info("Retrieved user-limit-factor for queue '"
 				+ "yarn.scheduler.capacity.root." + queueName
 				+ ".user-limit-factor" + "' as:[" + userLimitFactor + "]");
 
@@ -151,7 +151,7 @@ public class CapacityBO {
 				+ "]");
 		Double maxQueueCapacity = maxQueueCapacityInPercentage.isEmpty() ? 100
 				: Double.parseDouble(maxQueueCapacityInPercentage);
-		return maxQueueCapacity * clusterCapacity;
+		return (maxQueueCapacity / 100) * clusterCapacity;
 	}
 
 	public double getQueueCapacity(String queueName) {
@@ -176,7 +176,7 @@ public class CapacityBO {
 		TestSession.logger.info("Retrieved capacity for queue '"
 				+ "yarn.scheduler.capacity.root." + queueName + ".capacity"
 				+ "' as:" + queueCapacityInPercentage);
-		double queueCapacity = (Double.parseDouble(queueCapacityInPercentage) * clusterCapacity) / 100;
+		double queueCapacity = ((Double.parseDouble(queueCapacityInPercentage) / 100) * clusterCapacity);
 		TestSession.logger
 				.info("Calculated the apportioned queue capacity for "
 						+ "yarn.scheduler.capacity.root." + queueName
@@ -261,13 +261,21 @@ public class CapacityBO {
 
 }
 
-class QueueDetails {
-	String queueName;
-	double queueCapacity;
-	double maxQueueCapacity;
-	double userLimitFactor;
-	double minUserLimitPercent;
-	double queueCapacityPerUser;
-	double queueCapacityMinUserLimit;
+class QueueCapacityDetail {
+	 String queueName;
+	 double queueCapacity;
+	 double maxQueueCapacity;
+	 double userLimitFactor;
+	 double minUserLimitPercent;
+	 double queueCapacityPerUser;
+	/**
+	 * The "min" below is misleading. It is basically the minimim capacity that
+	 * is guaranteed for a user. Say the min guarantee is set to 25%. This means
+	 * if there is only 1 user then he will get 100%, if there are 2 users they
+	 * will get 50% of the cap, if there are 3 then they get 30% of cap, if
+	 * there are 4 they get 25% of cap, but if there are 5 users, then the 5th
+	 * one would have to wait, since the min guarantee is 25% per user.
+	 */
+	 double queueCapacityMinUserLimit;
 
 }

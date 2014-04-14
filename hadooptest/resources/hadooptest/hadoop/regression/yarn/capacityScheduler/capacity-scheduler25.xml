@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<!-- capacity-scheduler.xml -->
+<configuration>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.capacity</name>
+      <value>100</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.queues</name>
+      <value>gridops,default,grideng,search</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.gridops.capacity</name>
+      <value>5</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.capacity</name>
+      <value>85</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.maximum-capacity</name>
+      <value>85</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.capacity</name>
+      <value>5</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.search.capacity</name>
+      <value>5</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.minimum-user-limit-percent</name>
+      <value>25</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.minimum-user-limit-percent</name>
+      <value>25</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.gridops.minimum-user-limit-percent</name>
+      <value>25</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.search.minimum-user-limit-percent</name>
+      <value>25</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.search.user-limit-factor</name>
+      <value>50.0</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.user-metrics.enable</name>
+      <value>true</value>
+   </property>
+
+</configuration>

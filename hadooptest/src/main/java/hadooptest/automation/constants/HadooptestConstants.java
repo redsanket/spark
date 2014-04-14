@@ -18,6 +18,7 @@ public class HadooptestConstants {
 		public static String HDFS_SITE_XML = "hdfs-site.xml";
 		public static String YARN_SITE_XML = "yarn-site.xml";
 		public static String MAPRED_SITE_XML = "mapred-site.xml";
+		public static String CAPACITY_SCHEDULER_XML = "capacity-scheduler.xml";
 	}
 
 	// User names
@@ -27,6 +28,11 @@ public class HadooptestConstants {
 		public static String HDFSQA = "hdfsqa";
 		public static String DFSLOAD = "dfsload";
 		public static String HDFS = "hdfs";
+		public static String HAHOOP1 = "hadoop1";
+		public static String HAHOOP2 = "hadoop2";
+		public static String HAHOOP3 = "hadoop3";
+		public static String HAHOOP4 = "hadoop4";
+		public static String HAHOOP5 = "hadoop5";
 	}
 
 	// Log
