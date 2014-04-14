@@ -50,7 +50,9 @@ import org.eclipse.jetty.client.api.Request;
 public class TestSmileTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
     static String smileJarFile = "/home/y/lib/jars/smile-standalone.jar";
-    static String smileConfigFile = "smile-http-conf.clj";
+    static String smileConfigFile = "resources/storm/testinputoutput/TestSmileTopology/smile-http-conf.clj";
+    static String smileGradientConfigFile = "resources/storm/testinputoutput/TestSmileTopology/smile-http-gradient-conf.clj";
+    int testInstance = 0;
     String registryURI;
     private static backtype.storm.Config _conf=null;
 
@@ -105,13 +107,9 @@ public class TestSmileTopology extends TestSessionStorm {
         }
     }
 
-    public void fixConfFile( ) throws Exception {
-        // Extract the conf locally.
-        String[] returnValue = exec.runProcBuilder(new String[] { "jar", "xf", smileJarFile,  smileConfigFile }, true);
-        assertTrue( "Could not extract conf", returnValue[0].equals("0") );
-
-        // Now fix URI and ports
-        Path path = Paths.get(smileConfigFile);
+    public void fixConfFile( String configFile, SmileSession ss ) throws Exception {
+        // Fix URI and ports
+        Path path = Paths.get(configFile);
         Charset charset = StandardCharsets.UTF_8;
 
         // Read in file
@@ -121,14 +119,14 @@ public class TestSmileTopology extends TestSessionStorm {
 
         // Replace what needs replacing
         content = content.replaceAll( "registry.uri \".*\"" , "registry.uri \"" + theURI + "\"" );
-        content = content.replaceAll( "injection.uri \".*\"" , "injection.uri \"http://smile.test:4567/\"");
-        content = content.replaceAll( "refresh.uri \".*\"" , "refresh.uri \"http://smile.test.refresh:5678/\"");
+        content = content.replaceAll( "injection.uri \".*\"" , "injection.uri \"" + ss.injectionURL + "\"");
+        content = content.replaceAll( "refresh.uri \".*\"" , "refresh.uri \"" + ss.refreshURL + "\"");
         
         // Write it back out
         Files.write(path, content.getBytes(charset));
     }
 
-    public void train( String dirPath, String hostname, int port ) throws Exception {
+    public void train( String dirPath, String hostname, int port, int pauseBetween ) throws Exception {
         // Set up http client
 
         HttpClient client = new HttpClient();
@@ -170,11 +168,11 @@ public class TestSmileTopology extends TestSessionStorm {
                 throw new IOException("POST returned null or bad status");
             }
 
-            Thread.sleep(1000);
+            Thread.sleep(pauseBetween);
         }
     }
 
-    public void score( String inputDir ) throws Exception {
+    public void score( String inputDir, String function ) throws Exception {
         File input = new File(inputDir + "/score.input");
         File output = new File(inputDir + "/score.output");
         BufferedReader brIn = new BufferedReader(new FileReader(input));
@@ -189,7 +187,7 @@ public class TestSmileTopology extends TestSessionStorm {
         String inLine;
         while ((inLine = brIn.readLine()) != null) {
             numLines += 1;
-            String drpcResult = cluster.DRPCExecute( "query", inLine );
+            String drpcResult = cluster.DRPCExecute( function, inLine );
             String outLine = brOut.readLine();
             logger.info("drpc result = " + drpcResult + " from file " + outLine);
             assertTrue("Couldn't get corresponding output", brOut != null);
@@ -221,31 +219,56 @@ public class TestSmileTopology extends TestSessionStorm {
         logger.info("Percentage correct = " + String.format("%.2f", percentageCorrect));
         assertTrue("Percentage correct < 80 ", percentageCorrect >= 80.0 );
     }
+    
+    public class SmileSession {
+        public String injectionURL;
+        public String refreshURL;
+        public String injectionHost;
+        public String refreshHost;
+        public int injectionPort;
+        public int refreshPort;
 
-    @Test
-    public void TestSmile() throws Exception {
+        // Not thread safe, but this will not be called concurrently
+        public SmileSession() {
+            injectionPort = 4567 + testInstance;
+            injectionHost = "smile" + Integer.toString(testInstance) + ".test";
+            injectionURL = "http://" + injectionHost + ":" + Integer.toString(injectionPort) + "/";
+            refreshPort = 5678 + testInstance;
+            refreshHost = "smile" + Integer.toString(testInstance) + ".test.refresh";
+            refreshURL = "http://" + refreshHost + ":" + Integer.toString(refreshPort) + "/";
+            testInstance = testInstance + 1;
+        }
+
+        public void addVH() throws Exception {
+            // Add the registy entries.
+            String[] returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", injectionURL }, true);
+            assertTrue( "Could not add Injection VH " + injectionURL , returnValue[0].equals("0") );
+            returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", refreshURL }, true);
+            assertTrue( "Could not add refresh VH " + refreshURL, returnValue[0].equals("0") );
+        }
+    }
+
+    public void testSmile(String confToUse, int pauseBetween, String function) throws Exception {
         // This is different than most tests.  We are going to use yinst to find the location of the smile jar.  It should
         // be installed on the gateway node.  We are then going to launch it via the command line client, using process builder.
-        logger.info("Starting TestSmile");
+        logger.info("Starting testSmile");
         File jar = new File(smileJarFile);
 
+        // Add VH, and store off virtual host names and ports in class
+        SmileSession ss = new SmileSession();
+        ss.addVH();
+ 
         assertTrue( "Smile jar is not installed", jar.exists());
 
         //Munge the config file to use our virutal hosts and ports
-        fixConfFile();
-
-        // Add the registy entries.
-        String[] returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", "http://smile.test:4567/"}, true);
-        assertTrue( "Could not add VH1", returnValue[0].equals("0") );
-        returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", "http://smile.test.refresh:5678/"}, true);
-        assertTrue( "Could not add VH2", returnValue[0].equals("0") );
+        fixConfFile( confToUse, ss );
 
         // Launch topology
-        returnValue = exec.runProcBuilder(new String[] { "storm", "jar", smileJarFile, "smile.classification.bootstrap.Bootstrap",  "conf-path", smileConfigFile }, true);
+        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", smileJarFile, "smile.classification.bootstrap.Bootstrap",  "conf-path", confToUse }, true);
         assertTrue( "Could not launch topology", returnValue[0].equals("0") );
 
         // Let's get the YFOR info for the injection url.
-        String YFORURL = "virtualHost/smile.test/ext/yahoo/yfor_config";
+        String YFORURL = "virtualHost/" + ss.injectionHost + "/ext/yahoo/yfor_config";
         String YForResult = null;
         int trycount = 100;
         String spoutHost = null;
@@ -274,7 +297,20 @@ public class TestSmileTopology extends TestSessionStorm {
         assertTrue( "Could not get YFOR information", spoutHost != null);
 
         // All right.  We now have the location of the injection port.  Train away.
-        train("/grid/0/smile-training", spoutHost, 4567 );
-        score( "/grid/0/smile-training");
+        train("/grid/0/smile-training", spoutHost, ss.injectionPort, pauseBetween );
+        score( "/grid/0/smile-training", function);
+    }
+
+    @Test
+    public void TestVW() throws Exception {
+        testSmile( smileConfigFile, 1000, "query" );
+        killAll();
+    }
+
+    @Test
+    public void TestGradient() throws Exception {
+        testInstance = 1;
+        testSmile( smileGradientConfigFile, 2000, "gradientquery" );
+        killAll();
     }
 }
