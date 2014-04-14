@@ -30,9 +30,31 @@ public class TestConf extends TestSession {
 	     */
 	    FullyDistributedCluster cluster =
 	            (FullyDistributedCluster) TestSession.cluster;
+        TestSession.logger.info("Hadoop conf dir on component '" + component +
+                "' is '" + cluster.getConf(component).getHadoopConfDir() +
+                "'");
 	    cluster.getConf(component).backupConfDir();
+        TestSession.logger.info("Hadoop conf dir on component '" + component +
+                "' is '" + cluster.getConf(component).getHadoopConfDir() +
+                "'");
 	}
 
+    /* 
+     * Check if we need to create a custom conf dir on the component host.
+     */
+    private void ensureCustomDirExists() throws Exception {
+        FullyDistributedCluster cluster =
+                (FullyDistributedCluster) TestSession.cluster;
+        String currentConfDir = cluster.getConf(component).getHadoopConfDir();
+        String defaultConfDir = cluster.getConf(component).getDefaultHadoopConfDir();
+        if (currentConfDir.equals(defaultConfDir)) {
+            cluster.getConf(component).backupConfDir();            
+        }
+        TestSession.logger.info("Hadoop conf dir on component '" + component +
+                "' is '" + cluster.getConf(component).getHadoopConfDir() +
+                "'");
+    }
+    
 	@Test
 	public void copyFilesToHadoopConf() throws Exception {
 	    /* Copy files to the custom configuration directory on the
@@ -41,7 +63,11 @@ public class TestConf extends TestSession {
         FullyDistributedCluster cluster =
                 (FullyDistributedCluster) TestSession.cluster;
 	    String sourceDir = "./conf/TestConf/";
-	    cluster.getConf(component).copyFilesToConfDir(sourceDir);
+
+        // Check if we need to create a custom conf dir on the component host.
+        ensureCustomDirExists();
+
+        cluster.getConf(component).copyFilesToConfDir(sourceDir);
 	}
 
 	@Test
@@ -52,7 +78,11 @@ public class TestConf extends TestSession {
         FullyDistributedCluster cluster =
                 (FullyDistributedCluster) TestSession.cluster;
         String confFile = HadoopConfiguration.HADOOP_CONF_YARN;
-	    cluster.getConf(component).setHadoopConfFileProp (
+
+        // Check if we need to create a custom conf dir on the component host.
+        ensureCustomDirExists();
+
+        cluster.getConf(component).setHadoopConfFileProp (
 	            "yarn.admin.acl3",
 	            "gridadmin,hadoop,hadoopqa,philips,foo", confFile);
 	}
@@ -62,7 +92,11 @@ public class TestConf extends TestSession {
 	    // Restart the cluster
         FullyDistributedCluster cluster =
                 (FullyDistributedCluster) TestSession.cluster;
-	    TestSession.cluster.reset();
+
+        // Check if we need to create a custom conf dir on the component host.
+        ensureCustomDirExists();
+
+        TestSession.cluster.reset();
 	    cluster.waitForSafemodeOff();
 	    cluster.isFullyUp();
 	}
