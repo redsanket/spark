@@ -8,34 +8,46 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
- * An instance of Job that represents a TeraGen job.
+ * An instance of Job that represents a TeraSort job.
  */
-public class TeraGenJob extends Job {
+public class TeraSortJob extends Job {
 	
 	/** The output path for the teragen job */
-	private String outputPath;
+	private String teraGenOutputPath;
+    private String teraSortOutputPath;
 	// Number of 100-byte rows
 	private long numInputDataRows = 1000;
 	private long numMapTasks=1000;
 	
+    public void setNumDataRows(long numRows){
+        this.numInputDataRows = numRows;
+    }
+
+    public void setNumMapTasks(long size){
+        this.numMapTasks = size;
+    }
+
 	/**
 	 * Set the -output path for the streaming job.
 	 * 
 	 * @param path the output path for the job.
 	 */
-	public void setOutputPath(String path) {
-		this.outputPath = path;
+	public void setTeraGenOutputPath(String path) {
+		this.teraGenOutputPath = path;
 	}
 	
-	public void setNumDataRows(long numRows){
-		this.numInputDataRows = numRows;
-	}
-
-	public void setNumMapTasks(long size){
-	    this.numMapTasks = size;
-	}
-
+    /**
+     * Set the -output path for the streaming job.
+     * 
+     * @param path the output path for the job.
+     */
+    public void setTeraSortOutputPath(String path) {
+        this.teraSortOutputPath = path;
+    }
+    
 	/**
 	 * Submit the job.  This should be done only by the Job.start() as Job should
 	 * remain threaded.
@@ -45,6 +57,7 @@ public class TeraGenJob extends Job {
 	protected void submit() throws Exception {
 		String jobPatternStr = " Running job: (.*)$";
 		Pattern jobPattern = Pattern.compile(jobPatternStr);
+
 
 		try {
 			// copy the file from local disc to the HDFS
@@ -77,6 +90,7 @@ public class TeraGenJob extends Job {
 			TestSession.logger.error("Exception " + e.getMessage(), e);
 			throw e;
 		}
+
 	} 
 
 	/**
@@ -104,24 +118,53 @@ public class TeraGenJob extends Job {
 	 * 
 	 * @return String[] the string array representation of the system command to launch the job.
 	 */
-	private String[] assembleCommand() {
+	private String[] assembleCommand() {	    
 		// set up the cmd
-		ArrayList<String> cmd = new ArrayList<String>();    
-		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
-		cmd.add("--config");
-		cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
-		cmd.add("jar");
-		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
-		cmd.add("teragen");
+	    
+	    // tergen
+	    ArrayList<String> cmd = new ArrayList<String>();    
+            cmd.add("/usr/local/bin/bash");
+	    cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
+	    cmd.add("--config");
+	    cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
+	    cmd.add("jar");
+	    cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+	    cmd.add("teragen");
+	    if (this.QUEUE != "") {
+	        cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
+	    }
+	    cmd.add("-Dmapred.map.tasks=" + Long.toString(numMapTasks));            
+	    cmd.add(Long.toString(numInputDataRows));
+	    cmd.add(this.teraGenOutputPath + ";");
+	        
+        // terasort
+        cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
+        cmd.add("--config");
+        cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
+        cmd.add("jar");
+        cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_EXAMPLE_JAR"));
+        cmd.add("terasort");        
+        cmd.add("-Dmapreduce.job.acl-view-job=*");
+        cmd.add("-Dmapreduce.reduce.input.limit=-1");
         if (this.QUEUE != "") {
             cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
         }
-        cmd.add("-Dmapred.map.tasks=" + Long.toString(numMapTasks));            
-		cmd.add(Long.toString(numInputDataRows));
-        cmd.add(this.outputPath);
-        
-        String[] command = cmd.toArray(new String[0]);
-        System.out.println(command);
-		return command;        
+	    
+        // Not sure if this is applicable...
+        cmd.add("-Dmapred.map.tasks=" + Long.toString(numMapTasks));
+
+        // teragen output, terasort input
+        cmd.add(this.teraGenOutputPath);
+        cmd.add(this.teraSortOutputPath);
+
+	    // Convert the commands to String Array
+	    String[] command = cmd.toArray(new String[0]);
+	    System.out.println(command);
+
+	    String shCmd = StringUtils.join(command, " ");
+	    return new String[] {"bash", "-c", shCmd};
 	}
 }
+
+
+

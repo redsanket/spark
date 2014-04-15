@@ -52,10 +52,10 @@ public class YahooStormCluster extends ModifiableStormCluster {
     private void setupClient() throws Exception {
         TestSessionStorm.logger.info("SETUP CLIENT");
         backtype.storm.Config stormConf = new backtype.storm.Config();
-	stormConf.putAll(Utils.readStormConfig());
+        stormConf.putAll(Utils.readStormConfig());
         cluster = NimbusClient.getConfiguredClient(stormConf);
         List<String> servers = (List<String>) stormConf.get(backtype.storm.Config.DRPC_SERVERS);
-	int port = Integer.parseInt(stormConf.get(backtype.storm.Config.DRPC_PORT).toString());
+	    int port = Integer.parseInt(stormConf.get(backtype.storm.Config.DRPC_PORT).toString());
         drpc = new DRPCClient( stormConf, servers.get(0), port );
     }
 
@@ -63,12 +63,11 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	TestSessionStorm.logger.info("CLEANUP CLIENT");
         cluster.close();
         cluster = null;
-	drpc.close();
-	drpc = null;
+        drpc.close();
+        drpc = null;
     }
 
-    public void submitTopology(File jar, String name, Map stormConf, 
-    		StormTopology topology) 
+    public void submitTopology(File jar, String name, Map stormConf, StormTopology topology) 
     				throws AlreadyAliveException, InvalidTopologyException, 
     				AuthorizationException {
     	
