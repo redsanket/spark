@@ -26,6 +26,7 @@ import org.apache.hadoop.SleepJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.examples.RandomWriter;
 import org.apache.hadoop.examples.Sort;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
@@ -167,6 +168,18 @@ public class YarnTestsBaseClass extends TestSession {
 		}
 
 	}
+	
+//	public static Configuration createConfigObjFromBackCopiedConfFilesForCapacityScheduler(String dirWhereConfFilesHaveBeenBackCopied){
+//		Configuration backCopiedConf = new Configuration();
+//		backCopiedConf.addResource(new Path(dirWhereConfFilesHaveBeenBackCopied + HadooptestConstants.ConfFileNames.CORE_SITE_XML));
+//		backCopiedConf.addResource(new Path(dirWhereConfFilesHaveBeenBackCopied + HadooptestConstants.ConfFileNames.HDFS_SITE_XML));
+//		backCopiedConf.addResource(new Path(dirWhereConfFilesHaveBeenBackCopied + HadooptestConstants.ConfFileNames.MAPRED_SITE_XML));
+//		backCopiedConf.addResource(new Path(dirWhereConfFilesHaveBeenBackCopied + HadooptestConstants.ConfFileNames.YARN_SITE_XML));
+//		backCopiedConf.addResource(new Path(dirWhereConfFilesHaveBeenBackCopied + HadooptestConstants.ConfFileNames.CAPACITY_SCHEDULER_XML));
+//		
+//		
+//		return backCopiedConf;
+//	}
 
 	@Override
 	public void logTaskReportSummary() {

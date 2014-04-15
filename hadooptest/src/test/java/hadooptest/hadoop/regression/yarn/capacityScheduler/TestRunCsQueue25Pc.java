@@ -25,22 +25,27 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 	public void testCsSingleQueue25Percent1() throws Exception {
 		copyResMgrConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
 				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+
 		
-		CapacityLimitsBO capacityBO = getCapacityBO();
+		CalculatedCapacityLimitsBO capacityBO = getCapacityBO();
 
 		for (QueueCapacityDetail aQueueDetail : capacityBO.queueCapacityDetails) {
-			TestSession.logger.info("Q name:" + aQueueDetail.queueName);
+			TestSession.logger.info("Q name****:" + aQueueDetail.name +" *****");
 			TestSession.logger.info("Q max capacity:"
-					+ aQueueDetail.maxQueueCapacity);
+					+ aQueueDetail.maxCapacityInTermsOfTotalClusterMemory);
 			TestSession.logger.info("Q max user limit percent:"
-					+ aQueueDetail.minUserLimitPercent);
-			TestSession.logger.info("Q capacity:" + aQueueDetail.queueCapacity);
-			TestSession.logger.info("Q min user limit:"
-					+ aQueueDetail.queueCapacityMinUserLimit);
-			TestSession.logger.info("Q cap per user:"
-					+ aQueueDetail.queueCapacityPerUser);
-			TestSession.logger.info("Q user limit factor:"
-					+ aQueueDetail.userLimitFactor);
+					+ aQueueDetail.minimumUserLimitPercent);
+			TestSession.logger.info("Q capacity in terms of cluster memory:" + aQueueDetail.capacityInTermsOfTotalClusterMemory);
+			TestSession.logger.info("Q max apps:"
+					+ aQueueDetail.maxApplications);
+			TestSession.logger.info("Q max apps per user:"
+					+ aQueueDetail.maxActiveApplicationsPerUser);
+			TestSession.logger.info("Q max active apps:"
+					+ aQueueDetail.maxActiveApplications);
+			TestSession.logger.info("Q max active apps per user:"
+					+ aQueueDetail.maxActiveApplicationsPerUser);
+			TestSession.logger.info("----------------------------------------------");
+
 		}
 		int numSleepJobsToLaunch = 4;
 		ArrayList<SleepJobParams> sleepJobParamsList = new ArrayList<SleepJobParams>();
@@ -90,8 +95,6 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 
 		}
 
-		double capacityLimit = getCapacityLimit(SingleUser.YES, capacityBO,
-				"default");
 
 	}
 

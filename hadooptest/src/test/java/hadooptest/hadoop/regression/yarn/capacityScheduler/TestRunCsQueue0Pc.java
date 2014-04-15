@@ -47,18 +47,16 @@ public class TestRunCsQueue0Pc extends CapacitySchedulerBaseClass {
 										+ "/capacity-scheduler.xml",
 								"yarn.scheduler.capacity.root.default.capacity"));
 
-		CapacityLimitsBO capacityBO = new CapacityLimitsBO(
+		CalculatedCapacityLimitsBO capacityBO = new CalculatedCapacityLimitsBO(
 				resourceMgrConfigFilesCopiedBackHereOnGw
 						+ "/capacity-scheduler.xml");
 		for (QueueCapacityDetail aQueueDetail : capacityBO.queueCapacityDetails) {
-			TestSession.logger.info("Q name:" + aQueueDetail.queueName);
+			TestSession.logger.info("Q name:" + aQueueDetail.name);
 			TestSession.logger.info("Q max capacity:"
-					+ aQueueDetail.maxQueueCapacity);
+					+ aQueueDetail.maxCapacityInTermsOfTotalClusterMemory);
 			TestSession.logger.info("Q max user limit percent:"
-					+ aQueueDetail.minUserLimitPercent);
-			TestSession.logger.info("Q capacity:" + aQueueDetail.queueCapacity);
-			TestSession.logger.info("Q min user limit:"
-					+ aQueueDetail.queueCapacityMinUserLimit);
+					+ aQueueDetail.minimumUserLimitPercent);
+			TestSession.logger.info("Q capacity:" + aQueueDetail.capacityInTermsOfTotalClusterMemory);
 			TestSession.logger.info("Q cap per user:"
 					+ aQueueDetail.queueCapacityPerUser);
 			TestSession.logger.info("Q user limit factor:"

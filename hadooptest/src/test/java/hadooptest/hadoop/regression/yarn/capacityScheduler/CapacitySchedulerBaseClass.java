@@ -13,6 +13,8 @@ import hadooptest.hadoop.regression.yarn.capacityScheduler.RuntimeStatsBO.JobSta
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
@@ -80,6 +82,16 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
 				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
 				DfsTestsBaseClass.PrintTopology.NO, null);
+		
+		Configuration conf = fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		
+		Iterator iter = conf.iterator();
+		while (iter.hasNext()){
+			Entry<String, String> entry = (Entry<String, String>) iter.next();
+			TestSession.logger.info("Key:[" + entry.getKey() + "] Value[" + entry.getValue() +"]");
+		}
+		
 
 	}
 
@@ -104,7 +116,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		return runtimeStats;
 	}
 
-	public CapacityLimitsBO getCapacityBO() throws Exception {
+	public CalculatedCapacityLimitsBO getCapacityBO() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 		String dirWhereRMConfHasBeenCopied = fullyDistributedCluster.getConf(
@@ -122,7 +134,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 								resourceMgrConfigFilesCopiedBackHereOnGw
 										+ "/capacity-scheduler.xml",
 								"yarn.scheduler.capacity.root.default.capacity"));
-		CapacityLimitsBO capacityBO = new CapacityLimitsBO(
+		CalculatedCapacityLimitsBO capacityBO = new CalculatedCapacityLimitsBO(
 				resourceMgrConfigFilesCopiedBackHereOnGw
 						+ "/capacity-scheduler.xml");
 		return capacityBO;
@@ -171,20 +183,20 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		return futureCallableSleepJobs;
 	}
 
-	public double getCapacityLimit(SingleUser singleUser,
-			CapacityLimitsBO capacityBO, String queue) {
-		double capacityLimit = 0.0;
-		if (singleUser == SingleUser.YES) {
-			for (QueueCapacityDetail queueCapacityDetail : capacityBO.queueCapacityDetails) {
-				if (!queueCapacityDetail.queueName.equalsIgnoreCase(queue))
-					continue;
-				capacityLimit = queueCapacityDetail.queueCapacityPerUser;
-			}
-		} else {
-			// TODO: Not implemented yet
-		}
-		return capacityLimit;
-	}
+//	public double getCapacityLimit(SingleUser singleUser,
+//			CalculatedCapacityLimitsBO capacityBO, String queue) {
+//		double capacityLimit = 0.0;
+//		if (singleUser == SingleUser.YES) {
+//			for (QueueCapacityDetail queueCapacityDetail : capacityBO.queueCapacityDetails) {
+//				if (!queueCapacityDetail.name.equalsIgnoreCase(queue))
+//					continue;
+//				capacityLimit = queueCapacityDetail.capacityInTermsOfTotalClusterMemory;
+//			}
+//		} else {
+//			// TODO: Not implemented yet
+//		}
+//		return capacityLimit;
+//	}
 
 	//@After
 	public void restoreTheConfigFile() throws Exception {
@@ -356,7 +368,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 	}
 
 	class SleepJobParams {
-		public CapacityLimitsBO capacityBO;
+		public CalculatedCapacityLimitsBO capacityBO;
 		public HashMap<String, String> configProperties;
 		public String queue;
 		public String userName;
@@ -369,7 +381,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		public int numMapTasks = 0;
 		public int numRedTasks = 0;
 
-		public SleepJobParams(CapacityLimitsBO capacityBO,
+		public SleepJobParams(CalculatedCapacityLimitsBO capacityBO,
 				HashMap<String, String> configProperties, String queue,
 				String userName, int numJobs, int factor, int taskSleepDuration) {
 			super();
@@ -383,12 +395,12 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 			this.taskSleepDuration = taskSleepDuration;
 			QueueCapacityDetail queueDetails = null;
 			for (QueueCapacityDetail aQueueDetail : capacityBO.queueCapacityDetails) {
-				if (aQueueDetail.queueName.equals(queue)) {
+				if (aQueueDetail.name.equals(queue)) {
 					queueDetails = aQueueDetail;
 					break;
 				}
 			}
-			this.queueCapacity = queueDetails.queueCapacity;
+			this.queueCapacity = queueDetails.capacityInTermsOfTotalClusterMemory;
 			this.numMapTasks = queueCapacity.intValue() * factor;
 			this.numRedTasks = queueCapacity.intValue() * factor;
 
