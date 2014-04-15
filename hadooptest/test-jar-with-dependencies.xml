@@ -26,29 +26,8 @@
 	        <exclude>org.scala-lang:scala-compiler</exclude>
 	        <exclude>org.scala-lang:scala-library</exclude>
 	        <exclude>org.scala-lang:scalap</exclude>
-	        <exclude>system:yjava_byauth</exclude>
-	        <exclude>system:yjava_jetty_client</exclude>
-	        <exclude>system:yjava_jetty_jaas</exclude>
-	        <exclude>system:yjava_jetty_util</exclude>
-	        <exclude>system:yjava_jetty_annotations</exclude>
-	        <exclude>system:yjava_jetty_continuation</exclude>
-	        <exclude>system:yjava_jetty_deploy</exclude>
-	        <exclude>system:yjava_jetty_http</exclude>
-	        <exclude>system:yjava_jetty_io</exclude>
-	        <exclude>system:yjava_jetty_jmx</exclude>
-	        <exclude>system:yjava_jetty_jndi</exclude>
-	        <exclude>system:yjava_jetty_plus</exclude>
-	        <exclude>system:yjava_jetty_proxy</exclude>
-	        <exclude>system:yjava_jetty_rewrite</exclude>
-	        <exclude>system:yjava_jetty_security</exclude>
-	        <exclude>system:yjava_jetty_server</exclude>
-	        <exclude>system:yjava_jetty_servlet</exclude>
-	        <exclude>system:yjava_jetty_servlets</exclude>
-	        <exclude>system:yjava_jetty_webapp</exclude>
-	        <exclude>system:yjava_jetty_xml</exclude>
 	        <exclude>system:yspark_yarn</exclude>
 	        <exclude>system:ystorm_contrib_http_spout</exclude>
-	        <exclude>system:ystorm_contrib_rainbow_spout_example</exclude>
 	        <exclude>system:ystorm_core</exclude>
 	        <exclude>system:ystorm_netty</exclude>
 	        <exclude>system:ystorm_yahoo</exclude>
@@ -58,6 +37,7 @@
 	        <exclude>system:ystorm_curator_framework</exclude>
 	        <exclude>system:ystorm_jgrapht</exclude>
 	        <exclude>system:ystorm_clojure</exclude>
+	        <exclude>org.mortbay.jetty:jetty</exclude>
 	    </excludes>
         </dependencySet>
     </dependencySets>
