@@ -592,12 +592,15 @@
 			<activeByDefault>false</activeByDefault>
 		</activation>
 		<dependencies>
+		
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>1.9</version>
 			</dependency>
 
+			<!-- YJAVA_BYAUTH -->
+			
 			<dependency>
 				<groupId>system</groupId>
 				<artifactId>yjava_byauth</artifactId>
@@ -606,6 +609,8 @@
 				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_byauth_fetch/lib/jars/yjava_byauth.jar</systemPath>
 			</dependency>
 
+			<!-- JETTY -->
+			
 			<dependency>
 				<groupId>system</groupId>
 				<artifactId>yjava_jetty_client</artifactId>
@@ -632,12 +637,144 @@
 
 			<dependency>
 				<groupId>system</groupId>
+				<artifactId>yjava_jetty_annotations</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-annotations-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_continuation</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-continuation-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_deploy</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-deploy-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_http</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-http-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_io</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-io-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_jmx</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-jmx-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_jndi</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-jndi-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_plus</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-plus-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_proxy</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-proxy-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_rewrite</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-rewrite-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_security</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-security-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_server</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-server-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_servlet</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-servlet-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_servlets</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-servlets-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_webapp</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-webapp-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>yjava_jetty_xml</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-xml-9.0.6.v20130930.jar</systemPath>
+			</dependency>
+			
+			<!-- SPARK -->
+			
+			<dependency>
+				<groupId>system</groupId>
 				<artifactId>yspark_yarn</artifactId>
 				<version>0.9.2</version>
 				<scope>system</scope>
 				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-0.9.0.1/jars/spark-assembly_2.10-0.9.0.1-hadoop2.jar</systemPath>
 			</dependency>
 
+			<!-- STORM -->
+			
 			<dependency>
 				<groupId>system</groupId>
 				<artifactId>ystorm_contrib_http_spout</artifactId>
@@ -670,6 +807,14 @@
 				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/storm-netty-0.9.0-wip21.jar</systemPath>
 			</dependency>
 
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>ystorm_yahoo</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/storm_yahoo-0.9.0-wip21.jar</systemPath>
+			</dependency>
+			
 			<dependency>
 				<groupId>system</groupId>
 				<artifactId>ystorm_thrift7</artifactId>
@@ -709,6 +854,15 @@
 				<scope>system</scope>
 				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/jgrapht-0.8.3.jar</systemPath>
 			</dependency>
+			
+			<dependency>
+				<groupId>system</groupId>
+				<artifactId>ystorm_clojure</artifactId>
+				<version>0.9.2</version>
+				<scope>system</scope>
+				<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/clojure-1.4.0.jar</systemPath>
+			</dependency>
+
 		</dependencies>
 
 	</profile>
