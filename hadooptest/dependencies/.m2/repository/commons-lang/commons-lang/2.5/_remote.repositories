@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Tue Apr 15 16:19:02 CDT 2014
+commons-lang-2.5.jar>=
+commons-lang-2.5.pom>local\ central\ mirror=
+commons-lang-2.5.jar>local\ central\ mirror=

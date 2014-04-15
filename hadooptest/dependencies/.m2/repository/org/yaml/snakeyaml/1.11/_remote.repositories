@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Tue Apr 15 16:19:02 CDT 2014
+snakeyaml-1.11.jar>=
+snakeyaml-1.11.pom>local\ central\ mirror=
+snakeyaml-1.11.jar>local\ central\ mirror=

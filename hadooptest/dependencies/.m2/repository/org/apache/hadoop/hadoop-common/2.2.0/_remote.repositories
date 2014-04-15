@@ -1,0 +1,7 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Tue Apr 15 16:19:02 CDT 2014
+hadoop-common-2.2.0-tests.jar>=
+hadoop-common-2.2.0-tests.jar>local\ central\ mirror=
+hadoop-common-2.2.0.pom>local\ central\ mirror=
+hadoop-common-2.2.0.jar>local\ central\ mirror=
+hadoop-common-2.2.0.jar>=
