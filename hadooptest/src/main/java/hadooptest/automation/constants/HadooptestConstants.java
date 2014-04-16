@@ -10,6 +10,7 @@ public class HadooptestConstants {
 		public static String RESOURCE_MANAGER = "resourcemanager";
 		public static String HISTORY_SERVER = "historyserver";
 		public static String NODE_MANAGER = "nodemanager";
+		public static String GATEWAY = "gateway";
 	}
 
 	// Config file names

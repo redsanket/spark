@@ -10,19 +10,11 @@ import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.junit.Assert;
-import org.xml.sax.SAXException;
 
 /**
  * The Capacity Scheduler Business Object
@@ -52,6 +44,8 @@ public class CalculatedCapacityLimitsBO {
 			for (JobQueueInfo aJobQueueInfo : getQueues()) {
 				QueueCapacityDetail queueDetail = new QueueCapacityDetail();
 				queueDetail.name = aJobQueueInfo.getQueueName();
+				queueDetail.capacityInTermsOfPercentage = getQueueCapacityInTermsOfPercentage(aJobQueueInfo
+						.getQueueName());
 				queueDetail.capacityInTermsOfTotalClusterMemory = getQueueCapacityInTermsOfTotalClusterMemory(aJobQueueInfo
 						.getQueueName());
 				queueDetail.maxCapacityInTermsOfTotalClusterMemory = getMaxQueueCapacityInTermsOfTotalClusterMemory(aJobQueueInfo
@@ -362,7 +356,7 @@ public class CalculatedCapacityLimitsBO {
 		}
 		TestSession.logger.info("Retrieved capacity for queue '"
 				+ "yarn.scheduler.capacity.root." + queueName + ".capacity"
-				+ "' as:" + queueCapacityPercentageAsString);
+				+ "' as:" + queueCapacityPercentageAsString +"%");
 		double queueCapacityInTermsOfTotalClusterMemory = ((Double
 				.parseDouble(queueCapacityPercentageAsString) / 100) * totalClusterMemory);
 		TestSession.logger
@@ -371,6 +365,25 @@ public class CalculatedCapacityLimitsBO {
 						+ ".capacity" + "' as:["
 						+ queueCapacityInTermsOfTotalClusterMemory + "]");
 		return queueCapacityInTermsOfTotalClusterMemory;
+
+	}
+	public double getQueueCapacityInTermsOfPercentage(String queueName) {
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+		FullyDistributedConfiguration fullyDistributedConfRM = fullyDistributedCluster
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		String queueCapacityPercentageAsString = "";
+		queueCapacityPercentageAsString = fullyDistributedConfRM
+				.get("yarn.scheduler.capacity.root." + queueName + ".capacity");
+		if (queueCapacityPercentageAsString == null
+				|| queueCapacityPercentageAsString.isEmpty()) {
+			queueCapacityPercentageAsString = "100.0";
+		}
+		TestSession.logger.info("Retrieved capacity for queue (%)'"
+				+ "yarn.scheduler.capacity.root." + queueName + ".capacity"
+				+ "' as:" + queueCapacityPercentageAsString +"%");
+		return Double.parseDouble(queueCapacityPercentageAsString);
 
 	}
 
@@ -391,9 +404,9 @@ public class CalculatedCapacityLimitsBO {
 		int nodemanagerResourceMemoryMB = Integer.parseInt(temp);
 		TestSession.logger
 				.info("read yarn.nodemanager.resource.memory-mb (Cluster Capacity) as:"
-						+ nodemanagerResourceMemoryMB);
+						+ nodemanagerResourceMemoryMB +" MB");
 		int ramPerHostInGB = nodemanagerResourceMemoryMB / 1024;
-		TestSession.logger.info("GB RAM :" + ramPerHostInGB);
+		TestSession.logger.info("RAM shown above, now in GB:" + ramPerHostInGB);
 
 		countOfExpectedNamenodes = fullyDistributedCluster
 				.getNodeNames(HadooptestConstants.NodeTypes.NODE_MANAGER).length;
@@ -409,7 +422,7 @@ public class CalculatedCapacityLimitsBO {
 
 		totalClusterMemoryCapacity = countOfActiveNamenodes * ramPerHostInGB;
 		TestSession.logger.info("Calculated Total cluster memory capacity:"
-				+ totalClusterMemoryCapacity);
+				+ totalClusterMemoryCapacity +" GB");
 		return totalClusterMemoryCapacity;
 
 	}
@@ -447,19 +460,5 @@ public class CalculatedCapacityLimitsBO {
 		JobClient jobClient = new JobClient(fullyDistributedConfRM);
 		return jobClient.getQueues();
 	}
-
-}
-
-class QueueCapacityDetail {
-	String name;
-	double capacityInTermsOfTotalClusterMemory;
-	double maxCapacityInTermsOfTotalClusterMemory;
-	double userLimitFactor;
-	double minimumUserLimitPercent;
-	double maximumAmResourcePercent;
-	double maxApplications;
-	double maxApplicationsPerUser;
-	double maxActiveApplications;
-	double maxActiveApplicationsPerUser;
 
 }
