@@ -4,7 +4,7 @@ import hadooptest.TestSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -27,8 +27,8 @@ public class RuntimeStatsBO {
 
 		users = new CopyOnWriteArrayList<String>();
 		queues = new CopyOnWriteArrayList<String>();
-		unique_user_set = new LinkedHashSet<String>();
-		unique_queue_set = new LinkedHashSet<String>();
+		unique_user_set = new HashSet<String>();
+		unique_queue_set = new HashSet<String>();
 		jobSet = new ConcurrentHashSet<Job>();
 		jobsThreads = new ArrayList<Thread>();
 		jobStatsSet = new ConcurrentHashSet<JobStats>();
