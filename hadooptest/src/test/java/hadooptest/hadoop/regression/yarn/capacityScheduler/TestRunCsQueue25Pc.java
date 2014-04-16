@@ -27,30 +27,27 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
 
 		
-		CalculatedCapacityLimitsBO capacityBO = getCapacityBO();
+		CalculatedCapacityLimitsBO calculatedCapacityBO = calculateCapacityLimits();
 
-		for (QueueCapacityDetail aQueueDetail : capacityBO.queueCapacityDetails) {
-			TestSession.logger.info("Q name****:" + aQueueDetail.name +" *****");
+		for (QueueCapacityDetail aCalculatedQueueDetail : calculatedCapacityBO.queueCapacityDetails) {
+			TestSession.logger.info("Q name****:" + aCalculatedQueueDetail.name +" *****");
 			TestSession.logger.info("Q max capacity:"
-					+ aQueueDetail.maxCapacityInTermsOfTotalClusterMemory);
-			TestSession.logger.info("Q max user limit percent:"
-					+ aQueueDetail.minimumUserLimitPercent);
-			TestSession.logger.info("Q capacity in terms of cluster memory:" + aQueueDetail.capacityInTermsOfTotalClusterMemory);
-			TestSession.logger.info("Q max apps:"
-					+ aQueueDetail.maxApplications);
-			TestSession.logger.info("Q max apps per user:"
-					+ aQueueDetail.maxActiveApplicationsPerUser);
-			TestSession.logger.info("Q max active apps:"
-					+ aQueueDetail.maxActiveApplications);
-			TestSession.logger.info("Q max active apps per user:"
-					+ aQueueDetail.maxActiveApplicationsPerUser);
+					+ aCalculatedQueueDetail.maxCapacityInTermsOfTotalClusterMemory + " MB");
+			TestSession.logger.info("Q capacity in terms of cluster memory:" + aCalculatedQueueDetail.capacityInTermsOfTotalClusterMemory + " MB");
+			TestSession.logger.info("Q max apps:"					+ aCalculatedQueueDetail.maxApplications);
+			TestSession.logger.info("Q max apps per user:" 			+ aCalculatedQueueDetail.maxApplicationsPerUser);			
+			TestSession.logger.info("Q max active apps per user:"	+ aCalculatedQueueDetail.maxActiveApplicationsPerUser);
+			TestSession.logger.info("Q max active apps:"			+ aCalculatedQueueDetail.maxActiveApplications);
+			TestSession.logger.info("Q min user limit percent:"		+ aCalculatedQueueDetail.minimumUserLimitPercent);
+			TestSession.logger.info("Q user limit factor:"			+ aCalculatedQueueDetail.userLimitFactor);
+
 			TestSession.logger.info("----------------------------------------------");
 
 		}
 		int numSleepJobsToLaunch = 4;
 		ArrayList<SleepJobParams> sleepJobParamsList = new ArrayList<SleepJobParams>();
 		for (int jobCount = 1; jobCount < numSleepJobsToLaunch; jobCount++) {
-			SleepJobParams sleepJobParams = new SleepJobParams(capacityBO,
+			SleepJobParams sleepJobParams = new SleepJobParams(calculatedCapacityBO,
 					getDefaultSleepJobProps(), "default", "hadoop" + jobCount,
 					0, 1, 20000);
 			sleepJobParamsList.add(sleepJobParams);

@@ -116,7 +116,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		return runtimeStats;
 	}
 
-	public CalculatedCapacityLimitsBO getCapacityBO() throws Exception {
+	public CalculatedCapacityLimitsBO calculateCapacityLimits() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 		String dirWhereRMConfHasBeenCopied = fullyDistributedCluster.getConf(

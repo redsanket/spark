@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Tue Apr 15 16:18:25 CDT 2014
+json-lib-2.4-jdk15.jar>local\ central\ mirror=
+json-lib-2.4-jdk15.jar>=
+json-lib-2.4.pom>local\ central\ mirror=

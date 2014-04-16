@@ -57,8 +57,6 @@ public class TestRunCsQueue0Pc extends CapacitySchedulerBaseClass {
 			TestSession.logger.info("Q max user limit percent:"
 					+ aQueueDetail.minimumUserLimitPercent);
 			TestSession.logger.info("Q capacity:" + aQueueDetail.capacityInTermsOfTotalClusterMemory);
-			TestSession.logger.info("Q cap per user:"
-					+ aQueueDetail.queueCapacityPerUser);
 			TestSession.logger.info("Q user limit factor:"
 					+ aQueueDetail.userLimitFactor);
 		}
