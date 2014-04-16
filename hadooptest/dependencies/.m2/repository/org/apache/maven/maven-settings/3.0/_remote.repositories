@@ -1,4 +1,8 @@
 #NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+<<<<<<< HEAD
 #Tue Apr 15 16:09:42 CDT 2014
+=======
+#Tue Apr 15 16:11:12 CDT 2014
+>>>>>>> 940d14dff022691fcbe7a2546821b71712769180
 maven-settings-3.0.jar>local\ central\ mirror=
 maven-settings-3.0.pom>local\ central\ mirror=

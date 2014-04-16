@@ -1,4 +1,8 @@
 #NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+<<<<<<< HEAD
 #Tue Apr 15 16:12:25 CDT 2014
+=======
+#Tue Apr 15 16:13:53 CDT 2014
+>>>>>>> 940d14dff022691fcbe7a2546821b71712769180
 maven-compiler-plugin-2.5.1.jar>local\ central\ mirror=
 maven-compiler-plugin-2.5.1.pom>local\ central\ mirror=

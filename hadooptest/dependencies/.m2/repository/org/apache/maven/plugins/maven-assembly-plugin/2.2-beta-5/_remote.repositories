@@ -1,4 +1,8 @@
 #NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+<<<<<<< HEAD
 #Tue Apr 15 16:12:24 CDT 2014
+=======
+#Tue Apr 15 16:13:51 CDT 2014
+>>>>>>> 940d14dff022691fcbe7a2546821b71712769180
 maven-assembly-plugin-2.2-beta-5.jar>local\ central\ mirror=
 maven-assembly-plugin-2.2-beta-5.pom>local\ central\ mirror=

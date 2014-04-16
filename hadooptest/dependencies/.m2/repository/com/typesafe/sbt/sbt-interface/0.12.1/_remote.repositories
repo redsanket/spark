@@ -1,4 +1,8 @@
 #NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+<<<<<<< HEAD
 #Tue Apr 15 16:18:57 CDT 2014
+=======
+#Tue Apr 15 16:19:33 CDT 2014
+>>>>>>> 940d14dff022691fcbe7a2546821b71712769180
 sbt-interface-0.12.1.pom>local\ central\ mirror=
 sbt-interface-0.12.1.jar>local\ central\ mirror=

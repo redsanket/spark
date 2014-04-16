@@ -1,4 +1,8 @@
 #NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+<<<<<<< HEAD
 #Tue Apr 15 16:07:08 CDT 2014
+=======
+#Tue Apr 15 16:08:49 CDT 2014
+>>>>>>> 940d14dff022691fcbe7a2546821b71712769180
 plexus-utils-3.0.9.jar>local\ central\ mirror=
 plexus-utils-3.0.9.pom>local\ central\ mirror=
