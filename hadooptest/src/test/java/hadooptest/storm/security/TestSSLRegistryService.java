@@ -1,8 +1,9 @@
 package hadooptest.storm.security;
 
-
 import com.yahoo.spout.http.Config;
 import com.yahoo.spout.http.RegistryStub;
+
+import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.workflow.storm.topology.bolt.TestEventCountBolt;
@@ -14,6 +15,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
+@Category(SerialTests.class)
 public class TestSSLRegistryService extends TestSessionStorm {
 
     private static final ThreadLocal<ObjectMapper> mapper =
