@@ -5,7 +5,11 @@ import hadooptest.TestSession;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-
+/**
+ * The Dfs Admin Report Business Object
+ * @author tiwari
+ *
+ */
 public class DfsadminReportBO {
 	static Logger logger = Logger.getLogger(DfsadminReportBO.class);
 
