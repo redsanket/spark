@@ -152,7 +152,16 @@ my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hado
 
 my $dependencies_opt;
 if ($storm) {
-    $dependencies_opt = "-Pprofile-ci";
+	# When Storm is used, this profile must be called before profile-ci
+	# or any other profile.  If another profile is used first, the
+	# dependency jars from that profile might have Storm configuration
+	# or classes that will upset the classpath assembled by maven,
+	# and can lead to unexpected configuration or classes ending up in
+	# the classpath before the necessary Storm support.  By putting
+	# profile-storm first in the maven profile order, it ensures
+	# that Storm API calls and configuration will be using the 
+	# deployed Storm jars. -->
+    $dependencies_opt = "-Pprofile-storm";
 }
 else {
 	# When Hadoop is used, this profile must be called before profile-ci
