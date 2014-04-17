@@ -32,8 +32,9 @@ import com.yahoo.spout.http.rainbow.KryoEventRecord;
 @Category(SerialTests.class)
 public class TestDHSpoutTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
-    static String configURI="http://0.0.0.0:8090/registry/v1/";
-    static String serverURI=configURI;
+    //static String configURI="http://0.0.0.0:8090/registry/v1/";
+    //static String serverURI=configURI;
+    static String serverURI=null;
     static String vhURI="http://myvh-stormtest.corp.yahoo.com:9153/";
     private backtype.storm.Config _conf;
     private String _ycaV1Role;
@@ -44,7 +45,11 @@ public class TestDHSpoutTopology extends TestSessionStorm {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         mc = (ModifiableStormCluster)cluster;
         if (mc != null) {
-            mc.setRegistryServerURI(configURI);
+            backtype.storm.Config theconf = new backtype.storm.Config();
+            theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
+            String theURI=(String)theconf.get("http.registry.uri");
+            serverURI=theURI;
+            mc.setRegistryServerURI(theURI);
             mc.startRegistryServer();
         }
     }
