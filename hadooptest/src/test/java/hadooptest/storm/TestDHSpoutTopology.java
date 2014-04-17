@@ -32,7 +32,7 @@ import com.yahoo.spout.http.rainbow.KryoEventRecord;
 @Category(SerialTests.class)
 public class TestDHSpoutTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
-    static String configURI="http://0.0.0.0:9080/registry/v1/";
+    static String configURI="http://0.0.0.0:8090/registry/v1/";
     static String serverURI=configURI;
     static String vhURI="http://myvh-stormtest.corp.yahoo.com:9153/";
     private backtype.storm.Config _conf;
