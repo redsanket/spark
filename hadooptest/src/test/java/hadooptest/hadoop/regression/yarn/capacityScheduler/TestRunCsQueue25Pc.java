@@ -52,7 +52,7 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 	void printValuesReceivedOverRest(
 			ArrayList<QueueCapacityDetail> retrievedCapLimits) {
 		TestSession.logger
-				.info("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}");
+				.info("{V}{A}{L}{U}{E}{S}{}{}{}{}{}{}{}{R}{E}{C}{E}{I}{V}{E}{D}{}}{}{}{}{}{{O}{V}{E}{R}{}{}{}{}{}{}{}{R}{E}{S}{T}");
 		for (QueueCapacityDetail aRetrievedQDetail : retrievedCapLimits) {
 			TestSession.logger.info("Q name****:" + aRetrievedQDetail.name
 					+ " *****");
@@ -88,7 +88,7 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 	 * 
 	 * @throws Exception
 	 */
-	@Test
+//	@Test
 	public void testMaxSchedulableApplicationsMultiUser() throws Exception {
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
@@ -154,6 +154,77 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 					ArrayList<Future<Job>> overageList = new ArrayList<Future<Job>>();
 					overageList.add(overageJobHandle);
 					killStartedJobs(overageList);
+				}
+			}
+		}
+
+	}
+	@Test
+	public void testMaxSchedulableApplicationsSingleUser() throws Exception {
+		String SINGLE_USER_NAME = "hadoop2";
+		copyResMgrConfigAndRestartNodes(TestSession.conf
+				.getProperty("WORKSPACE")
+				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+
+		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
+		printSelfCalculatedStats(calculatedCapacityBO);
+		ArrayList<Future<Job>> futureCallableSleepJobs;
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
+			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
+				if (aQueueCapaityDetail.name
+						.equals(jobQueueInfo.getQueueName())) {
+					TestSession.logger
+							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxSchedulableApplicationsSingleUser for queue "
+									+ jobQueueInfo.getQueueName()
+									+ " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+					double maxSchedulableAppsPerUser = aQueueCapaityDetail.maxActiveApplicationsPerUser;
+					int numSleepJobsToLaunch = (int) maxSchedulableAppsPerUser;
+					ArrayList<SleepJobParams> sleepJobParamsList = new ArrayList<SleepJobParams>();
+					for (int jobCount = 1; jobCount <= numSleepJobsToLaunch; jobCount++) {
+						SleepJobParams sleepJobParams = new SleepJobParams(
+								calculatedCapacityBO,
+								getDefaultSleepJobProps(jobQueueInfo.getQueueName()), jobQueueInfo.getQueueName(), SINGLE_USER_NAME,
+								1 * QUEUE_CAPACITY,
+								10 * THOUSAND_MILLISECONDS);
+						sleepJobParamsList.add(sleepJobParams);
+
+					}
+
+					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(sleepJobParamsList);
+
+					// Wait until all jobs have reached RUNNING state
+					BarrierUntilAllThreadsRunning barrierUntilAllThreadsRunning = new BarrierUntilAllThreadsRunning(
+							futureCallableSleepJobs, SLEEP_JOB_DURATION_IN_SECS
+									* numSleepJobsToLaunch);
+					TestSession.logger
+							.info("barrier met....  all jobs've reached runnable");
+
+					// With all jobs running, any additional jobs submitted
+					// should wait
+//					Future<Job> overageJobHandle = submitSingleSleepJobAndGetHandle(jobQueueInfo.getQueueName());
+//					Thread.sleep(10000);
+					ArrayList<QueueCapacityDetail> retrievedCapLimits = getCapacityLimitsViaRestCallIntoRM();
+					printValuesReceivedOverRest(retrievedCapLimits);
+//					boolean confirmedQueueSubmissions = false;
+//					for (QueueCapacityDetail aQueueCapacityDetailOverREST : retrievedCapLimits) {
+//						if (aQueueCapacityDetailOverREST.name.equals(jobQueueInfo.getQueueName())) {
+//							Assert.assertTrue(
+//									"Could not find overage job in pending state jobId:"
+//											+ overageJobHandle.get().getJobID()
+//											+ " is in state:"
+//											+ overageJobHandle.get()
+//													.getJobState(),
+//									aQueueCapacityDetailOverREST.numPendingApplications == 1);
+//							confirmedQueueSubmissions = true;
+//						}
+//					}
+//					Assert.assertTrue(confirmedQueueSubmissions);
+					// In preparation for the next loop, kill the started jobs
+					killStartedJobs(futureCallableSleepJobs);
+//					ArrayList<Future<Job>> overageList = new ArrayList<Future<Job>>();
+//					overageList.add(overageJobHandle);
+//					killStartedJobs(overageList);
 				}
 			}
 		}

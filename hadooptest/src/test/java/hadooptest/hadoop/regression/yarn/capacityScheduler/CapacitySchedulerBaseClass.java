@@ -53,7 +53,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 	private static String ABSOLUTE_CAPACITY = "absoluteCapacity";
 	private static String NUM_PENDING_APPLICATIONS = "numPendingApplications";
 
-	int NUM_THREADS = 10;
+	int NUM_THREADS = 300;
 	int SLEEP_JOB_DURATION_IN_SECS = 20;
 
 	public enum SingleUser {
@@ -419,7 +419,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		int jobNameSuffix = 1;
 		for (SleepJobParams aSleepJobParams : sleepJobParamsList) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(500);
 				TestSession.logger
 						.info("Staggering launching of jobs, by half sec, else they would step on each others feet");
 			} catch (InterruptedException e) {
@@ -477,7 +477,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 						.info("!!!!!!!!!!!!!!!! K I L L E D - J 0 B  - [ "
 								+ aFutureJob.get().getJobName()
 								+ " ]  !!!!!!!!!!!!!!!!!!");
-				while (aFutureJob.get().getJobState() != State.KILLED) {
+				while (aFutureJob.get().getJobState() != State.KILLED && aFutureJob.get().getJobState() != State.SUCCEEDED) {
 					Thread.sleep(500);
 				}
 				this.countDownKillLatch.countDown();
