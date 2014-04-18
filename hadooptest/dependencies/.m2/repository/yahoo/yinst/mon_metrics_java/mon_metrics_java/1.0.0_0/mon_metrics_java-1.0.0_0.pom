@@ -1,7 +1,0 @@
-<project>
-  <!-- extracted from: mon_metrics_java-1.0.0_0 -->
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>yahoo.yinst.mon_metrics_java</groupId>
-  <artifactId>mon_metrics_java</artifactId>
-  <version>1.0.0_0</version>
-</project>

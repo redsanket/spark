@@ -1,7 +1,0 @@
-<project>
-  <!-- extracted from: yjava_yiv-0.5.105 -->
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>yahoo.yinst.yjava_yiv</groupId>
-  <artifactId>yjava_yiv</artifactId>
-  <version>0.5.105</version>
-</project>

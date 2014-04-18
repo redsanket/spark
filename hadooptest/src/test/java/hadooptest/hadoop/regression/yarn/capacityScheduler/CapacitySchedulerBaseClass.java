@@ -21,6 +21,7 @@ import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -52,17 +53,17 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 	private static String ABSOLUTE_CAPACITY = "absoluteCapacity";
 	private static String NUM_PENDING_APPLICATIONS = "numPendingApplications";
 
-	int NUM_THREADS = 10;
+	int NUM_THREADS = 300;
 	int SLEEP_JOB_DURATION_IN_SECS = 20;
 
 	public enum SingleUser {
 		YES, NO
 	};
 
-	public Future<Job> submitSingleSleepJobAndGetHandle() {
+	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit) {
 		Future<Job> jobHandle = null;
 		CallableSleepJob callableSleepJob = new CallableSleepJob(
-				getDefaultSleepJobProps(), 1, 1, 1, 1, 1, 1,
+				getDefaultSleepJobProps(queueToSubmit), 1, 1, 1, 1, 1, 1,
 				HadooptestConstants.UserNames.HADOOPQA, 0);
 
 		ExecutorService singleLanePool = Executors.newFixedThreadPool(1);
@@ -398,17 +399,18 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		}
 	}
 
-	public HashMap<String, String> getDefaultSleepJobProps() {
+	public HashMap<String, String> getDefaultSleepJobProps(String queueToSubmit) {
 		HashMap<String, String> defaultSleepJobProps = new HashMap<String, String>();
 		defaultSleepJobProps.put("mapreduce.job.acl-view-job", "*");
 		defaultSleepJobProps.put("mapreduce.job.acl-view-job", "2048");
 		defaultSleepJobProps.put("mapreduce.map.memory.mb", "1024");
 		defaultSleepJobProps.put("mapreduce.reduce.memory.mb", "1024");
+		defaultSleepJobProps.put("mapred.job.queue.name", queueToSubmit);
 
 		return defaultSleepJobProps;
 	}
 
-	public ArrayList<Future<Job>> submitJobsToAThreadPoolAndRunThem(
+	public ArrayList<Future<Job>> submitJobsToAThreadPoolAndRunThemInParallel(
 			ArrayList<SleepJobParams> sleepJobParamsList) {
 
 		ExecutorService sleepJobThreadPool = Executors
@@ -438,6 +440,56 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		}
 		sleepJobThreadPool.shutdown();
 		return futureCallableSleepJobs;
+	}
+
+	void killStartedJobs(ArrayList<Future<Job>> futureCallableSleepJobs) {
+		CountDownLatch countDownKillLatch = new CountDownLatch(
+				futureCallableSleepJobs.size());
+		ExecutorService killerPool = Executors
+				.newFixedThreadPool(futureCallableSleepJobs.size());
+		for (Future<Job> aFutureJob : futureCallableSleepJobs) {
+			JobKiller aJobKiller = new JobKiller(countDownKillLatch, aFutureJob);
+			killerPool.submit(aJobKiller);
+		}
+		try {
+			countDownKillLatch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		TestSession.logger
+				.info("{{{{{{{{{{ Killed all the launched jobs }}}}}}}}}}");
+	}
+
+	class JobKiller implements Runnable {
+		Future<Job> aFutureJob;
+		CountDownLatch countDownKillLatch;
+
+		JobKiller(CountDownLatch countDownKillLatch, Future<Job> aFutureJob) {
+			this.aFutureJob = aFutureJob;
+			this.countDownKillLatch = countDownKillLatch;
+		}
+
+		@Override
+		public void run() {
+			try {
+				aFutureJob.get().killJob();
+				TestSession.logger
+						.info("!!!!!!!!!!!!!!!! K I L L E D - J 0 B  - [ "
+								+ aFutureJob.get().getJobName()
+								+ " ]  !!!!!!!!!!!!!!!!!!");
+				while (aFutureJob.get().getJobState() != State.KILLED && aFutureJob.get().getJobState() != State.SUCCEEDED) {
+					Thread.sleep(500);
+				}
+				this.countDownKillLatch.countDown();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	// @After
@@ -523,12 +575,12 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 						mapSleepTime, mapSleepCount, reduceSleepTime,
 						reduceSleepCount);
 				createdSleepJob.setJobName("htf-cap-sched-sleep-job-named-"
-						+ jobName + "-started-by-" + userName);
+						+ jobName + "-started-by-" + userName + "-on-queue-"
+						+ jobParamsMap.get("mapred.job.queue.name"));
 				TestSession.logger
 						.info("%%%%%%/%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
-								+ "submitting "
-								+ "htf-cap-sched-sleep-job-named-" + jobName
-								+ "-started-by-" + userName
+								+ "submitting " + "htf-cap-sched-sleep-job-"
+								+ jobName + "-started-by-" + userName
 								+ " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
 				createdSleepJob.submit();
@@ -616,7 +668,6 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		public HashMap<String, String> configProperties;
 		public String queue;
 		public String userName;
-		public int numJobs;
 		public int factor;
 		public int numTimesMapWouldSleep = 1;
 		public int numTimesRedWouldSleep = 1;
@@ -627,14 +678,13 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 		public SleepJobParams(CalculatedCapacityLimitsBO calculatedCapLimitsBO,
 				HashMap<String, String> configProperties, String queue,
-				String userName, int numJobs, int factor, int taskSleepDuration) {
+				String userName, int factor, int taskSleepDuration) {
 			super();
 			this.calculatedCapacityLimitsBO = calculatedCapLimitsBO;
 			this.configProperties = configProperties;
 			this.userName = (userName.isEmpty() || userName == null) ? HadooptestConstants.UserNames.HADOOPQA
 					: userName;
 			this.queue = (queue.isEmpty() || queue == null) ? "default" : queue;
-			this.numJobs = numJobs;
 			this.factor = factor;
 			this.taskSleepDuration = taskSleepDuration;
 			QueueCapacityDetail queueDetails = null;
@@ -645,23 +695,19 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				}
 			}
 			this.queueCapacityInTermsOfClusterMemory = queueDetails.capacityInTermsOfTotalClusterMemory;
-			this.numMapTasks = queueCapacityInTermsOfClusterMemory.intValue()
-					* factor;
-			this.numRedTasks = queueCapacityInTermsOfClusterMemory.intValue()
-					* factor;
+			int tempNumMapTasks = (this.queueCapacityInTermsOfClusterMemory
+					.intValue() * 1024)
+					/ Integer.parseInt(configProperties
+							.get("mapreduce.map.memory.mb"));
+			this.numMapTasks = tempNumMapTasks * factor;
+			int tempNumReduceTasks = (this.queueCapacityInTermsOfClusterMemory
+					.intValue() * 1024)
+					/ Integer.parseInt(configProperties
+							.get("mapreduce.reduce.memory.mb"));
+			this.numRedTasks = tempNumReduceTasks * factor;
 
 		}
 
-		String getAppMasterResourceMb() {
-
-			if (configProperties
-					.containsKey("yarn.app.mapreduce.am.resource.mb")) {
-				return configProperties
-						.get("yarn.app.mapreduce.am.resource.mb");
-			} else {
-				return "";
-			}
-		}
 	}
 
 	class BarrierUntilAllThreadsRunning {

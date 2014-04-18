@@ -1,7 +1,0 @@
-<project>
-  <!-- extracted from: yjava_filter_logic-0.29.242 -->
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>yahoo.yinst.yjava_filter_logic</groupId>
-  <artifactId>yjava_filter_logic</artifactId>
-  <version>0.29.242</version>
-</project>
