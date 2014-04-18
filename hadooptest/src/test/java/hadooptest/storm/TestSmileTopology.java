@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.regex.*;
 import java.io.IOException;
 
@@ -30,6 +31,7 @@ import static org.junit.Assert.*;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
+import hadooptest.automation.utils.http.JSONUtil;
 import hadooptest.Util;
 
 import backtype.storm.generated.*;
@@ -126,7 +128,7 @@ public class TestSmileTopology extends TestSessionStorm {
         Files.write(path, content.getBytes(charset));
     }
 
-    public void train( String dirPath, String hostname, int port, int pauseBetween ) throws Exception {
+    public void train( String dirPath, ArrayList<String> trainingFiles, String hostname, int port, int pauseBetween ) throws Exception {
         // Set up http client
 
         HttpClient client = new HttpClient();
@@ -142,8 +144,9 @@ public class TestSmileTopology extends TestSessionStorm {
 
         
         // Iterate over files 0..119
-        for (Integer i = 0 ; i < 120 ; i++ ) {
-            String filename = dirPath + "/Day" + i.toString() + ".vw";
+        for (Integer i = 0 ; i < trainingFiles.size() ; i++ ) {
+            File toTrain = new File(dirPath, trainingFiles.get(i));
+            String filename = toTrain.getPath();
             TestSessionStorm.logger.info("Doing file " + filename );
 
             File f = new File (filename);
@@ -170,11 +173,12 @@ public class TestSmileTopology extends TestSessionStorm {
 
             Thread.sleep(pauseBetween);
         }
+        TestSessionStorm.logger.info("Finished traiing");
     }
 
-    public void score( String inputDir, String function ) throws Exception {
-        File input = new File(inputDir + "/score.input");
-        File output = new File(inputDir + "/score.output");
+    public void score( String inputDir, String scoringInput, String scoringOutput, String function ) throws Exception {
+        File input = new File(inputDir,  scoringInput);
+        File output = new File(inputDir, scoringOutput);
         BufferedReader brIn = new BufferedReader(new FileReader(input));
         BufferedReader brOut = new BufferedReader(new FileReader(output));
         int numLines = 0;
@@ -183,6 +187,9 @@ public class TestSmileTopology extends TestSessionStorm {
         int numFalseNegative = 0;
         int numCorrectPositive = 0;
         int numCorrectNegative = 0;
+
+        logger.info("Started scoring from " + input.getPath());
+        logger.info("Started scoring against " + output.getPath());
 
         String inLine;
         while ((inLine = brIn.readLine()) != null) {
@@ -248,7 +255,32 @@ public class TestSmileTopology extends TestSessionStorm {
         }
     }
 
-    public void testSmile(String confToUse, int pauseBetween, String function) throws Exception {
+    public void testSmile(String pathToJson) throws Exception {
+        JSONUtil json = new JSONUtil();
+
+        json.setContentFromFile(pathToJson);
+
+        // Get the location of the traing data, etc from json based config.
+        String function = json.getElement("function").toString();
+        String pathToConf = json.getElement("pathToConf").toString();
+        String pathToData = json.getElement("pathToData").toString();
+        String scoringTimeout = json.getElement("scoringTimeout").toString();
+        ArrayList<String> trainingFiles = (ArrayList<String>) json.getElement("trainingFiles");
+        String scoringInput = json.getElement("scoringInput").toString();
+        String scoringOutput = json.getElement("scoringOutput").toString();
+        logger.info("Starting testSmile");
+        logger.info("function  = " + function );
+        logger.info("pathToConf  = " + pathToConf );
+        logger.info("pathToData  = " + pathToData );
+        logger.info("scoringTimeout  = " + scoringTimeout );
+        logger.info("trainingFiles  = " + trainingFiles );
+        logger.info("scoringInput  = " + scoringInput );
+        logger.info("scoringOutput  = " + scoringOutput );
+        for ( int i = 0 ; i < trainingFiles.size() ; i++ ) {
+            String s = trainingFiles.get(i);
+            logger.info( "File " + s );
+        }
+
         // This is different than most tests.  We are going to use yinst to find the location of the smile jar.  It should
         // be installed on the gateway node.  We are then going to launch it via the command line client, using process builder.
         logger.info("Starting testSmile");
@@ -261,10 +293,10 @@ public class TestSmileTopology extends TestSessionStorm {
         assertTrue( "Smile jar is not installed", jar.exists());
 
         //Munge the config file to use our virutal hosts and ports
-        fixConfFile( confToUse, ss );
+        fixConfFile( pathToConf, ss );
 
         // Launch topology
-        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", smileJarFile, "smile.classification.bootstrap.Bootstrap",  "conf-path", confToUse }, true);
+        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", smileJarFile, "smile.classification.bootstrap.Bootstrap",  "conf-path", pathToConf }, true);
         assertTrue( "Could not launch topology", returnValue[0].equals("0") );
 
         // Let's get the YFOR info for the injection url.
@@ -297,20 +329,34 @@ public class TestSmileTopology extends TestSessionStorm {
         assertTrue( "Could not get YFOR information", spoutHost != null);
 
         // All right.  We now have the location of the injection port.  Train away.
-        train("/grid/0/smile-training", spoutHost, ss.injectionPort, pauseBetween );
-        score( "/grid/0/smile-training", function);
+        train(pathToData, trainingFiles, spoutHost, ss.injectionPort, Integer.parseInt(scoringTimeout));
+        score( pathToData, scoringInput, scoringOutput, function);
     }
 
     @Test
     public void TestVW() throws Exception {
-        testSmile( smileConfigFile, 1000, "query" );
+        testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-vw.json");
         killAll();
     }
 
     @Test
     public void TestGradient() throws Exception {
         testInstance = 1;
-        testSmile( smileGradientConfigFile, 2000, "gradientquery" );
+        testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-gd.json");
+        killAll();
+    }
+
+    @Test
+    public void TestFlickrVW() throws Exception {
+        testInstance = 2;
+        testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-vw.json");
+        killAll();
+    }
+
+    @Test
+    public void TestFlickrGD() throws Exception {
+        testInstance = 3;
+        testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-gd.json");
         killAll();
     }
 }
