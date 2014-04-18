@@ -1,6 +1,9 @@
 package hadooptest.automation.utils.http;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
@@ -15,6 +18,18 @@ public class JSONUtil
 {
 	private String jsonString;
 	private Object jsonObject;
+
+    public String readFileToString(String pathToFile)
+            throws Exception
+            {
+                return new String(Files.readAllBytes(Paths.get(pathToFile)));
+            }
+
+	public final void setContentFromFile(String pathToFile)
+			throws Exception
+			{
+                setContent(readFileToString(pathToFile));
+			}
 
 	public final void setContent(String contentString)
 			throws Exception
