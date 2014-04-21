@@ -53,18 +53,24 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 	private static String ABSOLUTE_CAPACITY = "absoluteCapacity";
 	private static String NUM_PENDING_APPLICATIONS = "numPendingApplications";
 
-	int NUM_THREADS = 300;
+	int NUM_THREADS = 800;
 	int SLEEP_JOB_DURATION_IN_SECS = 20;
 
 	public enum SingleUser {
 		YES, NO
 	};
 
-	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit) {
+	public enum ExpectToBomb {
+		YES, NO
+	};
+
+	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit,
+			String username, boolean expectException) {
 		Future<Job> jobHandle = null;
 		CallableSleepJob callableSleepJob = new CallableSleepJob(
 				getDefaultSleepJobProps(queueToSubmit), 1, 1, 1, 1, 1, 1,
-				HadooptestConstants.UserNames.HADOOPQA, 0);
+				username, "overage-job-launched-by-user-" + username
+						+ "-on-queue-" + queueToSubmit, expectException);
 
 		ExecutorService singleLanePool = Executors.newFixedThreadPool(1);
 		jobHandle = singleLanePool.submit(callableSleepJob);
@@ -411,7 +417,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 	}
 
 	public ArrayList<Future<Job>> submitJobsToAThreadPoolAndRunThemInParallel(
-			ArrayList<SleepJobParams> sleepJobParamsList) {
+			ArrayList<SleepJobParams> sleepJobParamsList, int delayInMs) {
 
 		ExecutorService sleepJobThreadPool = Executors
 				.newFixedThreadPool(NUM_THREADS);
@@ -419,9 +425,11 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		int jobNameSuffix = 1;
 		for (SleepJobParams aSleepJobParams : sleepJobParamsList) {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(delayInMs);
 				TestSession.logger
-						.info("Staggering launching of jobs, by half sec, else they would step on each others feet");
+						.info("Staggering launching of jobs, by "
+								+ delayInMs
+								+ " millisec, else they would step on each others feet");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -434,7 +442,8 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 							aSleepJobParams.numTimesMapWouldSleep,
 							aSleepJobParams.taskSleepDuration,
 							aSleepJobParams.numTimesRedWouldSleep,
-							aSleepJobParams.userName, jobNameSuffix++));
+							aSleepJobParams.userName, aSleepJobParams.jobName,
+							false));
 			futureCallableSleepJobs.add(aFutureCallableSleepJob);
 
 		}
@@ -477,7 +486,8 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 						.info("!!!!!!!!!!!!!!!! K I L L E D - J 0 B  - [ "
 								+ aFutureJob.get().getJobName()
 								+ " ]  !!!!!!!!!!!!!!!!!!");
-				while (aFutureJob.get().getJobState() != State.KILLED && aFutureJob.get().getJobState() != State.SUCCEEDED) {
+				while (aFutureJob.get().getJobState() != State.KILLED
+						&& aFutureJob.get().getJobState() != State.SUCCEEDED) {
 					Thread.sleep(500);
 				}
 				this.countDownKillLatch.countDown();
@@ -538,12 +548,13 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		int reduceSleepTime;
 		int reduceSleepCount;
 		String userName;
-		int jobName;
+		String jobName;
+		boolean expectException;
 
 		public CallableSleepJob(HashMap<String, String> jobParamsMap,
 				int numMapper, int numReducer, int mapSleepTime,
 				int mapSleepCount, int reduceSleepTime, int reduceSleepCount,
-				String userName, int jobName) {
+				String userName, String jobName, boolean expectException) {
 			this.jobParamsMap = jobParamsMap;
 			this.numMapper = numMapper;
 			this.numReducer = numReducer;
@@ -553,6 +564,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 			this.reduceSleepCount = reduceSleepCount;
 			this.userName = userName;
 			this.jobName = jobName;
+			this.expectException = expectException;
 
 		}
 
@@ -574,20 +586,34 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				createdSleepJob = sleepJob.createJob(numMapper, numReducer,
 						mapSleepTime, mapSleepCount, reduceSleepTime,
 						reduceSleepCount);
-				createdSleepJob.setJobName("htf-cap-sched-sleep-job-named-"
-						+ jobName + "-started-by-" + userName + "-on-queue-"
-						+ jobParamsMap.get("mapred.job.queue.name"));
+				createdSleepJob.setJobName(jobName);
 				TestSession.logger
-						.info("%%%%%%/%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
-								+ "submitting " + "htf-cap-sched-sleep-job-"
-								+ jobName + "-started-by-" + userName
+						.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
+								+ "submitting " + jobName
 								+ " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
 				createdSleepJob.submit();
 
 			} catch (Exception e) {
-				TestSession.logger
-						.fatal("SleepJob invoked via API barfed... !!");
+				if (this.expectException == true) {
+					TestSession.logger.fatal("YAY the job faile as expected "
+							+ jobName);
+
+					Assert.assertTrue(
+							"Test failed on an "
+							+ "expected exception",
+							e.getMessage().contains(
+									"cannot accept submission of application"));
+
+				} else {
+					TestSession.logger.fatal("Submission of jobid [" + jobName
+							+ "] via API barfed... !! expected exception "
+							+ this.expectException);
+					TestSession.logger.info(e.getStackTrace());
+					Assert.fail("Submission of jobid [" + jobName
+							+ "] via API barfed... !! expected exception "
+							+ this.expectException);
+				}
 
 			}
 			return createdSleepJob;
@@ -675,10 +701,12 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		public Double queueCapacityInTermsOfClusterMemory;
 		public int numMapTasks = 0;
 		public int numRedTasks = 0;
+		String jobName;
 
 		public SleepJobParams(CalculatedCapacityLimitsBO calculatedCapLimitsBO,
 				HashMap<String, String> configProperties, String queue,
-				String userName, int factor, int taskSleepDuration) {
+				String userName, int factor, int taskSleepDuration,
+				String jobName) {
 			super();
 			this.calculatedCapacityLimitsBO = calculatedCapLimitsBO;
 			this.configProperties = configProperties;
@@ -687,6 +715,8 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 			this.queue = (queue.isEmpty() || queue == null) ? "default" : queue;
 			this.factor = factor;
 			this.taskSleepDuration = taskSleepDuration;
+			this.jobName = jobName;
+
 			QueueCapacityDetail queueDetails = null;
 			for (QueueCapacityDetail aQueueDetail : calculatedCapLimitsBO.queueCapacityDetails) {
 				if (aQueueDetail.name.equals(queue)) {
