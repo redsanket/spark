@@ -16,5 +16,7 @@
         "Day100.vw", "Day101.vw", "Day102.vw", "Day103.vw", "Day104.vw", "Day105.vw", "Day106.vw", "Day107.vw", "Day108.vw", "Day109.vw",
         "Day110.vw", "Day111.vw", "Day112.vw", "Day113.vw", "Day114.vw", "Day115.vw", "Day116.vw", "Day117.vw", "Day118.vw", "Day119.vw" ],
     "scoringInput":"score.input",
-    "scoringOutput":"score.output"
+    "scoringOutput":"score.output",
+    "modelType":"Gradient Descent",
+    "dataSet":"url_svmlight"
 }

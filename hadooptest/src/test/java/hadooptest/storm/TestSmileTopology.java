@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.regex.*;
 import java.io.IOException;
+import java.io.FileWriter;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,11 +53,48 @@ import org.eclipse.jetty.client.api.Request;
 public class TestSmileTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
     static String smileJarFile = "/home/y/lib/jars/smile-standalone.jar";
-    static String smileConfigFile = "resources/storm/testinputoutput/TestSmileTopology/smile-http-conf.clj";
-    static String smileGradientConfigFile = "resources/storm/testinputoutput/TestSmileTopology/smile-http-gradient-conf.clj";
+    static String resultsFile = "target/surefire-reports/results.csv";
+    static String resultsDir = "target/surefire-reports";
+    static String stormVersion = null;
+    static String smileVersion = null;
+    static String rsVersion = null;
     int testInstance = 0;
     String registryURI;
     private static backtype.storm.Config _conf=null;
+    static long startTime;
+
+    public static void writeColumns() throws Exception {
+        File resultDir = new File( resultsDir );
+        resultDir.mkdir();
+        File toWrite = new File( resultsFile );
+        FileWriter writer = new FileWriter(toWrite.getPath(), false);
+        // Write out column headers
+        writer.append("Storm Version"); writer.append(',');
+        writer.append("Smile Version"); writer.append(',');
+        writer.append("Reg Server Version"); writer.append(',');
+        writer.append("Data Set"); writer.append(',');
+        writer.append("Model Type"); writer.append(',');
+        writer.append("Score Start MS"); writer.append(',');
+        writer.append("Score End MS"); writer.append(',');
+        writer.append("True Positive"); writer.append(',');
+        writer.append("False Positive"); writer.append(',');
+        writer.append("True Negative"); writer.append(',');
+        writer.append("False Negative"); writer.append(',');
+        writer.append("Scoring Error"); writer.append('\n');
+        writer.flush();
+        writer.close();
+    }
+
+    public static String getPackageVersion(String pkg) throws Exception {
+        String[] returnValue = exec.runProcBuilder(new String[] { "yinst", "ls", pkg }, true);
+        assertTrue( "Could not find package " + pkg, returnValue[0].equals("0") );
+
+        Pattern p = Pattern.compile("(.*)\n");
+        Matcher m = p.matcher(returnValue[1]);
+        assertTrue("Could not find yinst pattern in output", m.find());
+
+        return m.group(1);
+    }
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -70,7 +108,12 @@ public class TestSmileTopology extends TestSessionStorm {
             String theURI=(String)_conf.get("http.registry.uri");
             mc.setRegistryServerURI(theURI);
             mc.startRegistryServer();
+            stormVersion = getPackageVersion("ystorm");
+            smileVersion = getPackageVersion("ystorm_smile");
+            rsVersion = getPackageVersion("ystorm_registry");
         }
+        startTime = System.currentTimeMillis();
+        writeColumns();
     }
 
     @AfterClass
@@ -176,7 +219,10 @@ public class TestSmileTopology extends TestSessionStorm {
         TestSessionStorm.logger.info("Finished traiing");
     }
 
-    public void score( String inputDir, String scoringInput, String scoringOutput, String function ) throws Exception {
+    public void score( String inputDir, String scoringInput, String scoringOutput, JSONUtil json ) throws Exception {
+        String function = json.getElement("function").toString();
+        String dataSet = json.getElement("dataSet").toString();
+        String modelType = json.getElement("modelType").toString();
         File input = new File(inputDir,  scoringInput);
         File output = new File(inputDir, scoringOutput);
         BufferedReader brIn = new BufferedReader(new FileReader(input));
@@ -187,28 +233,44 @@ public class TestSmileTopology extends TestSessionStorm {
         int numFalseNegative = 0;
         int numCorrectPositive = 0;
         int numCorrectNegative = 0;
+        ArrayList<Long> startTimes = new ArrayList<Long>();
+        ArrayList<Long> endTimes = new ArrayList<Long>();
+        ArrayList<Integer> correctness = new ArrayList<Integer>(); // 0 = TP, 1 = FP, 2 = TN, 3 = FN, 4 = Invalid
 
         logger.info("Started scoring from " + input.getPath());
         logger.info("Started scoring against " + output.getPath());
+        logger.info("function  = " + function );
+        logger.info("dataSet  = " + dataSet );
+        logger.info("modelType  = " + modelType );
 
         String inLine;
         while ((inLine = brIn.readLine()) != null) {
             numLines += 1;
+            startTimes.add(System.currentTimeMillis());
             String drpcResult = cluster.DRPCExecute( function, inLine );
+            endTimes.add(System.currentTimeMillis());
             String outLine = brOut.readLine();
             logger.info("drpc result = " + drpcResult + " from file " + outLine);
             assertTrue("Couldn't get corresponding output", brOut != null);
             if ( outLine.equals("1") ) {
                 if (drpcResult.equals(outLine)) {
                     numCorrectPositive += 1;
+                    correctness.add(0);
                 } else {
                     numFalsePositive += 1;
+                    correctness.add(1);
                 }
             } else {
-                if (drpcResult.equals(outLine)) {
-                    numCorrectNegative += 1;
+                if ( outLine.equals("-1") ) {
+                    if (drpcResult.equals(outLine)) {
+                        numCorrectNegative += 1;
+                        correctness.add(2);
+                    } else {
+                        numFalseNegative += 1;
+                        correctness.add(3);
+                    }
                 } else {
-                    numFalseNegative += 1;
+                        correctness.add(4);
                 }
             }
         }
@@ -225,6 +287,48 @@ public class TestSmileTopology extends TestSessionStorm {
         percentageCorrect = percentageCorrect * 100.0;
         logger.info("Percentage correct = " + String.format("%.2f", percentageCorrect));
         assertTrue("Percentage correct < 80 ", percentageCorrect >= 80.0 );
+
+        // Let's write out everything
+        File toWrite = new File( resultsFile );
+        FileWriter writer = new FileWriter(toWrite.getPath(), true);
+
+        for (int i = 0 ; i < numLines ; i++ ) {
+            writer.append(stormVersion); writer.append(',');
+            writer.append(smileVersion); writer.append(',');
+            writer.append(rsVersion); writer.append(',');
+            writer.append(dataSet); writer.append(',');
+            writer.append(modelType); writer.append(',');
+            writer.append(String.valueOf(startTimes.get(i) - startTime )); writer.append(',');
+            writer.append(String.valueOf(endTimes.get(i) - startTime )); writer.append(',');
+            int result = correctness.get(i);
+            if ( result == 0 ) {
+                writer.append("1"); writer.append(',');
+            } else {
+                writer.append("0"); writer.append(',');
+            }
+            if ( result == 1 ) {
+                writer.append("1"); writer.append(',');
+            } else {
+                writer.append("0"); writer.append(',');
+            }
+            if ( result == 2 ) {
+                writer.append("1"); writer.append(',');
+            } else {
+                writer.append("0"); writer.append(',');
+            }
+            if ( result == 3 ) {
+                writer.append("1"); writer.append(',');
+            } else {
+                writer.append("0"); writer.append(',');
+            }
+            if ( result == 4 ) {
+                writer.append("1"); writer.append('\n');
+            } else {
+                writer.append("0"); writer.append('\n');
+            }
+        }
+        writer.flush();
+        writer.close();
     }
     
     public class SmileSession {
@@ -330,7 +434,7 @@ public class TestSmileTopology extends TestSessionStorm {
 
         // All right.  We now have the location of the injection port.  Train away.
         train(pathToData, trainingFiles, spoutHost, ss.injectionPort, Integer.parseInt(scoringTimeout));
-        score( pathToData, scoringInput, scoringOutput, function);
+        score( pathToData, scoringInput, scoringOutput, json);
     }
 
     @Test
