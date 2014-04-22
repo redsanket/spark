@@ -9,5 +9,7 @@
                       "xbe", "xbf", "xbg", "xbh", "xbi", "xbj", "xbk", "xbl", "xbm", "xbn",
                       "xbo", "xbp", "xbq", "xbr", "xbs", "xbt", "xbu", "xbv", "xbw", "xbx" ],
     "scoringInput":"score.input",
-    "scoringOutput":"score.output"
+    "scoringOutput":"score.output",
+    "modelType":"VW",
+    "dataSet":"Flickr"
 }
