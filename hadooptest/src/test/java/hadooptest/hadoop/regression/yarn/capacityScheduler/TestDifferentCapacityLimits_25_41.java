@@ -5,20 +5,55 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.Future;
 
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.apache.hadoop.mapreduce.Job;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+@RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
+public class TestDifferentCapacityLimits_25_41 extends CapacitySchedulerBaseClass {
 	private static int THOUSAND_MILLISECONDS = 1000;
 	private static int QUEUE_CAPACITY = 1;
+	private String capSchedConfFile;
+
+	@Parameters
+	public static Collection<Object[]> data() {
+		TestSession.start();
+		TestSession.logger
+				.info(TestSession.conf.getProperty("WORKSPACE")
+						+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+		TestSession.logger
+				.info(TestSession.conf.getProperty("WORKSPACE")
+						+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml");
+		return Arrays
+				.asList(new Object[][] {
+						{ TestSession.conf.getProperty("WORKSPACE")
+								+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml" },
+						{ TestSession.conf.getProperty("WORKSPACE")
+								+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml" } });
+	}
 	
-	
+	@BeforeClass
+	public static void testSessionStart() throws Exception {
+		TestSession.start();
+	}
+
+	public TestDifferentCapacityLimits_25_41(String capSchedConfFile) {
+		super();
+		this.capSchedConfFile = capSchedConfFile;
+	}
 
 	void printSelfCalculatedStats(
 			CalculatedCapacityLimitsBO calculatedCapacityBO) {
@@ -87,11 +122,10 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 	 * @throws Exception
 	 */
 	@Test
-	public void testMaxSchedulableApplicationsMultiUser() throws Exception {
-		String testCode = "t1";
-		copyResMgrConfigAndRestartNodes(TestSession.conf
-				.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+	public void testMaxConcurrentlySchedulableApplicationsByMultipleUsers()
+			throws Exception {
+		String testCode = "t1pc25";
+		copyResMgrConfigAndRestartNodes(capSchedConfFile);
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
@@ -102,7 +136,7 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 				if (aQueueCapaityDetail.name
 						.equals(jobQueueInfo.getQueueName())) {
 					TestSession.logger
-							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxSchedulableApplicationsMultiUser for queue "
+							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxConcurrentlySchedulableApplicationsByMultipleUsers for queue "
 									+ jobQueueInfo.getQueueName()
 									+ " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 					double maxSchedulableApps = aQueueCapaityDetail.maxActiveApplications;
@@ -115,9 +149,9 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 										.getQueueName()),
 								jobQueueInfo.getQueueName(), "hadoop"
 										+ jobCount, 1 * QUEUE_CAPACITY,
-								10 * THOUSAND_MILLISECONDS, testCode + "-job-" + jobCount
-										+ "-launched-by-user-" + "hadoop"
-										+ jobCount + "-on-queue-"
+								10 * THOUSAND_MILLISECONDS, testCode + "-job-"
+										+ jobCount + "-launched-by-user-"
+										+ "hadoop" + jobCount + "-on-queue-"
 										+ jobQueueInfo.getQueueName());
 						sleepJobParamsList.add(sleepJobParams);
 
@@ -168,12 +202,11 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 	}
 
 	@Test
-	public void testMaxSchedulableApplicationsSingleUser() throws Exception {
-		String testCode = "t2";
+	public void testMaxConcurrentlySchedulableApplicationsByASingleUser()
+			throws Exception {
+		String testCode = "t2pc25";
 		String SINGLE_USER_NAME = "hadoop2";
-		copyResMgrConfigAndRestartNodes(TestSession.conf
-				.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+		copyResMgrConfigAndRestartNodes(capSchedConfFile);
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
@@ -184,7 +217,7 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 				if (aQueueCapaityDetail.name
 						.equals(jobQueueInfo.getQueueName())) {
 					TestSession.logger
-							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxSchedulableApplicationsSingleUser for queue "
+							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxConcurrentlySchedulableApplicationsByASingleUser for queue "
 									+ jobQueueInfo.getQueueName()
 									+ " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 					double maxSchedulableAppsPerUser = aQueueCapaityDetail.maxActiveApplicationsPerUser;
@@ -217,7 +250,8 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 										.getQueueName()),
 								jobQueueInfo.getQueueName(), SINGLE_USER_NAME,
 								1 * QUEUE_CAPACITY, 10 * THOUSAND_MILLISECONDS,
-								testCode + "-job-" + jobCount + "-launched-by-user-"
+								testCode + "-job-" + jobCount
+										+ "-launched-by-user-"
 										+ SINGLE_USER_NAME + "-on-queue-"
 										+ jobQueueInfo.getQueueName());
 						sleepJobParamsList.add(sleepJobParams);
@@ -269,12 +303,12 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 	}
 
 	@Test
-	public void testMaxApplicationsLimitViaSingleUser() throws Exception {
-		String testCode = "t3";
+	public void testHittingMaxApplicationsLimitWithASingleUser()
+			throws Exception {
+		String testCode = "t3pc25";
+		String fixedQueueForThisTest = "search";
 		String SINGLE_USER_NAME = HadooptestConstants.UserNames.HADOOPQA;
-		copyResMgrConfigAndRestartNodes(TestSession.conf
-				.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+		copyResMgrConfigAndRestartNodes(capSchedConfFile);
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
@@ -282,16 +316,19 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
-				// Just limit the test run to to "search" queue.
+				// Just limit the test run to to fixedQueueForThisTest queue.
 				if (aQueueCapaityDetail.name
 						.equals(jobQueueInfo.getQueueName())
-						&& (jobQueueInfo.getQueueName().equals("search"))) {
+						&& (jobQueueInfo.getQueueName()
+								.equals(fixedQueueForThisTest))) {
 					TestSession.logger
-							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxApplicationsLimitViaSingleUser for queue "
+							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testHittingMaxApplicationsLimitWithASingleUser for queue "
 									+ jobQueueInfo.getQueueName()
 									+ " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 					double maxApplications = aQueueCapaityDetail.maxApplications;
 					double maxAppsPerUser = aQueueCapaityDetail.maxApplicationsPerUser;
+					Assume.assumeTrue(maxApplications < maxAppsPerUser);
+
 					ArrayList<SleepJobParams> sleepJobParamsList = new ArrayList<SleepJobParams>();
 					if (maxApplications < maxAppsPerUser) {
 						// This means a single user can hit the ceiling.
@@ -306,8 +343,9 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 											.getQueueName()),
 									jobQueueInfo.getQueueName(),
 									SINGLE_USER_NAME, 1 * QUEUE_CAPACITY,
-									500 * THOUSAND_MILLISECONDS, testCode + "-job-"
-											+ jobCount + "-launched-by-user-"
+									500 * THOUSAND_MILLISECONDS, testCode
+											+ "-job-" + jobCount
+											+ "-launched-by-user-"
 											+ SINGLE_USER_NAME + "-on-queue-"
 											+ jobQueueInfo.getQueueName());
 							sleepJobParamsList.add(sleepJobParams);
@@ -334,7 +372,11 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 						killStartedJobs(futureCallableSleepJobs);
 
 					} else {
-						Assert.fail("Test not setup right");
+
+						Assert.fail("Test not setup right. You want to test that a single user can hit the 'Max Applications' limit, but"
+								+ " since 'Max Applications Per User' < 'Max Applications', for the queue named  "
+								+ fixedQueueForThisTest
+								+ " this test cannot be run");
 					}
 				}
 			}
@@ -343,12 +385,12 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 	}
 
 	@Test
-	public void testMaxApplicationsLimitViaMultipleUsers() throws Exception {
-		String testCode ="t4";
+	public void testHittingMaxApplicationsLimitWithMultipleUsers()
+			throws Exception {
+		String testCode = "t4pc25";
 		String SINGLE_USER_NAME = HadooptestConstants.UserNames.HADOOPQA;
-		copyResMgrConfigAndRestartNodes(TestSession.conf
-				.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+		String queueRelevantForThisTest = "grideng";
+		copyResMgrConfigAndRestartNodes(capSchedConfFile);
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
@@ -356,12 +398,13 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
-				// Just limit the test run to to "search" queue.
+				// Just limit the test run to to "grideng" queue.
 				if (aQueueCapaityDetail.name
 						.equals(jobQueueInfo.getQueueName())
-						&& jobQueueInfo.getQueueName().equals("grideng")) {
+						&& jobQueueInfo.getQueueName().equals(
+								queueRelevantForThisTest)) {
 					TestSession.logger
-							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxApplicationsLimitViaMultipleUsers for queue "
+							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testHittingMaxApplicationsLimitWithMultipleUsers for queue "
 									+ jobQueueInfo.getQueueName()
 									+ " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 					double maxApplications = aQueueCapaityDetail.maxApplications;
@@ -380,8 +423,9 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 											.getQueueName()),
 									jobQueueInfo.getQueueName(),
 									SINGLE_USER_NAME, 1 * QUEUE_CAPACITY,
-									500 * THOUSAND_MILLISECONDS, testCode + "-job-"
-											+ jobCount + "-launched-by-user-"
+									500 * THOUSAND_MILLISECONDS, testCode
+											+ "-job-" + jobCount
+											+ "-launched-by-user-"
 											+ SINGLE_USER_NAME + "-on-queue-"
 											+ jobQueueInfo.getQueueName());
 							sleepJobParamsList.add(sleepJobParams);
@@ -425,8 +469,8 @@ public class TestRunCsQueue25Pc extends CapacitySchedulerBaseClass {
 												.getQueueName()),
 										jobQueueInfo.getQueueName(), "hadoop"
 												+ userId, 1 * QUEUE_CAPACITY,
-										500 * THOUSAND_MILLISECONDS, testCode + "-job-"
-												+ jobCount
+										500 * THOUSAND_MILLISECONDS, testCode
+												+ "-job-" + jobCount
 												+ "-launched-by-user-"
 												+ "hadoop" + userId
 												+ "-on-queue-"

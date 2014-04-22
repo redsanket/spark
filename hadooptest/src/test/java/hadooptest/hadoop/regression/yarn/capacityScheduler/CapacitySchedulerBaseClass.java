@@ -37,6 +37,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.SleepJob;
+import org.junit.After;
 import org.junit.Assert;
 
 public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
@@ -133,6 +134,15 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
+	/**
+	 * This function is unused, because the read back memory stats always come
+	 * back as 0. I got with Tom and there is already a Jira open for this.
+	 * 
+	 * @param futureCallableSleepJobs
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	public RuntimeStatsBO collateRuntimeStatsForJobs(
 			ArrayList<Future<Job>> futureCallableSleepJobs)
 			throws InterruptedException, ExecutionException {
@@ -502,7 +512,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	// @After
+	@After
 	public void restoreTheConfigFile() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -600,8 +610,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 							+ jobName);
 
 					Assert.assertTrue(
-							"Test failed on an "
-							+ "expected exception",
+							"Test failed on an " + "expected exception",
 							e.getMessage().contains(
 									"cannot accept submission of application"));
 

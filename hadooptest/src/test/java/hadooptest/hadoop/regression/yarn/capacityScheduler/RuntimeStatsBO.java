@@ -46,14 +46,14 @@ public class RuntimeStatsBO {
 		void tick() {
 			try {
 				memoryConsumed.add(job.getStatus().getUsedMem());
-				TestSession.logger.info("JobId:" + job.getJobID() + " added mem usage:" + job.getStatus().getUsedMem());
+				TestSession.logger.info("JobId:" + job.getJobName() + " added mem usage:" + job.getStatus().getUsedMem());
 				
-				TestSession.logger.info("JobId:" + job.getJobID() + " map progress:" + job.getStatus().getMapProgress());
-				TestSession.logger.info("JobId:" + job.getJobID() + " needed mem:" + job.getStatus().getNeededMem());
-				TestSession.logger.info("JobId:" + job.getJobID() + " num reserved slots:" + job.getStatus().getNumReservedSlots());
-				TestSession.logger.info("JobId:" + job.getJobID() + " num used slots:" + job.getStatus().getNumUsedSlots());
-				TestSession.logger.info("JobId:" + job.getJobID() + " reduce progress" + job.getStatus().getReduceProgress());
-				TestSession.logger.info("JobId:" + job.getJobID() + " reserved mem:" + job.getStatus().getReservedMem());
+				TestSession.logger.info("Job Name:" + job.getJobName() + " map progress:" + job.getStatus().getMapProgress());
+				TestSession.logger.info("Job Name:" + job.getJobName() + " needed mem:" + job.getStatus().getNeededMem());
+				TestSession.logger.info("Job Name:" + job.getJobName() + " num reserved slots:" + job.getStatus().getNumReservedSlots());
+				TestSession.logger.info("Job Name:" + job.getJobName() + " num used slots:" + job.getStatus().getNumUsedSlots());
+				TestSession.logger.info("Job Name:" + job.getJobName() + " reduce progress" + job.getStatus().getReduceProgress());
+				TestSession.logger.info("Job Name:" + job.getJobName() + " reserved mem:" + job.getStatus().getReservedMem());
 				
 				
 			} catch (IOException e) {
