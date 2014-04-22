@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramBuilderLaunchConfigurationType">
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="JAVA_HOME" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/"/>
+</mapAttribute>
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="/usr/bin/mvn"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_RUN_BUILD_KINDS" value="full,incremental,"/>
+<<<<<<< HEAD:hadooptest/.externalToolBuilders/mvn clean package -Dtar -DskipTests.launch
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="clean package -Dtar -DskipTests -Pprofile-eclipse"/>
+=======
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="clean package -gs resources/yjava_maven/settings.xml.orig -e -DskipTests -Pprofile-corp"/>
+>>>>>>> 664adfcc76af514b1a2d83c645efb831db7b2350:hadooptest/.externalToolBuilders/compile.launch
+<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_TRIGGERS_CONFIGURED" value="true"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${workspace_loc:/hadooptest}"/>
+</launchConfiguration>

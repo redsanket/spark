@@ -10,4 +10,4 @@ yinst i perlbase
 yinst i local_perl_compat
 yinst i perl_Yahoo_Backyard_SingleSignOn
 yinst i perl-File-Find-Rule
-#yinst i chartdirector_perl
+yinst i chartdirector_perl -br test

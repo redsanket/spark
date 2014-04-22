@@ -1,7 +1,0 @@
-<project>
-  <!-- extracted from: jports_org_apache_avro__avro-1.7.3_1 -->
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>yahoo.yinst.jports_org_apache_avro__avro</groupId>
-  <artifactId>org_apache_avro__avro</artifactId>
-  <version>1.7.3_1</version>
-</project>

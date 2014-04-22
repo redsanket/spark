@@ -181,7 +181,7 @@ public class TestNativeLibs32and64 extends TestSession {
 		TestSession.logger.debug("TaskReport has " + taskreports.length + " elements");
 		TestSession.logger.info("TaskReport element: " + taskreports[0].getTaskId());
 		
-		verifyTaskLog(nm, taskreports[0].getTaskId(), "checksuccess");	
+		verifyTaskLog(nm, taskreports[0].getTaskID().toString(), "checksuccess");
 	}
 	
 	// test definition for negative cases, where JDK and Libs do not align, 32/64 or 64/32
@@ -233,7 +233,7 @@ public class TestNativeLibs32and64 extends TestSession {
 		TestSession.logger.debug("TaskReport has " + taskreports.length + " elements");
 		TestSession.logger.info("TaskReport element: " + taskreports[0].getTaskId());
 		
-		verifyTaskLog(nm, taskreports[0].getTaskId(), "checkfail");	
+		verifyTaskLog(nm, taskreports[0].getTaskId().toString(), "checkfail");	
 	}
 	
 	// test definition for default case, where jdk and libs should default to 32 bits, and
@@ -282,7 +282,7 @@ public class TestNativeLibs32and64 extends TestSession {
 		TestSession.logger.debug("TaskReport has " + taskreports.length + " elements");
 		TestSession.logger.info("TaskReport element: " + taskreports[0].getTaskId());
 		
-		verifyTaskLog(nm, taskreports[0].getTaskId(), "checksuccessdefault");	
+		verifyTaskLog(nm, taskreports[0].getTaskId().toString(), "checksuccessdefault");	
 	}
 	
     // check the the NM's log for the appropriate messages where the libs were, or

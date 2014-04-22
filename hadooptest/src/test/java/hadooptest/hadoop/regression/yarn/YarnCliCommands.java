@@ -55,10 +55,6 @@ public class YarnCliCommands {
 		}
 	}
 
-	/*
-	 * 'dfsload' is our superuser who can create directories in DFS. For some
-	 * reason it did not work with 'hadoopqa'.
-	 */
 	/**
 	 * 
 	 * @param envMapSentByTest
@@ -72,11 +68,6 @@ public class YarnCliCommands {
 	public GenericYarnCliResponseBO rmadmin(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster,
 			YarnAdminSubCommand yarnSubCommand, String var) throws Exception {
-
-		HashMap<String, String> tempEnv = new HashMap<String, String>();
-		if (envMapSentByTest.containsKey(KRB5CCNAME)) {
-			tempEnv.put(KRB5CCNAME, envMapSentByTest.get(KRB5CCNAME));
-		}
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.YARN);

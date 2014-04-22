@@ -35,6 +35,37 @@
     </description>
   </property>
 
+  <!--
+  <property>
+    <name>yarn.resourcemanager.recovery.enabled</name>
+    <value>true</value>
+    <description>
+    The YARN Resource Manager (RM) supports application recovery across restarts (YARN-128). 
+    Recovery is off by default, but by setting yarn.resourcemanager.recovery.enabled to true 
+    any YARN apps (including MR jobs) that were running on the cluster 
+    will be recovered after the RM is restarted. 
+    This is the first step in providing HA for the RM (YARN-149).
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.store.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore</value>
+    <description>
+    Enable RM to recover state after starting. If true, then yarn.resourcemanager.store.class must be specified
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.fs.state-store.uri</name>
+    <value>${hadoop.tmp.dir}/yarn/system/rmstore</value>
+    <description>
+    URI pointing to the location of the FileSystem path where RM state will be stored. 
+    This must be supplied when using org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore 
+    as the value for yarn.resourcemanager.store.class
+    </description>
+  </property>
+  -->
 
 <!-- YARN CAPACITY SCHEDULER PROPERTIES BEGINS HERE -->
 
