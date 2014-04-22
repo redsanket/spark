@@ -1,7 +1,7 @@
 {
     "function":"query",
     "pathToConf":"resources/storm/testinputoutput/TestSmileTopology/smile-flickr-http-conf.clj",
-    "pathToData":"/homes/hadoopqa/smileData/flickr/airplane/",
+    "pathToData":"/grid/0/smileData/flickr/airplane/",
     "scoringTimeout":"2000",
     "trainingFiles":[ "xaa", "xab", "xac", "xad", "xae", "xaf", "xag", "xah", "xai", "xaj",
                       "xak", "xal", "xam", "xan", "xao", "xap", "xaq", "xar", "xas", "xat",
@@ -9,5 +9,7 @@
                       "xbe", "xbf", "xbg", "xbh", "xbi", "xbj", "xbk", "xbl", "xbm", "xbn",
                       "xbo", "xbp", "xbq", "xbr", "xbs", "xbt", "xbu", "xbv", "xbw", "xbx" ],
     "scoringInput":"score.input",
-    "scoringOutput":"score.output"
+    "scoringOutput":"score.output",
+    "modelType":"VW",
+    "dataSet":"Flickr"
 }
