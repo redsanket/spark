@@ -250,9 +250,9 @@ public class TestSmileTopology extends TestSessionStorm {
             String drpcResult = cluster.DRPCExecute( function, inLine );
             endTimes.add(System.currentTimeMillis());
             String outLine = brOut.readLine();
-            logger.info("drpc result = " + drpcResult + " from file " + outLine);
+            logger.debug("drpc result = " + drpcResult + " from file " + outLine);
             assertTrue("Couldn't get corresponding output", brOut != null);
-            if ( outLine.equals("1") ) {
+            if ( drpcResult != null && drpcResult.equals("1") ) {
                 if (drpcResult.equals(outLine)) {
                     numCorrectPositive += 1;
                     correctness.add(0);
@@ -261,7 +261,7 @@ public class TestSmileTopology extends TestSessionStorm {
                     correctness.add(1);
                 }
             } else {
-                if ( outLine.equals("-1") ) {
+                if ( drpcResult != null && drpcResult.equals("-1") ) {
                     if (drpcResult.equals(outLine)) {
                         numCorrectNegative += 1;
                         correctness.add(2);
