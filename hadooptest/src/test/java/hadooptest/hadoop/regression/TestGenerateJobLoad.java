@@ -388,21 +388,26 @@ public class TestGenerateJobLoad extends TestSession {
             
             jobType = jobTypes[index%numJobTypes];
             jobIndex++;
+            String username="hadoopqa";
+            if (multiUsersMode) {
+                username = "hadoop" + ((index%20)+1);
+            }
             TestSession.logger.info("---------- Submit job #" + jobIndex +
-                    " " + jobType + " (batch job " + (index+1) + "/" + numJobs +
+                    " type=" + jobType + " user=" + username + 
+                    " (batch job " + (index+1) + "/" + numJobs +
                     ") ---------------");
             switch (jobType) {
                 case WORDCOUNT: 
-                    this.submitWordCountJobCLI("hadoop" + ((index%20)+1));                
+                    this.submitWordCountJobCLI(username);                
                     break;
                 case TERAGEN: 
-                    this.submitTeraGenJobCLI("hadoop" + ((index%20)+1));                
+                    this.submitTeraGenJobCLI(username);                
                     break;
                 case TERASORT:
-                    this.submitTeraSortJobCLI("hadoop" + ((index%20)+1));                
+                    this.submitTeraSortJobCLI(username);                
                     break;
                 default:
-                    this.submitSleepJobCLI("hadoop" + ((index%20)+1));
+                    this.submitSleepJobCLI(username);
                     break;
             }
             index++;                        
