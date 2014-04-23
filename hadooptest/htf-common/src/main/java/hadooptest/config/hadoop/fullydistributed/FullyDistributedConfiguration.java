@@ -472,6 +472,10 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
      */
 	public boolean copyFilesToConfDir (String sourceDir, String component) 
 			throws Exception {
+	    
+	    // TODO: Component is not used... this might be an artifact from the 
+	    // previous design!!!
+	    
 	    if (!sourceDir.endsWith("/")) {
             sourceDir = sourceDir.concat("/");
         }
@@ -519,7 +523,9 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 		 * where files are to be copied to, or the actual full path filename to
 		 * be copied to.
 		 */
+		
 		String confDir = this.hadoopConfDir;
+		
 		String target =
 			((targetFile == null) || targetFile.isEmpty()) ?
 			confDir : confDir + "/" + targetFile;

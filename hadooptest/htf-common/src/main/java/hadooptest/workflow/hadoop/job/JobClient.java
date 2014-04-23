@@ -101,7 +101,49 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         }
         return filteredJs.toArray(new JobStatus[filteredJs.size()]);
     }
-    
+
+    /**
+     * Get JobStatus for all jobs in a given State.
+     * 
+     * @param Array of job status. 
+     * 
+     * @throws IOException 
+     */
+    public JobStatus[]  getJobs(JobState expectedState) 
+            throws InterruptedException, IOException {
+        return this.getJobs(this.getAllJobs(), expectedState); 
+    }
+
+    /**
+     * Get JobStatus for jobs in a given State.
+     * 
+     * @param long startTime
+     * 
+     * @throws IOException 
+     */
+    public JobStatus[] getJobs(JobStatus[] jobsStatus, JobState expectedState)
+            throws IOException {        
+        TestSession.logger.debug(
+                "Get jobs status for jobs with specified state of '" + 
+                expectedState.name() + "'");
+        ArrayList<JobStatus> filteredJs = new ArrayList<JobStatus>();
+        String jobId;
+        String actualJobState;
+        for (JobStatus js : jobsStatus) {
+            jobId = js.getJobID().toString();
+            actualJobState = js.getState().name();
+            if (actualJobState.equals(expectedState.name())) {
+                TestSession.logger.trace("Include job '" + jobId +
+                        "': job with State '" + actualJobState + "'.");
+                filteredJs.add(js);
+            } else {
+                TestSession.logger.trace("Exclude job '" + jobId +
+                        "': job with State '" + actualJobState + "'.");
+            }
+        }
+        return filteredJs.toArray(new JobStatus[filteredJs.size()]);
+    }
+
     /**
      * Get Job ID's for all jobs that ran at or after a given start time.
      * 
@@ -198,7 +240,7 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
         JobState currentState = JobState.UNKNOWN;
         String jobIdStr = jobID.toString();
         // Give the sleep job time to complete
-        for (int i = 0; i <= (minutes * 6); i++) {            
+        for (int i = 0; i <= (minutes * 6); i++) {
             currentState = JobState.getState(
                     super.getJob(jobID).getJobState());
             if (currentState.equals(JobState.SUCCEEDED)) {

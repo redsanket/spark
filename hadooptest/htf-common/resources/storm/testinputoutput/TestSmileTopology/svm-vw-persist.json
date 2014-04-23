@@ -1,8 +1,8 @@
 {
-    "function":"gradientquery",
-    "pathToConf":"resources/storm/testinputoutput/TestSmileTopology/smile-http-gradient-conf.clj",
+    "function":"query",
+    "pathToConf":"resources/storm/testinputoutput/TestSmileTopology/smile-http-persist-conf.clj",
     "pathToData":"/grid/0/smileData/url_svmlight/",
-    "scoringTimeout":"2000",
+    "scoringTimeout":"1000",
     "trainingFiles":[ "Day0.vw", "Day1.vw", "Day2.vw", "Day3.vw", "Day4.vw", "Day5.vw", "Day6.vw", "Day7.vw", "Day8.vw", "Day9.vw", 
         "Day10.vw", "Day11.vw", "Day12.vw", "Day13.vw", "Day14.vw", "Day15.vw", "Day16.vw", "Day17.vw", "Day18.vw", "Day19.vw",
         "Day20.vw", "Day21.vw", "Day22.vw", "Day23.vw", "Day24.vw", "Day25.vw", "Day26.vw", "Day27.vw", "Day28.vw", "Day29.vw",
@@ -17,6 +17,6 @@
         "Day110.vw", "Day111.vw", "Day112.vw", "Day113.vw", "Day114.vw", "Day115.vw", "Day116.vw", "Day117.vw", "Day118.vw", "Day119.vw" ],
     "scoringInput":"score.input",
     "scoringOutput":"score.output",
-    "modelType":"Gradient Descent",
+    "modelType":"VW Persistent",
     "dataSet":"url_svmlight"
 }

@@ -5,6 +5,7 @@ import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_JOB_TYPE;
 import hadooptest.workflow.hadoop.job.JobClient;
+import hadooptest.workflow.hadoop.job.JobState;
 import hadooptest.workflow.hadoop.job.SleepJob;
 import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 import hadooptest.workflow.hadoop.job.WordCountJob;
@@ -16,6 +17,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.junit.Before;
@@ -52,6 +54,7 @@ public class TestGenerateJobLoad extends TestSession {
     static int interval = 60;
     static int maxDurationMin = 60;
     static boolean waitForJobId = false;
+    static boolean multiUsersMode = false;
     String dataRootDir = "/tmp/genjobload." + 
             new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
 
@@ -70,6 +73,8 @@ public class TestGenerateJobLoad extends TestSession {
 	            Integer.parseInt(System.getProperty("RUNTIME_DURATION_MIN", "60"));
         waitForJobId = 
                 Boolean.parseBoolean(System.getProperty("WAIT_FOR_JOB_ID", "false"));
+        multiUsersMode = 
+                Boolean.parseBoolean(System.getProperty("MULTI_USERS_MODE", "false"));
         
         TestSession.logger.info("threshold='" + threshold);
         TestSession.logger.info("terminationFilename='" + terminationFilename + "'");
@@ -77,6 +82,7 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.logger.info("interval='" + interval + "'");
         TestSession.logger.info("maxDurationMin='" + maxDurationMin + "'");
         TestSession.logger.info("waitForJobId='" + waitForJobId + "'");
+        TestSession.logger.info("multiUsersMode='" + multiUsersMode + "'");
 	}
 	
 	@Before
@@ -198,6 +204,9 @@ public class TestGenerateJobLoad extends TestSession {
             }
         } while ((elapsedTime < maxDurationMs) && (!terminationFile.exists()));
         
+        String username="hadoopqa";
+        TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
+
         // Wait for all the jobs to succeed.
         this.waitForSuccessForAllJobs(15);
         
@@ -282,8 +291,11 @@ public class TestGenerateJobLoad extends TestSession {
         int rc;
         String[] args = { "-m", "10", "-r", "10", "-mt", "10000", "-rt", "10000"};
         Configuration conf = TestSession.cluster.getConf();
+        String username="hadoopqa";
         while (index < numJobs) {
-            String username = "hadoop" + ((index%20)+1);
+            if (multiUsersMode) {
+                username = "hadoop" + ((index%20)+1);
+            }
             TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
             TestSession.logger.info("---------- Submit job #" + (index+1) + " --------------");
             
@@ -349,32 +361,53 @@ public class TestGenerateJobLoad extends TestSession {
                 TestSession.logger.info(
                         "Current capacity '" + currentCapacity + 
                         "' is >= the threshold value of '" +
-                        capacityThreshold + "': skip to next turn");
+                        capacityThreshold + "': skip a turn");
                 break;
             } else {
                 TestSession.logger.info(
                         "Current capacity '" + currentCapacity + 
                         "' is < the threshold value of '" +
-                        capacityThreshold + "': proceed");                
+                        capacityThreshold + "': proceed");   
+                
+                // Check for existing jobs that are in prep state
+                JobClient jobClient = TestSession.cluster.getJobClient();        
+                JobStatus[] jobsStatus = jobClient.getJobs(JobState.PREP);
+                int numPrepJobs = jobsStatus.length;
+                if (numPrepJobs > 0) {                    
+                    jobClient.displayJobList(jobsStatus);
+                    TestSession.logger.info(
+                            "There are currently still '" + numPrepJobs + 
+                            "' jobs in the PREP state: skip a turn");
+                    break;
+                } else {
+                    TestSession.logger.info(
+                            "There are currently no jobs in the PREP state: " +
+                            "proceed");                    
+                }
             }
             
             jobType = jobTypes[index%numJobTypes];
             jobIndex++;
+            String username="hadoopqa";
+            if (multiUsersMode) {
+                username = "hadoop" + ((index%20)+1);
+            }
             TestSession.logger.info("---------- Submit job #" + jobIndex +
-                    " " + jobType + " (batch job " + (index+1) + "/" + numJobs +
+                    " type=" + jobType + " user=" + username + 
+                    " (batch job " + (index+1) + "/" + numJobs +
                     ") ---------------");
             switch (jobType) {
                 case WORDCOUNT: 
-                    this.submitWordCountJobCLI("hadoop" + ((index%20)+1));                
+                    this.submitWordCountJobCLI(username);                
                     break;
                 case TERAGEN: 
-                    this.submitTeraGenJobCLI("hadoop" + ((index%20)+1));                
+                    this.submitTeraGenJobCLI(username);                
                     break;
                 case TERASORT:
-                    this.submitTeraSortJobCLI("hadoop" + ((index%20)+1));                
+                    this.submitTeraSortJobCLI(username);                
                     break;
                 default:
-                    this.submitSleepJobCLI("hadoop" + ((index%20)+1));
+                    this.submitSleepJobCLI(username);
                     break;
             }
             index++;                        

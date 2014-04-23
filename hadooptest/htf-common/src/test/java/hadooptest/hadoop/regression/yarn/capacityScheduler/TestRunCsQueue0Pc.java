@@ -2,16 +2,10 @@ package hadooptest.hadoop.regression.yarn.capacityScheduler;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
-import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
 import java.util.HashMap;
 
-import org.junit.After;
 import org.junit.Test;
 
 public class TestRunCsQueue0Pc extends CapacitySchedulerBaseClass {
