@@ -162,7 +162,7 @@ unless ($install_only) {
 
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
         execute("/bin/mkdir -p $local_ws_ht/target");
-        execute("scp -rp $remote_host:$remote_ws_ht/target/surefire-reports $local_ws_ht/target");
+        execute("scp -rp $remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
