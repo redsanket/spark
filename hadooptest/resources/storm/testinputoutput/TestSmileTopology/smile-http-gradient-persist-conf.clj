@@ -38,7 +38,7 @@
                 :save.model.every 30000
                 }]
 
- :name "smile_gradient"
+ :name "smile_gradient_persist"
 
  :local false
 
