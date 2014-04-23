@@ -122,8 +122,10 @@ public class TestSmileTopology extends TestSessionStorm {
             killAll();
             mc.resetConfigsAndRestart();
             mc.stopRegistryServer();
+            killAll();
         }
         stop();
+        String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
     }
 
     public static void killAll() throws Exception {
@@ -171,8 +173,13 @@ public class TestSmileTopology extends TestSessionStorm {
         Files.write(path, content.getBytes(charset));
     }
 
-    public void train( String dirPath, ArrayList<String> trainingFiles, String hostname, int port, int pauseBetween ) throws Exception {
+    public void train( JSONUtil json, String hostname, int port ) throws Exception {
         // Set up http client
+
+        String dirPath = json.getElement("pathToData").toString();
+        String scoringTimeout = json.getElement("scoringTimeout").toString();
+        int pauseBetween = Integer.parseInt(scoringTimeout);
+        ArrayList<String> trainingFiles = (ArrayList<String>) json.getElement("trainingFiles");
 
         HttpClient client = new HttpClient();
         client.setIdleTimeout(30000);
@@ -219,10 +226,13 @@ public class TestSmileTopology extends TestSessionStorm {
         TestSessionStorm.logger.info("Finished traiing");
     }
 
-    public void score( String inputDir, String scoringInput, String scoringOutput, JSONUtil json ) throws Exception {
+    public void score( JSONUtil json ) throws Exception {
         String function = json.getElement("function").toString();
         String dataSet = json.getElement("dataSet").toString();
         String modelType = json.getElement("modelType").toString();
+        String inputDir = json.getElement("pathToData").toString();
+        String scoringInput = json.getElement("scoringInput").toString();
+        String scoringOutput = json.getElement("scoringOutput").toString();
         File input = new File(inputDir,  scoringInput);
         File output = new File(inputDir, scoringOutput);
         BufferedReader brIn = new BufferedReader(new FileReader(input));
@@ -359,47 +369,8 @@ public class TestSmileTopology extends TestSessionStorm {
         }
     }
 
-    public void testSmile(String pathToJson) throws Exception {
-        JSONUtil json = new JSONUtil();
+    public String launchSmileTopology( String pathToConf, SmileSession ss) throws Exception {
 
-        json.setContentFromFile(pathToJson);
-
-        // Get the location of the traing data, etc from json based config.
-        String function = json.getElement("function").toString();
-        String pathToConf = json.getElement("pathToConf").toString();
-        String pathToData = json.getElement("pathToData").toString();
-        String scoringTimeout = json.getElement("scoringTimeout").toString();
-        ArrayList<String> trainingFiles = (ArrayList<String>) json.getElement("trainingFiles");
-        String scoringInput = json.getElement("scoringInput").toString();
-        String scoringOutput = json.getElement("scoringOutput").toString();
-        logger.info("Starting testSmile");
-        logger.info("function  = " + function );
-        logger.info("pathToConf  = " + pathToConf );
-        logger.info("pathToData  = " + pathToData );
-        logger.info("scoringTimeout  = " + scoringTimeout );
-        logger.info("trainingFiles  = " + trainingFiles );
-        logger.info("scoringInput  = " + scoringInput );
-        logger.info("scoringOutput  = " + scoringOutput );
-        for ( int i = 0 ; i < trainingFiles.size() ; i++ ) {
-            String s = trainingFiles.get(i);
-            logger.info( "File " + s );
-        }
-
-        // This is different than most tests.  We are going to use yinst to find the location of the smile jar.  It should
-        // be installed on the gateway node.  We are then going to launch it via the command line client, using process builder.
-        logger.info("Starting testSmile");
-        File jar = new File(smileJarFile);
-
-        // Add VH, and store off virtual host names and ports in class
-        SmileSession ss = new SmileSession();
-        ss.addVH();
- 
-        assertTrue( "Smile jar is not installed", jar.exists());
-
-        //Munge the config file to use our virutal hosts and ports
-        fixConfFile( pathToConf, ss );
-
-        // Launch topology
         String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", smileJarFile, "smile.classification.bootstrap.Bootstrap",  "conf-path", pathToConf }, true);
         assertTrue( "Could not launch topology", returnValue[0].equals("0") );
 
@@ -432,9 +403,83 @@ public class TestSmileTopology extends TestSessionStorm {
         }
         assertTrue( "Could not get YFOR information", spoutHost != null);
 
+        return spoutHost;
+    }
+
+    public void testSmile(String pathToJson) throws Exception {
+        // Read in json based config
+        JSONUtil json = new JSONUtil();
+        json.setContentFromFile(pathToJson);
+
+        // Get the location of the clojure conf we need to submit with topology
+        String pathToConf = json.getElement("pathToConf").toString();
+
+        // This is different than most tests.  We are going to use yinst to find the location of the smile jar.  It should
+        // be installed on the gateway node.  We are then going to launch it via the command line client, using process builder.
+        logger.info("Starting testSmile");
+        File jar = new File(smileJarFile);
+        assertTrue( "Smile jar is not installed", jar.exists());
+
+        // Add VH, and store off virtual host names and ports in class
+        SmileSession ss = new SmileSession();
+        ss.addVH();
+ 
+        //Munge the config file to use our virutal hosts and ports
+        fixConfFile( pathToConf, ss );
+
+        String spoutHost = launchSmileTopology( pathToConf, ss);
+
         // All right.  We now have the location of the injection port.  Train away.
-        train(pathToData, trainingFiles, spoutHost, ss.injectionPort, Integer.parseInt(scoringTimeout));
-        score( pathToData, scoringInput, scoringOutput, json);
+        train(json, spoutHost, ss.injectionPort);
+        score(json);
+    }
+
+    public void testSmilePersist(String pathToJson) throws Exception {
+        // Read in json based config
+        JSONUtil json = new JSONUtil();
+        json.setContentFromFile(pathToJson);
+
+        // Get the location of the clojure conf we need to submit with topology
+        String pathToConf = json.getElement("pathToConf").toString();
+
+        // This is different than most tests.  We are going to use yinst to find the location of the smile jar.  It should
+        // be installed on the gateway node.  We are then going to launch it via the command line client, using process builder.
+        logger.info("Starting testSmile");
+        File jar = new File(smileJarFile);
+        assertTrue( "Smile jar is not installed", jar.exists());
+
+        // Add VH, and store off virtual host names and ports in class
+        SmileSession ss = new SmileSession();
+        ss.addVH();
+ 
+        //Munge the config file to use our virutal hosts and ports
+        fixConfFile( pathToConf, ss );
+        String spoutHost = launchSmileTopology( pathToConf, ss);
+
+        // All right.  We now have the location of the injection port.  Train away.
+        train(json, spoutHost, ss.injectionPort);
+
+        logger.info("sleep 40 seconds to ensure model is written out");
+        Util.sleep(40);
+
+        // Now go ahead and kill the topology.  Wait 40 seconds, relaunch, and then score.  It should still work.
+        logger.info("Kill topology and sleep 40 seconds");
+        killAll();
+        Util.sleep(40);
+
+        logger.info("Relaunching topology");
+        spoutHost = launchSmileTopology( pathToConf, ss);
+
+        logger.info("sleep 40 seconds to ensure model is read in");
+        Util.sleep(40);
+
+        // Score it.
+        logger.info("Scoring");
+        score(json);
+
+        killAll();
+        Util.sleep(20);
+        String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
     }
 
     @Test
@@ -462,5 +507,12 @@ public class TestSmileTopology extends TestSessionStorm {
         testInstance = 3;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-gd.json");
         killAll();
+    }
+
+    @Test
+    public void TestSVMGradientPersist() throws Exception {
+        testInstance = 4;
+        String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
+        testSmilePersist("resources/storm/testinputoutput/TestSmileTopology/svm-gd-persist.json");
     }
 }
