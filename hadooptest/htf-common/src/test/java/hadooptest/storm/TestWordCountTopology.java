@@ -8,6 +8,7 @@ import hadooptest.TestSessionStorm;
 import hadooptest.Util;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
+import hadooptest.workflow.storm.topology.bolt.Split;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -131,7 +132,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         // TODO turn this into a utility that has a conf setting
         File jar = new File(
                 conf.getProperty("WORKSPACE")
-                        + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+                        + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
             int uptime = 20;
@@ -257,7 +258,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         config.setNumWorkers(3);
         config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
         //TODO turn this into a utility that has a conf setting
-        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
             
@@ -278,7 +279,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             }
             
             //get expected results
-            String file = conf.getProperty("WORKSPACE") + "/resources/storm/testinputoutput/WordCountFromFile/expected_results";
+            String file = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/WordCountFromFile/expected_results";
         
             HashMap<String, Integer> expectedWordCount = Util.readMapFromFile(file);
 
@@ -307,6 +308,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
     }    
 
+    /*
     @SuppressWarnings("serial")
     public static class Split extends BaseFunction {
         @Override
@@ -317,6 +319,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             }
         }
     }
+    */
 
         
     public static StormTopology buildTopology() {

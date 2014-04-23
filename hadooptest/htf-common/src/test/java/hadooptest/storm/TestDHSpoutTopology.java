@@ -123,7 +123,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
 
         addVirtualHost(new URI(vhURI));
         //TODO turn this into a utility that has a conf setting
-        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
@@ -178,7 +178,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
             HashMap<String, Integer> resultWordCount = Util.readMapFromFile(outputLoc);
 
             //get expected results
-            String file = conf.getProperty("WORKSPACE") + "/resources/storm/testinputoutput/TestDHSpoutTopology/expected_results";
+            String file = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestDHSpoutTopology/expected_results";
             logger.info("Read epected results from: "+ file);
             HashMap<String, Integer> expectedWordCount = Util.readMapFromFile(file);
 

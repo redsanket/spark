@@ -23,6 +23,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.Util;
+import hadooptest.workflow.storm.topology.bolt.ExclaimBolt;
 
 import backtype.storm.generated.*;
 import backtype.storm.drpc.LinearDRPCTopologyBuilder;
@@ -42,20 +43,6 @@ import org.eclipse.jetty.client.api.Request;
 public class TestBasicDRPC extends TestSessionStorm {
     static ModifiableStormCluster mc;
     private backtype.storm.Config _conf;
-
-    public static class ExclaimBolt extends BaseBasicBolt {
-        @Override
-        public void execute(Tuple tuple, BasicOutputCollector collector) {
-            String input = tuple.getString(1);
-            collector.emit(new Values(tuple.getValue(0), input + "!"));
-        }
-
-        @Override
-        public void declareOutputFields(OutputFieldsDeclarer declarer) {
-            declarer.declare(new Fields("id", "result"));
-        }
-
-    }
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -99,7 +86,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         _conf.setDebug(true);
         _conf.setNumWorkers(3);
 
-        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
@@ -190,7 +177,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         _conf.setDebug(true);
         _conf.setNumWorkers(3);
 
-        File jar = new File(conf.getProperty("WORKSPACE") + "/target/hadooptest-ci-1.0-SNAPSHOT-test-jar-with-dependencies.jar");
+        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
@@ -198,7 +185,7 @@ public class TestBasicDRPC extends TestSessionStorm {
             throw new Exception();
         }
         
-        String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
+        String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
         java.nio.file.Path inputPath = Paths.get(inputFileDir);
 
         boolean passed = false;

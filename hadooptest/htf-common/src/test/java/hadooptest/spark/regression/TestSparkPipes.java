@@ -44,7 +44,7 @@ public class TestSparkPipes extends TestSession {
 
                 TestSession.cluster.getFS();
                 String localFile = Util.getResourceFullPath("resources/spark/data/" + lrDatafile);
-                localJar = Util.getResourceFullPath("target/RandomWriter-tests.jar");
+                localJar = Util.getResourceFullPath("../htf-common/target/htf-common-1.0-SNAPSHOT-tests.jar");
                 System.out.println("LR data File is: " + localFile);
                 TestSession.cluster.getFS().copyFromLocalFile(new Path(localFile), new Path(hdfsDir));
         }
