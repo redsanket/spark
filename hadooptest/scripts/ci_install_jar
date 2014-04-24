@@ -9,8 +9,8 @@ set -x
 gunzip -f $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
 tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/
 
-# yjava_jetty-9.0.6.v20130930_0.47
-/usr/local/bin/yinst fetch yjava_jetty-9.0.6.v20130930_0.47 -br current -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tgz
+# yjava_jetty-9.1.4.v20140401_65
+/usr/local/bin/yinst fetch yjava_jetty-9.1.4.v20140401_65 -br current -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tgz
 gunzip -f $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tgz
 tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/
 
