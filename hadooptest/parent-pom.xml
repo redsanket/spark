@@ -37,8 +37,8 @@
 		<storm.version.yinst>0.9.0_wip21</storm.version.yinst>
 		<storm.version.community>0.9.0-wip21</storm.version.community>
 		<storm.version.release>237</storm.version.release>
-		<jetty.version>9.0.6.v20130930</jetty.version>
-		<jetty.version.release>0.47</jetty.version.release>
+		<jetty.version>9.1.4.v20140401</jetty.version>
+		<jetty.version.release>65</jetty.version.release>
 	</properties>
 
 	<build>
