@@ -28,6 +28,7 @@
 				<exclude>org.scala-lang:scala-library</exclude>
 				<exclude>org.scala-lang:scalap</exclude>
 				<exclude>system:yspark_yarn</exclude>
+				<exclude>system:ystorm_servlet-api</exclude>
 				<exclude>system:ystorm_contrib_http_spout</exclude>
 				<exclude>system:ystorm_core</exclude>
 				<exclude>system:ystorm_netty</exclude>
