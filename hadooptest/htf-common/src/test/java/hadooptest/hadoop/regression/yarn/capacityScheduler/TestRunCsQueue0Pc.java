@@ -22,7 +22,7 @@ public class TestRunCsQueue0Pc extends CapacitySchedulerBaseClass {
 	@Test
 	public void testCsSingleQueue0Percent1() throws Exception {
 		copyResMgrConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler0.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler0.xml");
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 		String dirWhereRMConfHasBeenCopied = fullyDistributedCluster.getConf(

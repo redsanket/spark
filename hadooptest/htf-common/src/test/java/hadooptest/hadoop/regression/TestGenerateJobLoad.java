@@ -553,7 +553,7 @@ public class TestGenerateJobLoad extends TestSession {
 
         TestSession.cluster.getFS();    
                 
-        localDir = TestSession.conf.getProperty("WORKSPACE") + "/resources//hadoop/data/pipes/";
+        localDir = TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources//hadoop/data/pipes/";
         TestSession.logger.info("Target local Directory is: "+ localDir);
         TestSession.logger.info("Target local File Name is: " + localFile);
         

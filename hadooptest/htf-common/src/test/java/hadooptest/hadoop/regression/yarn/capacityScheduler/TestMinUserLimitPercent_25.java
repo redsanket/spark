@@ -92,7 +92,7 @@ public class TestMinUserLimitPercent_25 extends CapacitySchedulerBaseClass {
 		String queueNameForThisTest = "grideng";
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);

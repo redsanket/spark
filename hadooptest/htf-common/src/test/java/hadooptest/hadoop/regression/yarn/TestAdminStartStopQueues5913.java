@@ -120,7 +120,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 			throws Exception {
 		String stoppedQueue = "c2";
 		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2QueueStopped.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2QueueStopped.xml");
 
 		JobClient jobClient = new JobClient(
 				((FullyDistributedCluster) TestSession.cluster)
@@ -159,7 +159,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 			throws Exception {
 		String invalidStateQueue = "c2";
 		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2InvalidState.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2InvalidState.xml");
 
 		JobClient jobClient = new JobClient(
 				((FullyDistributedCluster) TestSession.cluster)
@@ -190,7 +190,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 	public void testJobSubmissionToQueueWhichIsNotLeafNode() throws Exception {
 		String notLeafQueue = "a";
 		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2QueueStopped.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2QueueStopped.xml");
 
 		JobClient jobClient = new JobClient(
 				((FullyDistributedCluster) TestSession.cluster)
@@ -225,7 +225,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 	public void testJobSubmissionToQueueWhichIsNotDefined() throws Exception {
 		String undefinedQueue = "d";
 		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2QueueStopped.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2QueueStopped.xml");
 
 		JobClient jobClient = new JobClient(
 				((FullyDistributedCluster) TestSession.cluster)
@@ -263,7 +263,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 		String childQueueWhoseParentIsStopped = "a1";
 
 		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
 
 		JobClient jobClient = new JobClient(
 				((FullyDistributedCluster) TestSession.cluster)
@@ -302,7 +302,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 		String runningQueue = "c1";
 
 		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
 
 		JobClient jobClient = new JobClient(
 				((FullyDistributedCluster) TestSession.cluster)
@@ -330,7 +330,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 		String stoppedQueue = "b";
 
 		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-				+ "/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
 
 		JobClient jobClient = new JobClient(
 				((FullyDistributedCluster) TestSession.cluster)
@@ -348,7 +348,7 @@ public class TestAdminStartStopQueues5913 extends YarnTestsBaseClass {
 				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
 				.copyFileToConfDir(
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "/resources/hadooptest/hadoop/regression"
+								+ "/htf-common/resources/hadooptest/hadoop/regression"
 								+ "/yarn/adminStartStopQueues/capacity-scheduler_refreshQueues.xml",
 						CAPACITY_SCHEDULER_XML);
 		

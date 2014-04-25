@@ -33,16 +33,16 @@ public class TestDifferentCapacityLimits_25_41 extends CapacitySchedulerBaseClas
 		TestSession.start();
 		TestSession.logger
 				.info(TestSession.conf.getProperty("WORKSPACE")
-						+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+						+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
 		TestSession.logger
 				.info(TestSession.conf.getProperty("WORKSPACE")
-						+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml");
+						+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml");
 		return Arrays
 				.asList(new Object[][] {
 						{ TestSession.conf.getProperty("WORKSPACE")
-								+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml" },
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml" },
 						{ TestSession.conf.getProperty("WORKSPACE")
-								+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml" } });
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml" } });
 	}
 	
 	@BeforeClass
