@@ -196,7 +196,7 @@ public abstract class TestSessionCore {
 		    conf.setProperty("WORKSPACE", workspace);
 		}
 		conf.setProperty("WORKSPACE_SF_REPORTS",
-		        conf.getProperty("WORKSPACE") + "/target/surefire-reports");
+		        conf.getProperty("WORKSPACE") + "/htf-common/target/surefire-reports");
 		
 		String clusterName = System.getProperty("CLUSTER_NAME");
 		if (clusterName != null && !clusterName.isEmpty()) {

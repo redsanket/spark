@@ -27,7 +27,7 @@ import hadooptest.TestSession;
  */
 public class CPUMonitor extends AbstractMonitor {
 
-	private String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE") + "/target/surefire-reports";
+	private String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE") + "/htf-common/target/surefire-reports";
 	private String outputFilePath = outputBaseDirPath + "/CPU_Utilization.log";
 	
 	public CPUMonitor(String clusterName,

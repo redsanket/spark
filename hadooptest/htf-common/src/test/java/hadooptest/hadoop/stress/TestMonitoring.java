@@ -144,7 +144,7 @@ public class TestMonitoring extends TestSession {
 			throw new RuntimeException(e);
 		}
 		String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE")
-				+ "/target/surefire-reports";
+				+ "/htf-common/target/surefire-reports";
 		String outputFilePath = outputBaseDirPath + "/" + cluster + "_"
 				+ packaze + "_" + clazz + "_" + "loggedExceptions.txt";
 

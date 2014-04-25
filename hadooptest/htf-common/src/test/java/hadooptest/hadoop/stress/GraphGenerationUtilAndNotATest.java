@@ -77,25 +77,25 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 
 	private String table1OutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
-			+ "/target/surefire-reports/Graph1_TestsVrsCountOfExceptions.jpeg";
+			+ "/htf-common/target/surefire-reports/Graph1_TestsVrsCountOfExceptions.jpeg";
 	private String table2OutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
-			+ "/target/surefire-reports/Graph2_CountOfExceptions.jpeg";
+			+ "/htf-common/target/surefire-reports/Graph2_CountOfExceptions.jpeg";
 	private String table3OutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
-			+ "/target/surefire-reports/Graph3_TestFailures.jpeg";
+			+ "/htf-common/target/surefire-reports/Graph3_TestFailures.jpeg";
 	private String table4OutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
-			+ "/target/surefire-reports/Graph4_JobStats.jpeg";
+			+ "/htf-common/target/surefire-reports/Graph4_JobStats.jpeg";
 	private String table5aOutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
-			+ "/target/surefire-reports/Graph5a_MapTaskStats.jpeg";
+			+ "/htf-common/target/surefire-reports/Graph5a_MapTaskStats.jpeg";
 	private String table5bOutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
-			+ "/target/surefire-reports/Graph5b_ReduceTaskStats.jpeg";
+			+ "/htf-common/target/surefire-reports/Graph5b_ReduceTaskStats.jpeg";
 	private String table6OutputGraphFileName = TestSession.conf
 			.getProperty("WORKSPACE")
-			+ "/target/surefire-reports/Graph6_TestDurations.jpeg";
+			+ "/htf-common/target/surefire-reports/Graph6_TestDurations.jpeg";
 
 	private String generateLineGraphForMonitoring = TestSession.conf
 			.getProperty("WORKSPACE")
@@ -848,7 +848,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	@After
 	public void generateGraphs() throws Exception {
 		String outputBaseDirPath = TestSession.conf.getProperty("WORKSPACE")
-				+ "/target/surefire-reports";
+				+ "/htf-common/target/surefire-reports";
 		File outputDir = new File(outputBaseDirPath);
 		outputDir.mkdirs();
 		File outputFile1 = new File(table1OutputGraphFileName);
