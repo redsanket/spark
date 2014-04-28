@@ -19,7 +19,7 @@ public class ResourceManagerHttpUtils {
 		crossClusterProperties = new Properties();
 		try {
 			crossClusterProperties.load(new FileInputStream(workingDir
-					+ "/conf/CrossCluster/Resource.properties"));
+					+ "/../conf/CrossCluster/Resource.properties"));
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

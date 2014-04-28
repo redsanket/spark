@@ -93,7 +93,7 @@ public class HadooptestConstants {
 		public static class TestProperties {
 			public static String CrossClusterProperties = System
 					.getProperty(HadooptestConstants.Miscellaneous.USER_DIR)
-					+ "/conf/CrossCluster/Resource.properties";
+					+ "/../conf/CrossCluster/Resource.properties";
 
 		}
 		public static class Binary {
