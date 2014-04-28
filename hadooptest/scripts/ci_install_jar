@@ -21,12 +21,12 @@ tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C
 
 # ystorm_contrib
 ystorm_contrib_version=$( /usr/local/bin/yinst packages -latest ystorm_contrib | awk '{print $1}' )
-/usr/local/bin/yinst fetch ${ystorm_contrib_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz
+/usr/local/bin/yinst fetch ${ystorm_contrib_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz -br quarantine -br nightly -br test
 gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz
 tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/
 
 # ystorm
 ystorm_version=$( /usr/local/bin/yinst packages -latest ystorm | awk '{print $1}' )
-/usr/local/bin/yinst fetch ${ystorm_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
+/usr/local/bin/yinst fetch ${ystorm_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz -br quarantine -br nightly -br test
 gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
 tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/
