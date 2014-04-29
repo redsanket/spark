@@ -331,6 +331,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
 			throws Exception {
+		TestSession.logger.info("Copying over canned cap sched file localted @:" + replacementConfigFile);
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 

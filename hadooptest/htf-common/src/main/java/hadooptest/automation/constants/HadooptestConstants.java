@@ -1,5 +1,7 @@
 package hadooptest.automation.constants;
 
+import hadooptest.TestSession;
+
 public class HadooptestConstants {
 
 	// Node Types
@@ -67,7 +69,7 @@ public class HadooptestConstants {
 		public static String CAT = "/bin/cat";
 		public static String SED = "/bin/sed";
 		public static String PIPE = "|";
-		
+
 	}
 
 	// Locations
@@ -91,20 +93,31 @@ public class HadooptestConstants {
 		}
 
 		public static class TestProperties {
-			public static String CrossClusterProperties = System
-					.getProperty(HadooptestConstants.Miscellaneous.USER_DIR)
-					+ "/../conf/CrossCluster/Resource.properties";
+			public static String CrossClusterProperties = TestSession.conf
+					.getProperty("WORKSPACE")
+					+ "/htf-common/conf/CrossCluster/Resource.properties";
 
 		}
+
 		public static class Binary {
-			public static String HADOOP = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hadoop";
-			public static String HDFS = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/hdfs";
-			public static String YARN = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/yarn";
-			public static String MAPRED = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/share/hadoop/bin/mapred";
+			public static String HADOOP = "/home/gs/gridre/yroot."
+					+ System.getProperty("CLUSTER_NAME")
+					+ "/share/hadoop/bin/hadoop";
+			public static String HDFS = "/home/gs/gridre/yroot."
+					+ System.getProperty("CLUSTER_NAME")
+					+ "/share/hadoop/bin/hdfs";
+			public static String YARN = "/home/gs/gridre/yroot."
+					+ System.getProperty("CLUSTER_NAME")
+					+ "/share/hadoop/bin/yarn";
+			public static String MAPRED = "/home/gs/gridre/yroot."
+					+ System.getProperty("CLUSTER_NAME")
+					+ "/share/hadoop/bin/mapred";
 			public static String PERL = "/usr/local/bin/perl";
 		}
+
 		public static class Conf {
-			public static String DIRECTORY = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
+			public static String DIRECTORY = "/home/gs/gridre/yroot."
+					+ System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
 		}
 
 	}
@@ -117,6 +130,7 @@ public class HadooptestConstants {
 		public static String HFTP = "hftp://";
 		public static String NONE = "";
 	}
+
 	// Ports
 	public static class Ports {
 		public static String HDFS = "8020";

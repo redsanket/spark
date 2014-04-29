@@ -35,18 +35,12 @@ public class TestDifferentCapacityLimits_25_41 extends
 	@Parameters
 	public static Collection<Object[]> data() {
 		TestSession.start();
-		TestSession.logger
-				.info(TestSession.conf.getProperty("WORKSPACE")
-						+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
-		TestSession.logger
-				.info(TestSession.conf.getProperty("WORKSPACE")
-						+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml");
 		return Arrays
 				.asList(new Object[][] {
 						{ TestSession.conf.getProperty("WORKSPACE")
-								+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml" },
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml" },
 						{ TestSession.conf.getProperty("WORKSPACE")
-								+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml" }
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml" }
 
 				});
 	}
@@ -106,14 +100,14 @@ public class TestDifferentCapacityLimits_25_41 extends
 					}
 
 					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
-							sleepJobParamsList, 1000);
+							sleepJobParamsList, 1 * THOUSAND_MILLISECONDS);
 
 					// Wait until all jobs have reached RUNNING state
 					BarrierUntilAllThreadsRunning barrierUntilAllThreadsRunning = new BarrierUntilAllThreadsRunning(
 							futureCallableSleepJobs, SLEEP_JOB_DURATION_IN_SECS
 									* numSleepJobsToLaunch);
 					TestSession.logger
-							.info("barrier met....  all jobs've reached runnable");
+							.info("Either barrier met....  or waited long enough...so continue");
 
 					// With all jobs running, any additional jobs submitted
 					// should wait
@@ -154,7 +148,22 @@ public class TestDifferentCapacityLimits_25_41 extends
 		testCode += capSchedConfFile.contains("25") ? "25" : "41";
 
 		String SINGLE_USER_NAME = "hadoop2";
+		
 		copyResMgrConfigAndRestartNodes(capSchedConfFile);
+		/**
+		 * Reset the max capacity as I think values exported, tend to persist across tests.
+		 */
+		JobClient jobClient = new JobClient(fullyDistributedCluster
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
+		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
+			
+			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
+					+ ".maximum-capacity";
+					Configuration conf = fullyDistributedCluster
+							.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
+
+		}
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
@@ -168,6 +177,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 							.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Starting testMaxConcurrentlySchedulableApplicationsByASingleUser for queue "
 									+ jobQueueInfo.getQueueName()
 									+ " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
 					double maxSchedulableAppsPerUser = aQueueCapaityDetail.maxActiveApplicationsPerUser;
 					double maxSchedulableApps = aQueueCapaityDetail.maxActiveApplications;
 					/**
@@ -329,7 +339,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 	}
 
-	 @Test
+//	 @Test
 	public void testHittingMaxApplicationsLimitWithMultipleUsers()
 			throws Exception {
 		String testCode = "t4pc";
@@ -419,4 +429,4 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 	}
 
-}b
+}
