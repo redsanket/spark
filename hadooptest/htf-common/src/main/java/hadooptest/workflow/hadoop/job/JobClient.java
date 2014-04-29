@@ -207,7 +207,7 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
     }
     
     /**
-     * Waits indefinitely for the job to succeed, and returns true for success.
+     * Waits indefinitely for the jobs to succeed, and returns true for success.
      * Uses the Hadoop API to check status of the job.
      * 
      * @return boolean whether the job succeeded
@@ -219,7 +219,10 @@ public class JobClient extends org.apache.hadoop.mapred.JobClient {
             throws InterruptedException, IOException {
         boolean isSuccessful=true;
         for (JobID jobID : jobIDs) {
-            isSuccessful = waitForSuccess(jobID, minutes);
+            // If any job is not successful, set isSuccessful to false
+            if (! waitForSuccess(jobID, minutes)) {
+                isSuccessful = false;                
+            }
         }
         return isSuccessful;
     }

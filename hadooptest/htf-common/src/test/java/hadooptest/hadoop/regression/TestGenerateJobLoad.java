@@ -210,6 +210,11 @@ public class TestGenerateJobLoad extends TestSession {
         // Wait for all the jobs to succeed.
         this.waitForSuccessForAllJobs(15);
         
+        JobClient jobClient = TestSession.cluster.getJobClient();
+        JobStatus[] jobs = 
+                jobClient.getJobs(TestSession.testStartTime);
+        TestSession.logger.info("Total jobs submitted =" + jobs.length);
+   
         // Cleanup
         this.cleanUp(terminationFile);
     }
@@ -219,11 +224,12 @@ public class TestGenerateJobLoad extends TestSession {
      * TODO: checking it twice since there could be jobs queued up.
      */
     private void waitForSuccessForAllJobs(int durationMin) throws Exception {
-        TestSession.logger.info("----------- Wait for all jobs to succeed: " +
-                "for " + durationMin + " minute(s) ---------------");
         JobClient jobClient = TestSession.cluster.getJobClient();        
         int count = 1;
         do {
+            TestSession.logger.info(
+                    "----------- Wait for all jobs to succeed #" + count + 
+                    ": for " + durationMin + " minute(s) ---------------");
             TestSession.cluster.getJobClient().waitForSuccess(
                     jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
                     durationMin);
