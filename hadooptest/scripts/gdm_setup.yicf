@@ -23,8 +23,8 @@ PERM = 0444
 ###
 # Installed packages
 ###
-file - - - etc/htf_gdm_setup/conf/ ../resources/gdm/conf/web.xml
-file 0755 - - etc/htf_gdm_setup/conf/ ../resources/gdm/conf/copy_web_xml.sh
+file - - - etc/htf_gdm_setup/conf/ ../htf-common/resources/gdm/conf/web.xml
+file 0755 - - etc/htf_gdm_setup/conf/ ../htf-common/resources/gdm/conf/copy_web_xml.sh
 
 ###
 # YINST Directives
