@@ -145,7 +145,7 @@ public class TestMinUserLimitPercentAndHighRam extends
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
