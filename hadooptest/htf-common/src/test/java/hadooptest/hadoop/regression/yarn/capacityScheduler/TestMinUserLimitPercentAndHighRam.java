@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Future;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.apache.hadoop.mapreduce.Job;
@@ -35,11 +36,23 @@ public class TestMinUserLimitPercentAndHighRam extends
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
 				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+		/**
+		 * Reset the max capacity as I think values exported, tend to persist across tests.
+		 */
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
+			
+			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
+					+ ".maximum-capacity";
+					Configuration conf = TestSession.cluster.getConf();
+					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
+
+		}
+		
 		ArrayList<String> concurrentUsers = new ArrayList<String>();
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
@@ -107,6 +120,19 @@ public class TestMinUserLimitPercentAndHighRam extends
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
 				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler100.xml");
+		/**
+		 * Reset the max capacity as I think values exported, tend to persist across tests.
+		 */
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
+			
+			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
+					+ ".maximum-capacity";
+					Configuration conf = TestSession.cluster.getConf();
+					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
+
+		}
+
 		/**
 		 * The following delay is needed because one needs to be aware that if jobs are submitted simultaneously
 		 * then at least some of them would be assigned 2048 MB (the size of AM container). So if the min-user-limit-percent

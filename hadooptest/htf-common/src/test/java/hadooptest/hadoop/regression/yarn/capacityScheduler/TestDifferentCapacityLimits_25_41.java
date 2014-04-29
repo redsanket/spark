@@ -69,10 +69,19 @@ public class TestDifferentCapacityLimits_25_41 extends
 		testCode += capSchedConfFile.contains("25") ? "25" : "41";
 		copyResMgrConfigAndRestartNodes(capSchedConfFile);
 
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
+			
+			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
+					+ ".maximum-capacity";
+					Configuration conf = TestSession.cluster.getConf();
+					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
+
+		}
+
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
@@ -265,11 +274,22 @@ public class TestDifferentCapacityLimits_25_41 extends
 		String fixedQueueForThisTest = "search";
 		String SINGLE_USER_NAME = HadooptestConstants.UserNames.HADOOPQA;
 		copyResMgrConfigAndRestartNodes(capSchedConfFile);
+		/**
+		 * Reset the max capacity as I think values exported, tend to persist across tests.
+		 */
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
+			
+			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
+					+ ".maximum-capacity";
+					Configuration conf = TestSession.cluster.getConf();
+					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
+
+		}
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs = new ArrayList<Future<Job>>();
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				// Just limit the test run to to fixedQueueForThisTest queue.
@@ -336,7 +356,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 	}
 
-//	 @Test
+	 @Test
 	public void testHittingMaxApplicationsLimitWithMultipleUsers()
 			throws Exception {
 		String testCode = "t4pc";
@@ -344,11 +364,23 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 		String queueRelevantForThisTest = "grideng";
 		copyResMgrConfigAndRestartNodes(capSchedConfFile);
+		/**
+		 * Reset the max capacity as I think values exported, tend to persist across tests.
+		 */
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
+			
+			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
+					+ ".maximum-capacity";
+					Configuration conf = TestSession.cluster.getConf();
+					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
+
+		}
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs = new ArrayList<Future<Job>>();
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				// Just limit the test run to to "grideng" queue.
