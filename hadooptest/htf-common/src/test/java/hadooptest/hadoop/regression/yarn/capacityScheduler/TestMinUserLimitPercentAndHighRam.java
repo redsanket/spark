@@ -160,7 +160,7 @@ public class TestMinUserLimitPercentAndHighRam extends
 					// Wait until all jobs have reached RUNNING state
 					BarrierUntilAllThreadsRunning barrierUntilAllThreadsRunning = new BarrierUntilAllThreadsRunning(
 							futureCallableSleepJobs, 
-
+							SLEEP_JOB_DURATION_IN_SECS
 									* numSleepJobsToLaunch);
 					// With all jobs running, any additional jobs submitted
 					// should wait

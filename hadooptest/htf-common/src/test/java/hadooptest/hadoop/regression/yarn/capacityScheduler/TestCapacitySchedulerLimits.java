@@ -54,7 +54,7 @@ public class TestCapacitySchedulerLimits extends CapacitySchedulerBaseClass {
 	 * 
 	 * @throws Exception
 	 */
-//	@Test
+	@Test
 	public void testCapSchedLimits() throws Exception {
 		String testCode = "t1CapSchedLimit";
 		copyResMgrConfigAndRestartNodes(TestSession.conf
