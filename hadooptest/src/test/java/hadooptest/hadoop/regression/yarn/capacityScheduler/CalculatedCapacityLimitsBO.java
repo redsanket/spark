@@ -44,11 +44,11 @@ public class CalculatedCapacityLimitsBO {
 			for (JobQueueInfo aJobQueueInfo : getQueues()) {
 				QueueCapacityDetail queueDetail = new QueueCapacityDetail();
 				queueDetail.name = aJobQueueInfo.getQueueName();
-				queueDetail.capacityInTermsOfPercentage = getQueueCapacityInTermsOfPercentage(aJobQueueInfo
+				queueDetail.minCapacityInTermsOfPercentage = getQueueCapacityInTermsOfPercentage(aJobQueueInfo
 						.getQueueName());
-				queueDetail.capacityInTermsOfTotalClusterMemory = getQueueCapacityInTermsOfTotalClusterMemory(aJobQueueInfo
+				queueDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB = getQueueCapacityInTermsOfTotalClusterMemory(aJobQueueInfo
 						.getQueueName());
-				queueDetail.maxCapacityInTermsOfTotalClusterMemory = getMaxQueueCapacityInTermsOfTotalClusterMemory(aJobQueueInfo
+				queueDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB = getMaxQueueCapacityInTermsOfTotalClusterMemory(aJobQueueInfo
 						.getQueueName());
 				queueDetail.userLimitFactor = getUserLimitFactor(aJobQueueInfo
 						.getQueueName());

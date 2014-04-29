@@ -47,10 +47,10 @@ public class TestRunCsQueue0Pc extends CapacitySchedulerBaseClass {
 		for (QueueCapacityDetail aQueueDetail : capacityBO.queueCapacityDetails) {
 			TestSession.logger.info("Q name:" + aQueueDetail.name);
 			TestSession.logger.info("Q max capacity:"
-					+ aQueueDetail.maxCapacityInTermsOfTotalClusterMemory);
+					+ aQueueDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB);
 			TestSession.logger.info("Q max user limit percent:"
 					+ aQueueDetail.minimumUserLimitPercent);
-			TestSession.logger.info("Q capacity:" + aQueueDetail.capacityInTermsOfTotalClusterMemory);
+			TestSession.logger.info("Q capacity:" + aQueueDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB);
 			TestSession.logger.info("Q user limit factor:"
 					+ aQueueDetail.userLimitFactor);
 		}
