@@ -1,0 +1,1144 @@
+package hadooptest.hadoop.regression.yarn.capacityScheduler;
+
+import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.http.HTTPHandle;
+import hadooptest.cluster.gdm.Response;
+import hadooptest.cluster.hadoop.HadoopCluster.Action;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
+import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
+import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.LeafQueue;
+import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.User;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Map.Entry;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.JobStatus;
+import org.apache.hadoop.mapreduce.JobStatus.State;
+import org.apache.hadoop.mapreduce.SleepJob;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+
+public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
+	public static String CAPACITY_SCHEDULER_XML = "capacity-scheduler.xml";
+	private static String CAPACITY = "capacity";
+	private static String ABSOLUTE_MAX_CAPACITY = "absoluteMaxCapacity";
+	private static String MAXCAPACITY = "maxCapacity";
+	private static String USERLIMITFACTOR = "userLimitFactor";
+	private static String USERLIMIT = "userLimit";
+	private static String MAX_APPLICATIONS = "maxApplications";
+	private static String MAX_APPLICATIONS_PER_USER = "maxApplicationsPerUser";
+	private static String MAX_ACTIVE_APPLICATIONS = "maxActiveApplications";
+	private static String MAX_ACTIVE_APPLICATIONS_PER_USER = "maxActiveApplicationsPerUser";
+	private static String ABSOLUTE_CAPACITY = "absoluteCapacity";
+	private static String NUM_PENDING_APPLICATIONS = "numPendingApplications";
+
+	int NUM_THREADS = 800;
+	int SLEEP_JOB_DURATION_IN_SECS = 20;
+
+	public enum SingleUser {
+		YES, NO
+	};
+
+	public enum ExpectToBomb {
+		YES, NO
+	};
+
+	/**
+	 * Had to take this long winded approach to find the state of the pending
+	 * job, because the "Job.getState()" method does not apply to pending jobs.
+	 * The State.* does not list PENDING as a state.
+	 * 
+	 * @param user
+	 * @param queue
+	 * @param runtimeStatsBO
+	 */
+	void assertThatOverageJobIsInPendingState(String user, String queue,
+			RuntimeRESTStatsBO runtimeStatsBO) {
+		boolean assertConditionMet = false;
+		for (SchedulerRESTStatsSnapshot aSchedulerRESTStatsSnapshot : runtimeStatsBO.listOfRESTSnapshotsAcrossAllLeafQueues) {
+			for (LeafQueue aLeafQueue : aSchedulerRESTStatsSnapshot.allLeafQueues) {
+				if (aLeafQueue.queueName.equalsIgnoreCase(queue)) {
+					for (User anOverageUser : aLeafQueue.users) {
+						if (anOverageUser.userName.equalsIgnoreCase(user)) {
+							Assert.assertTrue("User:" + user + "'s job on "
+									+ queue + " should have waited in PENDING",
+									anOverageUser.numPendingApplications == 1);
+							assertConditionMet = true;
+						}
+					}
+				}
+			}
+		}
+		Assert.assertTrue(assertConditionMet);
+
+	}
+
+	void assertMinimumUserLimitPercent(String testCode,
+			QueueCapacityDetail aCalculatedQueueCapaityDetail, String queue,
+			RuntimeRESTStatsBO runtimeRESTStatsBO) {
+		LeafQueue leafQueueSnapshotWithHighestMemUtil = getLeafSnapshotWithHighestMemUtil(
+				queue, runtimeRESTStatsBO);
+		Assert.assertTrue(
+				(aCalculatedQueueCapaityDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB * 1024)
+						+ " is < than "
+						+ leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory
+						+ " for queue " + queue,
+				(aCalculatedQueueCapaityDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB * 1024) >= leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory);
+
+		Configuration config = TestSession.cluster.getConf();
+
+		TestSession.logger
+				.info("Max mem used by the queue, in the duration that the snapshots were taken:"
+						+ leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory);
+		int minContainerSize = config.getInt(
+				"yarn.scheduler.minimum-allocation-mb", 1024);
+		int maxContainerSize = config.getInt(
+				"yarn.scheduler.maximum-allocation-mb", 8192);
+		boolean isMultiUser = false;
+		int multiUserCount = 0;
+		for (User aUser : leafQueueSnapshotWithHighestMemUtil.users) {
+			if (aUser.resourcesUsed.memory > 0)
+				multiUserCount++;
+		}
+		if (multiUserCount > 1)
+			isMultiUser = true;
+
+		if (isMultiUser
+		// && (leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory >=
+		// (aCalculatedQueueCapaityDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB
+		// * 1024))
+		) {
+			/**
+			 * Implies that there is contention and that more memory is being
+			 * allocated (because it can grow till the max)
+			 */
+			double calculatedMinUserLimitMem = (aCalculatedQueueCapaityDetail.minimumUserLimitPercent
+					/ 100
+					* aCalculatedQueueCapaityDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB * 1024);
+			boolean discountMemoryUsedByOtherConcurrentUsers = true;
+			if (aCalculatedQueueCapaityDetail.minimumUserLimitPercent == 100) {
+				discountMemoryUsedByOtherConcurrentUsers = false;
+			}
+			if (aCalculatedQueueCapaityDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB == aCalculatedQueueCapaityDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB) {
+				discountMemoryUsedByOtherConcurrentUsers = false;
+			}
+			int discountedMemory = 0;
+			if (!discountMemoryUsedByOtherConcurrentUsers) {
+				/**
+				 * Since the order of queues having memory consumption 2048 is
+				 * uncertain, lap up the 2048's first.
+				 */
+				for (User aUser : leafQueueSnapshotWithHighestMemUtil.users) {
+					if (aUser.resourcesUsed.memory == 2048) {
+						discountedMemory += 2048;
+					}
+
+				}
+			}
+			for (User aUser : leafQueueSnapshotWithHighestMemUtil.users) {
+				if (aUser.resourcesUsed.memory == 2048) {
+					/**
+					 * Here are the salient config parameters to consider, for
+					 * contaier size. yarn.scheduler.minimum-allocation-mb =
+					 * 1024 (in our case) yarn.scheduler.maximum-allocation-mb =
+					 * 8192 yarn.app.mapreduce.am.resource.mb == 1536 (But in
+					 * reality yarn.app.mapreduce.am.resource.mb==2048). Per
+					 * Tom, AM is assigned a multiple of
+					 * yarn.scheduler.minimum-allocation-mb.
+					 * 
+					 * Say you have 48GB in a cluster and that 5 users each
+					 * launch a SleepJob, each with 48 mappers and 48 reducers
+					 * (each consuming 1024 MB), with the intent of consuming
+					 * the entire available memory. With this configuration I've
+					 * noticed that ~35 containers get launched.
+					 * 
+					 * It is likely that the memory was consumed such: 2GB * 5 =
+					 * 10 GB went to the AMs respective to each user. The rest
+					 * 38GB was distributed across 35 containers [each of which
+					 * could have a size between
+					 * yarn.scheduler.minimum-allocation-mb and
+					 * yarn.scheduler.maximum-allocation-mb MB
+					 */
+					TestSession.logger.info("User:[" + aUser.userName
+							+ "] is using 2048 MB on queue[" + queue + "]");
+					continue;
+				} else if (aUser.resourcesUsed.memory == 0) {
+					/**
+					 * This could be the overage job, not assigned any memory,
+					 * so skip.
+					 */
+					continue;
+				}
+				if (discountMemoryUsedByOtherConcurrentUsers) {
+					TestSession.logger.info("User:[" + aUser.userName
+							+ "] is using [" + aUser.resourcesUsed.memory
+							+ "] MB on while calculatedMinUserLimitMem is["
+							+ calculatedMinUserLimitMem + "] on queue[" + queue
+							+ "]");
+					Assert.assertTrue(
+							"User:["
+									+ aUser.userName
+									+ "] is using ["
+									+ aUser.resourcesUsed.memory
+									+ "] MB which is lesser than the guarantee of["
+									+ calculatedMinUserLimitMem + "] on queue["
+									+ queue + "]",
+							aUser.resourcesUsed.memory >= calculatedMinUserLimitMem);
+				} else {
+					TestSession.logger.info("User:[" + aUser.userName
+							+ "] is using [" + aUser.resourcesUsed.memory
+							+ "] MB on while calculatedMinUserLimitMem is["
+							+ calculatedMinUserLimitMem + "] on queue[" + queue
+							+ "] and additional memory to be considered is["
+							+ discountedMemory + "]");
+					Assert.assertTrue("User:[" + aUser.userName
+							+ "] is using [" + aUser.resourcesUsed.memory
+							+ "] MB which is lesser than the guarantee of["
+							+ calculatedMinUserLimitMem + "] on queue[" + queue
+							+ "]", aUser.resourcesUsed.memory
+							+ discountedMemory >= calculatedMinUserLimitMem);
+
+				}
+			}
+		} else {
+			TestSession.logger
+					.info("Not asserted, as no contention. Max memory used in leaf queue["
+							+ queue
+							+ "] was ["
+							+ leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory
+							+ "] While queue capacity (a.k.a min) was ["
+							+ (aCalculatedQueueCapaityDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB * 1024)
+							+ "]");
+		}
+
+	}
+
+	void printValuesReceivedOverRest(RuntimeRESTStatsBO runtimeStatsBO) {
+		for (SchedulerRESTStatsSnapshot aSchedulerRESTStatsSnapshot : runtimeStatsBO.listOfRESTSnapshotsAcrossAllLeafQueues) {
+			for (LeafQueue aLeafQueue : aSchedulerRESTStatsSnapshot.allLeafQueues) {
+				TestSession.logger.info(aLeafQueue);
+				TestSession.logger
+						.info("LlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLlLl");
+			}
+		}
+	}
+
+	LeafQueue getLeafSnapshotWithHighestMemUtil(String queue,
+			RuntimeRESTStatsBO runtimeStatsBO) {
+		LeafQueue snapshotWithHighestMemUtil = null;
+		for (SchedulerRESTStatsSnapshot aSchedulerRESTStatsSnapshot : runtimeStatsBO.listOfRESTSnapshotsAcrossAllLeafQueues) {
+			for (LeafQueue aLeafQueue : aSchedulerRESTStatsSnapshot.allLeafQueues) {
+				if (aLeafQueue.queueName.equalsIgnoreCase(queue)) {
+					if (snapshotWithHighestMemUtil == null) {
+						snapshotWithHighestMemUtil = aLeafQueue;
+					} else {
+						if (aLeafQueue.resourcesUsed.memory >= snapshotWithHighestMemUtil.resourcesUsed.memory) {
+							snapshotWithHighestMemUtil = aLeafQueue;
+							TestSession.logger
+									.info(aLeafQueue.resourcesUsed.memory
+											+ "is >= "
+											+ snapshotWithHighestMemUtil.resourcesUsed.memory
+											+ " hence got a new leader");
+
+						}
+					}
+				}
+			}
+		}
+		return snapshotWithHighestMemUtil;
+
+	}
+
+	void printSelfCalculatedStats(
+			CalculatedCapacityLimitsBO calculatedCapacityBO) {
+		for (QueueCapacityDetail aCalculatedQueueDetail : calculatedCapacityBO.queueCapacityDetails) {
+			TestSession.logger.info("Q name****:" + aCalculatedQueueDetail.name
+					+ " *****");
+			TestSession.logger
+					.info("Q capacity in terms of cluster memory:"
+							+ aCalculatedQueueDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB
+							+ " MB");
+			TestSession.logger.info("Q max apps:"
+					+ aCalculatedQueueDetail.maxApplications);
+			TestSession.logger.info("Q max apps per user:"
+					+ aCalculatedQueueDetail.maxApplicationsPerUser);
+			TestSession.logger.info("Q max active apps per user:"
+					+ aCalculatedQueueDetail.maxActiveApplicationsPerUser);
+			TestSession.logger.info("Q max active apps:"
+					+ aCalculatedQueueDetail.maxActiveApplications);
+			TestSession.logger.info("Q min user limit percent:"
+					+ aCalculatedQueueDetail.minimumUserLimitPercent);
+			TestSession.logger.info("Q user limit factor:"
+					+ aCalculatedQueueDetail.userLimitFactor);
+
+			TestSession.logger
+					.info("----------------------------------------------");
+		}
+
+	}
+
+	void waitFor(int timeInMilliseconds) {
+		try {
+			Thread.sleep(timeInMilliseconds);
+		} catch (InterruptedException e) {
+		}
+	}
+
+	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit,
+			String username, ExpectToBomb expectedToBomb) {
+		Future<Job> jobHandle = null;
+		CallableSleepJob callableSleepJob = new CallableSleepJob(
+				getDefaultSleepJobProps(queueToSubmit), 1, 1, 1, 1, 1, 1,
+				username, "overage-job-launched-by-user-" + username
+						+ "-on-queue-" + queueToSubmit, expectedToBomb);
+
+		ExecutorService singleLanePool = Executors.newFixedThreadPool(1);
+		jobHandle = singleLanePool.submit(callableSleepJob);
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return jobHandle;
+	}
+
+	void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
+			throws Exception {
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+
+		// Backup config and replace file, for Resource Manager
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+				.copyFileToConfDir(replacementConfigFile,
+						CAPACITY_SCHEDULER_XML);
+
+		// Bounce node
+		fullyDistributedCluster.hadoopDaemon(Action.STOP,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		fullyDistributedCluster.hadoopDaemon(Action.START,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Thread.sleep(20000);
+		// Leave safe-mode
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
+		genericCliResponse = dfsCliCommands.dfsadmin(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				DfsTestsBaseClass.Report.NO, "get",
+				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+				DfsTestsBaseClass.PrintTopology.NO, null);
+		genericCliResponse = dfsCliCommands.dfsadmin(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				DfsTestsBaseClass.Report.NO, "leave",
+				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+				DfsTestsBaseClass.PrintTopology.NO, null);
+
+		Configuration conf = fullyDistributedCluster
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Iterator iter = conf.iterator();
+		while (iter.hasNext()) {
+			Entry<String, String> entry = (Entry<String, String>) iter.next();
+			TestSession.logger.info("Key:[" + entry.getKey() + "] Value["
+					+ entry.getValue() + "]");
+		}
+
+	}
+
+	/**
+	 * This function is unused, because the read back memory stats always come
+	 * back as 0. I got with Tom and there is already a Jira open for this.
+	 * 
+	 * @param futureCallableSleepJobs
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	public RuntimeRESTStatsBO startCollectingRestStats(
+			int periodicityInMilliseconds) throws InterruptedException,
+			ExecutionException {
+		RuntimeRESTStatsBO restStats = new RuntimeRESTStatsBO(
+				periodicityInMilliseconds);
+		restStats.start();
+		return restStats;
+	}
+
+	public void stopCollectingRuntimeStatsAcrossQueues(
+			RuntimeRESTStatsBO runtimeRESTStatsBO) {
+		runtimeRESTStatsBO.stop();
+	}
+
+	public CalculatedCapacityLimitsBO selfCalculateCapacityLimits()
+			throws Exception {
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+		String dirWhereRMConfHasBeenCopied = fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+				.getHadoopConfDir();
+		String resourceMgrConfigFilesCopiedBackHereOnGw = fullyDistributedCluster
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+				.copyRemoteConfDirToLocal(dirWhereRMConfHasBeenCopied,
+						HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		TestSession.logger.info("Copied back files from RM in "
+				+ resourceMgrConfigFilesCopiedBackHereOnGw);
+		TestSession.logger
+				.info("Read back (locally); after copying from RM [yarn.scheduler.capacity.root.default.capacity] ="
+						+ lookupValueInBackCopiedCapacitySchedulerXmlFile(
+								resourceMgrConfigFilesCopiedBackHereOnGw
+										+ "/capacity-scheduler.xml",
+								"yarn.scheduler.capacity.root.default.capacity"));
+		CalculatedCapacityLimitsBO capacityBO = new CalculatedCapacityLimitsBO(
+				resourceMgrConfigFilesCopiedBackHereOnGw
+						+ "/capacity-scheduler.xml");
+		return capacityBO;
+
+	}
+
+	@Deprecated
+	ArrayList<QueueCapacityDetail> getCapacityLimitsViaRestCallIntoRM()
+			throws InterruptedException {
+		ArrayList<QueueCapacityDetail> queueCapacityDetails;
+		queueCapacityDetails = new ArrayList<QueueCapacityDetail>();
+		Properties crossClusterProperties;
+		String workingDir = System
+				.getProperty(HadooptestConstants.Miscellaneous.USER_DIR);
+		crossClusterProperties = new Properties();
+		try {
+			crossClusterProperties.load(new FileInputStream(workingDir
+					+ "/conf/CrossCluster/Resource.properties"));
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+
+		HashMap<String, HashMap<String, String>> limitsReadViaRest = new HashMap<String, HashMap<String, String>>();
+		logger.info("Resource Manager URL read as"
+				+ crossClusterProperties.getProperty(System.getProperty(
+						"CLUSTER_NAME").toLowerCase()
+						+ "." + HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
+		String resourceManager = crossClusterProperties.getProperty(System
+				.getProperty("CLUSTER_NAME")
+				+ "."
+				+ HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		String resource = "/ws/v1/cluster/scheduler";
+		HTTPHandle httpHandle = new HTTPHandle();
+		HttpMethod getMethod = httpHandle.makeGET(resourceManager, resource,
+				null);
+		Response response = new Response(getMethod);
+
+		TestSession.logger.info(response.toString());
+		JSONObject rmResponseJson = response.getJsonObject();
+		JSONObject schedulerJson = (JSONObject) rmResponseJson.get("scheduler");
+		JSONObject jsonContainingQueuesAndQueue = (JSONObject) schedulerJson
+				.get("schedulerInfo");
+		recursivelyUpdateHash(queueCapacityDetails,
+				jsonContainingQueuesAndQueue);
+		TestSession.logger.info("Queue dump:" + limitsReadViaRest);
+		return queueCapacityDetails;
+	}
+
+	@Deprecated
+	void recursivelyUpdateHash(
+			ArrayList<QueueCapacityDetail> queueCapacityDetails,
+			JSONObject jsonContainingQueuesAndQueue) {
+		JSONObject queuesJson = (JSONObject) jsonContainingQueuesAndQueue
+				.get("queues");
+		JSONArray queueArrayJson = (JSONArray) queuesJson.get("queue");
+		for (int xx = 0; xx < queueArrayJson.size(); xx++) {
+			if (queueArrayJson.getJSONObject(xx).containsKey("type")) {
+				TestSession.logger.info("Queue type, for queue named:"
+						+ queueArrayJson.getJSONObject(xx).get("queueName"));
+				String queueType = (String) queueArrayJson.getJSONObject(xx)
+						.get("type");
+				if (queueType.equals("capacitySchedulerLeafQueueInfo")) {
+
+					QueueCapacityDetail queueCapacityDetail = new QueueCapacityDetail();
+					// Queue name
+					TestSession.logger
+							.info("Adding values for queue named:"
+									+ queueArrayJson.getJSONObject(xx).get(
+											"queueName"));
+
+					String queueName = (String) queueArrayJson
+							.getJSONObject(xx).get("queueName");
+					queueCapacityDetail.name = (String) queueArrayJson
+							.getJSONObject(xx).get("queueName");
+
+					HashMap<String, String> queueDetails = new HashMap<String, String>();
+
+					// Capacity
+					TestSession.logger.info("Adding KEY:"
+							+ CAPACITY
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(CAPACITY)));
+					String temp = String.valueOf(queueArrayJson.getJSONObject(
+							xx).get(CAPACITY));
+					queueCapacityDetail.minCapacityInTermsOfPercentage = Double
+							.parseDouble(temp);
+					queueDetails.put(CAPACITY, String.valueOf(queueArrayJson
+							.getJSONObject(xx).get(CAPACITY)));
+
+					// Absolute Max Capacity
+					TestSession.logger.info("Adding KEY:"
+							+ ABSOLUTE_MAX_CAPACITY
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(ABSOLUTE_MAX_CAPACITY)));
+					queueDetails.put(ABSOLUTE_MAX_CAPACITY, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									ABSOLUTE_MAX_CAPACITY)));
+
+					// numPendingApplications
+					TestSession.logger.info("Adding KEY:"
+							+ NUM_PENDING_APPLICATIONS
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(NUM_PENDING_APPLICATIONS)));
+					queueCapacityDetail.numPendingApplications = Integer
+							.parseInt(String.valueOf(queueArrayJson
+									.getJSONObject(xx).get(
+											NUM_PENDING_APPLICATIONS)));
+					queueDetails.put(NUM_PENDING_APPLICATIONS, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									NUM_PENDING_APPLICATIONS)));
+
+					// Max Applications
+					TestSession.logger.info("Adding KEY:"
+							+ MAX_APPLICATIONS
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(MAX_APPLICATIONS)));
+					temp = String.valueOf(queueArrayJson.getJSONObject(xx).get(
+							MAX_APPLICATIONS));
+					queueCapacityDetail.maxApplications = Double
+							.parseDouble(temp);
+					queueDetails.put(MAX_APPLICATIONS, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									MAX_APPLICATIONS)));
+					// Max Capacity
+					TestSession.logger.info("Adding KEY:"
+							+ MAXCAPACITY
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(MAXCAPACITY)));
+					queueDetails.put(MAXCAPACITY, (String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									MAXCAPACITY))));
+					// Min User Limit Percent
+					TestSession.logger.info("Adding KEY:"
+							+ USERLIMIT
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(USERLIMIT)));
+					temp = String.valueOf(queueArrayJson.getJSONObject(xx).get(
+							USERLIMIT));
+					queueCapacityDetail.minimumUserLimitPercent = Double
+							.parseDouble(temp);
+					queueDetails.put(USERLIMIT, String.valueOf(queueArrayJson
+							.getJSONObject(xx).get(USERLIMIT)));
+
+					// User Limit Factor
+					TestSession.logger.info("Adding KEY:"
+							+ USERLIMITFACTOR
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(USERLIMITFACTOR)));
+					temp = String.valueOf(queueArrayJson.getJSONObject(xx).get(
+							USERLIMITFACTOR));
+					queueCapacityDetail.userLimitFactor = Double
+							.parseDouble(temp);
+					queueDetails.put(USERLIMITFACTOR, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									USERLIMITFACTOR)));
+
+					// Max apps per user
+					TestSession.logger.info("Adding KEY:"
+							+ MAX_APPLICATIONS_PER_USER
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(MAX_APPLICATIONS_PER_USER)));
+					temp = String.valueOf(queueArrayJson.getJSONObject(xx).get(
+							MAX_APPLICATIONS_PER_USER));
+					queueCapacityDetail.maxApplicationsPerUser = Double
+							.parseDouble(temp);
+					queueDetails.put(MAX_APPLICATIONS_PER_USER, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									MAX_APPLICATIONS_PER_USER)));
+
+					// Max active applications
+					TestSession.logger.info("Adding KEY:"
+							+ MAX_ACTIVE_APPLICATIONS
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(MAX_ACTIVE_APPLICATIONS)));
+					temp = String.valueOf(queueArrayJson.getJSONObject(xx).get(
+							MAX_ACTIVE_APPLICATIONS));
+					queueCapacityDetail.maxActiveApplications = Double
+							.parseDouble(temp);
+					queueDetails.put(MAX_ACTIVE_APPLICATIONS, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									MAX_ACTIVE_APPLICATIONS)));
+
+					// Max active applications per user
+					TestSession.logger.info("Adding KEY:"
+							+ MAX_ACTIVE_APPLICATIONS_PER_USER
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(MAX_ACTIVE_APPLICATIONS_PER_USER)));
+					temp = String.valueOf(queueArrayJson.getJSONObject(xx).get(
+							MAX_ACTIVE_APPLICATIONS_PER_USER));
+					queueCapacityDetail.maxActiveApplicationsPerUser = Double
+							.parseDouble(temp);
+					queueDetails.put(MAX_ACTIVE_APPLICATIONS_PER_USER, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									MAX_ACTIVE_APPLICATIONS_PER_USER)));
+					// Absolute capacity
+					TestSession.logger.info("Adding KEY:"
+							+ ABSOLUTE_CAPACITY
+							+ " value:"
+							+ String.valueOf(queueArrayJson.getJSONObject(xx)
+									.get(ABSOLUTE_CAPACITY)));
+					queueDetails.put(ABSOLUTE_CAPACITY, String
+							.valueOf(queueArrayJson.getJSONObject(xx).get(
+									ABSOLUTE_CAPACITY)));
+
+					queueCapacityDetails.add(queueCapacityDetail);
+				} else {
+					TestSession.logger
+							.info("Queue type not leaf! for queue named:"
+									+ queueArrayJson.getJSONObject(xx).get(
+											"queueName"));
+				}
+			} else {
+				// This is a parent
+				TestSession.logger.info("Hit a parent queue named:"
+						+ queueArrayJson.getJSONObject(xx).get("queueName"));
+				recursivelyUpdateHash(queueCapacityDetails,
+						queueArrayJson.getJSONObject(xx));
+			}
+		}
+	}
+
+	public HashMap<String, String> getDefaultSleepJobProps(String queueToSubmit) {
+		HashMap<String, String> defaultSleepJobProps = new HashMap<String, String>();
+		defaultSleepJobProps.put("mapreduce.job.acl-view-job", "*");
+		defaultSleepJobProps.put("mapreduce.job.acl-view-job", "2048");
+		defaultSleepJobProps.put("mapreduce.map.memory.mb", "1024");
+		defaultSleepJobProps.put("mapreduce.reduce.memory.mb", "1024");
+		defaultSleepJobProps.put("mapred.job.queue.name", queueToSubmit);
+
+		return defaultSleepJobProps;
+	}
+
+	public ArrayList<Future<Job>> submitJobsToAThreadPoolAndRunThemInParallel(
+			ArrayList<SleepJobParams> sleepJobParamsList, int delayInMs) {
+
+		ExecutorService sleepJobThreadPool = Executors
+				.newFixedThreadPool(NUM_THREADS);
+		ArrayList<Future<Job>> futureCallableSleepJobs = new ArrayList<Future<Job>>();
+		int jobNameSuffix = 1;
+		for (SleepJobParams aSleepJobParams : sleepJobParamsList) {
+			try {
+				Thread.sleep(delayInMs);
+				TestSession.logger
+						.info("Staggering launching of jobs, by "
+								+ delayInMs
+								+ " millisec, else they would step on each others feet");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			Future<Job> aFutureCallableSleepJob = sleepJobThreadPool
+					.submit(new CallableSleepJob(
+							aSleepJobParams.configProperties,
+							aSleepJobParams.numMapTasks,
+							aSleepJobParams.numRedTasks,
+							aSleepJobParams.taskSleepDuration,
+							aSleepJobParams.numTimesMapWouldSleep,
+							aSleepJobParams.taskSleepDuration,
+							aSleepJobParams.numTimesRedWouldSleep,
+							aSleepJobParams.userName, aSleepJobParams.jobName,
+							ExpectToBomb.NO));
+			futureCallableSleepJobs.add(aFutureCallableSleepJob);
+
+		}
+		sleepJobThreadPool.shutdown();
+		return futureCallableSleepJobs;
+	}
+
+	void killStartedJobs(ArrayList<Future<Job>> futureCallableSleepJobs) {
+		CountDownLatch countDownKillLatch = new CountDownLatch(
+				futureCallableSleepJobs.size());
+		ExecutorService killerPool = Executors
+				.newFixedThreadPool(futureCallableSleepJobs.size());
+		for (Future<Job> aFutureJob : futureCallableSleepJobs) {
+			JobKiller aJobKiller = new JobKiller(countDownKillLatch, aFutureJob);
+			killerPool.submit(aJobKiller);
+		}
+		try {
+			countDownKillLatch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		TestSession.logger
+				.info("{{{{{{{{{{ Killed all the launched jobs }}}}}}}}}}");
+	}
+
+	class JobKiller implements Runnable {
+		Future<Job> aFutureJob;
+		CountDownLatch countDownKillLatch;
+
+		JobKiller(CountDownLatch countDownKillLatch, Future<Job> aFutureJob) {
+			this.aFutureJob = aFutureJob;
+			this.countDownKillLatch = countDownKillLatch;
+		}
+
+		@Override
+		public void run() {
+			try {
+				aFutureJob.get().killJob();
+				TestSession.logger
+						.info("!!!!!!!!!!!!!!!! K I L L E D - J 0 B  - [ "
+								+ aFutureJob.get().getJobName()
+								+ " ]  !!!!!!!!!!!!!!!!!!");
+				while (aFutureJob.get().getJobState() != State.KILLED
+						&& aFutureJob.get().getJobState() != State.SUCCEEDED) {
+					Thread.sleep(500);
+				}
+				this.countDownKillLatch.countDown();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	@After
+	public void restoreTheConfigFile() throws Exception {
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+				.resetHadoopConfDir();
+		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
+				.resetHadoopConfDir();
+
+		fullyDistributedCluster.hadoopDaemon(Action.STOP,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		fullyDistributedCluster.hadoopDaemon(Action.START,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Thread.sleep(20000);
+
+		// Leave safe-mode
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
+		genericCliResponse = dfsCliCommands.dfsadmin(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				DfsTestsBaseClass.Report.NO, "get",
+				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+				DfsTestsBaseClass.PrintTopology.NO, null);
+		genericCliResponse = dfsCliCommands.dfsadmin(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				DfsTestsBaseClass.Report.NO, "leave",
+				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+				DfsTestsBaseClass.PrintTopology.NO, null);
+
+	}
+
+	class CallableSleepJob implements Callable<Job> {
+		HashMap<String, String> jobParamsMap;
+		int numMapper;
+		int numReducer;
+		int mapSleepTime;
+		int mapSleepCount;
+		int reduceSleepTime;
+		int reduceSleepCount;
+		String userName;
+		String jobName;
+		ExpectToBomb expectedToBomb;
+
+		public CallableSleepJob(HashMap<String, String> jobParamsMap,
+				int numMapper, int numReducer, int mapSleepTime,
+				int mapSleepCount, int reduceSleepTime, int reduceSleepCount,
+				String userName, String jobName, ExpectToBomb expectedToBomb) {
+			this.jobParamsMap = jobParamsMap;
+			this.numMapper = numMapper;
+			this.numReducer = numReducer;
+			this.mapSleepTime = mapSleepTime;
+			this.mapSleepCount = mapSleepCount;
+			this.reduceSleepTime = reduceSleepTime;
+			this.reduceSleepCount = reduceSleepCount;
+			this.userName = userName;
+			this.jobName = jobName;
+			this.expectedToBomb = expectedToBomb;
+
+		}
+
+		@Override
+		public Job call() {
+			Job createdSleepJob = null;
+			Configuration conf = TestSession.cluster.getConf();
+			for (String key : jobParamsMap.keySet()) {
+				conf.set(key, jobParamsMap.get(key));
+			}
+
+			try {
+				TestSession.cluster.setSecurityAPI("keytab-" + userName,
+						"user-" + userName);
+
+				SleepJob sleepJob = new SleepJob();
+				sleepJob.setConf(TestSession.cluster.getConf());
+
+				createdSleepJob = sleepJob.createJob(numMapper, numReducer,
+						mapSleepTime, mapSleepCount, reduceSleepTime,
+						reduceSleepCount);
+				createdSleepJob.setJobName(jobName);
+				TestSession.logger
+						.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
+								+ "submitting " + jobName
+								+ " %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
+				createdSleepJob.submit();
+
+			} catch (Exception e) {
+				if (this.expectedToBomb == ExpectToBomb.YES) {
+					TestSession.logger.fatal("YAY the job faile as expected "
+							+ jobName);
+
+					Assert.assertTrue(
+							"Test failed on an " + "expected exception",
+							e.getMessage().contains(
+									"cannot accept submission of application"));
+
+				} else {
+					TestSession.logger.fatal("Submission of jobid [" + jobName
+							+ "] via API barfed... !! expected exception "
+							+ this.expectedToBomb);
+					TestSession.logger.info(e.getStackTrace());
+					Assert.fail("Submission of jobid [" + jobName
+							+ "] via API barfed... !! expected exception "
+							+ this.expectedToBomb);
+				}
+
+			}
+			return createdSleepJob;
+		}
+
+		// @Override
+		// public Job call() {
+		// Job createdSortJob = null;
+		// jobParamsMap.put("mapreduce.randomwriter.bytespermap", "256000");
+		// Configuration conf = TestSession.cluster.getConf();
+		// for (String key : jobParamsMap.keySet()) {
+		// conf.set(key, jobParamsMap.get(key));
+		// }
+		//
+		// try {
+		// TestSession.cluster.setSecurityAPI("keytab-" + userName,
+		// "user-" + userName);
+		//
+		// Sort<Text, Text> sort = new Sort();
+		// String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
+		// String FSCK_TESTS_DIR_ON_HDFS = DATA_DIR_IN_HDFS
+		// + "fsck_tests/";
+		// String RANDOM_WRITER_DATA_DIR = FSCK_TESTS_DIR_ON_HDFS
+		// + "randomWriter/testFsckResultsLeveragingRandomWriterAndSortJobs/";
+		// Random rand = new Random();
+		// int n = rand.nextInt(500) + 1;
+		// String randomWriterOutputDir = "randWrtr" + rand;
+		// sort.setConf(TestSession.cluster.getConf());
+		// String[] args = new String[] {RANDOM_WRITER_DATA_DIR,
+		// "/tmp/" + randomWriterOutputDir};
+		// RunSortMethod runSortMethod = new RunSortMethod(sort, args);
+		// Thread runnerThread = new Thread(runSortMethod);
+		// TestSession.logger.info("AAAAAAAAAAAA Just before calling the start AAAAAAAAAAAA");
+		// runnerThread.start();
+		// TestSession.logger.info("BBBBBBBBBBBB Just after calling the start BBBBBBBBBBBB");
+		// Thread.sleep(5000);
+		// createdSortJob = sort.getResult();
+		// TestSession.logger.info("CCCCCCCCCCCC Just after calling the getResult CCCCCCCCCCCCC");
+		// createdSortJob.setJobName("htf-cap-sched-sort-job-named-"
+		// + jobName + "-started-by-" + userName);
+		// TestSession.logger
+		// .info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+		// + "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+		// + "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+		// + "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+		//
+		// // createdSortJob.submit();
+		//
+		// } catch (Exception e) {
+		// Assert.fail("SleepJob invoked via API barfed...");
+		//
+		// }
+		// return createdSortJob;
+		// }
+		// class RunSortMethod implements Runnable{
+		// Sort<Text, Text> sort;
+		// String[] args;
+		// RunSortMethod(Sort<Text, Text> sort, String[] args){
+		// this.sort = sort;
+		// this.args = args;
+		// }
+		// @Override
+		// public void run() {
+		// try {
+		// sort.run(args);
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		//
+		// }
+		//
+		// };
+		//
+	}
+
+	class SleepJobParams {
+		public CalculatedCapacityLimitsBO calculatedCapacityLimitsBO;
+		public HashMap<String, String> configProperties;
+		public String queue;
+		public String userName;
+		public int factor;
+		public int numTimesMapWouldSleep = 1;
+		public int numTimesRedWouldSleep = 1;
+		public int taskSleepDuration;
+		public Double queueCapacityInTermsOfClusterMemory;
+		public int numMapTasks = 0;
+		public int numRedTasks = 0;
+		String jobName;
+
+		public SleepJobParams(CalculatedCapacityLimitsBO calculatedCapLimitsBO,
+				HashMap<String, String> configProperties, String queue,
+				String userName, int factor, int taskSleepDuration,
+				String jobName) {
+			super();
+			this.calculatedCapacityLimitsBO = calculatedCapLimitsBO;
+			this.configProperties = configProperties;
+			this.userName = (userName.isEmpty() || userName == null) ? HadooptestConstants.UserNames.HADOOPQA
+					: userName;
+			this.queue = (queue.isEmpty() || queue == null) ? "default" : queue;
+			this.factor = factor;
+			this.taskSleepDuration = taskSleepDuration;
+			this.jobName = jobName;
+
+			QueueCapacityDetail queueDetails = null;
+			for (QueueCapacityDetail aQueueDetail : calculatedCapLimitsBO.queueCapacityDetails) {
+				if (aQueueDetail.name.equals(queue)) {
+					queueDetails = aQueueDetail;
+					break;
+				}
+			}
+			this.queueCapacityInTermsOfClusterMemory = queueDetails.minCapacityForQueueInTermsOfTotalClusterMemoryInGB;
+			int tempNumMapTasks = (this.queueCapacityInTermsOfClusterMemory
+					.intValue() * 1024)
+					/ Integer.parseInt(configProperties
+							.get("mapreduce.map.memory.mb"));
+			this.numMapTasks = tempNumMapTasks * factor;
+
+			int tempNumReduceTasks = (this.queueCapacityInTermsOfClusterMemory
+					.intValue() * 1024)
+					/ Integer.parseInt(configProperties
+							.get("mapreduce.reduce.memory.mb"));
+			this.numRedTasks = tempNumReduceTasks * factor;
+
+		}
+
+	}
+
+	class BarrierUntilAllThreadsRunning {
+		ArrayList<Future<Job>> futureCallableSleepJobs;
+		ArrayList<Thread> spawnedThreads;
+		int maxWaitTimeForThread;
+
+		public BarrierUntilAllThreadsRunning(
+				ArrayList<Future<Job>> futureCallableSleepJobs,
+				int maxWaitTimeForThread) throws InterruptedException,
+				ExecutionException, IOException {
+			TestSession.logger
+					.info("Instantiating BarrierUntilAllThreadsRunning");
+
+			this.maxWaitTimeForThread = maxWaitTimeForThread;
+			this.futureCallableSleepJobs = futureCallableSleepJobs;
+
+			final CyclicBarrier cyclicBarrierToWaitOnThreadStateRunnable = new CyclicBarrier(
+					futureCallableSleepJobs.size(), new Runnable() {
+						@Override
+						public void run() {
+							// This task will be executed once all thread
+							// reaches barrier
+							System.out
+									.println("All threads state==RUNNING now.....hence continue!");
+						}
+					});
+			spawnedThreads = new ArrayList<Thread>();
+			TestSession.logger
+					.info("Before Looping through futures, size of futures:"
+							+ futureCallableSleepJobs.size());
+			for (Future<Job> aTetherToACallableSleepJob : futureCallableSleepJobs) {
+				try {
+					TestSession.logger
+							.info("-------------[ About to start a blocking thread for "
+									+ aTetherToACallableSleepJob.get()
+											.getJobID() + "]-------------");
+					ThreadThatWillWaitAtBarrier threadThatWillWaitAtBarrier = new ThreadThatWillWaitAtBarrier(
+							cyclicBarrierToWaitOnThreadStateRunnable,
+							aTetherToACallableSleepJob,
+							this.maxWaitTimeForThread);
+					Thread t = new Thread(threadThatWillWaitAtBarrier);
+					spawnedThreads.add(t);
+					t.start();
+				} catch (ExecutionException e) {
+					TestSession.logger.info(e.getCause());
+					Assert.fail("Could not retrieve a future sleep job."
+							+ " Are you sure you are firing the jobs within the premissible limits?");
+				}
+
+			}
+			for (Thread aThreadThatHasReachedRunningState : spawnedThreads) {
+				aThreadThatHasReachedRunningState.join();
+			}
+
+		}
+
+		class ThreadThatWillWaitAtBarrier implements Runnable {
+			CyclicBarrier barrierToHoldThreadsTillTheyAreRunnable;
+			Future<Job> futureCallableSleepJob;
+			int maxWait;
+
+			ThreadThatWillWaitAtBarrier(CyclicBarrier cb,
+					Future<Job> futureCallableSleepJob, int maxWait) {
+				this.barrierToHoldThreadsTillTheyAreRunnable = cb;
+				this.futureCallableSleepJob = futureCallableSleepJob;
+				this.maxWait = maxWait;
+			}
+
+			@Override
+			public void run() {
+				try {
+					TestSession.logger
+							.info("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Started blocking thread for "
+									+ futureCallableSleepJob.get().getJobID()
+									+ " xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+				} catch (InterruptedException e1) {
+
+					e1.printStackTrace();
+				} catch (ExecutionException e1) {
+					e1.printStackTrace();
+				}
+				waitForTaskState(futureCallableSleepJob,
+						JobStatus.State.RUNNING);
+				try {
+					barrierToHoldThreadsTillTheyAreRunnable.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (BrokenBarrierException e) {
+					e.printStackTrace();
+				}
+
+			}
+
+			public void waitForTaskState(
+					Future<Job> aTetherToACallableSleepJob, State expectedState) {
+				int MAX_WAIT_IN_SECONDS = 180;
+				int SECONDS_TO_WAIT = 1;
+				int SECONDS_WAITED = 0;
+				try {
+					while (aTetherToACallableSleepJob.get().getJobState() != expectedState) {
+						TestSession.logger.info("Current job state["
+								+ aTetherToACallableSleepJob.get().getJobName()
+								+ "]:"
+								+ aTetherToACallableSleepJob.get()
+										.getJobState() + " != " + expectedState
+								+ " hence, sleeping for " + SECONDS_TO_WAIT
+								+ " seconds");
+						Thread.sleep(SECONDS_TO_WAIT * 1000);
+						SECONDS_WAITED += SECONDS_TO_WAIT;
+						if (SECONDS_WAITED == MAX_WAIT_IN_SECONDS)
+							break;
+					}
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+
+					e.printStackTrace();
+				}
+
+			}
+
+		}
+
+	}
+
+}
+
+class QueueCapacityDetail {
+	/**
+	 * Stats (retrieved directly from REST). JobClient does not report pending
+	 * apps, hence collecting the stats here.
+	 */
+	int numPendingApplications = 0;
+
+	/**
+	 * Queue specific stats
+	 */
+	String name;
+	double minCapacityInTermsOfPercentage;
+	double minCapacityForQueueInTermsOfTotalClusterMemoryInGB;
+	double maxCapacityForQueueInTermsOfTotalClusterMemoryInGB;
+	double userLimitFactor;
+	double minimumUserLimitPercent;
+	double maximumAmResourcePercent;
+	double maxApplications;
+	double maxApplicationsPerUser;
+	double maxActiveApplications;
+	double maxActiveApplicationsPerUser;
+
+}
