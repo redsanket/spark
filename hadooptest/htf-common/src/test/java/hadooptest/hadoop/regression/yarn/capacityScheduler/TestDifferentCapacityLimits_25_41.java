@@ -153,14 +153,12 @@ public class TestDifferentCapacityLimits_25_41 extends
 		/**
 		 * Reset the max capacity as I think values exported, tend to persist across tests.
 		 */
-		JobClient jobClient = new JobClient(fullyDistributedCluster
-				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
 			
 			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
 					+ ".maximum-capacity";
-					Configuration conf = fullyDistributedCluster
-							.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+					Configuration conf = TestSession.cluster.getConf();
 					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
 
 		}
@@ -168,7 +166,6 @@ public class TestDifferentCapacityLimits_25_41 extends
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
