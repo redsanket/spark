@@ -129,6 +129,7 @@
 						-Xmx3g</argLine>
 					<additionalClasspathElements>
 						<additionalClasspathElement>${basedir}</additionalClasspathElement>
+						<additionalClasspathElement>${basedir}/htf-common/target/htf-common-1.0-SNAPSHOT-tests.jar</additionalClasspathElement>
 						<additionalClasspathElement>/home/gs/gridre/yroot.${CLUSTER}/conf/hadoop/</additionalClasspathElement>
 						<additionalClasspathElement>/home/y/lib/storm/current/conf</additionalClasspathElement>
 					</additionalClasspathElements>
