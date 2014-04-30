@@ -55,7 +55,6 @@ public class RuntimeRESTStatsBO {
 
 		}
 
-		@Override
 		public void run() {
 			while (keepCollecting) {
 				String resourceManager = crossClusterProperties

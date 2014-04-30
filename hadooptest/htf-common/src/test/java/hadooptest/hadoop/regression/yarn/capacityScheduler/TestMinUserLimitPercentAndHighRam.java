@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Future;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.apache.hadoop.mapreduce.Job;
@@ -32,14 +33,16 @@ public class TestMinUserLimitPercentAndHighRam extends
 	public void testMinUserLimitPercent() throws Exception {
 		String testCode = "t1MinUsrLimit";
 		String queueNameForThisTest = "grideng";
+		resetTheMaxQueueCapacity();
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
 				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml");
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+
 		ArrayList<String> concurrentUsers = new ArrayList<String>();
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
@@ -104,22 +107,27 @@ public class TestMinUserLimitPercentAndHighRam extends
 	public void testHighRam() throws Exception {
 		String testCode = "tHighRam";
 		String queueNameForThisTest = "default";
+		resetTheMaxQueueCapacity();
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
 				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler100.xml");
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+
 		/**
-		 * The following delay is needed because one needs to be aware that if jobs are submitted simultaneously
-		 * then at least some of them would be assigned 2048 MB (the size of AM container). So if the min-user-limit-percent
-		 * is set to 100% (as is in the case of capacity-scheduler100.xml"), then since a fraction has been already assigned 
-		 * to other concurrent users, our asserts would start failing.
+		 * The following delay is needed because one needs to be aware that if
+		 * jobs are submitted simultaneously then at least some of them would be
+		 * assigned 2048 MB (the size of AM container). So if the
+		 * min-user-limit-percent is set to 100% (as is in the case of
+		 * capacity-scheduler100.xml"), then since a fraction has been already
+		 * assigned to other concurrent users, our asserts would start failing.
 		 */
-		
+
 		final int SUFFICIENT_DELAY_BETWEEN_SPAWNING_JOBS = 60 * THOUSAND_MILLISECONDS;
 
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
@@ -155,12 +163,12 @@ public class TestMinUserLimitPercentAndHighRam extends
 					}
 
 					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
-							sleepJobParamsList, SUFFICIENT_DELAY_BETWEEN_SPAWNING_JOBS);
+							sleepJobParamsList,
+							SUFFICIENT_DELAY_BETWEEN_SPAWNING_JOBS);
 
 					// Wait until all jobs have reached RUNNING state
 					BarrierUntilAllThreadsRunning barrierUntilAllThreadsRunning = new BarrierUntilAllThreadsRunning(
-							futureCallableSleepJobs, 
-							SLEEP_JOB_DURATION_IN_SECS
+							futureCallableSleepJobs, SLEEP_JOB_DURATION_IN_SECS
 									* numSleepJobsToLaunch);
 					// With all jobs running, any additional jobs submitted
 					// should wait
