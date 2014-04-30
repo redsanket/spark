@@ -51,7 +51,7 @@ public class DfsTestsBaseClass extends TestSession {
 	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
 
-	HashMap<String, Boolean> pathsChmodedSoFar;
+	public HashMap<String, Boolean> pathsChmodedSoFar;
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
 	/**
