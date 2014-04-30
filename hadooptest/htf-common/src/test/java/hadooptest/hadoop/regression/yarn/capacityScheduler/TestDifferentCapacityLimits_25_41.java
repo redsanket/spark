@@ -3,9 +3,12 @@ package hadooptest.hadoop.regression.yarn.capacityScheduler;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
 import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.LeafQueue;
 import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.User;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,6 +57,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 		super();
 		this.capSchedConfFile = capSchedConfFile;
 	}
+	
 
 	/**
 	 * For each queue, get the maximum schedulable jobs limit and submit jobs to
@@ -67,18 +71,11 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 		String testCode = "t1pc";
 		testCode += capSchedConfFile.contains("25") ? "25" : "41";
+		resetTheMaxQueueCapacity();
 		copyResMgrConfigAndRestartNodes(capSchedConfFile);
 
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
-			
-			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
-					+ ".maximum-capacity";
-					Configuration conf = TestSession.cluster.getConf();
-					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
-
-		}
-
+		
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
@@ -163,15 +160,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 		 * Reset the max capacity as I think values exported, tend to persist across tests.
 		 */
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
-			
-			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
-					+ ".maximum-capacity";
-					Configuration conf = TestSession.cluster.getConf();
-					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
-
-		}
-
+		resetTheMaxQueueCapacity();
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
@@ -278,15 +267,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 		 * Reset the max capacity as I think values exported, tend to persist across tests.
 		 */
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
-			
-			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
-					+ ".maximum-capacity";
-					Configuration conf = TestSession.cluster.getConf();
-					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
-
-		}
-
+		resetTheMaxQueueCapacity();
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs = new ArrayList<Future<Job>>();
@@ -368,15 +349,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 		 * Reset the max capacity as I think values exported, tend to persist across tests.
 		 */
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
-			
-			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
-					+ ".maximum-capacity";
-					Configuration conf = TestSession.cluster.getConf();
-					conf.set(valueToResetAsItTendsToPersistAcrossTests,"");
-
-		}
-
+		resetTheMaxQueueCapacity();
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs = new ArrayList<Future<Job>>();
