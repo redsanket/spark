@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.apache.hadoop.mapreduce.Job;
@@ -60,11 +61,15 @@ public class TestCapacitySchedulerLimits extends CapacitySchedulerBaseClass {
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
 				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-schedulerLimits.xml");
+		/**
+		 * Reset the max capacity as I think values exported, tend to persist across tests.
+		 */
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		resetTheMaxQueueCapacity();
 		ArrayList<String> concurrentUsers = new ArrayList<String>();
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
@@ -150,11 +155,14 @@ public class TestCapacitySchedulerLimits extends CapacitySchedulerBaseClass {
 		copyResMgrConfigAndRestartNodes(TestSession.conf
 				.getProperty("WORKSPACE")
 				+ "/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-schedulerLimits.xml");
-
+		/**
+		 * Reset the max capacity as I think values exported, tend to persist across tests.
+		 */
+		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
+		resetTheMaxQueueCapacity();
 		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
 		printSelfCalculatedStats(calculatedCapacityBO);
 		ArrayList<Future<Job>> futureCallableSleepJobs;
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
 			for (QueueCapacityDetail aQueueCapaityDetail : calculatedCapacityBO.queueCapacityDetails) {
 				if (aQueueCapaityDetail.name
