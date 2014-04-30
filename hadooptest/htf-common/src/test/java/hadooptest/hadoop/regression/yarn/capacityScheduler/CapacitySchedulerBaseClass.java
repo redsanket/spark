@@ -747,7 +747,6 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 			this.countDownKillLatch = countDownKillLatch;
 		}
 
-		@Override
 		public void run() {
 			try {
 				aFutureJob.get().killJob();
@@ -837,7 +836,6 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 		}
 
-		@Override
 		public Job call() {
 			Job createdSleepJob = null;
 			Configuration conf = TestSession.cluster.getConf();
@@ -1026,7 +1024,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 			final CyclicBarrier cyclicBarrierToWaitOnThreadStateRunnable = new CyclicBarrier(
 					futureCallableSleepJobs.size(), new Runnable() {
-						@Override
+
 						public void run() {
 							// This task will be executed once all thread
 							// reaches barrier
@@ -1076,7 +1074,6 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				this.maxWait = maxWait;
 			}
 
-			@Override
 			public void run() {
 				try {
 					TestSession.logger
