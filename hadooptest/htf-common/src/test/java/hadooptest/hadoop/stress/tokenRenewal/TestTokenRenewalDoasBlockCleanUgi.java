@@ -31,6 +31,7 @@ import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -38,49 +39,20 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- * TokenRenewalTest_doasBlock_cleanUgi - acquire and attempt renew of HDFS and
- * RM DT tokens from a current user context but using a new remoteUser UGI to
- * clear the security context. The token renewal should fail since renewers
- * don't match, the tokens should be valid and can be passed to a doAs block
- * where these tokens are the only credentials available to submit jobs.
- * 
- * 20130107 phw Run two wordcount jobs from within a doAs block, with no valid
- * TGT and using tokens passed for job submission. Wordcounts are set to run
- * slightly longer than the token renewal period so the second job relies on
- * automatic renewal by the RM and NN to have valid tokens.
- * 
- * Config needs: property 'yarn.resourcemanager.delegation.token.renew-interval'
- * was reduced to 60 (seconds) to force token renewal between jobs, actual
- * setting is in mSec so it's '60000'.
- * 
- * Input needs: the wordcount needs some sizeable text input in hdfs at
- * '/data/in'
- * 
- * Output Expectations: token acquisition success with renewal failure, these
- * creds are added to the new ugi, this ugi is passed to a soad block where we
- * try to run two wordcount jobs in succession. We should see teh same token
- * behavior as we do in the normal (non doas) case, which that Rm and HDFS DTs
- * are acquired, after job submission we automatically get an MR (job history)
- * DT token, in addition to having the existing acquired tokens. After a
- * predefiend timeout, <10 minutes for RM and <1 minute for HDFS, the tokens are
- * automatically cancelled.
- * 
- * Note from @tiwari: In this test and the other of the same genre (like
- * TestTokenRenewalDoasBlockCleanUgiCurrentUser/ProxyUser) I do not shorten the
- * "yarn.resourcemanager.delegation.token.max-lifetime" config value. I just
- * shorten the 'dfs.namenode.delegation.token.renew-interval' interval. The
- * reason being, and this came out of my discussion with Daryn, if one sets the
- * "yarn.resourcemanager.delegation.token.max-lifetime" to a short value then it
- * may so happen that some short tasks that finish within that duration would
- * pass, but any new task launches would fail because the tokens would have
- * expired. And that is exactly what I see on the RM GUI Diagnostics: Task
- * failed task_1396027169958_0001_m_000000 Job failed as tasks failed.
- * failedMaps:1 failedReduces:0
+ * This test is ignored in 2.x (while it is valid in 0.23), here is why. In this
+ * test we take a clean user and pass 2 delegation tokens to him in a DoAs
+ * Block. Those tokens being a RM token and a HDFS token. There is a 3rd token
+ * History Server token that needs to be passed (there is no way to get it from
+ * the client), in the absence of that the job cannot be submitted. In 0.23, it
+ * ignores the History server token (a.k.a a Bug) hence it works there.
  * 
  * @author patw, tiwari
  * 
  */
 
+@Ignore("Client needs access to History Server token. This is not possible in a clean DoAs block, "
+		+ "since it does not have any TGT credentials, just the RM token and HDFS token."
+		+ "This works in 0.23 (a bug) but not in 2.x, hence skipping")
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestTokenRenewalDoasBlockCleanUgi extends DelegationTokenBaseClass {
@@ -215,7 +187,8 @@ public class TestTokenRenewalDoasBlockCleanUgi extends DelegationTokenBaseClass 
 		int numTokens = createdRemoteUsersUgi.getCredentials().numberOfTokens();
 		TestSession.logger.info("We have a total of " + numTokens + " tokens");
 		TestSession.logger.info("Dump all tokens currently in our Credentials");
-		TestSession.logger.info(createdRemoteUsersUgi.getCredentials().getAllTokens());
+		TestSession.logger.info(createdRemoteUsersUgi.getCredentials()
+				.getAllTokens());
 
 		// instantiate a seperate object to use for submitting jobs, using
 		// our shiney new tokens
@@ -231,7 +204,8 @@ public class TestTokenRenewalDoasBlockCleanUgi extends DelegationTokenBaseClass 
 				+ creds.numberOfTokens() + " tokens");
 		TestSession.logger
 				.info("\nDump all tokens currently in our Credentials:");
-		TestSession.logger.info(createdRemoteUsersUgi.getCredentials().getAllTokens() + "\n");
+		TestSession.logger.info(createdRemoteUsersUgi.getCredentials()
+				.getAllTokens() + "\n");
 
 	}
 
@@ -254,176 +228,208 @@ public class TestTokenRenewalDoasBlockCleanUgi extends DelegationTokenBaseClass 
 		public void go() throws Exception {
 
 			// run as the original user
-			ugiForUserWithStuffedCredentials.doAs(new PrivilegedExceptionAction<String>() {
-				HashMap<Text, byte[]> previouslyObtainedTokensInDoas = new HashMap<Text, byte[]>();
-				HashMap<Text, byte[]> tokensReadBackToConfirmTheyHaveNotChanged = new HashMap<Text, byte[]>();
-				Iterator<Token<? extends TokenIdentifier>> iterator;
+			ugiForUserWithStuffedCredentials
+					.doAs(new PrivilegedExceptionAction<String>() {
+						HashMap<Text, byte[]> previouslyObtainedTokensInDoas = new HashMap<Text, byte[]>();
+						HashMap<Text, byte[]> tokensReadBackToConfirmTheyHaveNotChanged = new HashMap<Text, byte[]>();
+						Iterator<Token<? extends TokenIdentifier>> iterator;
 
-				public String run() throws Exception {
-					// this fails with expired token before Tom's fix on top of
-					// Sid's token renewal patch in 23.6
-					ugiForUserWithStuffedCredentials.addCredentials(doasCreds);
-					TestSession.logger
-							.info("From doasUser before running jobs... my Creds say i'm: "
+						public String run() throws Exception {
+							// this fails with expired token before Tom's fix on
+							// top of
+							// Sid's token renewal patch in 23.6
+							ugiForUserWithStuffedCredentials
+									.addCredentials(doasCreds);
+							TestSession.logger.info("From doasUser before running jobs... my Creds say i'm: "
 									+ UserGroupInformation.getCurrentUser()
 									+ " and I have "
 									+ doasCreds.numberOfTokens() + " tokens");
 
-					iterator = doasCreds.getAllTokens().iterator();
-					while (iterator.hasNext()) {
-						Token<? extends TokenIdentifier> anObtainedToken = iterator
-								.next();
-						previouslyObtainedTokensInDoas.put(
-								anObtainedToken.getKind(),
-								anObtainedToken.getIdentifier());
+							iterator = doasCreds.getAllTokens().iterator();
+							while (iterator.hasNext()) {
+								Token<? extends TokenIdentifier> anObtainedToken = iterator
+										.next();
+								previouslyObtainedTokensInDoas.put(
+										anObtainedToken.getKind(),
+										anObtainedToken.getIdentifier());
 
-					}
-					// let's see what we got...
-					printTokens(previouslyObtainedTokensInDoas);
+							}
+							// let's see what we got...
+							printTokens(previouslyObtainedTokensInDoas);
 
-					JobConf jobDoasJobConf = new JobConf(conf);
-					TestSession.logger.info("Readback renew-interval as:"
-							+ conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
+							JobConf jobDoasJobConf = new JobConf(conf);
+							TestSession.logger.info("Readback renew-interval as:"
+									+ conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
 
-					jobDoasJobConf
-							.setJarByClass(TestTokenRenewalDoasBlockCleanUgi.class);
-					jobDoasJobConf
-							.setJobName("TokenRenewalTest_doasBlock_cleanUgi_wordcountOrigUser_job1");
+							jobDoasJobConf
+									.setJarByClass(TestTokenRenewalDoasBlockCleanUgi.class);
+							jobDoasJobConf
+									.setJobName("TokenRenewalTest_doasBlock_cleanUgi_wordcountOrigUser_job1");
 
-					jobDoasJobConf.setOutputKeyClass(Text.class);
-					jobDoasJobConf.setOutputValueClass(IntWritable.class);
+							jobDoasJobConf.setOutputKeyClass(Text.class);
+							jobDoasJobConf
+									.setOutputValueClass(IntWritable.class);
 
-					jobDoasJobConf.setMapperClass(Map.class);
-					jobDoasJobConf.setCombinerClass(Reduce.class);
-					jobDoasJobConf.setReducerClass(Reduce.class);
+							jobDoasJobConf.setMapperClass(Map.class);
+							jobDoasJobConf.setCombinerClass(Reduce.class);
+							jobDoasJobConf.setReducerClass(Reduce.class);
 
-					jobDoasJobConf.setInputFormat(TextInputFormat.class);
-					jobDoasJobConf.setOutputFormat(TextOutputFormat.class);
+							jobDoasJobConf
+									.setInputFormat(TextInputFormat.class);
+							jobDoasJobConf
+									.setOutputFormat(TextOutputFormat.class);
 
-					Path outpath = new Path("/tmp/outfoo");
-					if (outpath.getFileSystem(conf).isDirectory(outpath)) {
-						outpath.getFileSystem(conf).delete(outpath, true);
-						TestSession.logger.info("Info: deleted output path: "
-								+ outpath);
-					}
-					// Path inputPath = new Path("/tmp/data/in");
-					TestSession.logger.info("Setting PATH for protocol:"
-							+ protocol + " for cluster :" + cluster);
-					Path inputPath = new Path(getPrefixForProtocol(protocol,
-							System.getProperty("CLUSTER_NAME"))
-							+ DATA_DIR_IN_HDFS + FILE_USED_IN_THIS_TEST);
+							Path outpath = new Path("/tmp/outfoo");
+							if (outpath.getFileSystem(conf)
+									.isDirectory(outpath)) {
+								outpath.getFileSystem(conf).delete(outpath,
+										true);
+								TestSession.logger
+										.info("Info: deleted output path: "
+												+ outpath);
+							}
+							// Path inputPath = new Path("/tmp/data/in");
+							TestSession.logger
+									.info("Setting PATH for protocol:"
+											+ protocol + " for cluster :"
+											+ cluster);
+							Path inputPath = new Path(getPrefixForProtocol(
+									protocol,
+									System.getProperty("CLUSTER_NAME"))
+									+ DATA_DIR_IN_HDFS + FILE_USED_IN_THIS_TEST);
 
-					if (!inputPath.getFileSystem(conf).exists(inputPath)) {
-						inputPath.getFileSystem(conf).mkdirs(inputPath);
-					}
-					FileInputFormat.setInputPaths(jobDoasJobConf, inputPath);
-					FileOutputFormat.setOutputPath(jobDoasJobConf, outpath);
+							if (!inputPath.getFileSystem(conf)
+									.exists(inputPath)) {
+								inputPath.getFileSystem(conf).mkdirs(inputPath);
+							}
+							FileInputFormat.setInputPaths(jobDoasJobConf,
+									inputPath);
+							FileOutputFormat.setOutputPath(jobDoasJobConf,
+									outpath);
 
-					// submit the job, this should automatically get us a
-					// jobhistory token,
-					// but does not seem to do so...
-					// jobDoasJobConf.submit();
-					RunningJob runningJob = JobClient.runJob(jobDoasJobConf);
+							// submit the job, this should automatically get us
+							// a
+							// jobhistory token,
+							// but does not seem to do so...
+							// jobDoasJobConf.submit();
+							RunningJob runningJob = JobClient
+									.runJob(jobDoasJobConf);
 
-					System.out.print("...wait while the doAs job runs.");
-					while (!runningJob.isComplete()) {
-						System.out.print(".");
-						Thread.sleep(2000);
-					}
-					if (runningJob.isSuccessful()) {
-						TestSession.logger.info("Job completion successful");
-						// open perms on the output
-						outpath.getFileSystem(conf).setPermission(outpath,
-								new FsPermission("777"));
-						outpath.getFileSystem(conf).setPermission(
-								outpath.suffix("/part-00000"),
-								new FsPermission("777"));
-					} else {
-						TestSession.logger.info("Job failed");
-						Assert.fail();
-					}
+							System.out
+									.print("...wait while the doAs job runs.");
+							while (!runningJob.isComplete()) {
+								System.out.print(".");
+								Thread.sleep(2000);
+							}
+							if (runningJob.isSuccessful()) {
+								TestSession.logger
+										.info("Job completion successful");
+								// open perms on the output
+								outpath.getFileSystem(conf).setPermission(
+										outpath, new FsPermission("777"));
+								outpath.getFileSystem(conf).setPermission(
+										outpath.suffix("/part-00000"),
+										new FsPermission("777"));
+							} else {
+								TestSession.logger.info("Job failed");
+								Assert.fail();
+							}
 
-					System.out
-							.println("After doasUser first job... my Creds say i'm: "
+							System.out.println("After doasUser first job... my Creds say i'm: "
 									+ UserGroupInformation.getCurrentUser()
 									+ " and I now have "
 									+ doasCreds.numberOfTokens() + " tokens");
 
-					// setup and run another wordcount job, this should exceed
-					// the token renewal time of 60 seconds
-					// and cause all of our passed-in tokens to be renewed, job
-					// should also succeed
-					JobConf jobDoasJobConf2 = new JobConf(conf);
-					jobDoasJobConf2
-							.setJarByClass(TestTokenRenewalDoasBlockCleanUgi.class);
-					jobDoasJobConf2
-							.setJobName("TokenRenewalTest_doasBlock_cleanUgi_wordcountDoasUser_job2");
+							// setup and run another wordcount job, this should
+							// exceed
+							// the token renewal time of 60 seconds
+							// and cause all of our passed-in tokens to be
+							// renewed, job
+							// should also succeed
+							JobConf jobDoasJobConf2 = new JobConf(conf);
+							jobDoasJobConf2
+									.setJarByClass(TestTokenRenewalDoasBlockCleanUgi.class);
+							jobDoasJobConf2
+									.setJobName("TokenRenewalTest_doasBlock_cleanUgi_wordcountDoasUser_job2");
 
-					jobDoasJobConf2.setOutputKeyClass(Text.class);
-					jobDoasJobConf2.setOutputValueClass(IntWritable.class);
+							jobDoasJobConf2.setOutputKeyClass(Text.class);
+							jobDoasJobConf2
+									.setOutputValueClass(IntWritable.class);
 
-					jobDoasJobConf2.setMapperClass(Map.class);
-					jobDoasJobConf2.setCombinerClass(Reduce.class);
-					jobDoasJobConf2.setReducerClass(Reduce.class);
+							jobDoasJobConf2.setMapperClass(Map.class);
+							jobDoasJobConf2.setCombinerClass(Reduce.class);
+							jobDoasJobConf2.setReducerClass(Reduce.class);
 
-					jobDoasJobConf2.setInputFormat(TextInputFormat.class);
-					jobDoasJobConf2.setOutputFormat(TextOutputFormat.class);
+							jobDoasJobConf2
+									.setInputFormat(TextInputFormat.class);
+							jobDoasJobConf2
+									.setOutputFormat(TextOutputFormat.class);
 
-					Path outpath2 = new Path("/tmp/outfoo2");
-					if (outpath2.getFileSystem(conf).isDirectory(outpath2)) {
-						outpath2.getFileSystem(conf).delete(outpath2, true);
-						TestSession.logger.info("Info: deleted output path2: "
-								+ outpath2);
-					}
-					inputPath = new Path(getPrefixForProtocol(protocol,
-							System.getProperty("CLUSTER_NAME"))
-							+ DATA_DIR_IN_HDFS + FILE_USED_IN_THIS_TEST);
-					FileInputFormat.setInputPaths(jobDoasJobConf2, inputPath);
+							Path outpath2 = new Path("/tmp/outfoo2");
+							if (outpath2.getFileSystem(conf).isDirectory(
+									outpath2)) {
+								outpath2.getFileSystem(conf).delete(outpath2,
+										true);
+								TestSession.logger
+										.info("Info: deleted output path2: "
+												+ outpath2);
+							}
+							inputPath = new Path(getPrefixForProtocol(protocol,
+									System.getProperty("CLUSTER_NAME"))
+									+ DATA_DIR_IN_HDFS + FILE_USED_IN_THIS_TEST);
+							FileInputFormat.setInputPaths(jobDoasJobConf2,
+									inputPath);
 
-					FileOutputFormat.setOutputPath(jobDoasJobConf2, outpath2);
+							FileOutputFormat.setOutputPath(jobDoasJobConf2,
+									outpath2);
 
-					// submit the second job, this should also automatically get
-					// us a
-					// jobhistory token, but doesn't...
-					RunningJob runningJob2 = JobClient.runJob(jobDoasJobConf2);
+							// submit the second job, this should also
+							// automatically get
+							// us a
+							// jobhistory token, but doesn't...
+							RunningJob runningJob2 = JobClient
+									.runJob(jobDoasJobConf2);
 
-					System.out.print("...wait while the second doAs job runs.");
-					while (!runningJob2.isComplete()) {
-						System.out.print(".");
-						Thread.sleep(2000);
-					}
-					long timeStampAfterRunningJobs = System.currentTimeMillis();
+							System.out
+									.print("...wait while the second doAs job runs.");
+							while (!runningJob2.isComplete()) {
+								System.out.print(".");
+								Thread.sleep(2000);
+							}
+							long timeStampAfterRunningJobs = System
+									.currentTimeMillis();
 
-					if (runningJob2.isSuccessful()) {
-						TestSession.logger.info("Job 2 completion successful");
-						// open perms on the output
-						outpath2.getFileSystem(conf).setPermission(outpath2,
-								new FsPermission("777"));
-						outpath2.getFileSystem(conf).setPermission(
-								outpath2.suffix("/part-00000"),
-								new FsPermission("777"));
-					} else {
-						TestSession.logger.info("Job 2 failed");
-						Assert.fail();
-					}
+							if (runningJob2.isSuccessful()) {
+								TestSession.logger
+										.info("Job 2 completion successful");
+								// open perms on the output
+								outpath2.getFileSystem(conf).setPermission(
+										outpath2, new FsPermission("777"));
+								outpath2.getFileSystem(conf).setPermission(
+										outpath2.suffix("/part-00000"),
+										new FsPermission("777"));
+							} else {
+								TestSession.logger.info("Job 2 failed");
+								Assert.fail();
+							}
 
-					iterator = doasCreds.getAllTokens().iterator();
-					while (iterator.hasNext()) {
-						Token<? extends TokenIdentifier> aContainedToken = iterator
-								.next();
-						tokensReadBackToConfirmTheyHaveNotChanged.put(
-								aContainedToken.getKind(),
-								aContainedToken.getIdentifier());
-					}
+							iterator = doasCreds.getAllTokens().iterator();
+							while (iterator.hasNext()) {
+								Token<? extends TokenIdentifier> aContainedToken = iterator
+										.next();
+								tokensReadBackToConfirmTheyHaveNotChanged.put(
+										aContainedToken.getKind(),
+										aContainedToken.getIdentifier());
+							}
 
-					// let's see what we got...
-					printTokens(tokensReadBackToConfirmTheyHaveNotChanged);
-					assertTokenRenewals(previouslyObtainedTokensInDoas,
-							tokensReadBackToConfirmTheyHaveNotChanged);
+							// let's see what we got...
+							printTokens(tokensReadBackToConfirmTheyHaveNotChanged);
+							assertTokenRenewals(previouslyObtainedTokensInDoas,
+									tokensReadBackToConfirmTheyHaveNotChanged);
 
-					return "This is the doAs block";
-				}
-			});
+							return "This is the doAs block";
+						}
+					});
 		}
 
 	}

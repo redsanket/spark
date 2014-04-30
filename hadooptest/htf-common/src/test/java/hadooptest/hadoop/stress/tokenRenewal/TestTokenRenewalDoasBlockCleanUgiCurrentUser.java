@@ -76,7 +76,7 @@ import org.junit.runners.Parameterized.Parameters;
  */
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
-public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
+public class TestTokenRenewalDoasBlockCleanUgiCurrentUser extends
 		DelegationTokenBaseClass {
 	String protocol;
 	static boolean haventBouncedServers = true;
@@ -86,7 +86,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 		return Arrays.asList(new Object[][] { { "hdfs" }, { "webhdfs" }, });
 	}
 
-	public TestTokenRenewalDoasBlockCleanUgiProxyUser(String protocol) {
+	public TestTokenRenewalDoasBlockCleanUgiCurrentUser(String protocol) {
 		this.protocol = protocol;
 	}
 
@@ -95,12 +95,21 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 		TestSession.start();
 	}
 
+	/*
+	 * A test for running a TestTokenRenewal job
+	 * 
+	 * Equivalent to JobSummaryInfo10 in the original shell script YARN
+	 * regression suite.
+	 */
+
 	@Test
-	public void runTestTokenRenewalCleanUgiProxyUser() throws Exception {
+	public void runTestTokenRenewalCleanUgiCurrentUser() throws Exception {
 		long renewTimeHdfs = -1;
 		long renewTimeRm = -1;
-
-		testPrepSetTokenRenewAndMaxLifeInterval();
+		if (haventBouncedServers) {
+			testPrepSetTokenRenewAndMaxLifeInterval();
+			haventBouncedServers = false;
+		}
 		SecurityUtil.login(TestSession.cluster.getConf(), "keytab-hdfsqa",
 				"user-hdfsqa");
 
@@ -141,7 +150,6 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 		// trying to use fs.getDelegationToken() appears to work but doesn't, fs
 		// still auto fetches a token
 		// so said token is not being recognized
-
 		Credentials creds = new Credentials();
 		creds.addToken(new Text("MyTokenAliasRM"), myTokenRm);
 
@@ -180,16 +188,18 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 		TestSession.logger.info("First our HDFS_DELEGATION_TOKEN: ");
 		try {
 			renewTimeHdfs = myTokenHdfsFs.renew(conf);
+			// Should not be able to renew, since renewer is garbage
+			Assert.fail();
 		} catch (Exception e) {
 			TestSession.logger
 					.info("Success, renew failed as expected since we're not the priv user");
 		}
-		TestSession.logger
-				.info("Got renew time 1st time HDFS:" + renewTimeHdfs);
 
 		TestSession.logger.info("\nOur first RM_DELEGATION_TOKEN: ");
 		try {
 			renewTimeRm = myTokenRm.renew(conf);
+			// Should not be able to renew, since renewer is garbage
+			Assert.fail();
 		} catch (Exception e) {
 			TestSession.logger
 					.info("Success, renew failed as expected since we're not the priv user");
@@ -202,8 +212,10 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 				.info("Dump all tokens currently in our Credentials:");
 		TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
 
-		// instantiate a seperate object to use for submitting jobs, using
-		// our shiney new tokens
+		// instantiate a seperate object to use for submitting jobs, but don't
+		// use the tokens we got since they won't work in the doAs due to
+		// mismatching
+		// user authentications
 		DoasUser du = new DoasUser();
 		du.go();
 
@@ -242,7 +254,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 
 				ugi = UserGroupInformation.createProxyUser(
 						"hadoopqa@DEV.YGRID.YAHOO.COM",
-						UserGroupInformation.getLoginUser());
+						UserGroupInformation.getCurrentUser());
 			} catch (Exception e) {
 				System.out
 						.println("Failed, couldn't get UGI object for proxy user: "
@@ -254,16 +266,12 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 
 			// run as the original user
 			String retVal = ugi.doAs(new PrivilegedExceptionAction<String>() {
+
 				HashMap<Text, byte[]> previouslyObtainedTokensInDoas = new HashMap<Text, byte[]>();
 				HashMap<Text, byte[]> tokensReadBackToConfirmTheyHaveNotChanged = new HashMap<Text, byte[]>();
 				Iterator<Token<? extends TokenIdentifier>> iterator;
 
 				public String run() throws Exception {
-					// MUST instantiate objs here in the doas go() run method to
-					// get the proxy context
-					// might not have to be in the run method but just be in the
-					// go() method, need
-					// to try that...
 					doasConf = new Configuration();
 					doasCluster = new Cluster(doasConf);
 					doasFs = FileSystem.get(doasConf);
@@ -272,7 +280,6 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					// get RM and HDFS token within our proxy ugi context, these
 					// we should be able to use
 					// renewer is not valid, shouldn't matter now after 23.6
-					// design change for renewer
 					Token<?> doasRmToken = doasCluster
 							.getDelegationToken(new Text(
 									"DOAS_GARBAGE1_mapredqa"));
@@ -280,10 +287,15 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					doasCreds.addToken(new Text("MyDoasTokenAliasRM"),
 							doasRmToken);
 
-					// TODO: should capture this list and iterate over it, not
-					// grab first element...
 					Token<?> doasHdfsToken = doasFs.addDelegationTokens(
 							"mapredqa", doasCreds)[0];
+
+					ugi.addCredentials(doasCreds);
+					System.out
+							.println("From DoasProxyUser... my Creds say i'm: "
+									+ UserGroupInformation.getCurrentUser()
+									+ " and I have "
+									+ doasCreds.numberOfTokens() + " tokens");
 
 					iterator = doasCreds.getAllTokens().iterator();
 					while (iterator.hasNext()) {
@@ -297,21 +309,15 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					// let's see what we got...
 					printTokens(previouslyObtainedTokensInDoas);
 
-					ugi.addCredentials(doasCreds);
-					System.out
-							.println("From DoasProxyUser... my Creds say i'm: "
-									+ UserGroupInformation.getCurrentUser()
-									+ " and I have "
-									+ doasCreds.numberOfTokens() + " tokens");
-
+					// Submit the 1st job
 					JobConf jobDoasJobConf = new JobConf(conf);
 					TestSession.logger.info("Readback renew-interval as:"
 							+ conf.get("yarn.resourcemanager.delegation.token.renew-interval"));
 
 					jobDoasJobConf
-							.setJarByClass(TestTokenRenewalDoasBlockCleanUgiProxyUser.class);
+							.setJarByClass(TestTokenRenewalDoasBlockCleanUgiCurrentUser.class);
 					jobDoasJobConf
-							.setJobName("TokenRenewalTest_doasBlock_cleanUgi_proxyUser_wordcountOrigUser_job1");
+							.setJobName("TokenRenewalTest_doasBlock_cleanUgi_currentUser_wordcountOrigUser_job1");
 
 					jobDoasJobConf.setOutputKeyClass(Text.class);
 					jobDoasJobConf.setOutputValueClass(IntWritable.class);
@@ -329,7 +335,8 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 						TestSession.logger.info("Info: deleted output path: "
 								+ outpath);
 					}
-					// Path inputPath = new Path("/tmp/data/in");
+					TestSession.logger.info("Setting protocol:" + protocol
+							+ " for cluster " + cluster);
 					Path inputPath = new Path(getPrefixForProtocol(protocol,
 							System.getProperty("CLUSTER_NAME"))
 							+ DATA_DIR_IN_HDFS + FILE_USED_IN_THIS_TEST);
@@ -342,10 +349,6 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 
 					long timeStampBeforeRunningJobs = System
 							.currentTimeMillis();
-					// submit the job, this should automatically get us a
-					// jobhistory token,
-					// but does not seem to do so...
-					// jobDoasJobConf.submit();
 					RunningJob runningJob = JobClient.runJob(jobDoasJobConf);
 
 					System.out.print("...wait while the doAs job runs.");
@@ -366,8 +369,8 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 						Assert.fail();
 					}
 
-					System.out
-							.println("After doasUser first job... my Creds say i'm: "
+					TestSession.logger
+							.info("After doasUser first job... my Creds say i'm: "
 									+ UserGroupInformation.getCurrentUser()
 									+ " and I now have "
 									+ doasCreds.numberOfTokens() + " tokens");
@@ -378,9 +381,9 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					// should also succeed
 					JobConf jobDoasJobConf2 = new JobConf(conf);
 					jobDoasJobConf2
-							.setJarByClass(TestTokenRenewalDoasBlockCleanUgiProxyUser.class);
+							.setJarByClass(TestTokenRenewalDoasBlockCleanUgiCurrentUser.class);
 					jobDoasJobConf2
-							.setJobName("TokenRenewalTest_doasBlock_cleanUgi_proxyUser_wordcountOrigUser_job2");
+							.setJobName("TokenRenewalTest_doasBlock_cleanUgi_currentUser_wordcountOrigUser_job2");
 
 					jobDoasJobConf2.setOutputKeyClass(Text.class);
 					jobDoasJobConf2.setOutputValueClass(IntWritable.class);
@@ -398,10 +401,15 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 						TestSession.logger.info("Info: deleted output path2: "
 								+ outpath2);
 					}
-					inputPath = new Path(getPrefixForProtocol(protocol,
-							System.getProperty("CLUSTER_NAME"))
-							+ DATA_DIR_IN_HDFS + FILE_USED_IN_THIS_TEST);
-					FileInputFormat.setInputPaths(jobDoasJobConf2, inputPath);
+					TestSession.logger.info("Setting protocol:" + protocol
+							+ " for cluster " + cluster);
+					FileInputFormat
+							.setInputPaths(
+									jobDoasJobConf2,
+									new Path(getPrefixForProtocol(protocol,
+											System.getProperty("CLUSTER_NAME"))
+											+ DATA_DIR_IN_HDFS
+											+ FILE_USED_IN_THIS_TEST));
 
 					FileOutputFormat.setOutputPath(jobDoasJobConf2, outpath2);
 
@@ -443,9 +451,9 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 
 					// let's see what we got...
 					printTokens(tokensReadBackToConfirmTheyHaveNotChanged);
+
 					assertTokenRenewals(previouslyObtainedTokensInDoas,
 							tokensReadBackToConfirmTheyHaveNotChanged);
-
 					return "This is the doAs block";
 				}
 			});
@@ -453,4 +461,5 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 		}
 
 	}
+
 }
