@@ -431,6 +431,8 @@ public class TestSmileTopology extends TestSessionStorm {
 
         // All right.  We now have the location of the injection port.  Train away.
         train(json, spoutHost, ss.injectionPort);
+        logger.info("Sleeping 10 seconds to give model time to replicate");
+        Util.sleep(10);
         score(json);
     }
 
