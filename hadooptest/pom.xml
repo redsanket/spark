@@ -93,6 +93,7 @@
 				<version>2.2</version>
 				<executions>
 					<execution>
+						<phase>test</phase>
 						<goals>
 							<goal>test-jar</goal>
 						</goals>
