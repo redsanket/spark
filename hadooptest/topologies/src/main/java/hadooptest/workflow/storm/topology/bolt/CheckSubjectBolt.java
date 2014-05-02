@@ -32,8 +32,6 @@ public class CheckSubjectBolt extends BaseBasicBolt {
         return p.getName();
     }
 
-
-    @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         try {
             out = new PrintWriter(new BufferedWriter(new FileWriter(outputFileName, false)));                
@@ -49,7 +47,6 @@ public class CheckSubjectBolt extends BaseBasicBolt {
         }            
     }
 
-    @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         // TODO Auto-generated method stub
         

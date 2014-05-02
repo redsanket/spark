@@ -14,13 +14,11 @@ public class FiniteSentenceSpout extends BaseRichSpout {
     SpoutOutputCollector _collector;
     Integer _count;
 
-    @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         _collector = collector;
         _count = 0;
     }
 
-    @Override
     public void nextTuple() {
         Utils.sleep(100);
         String[] sentences = new String[] {
@@ -44,7 +42,6 @@ public class FiniteSentenceSpout extends BaseRichSpout {
     public void fail(Object id) {
     }
 
-    @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields("word"));
     }

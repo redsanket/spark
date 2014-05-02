@@ -8,13 +8,12 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 
 public class ExclaimBolt extends BaseBasicBolt {
-    @Override
+
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         String input = tuple.getString(1);
         collector.emit(new Values(tuple.getValue(0), input + "!"));
     }
 
-    @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields("id", "result"));
     }
