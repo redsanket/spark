@@ -48,19 +48,16 @@ public class NamedAutoCredentials implements IAutoCredentials {
         }
     }
 
-    @Override
     public void prepare(Map conf) {
         _name = (String)conf.get("name.to.use");
         if (_name == null) _name = "DEFAULT";
     }
 
-    @Override
     public void populateCredentials(Map<String, String> credentials) {
         LOG.warn("Putting "+_name+" in credentials");
         credentials.put("NAMED",_name);
     }
 
-    @Override
     public void updateSubject(Subject subject, Map<String, String> credentials) {
         Named n = new Named(credentials.get("NAMED"));
         Set<Principal> p = subject.getPrincipals();
@@ -72,7 +69,6 @@ public class NamedAutoCredentials implements IAutoCredentials {
         LOG.warn("Update subject to "+subject);
     }
 
-    @Override
     public void populateSubject(Subject subject, Map<String, String> credentials) {
         Named n = new Named(credentials.get("NAMED"));
         subject.getPrincipals().add(n);

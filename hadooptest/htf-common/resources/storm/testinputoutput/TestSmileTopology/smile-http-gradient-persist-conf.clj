@@ -33,6 +33,7 @@
                 :learning_rate 0.1
                 :decay_rate 2
                 :replicate true
+                :replicate.frequency 5
                 :model_storage.uri "file:///homes/mapredqa/test_models/"
                 :model_storage.model_name "test-gd"
                 :save.model.every 30000

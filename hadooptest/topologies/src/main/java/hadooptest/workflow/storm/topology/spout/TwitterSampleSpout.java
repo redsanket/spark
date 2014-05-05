@@ -1,4 +1,4 @@
-package hadooptest.workflow.storm.topology.spout;
+//package hadooptest.workflow.storm.topology.spout;
 /*
 
 package storm.starter.spout;

@@ -33,13 +33,11 @@ public class CheckSubjectSpout extends BaseRichSpout {
         return p.getName();
     }
 
-    @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         _collector = collector;
         _openName = getCurrentName();
     }
 
-    @Override
     public void nextTuple() {
         if (!_wasSent) {
             String name = getCurrentName();
@@ -56,7 +54,6 @@ public class CheckSubjectSpout extends BaseRichSpout {
     public void fail(Object id) {
     }
 
-    @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields("tupleName", "openName"));
     }

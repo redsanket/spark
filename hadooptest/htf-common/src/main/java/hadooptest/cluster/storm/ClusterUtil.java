@@ -201,7 +201,11 @@ public class ClusterUtil {
             
             // Add each original key-value pair to the yinst set command.
             for (Map.Entry<String,String> entry: nodewiseConfOrig.entrySet()) {
-                setCmd.add(entry.getKey()+"="+entry.getValue());
+                if (entry.getValue().contains(" ")) {
+                    setCmd.add(entry.getKey()+"="+"\""+entry.getValue()+"\"");
+                } else {
+                    setCmd.add(entry.getKey()+"="+entry.getValue());
+                }
             }
 
             String[] setCommand = new String[setCmd.size()];
