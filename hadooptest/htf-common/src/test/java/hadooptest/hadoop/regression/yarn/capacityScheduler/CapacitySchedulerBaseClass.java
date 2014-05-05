@@ -16,12 +16,13 @@ import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSna
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -38,12 +39,15 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
+import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.SleepJob;
-import org.junit.After;
-import org.junit.AfterClass;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.TaskReport;
+import org.apache.hadoop.mapreduce.TaskType;
 import org.junit.Assert;
 
 public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
@@ -106,12 +110,14 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 			RuntimeRESTStatsBO runtimeRESTStatsBO) {
 		LeafQueue leafQueueSnapshotWithHighestMemUtil = getLeafSnapshotWithHighestMemUtil(
 				queue, runtimeRESTStatsBO);
-//		Assert.assertTrue(
-//				(aCalculatedQueueCapaityDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB * 1024)
-//						+ " is < than "
-//						+ leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory
-//						+ " for queue " + queue,
-//				(aCalculatedQueueCapaityDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB * 1024) >= leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory);
+		// Assert.assertTrue(
+		// (aCalculatedQueueCapaityDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB
+		// * 1024)
+		// + " is < than "
+		// + leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory
+		// + " for queue " + queue,
+		// (aCalculatedQueueCapaityDetail.maxCapacityForQueueInTermsOfTotalClusterMemoryInGB
+		// * 1024) >= leafQueueSnapshotWithHighestMemUtil.resourcesUsed.memory);
 
 		Configuration config = TestSession.cluster.getConf();
 
@@ -240,23 +246,25 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		}
 
 	}
-	
+
 	void resetTheMaxQueueCapacity() throws IOException {
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-		for (JobQueueInfo aJobQueueInfo:jobClient.getQueues()){
-			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root." + aJobQueueInfo.getQueueName()
-					+ ".maximum-capacity";
+		for (JobQueueInfo aJobQueueInfo : jobClient.getQueues()) {
+			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root."
+					+ aJobQueueInfo.getQueueName() + ".maximum-capacity";
 			FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 					.getCluster();
 			FullyDistributedConfiguration fullyDistributedConfRM = fullyDistributedCluster
 					.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
-			fullyDistributedConfRM.set(valueToResetAsItTendsToPersistAcrossTests,"");
-			TestSession.logger.info("Reset the " + valueToResetAsItTendsToPersistAcrossTests + " for queue " + aJobQueueInfo.getQueueName());
+			fullyDistributedConfRM.set(
+					valueToResetAsItTendsToPersistAcrossTests, "");
+			TestSession.logger.info("Reset the "
+					+ valueToResetAsItTendsToPersistAcrossTests + " for queue "
+					+ aJobQueueInfo.getQueueName());
 		}
-		
-	}
 
+	}
 
 	void printValuesReceivedOverRest(RuntimeRESTStatsBO runtimeStatsBO) {
 		for (SchedulerRESTStatsSnapshot aSchedulerRESTStatsSnapshot : runtimeStatsBO.listOfRESTSnapshotsAcrossAllLeafQueues) {
@@ -350,13 +358,97 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
 			throws Exception {
-		TestSession.logger.info("Copying over canned cap sched file localted @:" + replacementConfigFile);
+		TestSession.logger
+				.info("Copying over canned cap sched file localted @:"
+						+ replacementConfigFile);
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 
 		// Backup config and replace file, for Resource Manager
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+				.copyFileToConfDir(replacementConfigFile,
+						CAPACITY_SCHEDULER_XML);
+
+		// Bounce node
+		fullyDistributedCluster.hadoopDaemon(Action.STOP,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		fullyDistributedCluster.hadoopDaemon(Action.START,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Thread.sleep(20000);
+		// Leave safe-mode
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
+		genericCliResponse = dfsCliCommands.dfsadmin(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				DfsTestsBaseClass.Report.NO, "get",
+				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+				DfsTestsBaseClass.PrintTopology.NO, null);
+		genericCliResponse = dfsCliCommands.dfsadmin(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				DfsTestsBaseClass.Report.NO, "leave",
+				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+				DfsTestsBaseClass.PrintTopology.NO, null);
+
+		Configuration conf = fullyDistributedCluster
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Iterator iter = conf.iterator();
+		while (iter.hasNext()) {
+			Entry<String, String> entry = (Entry<String, String>) iter.next();
+			TestSession.logger.info("Key:[" + entry.getKey() + "] Value["
+					+ entry.getValue() + "]");
+		}
+
+	}
+
+	void copyResMgrConfigAndRestartNodes(String replacementConfigFile,
+			String fullyQualifiedClassName) throws Exception {
+		TestSession.logger
+				.info("Copying over canned cap sched file localted @:"
+						+ replacementConfigFile);
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+
+		// Backup config and replace file, for Resource Manager
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
+		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
+				.backupConfDir();
+
+		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
+				.set("mapreduce.job.reduce.shuffle.consumer.plugin.class",
+						fullyQualifiedClassName);
+		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
+				.setHadoopConfFileProp(
+						"mapreduce.job.reduce.shuffle.consumer.plugin.class",
+						fullyQualifiedClassName, "core-site.xml");
+
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).set(
+				"mapreduce.job.reduce.shuffle.consumer.plugin.class",
+				fullyQualifiedClassName);
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+				.setHadoopConfFileProp(
+						"mapreduce.job.reduce.shuffle.consumer.plugin.class",
+						fullyQualifiedClassName, "core-site.xml");
+
+		fullyDistributedCluster.getConf().set(
+				"mapreduce.job.reduce.shuffle.consumer.plugin.class",
+				fullyQualifiedClassName);
+
+		TestSession.logger
+				.info("SET mapreduce.job.reduce.shuffle.consumer.plugin.class to:"
+						+ fullyQualifiedClassName);
+
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
 				.copyFileToConfDir(replacementConfigFile,
@@ -677,7 +769,6 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 	public HashMap<String, String> getDefaultSleepJobProps(String queueToSubmit) {
 		HashMap<String, String> defaultSleepJobProps = new HashMap<String, String>();
 		defaultSleepJobProps.put("mapreduce.job.acl-view-job", "*");
-		defaultSleepJobProps.put("mapreduce.job.acl-view-job", "2048");
 		defaultSleepJobProps.put("mapreduce.map.memory.mb", "1024");
 		defaultSleepJobProps.put("mapreduce.reduce.memory.mb", "1024");
 		defaultSleepJobProps.put("mapred.job.queue.name", queueToSubmit);
@@ -738,6 +829,187 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				.info("{{{{{{{{{{ Killed all the launched jobs }}}}}}}}}}");
 	}
 
+	String killACompletedMapTaskAndGetCurrentAttemptID(
+			ArrayList<Future<Job>> futureCallableSleepJobs) throws IOException,
+			IllegalArgumentException, InterruptedException, ExecutionException {
+		boolean missionAccomplished = false;
+		String attemptId = null;
+		Cluster aCluster = new Cluster(TestSession.cluster.getConf());
+		for (Future<Job> aFutureJob : futureCallableSleepJobs) {
+			if (!missionAccomplished) {
+				for (TaskReport aTaskReport : aCluster.getJob(
+						aFutureJob.get().getJobID()).getTaskReports(
+						TaskType.MAP)) {
+					if (aTaskReport.getState().equalsIgnoreCase(("SUCCEEDED"))) {
+						String userName = aFutureJob.get().getUser();
+						TestSession.logger
+								.info("Trying to kill MAP task as user:"
+										+ userName
+										+ " task attempt id:"
+										+ aTaskReport
+												.getSuccessfulTaskAttemptId());
+						TestSession.cluster.setSecurityAPI(
+								"keytab-" + userName, "user-" + userName);
+						Thread.sleep(3000);
+						aCluster = new Cluster(TestSession.cluster.getConf());
+						aCluster.getJob(aFutureJob.get().getJobID()).killTask(
+								aTaskReport.getSuccessfulTaskAttemptId());
+						missionAccomplished = true;
+						TestSession.logger
+								.info("Succeeded in killing MAP task as user:"
+										+ userName
+										+ " task attempt id:"
+										+ aTaskReport
+												.getSuccessfulTaskAttemptId());
+						attemptId = aTaskReport.getSuccessfulTaskAttemptId()
+								.toString();
+						break;
+					} else {
+						TestSession.logger
+								.info("Map Task "
+										+ aTaskReport.getTaskId()
+										+ " is in "
+										+ aTaskReport.getState()
+										+ " hence looping..I want 'em completed before killing 'em");
+					}
+
+				}
+			}
+		}
+		return attemptId;
+	}
+
+	void assertThatTheKilledMapTaskWasRespawnedAndCompleted(
+			ArrayList<Future<Job>> futureCallableSleepJobs,
+			String mapTaskAttemptIdToLookoutFor) throws IOException,
+			IllegalArgumentException, InterruptedException, ExecutionException {
+		Cluster aCluster = new Cluster(TestSession.cluster.getConf());
+		boolean assertSuccessful = false;
+		TestSession.logger.info("Looking out for map task attempt id:"
+				+ mapTaskAttemptIdToLookoutFor);
+
+		// Ensure that all tasks have completed
+		waitTillAllMapTasksComplete(futureCallableSleepJobs);
+		TestSession.logger.info("Looks like all the map tasks have completed.");
+		for (Future<Job> aFutureJob : futureCallableSleepJobs) {
+			for (TaskReport aTaskReport : aCluster.getJob(
+					aFutureJob.get().getJobID()).getTaskReports(TaskType.MAP)) {
+				if (aTaskReport.getSuccessfulTaskAttemptId().toString()
+						.equalsIgnoreCase(mapTaskAttemptIdToLookoutFor)) {
+					assertSuccessful = true;
+					TestSession.logger
+							.info("There, found what I was looking for, the re-spawned map task ["
+									+ mapTaskAttemptIdToLookoutFor + "]");
+					break;
+				} else {
+					TestSession.logger.info(aTaskReport
+							.getSuccessfulTaskAttemptId().toString()
+							+ " is not what I am looking for. I want:"
+							+ mapTaskAttemptIdToLookoutFor);
+				}
+			}
+		}
+
+		Assert.assertTrue("Map task attempt id:" + mapTaskAttemptIdToLookoutFor
+				+ " not found! ", assertSuccessful);
+	}
+
+	void waitTillAllMapTasksComplete(
+			ArrayList<Future<Job>> futureCallableSleepJobs) throws IOException,
+			InterruptedException, ExecutionException {
+		Cluster aCluster = new Cluster(TestSession.cluster.getConf());
+		int maxWait = 300;
+		boolean allMapTasksCompleted = true;
+		Date startTimeStamp = new Date();
+		do {
+			allMapTasksCompleted = true;
+			
+			for (Future<Job> aFutureJob : futureCallableSleepJobs) {
+				for (TaskReport aTaskReport : aCluster.getJob(
+						aFutureJob.get().getJobID()).getTaskReports(
+						TaskType.MAP)) {
+					TestSession.logger
+							.info("Looping in the 5 min loop because "
+									+ aTaskReport.getTaskId()
+									+ " is in "
+									+ aTaskReport.getState()
+									+ " state, and we are waiting for all map tasks to complete.");
+					if (aTaskReport.getState().toString().equals("RUNNING")
+							|| aTaskReport.getState().toString()
+									.equals("SCHEDULED")) {
+						allMapTasksCompleted = false;
+						TestSession.logger
+								.info("See, map task "
+										+ aTaskReport.getTaskId()
+										+ " is in "
+										+ aTaskReport.getState()
+										+ " state, and we are waiting for all map tasks to complete. Sleeping for 1 sec and re-checking");
+
+						break;
+					}
+				}
+
+			}
+			Thread.sleep(1000);
+			maxWait--;
+		} while (!allMapTasksCompleted && (maxWait > 0));
+		Date endTimeStamp = new Date();
+		TestSession.logger.info("========= Waited [" + (endTimeStamp.getTime() - startTimeStamp.getTime())/1000 +"] seconds =======");
+	}
+
+	HashMap<String, String> getMapOfReduceTasksIdAndState(
+			ArrayList<Future<Job>> futureCallableSleepJobs) throws IOException,
+			InterruptedException, ExecutionException {
+		HashMap reduceTasksAndState = new HashMap<String, String>();
+		Cluster aCluster = new Cluster(TestSession.cluster.getConf());
+		for (Future<Job> aFutureJob : futureCallableSleepJobs) {
+			for (TaskReport aTaskReport : aCluster.getJob(
+					aFutureJob.get().getJobID())
+					.getTaskReports(TaskType.REDUCE)) {
+				TestSession.logger.info("Compiling list of Reduce task["
+						+ aTaskReport.getTaskId() + "] in state ["
+						+ aTaskReport.getState() + "]");
+				reduceTasksAndState.put(aTaskReport.getTaskId(),
+						aTaskReport.getState());
+			}
+		}
+
+		return reduceTasksAndState;
+	}
+
+	void assertThatAReduceTaskWasKilledToMakeRoom(
+			ArrayList<Future<Job>> futureCallableSleepJobs,
+			HashMap<String, String> prevListOfReduceTasksAndState)
+			throws IOException, InterruptedException, ExecutionException {
+		Cluster aCluster = new Cluster(TestSession.cluster.getConf());
+		for (String aPrevMapTask : prevListOfReduceTasksAndState.keySet()) {
+			Assert.assertTrue("A reduce task was already in the killed state!",
+					!prevListOfReduceTasksAndState.get(aPrevMapTask)
+							.equalsIgnoreCase("KILLED"));
+		}
+		boolean atLeastOneReduceTaskWasKilled = false;
+		for (Future<Job> aFutureJob : futureCallableSleepJobs) {
+			for (TaskReport aTaskReport : aCluster.getJob(
+					aFutureJob.get().getJobID())
+					.getTaskReports(TaskType.REDUCE)) {
+				TestSession.logger.info("Reduce task["
+						+ aTaskReport.getTaskId() + "] is in state ["
+						+ aTaskReport.getState() + "]");
+				if (aTaskReport.getState().equalsIgnoreCase("KILLED")) {
+					atLeastOneReduceTaskWasKilled = true;
+					TestSession.logger.info("Got it.........Reduce task["
+							+ aTaskReport + "] is in state ["
+							+ aTaskReport.getState() + "], BREAKING FROM LOOP");
+					break;
+				}
+			}
+		}
+		Assert.assertTrue(
+				"Nope, none of the reduce tasks were killed to make headroom",
+				atLeastOneReduceTaskWasKilled);
+
+	}
+
 	class JobKiller implements Runnable {
 		Future<Job> aFutureJob;
 		CountDownLatch countDownKillLatch;
@@ -770,7 +1042,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	@After
+	// @After
 	public void restoreTheConfigFile() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -854,6 +1126,9 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 						mapSleepTime, mapSleepCount, reduceSleepTime,
 						reduceSleepCount);
 				createdSleepJob.setJobName(jobName);
+				URI[] archives = new URI[1];
+				archives[0] = new URI("/tmp/htf-common-1.0-SNAPSHOT-tests.jar");
+				createdSleepJob.setCacheArchives(archives);
 				TestSession.logger
 						.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
 								+ "submitting " + jobName
@@ -960,7 +1235,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		public HashMap<String, String> configProperties;
 		public String queue;
 		public String userName;
-		public int factor;
+		public double factor;
 		public int numTimesMapWouldSleep = 1;
 		public int numTimesRedWouldSleep = 1;
 		public int taskSleepDuration;
@@ -971,7 +1246,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 		public SleepJobParams(CalculatedCapacityLimitsBO calculatedCapLimitsBO,
 				HashMap<String, String> configProperties, String queue,
-				String userName, int factor, int taskSleepDuration,
+				String userName, double factor, int taskSleepDuration,
 				String jobName) {
 			super();
 			this.calculatedCapacityLimitsBO = calculatedCapLimitsBO;
@@ -995,13 +1270,13 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 					.intValue() * 1024)
 					/ Integer.parseInt(configProperties
 							.get("mapreduce.map.memory.mb"));
-			this.numMapTasks = tempNumMapTasks * factor;
+			this.numMapTasks = (int) Math.ceil(tempNumMapTasks * factor);
 
 			int tempNumReduceTasks = (this.queueCapacityInTermsOfClusterMemory
 					.intValue() * 1024)
 					/ Integer.parseInt(configProperties
 							.get("mapreduce.reduce.memory.mb"));
-			this.numRedTasks = tempNumReduceTasks * factor;
+			this.numRedTasks = (int) Math.ceil(tempNumReduceTasks * factor);
 
 		}
 
@@ -1104,7 +1379,8 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				int SECONDS_TO_WAIT = 1;
 				int SECONDS_WAITED = 0;
 				try {
-					while (aTetherToACallableSleepJob.get().getJobState() != expectedState) {
+					while (aTetherToACallableSleepJob.get().getJobState() != expectedState
+							&& (aTetherToACallableSleepJob.get().getJobState() != JobStatus.State.FAILED)) {
 						TestSession.logger.info("Current job state["
 								+ aTetherToACallableSleepJob.get().getJobName()
 								+ "]:"
