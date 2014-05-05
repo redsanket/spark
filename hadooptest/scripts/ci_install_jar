@@ -38,7 +38,7 @@ then
 fi
 
 # ystorm
-if [ -d "$WORKSPACE/yinst_fetch_dependencies/ystorm_fetch" ]
+if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ystorm_fetch" ]
 then
    ystorm_version=$( /usr/local/bin/yinst packages -latest ystorm | awk '{print $1}' )
    /usr/local/bin/yinst fetch ${ystorm_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz -br quarantine -br nightly -br test
