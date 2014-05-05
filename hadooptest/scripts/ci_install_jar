@@ -5,28 +5,43 @@ echo WORKSPACE=$WORKSPACE
 set -x
 
 # yjava_byauth
-/usr/local/bin/yinst fetch yjava_byauth -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
-gunzip -f $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
-tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/
+if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch" ]
+then
+   /usr/local/bin/yinst fetch yjava_byauth -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
+   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
+   tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/
+fi
 
 # yjava_jetty-9.1.4.v20140401_65
-/usr/local/bin/yinst fetch yjava_jetty-9.1.4.v20140401_65 -br current -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tgz
-gunzip -f $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tgz
-tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/
+if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch" ]
+then
+   /usr/local/bin/yinst fetch yjava_jetty-9.1.4.v20140401_65 -br current -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tgz
+   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tgz
+   tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/
+fi
 
 # yspark_yarn-0.9.0.1.1403181145_hadoop2
-/usr/local/bin/yinst fetch yspark_yarn-0.9.0.1.1403181145_hadoop2 -br quarantine -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
-gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
-tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
+if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch" ]
+then
+   /usr/local/bin/yinst fetch yspark_yarn-0.9.0.1.1403181145_hadoop2 -br quarantine -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+   tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
+fi
 
 # ystorm_contrib
-ystorm_contrib_version=$( /usr/local/bin/yinst packages -latest ystorm_contrib | awk '{print $1}' )
-/usr/local/bin/yinst fetch ${ystorm_contrib_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz -br quarantine -br nightly -br test
-gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz
-tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/
+if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch" ]
+then
+   ystorm_contrib_version=$( /usr/local/bin/yinst packages -latest ystorm_contrib | awk '{print $1}' )
+   /usr/local/bin/yinst fetch ${ystorm_contrib_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz -br quarantine -br nightly -br test
+   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz
+   tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/
+fi
 
 # ystorm
-ystorm_version=$( /usr/local/bin/yinst packages -latest ystorm | awk '{print $1}' )
-/usr/local/bin/yinst fetch ${ystorm_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz -br quarantine -br nightly -br test
-gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
-tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/
+if [ -d "$WORKSPACE/yinst_fetch_dependencies/ystorm_fetch" ]
+then
+   ystorm_version=$( /usr/local/bin/yinst packages -latest ystorm | awk '{print $1}' )
+   /usr/local/bin/yinst fetch ${ystorm_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz -br quarantine -br nightly -br test
+   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
+   tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/
+fi
