@@ -178,8 +178,12 @@ public class TestGenerateJobLoad extends TestSession {
          * the terminate flag file does not exist 
          */
         do {
+            TestSession.logger.info(
+                    "================================================================================");
             TestSession.logger.info("Submit " + batchSize + " jobs every " +
                     interval + " seconds.");
+            TestSession.logger.info(
+                    "================================================================================");
             try {
                 // TODO: CLI is fully working. API will submit only serially.
                 // Get the current capacity, if greater than threshold...
@@ -192,6 +196,8 @@ public class TestGenerateJobLoad extends TestSession {
             
             elapsedTime = System.currentTimeMillis() - startTime;
             elapsedTimeMin = (int) (elapsedTime / 1000) / 60;
+            TestSession.logger.info(
+                    "================================================================================");
             TestSession.logger.info("Elapsed time is: '" + elapsedTimeMin + 
                     "' minutes.");            
             if (elapsedTime >= maxDurationMs) {
@@ -202,6 +208,8 @@ public class TestGenerateJobLoad extends TestSession {
                 TestSession.logger.info("Sleep for " + interval + " seconds.");
                 Thread.sleep(interval*1000);
             }
+            TestSession.logger.info(
+                    "================================================================================");
         } while ((elapsedTime < maxDurationMs) && (!terminationFile.exists()));
         
         String username="hadoopqa";
@@ -358,6 +366,7 @@ public class TestGenerateJobLoad extends TestSession {
         float capacityThreshold = TestGenerateJobLoad.threshold;
         Map<String, QueueInfo> queueInfo =
                 TestSession.cluster.getQueueInfo();
+        int delay = 5;
         while (index < numJobs) {
 
             // Check capacity before submitting each job
@@ -416,7 +425,13 @@ public class TestGenerateJobLoad extends TestSession {
                     this.submitSleepJobCLI(username);
                     break;
             }
-            index++;                        
+            index++;
+            // Sleep for delay seconds if job is not waiting for job id. 
+            // This is so we don't overload the queue unnecessarily.
+            if (!waitForJobId) {
+                TestSession.logger.info("Sleep for " + delay + " seconds.");
+                Thread.sleep(interval*1000);
+            }
         }
     }
 

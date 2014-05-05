@@ -33,6 +33,7 @@
                 :learning_rate 0.1
                 :decay_rate 2
                 :replicate true
+                :replicate.frequency 5
                 }]
 
  :name "smile_gradient"

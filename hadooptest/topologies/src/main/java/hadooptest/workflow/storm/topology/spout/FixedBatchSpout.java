@@ -33,12 +33,10 @@ public class FixedBatchSpout implements IBatchSpout {
         this.cycle = cycle;
     }
     
-    @Override
     public void open(Map conf, TopologyContext context) {
         index = 0;
     }
 
-    @Override
     public void emitBatch(long batchId, TridentCollector collector) {
         List<List<Object>> batch = this.batches.get(batchId);
         if(batch == null){
@@ -57,23 +55,19 @@ public class FixedBatchSpout implements IBatchSpout {
         }
     }
 
-    @Override
     public void ack(long batchId) {
         this.batches.remove(batchId);
     }
 
-    @Override
     public void close() {
     }
 
-    @Override
     public Map getComponentConfiguration() {
         Config conf = new Config();
         conf.setMaxTaskParallelism(1);
         return conf;
     }
 
-    @Override
     public Fields getOutputFields() {
         return fields;
     }

@@ -33,7 +33,6 @@ public class TestEventCountBolt extends BaseBasicBolt {
         LOG.info("Bolt EventCount initiated");
     }
 
-    @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         LOG.info("TestEventCountBolt Received tuple " + tuple);
         AvroEventRecord rec = (AvroEventRecord)tuple.getValue(0);
@@ -66,7 +65,6 @@ public class TestEventCountBolt extends BaseBasicBolt {
         collector.emit(new Values(val, count));
     }
 
-    @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields("event", "count"));
     }

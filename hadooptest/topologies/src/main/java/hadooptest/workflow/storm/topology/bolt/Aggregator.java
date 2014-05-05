@@ -19,7 +19,6 @@ public class Aggregator extends BaseBasicBolt {
 	private HashMap<String, Integer> wordCountMap = new HashMap<String, Integer>();
 	String outputFileName;
 	
-	@Override
 	public void execute(Tuple tuple, BasicOutputCollector collector) {
 		try {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(outputFileName, false)));				
@@ -43,7 +42,6 @@ public class Aggregator extends BaseBasicBolt {
 		if (out != null) out.close();    		
 	}
 
-	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		// TODO Auto-generated method stub
 		
