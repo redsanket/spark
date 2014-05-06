@@ -13,7 +13,7 @@
                    :injection.uri "http://smile.test:4080/"
                    :registry.uri "http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/"
 		           :spout.parallelism 1
-                   :event.queue.size 20000
+                   :event.queue.size 2000
                    }
  :query_source {
                 :type DRPCSource
