@@ -235,6 +235,7 @@ public class TestSmileTopology extends TestSessionStorm {
             if ( !sent ) {
                 throw new IOException("POST failed - num retries expired");
             }
+            Thread.sleep(pauseBetween);
         }
         TestSessionStorm.logger.info("Finished traiing");
     }
