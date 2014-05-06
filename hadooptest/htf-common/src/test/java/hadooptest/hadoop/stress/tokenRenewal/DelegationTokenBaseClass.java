@@ -22,7 +22,9 @@ public class DelegationTokenBaseClass extends DfsTestsBaseClass {
 	Thread threadThatWouldKeepCleaningKinitCache;
 	KinitCacheDestroyer kinitCacheDestroyer;
 
-	static String FILE_USED_IN_THIS_TEST = "file_257MB";
+//	static String FILE_USED_IN_THIS_TEST = "file_257MB";
+	static String FILE_USED_IN_THIS_TEST = "file_64MB";
+	//file_64MB
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";
 	static String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
@@ -249,20 +251,22 @@ public class DelegationTokenBaseClass extends DfsTestsBaseClass {
 				String cacheLocation = dfsCommonCli.getKerberosCacheLocation();
 				if (cacheLocation.isEmpty() || cacheLocation == "")
 					return;
-				StringBuilder sb = new StringBuilder();
-				sb.append("rm");
-				sb.append(" ");
-				sb.append(cacheLocation);
-
-				Process proc = TestSession.exec.runProcBuilderGetProc(sb
-						.toString().split("\\s+"));
-				proc.waitFor();
-				Assert.assertTrue(
-						"Got non-zero exit value while removing cache:"
-								+ proc.exitValue(), proc.exitValue() == 0);
+				dfsCommonCli.kdestroy(cacheLocation);
+				
+//				StringBuilder sb = new StringBuilder();
+//				sb.append("rm");
+//				sb.append(" ");
+//				sb.append(cacheLocation);
+//
+//				Process proc = TestSession.exec.runProcBuilderGetProc(sb
+//						.toString().split("\\s+"));
+//				proc.waitFor();
+//				Assert.assertTrue(
+//						"Got non-zero exit value while removing cache:"
+//								+ proc.exitValue(), proc.exitValue() == 0);
 				TestSession.logger.info("removed " + cacheLocation);
 
-				dfsCommonCli.kdestroy(null);
+				
 
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -30,6 +30,7 @@ import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.token.TokenIdentifier;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,9 +55,9 @@ import org.junit.runners.Parameterized.Parameters;
  * Config needs: on RM, property
  * 'yarn.resourcemanager.delegation.token.renew-interval' was reduced to 60
  * (seconds) to force token renewal between jobs, actual setting is in mSec so
- * it's '60000'. on RM and NN, add to 'local-superuser-conf.xml'; <property>
- * <name>hadoop.proxyuser.YOUR_USER.groups</name> <value>users</value>
- * </property> <property> <name>hadoop.proxyuser.YOUR_USER.hosts</name>
+ * it's '60000'. on RM and NN, add to 'local-superuser-conf.xml';</p> <property> </p>
+ * <p><name>hadoop.proxyuser.YOUR_USER.groups</name> </p> <p><value>users</value> </p>
+ * </property> <p><property> <p></p><name>hadoop.proxyuser.YOUR_USER.hosts</name><p><p>
  * <value>YOUR_HOST.blue.ygrid.yahoo.com</value> </property>
  * 
  * Input needs: the wordcount needs some sizeable text input in hdfs at
@@ -112,7 +113,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					+ anEntry.getValue());
 
 		}
-		UserGroupInformation ugiOrig = loginUserFromKeytabAndReturnUGI(
+		UserGroupInformation ugiOrigLoggedInAsHdfsqa = loginUserFromKeytabAndReturnUGI(
 				"hdfsqa@DEV.YGRID.YAHOO.COM",
 				HadooptestConstants.Location.Keytab.HDFSQA);
 		UserGroupInformation.createRemoteUser("hdfsqa@DEV.YGRID.YAHOO.COM");
@@ -164,7 +165,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 		// add creds to UGI, this adds the two RM tokens, the HDFS token was
 		// added already as part
 		// of the addDelegationTokens()
-		ugiOrig.addCredentials(creds);
+		ugiOrigLoggedInAsHdfsqa.addCredentials(creds);
 
 		TestSession.logger.info("From OriginalUser... my Creds say i'm: "
 				+ UserGroupInformation.getCurrentUser() + " and I have "
@@ -182,7 +183,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 			renewTimeHdfs = myTokenHdfsFs.renew(conf);
 		} catch (Exception e) {
 			TestSession.logger
-					.info("Success, renew failed as expected since we're not the priv user");
+					.info("Success, renew failed as expected since (hdfsqa) is not the renewer (mapredqa) is");
 		}
 		TestSession.logger
 				.info("Got renew time 1st time HDFS:" + renewTimeHdfs);
@@ -196,11 +197,11 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 		}
 
 		TestSession.logger.info("Got renew time 1st time RM:" + renewTimeRm);
-		int numTokens = ugiOrig.getCredentials().numberOfTokens();
+		int numTokens = ugiOrigLoggedInAsHdfsqa.getCredentials().numberOfTokens();
 		TestSession.logger.info("We have a total of " + numTokens + " tokens");
 		TestSession.logger
 				.info("Dump all tokens currently in our Credentials:");
-		TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
+		TestSession.logger.info(ugiOrigLoggedInAsHdfsqa.getCredentials().getAllTokens() + "\n");
 
 		// instantiate a seperate object to use for submitting jobs, using
 		// our shiney new tokens
@@ -218,7 +219,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 						+ " tokens");
 		TestSession.logger
 				.info("\nDump all tokens currently in our Credentials:");
-		TestSession.logger.info(ugiOrig.getCredentials().getAllTokens() + "\n");
+		TestSession.logger.info(ugiOrigLoggedInAsHdfsqa.getCredentials().getAllTokens() + "\n");
 
 	}
 
@@ -243,6 +244,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 				ugi = UserGroupInformation.createProxyUser(
 						"hadoopqa@DEV.YGRID.YAHOO.COM",
 						UserGroupInformation.getLoginUser());
+				TestSession.logger.info("Created proxy user (hadoopqa@DEV.YGRID.YAHOO.COM) f	or main guy(hdfsqa)");
 			} catch (Exception e) {
 				System.out
 						.println("Failed, couldn't get UGI object for proxy user: "
@@ -266,25 +268,34 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					// to try that...
 					doasConf = new Configuration();
 					doasCluster = new Cluster(doasConf);
+					TestSession.logger.info(" in doAs block, before doing Fs Get");
 					doasFs = FileSystem.get(doasConf);
+					TestSession.logger.info(" in doAs block, after doing Fs Get");
 					doasCreds = new Credentials();
 
 					// get RM and HDFS token within our proxy ugi context, these
 					// we should be able to use
 					// renewer is not valid, shouldn't matter now after 23.6
 					// design change for renewer
-					Token<?> doasRmToken = doasCluster
+					TestSession.logger.info(" in doAs block, before getting RM delegation token");
+					Token<?> doasRmToken = null;
+					try {
+					doasRmToken = doasCluster
 							.getDelegationToken(new Text(
 									"DOAS_GARBAGE1_mapredqa"));
-
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+					TestSession.logger.info(" in doAs block, got RM delegation token");
 					doasCreds.addToken(new Text("MyDoasTokenAliasRM"),
 							doasRmToken);
 
 					// TODO: should capture this list and iterate over it, not
 					// grab first element...
+					TestSession.logger.info(" in doAs block, before adding hdfs delegation tokens");
 					Token<?> doasHdfsToken = doasFs.addDelegationTokens(
 							"mapredqa", doasCreds)[0];
-
+					TestSession.logger.info(" in doAs block, got FS delegation token");
 					iterator = doasCreds.getAllTokens().iterator();
 					while (iterator.hasNext()) {
 						Token<? extends TokenIdentifier> aContainedToken = iterator
@@ -319,6 +330,15 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					jobDoasJobConf.setMapperClass(Map.class);
 					jobDoasJobConf.setCombinerClass(Reduce.class);
 					jobDoasJobConf.setReducerClass(Reduce.class);
+					jobDoasJobConf.set("mapreduce.job.acl-view-job", "*");
+					jobDoasJobConf.set("mapreduce.job.acl-modify-job", "*");
+//					jobDoasJobConf.set("mapred.child.java.opts", "-Xmx2048m");
+//					jobDoasJobConf.set("mapreduce.map.memory.mb", "4096");
+//					jobDoasJobConf.set("mapreduce.reduce.memory.mb", "8192");
+					jobDoasJobConf.set("mapred.child.java.opts", "-Xmx2048m");
+					jobDoasJobConf.set("mapreduce.map.memory.mb", "2560");
+					jobDoasJobConf.set("mapreduce.reduce.memory.mb", "2560");
+					
 
 					jobDoasJobConf.setInputFormat(TextInputFormat.class);
 					jobDoasJobConf.setOutputFormat(TextOutputFormat.class);
@@ -388,6 +408,15 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 					jobDoasJobConf2.setMapperClass(Map.class);
 					jobDoasJobConf2.setCombinerClass(Reduce.class);
 					jobDoasJobConf2.setReducerClass(Reduce.class);
+					jobDoasJobConf.set("mapreduce.job.acl-view-job", "*");
+					jobDoasJobConf.set("mapreduce.job.acl-modify-job", "*");
+//					jobDoasJobConf.set("mapred.child.java.opts", "-Xmx2048m");
+//					jobDoasJobConf.set("mapreduce.map.memory.mb", "4096");
+//					jobDoasJobConf.set("mapreduce.reduce.memory.mb", "8192");
+					jobDoasJobConf.set("mapred.child.java.opts", "-Xmx2048m");
+					jobDoasJobConf.set("mapreduce.map.memory.mb", "2560");
+					jobDoasJobConf.set("mapreduce.reduce.memory.mb", "2560");
+
 
 					jobDoasJobConf2.setInputFormat(TextInputFormat.class);
 					jobDoasJobConf2.setOutputFormat(TextOutputFormat.class);
@@ -452,5 +481,9 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 			TestSession.logger.info(retVal);
 		}
 
+	}
+	@After
+	public void logTaskReportSummary(){
+		
 	}
 }
