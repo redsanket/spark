@@ -198,6 +198,9 @@ public class TestSmileTopology extends TestSessionStorm {
             File toTrain = new File(dirPath, trainingFiles.get(i));
             String filename = toTrain.getPath();
             TestSessionStorm.logger.info("Doing file " + filename );
+            int tryCount = 7;
+            int sleepTime = pauseBetween;
+            boolean sent = false;
 
             File f = new File (filename);
             assertTrue("File " + filename + " does not exist", f.exists());
@@ -205,23 +208,33 @@ public class TestSmileTopology extends TestSessionStorm {
             ContentResponse postResp = null;
             
             java.nio.file.Path inputPath = Paths.get(filename);
-            try {
-                postResp = client.POST(InjectionURI).file(inputPath).send();
-            } catch (Exception e) {
-                TestSessionStorm.logger.error("Post failed to URL " + InjectionURI);
-                throw new IOException("Could not put to Injection spout", e);
-            }
-
-            if (postResp == null || postResp.getStatus() != 200) {
-                if (postResp == null) {
+            while ( !sent ) {
+                postResp = null;
+                try {
+                    postResp = client.POST(InjectionURI).file(inputPath).send();
+                } catch (Exception e) {
                     TestSessionStorm.logger.error("Post failed to URL " + InjectionURI);
-                } else {
-                    TestSessionStorm.logger.error("Post failed to URL, resop = " + postResp.getStatus() );
                 }
-                throw new IOException("POST returned null or bad status");
-            }
 
-            Thread.sleep(pauseBetween);
+                if ( postResp == null || postResp.getStatus() == 429 ) {
+                    tryCount -= 1;
+                    if ( postResp != null )
+                        TestSessionStorm.logger.debug("POST returned wait.  Sleeping " + Integer.toString(sleepTime) + " ms.");
+                    else 
+                        TestSessionStorm.logger.debug("POST returned null.  Sleeping " + Integer.toString(sleepTime) + " ms.");
+                    Thread.sleep(sleepTime);
+                    sleepTime = sleepTime * 2;
+                } else if ( postResp.getStatus() == 200 ) {
+                    sent = true;
+                } else {
+                    TestSessionStorm.logger.error("Post failed to URL, resp code = " + postResp.getStatus() );
+                    TestSessionStorm.logger.error("Post failed to URL, resp = " + postResp.getContentAsString() );
+                    throw new IOException("POST failed");
+                }
+            }
+            if ( !sent ) {
+                throw new IOException("POST failed - num retries expired");
+            }
         }
         TestSessionStorm.logger.info("Finished traiing");
     }
