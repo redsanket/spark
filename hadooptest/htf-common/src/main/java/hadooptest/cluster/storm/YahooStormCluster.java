@@ -162,11 +162,17 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     public void resetConfigsAndRestart() throws Exception {
     	TestSessionStorm.logger.info("RESET CONFIGS AND RESTART");
-        if (!ystormConf.changed()) {
+        if (!ystormConf.changed() && !registryConf.changed()) {
             return;
         }
 
-        ystormConf.resetConfigs();
+        if (ystormConf.changed()) {
+            ystormConf.resetConfigs();
+        }
+        
+        if (registryConf.changed()) {
+            registryConf.resetConfigs();
+        }
 
         restartCluster();
     }

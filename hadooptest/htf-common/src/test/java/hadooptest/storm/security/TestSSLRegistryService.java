@@ -58,6 +58,7 @@ public class TestSSLRegistryService extends TestSessionStorm {
 
         if (mc != null) {
             createKeyStore();
+            
             mc.setRegistryServerURI(configURI + "," + configSecureURI);
             mc.setRegistryConf("ssl.server.keystore.location", tempPkcs12.getPath());
             mc.setRegistryConf("ssl.server.keystore.password", password);
