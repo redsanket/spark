@@ -48,6 +48,7 @@ import org.apache.hadoop.mapreduce.SleepJob;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskReport;
 import org.apache.hadoop.mapreduce.TaskType;
+import org.junit.After;
 import org.junit.Assert;
 
 public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
