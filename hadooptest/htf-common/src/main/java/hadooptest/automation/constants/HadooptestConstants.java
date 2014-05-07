@@ -90,6 +90,8 @@ public class HadooptestConstants {
 		public static class Keytab {
 			public static String HADOOPQA = "/homes/hadoopqa/hadoopqa.dev.headless.keytab";
 			public static String DFSLOAD = "/homes/dfsload/dfsload.dev.headless.keytab";
+			public static String HDFSQA = "/homes/hdfsqa/etc/keytabs/hdfsqa.dev.headless.keytab";
+			public static String HADOOPQA1 = "/homes/hdfsqa/etc/keytabs/hadoopqa1.dev.headless.keytab";
 		}
 
 		public static class TestProperties {

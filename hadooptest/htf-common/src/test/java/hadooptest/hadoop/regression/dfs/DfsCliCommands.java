@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,8 +46,8 @@ public class DfsCliCommands {
 	 * A CLI Response Business Object. All CLI responses can conform to this.
 	 */
 	public class GenericCliResponseBO {
-		Process process;
-		String response;
+		public Process process;
+		public String response;
 
 		public GenericCliResponseBO(Process process, String response) {
 			this.process = process;
@@ -466,8 +467,8 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	public FsckResponseBO fsck(HashMap<String, String> envMapSentByTest, String user,
-			String completePathToFile, boolean includeFilesArg,
+	public FsckResponseBO fsck(HashMap<String, String> envMapSentByTest,
+			String user, String completePathToFile, boolean includeFilesArg,
 			boolean includeBlocksArg, boolean includeRacksArg) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -535,9 +536,10 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	public GenericCliResponseBO dfsadmin(HashMap<String, String> envMapSentByTest,
-			Report runReport, String safemodeArg, ClearQuota clearQuota,
-			SetQuota setQuota, long quota, ClearSpaceQuota clearSpaceQuota,
+	public GenericCliResponseBO dfsadmin(
+			HashMap<String, String> envMapSentByTest, Report runReport,
+			String safemodeArg, ClearQuota clearQuota, SetQuota setQuota,
+			long quota, ClearSpaceQuota clearSpaceQuota,
 			SetSpaceQuota setSpaceQuota, long spaceQuota,
 			PrintTopology printTopology, String fsEntity) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -627,9 +629,9 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	public GenericCliResponseBO balancer(HashMap<String, String> envMapSentByTest,
-			String user, String policyValue, String thresholdValue)
-			throws Exception {
+	public GenericCliResponseBO balancer(
+			HashMap<String, String> envMapSentByTest, String user,
+			String policyValue, String thresholdValue) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
 		sb.append(" ");
@@ -977,8 +979,9 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	public GenericCliResponseBO archive(HashMap<String, String> envMapSentByTest,
-			String user, String protocol, String cluster, String archiveName,
+	public GenericCliResponseBO archive(
+			HashMap<String, String> envMapSentByTest, String user,
+			String protocol, String cluster, String archiveName,
 			String parentPath, String source, String destinationPath)
 			throws Exception {
 		// USAGE: /home/gs/gridre/yroot.merry/share/hadoop/bin/hadoop
@@ -1060,7 +1063,7 @@ public class DfsCliCommands {
 	 * @param cluster
 	 * @return
 	 */
-	private String getNNUrlForWebhdfs(String cluster) {
+	public static String getNNUrlForWebhdfs(String cluster) {
 		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
 				.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
 
@@ -1080,7 +1083,7 @@ public class DfsCliCommands {
 	 * @param cluster
 	 * @return
 	 */
-	public String getNNUrlForHdfs(String cluster) {
+	static public String getNNUrlForHdfs(String cluster) {
 		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
 				.trim().toLowerCase()
 				+ "."
@@ -1364,7 +1367,8 @@ public class DfsCliCommands {
 	 * @throws Exception
 	 */
 	public GenericCliResponseBO count(HashMap<String, String> envMapSentByTest,
-			String user, String protocol, String cluster, String fsEntity) throws Exception {
+			String user, String protocol, String cluster, String fsEntity)
+			throws Exception {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -1377,13 +1381,19 @@ public class DfsCliCommands {
 		sb.append(" ");
 		if (protocol != null) {
 			if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
-				 sb.append(getNNUrlForHdfs(cluster));sb.append(fsEntity);sb.append(" ");
+				sb.append(getNNUrlForHdfs(cluster));
+				sb.append(fsEntity);
+				sb.append(" ");
 			} else if (protocol
 					.equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
-				sb.append(getNNUrlForWebhdfs(cluster));sb.append(fsEntity);sb.append(" ");
+				sb.append(getNNUrlForWebhdfs(cluster));
+				sb.append(fsEntity);
+				sb.append(" ");
 			} else if (protocol
 					.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
-				sb.append(getNNUrlForHftp(cluster));sb.append(fsEntity);sb.append(" ");
+				sb.append(getNNUrlForHftp(cluster));
+				sb.append(fsEntity);
+				sb.append(" ");
 			} else if ((protocol.trim()).equals("")) {
 				sb.append(fsEntity);
 			}
@@ -1422,7 +1432,8 @@ public class DfsCliCommands {
 				+ "':" + "'" + destination + "':" + "'" + lifetime + "':");
 
 		File file = new File(destination);
-		file.mkdirs();
+		file.getParentFile().mkdirs();
+
 		// Point to the keytab
 		if (user.equals(HadooptestConstants.UserNames.HADOOPQA)) {
 			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.HADOOPQA;
@@ -1487,4 +1498,66 @@ public class DfsCliCommands {
 		TestSession.exec.runProcBuilder(sb.toString().split("\\s+"));
 	}
 
+	public String getKerberosCacheLocation() throws Exception {
+		String cacheLocation = "";
+		StringBuilder sb = new StringBuilder();
+		sb.append("/usr/bin/klist");
+
+		Process proc = TestSession.exec.runProcBuilderGetProc(sb.toString()
+				.split("\\s+"));
+		proc.waitFor();
+		if (proc.exitValue() != 0)
+			return cacheLocation;
+
+		InputStream is = proc.getInputStream();
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader br = new BufferedReader(isr);
+		String line = "";
+		String SEARCH_TOKEN = "Ticket cache: FILE:";
+		while ((line = br.readLine()) != null) {
+			if (line.contains(SEARCH_TOKEN)) {
+				cacheLocation = line.replace(SEARCH_TOKEN, "").trim();
+				break;
+			}
+		}
+
+		return cacheLocation;
+	}
+
+	public void kinit(String user) throws Exception {
+		String keytabFileSuffix = user + ".dev.headless.keytab";
+		String translatedUserName;
+		String keytabFileDir;
+
+		if (user.equals(HadooptestConstants.UserNames.HADOOPQA)) {
+			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.HADOOPQA;
+		} else if (user.equals(HadooptestConstants.UserNames.DFSLOAD)) {
+			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.DFSLOAD;
+		} else {
+			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.HDFSQA
+					+ "/etc/keytabs/";
+		}
+		// Translate the user
+		if (user.equals(HadooptestConstants.UserNames.HDFS)) {
+			translatedUserName = user
+					+ "/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM";
+		} else if (user.equals(HadooptestConstants.UserNames.DFSLOAD)) {
+			translatedUserName = user + "@DEV.YGRID.YAHOO.COM";
+		} else {
+			translatedUserName = user;
+		}
+
+		Map<String, String> newEnv = new HashMap<String, String>();
+		newEnv.put("PATH", System.getenv("PATH")
+				+ ":/usr/kerberos/bin/:/usr/local/bin:/usr/bin");
+		StringBuilder sb = new StringBuilder();
+		sb.append("kinit");
+		sb.append(" -k ");
+		sb.append(" -t ");
+		sb.append(keytabFileDir + "/" + keytabFileSuffix);
+		sb.append(" ");
+		sb.append(translatedUserName);
+
+		TestSession.exec.runProcBuilder(sb.toString().split("\\s+"));
+	}
 }
