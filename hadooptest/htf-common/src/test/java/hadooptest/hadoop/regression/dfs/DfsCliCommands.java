@@ -1432,7 +1432,8 @@ public class DfsCliCommands {
 				+ "':" + "'" + destination + "':" + "'" + lifetime + "':");
 
 		File file = new File(destination);
-		file.mkdirs();
+		file.getParentFile().mkdirs();
+
 		// Point to the keytab
 		if (user.equals(HadooptestConstants.UserNames.HADOOPQA)) {
 			keytabFileDir = "/homes/" + HadooptestConstants.UserNames.HADOOPQA;
