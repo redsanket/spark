@@ -1042,7 +1042,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	// @After
+	 @After
 	public void restoreTheConfigFile() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
