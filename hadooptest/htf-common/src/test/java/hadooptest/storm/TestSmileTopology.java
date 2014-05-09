@@ -1,52 +1,36 @@
 package hadooptest.storm;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
-
-import static org.junit.Assume.*;
-import java.net.URI;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.regex.*;
-import java.io.IOException;
-import java.io.FileWriter;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
-import hadooptest.cluster.storm.ModifiableStormCluster;
-import hadooptest.automation.utils.http.JSONUtil;
 import hadooptest.Util;
+import hadooptest.automation.utils.http.JSONUtil;
+import hadooptest.cluster.storm.ModifiableStormCluster;
 
-import backtype.storm.generated.*;
-import backtype.storm.drpc.LinearDRPCTopologyBuilder;
-import backtype.storm.topology.base.BaseBasicBolt;
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import backtype.storm.generated.TopologySummary;
 
 @SuppressWarnings("deprecation")
 @Category(SerialTests.class)
@@ -112,6 +96,10 @@ public class TestSmileTopology extends TestSessionStorm {
             smileVersion = getPackageVersion("ystorm_smile");
             rsVersion = getPackageVersion("ystorm_registry");
         }
+        
+        cluster.setDrpcAuthAclForFunction("query", "mapredqa");
+        cluster.setDrpcAuthAclForFunction("gradientquery", "mapredqa");
+        
         startTime = System.currentTimeMillis();
         writeColumns();
     }
@@ -126,6 +114,13 @@ public class TestSmileTopology extends TestSessionStorm {
         }
         stop();
         String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
+    }
+    
+    @After
+    public void cleanupTest() throws Exception {
+        if (mc != null) {
+            killAll();
+        }
     }
 
     public static void killAll() throws Exception {
@@ -398,7 +393,6 @@ public class TestSmileTopology extends TestSessionStorm {
             try {
                 YForResult = mc.getFromRegistryServer(YFORURL);
             } catch (Exception e ) {
-                trycount = trycount - 1;
                 Util.sleep(1);
                 logger.info("Retrying for YFOR info for " + YFORURL);
             }
@@ -414,6 +408,7 @@ public class TestSmileTopology extends TestSessionStorm {
                     YForResult = null;
                 }
             }
+            trycount = trycount - 1;
         }
         assertTrue( "Could not get YFOR information", spoutHost != null);
 
@@ -501,28 +496,24 @@ public class TestSmileTopology extends TestSessionStorm {
     @Test
     public void TestVW() throws Exception {
         testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-vw.json");
-        killAll();
     }
 
     @Test
     public void TestGradient() throws Exception {
         testInstance = 1;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-gd.json");
-        killAll();
     }
 
     @Test
     public void TestFlickrVW() throws Exception {
         testInstance = 2;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-vw.json");
-        killAll();
     }
 
     @Test
     public void TestFlickrGD() throws Exception {
         testInstance = 3;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-gd.json");
-        killAll();
     }
 
     @Test
