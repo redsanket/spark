@@ -11,5 +11,8 @@
     "scoringInput":"score.input",
     "scoringOutput":"score.output",
     "modelType":"Gradient Descent",
-    "dataSet":"Flickr"
+    "dataSet":"Flickr",
+    "injectionType":"secure",
+    "defineInsecure":"true",
+    "useInsecure":"false"
 }

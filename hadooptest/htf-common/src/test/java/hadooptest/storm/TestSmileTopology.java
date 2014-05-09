@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileOutputStream;
+
+import java.io.ByteArrayInputStream;
 
 import static org.junit.Assume.*;
 import java.net.URI;
@@ -14,6 +17,7 @@ import java.util.ArrayList;
 import java.util.regex.*;
 import java.io.IOException;
 import java.io.FileWriter;
+import java.math.BigInteger;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,9 +25,15 @@ import java.nio.file.Files;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -166,7 +176,16 @@ public class TestSmileTopology extends TestSessionStorm {
 
         // Replace what needs replacing
         content = content.replaceAll( "registry.uri \".*\"" , "registry.uri \"" + theURI + "\"" );
-        content = content.replaceAll( "injection.uri \".*\"" , "injection.uri \"" + ss.injectionURL + "\"");
+        String replaceString = "injection.uri \"" + ss.injectionURL + "\"";
+        if ( ss.insecurePort != -1 ) {
+            replaceString = replaceString + "\n              :injection.insecure.port " + Integer.toString(ss.insecurePort);
+        }
+
+        if ( ss.makeSecure ) {
+            String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+            replaceString = replaceString + "\n               :registry.yca.role \"" + v1Role + "\"";
+        }
+        content = content.replaceAll( "injection.uri \".*\"" , replaceString );
         content = content.replaceAll( "refresh.uri \".*\"" , "refresh.uri \"" + ss.refreshURL + "\"");
         
         // Write it back out
@@ -181,7 +200,25 @@ public class TestSmileTopology extends TestSessionStorm {
         int pauseBetween = Integer.parseInt(scoringTimeout);
         ArrayList<String> trainingFiles = (ArrayList<String>) json.getElement("trainingFiles");
 
-        HttpClient client = new HttpClient();
+        SslContextFactory sslContextFactory = null; 
+        String ycaCert = null;
+
+        // Are we connecting via SSL?  If so, set up the ssl context.
+        String injectionType = json.getElement("injectionType").toString();  // Is injection type https?
+        String InjectionURI = null;
+        String useInsecure = json.getElement("useInsecure").toString();      // But are we using http anyway?
+        if ( injectionType.equalsIgnoreCase("secure") && !useInsecure.equalsIgnoreCase("true") ) {
+            sslContextFactory = new SslContextFactory();
+            sslContextFactory.setIncludeProtocols("TLSv1.2", "TLSv1.1", "TLSv1");
+            sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA");
+            String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+            ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
+            InjectionURI = "https://" + hostname + ":" + Integer.toString(port) ;
+        } else {
+            InjectionURI = "http://" + hostname + ":" + Integer.toString(port) ;
+        }
+
+        HttpClient client = new HttpClient(sslContextFactory);
         client.setIdleTimeout(30000);
         try {
             client.start();
@@ -189,7 +226,6 @@ public class TestSmileTopology extends TestSessionStorm {
             throw new IOException("Could not start Http Client", e);
         }
 
-        String InjectionURI = "http://" + hostname + ":" + Integer.toString(port) ;
         logger.info("Attempting to connect to injection spout with " + InjectionURI);
 
         
@@ -211,7 +247,11 @@ public class TestSmileTopology extends TestSessionStorm {
             while ( !sent ) {
                 postResp = null;
                 try {
-                    postResp = client.POST(InjectionURI).file(inputPath).send();
+                    if ( ycaCert == null ) {
+                        postResp = client.POST(InjectionURI).file(inputPath).send();
+                    } else {
+                        postResp = client.POST(InjectionURI).file(inputPath).header("Yahoo-App-Auth", ycaCert).send();
+                    }
                 } catch (Exception e) {
                     TestSessionStorm.logger.error("Post failed to URL " + InjectionURI);
                 }
@@ -355,29 +395,108 @@ public class TestSmileTopology extends TestSessionStorm {
         writer.close();
     }
     
+
     public class SmileSession {
         public String injectionURL;
+        public String insecureURL;
         public String refreshURL;
         public String injectionHost;
         public String refreshHost;
         public int injectionPort;
+        // If not -1, we'll use this port
+        public int insecurePort = -1;
         public int refreshPort;
+        public String cert;
+        public Boolean makeSecure = false;
+        JSONUtil mJson;
 
         // Not thread safe, but this will not be called concurrently
-        public SmileSession() {
+        public SmileSession( JSONUtil json ) {
+            mJson = json;
+            // This will tell is if we are defining secure or not secure injection URL, and if we are defining insecure port, and then which one to use for training.
+            String injectionType = mJson.getElement("injectionType").toString();
+            
             injectionPort = 4567 + testInstance;
             injectionHost = "smile" + Integer.toString(testInstance) + ".test";
-            injectionURL = "http://" + injectionHost + ":" + Integer.toString(injectionPort) + "/";
+            // Are we defining https or http?
+            if ( injectionType.equals("secure") ) {
+                makeSecure = true;
+                injectionURL = "https://" + injectionHost + ":" + Integer.toString(injectionPort) + "/";
+                String defineInsecure = mJson.getElement("defineInsecure").toString();
+                // Are we also going to define an insecure port?
+                if (defineInsecure.equalsIgnoreCase("true")) {
+                    insecurePort = 4678 + testInstance;
+                    insecureURL = "http://" + injectionHost + ":" + Integer.toString(insecurePort) + "/";
+                }
+            } else {
+                injectionURL = "http://" + injectionHost + ":" + Integer.toString(injectionPort) + "/";
+            }
             refreshPort = 5678 + testInstance;
             refreshHost = "smile" + Integer.toString(testInstance) + ".test.refresh";
             refreshURL = "http://" + refreshHost + ":" + Integer.toString(refreshPort) + "/";
-            testInstance = testInstance + 1;
+        }
+
+        public void setUpTrustStore( String cert, String serviceURL ) throws Exception {
+
+            // Set up passwords
+            String ssl_pwd = new BigInteger(130, new SecureRandom()).toString(32);
+            System.setProperty("org.eclipse.jetty.ssl.password", ssl_pwd);
+            System.setProperty("org.eclipse.jetty.ssl.keypassword", ssl_pwd);
+
+            //create an empty trust store
+            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            trustStore.load(null, ssl_pwd.toCharArray());
+            ByteArrayInputStream bais = null;
+
+            logger.info("KeyStore password is " + ssl_pwd);
+
+            logger.info("Creating a trust store for service URL " + serviceURL );
+            // read the bytes
+            byte value[] =  cert.getBytes("UTF-8");
+
+            bais = new ByteArrayInputStream(value);
+
+            // Create the cert factory and import the cert from input stream
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            Certificate certificate = factory.generateCertificate(bais);
+
+            // Close input stream
+            bais.close();
+
+            //import certificate into trustStore
+            URI myServiceURI = new URI(serviceURL);
+            String serviceID = com.yahoo.spout.http.Util.ServiceURItoID(myServiceURI);
+            logger.info("Adding Cert to trust store");
+            trustStore.setCertificateEntry(serviceID, certificate);
+
+            //Store truststore into a file
+            File truststore_fs = File.createTempFile("truststore", KeyStore.getDefaultType());
+            truststore_fs.deleteOnExit();
+            String truststore_path = truststore_fs.getAbsolutePath();
+            logger.info("Trustore filename is " + truststore_path );
+            trustStore.store(new FileOutputStream(truststore_fs), ssl_pwd.toCharArray());
+            System.setProperty("javax.net.ssl.trustStore", truststore_path);
         }
 
         public void addVH() throws Exception {
             // Add the registy entries.
-            String[] returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", injectionURL }, true);
-            assertTrue( "Could not add Injection VH " + injectionURL , returnValue[0].equals("0") );
+            String[] returnValue;
+            if ( makeSecure ) {
+                String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+                returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", injectionURL, "--yca_v1_role", v1Role }, true);
+                assertTrue( "Could not add Injection VH " + injectionURL , returnValue[0].equals("0") );
+                JSONUtil parseOutput = new JSONUtil();
+                //Pattern p = Pattern.compile("({.*})\n");
+                //Matcher m = p.matcher(returnValue[1]);
+                parseOutput.setContent(returnValue[1]);
+                // We should save off the cert that comes back in the output.
+                String cert = parseOutput.getElement("virtualHost/securityData/SelfSignedSSL/cert").toString();
+                logger.info("data=" + cert);
+                setUpTrustStore( cert, injectionURL );
+            } else {
+                returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", injectionURL }, true);
+                assertTrue( "Could not add Injection VH " + injectionURL , returnValue[0].equals("0") );
+            }
             returnValue = exec.runProcBuilder(new String[] { "/home/y/bin/registry_client", "addvh", refreshURL }, true);
             assertTrue( "Could not add refresh VH " + refreshURL, returnValue[0].equals("0") );
         }
@@ -435,7 +554,7 @@ public class TestSmileTopology extends TestSessionStorm {
         assertTrue( "Smile jar is not installed", jar.exists());
 
         // Add VH, and store off virtual host names and ports in class
-        SmileSession ss = new SmileSession();
+        SmileSession ss = new SmileSession(json);
         ss.addVH();
  
         //Munge the config file to use our virutal hosts and ports
@@ -444,7 +563,13 @@ public class TestSmileTopology extends TestSessionStorm {
         String spoutHost = launchSmileTopology( pathToConf, ss);
 
         // All right.  We now have the location of the injection port.  Train away.
-        train(json, spoutHost, ss.injectionPort);
+        String useInsecure = json.getElement("useInsecure").toString();      // But are we using http anyway?
+        if ( ss.makeSecure && useInsecure.equalsIgnoreCase("true") )  {
+            logger.info("Using insecure port despite defined secure port");
+            train(json, spoutHost, ss.insecurePort);
+        } else {
+            train(json, spoutHost, ss.injectionPort);
+        }
         logger.info("Sleeping 10 seconds to give model time to replicate");
         Util.sleep(10);
         score(json);
@@ -465,7 +590,7 @@ public class TestSmileTopology extends TestSessionStorm {
         assertTrue( "Smile jar is not installed", jar.exists());
 
         // Add VH, and store off virtual host names and ports in class
-        SmileSession ss = new SmileSession();
+        SmileSession ss = new SmileSession(json);
         ss.addVH();
  
         //Munge the config file to use our virutal hosts and ports
@@ -473,7 +598,13 @@ public class TestSmileTopology extends TestSessionStorm {
         String spoutHost = launchSmileTopology( pathToConf, ss);
 
         // All right.  We now have the location of the injection port.  Train away.
-        train(json, spoutHost, ss.injectionPort);
+        String useInsecure = json.getElement("useInsecure").toString();      // But are we using http anyway?
+        if ( ss.makeSecure && useInsecure.equalsIgnoreCase("true") )  {
+            logger.info("Using insecure port despite defined secure port");
+            train(json, spoutHost, ss.insecurePort);
+        } else {
+            train(json, spoutHost, ss.injectionPort);
+        }
 
         logger.info("sleep 40 seconds to ensure model is written out");
         Util.sleep(40);
