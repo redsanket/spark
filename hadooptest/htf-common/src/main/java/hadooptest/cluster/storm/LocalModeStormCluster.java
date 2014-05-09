@@ -112,4 +112,16 @@ public class LocalModeStormCluster extends StormCluster {
     public String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException {
         return drpcServer.execute(func, args);
     }
+    
+    /**
+     * Does nothing for LocalModeStormCluster.  Only fully implemented for 
+     * YahooStormCluster.
+     * 
+     * @param function The name of the function
+     * @param user The user running the function
+     * 
+     * @throws Exception if there is a problem setting the yinst configuration
+     */
+    public void setDrpcAuthAclForFunction(String function, String user) 
+            throws Exception {}
 }
