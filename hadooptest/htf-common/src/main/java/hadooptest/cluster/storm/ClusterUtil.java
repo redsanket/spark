@@ -56,9 +56,17 @@ public class ClusterUtil {
         Map<String, Map<String, String>> ret = 
         		new HashMap<String, Map<String, String>>();
         
-    	ArrayList<String> dnsNames = 
-    			StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
-    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	ArrayList<String> dnsNames = null;
+    	
+    	if (namespace.equals("ystorm_registry")) {
+    	    dnsNames = StormDaemon.lookupIgorRoles(StormDaemon.REGISTRY, 
+    	            TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	}
+    	else {
+    	    dnsNames = 
+                StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+                        TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	}
 
     	TestSessionStorm.logger.info(
     			"*** GETTING YINST CONFIGURATION FOR ALL STORM NODES ***");

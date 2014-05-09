@@ -48,6 +48,7 @@ import org.apache.hadoop.mapreduce.SleepJob;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskReport;
 import org.apache.hadoop.mapreduce.TaskType;
+import org.junit.After;
 import org.junit.Assert;
 
 public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
@@ -1042,7 +1043,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	// @After
+	 @After
 	public void restoreTheConfigFile() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -1126,9 +1127,10 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 						mapSleepTime, mapSleepCount, reduceSleepTime,
 						reduceSleepCount);
 				createdSleepJob.setJobName(jobName);
-				URI[] archives = new URI[1];
-				archives[0] = new URI("/tmp/htf-common-1.0-SNAPSHOT-tests.jar");
-				createdSleepJob.setCacheArchives(archives);
+//				URI[] archives = new URI[1];
+//				archives[0] = new URI("file:" + TestSession.conf
+//						.getProperty("WORKSPACE") +"/htf-common-1.0-SNAPSHOT-tests.jar");
+//				createdSleepJob.setCacheArchives(archives);
 				TestSession.logger
 						.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
 								+ "submitting " + jobName
@@ -1150,6 +1152,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 					TestSession.logger.fatal("Submission of jobid [" + jobName
 							+ "] via API barfed... !! expected exception "
 							+ this.expectedToBomb);
+					e.printStackTrace();
 					TestSession.logger.info(e.getStackTrace());
 					Assert.fail("Submission of jobid [" + jobName
 							+ "] via API barfed... !! expected exception "

@@ -7,6 +7,7 @@ use Test::More;
 use File::Copy;
 use File::Find::Rule;
 use File::Basename;
+use Sys::Hostname;
 
 my %options=();
 
@@ -138,9 +139,15 @@ foreach my $path (@hadoop_jar_paths) {
 
 note("CLASSPATH=".join(":",@classpath));
 
-# TODO: long term this should move into the java test framework
-execute("stty -echo; /usr/kerberos/bin/kinit $username\@DS.CORP.YAHOO.COM; stty echo")
-    unless ($nopasswd);
+if($storm) {
+	my $host = hostname;
+	my $host_prefix = substr($host, 0, index($host, '.'));
+	execute("stty -echo; kinit -kt /etc/grid-keytabs/$host_prefix.dev.service.keytab mapredqa/$host\@DEV.YGRID.YAHOO.COM; stty echo");
+}
+else {
+	execute("stty -echo; kinit $username\@DS.CORP.YAHOO.COM; stty echo")
+    	unless ($nopasswd);
+}
 
 # Temporarily removing help:active-profiles as the maven-help-plugin is not
 # resolving from an offline local repository.  It keeps trying to download

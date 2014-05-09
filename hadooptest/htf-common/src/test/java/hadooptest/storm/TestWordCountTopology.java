@@ -7,8 +7,8 @@ import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.Util;
 import hadooptest.cluster.storm.ModifiableStormCluster;
-import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
 import hadooptest.workflow.storm.topology.bolt.Split;
+import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +36,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.JSONValue;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Document;
@@ -43,14 +44,11 @@ import org.w3c.tidy.Tidy;
 
 import storm.trident.TridentState;
 import storm.trident.TridentTopology;
-import storm.trident.operation.BaseFunction;
-import storm.trident.operation.TridentCollector;
 import storm.trident.operation.builtin.Count;
 import storm.trident.operation.builtin.FilterNull;
 import storm.trident.operation.builtin.MapGet;
 import storm.trident.operation.builtin.Sum;
 import storm.trident.testing.MemoryMapState;
-import storm.trident.tuple.TridentTuple;
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.TopologyInfo;
@@ -63,6 +61,11 @@ import backtype.storm.utils.Utils;
 public class TestWordCountTopology extends TestSessionStorm {
     static int numSpouts = 2; //This must match the topology
 
+    @BeforeClass
+    public static void setup() throws Exception {
+        cluster.setDrpcAuthAclForFunction("words", "mapredqa");
+    }
+    
     @AfterClass
     public static void cleanup() throws Exception {
         stop();
@@ -129,6 +132,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         config.setDebug(true);
         config.setNumWorkers(1);
         config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
+        config.put(Config.STORM_ZOOKEEPER_TOPOLOGY_AUTH_PAYLOAD, "123:456");
         // TODO turn this into a utility that has a conf setting
         File jar = new File(
                 conf.getProperty("WORKSPACE")
@@ -257,6 +261,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         config.setDebug(true);
         config.setNumWorkers(3);
         config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
+        config.put(Config.STORM_ZOOKEEPER_TOPOLOGY_AUTH_PAYLOAD, "123:456");
         //TODO turn this into a utility that has a conf setting
         File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);

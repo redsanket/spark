@@ -162,11 +162,17 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     public void resetConfigsAndRestart() throws Exception {
     	TestSessionStorm.logger.info("RESET CONFIGS AND RESTART");
-        if (!ystormConf.changed()) {
+        if (!ystormConf.changed() && !registryConf.changed()) {
             return;
         }
 
-        ystormConf.resetConfigs();
+        if (ystormConf.changed()) {
+            ystormConf.resetConfigs();
+        }
+        
+        if (registryConf.changed()) {
+            registryConf.resetConfigs();
+        }
 
         restartCluster();
     }
@@ -387,39 +393,39 @@ public class YahooStormCluster extends ModifiableStormCluster {
      * @return String containing the data returned from the server
      */
     public String getFromRegistryServer(String endpoint) throws Exception {
-    	HttpClient client = new HttpClient();
-    	try {
-    		client.start();
-    	} catch (Exception e) {
-    		throw new IOException("Could not start Http Client", e);
-    	}
-    	String theURL = registryURI.split(",")[0] + endpoint;
+        HttpClient client = new HttpClient();
+        try {
+            client.start();
+        } catch (Exception e) {
+            throw new IOException("Could not start Http Client", e);
+        }
+        String theURL = registryURI.split(",")[0] + endpoint;
 
-	Request req = client.newRequest(theURL);
-	ContentResponse resp = null;
-	TestSessionStorm.logger.warn("Trying to get from " + theURL);
-	resp = req.send();
+        Request req = client.newRequest(theURL);
+        ContentResponse resp = null;
+        TestSessionStorm.logger.warn("Trying to get from " + theURL);
+        resp = req.send();
 
-	if (resp == null) {
-		throw new IOException("Response was null");
-	}
+        if (resp == null) {
+            throw new IOException("Response was null");
+        }
 
-	if (resp != null && resp.getStatus() != 200) {
-		throw new Exception("Response code " + Integer.toString(resp.getStatus()) + " was not 200.");
-	}
+        if (resp != null && resp.getStatus() != 200) {
+            throw new Exception("Response code " + Integer.toString(resp.getStatus()) + " was not 200.");
+        }
 
-    	// Stop client
-    	try {
-    		client.stop();
-    	} catch (Exception e) {
-    		throw new IOException("Could not stop http client", e);
-    	}
+        // Stop client
+        try {
+            client.stop();
+        } catch (Exception e) {
+            throw new IOException("Could not stop http client", e);
+        }
 
-	// Return the data returned from the get.
-	if ( resp == null ) {
-		return null;
-	}
-	return resp.getContentAsString();
+        // Return the data returned from the get.
+        if ( resp == null ) {
+            return null;
+        }
+        return resp.getContentAsString();
     }
 
     /**
@@ -507,5 +513,21 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     public String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException {
         return drpc.execute(func, args);
+    }
+    
+    /**
+     * Set the yinst configuration for DRPC authorization for running a
+     * function securely.
+     * 
+     * @param function The name of the function
+     * @param user The user running the function
+     * 
+     * @throws Exception if there is a problem setting the yinst configuration
+     */
+    public void setDrpcAuthAclForFunction(String function, String user) 
+            throws Exception {
+        
+        setConf("drpc_auth_acl_" + function + "_client_users", user);
+        setConf("drpc_auth_acl_" + function + "_invocation_user", user);
     }
 }
