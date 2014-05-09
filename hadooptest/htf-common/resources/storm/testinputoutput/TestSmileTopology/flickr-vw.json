@@ -11,5 +11,8 @@
     "scoringInput":"score.input",
     "scoringOutput":"score.output",
     "modelType":"VW",
-    "dataSet":"Flickr"
+    "dataSet":"Flickr",
+    "injectionType":"secure",
+    "defineInsecure":"true",
+    "useInsecure":"true"
 }

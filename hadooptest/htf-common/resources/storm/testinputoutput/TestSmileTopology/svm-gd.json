@@ -18,5 +18,8 @@
     "scoringInput":"score.input",
     "scoringOutput":"score.output",
     "modelType":"Gradient Descent",
-    "dataSet":"url_svmlight"
+    "dataSet":"url_svmlight",
+    "injectionType":"secure",
+    "defineInsecure":"false",
+    "useInsecure":"false"
 }
