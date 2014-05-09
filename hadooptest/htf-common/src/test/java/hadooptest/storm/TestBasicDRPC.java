@@ -48,6 +48,8 @@ public class TestBasicDRPC extends TestSessionStorm {
     public static void setup() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         mc = (ModifiableStormCluster)cluster;
+
+        cluster.setDrpcAuthAclForFunction("exclamation", "mapredqa");
     }
 
     @AfterClass
