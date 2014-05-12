@@ -23,7 +23,7 @@ public class DelegationTokenBaseClass extends DfsTestsBaseClass {
 	KinitCacheDestroyer kinitCacheDestroyer;
 
 //	static String FILE_USED_IN_THIS_TEST = "file_257MB";
-	static String FILE_USED_IN_THIS_TEST = "file_64MB";
+	static String FILE_USED_IN_THIS_TEST = INPUT_TO_WORD_COUNT;
 	//file_64MB
 	static String KEYTAB_DIR = "keytabDir";
 	static String KEYTAB_USER = "keytabUser";

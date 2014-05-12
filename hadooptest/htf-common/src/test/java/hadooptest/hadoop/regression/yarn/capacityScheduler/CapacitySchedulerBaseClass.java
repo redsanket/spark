@@ -410,8 +410,8 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	void copyResMgrConfigAndRestartNodes(String replacementConfigFile,
-			String fullyQualifiedClassName) throws Exception {
+	void setDominantResourceParametersEverywhere(String replacementConfigFile)
+			throws Exception {
 		TestSession.logger
 				.info("Copying over canned cap sched file localted @:"
 						+ replacementConfigFile);
@@ -420,46 +420,67 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 		// Backup config and replace file, for Resource Manager
 		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.NODE_MANAGER).backupConfDir();
+		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
-		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
-				.backupConfDir();
-
-		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
-				.set("mapreduce.job.reduce.shuffle.consumer.plugin.class",
-						fullyQualifiedClassName);
-		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
-				.setHadoopConfFileProp(
-						"mapreduce.job.reduce.shuffle.consumer.plugin.class",
-						fullyQualifiedClassName, "core-site.xml");
-
 		fullyDistributedCluster.getConf(
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).set(
-				"mapreduce.job.reduce.shuffle.consumer.plugin.class",
-				fullyQualifiedClassName);
+				HadooptestConstants.NodeTypes.NAMENODE).backupConfDir();
 		fullyDistributedCluster.getConf(
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
-				.setHadoopConfFileProp(
-						"mapreduce.job.reduce.shuffle.consumer.plugin.class",
-						fullyQualifiedClassName, "core-site.xml");
+				HadooptestConstants.NodeTypes.DATANODE).backupConfDir();
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.HISTORY_SERVER).backupConfDir();
 
-		fullyDistributedCluster.getConf().set(
-				"mapreduce.job.reduce.shuffle.consumer.plugin.class",
-				fullyQualifiedClassName);
-
-		TestSession.logger
-				.info("SET mapreduce.job.reduce.shuffle.consumer.plugin.class to:"
-						+ fullyQualifiedClassName);
-
+		// Replace the cap sched file
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
 				.copyFileToConfDir(replacementConfigFile,
 						CAPACITY_SCHEDULER_XML);
 
-		// Bounce node
-		fullyDistributedCluster.hadoopDaemon(Action.STOP,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		HashMap<String, String> keyValuesToBeSet = new HashMap<String, String>();
+		keyValuesToBeSet
+				.put("yarn.nodemanager.linux-container-executor.resources-handler.class",
+						"org.apache.hadoop.yarn.server.nodemanager.util.CgroupsLCEResourcesHandler");
+		keyValuesToBeSet.put(
+				"yarn.nodemanager.linux-container-executor.cgroups.hierarchy",
+				"/hadoop-yarn");
+		keyValuesToBeSet.put(
+				"yarn.nodemanager.linux-container-executor.cgroups.mount",
+				"true");
+		keyValuesToBeSet.put(
+				"yarn.nodemanager.linux-container-executor.cgroups.mount-path",
+				"/cgroup");
+		keyValuesToBeSet.put(
+				"yarn.nodemanager.linux-container-executor.group",
+				"hadoop");
+
+
+		String[] nodesThatWeAreInterestedIn = new String[] {
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
+				HadooptestConstants.NodeTypes.HISTORY_SERVER,
+				HadooptestConstants.NodeTypes.NAMENODE,				
+				HadooptestConstants.NodeTypes.NODE_MANAGER,
+				HadooptestConstants.NodeTypes.DATANODE				
+				};
+
+		for (String aNodeThatWeAreInterestedIn : nodesThatWeAreInterestedIn) {
+			fullyDistributedCluster.getConf(aNodeThatWeAreInterestedIn)
+					.setHadoopConfFileProp(keyValuesToBeSet,
+							HadooptestConstants.ConfFileNames.YARN_SITE_XML,
+							null);
+
+		}
+
+		// Bounce nodes
+		for (String aNodeThatWeAreInterestedIn : nodesThatWeAreInterestedIn) {
+			fullyDistributedCluster.hadoopDaemon(Action.STOP,
+					aNodeThatWeAreInterestedIn);
+		}
+		Thread.sleep(20000);
+		// Bounce nodes
+		for (String aNodeThatWeAreInterestedIn : nodesThatWeAreInterestedIn) {
+			fullyDistributedCluster.hadoopDaemon(Action.START,
+					aNodeThatWeAreInterestedIn);
+		}
 
 		Thread.sleep(20000);
 		// Leave safe-mode
@@ -924,7 +945,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		Date startTimeStamp = new Date();
 		do {
 			allMapTasksCompleted = true;
-			
+
 			for (Future<Job> aFutureJob : futureCallableSleepJobs) {
 				for (TaskReport aTaskReport : aCluster.getJob(
 						aFutureJob.get().getJobID()).getTaskReports(
@@ -955,7 +976,9 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 			maxWait--;
 		} while (!allMapTasksCompleted && (maxWait > 0));
 		Date endTimeStamp = new Date();
-		TestSession.logger.info("========= Waited [" + (endTimeStamp.getTime() - startTimeStamp.getTime())/1000 +"] seconds =======");
+		TestSession.logger.info("========= Waited ["
+				+ (endTimeStamp.getTime() - startTimeStamp.getTime()) / 1000
+				+ "] seconds =======");
 	}
 
 	HashMap<String, String> getMapOfReduceTasksIdAndState(
@@ -1043,7 +1066,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	 @After
+//	@After
 	public void restoreTheConfigFile() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -1127,10 +1150,11 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 						mapSleepTime, mapSleepCount, reduceSleepTime,
 						reduceSleepCount);
 				createdSleepJob.setJobName(jobName);
-//				URI[] archives = new URI[1];
-//				archives[0] = new URI("file:" + TestSession.conf
-//						.getProperty("WORKSPACE") +"/htf-common-1.0-SNAPSHOT-tests.jar");
-//				createdSleepJob.setCacheArchives(archives);
+				// URI[] archives = new URI[1];
+				// archives[0] = new URI("file:" + TestSession.conf
+				// .getProperty("WORKSPACE")
+				// +"/htf-common-1.0-SNAPSHOT-tests.jar");
+				// createdSleepJob.setCacheArchives(archives);
 				TestSession.logger
 						.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
 								+ "submitting " + jobName

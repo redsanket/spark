@@ -3,10 +3,14 @@ package hadooptest.hadoop.regression.dfs;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,10 +39,10 @@ public class DfsTestsBaseClass extends TestSession {
 	/**
 	 * Data structures for creating initial files
 	 */
-	static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
+	protected static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
 	protected Set<String> setOfTestDataFilesInHdfs;
 	protected Set<String> setOfTestDataFilesInLocalFs;
-
+	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count_correct.txt";
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
@@ -51,13 +55,12 @@ public class DfsTestsBaseClass extends TestSession {
 	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
 
-	public HashMap<String, Boolean> pathsChmodedSoFar;
+	public HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
 	/**
 	 * Hadoop job defines
 	 */
-	
 
 	/**
 	 * Options passed to CLI commands
@@ -101,7 +104,7 @@ public class DfsTestsBaseClass extends TestSession {
 
 	// ----------------------------------------------------------//
 	@Before
-	public void ensureDataBeforeTestRun() {
+	public void ensureLocalFilesPresentBeforeTestRun() {
 
 		fileMetadata.put("file_empty", new Double((double) 0));
 		/*
@@ -134,6 +137,8 @@ public class DfsTestsBaseClass extends TestSession {
 		fileMetadata.put("file_11GB",
 				new Double(((double) ((double) (double) 10 * (double) 1024
 						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
+		fileMetadata.put(INPUT_TO_WORD_COUNT, new Double(
+				(double) 257 * 1024 * 1024));
 
 		setOfTestDataFilesInHdfs = new HashSet<String>();
 		setOfTestDataFilesInLocalFs = new HashSet<String>();
@@ -181,6 +186,10 @@ public class DfsTestsBaseClass extends TestSession {
 				TestSession.logger.info(attemptedFile
 						+ " already exists, not recreating it");
 				continue;
+			}
+			if (aFileName.equalsIgnoreCase(INPUT_TO_WORD_COUNT)) {
+				createInputFileForWordCount(fileMetadata
+						.get(INPUT_TO_WORD_COUNT));
 			}
 			TestSession.logger.info("!!!!!!! Creating local file:"
 					+ DATA_DIR_IN_LOCAL_FS + aFileName);
@@ -251,6 +260,23 @@ public class DfsTestsBaseClass extends TestSession {
 
 		}
 
+	}
+
+	private void createInputFileForWordCount(Double size)  {
+
+		PrintWriter out;
+		try {
+			out = new PrintWriter(DATA_DIR_IN_LOCAL_FS
+					+ INPUT_TO_WORD_COUNT);
+			do {
+				out.println("a");
+			}while (size-- >0);
+			out.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public boolean create3GbFile(TemporaryFolder tempFolder) throws Exception {
@@ -408,4 +434,6 @@ public class DfsTestsBaseClass extends TestSession {
 		return iaddr.getHostName();
 
 	}
+	
+	
 }
