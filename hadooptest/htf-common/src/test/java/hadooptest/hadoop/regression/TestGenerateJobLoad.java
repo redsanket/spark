@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression;
 
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
@@ -288,7 +289,13 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
 
         // Wait for all the jobs to succeed.
-        this.waitForSuccessForAllJobs(15);
+        try {
+            this.waitForSuccessForAllJobs(15);
+        } catch (Exception e) {
+            TestSession.logger.error("Wait for all jobs to succeed failed with exception: " +
+                    e.toString());
+            fail("Wait for all jobs to succeed failed with exception");
+        }
         
         // Cleanup
         this.cleanUp(terminationFile);
