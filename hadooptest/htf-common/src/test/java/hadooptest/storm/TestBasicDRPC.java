@@ -48,6 +48,8 @@ public class TestBasicDRPC extends TestSessionStorm {
     public static void setup() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         mc = (ModifiableStormCluster)cluster;
+
+        cluster.setDrpcAuthAclForFunction("exclamation", "mapredqa");
     }
 
     @AfterClass
@@ -90,8 +92,8 @@ public class TestBasicDRPC extends TestSessionStorm {
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
-            logger.error("Couldn't launch topology: " + e );
-            throw new Exception();
+            logger.error("Couldn't launch topology: ", e );
+            throw new Exception(e);
         }
 
         boolean passed = false;
@@ -181,8 +183,8 @@ public class TestBasicDRPC extends TestSessionStorm {
         try {
             cluster.submitTopology(jar, topoName, _conf, topology);
         } catch (Exception e) {
-            logger.error("Couldn't launch topology: " + e );
-            throw new Exception();
+            logger.error("Couldn't launch topology: ", e );
+            throw new Exception(e);
         }
         
         String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
@@ -212,6 +214,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         // Let's try for 3 minutes, or until we get a 200 back.
         boolean done = false;
         int tryCount = 200;
+        Exception ex = null;
         while (!done && tryCount > 0) {
             Thread.sleep(1000);
             ContentResponse putResp = null;
@@ -219,9 +222,8 @@ public class TestBasicDRPC extends TestSessionStorm {
             try {
                 putResp = client.POST(DRPCURI).file(inputPath).send();
             } catch (Exception e) {
-                TestSessionStorm.logger.error("Put failed to URL " + DRPCURI + e);
-                cluster.killTopology(topoName);
-                throw new IOException("Could not put to DRPC", e);
+                TestSessionStorm.logger.error("POST failed to URL " + DRPCURI + e);
+                ex = e;
             }
 
             if (putResp != null && putResp.getStatus() == 200) {
@@ -246,7 +248,11 @@ public class TestBasicDRPC extends TestSessionStorm {
 
         // Did we fail?
         if (!done) {
-            throw new IOException("Timed out trying to get DRPC response\n");
+                if ( ex != null ) {
+                    throw new IOException("Could not put to DRPC", ex);
+                } else {
+                    throw new IOException("Timed out trying to get DRPC response\n");
+                }
         }
 
         if (!passed) {

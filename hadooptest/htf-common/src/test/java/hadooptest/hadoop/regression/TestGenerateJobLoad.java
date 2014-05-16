@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression;
 
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
@@ -20,6 +21,7 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,6 +30,7 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +53,7 @@ public class TestGenerateJobLoad extends TestSession {
     int jobIndex = 0;
     static float threshold = 1.0f;
     static String terminationFilename = null;
+    static String jenkinsParentId = "";
     static int batchSize = 6; 
     static int interval = 60;
     static int maxDurationMin = 60;
@@ -63,6 +67,8 @@ public class TestGenerateJobLoad extends TestSession {
 		TestSession.cluster.setupSingleQueueCapacity();		
 		threshold = Float.parseFloat(
 		        System.getProperty("CAPACITY_THRESHOLD", "1.0f"));
+		jenkinsParentId = 
+		        System.getProperty("ID", "");
 		terminationFilename = 
 		        System.getProperty("TERMINATION_FILE", "/tmp/test-ru.done");
 	    batchSize =
@@ -101,6 +107,73 @@ public class TestGenerateJobLoad extends TestSession {
 	        logger.error("Failed to get the cluster state.", e);
 	    }
 	}
+	
+    /*
+     * After each test, fetch the job task reports.
+     */
+    @After
+    public void logTaskReportSummary() 
+            throws InterruptedException, IOException {
+
+        // Do Nothing For GDM
+        if ((conf.getProperty("GDM_ONLY") != null) && 
+            (conf.getProperty("GDM_ONLY").equalsIgnoreCase("true"))) {
+            return;
+        }
+        
+        JobClient jobClient = TestSession.cluster.getJobClient();
+        JobStatus[] jobs = 
+                jobClient.getJobs(TestSession.testStartTime);
+
+        JobState state;
+        int numNonSuccess=0;
+        for (JobStatus job : jobs) {            
+            state = JobState.getState(
+                    jobClient.getJob(job.getJobID()).getJobState());
+            if (!state.equals(JobState.SUCCEEDED)) {
+                    numNonSuccess++;
+            }
+        }        
+        StringBuffer buildSummary = new StringBuffer();
+        buildSummary.append("Total jobs passed=");
+        buildSummary.append((jobs.length - numNonSuccess));
+        buildSummary.append("/");
+        buildSummary.append(jobs.length);         
+        if ((jenkinsParentId != null) && 
+                (jenkinsParentId.trim().length() > 0)) {
+            buildSummary.append(":ID=" + jenkinsParentId);
+        }
+
+        TestSession.logger.info(buildSummary);
+
+        /*
+        if (category.equals(ParallelMethodTests.class)) {
+            TestSession.logger.debug(
+                    "logTaskReportSummary currently does not support " +
+                    "parallel method tests.");
+            return;
+        }
+        */
+        
+        if (Boolean.parseBoolean(
+                conf.getProperty("LOG_TASK_REPORT")) == false) {
+            return;
+        }
+        
+        TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
+
+        // Log the tasks report summary for jobs that ran as part of this test 
+        int numAcceptableNonCompleteMapTasks = 20;
+        int numAcceptableNonCompleteReduceTasks = 20;
+        jobClient.validateTaskReportSummary(
+                jobClient.logTaskReportSummary(
+                        TestSession.TASKS_REPORT_LOG, 
+                        TestSession.testStartTime, HTF_TEST.METHOD),
+                        numAcceptableNonCompleteMapTasks,
+                        numAcceptableNonCompleteReduceTasks);        
+    }
+
+
 	
 	/* 
 	 * Initialize the Job Types to run.
@@ -216,13 +289,14 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
 
         // Wait for all the jobs to succeed.
-        this.waitForSuccessForAllJobs(15);
+        try {
+            this.waitForSuccessForAllJobs(15);
+        } catch (Exception e) {
+            TestSession.logger.error("Wait for all jobs to succeed failed with exception: " +
+                    e.toString());
+            fail("Wait for all jobs to succeed failed with exception");
+        }
         
-        JobClient jobClient = TestSession.cluster.getJobClient();
-        JobStatus[] jobs = 
-                jobClient.getJobs(TestSession.testStartTime);
-        TestSession.logger.info("Total jobs submitted =" + jobs.length);
-   
         // Cleanup
         this.cleanUp(terminationFile);
     }

@@ -18,5 +18,8 @@
     "scoringInput":"score.input",
     "scoringOutput":"score.output",
     "modelType":"Gradient Descent Persistent",
-    "dataSet":"url_svmlight"
+    "dataSet":"url_svmlight",
+    "injectionType":"insecure",
+    "defineInsecure":"false",
+    "useInsecure":"false"
 }
