@@ -105,7 +105,7 @@ public class TestCapacitySchedulerLimits extends CapacitySchedulerBaseClass {
 
 					}
 
-					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
+					futureCallableSleepJobs = submitSleepJobsToAThreadPoolAndRunThemInParallel(
 							sleepJobParamsList, 1000);
 
 					// Wait until all jobs have reached RUNNING state
@@ -218,7 +218,7 @@ public class TestCapacitySchedulerLimits extends CapacitySchedulerBaseClass {
 
 					}
 
-					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
+					futureCallableSleepJobs = submitSleepJobsToAThreadPoolAndRunThemInParallel(
 							sleepJobParamsList, 0);
 
 					// Wait until all jobs have reached RUNNING state

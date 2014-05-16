@@ -5,6 +5,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
+import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
@@ -13,10 +14,11 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.LeafQueue;
 import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.User;
+import hadooptest.hadoop.stress.tokenRenewal.Map;
+import hadooptest.hadoop.stress.tokenRenewal.TimedCpuHoggerMap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,18 +39,18 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
-import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.SleepJob;
-import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskReport;
 import org.apache.hadoop.mapreduce.TaskType;
-import org.junit.After;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.junit.Assert;
 
 public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
@@ -247,6 +249,40 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		}
 
 	}
+@Deprecated
+	int getExpectedNumberOfMapTasks(
+			int numberOfVcoresPerCPUThatAreAvailableForNodeManagerForSpawningContainers,
+			int numberOfVcoresToBeUsedByASingleMapTask, int expectedNumberOfReduceContainers) {
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.DATANODE);
+		int numberOfDatanodes = hadoopComp.getNodes().size();
+		int numberOfCoresInEachDatanode = 8;
+		int totalNumberOfVcpusAvailable = numberOfDatanodes * numberOfCoresInEachDatanode;
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+		FullyDistributedConfiguration fullyDistributedConfNM = fullyDistributedCluster
+				.getConf(HadooptestConstants.NodeTypes.NODE_MANAGER);
+
+
+		// Get the number of vcpus consumed by Reduce containers
+		int numOfVcpusPerReduceContainer = Integer.parseInt(fullyDistributedConfNM.get("mapreduce.reduce.cpu.vcores"));
+		TestSession.logger.info("Read mapreduce.reduce.cpu.vcores = " + numOfVcpusPerReduceContainer);
+		int numberOfvcpuUsedByReduceContainers = expectedNumberOfReduceContainers * numOfVcpusPerReduceContainer;
+		totalNumberOfVcpusAvailable = totalNumberOfVcpusAvailable - numberOfvcpuUsedByReduceContainers;
+		
+		// Get the number of vcpus consumed by Reduce containers
+		int numOfVcpusPerAMContainer = Integer.parseInt(fullyDistributedConfNM.get("yarn.app.mapreduce.am.resource.cpu-vcores"));
+		TestSession.logger.info("Read yarn.app.mapreduce.am.resource.cpu-vcores = " + numOfVcpusPerAMContainer);
+		totalNumberOfVcpusAvailable = totalNumberOfVcpusAvailable - numOfVcpusPerAMContainer;
+
+		// Finally arrive at the number of Map tasks
+		int numOfVcpusPerMapContainer = Integer.parseInt(fullyDistributedConfNM.get("mapreduce.map.cpu.vcores"));
+		TestSession.logger.info("Read mapreduce.map.cpu.vcores = " + numOfVcpusPerMapContainer);
+		int numberOfExpectedMapTasks = totalNumberOfVcpusAvailable/numOfVcpusPerMapContainer;
+		
+		return numberOfExpectedMapTasks;
+
+	}
 
 	void resetTheMaxQueueCapacity() throws IOException {
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
@@ -357,6 +393,103 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		return jobHandle;
 	}
 
+	public ArrayList<Future<Job>> submitWordCountMapperOnlyJobsToThreadPool(
+			ArrayList<CallableWordCountMapperOnlyJob> callableWordCountMapperOnlyJobs, int delayInMs) {
+
+		ExecutorService threadPoolOfCallableWordCountMapperOnlyJobs = Executors
+				.newFixedThreadPool(NUM_THREADS);
+		ArrayList<Future<Job>> listOfFutureWordCountMapperOnlyJobs = new ArrayList<Future<Job>>();
+		int jobNameSuffix = 1;
+		for (CallableWordCountMapperOnlyJob aCallableWordCountMapperOnlyJob : callableWordCountMapperOnlyJobs) {
+			try {
+				Thread.sleep(delayInMs);
+				TestSession.logger
+						.info("Staggering launching of jobs, by "
+								+ delayInMs
+								+ " millisec, else they would step on each others feet");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			Future<Job> aFutureCallableSleepJob = threadPoolOfCallableWordCountMapperOnlyJobs
+					.submit(aCallableWordCountMapperOnlyJob);
+			listOfFutureWordCountMapperOnlyJobs.add(aFutureCallableSleepJob);
+
+		}
+		threadPoolOfCallableWordCountMapperOnlyJobs.shutdown();
+		return listOfFutureWordCountMapperOnlyJobs;
+	}
+
+	/**
+	 * The intention of this Hadoop (Map-only job) is to ensure that we spawn
+	 * map containers, of sizes that we pre-set in the config. There are no reducers. 
+	 * 
+	 * @author tiwari
+	 * 
+	 */
+	class CallableWordCountMapperOnlyJob implements Callable<Job> {
+		String queue = null;
+		String username = "hadoopqa";
+		int factor = 1;
+		String jobName;
+		int numCpusPerMap;
+
+		public CallableWordCountMapperOnlyJob(String jobName, String queueToSubmit, String username, int numCpusPerMap) {
+			this.queue = queueToSubmit;
+			this.username = username;
+			this.jobName = jobName;
+			this.numCpusPerMap = numCpusPerMap;
+		}
+
+		public Job call() {
+			Job callableWordCountMapperOnlyJob = null;
+			try {
+				TestSession.cluster.setSecurityAPI("keytab-" + username,
+						"user-" + username);
+				Thread.sleep(3000);
+				Configuration jobConf = TestSession.cluster.getConf();
+
+				jobConf.set("mapreduce.job.acl-view-job", "*");
+				jobConf.set("mapreduce.map.cpu.vcores", String.valueOf(numCpusPerMap));
+				jobConf.set("mapred.job.queue.name", queue);
+
+				callableWordCountMapperOnlyJob = Job.getInstance(jobConf);
+				callableWordCountMapperOnlyJob.setJarByClass(Map.class);
+				callableWordCountMapperOnlyJob.setJobName(jobName);
+				callableWordCountMapperOnlyJob.setMapperClass(TimedCpuHoggerMap.class);
+				callableWordCountMapperOnlyJob.setInputFormatClass(TextInputFormat.class);
+				Path[] inputPaths = new Path[] { new Path(
+						DfsTestsBaseClass.DATA_DIR_IN_HDFS
+								+ DfsTestsBaseClass.INPUT_TO_WORD_COUNT) };
+				TextInputFormat.setInputPaths(callableWordCountMapperOnlyJob, inputPaths);
+				callableWordCountMapperOnlyJob.setOutputFormatClass(TextOutputFormat.class);
+				TextOutputFormat.setOutputPath(callableWordCountMapperOnlyJob, new Path("/tmp/"
+						+ System.currentTimeMillis()));
+				callableWordCountMapperOnlyJob.waitForCompletion(true);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				try {
+					TestSession.logger
+							.info("Got an interrupt !!! proceeding to kill job:"
+									+ callableWordCountMapperOnlyJob.getJobName());
+					callableWordCountMapperOnlyJob.killJob();
+					TestSession.logger.info("There killed job:"
+							+ callableWordCountMapperOnlyJob.getJobName());
+
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+			
+			return callableWordCountMapperOnlyJob;
+
+		}
+
+	}
+
 	void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
 			throws Exception {
 		TestSession.logger
@@ -410,8 +543,10 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	void setDominantResourceParametersEverywhere(String replacementConfigFile)
-			throws Exception {
+	void setDominantResourceParametersEverywhere(
+			String replacementConfigFile,
+			int numberOfVcoresPerCPUThatAreAvailableForNodeManagerForSpawningContainers,
+			int numberOfVcoresToBeUsedByASingleMapTask) throws Exception {
 		TestSession.logger
 				.info("Copying over canned cap sched file localted @:"
 						+ replacementConfigFile);
@@ -423,10 +558,10 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				HadooptestConstants.NodeTypes.NODE_MANAGER).backupConfDir();
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
-		fullyDistributedCluster.getConf(
-				HadooptestConstants.NodeTypes.NAMENODE).backupConfDir();
-		fullyDistributedCluster.getConf(
-				HadooptestConstants.NodeTypes.DATANODE).backupConfDir();
+		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
+				.backupConfDir();
+		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.DATANODE)
+				.backupConfDir();
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.HISTORY_SERVER).backupConfDir();
 
@@ -436,6 +571,9 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				.copyFileToConfDir(replacementConfigFile,
 						CAPACITY_SCHEDULER_XML);
 
+		/**
+		 * The config values needed for DominantResouceCalculator to work
+		 */
 		HashMap<String, String> keyValuesToBeSet = new HashMap<String, String>();
 		keyValuesToBeSet
 				.put("yarn.nodemanager.linux-container-executor.resources-handler.class",
@@ -449,18 +587,45 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		keyValuesToBeSet.put(
 				"yarn.nodemanager.linux-container-executor.cgroups.mount-path",
 				"/cgroup");
-		keyValuesToBeSet.put(
-				"yarn.nodemanager.linux-container-executor.group",
+		keyValuesToBeSet.put("yarn.nodemanager.linux-container-executor.group",
 				"hadoop");
 
+		/**
+		 * These are not needed for the DominantResouceCalculator to work These
+		 * are only test specific.
+		 */
+		keyValuesToBeSet.put("mapreduce.job.acl-view-job", "*");
+
+		/**
+		 * Number of virtual cores cores that can be allocated for containers.
+		 * It is usually set to 8 (default) meaning that all the Virtual CPUs
+		 * (in a core) are up for grabs by the Node Manager to allocate to a
+		 * container. If you set it to, say 2, then it means that out of 8
+		 * possible vcpus only 2 are up for grabs.
+		 */
+		keyValuesToBeSet
+				.put("yarn.nodemanager.resource.cpu-vcores",
+						String.valueOf(numberOfVcoresPerCPUThatAreAvailableForNodeManagerForSpawningContainers));
+
+		/**
+		 * The number of virtual cores required by each map task. This is
+		 * usually set to 1, I am setting this to 8. This means that each map
+		 * container would demand (and get) 8 vcpus. NOTE: other containers
+		 * would have different reqource (memory/cpu) requirement But all
+		 * containers, of a kind, are the same. For example: all Map containers
+		 * would be the same. You would not find one Map conter more "endowed"
+		 * than its peers, but the same cannot apply to a different kind of
+		 * container (Reduce, AM etc).
+		 */
+//		keyValuesToBeSet.put("mapreduce.map.cpu.vcores",
+//				String.valueOf(numberOfVcoresToBeUsedByASingleMapTask));
 
 		String[] nodesThatWeAreInterestedIn = new String[] {
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
 				HadooptestConstants.NodeTypes.HISTORY_SERVER,
-				HadooptestConstants.NodeTypes.NAMENODE,				
+				HadooptestConstants.NodeTypes.NAMENODE,
 				HadooptestConstants.NodeTypes.NODE_MANAGER,
-				HadooptestConstants.NodeTypes.DATANODE				
-				};
+				HadooptestConstants.NodeTypes.DATANODE };
 
 		for (String aNodeThatWeAreInterestedIn : nodesThatWeAreInterestedIn) {
 			fullyDistributedCluster.getConf(aNodeThatWeAreInterestedIn)
@@ -481,8 +646,34 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 			fullyDistributedCluster.hadoopDaemon(Action.START,
 					aNodeThatWeAreInterestedIn);
 		}
-
 		Thread.sleep(20000);
+		DfsTestsBaseClass dfsTestsBaseClass = new DfsTestsBaseClass();
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.DATANODE);
+		HashMap<String, String> nodeManagerHostAndProdId = new HashMap<String, String>();
+		for (String aDataNode : hadoopComp.getNodes().keySet()) {
+
+			String prodId = dfsTestsBaseClass.doJavaSSHClientExec(
+					HadooptestConstants.UserNames.MAPREDQA, aDataNode,
+					"ps auxww |grep nodemanage[r]|  awk '{print $2}'",
+					DfsTestsBaseClass.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+			nodeManagerHostAndProdId.put(aDataNode, prodId.trim());
+		}
+		for (String aHostName : nodeManagerHostAndProdId.keySet()) {
+			TestSession.logger.info("Nodemanager running on host [" + aHostName
+					+ "] had procId ["
+					+ nodeManagerHostAndProdId.get(aHostName) + "]");
+		}
+		for (String aDataNode : hadoopComp.getNodes().keySet()) {
+			String command = "cgclassify -g cpu:hadoop-yarn "
+					+ nodeManagerHostAndProdId.get(aDataNode);
+			TestSession.logger.info("Moving process as a cgroup task on host["
+					+ aDataNode + "] [" + command + "]");
+			dfsTestsBaseClass.doJavaSSHClientExec(
+					HadooptestConstants.UserNames.MAPREDQA, aDataNode, command,
+					DfsTestsBaseClass.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+		}
+
 		// Leave safe-mode
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -798,7 +989,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		return defaultSleepJobProps;
 	}
 
-	public ArrayList<Future<Job>> submitJobsToAThreadPoolAndRunThemInParallel(
+	public ArrayList<Future<Job>> submitSleepJobsToAThreadPoolAndRunThemInParallel(
 			ArrayList<SleepJobParams> sleepJobParamsList, int delayInMs) {
 
 		ExecutorService sleepJobThreadPool = Executors
@@ -1066,7 +1257,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-//	@After
+	// @After
 	public void restoreTheConfigFile() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -1150,11 +1341,6 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 						mapSleepTime, mapSleepCount, reduceSleepTime,
 						reduceSleepCount);
 				createdSleepJob.setJobName(jobName);
-				// URI[] archives = new URI[1];
-				// archives[0] = new URI("file:" + TestSession.conf
-				// .getProperty("WORKSPACE")
-				// +"/htf-common-1.0-SNAPSHOT-tests.jar");
-				// createdSleepJob.setCacheArchives(archives);
 				TestSession.logger
 						.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
 								+ "submitting " + jobName

@@ -73,7 +73,7 @@ public class TestMinUserLimitPercentAndHighRam extends
 
 					}
 
-					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
+					futureCallableSleepJobs = submitSleepJobsToAThreadPoolAndRunThemInParallel(
 							sleepJobParamsList, 1000);
 
 					// Wait until all jobs have reached RUNNING state
@@ -162,7 +162,7 @@ public class TestMinUserLimitPercentAndHighRam extends
 
 					}
 
-					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
+					futureCallableSleepJobs = submitSleepJobsToAThreadPoolAndRunThemInParallel(
 							sleepJobParamsList,
 							SUFFICIENT_DELAY_BETWEEN_SPAWNING_JOBS);
 

@@ -105,7 +105,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 					}
 
-					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
+					futureCallableSleepJobs = submitSleepJobsToAThreadPoolAndRunThemInParallel(
 							sleepJobParamsList, 1 * THOUSAND_MILLISECONDS);
 
 					// Wait until all jobs have reached RUNNING state
@@ -211,7 +211,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 					}
 
-					futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
+					futureCallableSleepJobs = submitSleepJobsToAThreadPoolAndRunThemInParallel(
 							sleepJobParamsList, 0);
 
 					// Wait until all jobs have reached RUNNING state
@@ -308,7 +308,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 							sleepJobParamsList.add(sleepJobParams);
 
 						}
-						futureCallableSleepJobs = submitJobsToAThreadPoolAndRunThemInParallel(
+						futureCallableSleepJobs = submitSleepJobsToAThreadPoolAndRunThemInParallel(
 								sleepJobParamsList, 0);
 
 						/**
@@ -398,7 +398,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 
 						}
 						futureCallableSleepJobs
-								.addAll(submitJobsToAThreadPoolAndRunThemInParallel(
+								.addAll(submitSleepJobsToAThreadPoolAndRunThemInParallel(
 										sleepJobParamsList, 0));
 
 						// Sleep for a while before launching the job for

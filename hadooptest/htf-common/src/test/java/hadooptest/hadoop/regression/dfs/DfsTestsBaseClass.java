@@ -2,6 +2,7 @@ package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,6 +34,7 @@ public class DfsTestsBaseClass extends TestSession {
 	 * Identity files needed for SSH
 	 */
 	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+	public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
 	public static final String HADOOPQA_BLUE_DSA = "/homes/hadoopqa/.ssh/blue_dsa";
 	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
@@ -42,7 +44,7 @@ public class DfsTestsBaseClass extends TestSession {
 	protected static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
 	protected Set<String> setOfTestDataFilesInHdfs;
 	protected Set<String> setOfTestDataFilesInLocalFs;
-	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count_correct.txt";
+	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count.txt";
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
@@ -137,8 +139,8 @@ public class DfsTestsBaseClass extends TestSession {
 		fileMetadata.put("file_11GB",
 				new Double(((double) ((double) (double) 10 * (double) 1024
 						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
-		fileMetadata.put(INPUT_TO_WORD_COUNT, new Double(
-				(double) 257 * 1024 * 1024));
+		fileMetadata.put(INPUT_TO_WORD_COUNT, new Double(((double) ((double) (double) 1 * (double) 1024
+				* 1024 * 1024))));
 
 		setOfTestDataFilesInHdfs = new HashSet<String>();
 		setOfTestDataFilesInLocalFs = new HashSet<String>();
@@ -154,6 +156,49 @@ public class DfsTestsBaseClass extends TestSession {
 
 	}
 
+	void ensureDirsArePresentInHdfs(String cluster) throws Exception {
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse = null;
+		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS);
+
+	}
+	void copyFilesIntoCluster(String cluster) throws Exception{
+		ensureDirsArePresentInHdfs(cluster);
+		doChmodRecursively(cluster,DfsTestsBaseClass.DATA_DIR_IN_HDFS);
+		
+		DfsTestsBaseClass dfsTestsBaseClass = new DfsTestsBaseClass();
+		dfsTestsBaseClass.ensureLocalFilesPresentBeforeTestRun();
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse = null;
+		for (String aFile: DfsTestsBaseClass.fileMetadata.keySet()){
+			genericCliResponse = dfsCliCommands.test(EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HADOOPQA, "",
+					cluster,
+					DfsTestsBaseClass.DATA_DIR_IN_HDFS
+							+ aFile,
+					DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+			if (genericCliResponse.process.exitValue() != 0) {
+				genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HADOOPQA, "",
+						System.getProperty("CLUSTER_NAME"),
+						DfsTestsBaseClass.DATA_DIR_IN_LOCAL_FS
+								+ DfsTestsBaseClass.INPUT_TO_WORD_COUNT,
+								DfsTestsBaseClass.DATA_DIR_IN_HDFS
+								+ aFile);
+				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS
+								+ DfsTestsBaseClass.INPUT_TO_WORD_COUNT, "777");
+			}
+			
+		}
+		
+		
+		
+		
+	}
+	public void ensureFilePresenceInCluster(String cluster){
+		ensureLocalFilesPresentBeforeTestRun();
+		
+	}
 	public void doChmodRecursively(String cluster, String dirHierarchy)
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -190,6 +235,7 @@ public class DfsTestsBaseClass extends TestSession {
 			if (aFileName.equalsIgnoreCase(INPUT_TO_WORD_COUNT)) {
 				createInputFileForWordCount(fileMetadata
 						.get(INPUT_TO_WORD_COUNT));
+				continue;
 			}
 			TestSession.logger.info("!!!!!!! Creating local file:"
 					+ DATA_DIR_IN_LOCAL_FS + aFileName);
