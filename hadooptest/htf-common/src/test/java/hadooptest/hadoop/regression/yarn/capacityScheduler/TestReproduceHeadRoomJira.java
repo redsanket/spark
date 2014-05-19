@@ -126,7 +126,7 @@ public class TestReproduceHeadRoomJira extends CapacitySchedulerBaseClass {
 					sleepJobParamsList.add(sleepJobParams);
 
 					futureCallableSleepJobs
-							.addAll(submitJobsToAThreadPoolAndRunThemInParallel(
+							.addAll(submitSleepJobsToAThreadPoolAndRunThemInParallel(
 									sleepJobParamsList,
 									1 * THOUSAND_MILLISECONDS));
 
@@ -264,7 +264,7 @@ public class TestReproduceHeadRoomJira extends CapacitySchedulerBaseClass {
 						sleepJobParamsList.add(sleepJobParams);
 
 						futureCallableSleepJobs
-								.addAll(submitJobsToAThreadPoolAndRunThemInParallel(
+								.addAll(submitSleepJobsToAThreadPoolAndRunThemInParallel(
 										sleepJobParamsList,
 										1 * THOUSAND_MILLISECONDS));
 
@@ -315,7 +315,7 @@ public class TestReproduceHeadRoomJira extends CapacitySchedulerBaseClass {
 						sleepJobParamsList.add(sleepJobParams);
 
 						futureCallableSleepJobs
-								.addAll(submitJobsToAThreadPoolAndRunThemInParallel(
+								.addAll(submitSleepJobsToAThreadPoolAndRunThemInParallel(
 										sleepJobParamsList,
 										1 * THOUSAND_MILLISECONDS));
 

@@ -2,11 +2,16 @@ package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,16 +34,17 @@ public class DfsTestsBaseClass extends TestSession {
 	 * Identity files needed for SSH
 	 */
 	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+	public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
 	public static final String HADOOPQA_BLUE_DSA = "/homes/hadoopqa/.ssh/blue_dsa";
 	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
 	/**
 	 * Data structures for creating initial files
 	 */
-	static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
+	protected static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
 	protected Set<String> setOfTestDataFilesInHdfs;
 	protected Set<String> setOfTestDataFilesInLocalFs;
-
+	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count.txt";
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
@@ -51,13 +57,12 @@ public class DfsTestsBaseClass extends TestSession {
 	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
 
-	public HashMap<String, Boolean> pathsChmodedSoFar;
+	public HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
 	/**
 	 * Hadoop job defines
 	 */
-	
 
 	/**
 	 * Options passed to CLI commands
@@ -101,7 +106,7 @@ public class DfsTestsBaseClass extends TestSession {
 
 	// ----------------------------------------------------------//
 	@Before
-	public void ensureDataBeforeTestRun() {
+	public void ensureLocalFilesPresentBeforeTestRun() {
 
 		fileMetadata.put("file_empty", new Double((double) 0));
 		/*
@@ -134,6 +139,8 @@ public class DfsTestsBaseClass extends TestSession {
 		fileMetadata.put("file_11GB",
 				new Double(((double) ((double) (double) 10 * (double) 1024
 						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
+		fileMetadata.put(INPUT_TO_WORD_COUNT, new Double(((double) ((double) (double) 1 * (double) 1024
+				* 1024 * 1024))));
 
 		setOfTestDataFilesInHdfs = new HashSet<String>();
 		setOfTestDataFilesInLocalFs = new HashSet<String>();
@@ -149,6 +156,50 @@ public class DfsTestsBaseClass extends TestSession {
 
 	}
 
+	void ensureDirsArePresentInHdfs(String cluster) throws Exception {
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse = null;
+		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS);
+
+	}
+	void copyFilesIntoCluster(String cluster) throws Exception{
+		ensureDirsArePresentInHdfs(cluster);
+		doChmodRecursively(cluster,DfsTestsBaseClass.DATA_DIR_IN_HDFS);
+		
+		DfsTestsBaseClass dfsTestsBaseClass = new DfsTestsBaseClass();
+		dfsTestsBaseClass.ensureLocalFilesPresentBeforeTestRun();
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse = null;
+		for (String aFile: DfsTestsBaseClass.fileMetadata.keySet()){
+			genericCliResponse = dfsCliCommands.test(EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HADOOPQA, "",
+					cluster,
+					DfsTestsBaseClass.DATA_DIR_IN_HDFS
+							+ aFile,
+					DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+			if (genericCliResponse.process.exitValue() != 0) {
+				genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HADOOPQA, "",
+						System.getProperty("CLUSTER_NAME"),
+						DfsTestsBaseClass.DATA_DIR_IN_LOCAL_FS
+								+ aFile,
+								DfsTestsBaseClass.DATA_DIR_IN_HDFS
+								+ aFile);
+				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS
+								+ DfsTestsBaseClass.INPUT_TO_WORD_COUNT, "777");
+			}
+			
+		}
+		
+		
+		
+		
+	}
+	public void ensureDataPresenceInCluster(String cluster) throws Exception{
+		ensureLocalFilesPresentBeforeTestRun();
+		copyFilesIntoCluster(cluster);
+		
+	}
 	public void doChmodRecursively(String cluster, String dirHierarchy)
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -180,6 +231,11 @@ public class DfsTestsBaseClass extends TestSession {
 			if (attemptedFile.exists()) {
 				TestSession.logger.info(attemptedFile
 						+ " already exists, not recreating it");
+				continue;
+			}
+			if (aFileName.equalsIgnoreCase(INPUT_TO_WORD_COUNT)) {
+				createInputFileForWordCount(fileMetadata
+						.get(INPUT_TO_WORD_COUNT));
 				continue;
 			}
 			TestSession.logger.info("!!!!!!! Creating local file:"
@@ -251,6 +307,23 @@ public class DfsTestsBaseClass extends TestSession {
 
 		}
 
+	}
+
+	private void createInputFileForWordCount(Double size)  {
+
+		PrintWriter out;
+		try {
+			out = new PrintWriter(DATA_DIR_IN_LOCAL_FS
+					+ INPUT_TO_WORD_COUNT);
+			do {
+				out.println("a");
+			}while (size-- >0);
+			out.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public boolean create3GbFile(TemporaryFolder tempFolder) throws Exception {
@@ -408,4 +481,6 @@ public class DfsTestsBaseClass extends TestSession {
 		return iaddr.getHostName();
 
 	}
+	
+	
 }

@@ -29,13 +29,14 @@ public class CalculatedCapacityLimitsBO {
 
 	int totalClusterMemory;
 	public ArrayList<QueueCapacityDetail> queueCapacityDetails;
+	FullyDistributedConfiguration fullyDistributedConfRM;
 
 	public CalculatedCapacityLimitsBO(String dirWhereConfFilesWereCopiedFromRM) {
 		totalClusterMemory = getTotalClusterMemory();
 		queueCapacityDetails = new ArrayList<QueueCapacityDetail>();
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
-		FullyDistributedConfiguration fullyDistributedConfRM = fullyDistributedCluster
+		fullyDistributedConfRM = fullyDistributedCluster
 				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedConfRM.addResource(new Path(
 				dirWhereConfFilesWereCopiedFromRM));
@@ -44,6 +45,7 @@ public class CalculatedCapacityLimitsBO {
 			for (JobQueueInfo aJobQueueInfo : getQueues()) {
 				QueueCapacityDetail queueDetail = new QueueCapacityDetail();
 				queueDetail.name = aJobQueueInfo.getQueueName();
+
 				queueDetail.minCapacityInTermsOfPercentage = getQueueCapacityInTermsOfPercentage(aJobQueueInfo
 						.getQueueName());
 				queueDetail.minCapacityForQueueInTermsOfTotalClusterMemoryInGB = getQueueCapacityInTermsOfTotalClusterMemory(aJobQueueInfo
@@ -368,12 +370,12 @@ public class CalculatedCapacityLimitsBO {
 
 	}
 	public double getQueueCapacityInTermsOfPercentage(String queueName) {
-		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
-				.getCluster();
-		FullyDistributedConfiguration fullyDistributedConfRM = fullyDistributedCluster
-				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+//		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+//				.getCluster();
+//		FullyDistributedConfiguration fullyDistributedConfRM = fullyDistributedCluster
+//				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
-		String queueCapacityPercentageAsString = "";
+		String queueCapacityPercentageAsString = "";										  
 		queueCapacityPercentageAsString = fullyDistributedConfRM
 				.get("yarn.scheduler.capacity.root." + queueName + ".capacity");
 		if (queueCapacityPercentageAsString == null
