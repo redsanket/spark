@@ -182,7 +182,7 @@ public class DfsTestsBaseClass extends TestSession {
 						HadooptestConstants.UserNames.HADOOPQA, "",
 						System.getProperty("CLUSTER_NAME"),
 						DfsTestsBaseClass.DATA_DIR_IN_LOCAL_FS
-								+ DfsTestsBaseClass.INPUT_TO_WORD_COUNT,
+								+ aFile,
 								DfsTestsBaseClass.DATA_DIR_IN_HDFS
 								+ aFile);
 				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS
@@ -195,8 +195,9 @@ public class DfsTestsBaseClass extends TestSession {
 		
 		
 	}
-	public void ensureFilePresenceInCluster(String cluster){
+	public void ensureDataPresenceInCluster(String cluster) throws Exception{
 		ensureLocalFilesPresentBeforeTestRun();
+		copyFilesIntoCluster(cluster);
 		
 	}
 	public void doChmodRecursively(String cluster, String dirHierarchy)

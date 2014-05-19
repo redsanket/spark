@@ -26,7 +26,7 @@
 
    <property>
       <name>yarn.scheduler.capacity.root.gridops.capacity</name>
-      <value>25</value>
+      <value>10</value>
    </property>
    
    <property>
@@ -47,7 +47,7 @@
 
    <property>
       <name>yarn.scheduler.capacity.root.grideng.capacity</name>
-      <value>25</value>
+      <value>40</value>
    </property>
    <property>
       <name>yarn.scheduler.capacity.root.grideng.maximum-capacity</name>
