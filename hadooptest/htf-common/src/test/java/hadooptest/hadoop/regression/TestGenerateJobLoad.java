@@ -290,7 +290,9 @@ public class TestGenerateJobLoad extends TestSession {
 
         // Wait for all the jobs to succeed.
         try {
-            this.waitForSuccessForAllJobs(15);
+            if (!this.waitForSuccessForAllJobs(15)) {
+                fail("Wait for all jobs to succeed failed");                
+            }
         } catch (Exception e) {
             TestSession.logger.error("Wait for all jobs to succeed failed with exception: " +
                     e.toString());
@@ -305,18 +307,25 @@ public class TestGenerateJobLoad extends TestSession {
      * Wait for all jobs to succeed.
      * TODO: checking it twice since there could be jobs queued up.
      */
-    private void waitForSuccessForAllJobs(int durationMin) throws Exception {
+    private boolean waitForSuccessForAllJobs(int durationMin) throws Exception {
         JobClient jobClient = TestSession.cluster.getJobClient();        
         int count = 1;
+        int maxCount = 2;
+        boolean isSuccess=true;
+        boolean allSuccess=true;
         do {
             TestSession.logger.info(
                     "----------- Wait for all jobs to succeed #" + count + 
                     ": for " + durationMin + " minute(s) ---------------");
-            TestSession.cluster.getJobClient().waitForSuccess(
+            isSuccess = TestSession.cluster.getJobClient().waitForSuccess(
                     jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
                     durationMin);
+            if (!isSuccess) {
+                allSuccess=false;
+            }
             count++;
-        } while( count <= 2 );        
+        } while( count <= maxCount );   
+        return allSuccess;
     }
 
     /* 
