@@ -186,7 +186,7 @@ public class DfsTestsBaseClass extends TestSession {
 								DfsTestsBaseClass.DATA_DIR_IN_HDFS
 								+ aFile);
 				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS
-								+ DfsTestsBaseClass.INPUT_TO_WORD_COUNT, "777");
+								+ aFile, "777");
 			}
 			
 		}
@@ -233,91 +233,104 @@ public class DfsTestsBaseClass extends TestSession {
 						+ " already exists, not recreating it");
 				continue;
 			}
-			if (aFileName.equalsIgnoreCase(INPUT_TO_WORD_COUNT)) {
-				createInputFileForWordCount(fileMetadata
-						.get(INPUT_TO_WORD_COUNT));
-				continue;
-			}
+//			if (aFileName.equalsIgnoreCase(INPUT_TO_WORD_COUNT)) {
+//				createInputFileForWordCount(DATA_DIR_IN_LOCAL_FS + aFileName,
+//						fileMetadata.get(INPUT_TO_WORD_COUNT));
+//				continue;
+//			}
 			TestSession.logger.info("!!!!!!! Creating local file:"
 					+ DATA_DIR_IN_LOCAL_FS + aFileName);
+			
 			// create a file on the local fs
 			if (!attemptedFile.getParentFile().exists()) {
 				attemptedFile.getParentFile().mkdirs();
 			}
-			FileOutputStream fout;
-			try {
-				fout = new FileOutputStream(attemptedFile);
-				int macroStepSize = 1;
-				int macroLoopCount = 1;
-				int microLoopCount = 0;
-				if ((int) (fileMetadata.get(aFileName) / (1024 * 1024 * 1024)) > 0) {
-					macroStepSize = 1024 * 1024 * 1024;
-					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
-					TestSession.logger
-							.info("Processing: "
-									+ aFileName
-									+ " size:"
-									+ fileMetadata.get(aFileName)
-									+ " stepSize: "
-									+ macroStepSize
-									+ " because: "
-									+ (int) (fileMetadata.get(aFileName) / (1024 * 1024 * 1024)));
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
-				} else if ((int) (fileMetadata.get(aFileName) / (1024 * 1024)) > 0) {
-					macroStepSize = 1024 * 1024;
-					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
-					TestSession.logger
-							.info("Processing: "
-									+ aFileName
-									+ " size:"
-									+ fileMetadata.get(aFileName)
-									+ " stepSize: "
-									+ macroStepSize
-									+ " because: "
-									+ (int) (fileMetadata.get(aFileName) / (1024 * 1024)));
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
-				} else if ((int) (fileMetadata.get(aFileName) / (1024)) > 0) {
-					macroStepSize = 1024;
-					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
-					TestSession.logger.info("Processing: " + aFileName
-							+ " size:" + fileMetadata.get(aFileName)
-							+ " stepSize: " + macroStepSize + " because: "
-							+ (int) (fileMetadata.get(aFileName) / (1024)));
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
-				} else {
-					macroLoopCount = 0;
-					macroStepSize = 0;
-					TestSession.logger.info("Processing: " + aFileName
-							+ " size:" + fileMetadata.get(aFileName)
-							+ " stepSize: " + macroStepSize);
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (1024));
-				}
-				for (double i = 0; i < macroLoopCount; i++) {
-					fout.write(new byte[(int) macroStepSize]);
-				}
 
-				for (int i = 0; i < microLoopCount; i++) {
-					fout.write(new byte[1]);
-				}
+			createInputFileForWordCount(DATA_DIR_IN_LOCAL_FS + aFileName,
+					fileMetadata.get(aFileName));
 
-				fout.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+//			FileOutputStream fout;
+//			try {
+//				fout = new FileOutputStream(attemptedFile);
+//				int macroStepSize = 1;
+//				int macroLoopCount = 1;
+//				int microLoopCount = 0;
+//				if ((int) (fileMetadata.get(aFileName) / (1024 * 1024 * 1024)) > 0) {
+//					macroStepSize = 1024 * 1024 * 1024;
+//					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
+//					TestSession.logger
+//							.info("Processing: "
+//									+ aFileName
+//									+ " size:"
+//									+ fileMetadata.get(aFileName)
+//									+ " stepSize: "
+//									+ macroStepSize
+//									+ " because: "
+//									+ (int) (fileMetadata.get(aFileName) / (1024 * 1024 * 1024)));
+//					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
+//				} else if ((int) (fileMetadata.get(aFileName) / (1024 * 1024)) > 0) {
+//					macroStepSize = 1024 * 1024;
+//					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
+//					TestSession.logger
+//							.info("Processing: "
+//									+ aFileName
+//									+ " size:"
+//									+ fileMetadata.get(aFileName)
+//									+ " stepSize: "
+//									+ macroStepSize
+//									+ " because: "
+//									+ (int) (fileMetadata.get(aFileName) / (1024 * 1024)));
+//					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
+//				} else if ((int) (fileMetadata.get(aFileName) / (1024)) > 0) {
+//					macroStepSize = 1024;
+//					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
+//					TestSession.logger.info("Processing: " + aFileName
+//							+ " size:" + fileMetadata.get(aFileName)
+//							+ " stepSize: " + macroStepSize + " because: "
+//							+ (int) (fileMetadata.get(aFileName) / (1024)));
+//					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
+//				} else {
+//					macroLoopCount = 0;
+//					macroStepSize = 0;
+//					TestSession.logger.info("Processing: " + aFileName
+//							+ " size:" + fileMetadata.get(aFileName)
+//							+ " stepSize: " + macroStepSize);
+//					microLoopCount = (int) (fileMetadata.get(aFileName) % (1024));
+//				}
+//				for (double i = 0; i < macroLoopCount; i++) {
+//					fout.write(new byte[(int) macroStepSize]);
+//				}
+//
+//				for (int i = 0; i < microLoopCount; i++) {
+//					fout.write(new byte[1]);
+//				}
+//
+//				fout.close();
+//			} catch (IOException e) {
+//				throw new RuntimeException(e);
+//			}
 
 		}
 
 	}
 
-	private void createInputFileForWordCount(Double size)  {
+	private void createInputFileForWordCount(String completeLocalName, Double size)  {
 
 		PrintWriter out;
 		try {
-			out = new PrintWriter(DATA_DIR_IN_LOCAL_FS
-					+ INPUT_TO_WORD_COUNT);
+			
+			out = new PrintWriter(completeLocalName);
+			if (size == 0){
+				out.close();
+				return;
+			}
 			do {
-				out.println("a");
-			}while (size-- >0);
+				
+				if (size%20 == 0)
+					out.println("");
+				else
+					out.print("a");
+			}while (--size >0);
 			out.close();
 
 		} catch (FileNotFoundException e) {

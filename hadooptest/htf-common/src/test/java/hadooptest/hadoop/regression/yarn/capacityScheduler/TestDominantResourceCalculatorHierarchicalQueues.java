@@ -85,7 +85,7 @@ public class TestDominantResourceCalculatorHierarchicalQueues extends
 			setDominantResourceParametersEverywhere(
 					fileUsedInTest,
 					numberOfVcoresPerCPUThatAreAvailableForNodeManagerForSpawningContainers,
-					true);
+					false);
 			isFileSetEverywhere = true;
 		}
 
