@@ -107,7 +107,7 @@ public class TestDominantResourceCalculatorParentQuotas extends CapacitySchedule
 					TestSession.logger.info("Handle size read back:"
 							+ handlesToTheFuture.size());
 					RuntimeRESTStatsBO runtimeRESTStatsBO = startCollectingRestStats(1 * THOUSAND_MILLISECONDS);
-					waitFor(60 * THOUSAND_MILLISECONDS);
+					waitFor(30 * THOUSAND_MILLISECONDS);
 					stopCollectingRuntimeStatsAcrossQueues(runtimeRESTStatsBO);
 					printValuesReceivedOverRest(runtimeRESTStatsBO);
 

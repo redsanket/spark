@@ -40,8 +40,8 @@ public class TestDifferentCapacityLimits_25_41 extends
 		TestSession.start();
 		return Arrays
 				.asList(new Object[][] {
-						{ TestSession.conf.getProperty("WORKSPACE")
-								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml" },
+//						{ TestSession.conf.getProperty("WORKSPACE")
+//								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler25.xml" },
 						{ TestSession.conf.getProperty("WORKSPACE")
 								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/capacityScheduler/capacity-scheduler41.xml" }
 

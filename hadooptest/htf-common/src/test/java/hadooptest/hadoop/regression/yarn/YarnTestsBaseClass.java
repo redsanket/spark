@@ -30,13 +30,16 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
+import org.apache.hadoop.streaming.StreamJob;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
 
 public class YarnTestsBaseClass extends TestSession {
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
@@ -47,6 +50,7 @@ public class YarnTestsBaseClass extends TestSession {
 		REFRESH_QUEUES, REFRESH_NODES, REFRESH_SUPERUSER_GROUPS_CONFIGURATION, REFRESH_USER_TO_GROUPS_MAPPING, REFRESH_ADMIN_ACLS, REFRESH_SERVICE_ACL, GET_GROUPS
 	};
 
+	
 	/*
 	 * Run a Sleep Job, from org.apache.hadoop.mapreduce
 	 */
@@ -109,6 +113,20 @@ public class YarnTestsBaseClass extends TestSession {
 
 	}
 
+	public void runStdHadoopStreamingJob(String... args) throws Exception {
+		TestSession.logger.info("running Streaming Job.................");
+		Configuration conf = TestSession.cluster.getConf();
+		int res;
+
+		try {
+			StreamJob job = new StreamJob();
+			res = ToolRunner.run(conf, job, args);
+			Assert.assertEquals(0, res);
+		} catch (Exception e) {
+			throw e;
+		}
+
+	}
 	private static String getValue(String tag, Element element) {
 		NodeList nodes = element.getElementsByTagName(tag).item(0)
 				.getChildNodes();
