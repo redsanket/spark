@@ -113,7 +113,6 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 
 		});
 	}
-
 	/*
 	 * TODO:350MB is a good size, forces use of multiple blocks. Future
 	 * enhancement suggestion, use file sizes of 0, 1, DEFAULT_BLOCKSIZE-1,

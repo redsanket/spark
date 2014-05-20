@@ -132,7 +132,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 	/*
 	 * called by @Before
 	 */
-	public void ensureDataPresenceinCluster() throws Exception {
+	public void ensureDataPresenceinClusterBeforeTest() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		logger.info("running ensureDataPresenceAcrossClusters");
 		String aCluster = System.getProperty("CLUSTER_NAME");
@@ -172,7 +172,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		pathsChmodedSoFar = new HashMap<String, Boolean>();
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		// getVersions();
-		ensureDataPresenceinCluster();
+		ensureDataPresenceinClusterBeforeTest();
 
 		dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,

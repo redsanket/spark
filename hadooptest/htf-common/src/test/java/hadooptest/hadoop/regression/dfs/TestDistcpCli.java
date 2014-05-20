@@ -46,6 +46,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	private static Properties crossClusterProperties;
 	private static HashMap<String, String> versionStore;
 
+
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 
@@ -113,7 +114,6 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@Before
 	public void ensureDataPresenceAcrossClusters() throws Exception {
 		pathsChmodedSoFar = new HashMap<String, Boolean>();
-		createLocalPreparatoryFiles();
 		Set<String> clusters = new HashSet<String>();
 		for (Object[] row : TestDistcpCli.data()) {
 			for (Object parameter : row) {

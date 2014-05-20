@@ -65,9 +65,7 @@ public class TestDominantResourceCalculatorHierarchicalQueues extends
 	@Test
 	public void testDominantResourceCalculatorHierarchicalQueues()
 			throws Exception {
-		DfsTestsBaseClass dfsTestsBaseClass = new DfsTestsBaseClass();
-		dfsTestsBaseClass.ensureDataPresenceInCluster(System
-				.getProperty("CLUSTER_NAME"));
+		DfsTestsBaseClass.ensureDataPresenceInCluster();
 
 		String testCode = "testDominantResourceCalculatorHierarchicalQueues";
 		int numberOfVcoresPerCPUThatAreAvailableForNodeManagerForSpawningContainers = 2;

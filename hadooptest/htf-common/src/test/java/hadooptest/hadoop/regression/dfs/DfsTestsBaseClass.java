@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.rules.TemporaryFolder;
 
 import com.jcraft.jsch.Channel;
@@ -103,9 +104,17 @@ public class DfsTestsBaseClass extends TestSession {
 	public static enum PrintTopology {
 		YES, NO
 	};
+	
+	@BeforeClass
+	public static void ensureDataPresenceInCluster() throws Exception{
+		TestSession.start();
+		ensureLocalFilesPresentBeforeTestRun();
+		copyFilesIntoCluster(System
+				.getProperty("CLUSTER_NAME"));
+		
+	}
 
-	// ----------------------------------------------------------//
-	@Before
+
 	public static void ensureLocalFilesPresentBeforeTestRun() {
 
 		fileMetadata.put("file_empty", new Double((double) 0));
@@ -194,11 +203,6 @@ public class DfsTestsBaseClass extends TestSession {
 		
 		
 	}
-	public static void ensureDataPresenceInCluster(String cluster) throws Exception{
-		ensureLocalFilesPresentBeforeTestRun();
-		copyFilesIntoCluster(cluster);
-		
-	}
 	public static void doChmodRecursively(String cluster, String dirHierarchy)
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -240,7 +244,7 @@ public class DfsTestsBaseClass extends TestSession {
 				attemptedFile.getParentFile().mkdirs();
 			}
 
-			createLocalPreparatoryFiles(DATA_DIR_IN_LOCAL_FS + aFileName,
+			actualFileCreation(DATA_DIR_IN_LOCAL_FS + aFileName,
 					fileMetadata.get(aFileName));
 
 
@@ -253,7 +257,7 @@ public class DfsTestsBaseClass extends TestSession {
 	 * @param completeLocalName
 	 * @param size
 	 */
-	private static void createLocalPreparatoryFiles(String completeLocalName, Double size)  {
+	private static void actualFileCreation(String completeLocalName, Double size)  {
 
 		PrintWriter out;
 		try {
