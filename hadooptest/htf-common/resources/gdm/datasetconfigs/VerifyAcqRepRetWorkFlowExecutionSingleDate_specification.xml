@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog" description="gdm-dataset-PREFIXHERE"
+    name="VerifyAcqRepRetWorkFlowExecutionSingleDate"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>FALSE</Active>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com" owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>GDM automated test dataset built by deploy scripts.</Comments>
+    <UGI group="users" permission="755"/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>180</DiscoveryFrequency>
+    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <Paths>
+        <Path location="/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
+        <Path location="/data/daqdev/schema/${DataSetName}/%{date}" type="count"/>
+        <Path location="/data/daqdev/count/${DataSetName}/%{date}" type="schema"/>
+    </Paths>
+    <Parameters>
+        <attribute name="feed" value="gdm-dataset-PREFIXHERE"/>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="bucket" value="0-998"/>
+        <attribute name="statsfeed" value="gdm-dataset-PREFIXHERE_stats"/>
+        <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="retentionPeriod" value="390"/>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>mrkt_sid</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720" name="gdm-fdi-source-PREFIXHERE"/>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="1440" name="gdm-target-ACQCLUSTER-PREFIXHERE" status="active">
+            <DateRange start="20130725" end="20130726"/>
+<!-- REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME
+            <Paths>
+                <Path location="/ACQ_CLUSTER_NAME/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
+                <Path location="/ACQ_CLUSTER_NAME/data/daqdev/schema/${DataSetName}/%{date}" type="count"/>
+                <Path location="/ACQ_CLUSTER_NAME/data/daqdev/count/${DataSetName}/%{date}" type="schema"/>
+            </Paths>
+REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME -->
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 1" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1440" name="gdm-target-REPLCLUSTER-PREFIXHERE" status="active">
+            <DateRange start="20130725" end="20130726"/>
+<!-- REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME
+            <Paths>
+                <Path location="/REP_CLUSTER_NAME/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
+                <Path location="/REP_CLUSTER_NAME/data/daqdev/schema/${DataSetName}/%{date}" type="count"/>
+                <Path location="/REP_CLUSTER_NAME/data/daqdev/count/${DataSetName}/%{date}" type="schema"/>
+            </Paths>
+REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME -->
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 0" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1440" name="gdm-archival-target" status="inactive">
+            <DateRange end="20130726" start="20130725"/>
+            <Policies>
+                <Policy
+                    condition="instanceDate(instancelist, instance) > 1" type="retention"/>
+            </Policies>
+            <Resource capacity="2" name="bandwidth"/>
+        </Target>
+
+    </Targets>
+</DataSet>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSource colo="gq1" name="FDI_SERVER_NAME" type="warehouse">
+    <Version>1.0</Version>
+    <WorkingDirectory/>
+    <EvictionDirectory/>
+    <Active>true</Active>
+    <Resources>
+        <Resource capacity="10" name="bandwidth"/>
+        <Resource capacity="100" name="streams"/>
+    </Resources>
+    <Parameters>
+      <attribute value='GDM_CONSOLE_NAME' name='ssh.server'></attribute>
+      <attribute value='2222' name='ssh.port'></attribute>
+      <attribute value='/tmp' name='workingdir'></attribute>
+    </Parameters>
+    <Interface name="FDI" type="FDI" version="1">
+        <Command name="discovery">
+            <BaseUrl>http://${loadproxy.host}:9999/loadproxy/4ssh?context=${DataSetName}&amp;redirect=ssh-ls://dfsload@GDM_CONSOLE_NAME:2222/tmp/FDIROOT/${feed}/%{date}/DONE/STATUS.${feed}.%{date}</BaseUrl>
+        </Command>
+        <Command name="metadata">
+            <BaseUrl>http://${loadproxy.host}:9999/loadproxy/4ssh?context=${DataSetName}&amp;redirect=ssh-cat://dfsload@GDM_CONSOLE_NAME:2222/tmp/FDIROOT/${feed}/%{date}/DONE/STATUS.${feed}.%{date}</BaseUrl>
+        </Command>
+        <Command name="loader">
+          <BaseUrl>http://${loadproxy.host}:9999/loadproxy/4ssh?context=${DataSetName}&amp;redirect=ssh-cat://dfsload@GDM_CONSOLE_NAME:2222/</BaseUrl>
+        </Command>
+        <DiscoveryType>polling</DiscoveryType>
+    </Interface>
+</DataSource>
+

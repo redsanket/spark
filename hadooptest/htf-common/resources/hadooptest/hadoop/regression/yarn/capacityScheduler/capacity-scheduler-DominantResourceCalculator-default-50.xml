@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<!-- capacity-scheduler.xml -->
+<configuration>
+  <property>
+    <name>yarn.scheduler.capacity.resource-calculator</name>
+    <value>org.apache.hadoop.yarn.util.resource.DominantResourceCalculator</value>
+    <description>
+      The ResourceCalculator implementation to be used to compare 
+      Resources in the scheduler.
+      The default i.e. DefaultResourceCalculator only uses Memory while
+      DominantResourceCalculator uses dominant-resource to compare 
+      multi-dimensional resources such as Memory, CPU etc.
+    </description>
+  </property>
+  
+   <property>
+      <name>yarn.scheduler.capacity.root.capacity</name>
+      <value>100</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.queues</name>
+      <value>gridops,default,grideng</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.gridops.capacity</name>
+      <value>10</value>
+   </property>
+   
+   <property>
+      <name>yarn.scheduler.capacity.root.gridops.maximum-capacity</name>
+      <value>100</value>
+   </property>
+   
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.capacity</name>
+      <value>50</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.maximum-capacity</name>
+      <value>85</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.capacity</name>
+      <value>40</value>
+   </property>
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.maximum-capacity</name>
+      <value>100</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.minimum-user-limit-percent</name>
+      <value>25</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.minimum-user-limit-percent</name>
+      <value>25</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.gridops.minimum-user-limit-percent</name>
+      <value>25</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.user-metrics.enable</name>
+      <value>true</value>
+   </property>
+
+</configuration>

@@ -1,0 +1,32 @@
+package hadooptest.hadoop.regression;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import hadooptest.TestSession;
+import org.junit.Test;
+
+public class TestVersion extends TestSession {
+
+	@Test
+	public void assertHadoopVersion() {
+		try {
+			String clusterVersion = TestSession.cluster.getVersion();
+			String testConfVersionAPI = TestSession.cluster.getConf().getVersion();
+			String testConfVersionCLI = TestSession.cluster.getConf().getVersionViaCLI();
+
+			TestSession.logger.info("Cluster Obj: Hadoop Version = '" + clusterVersion + "'");		
+			TestSession.logger.info("Cluster Conf Obj: Hadoop Version (API) = '" + testConfVersionAPI + "'");		
+			TestSession.logger.info("Cluster Conf Obj: Hadoop Version (CLI) = '" + testConfVersionCLI + "'");		
+
+			assertTrue("Version has invalid format!!!", testConfVersionAPI.matches("\\d+[.\\d+]+"));
+			assertTrue("API and CLI versions do not match!!!", testConfVersionAPI.equals(testConfVersionCLI));
+			assertTrue("Cluster Object version and Cluster Conf Object version do not match!!!", clusterVersion.equals(testConfVersionAPI));			
+		}
+		catch (Exception e) {
+			TestSession.logger.error("Exception failure.", e);
+			fail();
+		}
+	}
+
+	
+}

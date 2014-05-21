@@ -26,7 +26,6 @@ The options
         [ -s|--local_ws <source root dir>  ] : local source root directory
         [ -w|--remote_ws <workspace>       ] : remote workspace. Default remote workspace is 
                                                "/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
-        [ -build_coretest                  ] : build coretest
         [ -h|--help                        ] : help
 
 Pass Through options
@@ -65,9 +64,8 @@ my $cluster;
 my $remote_host;
 my $install_only = 0;
 my $use_mvn = 1;
-my $build_coretest = 0;
-my ($local_ws_ht, $local_ws_ct);
-my ($remote_ws, $remote_ws_ht, $remote_ws_ct);
+my $local_ws_ht;
+my ($remote_ws, $remote_ws_ht);
 my $username = getpwuid($<);
 my $remote_username = $username;
 
@@ -79,7 +77,6 @@ use Getopt::Long;
 my $result = 
 GetOptions(\%options,
     "install_only"         => \$install_only,
-    "build_coretest"       => \$build_coretest,
     "cluster|c=s"          => \$cluster,
     "remote_host|r=s"      => \$remote_host,
     "local_ws|s=s"         => \$local_ws_ht,
@@ -91,8 +88,9 @@ usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
+# Retrieve the cluster gateway from Igor if not specified by remote_host.
 my $igor = "/home/y/bin/igor";
-my $re_host = "re100.ygrid.corp.gq1.yahoo.com";
+my $re_host = "re103.ygrid.corp.gq1.yahoo.com";
 if (!$remote_host) {
     my $rolename="grid_re.clusters.$cluster.gateway";
     note("fetch unspecified gateway host from igor role: '$rolename'");
@@ -110,7 +108,6 @@ unless ($remote_host) {
 $remote_ws = "/tmp/hadooptest-$remote_username-$cluster"
     unless ($remote_ws);
 $remote_ws_ht = "$remote_ws/hadooptest";
-$remote_ws_ct = "$remote_ws/coretest";
 
 # CLEAN UP EXISTING WORKSPACE DIRECTORY
 my $command;
@@ -124,14 +121,11 @@ execute($command);
 # CREATE NEW WORKSPACE DIRECTORY
 execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws\"");
 execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ht\"");
-execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ct\"");
 
 $use_mvn = ( grep( /-j/, @ARGV ) ) ? 0 : 1;
 $local_ws_ht = "/Users/$username/git/hadooptest/hadooptest" unless ($local_ws_ht);
-$local_ws_ct = "$local_ws_ht/../../coretest/coretest";
 my $tgz_dir="/tmp";
 my $tgz_file_ht="hadooptest.tgz";
-my $tgz_file_ct="coretest.tgz";
 
 note("cluster='$cluster'");
 note("local_ws_ht='$local_ws_ht'");
@@ -150,23 +144,13 @@ execute("scp $tgz_dir/$tgz_file_ht $remote_host:$remote_ws_ht");
 execute("ssh -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
 execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
 execute("scp $local_ws_ht/target/*.jar $remote_host:$remote_ws_ht/target");
-
-# INSTALL CORETEST FRAMEWORK 
-if ($build_coretest) {
-    execute("cd $local_ws_ct; $mvn clean") if ($use_mvn);
-    execute("tar -zcf $tgz_dir/$tgz_file_ct --exclude='target' -C $local_ws_ct .");
-    execute("scp $tgz_dir/$tgz_file_ct $remote_host:$remote_ws_ct");
-    execute("ssh -t $remote_host \"/bin/gtar fx $remote_ws_ct/$tgz_file_ct -C $remote_ws_ct\"");
-    execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ct/target\"");
-    execute("scp $local_ws_ct/target_dir/*.jar $remote_host:$remote_ws_ct/target");
-}
+execute("ssh -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
 
 execute("ssh -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
     if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa"));
 
 # EXECUTE TESTS
 my $common_args = "--cluster $cluster --workspace $remote_ws_ht";
-$common_args .= " --build_coretest" if ($build_coretest);
 $common_args .= " ".join(" ", @ARGV);
 unless ($install_only) {
 
@@ -174,12 +158,11 @@ unless ($install_only) {
         #########################
         # Execute tests via maven
         #########################
-        execute("rm -rf $local_ws_ct/target/surefire-reports/");
         execute("ssh -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
 
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
         execute("/bin/mkdir -p $local_ws_ht/target");
-        execute("scp -rp $remote_host:$remote_ws_ht/target/surefire-reports $local_ws_ht/target");
+        execute("scp -rp $remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
@@ -203,7 +186,7 @@ unless ($install_only) {
         #########################
         # Execute tests via java 
         #########################
-        execute("ssh -t $remote_host \"$remote_ws_ht/scripts/run_hadooptest $common_args\"");
+        execute("ssh -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
     }
 }
 

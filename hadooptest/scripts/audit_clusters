@@ -1,0 +1,42 @@
+#!/bin/bash
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+TIMESTAMP=`date +%y%m%d-%T`
+rawfilename="/tmp/scan.log.$TIMESTAMP"
+summaryfilename="/tmp/audit.log.$TIMESTAMP"
+
+set -x
+$script_dir/scan_clusters $* 2>&1 | tee $rawfilename
+set +x
+
+echo
+echo "==========================================="
+echo "SUMMARY"
+echo "==========================================="
+$script_dir/parse_scan_clusters $rawfilename 2>&1 | tee $summaryfilename
+echo 
+
+# ## Sending mail to user 
+# if [ "X${EMAIL_USER}X" != "XX" ];then
+#     if [ "X${JOB_URL}X" == "XX" ];then
+#         sub="HadoopQERegression-${HADOOPQE_TEST_BRANCH}"
+#     else
+#         sub=`echo $JOB_URL | sed -e 's/.*job\/\(.*\)\/$/\1/'`
+#     fi
+#     SUBJECT="TEST_REPORT: $sub   VERSION: $VERSION   STARTTIME: $STARTTIME"
+#     EMAIL="$EMAIL_USER@yahoo-inc.com"
+# 
+#     set -x
+#     /bin/mail -s "$SUBJECT" "$EMAIL" < $summaryfilename
+#     set +x
+#     if [ "$?" == "0" ];then
+#         echo "Email is sent successfully to $EMAIL"
+#     else
+#         echo "Email could not be sent to $EMAIL"
+#     fi
+# fi
+
+rm $rawfilename
+rm $summaryfilename
+

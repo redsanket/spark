@@ -16,7 +16,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/mvn clean package -Dtar -DskipTests.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/compile.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
@@ -26,17 +26,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/mvn javadoc.launch</value>
-				</dictionary>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>full,incremental,</triggers>
-			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/mvn jar test-jar.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/javadoc.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
