@@ -57,6 +57,7 @@ public class TestGenerateJobLoad extends TestSession {
     static int batchSize = 6; 
     static int interval = 60;
     static int maxDurationMin = 60;
+    static int maxWaitMin = 20;
     static boolean waitForJobId = false;
     static boolean multiUsersMode = false;
     String dataRootDir = "/tmp/genjobload." + 
@@ -77,6 +78,8 @@ public class TestGenerateJobLoad extends TestSession {
 	            Integer.parseInt(System.getProperty("RUNTIME_INTERVAL_SEC", "60"));
 	    maxDurationMin = 
 	            Integer.parseInt(System.getProperty("RUNTIME_DURATION_MIN", "60"));
+        maxWaitMin = 
+                Integer.parseInt(System.getProperty("MAX_WAIT_MIN", "60"));
         waitForJobId = 
                 Boolean.parseBoolean(System.getProperty("WAIT_FOR_JOB_ID", "false"));
         multiUsersMode = 
@@ -290,7 +293,7 @@ public class TestGenerateJobLoad extends TestSession {
 
         // Wait for all the jobs to succeed.
         try {
-            if (!this.waitForSuccessForAllJobs(15)) {
+            if (!this.waitForSuccessForAllJobs(maxWaitMin)) {
                 fail("Wait for all jobs to succeed failed");                
             }
         } catch (Exception e) {
@@ -307,19 +310,19 @@ public class TestGenerateJobLoad extends TestSession {
      * Wait for all jobs to succeed.
      * TODO: checking it twice since there could be jobs queued up.
      */
-    private boolean waitForSuccessForAllJobs(int durationMin) throws Exception {
+    private boolean waitForSuccessForAllJobs(int maxWaitMin) throws Exception {
         JobClient jobClient = TestSession.cluster.getJobClient();        
         int count = 1;
-        int maxCount = 2;
+        int maxCount = 3;
         boolean isSuccess=true;
         boolean allSuccess=true;
         do {
             TestSession.logger.info(
                     "----------- Wait for all jobs to succeed #" + count + 
-                    ": for " + durationMin + " minute(s) ---------------");
+                    ": for " + maxWaitMin + " minute(s) ---------------");
             isSuccess = TestSession.cluster.getJobClient().waitForSuccess(
                     jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
-                    durationMin);
+                    maxWaitMin);
             if (!isSuccess) {
                 allSuccess=false;
             }
