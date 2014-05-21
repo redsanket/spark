@@ -109,7 +109,7 @@ print "OOZIE = " . $oozie_version . "\n";
 print "HIVE = " . $hive_version . "\n";
 print "PIG = " . $pig_version . "\n";
 
-`mkdir $workspace`;
+`mkdir -p $workspace`;
 my $outputfile = ">$workspace\/installed_versions.txt";
 print "OUTPUT FILE = $outputfile\n\n";
 open (VERSIONFILE, $outputfile);
