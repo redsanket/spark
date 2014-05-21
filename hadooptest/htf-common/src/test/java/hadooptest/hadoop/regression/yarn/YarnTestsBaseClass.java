@@ -1,35 +1,22 @@
 package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.TestSession;
-import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
-import hadooptest.hadoop.regression.yarn.MapredCliCommands.GenericMapredCliResponseBO;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.hadoop.SleepJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.examples.RandomWriter;
 import org.apache.hadoop.examples.Sort;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobQueueInfo;
+import org.apache.hadoop.streaming.StreamJob;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
 import org.w3c.dom.Document;
@@ -37,6 +24,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
 
 public class YarnTestsBaseClass extends TestSession {
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
@@ -47,6 +35,7 @@ public class YarnTestsBaseClass extends TestSession {
 		REFRESH_QUEUES, REFRESH_NODES, REFRESH_SUPERUSER_GROUPS_CONFIGURATION, REFRESH_USER_TO_GROUPS_MAPPING, REFRESH_ADMIN_ACLS, REFRESH_SERVICE_ACL, GET_GROUPS
 	};
 
+	
 	/*
 	 * Run a Sleep Job, from org.apache.hadoop.mapreduce
 	 */
@@ -109,6 +98,20 @@ public class YarnTestsBaseClass extends TestSession {
 
 	}
 
+	public void runStdHadoopStreamingJob(String... args) throws Exception {
+		TestSession.logger.info("running Streaming Job.................");
+		Configuration conf = TestSession.cluster.getConf();
+		int res;
+
+		try {
+			StreamJob job = new StreamJob();
+			res = ToolRunner.run(conf, job, args);
+			Assert.assertEquals(0, res);
+		} catch (Exception e) {
+			throw e;
+		}
+
+	}
 	private static String getValue(String tag, Element element) {
 		NodeList nodes = element.getElementsByTagName(tag).item(0)
 				.getChildNodes();

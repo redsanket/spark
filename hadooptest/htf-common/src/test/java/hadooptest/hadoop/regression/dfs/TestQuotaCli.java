@@ -89,10 +89,10 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 
 	}
 
-	@BeforeClass
-	public static void testSession() {
-		TestSession.start();
-	}
+//	@BeforeClass
+//	public static void testSession() {
+//		TestSession.start();
+//	}
 
 	@Before
 	public void beforeEachTest() throws Exception {

@@ -65,9 +65,7 @@ public class TestDominantResourceCalculatorHierarchicalQueues extends
 	@Test
 	public void testDominantResourceCalculatorHierarchicalQueues()
 			throws Exception {
-		DfsTestsBaseClass dfsTestsBaseClass = new DfsTestsBaseClass();
-		dfsTestsBaseClass.ensureDataPresenceInCluster(System
-				.getProperty("CLUSTER_NAME"));
+		DfsTestsBaseClass.ensureDataPresenceInCluster();
 
 		String testCode = "testDominantResourceCalculatorHierarchicalQueues";
 		int numberOfVcoresPerCPUThatAreAvailableForNodeManagerForSpawningContainers = 2;
@@ -85,7 +83,7 @@ public class TestDominantResourceCalculatorHierarchicalQueues extends
 			setDominantResourceParametersEverywhere(
 					fileUsedInTest,
 					numberOfVcoresPerCPUThatAreAvailableForNodeManagerForSpawningContainers,
-					true);
+					false);
 			isFileSetEverywhere = true;
 		}
 
@@ -116,7 +114,7 @@ public class TestDominantResourceCalculatorHierarchicalQueues extends
 					TestSession.logger.info("Handle size read back:"
 							+ handlesToTheFuture.size());
 					RuntimeRESTStatsBO runtimeRESTStatsBO = startCollectingRestStats(1 * THOUSAND_MILLISECONDS);
-					waitFor(60 * THOUSAND_MILLISECONDS);
+					waitFor(30 * THOUSAND_MILLISECONDS);
 					stopCollectingRuntimeStatsAcrossQueues(runtimeRESTStatsBO);
 					printValuesReceivedOverRest(runtimeRESTStatsBO);
 

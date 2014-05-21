@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.rules.TemporaryFolder;
 
 import com.jcraft.jsch.Channel;
@@ -42,8 +43,8 @@ public class DfsTestsBaseClass extends TestSession {
 	 * Data structures for creating initial files
 	 */
 	protected static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
-	protected Set<String> setOfTestDataFilesInHdfs;
-	protected Set<String> setOfTestDataFilesInLocalFs;
+	protected static Set<String> setOfTestDataFilesInHdfs;
+	protected static Set<String> setOfTestDataFilesInLocalFs;
 	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count.txt";
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
@@ -57,7 +58,7 @@ public class DfsTestsBaseClass extends TestSession {
 	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
 
-	public HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
+	public static HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
 
 	/**
@@ -103,10 +104,18 @@ public class DfsTestsBaseClass extends TestSession {
 	public static enum PrintTopology {
 		YES, NO
 	};
+	
+	@BeforeClass
+	public static void ensureDataPresenceInCluster() throws Exception{
+		TestSession.start();
+		ensureLocalFilesPresentBeforeTestRun();
+		copyFilesIntoCluster(System
+				.getProperty("CLUSTER_NAME"));
+		
+	}
 
-	// ----------------------------------------------------------//
-	@Before
-	public void ensureLocalFilesPresentBeforeTestRun() {
+
+	public static void ensureLocalFilesPresentBeforeTestRun() {
 
 		fileMetadata.put("file_empty", new Double((double) 0));
 		/*
@@ -156,18 +165,17 @@ public class DfsTestsBaseClass extends TestSession {
 
 	}
 
-	void ensureDirsArePresentInHdfs(String cluster) throws Exception {
+	static void ensureDirsArePresentInHdfs(String cluster) throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse = null;
 		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS);
 
 	}
-	void copyFilesIntoCluster(String cluster) throws Exception{
+	public static void copyFilesIntoCluster(String cluster) throws Exception{
 		ensureDirsArePresentInHdfs(cluster);
 		doChmodRecursively(cluster,DfsTestsBaseClass.DATA_DIR_IN_HDFS);
 		
-		DfsTestsBaseClass dfsTestsBaseClass = new DfsTestsBaseClass();
-		dfsTestsBaseClass.ensureLocalFilesPresentBeforeTestRun();
+		DfsTestsBaseClass.ensureLocalFilesPresentBeforeTestRun();
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse = null;
 		for (String aFile: DfsTestsBaseClass.fileMetadata.keySet()){
@@ -186,7 +194,7 @@ public class DfsTestsBaseClass extends TestSession {
 								DfsTestsBaseClass.DATA_DIR_IN_HDFS
 								+ aFile);
 				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS
-								+ DfsTestsBaseClass.INPUT_TO_WORD_COUNT, "777");
+								+ aFile, "777");
 			}
 			
 		}
@@ -195,12 +203,7 @@ public class DfsTestsBaseClass extends TestSession {
 		
 		
 	}
-	public void ensureDataPresenceInCluster(String cluster) throws Exception{
-		ensureLocalFilesPresentBeforeTestRun();
-		copyFilesIntoCluster(cluster);
-		
-	}
-	public void doChmodRecursively(String cluster, String dirHierarchy)
+	public static void doChmodRecursively(String cluster, String dirHierarchy)
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		String pathSoFar = "/";
@@ -223,7 +226,7 @@ public class DfsTestsBaseClass extends TestSession {
 	/*
 	 * called by @Before
 	 */
-	void createLocalPreparatoryFiles() {
+	public static void createLocalPreparatoryFiles() {
 		for (String aFileName : fileMetadata.keySet()) {
 			TestSession.logger.info("!!!!!!! Checking local file:"
 					+ DATA_DIR_IN_LOCAL_FS + aFileName);
@@ -233,91 +236,44 @@ public class DfsTestsBaseClass extends TestSession {
 						+ " already exists, not recreating it");
 				continue;
 			}
-			if (aFileName.equalsIgnoreCase(INPUT_TO_WORD_COUNT)) {
-				createInputFileForWordCount(fileMetadata
-						.get(INPUT_TO_WORD_COUNT));
-				continue;
-			}
-			TestSession.logger.info("!!!!!!! Creating local file:"
+			TestSession.logger.info("!!!!!!! CREATING local file:"
 					+ DATA_DIR_IN_LOCAL_FS + aFileName);
+			
 			// create a file on the local fs
 			if (!attemptedFile.getParentFile().exists()) {
 				attemptedFile.getParentFile().mkdirs();
 			}
-			FileOutputStream fout;
-			try {
-				fout = new FileOutputStream(attemptedFile);
-				int macroStepSize = 1;
-				int macroLoopCount = 1;
-				int microLoopCount = 0;
-				if ((int) (fileMetadata.get(aFileName) / (1024 * 1024 * 1024)) > 0) {
-					macroStepSize = 1024 * 1024 * 1024;
-					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
-					TestSession.logger
-							.info("Processing: "
-									+ aFileName
-									+ " size:"
-									+ fileMetadata.get(aFileName)
-									+ " stepSize: "
-									+ macroStepSize
-									+ " because: "
-									+ (int) (fileMetadata.get(aFileName) / (1024 * 1024 * 1024)));
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
-				} else if ((int) (fileMetadata.get(aFileName) / (1024 * 1024)) > 0) {
-					macroStepSize = 1024 * 1024;
-					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
-					TestSession.logger
-							.info("Processing: "
-									+ aFileName
-									+ " size:"
-									+ fileMetadata.get(aFileName)
-									+ " stepSize: "
-									+ macroStepSize
-									+ " because: "
-									+ (int) (fileMetadata.get(aFileName) / (1024 * 1024)));
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
-				} else if ((int) (fileMetadata.get(aFileName) / (1024)) > 0) {
-					macroStepSize = 1024;
-					macroLoopCount = (int) (fileMetadata.get(aFileName) / macroStepSize);
-					TestSession.logger.info("Processing: " + aFileName
-							+ " size:" + fileMetadata.get(aFileName)
-							+ " stepSize: " + macroStepSize + " because: "
-							+ (int) (fileMetadata.get(aFileName) / (1024)));
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (macroStepSize * macroLoopCount));
-				} else {
-					macroLoopCount = 0;
-					macroStepSize = 0;
-					TestSession.logger.info("Processing: " + aFileName
-							+ " size:" + fileMetadata.get(aFileName)
-							+ " stepSize: " + macroStepSize);
-					microLoopCount = (int) (fileMetadata.get(aFileName) % (1024));
-				}
-				for (double i = 0; i < macroLoopCount; i++) {
-					fout.write(new byte[(int) macroStepSize]);
-				}
 
-				for (int i = 0; i < microLoopCount; i++) {
-					fout.write(new byte[1]);
-				}
+			actualFileCreation(DATA_DIR_IN_LOCAL_FS + aFileName,
+					fileMetadata.get(aFileName));
 
-				fout.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
 
 		}
 
 	}
 
-	private void createInputFileForWordCount(Double size)  {
+	/**
+	 * Overloaded method
+	 * @param completeLocalName
+	 * @param size
+	 */
+	private static void actualFileCreation(String completeLocalName, Double size)  {
 
 		PrintWriter out;
 		try {
-			out = new PrintWriter(DATA_DIR_IN_LOCAL_FS
-					+ INPUT_TO_WORD_COUNT);
+			
+			out = new PrintWriter(completeLocalName);
+			if (size == 0){
+				out.close();
+				return;
+			}
 			do {
-				out.println("a");
-			}while (size-- >0);
+				
+				if (size%20 == 0)
+					out.println("");
+				else
+					out.print("a");
+			}while (--size >0);
 			out.close();
 
 		} catch (FileNotFoundException e) {
