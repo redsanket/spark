@@ -94,7 +94,7 @@ $rolename = "grid_re.clusters.$cluster.jobtracker";
 $host = getIgorHost($rolename);
 $result = `ssh -t $host \"/home/gs/java/jdk/bin/java -version\"`;
 print $result;
-my ($java_version) = $result =~ /^java version \"(.*)\"/;
+my ($java_version) = $result =~ /java version \"(.*)\"/;
 print "JAVA = " . $java_version . "\n";
 
 print "\n\n";
