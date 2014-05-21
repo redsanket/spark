@@ -118,7 +118,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 
 	}
 
-	@Test
+//	@Test
 	public void test20() throws Exception {
 		StringBuilder sb = new StringBuilder();
 
@@ -173,6 +173,97 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 				+ TestSession.cluster.getConf().get("fs.defaultFS")
 				+ "tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
 				+ "/test.jar#testlink\"");
+		sb.append(" -jobconf \"mapreduce.map.tasks=1\"");
+		sb.append(" -jobconf \"mapreduce.reduce.tasks=1\"");
+		sb.append(" -jobconf \"mapreduce.job.name=RecursiveChmod-"
+				+ TESTCASE_ID + "\"");
+		sb.append(" -jobconf \"mapreduce.job.acl-view-job=*\"");
+		sb.append(" -file "
+				+ "\""
+				+ TestSession.conf.getProperty("WORKSPACE")
+				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/mapper.sh\"");
+
+		sb.append(" -file "
+				+ "\""
+				+ TestSession.conf.getProperty("WORKSPACE")
+				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/reducer.sh\"");
+
+		TestSession.logger.info("Executing command-----------------------:");
+		String streamJobCommand = sb.toString();
+		streamJobCommand = streamJobCommand.replaceAll("\\s+", " ");
+		TestSession.logger.info(streamJobCommand);
+		TestSession.logger.info("-----------------------till here:");
+		runStdHadoopStreamingJob(sb.toString().split("\\s+"));
+
+		GenericCliResponseBO genericCliResponseBO = dfsCliCommands.cat(
+				EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "",
+				System.getProperty("CLUSTER_NAME"), outPath + "/*");
+		Assert.assertTrue("cat command exited with a non-zero code",
+				genericCliResponseBO.process.exitValue() == 0);
+		TestSession.logger.info(genericCliResponseBO.response);
+
+		assertContents(
+				TestSession.conf.getProperty("WORKSPACE")
+						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/data/RecursiveChmod-" + TESTCASE_ID
+						+ "/expectedOutput", genericCliResponseBO.response);
+
+	}
+
+	@Test
+	public void test30() throws Exception {
+		StringBuilder sb = new StringBuilder();
+
+		String TESTCASE_ID = "30";
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		testDir = "RecursiveChmod/RecursiveChmod-" + TESTCASE_ID;
+		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, "",
+				System.getProperty("CLUSTER_NAME"), testDir);
+
+		GenericCliResponseBO genericResponseBO = dfsCliCommands
+				.put(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HADOOPQA,
+						"",
+						System.getProperty("CLUSTER_NAME"),
+						TestSession.conf.getProperty("WORKSPACE")
+								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/data/RecursiveChmod-" + TESTCASE_ID
+								+ "/input.txt",
+						"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+								+ "/input.txt");
+		Assert.assertTrue(
+				"put (input.txt) command exited with non-zero exit code",
+				genericResponseBO.process.exitValue() == 0);
+
+		genericResponseBO = dfsCliCommands
+				.put(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HADOOPQA,
+						"",
+						System.getProperty("CLUSTER_NAME"),
+						TestSession.conf.getProperty("WORKSPACE")
+								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/data/RecursiveChmod-" + TESTCASE_ID
+								+ "/test.jar",
+						"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+								+ "/test.jar");
+		Assert.assertTrue(
+				"put(test.jar) command exited with non-zero exit code",
+				genericResponseBO.process.exitValue() == 0);
+
+		String outPath = "RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/RecursiveChmod" + TESTCASE_ID + ".out";
+		sb.append(" -archives " + "\""
+				+ TestSession.cluster.getConf().get("fs.defaultFS")
+				+ "user/hadoopqa/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/test.jar#testlink\"");
+		sb.append(" -input " + "\"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/input.txt\"");
+		sb.append(" -mapper " + "\"mapper.sh\"");
+		sb.append(" -reducer " + "\"reducer.sh\"");
+		sb.append(" -output " + outPath);
 		sb.append(" -jobconf \"mapreduce.map.tasks=1\"");
 		sb.append(" -jobconf \"mapreduce.reduce.tasks=1\"");
 		sb.append(" -jobconf \"mapreduce.job.name=RecursiveChmod-"
