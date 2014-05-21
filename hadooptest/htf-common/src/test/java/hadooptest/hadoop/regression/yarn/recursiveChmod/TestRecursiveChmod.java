@@ -14,6 +14,9 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
 import org.junit.After;
@@ -25,13 +28,13 @@ import org.junit.experimental.categories.Category;
 public class TestRecursiveChmod extends YarnTestsBaseClass {
 	static String testDir = "";
 
-	@Test
-	public void testVerifyEnvVariable() throws Exception {
+	// @Test
+	public void test10() throws Exception {
 		StringBuilder sb = new StringBuilder();
 
 		String TESTCASE_ID = "10";
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		String testDir = "RecursiveChmod/RecursiveChmod-" + TESTCASE_ID;
+		testDir = "RecursiveChmod/RecursiveChmod-" + TESTCASE_ID;
 		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, "",
 				System.getProperty("CLUSTER_NAME"), testDir);
@@ -106,10 +109,106 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		Assert.assertTrue("cat command exited with a non-zero code",
 				genericCliResponseBO.process.exitValue() == 0);
 		TestSession.logger.info(genericCliResponseBO.response);
-		
-		assertContents(TestSession.conf.getProperty("WORKSPACE")
+
+		assertContents(
+				TestSession.conf.getProperty("WORKSPACE")
+						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/data/RecursiveChmod-" + TESTCASE_ID
+						+ "/expectedOutput", genericCliResponseBO.response);
+
+	}
+
+	@Test
+	public void test20() throws Exception {
+		StringBuilder sb = new StringBuilder();
+
+		String TESTCASE_ID = "20";
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		testDir = "RecursiveChmod/RecursiveChmod-" + TESTCASE_ID;
+		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, "",
+				System.getProperty("CLUSTER_NAME"), testDir);
+		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, "",
+				System.getProperty("CLUSTER_NAME"), "/tmp/" + testDir);
+
+		GenericCliResponseBO genericResponseBO = dfsCliCommands
+				.put(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HADOOPQA,
+						"",
+						System.getProperty("CLUSTER_NAME"),
+						TestSession.conf.getProperty("WORKSPACE")
+								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/data/RecursiveChmod-" + TESTCASE_ID
+								+ "/input.txt",
+						"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+								+ "/input.txt");
+		Assert.assertTrue(
+				"put (input.txt) command exited with non-zero exit code",
+				genericResponseBO.process.exitValue() == 0);
+
+		genericResponseBO = dfsCliCommands
+				.put(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HADOOPQA,
+						"",
+						System.getProperty("CLUSTER_NAME"),
+						TestSession.conf.getProperty("WORKSPACE")
+								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/data/RecursiveChmod-" + TESTCASE_ID
+								+ "/test.jar",
+						"/tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+								+ "/test.jar");
+		Assert.assertTrue(
+				"put(test.jar) command exited with non-zero exit code",
+				genericResponseBO.process.exitValue() == 0);
+
+		String outPath = "RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/RecursiveChmod" + TESTCASE_ID + ".out";
+		sb.append("-input " + "\"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/input.txt\"");
+		sb.append(" -mapper " + "\"mapper.sh\"");
+		sb.append(" -reducer " + "\"reducer.sh\"");
+		sb.append(" -output " + outPath);
+		sb.append(" -cacheArchive " + "\""
+				+ TestSession.cluster.getConf().get("fs.defaultFS")
+				+ "tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/test.jar#testlink\"");
+		sb.append(" -jobconf \"mapreduce.map.tasks=1\"");
+		sb.append(" -jobconf \"mapreduce.reduce.tasks=1\"");
+		sb.append(" -jobconf \"mapreduce.job.name=RecursiveChmod-"
+				+ TESTCASE_ID + "\"");
+		sb.append(" -jobconf \"mapreduce.job.acl-view-job=*\"");
+		sb.append(" -file "
+				+ "\""
+				+ TestSession.conf.getProperty("WORKSPACE")
 				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
-				+ "/data/RecursiveChmod-" + TESTCASE_ID+"/expectedOutput", genericCliResponseBO.response);
+				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/mapper.sh\"");
+
+		sb.append(" -file "
+				+ "\""
+				+ TestSession.conf.getProperty("WORKSPACE")
+				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/reducer.sh\"");
+
+		TestSession.logger.info("Executing command-----------------------:");
+		String streamJobCommand = sb.toString();
+		streamJobCommand = streamJobCommand.replaceAll("\\s+", " ");
+		TestSession.logger.info(streamJobCommand);
+		TestSession.logger.info("-----------------------till here:");
+		runStdHadoopStreamingJob(sb.toString().split("\\s+"));
+
+		GenericCliResponseBO genericCliResponseBO = dfsCliCommands.cat(
+				EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "",
+				System.getProperty("CLUSTER_NAME"), outPath + "/*");
+		Assert.assertTrue("cat command exited with a non-zero code",
+				genericCliResponseBO.process.exitValue() == 0);
+		TestSession.logger.info(genericCliResponseBO.response);
+
+		assertContents(
+				TestSession.conf.getProperty("WORKSPACE")
+						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/data/RecursiveChmod-" + TESTCASE_ID
+						+ "/expectedOutput", genericCliResponseBO.response);
 
 	}
 
@@ -135,18 +234,25 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 			e.printStackTrace();
 		}
 		Assert.assertEquals(expectedStringList.size(), actualStringList.size());
-		for (int xx=0;xx<expectedStringList.size();xx++){
-			Assert.assertTrue(actualStringList.get(xx).trim().equals(expectedStringList.get(xx).trim()));
+		for (int xx = 0; xx < expectedStringList.size(); xx++) {
+			Assert.assertTrue(actualStringList.get(xx).trim()
+					.equals(expectedStringList.get(xx).trim()));
 		}
 
 	}
 
-	@After
+//	@After
 	public void deleteDirs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		dfsCliCommands.rmdir(EMPTY_ENV_HASH_MAP,
+		dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, "",
-				System.getProperty("CLUSTER_NAME"), testDir);
+				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
+				SkipTrash.YES, testDir);
+		dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HADOOPQA, "",
+				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
+				SkipTrash.YES, "/tmp/RecursiveChmod");
+
 	}
 
 }
