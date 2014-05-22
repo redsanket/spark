@@ -18,6 +18,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
@@ -57,7 +58,9 @@ public class TestGenerateJobLoad extends TestSession {
     static int batchSize = 6; 
     static int interval = 60;
     static int maxDurationMin = 60;
+    static int maxWaitMin = 20;
     static boolean waitForJobId = false;
+    static boolean killPendingJobsToExit = false;
     static boolean multiUsersMode = false;
     String dataRootDir = "/tmp/genjobload." + 
             new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
@@ -77,8 +80,12 @@ public class TestGenerateJobLoad extends TestSession {
 	            Integer.parseInt(System.getProperty("RUNTIME_INTERVAL_SEC", "60"));
 	    maxDurationMin = 
 	            Integer.parseInt(System.getProperty("RUNTIME_DURATION_MIN", "60"));
+        maxWaitMin = 
+                Integer.parseInt(System.getProperty("MAX_WAIT_MIN", "60"));
         waitForJobId = 
                 Boolean.parseBoolean(System.getProperty("WAIT_FOR_JOB_ID", "false"));
+        killPendingJobsToExit = 
+                Boolean.parseBoolean(System.getProperty("KILL_PENDING_JOBS", "false"));
         multiUsersMode = 
                 Boolean.parseBoolean(System.getProperty("MULTI_USERS_MODE", "false"));
         
@@ -87,7 +94,9 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.logger.info("batchSize='" + batchSize + "'");
         TestSession.logger.info("interval='" + interval + "'");
         TestSession.logger.info("maxDurationMin='" + maxDurationMin + "'");
+        TestSession.logger.info("maxWaitMin='" + maxWaitMin + "'");
         TestSession.logger.info("waitForJobId='" + waitForJobId + "'");
+        TestSession.logger.info("killPendingJobsToExit='" + killPendingJobsToExit + "'");
         TestSession.logger.info("multiUsersMode='" + multiUsersMode + "'");
 	}
 	
@@ -288,9 +297,29 @@ public class TestGenerateJobLoad extends TestSession {
         String username="hadoopqa";
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
 
+        if (killPendingJobsToExit) {
+            TestSession.logger.info(
+                    "Kill any jobs still in PREP state to expedite the exit process");
+            JobClient jobClient = TestSession.cluster.getJobClient();        
+            JobID[] jobIDs = 
+                    jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime));
+            JobState currentState = JobState.UNKNOWN;
+            String jobIdStr;
+            for (JobID jobID : jobIDs) {            
+                jobIdStr = jobID.toString();
+                currentState = JobState.getState(
+                        jobClient.getJob(jobID).getJobState());
+                if (currentState.equals(JobState.PREP)) {
+                    TestSession.logger.info("Kill JOB '" + jobIdStr + 
+                            "' STILL IN PREP STATE SO WE CAN EXIT");
+                    jobClient.getJob(jobID).killJob();
+                }
+            }
+        }
+        
         // Wait for all the jobs to succeed.
         try {
-            if (!this.waitForSuccessForAllJobs(15)) {
+            if (!this.waitForSuccessForAllJobs(maxWaitMin)) {
                 fail("Wait for all jobs to succeed failed");                
             }
         } catch (Exception e) {
@@ -307,19 +336,19 @@ public class TestGenerateJobLoad extends TestSession {
      * Wait for all jobs to succeed.
      * TODO: checking it twice since there could be jobs queued up.
      */
-    private boolean waitForSuccessForAllJobs(int durationMin) throws Exception {
+    private boolean waitForSuccessForAllJobs(int maxWaitMin) throws Exception {
         JobClient jobClient = TestSession.cluster.getJobClient();        
         int count = 1;
-        int maxCount = 2;
+        int maxCount = 3;
         boolean isSuccess=true;
         boolean allSuccess=true;
         do {
             TestSession.logger.info(
                     "----------- Wait for all jobs to succeed #" + count + 
-                    ": for " + durationMin + " minute(s) ---------------");
+                    ": for " + maxWaitMin + " minute(s) ---------------");
             isSuccess = TestSession.cluster.getJobClient().waitForSuccess(
                     jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
-                    durationMin);
+                    maxWaitMin);
             if (!isSuccess) {
                 allSuccess=false;
             }
