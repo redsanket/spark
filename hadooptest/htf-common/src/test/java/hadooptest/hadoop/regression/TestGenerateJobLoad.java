@@ -342,13 +342,16 @@ public class TestGenerateJobLoad extends TestSession {
         int maxCount = 3;
         boolean isSuccess=true;
         boolean allSuccess=true;
+        JobStatus[] jobsStatus;
         do {
             TestSession.logger.info(
                     "----------- Wait for all jobs to succeed #" + count + 
-                    ": for " + maxWaitMin + " minute(s) ---------------");
+                    "/" + maxCount + ": for " + maxWaitMin + 
+                    " minute(s) ---------------");
+            jobsStatus = jobClient.getJobs(TestSession.testStartTime);
+            jobClient.displayJobList(jobsStatus);
             isSuccess = TestSession.cluster.getJobClient().waitForSuccess(
-                    jobClient.getJobIDs(jobClient.getJobs(TestSession.testStartTime)),
-                    maxWaitMin);
+                    jobClient.getJobIDs(jobsStatus), maxWaitMin);
             if (!isSuccess) {
                 allSuccess=false;
             }
