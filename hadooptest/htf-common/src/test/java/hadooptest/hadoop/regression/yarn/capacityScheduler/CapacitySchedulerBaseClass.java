@@ -371,7 +371,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit,
 			String username, ExpectToBomb expectedToBomb) {
 		Future<Job> jobHandle = null;
-		CallableSleepJob callableSleepJob = new CallableSleepJob(
+		CapSchedCallableSleepJob callableSleepJob = new CapSchedCallableSleepJob(
 				getDefaultSleepJobProps(queueToSubmit), 1, 1, 1, 1, 1, 1,
 				username, "overage-job-launched-by-user-" + username
 						+ "-on-queue-" + queueToSubmit, expectedToBomb);
@@ -1005,7 +1005,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				e.printStackTrace();
 			}
 			Future<Job> aFutureCallableSleepJob = sleepJobThreadPool
-					.submit(new CallableSleepJob(
+					.submit(new CapSchedCallableSleepJob(
 							aSleepJobParams.configProperties,
 							aSleepJobParams.numMapTasks,
 							aSleepJobParams.numRedTasks,
@@ -1292,7 +1292,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	class CallableSleepJob implements Callable<Job> {
+	class CapSchedCallableSleepJob implements Callable<Job> {
 		HashMap<String, String> jobParamsMap;
 		int numMapper;
 		int numReducer;
@@ -1304,7 +1304,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		String jobName;
 		ExpectToBomb expectedToBomb;
 
-		public CallableSleepJob(HashMap<String, String> jobParamsMap,
+		public CapSchedCallableSleepJob(HashMap<String, String> jobParamsMap,
 				int numMapper, int numReducer, int mapSleepTime,
 				int mapSleepCount, int reduceSleepTime, int reduceSleepCount,
 				String userName, String jobName, ExpectToBomb expectedToBomb) {
