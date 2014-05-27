@@ -71,6 +71,105 @@ public class MapredCliCommands {
 				response);
 		return responseBO;
 	}
+	public GenericMapredCliResponseBO getJobStatus(HashMap<String, String> envMapSentByTest,
+			String user, String jobId) throws Exception {
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.MAPRED);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("job");
+		sb.append(" ");
+		sb.append("-status");
+		sb.append(" ");
+		sb.append(jobId);
+
+		
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, environmentVariablesWrappingTheCommand);
+		String response = printResponseAndReturnItAsString(process);
+		GenericMapredCliResponseBO responseBO = new GenericMapredCliResponseBO(process,
+				response);
+		return responseBO;
+	}
+	
+	public GenericMapredCliResponseBO list(HashMap<String, String> envMapSentByTest,
+			String user, String jobId) throws Exception {
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.MAPRED);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("job");
+		sb.append(" ");
+		sb.append("-list");
+		if (!jobId.isEmpty()){
+			sb.append(" ");
+			sb.append(jobId);
+		}
+
+		
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, environmentVariablesWrappingTheCommand);
+		String response = printResponseAndReturnItAsString(process);
+		GenericMapredCliResponseBO responseBO = new GenericMapredCliResponseBO(process,
+				response);
+		return responseBO;
+	}
+	public GenericMapredCliResponseBO kill(HashMap<String, String> envMapSentByTest,
+			String user, String jobId) throws Exception {
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.MAPRED);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("job");
+		sb.append(" ");
+		sb.append("-kill");
+		sb.append(" ");
+		sb.append(jobId);
+
+		
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, environmentVariablesWrappingTheCommand);
+		String response = printResponseAndReturnItAsString(process);
+		GenericMapredCliResponseBO responseBO = new GenericMapredCliResponseBO(process,
+				response);
+		return responseBO;
+	}
 
 	
 	String printResponseAndReturnItAsString(Process process)
