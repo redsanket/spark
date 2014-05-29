@@ -591,7 +591,8 @@ public class TestGenerateJobLoad extends TestSession {
         DFSIOJob job = new DFSIOJob();
         job.setUser(username);
         job.setJobInitSetID(waitForJobId);
-                
+        job.setup();
+         
         String testcaseName;
         String testcaseDesc;
         for (String operation : OPERATIONS) {
@@ -600,7 +601,7 @@ public class TestGenerateJobLoad extends TestSession {
                 job.setPercentage(percentage);
                 testcaseName = "DFSIO_" + operation + "_" + percentage; 
                 testcaseDesc = "Mapreduce Benchmark - DFSIO with " + operation +
-                        " Operation and " + percentage + " %.";
+                        " Operation and " + percentage + "%.";
                 TestSession.logger.info("TC='" + testcaseName + "': Desc='" +
                         testcaseDesc + "'.");
                 job.start();                            

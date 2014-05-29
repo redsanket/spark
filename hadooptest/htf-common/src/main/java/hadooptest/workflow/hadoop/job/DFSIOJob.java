@@ -35,14 +35,12 @@ public class DFSIOJob extends Job {
     /** The DFSIO operation */
     private String operation;
     
-    @BeforeClass
-    public static void startTestSession() throws Exception{
-        TestSession.start();
+    public void setup() throws Exception{
         setupTestDir();
         initNumTT();        
     }
 
-    public static void setupTestDir() throws Exception {
+    public void setupTestDir() throws Exception {
         FileSystem fs = TestSession.cluster.getFS();
         FsShell fsShell = TestSession.cluster.getFsShell();
         DFS dfs = new DFS();
@@ -57,7 +55,7 @@ public class DFSIOJob extends Job {
         fsShell.run(new String[] {"-mkdir", "-p", testDir});
     }
 
-    public static void initNumTT() throws Exception {
+    public void initNumTT() throws Exception {
         Cluster clusterInfo = TestSession.cluster.getClusterInfo();
         ttCount = clusterInfo.getClusterStatus().getTaskTrackerCount();
         TestSession.logger.info("tasktracker count = " +
