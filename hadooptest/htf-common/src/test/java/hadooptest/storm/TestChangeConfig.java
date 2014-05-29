@@ -48,10 +48,6 @@ public class TestChangeConfig extends TestSessionStorm {
             if (mc != null) {
                 user = mc.getBouncerUser();
                 pw = mc.getBouncerPassword();
-                
-                logger.info("*** BOUNCER AUTH ***");
-                logger.info("USER = " + user);
-                logger.info("PWD = " + pw);
             }
         }
         

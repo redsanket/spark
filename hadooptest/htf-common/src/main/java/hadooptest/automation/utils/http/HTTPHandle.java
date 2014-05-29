@@ -45,11 +45,9 @@ public class HTTPHandle {
 		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
 		YBYCookie = null; 
 		try {
-            logger.info("loginToBouncer BEFORE authenticate");
 		    YBYCookie = localHttpClientBouncerAuth.authenticate(
 					"https://gh.bouncer.login.yahoo.com/login/", paramString1,
 					paramString2.toCharArray());
-		    logger.info("loginToBouncer AFTER authenticate");
 		} catch (Exception localException) {
 			logger.error(new StringBuilder()
 					.append("SSO authentication failed. ")
@@ -82,11 +80,9 @@ public class HTTPHandle {
 		logger.info(new StringBuilder().append("Making a GET to ").append(str)
 				.toString());
 		try {
-		    logger.info("URI = " + localGetMethod.getURI());
-			returnVal = this.httpClient.executeMethod(localGetMethod);
+			this.httpClient.executeMethod(localGetMethod);
 			logger.info(localGetMethod.getResponseBodyAsString());
 		} catch (Exception localException2) {
-		    logger.info("Execute return value was: " + returnVal);
 			logger.error(localException2);
 			logger.error(localException2.getMessage());
 			localException2.printStackTrace();
