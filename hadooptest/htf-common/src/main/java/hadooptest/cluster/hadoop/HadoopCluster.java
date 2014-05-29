@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -223,6 +224,20 @@ public abstract class HadoopCluster {
 		return lookupIgorRole("grid_re.clusters." + clusterName + ".namenode");
 	}
 	
+    /**
+     * Lookup the Igor-defined namenode for a cluster.
+     * 
+     * @param clusterName The name of the cluster.
+     * 
+     * @return ArrayList<String> the namenodes.
+     * 
+     * @throws Exception
+     */
+    public ArrayList<String> lookupIgorRoleClusterNamenodeAlias(String clusterName) 
+            throws Exception {
+        return lookupIgorRole("grid_re.clusters." + clusterName + ".namenode_alias");
+    }
+    
 	/**
 	 * Lookup the Igor-defined secondary namenodes for a cluster.
 	 * 
@@ -375,6 +390,24 @@ public abstract class HadoopCluster {
      */
     public abstract boolean isComponentFullyUp(String component,
             String[] daemonHost) throws Exception;
+    
+    public boolean isHAEnabled() {
+        // get the value of the dfs.nameservices in hdfs-ha.xml, if it's set to
+        // flubber-alias* then cluster has been configured for HA failover in QE,
+        // if not then the cluster is unlikely to support failover even if the
+        // deployed with HA enabled
+        String getValue = TestSession.cluster.getConf().get("dfs.nameservices");
+        
+        Pattern p = Pattern.compile("flubber-alias");
+        Matcher m = p.matcher(getValue);
+        
+        if (m.find()) {
+                return true;
+        }
+        else {
+                return false;
+        }
+    }
     
     /**
      * Check if the cluster component is fully down.
