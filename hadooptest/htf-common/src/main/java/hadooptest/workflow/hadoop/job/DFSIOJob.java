@@ -35,12 +35,7 @@ public class DFSIOJob extends Job {
     /** The DFSIO operation */
     private String operation;
     
-    public void setup() throws Exception{
-        setupTestDir();
-        initNumTT();        
-    }
-
-    public void setupTestDir() throws Exception {
+    public static void setupTestDir() throws Exception {
         FileSystem fs = TestSession.cluster.getFS();
         FsShell fsShell = TestSession.cluster.getFsShell();
         DFS dfs = new DFS();
@@ -150,6 +145,8 @@ public class DFSIOJob extends Job {
 	 */
 	private String[] assembleCommand() throws Exception {
 		// set up the cmd
+	    initNumTT();
+	    
 		ArrayList<String> cmd = new ArrayList<String>();    
 		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
 		cmd.add("--config");

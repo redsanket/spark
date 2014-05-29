@@ -584,27 +584,32 @@ public class TestGenerateJobLoad extends TestSession {
         job.start();                        
     }
 
+    private void testDFSIO(String operation, int percentage, String username)
+            throws Exception {
+        DFSIOJob job = new DFSIOJob();
+        job.setUser(username);
+        job.setJobInitSetID(waitForJobId);
+         
+        String testcaseName;
+        String testcaseDesc;
+        job.setOperation(operation);
+        job.setPercentage(percentage);
+        testcaseName = "DFSIO_" + operation + "_" + percentage; 
+        testcaseDesc = "Mapreduce Benchmark - DFSIO with " + operation +
+                " Operation and " + percentage + "%.";
+        TestSession.logger.info("TC='" + testcaseName + "': Desc='" +
+                testcaseDesc + "'.");
+        job.start();
+    }
+
     /* 
      * Submit a DFSIO job
      */
     public void submitDFSIOJobCLI(String username) throws Exception {
-        DFSIOJob job = new DFSIOJob();
-        job.setUser(username);
-        job.setJobInitSetID(waitForJobId);
-        job.setup();
-         
-        String testcaseName;
-        String testcaseDesc;
+        DFSIOJob.setupTestDir();
         for (String operation : OPERATIONS) {
-            job.setOperation(operation);
             for (int percentage : PERCENTAGES) {
-                job.setPercentage(percentage);
-                testcaseName = "DFSIO_" + operation + "_" + percentage; 
-                testcaseDesc = "Mapreduce Benchmark - DFSIO with " + operation +
-                        " Operation and " + percentage + "%.";
-                TestSession.logger.info("TC='" + testcaseName + "': Desc='" +
-                        testcaseDesc + "'.");
-                job.start();                            
+                testDFSIO(operation, percentage, username);
             }
         }        
     }    
