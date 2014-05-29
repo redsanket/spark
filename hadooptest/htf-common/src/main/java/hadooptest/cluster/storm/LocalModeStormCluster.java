@@ -1,8 +1,11 @@
 package hadooptest.cluster.storm;
 
+import hadooptest.TestSessionStorm;
+
 import hadooptest.ConfigProperties;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.thrift7.TException;
@@ -27,17 +30,30 @@ import backtype.storm.generated.TopologyInfo;
 public class LocalModeStormCluster extends StormCluster {
     private LocalCluster cluster;
     private LocalDRPC drpcServer=null;
+    private String localHostname = null;
 
     public void init(ConfigProperties conf) {
         drpcServer = new LocalDRPC();
         cluster = new LocalCluster();
         StormSubmitter.setLocalNimbus(cluster);
+        try {
+            String[] returnValue = TestSessionStorm.exec.runProcBuilder(new String[] { "hostname" }, true);
+            localHostname = returnValue[1];
+        } catch (Exception e ) {
+            localHostname = new String("localhost");
+        }
+    }
+
+    public ArrayList<String> lookupRole(StormDaemon roleName) throws Exception {
+        ArrayList<String> returnValue = new ArrayList<String>();
+        returnValue.add( new String(localHostname) );
+        return returnValue;
     }
 
     public void cleanup() {
         cluster.shutdown();
-	drpcServer.shutdown();
-	drpcServer = null;
+        drpcServer.shutdown();
+        drpcServer = null;
         cluster = null;
     }
 

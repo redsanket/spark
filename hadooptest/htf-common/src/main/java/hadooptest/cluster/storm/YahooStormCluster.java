@@ -6,9 +6,11 @@ import hadooptest.automation.utils.http.JSONUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.IllegalStateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.thrift7.TException;
 import org.eclipse.jetty.client.HttpClient;
@@ -42,11 +44,19 @@ public class YahooStormCluster extends ModifiableStormCluster {
     private ClusterUtil registryConf = new ClusterUtil("ystorm_registry");
     private String registryURI;
     private DRPCClient drpc;
+    private HashMap<StormDaemon, ArrayList<String>> dnsNames = new HashMap<StormDaemon, ArrayList<String>>();
+
+    private void initDnsNames() throws Exception {
+        for (StormDaemon d : StormDaemon.values() ) {
+    			dnsNames.put( d, StormDaemon.lookupIgorRoles(d, TestSessionStorm.conf.getProperty("CLUSTER_NAME")));
+        }
+    }
 
     public void init(ConfigProperties conf) throws Exception {
     	TestSessionStorm.logger.info("INIT CLUSTER");
         setupClient();
         ystormConf.init("ystorm");
+        initDnsNames();
     }
 
     private void setupClient() throws Exception {
@@ -191,23 +201,14 @@ public class YahooStormCluster extends ModifiableStormCluster {
         setupClient();
     }
     
-    /**
-     * Restart daemons on all nodes the daemon is acting on.
-     * 
-     * @param daemon The daemon to restart.
-     */
     public void restartDaemon(StormDaemon daemon) throws Exception {
     	
     	TestSessionStorm.logger.info(
     			"*** RESTARTING DAEMON ON ALL MEMBER NODES FOR DAEMON:  " + 
     					daemon + " ***");
     	
-    	ArrayList<String> dnsNames = 
-    			StormDaemon.lookupIgorRoles(daemon, 
-    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
-    	
     	// restart each node specified for that daemon in Igor config
-    	for (String nodeDNSName: dnsNames) {
+    	for (String nodeDNSName: dnsNames.get(daemon)) {
     		restartDaemonNode(daemon, nodeDNSName);
     	}
     }
@@ -252,12 +253,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
     			"*** STOPPING DAEMON ON ALL MEMBER NODES FOR DAEMON:  " + 
     					daemon + " ***");
     	
-    	ArrayList<String> dnsNames = 
-    			StormDaemon.lookupIgorRoles(daemon, 
-    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
-    	
     	// restart each node specified for that daemon in Igor config
-    	for (String nodeDNSName: dnsNames) {
+    	for (String nodeDNSName: dnsNames.get(daemon)) {
     		stopDaemonNode(daemon, nodeDNSName);
     	}
     }
@@ -301,12 +298,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
     			"*** STARTING DAEMON ON ALL MEMBER NODES FOR DAEMON:  " + 
     					daemon + " ***");
     	
-    	ArrayList<String> dnsNames = 
-    			StormDaemon.lookupIgorRoles(daemon, 
-    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
-    	
     	// restart each node specified for that daemon in Igor config
-    	for (String nodeDNSName: dnsNames) {
+    	for (String nodeDNSName: dnsNames.get(daemon)) {
     		startDaemonNode(daemon, nodeDNSName);
     	}
     }
@@ -529,5 +522,42 @@ public class YahooStormCluster extends ModifiableStormCluster {
         
         setConf("drpc_auth_acl_" + function + "_client_users", user);
         setConf("drpc_auth_acl_" + function + "_invocation_user", user);
+    }
+
+    /**
+     * Get the bouncer user used for testing.
+     * 
+     * @throws Exception if there is a problem getting user name
+     */
+    public String getBouncerUser() throws Exception {
+    	String[] output = TestSessionStorm.exec.runProcBuilder(
+    			new String[] {"keydbgetkey", "hadoopqa_re_bouncer.user" } );
+        if ( !output[0].equals("0") ) {
+            throw new IllegalStateException("keydbgetkey failed for user");
+        }
+        return output[1];
+    }
+
+    /**
+     * Get the bouncer pw used for testing.
+     * 
+     * @throws Exception if there is a problem getting user name
+     */
+    public String getBouncerPassword() throws Exception {
+    	String[] output = TestSessionStorm.exec.runProcBuilder(
+    			new String[] {"keydbgetkey", "hadoopqa_re_bouncer.passwd" } );
+        if ( !output[0].equals("0") ) {
+            throw new IllegalStateException("keydbgetkey failed for password");
+        }
+        return output[1];
+    }
+
+    /**
+     * Get the list of machines that correspond to a role
+     * 
+     * @throws Exception if there is a problem getting role
+     */
+    public ArrayList<String> lookupRole(StormDaemon roleName) throws Exception {
+        return dnsNames.get(roleName);
     }
 }

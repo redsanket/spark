@@ -24,8 +24,9 @@ public class HTTPHandle {
 	public static String USER = "";
 	public static String PASSWORD = "";
 	public static Header YBYCookieHeader = null;
+	public static String YBYCookie = null; 
 	private String baseURL;
-
+	
 	Logger logger = Logger.getLogger(HTTPHandle.class);
 
 	public HTTPHandle() {
@@ -42,20 +43,22 @@ public class HTTPHandle {
 
 	public void logonToBouncer(String paramString1, String paramString2) {
 		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
-		String str = null;
+		YBYCookie = null; 
 		try {
-			str = localHttpClientBouncerAuth.authenticate(
+            logger.info("loginToBouncer BEFORE authenticate");
+		    YBYCookie = localHttpClientBouncerAuth.authenticate(
 					"https://gh.bouncer.login.yahoo.com/login/", paramString1,
 					paramString2.toCharArray());
+		    logger.info("loginToBouncer AFTER authenticate");
 		} catch (Exception localException) {
 			logger.error(new StringBuilder()
 					.append("SSO authentication failed. ")
 					.append(localException.toString()).toString());
 		}
-
-		YBYCookieHeader = new Header("Cookie", str);
-		this.httpClient.getParams().setParameter("Cookie", str);
-		logger.debug("SSO auth cookie set");
+		
+		YBYCookieHeader = new Header("Cookie", YBYCookie);
+		this.httpClient.getParams().setParameter("Cookie", YBYCookie);
+		logger.info("SSO auth cookie set");
 	}
 
 	public HttpMethod makeGET(String schemaAndHost, String resource,
@@ -63,22 +66,30 @@ public class HTTPHandle {
 		String str = constructFinalURL(schemaAndHost, resource, paramArrayList);
 		str = new StringBuilder().append(str).toString();
 		GetMethod localGetMethod = null;
+		
+		int returnVal = 0;
+		
 		try {
 			localGetMethod = new GetMethod(str);
 		} catch (Exception localException1) {
 			logger.error(new StringBuilder().append("Bad URL. ")
 					.append(localException1.toString()).toString());
 		}
-		if (YBYCookieHeader != null) {
+		if (YBYCookieHeader != null) { 
+		    logger.info("Attempting to use Bouncer authentication: " + YBYCookieHeader.toString());
 			localGetMethod.addRequestHeader(YBYCookieHeader);
 		}
 		logger.info(new StringBuilder().append("Making a GET to ").append(str)
 				.toString());
 		try {
-			this.httpClient.executeMethod(localGetMethod);
+		    logger.info("URI = " + localGetMethod.getURI());
+			returnVal = this.httpClient.executeMethod(localGetMethod);
 			logger.info(localGetMethod.getResponseBodyAsString());
 		} catch (Exception localException2) {
+		    logger.info("Execute return value was: " + returnVal);
 			logger.error(localException2);
+			logger.error(localException2.getMessage());
+			localException2.printStackTrace();
 		}
 		logger.info(localGetMethod.getStatusLine().toString());
 		try {

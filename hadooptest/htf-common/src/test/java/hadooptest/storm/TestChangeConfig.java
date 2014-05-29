@@ -5,6 +5,11 @@ import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
+import hadooptest.cluster.storm.StormDaemon;
+import hadooptest.automation.utils.http.HTTPHandle;
+import org.apache.commons.httpclient.HttpMethod;
+import hadooptest.automation.utils.http.Response;
+import java.util.ArrayList;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,9 +36,24 @@ public class TestChangeConfig extends TestSessionStorm {
 
     @Test
     public void changeConfigTest() throws Exception {
-        logger.info("Turning off UI security.");
-        mc.unsetConf("ui.filter");
-        logger.info("Starting changeConfigTest.");
+        backtype.storm.Config theconf = new backtype.storm.Config();
+        theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
+
+        String filter = theconf.get("ui.filter").toString();
+        String pw = null;
+        String user = null;
+
+        // Only get bouncer auth on secure cluster.
+        if ( filter != null ) {
+            if (mc != null) {
+                user = mc.getBouncerUser();
+                pw = mc.getBouncerPassword();
+                
+                logger.info("*** BOUNCER AUTH ***");
+                logger.info("USER = " + user);
+                logger.info("PWD = " + pw);
+            }
+        }
         
         String newUIPort = "8101";
         
@@ -44,8 +64,18 @@ public class TestChangeConfig extends TestSessionStorm {
 
         logger.info("Asserting test result");
         //TODO lets find a good way to get the different hosts
-        String[] result = exec.runProcBuilder(new String[] { "wget", "localhost:" + newUIPort });
+        HTTPHandle client = new HTTPHandle();
+        if (filter != null) {
+            client.logonToBouncer(user,pw);
+        }
+        logger.info("Cookie = " + client.YBYCookie);
+        ArrayList<String> uiNodes = mc.lookupRole(StormDaemon.UI);
+        logger.info("Will be connecting to UI at " + uiNodes.get(0));
+        String uiURL = "http://" + uiNodes.get(0) + ":8101";
+        HttpMethod getMethod = client.makeGET(uiURL, new String(""), null);
+        Response response = new Response(getMethod, false);
+        logger.info("******* OUTPUT = " + response.getResponseBodyAsString());
 
-        assertTrue("Result of wget exec was not zero", result[0].equals("0"));
+        assertTrue("Result of ui get was not zero", response.getStatusCode() == 200);
     }
 }

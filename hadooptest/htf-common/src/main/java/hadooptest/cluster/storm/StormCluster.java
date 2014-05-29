@@ -46,6 +46,7 @@ public abstract class StormCluster {
     public abstract Stream newDRPCStream(TridentTopology topology, String function);
     public abstract String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException;
     public abstract void setDrpcAuthAclForFunction(String function, String user) throws Exception;
+    public abstract ArrayList<String> lookupRole(StormDaemon roleName) throws Exception; 
     
     /**
      * Lookup an Igor role and get the role members.

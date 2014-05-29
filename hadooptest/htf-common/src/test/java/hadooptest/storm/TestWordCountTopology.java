@@ -7,6 +7,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.Util;
 import hadooptest.cluster.storm.ModifiableStormCluster;
+import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.workflow.storm.topology.bolt.Split;
 import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
 
@@ -19,8 +20,15 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.CookieManager;
+import java.net.CookieHandler;
+import java.net.CookieStore;
+import java.net.HttpCookie;
 import java.net.URL;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,6 +68,10 @@ import backtype.storm.utils.Utils;
 @Category(SerialTests.class)
 public class TestWordCountTopology extends TestSessionStorm {
     static int numSpouts = 2; //This must match the topology
+    public String decodedCookie = null;
+    public HttpCookie theCookie = null;
+    public CookieManager manager = null;
+    public CookieStore cookieJar = null;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -84,17 +96,51 @@ public class TestWordCountTopology extends TestSessionStorm {
         return getTS(name).get_uptime_secs();
     }
 
-    private String downloadFile(URL url) throws IOException {
+    private boolean isRedirect(int status) {
+        if (status == HttpURLConnection.HTTP_MOVED_TEMP ||
+            status == HttpURLConnection.HTTP_MOVED_PERM ||
+            status == HttpURLConnection.HTTP_SEE_OTHER) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    private String downloadFile(URL url) throws IOException, URISyntaxException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        URL useUrl = url;
+        if (theCookie != null && isRedirect(conn.getResponseCode())) {
+            // Handle redirect if Bouncer Auth is on.
+            // get redirect url from "location" header field
+            String newUrl = conn.getHeaderField("Location");
+            logger.info("Redirect to URL : " + newUrl);
+            useUrl = new URL(newUrl);
+            addToCookieJar( useUrl );
+     
+            // get the cookie if need, for login
+            String cookies = conn.getHeaderField("Set-Cookie");
+     
+            // open the new connnection again
+            conn = (HttpURLConnection) useUrl.openConnection();
+            conn.setRequestProperty("Cookie", cookies);
+            //conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+            //conn.addRequestProperty("User-Agent", "Mozilla");
+            //conn.addRequestProperty("Referer", "google.com");
+     
+
+            assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
+
+        }
+
         assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
         InputStream in = null;
         FileOutputStream out = null;
         try {
-            in = (InputStream) url.openConnection().getInputStream();
+            //in = (InputStream) useUrl.openConnection().getInputStream();
+            in = (InputStream) conn.getInputStream();
             byte[] buf = new byte[1024];
             int read = -1;
             File tmpFile = File.createTempFile(this.getClass().getName(), null);
-            tmpFile.deleteOnExit();
+            //tmpFile.deleteOnExit();
             out = new FileOutputStream(tmpFile);
             try {
                 while ((read = in.read(buf)) != -1) {
@@ -119,6 +165,56 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
     }
 
+    public void SetUpCookie() throws Exception {
+        backtype.storm.Config theconf = new backtype.storm.Config();
+        theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
+
+        String filter = theconf.get("ui.filter").toString();
+        String pw = null;
+        String user = null;
+
+        // Only get bouncer auth on secure cluster.
+        if ( filter != null ) {
+            ModifiableStormCluster mc;
+            mc = (ModifiableStormCluster)cluster;
+            if (mc != null) {
+                user = mc.getBouncerUser();
+                pw = mc.getBouncerPassword();
+            }
+        }
+        
+        HTTPHandle client = new HTTPHandle();
+        if (filter != null) {
+            client.logonToBouncer(user,pw);
+        }
+        logger.info("Cookie = " + client.YBYCookie);
+        // Now let's break this cookie up.
+        Pattern pattern = Pattern.compile("YBY=(.+)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(client.YBYCookie);
+        String cookie = null;
+        if (matcher.find()) {
+            cookie = matcher.group(1);
+            logger.info("Decomposed cookie = " + cookie);
+            decodedCookie = java.net.URLDecoder.decode(cookie, "UTF-8");
+            logger.info("Decoded cookie = " + decodedCookie);
+            // Create cookie jar
+            manager = new CookieManager();
+            CookieHandler.setDefault(manager);
+            cookieJar = manager.getCookieStore();
+            theCookie = new HttpCookie("YBY", decodedCookie);
+        } else {
+            logger.info("Didn't find YBY");
+        }
+    }
+
+    public void addToCookieJar(URL url) throws URISyntaxException {
+        if ( theCookie == null ) {
+            return;
+        }
+
+        cookieJar.add(url.toURI(), theCookie);
+    }
+
     @Test
     public void LogviewerPagingTest() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
@@ -127,12 +223,17 @@ public class TestWordCountTopology extends TestSessionStorm {
         String topoName = "logviewer-paging-test";
         String outputLoc = new File("/tmp", topoName).getCanonicalPath();
 
+        SetUpCookie();
+
         Config config = new Config();
         config.put("test.output.location", outputLoc);
         config.setDebug(true);
         config.setNumWorkers(1);
         config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
         config.put(Config.STORM_ZOOKEEPER_TOPOLOGY_AUTH_PAYLOAD, "123:456");
+        List<String> whiteList = Arrays.asList("hadoop_re");
+        config.put(Config.UI_USERS, whiteList);
+        config.put(Config.LOGS_USERS, whiteList);
         // TODO turn this into a utility that has a conf setting
         File jar = new File(
                 conf.getProperty("WORKSPACE")
@@ -189,10 +290,11 @@ public class TestWordCountTopology extends TestSessionStorm {
     private String getLogviewerPageContent(String topoId, String host,
             int logviewerPort, int workerPort, final int startByteNum,
             final int byteLength) throws MalformedURLException, IOException,
-            FileNotFoundException, XPathExpressionException {
+            FileNotFoundException, XPathExpressionException, URISyntaxException {
         URL logPageUrl = new URL("http", host, logviewerPort, "/log?file="
                 + topoId + "-worker-" + workerPort + ".log&" + "start="
                 + startByteNum + "&length=" + byteLength);
+        addToCookieJar(logPageUrl);
         String logPagePath = downloadFile(logPageUrl);
         Tidy tidy = new Tidy();
         tidy.setQuiet(true);
@@ -207,9 +309,10 @@ public class TestWordCountTopology extends TestSessionStorm {
 
     private String downloadFromLogviewer(String topoId, String host,
             int logviewerPort, int workerPort) throws MalformedURLException,
-            IOException {
+            IOException, URISyntaxException {
         URL logDownloadUrl = new URL("http", host, logviewerPort, "/download/"
                 + topoId + "-worker-" + workerPort + ".log");
+        addToCookieJar(logDownloadUrl);
         String result = null;
         result = this.downloadFile(logDownloadUrl);
         return result;
@@ -302,7 +405,7 @@ public class TestWordCountTopology extends TestSessionStorm {
                 int thisCount = -1;
                 if (matcher.find()) {
                     logger.info("Matched " + matcher.group(0));
-                    thisCount = Integer.parseInt(matcher.group(0));
+                    thisCount = Integer.parseInt(matcher.group(1));
                 } else {
                     logger.warn("Did not match.");
                 }
