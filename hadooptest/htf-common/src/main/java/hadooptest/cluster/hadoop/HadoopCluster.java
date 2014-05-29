@@ -85,8 +85,9 @@ public abstract class HadoopCluster {
     
     public static enum HADOOP_EXEC_MODE { CLI, API }
     public static enum HADOOP_JOB_TYPE {
-        SLEEP, WORDCOUNT, RANDOM_WRITER, RANDOM_TEXT_WRITER, TERAGEN, TERASORT }
-    
+        SLEEP, WORDCOUNT, RANDOM_WRITER, RANDOM_TEXT_WRITER,
+        TERAGEN, TERASORT, DFSIO }
+
     public static final String[] COMPRESS_ON = {
         "-Dmapreduce.map.output.compress=true",
         "-Dmapreduce.output.fileoutputformat.compress=true"
