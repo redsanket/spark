@@ -398,9 +398,12 @@ public abstract class HadoopCluster {
         // deployed with HA enabled
         String getValue = TestSession.cluster.getConf().get("dfs.nameservices");
         
+        if (getValue == null || getValue.isEmpty()) {
+            return false;
+        }
+
         Pattern p = Pattern.compile("flubber-alias");
         Matcher m = p.matcher(getValue);
-        
         if (m.find()) {
                 return true;
         }
