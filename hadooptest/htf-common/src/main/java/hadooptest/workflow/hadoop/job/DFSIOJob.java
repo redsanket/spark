@@ -9,8 +9,10 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +23,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl;
+import org.apache.commons.lang.ArrayUtils;
+
 import org.junit.BeforeClass;
 
 /**
@@ -31,16 +35,29 @@ public class DFSIOJob extends Job {
     private static final int FILE_SIZE = 320;
     private static int ttCount;
     private int percentage;
+    private String testDir;
 
     /** The DFSIO operation */
     private String operation;
     
-    public static void setupTestDir() throws Exception {
+    private static final String[] OPERATIONS = {
+        "write",
+        "read"
+    };
+
+    public void setup() throws Exception {
+        setupTestDir();
+        initNumTT();
+    }
+    
+    public void setupTestDir() throws Exception {
         FileSystem fs = TestSession.cluster.getFS();
         FsShell fsShell = TestSession.cluster.getFsShell();
         DFS dfs = new DFS();
-        String testDir = dfs.getBaseUrl() + "/user/" +
-            System.getProperty("user.name") + "/benchmarks_dfsio";
+        this.testDir = dfs.getBaseUrl() + "/user/" +
+            System.getProperty("user.name") + "/benchmarks_dfsio/" +
+            new SimpleDateFormat("yyyyMMddhhmm'.txt'").format(new Date());
+       
         if (fs.exists(new Path(testDir))) {
             TestSession.logger.info("Delete existing test directory: " +
                 testDir);
@@ -138,38 +155,52 @@ public class DFSIOJob extends Job {
 		}
 	} 
 	
-	/**
-	 * Assemble the system command to launch the sleep job.
-	 * 
-	 * @return String[] the string array representation of the system command to launch the job.
-	 */
-	private String[] assembleCommand() throws Exception {
-		// set up the cmd
-	    initNumTT();
-	    
-		ArrayList<String> cmd = new ArrayList<String>();    
-		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
-		cmd.add("--config");
-		cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
-		cmd.add("jar");
-		cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"));
-		cmd.add("TestDFSIO");
-		
-		// Custom Output directory
-        DFS dfs = new DFS();
-        String outputDir = 
-                dfs.getBaseUrl() + "/user/" + System.getProperty("user.name") + 
-                "/benchmarks_dfsio/" + this.percentage;
+	
+    /**
+     * Assemble the system command to launch the sleep job.
+     * 
+     * @return String[] the string array representation of the system command to launch the job.
+     */
+    private String[] assembleCommand(String operation) throws Exception {
+        // set up the cmd
+        initNumTT();
+        
+        ArrayList<String> cmd = new ArrayList<String>();    
+        cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
+        cmd.add("--config");
+        cmd.add(TestSession.cluster.getConf().getHadoopConfDir());
+        cmd.add("jar");
+        cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_TEST_JAR"));
+        cmd.add("TestDFSIO");
+        
+        // Custom Output directory        
+        String outputDir = this.testDir + "/" + this.percentage;
         cmd.add("-D");
         cmd.add("test.build.data=" + outputDir);
-		
-        cmd.add("-" + this.operation);
+        
+        cmd.add("-" + operation);
         cmd.add("-nrFiles");
         cmd.add(Integer.toString((ttCount * this.percentage)/100));
         cmd.add("-fileSize");
         cmd.add(Integer.toString(FILE_SIZE));
         
         String[] command = cmd.toArray(new String[0]);
-		return command;        
+        return command; 
+    }
+
+	/**
+	 * Assemble the system command to launch the sleep job.
+	 * 
+	 * @return String[] the string array representation of the system command to launch the job.
+	 */
+	private String[] assembleCommand() throws Exception {
+	    // set up the cmd
+	    String[] command1 = assembleCommand(OPERATIONS[0]);
+	    String[] command2 = assembleCommand(OPERATIONS[1]);
+	    
+	    String[] command = 
+	            (String[]) ArrayUtils.addAll(
+	                    ArrayUtils.add(command1, ";"), command2);
+	    return command;
 	}
 }
