@@ -12,7 +12,7 @@ import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 import hadooptest.workflow.hadoop.job.TeraGenJob;
 import hadooptest.workflow.hadoop.job.TeraSortJob;
-
+import hadooptest.workflow.hadoop.job.DFSIOJob;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -64,6 +64,16 @@ public class TestGenerateJobLoad extends TestSession {
     static boolean multiUsersMode = false;
     String dataRootDir = "/tmp/genjobload." + 
             new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+
+    private static final int[] PERCENTAGES = {
+        25,
+        100,
+        200
+    };
+    private static final String[] OPERATIONS = {
+        "write",
+        "read"
+    };
 
 	@BeforeClass
 	public static void setupTestClassConfig() throws Exception {
@@ -325,6 +335,8 @@ public class TestGenerateJobLoad extends TestSession {
         } catch (Exception e) {
             TestSession.logger.error("Wait for all jobs to succeed failed with exception: " +
                     e.toString());
+            // TODO print parent info before we exit on exception...   
+            logTaskReportSummary();
             fail("Wait for all jobs to succeed failed with exception");
         }
         
@@ -536,6 +548,9 @@ public class TestGenerateJobLoad extends TestSession {
                 case TERASORT:
                     this.submitTeraSortJobCLI(username);                
                     break;
+                case DFSIO:
+                    this.submitDFSIOJobCLI(username);                
+                    break;
                 default:
                     this.submitSleepJobCLI(username);
                     break;
@@ -569,6 +584,30 @@ public class TestGenerateJobLoad extends TestSession {
         job.start();                        
     }
 
+    /* 
+     * Submit a DFSIO job
+     */
+    public void submitDFSIOJobCLI(String username) throws Exception {
+        DFSIOJob job = new DFSIOJob();
+        job.setUser(username);
+        job.setJobInitSetID(waitForJobId);
+                
+        String testcaseName;
+        String testcaseDesc;
+        for (String operation : OPERATIONS) {
+            job.setOperation(operation);
+            for (int percentage : PERCENTAGES) {
+                job.setPercentage(percentage);
+                testcaseName = "DFSIO_" + operation + "_" + percentage; 
+                testcaseDesc = "Mapreduce Benchmark - DFSIO with " + operation +
+                        " Operation and " + percentage + " %.";
+                TestSession.logger.info("TC='" + testcaseName + "': Desc='" +
+                        testcaseDesc + "'.");
+                job.start();                            
+            }
+        }        
+    }    
+        
     /* 
      * Submit a teragen job
      */
