@@ -32,3 +32,6 @@ echo ...... run deploy.$cluster.confoptions.sh, which is in the config-dir.
 echo ......
 echo ......
 fi
+
+# make sure the permission on var and var/run is correct. the cfg-datanode-mkdirs.sh in old config packates have a bug.
+fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi; "
