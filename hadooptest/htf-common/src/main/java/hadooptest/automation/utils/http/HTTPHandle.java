@@ -81,7 +81,7 @@ public class HTTPHandle {
 				.toString());
 		try {
 			this.httpClient.executeMethod(localGetMethod);
-			logger.info(localGetMethod.getResponseBodyAsString());
+//			logger.info(localGetMethod.getResponseBodyAsString());
 		} catch (Exception localException2) {
 			logger.error(localException2);
 			logger.error(localException2.getMessage());

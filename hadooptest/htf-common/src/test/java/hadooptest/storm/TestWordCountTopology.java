@@ -8,6 +8,7 @@ import hadooptest.TestSessionStorm;
 import hadooptest.Util;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.automation.utils.http.HTTPHandle;
+import hadooptest.automation.utils.http.Response;
 import hadooptest.workflow.storm.topology.bolt.Split;
 import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
 
@@ -18,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.CookieManager;
@@ -38,6 +40,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.io.output.NullOutputStream;
@@ -105,6 +108,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             return false;
         }
     }
+    /*
     private String downloadFile(URL url) throws IOException, URISyntaxException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         URL useUrl = url;
@@ -175,7 +179,6 @@ public class TestWordCountTopology extends TestSessionStorm {
 
         // Only get bouncer auth on secure cluster.
         if ( filter != null ) {
-            ModifiableStormCluster mc;
             mc = (ModifiableStormCluster)cluster;
             if (mc != null) {
                 user = mc.getBouncerUser();
@@ -214,7 +217,7 @@ public class TestWordCountTopology extends TestSessionStorm {
 
         cookieJar.add(url.toURI(), theCookie);
     }
-
+*/
     @Test
     public void LogviewerPagingTest() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
@@ -223,7 +226,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         String topoName = "logviewer-paging-test";
         String outputLoc = new File("/tmp", topoName).getCanonicalPath();
 
-        SetUpCookie();
+        //SetUpCookie();
 
         Config config = new Config();
         config.put("test.output.location", outputLoc);
@@ -267,6 +270,71 @@ public class TestWordCountTopology extends TestSessionStorm {
             Integer logviewerPort = Utils.getInt(stormConf
                     .get(Config.LOGVIEWER_PORT));
 
+            //*** NEW
+            
+            ModifiableStormCluster mc;
+            mc = (ModifiableStormCluster)cluster;
+            
+            backtype.storm.Config theconf = new backtype.storm.Config();
+            theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
+
+            String filter = theconf.get("ui.filter").toString();
+            String pw = null;
+            String user = null;
+
+            // Only get bouncer auth on secure cluster.
+            if ( filter != null ) {
+                if (mc != null) {
+                    user = mc.getBouncerUser();
+                    pw = mc.getBouncerPassword();
+                }
+            }
+            
+            HTTPHandle client = new HTTPHandle();
+            if (filter != null) {
+                client.logonToBouncer(user,pw);
+            }
+            logger.info("Cookie = " + client.YBYCookie);
+            
+            String getURL = "http://" + host + ":" + logviewerPort + 
+                    "/download/" + topoId + "-worker-" + workerPort + ".log";
+            logger.info("URL to get is: " + getURL);
+            HttpMethod getMethod = client.makeGET(getURL, new String(""), null);
+            Response response = new Response(getMethod, false);
+            String output = response.getResponseBodyAsString();
+            logger.info("******* OUTPUT = " + output);
+            
+            final String expectedRegex =
+                    ".*TRANSFERR?ING.*an apple a day keeps the doctor away.*";
+            Pattern p = Pattern.compile(expectedRegex, Pattern.DOTALL);
+            Matcher regexMatcher = p.matcher(output);
+            
+            assertTrue("Topology appears to be up-and-running.",
+                    regexMatcher.find());
+
+            final int startByteNum = 42;
+            final int byteLength = 1947;
+            assertTrue("Log file is long enough for testing.",
+                    output.length() >= byteLength);
+            
+            File tmpFile = File.createTempFile(this.getClass().getName(), null);
+            
+            // Write out the original logfile
+            String logPath = tmpFile.getCanonicalPath();
+            PrintWriter out = new PrintWriter(logPath);
+            out.println(output);
+            out.close();
+            
+            String logBytesString = readBytesFromFile(logPath, startByteNum,
+                    byteLength);
+            String expected = StringEscapeUtils.escapeXml(logBytesString);
+            String actual = getLogviewerPageContent(client, topoId, host,
+                    logviewerPort, workerPort, startByteNum, byteLength);
+            assertEquals("Log page returns correct bytes", expected, actual);
+            
+            //*** NEW
+            
+            /*
             String logPath = downloadFromLogviewer(topoId, host, logviewerPort,
                     workerPort);
             final String expectedRegex =
@@ -282,20 +350,33 @@ public class TestWordCountTopology extends TestSessionStorm {
             String actual = getLogviewerPageContent(topoId, host,
                     logviewerPort, workerPort, startByteNum, byteLength);
             assertEquals("Log page returns correct bytes", expected, actual);
+            */
         } finally {
             cluster.killTopology(topoName);
         }
     }
 
-    private String getLogviewerPageContent(String topoId, String host,
+    private String getLogviewerPageContent(HTTPHandle client, String topoId, String host,
             int logviewerPort, int workerPort, final int startByteNum,
             final int byteLength) throws MalformedURLException, IOException,
             FileNotFoundException, XPathExpressionException, URISyntaxException {
         URL logPageUrl = new URL("http", host, logviewerPort, "/log?file="
                 + topoId + "-worker-" + workerPort + ".log&" + "start="
                 + startByteNum + "&length=" + byteLength);
-        addToCookieJar(logPageUrl);
-        String logPagePath = downloadFile(logPageUrl);
+
+        HttpMethod getMethod = client.makeGET(logPageUrl.toString(), new String(""), null);
+        Response response = new Response(getMethod, false);
+        String output = response.getResponseBodyAsString();
+        
+        File tmpFile = File.createTempFile("logPage" + this.getClass().getName(), null);
+        
+        // Write out the original logfile
+        String logPagePath = tmpFile.getCanonicalPath();
+        PrintWriter out = new PrintWriter(logPagePath);
+        out.println(output);
+        out.close();
+        
+        //String logPagePath = downloadFile(logPageUrl);
         Tidy tidy = new Tidy();
         tidy.setQuiet(true);
         Document doc = tidy.parseDOM(new FileInputStream(logPagePath),
@@ -307,6 +388,8 @@ public class TestWordCountTopology extends TestSessionStorm {
         return actual;
     }
 
+    /*
+    
     private String downloadFromLogviewer(String topoId, String host,
             int logviewerPort, int workerPort) throws MalformedURLException,
             IOException, URISyntaxException {
@@ -317,6 +400,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         result = this.downloadFile(logDownloadUrl);
         return result;
     }
+    */
 
     private String readBytesFromFile(String filePath, final int startByteNum,
             final int byteLength) throws FileNotFoundException, IOException {
@@ -335,6 +419,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         return new String(buf);
     }
 
+/*
     private boolean fileContainsRegex(String logPath, final String expectedRegex)
             throws IOException {
         String line = "";
@@ -351,6 +436,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             LineIterator.closeQuietly(it);
         }
     }
+*/
 
     @Test(timeout=300000)
     public void WordCountTopologyTest() throws Exception{

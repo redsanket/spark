@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
+import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.Util;
 import hadooptest.workflow.storm.topology.bolt.ExclaimBolt;
@@ -190,6 +191,15 @@ public class TestBasicDRPC extends TestSessionStorm {
         String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
         java.nio.file.Path inputPath = Paths.get(inputFileDir);
 
+        // Get Bouncer user and password
+        
+        backtype.storm.Config theconf = new backtype.storm.Config();
+        theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
+
+        String filter = theconf.get("ui.filter").toString();
+        String pw = null;
+        String user = null;
+        
         boolean passed = false;
         // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
         // Create and start client
@@ -210,7 +220,7 @@ public class TestBasicDRPC extends TestSessionStorm {
 
         String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/exclamation";
         logger.info("Attempting to connect to drpc server with " + DRPCURI);
-
+        
         // Let's try for 3 minutes, or until we get a 200 back.
         boolean done = false;
         int tryCount = 200;
