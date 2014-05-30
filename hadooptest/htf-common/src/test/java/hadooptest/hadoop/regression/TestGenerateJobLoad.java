@@ -64,16 +64,7 @@ public class TestGenerateJobLoad extends TestSession {
     static boolean multiUsersMode = false;
     String dataRootDir = "/tmp/genjobload." + 
             new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
-
-    private static final int[] PERCENTAGES = {
-        25,
-        100,
-        200
-    };
-    private static final String[] OPERATIONS = {
-        "write",
-        "read"
-    };
+    static int dfsioPercentage = 100; 
 
 	@BeforeClass
 	public static void setupTestClassConfig() throws Exception {
@@ -98,6 +89,8 @@ public class TestGenerateJobLoad extends TestSession {
                 Boolean.parseBoolean(System.getProperty("KILL_PENDING_JOBS", "false"));
         multiUsersMode = 
                 Boolean.parseBoolean(System.getProperty("MULTI_USERS_MODE", "false"));
+        dfsioPercentage =
+                Integer.parseInt(System.getProperty("DFSIO_PERCENT", "100"));
         
         TestSession.logger.info("threshold='" + threshold);
         TestSession.logger.info("terminationFilename='" + terminationFilename + "'");
@@ -108,6 +101,7 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.logger.info("waitForJobId='" + waitForJobId + "'");
         TestSession.logger.info("killPendingJobsToExit='" + killPendingJobsToExit + "'");
         TestSession.logger.info("multiUsersMode='" + multiUsersMode + "'");
+        TestSession.logger.info("dfsioPercent='" + dfsioPercentage + "'");
 	}
 	
 	@Before
@@ -588,24 +582,13 @@ public class TestGenerateJobLoad extends TestSession {
      * Submit a DFSIO job
      */
     public void submitDFSIOJobCLI(String username) throws Exception {
+        TestSession.logger.info("Run DFSIO test:");
         DFSIOJob job = new DFSIOJob();
+        job.setup();
         job.setUser(username);
         job.setJobInitSetID(waitForJobId);
-                
-        String testcaseName;
-        String testcaseDesc;
-        for (String operation : OPERATIONS) {
-            job.setOperation(operation);
-            for (int percentage : PERCENTAGES) {
-                job.setPercentage(percentage);
-                testcaseName = "DFSIO_" + operation + "_" + percentage; 
-                testcaseDesc = "Mapreduce Benchmark - DFSIO with " + operation +
-                        " Operation and " + percentage + " %.";
-                TestSession.logger.info("TC='" + testcaseName + "': Desc='" +
-                        testcaseDesc + "'.");
-                job.start();                            
-            }
-        }        
+        job.setPercentage(dfsioPercentage);
+        job.start();
     }    
         
     /* 

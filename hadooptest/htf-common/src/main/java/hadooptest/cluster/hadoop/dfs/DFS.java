@@ -1,8 +1,10 @@
 package hadooptest.cluster.hadoop.dfs;
 
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -308,8 +310,22 @@ public class DFS {
      * @throws Exception if we can not get the cluster namenode.
      */
     public String getBaseUrl() throws Exception {
-        return "hdfs://" +
+        String namenodeRef = 
                 TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE)[0];
+        // For HA        
+        if (TestSession.cluster.isHAEnabled()) {
+            if (TestSession.cluster instanceof FullyDistributedCluster) {
+                FullyDistributedCluster fdcluster = 
+                        (FullyDistributedCluster) TestSession.cluster;
+                ArrayList<String> list = 
+                        TestSession.cluster.lookupIgorRoleClusterNamenodeAlias(
+                                fdcluster.getClusterName());
+                if (list.size() > 0) {
+                    namenodeRef = list.get(0);
+                }
+            }                            
+        }
+        return "hdfs://" + namenodeRef;
     }
     
 	/**
