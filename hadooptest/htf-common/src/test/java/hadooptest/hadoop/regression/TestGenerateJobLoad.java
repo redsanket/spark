@@ -362,6 +362,13 @@ public class TestGenerateJobLoad extends TestSession {
                 allSuccess=false;
             }
             count++;
+
+            // For jobs such as DFSIO and TeraSort which has two back to back                                                                                                                                                             
+            // jobs ([teragen, terasort]; [dfsio write, dfsio read], wait for                                                                                                                                                             
+            // a few seconds for the second job process to start                                                                                                                                                                          
+            TestSession.logger.info("Sleep for 10 seconds for any subsequent background job to start.");
+            Thread.sleep(10000);
+
         } while( count <= maxCount );   
         return allSuccess;
     }
@@ -589,6 +596,13 @@ public class TestGenerateJobLoad extends TestSession {
         job.setJobInitSetID(waitForJobId);
         job.setPercentage(dfsioPercentage);
         job.start();
+        
+        // Wait for Job ID for 30 seconds from the job thread before continue. 
+        // Otherwise TestGenerateJobLoad may terminates prematurely before the 
+        // job has a chance to start in its thread.
+        if (waitForJobId) {
+            job.waitForID(30);   
+        }
     }    
         
     /* 
