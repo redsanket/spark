@@ -24,6 +24,7 @@ import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import org.junit.BeforeClass;
 
@@ -56,7 +57,7 @@ public class DFSIOJob extends Job {
         DFS dfs = new DFS();
         this.testDir = dfs.getBaseUrl() + "/user/" +
             System.getProperty("user.name") + "/benchmarks_dfsio/" +
-            new SimpleDateFormat("yyyyMMddhhmm'.txt'").format(new Date());
+            new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
        
         if (fs.exists(new Path(testDir))) {
             TestSession.logger.info("Delete existing test directory: " +
@@ -162,9 +163,6 @@ public class DFSIOJob extends Job {
      * @return String[] the string array representation of the system command to launch the job.
      */
     private String[] assembleCommand(String operation) throws Exception {
-        // set up the cmd
-        initNumTT();
-        
         ArrayList<String> cmd = new ArrayList<String>();    
         cmd.add(TestSession.cluster.getConf().getHadoopProp("HADOOP_BIN"));
         cmd.add("--config");
@@ -182,7 +180,7 @@ public class DFSIOJob extends Job {
         cmd.add("-nrFiles");
         cmd.add(Integer.toString((ttCount * this.percentage)/100));
         cmd.add("-fileSize");
-        cmd.add(Integer.toString(FILE_SIZE));
+        cmd.add(Integer.toString(FILE_SIZE)+";");
         
         String[] command = cmd.toArray(new String[0]);
         return command; 
@@ -194,13 +192,13 @@ public class DFSIOJob extends Job {
 	 * @return String[] the string array representation of the system command to launch the job.
 	 */
 	private String[] assembleCommand() throws Exception {
-	    // set up the cmd
-	    String[] command1 = assembleCommand(OPERATIONS[0]);
-	    String[] command2 = assembleCommand(OPERATIONS[1]);
-	    
-	    String[] command = 
-	            (String[]) ArrayUtils.addAll(
-	                    ArrayUtils.add(command1, ";"), command2);
-	    return command;
+        // set up the cmd
+        initNumTT();
+        String[] command1 = assembleCommand(OPERATIONS[0]);
+        String[] command2 = assembleCommand(OPERATIONS[1]);
+        String[] command = (String[]) ArrayUtils.addAll( command1, command2);
+
+        String shCmd = StringUtils.join(command, " ");
+        return new String[] {"bash", "-c", shCmd};
 	}
 }
