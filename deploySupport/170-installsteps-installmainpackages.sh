@@ -3,7 +3,9 @@ if [ "$INSTALLNEWPACKAGES" = true ]
 then
     echo == installing YINST packages.
 
+    slownogwfanout "/usr/bin/yum -y install openssl098e-0.9.8e-17.el6_2.2.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
     slownogwfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+    fanoutgw "/usr/bin/yum -y install openssl098e-0.9.8e-17.el6_2.2.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
     fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
     
 #
