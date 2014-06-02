@@ -6,28 +6,25 @@ import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.Util;
-import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.automation.utils.http.Response;
+import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.workflow.storm.topology.bolt.Split;
 import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.io.RandomAccessFile;
 import java.net.CookieManager;
-import java.net.CookieHandler;
 import java.net.CookieStore;
 import java.net.HttpCookie;
-import java.net.URL;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +38,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.JSONValue;
@@ -108,116 +103,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             return false;
         }
     }
-    /*
-    private String downloadFile(URL url) throws IOException, URISyntaxException {
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        URL useUrl = url;
-        if (theCookie != null && isRedirect(conn.getResponseCode())) {
-            // Handle redirect if Bouncer Auth is on.
-            // get redirect url from "location" header field
-            String newUrl = conn.getHeaderField("Location");
-            logger.info("Redirect to URL : " + newUrl);
-            useUrl = new URL(newUrl);
-            addToCookieJar( useUrl );
-     
-            // get the cookie if need, for login
-            String cookies = conn.getHeaderField("Set-Cookie");
-     
-            // open the new connnection again
-            conn = (HttpURLConnection) useUrl.openConnection();
-            conn.setRequestProperty("Cookie", cookies);
-            //conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
-            //conn.addRequestProperty("User-Agent", "Mozilla");
-            //conn.addRequestProperty("Referer", "google.com");
-     
 
-            assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
-
-        }
-
-        assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
-        InputStream in = null;
-        FileOutputStream out = null;
-        try {
-            //in = (InputStream) useUrl.openConnection().getInputStream();
-            in = (InputStream) conn.getInputStream();
-            byte[] buf = new byte[1024];
-            int read = -1;
-            File tmpFile = File.createTempFile(this.getClass().getName(), null);
-            //tmpFile.deleteOnExit();
-            out = new FileOutputStream(tmpFile);
-            try {
-                while ((read = in.read(buf)) != -1) {
-                    out.write(buf, 0, read);
-                }
-            } catch (IOException e) {
-                if (!"Premature EOF".equals(e.getMessage())) {
-                    throw e;
-                }
-                // Do nothing.
-                // We can remove this when the logviewer properly closes
-                // connections.
-            }
-            return tmpFile.getCanonicalPath();
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
-
-    public void SetUpCookie() throws Exception {
-        backtype.storm.Config theconf = new backtype.storm.Config();
-        theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
-
-        String filter = theconf.get("ui.filter").toString();
-        String pw = null;
-        String user = null;
-
-        // Only get bouncer auth on secure cluster.
-        if ( filter != null ) {
-            mc = (ModifiableStormCluster)cluster;
-            if (mc != null) {
-                user = mc.getBouncerUser();
-                pw = mc.getBouncerPassword();
-            }
-        }
-        
-        HTTPHandle client = new HTTPHandle();
-        if (filter != null) {
-            client.logonToBouncer(user,pw);
-        }
-        logger.info("Cookie = " + client.YBYCookie);
-        // Now let's break this cookie up.
-        Pattern pattern = Pattern.compile("YBY=(.+)", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(client.YBYCookie);
-        String cookie = null;
-        if (matcher.find()) {
-            cookie = matcher.group(1);
-            logger.info("Decomposed cookie = " + cookie);
-            decodedCookie = java.net.URLDecoder.decode(cookie, "UTF-8");
-            logger.info("Decoded cookie = " + decodedCookie);
-            // Create cookie jar
-            manager = new CookieManager();
-            CookieHandler.setDefault(manager);
-            cookieJar = manager.getCookieStore();
-            theCookie = new HttpCookie("YBY", decodedCookie);
-        } else {
-            logger.info("Didn't find YBY");
-        }
-    }
-
-    public void addToCookieJar(URL url) throws URISyntaxException {
-        if ( theCookie == null ) {
-            return;
-        }
-
-        cookieJar.add(url.toURI(), theCookie);
-    }
-*/
     @Test
     public void LogviewerPagingTest() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
@@ -225,8 +111,6 @@ public class TestWordCountTopology extends TestSessionStorm {
 
         String topoName = "logviewer-paging-test";
         String outputLoc = new File("/tmp", topoName).getCanonicalPath();
-
-        //SetUpCookie();
 
         Config config = new Config();
         config.put("test.output.location", outputLoc);
@@ -269,8 +153,6 @@ public class TestWordCountTopology extends TestSessionStorm {
                     (Map<String, Object>) JSONValue.parse(jsonStormConf);
             Integer logviewerPort = Utils.getInt(stormConf
                     .get(Config.LOGVIEWER_PORT));
-
-            //*** NEW
             
             ModifiableStormCluster mc;
             mc = (ModifiableStormCluster)cluster;
@@ -331,26 +213,6 @@ public class TestWordCountTopology extends TestSessionStorm {
             String actual = getLogviewerPageContent(client, topoId, host,
                     logviewerPort, workerPort, startByteNum, byteLength);
             assertEquals("Log page returns correct bytes", expected, actual);
-            
-            //*** NEW
-            
-            /*
-            String logPath = downloadFromLogviewer(topoId, host, logviewerPort,
-                    workerPort);
-            final String expectedRegex =
-                    ".*TRANSFERR?ING.*an apple a day keeps the doctor away.*";
-            assertTrue("Topology appears to be up-and-running.",
-                    fileContainsRegex(logPath, expectedRegex));
-
-            final int startByteNum = 42;
-            final int byteLength = 1947;
-            String logBytesString = readBytesFromFile(logPath, startByteNum,
-                    byteLength);
-            String expected = StringEscapeUtils.escapeXml(logBytesString);
-            String actual = getLogviewerPageContent(topoId, host,
-                    logviewerPort, workerPort, startByteNum, byteLength);
-            assertEquals("Log page returns correct bytes", expected, actual);
-            */
         } finally {
             cluster.killTopology(topoName);
         }
@@ -388,20 +250,6 @@ public class TestWordCountTopology extends TestSessionStorm {
         return actual;
     }
 
-    /*
-    
-    private String downloadFromLogviewer(String topoId, String host,
-            int logviewerPort, int workerPort) throws MalformedURLException,
-            IOException, URISyntaxException {
-        URL logDownloadUrl = new URL("http", host, logviewerPort, "/download/"
-                + topoId + "-worker-" + workerPort + ".log");
-        addToCookieJar(logDownloadUrl);
-        String result = null;
-        result = this.downloadFile(logDownloadUrl);
-        return result;
-    }
-    */
-
     private String readBytesFromFile(String filePath, final int startByteNum,
             final int byteLength) throws FileNotFoundException, IOException {
         File logFile = new File(filePath);
@@ -418,25 +266,6 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
         return new String(buf);
     }
-
-/*
-    private boolean fileContainsRegex(String logPath, final String expectedRegex)
-            throws IOException {
-        String line = "";
-        LineIterator it = null;
-        try {
-            for (it = FileUtils.lineIterator(new File(logPath)); it.hasNext();
-                    line = it.next()) {
-                if (line.matches(expectedRegex)) {
-                    return true;
-                }
-            }
-            return false;
-        } finally {
-            LineIterator.closeQuietly(it);
-        }
-    }
-*/
 
     @Test(timeout=300000)
     public void WordCountTopologyTest() throws Exception{
@@ -500,21 +329,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         } finally {
             cluster.killTopology(topoName);
         }
-    }    
-
-    /*
-    @SuppressWarnings("serial")
-    public static class Split extends BaseFunction {
-        @Override
-        public void execute(TridentTuple tuple, TridentCollector collector) {
-            String sentence = tuple.getString(0);
-            for(String word: sentence.split(" ")) {
-                collector.emit(new Values(word));                
-            }
-        }
     }
-    */
-
         
     public static StormTopology buildTopology() {
         @SuppressWarnings("unchecked")

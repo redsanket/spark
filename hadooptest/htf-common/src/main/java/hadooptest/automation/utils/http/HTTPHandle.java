@@ -60,40 +60,38 @@ public class HTTPHandle {
 	}
 
 	public HttpMethod makeGET(String schemaAndHost, String resource,
-			ArrayList<CustomNameValuePair> paramArrayList) {
-		String str = constructFinalURL(schemaAndHost, resource, paramArrayList);
-		str = new StringBuilder().append(str).toString();
-		GetMethod localGetMethod = null;
-		
-		int returnVal = 0;
-		
-		try {
-			localGetMethod = new GetMethod(str);
-		} catch (Exception localException1) {
-			logger.error(new StringBuilder().append("Bad URL. ")
-					.append(localException1.toString()).toString());
-		}
-		if (YBYCookieHeader != null) { 
-		    logger.info("Attempting to use Bouncer authentication: " + YBYCookieHeader.toString());
-			localGetMethod.addRequestHeader(YBYCookieHeader);
-		}
-		logger.info(new StringBuilder().append("Making a GET to ").append(str)
-				.toString());
-		try {
-			this.httpClient.executeMethod(localGetMethod);
-//			logger.info(localGetMethod.getResponseBodyAsString());
-		} catch (Exception localException2) {
-			logger.error(localException2);
-			logger.error(localException2.getMessage());
-			localException2.printStackTrace();
-		}
-		logger.info(localGetMethod.getStatusLine().toString());
-		try {
-//			logger.info(localGetMethod.getResponseBodyAsString());
-		} catch (Exception localException3) {
-			logger.error(localException3.toString());
-		}
-		return localGetMethod;
+	        ArrayList<CustomNameValuePair> paramArrayList) {
+	    String str = constructFinalURL(schemaAndHost, resource, paramArrayList);
+	    str = new StringBuilder().append(str).toString();
+	    GetMethod localGetMethod = null;
+
+	    int returnVal = 0;
+
+	    try {
+	        localGetMethod = new GetMethod(str);
+	    } catch (Exception localException1) {
+	        logger.error(new StringBuilder().append("Bad URL. ")
+	                .append(localException1.toString()).toString());
+	    }
+	    if (YBYCookieHeader != null) { 
+	        logger.info("Attempting to use Bouncer authentication: " + YBYCookieHeader.toString());
+	        localGetMethod.addRequestHeader(YBYCookieHeader);
+	    }
+	    logger.info(new StringBuilder().append("Making a GET to ").append(str)
+	            .toString());
+	    try {
+	        this.httpClient.executeMethod(localGetMethod);
+	    } catch (Exception localException2) {
+	        logger.error(localException2);
+	        logger.error(localException2.getMessage());
+	        localException2.printStackTrace();
+	    }
+	    logger.info(localGetMethod.getStatusLine().toString());
+	    try {
+	    } catch (Exception localException3) {
+	        logger.error(localException3.toString());
+	    }
+	    return localGetMethod;
 	}
 
 	protected final PostMethod makePOST(String paramString1,
