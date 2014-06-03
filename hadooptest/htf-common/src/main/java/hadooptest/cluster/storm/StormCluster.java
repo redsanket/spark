@@ -45,7 +45,8 @@ public abstract class StormCluster {
     public abstract StormTopology getUserTopology(String topologyId) throws NotAliveException, AuthorizationException, TException;
     public abstract Stream newDRPCStream(TridentTopology topology, String function);
     public abstract String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException;
-    public abstract void setDrpcAuthAclForFunction(String function, String user) throws Exception;
+    public abstract void setDrpcClientAuthAclForFunction(String function, String user) throws Exception;
+    public abstract void setDrpcInvocationAuthAclForFunction(String function, String user) throws Exception; 
     public abstract ArrayList<String> lookupRole(StormDaemon roleName) throws Exception; 
     
     /**

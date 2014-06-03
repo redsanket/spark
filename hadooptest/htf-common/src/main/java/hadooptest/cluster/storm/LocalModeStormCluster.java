@@ -129,6 +129,9 @@ public class LocalModeStormCluster extends StormCluster {
         return drpcServer.execute(func, args);
     }
     
+    public void setDrpcClientAuthAclForFunction(String function, String user) 
+        throws Exception {} 
+    
     /**
      * Does nothing for LocalModeStormCluster.  Only fully implemented for 
      * YahooStormCluster.
@@ -138,6 +141,6 @@ public class LocalModeStormCluster extends StormCluster {
      * 
      * @throws Exception if there is a problem setting the yinst configuration
      */
-    public void setDrpcAuthAclForFunction(String function, String user) 
+    public void setDrpcInvocationAuthAclForFunction(String function, String user) 
             throws Exception {}
 }

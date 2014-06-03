@@ -121,8 +121,10 @@ public class TestSmileTopology extends TestSessionStorm {
             rsVersion = getPackageVersion("ystorm_registry");
         }
         
-        cluster.setDrpcAuthAclForFunction("query", "mapredqa");
-        cluster.setDrpcAuthAclForFunction("gradientquery", "mapredqa");
+        cluster.setDrpcInvocationAuthAclForFunction("query", "hadoopqa");
+        cluster.setDrpcClientAuthAclForFunction("query", "hadoopqa");
+        cluster.setDrpcInvocationAuthAclForFunction("gradientquery", "hadoopqa");
+        cluster.setDrpcClientAuthAclForFunction("gradientquery", "hadoopqa"); 
         
         startTime = System.currentTimeMillis();
         writeColumns();

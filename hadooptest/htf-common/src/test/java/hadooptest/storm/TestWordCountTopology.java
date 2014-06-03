@@ -73,7 +73,8 @@ public class TestWordCountTopology extends TestSessionStorm {
 
     @BeforeClass
     public static void setup() throws Exception {
-        cluster.setDrpcAuthAclForFunction("words", "mapredqa");
+        cluster.setDrpcInvocationAuthAclForFunction("words", "hadoopqa");
+        cluster.setDrpcClientAuthAclForFunction("words", "hadoopqa"); 
     }
     
     @AfterClass

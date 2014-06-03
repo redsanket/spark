@@ -513,17 +513,32 @@ public class YahooStormCluster extends ModifiableStormCluster {
      * function securely.
      * 
      * @param function The name of the function
-     * @param user The user running the function
+     * @param user The invocation user running the function 
      * 
      * @throws Exception if there is a problem setting the yinst configuration
      */
-    public void setDrpcAuthAclForFunction(String function, String user) 
+    public void setDrpcInvocationAuthAclForFunction(String function, String user)  
             throws Exception {
         
-        setConf("drpc_auth_acl_" + function + "_client_users", user);
         setConf("drpc_auth_acl_" + function + "_invocation_user", user);
     }
 
+    /**
+     * Set the yinst configuration for DRPC authorization for running a
+     * function securely.
+     * 
+     * @param function The name of the function
+     * @param user The comma separated list of thrift clients or yca roles
+     *             allowed to access the function
+     * 
+     * @throws Exception if there is a problem setting the yinst configuration
+     */
+    public void setDrpcClientAuthAclForFunction(String function, String user) 
+            throws Exception {
+
+        setConf("drpc_auth_acl_" + function + "_client_users", user);
+    } 
+    
     /**
      * Get the bouncer user used for testing.
      * 

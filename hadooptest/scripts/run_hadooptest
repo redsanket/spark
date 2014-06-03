@@ -142,7 +142,7 @@ note("CLASSPATH=".join(":",@classpath));
 if($storm) {
 	my $host = hostname;
 	my $host_prefix = substr($host, 0, index($host, '.'));
-	execute("stty -echo; kinit -kt /etc/grid-keytabs/$host_prefix.dev.service.keytab mapredqa/$host\@DEV.YGRID.YAHOO.COM; stty echo");
+	execute("stty -echo; kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa\@DEV.YGRID.YAHOO.COM; stty echo");
 }
 else {
 	execute("stty -echo; kinit $username\@DS.CORP.YAHOO.COM; stty echo")
