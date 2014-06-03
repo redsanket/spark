@@ -12,7 +12,7 @@ import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 import hadooptest.workflow.hadoop.job.TeraGenJob;
 import hadooptest.workflow.hadoop.job.TeraSortJob;
-
+import hadooptest.workflow.hadoop.job.DFSIOJob;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -64,6 +64,7 @@ public class TestGenerateJobLoad extends TestSession {
     static boolean multiUsersMode = false;
     String dataRootDir = "/tmp/genjobload." + 
             new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+    static int dfsioPercentage = 100; 
 
 	@BeforeClass
 	public static void setupTestClassConfig() throws Exception {
@@ -88,6 +89,8 @@ public class TestGenerateJobLoad extends TestSession {
                 Boolean.parseBoolean(System.getProperty("KILL_PENDING_JOBS", "false"));
         multiUsersMode = 
                 Boolean.parseBoolean(System.getProperty("MULTI_USERS_MODE", "false"));
+        dfsioPercentage =
+                Integer.parseInt(System.getProperty("DFSIO_PERCENT", "100"));
         
         TestSession.logger.info("threshold='" + threshold);
         TestSession.logger.info("terminationFilename='" + terminationFilename + "'");
@@ -98,6 +101,7 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.logger.info("waitForJobId='" + waitForJobId + "'");
         TestSession.logger.info("killPendingJobsToExit='" + killPendingJobsToExit + "'");
         TestSession.logger.info("multiUsersMode='" + multiUsersMode + "'");
+        TestSession.logger.info("dfsioPercent='" + dfsioPercentage + "'");
 	}
 	
 	@Before
@@ -325,6 +329,8 @@ public class TestGenerateJobLoad extends TestSession {
         } catch (Exception e) {
             TestSession.logger.error("Wait for all jobs to succeed failed with exception: " +
                     e.toString());
+            // TODO print parent info before we exit on exception...   
+            logTaskReportSummary();
             fail("Wait for all jobs to succeed failed with exception");
         }
         
@@ -356,6 +362,13 @@ public class TestGenerateJobLoad extends TestSession {
                 allSuccess=false;
             }
             count++;
+
+            // For jobs such as DFSIO and TeraSort which has two back to back                                                                                                                                                             
+            // jobs ([teragen, terasort]; [dfsio write, dfsio read], wait for                                                                                                                                                             
+            // a few seconds for the second job process to start                                                                                                                                                                          
+            TestSession.logger.info("Sleep for 10 seconds for any subsequent background job to start.");
+            Thread.sleep(10000);
+
         } while( count <= maxCount );   
         return allSuccess;
     }
@@ -536,6 +549,9 @@ public class TestGenerateJobLoad extends TestSession {
                 case TERASORT:
                     this.submitTeraSortJobCLI(username);                
                     break;
+                case DFSIO:
+                    this.submitDFSIOJobCLI(username);                
+                    break;
                 default:
                     this.submitSleepJobCLI(username);
                     break;
@@ -569,6 +585,26 @@ public class TestGenerateJobLoad extends TestSession {
         job.start();                        
     }
 
+    /* 
+     * Submit a DFSIO job
+     */
+    public void submitDFSIOJobCLI(String username) throws Exception {
+        TestSession.logger.info("Run DFSIO test:");
+        DFSIOJob job = new DFSIOJob();
+        job.setup();
+        job.setUser(username);
+        job.setJobInitSetID(waitForJobId);
+        job.setPercentage(dfsioPercentage);
+        job.start();
+        
+        // Wait for Job ID for 30 seconds from the job thread before continue. 
+        // Otherwise TestGenerateJobLoad may terminates prematurely before the 
+        // job has a chance to start in its thread.
+        if (waitForJobId) {
+            job.waitForID(30);   
+        }
+    }    
+        
     /* 
      * Submit a teragen job
      */
