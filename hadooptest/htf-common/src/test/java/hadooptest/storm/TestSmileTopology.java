@@ -9,48 +9,33 @@ import hadooptest.automation.utils.http.JSONUtil;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileOutputStream;
-
 import java.io.ByteArrayInputStream;
-
-import static org.junit.Assume.*;
-import java.net.URI;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.regex.*;
-import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
-import java.math.BigInteger;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -66,6 +51,7 @@ public class TestSmileTopology extends TestSessionStorm {
     static String stormVersion = null;
     static String smileVersion = null;
     static String rsVersion = null;
+    static String cljConf = "smile.clj"; 
     int testInstance = 0;
     String registryURI;
     private static backtype.storm.Config _conf=null;
@@ -200,7 +186,12 @@ public class TestSmileTopology extends TestSessionStorm {
         content = content.replaceAll( "refresh.uri \".*\"" , "refresh.uri \"" + ss.refreshURL + "\"");
         
         // Write it back out
-        Files.write(path, content.getBytes(charset));
+        File outFile = new File(cljConf);
+        FileWriter fw = new FileWriter(outFile);
+        fw.write(content);
+        fw.close(); 
+        
+        logger.info("*** THE CONTENT in clj conf IS: " + content);
     }
 
     public void train( JSONUtil json, String hostname, int port ) throws Exception {
@@ -515,7 +506,7 @@ public class TestSmileTopology extends TestSessionStorm {
 
     public String launchSmileTopology( String pathToConf, SmileSession ss) throws Exception {
 
-        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", smileJarFile, "smile.classification.bootstrap.Bootstrap",  "conf-path", pathToConf }, true);
+        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", smileJarFile, "smile.classification.bootstrap.Bootstrap",  "conf-path", cljConf }, true); 
         assertTrue( "Could not launch topology", returnValue[0].equals("0") );
 
         // Let's get the YFOR info for the injection url.
