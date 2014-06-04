@@ -39,7 +39,7 @@ public class TestChangeConfig extends TestSessionStorm {
         backtype.storm.Config theconf = new backtype.storm.Config();
         theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
 
-        String filter = theconf.get("ui.filter").toString();
+        String filter = (String)theconf.get("ui.filter");
         String pw = null;
         String user = null;
 
