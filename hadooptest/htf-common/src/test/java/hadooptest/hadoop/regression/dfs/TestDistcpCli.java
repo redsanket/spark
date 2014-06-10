@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -153,6 +154,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	}
 
 	@Monitorable
+        @Ignore("use case not supported yet")
 	@Test
 	public void testWebhdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -260,6 +262,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 
 	@Monitorable
 	@Test
+        @Ignore("hftp not supported in 2.x")
 	public void testHftpToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -298,6 +301,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 
 	@Monitorable
 	@Test
+        @Ignore("hftp not supported in 2.x")
 	public void testHftpToHdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -343,6 +347,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 
 	@Monitorable
 	@Test
+        @Ignore("use case not supported yet")
 	public void testHdfsToWebhdfs() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
