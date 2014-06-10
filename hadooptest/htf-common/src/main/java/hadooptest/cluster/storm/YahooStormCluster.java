@@ -6,11 +6,10 @@ import hadooptest.automation.utils.http.JSONUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.IllegalStateException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.apache.thrift7.TException;
 import org.eclipse.jetty.client.HttpClient;
@@ -48,10 +47,17 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     private void initDnsNames() throws Exception {
         for (StormDaemon d : StormDaemon.values() ) {
-    			dnsNames.put( d, StormDaemon.lookupIgorRoles(d, TestSessionStorm.conf.getProperty("CLUSTER_NAME")));
+            if (ystormConf.clusterRoleConfExists()) {
+                dnsNames.put( d, StormDaemon.lookupClusterRoles(d));
+            }
+            else {
+                // Use Igor if a cluster configuration wasn't passed to the framework
+                dnsNames.put( d, StormDaemon.lookupIgorRoles(d, 
+                        TestSessionStorm.conf.getProperty("CLUSTER_NAME")));
+            }
         }
     }
-
+    
     public void init(ConfigProperties conf) throws Exception {
     	TestSessionStorm.logger.info("INIT CLUSTER");
         setupClient();

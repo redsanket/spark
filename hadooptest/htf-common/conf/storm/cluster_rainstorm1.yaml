@@ -1,0 +1,15 @@
+gateway : 
+  - rainstorm5.ygridvm.yahoo.com
+nimbus : 
+  - rainstorm1.ygridvm.yahoo.com
+supervisor : 
+  - rainstorm1.ygridvm.yahoo.com
+  - rainstorm2.ygridvm.yahoo.com
+ui : 
+  - rainstorm1.ygridvm.yahoo.com
+drpc :
+  - rainstorm1.ygridvm.yahoo.com
+registry : 
+  - rainstorm5.ygridvm.yahoo.com
+contrib :
+  - rainstorm1.ygridvm.yahoo.com
