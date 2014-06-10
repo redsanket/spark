@@ -374,7 +374,13 @@ public class ClusterUtil {
      * @return boolean whether the cluster node config file exists or not.
      */
     public boolean clusterRoleConfExists() {
-        String configFile = TestSessionStorm.conf.getProperty("CLUSTER_CONF");
+        String configFile = null;
+        configFile = System.getProperty("STORM_CLUSTER_CONF");
+        TestSessionStorm.logger.debug("STORM_CLUSTER_CONF system env variable is: " + configFile);
+        if (configFile == null) {
+            configFile = TestSessionStorm.conf.getProperty("CLUSTER_CONF");
+            TestSessionStorm.logger.debug("CLUSTER_CONF framework configuration variable is: " + configFile);
+        }
         
         if (configFile == null) {
             return false;

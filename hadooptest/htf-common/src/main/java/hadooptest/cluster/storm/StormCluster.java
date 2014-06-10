@@ -74,7 +74,12 @@ public abstract class StormCluster {
                 "*** Fetching cluster for role: " + 
                         role.toString() + " ***");
         
-        String configFile = TestSessionStorm.conf.getProperty("CLUSTER_CONF");
+        String configFile = null;
+        configFile = System.getProperty("STORM_CLUSTER_CONF");
+        if (configFile == null) {
+            configFile = TestSessionStorm.conf.getProperty("CLUSTER_CONF");
+        }
+        
         TestSessionStorm.logger.debug(
                 "*** Fetching cluster configuration from: " + 
                         configFile + " ***");
