@@ -1,5 +1,7 @@
 package hadooptest;
 
+import backtype.storm.generated.TopologySummary;
+
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
 
@@ -28,6 +30,17 @@ public abstract class TestSessionStorm extends TestSessionCore {
 
     /** The Storm Cluster to use for the test session */
     public static StormCluster cluster;
+
+    public static void killAll() throws Exception {
+        if (cluster != null) {
+            for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
+                System.out.println("Killing " + ts.get_name());
+                cluster.killTopology(ts.get_name());
+            }
+        } else {
+                System.out.println(" killAll : cluster is null ");
+        }
+    }
 
     /*
      * Run before the start of each test class.
@@ -65,6 +78,9 @@ public abstract class TestSessionStorm extends TestSessionCore {
 
     	// Initialize the cluster to be used in the framework
     	initCluster();
+
+        // Kill any running topologies
+        killAll();
     }
    
     public static synchronized void stop() throws Exception {
