@@ -284,9 +284,9 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9</version>
 				<configuration>
-					<outputDirectory>../..</outputDirectory>
-					<reportOutputDirectory>../..</reportOutputDirectory>
-					<destDir>hadooptest-javadoc</destDir>
+					<outputDirectory>../../hadooptest-javadoc</outputDirectory>
+					<reportOutputDirectory>../../hadooptest-javadoc</reportOutputDirectory>
+					<destDir>master</destDir>
 					<aggregate>true</aggregate>
 					<quiet>true</quiet>
 					<excludePackageNames>hadooptest.cluster.mini:hadooptest.cluster.mini.*:hadooptest.cluster.standalone</excludePackageNames>

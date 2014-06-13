@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -x
+
+# Set the base directory as the dir that the script lives in.
+BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
+
+git rm -r $BASEDIR/../../../hadooptest-javadoc/master/*
+
+cd $BASEDIR/../
+mvn javadoc:javadoc
+
+cd $BASEDIR/../../../hadooptest-javadoc/
+git add .
