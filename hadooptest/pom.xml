@@ -44,7 +44,7 @@
 		<scala.version>2.10.3</scala.version>
 		<storm.version.yinst>0.9.0_wip21</storm.version.yinst>
 		<storm.version.community>0.9.0-wip21</storm.version.community>
-		<storm.version.release>237</storm.version.release>
+		<storm.version.release>265</storm.version.release>
 	    <jetty.version>9.1.4.v20140401</jetty.version>
 	    <jetty.version.release>65</jetty.version.release> 
 		<thread.count>8</thread.count>
@@ -364,13 +364,13 @@
 				<dependency>
 					<groupId>yahoo.yinst.ystorm_contrib</groupId>
 					<artifactId>http_spout</artifactId>
-					<version>0.2.0.54</version>
+					<version>0.3.0.62</version>
 					<scope>provided</scope>
 				</dependency>
 				<dependency>
 					<groupId>yahoo.yinst.ystorm_contrib</groupId>
 					<artifactId>rainbow_spout_example</artifactId>
-					<version>0.2.0.54</version>
+					<version>0.3.0.62</version>
 					<scope>provided</scope>
 				</dependency>
 				<dependency>
