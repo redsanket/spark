@@ -952,6 +952,16 @@ public abstract class HadoopCluster {
 		return (stopped && started);
 	}
 	
+    /**
+     * Get the Hadoop Cluster name.
+     * 
+     * @return Name of the Hadoop Cluster.
+     * 
+     */
+    public String getClusterName() {
+        return System.getProperty("CLUSTER_NAME");        
+    }
+	
 	/**
 	 * Get the Hadoop Cluster object containing the cluster info.
 	 * 
