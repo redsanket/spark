@@ -37,7 +37,9 @@ public class DFSIOJob extends Job {
     private static int ttCount;
     private int percentage;
     private String testDir;
-
+    private String timestamp;
+    private String writeJobID;
+    
     /** The DFSIO operation */
     private String operation;
     
@@ -46,19 +48,14 @@ public class DFSIOJob extends Job {
         "read"
     };
 
-    public void setup() throws Exception {
-        setupTestDir();
-        initNumTT();
-    }
-    
     public void setupTestDir() throws Exception {
+        if (this.testDir == null) {
+            this.setTestDir(this.getTimestamp());
+        }
+        
         FileSystem fs = TestSession.cluster.getFS();
         FsShell fsShell = TestSession.cluster.getFsShell();
-        DFS dfs = new DFS();
-        this.testDir = dfs.getBaseUrl() + "/user/" +
-            System.getProperty("user.name") + "/benchmarks_dfsio/" +
-            new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
-       
+
         if (fs.exists(new Path(testDir))) {
             TestSession.logger.info("Delete existing test directory: " +
                 testDir);
@@ -75,6 +72,27 @@ public class DFSIOJob extends Job {
                 Integer.toString(ttCount));
     }
 
+    /**
+     * Get timestamp ID.
+     * 
+     * @param timestamp
+     */
+    public String getTimestamp() {
+        return new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());             
+    }
+
+    /**
+     * Set the testDir.
+     * 
+     * @param timestamp for the testDir
+     */
+    public void setTestDir(String timestamp) throws Exception {
+        DFS dfs = new DFS();        
+        this.testDir = dfs.getBaseUrl() + "/user/" +
+                System.getProperty("user.name") + "/benchmarks_dfsio/" +
+                timestamp;              
+    }    
+    
     /**
      * Set the DFSIO operation.
      * 
@@ -93,6 +111,15 @@ public class DFSIOJob extends Job {
         this.percentage = percentage;
     }
 
+    /**
+     * Set the dependent DFSIO write Job ID.
+     * 
+     * @param job ID
+     */
+    public void setWriteJobID(String writeJobID) {
+        this.writeJobID = writeJobID;
+    }
+    
 	/**
 	 * Submit the job.  This should be done only by the Job.start() as Job should
 	 * remain threaded.
@@ -180,12 +207,30 @@ public class DFSIOJob extends Job {
         cmd.add("-nrFiles");
         cmd.add(Integer.toString((ttCount * this.percentage)/100));
         cmd.add("-fileSize");
-        cmd.add(Integer.toString(FILE_SIZE)+";");
+        cmd.add(Integer.toString(FILE_SIZE));
         
         String[] command = cmd.toArray(new String[0]);
         return command; 
     }
-
+    
+    /**
+     * Assemble the wait for job success loop.
+     * 
+     * @return String[] the string array representation of the system command.
+     */
+    private String[] assembleWaitForCommand(String jobID) throws Exception {
+        ArrayList<String> cmd = new ArrayList<String>();    
+        int maxWaitTime=20;
+        int waitInterval=60;
+        cmd.add(TestSession.conf.getProperty("WORKSPACE") + "/scripts/wait_for_job");
+        cmd.add("-cluster=" + TestSession.cluster.getClusterName());
+        cmd.add("-job_id=" + jobID);        
+        cmd.add("-max_wait_time=" + maxWaitTime);
+        cmd.add("-wait_interval=" + waitInterval + ";");       
+        String[] command = cmd.toArray(new String[0]);
+        return command; 
+    }
+    
 	/**
 	 * Assemble the system command to launch the sleep job.
 	 * 
@@ -194,11 +239,18 @@ public class DFSIOJob extends Job {
 	private String[] assembleCommand() throws Exception {
         // set up the cmd
         initNumTT();
-        String[] command1 = assembleCommand(OPERATIONS[0]);
-        String[] command2 = assembleCommand(OPERATIONS[1]);
-        String[] command = (String[]) ArrayUtils.addAll( command1, command2);
-
-        String shCmd = StringUtils.join(command, " ");
-        return new String[] {"bash", "-c", shCmd};
+        
+        if (this.operation.equals("write")) {
+            return assembleCommand(this.operation);
+        } else {
+            if (this.writeJobID == null) {
+                throw new Exception("ERROR: Cannot run DFSIO read tests without dependent DFSIO write job ID");
+            }
+            String[] command1 = assembleWaitForCommand(this.writeJobID);
+            String[] command2 = assembleCommand(this.operation);
+            String[] command = (String[]) ArrayUtils.addAll( command1, command2);
+            String shCmd = StringUtils.join(command, " ");
+            return new String[] {"bash", "-c", shCmd};
+        }
 	}
 }
