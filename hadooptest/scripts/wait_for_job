@@ -1,0 +1,239 @@
+#!/usr/bin/env perl 
+
+# job_id=job_1402509936623_0001; deploySupport/wait_for_job -cluster=sam -job_id=$job_id -max_wait_time=1 -wait_interval=5;
+
+use strict;
+use warnings;
+use FindBin qw($Bin $Script);
+use Test::More;
+use File::Copy;
+use File::Find::Rule;
+use File::Basename;
+use Data::Dumper;
+use JSON qw( decode_json );
+use Try::Tiny;
+
+my %options=();
+
+#
+# Setup shell environment on a remote host
+#
+
+sub usage {
+    my ($err_msg) = @_;
+    print STDERR << "EOF";
+
+  Usage: $Script -c cluster <option1> <values1> <option2> <values2> ...
+-----------------------------------------------------------------------------------
+The options
+        -c|--cluster    <cluster name> : cluster name
+        [ -f|           <conf file>         ] : hadooptest configuration file
+        [ -j|--java                         ] : run tests via java directly instead of via maven
+        [ -m|--mvn                          ] : run tests via maven instead of via java directly
+        [ -build_coretest                   ] : build coretest
+        [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test
+        [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
+        [ -n|--nopasswd                     ] : no password prompt
+        [ -w|workspace  <workspace>         ] : workspace
+        [ -a|--admin_host                   ] : The admin host to be used by the framework (adm102.blue.ygrid.yahoo.com is the default)
+        [ -h|--help                         ] : help
+
+Pass Through options
+        [ -P<profile>                       ] : maven profile
+        [ -Pclover -Djava.awt.headless=true ] : activate clover profile
+        [ -X                                ] : maven debug output
+        [ -Dthread.count=<threadcount>      ] : maven thread count
+        [ -Dtest=<test>...                  ] : test suite name(s). use delimitor comma for mvn, and space for java
+
+Example:
+\$ run_hadooptest --cluster theoden
+\$ run_hadooptest --cluster theoden -Dtest=TestSleepJobCLI
+\$ run_hadooptest --cluster theoden --mvn -build_coretest --nopasswd -w `pwd` -t TestEndToEndPipes
+\$ run_hadooptest --cluster theoden --mvn -Dtest=TestSleepJobCLI
+\$ run_hadooptest --cluster theoden --mvn -f /homes/hadoopqa/hadooptest.conf -Dtest=TestSleepJobCLI 
+\$ run_hadooptest -c theoden -j -n -Dtest=hadooptest.regression.TestVersion
+\$ run_hadooptest -c theoden -m -P jacoco -Dtest=TestVersion
+\$ run_hadooptest -c theoden -m -P clover -Djava.awt.headless=true -Dtest=TestVersion
+        
+EOF
+    die($err_msg) if ($err_msg);
+    exit 0;
+}
+
+sub execute {
+    my ($command) = @_;
+    note($command);
+    system($command);
+}
+
+my $cluster="sam";
+my $started_time_begin;
+my $job_name="Cloud-Hadoop-2.0-RHEL6-Deploy-RU-SCM";
+my $admin_host="adm102.blue.ygrid.yahoo.com";
+
+my $tests="TestGenerateJobLoad";
+
+# my $runtime=60;
+# my $threshold="0.9";
+# my $job_types="SLEEP";
+# my $job_batch_size=2;
+# my $interval=5;
+
+my $runtime=60;
+my $threshold="0.9";
+my $job_types="SLEEP";
+my $job_batch_size=2;
+my $interval=5;
+
+
+# N/A
+my $hadoop_release_tag="hadoopXXX2X2Xlatest";
+my $enable_ha="true";
+my $rolling_upgrade="true";
+my $force_install="true";
+my $activate_deploy="true";
+my $ru_type="datanode";
+my $ru_nodes="none";
+my $qa_packages="hadoop_qe_runasroot-stable datanode-test hadoop_qa_restart_config-test namenode-test secondarynamenode-test resourcemanager-test nodemanager-test historyserver-test";
+my $job_id;
+my $max_wait_minutes;
+my $wait_interval=60;
+my $expected_state;
+ 
+my $conf = glob("~/hadooptest.conf");
+my $use_mvn = 1;
+my $build_coretest = 0;
+my $workspace = "$Bin/..";
+my $username = getpwuid($<);
+my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
+my $test;
+
+#
+# Command line options processing
+#
+use Getopt::Long;
+&Getopt::Long::Configure( 'pass_through');
+my $result = 
+GetOptions(\%options,
+    "cluster|c=s"            => \$cluster,
+    "started_time_begin|s=s" => \$started_time_begin,
+    "release|r=s"            => \$hadoop_release_tag,
+    "jobname|j=s"            => \$job_name,
+    "id|i=s",
+    "admin_host|a=s"         => \$admin_host,
+    "runtime=s"              => \$runtime,
+    "threshold=s"            => \$threshold,
+    "job_types=s"            => \$job_types,
+    "job_id=s"               => \$job_id,
+    "max_wait_time=s"        => \$max_wait_minutes,
+    "wait_interval=s"        => \$wait_interval,
+    "expected_state"         => \$expected_state, 
+    "job_batch_size=s"       => \$job_batch_size,
+    "interval=s"             => \$interval,
+    "mvn|m"                  => sub { $use_mvn = 1 },
+    "java|j"                 => sub { $use_mvn = 0 },
+    "build_coretest"         => \$build_coretest,
+    "workspace|w=s"          => \$workspace,
+    "test|t=s"               => \$test,
+    "help|h|?"
+    ) or usage(1);
+usage() if $options{help};
+usage("Invalid arguments!!!") if (!$result);
+usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
+usage("ERROR: Required job id value not defined!!!") if (!defined($job_id));
+
+note("cluster='$cluster'");
+note("job id='$job_id'");
+note("started_time_begin='$started_time_begin'") if ($started_time_begin);
+note("workspace='$workspace'");
+note("admin host='$admin_host'"); 
+
+my $rc=0;
+
+note("====================================================================");
+note("Check Hadoop Job Status After RU Deploy");
+note("====================================================================");
+# my $rm_host="gsbl90198.blue.ygrid.yahoo.com";
+my $rm_host =`yinst range -ir "(\@grid_re.clusters.$cluster.jobtracker)"`;
+chomp($rm_host);
+my $rm_port="19888";
+
+my ($command, $json_output);
+# my ($json_ref, $job_ref, $job_id, $job_name, $job_state);
+my ($json_ref, $job_ref, $job_state);
+
+# http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html
+# If the Begin parameter is not specfied, it defaults to 0, and if the End parameter is not specified, it defaults to infinity.
+# E.g. startedTimeBegin=1324256400&startedTimeEnd=1324303200
+#   * user - user name
+#   * state - the job state
+#   * queue - queue name
+#   * limit - total number of app objects to be returned
+#   * startedTimeBegin - jobs with start time beginning with this time, specified in ms since epoch
+#   * startedTimeEnd - jobs with start time ending with this time, specified in ms since epoch
+#   * finishedTimeBegin - jobs with finish time beginning with this time, specified in ms since epoch
+#   * finishedTimeEnd - jobs with finish time ending with this time, specified in ms since epoch
+sub get_job_state {
+    $command="curl -s -H 'Accept: application/json' -X GET 'http://$rm_host:$rm_port/ws/v1/history/mapreduce/jobs";
+    $command .= "/$job_id";
+    $command .= "'";
+    $command .= "?startedTimeBegin=$started_time_begin" if ($started_time_begin);
+    note("$command");
+    $json_output=`$command`;
+
+    if ($json_output =~ '{"jobs":null}') {
+	note("job list is null");
+	return 'NULL';
+    }
+
+    if ($job_id) {
+	my $pattern='job, '.$job_id.', is not found","javaClassName":"org.apache.hadoop.yarn.webapp.NotFoundException"}';
+	if ($json_output =~ $pattern) {
+	    note("job id '$job_id' not found");
+	    note($json_output);
+	    return 'NULL';
+	}
+    }
+
+    try {
+	$json_ref = decode_json($json_output);
+	# print Dumper $json_ref;
+    } catch {
+	# print "$_\n" if $opts{debug};
+	$json_output = "{}";
+	$json_ref = decode_json($json_output);
+    };
+
+    # print Dumper $json_ref;
+    my $job = $json_ref->{job};
+    my $state = $job->{state};
+    return $state;
+}
+
+
+my $max_count=($max_wait_minutes*60)/$wait_interval;
+my $count=1;
+my $final_status=1;
+# Wait until job is present in history server
+while ($count <= $max_count) {
+    $job_state = get_job_state();
+    note("job_state = $job_state");
+    if ("$job_state" ne "NULL") {
+	$final_status=0;
+	last;
+    }
+    if ($count <= $max_count) {
+	note("Wait for $wait_interval seconds ($count/$max_count)");
+	sleep $wait_interval;
+    }
+    $count++;
+}
+
+if ($expected_state) {
+    $final_status = 1 if ($expected_state ne $job_state);
+}
+
+exit $final_status;
+
+# job_id=job_1402509936623_0099;delay=1;count=1; max_count=10;success=0; while ([ $success != 1 ] && [ $count -le 10 ]); do echo $count; deploySupport/check_job_status -cluster=sam -job_id=$job_id; rc=$?; if [ $rc == 0 ]; then success=1; break; fi; count=$((count+1));sleep $delay; done
+
