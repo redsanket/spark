@@ -41,6 +41,11 @@ public class TestSparkSaveAsText extends TestSession {
                 removeTestDir();
         }
 
+        @After
+        public static void endTest() throws Exception {
+                removeTestOutputFile
+        }
+
         public static void setupTestDir() throws Exception {
 
                 TestSession.cluster.getFS();
@@ -54,6 +59,12 @@ public class TestSparkSaveAsText extends TestSession {
 
                 // Delete the file
                 TestSession.cluster.getFS().delete(new Path(hdfsDir + lrDatafile), true);
+                TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile), true);
+        }
+
+
+        public static void removeTestOutputFile() throws Exception {
+                // Delete the file
                 TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile), true);
         }
 
@@ -87,6 +98,7 @@ public class TestSparkSaveAsText extends TestSession {
 			int waitTime = 30;
 			assertTrue("Job (default user) did not succeed.",
 				appUserDefault.waitForSuccess(waitTime));
+
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
@@ -121,6 +133,7 @@ public class TestSparkSaveAsText extends TestSession {
 			int waitTime = 30;
 			assertTrue("Job (default user) did not succeed.",
 				appUserDefault.waitForSuccess(waitTime));
+
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
