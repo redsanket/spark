@@ -16,6 +16,7 @@ import org.apache.hadoop.fs.Path;
 
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Test;
 
 import hadooptest.Util;
