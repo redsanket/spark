@@ -15,7 +15,7 @@ public class SparkPipesEnvVars {
 
     SparkConf sparkConf = new SparkConf().setAppName("SparkPipesEnvVars");
     JavaSparkContext ctx = new JavaSparkContext(sparkConf);
-    JavaRDD<String> lines = ctx.textFile(args[1], 1);
+    JavaRDD<String> lines = ctx.textFile(args[0], 1);
 
     List<String> res1 = lines.pipe("printenv map_input_file").collect();
     System.out.println("map_input_file output: " + res1.toString());

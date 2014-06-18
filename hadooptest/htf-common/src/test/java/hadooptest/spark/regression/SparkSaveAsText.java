@@ -14,9 +14,9 @@ public class SparkSaveAsText {
 
     SparkConf sparkConf = new SparkConf().setAppName("SparkSaveAsText");
     JavaSparkContext ctx = new JavaSparkContext(sparkConf);
-    JavaRDD<String> lines = ctx.textFile(args[1], 1);
+    JavaRDD<String> lines = ctx.textFile(args[0], 1);
 
-    lines.saveAsTextFile(args[2]);
+    lines.saveAsTextFile(args[1]);
     System.exit(0);
   }
 }
