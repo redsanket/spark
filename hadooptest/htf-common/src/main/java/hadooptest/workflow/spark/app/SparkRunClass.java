@@ -327,6 +327,7 @@ public class SparkRunClass extends App {
 
             ArrayList<String> cmd = new ArrayList<String>(16);
             cmd.addAll(Arrays.asList( new String[] { "java",
+                    "-Dspark.jars=" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "-DSPARK_YARN_MODE=true",
                     "-Dspark.master=yarn-client",
                     "-cp",

@@ -302,6 +302,7 @@ public class SparkPi extends App {
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ret = new String[] { "java",
+                    "-Dspark.jars=" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "-DSPARK_YARN_MODE=true",
                     "-Dspark.master=yarn-client",
                     "-cp",
