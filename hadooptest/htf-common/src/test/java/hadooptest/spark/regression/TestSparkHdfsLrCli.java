@@ -68,11 +68,11 @@ public class TestSparkHdfsLrCli extends TestSession {
 
             appUserDefault.start();
 
-            assertTrue("SparkPi app (default user) was not assigned an ID within 120 seconds.", 
+            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.", 
                     appUserDefault.waitForID(120));
-            assertTrue("SparkPiapp ID for sleep app (default user) is invalid.", 
+            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.", 
                     appUserDefault.verifyID());
-            assertEquals("SparkPi app name for sleep app is invalid.", 
+            assertEquals("SparkHdfsLR app name for sleep app is invalid.", 
                     "Spark", appUserDefault.getAppName());
 
             int waitTime = 30;
@@ -103,12 +103,12 @@ public class TestSparkHdfsLrCli extends TestSession {
 
             appUserDefault.start();
 
-            assertTrue("SparkPi app (default user) was not assigned an ID within 120 seconds.", 
+            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.", 
                     appUserDefault.waitForID(120));
-            assertTrue("SparkPiapp ID for sleep app (default user) is invalid.", 
+            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.", 
                     appUserDefault.verifyID());
-            assertEquals("SparkPi app name for sleep app is invalid.", 
-                    "Spark", appUserDefault.getAppName());
+            assertEquals("SparkHdfsLR app name for sleep app is invalid.", 
+                    "SparkHdfsLR", appUserDefault.getAppName());
 
             int waitTime = 30;
             assertTrue("Job (default user) did not succeed.",

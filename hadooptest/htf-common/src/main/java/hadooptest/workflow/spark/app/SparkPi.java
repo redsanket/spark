@@ -303,10 +303,10 @@ public class SparkPi extends App {
 
             ret = new String[] { "java",
                     "-DSPARK_YARN_MODE=true",
+                    "-Dspark.master=yarn-client",
                     "-cp",
                     classpath,
-                    "org.apache.spark.examples.SparkPi",
-                    AppMaster.getString(this.master) };
+                    "org.apache.spark.examples.SparkPi"};
         }
         else if (this.master == AppMaster.YARN_STANDALONE) {
 
@@ -334,7 +334,6 @@ public class SparkPi extends App {
             }
 
             cmd.addAll(Arrays.asList( new String[] { 
-                    "--args", AppMaster.getString(this.master),
                     "--num-workers", Integer.toString(this.numWorkers),
                     "--worker-memory", this.workerMemory,
                     "--master-memory", this.masterMemory,

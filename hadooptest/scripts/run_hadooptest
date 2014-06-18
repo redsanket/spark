@@ -228,9 +228,9 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 }
 
 # If the user has provided the -spark option to the script, install the Spark
-# 0.9.x package so that we can run tests against the Spark jars.
+# 1.0.x package so that we can run tests against the Spark jars.
 if ($spark) {
-    execute("yinst i yspark_yarn -tag yspark_yarn_0_9_latest_hadoop2 -live -downgrade -br quarantine");
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_0_latest_hadoop2 -live -downgrade -br quarantine");
 }
 
 my $hadoop_version;

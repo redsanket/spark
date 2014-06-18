@@ -202,10 +202,10 @@ public class SparkHdfsLR extends App {
 
             ret = new String[] { "java",
                     "-DSPARK_YARN_MODE=true",
+                    "-Dspark.master=yarn-client",
                     "-cp",
                     classpath,
                     "org.apache.spark.examples.SparkHdfsLR",
-                    AppMaster.getString(this.master), 
                     this.lrDataFile,
                     Integer.toString(this.iterations) };
         }
@@ -219,7 +219,6 @@ public class SparkHdfsLR extends App {
                     "org.apache.spark.deploy.yarn.Client",
                     "--jar",  TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "--class", "org.apache.spark.examples.SparkHdfsLR",
-                    "--args", AppMaster.getString(this.master), 
                     "--args", this.lrDataFile,
                     "--args", Integer.toString(this.iterations),
                     "--num-workers", Integer.toString(this.numWorkers),
