@@ -43,7 +43,7 @@ public class TestSparkSaveAsText extends TestSession {
         }
 
         @After
-        public static void endTest() throws Exception {
+        public void endTest() throws Exception {
                 removeTestOutputFile();
         }
 
