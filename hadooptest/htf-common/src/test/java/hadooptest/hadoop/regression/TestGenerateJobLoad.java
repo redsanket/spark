@@ -617,6 +617,7 @@ public class TestGenerateJobLoad extends TestSession {
         DFSIOJob readJob = new DFSIOJob();
         readJob.setTestDir(timestamp);
         readJob.setWriteJobID(writeJob.getID());
+        readJob.setNumFiles(writeJob.getNumFiles());
         readJob.setUser(username);
         readJob.setJobInitSetID(waitForJobId);
         readJob.setOperation("read");
