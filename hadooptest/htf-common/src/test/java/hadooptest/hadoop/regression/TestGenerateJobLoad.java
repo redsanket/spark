@@ -607,7 +607,8 @@ public class TestGenerateJobLoad extends TestSession {
         // job has a chance to start in its thread.
         if (waitForJobId) {
             if (!writeJob.waitForID(maxWaitMin)) {
-                fail("ERROR: Unable to get job id for DFSIO write test!!!");                
+                fail("ERROR: Unable to get job id for DFSIO write test after " +
+                        maxWaitMin + "minutes!!!");                
             }
         }
         
