@@ -16,7 +16,6 @@ import org.apache.hadoop.fs.Path;
 
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
-import org.junit.After;
 import org.junit.Test;
 
 import hadooptest.Util;
@@ -29,6 +28,7 @@ public class TestSparkSaveAsText extends TestSession {
         private static String localJar = null;
         private static String lrDatafile = "lr_data.txt";
         private static String saveAsFile = "saveAsTextTest.txt";
+        private static String saveAsFile2 = "saveAsTextTest2.txt";
         private static String hdfsDir = "/user/" + System.getProperty("user.name") + "/";
 
         @BeforeClass
@@ -42,10 +42,6 @@ public class TestSparkSaveAsText extends TestSession {
                 removeTestDir();
         }
 
-        @After
-        public void endTest() throws Exception {
-                removeTestOutputFile();
-        }
 
         public static void setupTestDir() throws Exception {
 
@@ -61,13 +57,9 @@ public class TestSparkSaveAsText extends TestSession {
                 // Delete the file
                 TestSession.cluster.getFS().delete(new Path(hdfsDir + lrDatafile), true);
                 TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile), true);
+                TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile2), true);
         }
 
-
-        public static void removeTestOutputFile() throws Exception {
-                // Delete the file
-                TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile), true);
-        }
 
 	/*
 	 * A test for saving file to hdfs
@@ -119,7 +111,8 @@ public class TestSparkSaveAsText extends TestSession {
 			//appUserDefault.setLRDataFile(lrDatafile);
 			appUserDefault.setClassName("hadooptest.spark.regression.SparkSaveAsText");
 			appUserDefault.setJarName(localJar);
-                        String[] argsArray = {lrDatafile, hdfsDir + saveAsFile};
+                        // tests can run in parallel so we need to use different file name
+                        String[] argsArray = {lrDatafile, hdfsDir + saveAsFile2};
                         appUserDefault.setArgs(argsArray);
 
 			appUserDefault.start();
@@ -129,7 +122,7 @@ public class TestSparkSaveAsText extends TestSession {
 			assertTrue("App ID for sleep app (default user) is invalid.", 
 					appUserDefault.verifyID());
             		assertEquals("App name for sleep app is invalid.", 
-                    		"Spark", appUserDefault.getAppName());
+                    		"SparkSaveAsText", appUserDefault.getAppName());
 
 			int waitTime = 30;
 			assertTrue("Job (default user) did not succeed.",
