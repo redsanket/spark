@@ -26,7 +26,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -47,41 +46,43 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 		// Bounce the RM
+		fullyDistributedCluster.hadoopDaemon(Action.STOP,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
 				.resetHadoopConfDir();
-		fullyDistributedCluster.hadoopDaemon(Action.STOP,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		TestSession.logger.info("Reset the config file location for ResourceManager");
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		// Bounce the NM
+		fullyDistributedCluster.hadoopDaemon(Action.STOP,
+				HadooptestConstants.NodeTypes.NODE_MANAGER);
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.NODE_MANAGER)
 				.resetHadoopConfDir();
-		fullyDistributedCluster.hadoopDaemon(Action.STOP,
-				HadooptestConstants.NodeTypes.NODE_MANAGER);
+		TestSession.logger.info("Reset the config file location for NodeManager");
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.NODE_MANAGER);
 
-		Thread.sleep(20000);
-		// Leave safe-mode
-		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		GenericCliResponseBO genericCliResponse;
-		genericCliResponse = dfsCliCommands.dfsadmin(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				DfsTestsBaseClass.Report.NO, "get",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-				DfsTestsBaseClass.PrintTopology.NO, null);
-
-		genericCliResponse = dfsCliCommands.dfsadmin(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				DfsTestsBaseClass.Report.NO, "leave",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-				DfsTestsBaseClass.PrintTopology.NO, null);
+		Thread.sleep(5000);
+		// // Leave safe-mode
+		// DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		// GenericCliResponseBO genericCliResponse;
+		// genericCliResponse = dfsCliCommands.dfsadmin(
+		// DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		// DfsTestsBaseClass.Report.NO, "get",
+		// DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+		// 0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+		// DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+		// DfsTestsBaseClass.PrintTopology.NO, null);
+		//
+		// genericCliResponse = dfsCliCommands.dfsadmin(
+		// DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		// DfsTestsBaseClass.Report.NO, "leave",
+		// DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+		// 0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+		// DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+		// DfsTestsBaseClass.PrintTopology.NO, null);
 
 	}
 
@@ -117,6 +118,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		 * excluded nodes in its response.
 		 */
 		int initialCountOfActiveTrackers = getCountOfActiveTrackers();
+		TestSession.logger.info("Initial count of active trackers:" + initialCountOfActiveTrackers);
 
 		/**
 		 * Populate the hosts to ignore
@@ -138,7 +140,10 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		TestSession.logger.info("Later count of active trackers:"
 				+ laterCountOfActiveTrackers);
 
-		Assert.assertTrue((initialCountOfActiveTrackers - laterCountOfActiveTrackers) == 1);
+		Assert.assertTrue("Initial count of trackers:"
+				+ initialCountOfActiveTrackers + " later count of trackers:"
+				+ laterCountOfActiveTrackers,
+				initialCountOfActiveTrackers > laterCountOfActiveTrackers);
 
 	}
 
@@ -176,6 +181,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		 * excluded nodes in its response.
 		 */
 		int initialCountOfActiveTrackers = getCountOfActiveTrackers();
+		TestSession.logger.info("Initial count of active trackers:" + initialCountOfActiveTrackers);
 
 		/**
 		 * Populate the hosts to ignore
@@ -211,13 +217,19 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 				HadooptestConstants.UserNames.HADOOPQA,
 				HadooptestConstants.Schema.NONE, localCluster,
 				YarnAdminSubCommand.REFRESH_NODES, null);
+		
+		Assert.assertEquals(genericYarnCliResponse.process.exitValue(), 0);
 
 		int laterCountOfActiveTrackers = getCountOfActiveTrackers();
 
 		TestSession.logger.info("Later count of active trackers:"
 				+ laterCountOfActiveTrackers);
 
-		Assert.assertTrue((initialCountOfActiveTrackers - laterCountOfActiveTrackers) == 1);
+		Assert.assertTrue("Initial count of trackers:"
+				+ initialCountOfActiveTrackers + " later count of trackers:"
+				+ laterCountOfActiveTrackers,
+				initialCountOfActiveTrackers > laterCountOfActiveTrackers);
+
 	}
 
 	/**
@@ -253,6 +265,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		 * excluded nodes in its response.
 		 */
 		int initialCountOfActiveTrackers = getCountOfActiveTrackers();
+		TestSession.logger.info("Initial count of active trackers:" + initialCountOfActiveTrackers);
 
 		/**
 		 * Populate the hosts to ignore
@@ -292,8 +305,12 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		TestSession.logger.info("Later count of active trackers (as hadoopqa):"
 				+ laterCountOfActiveTrackers);
 
-		Assert.assertTrue((initialCountOfActiveTrackers - laterCountOfActiveTrackers) == 0);
-		
+		Assert.assertTrue("Initial count of trackers:"
+				+ initialCountOfActiveTrackers + " later count of trackers:"
+				+ laterCountOfActiveTrackers,
+				initialCountOfActiveTrackers == laterCountOfActiveTrackers);
+
+
 		/**
 		 * Try the same command with a user with 'admin' priviliges.
 		 */
@@ -308,10 +325,13 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		TestSession.logger.info("Later count of active trackers (as mapredqa):"
 				+ laterCountOfActiveTrackers);
 
-		Assert.assertTrue((initialCountOfActiveTrackers - laterCountOfActiveTrackers) == 0);
+		Assert.assertTrue("Initial count of trackers:"
+				+ initialCountOfActiveTrackers + " later count of trackers:"
+				+ laterCountOfActiveTrackers,
+				initialCountOfActiveTrackers == laterCountOfActiveTrackers);
 
 		/**
-		 * Try the same command with the used specified in the admin ACL.
+		 * Try the same command with the user specified in the admin ACL.
 		 */
 
 		genericYarnCliResponse = yarnCliCommands.rmadmin(EMPTY_ENV_HASH_MAP,
@@ -324,7 +344,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		TestSession.logger.info("Later count of active trackers (as hadoop1):"
 				+ laterCountOfActiveTrackers);
 
-		Assert.assertTrue((initialCountOfActiveTrackers - laterCountOfActiveTrackers) == 1);
+		Assert.assertTrue(initialCountOfActiveTrackers > laterCountOfActiveTrackers);
 
 	}
 
@@ -475,31 +495,36 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 					HadooptestConstants.NodeTypes.NODE_MANAGER);
 		}
 
-		Thread.sleep(20000);
+		Thread.sleep(5000);
 		// Leave safe-mode
-		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		GenericCliResponseBO genericCliResponse;
-		genericCliResponse = dfsCliCommands.dfsadmin(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				DfsTestsBaseClass.Report.NO, "get",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-				DfsTestsBaseClass.PrintTopology.NO, null);
-
-		genericCliResponse = dfsCliCommands.dfsadmin(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				DfsTestsBaseClass.Report.NO, "leave",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-				DfsTestsBaseClass.PrintTopology.NO, null);
-
-		Configuration conf = fullyDistributedCluster
-				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+//		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+//		GenericCliResponseBO genericCliResponse;
+//		genericCliResponse = dfsCliCommands.dfsadmin(
+//				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+//				DfsTestsBaseClass.Report.NO, "get",
+//				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+//				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+//				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+//				DfsTestsBaseClass.PrintTopology.NO, null);
+//
+//		genericCliResponse = dfsCliCommands.dfsadmin(
+//				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+//				DfsTestsBaseClass.Report.NO, "leave",
+//				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
+//				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
+//				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+//				DfsTestsBaseClass.PrintTopology.NO, null);
+//
+//		Configuration conf = fullyDistributedCluster
+//				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
 	}
 
+//	int getCountOfActiveTrackers() throws IOException, InterruptedException {
+//		Cluster clusterInfo = TestSession.cluster.getClusterInfo();
+//
+//		return clusterInfo.getClusterStatus().getTaskTrackerCount();
+//	}
 	int getCountOfActiveTrackers() {
 		int countOfActiveTrackers = 0;
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
@@ -509,7 +534,9 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 			genericMapredCliResponseBO = mapredCliCommands.listActiveTrackers(
 					YarnTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HADOOPQA);
-			Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
+
+			Assert.assertEquals(genericMapredCliResponseBO.process.exitValue(),
+					0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail("Not able to run command 'mapred job -list-active-trackers'");
