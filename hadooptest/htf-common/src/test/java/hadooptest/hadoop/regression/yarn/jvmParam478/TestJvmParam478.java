@@ -31,7 +31,7 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestJvmParam478 extends YarnTestsBaseClass {
 
-	// @Before
+//	 @Before
 	public void before() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -76,6 +76,13 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 							fileToModify, null);
 		}
 
+		// Bounce RM
+		fullyDistributedCluster.hadoopDaemon(Action.STOP,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		fullyDistributedCluster.hadoopDaemon(Action.START,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		
+
 		/**
 		 * 
 		 */
@@ -99,11 +106,6 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 		/**
 		 * 
 		 */
-		// Bounce RM
-		fullyDistributedCluster.hadoopDaemon(Action.STOP,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
 		Thread.sleep(5000);
 
@@ -164,7 +166,7 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 		String files = "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
 				+ "/"
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/jvmParam478/env.sh#env.sh\"";
+				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/jvmParam478/env.sh\"";
 		String inputFile = TestSession.conf.getProperty("WORKSPACE")
 				+ "/"
 				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/jvmParam478/dummy_input";
