@@ -1,7 +1,6 @@
 package hadooptest.spark.regression;
 
 import org.apache.spark._
-import SparkContext._
 
 object SparkPipesTaskDirs {
   def main(args: Array[String]) {

@@ -34,8 +34,9 @@ import org.junit.BeforeClass;
 public class DFSIOJob extends Job {
 
     private static final int FILE_SIZE = 320;
-    private static int ttCount;
+    private static int ttCount=0;
     private int percentage;
+    private int numFiles=0;
     private String testDir;
     private String timestamp;
     private String writeJobID;
@@ -72,13 +73,33 @@ public class DFSIOJob extends Job {
                 Integer.toString(ttCount));
     }
 
+    public void setNumFiles(int numFiles) throws Exception {
+        this.numFiles = numFiles;
+    }
+
+    public int getNumFiles() throws Exception {
+        if (this.numFiles == 0) {
+            if (DFSIOJob.ttCount == 0) {
+                initNumTT();
+            }
+            // ttCount might be zero for example when the RM is just starting up, 
+            // and the tasktrackers has not heartbeated in.
+            this.numFiles = Math.min((ttCount * this.percentage)/100, 1); 
+        }
+        return this.numFiles;
+    }
+
     /**
      * Get timestamp ID.
      * 
      * @param timestamp
      */
     public String getTimestamp() {
-        return new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());             
+        if (this.timestamp != null) {
+            return this.timestamp;
+        } else {
+            return new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+        }
     }
 
     /**
@@ -87,6 +108,7 @@ public class DFSIOJob extends Job {
      * @param timestamp for the testDir
      */
     public void setTestDir(String timestamp) throws Exception {
+        this.timestamp = timestamp;
         DFS dfs = new DFS();        
         this.testDir = dfs.getBaseUrl() + "/user/" +
                 System.getProperty("user.name") + "/benchmarks_dfsio/" +
@@ -202,10 +224,14 @@ public class DFSIOJob extends Job {
         String outputDir = this.testDir + "/" + this.percentage;
         cmd.add("-D");
         cmd.add("test.build.data=" + outputDir);
-        
+        cmd.add("-D");
+        cmd.add("mapreduce.job.name=dfsio-" + operation + "-" + 
+                this.getTimestamp());        
         cmd.add("-" + operation);
+        
         cmd.add("-nrFiles");
-        cmd.add(Integer.toString((ttCount * this.percentage)/100));
+        cmd.add(Integer.toString(this.getNumFiles()));
+
         cmd.add("-fileSize");
         cmd.add(Integer.toString(FILE_SIZE));
         
@@ -238,8 +264,6 @@ public class DFSIOJob extends Job {
 	 */
 	private String[] assembleCommand() throws Exception {
         // set up the cmd
-        initNumTT();
-        
         if (this.operation.equals("write")) {
             return assembleCommand(this.operation);
         } else {

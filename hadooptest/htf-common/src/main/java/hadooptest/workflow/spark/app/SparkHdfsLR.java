@@ -83,7 +83,7 @@ public class SparkHdfsLR extends App {
         String appPatternStr = null;
 
         if (this.master == AppMaster.YARN_CLIENT) { 
-            appPatternStr = " Submitted application (.*) to ResourceManager";
+            appPatternStr = " Submitted application (.*)";
         }
         else if (this.master == AppMaster.YARN_STANDALONE) { 
             appPatternStr = " application identifier: (.*)$";

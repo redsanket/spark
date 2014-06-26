@@ -229,8 +229,16 @@ while ($count <= $max_count) {
     $count++;
 }
 
-if ($expected_state) {
-    $final_status = 1 if ($expected_state ne $job_state);
+if ($final_status == 0) {
+    note("Job '$job_id' has ended with state '$job_state'");
+    if ($expected_state) {
+        if ($expected_state ne $job_state) {
+            note("Expected job state '$expected_state' does not match actual state '$job_state'");
+            $final_status = 1;
+        } 
+    }
+} else {
+    note("Job '$job_id' has not ended in the max wait duration of '$max_wait_minutes' minutes");
 }
 
 exit $final_status;
