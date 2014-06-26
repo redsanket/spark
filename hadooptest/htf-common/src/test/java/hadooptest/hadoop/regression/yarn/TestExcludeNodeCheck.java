@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,30 +42,34 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 	@Rule
 	public TemporaryFolder testFolder = new TemporaryFolder();
 
-	@Before
+	@After
 	public void restoreState() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 		// Bounce the RM
+		Thread.sleep(10000);
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
 				.resetHadoopConfDir();
 		TestSession.logger.info("Reset the config file location for ResourceManager");
+		Thread.sleep(5000);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		// Bounce the NM
+		Thread.sleep(10000);
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.NODE_MANAGER);
 		fullyDistributedCluster.getConf(
 				HadooptestConstants.NodeTypes.NODE_MANAGER)
 				.resetHadoopConfDir();
 		TestSession.logger.info("Reset the config file location for NodeManager");
+		Thread.sleep(5000);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.NODE_MANAGER);
 
-		Thread.sleep(5000);
+		Thread.sleep(10000);
 		// // Leave safe-mode
 		// DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		// GenericCliResponseBO genericCliResponse;
@@ -412,6 +417,17 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 
 	}
 
+	/**
+	 * In this method, you would find calls interpresed with sleep times. This 
+	 * is needed, because the yinst sessions (for starting/stopping daemons)
+	 * tend to step on each other and one gets erros like "another instance of
+	 * yinst is updating ....."
+	 * 
+	 * @param doRM
+	 * @param doNM
+	 * @param aclUser
+	 * @throws Exception
+	 */
 	void updateRMConfigAndNMConfigAndBounceThem(boolean doRM, boolean doNM,
 			String aclUser) throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
@@ -430,13 +446,19 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 			TestSession.logger.info("Backed up RM conf dir in :"
 					+ dirWhereRMConfHasBeenCopiedOnTheRemoteMachine);
 
+			// Since setting the HadoopConf file also backs up the config dir,
+			// wait for a minute before this command.
+			Thread.sleep(60000);
 			fullyDistributedCluster.getConf(
 					HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
 					.setHadoopConfFileProp(
 							"yarn.resourcemanager.nodes.exclude-path",
 							customConfDir + "/mapred.exclude", "yarn-site.xml",
 							null);
-
+			
+			// Since setting the HadoopConf file also backs up the config dir,
+			// wait for a minute before this command.
+			Thread.sleep(60000);
 			fullyDistributedCluster.getConf(
 					HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
 					.removeHadoopConfFileProp(
@@ -472,12 +494,20 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 
 			TestSession.logger.info("Backed up NM conf dir in :"
 					+ dirWhereRMConfHasBeenCopiedOnTheRemoteMachine);
+			// Since setting the HadoopConf file also backs up the config dir,
+			// wait for a minute before this command.
+			Thread.sleep(60000);
+
 			fullyDistributedCluster.getConf(
 					HadooptestConstants.NodeTypes.NODE_MANAGER)
 					.setHadoopConfFileProp(
 							"yarn.resourcemanager.nodes.exclude-path",
 							customConfDir + "/mapred.exclude", "yarn-site.xml",
 							null);
+			// Since setting the HadoopConf file also backs up the config dir,
+			// wait for a minute before this command.
+			Thread.sleep(60000);
+
 			if (aclUser != null) {
 				if (!aclUser.isEmpty()) {
 					fullyDistributedCluster.getConf(
