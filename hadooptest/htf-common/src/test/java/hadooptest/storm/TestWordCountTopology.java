@@ -105,7 +105,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
     }
 
-    @Test
+    @Test(timeout=600000)
     public void LogviewerPagingTest() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         StormTopology topology = buildTopology();
