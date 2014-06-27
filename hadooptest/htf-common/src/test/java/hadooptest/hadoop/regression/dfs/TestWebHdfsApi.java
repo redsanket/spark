@@ -183,7 +183,6 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Monitorable
 	@Test(expected = AccessControlException.class)
 	public void checkPermissions() throws AccessControlException {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
