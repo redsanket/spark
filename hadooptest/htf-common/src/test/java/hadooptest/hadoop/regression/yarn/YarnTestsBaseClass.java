@@ -1,6 +1,9 @@
 package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,18 +44,19 @@ public class YarnTestsBaseClass extends TestSession {
 		REFRESH_QUEUES, REFRESH_NODES, REFRESH_SUPERUSER_GROUPS_CONFIGURATION, REFRESH_USER_TO_GROUPS_MAPPING, REFRESH_ADMIN_ACLS, REFRESH_SERVICE_ACL, GET_GROUPS
 	};
 
-	public void killAllJobs() throws IOException, InterruptedException{
+	public void killAllJobs() throws IOException, InterruptedException {
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
 			cluster.getJob(aJobStatus.getJobID()).killJob();
 		}
 
 	}
+
 	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit,
 			String username, HashMap<String, String> jobParamsMap,
 			int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
-			int reduceSleepTime, int reduceSleepCount,
-			String jobName, boolean expectedToBomb) {
+			int reduceSleepTime, int reduceSleepCount, String jobName,
+			boolean expectedToBomb) {
 		Future<Job> jobHandle = null;
 		if (queueToSubmit.isEmpty() || queueToSubmit.equalsIgnoreCase("")) {
 			queueToSubmit = "default";
@@ -61,7 +65,9 @@ public class YarnTestsBaseClass extends TestSession {
 			jobParamsMap = getDefaultSleepJobProps(queueToSubmit);
 		}
 		CallableSleepJob callableSleepJob = new CallableSleepJob(jobParamsMap,
-				numMapper, numReducer, mapSleepTime, mapSleepCount, reduceSleepTime, reduceSleepCount, username, jobName, expectedToBomb);
+				numMapper, numReducer, mapSleepTime, mapSleepCount,
+				reduceSleepTime, reduceSleepCount, username, jobName,
+				expectedToBomb);
 
 		ExecutorService singleLanePool = Executors.newFixedThreadPool(1);
 		jobHandle = singleLanePool.submit(callableSleepJob);
@@ -226,11 +232,26 @@ public class YarnTestsBaseClass extends TestSession {
 
 	public void runStdHadoopStreamingJob(String... args) throws Exception {
 		TestSession.logger.info("running Streaming Job.................");
-		Configuration conf = TestSession.cluster.getConf();
+		TestSession.logger.info("Working off of:"
+				+ TestSession.cluster.getConf().getHadoopConfDir());
+		FullyDistributedConfiguration conf = null;
+		try {
+			conf = new FullyDistributedConfiguration(TestSession.cluster
+					.getConf().getHadoopConfDir(), "localhost",
+					HadooptestConstants.NodeTypes.GATEWAY);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		int res;
 
 		try {
 			StreamJob job = new StreamJob();
+			job.setConf(conf);
 			res = ToolRunner.run(conf, job, args);
 			Assert.assertEquals(0, res);
 		} catch (Exception e) {

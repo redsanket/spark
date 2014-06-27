@@ -7,23 +7,11 @@ import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -31,7 +19,7 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestJvmParam478 extends YarnTestsBaseClass {
 
-//	 @Before
+	// @Before
 	public void before() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -53,7 +41,7 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 				HadooptestConstants.NodeTypes.NODE_MANAGER);
 	}
 
-	void updateRMConfigConfigAndBounceIt(HashMap<String, String> propertiesMap,
+	void updateRMConfigAndBounceIt(HashMap<String, String> propertiesMap,
 			String fileToModify) throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -81,13 +69,18 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-		
 
-		/**
-		 * 
-		 */
-		fullyDistributedCluster.getConf(
-				HadooptestConstants.NodeTypes.GATEWAY).backupConfDir();
+		Thread.sleep(5000);
+
+	}
+
+	void updateGWConfig(HashMap<String, String> propertiesMap,
+			String fileToModify) throws Exception {
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+
+		fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.GATEWAY)
+				.backupConfDir();
 
 		String dirWhereGWConfHasBeenCopiedOnTheLocalMachine = fullyDistributedCluster
 				.getConf(HadooptestConstants.NodeTypes.GATEWAY)
@@ -103,17 +96,11 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 							fileToModify, null);
 		}
 
-		/**
-		 * 
-		 */
-
-		Thread.sleep(5000);
-
 	}
 
-	private String setupAndFireHadoopStreamingJob(String files, String mapCommand,
-			String reduceCmd, String inputFile, HashMap<String, String> args)
-			throws Exception {
+	private String setupAndFireHadoopStreamingJob(String files,
+			String mapCommand, String reduceCmd, String inputFile,
+			HashMap<String, String> args) throws Exception {
 		String fileOnHdfs = "input-testJvmParam" + System.currentTimeMillis();
 		String outputPath = "output-testJvmParam" + System.currentTimeMillis();
 
@@ -136,7 +123,9 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 		for (String key : args.keySet()) {
 			sb.append(" -cmdenv \"" + key + "=" + args.get(key) + "\"");
 		}
-		sb.append(" -cmdenv \"mapreduce.job.acl-view-job=*\""); // replace cmdenv with jobconf
+		sb.append(" -cmdenv \"mapreduce.job.acl-view-job=*\""); // replace
+																// cmdenv with
+																// jobconf
 		sb.append(" -file " + files);
 
 		TestSession.logger
@@ -171,29 +160,88 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 				+ "/"
 				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/jvmParam478/dummy_input";
 
-		String envSettings = setupAndFireHadoopStreamingJob(files, mapCommand, null, inputFile, args);
+		String envSettings = setupAndFireHadoopStreamingJob(files, mapCommand,
+				null, inputFile, args);
+		return envSettings;
+
+	}
+
+	private String runEnvReducerAndReturnEnvSettings() throws Exception {
+		HashMap<String, String> args = new HashMap<String, String>();
+		args.put("mapreduce.job.ubertask.enable", "false");
+		args.put("mapred.map.tasks", "1");
+		args.put("mapred.reduce.tasks", "1");
+		String mapCommand = "cat";
+		String reduceCommand = "env.sh";
+		String files = "\""
+				+ TestSession.conf.getProperty("WORKSPACE")
+				+ "/"
+				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/jvmParam478/env.sh\"";
+		String inputFile = TestSession.conf.getProperty("WORKSPACE")
+				+ "/"
+				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/jvmParam478/dummy_input";
+
+		String envSettings = setupAndFireHadoopStreamingJob(files, mapCommand,
+				reduceCommand, inputFile, args);
 		return envSettings;
 
 	}
 
 	@Test
-	public void test() throws Exception {
+	@Ignore("")
+	public void test1() throws Exception {
 		HashMap<String, String> rmSettingsMap = new HashMap<String, String>();
 		rmSettingsMap.put("mapred.child.env", "childenv1=childenv");
 		rmSettingsMap.put("mapred.child.java.opts",
 				"-server -Xmx1156m -Djava.net.preferIPv4Stack=true");//
 		rmSettingsMap.put("mapred.child.ulimit", "8000007");
-		updateRMConfigConfigAndBounceIt(rmSettingsMap, "mapred-site.xml");
+		// updateRMConfigAndBounceIt(rmSettingsMap, "mapred-site.xml");
+		updateGWConfig(rmSettingsMap, "mapred-site.xml");
 		String obtainedEnvSettings = runEnvMapperAndReturnEnvSettings();
-		
+		Assert.assertTrue(
+				"mapred_child_env=childenv1=childenv missing from Mapper env setting",
+				obtainedEnvSettings
+						.contains("mapred_child_env=childenv1=childenv"));
+		Assert.assertTrue(
+				"mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true missing from Mapper env setting",
+				obtainedEnvSettings
+						.contains("mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true"));
+		Assert.assertTrue(
+				"mapred_child_ulimit=8000007 missing from Mapper env setting",
+				obtainedEnvSettings.contains("mapred_child_ulimit=8000007"));
+
 	}
 
-	void assertConfigSettings(HashMap<String, String> sentRMSettingsMap, String obtainedEnvSettings){
-		for (String key:sentRMSettingsMap.keySet()){
+	@Test
+	public void test2() throws Exception {
+		HashMap<String, String> rmSettingsMap = new HashMap<String, String>();
+		rmSettingsMap.put("mapred.child.env", "childenv1=childenv");
+		rmSettingsMap.put("mapred.child.java.opts",
+				"-server -Xmx1156m -Djava.net.preferIPv4Stack=true");//
+		rmSettingsMap.put("mapred.child.ulimit", "8000007");
+		// updateRMConfigAndBounceIt(rmSettingsMap, "mapred-site.xml");
+		updateGWConfig(rmSettingsMap, "mapred-site.xml");
+		String obtainedEnvSettings = runEnvReducerAndReturnEnvSettings();
+		Assert.assertTrue(
+				"mapred_child_env=childenv1=childenv missing from Mapper env setting",
+				obtainedEnvSettings
+						.contains("mapred_child_env=childenv1=childenv"));
+		Assert.assertTrue(
+				"mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true missing from Mapper env setting",
+				obtainedEnvSettings
+						.contains("mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true"));
+		Assert.assertTrue(
+				"mapred_child_ulimit=8000007 missing from Mapper env setting",
+				obtainedEnvSettings.contains("mapred_child_ulimit=8000007"));
+
+	}
+
+	void assertConfigSettings(HashMap<String, String> sentRMSettingsMap,
+			String obtainedEnvSettings) {
+		for (String key : sentRMSettingsMap.keySet()) {
 			String keyWithDotsReplacedWithUnderscores = key.replace(".", "_");
-			
+
 		}
 	}
-
 
 }
