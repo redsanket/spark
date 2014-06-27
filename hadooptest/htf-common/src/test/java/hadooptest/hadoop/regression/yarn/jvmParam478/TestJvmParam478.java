@@ -213,6 +213,7 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 	}
 
 	@Test
+	@Ignore("")
 	public void test2() throws Exception {
 		HashMap<String, String> rmSettingsMap = new HashMap<String, String>();
 		rmSettingsMap.put("mapred.child.env", "childenv1=childenv");
@@ -233,6 +234,53 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 		Assert.assertTrue(
 				"mapred_child_ulimit=8000007 missing from Mapper env setting",
 				obtainedEnvSettings.contains("mapred_child_ulimit=8000007"));
+
+	}
+
+	@Test
+	@Ignore("")
+	public void test3() throws Exception {
+		HashMap<String, String> rmSettingsMap = new HashMap<String, String>();
+		rmSettingsMap.put("mapred.child.ulimit", "invalid");
+		rmSettingsMap.put("mapreduce.map.ulimit", "invalid");
+		// updateRMConfigAndBounceIt(rmSettingsMap, "mapred-site.xml");
+		updateGWConfig(rmSettingsMap, "mapred-site.xml");
+		String obtainedEnvSettings = runEnvMapperAndReturnEnvSettings();
+		Assert.assertTrue(
+				"mapred_child_env=childenv1=childenv [should not be present] in "
+						+ "Mapper env setting", !obtainedEnvSettings
+						.contains("mapred_child_env=childenv1=childenv"));
+		Assert.assertTrue(
+				"mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true "
+						+ "[should not be present] in Mapper env setting",
+				!obtainedEnvSettings
+						.contains("mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true"));
+		Assert.assertTrue(
+				"mapred_child_ulimit=8000007 [should not be present] in Mapper env setting",
+				!obtainedEnvSettings.contains("mapred_child_ulimit=8000007"));
+
+	}
+
+	@Test
+	public void test4() throws Exception {
+		HashMap<String, String> rmSettingsMap = new HashMap<String, String>();
+		rmSettingsMap.put("mapred.child.ulimit", "invalid");
+		rmSettingsMap.put("mapreduce.map.ulimit", "invalid");
+		// updateRMConfigAndBounceIt(rmSettingsMap, "mapred-site.xml");
+		updateGWConfig(rmSettingsMap, "mapred-site.xml");
+		String obtainedEnvSettings = runEnvReducerAndReturnEnvSettings();
+		Assert.assertTrue(
+				"mapred_child_env=childenv1=childenv [should not be present] in "
+						+ "Mapper env setting", !obtainedEnvSettings
+						.contains("mapred_child_env=childenv1=childenv"));
+		Assert.assertTrue(
+				"mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true "
+						+ "[should not be present] in Mapper env setting",
+				!obtainedEnvSettings
+						.contains("mapred_child_java_opts=-server -Xmx1156m -Djava.net.preferIPv4Stack=true"));
+		Assert.assertTrue(
+				"mapred_child_ulimit=8000007 [should not be present] in Mapper env setting",
+				!obtainedEnvSettings.contains("mapred_child_ulimit=8000007"));
 
 	}
 
