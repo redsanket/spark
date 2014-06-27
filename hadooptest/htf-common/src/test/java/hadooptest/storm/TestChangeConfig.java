@@ -34,7 +34,7 @@ public class TestChangeConfig extends TestSessionStorm {
         stop();
     }
 
-    @Test
+    @Test(timeout=600000)
     public void changeConfigTest() throws Exception {
         backtype.storm.Config theconf = new backtype.storm.Config();
         theconf.putAll(backtype.storm.utils.Utils.readStormConfig());

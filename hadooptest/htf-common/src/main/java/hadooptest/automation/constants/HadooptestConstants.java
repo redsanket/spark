@@ -31,11 +31,11 @@ public class HadooptestConstants {
 		public static String HDFSQA = "hdfsqa";
 		public static String DFSLOAD = "dfsload";
 		public static String HDFS = "hdfs";
-		public static String HAHOOP1 = "hadoop1";
-		public static String HAHOOP2 = "hadoop2";
-		public static String HAHOOP3 = "hadoop3";
-		public static String HAHOOP4 = "hadoop4";
-		public static String HAHOOP5 = "hadoop5";
+		public static String HADOOP1 = "hadoop1";
+		public static String HADOOP2 = "hadoop2";
+		public static String HADOOP3 = "hadoop3";
+		public static String HADOOP4 = "hadoop4";
+		public static String HADOOP5 = "hadoop5";
 	}
 
 	// Log
