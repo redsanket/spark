@@ -80,7 +80,7 @@ public class TestRegistryClient extends TestSessionStorm {
         //empty constructor
     }
     
-    @Test
+    @Test(timeout=600000)
     public void TestHelpOption() throws Exception {
         logger.info("Starting TestHelpOption");
         String[] output = runRegistryClientCommand(new String[] { RegClientCommand, "--help" } );
@@ -99,7 +99,7 @@ public class TestRegistryClient extends TestSessionStorm {
         }
     }
     
-    @Test
+    @Test(timeout=600000)
     public void TestAddHTTPVH() throws Exception {
         logger.info("Starting TestAddHTTPVH");
 
@@ -120,7 +120,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertTrue("Did not get VH from REST api", mc.isVirtualHostDefined(vhName));
     }
     
-    @Test
+    @Test(timeout=600000)
     public void TestDelHTTPVH() throws Exception {
         logger.info("Starting TestDelHTTPVH");
 
@@ -148,7 +148,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestNegatvieDelete() throws Exception {
         logger.info("Starting TestNegativeDelete");
 
@@ -159,7 +159,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertFalse("DelVH return value was 0", output[0].equals("0"));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestNegativeAdd() throws Exception {
         logger.info("Starting TestNegativeAdd");
 
@@ -185,7 +185,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertTrue("DelVH return value was not 0", output[0].equals("0"));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestGetVH() throws Exception {
         logger.info("Starting TestGetVH");
 
@@ -211,7 +211,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertTrue("DelVH return value was not 0", output[0].equals("0"));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestNegativeGetVH() throws Exception {
         logger.info("Starting TestNegativeGetVH");
 
@@ -227,7 +227,7 @@ public class TestRegistryClient extends TestSessionStorm {
         logger.info("stderr: " + output[2]);
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestAddWithYCAV1() throws Exception {
        String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
         String vhName = "testgetvhycav1.basic.com";
@@ -246,7 +246,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertTrue("Did not get VH from REST api", mc.isVirtualHostDefined(vhName));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestDelWithYCAV1() throws Exception {
        String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
         String vhName = "testgetvhycav1.basic.com";
@@ -270,7 +270,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestDelWithoutYCAV1() throws Exception {
        String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
         String vhName = "testgetvhyxxcav1.basic.com";
@@ -316,7 +316,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestAddWithYCAV2() throws Exception {
         String v1Role = "yahoo.griduser.hadoopqa";
         String v2Role = "ystorm.test.yca.users";
@@ -347,7 +347,7 @@ public class TestRegistryClient extends TestSessionStorm {
         assertFalse("Did not remove VH from REST api", mc.isVirtualHostDefined(vhName));
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestAddWithBadYCAV2() throws Exception {
         String v1Role = "yahoo.griduser.hadoopqa";
         String badv1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");

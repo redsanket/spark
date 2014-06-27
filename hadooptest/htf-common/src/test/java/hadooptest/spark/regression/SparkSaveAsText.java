@@ -1,21 +1,22 @@
 package hadooptest.spark.regression;
 
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
 public class SparkSaveAsText {
 
   public static void main(String[] args) throws Exception {
-    if (args.length < 3) {
-      System.err.println("Usage: SparkSaveAsText <master> <inputfile> <outputfile>");
+    if (args.length < 2) {
+      System.err.println("Usage: SparkSaveAsText <inputfile> <outputfile>");
       System.exit(1);
     }
 
-    JavaSparkContext ctx = new JavaSparkContext(args[0], "SparkSaveAsText",
-        System.getenv("SPARK_HOME"), JavaSparkContext.jarOfClass(SparkSaveAsText.class));
-    JavaRDD<String> lines = ctx.textFile(args[1], 1);
+    SparkConf sparkConf = new SparkConf().setAppName("SparkSaveAsText");
+    JavaSparkContext ctx = new JavaSparkContext(sparkConf);
+    JavaRDD<String> lines = ctx.textFile(args[0], 1);
 
-    lines.saveAsTextFile(args[2]);
+    lines.saveAsTextFile(args[1]);
     System.exit(0);
   }
 }

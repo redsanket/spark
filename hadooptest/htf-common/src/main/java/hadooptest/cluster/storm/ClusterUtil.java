@@ -3,6 +3,7 @@ package hadooptest.cluster.storm;
 import hadooptest.TestSessionStorm;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,15 +58,24 @@ public class ClusterUtil {
         		new HashMap<String, Map<String, String>>();
         
     	ArrayList<String> dnsNames = null;
-    	
     	if (namespace.equals("ystorm_registry")) {
-    	    dnsNames = StormDaemon.lookupIgorRoles(StormDaemon.REGISTRY, 
-    	            TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	    if (clusterRoleConfExists()) {
+    	        dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.REGISTRY);
+    	    }
+    	    else {
+    	        dnsNames = StormDaemon.lookupIgorRoles(StormDaemon.REGISTRY, 
+    	                TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	    }
     	}
     	else {
-    	    dnsNames = 
-                StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
-                        TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	    if (clusterRoleConfExists()) {
+    	        dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.ALL);
+    	    }
+    	    else {
+    	        dnsNames = 
+    	                StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+    	                        TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+    	    }
     	}
 
     	TestSessionStorm.logger.info(
@@ -243,9 +253,15 @@ public class ClusterUtil {
      */
     public void unsetConf(String key) throws Exception {
     	
-    	ArrayList<String> dnsNames = 
-    			StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
-    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+        ArrayList<String> dnsNames = null;
+        if (clusterRoleConfExists()) {
+            dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.ALL);
+        }
+        else {
+            dnsNames = 
+                    StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+                            TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+        }
     	
     	TestSessionStorm.logger.info("Unsetting " + key);
     	TestSessionStorm.logger.info(
@@ -323,9 +339,15 @@ public class ClusterUtil {
 
         String strKey = namespace+"."+key.replace('.','_');
 
-    	ArrayList<String> dnsNames = 
-    			StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
-    					TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+        ArrayList<String> dnsNames = null;
+        if (clusterRoleConfExists()) {
+            dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.ALL);
+        }
+        else {
+            dnsNames = 
+                    StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+                            TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+        }
 
     	for (String nodeDNSName: dnsNames) {   
         	TestSessionStorm.logger.info(
@@ -343,5 +365,28 @@ public class ClusterUtil {
     			TestSessionStorm.logger.info("stderr" + output[2]);	
     		}
     	}
+    }
+    
+    /**
+     * Check if the user has configured the framework to use a config file
+     * to define the Storm cluster, instead of relying on Igor.
+     * 
+     * @return boolean whether the cluster node config file exists or not.
+     */
+    public boolean clusterRoleConfExists() {
+        String configFile = null;
+        configFile = System.getProperty("STORM_CLUSTER_CONF");
+        TestSessionStorm.logger.debug("STORM_CLUSTER_CONF system env variable is: " + configFile);
+        if (configFile == null) {
+            configFile = TestSessionStorm.conf.getProperty("CLUSTER_CONF");
+            TestSessionStorm.logger.debug("CLUSTER_CONF framework configuration variable is: " + configFile);
+        }
+        
+        if (configFile == null) {
+            return false;
+        }
+        
+        File conf = new File(configFile);
+        return conf.exists();
     }
 }

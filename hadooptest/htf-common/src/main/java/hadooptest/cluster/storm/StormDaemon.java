@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public enum StormDaemon {
     
-    ALL ("ALL"), NIMBUS("NIMBUS"), UI("UI"), SUPERVISOR("SUPERVISOR"), LOGVIEWER("LOGVIEWER"), REGISTRY("REGISTRY"), CONTRIB("CONTRIB"), DRPC("DRPC");
+    ALL ("all"), NIMBUS("nimbus"), UI("ui"), SUPERVISOR("supervisor"), LOGVIEWER("logviewer"), REGISTRY("registry"), CONTRIB("contrib"), DRPC("drpc"), GATEWAY("gateway");
     private final String enumName;
 
     private StormDaemon(String s) {
@@ -56,6 +56,54 @@ public enum StormDaemon {
         }
         
         return daemonString;
+    }
+    
+    /**
+     * Get the list of DNS names stored in the cluster conf file passed to HTF, 
+     * that correspond to a given Storm daemon type.
+     * 
+     * @param daemon The daemon type to lookup.
+     * @param clusterName The name of the Storm cluster.
+     * 
+     * @return A list of DNS names that correspond to the daemon type.
+     * 
+     * @throws Exception
+     */
+    public static ArrayList<String> lookupClusterRoles(StormDaemon daemon) 
+            throws Exception {
+        
+        ArrayList<String> dnsNames = null;
+        
+        // lookup dns names of all nodes for specified daemon
+        if (daemon.equals(StormDaemon.NIMBUS)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleNimbus();
+        }
+        else if (daemon.equals(StormDaemon.UI)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleUI();
+        }
+        else if (daemon.equals(StormDaemon.SUPERVISOR)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleSupervisor();
+        }
+        else if (daemon.equals(StormDaemon.LOGVIEWER)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleSupervisor();
+        }
+        else if (daemon.equals(StormDaemon.REGISTRY)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleRegistry();
+        }
+        else if (daemon.equals(StormDaemon.CONTRIB)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleContrib();
+        }
+        else if (daemon.equals(StormDaemon.DRPC)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleDrpc();
+        }
+        else if (daemon.equals(StormDaemon.GATEWAY)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleGateway();
+        }
+        else if (daemon.equals(StormDaemon.ALL)) {
+            dnsNames = StormCluster.lookupYamlClusterRoleAllNodes();
+        }
+        
+        return dnsNames;
     }
     
     /**

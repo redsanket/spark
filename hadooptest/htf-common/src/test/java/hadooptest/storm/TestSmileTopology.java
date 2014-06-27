@@ -631,30 +631,30 @@ public class TestSmileTopology extends TestSessionStorm {
         String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestVW() throws Exception {
         testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-vw.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestGradient() throws Exception {
         testInstance = 1;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-gd.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestFlickrVW() throws Exception {
         testInstance = 2;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-vw.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestFlickrGD() throws Exception {
         testInstance = 3;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-gd.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestSVMGradientPersist() throws Exception {
         testInstance = 4;
         String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);

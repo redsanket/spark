@@ -163,7 +163,7 @@ public class SparkPi extends App {
         String appPatternStr = null;
 
         if (this.master == AppMaster.YARN_CLIENT) {
-            appPatternStr = " Submitted application (.*) to ResourceManager";
+            appPatternStr = " Submitted application (.*)";
         }
         else if (this.master == AppMaster.YARN_STANDALONE) {
             appPatternStr = " application identifier: (.*)$";
@@ -302,11 +302,12 @@ public class SparkPi extends App {
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ret = new String[] { "java",
+                    "-Dspark.jars=" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "-DSPARK_YARN_MODE=true",
+                    "-Dspark.master=yarn-client",
                     "-cp",
                     classpath,
-                    "org.apache.spark.examples.SparkPi",
-                    AppMaster.getString(this.master) };
+                    "org.apache.spark.examples.SparkPi"};
         }
         else if (this.master == AppMaster.YARN_STANDALONE) {
 
@@ -334,7 +335,6 @@ public class SparkPi extends App {
             }
 
             cmd.addAll(Arrays.asList( new String[] { 
-                    "--args", AppMaster.getString(this.master),
                     "--num-workers", Integer.toString(this.numWorkers),
                     "--worker-memory", this.workerMemory,
                     "--master-memory", this.masterMemory,

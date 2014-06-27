@@ -28,6 +28,7 @@ The options
         [ -m|--mvn                          ] : run tests via maven instead of via java directly
         [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test
         [ -storm                            ] : Run with a Storm environment
+        [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
@@ -67,6 +68,7 @@ my $conf = glob("~/hadooptest.conf");
 my $use_mvn = 1;
 my $gdm = 0;
 my $storm = 0;
+my $stormconf;
 my $spark = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
@@ -88,6 +90,7 @@ GetOptions(\%options,
     "gdm"                => \$gdm,
     "spark"              => \$spark,
     "storm"              => \$storm,
+    "stormconf|y=s"      => \$stormconf,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
     "adm_box|a=s"        => \$adm_box, 
@@ -188,11 +191,17 @@ else {
     $dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 
+my $stormClusterConf = "";
+if (-e "$stormconf") {
+   	$stormClusterConf = "-DSTORM_CLUSTER_CONF=$stormconf";
+}
+
 my @common_args = (
     "-DCLUSTER_NAME=$cluster",
     "-DWORKSPACE=$workspace",
     "-DADM_BOX=$adm_box", 
     "-Dhadooptest.config=$conf",
+    $stormClusterConf,
     $dependencies_opt,
     join(" ", @ARGV)
     );
@@ -219,9 +228,9 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 }
 
 # If the user has provided the -spark option to the script, install the Spark
-# 0.9.x package so that we can run tests against the Spark jars.
+# 1.0.x package so that we can run tests against the Spark jars.
 if ($spark) {
-    execute("yinst i yspark_yarn -tag yspark_yarn_0_9_latest_hadoop2 -live -downgrade -br quarantine");
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_0_latest_hadoop2 -live -downgrade -br quarantine");
 }
 
 my $hadoop_version;

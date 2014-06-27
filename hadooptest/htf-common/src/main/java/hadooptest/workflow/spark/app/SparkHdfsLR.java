@@ -83,7 +83,7 @@ public class SparkHdfsLR extends App {
         String appPatternStr = null;
 
         if (this.master == AppMaster.YARN_CLIENT) { 
-            appPatternStr = " Submitted application (.*) to ResourceManager";
+            appPatternStr = " Submitted application (.*)";
         }
         else if (this.master == AppMaster.YARN_STANDALONE) { 
             appPatternStr = " application identifier: (.*)$";
@@ -201,11 +201,12 @@ public class SparkHdfsLR extends App {
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ret = new String[] { "java",
+                    "-Dspark.jars=" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "-DSPARK_YARN_MODE=true",
+                    "-Dspark.master=yarn-client",
                     "-cp",
                     classpath,
                     "org.apache.spark.examples.SparkHdfsLR",
-                    AppMaster.getString(this.master), 
                     this.lrDataFile,
                     Integer.toString(this.iterations) };
         }
@@ -219,7 +220,6 @@ public class SparkHdfsLR extends App {
                     "org.apache.spark.deploy.yarn.Client",
                     "--jar",  TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "--class", "org.apache.spark.examples.SparkHdfsLR",
-                    "--args", AppMaster.getString(this.master), 
                     "--args", this.lrDataFile,
                     "--args", Integer.toString(this.iterations),
                     "--num-workers", Integer.toString(this.numWorkers),

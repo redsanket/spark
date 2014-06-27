@@ -28,6 +28,7 @@ public class TestSparkSaveAsText extends TestSession {
         private static String localJar = null;
         private static String lrDatafile = "lr_data.txt";
         private static String saveAsFile = "saveAsTextTest.txt";
+        private static String saveAsFile2 = "saveAsTextTest2.txt";
         private static String hdfsDir = "/user/" + System.getProperty("user.name") + "/";
 
         @BeforeClass
@@ -40,6 +41,7 @@ public class TestSparkSaveAsText extends TestSession {
         public static void endTestSession() throws Exception {
                 removeTestDir();
         }
+
 
         public static void setupTestDir() throws Exception {
 
@@ -55,7 +57,9 @@ public class TestSparkSaveAsText extends TestSession {
                 // Delete the file
                 TestSession.cluster.getFS().delete(new Path(hdfsDir + lrDatafile), true);
                 TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile), true);
+                TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile2), true);
         }
+
 
 	/*
 	 * A test for saving file to hdfs
@@ -87,6 +91,7 @@ public class TestSparkSaveAsText extends TestSession {
 			int waitTime = 30;
 			assertTrue("Job (default user) did not succeed.",
 				appUserDefault.waitForSuccess(waitTime));
+
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);
@@ -106,7 +111,8 @@ public class TestSparkSaveAsText extends TestSession {
 			//appUserDefault.setLRDataFile(lrDatafile);
 			appUserDefault.setClassName("hadooptest.spark.regression.SparkSaveAsText");
 			appUserDefault.setJarName(localJar);
-                        String[] argsArray = {lrDatafile, hdfsDir + saveAsFile};
+                        // tests can run in parallel so we need to use different file name
+                        String[] argsArray = {lrDatafile, hdfsDir + saveAsFile2};
                         appUserDefault.setArgs(argsArray);
 
 			appUserDefault.start();
@@ -116,11 +122,12 @@ public class TestSparkSaveAsText extends TestSession {
 			assertTrue("App ID for sleep app (default user) is invalid.", 
 					appUserDefault.verifyID());
             		assertEquals("App name for sleep app is invalid.", 
-                    		"Spark", appUserDefault.getAppName());
+                    		"SparkSaveAsText", appUserDefault.getAppName());
 
 			int waitTime = 30;
 			assertTrue("Job (default user) did not succeed.",
 				appUserDefault.waitForSuccess(waitTime));
+
 		}
 		catch (Exception e) {
 			TestSession.logger.error("Exception failure.", e);

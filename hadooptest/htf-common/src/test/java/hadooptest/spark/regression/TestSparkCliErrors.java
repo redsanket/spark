@@ -23,31 +23,6 @@ public class TestSparkCliErrors extends TestSession {
 	}
 
 	/*
-	 * A test running without SPARK_JAR set
-	 * 
-	 */
-	@Test
-	public void runSparkPiTestErrorSparkJar() {
-		try {
-			SparkPi appUserDefault = new SparkPi();
-
-			appUserDefault.setWorkerMemory("2g");
-			appUserDefault.setNumWorkers(2);
-			appUserDefault.setWorkerCores(1);
-            appUserDefault.setShouldSetSparkJar(false);
-
-			appUserDefault.start();
-
-			assertTrue("Error because SPARK_JAR not set",
-					appUserDefault.waitForERROR(10));
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
-	}
-
-	/*
 	 * A test running without --class not specified
 	 * 
 	 */

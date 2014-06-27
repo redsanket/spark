@@ -5,11 +5,16 @@ import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.workflow.storm.topology.bolt.ExclaimBolt;
+import hadooptest.automation.utils.http.JSONUtil;
+import hadooptest.workflow.storm.topology.grouping.YidGrouping;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import static org.junit.Assert.*;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -22,6 +27,14 @@ import org.junit.experimental.categories.Category;
 import backtype.storm.drpc.LinearDRPCTopologyBuilder;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.TopologySummary;
+
+import backtype.storm.StormSubmitter;
+import backtype.storm.drpc.DRPCSpout;
+import backtype.storm.drpc.ReturnResults;
+import backtype.storm.generated.GlobalStreamId;
+import backtype.storm.grouping.CustomStreamGrouping;
+import backtype.storm.task.WorkerTopologyContext;
+import backtype.storm.topology.TopologyBuilder;
 
 @SuppressWarnings("deprecation")
 @Category(SerialTests.class)
@@ -36,8 +49,10 @@ public class TestBasicDRPC extends TestSessionStorm {
         mc = (ModifiableStormCluster)cluster;
 
         cluster.setDrpcInvocationAuthAclForFunction("exclamation", "hadoopqa");
+        cluster.setDrpcInvocationAuthAclForFunction("jsonpost", "hadoopqa");
         String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
         cluster.setDrpcClientAuthAclForFunction("exclamation", "hadoopqa," +v1Role );
+        cluster.setDrpcClientAuthAclForFunction("jsonpost", "hadoopqa," +v1Role );
     }
 
     @AfterClass
@@ -78,7 +93,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         return false;
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestDRPCTopologyHTTP() throws Exception{
         logger.info("Starting TestDRPCTopologyHTTP");
         StormTopology topology = buildTopology();
@@ -175,7 +190,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         }
     }
     
-    @Test
+    @Test(timeout=600000)
     public void TestDRPCTopologyHTTPPut() throws Exception{
         logger.info("Starting TestDRPCTopologyHTTPPost");
         StormTopology topology = buildTopology();
@@ -271,6 +286,166 @@ public class TestBasicDRPC extends TestSessionStorm {
             logger.error("A test case failed.  Throwing error");
             throw new Exception();
         }
+    }
+
+    @Test(timeout=600000)
+    public void TestDRPCTopologyJSONPost() throws Exception{
+        logger.info("Starting TestDRPCTopologyJSONPost");
+        StormTopology topology = buildRamTopology();
+
+        String topoName = "drpc-topology-json-post";
+
+        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
+        try {
+            backtype.storm.Config stormConfig = new backtype.storm.Config();
+                stormConfig.setDebug(true);
+                stormConfig.put(backtype.storm.Config.TOPOLOGY_RECEIVER_BUFFER_SIZE, 8);
+                stormConfig.put(backtype.storm.Config.TOPOLOGY_TRANSFER_BUFFER_SIZE, 32);
+                stormConfig.put(backtype.storm.Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 16384);
+                stormConfig.put(backtype.storm.Config.TOPOLOGY_EXECUTOR_SEND_BUFFER_SIZE, 16384);
+                stormConfig.setNumWorkers(3);
+                stormConfig.setNumAckers(3);
+                cluster.submitTopology(jar, topoName, stormConfig, topology);
+        } catch (Exception e) {
+            logger.error("Couldn't launch topology: ", e );
+            throw new Exception(e);
+        }
+
+        String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestBasicDRPC/input.json");
+        java.nio.file.Path inputPath = Paths.get(inputFileDir);
+
+        boolean passed = false;
+        // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
+        // Create and start client
+        HttpClient client = new HttpClient();
+        client.setIdleTimeout(30000);
+        try {
+            client.start();
+        } catch (Exception e) {
+            cluster.killTopology(topoName);
+            throw new IOException("Could not start Http Client", e);
+        }
+        // Get the URI to ping
+        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
+        if(servers == null || servers.isEmpty()) {
+            cluster.killTopology(topoName);
+            throw new RuntimeException("No DRPC servers configured for topology");   
+        }
+
+        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/jsonpost";
+        logger.info("Attempting to connect to drpc server with " + DRPCURI);
+
+        // Let's try for 3 minutes, or until we get a 200 back.
+        int numPosts = 3;
+        boolean done = false;
+        while (numPosts > 0) {
+            int tryCount = 200;
+            Exception ex = null;
+            done = false;
+            while (!done && tryCount > 0) {
+                Thread.sleep(1000);
+                ContentResponse putResp = null;
+                
+                try {
+                    if (secureMode()) {
+                        String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+                        String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
+                        putResp = client.POST(DRPCURI).header("Yahoo-App-Auth", ycaCert).header("Content-Type", "application/json").file(inputPath).send();
+                    } else {
+                        putResp = client.POST(DRPCURI).header("Content-Type", "application/json").file(inputPath).send();
+                    }
+                } catch (Exception e) {
+                    TestSessionStorm.logger.error("POST failed to URL " + DRPCURI, e);
+                    ex = e;
+                }
+
+                if (putResp != null && putResp.getStatus() == 200) {
+                    done = true;
+                    // Check the response value.  Should be "Hello World!"
+                    String respString = putResp.getContentAsString();
+                    logger.info("Got back " + respString + " from drpc.");
+                    if (respString.contains("login")) {
+                        passed = true;
+                    }
+                }
+            }
+            // Did we fail?
+            if (!done) {
+                    cluster.killTopology(topoName);
+                    // Stop client
+                    try {
+                        client.stop();
+                    } catch (Exception e) {
+                        throw new IOException("Could not stop http client", e);
+                    }
+
+                    if ( ex != null ) {
+                        throw new IOException("Could not put to DRPC", ex);
+                    } else {
+                        throw new IOException("Timed out trying to get DRPC response\n");
+                    }
+            }
+            numPosts -= 1;
+            Thread.sleep(1000);
+        }
+        
+        cluster.killTopology(topoName);
+
+        // Stop client
+        try {
+            client.stop();
+        } catch (Exception e) {
+            throw new IOException("Could not stop http client", e);
+        }
+
+/*
+        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/jsonpost";
+        logger.info("Attempting to connect to drpc server with " + DRPCURI);
+
+        // Let's do what Ram did, and just call out to curl and hit it with the same data.
+        String myJSONPost = "'{\"src\":\"mobile_web\",\"asn\":\"5089\",\"login\":\"1545227ad14cc686e8325319df5e09bc\"}'";
+
+        // Give topology enough time to come up.
+        logger.info("Sleep for 1 seconds to allow topology to register DRPC");
+        Thread.sleep(10000);
+        String[] returnValue = null;
+        boolean done = false;
+        int tryCount = 200;
+        while (!done && tryCount > 0) {
+            if (secureMode()) {
+                logger.info("Attempting to connect to secure drpc server with " + DRPCURI);
+                logger.info("Attempting to connect to secure drpc server with json" + myJSONPost);
+                String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+                String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
+                returnValue = exec.runProcBuilder(new String[] { "curl", "-X", "POST", "-H", "\"Yahoo-App-Auth:" + ycaCert + "\"", "-H", "\"Content-Type: application/json\"", "--data", myJSONPost, DRPCURI } , true);
+                logger.info("returnValue[0] = " + returnValue[0]);
+                logger.info("returnValue[1] = " + returnValue[1]);
+                logger.info("returnValue[2] = " + returnValue[2]);
+            } else {
+                returnValue = exec.runProcBuilder(new String[] { "curl", "-X", "POST", "-H", "Content-Type: application/json", "--data", myJSONPost, DRPCURI } , true);
+            }
+
+            if ( returnValue[0].equals("0") ) {
+                //done = true;
+                Thread.sleep(10000);
+                tryCount -= 1;
+            } else {
+                logger.warn("curl returned error.  Sleeping and retrying");
+                Thread.sleep(10000);
+                tryCount -= 1;
+            }
+        }
+        */
+    }
+
+    public StormTopology buildRamTopology() throws Exception {
+            TopologyBuilder builder = new TopologyBuilder();
+
+            DRPCSpout spout = new DRPCSpout("jsonpost");
+            builder.setSpout("drpc", spout, 1);
+            builder.setBolt("return", new ReturnResults(),1).customGrouping("drpc", new YidGrouping());
+            
+            return builder.createTopology();
     }
 
     public StormTopology buildTopology() throws Exception {

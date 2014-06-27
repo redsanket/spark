@@ -589,20 +589,40 @@ public class TestGenerateJobLoad extends TestSession {
      * Submit a DFSIO job
      */
     public void submitDFSIOJobCLI(String username) throws Exception {
-        TestSession.logger.info("Run DFSIO test:");
-        DFSIOJob job = new DFSIOJob();
-        job.setup();
-        job.setUser(username);
-        job.setJobInitSetID(waitForJobId);
-        job.setPercentage(dfsioPercentage);
-        job.start();
+        
+        // DFSIO Write Job
+        TestSession.logger.info("Run DFSIO write test:");
+        DFSIOJob writeJob = new DFSIOJob();
+        String timestamp = writeJob.getTimestamp();
+        writeJob.setTestDir(timestamp);
+        writeJob.setupTestDir();
+        writeJob.setUser(username);
+        writeJob.setJobInitSetID(waitForJobId);
+        writeJob.setOperation("write");
+        writeJob.setPercentage(dfsioPercentage);
+        writeJob.start();
         
         // Wait for Job ID for 30 seconds from the job thread before continue. 
         // Otherwise TestGenerateJobLoad may terminates prematurely before the 
         // job has a chance to start in its thread.
         if (waitForJobId) {
-            job.waitForID(30);   
+            if (!writeJob.waitForID(maxWaitMin)) {
+                fail("ERROR: Unable to get job id for DFSIO write test after " +
+                        maxWaitMin + "minutes!!!");                
+            }
         }
+        
+        // DFSIO Read Job
+        TestSession.logger.info("Run DFSIO read test:");
+        DFSIOJob readJob = new DFSIOJob();
+        readJob.setTestDir(timestamp);
+        readJob.setWriteJobID(writeJob.getID());
+        readJob.setNumFiles(writeJob.getNumFiles());
+        readJob.setUser(username);
+        readJob.setJobInitSetID(waitForJobId);
+        readJob.setOperation("read");
+        readJob.setPercentage(dfsioPercentage);
+        readJob.start();            
     }    
         
     /* 
