@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// import junit.framework.Assert;
+
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
@@ -26,6 +28,7 @@ import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 
 /**
