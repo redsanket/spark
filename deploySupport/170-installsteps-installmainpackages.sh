@@ -7,7 +7,7 @@ then
     slownogwfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
     fanoutGW "/usr/bin/yum makecache"
     fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
-    fanoutGW "/usr/bin/yum -y install openssl098e-0.9.8e-18.el6_5.2.x86_64"
+    fanoutGW "/usr/bin/yum -y install openssl098e.x86_64"
     fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
     fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk"
     fanoutGW "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk/bin/java"
