@@ -512,10 +512,38 @@ public class TestGenerateJobLoad extends TestSession {
                         "' is < the threshold value of '" +
                         capacityThreshold + "': proceed");   
                 
+                long currentTime = System.currentTimeMillis();
+                
                 // Check for existing jobs that are in prep state
                 JobClient jobClient = TestSession.cluster.getJobClient();        
                 JobStatus[] jobsStatus = jobClient.getJobs(JobState.PREP);
-                int numPrepJobs = jobsStatus.length;
+                
+                // Filter any jobs that just started
+                ArrayList<JobStatus> filteredJs = new ArrayList<JobStatus>();
+                String jobId;
+                long startTime;
+                long timeDeltaSec;
+                long timeGap = 90;
+                for (JobStatus js : jobsStatus) {
+                    jobId = js.getJobID().toString();
+                    startTime = js.getStartTime();
+                    
+                    timeDeltaSec = ((currentTime - startTime)/1000);
+                    if (timeDeltaSec > timeGap) {
+                        TestSession.logger.info("Include job '" + jobId +
+                                "': job with State 'PREP' that started " +
+                                "over " + timeGap + " seconds ago.");
+                        filteredJs.add(js);
+                    } else {
+                        TestSession.logger.info("Exclude job '" + jobId +
+                                "': job with State 'PREP' that started" +
+                                "less than " + timeGap + " seconds ago.");
+                    }
+                }
+                JobStatus[] prepJobsStatus = 
+                        filteredJs.toArray(new JobStatus[filteredJs.size()]);                                
+                
+                int numPrepJobs = prepJobsStatus.length;
                 if (numPrepJobs > 0) {                    
                     jobClient.displayJobList(jobsStatus);
                     TestSession.logger.info(
