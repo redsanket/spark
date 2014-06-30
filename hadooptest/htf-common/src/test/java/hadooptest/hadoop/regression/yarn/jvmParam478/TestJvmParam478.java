@@ -15,7 +15,11 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
+/**
+ * Porting JvmParams478 suite into HTF
+ * @author tiwari
+ *
+ */
 @Category(SerialTests.class)
 public class TestJvmParam478 extends YarnTestsBaseClass {
 
