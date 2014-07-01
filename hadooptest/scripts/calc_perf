@@ -232,7 +232,7 @@ foreach my $job (@$jobs) {
 	}
 	# note("file size = ".$fileSize);
 	# convert megbyte to bits
-	$fileSize = $fileSize * 8 * 1000;
+	$fileSize = $fileSize * 8;
 
 	$timeDelta = ($job_ref->{'finishTime'} - $job_ref->{'startTime'})/60;
 	$timeDelta = floor($timeDelta + 0.5);
@@ -261,6 +261,8 @@ for my $re ( sort keys %$results ) {
     push(@values, $results->{$re});
 }
 print $fh join(", ", @values)."\n";
+
+system("cat $filename");
 
 close $fh;
 
