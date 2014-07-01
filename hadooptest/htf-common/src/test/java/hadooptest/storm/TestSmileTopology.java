@@ -52,6 +52,9 @@ public class TestSmileTopology extends TestSessionStorm {
     static String smileVersion = null;
     static String rsVersion = null;
     static String cljConf = "smile.clj"; 
+    public static String oldPassword = null;
+    public static String oldKeyPassword = null;
+    public static String oldTrustStorePath = null;
     int testInstance = 0;
     String registryURI;
     private static backtype.storm.Config _conf=null;
@@ -112,6 +115,13 @@ public class TestSmileTopology extends TestSessionStorm {
         cluster.setDrpcInvocationAuthAclForFunction("gradientquery", "hadoopqa");
         cluster.setDrpcClientAuthAclForFunction("gradientquery", "hadoopqa"); 
         
+        oldPassword = System.getProperty("org.eclipse.jetty.ssl.password");
+        oldKeyPassword = System.getProperty("org.eclipse.jetty.ssl.keypassword");
+        oldTrustStorePath = System.getProperty("javax.net.ssl.trustStore");
+        logger.info("Old password is " + oldPassword);
+        logger.info("Old keypassword is " + oldKeyPassword);
+        logger.info("Old trustStorePath = " + oldTrustStorePath);
+
         startTime = System.currentTimeMillis();
         writeColumns();
     }
@@ -125,6 +135,9 @@ public class TestSmileTopology extends TestSessionStorm {
             killAll();
         }
         stop();
+        System.setProperty("org.eclipse.jetty.ssl.password", oldPassword);
+        System.setProperty("org.eclipse.jetty.ssl.keypassword", oldKeyPassword);
+        System.setProperty("javax.net.ssl.trustStore", oldTrustStorePath);
         String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
     }
     
