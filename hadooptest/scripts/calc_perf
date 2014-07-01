@@ -242,7 +242,7 @@ foreach my $job (@$jobs) {
 	unless (defined($results->{$fileSizeH})) {
 	    $results->{$fileSizeHC} = ( $mbps );
 	} else {
-	    push(@$results->{$fileSizeHC}, $mbps);
+	    push(@{$results->{$fileSizeHC}}, $mbps);
 	}
 
 	note($job_name.", ".$job_ref->{'startTime'}.", ".$timeDelta." seconds, ".$fileSize.", ".$mbps." mbps, ".$source.", ".$target);
