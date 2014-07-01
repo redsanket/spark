@@ -20,6 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.examples.RandomWriter;
 import org.apache.hadoop.examples.Sort;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
@@ -237,6 +238,15 @@ public class YarnTestsBaseClass extends TestSession {
 			throw e;
 		}
 
+	}
+	
+	public Job submitSingleStreamJobAndGetHandle(String user, String... args) throws IOException, ClassNotFoundException, InterruptedException{
+		Configuration conf = TestSession.cluster.getConf();
+		JobConf jobConf = StreamJob.createJob(args);
+		Job job =  Job.getInstance(jobConf);
+		job.setUser(user);
+		job.submit();
+		return job;
 	}
 
 	private static String getValue(String tag, Element element) {
