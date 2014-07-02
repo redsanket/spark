@@ -92,7 +92,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
             StormSubmitter.submitTopology(name, stormConf, topology);
         }
     }
-
+/*
     public void submitTopology(File jar, String name, Map stormConf, 
     		StormTopology topology, SubmitOptions opts) 
     				throws AlreadyAliveException, InvalidTopologyException, 
@@ -103,7 +103,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
             StormSubmitter.submitTopology(name, stormConf, topology, opts, null);
         }
     }
-
+*/
     public void pushCredentials(String name, Map stormConf, 
     		Map<String,String> credentials) 
     				throws NotAliveException, InvalidTopologyException, 

@@ -32,7 +32,7 @@ public abstract class StormCluster {
     public abstract void cleanup() throws Exception;
 
     public abstract void submitTopology(File jar, String name, Map stormConf, StormTopology topology) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException, TException;
-    public abstract void submitTopology(File jar, String name, Map stormConf, StormTopology topology, SubmitOptions opts) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException, TException; 
+    //public abstract void submitTopology(File jar, String name, Map stormConf, StormTopology topology, SubmitOptions opts) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException, TException; 
     public abstract void pushCredentials(String name, Map stormConf, Map<String,String> credentials) throws NotAliveException, InvalidTopologyException, AuthorizationException, TException;
 
     public abstract void killTopology(String name) throws NotAliveException, AuthorizationException, TException;
