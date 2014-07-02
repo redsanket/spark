@@ -111,6 +111,16 @@ public class FullyDistributedCluster extends HadoopCluster {
 				" ---------------------------------");
 		int returnValue = 0;
 		for (String component : HadoopCluster.components) {
+	        // If we are starting the historyserver, wait for the namenode
+            // to get out of safe mode before proceeding.  The historyserver
+            // may fail to stay up if the nn is still in safe mode when the
+            // historyserver is started.
+            if (component.equals(HadoopCluster.HISTORYSERVER)) {
+                 TestSession.logger.info("Wait for HDFS to get out of safe mode.");
+                 boolean isSMOffForHS = this.waitForSafemodeOff();
+                 TestSession.logger.info("waitForSafemodeOff=" + isSMOffForHS);
+            }
+		    
 		    if (component.equals(HadoopCluster.GATEWAY)) { continue; }
 			returnValue += this.hadoopDaemon(Action.START, component);
 		}
