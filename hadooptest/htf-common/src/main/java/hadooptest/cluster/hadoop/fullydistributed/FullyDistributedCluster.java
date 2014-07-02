@@ -117,7 +117,7 @@ public class FullyDistributedCluster extends HadoopCluster {
             // historyserver is started.
             if (component.equals(HadoopCluster.HISTORYSERVER)) {
                  TestSession.logger.info("Wait for HDFS to get out of safe mode.");
-                 boolean isSMOffForHS = this.waitForSafemodeOff();
+                 boolean isSMOffForHS = this.waitForSafemodeOff(1000, null);
                  TestSession.logger.info("waitForSafemodeOff=" + isSMOffForHS);
             }
 		    
