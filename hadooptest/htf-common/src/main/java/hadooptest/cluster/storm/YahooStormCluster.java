@@ -100,7 +100,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	
         synchronized (YahooStormCluster.class) {
             System.setProperty("storm.jar", jar.getPath());
-            StormSubmitter.submitTopology(name, stormConf, topology, opts);
+            StormSubmitter.submitTopology(name, stormConf, topology, opts, null);
         }
     }
 
