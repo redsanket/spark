@@ -35,6 +35,12 @@ public class TestStormCli extends TestSessionStorm {
         }
         throw new IllegalArgumentException("Topology "+name+" does not appear to be up yet");
     }
+
+    public String getId(String name) throws Exception {
+        TopologySummary ts = getTS( name );
+
+        return ts.get_id();
+    }
  
     public int getUptime(String name) throws Exception {
         return getTS(name).get_uptime_secs();
@@ -52,10 +58,12 @@ public class TestStormCli extends TestSessionStorm {
         logger.info("Sleeping 30 seconds to let topology submission happen.");  
         Util.sleep(30);
         logger.info("Now let's get cluster conf.");  
-        String topConfig = cluster.getTopologyConf("exclaim");
+        String topConfig = cluster.getTopologyConf(getId("exclaim"));
         logger.info("Returned cluster info is " + topConfig);  
         json.setContent(topConfig);
-
-        // Now grap the JS
+        String users = json.getElement("ui.users").toString();
+        logger.info("Returned ui users is " + users);  
+        assertTrue("value was not [user1, user2, user3]", users.equals("[user1, user2, user3]"));
+        cluster.killTopology("exclaim");
     }
 }
