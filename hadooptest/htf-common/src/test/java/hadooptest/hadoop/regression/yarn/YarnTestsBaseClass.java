@@ -20,9 +20,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.examples.RandomWriter;
 import org.apache.hadoop.examples.Sort;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
+import org.apache.hadoop.mapreduce.TaskReport;
+import org.apache.hadoop.mapreduce.JobStatus.State;
+import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.streaming.StreamJob;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
@@ -41,18 +45,19 @@ public class YarnTestsBaseClass extends TestSession {
 		REFRESH_QUEUES, REFRESH_NODES, REFRESH_SUPERUSER_GROUPS_CONFIGURATION, REFRESH_USER_TO_GROUPS_MAPPING, REFRESH_ADMIN_ACLS, REFRESH_SERVICE_ACL, GET_GROUPS
 	};
 
-	public void killAllJobs() throws IOException, InterruptedException{
+	public void killAllJobs() throws IOException, InterruptedException {
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
 			cluster.getJob(aJobStatus.getJobID()).killJob();
 		}
 
 	}
+
 	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit,
 			String username, HashMap<String, String> jobParamsMap,
 			int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
-			int reduceSleepTime, int reduceSleepCount,
-			String jobName, boolean expectedToBomb) {
+			int reduceSleepTime, int reduceSleepCount, String jobName,
+			boolean expectedToBomb) {
 		Future<Job> jobHandle = null;
 		if (queueToSubmit.isEmpty() || queueToSubmit.equalsIgnoreCase("")) {
 			queueToSubmit = "default";
@@ -61,7 +66,9 @@ public class YarnTestsBaseClass extends TestSession {
 			jobParamsMap = getDefaultSleepJobProps(queueToSubmit);
 		}
 		CallableSleepJob callableSleepJob = new CallableSleepJob(jobParamsMap,
-				numMapper, numReducer, mapSleepTime, mapSleepCount, reduceSleepTime, reduceSleepCount, username, jobName, expectedToBomb);
+				numMapper, numReducer, mapSleepTime, mapSleepCount,
+				reduceSleepTime, reduceSleepCount, username, jobName,
+				expectedToBomb);
 
 		ExecutorService singleLanePool = Executors.newFixedThreadPool(1);
 		jobHandle = singleLanePool.submit(callableSleepJob);
@@ -298,6 +305,62 @@ public class YarnTestsBaseClass extends TestSession {
 			return valueToReturn;
 		}
 
+	}
+
+	void waitTillJobStartsRunning(Job job) throws IOException,
+			InterruptedException {
+		State jobState = job.getStatus().getState();
+		while (jobState != State.RUNNING) {
+			if ((jobState == State.FAILED) || (jobState == State.KILLED)) {
+				break;
+			}
+			Thread.sleep(1000);
+			jobState = job.getStatus().getState();
+			TestSession.logger
+					.info(job.getJobName()
+							+ " is in state : "
+							+ jobState
+							+ ", awaiting its state to change to 'RUNNING' hence sleeping for 1 sec");
+		}
+	}
+
+	void waitTillJobSucceeds(Job job) throws IOException, InterruptedException {
+
+		State jobState = job.getStatus().getState();
+		while (jobState != State.SUCCEEDED) {
+			if ((jobState == State.FAILED) || (jobState == State.KILLED)) {
+				break;
+			}
+			Thread.sleep(1000);
+			jobState = job.getStatus().getState();
+			TestSession.logger
+					.info(job.getJobName()
+							+ " is in state : "
+							+ jobState
+							+ ", awaiting its state to change to 'SUCCEEDED' hence sleeping for 1 sec");
+		}
+	}
+
+	void waitTillTaskSucceeds(Job job, TaskType taskType, int maxWaitInSecs)
+			throws IOException, InterruptedException {
+		boolean done = false;
+		int tick = 0;
+		do {
+			Thread.sleep(1000);
+			for (TaskReport aTaskReport : job.getTaskReports(taskType)) {
+				if (aTaskReport.getCurrentStatus() != TIPStatus.COMPLETE) {
+					TestSession.logger.info("Task " + taskType
+							+ " is in state " + aTaskReport.getCurrentStatus()
+							+ " hence waiting till max " + maxWaitInSecs
+							+ " seconds... tick!");
+					done = false;
+					break;
+				} else {
+					done = true;
+				}
+			}
+			tick++;
+		} while (!done && tick < maxWaitInSecs);
 	}
 
 	@Override
