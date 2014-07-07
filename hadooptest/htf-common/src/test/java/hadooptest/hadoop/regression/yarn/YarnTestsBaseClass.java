@@ -1,8 +1,10 @@
 package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.TestSession;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.MyUserInfo;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +22,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.examples.RandomWriter;
 import org.apache.hadoop.examples.Sort;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
@@ -32,6 +35,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UserInfo;
+
 public class YarnTestsBaseClass extends TestSession {
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public final String KRB5CCNAME = "KRB5CCNAME";
@@ -41,18 +51,19 @@ public class YarnTestsBaseClass extends TestSession {
 		REFRESH_QUEUES, REFRESH_NODES, REFRESH_SUPERUSER_GROUPS_CONFIGURATION, REFRESH_USER_TO_GROUPS_MAPPING, REFRESH_ADMIN_ACLS, REFRESH_SERVICE_ACL, GET_GROUPS
 	};
 
-	public void killAllJobs() throws IOException, InterruptedException{
+	public void killAllJobs() throws IOException, InterruptedException {
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
 			cluster.getJob(aJobStatus.getJobID()).killJob();
 		}
 
 	}
+
 	public Future<Job> submitSingleSleepJobAndGetHandle(String queueToSubmit,
 			String username, HashMap<String, String> jobParamsMap,
 			int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
-			int reduceSleepTime, int reduceSleepCount,
-			String jobName, boolean expectedToBomb) {
+			int reduceSleepTime, int reduceSleepCount, String jobName,
+			boolean expectedToBomb) {
 		Future<Job> jobHandle = null;
 		if (queueToSubmit.isEmpty() || queueToSubmit.equalsIgnoreCase("")) {
 			queueToSubmit = "default";
@@ -61,7 +72,9 @@ public class YarnTestsBaseClass extends TestSession {
 			jobParamsMap = getDefaultSleepJobProps(queueToSubmit);
 		}
 		CallableSleepJob callableSleepJob = new CallableSleepJob(jobParamsMap,
-				numMapper, numReducer, mapSleepTime, mapSleepCount, reduceSleepTime, reduceSleepCount, username, jobName, expectedToBomb);
+				numMapper, numReducer, mapSleepTime, mapSleepCount,
+				reduceSleepTime, reduceSleepCount, username, jobName,
+				expectedToBomb);
 
 		ExecutorService singleLanePool = Executors.newFixedThreadPool(1);
 		jobHandle = singleLanePool.submit(callableSleepJob);
@@ -239,6 +252,19 @@ public class YarnTestsBaseClass extends TestSession {
 
 	}
 
+	public Job submitSingleStreamJobAndGetHandle(String user, String... args)
+			throws IOException, ClassNotFoundException, InterruptedException {
+		Configuration conf = TestSession.cluster.getConf();
+		TestSession.cluster.setSecurityAPI("keytab-" + user, "user-" + user);
+
+		JobConf jobConf = StreamJob.createJob(args);
+		jobConf.setUser(user);
+		Job job = Job.getInstance(jobConf);
+		job.setUser(user);
+		job.submit();
+		return job;
+	}
+
 	private static String getValue(String tag, Element element) {
 		NodeList nodes = element.getElementsByTagName(tag).item(0)
 				.getChildNodes();
@@ -296,6 +322,100 @@ public class YarnTestsBaseClass extends TestSession {
 			return "";
 		} else {
 			return valueToReturn;
+		}
+
+	}
+
+	public String doJavaSSHClientExec(String user, String host, String command,
+			String identityFile) {
+		JSch jsch = new JSch();
+
+		// JSch.setLogger(new MyLogger());
+
+		TestSession.logger.info("SSH Client is about to run command:" + command
+				+ " on host:" + host + "as user:" + user
+				+ " using identity file:" + identityFile);
+		Session session;
+		StringBuilder sb = new StringBuilder();
+		try {
+			session = jsch.getSession(user, host, 22);
+			jsch.addIdentity(identityFile);
+			UserInfo ui = new MyUserInfo();
+			session.setUserInfo(ui);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.connect();
+			Channel channel = session.openChannel("exec");
+			((ChannelExec) channel).setCommand(command);
+			channel.setInputStream(null);
+			((ChannelExec) channel).setErrStream(System.err);
+
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			byte[] tmp = new byte[1024];
+			while (true) {
+				while (in.available() > 0) {
+					int i = in.read(tmp, 0, 1024);
+					if (i < 0)
+						break;
+					String outputFragment = new String(tmp, 0, i);
+					TestSession.logger.info(outputFragment);
+					sb.append(outputFragment);
+				}
+				if (channel.isClosed()) {
+					TestSession.logger.info("exit-status: "
+							+ channel.getExitStatus());
+					break;
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (Exception ee) {
+				}
+			}
+			channel.disconnect();
+			session.disconnect();
+
+		} catch (JSchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return sb.toString();
+	}
+
+	public class MyUserInfo implements UserInfo {
+
+		public String getPassphrase() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public String getPassword() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public boolean promptPassphrase(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean promptPassword(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean promptYesNo(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public void showMessage(String arg0) {
+			// TODO Auto-generated method stub
+
 		}
 
 	}
