@@ -334,29 +334,35 @@ public class YarnTestsBaseClass extends TestSession {
 			Thread.sleep(1000);
 			jobState = job.getStatus().getState();
 			TestSession.logger
-					.info(job.getJobName()
+					.info("Job "
+							+ job.getJobName()
 							+ " is in state : "
 							+ jobState
 							+ ", awaiting its state to change to 'SUCCEEDED' hence sleeping for 1 sec");
 		}
 	}
 
-	void waitTillTaskSucceeds(Job job, TaskType taskType, int maxWaitInSecs)
-			throws IOException, InterruptedException {
+	void waitTillAnyTaskGetsToState(TIPStatus expectedState, Job job,
+			TaskType taskType, int maxWaitInSecs) throws IOException,
+			InterruptedException {
 		boolean done = false;
 		int tick = 0;
 		do {
 			Thread.sleep(1000);
 			for (TaskReport aTaskReport : job.getTaskReports(taskType)) {
-				if (aTaskReport.getCurrentStatus() != TIPStatus.COMPLETE) {
-					TestSession.logger.info("Task " + taskType
-							+ " is in state " + aTaskReport.getCurrentStatus()
-							+ " hence waiting till max " + maxWaitInSecs
-							+ " seconds... tick!");
-					done = false;
-					break;
-				} else {
+				if (aTaskReport.getCurrentStatus() == expectedState) {
 					done = true;
+					TestSession.logger.info("There task " + taskType
+							+ " has reached expected state ==" + expectedState);
+				} else {
+					done = false;
+					TestSession.logger.info(taskType + " task "
+							+ aTaskReport.getTaskId() + " is in state "
+							+ aTaskReport.getCurrentStatus()
+							+ " & not expected state of " + expectedState
+							+ " hence waiting for (" + (maxWaitInSecs - tick)
+							+ " seconds) more....tick!");
+
 				}
 			}
 			tick++;

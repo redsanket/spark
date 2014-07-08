@@ -8,16 +8,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.hadoop.mapred.TIPStatus;
-import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.JobStatus;
-import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskReport;
 import org.apache.hadoop.mapreduce.TaskType;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 
 public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 
@@ -81,14 +78,16 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 	}
 
 	@Test
-	@Ignore("works")
+	@Ignore("")
 	public void testListAttemptIdsWithNoRunningMaps()
 			throws InterruptedException, ExecutionException, IOException {
 		String testName = "testListAttemptIdsForValidJobIdTaskTypeTaskState";
 		String queueToUse = "default";
 		String user = HadooptestConstants.UserNames.HADOOPQA;
-		// (int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
-		// int reduceSleepTime, int reduceSleepCount)
+		/**
+		 * Sleep Job args numMapper, numReducer, mapSleepTime,
+		 * mapSleepCount,reduceSleepTime, reduceSleepCount
+		 */
 		Future<Job> handle = submitSingleSleepJobAndGetHandle(queueToUse, user,
 				getDefaultSleepJobProps(queueToUse), 1, 10, 1, 1, 50000, 1,
 				testName, false);
@@ -117,22 +116,22 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 	}
 
 	@Test
-	@Ignore("works")
+	@Ignore("")
 	public void testListAttemptIdsWithNoCompletedMapsAndTaskStatusCompleted()
 			throws InterruptedException, ExecutionException, IOException {
 		String testName = "testListAttemptIdsForValidJobIdTaskTypeTaskState";
 		String queueToUse = "default";
 		String user = HadooptestConstants.UserNames.HADOOPQA;
-		// (int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
-		// int reduceSleepTime, int reduceSleepCount)
+		/**
+		 * Sleep Job args numMapper, numReducer, mapSleepTime,
+		 * mapSleepCount,reduceSleepTime, reduceSleepCount
+		 */
 		Future<Job> handle = submitSingleSleepJobAndGetHandle(queueToUse, user,
 				getDefaultSleepJobProps(queueToUse), 1, 1, 50000, 1, 50000, 1,
 				testName, false);
 		Job job = handle.get();
 		waitTillJobStartsRunning(job);
-
-		// Sleep for 5 secs, to let the Map get underway/complete.
-		Thread.sleep(5000);
+		waitTillAnyTaskGetsToState(TIPStatus.COMPLETE, job, TaskType.MAP, 60);
 		boolean testConditionMet = false;
 		TaskType[] taskTypes = { TaskType.MAP };
 		for (TaskType aTaskType : taskTypes) {
@@ -140,16 +139,14 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 				if (aTaskReport.getCurrentStatus() == TIPStatus.PENDING
 						|| aTaskReport.getCurrentStatus() == TIPStatus.FAILED)
 					continue;
-				if (aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE
-						|| aTaskReport.getCurrentStatus() == TIPStatus.KILLED) {
+				if (aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE) {
+					testConditionMet = true;
+					break;
+				}
+				if (aTaskReport.getCurrentStatus() == TIPStatus.KILLED) {
 					testConditionMet = false;
 					break;
-
 				}
-				Assert.assertEquals(TIPStatus.RUNNING,
-						aTaskReport.getCurrentStatus());
-				testConditionMet = true;
-
 			}
 		}
 
@@ -159,21 +156,23 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 	}
 
 	@Test
-	@Ignore("works")
+	@Ignore("begin from here")
 	public void testListAttemptIdsForReduceTaskAndTaskStateAsRunning()
 			throws InterruptedException, ExecutionException, IOException {
 		String testName = "testListAttemptIdsForReduceTaskAndTaskStateAsRunning";
 		String queueToUse = "default";
 		String user = HadooptestConstants.UserNames.HADOOPQA;
 
-		// (int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
-		// int reduceSleepTime, int reduceSleepCount)
+		/**
+		 * Sleep Job args numMapper, numReducer, mapSleepTime,
+		 * mapSleepCount,reduceSleepTime, reduceSleepCount
+		 */
 		Future<Job> handle = submitSingleSleepJobAndGetHandle(queueToUse, user,
 				getDefaultSleepJobProps(queueToUse), 1, 50000, 1, 1, 50000, 1,
 				testName, false);
 		Job job = handle.get();
 		waitTillJobStartsRunning(job);
-		waitTillTaskSucceeds(job, TaskType.MAP, 60);
+		waitTillAnyTaskGetsToState(TIPStatus.COMPLETE, job, TaskType.MAP, 60);
 		boolean testConditionMet = false;
 		TaskType[] taskTypes = { TaskType.MAP, TaskType.REDUCE };
 
@@ -216,21 +215,24 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 	}
 
 	@Test
+	@Ignore("works")
 	public void testListAttemptIdsForCompletedJobsForReduceTaskAndTaskStateAsCompleted()
 			throws InterruptedException, ExecutionException, IOException {
 		String testName = "testListAttemptIdsForCompletedJobsForReduceTaskAndTaskStateAsCompleted";
 		String queueToUse = "default";
 		String user = HadooptestConstants.UserNames.HADOOPQA;
 
-		// (int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
-		// int reduceSleepTime, int reduceSleepCount)
+		/**
+		 * Sleep Job args numMapper, numReducer, mapSleepTime,
+		 * mapSleepCount,reduceSleepTime, reduceSleepCount
+		 */
 		Future<Job> handle = submitSingleSleepJobAndGetHandle(queueToUse, user,
-				getDefaultSleepJobProps(queueToUse), 1, 10, 1, 1, 700, 1,
+				getDefaultSleepJobProps(queueToUse), 10, 10, 10000, 1, 700, 1,
 				testName, false);
 		Job job = handle.get();
 		waitTillJobStartsRunning(job);
-		waitTillTaskSucceeds(job, TaskType.MAP, 60);
-		waitTillTaskSucceeds(job, TaskType.REDUCE, 60);
+		waitTillAnyTaskGetsToState(TIPStatus.COMPLETE, job, TaskType.MAP, 20);
+		waitTillAnyTaskGetsToState(TIPStatus.COMPLETE, job, TaskType.REDUCE, 20);
 		boolean testConditionMet = false;
 		TaskType[] taskTypes = { TaskType.MAP, TaskType.REDUCE };
 		int countOfCompletedReduceTasks = 0;
@@ -263,7 +265,7 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 					}
 					if (aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE) {
 						countOfCompletedReduceTasks++;
-						testConditionMet= true;
+						testConditionMet = true;
 					}
 				}
 
@@ -272,6 +274,86 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 		job.killJob();
 		Assert.assertTrue(testConditionMet);
 		Assert.assertTrue(countOfCompletedReduceTasks > 0);
+
+	}
+
+	@Test
+	@Ignore("works")
+	public void testListAttemptIdsForCompletedJobsForReduceTaskAndTaskStateAsRunning()
+			throws InterruptedException, ExecutionException, IOException {
+		String testName = "testListAttemptIdsForCompletedJobsForReduceTaskAndTaskStateAsRunning";
+		String queueToUse = "default";
+		String user = HadooptestConstants.UserNames.HADOOPQA;
+
+		/**
+		 * Sleep Job args numMapper, numReducer, mapSleepTime,
+		 * mapSleepCount,reduceSleepTime, reduceSleepCount
+		 */
+		Future<Job> handle = submitSingleSleepJobAndGetHandle(queueToUse, user,
+				getDefaultSleepJobProps(queueToUse), 1, 10, 10000, 1, 7000, 1,
+				testName, false);
+		Job job = handle.get();
+		waitTillJobStartsRunning(job);
+		waitTillAnyTaskGetsToState(TIPStatus.COMPLETE, job, TaskType.MAP, 20);
+		waitTillAnyTaskGetsToState(TIPStatus.RUNNING, job, TaskType.REDUCE, 20);
+		boolean testConditionMet = false;
+		TaskType[] taskTypes = { TaskType.MAP, TaskType.REDUCE };
+		int countOfRunningReduceTasks = 0;
+		for (TaskType aTaskType : taskTypes) {
+			if (aTaskType == TaskType.MAP) {
+				for (TaskReport aTaskReport : job.getTaskReports(aTaskType)) {
+					Assert.assertTrue(
+							"MAP task not completed yet! It is in state:"
+									+ aTaskReport.getCurrentStatus(),
+							aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE);
+				}
+			} else {
+				for (TaskReport aTaskReport : job.getTaskReports(aTaskType)) {
+					if (aTaskReport.getCurrentStatus() == TIPStatus.KILLED) {
+						testConditionMet = false;
+						TestSession.logger.info("reduce task :"
+								+ aTaskReport.getTaskId() + " is in state:"
+								+ aTaskReport.getCurrentStatus());
+						break;
+
+					}
+					if (aTaskReport.getCurrentStatus() == TIPStatus.RUNNING) {
+						TestSession.logger.info("reduce task :"
+								+ aTaskReport.getTaskId() + " is in state:"
+								+ aTaskReport.getCurrentStatus());
+						countOfRunningReduceTasks++;
+						testConditionMet = true;
+					}
+					if (aTaskReport.getCurrentStatus() == TIPStatus.PENDING
+							|| aTaskReport.getCurrentStatus() == TIPStatus.FAILED
+							|| aTaskReport.getCurrentStatus() == TIPStatus.COMPLETE) {
+						TestSession.logger.info("reduce task :"
+								+ aTaskReport.getTaskId() + " is in state:"
+								+ aTaskReport.getCurrentStatus());
+						continue;
+					}
+
+				}
+
+			}
+		}
+		job.killJob();
+		Assert.assertTrue(testConditionMet);
+		Assert.assertTrue(countOfRunningReduceTasks > 0);
+
+	}
+
+	@Test
+	@Ignore("repetetive test")
+	public void testListAttemptIdsForCompletedJobsForMapTaskAndTaskStateAsRunning()
+			throws InterruptedException, ExecutionException, IOException {
+
+	}
+
+	@Test
+	@Ignore("repetetive test")
+	public void testListAttemptIdsWithNoRunningReduceTasksAndTaskStatusRunning()
+			throws InterruptedException, ExecutionException, IOException {
 
 	}
 
