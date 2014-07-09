@@ -354,6 +354,7 @@ public class YarnTestsBaseClass extends TestSession {
 					done = true;
 					TestSession.logger.info("There task " + taskType
 							+ " has reached expected state ==" + expectedState);
+					break;
 				} else {
 					done = false;
 					TestSession.logger.info(taskType + " task "
