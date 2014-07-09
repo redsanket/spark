@@ -1,20 +1,21 @@
 #!/bin/bash
 
-script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 TIMESTAMP=`date +%y%m%d-%T`
-rawfilename="/tmp/scan.log.$TIMESTAMP"
-summaryfilename="/tmp/audit.log.$TIMESTAMP"
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+output_dir=$script_dir/../target
+mkdir -p $output_dir
+cluster_info_log="$output_dir/cluster_info.log"
 
 set -x
-$script_dir/scan_clusters $* 2>&1 | tee $rawfilename
+$script_dir/scan_clusters $* 2>&1 | tee $cluster_info_log
 set +x
 
 echo
 echo "==========================================="
 echo "SUMMARY"
 echo "==========================================="
-$script_dir/parse_scan_clusters $rawfilename 2>&1 | tee $summaryfilename
+$script_dir/parse_scan_clusters $cluster_info_log
 echo 
 
 # ## Sending mail to user 
@@ -37,6 +38,4 @@ echo
 #     fi
 # fi
 
-rm $rawfilename
-rm $summaryfilename
 

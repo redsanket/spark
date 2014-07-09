@@ -52,6 +52,7 @@ public abstract class TestSession extends TestSessionCore {
 	public static MultiClusterClient multiClusterClient;
 
     public static String TASKS_REPORT_LOG = "tasks_report.log";
+    public static String CROSS_COLO_PERF_LOG = "crosscolo_perf.log";
     public static long startTime=System.currentTimeMillis();
     
     public static enum HTF_TEST { CLASS, METHOD }
