@@ -42,9 +42,9 @@
 		<spark.version>0.9.0.1</spark.version>
 		<spark.version.full>0.9.1_2.2.0_1403200042</spark.version.full>
 		<scala.version>2.10.3</scala.version>
-		<storm.version.yinst>0.9.0_wip21</storm.version.yinst>
-		<storm.version.community>0.9.0-wip21</storm.version.community>
-		<storm.version.release>265</storm.version.release>
+		<storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
+		<storm.version.community>0.9.2-incubating-security</storm.version.community>
+		<storm.version.release>271</storm.version.release>
 	    <jetty.version>9.1.4.v20140401</jetty.version>
 	    <jetty.version.release>65</jetty.version.release> 
 		<thread.count>8</thread.count>
@@ -376,7 +376,7 @@
 				<dependency>
 					<groupId>yahoo.yinst.ystorm</groupId>
 					<artifactId>storm</artifactId>
-					<version>${storm.version.yinst}.${storm.version.release}</version>
+					<version>0.9.0_wip21.265</version>
 					<exclusions>
 						<exclusion>
 							<groupId>javax.servlet</groupId>
@@ -968,6 +968,319 @@
 				<activeByDefault>false</activeByDefault>
 			</activation>
 			<dependencies>
+
+				<dependency>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+					<version>1.2.12</version>
+				</dependency>
+
+				<!-- STORM -->
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_servlet-api</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/servlet-api-2.5.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_contrib_http_spout</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib/jars/http_spout.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_contrib_rainbow_spout_example</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib/jars/rainbow_spout_example-jar-with-dependencies.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_core</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/storm-core-${storm.version.community}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_netty</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/netty-3.6.3.Final.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_yahoo</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/storm_yahoo-${storm.version.community}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_thrift7</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/libthrift-0.7.0.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_zookeeper</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/zookeeper-3.4.5.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_curator_client</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/curator-client-2.4.0.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_curator_framework</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/curator-framework-2.4.0.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_jgrapht</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/jgrapht-core-0.9.0.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_clojure</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/clojure-1.5.1.jar</systemPath>
+				</dependency>
+
+				<!-- COMMONS-CODEC -->
+
+				<dependency>
+					<groupId>commons-codec</groupId>
+					<artifactId>commons-codec</artifactId>
+					<version>1.9</version>
+				</dependency>
+
+				<!-- YJAVA_BYAUTH -->
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_byauth</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_byauth_fetch/lib/jars/yjava_byauth.jar</systemPath>
+				</dependency>
+
+				<!-- JETTY -->
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_client</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-client-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_jaas</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-jaas-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_util</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-util-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_annotations</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-annotations-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_continuation</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-continuation-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_deploy</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-deploy-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_http</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-http-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_io</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-io-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_jmx</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-jmx-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_jndi</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-jndi-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_plus</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-plus-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_proxy</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-proxy-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_rewrite</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-rewrite-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_security</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-security-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_server</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-server-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_servlet</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-servlet-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_servlets</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-servlets-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_webapp</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-webapp-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yjava_jetty_xml</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-xml-${jetty.version}.jar</systemPath>
+				</dependency>
+
+				<!-- SPARK -->
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>yspark_yarn</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly_${spark.version.assembly.prefix}-${spark.version}-hadoop2.jar</systemPath>
+				</dependency>
+			</dependencies>
+		</profile>
+
+		<!-- BASE PROFILE FOR STORM-090 -->
+		<!-- When Storm is used, this profile must be called before profile-ci 
+			or any other profile. If another profile is used first, the dependency jars 
+			from that profile might have Storm configuration or classes that will upset 
+			the classpath assembled by maven, and can lead to unexpected configuration 
+			or classes ending up in the classpath before the necessary Storm support. 
+			By putting profile-storm first in the maven profile order, it ensures that 
+			Storm API calls and configuration will be using the deployed Storm jars. -->
+		<profile>
+			<id>profile-storm-090</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+            <properties>
+                <storm.version.community>0.9.0-wip21</storm.version.community>
+            </properties>
+			<dependencies>
+
+				<dependency>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+					<version>1.2.12</version>
+				</dependency>
+
 				<!-- STORM -->
 
 				<dependency>
@@ -1249,7 +1562,6 @@
 				</dependency>
 			</dependencies>
 		</profile>
-
 		<profile>
 			<!-- When Hadoop is used, the profile-hadoop profile must be called before 
 				profile-ci or any other profile. If another profile is used first, the dependency 
@@ -1264,6 +1576,12 @@
 				<activeByDefault>false</activeByDefault>
 			</activation>
 			<dependencies>
+
+				<dependency>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+					<version>1.2.12</version>
+				</dependency>
 
 				<!-- STORM -->
 
@@ -1288,7 +1606,7 @@
 					<artifactId>fetched_ystorm_core</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/storm-core-${storm.version.community}.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/storm-core-${storm.version.community}.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1296,7 +1614,7 @@
 					<artifactId>fetched_ystorm_netty</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/storm-netty-${storm.version.community}.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/netty-3.6.3.Final.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1304,7 +1622,7 @@
 					<artifactId>fetched_ystorm_yahoo</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/storm_yahoo-${storm.version.community}.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/storm_yahoo-${storm.version.community}.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1312,7 +1630,7 @@
 					<artifactId>fetched_ystorm_thrift7</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/libthrift7-0.7.0-2.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/libthrift-0.7.0.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1328,7 +1646,7 @@
 					<artifactId>fetched_ystorm_curator_client</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/curator-client-1.3.3.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/curator-client-2.4.0.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1336,7 +1654,7 @@
 					<artifactId>fetched_ystorm_curator_framework</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/curator-framework-1.3.3.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/curator-framework-2.4.0.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1344,7 +1662,7 @@
 					<artifactId>fetched_ystorm_jgrapht</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/jgrapht-0.8.3.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/jgrapht-core-0.9.0.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1352,7 +1670,7 @@
 					<artifactId>fetched_ystorm_clojure</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/clojure-1.4.0.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/clojure-1.5.1.jar</systemPath>
 				</dependency>
 
 				<!-- COMMONS-CODEC -->

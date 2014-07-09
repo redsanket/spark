@@ -12,6 +12,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,6 +44,8 @@ public abstract class Job extends Thread {
 	
 	/** Whether the job should take time to wait for the job ID in the output before progressing */
 	protected boolean jobInitSetID = true;
+	
+	protected String timestamp;
 	
 	/**
 	 * Submit the job to the cluster through the Hadoop CLI.
@@ -81,6 +85,19 @@ public abstract class Job extends Thread {
 		return this.ID;
 	}
 	
+    /**
+     * Get timestamp ID.
+     * 
+     * @param timestamp
+     */
+    public String getTimestamp() {
+        if (this.timestamp != null) {
+            return this.timestamp;
+        } else {
+            return new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+        }
+    }
+    
 	/**
 	 * Implements Thread.run().
 	 * 

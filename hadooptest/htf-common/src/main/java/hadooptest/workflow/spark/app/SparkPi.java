@@ -163,7 +163,7 @@ public class SparkPi extends App {
         String appPatternStr = null;
 
         if (this.master == AppMaster.YARN_CLIENT) {
-            appPatternStr = " Submitted application (.*) to ResourceManager";
+            appPatternStr = " Submitted application (.*)";
         }
         else if (this.master == AppMaster.YARN_STANDALONE) {
             appPatternStr = " application identifier: (.*)$";
@@ -302,6 +302,7 @@ public class SparkPi extends App {
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ret = new String[] { "java",
+                    "-Dspark.jars=" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "-DSPARK_YARN_MODE=true",
                     "-Dspark.master=yarn-client",
                     "-cp",

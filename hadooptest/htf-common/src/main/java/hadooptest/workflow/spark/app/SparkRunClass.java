@@ -187,7 +187,7 @@ public class SparkRunClass extends App {
         String appPatternStr = null;
 
         if (this.master == AppMaster.YARN_CLIENT) {
-            appPatternStr = " Submitted application (.*) to ResourceManager";
+            appPatternStr = " Submitted application (.*)"; 
         }
         else if (this.master == AppMaster.YARN_STANDALONE) {
             appPatternStr = " application identifier: (.*)$";
@@ -327,11 +327,12 @@ public class SparkRunClass extends App {
 
             ArrayList<String> cmd = new ArrayList<String>(16);
             cmd.addAll(Arrays.asList( new String[] { "java",
+                    "-Dspark.jars=" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR"),
                     "-DSPARK_YARN_MODE=true",
+                    "-Dspark.master=yarn-client",
                     "-cp",
                     classpath }));
             cmd.add(this.className);
-            cmd.add(AppMaster.getString(this.master)); 
             for (String arg: this.argsArray) {
               cmd.add(arg);
             }
@@ -362,8 +363,6 @@ public class SparkRunClass extends App {
               cmd.add(this.appName);
             }
 
-            cmd.add("--args");
-            cmd.add(AppMaster.getString(this.master));
             for (String arg: this.argsArray) {
               cmd.add("--args");
               cmd.add(arg);

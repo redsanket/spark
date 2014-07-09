@@ -64,12 +64,14 @@ public class LocalModeStormCluster extends StormCluster {
         }
     }
 
+    /*
     public void submitTopology(File jar, String name, Map stormConf, StormTopology topology, SubmitOptions opts) throws AlreadyAliveException, InvalidTopologyException, AuthorizationException {
         synchronized (LocalModeStormCluster.class) {
             System.setProperty("storm.jar", jar.getPath());
-            StormSubmitter.submitTopology(name, stormConf, topology, opts);
+            StormSubmitter.submitTopology(name, stormConf, topology, opts, null);
         }
     }
+    */
 
     public void pushCredentials(String name, Map stormConf, Map<String,String> credentials) throws NotAliveException, InvalidTopologyException, AuthorizationException {
         StormSubmitter.pushCredentials(name, stormConf, credentials);

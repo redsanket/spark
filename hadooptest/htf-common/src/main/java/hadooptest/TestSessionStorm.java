@@ -1,5 +1,8 @@
 package hadooptest;
 
+import backtype.storm.generated.TopologySummary;
+import backtype.storm.generated.KillOptions;
+
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
 
@@ -8,8 +11,6 @@ import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
-
-import backtype.storm.generated.TopologySummary;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -33,13 +34,20 @@ public abstract class TestSessionStorm extends TestSessionCore {
     public static StormCluster cluster;
 
     public static void killAll() throws Exception {
+        boolean killedOne = false;
         if (cluster != null) {
+            KillOptions killOpts = new KillOptions();
+            killOpts.setFieldValue(KillOptions._Fields.WAIT_SECS, 0);
             for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
                 System.out.println("Killing " + ts.get_name());
-                cluster.killTopology(ts.get_name());
+                cluster.killTopology(ts.get_name(), killOpts);
+                killedOne = true;
             }
         } else {
                 System.out.println(" killAll : cluster is null ");
+        }
+        if (killedOne) {
+            Util.sleep(10);
         }
     }
 
