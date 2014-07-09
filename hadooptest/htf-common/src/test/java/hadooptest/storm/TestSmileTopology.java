@@ -52,6 +52,9 @@ public class TestSmileTopology extends TestSessionStorm {
     static String smileVersion = null;
     static String rsVersion = null;
     static String cljConf = "smile.clj"; 
+    public static String oldPassword = null;
+    public static String oldKeyPassword = null;
+    public static String oldTrustStorePath = null;
     int testInstance = 0;
     String registryURI;
     private static backtype.storm.Config _conf=null;
@@ -112,6 +115,10 @@ public class TestSmileTopology extends TestSessionStorm {
         cluster.setDrpcInvocationAuthAclForFunction("gradientquery", "hadoopqa");
         cluster.setDrpcClientAuthAclForFunction("gradientquery", "hadoopqa"); 
         
+        oldPassword = System.getProperty("org.eclipse.jetty.ssl.password");
+        oldKeyPassword = System.getProperty("org.eclipse.jetty.ssl.keypassword");
+        oldTrustStorePath = System.getProperty("javax.net.ssl.trustStore");
+
         startTime = System.currentTimeMillis();
         writeColumns();
     }
@@ -125,6 +132,27 @@ public class TestSmileTopology extends TestSessionStorm {
             killAll();
         }
         stop();
+        if ( oldPassword == null ) {
+            logger.info("Clearing org.eclipse.jetty.ssl.password");
+            System.clearProperty("org.eclipse.jetty.ssl.password");
+        } else {
+            logger.info("Old password is " + oldPassword);
+            System.setProperty("org.eclipse.jetty.ssl.password", oldPassword);
+        }
+        if ( oldKeyPassword == null ) {
+            logger.info("Clearing org.eclipse.jetty.ssl.keypassword");
+            System.clearProperty("org.eclipse.jetty.ssl.keypassword");
+        } else {
+            logger.info("Old keypassword is " + oldKeyPassword);
+            System.setProperty("org.eclipse.jetty.ssl.keypassword", oldKeyPassword);
+        }
+        if ( oldTrustStorePath == null ) {
+            logger.info("Clearing javax.net.ssl.trustStore");
+            System.clearProperty("javax.net.ssl.trustStore");
+        } else {
+            logger.info("Old trustStorePath = " + oldTrustStorePath);
+            System.setProperty("javax.net.ssl.trustStore", oldTrustStorePath);
+        }
         String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
     }
     
@@ -631,30 +659,30 @@ public class TestSmileTopology extends TestSessionStorm {
         String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestVW() throws Exception {
         testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-vw.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestGradient() throws Exception {
         testInstance = 1;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/svm-gd.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestFlickrVW() throws Exception {
         testInstance = 2;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-vw.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestFlickrGD() throws Exception {
         testInstance = 3;
         testSmile("resources/storm/testinputoutput/TestSmileTopology/flickr-gd.json");
     }
 
-    @Test
+    @Test(timeout=600000)
     public void TestSVMGradientPersist() throws Exception {
         testInstance = 4;
         String[] returnValue = exec.runProcBuilder(new String[] { "/homes/mapredqa/test_models/rm_model" }, true);

@@ -22,8 +22,8 @@ public class DfsadminReportBO {
 	private static final String BLOCKS_WITH_CORRUPT_REPLICAS_COLON = "Blocks with corrupt replicas:";
 	private static final String MISSING_BLOCKS_COLON = "Missing blocks:";
 	private static final String DATANODES_AVAILABLE_COLON = "Datanodes available:";
-	private static final String LIVE_DATANODES_COLON = "Live datanodes:";
-	private static final String DEAD_DATANODES_COLON = "Dead datanodes:";
+	private static final String LIVE_DATANODES = "Live datanodes";
+	private static final String DEAD_DATANODES = "Dead datanodes";
 	private static final String NAME_COLON = "Name:";
 	private static final String HOSTNAME_COLON = "Hostname:";
 	private static final String RACK_COLON = "Rack:";
@@ -37,37 +37,37 @@ public class DfsadminReportBO {
 	private static final String CACHE_REMAINING_PERCENTAGE_COLON = "Cache Remaining%:";
 	private static final String LAST_CONTACT_COLON = "Last contact:";
 
-	class DatanodeBO {
-		String name;
-		String hostname;
-		String rack;
-		String decommissionStatus;
-		String configuredCapacity;
-		String dfsUsed;
-		String nonDfsUsed;
-		String dfsRemaining;
-		String dfsUsedPercentage;
-		String dfsRemainingPercentage;
-		String configuredCacheCapacity;
-		String cacheUsed;
-		String cacheRemaining;
-		String cacheUsedPercentage;
-		String cacheRemainingPercentage;
-		String lastContact;
+	public class DatanodeBO {
+		public String name;
+		public String hostname;
+		public String rack;
+		public String decommissionStatus;
+		public String configuredCapacity;
+		public String dfsUsed;
+		public String nonDfsUsed;
+		public String dfsRemaining;
+		public String dfsUsedPercentage;
+		public String dfsRemainingPercentage;
+		public String configuredCacheCapacity;
+		public String cacheUsed;
+		public String cacheRemaining;
+		public String cacheUsedPercentage;
+		public String cacheRemainingPercentage;
+		public String lastContact;
 
 	}
 
-	String configuredCapacity;
-	String presentCapacity;
-	String dfsRemaining;
-	String dfsUsed;
-	String dfsUsedPercentage;
-	String underReplicatedBlocks;
-	String blocksWithCorruptReplicas;
-	String missingBlocks;
-	String datanodesAvailable;
-	ArrayList<DatanodeBO> liveDatanodes = new ArrayList<DatanodeBO>();
-	ArrayList<DatanodeBO> deadDatanodes = new ArrayList<DatanodeBO>();
+	public String configuredCapacity;
+	public String presentCapacity;
+	public String dfsRemaining;
+	public String dfsUsed;
+	public String dfsUsedPercentage;
+	public String underReplicatedBlocks;
+	public String blocksWithCorruptReplicas;
+	public String missingBlocks;
+	public String datanodesAvailable;
+	public ArrayList<DatanodeBO> liveDatanodes = new ArrayList<DatanodeBO>();
+	public ArrayList<DatanodeBO> deadDatanodes = new ArrayList<DatanodeBO>();
 
 	public DfsadminReportBO(String blurb) {
 		boolean processingLiveDatanodes = false;
@@ -75,11 +75,11 @@ public class DfsadminReportBO {
 		DatanodeBO aDatanodeBO = null;
 		for (String aLineBeingProcessed : blurb.split("\n")) {
 			if (!processingLiveDatanodes && !processingDeadDatanodes) {
-				if (aLineBeingProcessed.contains(LIVE_DATANODES_COLON)) {
+				if (aLineBeingProcessed.contains(LIVE_DATANODES)) {
 					processingLiveDatanodes = true;
 					continue;
 				}
-				if (aLineBeingProcessed.contains(DEAD_DATANODES_COLON)) {
+				if (aLineBeingProcessed.contains(DEAD_DATANODES)) {
 					processingDeadDatanodes = true;
 					continue;
 				}
@@ -126,14 +126,14 @@ public class DfsadminReportBO {
 			}
 			// Process Live/Dead datanodes
 			if (processingLiveDatanodes) {
-				if (aLineBeingProcessed.contains(DEAD_DATANODES_COLON)) {
+				if (aLineBeingProcessed.contains(DEAD_DATANODES)) {
 					processingDeadDatanodes = true;
 					processingLiveDatanodes = false;
 					continue;
 				}
 			}
 			if (processingDeadDatanodes) {
-				if (aLineBeingProcessed.contains(LIVE_DATANODES_COLON)) {
+				if (aLineBeingProcessed.contains(LIVE_DATANODES)) {
 					processingDeadDatanodes = false;
 					processingLiveDatanodes = true;
 					continue;

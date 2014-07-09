@@ -1225,7 +1225,16 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
 		sb.append(" ");
-		sb.append("distcp -pbugp");
+
+		sb.append("distcp");
+		sb.append(" ");
+
+		// Use the file name for the job name
+		String fileName = new File(srcFile).getName();
+		sb.append("-Dmapreduce.job.name=" + fileName+"_"+srcCluster+"_"+dstCluster);
+		sb.append(" ");
+
+		sb.append("-pbugp");
 		sb.append(" ");
 
 		if (srcProtocol.isEmpty()) {
