@@ -512,10 +512,38 @@ public class TestGenerateJobLoad extends TestSession {
                         "' is < the threshold value of '" +
                         capacityThreshold + "': proceed");   
                 
+                long currentTime = System.currentTimeMillis();
+                
                 // Check for existing jobs that are in prep state
                 JobClient jobClient = TestSession.cluster.getJobClient();        
                 JobStatus[] jobsStatus = jobClient.getJobs(JobState.PREP);
-                int numPrepJobs = jobsStatus.length;
+                
+                // Filter any jobs that just started
+                ArrayList<JobStatus> filteredJs = new ArrayList<JobStatus>();
+                String jobId;
+                long startTime;
+                long timeDeltaSec;
+                long timeGap = 90;
+                for (JobStatus js : jobsStatus) {
+                    jobId = js.getJobID().toString();
+                    startTime = js.getStartTime();
+                    
+                    timeDeltaSec = ((currentTime - startTime)/1000);
+                    if (timeDeltaSec > timeGap) {
+                        TestSession.logger.info("Include job '" + jobId +
+                                "': job with State 'PREP' that started " +
+                                "over " + timeGap + " seconds ago.");
+                        filteredJs.add(js);
+                    } else {
+                        TestSession.logger.info("Exclude job '" + jobId +
+                                "': job with State 'PREP' that started" +
+                                "less than " + timeGap + " seconds ago.");
+                    }
+                }
+                JobStatus[] prepJobsStatus = 
+                        filteredJs.toArray(new JobStatus[filteredJs.size()]);                                
+                
+                int numPrepJobs = prepJobsStatus.length;
                 if (numPrepJobs > 0) {                    
                     jobClient.displayJobList(jobsStatus);
                     TestSession.logger.info(
@@ -739,28 +767,37 @@ public class TestGenerateJobLoad extends TestSession {
      */
     public void submitWordCountJobCLI(String username) throws Exception {
         String localDir = null; 
-        String localFile = "input.txt";
         String outputDir = null; 
+        String localFile = "input.txt";
         String outputFile = "wc_output";
-
-        TestSession.cluster.getFS();    
+        FileSystem fs = TestSession.cluster.getFS();
                 
-        localDir = TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources//hadoop/data/pipes/";
+        localDir = TestSession.conf.getProperty("WORKSPACE") + 
+                "/htf-common/resources/hadoop/data/pipes";
         TestSession.logger.info("Target local Directory is: "+ localDir);
         TestSession.logger.info("Target local File Name is: " + localFile);
         
-        outputDir = "/user/" + username + "/"; 
+        WordCountJob job = new WordCountJob();        
+        outputDir = "/user/" + username + "/wc_" + job.getTimestamp(); 
         TestSession.logger.info("Target HDFS Directory is: "+ outputDir);
         TestSession.logger.info("Target HDFS File Name is: " + outputFile);
         
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
-        TestSession.cluster.getFS().copyFromLocalFile(new Path(localDir + localFile), new Path(outputDir + localFile));
+
         // Delete the file, if it exists in the same directory
-        TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
-        
-        WordCountJob job = new WordCountJob();        
-        job.setInputFile(outputDir + localFile);
-        job.setOutputPath(outputDir + outputFile);
+        // TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
+        Path outputDirPath = new Path(outputDir);
+        if (fs.exists(outputDirPath)) {
+            fs.delete(outputDirPath, true);
+        }
+        fs.mkdirs(outputDirPath);
+
+        fs.copyFromLocalFile(
+                new Path(localDir + "/" + localFile), 
+                new Path(outputDir + "/" + localFile));
+
+        job.setInputFile(outputDir + "/" + localFile);
+        job.setOutputPath(outputDir + "/" + outputFile);
         job.setUser(username);
         job.setJobInitSetID(waitForJobId);
         job.start();

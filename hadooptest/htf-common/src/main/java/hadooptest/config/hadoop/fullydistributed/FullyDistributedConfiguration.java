@@ -339,6 +339,39 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 			this.copyFilesToConfDir(localConfDir, component);
 		}
 	}
+	public void removeHadoopConfFileProp(String propName,
+			String confFilename, String confDir) throws Exception {
+		String component = this.component;
+		if ((confDir == null) || confDir.isEmpty()) {
+			confDir = this.getHadoopConfDir();
+			if ((confDir == null) || confDir.isEmpty()) {
+				/* Custom directory has not yet been set */
+				TestSession.logger
+						.warn("Custom configuration directory not set!!!");
+			}
+		}
+
+		// We don't want to call propNameExistsInHadoopConfFile at this point
+		// because the HadoopConfFileProp may not have been initialized at.
+		// It is only initialized when the component reset is called.
+
+		// We also don't want to set the property for the specified property
+		// name and value in the internal Properties object because again it
+		// may not exists yet. This needs to be done when the component reset
+		// occurs.
+
+		/* Copy the file to local if component is not gateway */
+		String localConfDir = (component.equals(HadoopCluster.GATEWAY)) ? confDir
+				: this.copyRemoteConfDirToLocal(confDir, component);
+
+		/* Write to file */
+		this.deleteElementFromXmlConfFile(localConfDir + "/" + confFilename, propName);
+
+		/* Copy the directory back to the remote host */
+		if (!component.equals(HadoopCluster.GATEWAY)) {
+			this.copyFilesToConfDir(localConfDir, component);
+		}
+	}
 
 	/**
 	 * Set the Hadoop configuration file property for a given property name,
@@ -464,6 +497,7 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 						return;
 					} else {
 						setValue("value", element, targetPropValue);
+
 					}
 				}
 			}
@@ -472,6 +506,53 @@ public class FullyDistributedConfiguration extends HadoopConfiguration {
 		if (foundPropName == false) {
 			insertValue("name", "value", element, targetPropName,
 					targetPropValue, document);
+		}
+
+		// Write the change to file
+		Transformer xformer = TransformerFactory.newInstance().newTransformer();
+		String outputFile = filename;
+		xformer.transform(new DOMSource(document), new StreamResult(new File(
+				outputFile)));
+
+	}
+	public void deleteElementFromXmlConfFile(String filename, String targetPropName) throws ParserConfigurationException,
+			SAXException, IOException, TransformerException,
+			TransformerConfigurationException {
+
+		/*
+		 * Parse the XML configuration file using a DOM parser
+		 */
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbFactory.newDocumentBuilder();
+		Document document = db.parse(filename);
+		document.getDocumentElement().normalize();
+		TestSession.logger.trace("Root of xml file: "
+				+ document.getDocumentElement().getNodeName());
+
+		/*
+		 * Write the properties key and value to a Java Properties Object.
+		 */
+		Element element = null;
+		NodeList nodes = document.getElementsByTagName("property");
+		for (int index = 0; index < nodes.getLength(); index++) {
+			Node node = nodes.item(index);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				element = (Element) node;
+
+				String propName = getValue("name", element);
+				String propValue = getValue("value", element);
+
+				TestSession.logger.trace("Config Property Name: "
+						+ getValue("name", element));
+				TestSession.logger.trace("Config Property Value: "
+						+ getValue("value", element));
+
+				if (propName.equals(targetPropName)) {
+					element.getParentNode().removeChild(element);
+					TestSession.logger.info("Removed element: (localName)" + element.getLocalName() + " (nodeName)" + element.getNodeName() + " (nodeValue)" + element.getNodeValue());
+					break;
+				}
+			}
 		}
 
 		// Write the change to file

@@ -21,19 +21,31 @@ my $version;
 my $time;
 my $tmpfile="/tmp/clusterinfo.raw";
 
+my $output_dir="$Bin/../target";
+mkdir $output_dir unless (-d $output_dir);
+my $issues_log="$output_dir/cluster_issues.log";
+
+system("rm -f $tmpfile");
+
+open(my $fh2, '>', $issues_log) or die "Could not open file '$issues_log' $!";
+
 sub print_cluster_header() {
     print("--------------------\n");
     print("cluster=$cluster\n");
     print("--------------------\n");
+
+    print $fh2 "--------------------\n";
+    print $fh2 "cluster=$cluster\n";
+    print $fh2 "--------------------\n";
+
     $show_cluster_header=0;
 }
 
 sub print_df_header() {
     print($df_header);
+    print $fh2 $df_header;
     $show_df_header=0;
 }
-
-system("rm -f $tmpfile");
 
 # open call is not needed when opening the file specified as the first argument
 # open(FILE1, $ARGV[0]);
@@ -87,6 +99,7 @@ while (<>) {
             print_cluster_header() if ($show_cluster_header == 1);
             print_df_header() if ($show_df_header == 1);
             print($line);
+            print $fh2 $line;
         }
     } else {
         if ($line =~ "/vol/") {
@@ -94,6 +107,7 @@ while (<>) {
         }
         print_cluster_header() if ($show_cluster_header == 1);
         printf("%s", $line);
+        print $fh2 $line;
 
         # Attempt to reboot the node
         if (($_ =~ m/(.*)\s+(gsbl.*)(:.*)/) || 
@@ -103,6 +117,7 @@ while (<>) {
             unless ($hostname =~ $prev_hostname) {
                 # reboot the node
                 print("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n");
+                print $fh2 "ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n";
 
                 # system("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname");
                 # Sorry, user hadoopqa is not allowed to execute '/home/y/bin/flubber_conutil -m reboot dense28.blue.ygrid.yahoo.com' as hadoopqa on adm102.blue.ygrid.yahoo.com.
@@ -115,8 +130,15 @@ while (<>) {
     }
 }
 
-system("echo");
-system("echo '-------------------------------------------'");
-system("echo 'cluster, version, last job ran'");
-system("echo '-------------------------------------------'");
-system("sort -k4 $tmpfile|cut -d, -f1-3");
+close $fh2;
+
+my $cluster_usage_report="$output_dir/cluster_usage.log";
+open(my $fh, '>', $cluster_usage_report) or die "Could not open file '$cluster_usage_report' $!";
+
+print $fh "-------------------------------------------\n";
+print $fh "cluster, version, time of last job\n";
+print $fh "-------------------------------------------\n";
+close $fh;
+system("sort -k4 $tmpfile|cut -d, -f1-3 >> $cluster_usage_report");
+system("cat $cluster_usage_report");
+

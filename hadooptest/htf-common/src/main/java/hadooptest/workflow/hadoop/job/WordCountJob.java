@@ -117,6 +117,8 @@ public class WordCountJob extends Job {
         if (this.QUEUE != "") {
             cmd.add("-Dmapred.job.queue.name=" + this.QUEUE);            
         }
+        cmd.add("-Dmapreduce.job.name=wordcount-" + 
+                this.getTimestamp());  
         cmd.add(this.inputFile);
         cmd.add(this.outputPath);
         String[] command = cmd.toArray(new String[0]);
