@@ -773,20 +773,28 @@ public class TestGenerateJobLoad extends TestSession {
 
         TestSession.cluster.getFS();    
                 
-        localDir = TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources//hadoop/data/pipes/";
+        localDir = TestSession.conf.getProperty("WORKSPACE") + 
+                "/htf-common/resources//hadoop/data/pipes/";
         TestSession.logger.info("Target local Directory is: "+ localDir);
         TestSession.logger.info("Target local File Name is: " + localFile);
         
-        outputDir = "/user/" + username + "/"; 
+        WordCountJob job = new WordCountJob();        
+        outputDir = "/user/" + username + "/wc_" + job.getTimestamp(); 
         TestSession.logger.info("Target HDFS Directory is: "+ outputDir);
         TestSession.logger.info("Target HDFS File Name is: " + outputFile);
         
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
         TestSession.cluster.getFS().copyFromLocalFile(new Path(localDir + localFile), new Path(outputDir + localFile));
+
         // Delete the file, if it exists in the same directory
-        TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
-        
-        WordCountJob job = new WordCountJob();        
+        // TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
+        FileSystem fs = TestSession.cluster.getFS();
+        Path outputDirPath = new Path(outputDir);
+        if (fs.exists(outputDirPath)) {
+            fs.delete(outputDirPath, true);
+        }
+        fs.mkdirs(outputDirPath);
+                
         job.setInputFile(outputDir + localFile);
         job.setOutputPath(outputDir + outputFile);
         job.setUser(username);
