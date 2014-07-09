@@ -18,7 +18,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.QueueInfo;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -208,5 +210,19 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 	public void testQueueWithInfoOptionWithQueueStopped() {
 
 	}
+	
+	@After
+	public void resetConfig() throws Exception{
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
+
+		TestSession.cluster.getConf().resetHadoopConfDir();
+		fullyDistributedCluster.hadoopDaemon(Action.STOP,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		fullyDistributedCluster.hadoopDaemon(Action.START,
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+	}
+
 
 }

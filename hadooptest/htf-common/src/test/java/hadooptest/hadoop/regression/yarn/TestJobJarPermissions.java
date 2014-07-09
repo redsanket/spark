@@ -2,12 +2,16 @@ package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopCluster.Action;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
