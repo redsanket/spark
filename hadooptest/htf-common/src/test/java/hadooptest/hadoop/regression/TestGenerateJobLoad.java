@@ -773,7 +773,7 @@ public class TestGenerateJobLoad extends TestSession {
         FileSystem fs = TestSession.cluster.getFS();
                 
         localDir = TestSession.conf.getProperty("WORKSPACE") + 
-                "/htf-common/resources//hadoop/data/pipes";
+                "/htf-common/resources/hadoop/data/pipes";
         TestSession.logger.info("Target local Directory is: "+ localDir);
         TestSession.logger.info("Target local File Name is: " + localFile);
         
@@ -783,9 +783,6 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.logger.info("Target HDFS File Name is: " + outputFile);
         
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
-        fs.copyFromLocalFile(
-                new Path(localDir + "/" + localFile), 
-                new Path(outputDir + "/" + localFile));
 
         // Delete the file, if it exists in the same directory
         // TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
@@ -794,7 +791,11 @@ public class TestGenerateJobLoad extends TestSession {
             fs.delete(outputDirPath, true);
         }
         fs.mkdirs(outputDirPath);
-                
+
+        fs.copyFromLocalFile(
+                new Path(localDir + "/" + localFile), 
+                new Path(outputDir + "/" + localFile));
+
         job.setInputFile(outputDir + "/" + localFile);
         job.setOutputPath(outputDir + "/" + outputFile);
         job.setUser(username);
