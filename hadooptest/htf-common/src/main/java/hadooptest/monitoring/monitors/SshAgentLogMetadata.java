@@ -72,7 +72,7 @@ public class SshAgentLogMetadata {
 		JSch jsch = new JSch();
 		String user = "hdfsqa";
 		TestSession.logger.debug("SSH Client is about to run command:" + command
-				+ "on host:" + host);
+				+ " on host:" + host);
 		Session session;
 		int exitStatus = -1;
 		try {

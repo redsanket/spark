@@ -53,6 +53,9 @@ public class DfsTestsBaseClass extends TestSession {
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
 
+	public static boolean crosscoloPerf = 
+	        Boolean.parseBoolean(System.getProperty("CROSS_COLO_PERF", "false"));
+	
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public static final String EMPTY_FS_ENTITY = "";
 	public final ArrayList<String> DFSADMIN_VAR_ARG_ARRAY = new ArrayList<String>();
@@ -114,42 +117,62 @@ public class DfsTestsBaseClass extends TestSession {
 		
 	}
 
+    public static void setFileMetadata() {
+        fileMetadata.put("file_empty", new Double((double) 0));
+        /*
+         * The file below actually ends up putting 2 bytes, because it is a
+         * double
+         */
+        fileMetadata.put(ONE_BYTE_FILE, new Double((double) 1));
+        // 64 MB file size variations
+        fileMetadata.put("file_1_byte_short_of_64MB", new Double(
+                (double) 64 * 1024 * 1024) - 1);
+        fileMetadata.put("file_64MB", new Double((double) 64 * 1024 * 1024));
+        fileMetadata.put("file_1_byte_more_than_64MB", new Double(
+                (double) 64 * 1024 * 1024) + 1);
+
+        // 128 MB file size variations
+        fileMetadata.put("file_1_byte_short_of_128MB", new Double(
+                (double) 128 * 1024 * 1024) - 1);
+        fileMetadata.put("file_128MB", new Double((double) 128 * 1024 * 1024));
+        fileMetadata.put("file_1_byte_more_than_128MB", new Double(
+                (double) 128 * 1024 * 1024) + 1);
+
+        fileMetadata.put("file_255MB", new Double((double) 255 * 1024 * 1024));
+        fileMetadata.put("file_256MB", new Double((double) 256 * 1024 * 1024));
+        fileMetadata.put("file_257MB", new Double((double) 257 * 1024 * 1024));
+
+        fileMetadata.put("file_767MB", new Double((double) 767 * 1024 * 1024));
+        fileMetadata.put("file_768MB", new Double((double) 768 * 1024 * 1024));
+        fileMetadata.put("file_769MB", new Double((double) 769 * 1024 * 1024));
+        // Huge file
+        fileMetadata.put("file_11GB",
+                new Double(((double) ((double) (double) 10 * (double) 1024
+                        * 1024 * 1024) + (double) (700 * 1024 * 1024))));
+        fileMetadata.put(INPUT_TO_WORD_COUNT, 
+                new Double(((double) ((double) (double) 1 * (double) 1024
+                        * 1024 * 1024))));
+    }
+
+    public static void setFileMetadataForPerf() {
+        fileMetadata.put("file_empty", new Double((double) 0));
+        /*
+         * The file below actually ends up putting 2 bytes, because it is a
+         * double
+         */
+        fileMetadata.put("file_64MB", new Double((double) 64 * 1024 * 1024));
+        fileMetadata.put("file_256MB", new Double((double) 256 * 1024 * 1024));
+        fileMetadata.put("file_500MB", new Double((double) 512 * 1024 * 1024));
+        fileMetadata.put("file_1GB", new Double((double) 1024 * 1024 * 1024));
+    }
 
 	public static void ensureLocalFilesPresentBeforeTestRun() {
 
-		fileMetadata.put("file_empty", new Double((double) 0));
-		/*
-		 * The file below actually ends up putting 2 bytes, because it is a
-		 * double
-		 */
-		fileMetadata.put(ONE_BYTE_FILE, new Double((double) 1));
-		// 64 MB file size variations
-		fileMetadata.put("file_1_byte_short_of_64MB", new Double(
-				(double) 64 * 1024 * 1024) - 1);
-		fileMetadata.put("file_64MB", new Double((double) 64 * 1024 * 1024));
-		fileMetadata.put("file_1_byte_more_than_64MB", new Double(
-				(double) 64 * 1024 * 1024) + 1);
-
-		// 128 MB file size variations
-		fileMetadata.put("file_1_byte_short_of_128MB", new Double(
-				(double) 128 * 1024 * 1024) - 1);
-		fileMetadata.put("file_128MB", new Double((double) 128 * 1024 * 1024));
-		fileMetadata.put("file_1_byte_more_than_128MB", new Double(
-				(double) 128 * 1024 * 1024) + 1);
-
-		fileMetadata.put("file_255MB", new Double((double) 255 * 1024 * 1024));
-		fileMetadata.put("file_256MB", new Double((double) 256 * 1024 * 1024));
-		fileMetadata.put("file_257MB", new Double((double) 257 * 1024 * 1024));
-
-		fileMetadata.put("file_767MB", new Double((double) 767 * 1024 * 1024));
-		fileMetadata.put("file_768MB", new Double((double) 768 * 1024 * 1024));
-		fileMetadata.put("file_769MB", new Double((double) 769 * 1024 * 1024));
-		// Huge file
-		fileMetadata.put("file_11GB",
-				new Double(((double) ((double) (double) 10 * (double) 1024
-						* 1024 * 1024) + (double) (700 * 1024 * 1024))));
-		fileMetadata.put(INPUT_TO_WORD_COUNT, new Double(((double) ((double) (double) 1 * (double) 1024
-				* 1024 * 1024))));
+	    if (crosscoloPerf == true) {
+	        setFileMetadataForPerf();
+	    } else {
+	        setFileMetadata();	        
+	    }
 
 		setOfTestDataFilesInHdfs = new HashSet<String>();
 		setOfTestDataFilesInLocalFs = new HashSet<String>();
@@ -162,7 +185,6 @@ public class DfsTestsBaseClass extends TestSession {
 		}
 
 		createLocalPreparatoryFiles();
-
 	}
 
 	static void ensureDirsArePresentInHdfs(String cluster) throws Exception {
@@ -171,6 +193,7 @@ public class DfsTestsBaseClass extends TestSession {
 		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS);
 
 	}
+	
 	public static void copyFilesIntoCluster(String cluster) throws Exception{
 		ensureDirsArePresentInHdfs(cluster);
 		doChmodRecursively(cluster,DfsTestsBaseClass.DATA_DIR_IN_HDFS);

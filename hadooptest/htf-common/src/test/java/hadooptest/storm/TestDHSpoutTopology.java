@@ -102,7 +102,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
         //empty constructor
     }
     
-    @Test
+    @Test(timeout=600000)
     public void TestDHSpoutTopologyHTTP() throws Exception{
         logger.info("Starting TestDHSpoutTopology");
         StormTopology topology = buildTopology(vhURI);

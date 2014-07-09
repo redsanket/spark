@@ -28,6 +28,7 @@ The options
         [ -m|--mvn                          ] : run tests via maven instead of via java directly
         [ -gdm                              ] : Run GDM tests without Hadoop being deployed to the node or cluster under test
         [ -storm                            ] : Run with a Storm environment
+        [ -storm090                         ] : Run with a Storm-0.9.0 environment
         [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -n|--nopasswd                     ] : no password prompt
@@ -68,6 +69,7 @@ my $conf = glob("~/hadooptest.conf");
 my $use_mvn = 1;
 my $gdm = 0;
 my $storm = 0;
+my $storm090 = 0;
 my $stormconf;
 my $spark = 0;
 my $workspace = "$Bin/..";
@@ -90,6 +92,7 @@ GetOptions(\%options,
     "gdm"                => \$gdm,
     "spark"              => \$spark,
     "storm"              => \$storm,
+    "storm090"           => \$storm090,
     "stormconf|y=s"      => \$stormconf,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
@@ -142,7 +145,7 @@ foreach my $path (@hadoop_jar_paths) {
 
 note("CLASSPATH=".join(":",@classpath));
 
-if($storm) {
+if($storm||$storm090) {
 	my $host = hostname;
 	my $host_prefix = substr($host, 0, index($host, '.'));
 	execute("stty -echo; kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa\@DEV.YGRID.YAHOO.COM; stty echo");
@@ -177,6 +180,18 @@ if ($storm) {
 	# that Storm API calls and configuration will be using the 
 	# deployed Storm jars. -->
     $dependencies_opt .= " -Pprofile-storm -Pprofile-all";
+}
+elsif ($storm090) {
+	# When Storm is used, this profile must be called before profile-ci
+	# or any other profile.  If another profile is used first, the
+	# dependency jars from that profile might have Storm configuration
+	# or classes that will upset the classpath assembled by maven,
+	# and can lead to unexpected configuration or classes ending up in
+	# the classpath before the necessary Storm support.  By putting
+	# profile-storm first in the maven profile order, it ensures
+	# that Storm API calls and configuration will be using the 
+	# deployed Storm jars. -->
+    $dependencies_opt .= " -Pprofile-storm-090 -Pprofile-all";
 }
 else {
 	# When Hadoop is used, this profile must be called before profile-ci
@@ -249,7 +264,7 @@ if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
 
-    unless ($storm) {
+    unless ($storm||$storm090) {
         $pom_opt .= " -Pprofile-hadoop";
     }
 
@@ -304,7 +319,7 @@ if ($use_mvn) {
     # through "yinst fetch".
     execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
     
-    if ($storm) {
+    if ($storm||$storm090) {
         # Clean the project and build the jars so that we can have a test 
         # jar with dependencies for Storm topologies.
         execute("HTF_WORKSPACE=$workspace /home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");

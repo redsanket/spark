@@ -64,10 +64,10 @@ public abstract class HadoopCluster {
         HadoopCluster.NAMENODE,
         HadoopCluster.SECONDARY_NAMENODE,
         HadoopCluster.RESOURCE_MANAGER,
-        HadoopCluster.HISTORYSERVER,
         HadoopCluster.DATANODE,
         HadoopCluster.NODEMANAGER,
-        HadoopCluster.GATEWAY
+        HadoopCluster.GATEWAY,
+        HadoopCluster.HISTORYSERVER
         };
 
     // Admin hosts
