@@ -767,14 +767,13 @@ public class TestGenerateJobLoad extends TestSession {
      */
     public void submitWordCountJobCLI(String username) throws Exception {
         String localDir = null; 
-        String localFile = "input.txt";
         String outputDir = null; 
+        String localFile = "input.txt";
         String outputFile = "wc_output";
-
-        TestSession.cluster.getFS();    
+        FileSystem fs = TestSession.cluster.getFS();
                 
         localDir = TestSession.conf.getProperty("WORKSPACE") + 
-                "/htf-common/resources//hadoop/data/pipes/";
+                "/htf-common/resources//hadoop/data/pipes";
         TestSession.logger.info("Target local Directory is: "+ localDir);
         TestSession.logger.info("Target local File Name is: " + localFile);
         
@@ -784,19 +783,20 @@ public class TestGenerateJobLoad extends TestSession {
         TestSession.logger.info("Target HDFS File Name is: " + outputFile);
         
         TestSession.cluster.setSecurityAPI("keytab-"+username, "user-"+username);
-        TestSession.cluster.getFS().copyFromLocalFile(new Path(localDir + localFile), new Path(outputDir + localFile));
+        fs.copyFromLocalFile(
+                new Path(localDir + "/" + localFile), 
+                new Path(outputDir + "/" + localFile));
 
         // Delete the file, if it exists in the same directory
         // TestSession.cluster.getFS().delete(new Path(outputDir+outputFile), true);
-        FileSystem fs = TestSession.cluster.getFS();
         Path outputDirPath = new Path(outputDir);
         if (fs.exists(outputDirPath)) {
             fs.delete(outputDirPath, true);
         }
         fs.mkdirs(outputDirPath);
                 
-        job.setInputFile(outputDir + localFile);
-        job.setOutputPath(outputDir + outputFile);
+        job.setInputFile(outputDir + "/" + localFile);
+        job.setOutputPath(outputDir + "/" + outputFile);
         job.setUser(username);
         job.setJobInitSetID(waitForJobId);
         job.start();
