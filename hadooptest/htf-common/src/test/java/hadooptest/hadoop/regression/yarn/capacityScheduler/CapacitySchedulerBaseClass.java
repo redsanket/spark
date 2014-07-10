@@ -543,7 +543,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		Iterator iter = conf.iterator();
 		while (iter.hasNext()) {
 			Entry<String, String> entry = (Entry<String, String>) iter.next();
-			TestSession.logger.info("Key:[" + entry.getKey() + "] Value["
+			TestSession.logger.trace("Key:[" + entry.getKey() + "] Value["
 					+ entry.getValue() + "]");
 		}
 
@@ -1592,7 +1592,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				try {
 					while (aTetherToACallableSleepJob.get().getJobState() != expectedState
 							&& (aTetherToACallableSleepJob.get().getJobState() != JobStatus.State.FAILED)) {
-						TestSession.logger.info("Current job state["
+						TestSession.logger.trace("Current job state["
 								+ aTetherToACallableSleepJob.get().getJobName()
 								+ "]:"
 								+ aTetherToACallableSleepJob.get()
