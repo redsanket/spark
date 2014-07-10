@@ -13,6 +13,7 @@ import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.junit.Assert;
 import org.junit.Test;
 
+
 public class TestBackwardCompatibility extends YarnTestsBaseClass {
 	/**
 	 * Test to check the backward compatibility of mapred.job.name and
@@ -287,8 +288,7 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 				genericCliResponse.response.contains(stringToLookFor));
 
 		/**
-		 * Pass the parameter mapreduce.job.queue.name this time
-		 * around.
+		 * Pass the parameter mapreduce.job.queue.name this time around.
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
@@ -326,7 +326,8 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 	}
 
 	/**
-	 * Test to check the backward compatibility of mapred.working.dir  and mapreduce.job.working.dir 
+	 * Test to check the backward compatibility of mapred.working.dir and
+	 * mapreduce.job.working.dir
 	 * 
 	 * @throws Exception
 	 */
@@ -391,8 +392,7 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 				genericCliResponse.response.contains(stringToLookFor));
 
 		/**
-		 * Pass the parameter mapreduce.working.dir=/tmp this time
-		 * around.
+		 * Pass the parameter mapreduce.working.dir=/tmp this time around.
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
