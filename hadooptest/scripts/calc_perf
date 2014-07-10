@@ -12,6 +12,7 @@ use File::Find::Rule;
 use File::Basename;
 use JSON qw( decode_json );
 use Try::Tiny;
+use Math::Round;
 
 my %options=();
 
@@ -103,6 +104,7 @@ my $workspace = "$Bin/..";
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
 my $test;
+my $filename = $workspace."/htf-common/target/surefire-reports/crosscolo_perf_plot.txt";
 
 #
 # Command line options processing
@@ -235,9 +237,9 @@ foreach my $job (@$jobs) {
 	$fileSize = $fileSize * 8;
 
 	$timeDelta = ($job_ref->{'finishTime'} - $job_ref->{'startTime'})/60;
-	$timeDelta = floor($timeDelta + 0.5);
+	$timeDelta = nearest(.1, $timeDelta); 
 	$mbps = $fileSize/$timeDelta;
-	$mbps = floor($mbps + 0.5);
+	$mbps = nearest(.1, $mbps);
 
 	unless (defined($results->{$fileSizeH})) {
 	    $results->{$fileSizeHC} = ( $mbps );
@@ -250,7 +252,6 @@ foreach my $job (@$jobs) {
 }
 
 # Write plot data to file
-my $filename = $workspace."/htf-common/target/surefire-reports/crosscolo_perf.csv";
 open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
 
 my @keys = sort keys %$results;
