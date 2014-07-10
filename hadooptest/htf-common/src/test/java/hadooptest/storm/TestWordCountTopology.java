@@ -58,7 +58,6 @@ import storm.trident.testing.MemoryMapState;
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.TopologyInfo;
-import backtype.storm.generated.TopologySummary;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
@@ -82,19 +81,6 @@ public class TestWordCountTopology extends TestSessionStorm {
         stop();
     }
 
-    public TopologySummary getTS(String name) throws Exception {
-        for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
-            if (name.equals(ts.get_name())) {
-                return ts;
-            }
-        }
-        throw new IllegalArgumentException("Topology "+name+" does not appear to be up yet");
-    }
- 
-    public int getUptime(String name) throws Exception {
-        return getTS(name).get_uptime_secs();
-    }
-
     private boolean isRedirect(int status) {
         if (status == HttpURLConnection.HTTP_MOVED_TEMP ||
             status == HttpURLConnection.HTTP_MOVED_PERM ||
@@ -105,7 +91,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
     }
 
-    @Test(timeout=600000)
+    @Test(timeout=300000)
     public void LogviewerPagingTest() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         StormTopology topology = buildTopology();
@@ -122,25 +108,10 @@ public class TestWordCountTopology extends TestSessionStorm {
         List<String> whiteList = Arrays.asList("hadoop_re");
         config.put(Config.UI_USERS, whiteList);
         config.put(Config.LOGS_USERS, whiteList);
-        // TODO turn this into a utility that has a conf setting
-        File jar = new File(
-                conf.getProperty("WORKSPACE")
-                        + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
-        cluster.submitTopology(jar, topoName, config, topology);
+        cluster.submitTopology(getTopologiesJarFile(), topoName, config, topology);
         try {
-            int uptime = 20;
-            int cur_uptime = 0;
-            cur_uptime = getUptime(topoName);
-            if (cur_uptime < uptime) {
-                Util.sleep(uptime - cur_uptime);
-            }
-            cur_uptime = getUptime(topoName);
-            while (cur_uptime < uptime) {
-                Util.sleep(1);
-                cur_uptime = getUptime(topoName);
-            }
-
-            String topoId = getTS(topoName).get_id();
+            final String topoId = getFirstTopoIdForName(topoName);
+            waitForTopoUptimeSeconds(topoId, 20);
 
             // Worker Host
             TopologyInfo ti = cluster.getTopologyInfo(topoId);
@@ -285,23 +256,9 @@ public class TestWordCountTopology extends TestSessionStorm {
         File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
-            
-            int uptime = 20;
-            int cur_uptime = 0;
+            final String topoId = getFirstTopoIdForName(topoName);
+            waitForTopoUptimeSeconds(topoId, 20);
 
-            cur_uptime = getUptime(topoName);
-
-            if (cur_uptime < uptime){
-                Util.sleep(uptime - cur_uptime);
-            }
-            
-            cur_uptime = getUptime(topoName);
-
-            while (cur_uptime < uptime){
-                Util.sleep(1);
-                cur_uptime = getUptime(topoName);
-            }
-            
             //get expected results
             String file = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/WordCountFromFile/expected_results";
         

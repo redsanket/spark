@@ -1,0 +1,93 @@
+<configuration>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.queues</name>
+    <value>a,b,c</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.queues</name>
+    <value>a1,a2</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.queues</name>
+    <value>c1,c2</value>
+  </property>
+
+   <property>
+    <name>yarn.scheduler.capacity.root.capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.capacity</name>
+    <value>30</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.capacity</name>
+    <value>30</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.a1.capacity</name>
+    <value>50</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.a2.capacity</name>
+    <value>50</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.c1.capacity</name>
+    <value>50</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.c2.capacity</name>
+    <value>50</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.c2.state</name>
+    <value>STOPPED</value>
+  </property>
+
+<!--  <property>-->
+<!--    <name>yarn.scheduler.capacity.root.a.user-limit-factor</name>-->
+<!--    <value>2</value>-->
+<!--  </property>-->
+
+<!--  <property>-->
+<!--    <name>yarn.scheduler.capacity.root.a.maximum-capacity</name>-->
+<!--    <value>50</value>-->
+<!--  </property>-->
+
+  <property>
+    <name>yarn.scheduler.capacity.root.b.capacity</name>
+    <value>40</value>
+  </property>
+
+<!--  <property>-->
+<!--    <name>yarn.scheduler.capacity.root.b.user-limit-factor</name>-->
+<!--    <value>1.5</value>-->
+<!--  </property>-->
+
+  <property>
+    <name>yarn.scheduler.capacity.root.acl_submit_job</name>
+    <value>*</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.acl_submit_job</name>
+    <value>*</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.b.acl_submit_job</name>
+    <value>*</value>
+  </property>
+
+</configuration>
