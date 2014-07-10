@@ -17,6 +17,9 @@ do
             CHECK_FOR_ERROR=0
             shift 1
 	    ;;
+	-s | --skip)
+            shift; SKIP_CLUSTERS="$1"; shift
+            ;;
 	*)  # No more options
 	    break
 	    ;;
@@ -32,6 +35,7 @@ function get_info() {
     # Get Hadoop version
     version=`ssh $host -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null hadoop version|head -1`
     # Get time stamp of last job
+    # This can hang on hadoop fs -ls
     ts=`ssh $host -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM; hadoop fs -ls -d /mapred/history/done|grep -v ^Found"`
     time_stamp=`echo $ts|awk '{print $6, $7}'`
     # set +x
@@ -41,6 +45,11 @@ for cluster in $CLUSTERS; do
     echo "--------------------"
     echo cluster $cluster
     echo "--------------------"
+
+    if [[ -n $SKIP_CLUSTERS ]] && [[ $SKIP_CLUSTERS =~ $cluster ]]; then 
+	echo "Cluster $cluster is in the skip list, skip it..."
+	continue
+    fi
 
     hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"`;
     if [[ $? -ne 0 ]]; then
