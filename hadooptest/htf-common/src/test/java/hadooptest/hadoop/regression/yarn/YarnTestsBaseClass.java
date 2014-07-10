@@ -35,6 +35,7 @@ import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.streaming.StreamJob;
 import org.apache.hadoop.util.ToolRunner;
+import org.junit.After;
 import org.junit.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -507,6 +508,7 @@ public class YarnTestsBaseClass extends TestSession {
 		}
 
 	}
+	
 
 	@Override
 	public void logTaskReportSummary() {
