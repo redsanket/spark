@@ -62,39 +62,6 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 
 	}
 
-	void waitTillJobStartsRunning(Job job) throws IOException,
-			InterruptedException {
-		State jobState = job.getStatus().getState();
-		while (jobState != State.RUNNING) {
-			if ((jobState == State.FAILED) || (jobState == State.KILLED)) {
-				break;
-			}
-			Thread.sleep(1000);
-			jobState = job.getStatus().getState();
-			TestSession.logger
-					.info(job.getJobName()
-							+ " is in state : "
-							+ jobState
-							+ ", awaiting its state to change to 'RUNNING' hence sleeping for 1 sec");
-		}
-	}
-
-	void waitTillJobSucceeds(Job job) throws IOException, InterruptedException {
-
-		State jobState = job.getStatus().getState();
-		while (jobState != State.SUCCEEDED) {
-			if ((jobState == State.FAILED) || (jobState == State.KILLED)) {
-				break;
-			}
-			Thread.sleep(1000);
-			jobState = job.getStatus().getState();
-			TestSession.logger
-					.info(job.getJobName()
-							+ " is in state : "
-							+ jobState
-							+ ", awaiting its state to change to 'SUCCEEDED' hence sleeping for 1 sec");
-		}
-	}
 
 	@Test
 	public void testCheckOwnerOfJobAndTasksMrJob() throws IOException,
