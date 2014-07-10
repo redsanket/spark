@@ -159,7 +159,7 @@ public class TestMapredCli extends YarnTestsBaseClass {
 
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
-				.kill(EMPTY_ENV_HASH_MAP, user, jobId);
+				.killJob(EMPTY_ENV_HASH_MAP, user, jobId);
 		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
 		genericMapredCliResponseBO.response.contains("Killed job");
 	}
@@ -177,7 +177,7 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
 				.getJobStatus(EMPTY_ENV_HASH_MAP, user, jobId);
-		genericMapredCliResponseBO = mapredCliCommands.kill(EMPTY_ENV_HASH_MAP,
+		genericMapredCliResponseBO = mapredCliCommands.killJob(EMPTY_ENV_HASH_MAP,
 				user, jobId);
 		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
 		genericMapredCliResponseBO.response.contains("Killed job");
@@ -193,7 +193,7 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		}
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
-				.list(EMPTY_ENV_HASH_MAP,
+				.jobList(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HADOOPQA, "");
 		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
 		String[] lines = genericMapredCliResponseBO.response.split("\n");
@@ -234,7 +234,7 @@ public class TestMapredCli extends YarnTestsBaseClass {
 
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
-				.list(EMPTY_ENV_HASH_MAP,
+				.jobList(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HADOOPQA, "");
 		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
 		testConditionMet = false;
@@ -278,7 +278,7 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		job.killJob();
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
-				.list(EMPTY_ENV_HASH_MAP,
+				.jobList(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HADOOPQA, "all");
 		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
 		testConditionMet = false;
@@ -317,7 +317,7 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		}
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
-				.list(EMPTY_ENV_HASH_MAP,
+				.jobList(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HADOOPQA, "all");
 		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
 		testConditionMet = false;
@@ -356,7 +356,7 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		}
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
-				.list(EMPTY_ENV_HASH_MAP,
+				.jobList(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HADOOPQA, "all");
 		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
 		testConditionMet = false;

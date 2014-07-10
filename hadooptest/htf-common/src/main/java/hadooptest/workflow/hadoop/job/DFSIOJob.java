@@ -1,19 +1,11 @@
 package hadooptest.workflow.hadoop.job;
 
-import static org.junit.Assert.assertNotNull;
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.HadoopCluster;
-import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.dfs.DFS;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,8 +15,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Cluster;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -41,7 +31,6 @@ public class DFSIOJob extends Job {
     private int percentage;
     private int numFiles=0;
     private String testDir;
-    private String timestamp;
     private String writeJobID;
     
     /** The DFSIO operation */
@@ -90,19 +79,6 @@ public class DFSIOJob extends Job {
             this.numFiles = Math.min((ttCount * this.percentage)/100, 1); 
         }
         return this.numFiles;
-    }
-
-    /**
-     * Get timestamp ID.
-     * 
-     * @param timestamp
-     */
-    public String getTimestamp() {
-        if (this.timestamp != null) {
-            return this.timestamp;
-        } else {
-            return new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
-        }
     }
 
     /**

@@ -2,6 +2,9 @@ package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.TestSession;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.MyUserInfo;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -143,10 +146,12 @@ public class YarnTestsBaseClass extends TestSession {
 				SleepJob sleepJob = new SleepJob();
 				sleepJob.setConf(TestSession.cluster.getConf());
 
+
 				createdSleepJob = sleepJob.createJob(numMapper, numReducer,
 						mapSleepTime, mapSleepCount, reduceSleepTime,
 						reduceSleepCount);
 				createdSleepJob.setJobName(jobName);
+				createdSleepJob.setUser(this.userName);
 				TestSession.logger
 						.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "
 								+ "submitting " + jobName
@@ -239,11 +244,26 @@ public class YarnTestsBaseClass extends TestSession {
 
 	public void runStdHadoopStreamingJob(String... args) throws Exception {
 		TestSession.logger.info("running Streaming Job.................");
-		Configuration conf = TestSession.cluster.getConf();
+		TestSession.logger.info("Working off of:"
+				+ TestSession.cluster.getConf().getHadoopConfDir());
+		FullyDistributedConfiguration conf = null;
+		try {
+			conf = new FullyDistributedConfiguration(TestSession.cluster
+					.getConf().getHadoopConfDir(), "localhost",
+					HadooptestConstants.NodeTypes.GATEWAY);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		int res;
 
 		try {
 			StreamJob job = new StreamJob();
+			job.setConf(conf);
 			res = ToolRunner.run(conf, job, args);
 			Assert.assertEquals(0, res);
 		} catch (Exception e) {

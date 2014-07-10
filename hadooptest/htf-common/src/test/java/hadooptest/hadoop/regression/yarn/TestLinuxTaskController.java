@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression.yarn;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
@@ -24,6 +25,7 @@ import org.apache.hadoop.mapreduce.TaskType;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * This is an import from
@@ -34,6 +36,8 @@ import org.junit.Test;
  * @author tiwari
  * 
  */
+
+@Category(SerialTests.class)
 public class TestLinuxTaskController extends YarnTestsBaseClass {
 	private static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
 
@@ -93,7 +97,6 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 	}
 
 	@Test
-	@Ignore("works")
 	public void testCheckOwnerOfJobAndTasksMrJob() throws IOException,
 			InterruptedException, ExecutionException {
 		String queueToUse = "default";
@@ -123,11 +126,11 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 				}
 			}
 		}
+		job.killJob();
 
 	}
 
 	@Test
-	@Ignore("works")
 	public void testCheckOwnerOfJobAndTasksCacheArchiveStreamingJob()
 			throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -135,13 +138,12 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 		GenericCliResponseBO genericCliResponse;
 		String testName = "testCheckOwnerOfJobAndTasksCacheArchiveStreamingJob";
 		String timeStamp = "-" + System.currentTimeMillis();
-		String dirInHdfs = "/user/" + HadooptestConstants.UserNames.HADOOPQA
+		String dirInHdfs = "/user/" + HadooptestConstants.UserNames.HADOOP3
 				+ "/" + testName + timeStamp;
 
 		// mkdir
 		genericCliResponse = dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HADOOPQA,
-				HadooptestConstants.Schema.HDFS,
+				user, HadooptestConstants.Schema.HDFS,
 				TestSession.cluster.getClusterName(), dirInHdfs);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
@@ -150,8 +152,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 				+ "htf-common/resources/hadooptest/hadoop/regression"
 				+ "/yarn/linuxTaskController/cachedir.jar";
 
-		genericCliResponse = dfsCommonCliCommands.put(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HADOOPQA,
+		genericCliResponse = dfsCommonCliCommands.put(EMPTY_ENV_HASH_MAP, user,
 				HadooptestConstants.Schema.HDFS,
 				TestSession.cluster.getClusterName(), fileToCopy, dirInHdfs
 						+ "/cachedir.jar");
@@ -161,8 +162,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 				+ "htf-common/resources/hadooptest/hadoop/regression"
 				+ "/yarn/linuxTaskController/cacheinput.txt";
 
-		genericCliResponse = dfsCommonCliCommands.put(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HADOOPQA,
+		genericCliResponse = dfsCommonCliCommands.put(EMPTY_ENV_HASH_MAP, user,
 				HadooptestConstants.Schema.HDFS,
 				TestSession.cluster.getClusterName(), fileToCopy, dirInHdfs
 						+ "/cacheinput.txt");
@@ -209,20 +209,19 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 			}
 		}
 
-		genericCliResponse = dfsCommonCliCommands.cat(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HADOOPQA,
+		genericCliResponse = dfsCommonCliCommands.cat(EMPTY_ENV_HASH_MAP, user,
 				HadooptestConstants.Schema.HDFS,
-				TestSession.cluster.getClusterName(), dirInHdfs + "/OutDir*");
+				TestSession.cluster.getClusterName(), dirInHdfs + "/OutDir/*");
 
 		Assert.assertTrue(genericCliResponse.response
 				+ " did not contain expected string",
 				genericCliResponse.response
 						.contains("This is just the cache string"));
+		job.killJob();
 
 	}
 
 	@Test
-	@Ignore("works")
 	public void testCheckOwnerOfJobAndTasksCacheFileStreamingJob()
 			throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
@@ -310,11 +309,11 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 				+ " did not contain expected string",
 				genericCliResponse.response
 						.contains("This is just the cache string"));
+		job.killJob();
 
 	}
 
 	@Test
-	@Ignore("works")
 	public void testCheckOwnerOfJobAndTasksFileStreamingJob() throws Exception {
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
 		String user = HadooptestConstants.UserNames.HADOOP3;
@@ -400,6 +399,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 				+ " did not contain expected string",
 				genericCliResponse.response
 						.contains("This is just the cache string"));
+		job.killJob();
 
 	}
 
@@ -502,7 +502,6 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 	}
 
 	@Test
-	@Ignore("works")
 	public void testTaskControllerKillTaskAndCheckChildProcess()
 			throws Exception {
 
@@ -602,7 +601,6 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 	}
 
 	@Test
-	@Ignore("works")
 	public void testRunAwayProcessesKillJobAndChildProcessExceedMemoryLimit()
 			throws Exception {
 
@@ -717,44 +715,17 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 	@Test
 	public void taskControllerInvalidJobOwner() throws Exception {
 		String queueToUse = "default";
-		String user = HadooptestConstants.UserNames.MAPREDQA;
+		String user = "mapred"; // This is an invalid user
 		String testName = "testCheckOwnerOfJobAndTasksMrJob";
 		// int numMapper, int numReducer, int mapSleepTime, int mapSleepCount,
 		// int reduceSleepTime, int reduceSleepCount,
 
 		Future<Job> handle = submitSingleSleepJobAndGetHandle(queueToUse, user,
 				getDefaultSleepJobProps(queueToUse), 10, 10, 30, 1, 30, 1,
-				testName, false);
+				testName, true);
 		Job job = handle.get();
-		waitTillJobStartsRunning(job);
-		Assert.assertTrue("Job should have run as " + user
-				+ " insead it ran as " + job.getUser(), job.getUser()
-				.equalsIgnoreCase(user));
-		TaskType[] taskTypes = { TaskType.MAP, TaskType.REDUCE };
-		for (TaskType aTaskType : taskTypes) {
-			Thread.sleep(10000);
-			for (TaskReport aTaskReport : job.getTaskReports(aTaskType)) {
-				for (TaskAttemptID aTaskAttemptID : aTaskReport
-						.getRunningTaskAttemptIds()) {
-					TestSession.logger.info("Task Type:"
-							+ aTaskAttemptID.getTaskType() + " job["
-							+ aTaskAttemptID.getJobID() + "] taskId["
-							+ aTaskAttemptID.getTaskID() + "]");
-				}
-			}
-		}
-		MapredCliCommands mapredCliCommands = new MapredCliCommands();
-		GenericMapredCliResponseBO genericMapredCliResponseBO;
-		boolean thrown = false;
-		try {
-			genericMapredCliResponseBO = mapredCliCommands.list(
-					EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA,
-					"all");
-		} catch (Exception e) {
-			thrown = true;
-			throw (e);
-		}
-		Assert.assertTrue(thrown);
+		Thread.sleep(5000);
+		Assert.assertNull(job);
 
 	}
 
