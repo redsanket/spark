@@ -42,6 +42,13 @@ for cluster in $CLUSTERS; do
     echo cluster $cluster
     echo "--------------------"
 
+    hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"`;
+    if [[ $? -ne 0 ]]; then
+	echo "Error: cluster $cluster has invalid igor role: $hosts"
+	echo "Skipping cluster $cluster:"
+	continue
+    fi
+
     # Check the cluster hosts for bad nodes                                                                                                                                     
     if [[ "$CHECK_FOR_ERROR" -eq 1 ]]; then
 	hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;
