@@ -6,7 +6,9 @@ import backtype.storm.generated.KillOptions;
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
+import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
 
@@ -28,7 +30,6 @@ import org.junit.BeforeClass;
  * TestSession provides.
  */
 public abstract class TestSessionStorm extends TestSessionCore {
-
     /** The Storm Cluster to use for the test session */
     public static StormCluster cluster;
 
@@ -145,5 +146,35 @@ public abstract class TestSessionStorm extends TestSessionCore {
         else {
             throw new IllegalArgumentException("The cluster type is not a StormCluster: " + strClusterType);
         }
-    } 
+    }
+
+    public File getTopologiesJarFile() {
+        return Paths.get(conf.getProperty("WORKSPACE"), "topologies",
+                "target","topologies-1.0-SNAPSHOT-jar-with-dependencies.jar")
+                .toFile();
+    }
+
+    protected TopologySummary getTS(String name) throws Exception {
+        for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
+            if (name.equals(ts.get_name())) {
+                return ts;
+            }
+        }
+        throw new IllegalArgumentException("Topology "+name+""
+                + "does not appear to be up yet");
+    }
+
+    protected String getFirstTopoIdForName(final String topoName)
+            throws Exception {
+        return getTS(topoName).get_id();
+    }
+
+    protected void waitForTopoUptimeSeconds(final String topoId,
+            int waitSeconds) throws Exception {
+        int uptime = 0;
+        while ((uptime = cluster.getTopologyInfo(topoId).get_uptime_secs())
+                < waitSeconds) {
+            Util.sleep(waitSeconds - uptime);
+        }
+    }
 }
