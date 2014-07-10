@@ -95,7 +95,7 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 		Iterator iter = conf.iterator();
 		while (iter.hasNext()) {
 			Entry<String, String> entry = (Entry<String, String>) iter.next();
-			TestSession.logger.info("Key:[" + entry.getKey() + "] Value["
+			TestSession.logger.trace("Key:[" + entry.getKey() + "] Value["
 					+ entry.getValue() + "]");
 		}
 
