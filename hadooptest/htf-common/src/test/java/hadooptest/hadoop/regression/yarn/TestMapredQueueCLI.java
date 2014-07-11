@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression.yarn;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
@@ -23,7 +24,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
+import org.junit.experimental.categories.Category;
+@Category(SerialTests.class)
 public class TestMapredQueueCLI extends YarnTestsBaseClass {
 	private static String CAPACITY_SCHEDULER_XML = "capacity-scheduler.xml";
 	private static String REPLACEMENT_CAP_SCHED_XML_FILE = TestSession.conf
