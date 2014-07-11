@@ -2,7 +2,7 @@
 Programming HBase
 =================
 
-The following sections gets into the details of writing code for HBase, and thus,
+The following sections get into the details of writing code for HBase, and thus,
 we'll present short code examples that work with HBase tables.
 You'll need to complete :ref:`Setting Up <setup>` before you can begin to HBase
 in the proceeding sections.
