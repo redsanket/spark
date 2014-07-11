@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression.yarn;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
@@ -14,7 +15,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(SerialTests.class)
 public class TestJobJarPermissions extends YarnTestsBaseClass {
 
 	private String setupAndFireHadoopStreamingJob(HashMap<String, String> args,

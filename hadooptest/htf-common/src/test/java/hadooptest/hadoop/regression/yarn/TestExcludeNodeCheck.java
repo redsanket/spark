@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression.yarn;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster;
@@ -32,8 +33,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
+@Category(SerialTests.class)
 public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 	private static String TT_HOSTS_FILE = "TT_hosts";
 	private static String EMPTY_FILE = "empty.file";
