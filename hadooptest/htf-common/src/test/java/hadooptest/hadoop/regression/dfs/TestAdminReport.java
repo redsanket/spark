@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
@@ -294,10 +295,15 @@ public class TestAdminReport extends DfsTestsBaseClass {
 			namenode.getConf().resetHadoopConfDir();
 
 			// Bounce the namenode
+			FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+					.getCluster();
+
 			cluster.hadoopDaemon(Action.STOP,
 					HadooptestConstants.NodeTypes.NAMENODE);
-			cluster.hadoopDaemon(Action.START,
-					HadooptestConstants.NodeTypes.NAMENODE);
+			fullyDistributedCluster.hadoopDaemon(Action.START,
+					HadooptestConstants.NodeTypes.NAMENODE,
+					TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE),
+					TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 		}
 

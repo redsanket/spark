@@ -27,6 +27,10 @@ public class TestLoadLibraryPath extends YarnTestsBaseClass {
 	String whatWeAreGreppingFor;
 
 
+	@BeforeClass
+	public static void ensureDataPresenceInCluster() throws Exception{
+		DfsTestsBaseClass.ensureDataPresenceInCluster();
+	}
 	public TestLoadLibraryPath(String param1, String whatWeAreGreppingFor) {
 		this.param1 = param1;
 		this.whatWeAreGreppingFor = whatWeAreGreppingFor;
