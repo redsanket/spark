@@ -3,6 +3,7 @@ package hadooptest.hadoop.regression.yarn;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
@@ -11,6 +12,8 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.yarn.MapredCliCommands.GenericMapredCliResponseBO;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
@@ -25,6 +28,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
 @Category(SerialTests.class)
 public class TestMapredQueueCLI extends YarnTestsBaseClass {
 	private static String CAPACITY_SCHEDULER_XML = "capacity-scheduler.xml";
@@ -177,8 +181,10 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 		for (String aLine : responseLines) {
 			if (aLine.contains("Queue Name :"))
 				Assert.assertTrue(aLine.contains(queueToSubmitJob));
-			if(aLine.contains("job_"))
-				Assert.assertTrue("Could not located expected jobId in response:" + jobId,aLine.contains(jobId));
+			if (aLine.contains("job_"))
+				Assert.assertTrue(
+						"Could not located expected jobId in response:" + jobId,
+						aLine.contains(jobId));
 		}
 
 	}
@@ -212,9 +218,9 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 	public void testQueueWithInfoOptionWithQueueStopped() {
 
 	}
-	
+
 	@After
-	public void resetConfig() throws Exception{
+	public void resetConfig() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 
@@ -222,9 +228,11 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
+				TestSession.cluster
+						.getNodeNames(HadoopCluster.RESOURCE_MANAGER),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 	}
-
 
 }
