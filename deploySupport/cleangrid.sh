@@ -18,6 +18,11 @@ if [ -d /grid/0/tmp/yarn-local/taskTracker ]; then
     chmod 777 /grid/0/tmp/yarn-local/taskTracker
 fi
 
+if [ -d /home/gs/var/run/mapredqa/yarn-nodemanager ]; then
+    rm -rf /home/gs/var/run/mapredqa/yarn-nodemanager
+    mkdir -p /home/gs/var/run/mapredqa/yarn-nodemanager
+    chmod 777 /home/gs/var/run/mapredqa/yarn-nodemanager
+fi
 
 for i in 0 1 2 3 4 5 6 7 8 9 10 11
 do
