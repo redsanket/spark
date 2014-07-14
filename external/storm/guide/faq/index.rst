@@ -1,4 +1,3 @@
-===
 FAQ
 ===
 
@@ -7,7 +6,7 @@ FAQ
    :local:
 
 Q: I am seeing "Connection reset by peer" errors and Netty Client Reconnect messages"
-=====================================================================================
+-------------------------------------------------------------------------------------
 
 The messages usually take the form of the following::
 
@@ -47,7 +46,7 @@ Does Storm support dependency isolation?
 Are there any libraries that storm is not compatible with?
 
 Q: My worker process resets a periodically with no indication of what happened in the logs?
-===========================================================================================
+-------------------------------------------------------------------------------------------
 
 If your worker process dies with no indication as to why it died, it is probably 
 the supervisor shooting it. The supervisor is not always that kind and will 
@@ -69,7 +68,7 @@ collection tends to stop them. Please look at the size of the HEAP you are using
 but be careful to not go over 3.5 GB without checking with the storm team first.
 
 Q: I am seeing “Authentication challenge without WWW-Authenticate header“ errors in my topology.
-================================================================================================
+------------------------------------------------------------------------------------------------
 
 
 The “Authentication challenge without WWW-Authenticate header“ typically is because 
@@ -92,12 +91,12 @@ If you can also set ``"http.registry.proxy"`` manually either on the command lin
 or programatially in the conf map.
 
 Q: Which JDK version does yStorm support?
-=========================================
+-----------------------------------------
 
 yStorm supports JDK7 on 64bit OS. On grid gateway, please make sure that you are using ``/home/gs/java/jdk64/current/``.
 
 Q: What are the basic steps to launch Storm topologies?
-=======================================================
+-------------------------------------------------------
 
 #. ``kinit``
 #. ``storm jar YourJar YourClass YourTopology``
@@ -105,7 +104,7 @@ Q: What are the basic steps to launch Storm topologies?
 #. ``storm kill YourTopology``
 
 Q: Why StormSummitter failed to find principal from Kerberos cache?
-===================================================================
+-------------------------------------------------------------------
 
 Please make sure that you don't have any environment settings for krb5. Please check::
 
@@ -116,7 +115,7 @@ If you find any krb5 key in the env, please unset them. Example::
     unset KRB5CCNAME
 
 Q: Does Storm support dependency isolation?
-===========================================
+-------------------------------------------
 
 Storm does not currently support dependency isolation, and Storm's class path takes 
 precedence over the topology jar. This means that for the time being you are limited 
@@ -125,7 +124,7 @@ in what you can have as a dependency. See the `full list of storms dependencies 
 One common dependencies that may cause you problems is ``Guava``.
 
 Q: Are there any libraries that storm is not compatible with?
-=============================================================
+-------------------------------------------------------------
 
 After the 0.8.2 release storm switched to ``logback`` for it's logging framework 
 with a shim layer that supports some of the ``log4j`` APIs. If you include log4j 
