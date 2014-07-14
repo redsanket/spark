@@ -1,21 +1,18 @@
 ================
-HBase User Guide
+Storm User Guide
 ================
 
-This guide provides Yahoos with a simplified version of documentation for HBase, 
-an open-source, distributed, versioned, column-oriented store modeled after Google’s `BigTable <http://en.wikipedia.org/wiki/Bigtable>`_. For more comprehensive documentation, which we will refer to 
-in this guide, see `The Apache HBase™ Reference Guide <http://hbase.apache.org/book/book.html>`_.
+This guide provides Yahoos with a simplified version of documentation for Storm, 
+in this guide, see ....
 
 .. toctree::
    :maxdepth: 2
    :hidden:
 
+   overview/index
    getting_started/index
-   alternatives/index	
-   architecture/index
-   schema/index
+   authorization/index
    programming/index
-   shell/index
-   troubleshooting/index
-   performance/index
-   best_practices/index
+   monitoring/index
+   architecture/index
+   reference/index

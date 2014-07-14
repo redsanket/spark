@@ -2,6 +2,17 @@
 Reference
 =========
 
+FAQ
+===
+
+.. include:: ../faq/index.rst
+
+Troubleshooting
+===============
+
+.. include:: ../troubleshooting/index.rst
+
+
 Deployment at Yahoo
 ===================
 
