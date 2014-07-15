@@ -4,7 +4,7 @@ FAQ
 Questions
 ---------
 
-- `Q: I am seeing "Connection reset by peer" errors and Netty Client Reconnect messages"`_
+- `Q: I am seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages.`_
 - `Q: My worker process resets a periodically with no indication of what happened in the logs?`_
 - `Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.`_
 - `Q: Which JDK version does yStorm support?`_
@@ -16,8 +16,8 @@ Questions
 Answers
 -------
 
-Q: I am seeing "Connection reset by peer" errors and Netty Client Reconnect messages"
-#####################################################################################
+Q: I am seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages.
+#######################################################################################
 
 The messages usually take the form of the following::
 
