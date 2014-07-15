@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -381,7 +382,7 @@ public class TestArchives extends DfsTestsBaseClass {
 	 * 
 	 * @throws Exception
 	 */
-	 @Test
+	@Ignore @Test
 	public void testArchive11() throws Exception {
 		String testCaseDesc = "archive_11";
 

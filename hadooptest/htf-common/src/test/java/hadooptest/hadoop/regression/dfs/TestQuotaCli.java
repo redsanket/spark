@@ -1,17 +1,9 @@
 package hadooptest.hadoop.regression.dfs;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.config.hadoop.HadoopConfiguration;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearQuota;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearSpaceQuota;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.util.HashMap;
@@ -19,11 +11,9 @@ import java.util.HashMap;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
-import hadooptest.SerialTests;
 
 @Category(SerialTests.class)
 public class TestQuotaCli extends DfsTestsBaseClass {
@@ -204,7 +194,7 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 	}
 
 	@SuppressWarnings("unused")
-	@Test
+	@Ignore @Test
 	public void nameQuota() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse = null;
@@ -418,7 +408,7 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 
 	}
 
-	@Test
+	@Ignore @Test
 	public void spaceQuota() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse = null;
