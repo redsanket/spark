@@ -112,13 +112,15 @@ $self->test_run_sleep_job({'user'  => $user,
 note("---> Test queue acls inheritance (bug 4620788)");
 $user='hadoopqa';
 $queue="a2";
-$should_fail=1;
-$error_message=
-    "org.apache.hadoop.security.AccessControlException: ".
-    "User $user cannot submit applications to queue root.a.a2";
+# Bug 4620788 closed as invalid, but passes on 2.0.
+# Still fails on 0.23, dded to 0.23 known failures.
+# $should_fail=1;
+# $error_message=
+#    "org.apache.hadoop.security.AccessControlException: ".
+#    "User $user cannot submit applications to queue root.a.a2";
 $self->test_run_sleep_job({'user'  => $user,
-                           'queue' => $queue },
-                          $should_fail, $error_message);
+                           'queue' => $queue });
+#                          $should_fail, $error_message);
 
 #################################################################################
 # Use custom capacity scheduler file #3
@@ -146,13 +148,15 @@ check_acls('hadoop2',
 note("---> Test queue acls inheritance (bug 4620788)");
 $user='hadoopqa';
 $queue="b";
-$should_fail=1;
-$error_message=
-    "org.apache.hadoop.security.AccessControlException: ".
-    "User $user cannot submit applications to queue root.b";
+# Bug 4620788 closed as invalid, but passes on 2.0.
+# Still fails on 0.23, dded to 0.23 known failures.
+# $should_fail=1;
+# $error_message=
+#     "org.apache.hadoop.security.AccessControlException: ".
+#    "User $user cannot submit applications to queue root.b";
 $self->test_run_sleep_job({'user'  => $user,
-                           'queue' => $queue },
-                          $should_fail, $error_message);
+                           'queue' => $queue });
+#                          $should_fail, $error_message);
 
 # CLEANUP
 $self->cleanup_resourcemanager_conf;

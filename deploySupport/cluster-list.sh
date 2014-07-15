@@ -243,10 +243,10 @@ setGridParameters() {
                        export scriptnames=generic10node12disk
                        export localnames=12disk
                     ;;
-                    *) export scriptnames=openstackmediumdisk ;;
+                    *) export scriptnames=openstacklargedisk ;;
        esac
        export confpkg=HadoopConfig${scriptnames}
-       export localconfpkg=hadooplocalconfigs
+       export localconfpkg=hadooplocalconfigs_openstack_large
 
         # step 2e: Set up file-contents that the deploy-script needs.
        (

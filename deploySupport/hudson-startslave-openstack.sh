@@ -18,10 +18,10 @@ case "$CLUSTER" in
       export scriptnames=generic10node12disk
       export localnames=12disk
       ;;
-   *) export scriptnames=openstackmediumdisk ;;
+   *) export scriptnames=openstacklargedisk ;;
 esac
-export confpkg=HadoopConfigopenstackmediumdisk
-export localconfpkg=hadooplocalconfigs
+export confpkg=HadoopConfigopenstacklargedisk
+export localconfpkg=hadooplocalconfigs_openstack_large
 
 echo =========================================
 echo Beginning of Hudson-driven deployment job.
@@ -62,6 +62,7 @@ then
     done
     export HADOOP_CORETREE_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
     export LOCAL_CONFIG_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
+    export HADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
     then
@@ -153,7 +154,7 @@ rm -f *.tgz > /dev/null 2>&1
 [ -z "$GRIDJDK64_INSTALL_STRING" ] && export GRIDJDK64_INSTALL_STRING=gridjdk64:hadoopXXX2X0X5Xlatest
 [ -z "$HADOOP_INSTALL_STRING" ] && export HADOOP_INSTALL_STRING=hadoop:hadoopXXX2X0X5Xlatest
 
-[ -z "$HADOOP_CONFIG_INSTALL_STRING" ] && export HADOOP_CONFIG_INSTALL_STRING=HadoopConfigopenstackmediumdisk:hadoopXXX2X0X5Xlatest
+[ -z "$HADOOP_CONFIG_INSTALL_STRING" ] && export HADOOP_CONFIG_INSTALL_STRING=HadoopConfigopenstacklargedisk:hadoopXXX2X0X5Xlatest
 [ -z "$KILLALLPROCESSES" ] && export KILLALLPROCESSES=true
 [ -z "$RUNKINIT" ] && export RUNKINIT=true
 [ -z "$RUNSIMPLETEST" ] && export RUNSIMPLETEST=true

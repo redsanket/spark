@@ -1,0 +1,28 @@
+#!/bin/bash
+
+QUEUE1=unfunded
+#QUEUE2=sds
+QUEUE2=default
+QUEUE3=grideng
+
+# run generic wordcounts across two queues, alternate each submission between 10 and 100 input files
+echo "Start the run..."
+JOBCOUNT=1
+
+while [ "$JOBCOUNT" -lt "50" ]; do
+  # 10 input files, use QUEUE1 
+  /home/gs/gridre/yroot.argentum/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.argentum/conf/hadoop   jar GenFilesInHdfs.jar GenFilesInHdfs 10 $QUEUE1
+  /home/gs/gridre/yroot.argentum/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.argentum/conf/hadoop   jar GenFilesInHdfs.jar GenFilesInHdfs 1 $QUEUE2
+  /home/gs/gridre/yroot.argentum/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.argentum/conf/hadoop   jar GenFilesInHdfs.jar GenFilesInHdfs 10 $QUEUE3
+  #/home/gs/gridre/yroot.densea/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.densea/conf/hadoop   jar GenFilesInHdfs.jar GenFilesInHdfs 10000 $QUEUE1
+  /home/gs/gridre/yroot.argentum/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.argentum/conf/hadoop   jar GenFilesInHdfs.jar GenFilesInHdfs 20 $QUEUE1
+  /home/gs/gridre/yroot.argentum/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.argentum/conf/hadoop   jar GenFilesInHdfs.jar GenFilesInHdfs 4 $QUEUE2
+  /home/gs/gridre/yroot.argentum/share/hadoop/bin/hadoop --config /home/gs/gridre/yroot.argentum/conf/hadoop   jar GenFilesInHdfs.jar GenFilesInHdfs 25 $QUEUE3
+
+  # delay 10 minutes
+  # echo "Submitted jobs, 2 to $QUEUE1 and 2 to $QUEUE2 queues"
+  #sleep 600
+  (( JOBCOUNT++ ))
+done
+
+

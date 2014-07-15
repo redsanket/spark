@@ -3,12 +3,14 @@ if [ "$INSTALLNEWPACKAGES" = true ]
 then
     echo == installing YINST packages.
 
+    slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
     slownogwfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+    fanoutGW "/usr/bin/yum makecache"
+    fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64 compat-readline5.x86_64"
     fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+    fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
+    fanoutGW "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk64/current/bin/java"
 
-#
-#
-#
 #
 # At this point, the packages are installed - except the configs.
 #
@@ -33,3 +35,6 @@ echo ...... run deploy.$cluster.confoptions.sh, which is in the config-dir.
 echo ......
 echo ......
 fi
+
+# make sure the permission on var and var/run is correct. the cfg-datanode-mkdirs.sh in old config packates have a bug.
+fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi; "

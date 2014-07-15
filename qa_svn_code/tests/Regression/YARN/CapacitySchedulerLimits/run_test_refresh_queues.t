@@ -327,7 +327,7 @@ sub test_invalid_queue_capacity {
         $self->run_hadoop_command($refresh_queues, 'YARN');
     note("stdout = '$stdout'");
     note("stderr = '$stderr'");
-    is($stderr, '',
+    is($exit_code, 0,
        "Check refresh queues should succeed when total capacity is 100.");
 }
 
@@ -378,7 +378,7 @@ sub test_stopped_new_queues {
         $self->run_hadoop_command($refresh_queues, 'YARN');
     note("stdout = '$stdout'");
     note("stderr = '$stderr'");
-    is($stderr, '', "Check refresh queues ran without error");
+    is($exit_code, 0, "Check refresh queues ran without error");
 
     my $queue_name      = 'a3';
     my $user            = $self->{DEFAULT_USER};
@@ -388,7 +388,6 @@ sub test_stopped_new_queues {
     my $reduce_sleep    = 1000;
     my $should_fail     = 1;
     my $error_message = 
-        "Job .*. failed with state FAILED due to: ".
         "org.apache.hadoop.security.AccessControlException: ".
         "Queue root.a.$queue_name is STOPPED. ".
         "Cannot accept submission of application:";
@@ -431,7 +430,7 @@ sub test_running_new_queues {
         $self->run_hadoop_command($refresh_queues, 'YARN');
     note("stdout = '$stdout'");
     note("stderr = '$stderr'");
-    is($stderr, '', "Check refresh queues ran without error ");
+    is($exit_code, 0, "Check refresh queues ran without error ");
 
     my @queue_names     = ('a3','a4');
     my $user            = $self->{DEFAULT_USER};
