@@ -352,7 +352,7 @@ public class YarnTestsBaseClass extends TestSession {
 
 	}
 
-	void waitTillJobStartsRunning(Job job) throws IOException,
+	public void waitTillJobStartsRunning(Job job) throws IOException,
 			InterruptedException {
 		State jobState = job.getStatus().getState();
 		while (jobState != State.RUNNING) {
@@ -369,7 +369,7 @@ public class YarnTestsBaseClass extends TestSession {
 		}
 	}
 
-	void waitTillJobSucceeds(Job job) throws IOException, InterruptedException {
+	public void waitTillJobSucceeds(Job job) throws IOException, InterruptedException {
 
 		State jobState = job.getStatus().getState();
 		while (jobState != State.SUCCEEDED) {
