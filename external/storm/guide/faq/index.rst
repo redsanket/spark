@@ -5,7 +5,7 @@ Questions
 ---------
 
 - `Q: I am seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages.`_
-- `Q: My worker process resets a periodically with no indication of what happened in the logs?`_
+- `Q: My worker process resets a periodically with no indication of what happened in the logs.`_
 - `Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.`_
 - `Q: Which JDK version does yStorm support?`_
 - `Q: What are the basic steps to launch Storm topologies?`_ 
@@ -46,46 +46,27 @@ to see if there is anything in there indicating why it went down. If there is
 nothing there and the logs look like they just stopped abruptly, see the
 FAQ on :ref:`worker process resetting <>`.
 
-My worker process resets a periodically with no indication of what happened in the logs
-
-Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.
-################################################################################################
-
-The "Authentication challenge without WWW-Authenticate header" typically is because the YCA authentication filter violates the HTTP specification by returning a "not authenticated" response code without providing challenge information. Some http clients return this, like the one that we have used with the RegistryService. This usually means that you included a YCAv2 header in the request to the registry service, but did not go through the HTTP proxy. We usually have this set on all the gateways by default. If you ran your topology from a hosted gateway and got this error please file a BUG in Low Latency to let us know. If it was from your launcher box you probably need to configure it. You can look HERE for the available http proxies by colo.
-If you are setting it for a launcher box you probably want to set it through yinst, with something like the following
-yinst set "ystorm.http_registry_proxy=http://httpproxy-res.red.ygrid.yahoo.com:4080”
-If you can also set "http.registry.proxy" manually either on the command line with -c, or programatially in the conf map.
-
-If you are setting it for a launcher box you probably want to set it through yinst, with something like the following
-yinst set "ystorm.http_registry_proxy=http://httpproxy-res.red.ygrid.yahoo.com:4080”
-If you can also set "http.registry.proxy" manually either on the command line with -c, or programatially in the conf map.
-Which JDK version does yStorm support?
-What's the basic step to launch storm topologies?
-Why StormSummitter failed to find principal from Kerberos cache?
-Does Storm support dependency isolation?
-Are there any libraries that storm is not compatible with?
-
-Q: My worker process resets a periodically with no indication of what happened in the logs?
+Q: My worker process resets a periodically with no indication of what happened in the logs.
 ###########################################################################################
 
 If your worker process dies with no indication as to why it died, it is probably 
-the supervisor shooting it. The supervisor is not always that kind and will 
-sometimes shoot a process with a ``kill -9``. There are usually two reasons why the 
-supervisor will shoot a worker. Either the worker has stopped heartbeating in, or 
-nimbus has decided to reschedule it somewhere else.
+the supervisor shooting it. The supervisor is not always that kind and will sometimes 
+shoot a process with a kill -9. There are usually two reasons why the supervisor 
+will shoot a worker. Either the worker has stopped heartbeating in, or nimbus has 
+decided to reschedule it somewhere else.
 
-The best way to know which is to look if the worker process starts up again on 
-the same host and port. If it does then your worker probably stopped heartbeating. 
-If it starts up somewhere else, then nimbus probably rescheduled it. Nimbus 
-rescheduling is unlikely if your process is restarting regularly. If you think 
-this is happening please contact the storm team and we can help debug what is going on.
+The best way to know which is to look if the worker process starts up again on the 
+same host and port. If it does then your worker probably stopped heartbeating. If 
+it starts up somewhere else, then nimbus probably rescheduled it. Nimbus rescheduling 
+is unlikely if your process is restarting regularly. If you think this is happening 
+please contact the storm team and we can help debug what is going on.
 
-If your worker stopped heartbeating the most likely suspect is Java garbage 
-collection. If the supervisor does not see heartbeats from your process for more 
-then five seconds it assumes it is dead and will try to restart it. Heartbeats 
-are on a separate high priority thread and really only full stop the world garbage 
-collection tends to stop them. Please look at the size of the HEAP you are using, 
-but be careful to not go over 3.5 GB without checking with the storm team first.
+If your worker stopped heartbeating the most likely suspect is java Garbage Collection. 
+If the supervisor does not see heartbeats from your process for more then 5 seconds 
+it assumes it is dead and will try to restart it. Heartbeats are on a separate 
+high priority thread and really only full stop the world garbage collection tends 
+to stop them. Please look at the size of the HEAP you are using, but be careful 
+to not go over 3.5 GB without checking with the storm team first.
 
 Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.
 ################################################################################################
