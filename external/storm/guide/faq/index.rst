@@ -1,11 +1,6 @@
 FAQ
 ===
 
-.. contents:: Contents
-   :depth: 1 
-   :local:
-
-
 Questions
 ---------
 
@@ -52,7 +47,18 @@ nothing there and the logs look like they just stopped abruptly, see the
 FAQ on :ref:`worker process resetting <>`.
 
 My worker process resets a periodically with no indication of what happened in the logs
-I am seeing “Authentication challenge without WWW-Authenticate header“ errors in my topology.
+
+Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.
+################################################################################################
+
+The "Authentication challenge without WWW-Authenticate header" typically is because the YCA authentication filter violates the HTTP specification by returning a "not authenticated" response code without providing challenge information. Some http clients return this, like the one that we have used with the RegistryService. This usually means that you included a YCAv2 header in the request to the registry service, but did not go through the HTTP proxy. We usually have this set on all the gateways by default. If you ran your topology from a hosted gateway and got this error please file a BUG in Low Latency to let us know. If it was from your launcher box you probably need to configure it. You can look HERE for the available http proxies by colo.
+If you are setting it for a launcher box you probably want to set it through yinst, with something like the following
+yinst set "ystorm.http_registry_proxy=http://httpproxy-res.red.ygrid.yahoo.com:4080”
+If you can also set "http.registry.proxy" manually either on the command line with -c, or programatially in the conf map.
+
+If you are setting it for a launcher box you probably want to set it through yinst, with something like the following
+yinst set "ystorm.http_registry_proxy=http://httpproxy-res.red.ygrid.yahoo.com:4080”
+If you can also set "http.registry.proxy" manually either on the command line with -c, or programatially in the conf map.
 Which JDK version does yStorm support?
 What's the basic step to launch storm topologies?
 Why StormSummitter failed to find principal from Kerberos cache?
@@ -81,7 +87,7 @@ are on a separate high priority thread and really only full stop the world garba
 collection tends to stop them. Please look at the size of the HEAP you are using, 
 but be careful to not go over 3.5 GB without checking with the storm team first.
 
-Q: I am seeing “Authentication challenge without WWW-Authenticate header“ errors in my topology.
+Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.
 ################################################################################################
 
 The "Authentication challenge without WWW-Authenticate header" typically is because 
