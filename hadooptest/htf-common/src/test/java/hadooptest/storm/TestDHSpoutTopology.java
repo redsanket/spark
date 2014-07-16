@@ -22,6 +22,8 @@ import org.junit.experimental.categories.Category;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.TopologySummary;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.drpc.DRPCSpout;
+import backtype.storm.drpc.ReturnResults;
 
 import com.yahoo.dhrainbow.dhapi.AvroEventRecord;
 import com.yahoo.spout.http.Config;
@@ -32,6 +34,7 @@ import com.yahoo.spout.http.rainbow.KryoEventRecord;
 @Category(SerialTests.class)
 public class TestDHSpoutTopology extends TestSessionStorm {
     static ModifiableStormCluster mc;
+    static String function = "wordQuery";
     //static String configURI="http://0.0.0.0:8090/registry/v1/";
     //static String serverURI=configURI;
     static String serverURI=null;
@@ -51,6 +54,9 @@ public class TestDHSpoutTopology extends TestSessionStorm {
             serverURI=theURI;
             mc.setRegistryServerURI(theURI);
             mc.startRegistryServer();
+            cluster.setDrpcInvocationAuthAclForFunction(function, "hadoopqa");
+            String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+            cluster.setDrpcClientAuthAclForFunction(function, "hadoopqa," +v1Role );
         }
     }
 
@@ -175,26 +181,19 @@ public class TestDHSpoutTopology extends TestSessionStorm {
             }
 
             //get results
-            HashMap<String, Integer> resultWordCount = Util.readMapFromFile(outputLoc);
 
             //get expected results
             String file = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestDHSpoutTopology/expected_results";
             logger.info("Read epected results from: "+ file);
             HashMap<String, Integer> expectedWordCount = Util.readMapFromFile(file);
 
-            passed &= (expectedWordCount.size()==resultWordCount.size() && expectedWordCount.size() != 0);
-            if (!passed) {
-                logger.error("Expected (" + expectedWordCount.size() + ") and result (" + resultWordCount.size() + ") counts do not match, or are both zero.");
-            } else {
-                logger.info("Both size counts are " + expectedWordCount.size());
-            }
-
             // Now check to see if the bolt counted the right number of packets
             for (String key: expectedWordCount.keySet()){
                 logger.info("Checking to see if the value for " + key + "is " + expectedWordCount.get(key));
-                passed &= ((int)expectedWordCount.get(key) == (int)resultWordCount.get(key));
+                String drpcResult = cluster.DRPCExecute( function, key );
+                passed &= Integer.toString(expectedWordCount.get(key)).equals(drpcResult);
                 if (!passed) {
-                    logger.error("Expected (" + expectedWordCount.get(key) + ") and result (" + resultWordCount.get(key) +") do not match for " + key );
+                    logger.error("Expected (" + expectedWordCount.get(key) + ") and result (" + drpcResult +") do not match for " + key );
                 }
             }
 
@@ -210,13 +209,18 @@ public class TestDHSpoutTopology extends TestSessionStorm {
 
     public StormTopology buildTopology(String uri) throws Exception {
         TopologyBuilder builder = new TopologyBuilder();
+        DRPCSpout drpcSpout = new DRPCSpout(function);
         URI spoutURI = new URI(uri);
         builder.setSpout("dh_spout", new TestDHSpout(spoutURI).setRegistryUri(serverURI).setUseSSLEncryption(false).setEventQueueSize(100).setAcking(false), 1);
         theBolt = new TestEventCountBolt("name");
         builder.setBolt("count", theBolt, 1).shuffleGrouping("dh_spout");
 
+        builder.setSpout("drpc_spout", drpcSpout, 1);
         builder.setBolt("aggregator", new Aggregator())
-        .globalGrouping("count");
+            .globalGrouping("count")
+            .globalGrouping("drpc_spout"); 
+
+        builder.setBolt("rr", new ReturnResults()).globalGrouping("aggregator");
 
         return builder.createTopology();
     }    
