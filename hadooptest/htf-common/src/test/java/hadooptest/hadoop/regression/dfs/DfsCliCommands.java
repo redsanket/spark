@@ -174,14 +174,19 @@ public class DfsCliCommands {
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
-		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
+        /*
+         * If the command uses bash wildcards (*, {..}), we will need to specify
+         * the path to the shell. Otherwise, they will not get interpreted by
+         * the process builder.
+         */	
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, environmentVariablesWrappingTheCommand);
+		        new String[] {"/bin/bash","-c",commandString},
+		        user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -233,14 +238,20 @@ public class DfsCliCommands {
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
-		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
+        /*
+         * If the command uses bash wildcards (*, {..}), we will need to specify
+         * the path to the shell. Otherwise, they will not get interpreted by
+         * the process builder.
+         */
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, environmentVariablesWrappingTheCommand);
+		        new String[] {"/bin/bash","-c",commandString},
+		        user,
+		        environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -841,14 +852,19 @@ public class DfsCliCommands {
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
-		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
+        /*
+         * If the command uses bash wildcards (*, {..}), we will need to specify
+         * the path to the shell. Otherwise, they will not get interpreted by
+         * the process builder.
+         */    
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, environmentVariablesWrappingTheCommand);
+		        new String[] {"/bin/bash","-c",commandString},
+		        user, environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -902,14 +918,20 @@ public class DfsCliCommands {
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
-		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
+        /*
+         * If the command uses bash wildcards (*, {..}), we will need to specify
+         * the path to the shell. Otherwise, they will not get interpreted by
+         * the process builder.
+         */ 		
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, environmentVariablesWrappingTheCommand);
+		        new String[] {"/bin/bash","-c",commandString},
+		        user, 
+		        environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -1264,19 +1286,24 @@ public class DfsCliCommands {
 				.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
 			nameNodePrependedWithProtocol = getNNUrlForHftp(dstCluster);
 		}
-
+		
 		sb.append(nameNodePrependedWithProtocol + dstFile);
-
 		String commandString = sb.toString();
 
-		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
+        /*
+         * If the command uses bash wildcards (*, {..}), we will need to specify
+         * the path to the shell. Otherwise, they will not get interpreted by
+         * the process builder.
+         */    
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-				commandFrags, user, environmentVariablesWrappingTheCommand);
+		        new String[] {"/bin/bash","-c",commandString},
+		        user, 
+		        environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
