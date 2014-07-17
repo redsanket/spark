@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression.yarn;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster;
@@ -32,8 +33,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
+@Category(SerialTests.class)
 public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 	private static String TT_HOSTS_FILE = "TT_hosts";
 	private static String EMPTY_FILE = "empty.file";
@@ -56,7 +59,10 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		TestSession.logger.info("Reset the config file location for ResourceManager");
 		Thread.sleep(5000);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
+				TestSession.cluster
+						.getNodeNames(HadoopCluster.RESOURCE_MANAGER),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 		// Bounce the NM
 		Thread.sleep(10000);
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
@@ -67,27 +73,12 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		TestSession.logger.info("Reset the config file location for NodeManager");
 		Thread.sleep(5000);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.NODE_MANAGER);
+				HadooptestConstants.NodeTypes.NODE_MANAGER,
+				TestSession.cluster
+						.getNodeNames(HadoopCluster.NODEMANAGER),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 		Thread.sleep(10000);
-		// // Leave safe-mode
-		// DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		// GenericCliResponseBO genericCliResponse;
-		// genericCliResponse = dfsCliCommands.dfsadmin(
-		// DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-		// DfsTestsBaseClass.Report.NO, "get",
-		// DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-		// 0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-		// DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-		// DfsTestsBaseClass.PrintTopology.NO, null);
-		//
-		// genericCliResponse = dfsCliCommands.dfsadmin(
-		// DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-		// DfsTestsBaseClass.Report.NO, "leave",
-		// DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-		// 0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-		// DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-		// DfsTestsBaseClass.PrintTopology.NO, null);
 
 	}
 

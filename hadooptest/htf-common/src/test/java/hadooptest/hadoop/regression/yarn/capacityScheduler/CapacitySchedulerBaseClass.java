@@ -5,6 +5,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
@@ -51,6 +52,8 @@ import org.apache.hadoop.mapreduce.TaskReport;
 import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 
 public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
@@ -543,7 +546,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		Iterator iter = conf.iterator();
 		while (iter.hasNext()) {
 			Entry<String, String> entry = (Entry<String, String>) iter.next();
-			TestSession.logger.info("Key:[" + entry.getKey() + "] Value["
+			TestSession.logger.trace("Key:[" + entry.getKey() + "] Value["
 					+ entry.getValue() + "]");
 		}
 
@@ -657,7 +660,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 					+ "] had procId ["
 					+ nodeManagerHostAndProdId.get(aHostName) + "]");
 		}
-		
+
 		if (moveProcsUnderCgroup) {
 			for (String aDataNode : hadoopComp.getNodes().keySet()) {
 				String command = "cgclassify -g cpu:hadoop-yarn "
@@ -1255,8 +1258,8 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	// @After
-	public void restoreTheConfigFile() throws Exception {
+	@AfterClass
+	public static void restoreTheConfigFile() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
 		fullyDistributedCluster.getConf(
@@ -1268,7 +1271,10 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
+				TestSession.cluster
+						.getNodeNames(HadoopCluster.RESOURCE_MANAGER),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 		Thread.sleep(20000);
 
@@ -1592,7 +1598,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 				try {
 					while (aTetherToACallableSleepJob.get().getJobState() != expectedState
 							&& (aTetherToACallableSleepJob.get().getJobState() != JobStatus.State.FAILED)) {
-						TestSession.logger.info("Current job state["
+						TestSession.logger.trace("Current job state["
 								+ aTetherToACallableSleepJob.get().getJobName()
 								+ "]:"
 								+ aTetherToACallableSleepJob.get()

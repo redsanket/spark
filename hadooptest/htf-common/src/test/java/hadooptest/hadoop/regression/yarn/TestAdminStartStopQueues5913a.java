@@ -6,6 +6,7 @@ import java.util.HashMap;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
@@ -103,12 +104,17 @@ public class TestAdminStartStopQueues5913a extends YarnTestsBaseClass {
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.NAMENODE);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.NAMENODE);
+				HadooptestConstants.NodeTypes.NAMENODE,
+				TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
+				TestSession.cluster
+						.getNodeNames(HadoopCluster.RESOURCE_MANAGER),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 		Thread.sleep(20000);
 

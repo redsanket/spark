@@ -43,7 +43,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/input.txt",
 						"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
@@ -58,7 +58,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/test.jar", "RecursiveChmod/RecursiveChmod-"
 								+ TESTCASE_ID + "/test.jar");
@@ -86,13 +86,13 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/mapper.sh\"");
 
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/reducer.sh\"");
 
 		TestSession.logger.info("Executing command-----------------------:");
@@ -111,7 +111,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 
 		assertContents(
 				TestSession.conf.getProperty("WORKSPACE")
-						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 						+ "/data/RecursiveChmod-" + TESTCASE_ID
 						+ "/expectedOutput", genericCliResponseBO.response);
 
@@ -137,7 +137,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/input.txt",
 						"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
@@ -152,7 +152,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/test.jar",
 						"/tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
@@ -180,13 +180,13 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/mapper.sh\"");
 
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/reducer.sh\"");
 
 		TestSession.logger.info("Executing command-----------------------:");
@@ -205,7 +205,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 
 		assertContents(
 				TestSession.conf.getProperty("WORKSPACE")
-						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 						+ "/data/RecursiveChmod-" + TESTCASE_ID
 						+ "/expectedOutput", genericCliResponseBO.response);
 
@@ -228,7 +228,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/input.txt",
 						"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
@@ -243,7 +243,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/test.jar", "RecursiveChmod/RecursiveChmod-"
 								+ TESTCASE_ID + "/test.jar");
@@ -270,13 +270,13 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/mapper.sh\"");
 
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/reducer.sh\"");
 
 		TestSession.logger.info("Executing command-----------------------:");
@@ -295,7 +295,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 
 		assertContents(
 				TestSession.conf.getProperty("WORKSPACE")
-						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 						+ "/data/RecursiveChmod-" + TESTCASE_ID
 						+ "/expectedOutput", genericCliResponseBO.response);
 
@@ -322,7 +322,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/input.txt",
 						"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
@@ -337,7 +337,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/test.jar",
 						"/tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
@@ -365,13 +365,13 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/mapper.sh\"");
 
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/reducer.sh\"");
 
 		TestSession.logger.info("Executing command-----------------------:");
@@ -390,7 +390,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 
 		assertContents(
 				TestSession.conf.getProperty("WORKSPACE")
-						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 						+ "/data/RecursiveChmod-" + TESTCASE_ID
 						+ "/expectedOutput", genericCliResponseBO.response);
 
@@ -413,7 +413,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 						"",
 						System.getProperty("CLUSTER_NAME"),
 						TestSession.conf.getProperty("WORKSPACE")
-								+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+								+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 								+ "/data/RecursiveChmod-" + TESTCASE_ID
 								+ "/input.txt", testDir + "/input.txt");
 		Assert.assertTrue(
@@ -425,7 +425,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append("-archives "
 				+ "\"file://"
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID
 				+ "/test.jar#testlink\"");
 		sb.append(" -input " + "\"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
@@ -441,13 +441,13 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/mapper.sh\"");
 
 		sb.append(" -file "
 				+ "\""
 				+ TestSession.conf.getProperty("WORKSPACE")
-				+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 				+ "/data/RecursiveChmod-" + TESTCASE_ID + "/reducer.sh\"");
 
 		TestSession.logger.info("Executing command-----------------------:");
@@ -466,7 +466,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 
 		assertContents(
 				TestSession.conf.getProperty("WORKSPACE")
-						+ "htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
+						+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/recursiveChmod"
 						+ "/data/RecursiveChmod-" + TESTCASE_ID
 						+ "/expectedOutput", genericCliResponseBO.response);
 

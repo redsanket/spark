@@ -287,6 +287,7 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 			cluster.getConf(aComponentToUpdate).resetHadoopConfDir();
 			cluster.hadoopDaemon(Action.STOP, aComponentToUpdate);
 			cluster.hadoopDaemon(Action.START, aComponentToUpdate);
+			
 		}
 
 		// Get NN out of sademode

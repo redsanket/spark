@@ -302,19 +302,14 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		String queueToUse = "default";
 		String user = HadooptestConstants.UserNames.HADOOPQA;
 		Future<Job> handle = submitSingleSleepJobAndGetHandle(queueToUse, user,
-				getDefaultSleepJobProps(queueToUse), 1, 1, 10, 1, 10, 1,
+				getDefaultSleepJobProps(queueToUse), 1, 1, 1, 1, 1, 1,
 				testName, false);
 		Job job = handle.get();
 		String jobId = job.getJobID().toString();
+		TestSession.logger.info("Got job Id:" + jobId);
 
 		boolean testConditionMet = false;
-		for (int xx = 0; xx < 60; xx++) {
-			if (job.getStatus().getState() == State.SUCCEEDED) {
-				testConditionMet = true;
-				break;
-			}
-			Thread.sleep(1000);
-		}
+		waitTillJobSucceeds(job);
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
 				.jobList(EMPTY_ENV_HASH_MAP,

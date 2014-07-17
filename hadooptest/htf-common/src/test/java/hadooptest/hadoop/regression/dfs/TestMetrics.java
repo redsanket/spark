@@ -314,7 +314,7 @@ public class TestMetrics extends DfsTestsBaseClass {
 						+ SERVICE
 						+ " "
 						+ PROPERTY
-						+ ")|java -jar /homes/mapred/jmxterm-1.0-SNAPSHOT-uber.jar |grep "
+						+ ")|/home/gs/java/jdk/bin/java -jar /homes/mapred/jmxterm-1.0-SNAPSHOT-uber.jar |grep "
 						+ PROPERTY, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 		TestSession.logger.info("Read back from JMX[" + response + "]");
 		response = response.split("\\s+")[2];

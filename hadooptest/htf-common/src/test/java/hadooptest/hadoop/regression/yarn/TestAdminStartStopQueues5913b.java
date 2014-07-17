@@ -6,6 +6,7 @@ import java.util.HashMap;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
@@ -32,8 +33,7 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 	protected static boolean restoredConfig = false;
 
 	@Before
-	public void copyConfigAndRestartNodes()
-			throws Exception {
+	public void copyConfigAndRestartNodes() throws Exception {
 		if (restoredConfig)
 			return;
 		restoredConfig = true;
@@ -103,12 +103,17 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.NAMENODE);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.NAMENODE);
+				HadooptestConstants.NodeTypes.NAMENODE,
+				TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER,
+				TestSession.cluster
+						.getNodeNames(HadoopCluster.RESOURCE_MANAGER),
+				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
 		Thread.sleep(20000);
 
@@ -132,34 +137,19 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 
 	}
 
-
-	 @Test
+	@Test
 	public void testJobSubmissionToQueueWhoseParentNodeIsStopped()
 			throws Exception {
 		String stoppedParentQueue = "a";
 		String childQueueWhoseParentIsStopped = "a1";
 
-//		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-//				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
-//
-//		JobClient jobClient = new JobClient(
-//				((FullyDistributedCluster) TestSession.cluster)
-//						.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-//		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
-//			TestSession.logger.info("Q name:" + jobQueueInfo.getQueueName()
-//					+ " Q state:" + jobQueueInfo.getState());
-//
-//		}
-		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster).getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		Cluster cluster = new Cluster(fdc);
-		
-//		JobClient jobClient = new JobClient(
-//				((FullyDistributedCluster) TestSession.cluster)
-//						.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-//		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
-		for(QueueInfo qi:cluster.getQueues()){
-			TestSession.logger.info("Q name:" + qi.getQueueName()
-					+ " Q state:" + qi.getState());
+
+		for (QueueInfo qi : cluster.getQueues()) {
+			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
+					+ qi.getState());
 
 		}
 
@@ -187,32 +177,17 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 
 	}
 
-	 @Test
+	@Test
 	public void testJobSubmissionToRunningLeafQueue() throws Exception {
 		String runningQueue = "c1";
 
-//		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-//				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
-//
-//		JobClient jobClient = new JobClient(
-//				((FullyDistributedCluster) TestSession.cluster)
-//						.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-//		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
-//			TestSession.logger.info("Q name:" + jobQueueInfo.getQueueName()
-//					+ " Q state:" + jobQueueInfo.getState());
-//
-//		}
-//		Thread.sleep(20000);
-		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster).getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		Cluster cluster = new Cluster(fdc);
-		
-//		JobClient jobClient = new JobClient(
-//				((FullyDistributedCluster) TestSession.cluster)
-//						.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-//		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
-		for(QueueInfo qi:cluster.getQueues()){
-			TestSession.logger.info("Q name:" + qi.getQueueName()
-					+ " Q state:" + qi.getState());
+
+		for (QueueInfo qi : cluster.getQueues()) {
+			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
+					+ qi.getState());
 
 		}
 
@@ -232,27 +207,13 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 		YarnCliCommands yarnCliCommands = new YarnCliCommands();
 		String stoppedQueue = "b";
 
-//		copyConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE")
-//				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml");
-//
-//		JobClient jobClient = new JobClient(
-//				((FullyDistributedCluster) TestSession.cluster)
-//						.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-//		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
-//			TestSession.logger.info("Q name:" + jobQueueInfo.getQueueName()
-//					+ " Q state:" + jobQueueInfo.getState());
-//
-//		}
-		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster).getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		Cluster cluster = new Cluster(fdc);
-		
-//		JobClient jobClient = new JobClient(
-//				((FullyDistributedCluster) TestSession.cluster)
-//						.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-//		for (JobQueueInfo jobQueueInfo : jobClient.getQueues()) {
-		for(QueueInfo qi:cluster.getQueues()){
-			TestSession.logger.info("Q name:" + qi.getQueueName()
-					+ " Q state:" + qi.getState());
+
+		for (QueueInfo qi : cluster.getQueues()) {
+			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
+					+ qi.getState());
 
 		}
 
@@ -267,7 +228,7 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 								+ "/htf-common/resources/hadooptest/hadoop/regression"
 								+ "/yarn/adminStartStopQueues/capacity-scheduler_refreshQueues.xml",
 						CAPACITY_SCHEDULER_XML);
-		
+
 		genericYarnCliResponse = yarnCliCommands.rmadmin(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA,
 				HadooptestConstants.Schema.NONE, localCluster,
@@ -287,7 +248,12 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 			TestSession.logger.info("MESSAGE:" + e.getMessage());
 			TestSession.logger.info("LOCALIZED MESSAGE:"
 					+ e.getLocalizedMessage());
-			Assert.assertTrue("", e.getMessage().contains(stoppedQueue + " is STOPPED. Cannot accept submission of application"));
+			Assert.assertTrue(
+					"",
+					e.getMessage()
+							.contains(
+									stoppedQueue
+											+ " is STOPPED. Cannot accept submission of application"));
 		}
 
 	}
