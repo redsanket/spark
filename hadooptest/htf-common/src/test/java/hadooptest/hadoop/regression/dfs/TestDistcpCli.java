@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +23,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,8 +42,8 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 
 	private static boolean isDataCopiedAcrossConcernedClusters = false;
 	private String parametrizedCluster;
-	private String localHadoopVersion = "2.x";
-	private String remoteHadoopVersion = "2.x";
+	private String localHadoopVersion;
+	private String remoteHadoopVersion;
 	private static Properties crossClusterProperties;
 	private static HashMap<String, String> versionStore;
 
@@ -71,17 +69,10 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-
-	    if (DfsTestsBaseClass.crosscoloPerf == true) {
-		return Arrays.asList(new Object[][] {
-			// Clusters                                                                                                                                                                                               
-			{ System.getProperty("REMOTE_CLUSTER") }, });
-	    } else {
 		return Arrays.asList(new Object[][] {
 			// Clusters
 			{ System.getProperty("CLUSTER_NAME") },
 			{ System.getProperty("REMOTE_CLUSTER") }, });   
-	    }
 	}
 
 	public TestDistcpCli(String cluster) {
@@ -106,8 +97,6 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 			versionStore.put(this.localCluster, localHadoopVersion);
 		}
 
-
-	    if (DfsTestsBaseClass.crosscoloPerf == false) {
 		if (versionStore.containsKey(this.parametrizedCluster)) {
 			// Do not make an unnecessary call to get the version, if you've
 			// already made it once.
@@ -119,7 +108,6 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 			versionStore.put(this.parametrizedCluster, remoteHadoopVersion);
 
 		}
-	    }
 	}
 
 	@Before
@@ -413,10 +401,7 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@Monitorable
 	@Test
 	public void testHdfsToHdfs() throws Exception {
-
 	    // @Ignore("Not valid for cross colo distcp")
-	    Assume.assumeFalse(DfsTestsBaseClass.crosscoloPerf);
-
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 		String destinationFile;
@@ -480,19 +465,6 @@ public class TestDistcpCli extends DfsTestsBaseClass {
 	@After
 	public void logTaskResportSummary() throws Exception {
 		// Override to hide the Test Session logs
-
-	    if (crosscoloPerf == true) {    
-		ArrayList<String> cmd = new ArrayList<String>();
-		cmd.add(TestSession.conf.getProperty("WORKSPACE") + "/scripts/calc_perf");
-		cmd.add("-cluster=" + TestSession.cluster.getClusterName());
-		cmd.add("-started_time_begin=" + TestSession.startTime);
-		String[] command = cmd.toArray(new String[0]);
-		String[] output = TestSession.exec.runProcBuilderSecurity(command);
-		TestSession.addLoggerFileAppender(TestSession.CROSS_COLO_PERF_LOG);
-		TestSession.logger.info(Arrays.toString(output));
-		TestSession.removeLoggerFileAppender(TestSession.CROSS_COLO_PERF_LOG);
-	    }
-
 	}
 
 
