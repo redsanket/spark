@@ -48,16 +48,15 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public static void startTestSession() throws Exception {
 
         TestSession.start();
+        TestSession.cluster.setupSingleQueueCapacity();
         crossClusterProperties = new Properties();
         try {
-            crossClusterProperties
-                    .load(new FileInputStream(
+            crossClusterProperties.load(new FileInputStream(
                             HadooptestConstants.Location.TestProperties.CrossClusterProperties));
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
         versionStore = new HashMap<String, String>();
-
     }
 
     /*
