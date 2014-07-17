@@ -39,7 +39,7 @@ Building a Topology From Source
        yinst i git
        yinst i yjava_maven
 
-#. Clone the ``srce`` for ``storm-starter``. (You may need to `set up SSH keys <https://git.corp.yahoo.com/settings/ssh>`_.)
+#. Clone the ``src`` for ``storm-starter``. (You may need to `set up SSH keys <https://git.corp.yahoo.com/settings/ssh>`_.)
 
        git clone git@git.corp.yahoo.com:storm/storm-starter.git 
        cd storm-starter
@@ -59,7 +59,10 @@ Building a Topology From Source
        mvn -f m2-pom.xml compile package
 
 
-storm jar target/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.MyExclamationTopology mytopo
+#. Launch your copy of the sample topology and check that it's running::
+
+       storm jar target/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.MyExclamationTopology mytopo
+       storm list
 
 
 Next Steps

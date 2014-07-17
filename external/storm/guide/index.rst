@@ -13,6 +13,7 @@ in this guide, see ....
    getting_started/index
    authorization/index
    programming/index
+   registry_service_api/index
    monitoring/index
    architecture/index
    reference/index
