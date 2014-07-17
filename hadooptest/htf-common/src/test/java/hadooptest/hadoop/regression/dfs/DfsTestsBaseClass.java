@@ -64,6 +64,9 @@ public class DfsTestsBaseClass extends TestSession {
 
 	public static HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	protected String localCluster = System.getProperty("CLUSTER_NAME");
+	
+	public static int payload = 
+	        Integer.parseInt(System.getProperty("CROSS_COLO_PERF_PAYLOAD", "3072"));
 
 	/**
 	 * Hadoop job defines
@@ -173,7 +176,6 @@ public class DfsTestsBaseClass extends TestSession {
     }
 
     public static void setFileMetadataForPerf() {
-        int payload = 3*1024;
         setFileMetadataForPerf("16M", payload/16);
         setFileMetadataForPerf("512M", payload/512);
         setFileMetadataForPerf("1G", payload/1024);
