@@ -313,9 +313,9 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 				-1,
 				4,
 				6,
-				fileMetadata.get("file_64MB").longValue()
-						+ fileMetadata.get("file_64MB").longValue()
-						+ fileMetadata.get("file_128MB").longValue(),
+				Long.parseLong(fileMetadata.get("file_64MB"))
+				+ Long.parseLong(fileMetadata.get("file_64MB"))
+				+ Long.parseLong(fileMetadata.get("file_128MB")),
 				TEST_1_DIR + L1);
 
 		/*
@@ -340,9 +340,9 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 				-1,
 				4,
 				6,
-				fileMetadata.get("file_64MB").longValue()
-						+ fileMetadata.get("file_64MB").longValue()
-						+ fileMetadata.get("file_128MB").longValue(),
+				Long.parseLong(fileMetadata.get("file_64MB"))
+				+ Long.parseLong(fileMetadata.get("file_64MB"))
+				+ Long.parseLong(fileMetadata.get("file_128MB")),
 				TEST_1_DIR + L1);
 		/*
 		 * Check quota free after remove
@@ -362,10 +362,10 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 				-1,
 				4,
 				6,
-				fileMetadata.get("file_64MB").longValue()
-						+ fileMetadata.get("file_64MB").longValue()
-						+ fileMetadata.get("file_1B").longValue(), TEST_1_DIR
-						+ L1);
+				Long.parseLong(fileMetadata.get("file_64MB"))
+				+ Long.parseLong(fileMetadata.get("file_64MB"))
+				+ Long.parseLong(fileMetadata.get("file_1B")), 
+				TEST_1_DIR + L1);
 		/*
 		 * Remove and recreate same directory; check quota
 		 */
@@ -479,7 +479,7 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 		// file_1B has just 1 byte there
 		long remainingSpaceQuota = (MIN_SPACE_QUOTA - (1 * replication));
 		validateQuotaQueryResult(-1, -1, MIN_SPACE_QUOTA, remainingSpaceQuota,
-				1, 1, fileMetadata.get(ONE_BYTE_FILE).longValue(), TEST_2_DIR);
+				1, 1, Long.parseLong(fileMetadata.get(ONE_BYTE_FILE)), TEST_2_DIR);
 	}
 
 	void mkdirsAndSetPermissions(String path) throws Exception {
