@@ -139,6 +139,7 @@ my $file_size_mb;
 my $source;
 my $target;
 my $results;
+my $file_sizes;
 note("Number of jobs = '$num_jobs'");
 note("job_name, start_time, time_delta, file_size, mbps, source, target");
 note("=======================================================================");
@@ -200,6 +201,13 @@ foreach my $job (@$jobs) {
 	} else {
 	    push(@{$results->{$job_shortname}}, $mbps);
 	}
+
+	if (defined($file_sizes->{$file_size_mb})) {
+	    $job_shortname = $file_sizes->{$file_size_mb}.",".$job_shortname;
+	    $file_sizes->{$file_size_mb} = $job_shortname;
+	} else {
+	    $file_sizes->{$file_size_mb} = $job_shortname;
+	}
     }
 }
 
@@ -207,14 +215,21 @@ foreach my $job (@$jobs) {
 my $filename = $workspace."/htf-common/target/surefire-reports/crosscolo_perf_plot.txt";
 open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
 
-my @keys = sort keys %$results;
-print $fh join(", ", @keys)."\n";
+my @keys;
+for my $re ( sort {$a<=>$b} keys %$file_sizes) {
+    # note("file_sizes: $re: value=".$file_sizes->{$re});
+    push(@keys, $file_sizes->{$re});
+}
+print $fh join(",", @keys)."\n";
 
 my @values;
-for my $re ( sort keys %$results ) {
-    push(@values, $results->{$re});
+for my $re ( sort {$a<=>$b} keys %$file_sizes) {
+    for my $jobname (split(",", $file_sizes->{$re})) {
+	# note("jobname=$jobname");
+	push(@values, $results->{$jobname});
+    }
 }
-print $fh join(", ", @values)."\n";
+print $fh join(",", @values)."\n";
 
 system("cat $filename");
 
