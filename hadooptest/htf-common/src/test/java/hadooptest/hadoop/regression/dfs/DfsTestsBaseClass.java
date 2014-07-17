@@ -42,7 +42,8 @@ public class DfsTestsBaseClass extends TestSession {
 	/**
 	 * Data structures for creating initial files
 	 */
-	protected static HashMap<String, Double> fileMetadata = new HashMap<String, Double>();
+	protected static HashMap<String, String> fileMetadata = new HashMap<String, String>();
+	protected static HashMap<String,Integer> fileMetadataPerf = new HashMap<String,Integer>();
 	protected static Set<String> setOfTestDataFilesInHdfs;
 	protected static Set<String> setOfTestDataFilesInLocalFs;
 	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count.txt";
@@ -112,58 +113,71 @@ public class DfsTestsBaseClass extends TestSession {
 	public static void ensureDataPresenceInCluster() throws Exception{
 		TestSession.start();
 		ensureLocalFilesPresentBeforeTestRun();
-		copyFilesIntoCluster(System
-				.getProperty("CLUSTER_NAME"));
-		
+		if (DfsTestsBaseClass.crosscoloPerf == true) {
+		    copyFilesIntoClusterForPerf(System.getProperty("CLUSTER_NAME"));
+		} else {
+		    copyFilesIntoCluster(System.getProperty("CLUSTER_NAME"));
+		}
 	}
 
     public static void setFileMetadata() {
-        fileMetadata.put("file_empty", new Double((double) 0));
+        fileMetadata.put("file_empty", String.valueOf(new Double((double) 0)));
         /*
          * The file below actually ends up putting 2 bytes, because it is a
          * double
          */
-        fileMetadata.put(ONE_BYTE_FILE, new Double((double) 1));
+        fileMetadata.put(ONE_BYTE_FILE, String.valueOf(new Double((double) 1)));
         // 64 MB file size variations
-        fileMetadata.put("file_1_byte_short_of_64MB", new Double(
-                (double) 64 * 1024 * 1024) - 1);
-        fileMetadata.put("file_64MB", new Double((double) 64 * 1024 * 1024));
-        fileMetadata.put("file_1_byte_more_than_64MB", new Double(
-                (double) 64 * 1024 * 1024) + 1);
+        fileMetadata.put("file_1_byte_short_of_64MB", 
+			 String.valueOf(new Double((double) 64 * 1024 * 1024) - 1));
+        fileMetadata.put("file_64MB", 
+			 String.valueOf(new Double((double) 64 * 1024 * 1024)));
+        fileMetadata.put("file_1_byte_more_than_64MB", 
+			 String.valueOf(new Double((double) 64 * 1024 * 1024) + 1));
 
         // 128 MB file size variations
-        fileMetadata.put("file_1_byte_short_of_128MB", new Double(
-                (double) 128 * 1024 * 1024) - 1);
-        fileMetadata.put("file_128MB", new Double((double) 128 * 1024 * 1024));
-        fileMetadata.put("file_1_byte_more_than_128MB", new Double(
-                (double) 128 * 1024 * 1024) + 1);
+        fileMetadata.put("file_1_byte_short_of_128MB", 
+			 String.valueOf(new Double((double) 128 * 1024 * 1024) - 1));
+        fileMetadata.put("file_128MB", 
+			 String.valueOf(new Double((double) 128 * 1024 * 1024)));
+        fileMetadata.put("file_1_byte_more_than_128MB", 
+			 String.valueOf(new Double((double) 128 * 1024 * 1024) + 1));
 
-        fileMetadata.put("file_255MB", new Double((double) 255 * 1024 * 1024));
-        fileMetadata.put("file_256MB", new Double((double) 256 * 1024 * 1024));
-        fileMetadata.put("file_257MB", new Double((double) 257 * 1024 * 1024));
+        fileMetadata.put("file_255MB", 
+                String.valueOf(new Double((double) 255 * 1024 * 1024)));
+        fileMetadata.put("file_256MB", 
+                String.valueOf(new Double((double) 256 * 1024 * 1024)));
+        fileMetadata.put("file_257MB", 
+                String.valueOf(new Double((double) 257 * 1024 * 1024)));
 
-        fileMetadata.put("file_767MB", new Double((double) 767 * 1024 * 1024));
-        fileMetadata.put("file_768MB", new Double((double) 768 * 1024 * 1024));
-        fileMetadata.put("file_769MB", new Double((double) 769 * 1024 * 1024));
+        fileMetadata.put("file_767MB", 
+                String.valueOf(new Double((double) 767 * 1024 * 1024)));
+        fileMetadata.put("file_768MB", 
+                String.valueOf(new Double((double) 768 * 1024 * 1024)));
+        fileMetadata.put("file_769MB", 
+                String.valueOf(new Double((double) 769 * 1024 * 1024)));
         // Huge file
         fileMetadata.put("file_11GB",
-                new Double(((double) ((double) (double) 10 * (double) 1024
-                        * 1024 * 1024) + (double) (700 * 1024 * 1024))));
+                String.valueOf(new Double(((double) ((double) (double) 10 * (double) 1024
+						     * 1024 * 1024) + (double) (700 * 1024 * 1024)))));
         fileMetadata.put(INPUT_TO_WORD_COUNT, 
-                new Double(((double) ((double) (double) 1 * (double) 1024
-                        * 1024 * 1024))));
+			 String.valueOf(new Double(((double) ((double) (double) 1 * (double) 1024
+							      * 1024 * 1024)))));
+    }
+
+    public static void setFileMetadataForPerf(String fileSize, int numFiles) {
+        fileMetadataPerf.put("file_"+fileSize, numFiles);
+        for(int i = 1; i <= numFiles; i++) {
+            fileMetadata.put("file_"+fileSize+"_"+i, fileSize);
+        }
     }
 
     public static void setFileMetadataForPerf() {
-        fileMetadata.put("file_empty", new Double((double) 0));
-        /*
-         * The file below actually ends up putting 2 bytes, because it is a
-         * double
-         */
-        fileMetadata.put("file_64MB", new Double((double) 64 * 1024 * 1024));
-        fileMetadata.put("file_256MB", new Double((double) 256 * 1024 * 1024));
-        fileMetadata.put("file_500MB", new Double((double) 512 * 1024 * 1024));
-        fileMetadata.put("file_1GB", new Double((double) 1024 * 1024 * 1024));
+        int payload = 3*1024;
+        setFileMetadataForPerf("16M", payload/16);
+        setFileMetadataForPerf("512M", payload/512);
+        setFileMetadataForPerf("1G", payload/1024);
+        setFileMetadataForPerf("3G", payload/1024*3);
     }
 
 	public static void ensureLocalFilesPresentBeforeTestRun() {
@@ -205,27 +219,51 @@ public class DfsTestsBaseClass extends TestSession {
 			genericCliResponse = dfsCliCommands.test(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HADOOPQA, "",
 					cluster,
-					DfsTestsBaseClass.DATA_DIR_IN_HDFS
-							+ aFile,
+					DfsTestsBaseClass.DATA_DIR_IN_HDFS + aFile,
 					DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
 			if (genericCliResponse.process.exitValue() != 0) {
 				genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HADOOPQA, "",
 						System.getProperty("CLUSTER_NAME"),
-						DfsTestsBaseClass.DATA_DIR_IN_LOCAL_FS
-								+ aFile,
-								DfsTestsBaseClass.DATA_DIR_IN_HDFS
-								+ aFile);
-				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HADOOPQA, "", cluster, DfsTestsBaseClass.DATA_DIR_IN_HDFS
-								+ aFile, "777");
+						DfsTestsBaseClass.DATA_DIR_IN_LOCAL_FS + aFile,
+						DfsTestsBaseClass.DATA_DIR_IN_HDFS + aFile);
+				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, 
+				        HadooptestConstants.UserNames.HADOOPQA, "", 
+				        cluster, 
+				        DfsTestsBaseClass.DATA_DIR_IN_HDFS + aFile, "777");
 			}
-			
 		}
-		
-		
-		
-		
 	}
+
+	public static void copyFilesIntoClusterForPerf(String cluster) throws Exception{
+		ensureDirsArePresentInHdfs(cluster);
+		doChmodRecursively(cluster,DfsTestsBaseClass.DATA_DIR_IN_HDFS);
+		
+		DfsTestsBaseClass.ensureLocalFilesPresentBeforeTestRun();
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse = null;
+		String filePattern;
+		for (String aFile: DfsTestsBaseClass.fileMetadataPerf.keySet()){
+		    filePattern = aFile + "_{1.." + fileMetadataPerf.get(aFile) + "}";
+			genericCliResponse = dfsCliCommands.test(EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HADOOPQA, "",
+					cluster,
+					DfsTestsBaseClass.DATA_DIR_IN_HDFS + filePattern,
+					DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+			if (genericCliResponse.process.exitValue() != 0) {
+				genericCliResponse = dfsCliCommands.put(EMPTY_ENV_HASH_MAP,
+				        HadooptestConstants.UserNames.HADOOPQA, "",
+						System.getProperty("CLUSTER_NAME"),
+						DfsTestsBaseClass.DATA_DIR_IN_LOCAL_FS + filePattern,
+						DfsTestsBaseClass.DATA_DIR_IN_HDFS);
+				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, 
+				        HadooptestConstants.UserNames.HADOOPQA, "", 
+				        cluster, 
+				        DfsTestsBaseClass.DATA_DIR_IN_HDFS + filePattern, "777");
+			}
+		}
+	}
+	      		
 	public static void doChmodRecursively(String cluster, String dirHierarchy)
 			throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
@@ -275,30 +313,47 @@ public class DfsTestsBaseClass extends TestSession {
 
 	}
 
+
+    /**
+     * Overloaded method
+     * @param completeLocalName
+     * @param size
+     */
+    private static void actualFileCreation(String completeLocalName, String size)  {
+        try {
+            if (size.equals("0")) {
+                actualFileCreation(completeLocalName, new Double((double) 0));
+            } else {
+                String[] command = 
+                    {"/usr/bin/fallocate", "-l", size, completeLocalName};
+                String output[] = TestSession.exec.runProcBuilder(command);                
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
 	/**
 	 * Overloaded method
 	 * @param completeLocalName
 	 * @param size
 	 */
 	private static void actualFileCreation(String completeLocalName, Double size)  {
-
 		PrintWriter out;
 		try {
-			
 			out = new PrintWriter(completeLocalName);
 			if (size == 0){
 				out.close();
 				return;
 			}
-			do {
-				
+			do {				
 				if (size%20 == 0)
 					out.println("");
 				else
 					out.print("a");
-			}while (--size >0);
+			} while (--size >0);
 			out.close();
-
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
