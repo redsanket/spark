@@ -177,7 +177,7 @@ public class DfsTestsBaseClass extends TestSession {
         setFileMetadataForPerf("16M", payload/16);
         setFileMetadataForPerf("512M", payload/512);
         setFileMetadataForPerf("1G", payload/1024);
-        setFileMetadataForPerf("3G", payload/1024*3);
+        setFileMetadataForPerf("3G", payload/(1024*3));
     }
 
 	public static void ensureLocalFilesPresentBeforeTestRun() {
