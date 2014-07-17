@@ -67,7 +67,8 @@ public class DfsTestsBaseClass extends TestSession {
 	
 	public static int payload = 
 	        Integer.parseInt(System.getProperty("CROSS_COLO_PERF_PAYLOAD", "3072"));
-
+    public static String perfFileSizes = 
+            System.getProperty("CROSS_COLO_PERF_SIZES", "16M,512M,1G,3G");
 	/**
 	 * Hadoop job defines
 	 */
@@ -174,12 +175,31 @@ public class DfsTestsBaseClass extends TestSession {
             fileMetadata.put("file_"+fileSize+"_"+i, fileSize);
         }
     }
-
+    
+    private static int parseFileSize(String size) {
+        String unit = size.substring(size.length() - 1); 
+        int value = Integer.parseInt(size.substring(0, size.length()-1));
+        if (unit.equals("G")) {
+            value = value*1024;
+        }
+        return value;
+    }
+    
     public static void setFileMetadataForPerf() {
+        TestSession.logger.info("Payload: " + payload);
+        int sizeMB;
+        for (String size : perfFileSizes.split(",")) {
+            sizeMB = parseFileSize(size);
+            TestSession.logger.info("File size: " + size + ": " + sizeMB);
+            setFileMetadataForPerf(size, payload/sizeMB);
+        }        
+        
+        /*
         setFileMetadataForPerf("16M", payload/16);
         setFileMetadataForPerf("512M", payload/512);
         setFileMetadataForPerf("1G", payload/1024);
         setFileMetadataForPerf("3G", payload/(1024*3));
+        */
     }
 
 	public static void ensureLocalFilesPresentBeforeTestRun() {
