@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Future;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.apache.hadoop.mapreduce.Job;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -29,7 +29,7 @@ public class TestMinUserLimitPercentAndHighRam extends
 	 * 
 	 * @throws Exception
 	 */
-	@Test
+	@Ignore @Test
 	public void testMinUserLimitPercent() throws Exception {
 		String testCode = "t1MinUsrLimit";
 		String queueNameForThisTest = "grideng";
@@ -103,7 +103,7 @@ public class TestMinUserLimitPercentAndHighRam extends
 
 	}
 
-	@Test
+	@Ignore @Test
 	public void testHighRam() throws Exception {
 		String testCode = "tHighRam";
 		String queueNameForThisTest = "default";
