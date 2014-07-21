@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.apache.hadoop.mapreduce.Job;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,6 +56,7 @@ public class TestCapacitySchedulerLimits extends CapacitySchedulerBaseClass {
 	 * @throws Exception
 	 */
 	@Test
+	@Ignore
 	public void testCapSchedLimits() throws Exception {
 		String testCode = "t1CapSchedLimit";
 		copyResMgrConfigAndRestartNodes(TestSession.conf

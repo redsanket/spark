@@ -3,24 +3,19 @@ package hadooptest.hadoop.regression.yarn.capacityScheduler;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.config.hadoop.fullydistributed.FullyDistributedConfiguration;
-import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.LeafQueue;
-import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.User;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobQueueInfo;
 import org.apache.hadoop.mapreduce.Job;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -65,6 +60,7 @@ public class TestDifferentCapacityLimits_25_41 extends
 	 * 
 	 * @throws Exception
 	 */
+	@Ignore
 	@Test
 	public void testMaxConcurrentlySchedulableApplicationsByMultipleUsers()
 			throws Exception {
