@@ -140,6 +140,29 @@ Public
 There is a special endpoint for self-signed SSL to just fetch the public certificate: 
 ``/virtualHost/{virtualHost}/SelfSignedSSL.cert``
 
+Bypassing the Registry
+----------------------
+
+If you are doing simple integration tests on a single node cluster, it can be a 
+pain to use the registry service. If you configure the registry URL to be null 
+or an empty string it will disable all calls to the registry server. Be careful 
+when doing this though, as it can be a real pain in production to think it is 
+working, but really it is not talking to the registry at all. If you do this be 
+sure to set it up to use http, and not https, because the spout will try to pull 
+the private key out of the registry service and fail.
+
+
+
+Passing a SSL Certificate to cURL
+---------------------------------
+
+To get the SSL cert to pass to curl, you can either use -k to let it accept any 
+type of cert, or you can grab the cert from the Registry service by calling
+``curl -Ss http://<registry>:<port>/registry/v1/virtualHost/<virtualHostName>/SelfSignedSSL.cert > my.cert``.
+And then you can use the -E option to tell curl to accept the cert.
+
+
+
 APIs
 ====
 

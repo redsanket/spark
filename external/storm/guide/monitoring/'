@@ -34,12 +34,6 @@ And add the following when submitting your topology:
 Supported Metrics
 -----------------
 
-In addition to the metrics below, YAMAS also supports user-defined metrics from your topology. 
-The name of the metric in your topology will be preserved when sent to YAMAS. 
-Any named metric that is a ``com.yahoo.storm.metrics.yamas.AbsoluteNumber`` will be set. 
-Any named metric that is any other Number will be incremented by the value. More complex objects are ignored.
-
-
 .. csv-table:: Supported Metrics for Storm
    :header: "Name/Pattern", "Description"
    :widths: 15, 45
@@ -51,45 +45,19 @@ Any named metric that is any other Number will be incremented by the value. More
    "Memory/``heap/nonHeap_unusedBytes``", "The unused bytes."	
    "Memory/``heap/nonHeap_usedBytes``", "The bytes currently used."	
    "Memory/``heap/nonHeap_maxBytes``", "The maximum bytes for this memory type."	
-   "Memory/``heap/nonHeap_initBytes``", "The initial bytes for this memory type."
-   "Memory/``heap/nonHeap_virtualFreeBytes``", "The initial bytes for this memory type."
-   "Memory/``heap/nonHeap_virtualFreeBytes``", "The maximum of used bytes."
-   "Memory/``heap/nonHeap_committedBytes``", "The bytes committed to be used."
-   "``__ack-count``", "The number of tuples acked on non-system streams."
-   "``__ack-count_system``", "The number of tuples acked on system streams."
-   "``__fail-count``", "The number of failed tuples on non-system streams."
-   "``__fail-count_system``", "The number of failed tuples on system streams."
-   "``__emit-count``", "The number of tuples emitted on non-system streams."
-   "``__emit-count_system``", "The number of tuples emitted on system streams."
-   "``__execute-count``", "The number of tuples executed on non-system streams."
-   "``__execute-count_system``", "The number of tuples executed on system streams."
+   "Memory/``heap/nonHeap_maxBytes``", "Initial bytes for this memory type
+Memory/(heap or nonHeap)_virtualFreeBytes	Max - used bytes
+Memory/(heap or nonHeap)_committedBytes	Bytes committed to be used
+__ack-count	Number of tuples acked on non-system streams
+__ack-count_system	Number of tuples acked on system streams
+__fail-count	Number of failed tuples on non-system streams
+__fail-count_system	Number of failed tuples on system streams
+__emit-count	Number of tuples emitted on non-system streams
+__emit-count_system	Number of tuples emitted on system streams
+__execute-count	Number of tuples executed on non-system streams
+__execute-count_system	Number of tuples executed on system streams
 
 
-Each of these metrics also have several dimensions with them, so that you can dig down into more details of what is happening.
-
-- ``worker-host``
-- ``worker-port``
-- ``component-id`` (``__system`` for worker wide metrics)
-- ``task-id`` (``-1`` for worker wide metrics)
-
-
-
-Customizing Metrics
--------------------
-
-Storm metrics do not distinguish between an increment and a set once they get to 
-the Collector. They also are very generic and could return complex objects like 
-Maps, Lists, etc. To handle set vs. increment cases we created an ``AbsoluteNumber`` 
-class, that when a metric returns this YAMAS will call ``set()`` instead of ``increment()``.
-
-For more complex metrics you can subclass the collector and override::
-
-    public boolean handleDataPoint(DataPoint dp, MonMetrics yamas) throws MonMetricsException;
-
-If the data point is something that you have handled yourself then return true, 
-if it is something you want default behavior for then return false. Please do 
-not send the metrics in your method, and do not change the dimensions. They are 
-handled already and may cause problems.
 
 System Metrics YAMAS Collector Already Handles
 ==============================================

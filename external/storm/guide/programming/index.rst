@@ -37,6 +37,22 @@ Redis Spout
 
 Integrate the Storm Topology with Redis database
 
+
+Sending Data Directly to Spouts
+###############################
+
+Often you will want to do a sanity test of your spout, without fully hooking up 
+to the data source. The DH Rainbow Spout comes with a simple data highway simulator 
+that you can modify for your own needs, but often you will just want to 
+test spouts with curl.
+
+::
+
+curl -v --data-binary @stream.prism http://<host>:<port>
+
+Be aware that curl does not support ``SL_RSA_WITH_NULL_MD5`` so if you are using 
+the registry service and https be sure to use encryption when testing with curl.
+
 Yahoo Bolts
 -----------
 
@@ -175,6 +191,39 @@ wide value, as in the case of the registry service, or it may come from the Stor
   data encryption.", "Use the ``setUseSSLEncryption`` method from the spout to set or unset SSL encryption."
   "Set Registry Role", "No", "``NULL`` (disabled)", "If you are running on a storm cluster that is not multi-tenant you may want to avoid the hassle of pushing new YCA v2 creds periodically. In this case you can use YCA v1 to authenticate with the registry service and have the credentials pulled from each of the compute nodes. Be aware this requires you to trust anyone with access to those compute nodes.", "Use the ``setV1RegistryRole`` method with the role to use."
 
+HTTP Interface
+##############
+
+The HTTP Spout/Rainbow Spout provides an interface that conforms to the data highway 
+rainbow requirements but with a few clarifications/extensions.
+
+The spout will process the body of a PUT or a POST as a payload. The content length 
+must be set or it will return a 411 length required status code. It also supports 
+posting events through a GET, this is much more difficult to use for binary data, 
+but could be used very successfully for something similar to DRPC that wants to 
+push data directly to a spout. In the case of a GET the value of the query parameter 
+"data" is processed as the payload.
+If the spout has been deactivated, which happens when the topology is about to 
+shut down or is being resized, the spout will return 503 Service Unavailable.
+
+Flow control and deserialization results are handled by the Enqueuer implementation. 
+Both SimpleEnqueuer and RainbowEnqueuer handle these similarly. If there events 
+will not fit in the queue a 429 status code is returned. If the batch of events 
+are too large to ever fit in the queue fully 400 Bad Request is returned. If there 
+is a problem deserializing the batch a 400 Bad Request is returned, but if an 
+individual event has problems deserializing the event is ignored and an error is logged.
+
+Compatability With Storm Versions
+#################################
+
+The ``HttpSpout`` and ``RainbowSpout`` are not currently compatible with open 
+source Storm or releases of ystorm prior to 0.9.0_wip21.155. This is because we 
+added in a feature to storm that allows for credentials to be pushed to the bolts 
+and spouts periodically. For the time being we offer versions of these spouts that 
+do not depend on this feature, but should only be run on a cluster that is not 
+multi-tenant because you will need to use YCAv1 for the spouts to authenticate 
+to the registry service. This compatibility will be removed in the future once 
+everyone has had time to migrate to newer releases of ystorm.
 TBD: Avro Schemas
 
 http://tiny.corp.yahoo.com/tG2SFQ
@@ -190,6 +239,61 @@ http://tiny.corp.yahoo.com/tG2SFQ
    conf.put(backtype.storm.Config.TOPOLOGY_SPREAD_COMPONENTS, Arrays.asList("rainbow"));
    conf.setNumWorkers(5);
    conf.put("yahoo.autoyca.appids",”my.ycav2.appid”);
+
+
+Kyro Serialization
+##################
+
+By default the Data Highway Rainbow events are sent unmodified out of the spout. 
+To send them to other worker processes, they need to be serialized through kryo. 
+We have written some Kryo serializes to accomplish this, but you must configure 
+them on in your topology.
+
+.. code-block:: java
+
+   conf.registerSerialization(com.yahoo.dhrainbow.dhapi.AvroEventRecord.class,  com.yahoo.spout.http.rainbow.KryoEventRecord.class);
+   conf.registerSerialization(com.yahoo.dhrainbow.dhapi.ByteBlobEventRecord.class,  com.yahoo.spout.http.rainbow.KryoEventRecord.class);
+
+
+Avoiding Port Conflicts
+#######################
+
+Storm by default does not try to place spouts or bolts on specific hosts, or try 
+to limit the how many of one spout or bolt are placed on a given host. But in the 
+case of the ``RainbowSpout`` we need to do this, because the port the spout uses 
+cannot be an ephemeral port. As part of multi-tenant storm we added in a new 
+scheduler that supports trying to spread the spout out on multiple different nodes. 
+
+To enable this functionality you need to set ``topology.spread.components`` to be a 
+list of strings with one of them being the name of the spout.
+
+.. code-block:: java
+
+   TopologyBuilder builder = new TopologyBuilder();
+   builder.setSpout("rainbow", new RainbowSpout(serviceURI)), _spoutParallel);
+   conf.put(Config.TOPOLOGY_SPREAD_COMPONENTS, Arrays.asList("rainbow"));
+
+This also requires that you are running the topology in an isolated pool of machines 
+and that the topology has enough machines for all of the spouts.
+
+Security
+########
+
+Multi-tenant storm tries to be much more like Hadoop, and does not pre-install packages, 
+or credentials on compute nodes for users. It is up to the users to ship those 
+credentials to the topology. To help this out we have added in some new APIs that 
+allow users to push new credentials to a topology asynchronously and for bolts 
+and spouts to be informed when these credentials change. The full documentation 
+of this feature is beyond the scope of this document. But the data highway spout was written with this in mind.
+
+The only credentials that it needs is a YCAv2 cert to communicate with the registry 
+service. Please look at the example topology about how it is pushing those credentials 
+to the topology. Specifically look at the pushCreds method and how initial credentials 
+are pushed in runTopology. Be aware that a YCAv2 cert is valid for about 1 week, 
+as such you should push a new cert to the topology probably about twice a week. 
+Ideally this should be controlled through cron, and monitored to be sure that it 
+is happening. If you fail to push new credentials the topology will stop working in about 1 week.
+
 
 CMS (JMS) Spout
 ---------------
@@ -215,6 +319,127 @@ In the example code please don’t sleep if the queue is empty (Storm will do th
 
    RedisPubSubSpout s = new RedisPubSubSpout (host, port, pattern);
    builder.setSpout(“redis", s, 1);
+
+
+Multiple Streams, Acking, and Modifying the Output of the Spout
+---------------------------------------------------------------
+
+Often you will want to modify the events that are sent out by the spout, or to 
+send some events to one stream and others to a different stream. To accomplish 
+this you will want to subclass the ``RainbowSpout`` or ``HttpSpout`` depending on your 
+use case, and override the ``nextTuple`` and ``declareOutputFields`` methods. By default 
+they look something like the following:
+
+.. code-block:: java
+
+   @Override
+   public void nextTuple() {
+       Object event = queue.poll();
+       if (event != null) {
+           collector.emit(new Values(event));
+       }
+   }
+
+   @Override
+   public void declareOutputFields(OutputFieldsDeclarer declarer) {
+       declarer.declare(new Fields("event"));
+   }
+
+The queue is a blocking queue that has the deserialized events in it. Once you 
+get the event feel free to do what you want to with it. You can pull out some 
+fields from the event and only send those that you care about.
+
+.. code-block:: java
+
+   @Override
+   public void nextTuple() {
+       AvroEventRecord event = (AvroEventRecord)queue.poll();
+       if (event != null) {
+           MyObject obj = (MyObject)event.getData();
+           collector.emit(new Values(obj.importantData(), obj.moreData()));
+       }
+   }
+
+   @Override
+   public void declareOutputFields(OutputFieldsDeclarer declarer) {
+       declarer.declare(new Fields("ImportantData", "MoreData"));
+   }
+
+
+You can filter out events that are not important to you. Please be aware that when 
+filtering try to emit one event, unless the queue is empty (meaning it returned null). 
+When storm sees that you didn't emit a tuple after calling nextTuple, it assumes 
+that there are no more tuples to emit, and will sleep for 1ms. This can seriously 
+impact performance if you in fact did have more to emit.
+
+
+.. code-block:: java
+
+   @Override
+   public void nextTuple() {
+       AvroEventRecord event = (AvroEventRecord)queue.poll();
+       while (event != null) {
+           MyObject obj = (MyObject)event.getData();
+           if (obj.isImportant()) {
+               collector.emit(new Values(event));
+               return;
+           }
+       }
+   }
+
+   @Override
+   public void declareOutputFields(OutputFieldsDeclarer declarer) {
+       declarer.declare(new Fields("event"));
+   }
+
+
+You can have multiple streams and send different events to different streams.
+
+.. code-block::
+
+   @Override
+   public void nextTuple() {
+       AvroEventRecord event = (AvroEventRecord)queue.poll();
+       if (event != null) {
+           if (event.getData() instanceof A) {
+               collector.emit("A", new Values(event));
+           } else {
+               collector.emit("B", new Values(event));
+           }
+       }
+   }
+
+   @Override
+   public void declareOutputFields(OutputFieldsDeclarer declarer) {
+       declarer.declare("A", new Fields("event"));
+       declarer.declare("B", new Fields("event"));
+   }
+
+Or you can enable flow control through acking. By default we do not anchor any tuples 
+that the spout emits. This is because we currently make no attempt to replay events 
+that have been lost for some reason. If you don't care about replaying events, but 
+want some form of flow control in your topology, you can anchor the events before 
+emitting them, and ``setMaxSpoutPending`` in the topology config.
+
+.. code-block:: java
+
+
+   @Override
+   public void nextTuple() {
+       Object event = queue.poll();
+       if (event != null) {
+           collector.emit(new Values(event), "ignored-but-needed-to-anchor");
+       }
+   }
+
+   @Override
+   public void declareOutputFields(OutputFieldsDeclarer declarer) {
+       declarer.declare(new Fields("event"));
+   }
+
+In the future, we may try to persist events to disk and do a best effort to replay failed events.
+
+
 
 Using Yahoo Bolts
 =================
@@ -347,8 +572,73 @@ REST DRPC
 
 Support HTTP requests to DRPC servers.DRPC server will receive GET requests in 
 the following format: ``http://<DRPC_host>:<HTTP_port>/drpc/<FunctionName>/<Arguments>;``
-
 .. note:: Not in Apache yet.
+
+Or POSTS where the body of the POST is the arguments and the URL is
+``http://<DRPC_host>:<HTTP_port>/drpc/<FunctionName>``;
+
+HTTP response will contain the result of your DRPC calls.
+
+Launching DRPC Servers
+######################
+
+If you need DRPC, your team will need to operate your own DRPC servers.
+
+Please install a ``ystorm_drpc`` with the latest ``ystorm`` package. 
+The earlier version of ``ystorm`` does not support REST style DRPC.
+
+From your server, run the following::
+
+    yinst i ystorm_drpc -b test
+    yinst set ystorm.drpc_http_port=4080
+    yinst set ystorm.drpc_invocations_port=50571
+    yinst set ystorm.drpc_port=50570
+    yinst set ystorm.drpc_servers=<DRPC_SERVER_HOST1>,<DRPC_SERVER_HOST2>
+
+To disable the DRPC Thrift port::
+
+    yinst i ystorm_drpc -b test
+    yinst set ystorm.drpc_http_port=4080
+    yinst set ystorm.drpc_invocations_port=50571
+    yinst set ystorm.drpc_port=0
+    yinst set ystorm.drpc_servers=<DRPC_SERVER_HOST1>,<DRPC_SERVER_HOST2>
+
+Start the DRPC server: ``yinst start ystorm_drpc``
+
+Integrate DRPC Server With Single-Tenant Storm Clusters
+#######################################################
+
+Configure Launch Box
+********************
+
+Update your ``storm.yaml`` with appropriate DRPC configuration::
+
+    yinst set ystorm.drpc_port=<DRPC_THRIFT_PORT> (0 or 50570, see above)
+    yinst set ystorm.drpc_http_port=4080
+    yinst set ystorm.drpc_servers=<DRPRC_SERVER_HOST1>,<DRPRC_SERVER_HOST2>
+
+Submit DRPC requests
+####################
+
+You should now ready for submitting DRPC requests using HTTP.
+For example, you could use ``cURL`` to call the service with
+a URLs similar to the following: 
+
+- ``curl http://<DRPRC_SERVER_HOST1>:4080/drpc/exclamation/hello``
+- ``curl http://<DRPRC_SERVER_HOST2>:4080/drpc/exclamation/hello``
+
+You can also use your browser to make calls to the DRPC servers::
+
+    http://<DRPRC_SERVER_HOST1>:4080/drpc/exclamation/hello
+    http://<DRPRC_SERVER_HOST2>:4080/drpc/exclamation/hello
+
+
+
+
+
+
+
+
 
 Client
 ######
