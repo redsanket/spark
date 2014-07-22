@@ -102,8 +102,7 @@ public abstract class StormCluster {
             String[] splitString = s.split("\\s+");
             
             for(String t: splitString) {
-                if (t.contains("ygrid.yahoo.com") || 
-                        t.contains("ygridvm.yahoo.com")) {
+                if (t.contains("yahoo.com")) {
                     roleMembers.add(t.trim());
                 }
             }
@@ -269,8 +268,7 @@ public abstract class StormCluster {
 			String[] splitString = s.split("\\s+");
 			
 			for(String t: splitString) {
-				if (t.contains("ygrid.yahoo.com") || 
-				        t.contains("ygridvm.yahoo.com")) {
+				if (t.contains("yahoo.com")) {
 					roleMembers.add(t.trim());
 				}
 			}
