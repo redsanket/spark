@@ -684,6 +684,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 	}
 
 	@Test
+	@Ignore
 	public void taskControllerInvalidJobOwner() throws Exception {
 		String queueToUse = "default";
 		String user = "mapred"; // This is an invalid user
