@@ -214,11 +214,41 @@ foreach my $job (@$jobs) {
 # Write plot data to file
 my $filename = $workspace."/htf-common/target/surefire-reports/crosscolo_perf_plot.txt";
 open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
-
+my $colo;
+my $colos;
 my @keys;
 for my $re ( sort {$a<=>$b} keys %$file_sizes) {
     # note("file_sizes: $re: value=".$file_sizes->{$re});
-    push(@keys, $file_sizes->{$re});
+    # push(@keys, $file_sizes->{$re});
+    for my $jobname (split(",", $file_sizes->{$re})) {
+	# note("*** jobname=$jobname");
+
+	if ($jobname =~ /(.*)_(.*)_(.*)/) {
+            # note("size=$1, source=$2, target=$3");
+	    $file_size = $1;
+	    $source = $2;
+	    $target = $3;
+	}
+
+        unless ((defined($colos->{$source})) && (defined($colos->{$target}))) {
+	    $colo=`yinst range -ir "(\@grid_re.clusters.$source.namenode)"|grep -v '#'|head -1|cut -d. -f2`;
+            chomp($colo);
+            # note("colo=$colo");
+	    $colos->{$source} = $colo;
+
+	     $colo=`yinst range -ir "(\@grid_re.clusters.$target.namenode)"|grep -v '#'|head -1|cut -d. -f2`;
+             chomp($colo);
+             # note("colo=$colo");
+             $colos->{$target} = $colo;
+        }
+        $source = $colos->{$source};
+        $target = $colos->{$target};
+
+	$jobname = $file_size."_".$source."_to_".$target;
+        note("column name=$jobname");
+	push(@keys, $jobname);
+    }
+
 }
 print $fh join(",", @keys)."\n";
 
