@@ -539,33 +539,9 @@ Distributed Remote Procedural Calls (DRPC)
 
 Turns a RPC call into a tuple sent from a spout
 Takes a result from that and sends it back to the user.
-
-Example
--------
-
-Client
-######
-
-.. code-block:: java
-
-   DRPCClient client = new DRPCClient("drpc.server.location", 3772);
-   System.out.println(client.execute("words", "cat dog the man");
-   // prints the JSON-encoded result, e.g.: "[[5078]]"
-
-
-Topology
-########
-
-.. code-block:: java
-
-   topology.newDRPCStream("words")
-       .each(new Fields("args"), new Split(), new Fields("word"))
-       .groupBy(new Fields("word"))
-       .stateQuery(wordCounts, new Fields("word"), new MapGet(), new Fields("count"))
-       .each(new Fields("count"), new FilterNull())
-       .aggregate(new Fields("count"), new Sum(), new Fields("sum"));
-
-
+In the following sections, we'll show you how to set up
+the DRPC servers and then give you an example of how to
+use the DRPC library to use from the client.
 
 REST DRPC
 ---------
@@ -631,6 +607,30 @@ You can also use your browser to make calls to the DRPC servers::
 
     http://<DRPRC_SERVER_HOST1>:4080/drpc/exclamation/hello
     http://<DRPRC_SERVER_HOST2>:4080/drpc/exclamation/hello
+
+
+
+Using DRPC From the Client
+--------------------------
+
+.. code-block:: java
+
+   DRPCClient client = new DRPCClient("drpc.server.location", 3772);
+   System.out.println(client.execute("words", "cat dog the man");
+   // prints the JSON-encoded result, e.g.: "[[5078]]"
+
+
+Topology
+########
+
+.. code-block:: java
+
+   topology.newDRPCStream("words")
+       .each(new Fields("args"), new Split(), new Fields("word"))
+       .groupBy(new Fields("word"))
+       .stateQuery(wordCounts, new Fields("word"), new MapGet(), new Fields("count"))
+       .each(new Fields("count"), new FilterNull())
+       .aggregate(new Fields("count"), new Sum(), new Fields("sum"));
 
 
 
