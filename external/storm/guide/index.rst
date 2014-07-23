@@ -11,8 +11,9 @@ in this guide, see ....
 
    overview/index
    getting_started/index
-   authorization/index
+   tutorial/index
    programming/index
+   authorization/index
    registry_service_api/index
    monitoring/index
    architecture/index
