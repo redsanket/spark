@@ -637,15 +637,69 @@ Topology
 
 
 
+Example Calls with cURL
+#######################
 
+HTTP
+****
 
-
-Client
-######
+**GET**
 
 ::
 
-    # prints the JSON-encoded result, just like normal DRPC
-    curl http://drpc.server.location:3773/drpc/words/cat%20dog%20the%20man
+    $ curl http://my.drpc.server:4080/drpc/exclamation/hello
 
+**POST**
+
+::
+
+    $ curl -X POST http://my.drpc.server:4080/drpc/exclamation --data @/path/to/input/file
+
+**POST JSON**
+
+::
+
+    $ curl -X POST http://my.drpc.server:4080/drpc/exclamation -H "Content-Type: application/json" --data '{ "key1":"value1", "key2": ["list", "of", "values"] }'
+
+HTTPS
+*****
+
+**GET**
+
+::
+
+    $ curl --cacert /path/to/certfile https://my.drpc.server:4949/drpc/exclamation/hello
+
+**POST**
+
+::
+
+    $ curl --cacert /path/to/certfile -X POST https://my.drpc.server:4949/drpc/exclamation --data @/path/to/input/file
+
+**POST JSON**
+
+::
+
+    $ curl --cacert /path/to/certfile -X POST https://my.drpc.server:4949/drpc/exclamation -H "Content-Type: application/json" --data '{ "key1":"value1", "key2": ["list", "of", "values"] }'
+
+Using YCA v1 Certificate for Authentication
+*******************************************
+
+**GET**
+
+::
+
+    $ curl --cacert /path/to/certfile https://my.drpc.server:4949/drpc/exclamation/hello -H "Yahoo-App-Auth:(your yca cert from yca-cert-util --show here)"
+
+**POST**
+
+::
+
+    $ curl --cacert /path/to/certfile -X POST https://my.drpc.server:4949/drpc/exclamation --data @/path/to/input/file -H "Yahoo-App-Auth:(your yca cert from yca-cert-util --show here)"
+
+**POST JSON**
+
+::
+
+    $ curl --cacert /path/to/certfile -X POST https://my.drpc.server:4949/drpc/exclamation -H "Content-Type: application/json" --data '{ "key1":"value1", "key2": ["list", "of", "values"] }' -H "Yahoo-App-Auth:(your yca cert from yca-cert-util --show here)"
 
