@@ -250,6 +250,7 @@ public class DelegationTokenBaseClass extends DfsTestsBaseClass {
 			try {
 				String cacheLocation = dfsCommonCli.getKerberosCacheLocation();
 				if (cacheLocation.isEmpty() || cacheLocation == "")
+				TestSession.logger.info("Just returning since cacheLocation is: "+cacheLocation);
 					return;
 				TestSession.logger.info("Going to kdestroy cache location: "+cacheLocation);
 				dfsCommonCli.kdestroy(cacheLocation);
