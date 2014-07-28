@@ -28,7 +28,7 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      hadoop fs -chmod -R 755 /sharelib/ ; \
      hadoop fs -put $TEZ_HOME/* /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
      hadoop fs -chmod 755 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib ; \
-     hadoop fs -chmod -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/*.jar ; \
+     hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/*.jar ; \
      hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
      hadoop fs -chmod -R 755 /sharelib/ ; \
      hadoop fs -put /home/gs/conf/tez/tez-site.xml /tmp/ ; \
