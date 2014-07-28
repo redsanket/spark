@@ -17,7 +17,7 @@ st=$?
 [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez <<<<<<<<<<" && exit $st
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      export TEZ_HOME=/home/gs/tez/ ; \
-     export GDHOME=/home/gs/ ; \
+     export GSHOME=/home/gs/ ; \
      export HADOOP_CLASSPATH="$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*" ; \
      export HADOOP_HOME=$GSHOME/hadoop/current ; \
      export JAVA_HOME=$GSHOME/java/jdk ; \
