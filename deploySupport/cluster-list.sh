@@ -62,6 +62,7 @@ roleExists() {
 #				$hcatservernode
 #				$daqnode
 #				$oozienode
+#                               $teznode
 #				$cluster
 #				$scriptnames
 #				$confpkg
@@ -103,7 +104,7 @@ setGridParameters() {
         export hcatservernode=
         export daqnode=
         export oozienode=
-
+        export teznode=
         
         # step 2c: Look for specific overrides via IGOR roles
 #
@@ -180,6 +181,8 @@ setGridParameters() {
              export daqnode=`$base/dumpMembershipList.sh  $cluster.daq`
         roleExists $cluster.oozie && \
              export oozienode=`$base/dumpMembershipList.sh  $cluster.oozie`
+        roleExists $cluster.tez && \
+             export teznode=`$base/dumpMembershipList.sh  $cluster.tez`
         roleExists $cluster.yroots && \
              export yroots=`$base/dumpMembershipList.sh  $cluster.yroots`
         roleExists $cluster.gateways && \
@@ -222,6 +225,7 @@ setGridParameters() {
        echo jobtrackernode = $jobtrackernode
        echo gateway = $gateway
        [ -n "$oozienode" ] && echo oozienode = $oozienode
+       [ -n "$teznode" ] && echo teznode = $teznode
        [ -n "$hdfsproxynode" ] && echo hdfsproxynode = $hdfsproxynode
        [ -n "$hcatservernode" ] && echo hcatservernode = $hcatservernode
        [ -n "$daqnode" ] && echo daqnode = $daqnode

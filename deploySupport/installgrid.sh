@@ -52,6 +52,7 @@ echo MAPREDUSER = $MAPREDUSER
 [ -z "$REMOVERPMPACKAGES" ] && export REMOVERPMPACKAGES=$hadoopgridrollout__REMOVERPMPACKAGES
 [ -z "$HERRIOT_CONF_ENABLED" ] && export HERRIOT_CONF_ENABLED=$hadoopgridrollout__HERRIOT_CONF_ENABLED
 
+[ -z "$INSTALL_TEZ" ] && INSTALL_TEZ="$hadoopgridrollout__INSTALL_TEZ"
 [ -z "$HADOOP_INSTALL_STRING" ] && HADOOP_INSTALL_STRING="$hadoopgridrollout__HADOOP_INSTALL_STRING"
 [ -z "$HADOOP_MVN_INSTALL_STRING" ] && HADOOP_MVN_INSTALL_STRING="$hadoopgridrollout__HADOOP_MVN_INSTALL_STRING"
 [ -z "$HADOOP_CORETREE_INSTALL_STRING" ] && HADOOP_CORETREE_INSTALL_STRING="$hadoopgridrollout__HADOOP_CORETREE_INSTALL_STRING"
@@ -69,6 +70,7 @@ echo MAPREDUSER = $MAPREDUSER
 [ -z "$SEND_LOG_TO_STDOUT" ] && export SEND_LOG_TO_STDOUT=$hadoopgridrollout__SEND_LOG_TO_STDOUT
 [ -z "$NO_CERTIFICATION" ] && export NO_CERTIFICATION=$hadoopgridrollout__NO_CERTIFICATION
 
+[ -z "$TEZVERSION" ] && export TEZVERSION=$hadoopgridrollout__TEZVERSION
 [ -z "$PIGVERSION" ] && export PIGVERSION=$hadoopgridrollout__PIGVERSION
 [ -z "$HITVERSION" ] && export HITVERSION=$hadoopgridrollout__HITVERSION
 [ -z "$STARLINGVERSION" ] && export STARLINGVERSION=$hadoopgridrollout__STARLINGVERSION
@@ -232,6 +234,20 @@ cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.pl $scripttmp
 echo installing onto $1....
 
 export EXIT_ON_ERROR=true
+
+if [[ "${INSTALL_TEZ}" == only ]]; then
+    f=${base}/258-installsteps-installTez.sh
+    banner running $f
+    . "$f"
+    st=$?
+    echo "Running $f Status: $st"
+    if [ "$EXIT_ON_ERROR" = "true" ]; then
+        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running and exit '" $f "' <<<<<<<<<<" && exit $st
+    else
+       [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $f "' <<<<<<<<<<"
+    fi
+    exit $st
+fi
 
 for f in ${base}/[0-9][0-9]*-installsteps-*.sh
 do
