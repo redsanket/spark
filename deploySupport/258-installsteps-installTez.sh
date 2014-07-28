@@ -1,6 +1,8 @@
 echo ================= Install Tez on /sharelib/v1/tez hdfs directory =================
 export TEZ_CONF_DIR=/home/gs/conf/tez/
 export TEZ_HOME=/home/gs/tez/
+# workaround for openstack
+export PATH=$PATH:/home/gs/current/bin 
 
 if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
 cmd="echo installing Tez on Tez hosts ; \
