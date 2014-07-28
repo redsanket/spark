@@ -232,14 +232,17 @@ filelist=`ls  *.${CLUSTER}.*.tgz`
 # From above: "then copies that package to the destination machine and runs it..."
 
 scp $filelist  $ADMIN_HOST:/tmp/
-(
-echo "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist "
-echo "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
-echo 'finalstatus=$?'
-echo 'echo finalstatus=$finalstaut'
-)| ssh $ADMIN_HOST
+ssh $ADMIN_HOST "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist -set root.propagate_start_failures=1"
+ssh $ADMIN_HOST "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
+# (
+# echo "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist "
+# echo "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
+# echo 'finalstatus=$?'
+# echo 'echo finalstatus=$finalstaut'
+# )| ssh $ADMIN_HOST
 
 st=$?
+echo finalstatus=$st
 echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout status: $st"
 
 if [ "$st" -ne 0 ]
