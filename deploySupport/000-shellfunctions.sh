@@ -148,6 +148,27 @@ fanoutHcatServer() {
         return $st
 }
 
+fanoutTez() {
+   echo 'fanoutTez: start on ' `date +%H:%M:%S`
+   if [ -z $teznode ]; then
+      echo ERROR: Not define grid_re.clusters.$cluster.tez
+      return 1
+   fi
+   TEZ_NODE_LIST=`echo $teznode | tr ' ' ,`
+   pdsh -w "$TEZ_NODE_LIST" -u 600 -f 25 -S $*
+   st=$?
+   echo 'fanoutTez: end on ' `date +%H:%M:%S`
+   return $st
+}
+
+fanoutOneTez() {
+   echo 'fanoutOneTez: start on ' `date +%H:%M:%S`
+   TEZ_NODE_LIST=`echo $teznode | cut -f1 -d ' '`
+   pdsh -w "$TEZ_NODE_LIST" -u 600 -f 25 -S $*
+   st=$?
+   echo 'fanoutOneTez: end on ' `date +%H:%M:%S`
+   return $st
+}
 
 fanoutGW() {
    # echo fanoutGW: running "$@" 
