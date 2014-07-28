@@ -23,6 +23,7 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      export HADOOP_HOME=$GSHOME/hadoop/current ; \
      export HADOOP_CLASSPATH="$HADOOP_HOME:$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*" ; \
      export JAVA_HOME=$GSHOME/java/jdk ; \
+     export PATH=$PATH:/home/gs/hadoop/current/bin ; \
      kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
      echo installing Tez into hdfs ; \
      hadoop fs -rm -R /tmp/output/ ; \
