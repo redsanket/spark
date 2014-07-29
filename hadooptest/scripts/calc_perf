@@ -212,7 +212,12 @@ foreach my $job (@$jobs) {
 }
 
 # Write plot data to file
-my $filename = $workspace."/htf-common/target/surefire-reports/crosscolo_perf_plot.txt";
+my $output_dir="$workspace/htf-common/target/surefire-reports/";
+unless (-e $output_dir) {
+    `mkdir -p $output_dir`;
+}
+note("output dir=$output_dir");
+my $filename = "$output_dir/crosscolo_perf_plot.txt";
 open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
 my $colo;
 my $colos;
