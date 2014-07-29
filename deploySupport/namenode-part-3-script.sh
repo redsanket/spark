@@ -101,7 +101,7 @@ hadoopversion=`${yroothome}/share/hadoop/bin/hadoop version | sed -n 1p | sed -e
     if [ "$ERASEENABLED" = true ]
     then
   echo ============ starting hdfs janitorial services...
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem  /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs /sharelib/v1/mapred/
+  $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem  /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs /sharelib/v1/mapred/ /sharelib/v1/tez
   $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapredsystem 
   echo ============ chown of /mapredsystem/hadoop to user ${MAPREDUSER}
   $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate
