@@ -169,7 +169,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
     }
 
-    @Monitorable
+    // @Monitorable
     @Test
     public void testWebhdfsToHdfsPerf() throws Exception {
 
