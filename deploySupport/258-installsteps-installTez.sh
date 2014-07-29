@@ -26,17 +26,17 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      export PATH=$PATH:/home/gs/hadoop/current/bin ; \
      kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
      echo installing Tez into hdfs ; \
-     hadoop fs -rm -R /tmp/output/ ; \
-     hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
-     hadoop fs -chmod -R 755 /sharelib/ ; \
-     hadoop fs -put $TEZ_HOME/* /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
-     hadoop fs -chmod 755 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib ; \
-     hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/*.jar ; \
-     hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
-     hadoop fs -chmod -R 755 /sharelib/ ; \
-     hadoop fs -put /home/gs/conf/tez/tez-site.xml /tmp/ ; \
+     /home/gs/hadoop/current/bin/hadoop fs -rm -R /tmp/output/ ; \
+     /home/gs/hadoop/current/bin/hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
+     /home/gs/hadoop/current/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
+     /home/gs/hadoop/current/bin/hadoop fs -put $TEZ_HOME/* /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
+     /home/gs/hadoop/current/bin/hadoop fs -chmod 755 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib ; \
+     /home/gs/hadoop/current/bin/hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/*.jar ; \
+     /home/gs/hadoop/current/bin/hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
+     /home/gs/hadoop/current/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
+     /home/gs/hadoop/current/bin/hadoop fs -put /home/gs/conf/tez/tez-site.xml /tmp/ ; \
      echo Running hadoop jar $TEZ_HOME/tez-mapreduce-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
-     hadoop jar $TEZ_HOME/tez-mapreduce-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
-     hadoop fs -ls /sharelib/v1/tez/ytez-$TEZVERSION/ "
+     /home/gs/hadoop/current/bin/hadoop jar $TEZ_HOME/tez-mapreduce-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
+     /home/gs/hadoop/current/bin/hadoop fs -ls /sharelib/v1/tez/ytez-$TEZVERSION/ "
 fanoutOneTez "$cmd"
 fi
