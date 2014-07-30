@@ -34,9 +34,12 @@ function get_info() {
     # set -x
     # Get Hadoop version
     version=`ssh $host -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null hadoop version|head -1`
+
     # Get time stamp of last job
     # This can hang on hadoop fs -ls
-    ts=`ssh $host -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM; hadoop fs -ls -d /mapred/history/done|grep -v ^Found"`
+    # ts=`ssh $host -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM; hadoop fs -ls -d /mapred/history/done|grep -v ^Found"`
+    ts=`PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" perl -e 'alarm shift @ARGV; exec @ARGV' 1 pdsh -t 30 -u 30 -w $host "kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM; /home/gs/hadoop/current/bin/hadoop fs -ls -d /mapred/history/done|grep -v ^Found"`
+
     time_stamp=`echo $ts|awk '{print $6, $7}'`
     # set +x
 }
@@ -59,6 +62,7 @@ for cluster in $CLUSTERS; do
     fi
 
     # Check the cluster hosts for bad nodes                                                                                                                                     
+    echo "Check the cluster hosts for bad nodes"
     if [[ "$CHECK_FOR_ERROR" -eq 1 ]]; then
 	hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"|tr -s '\n' ','|sed -e  's/,$//'`;
         # perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -w $hosts "echo -n 'Connected successfully to ';hostname";
@@ -71,12 +75,15 @@ for cluster in $CLUSTERS; do
     time_stamp=""
 
     # Get the Namenode and the ResourceManager
+    echo "Get the namenode and resourcemanager"
     namenode=`yinst range -ir "(@grid_re.clusters.$cluster.namenode)"|head -1`;
+    echo "NN=$namenode"
     NN_STAT=$(PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -t 30 -u 30 $PDSH_OPT -w $namenode "ls /home/gs/hadoop/current/bin/hadoop");
     if [[ -n "$namenode" ]] && [[ "$NN_STAT" =~ "/home/gs/hadoop/current/bin/hadoop" ]]; then
 	get_info $namenode
     else
 	rm=`yinst range -ir "(@grid_re.clusters.$cluster.jobtracker)"|tr -s '\n' ','|sed -e  's/,$//'`;
+        echo "RM=$rm"
 	RM_STAT=$(PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -t 30 -u 30 $PDSH_OPT -w $rm "ls /home/gs/hadoop/current/bin/hadoop");
 	if [[ -n "$rm" ]] && [[ "$RM_STAT" =~ "/home/gs/hadoop/current/bin/hadoop" ]]; then
 	    get_info $rm
