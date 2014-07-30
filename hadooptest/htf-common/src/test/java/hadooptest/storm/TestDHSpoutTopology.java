@@ -85,7 +85,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
     @AfterClass
     public static void cleanup() throws Exception {
         if (mc != null) {
-            mc.resetConfigsAndRestart();
+            mc.resetConfigs();
             mc.stopRegistryServer();
         }
         stop();
