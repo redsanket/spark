@@ -176,8 +176,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
         return cluster.getClient().getUserTopology(topologyId);
     }
 
-    public void resetConfigsAndRestart() throws Exception {
-    	TestSessionStorm.logger.info("RESET CONFIGS AND RESTART");
+    public void resetConfigs() throws Exception {
+    	TestSessionStorm.logger.info("RESET CONFIGS");
         if (!ystormConf.changed() && !registryConf.changed()) {
             return;
         }
@@ -189,7 +189,11 @@ public class YahooStormCluster extends ModifiableStormCluster {
         if (registryConf.changed()) {
             registryConf.resetConfigs();
         }
+    }
 
+    public void resetConfigsAndRestart() throws Exception {
+    	TestSessionStorm.logger.info("RESET CONFIGS AND RESTART");
+        resetConfigs();
         restartCluster();
     }
 
@@ -219,6 +223,41 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	}
     }
     
+    /**
+     * Restart a daemon on a given node.
+     * 
+     * @param hostname The hostname running the worker.
+     * @param port The port number the worker process is bound to.
+     * 
+     * @throws RuntimeException
+     */
+    public String getWorkerPid( String host, String port ) throws Exception {
+        String returnValue = null;
+
+    	String[] output = TestSessionStorm.exec.runProcBuilder(
+    			new String[] {"ssh", host, "ps", "uaxww"} );
+
+		if (!output[0].equals("0")) {
+			TestSessionStorm.logger.info("Got unexpected non-zero exit code: " + 
+					output[0]);
+			TestSessionStorm.logger.info("stdout" + output[1]);
+			TestSessionStorm.logger.info("stderr" + output[2]);	
+            throw new RuntimeException(
+            		"ssh and ps returned an error code.");		
+        }
+
+        String[] lines = output[1].split("\\r?\\n");
+        String search = "-Dworker.port="+port;
+        for (int i = 0 ; i < lines.length ; i++) {
+            if (lines[i].contains(search)) {
+                String[] args = lines[i].split(" +");
+                return args[1];
+            }
+        }
+        TestSessionStorm.logger.warn("Returning null");
+        return returnValue;
+    }
+
     /**
      * Restart a daemon on a given node.
      * 
