@@ -127,7 +127,7 @@ public class TestSmileTopology extends TestSessionStorm {
     public static void cleanup() throws Exception {
         if (mc != null) {
             killAll();
-            mc.resetConfigsAndRestart();
+            mc.resetConfigs();
             mc.stopRegistryServer();
             killAll();
         }
