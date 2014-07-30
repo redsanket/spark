@@ -38,7 +38,7 @@ function get_info() {
     # Get time stamp of last job
     # This can hang on hadoop fs -ls
     # ts=`ssh $host -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM; hadoop fs -ls -d /mapred/history/done|grep -v ^Found"`
-    ts=`PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" perl -e 'alarm shift @ARGV; exec @ARGV' 1 pdsh -t 30 -u 30 -w $host "kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM; /home/gs/hadoop/current/bin/hadoop fs -ls -d /mapred/history/done|grep -v ^Found"`
+    ts=`PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" perl -e 'alarm shift @ARGV; exec @ARGV' 3 pdsh -t 30 -u 30 -w $host "kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM; /home/gs/hadoop/current/bin/hadoop fs -ls -d /mapred/history/done|grep -v ^Found"`
 
     time_stamp=`echo $ts|awk '{print $6, $7}'`
     # set +x
