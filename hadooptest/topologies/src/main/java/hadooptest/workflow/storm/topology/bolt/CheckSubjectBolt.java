@@ -40,6 +40,7 @@ public class CheckSubjectBolt extends BaseBasicBolt {
             String name2 = tuple.getString(1);    
             out.append("SPOUT\t"+name1+"\t"+name2+"\n");
             out.append("BOLT\t"+_prepareName+"\t"+getCurrentName()+"\n");
+            out.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally { 
