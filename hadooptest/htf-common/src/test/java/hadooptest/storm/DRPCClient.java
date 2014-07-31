@@ -412,7 +412,6 @@ public class DRPCClient extends Thread {
             LOG.info("Attempting to connect to drpc server with " + drpcURIs[i]);
             try {
                 v1Certs[i] = Util.getYcaV1Cert(ycaV1Roles[i]);
-                LOG.info("Got a cert of " + v1Certs[i]);
             } catch (Exception e) {
                 LOG.warn("Could not get v1 cert for " + ycaV1Roles[i], e);
                 return;
@@ -449,8 +448,6 @@ public class DRPCClient extends Thread {
                     return;
                 }
 
-                LOG.info("Returned from POST" );
-
                 if (validate) {
                     if (postResp.getContent().length != bytes.length) {
                         LOG.warn("Returned size not equal to sent size ");
@@ -466,7 +463,6 @@ public class DRPCClient extends Thread {
 
             if (tryCount > 0) {
                 tryCount = tryCount - 1;
-                LOG.info("tryCount is now " + tryCount );
             }
         }
         endTime = System.currentTimeMillis();
