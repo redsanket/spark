@@ -49,7 +49,7 @@ public class TestAutoCred extends TestSessionStorm {
         StormTopology topology = buildTopology();
 
         String topoName = "auto-cred-topology-test";
-        String outputLoc = "/tmp/autocred"; //TODO change this to use a shared directory or soemthing, so we can get to it simply
+        String outputLoc = "/homes/hadoopqa/autocred"; //TODO change this to use a shared directory or soemthing, so we can get to it simply
                            
         Config config = new Config();
         config.put("test.output.location",outputLoc);
