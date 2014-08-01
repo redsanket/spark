@@ -1,5 +1,6 @@
 package hadooptest.hadoop.regression.yarn;
 
+import hadooptest.Util;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -216,6 +217,8 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		
 		Assert.assertEquals(genericYarnCliResponse.process.exitValue(), 0);
 
+		Util.sleep(30);
+		
 		int laterCountOfActiveTrackers = getCountOfActiveTrackers();
 
 		TestSession.logger.info("Later count of active trackers:"
