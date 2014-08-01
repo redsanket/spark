@@ -6,7 +6,7 @@ import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
-import hadooptest.workflow.storm.topology.bolt.ExclaimBolt;
+import hadooptest.workflow.storm.topology.bolt.ExclaimationBolt;
 import hadooptest.workflow.storm.topology.bolt.ExclaimBoltWithErrors;
 
 import java.util.ArrayList;
@@ -152,8 +152,8 @@ public class TestZookeeperAcls extends TestSessionStorm {
   private StormTopology buildSimpleExclamationTopology() {
     TopologyBuilder builder = new TopologyBuilder();
     builder.setSpout("word", new TestWordSpout(), 10);
-    builder.setBolt("exclaim1", new ExclaimBolt(), 3).shuffleGrouping("word");
-    builder.setBolt("exclaim2", new ExclaimBolt(), 2)
+    builder.setBolt("exclaim1", new ExclaimationBolt(), 3).shuffleGrouping("word");
+    builder.setBolt("exclaim2", new ExclaimationBolt(), 2)
         .shuffleGrouping("exclaim1");
     return builder.createTopology();
   }
@@ -163,7 +163,7 @@ public class TestZookeeperAcls extends TestSessionStorm {
     TopologyBuilder builder = new TopologyBuilder();
 
     builder.setSpout("word", new TestWordSpout(), 10);
-    builder.setBolt("exclaim1", new ExclaimBolt(), 3).shuffleGrouping("word");
+    builder.setBolt("exclaim1", new ExclaimationBolt(), 3).shuffleGrouping("word");
     builder.setBolt(errorGeneratingComponentName, new ExclaimBoltWithErrors(), 2)
        .shuffleGrouping("exclaim1");
 
