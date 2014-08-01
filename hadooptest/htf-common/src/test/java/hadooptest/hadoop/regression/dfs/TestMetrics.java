@@ -2,11 +2,10 @@ package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.util.Arrays;
@@ -75,12 +74,16 @@ public class TestMetrics extends DfsTestsBaseClass {
 				Recursive.YES, Force.YES, SkipTrash.YES,
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR);
 
+		Util.sleep(10);
+		
 		// Create the dir
 		genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
+        Util.sleep(10);
+		
 		createTestData();
 
 		StringBuilder sb = new StringBuilder();
@@ -514,10 +517,15 @@ public class TestMetrics extends DfsTestsBaseClass {
 		Assert.assertTrue("Not able to rm "
 				+ TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR,
 				genericCliResponse.process.exitValue() == 0);
+		
+        Util.sleep(10);
+		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
 		cluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.HISTORY_SERVER);
 
+        Util.sleep(10);
+		
 	}
 
 	@Override
