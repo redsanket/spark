@@ -49,8 +49,14 @@ public class TestAutoCred extends TestSessionStorm {
         StormTopology topology = buildTopology();
 
         String topoName = "auto-cred-topology-test";
-        String outputLoc = "/tmp/autocred"; //TODO change this to use a shared directory or soemthing, so we can get to it simply
+        String outputLoc = "/homes/hadoopqa/autocred"; //TODO change this to use a shared directory or soemthing, so we can get to it simply
                            
+        // Remove the file, if there
+        try {
+            File file = new File(outputLoc);
+            file.delete();
+        } catch(Exception e) {
+        }
         Config config = new Config();
         config.put("test.output.location",outputLoc);
         config.setDebug(true);
@@ -62,7 +68,7 @@ public class TestAutoCred extends TestSessionStorm {
         File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         cluster.submitTopology(jar, topoName, config, topology);
         try {
-            int uptime = 10;
+            int uptime = 20;
             int cur_uptime = 0;
 
             cur_uptime = getUptime(topoName);
@@ -78,20 +84,21 @@ public class TestAutoCred extends TestSessionStorm {
                 cur_uptime = getUptime(topoName);
             }
             
-            BufferedReader reader = new BufferedReader(new FileReader(outputLoc));
-            String line; 
-            //get results
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\t");
-                logger.info(Arrays.toString(parts));
-                assertEquals(3, parts.length);
-                assertEquals("me", parts[1]);
-                assertEquals("me", parts[2]);
-            }
-            reader.close();
         } finally {
             cluster.killTopology(topoName);
         }
+        Util.sleep(20);
+        BufferedReader reader = new BufferedReader(new FileReader(outputLoc));
+        String line; 
+        //get results
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split("\t");
+            logger.info(Arrays.toString(parts));
+            assertEquals(3, parts.length);
+            assertEquals("me", parts[1]);
+            assertEquals("me", parts[2]);
+        }
+        reader.close();
     }    
         
     public static StormTopology buildTopology() {
