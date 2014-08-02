@@ -42,8 +42,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import storm.starter.ExclamationTopology_spread.ExclamationBolt;
-
 @Category(SerialTests.class)
 public class TestCPUAwareScheduling extends TestSessionStorm{
   static ModifiableStormCluster mc;

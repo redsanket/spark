@@ -14,7 +14,6 @@ import hadooptest.cluster.storm.StormCluster;
 
 import org.apache.log4j.Logger;
 
-import storm.starter.ExclamationTopology_spread.ExclamationBolt;
 import backtype.storm.Config;
 import backtype.storm.generated.ClusterSummary;
 import backtype.storm.generated.KillOptions;
