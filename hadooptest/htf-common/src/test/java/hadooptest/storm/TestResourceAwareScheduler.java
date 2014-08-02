@@ -63,6 +63,14 @@ public class TestResourceAwareScheduler extends TestSessionStorm {
     mc.restartCluster();
   }
 
+  @AfterClass
+  public static void cleanup() throws Exception {
+      if (mc != null) {
+        mc.resetConfigsAndRestart();
+      }
+      stop();
+  }
+
   /**
    * Submit topologies with the aggregate Resource requirement 
    * MUCH less than the capacity of the cluster, 
