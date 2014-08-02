@@ -4,6 +4,7 @@ import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import storm.starter.ExclamationTopology_spread.ExclamationBolt;
 
 @Category(SerialTests.class)
 public class TestCPUAwareScheduling extends TestSessionStorm{
@@ -393,5 +396,78 @@ public class TestCPUAwareScheduling extends TestSessionStorm{
 
     //cleanup
     ResourceAwareSchedulerTestFuncs.killAllTopologies(sum.get_topologies(), mc, TestCPUAwareScheduling.class);
+  }
+
+  @Test(timeout = 600000)
+  public void testSpreadTopology() throws Exception {
+  //initial setup for secure cluster if necessary
+    ResourceAwareSchedulerTestFuncs.initialSetup(mc, null, null);
+
+    //Get cluster info
+    ClusterSummary sum = cluster.getClusterInfo();
+    //make sure enough nodes for testing to run
+    assertTrue("There are nodes we can use in cluster",  sum.get_supervisors().size() >=MIN_NODES_FOR_TEST);
+
+    //kill all left over topologies
+    ResourceAwareSchedulerTestFuncs.killAllTopologies(sum.get_topologies(), cluster, TestCPUAwareScheduling.class);
+
+    int spreadSize = sum.get_supervisors().size();
+    String topoName = "topology-testSpreadTopology";
+    //Get topology for test
+    StormTopology topology= ResourceAwareSchedulerTestFuncs
+        .getBasicSchedulingTopology(sum, ResoureAwareTestType.CPU_AWARE);
+    TopologyBuilder builder = new TopologyBuilder();
+    System.out.println("setting Memory for components!"); 
+    SpoutDeclarer s1 = builder.setSpout("spout-1", new TestWordSpout(), 5);
+    BoltDeclarer b1 = builder.setBolt("bolt-1", new ResourceAwareSchedulerTestFuncs.TestBolt(), spreadSize);
+             
+    BoltDeclarer b2 = builder.setBolt("bolt-2", new ResourceAwareSchedulerTestFuncs.TestBolt(), spreadSize);
+    b1.shuffleGrouping("spout-1");
+    b2.shuffleGrouping("bolt-1");
+     
+     Config config = new Config();
+     config.setDebug(true);
+     config.setNumWorkers(3);
+     config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
+     config.put(Config.STORM_ZOOKEEPER_TOPOLOGY_AUTH_PAYLOAD, "123:456");
+     config.put(config.TOPOLOGY_ACKER_EXECUTORS, 0);
+     List<String>comp = new ArrayList<String>();
+     comp.add("bolt-1");
+     comp.add("bolt-2");
+     config.put(Config.TOPOLOGY_SPREAD_COMPONENTS, comp);
+
+     // TODO turn this into a utility that has a conf setting
+     File jar = new File(
+         conf.getProperty("WORKSPACE")
+             + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
+     
+     cluster.submitTopology(jar, topoName, config, topology);
+     Utils.sleep(10000);
+
+     sum = cluster.getClusterInfo();
+     ResourceAwareSchedulerTestFuncs.assertTopologiesSuccess(sum, TestCPUAwareScheduling.class);
+
+   //kill supervisor
+     logger.info("killing supervisor on node: "+sum.get_supervisors().get(0).get_host());
+     String sup_killed = sum.get_supervisors().get(0).get_host();
+     mc.stopDaemonNode(StormDaemon.SUPERVISOR, sum.get_supervisors().get(0).get_host());
+     Utils.sleep(30000); //sleep for 30 secs to be safe since zookeeper 
+                         //will take by default 15 secs to determine is a sup is down
+     sum = cluster.getClusterInfo();
+     ResourceAwareSchedulerTestFuncs.assertTopologyFailed(sum, topoName, TestCPUAwareScheduling.class);
+
+   //starting supervisor
+     logger.info("Starting supervisor on node: "+sup_killed);
+     mc.startDaemonNode(StormDaemon.SUPERVISOR, sup_killed);
+     Utils.sleep(30000); // sleep for 30 secs 
+
+     //update cluster info
+     sum = cluster.getClusterInfo();
+
+     //assert topologies successfully scheduled
+     ResourceAwareSchedulerTestFuncs.assertTopologiesSuccess(sum, TestCPUAwareScheduling.class);
+
+     //cleanup
+     ResourceAwareSchedulerTestFuncs.killAllTopologies(sum.get_topologies(), mc, TestCPUAwareScheduling.class);
   }
 }
