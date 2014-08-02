@@ -414,10 +414,7 @@ public class TestCPUAwareScheduling extends TestSessionStorm{
     logger.info("number of supervisors: "+sum.get_supervisors().size());
     String topoName = "topology-testSpreadTopology";
     //Get topology for test
-    StormTopology topology= ResourceAwareSchedulerTestFuncs
-        .getBasicSchedulingTopology(sum, ResoureAwareTestType.CPU_AWARE);
     TopologyBuilder builder = new TopologyBuilder();
-    System.out.println("setting Memory for components!"); 
     SpoutDeclarer s1 = builder.setSpout("spout-1", new TestWordSpout(), 5);
     BoltDeclarer b1 = builder.setBolt("bolt-1", new ResourceAwareSchedulerTestFuncs.TestBolt(), spreadSize);
              
@@ -441,7 +438,7 @@ public class TestCPUAwareScheduling extends TestSessionStorm{
          conf.getProperty("WORKSPACE")
              + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
      
-     cluster.submitTopology(jar, topoName, config, topology);
+     cluster.submitTopology(jar, topoName, config, builder.createTopology());
      Utils.sleep(10000);
 
      sum = cluster.getClusterInfo();
