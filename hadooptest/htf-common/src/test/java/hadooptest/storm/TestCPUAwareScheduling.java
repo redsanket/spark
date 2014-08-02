@@ -409,7 +409,9 @@ public class TestCPUAwareScheduling extends TestSessionStorm{
     //kill all left over topologies
     ResourceAwareSchedulerTestFuncs.killAllTopologies(sum.get_topologies(), cluster, TestCPUAwareScheduling.class);
 
+    sum = cluster.getClusterInfo();
     int spreadSize = sum.get_supervisors().size();
+    logger.info("number of supervisors: "+sum.get_supervisors().size());
     String topoName = "topology-testSpreadTopology";
     //Get topology for test
     StormTopology topology= ResourceAwareSchedulerTestFuncs
