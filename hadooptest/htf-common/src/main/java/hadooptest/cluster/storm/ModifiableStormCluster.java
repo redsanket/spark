@@ -17,5 +17,8 @@ public abstract class ModifiableStormCluster extends StormCluster {
     public abstract boolean isVirtualHostDefined(String vhName);
     public abstract String getBouncerUser() throws Exception;
     public abstract String getBouncerPassword() throws Exception;
+    public abstract void stopDaemonNode(StormDaemon daemon, String nodeDNSName) throws Exception;
+    public abstract void startDaemonNode(StormDaemon daemon, String nodeDNSName) throws Exception;
+    public abstract void restartDaemon(StormDaemon daemon) throws Exception;
     public abstract String getWorkerPid( String host, String port ) throws Exception;
 }
