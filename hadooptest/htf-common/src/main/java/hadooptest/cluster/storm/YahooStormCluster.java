@@ -38,7 +38,7 @@ import backtype.storm.utils.Utils;
  * The current storm cluster, assumed to be installed through yinst.
  */
 public class YahooStormCluster extends ModifiableStormCluster {
-    //private NimbusClient cluster;
+    private NimbusClient cluster;
     private ClusterUtil ystormConf = new ClusterUtil("ystorm");
     private ClusterUtil registryConf = new ClusterUtil("ystorm_registry");
     private String registryURI;
@@ -69,7 +69,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
         TestSessionStorm.logger.info("SETUP CLIENT");
         backtype.storm.Config stormConf = new backtype.storm.Config();
         stormConf.putAll(Utils.readStormConfig());
-        //cluster = NimbusClient.getConfiguredClient(stormConf);
+        cluster = NimbusClient.getConfiguredClient(stormConf);
         List<String> servers = (List<String>) stormConf.get(backtype.storm.Config.DRPC_SERVERS);
 	    int port = Integer.parseInt(stormConf.get(backtype.storm.Config.DRPC_PORT).toString());
         drpc = new DRPCClient( stormConf, servers.get(0), port );
@@ -77,8 +77,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     public void cleanup() {
     	TestSessionStorm.logger.info("CLEANUP CLIENT");
-        //cluster.close();
-        //cluster = null;
+        cluster.close();
+        cluster = null;
         drpc.close();
         drpc = null;
     }
@@ -114,65 +114,66 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     public void killTopology(String name) 
     		throws NotAliveException, AuthorizationException, TException {
-        getNimbusClient().getClient().killTopology(name);
-        
+    	
+        cluster.getClient().killTopology(name);
     }
 
     public void killTopology(String name, KillOptions opts) 
     		throws NotAliveException, AuthorizationException, TException {
-      getNimbusClient().getClient().killTopologyWithOpts(name, opts);
+    	
+        cluster.getClient().killTopologyWithOpts(name, opts);
     }
 
     public void activate(String name) 
     		throws NotAliveException, AuthorizationException, TException {
     	
-        getNimbusClient().getClient().activate(name);
+        cluster.getClient().activate(name);
     }
 
     public void deactivate(String name) 
     		throws NotAliveException, AuthorizationException, TException {
     	
-      getNimbusClient().getClient().deactivate(name);
+        cluster.getClient().deactivate(name);
     }
 
     public void rebalance(String name, RebalanceOptions options) 
     		throws NotAliveException, InvalidTopologyException, 
     		AuthorizationException, TException {
     	
-      getNimbusClient().getClient().rebalance(name, options);
+        cluster.getClient().rebalance(name, options);
     }
 
     public String getNimbusConf() throws AuthorizationException, TException {
-        return getNimbusClient().getClient().getNimbusConf();
+        return cluster.getClient().getNimbusConf();
     }
 
     public ClusterSummary getClusterInfo() 
     		throws AuthorizationException, TException {
     	
-        return getNimbusClient().getClient().getClusterInfo();
+        return cluster.getClient().getClusterInfo();
     }
 
     public TopologyInfo getTopologyInfo(String topologyId) 
     		throws NotAliveException, AuthorizationException, TException {
     	
-        return getNimbusClient().getClient().getTopologyInfo(topologyId);
+        return cluster.getClient().getTopologyInfo(topologyId);
     }
 
     public String getTopologyConf(String topologyId) 
     		throws NotAliveException, AuthorizationException, TException {
     	
-        return getNimbusClient().getClient().getTopologyConf(topologyId);
+        return cluster.getClient().getTopologyConf(topologyId);
     }
 
     public StormTopology getTopology(String topologyId) 
     		throws NotAliveException, AuthorizationException, TException {
-        return getNimbusClient().getClient().getTopology(topologyId);
+        return cluster.getClient().getTopology(topologyId);
     }
 
     public StormTopology getUserTopology(String topologyId) 
     		throws NotAliveException, AuthorizationException, TException {
     	
-        return getNimbusClient().getClient().getUserTopology(topologyId);
+        return cluster.getClient().getUserTopology(topologyId);
     }
 
     public void resetConfigs() throws Exception {
@@ -618,15 +619,5 @@ public class YahooStormCluster extends ModifiableStormCluster {
      */
     public ArrayList<String> lookupRole(StormDaemon roleName) throws Exception {
         return dnsNames.get(roleName);
-    }
-
-    /**
-     * Get a new instance of NimbusClient
-     * @return a NimbusClient
-     */
-    private NimbusClient getNimbusClient() {
-        backtype.storm.Config stormConf = new backtype.storm.Config();
-        stormConf.putAll(Utils.readStormConfig());
-        return NimbusClient.getConfiguredClient(stormConf);
     }
 }
