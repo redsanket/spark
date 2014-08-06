@@ -21,7 +21,7 @@ case "$CLUSTER" in
    *) export scriptnames=openstacklargedisk ;;
 esac
 export confpkg=HadoopConfigopenstacklargedisk
-export localconfpkg=hadooplocalconfigs_openstack_large
+export localconfpkg=hadooplocalconfigsopenstacklarge
 
 echo =========================================
 echo Beginning of Hudson-driven deployment job.
