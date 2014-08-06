@@ -709,7 +709,7 @@ principals and IP addresses for DNS.
 #. In the **Edit Property** dialog shown below, enter the key **mapred.job.queue.name**, the name of the job
    queue to use and click **OK**. You will need to have **SUBMIT_APPLICATION** ACL permission to the job queue.
 
-   .. image:: images/tableau_job_queue_config.pnHortonworks Hive ODBC Driver DSN Setup: g
+   .. image:: images/tableau_job_queue_config.png
       :height: 345 px
       :width: 474 px
       :scale: 95%

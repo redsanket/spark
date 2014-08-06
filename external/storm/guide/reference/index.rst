@@ -19,6 +19,154 @@ Deployment at Yahoo
 Use Case Example
 ================
 
+The Search team wants to index editorial real-time content that users 
+can search. The editorial content is available in Apache HBase. 
+
+Topography Overview
+-------------------
+
+Spouts
+######
+
+They will need a spout that scans HBase since the last scan 
+until the current time to get the editorial content.
+
+Bolts
+##### 
+
+They will need two bolts: The first to build the index
+and store it back into HBase, and the 
+second to push the index for serving.
+
+Throughput
+----------
+
+1. Supervisor-Level Information
+###############################
+
+.. csv-table:: Configurations for storm.yaml or multitenant-scheduler.yaml 
+   :header: "Configuration", "Default", "Description"
+   :widths: 30, 20, 45
+
+   "``topology.receiver.buffer.size``", "<8> messages", "The queue size of the incoming (worker) messages."
+   "``topology.transfer.buffer.size``", "<1024> tuples", "The queue size of outgoing (worker) messages."
+   "``topology.executor.receive.buffer.size``", "<1024> tuples", "The queue size of the incoming (executor) tuple."
+   "``topology.executor.send.buffer.size``", "<1024> tuples", "The queue size of the outgoing (executor) tuple."
+   "``supervisor.slots.ports``", "<24> hyper-threaded cores for dual hex-core machines", "The slots available per supervisor."
+   "``multitenant.scheduler.user.pools``", "N/A", "The user pools for the multi-tenant scheduler: ``<users>:<#nodes>``" 
+   "``topology.isolate.machine``", "The number of machines for a topology."
+
+
+2. Servers Based on Throughput 
+##############################
+
+.. csv-table:: Server Requirements for Topology
+   :header: "", "Default"
+   :widths: 40, 50
+
+   "Events processed with single spout per worker", "1000 messages/second"
+   "Target throughput required in next six months", "8000 messages/second"
+   "The number of spout executors required.", "8000/1000 = 8"
+   "The number of tuples executed across the first bolt (5 executors)", "10000 tuples/second"
+   "The total number of executors required across the first bolt", "8 x 5= 40"
+   "The number of tuples executed across the secondd bolt (5 executors)",  "8 x 5= 40"
+   "The total number of executors required across second bolt", "8 x 5 = 40"
+   "The total number of executors and workers (4 executions per worker slot)", "8 + 40 + 40 = 88 executors (i.e., 88/4 = 22 Slots)"
+   "**Number of Supervisors required to process data**", "**22/24 =~ 1 supervisors (24 slots per supervisor)**"
+
+
+CPU vs. Throughput
+------------------
+
+1. Track CPU usage either by JVM debugging (jmap/jstack)
+########################################################
+
+
+
+.. csv-table:: Server Requirements for Topology
+   :header: "", "Default"
+   :widths: 40, 50
+
+   "Max CPU cores per Supervisor", "C-78U/48/4000 (four 4 TB disks) =  12 Physical cores"
+   "CPU Usage for processing 1000 messages/second", "4 Physical core (32.12%) OR 8 Hyper threads
+                                                     - Includes 1 Spout, 5 Bolt 1 and 5 Bolt 2 executors
+                                                     - Includes CPU Usage for inter-messaging (0mq or Netty)"
+
+   "Assuming equal core division among Spout and Bolt executors", "Each executor’s CPU need = 4 / (1+5+5) = 4/11 Cors"
+   "Total Workers (equal to number of executors)", "TOPOLOGY_WORKERS, Config#setNumWorkers"
+   "Tasks per component", "TOPOLOGY_TASKS, ComponentConfigurationDeclarer#setNumTasks()"
+
+2. Extrapolate for target throughput (Assuming a liner increase of resources)
+#############################################################################
+
+
+.. csv-table:: Server Requirements for Topology
+   :header: "", "Default"
+   :widths: 40, 50
+
+   "Target Spout executors", "TopologyBuilder#setSpout() 8"
+   "Target Bolt executors", "TopologyBuilder#setBolt()  40"
+   "Total CPU need for Spout executors", "8 x 4/11 Physical core = ~ 3 Physical cores"
+   "Total CPU need for Bolt 1 executors", "40 x 4/11 Physical core = ~ 15 Physical cores"
+   "Total CPU need for Bolt 2 executors", "40 x 4/11 Physical core = ~ 15 Physical cores"
+   "Total CPU need for Topology", "3 + 15 +15 = 33 Physical cores"
+   "Total Supervisors needed", "33/12 = ~3 Supervisor"
+
+Memory vs. Throughput
+---------------------
+
+1. Supervisor Level-Information 
+###############################
+
+(configured values in storm.yaml or Storm-yarn.yaml
+
+.. csv-table:: Configuration Values for storm.yaml/Storm-yarn.yaml
+   :header: "", ""
+   :widths: 40, 50
+
+   "Max memory available per Supervisor Node", "C-78U/48/4000 (four 4 TB disks) =  48 GB"
+   "Memory available to Supervisor container (logical)", "``Storm-yarn.yaml`` > master.container.size-mb 42 GB"
+
+2. Servers Based on Memory Needs
+################################
+
+.. csv-table:: Configuration Values for storm.yaml/Storm-yarn.yaml
+   :header: "", ""
+   :widths: 40, 50
+
+   "Events processed across Spout executors", "8000 messages/second"
+   "Avg. event or message size", "3 MB"
+   "Data processed per second across spout executors", "8000 x 3 MB = ~ 24 GB/sec"
+   "Events processed per second across bolt 1 executors", "10000 x 8 = 80000 tuples/second"
+   "Average tuple size", "100 KB"
+   "Data processed per second across bolt 1 executors", "80000 tuples/sec x 100 KB = ~8 GB/sec"
+   "Events processed per second across bolt 2 executors", "15000 x 8 = 120000 tuples/second"
+   "Average tuple size", "100 KB"
+   "Data processed per second across bolt 1 executors", "120000 tuples/sec x 100 KB = ~12 GB/sec"
+   "Total data processed", "24 GB/second + 8 GB/second + 12 GB/second = 44 GB/second"
+   "**Number of Supervisors required to process data**", "**44 / 42 = ~2 Supervisor**"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+ 
 Logging
 =======
 

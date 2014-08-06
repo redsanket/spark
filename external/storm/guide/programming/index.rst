@@ -498,14 +498,21 @@ Example at http://tiny.corp.yahoo.com/3qM6Bg
 Using Trident With Storm
 ========================
 
-Provides exactly once semantics like transactional topologies.
-In trident state is a first class citizen, but the exact implementation of state is up to you.
-There are many prebuilt connectors to various NoSQL stores like HBase
-Provides a high level API (similar to cascading for Hadoop)
+With Storm, the in-state memory state in bolts
+is not fault tolerant. This means that if
+your bolt goes down with 3 weeks of aggregated data 
+that you have not stored any where, you have lost that data.
 
+For this reason, Trident, an abstraction running on top of Storm, batches groups of
+tuples and provides an aggregation API. You can maintain the state or write
+data to various NoSQL stores like HBase.  
+In trident state is a first class citizen, but the exact implementation of state is up to you.
+Trident has a high-level API (similar to cascading for Hadoop) and
+provides exactly once semantics like transactional topologies.
 
 Example
 -------
+
 Aggregates values and stores them.
 
 .. code-block:: java

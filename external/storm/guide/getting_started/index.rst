@@ -1,71 +1,48 @@
-===============
-Getting Started
-===============
+===================================
+Getting Started With Storm at Yahoo
+===================================
 
 .. _hbase_getting_started-installation:
 
-In this chapter, we'll cover the basic steps required to experiment with Storm at Yahoo. 
-You'll simple convenience package (ystorm_onabox) and by using an OpenStack VM, you can be writing and executing storm topologies in a few simple steps.
+In this chapter, we'll show you how to get started using Storm on the Yahoo grid.
+We'll work directly with a Git repository, modify some code, and watch
+the results in real time. 
 
-Installation
-============
+Creating a Storm Project
+========================
 
-#. Create yourself a virtual machine (VM) to work within `OpenHouse <http://openhouse.corp.yahoo.com/>`_.
-   Select a **Medium** instance with an **RHEL6.x** image.
-#. SSH into the VM.
-#. Install the requisite packages:: 
+#. Go to the `Grid Support Shop <http://yo/supportshop>`_.
+#. From the **Grid Support Shop**, click **Storm Onboarding**. 
 
-       yinst set root.os_restriction=rhel-6.x
-       yinst i ystorm_onabox -br test
-       yinst i ystorm_starter -br test
-#. At this point Storm should be running, so you should be able to attach to the UI via http://hostname:8080
+   .. .. image:: images/support_shop-storm_onboarding.jpg
+        :height: 490px
+        :width: 800 px
+        :scale: 90 %
+        :alt: Figure showing user clicking "Storm Onboarding" from the Support Shop.
+        :align: right
 
-   .. note:: If you were installing Storm in a ``yroot``, do the following:: 
+#. You'll be taken to a Doppler form to create a Storm project. Click **Create a new project**
+   and then confirm by clicking **New Project** in the pop-up confirmation window.
+#. In the **New Storm Project** page, enter a project name in the **Project Name** text field, 
+   a unique headless user (use your own user name if you don't have a headless user) in the
+   **Unique Headless User** text field, and a short project description indicating that this
+   is a test project.
+#. From the **Contact Info** section of the page, select **Real User** from the **Contact Type** menu,
+   your role (use **Technical Lead** if you're not sure) from the **Role** menu, and enter your
+   Yahoo user name for the **User ID** text field. 
+#. Click **Submit New Project**. You'll be taken to a confirmation page. The turnover rate varies,
+   but generally, you'll be on-boarded within a few business days. 
+   
 
-                 yinst start daemontools_y zookeeper_server ystorm_onabox
+.. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm  
 
-#. Now we will launch one of the sample topologies from the storm-starter package::
+Create a New Topology
+=====================
 
-       storm jar /home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.ExclamationTopology excltopology
-#. When you refresh the UI, your sample topology should be running
-#. The ``storm`` CLI command can also be used to list or kill the topology (e.g., 
-   ``storm kill excltopology`` to kill the topology).
-
-Building a Topology From Source
-===============================
-
-#. Install the requisite packages::
-
-       yinst i git
-       yinst i yjava_maven
-
-#. Clone the ``src`` for ``storm-starter``. (You may need to `set up SSH keys <https://git.corp.yahoo.com/settings/ssh>`_.)
-
-       git clone git@git.corp.yahoo.com:storm/storm-starter.git 
-       cd storm-starter
-       mvn -f m2-pom.xml compile package
-
-#. Verify you can launch a sample topology from the built package::
-
-       storm jar target/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.ExclamationTopology topo1
-       storm list 
-       storm kill topo1
-
-#. Make a copy of the **Exclamation** topology and then edit it::
-
-       SRCDIR=./src/jvm/storm/starter
-       cp $SRCDIR/ExclamationTopology.java $SRCDIR/MyExclamationTopology.java
-       vi $SRCDIR/MyExclamationTopology.java (rename class to MyExclamationTopology, and any other edits you would like to experiment with)
-       mvn -f m2-pom.xml compile package
+#. From the **Storm Project** page, you'll see your project name listed as one of the projects that you 
+   a member of or have selected as a favorite. Click the project name to open your project page.
+#. From your project page, click the **New topology** button under the label **Topologies**.
+#. 
 
 
-#. Launch your copy of the sample topology and check that it's running::
 
-       storm jar target/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.MyExclamationTopology mytopo
-       storm list
-
-
-Next Steps
-==========
-
-See `On-Boarding With Storm <>`_ to start using Storm on Yahoo's Grid. 

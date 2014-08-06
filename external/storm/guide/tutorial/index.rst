@@ -12,6 +12,8 @@ count DH Rainbow events.
    :alt: Schematic diagram for the DH Rainbow spout and the event count bolt.
    :align: left
 
+.. See http://tiny.corp.yahoo.com/3qM6Bg
+
 
 Prerequisites
 =============
