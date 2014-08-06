@@ -1,6 +1,6 @@
 
 #
-# The Hive documentation build configuration file.
+# HBase documentation build configuration file.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -44,7 +44,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-# project = u'Hive'
+# project = u'HBase'
 copyright = u'2013, Yahoo! Inc., 2013'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -113,7 +113,7 @@ html_theme_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = 'Hive User Guide'
+html_title = 'HBase User Guide'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -176,5 +176,5 @@ html_show_sourcelink = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'HiveUserGuide'
+htmlhelp_basename = 'HBaseUserGuide'
 
