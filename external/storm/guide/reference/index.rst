@@ -170,23 +170,38 @@ Memory vs. Throughput
 Logging
 =======
 
-Storm daemon are located by default in ${storm.home}/logs. ystorm installs logs in ${YINST_ROOT}/y/lib64/storm/current/logs.
-For example:
-/home/y/lib64/storm/current/logs
-/home/y/lib64/storm/current/logs/logviewer.log
-/home/y/lib64/storm/current/logs/nimbus.log
-/home/y/lib64/storm/current/logs/supervisor.log
-/home/y/lib64/storm/current/logs/ui.log
-...
-The ystorm_* launcher scripts have logs as well. If the various ystorm daemons (nimbus, ui, supervisor, etc.) fail even to write the logs referenced above, then check the launcher logs to see what happened:
-/home/y/logs/ystorm_daemons/nimbus/current
-/home/y/logs/ystorm_daemons/supervisor/current
-/home/y/logs/ystorm_daemons/ui/current
-...
-Nimbus nimbus.log
-Startup & Shutdown
-The first thing we expect to see when nimbus starts is some diagnostic output from ZooKeeper/Curator code, followed by a Starting nimbus with conf... message:
-Show Example 
+The logs for the Storm daemon are located by default in ``${storm.home}/logs``. 
+The ``ystorm`` daemons (``nimbus``, ``ui``, ``supervisor``, etc.) write 
+logs to ${YINST_ROOT}/y/lib64/storm/current/logs.
+
+For example::
+
+    /home/y/lib64/storm/current/logs
+    /home/y/lib64/storm/current/logs/logviewer.log
+    /home/y/lib64/storm/current/logs/nimbus.log
+    /home/y/lib64/storm/current/logs/supervisor.log
+    /home/y/lib64/storm/current/logs/ui.log
+    ...
+
+The ``ystorm_*`` launcher scripts have logs as well. If the ystorm daemons 
+fail to write logs, check the launcher logs::
+
+    /home/y/logs/ystorm_daemons/nimbus/current
+    /home/y/logs/ystorm_daemons/supervisor/current
+    /home/y/logs/ystorm_daemons/ui/current
+    ...
+
+Nimbus Log
+----------
+
+**File:** ``/home/y/lib64/storm/current/logs/nimbus.log``
+
+Startup
+#######
+
+The first thing we expect to see when Nimbus starts is some diagnostic output from ZooKeeper/Curator code and then 
+the message "Starting nimbus with conf..." as seen below::
+
 
     2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:zookeeper.version=3.4.5--1, built on 09/11/2013 20:08 GMT
     2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:host.name=tellingsmelling.corp.gq1.yahoo.com
@@ -220,83 +235,118 @@ Show Example
     2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:user.dir=/home/y/var/daemontools/ystorm_nimbus
     2013-09-21 22:47:09 b.s.d.nimbus [INFO] Starting Nimbus with conf {"dev.zookeeper.path" "/tmp/dev-storm-zookeeper", "topology.tick
 
+Shutdown
+########
 
-Shutdown is similar, with a Shutting down master followed by Shut down master
-Show Example 
-
-::
+Shutdown is similar with the message "Shutting down master" followed by "Shut down master"::
 
     2013-11-08 18:44:32 b.s.d.nimbus [INFO] Shutting down master
     2013-11-08 18:44:32 o.a.z.ZooKeeper [INFO] Session: 0x142368cbb2f0001 closed
     2013-11-08 18:44:32 o.a.z.ClientCnxn [INFO] EventThread shut down
     2013-11-08 18:44:32 b.s.d.nimbus [INFO] Shut down master
-Topology Sumbission, Assignment, & Killing
-When topologies are submitted: Received topology submission for...
 
-::
+
+Topology Sumbission, Assignment, and Killing
+--------------------------------------------
+
+When topologies are submitted, the log message will being with "Received topology submission for..."::
 
     2013-11-08 18:09:21 b.s.d.nimbus [INFO] Received topology submission for test-topo-derekd2 with conf {"storm.id" "test-topo-derekd2-8-1383934161", "topology.users" ("derekd" "derekd@DEREKD.YSTORM.NET"), "topology.acker.executors" nil, "to ...
     2013-11-08 18:09:21 b.s.d.nimbus [INFO] nimbus file location:/home/y/var/storm/nimbus/stormdist/test-topo-derekd2-8-1383934161 ...
 
-Activation usually follows: Activating ...
+This is following by "Activating ..."::
 
-::
 
     2013-11-08 18:09:21 b.s.d.nimbus [INFO] Activating test-topo-derekd2: test-topo-derekd2-8-1383934161 ...
 
-Assignments are the result of scheduling, so when a topology has successfully been scheduled, or has been rebalanced, etc., we see Setting new assignment for topology id...
-
-::
+Assignments are the result of scheduling, so when a topology has successfully 
+been scheduled, or has been rebalanced, etc., you'll see the message "Setting new assignment for topology id..."::
 
     2013-11-08 18:09:21 b.s.d.nimbus [INFO] Setting new assignment for topology id test-topo-derekd2-8-1383934161: #backtype.storm.daemon.common.Assignment{:master-code-dir "/home/y/var/storm/nimbus/stormdist/test-topo-derekd2-8-1383934161", ...
 
-When topologies are killed, we see
-Delaying event :remove for X secs for ...
-Updated ... with status {:type :killed, :kill-time-secs X}
-Killing topology: ...
-Cleaning up ...
+When topologies are killed, you'll see the following log messages:
 
-::
+- Delaying event :remove for X secs for ...
+- Updated ... with status {:type :killed, :kill-time-secs X}
+- Killing topology: ...
+- Cleaning up ...
+
+For example::
 
     2013-11-08 18:13:40 b.s.d.nimbus [INFO] Delaying event :remove for 30 secs for test-topo-derekd2-9-1383934302
     2013-11-08 18:13:40 b.s.d.nimbus [INFO] Updated test-topo-derekd2-9-1383934302 with status {:type :killed, :kill-time-secs 30}
     2013-11-08 18:14:10 b.s.d.nimbus [INFO] Killing topology: test-topo-derekd2-9-1383934302
     2013-11-08 18:14:15 b.s.d.nimbus [INFO] Cleaning up test-topo-derekd2-9-1383934302
 
-Supervisors can be seen in the nimbus log by looking for their IDs, which look like UUIDs, i.e., 7c024f9d-673d-49e7-aa7f-56d9e535f994.
-Supervisor supervisor.log
-Startup & Shutdown
-Supervisors start with a line like Starting supervisor with id .... The supervisor does not log a message when it is stopped manually.
-Launching & Killing Workers
-It is the supervisor's job to start workers. When the supervisor launches a worker, we expect a pair of log messages beginning with Launching worker ...
+Supervisors can be seen in the Nimbus log by looking for their IDs, which look 
+like UUIDs. For example: ``7c024f9d-673d-49e7-aa7f-56d9e535f994``
 
-::
+Supervisor Log 
+--------------
+
+**File:** /home/y/lib64/storm/current/logs/supervisor.log
+
+    
+Startup/Shutdown
+################
+
+Supervisors start with a log message similar to "Starting supervisor with id ....". 
+The supervisor does not log a message when it is stopped manually.
+
+Launching & Killing Workers
+###########################
+
+The Supervisor's job is to start workers. When the supervisor launches a worker, 
+we expect a pair of log messages beginning with "Launching worker ..."
+as shown below::
 
     2013-11-08 18:11:43 b.s.d.supervisor [INFO] Launching worker with assignment #backtype.storm.daemon.supervisor.LocalAssignment{:st
     2013-11-08 18:11:43 b.s.d.supervisor [INFO] Launching worker with command: java -server -Xmx768m  -Djava.library.path=/home/y/var/
 
 :timed-out versus :disallowed
-There could be several reasons a worker shuts down. If the worker has been "un-scheduled" there will be a log message that includes Shutting down and clearing state for id ... State: :disallowed.
-If a worker hangs such that it does not heartbeat to the supervisor within the expected interval (5s default), then we expect a log message like Shutting down and clearing state for id ... State: :timed-out.
-If a worker crashes, we expect to see a log message involving an exit code, i.e., Worker process ... exited with code: X
+*****************************
 
-::
+There could be several reasons a worker shuts down. 
 
-    g2013-11-08 06:04:19 b.s.d.supervisor [INFO] Shutting down and clearing state for id 0c8439c6-a4fe-47c4-9c62-b8d06e44aa98. Current supervisor time: 1383890658. State: :timed-out, Heartbeat: #backtype.storm.daemon.common.WorkerHeartbeat{:ti ...
-    g...
-    g2013-11-08 18:22:13 b.s.d.supervisor [INFO] Shutting down and clearing state for id e7846155-3656-424f-84bf-f133e5891c81. Current supervisor time: 1383934933. State: :disallowed, Heartbeat: #backtype.storm.daemon.common.WorkerHeartbeat{:t ...
-    g2013-11-08 18:22:13 b.s.d.supervisor [INFO] Worker Process e7846155-3656-424f-84bf-f133e5891c81 exited with code: 137
+- If the worker has been "un-scheduled", there will be a log message that includes 
+  "Shutting down and clearing state for id ... State: :disallowed".
+- If a worker hangs such that it does not heartbeat to the supervisor within the 
+  expected interval (5s default), you should see a log message like "Shutting down 
+  and clearing state for id ... State: :timed-out".
+- If a worker crashes, you should see a log message involving an exit code
+  such as "Worker process ... exited with code: X".
 
-TIP If a log message indicates that a worker is :timed-out, then it means the heartbeat thread was starved from being scheduled to run. This can happen because the garbage collection takes over the JVM. If this happens repeatedly with a worker, try submitting the topology with an increased worker JVM heap size: append -Xmx${SIZE_MB}m to topology.worker.childopts.
-Worker worker.log
-Startup & Shutdown
-When a worker starts, we expect similar ZooKeeper/Curator diagnostic logs, followed by a line like Launching worker for ${TOPOLOGY_NAME} on ${SUPERVISOR_ID}:${WORKER_PORT} with id ${WORKER_ID}.
+For example::
 
-::
+    2013-11-08 06:04:19 b.s.d.supervisor [INFO] Shutting down and clearing state for id 0c8439c6-a4fe-47c4-9c62-b8d06e44aa98. Current supervisor time: 1383890658. State: :timed-out, Heartbeat: #backtype.storm.daemon.common.WorkerHeartbeat{:ti ...
+    ...
+    2013-11-08 18:22:13 b.s.d.supervisor [INFO] Shutting down and clearing state for id e7846155-3656-424f-84bf-f133e5891c81. Current supervisor time: 1383934933. State: :disallowed, Heartbeat: #backtype.storm.daemon.common.WorkerHeartbeat{:t ...
+    2013-11-08 18:22:13 b.s.d.supervisor [INFO] Worker Process e7846155-3656-424f-84bf-f133e5891c81 exited with code: 137
+
+.. tip:: If a log message indicates that a worker is :timed-out, then it means the heartbeat 
+         thread was starved from being scheduled to run. This can happen because the garbage 
+         collection takes over the JVM. If this happens repeatedly with a worker, try 
+         submitting the topology with an increased worker JVM heap size: ``append -Xmx${SIZE_MB}m`` 
+         to ``topology.worker.childopts``.
+
+Worker Log
+----------
+
+**File:**  ``/home/y/lib64/storm/current/logs/worker.log``
+    
+Startup/Shutdown
+################
+
+When a worker starts, you should see similar ZooKeeper/Curator diagnostic logs, followed by a 
+log message similar to "Launching worker for ${TOPOLOGY_NAME} on ${SUPERVISOR_ID}:${WORKER_PORT} with id ${WORKER_ID}".
+
+For example::
 
     Launching worker for test-topo-derekd-1-1383340860 on 04fa4628-2ab9-468b-b457-c36079921b80:6701 with id 7737e1f4-eec4-4975-87ef-81541496009e
 
-Normally a worker is not shut down. When it is, the current storm implementation kills the process (kill -9), so we do not expect the logs to show anything as the worker does not know what is happening.
+Normally, a worker is not shut down. When it is, the current storm implementation 
+kills the process (``kill -9``), so we do not expect the logs to show anything as the 
+worker does not know what is happening.
 
 Storm Web UI
 ============
@@ -313,3 +363,9 @@ Storm Support
 
 Other Resources
 ===============
+
+- `Multi-Tenant Storm Tech Talk <http://video.corp.yahoo.com/video_detail.php?vid=8497>`_
+- `Apache Storm Documentation <http://storm.incubator.apache.org/documentation.html>`_
+- `Hortonworks: Apache Storm <http://hortonworks.com/hadoop/storm/>`_
+
+- 
