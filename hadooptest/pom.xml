@@ -375,6 +375,18 @@
 				</dependency>
 				<dependency>
 					<groupId>yahoo.yinst.ystorm</groupId>
+					<artifactId>storm_yahoo</artifactId>
+					<version>0.9.0_wip21.265</version>
+					<exclusions>
+						<exclusion>
+							<groupId>storm</groupId>
+							<artifactId>storm-core</artifactId>
+						</exclusion>
+			         	</exclusions>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>yahoo.yinst.ystorm</groupId>
 					<artifactId>storm</artifactId>
 					<version>0.9.0_wip21.265</version>
 					<exclusions>
