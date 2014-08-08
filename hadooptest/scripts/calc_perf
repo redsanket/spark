@@ -162,8 +162,16 @@ foreach my $job (@$jobs) {
     $job_name = $job_ref->{'name'};
     $job_state = $job_ref->{'state'};
     $num_mappers = $job_ref->{'mapsTotal'};
+
     if ($job_name =~ "distcp") {
-	$job_shortname = $job_name;
+
+	if ($job_state ne "SUCCEEDED") {
+           note("Skip job '$job_name' with non-success state '$job_state'!!!");
+           next;
+        }
+        # note("job name = '$job_name', job state = '$job_state'");
+
+        $job_shortname = $job_name;
 	$job_shortname =~ s/distcp: file_//g;
 
 	if ($job_shortname =~ /(.*)_(.*)_(.*)_(.*)/) {
