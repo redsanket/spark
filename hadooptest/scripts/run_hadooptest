@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -48,11 +48,11 @@ Example:
 \$ run_hadooptest --cluster theoden -Dtest=TestSleepJobCLI
 \$ run_hadooptest --cluster theoden --mvn --nopasswd -w `pwd` -t TestEndToEndPipes
 \$ run_hadooptest --cluster theoden --mvn -Dtest=TestSleepJobCLI
-\$ run_hadooptest --cluster theoden --mvn -f /homes/hadoopqa/hadooptest.conf -Dtest=TestSleepJobCLI 
+\$ run_hadooptest --cluster theoden --mvn -f /homes/hadoopqa/hadooptest.conf -Dtest=TestSleepJobCLI
 \$ run_hadooptest -c theoden -j -n -Dtest=hadooptest.regression.TestVersion
 \$ run_hadooptest -c theoden -m -P jacoco -Dtest=TestVersion
 \$ run_hadooptest -c theoden -m -P clover -Djava.awt.headless=true -Dtest=TestVersion
-        
+
 EOF
     die($err_msg) if ($err_msg);
     exit 0;
@@ -72,6 +72,7 @@ my $storm = 0;
 my $storm090 = 0;
 my $stormconf;
 my $spark = 0;
+my $tez = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $username = getpwuid($<);
@@ -83,20 +84,21 @@ my $test;
 #
 use Getopt::Long;
 &Getopt::Long::Configure( 'pass_through');
-my $result = 
+my $result =
 GetOptions(\%options,
     "cluster|c=s"        => \$cluster,
     "conf|f=s"           => \$conf,
     "mvn|m"              => sub { $use_mvn = 1 },
     "java|j"             => sub { $use_mvn = 0 },
     "gdm"                => \$gdm,
+    "tez"                => \$tez,
     "spark"              => \$spark,
     "storm"              => \$storm,
     "storm090"           => \$storm090,
     "stormconf|y=s"      => \$stormconf,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
-    "adm_box|a=s"        => \$adm_box, 
+    "adm_box|a=s"        => \$adm_box,
     "test|t=s"           => \$test,
     "help|h|?"
     ) or usage(1);
@@ -107,10 +109,10 @@ usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 note("cluster='$cluster'");
 note("conf = $conf");
 note("workspace='$workspace'");
-note("adm box = $adm_box"); 
+note("adm box = $adm_box");
 note("use_mvn='$use_mvn'");
 
-my @tests = ($test) ? split(",", $test) : 
+my @tests = ($test) ? split(",", $test) :
     (
      "hadooptest.regression.TestVersion",
      "hadooptest.regression.yarn.TestSleepJobAPI"
@@ -164,8 +166,8 @@ my $mvn_settings_opt="-gs $workspace/resources/yjava_maven/settings.xml.gw ";
 my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hadoop/lib/native/Linux-amd64-64/";
 
 # Create the local repo directory on /grid/0/ and set the maven.repo.local
-# option.  This is necessary so we don't store the maven local repo on the 
-# /homes NFS mount by default, which causes performance degradation, 
+# option.  This is necessary so we don't store the maven local repo on the
+# /homes NFS mount by default, which causes performance degradation,
 # especially on OpenStack.
 execute("mkdir /grid/0/tmp/htf_mvn_repo");
 my $dependencies_opt = "-Dmaven.repo.local=/grid/0/tmp/htf_mvn_repo";
@@ -177,7 +179,7 @@ if ($storm) {
 	# and can lead to unexpected configuration or classes ending up in
 	# the classpath before the necessary Storm support.  By putting
 	# profile-storm first in the maven profile order, it ensures
-	# that Storm API calls and configuration will be using the 
+	# that Storm API calls and configuration will be using the
 	# deployed Storm jars. -->
     $dependencies_opt .= " -Pprofile-storm -Pprofile-all";
 }
@@ -189,9 +191,12 @@ elsif ($storm090) {
 	# and can lead to unexpected configuration or classes ending up in
 	# the classpath before the necessary Storm support.  By putting
 	# profile-storm first in the maven profile order, it ensures
-	# that Storm API calls and configuration will be using the 
+	# that Storm API calls and configuration will be using the
 	# deployed Storm jars. -->
     $dependencies_opt .= " -Pprofile-storm-090 -Pprofile-all";
+}
+elsif ($tez) {
+    $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 else {
 	# When Hadoop is used, this profile must be called before profile-ci
@@ -201,7 +206,7 @@ else {
 	# and can lead to unexpected configuration or classes ending up in
 	# the classpath before the necessary Hadoop support.  By putting
 	# profile-hadoop first in the maven profile order, it ensures
-	# that Hadoop API calls and configuration will be using the 
+	# that Hadoop API calls and configuration will be using the
 	# deployed Hadoop jars. -->
     $dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
@@ -214,7 +219,7 @@ if (-e "$stormconf") {
 my @common_args = (
     "-DCLUSTER_NAME=$cluster",
     "-DWORKSPACE=$workspace",
-    "-DADM_BOX=$adm_box", 
+    "-DADM_BOX=$adm_box",
     "-Dhadooptest.config=$conf",
     $stormClusterConf,
     $dependencies_opt,
@@ -235,7 +240,7 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
     my $jacoco_result_file="$workspace/target/jacoco.exec";
     execute("rm -f $jacoco_result_file");
 
-    # misc results directory: 
+    # misc results directory:
     # $jacoco_result_dir="$workspace/data/exec";
     # execute("rm -f $jacoco_result_dir/*");
     # $jacoco_result_dir="$workspace/data/exec/jacoco.exec";
@@ -253,11 +258,11 @@ my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -
 note($cmd);
 chomp($hadoop_version = `$cmd`);
 
-# Fix for GDM to init the hadoop version since it won't be installed and we 
+# Fix for GDM to init the hadoop version since it won't be installed and we
 # expect hadoop 2 compatibility
 if ($gdm) {
    $hadoop_version = "2.0";
-} 
+}
 
 note("Hadoop version = '$hadoop_version'");
 if ($use_mvn) {
@@ -270,12 +275,12 @@ if ($use_mvn) {
 
     my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/";
     if ($gdm) {
-        # If the -gdm option is specified to the script, we want to 
+        # If the -gdm option is specified to the script, we want to
         # run with the gdm-deployed Hadoop 2.0 jars, instead of relying
         # on any cluster deployment of the Hadoop jar
         $hadoop_version = "2.0.5.0.1306301601";
         $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
-        
+
         # Set up a rule to use to search the GDM Hadoop jars base dir
         my $base_dir = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/";
         my $find_rule = File::Find::Rule->new;
@@ -294,16 +299,16 @@ if ($use_mvn) {
         print "\nGDM Hadoop dependency directories are:\n";
         print join("\n", @sub_dirs);
         print "\n\n";
-        
+
         # Get the individual directory version names
         my @basedirs;
         foreach my $dirname (@sub_dirs) {
             push @basedirs, basename($dirname);
         };
-        
+
         # inverse alphabetical sort the names so most recent version comes first
         @basedirs = reverse(sort @basedirs);
-        
+
         # pick the most recent 2.0 version to use for Hadoop dependencies
         foreach my $basedir (@basedirs) {
             if ($basedir =~ m/^2\.(.*)/) {
@@ -312,15 +317,15 @@ if ($use_mvn) {
                 $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
                 last;
             }
-        } 
+        }
     }
-    
+
     # Call the script that gets a number of required system dependencies
     # through "yinst fetch".
     execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
-    
+
     if ($storm||$storm090) {
-        # Clean the project and build the jars so that we can have a test 
+        # Clean the project and build the jars so that we can have a test
         # jar with dependencies for Storm topologies.
         execute("HTF_WORKSPACE=$workspace /home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");
     }
@@ -333,7 +338,7 @@ if ($use_mvn) {
             "HTF_WORKSPACE=$workspace " .
             "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");
     }
-    
+
     ############################################################################
     # Execute the tests.
     ############################################################################
@@ -365,7 +370,7 @@ if ($use_mvn) {
 # Write test results in TAP format to /homes/hadoopqa
 
 # Copy the finger print file if it exists (so this test execution can be tied
-# with other related Jenkins jobs. 
+# with other related Jenkins jobs.
 # E.g "/home/y/var/builds/workspace/NightlyHadoopQEAutomation-23
 my $result_root_dir = "/homes/hadoopqa/hudson_artifacts/";
 $result_root_dir .= ($hadoop_version =~ /^0.23/) ? "hudson_artifacts-0.23" : "hudson_artifacts-2.0";

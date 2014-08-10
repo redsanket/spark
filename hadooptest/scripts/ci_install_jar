@@ -45,3 +45,12 @@ then
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/
 fi
+
+# ytez
+if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ytez_fetch" ]
+then
+   ytez_version=$( /usr/local/bin/yinst packages -latest ytez | awk '{print $1}' )
+   /usr/local/bin/yinst fetch ${ytez_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tgz -br quarantine -br nightly -br test
+   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tgz
+   tar -xf $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tar -C $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/
+fi
