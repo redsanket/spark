@@ -42,7 +42,7 @@ Create a New Topology
 #. From the **Storm Project** page, you'll see your project name listed as one of the projects that you 
    a member of or have selected as a favorite. Click the project name to open your project page.
 #. From your project page, click the **New topology** button under the label **Topologies**.
-#. 
+#.  
 
 
 

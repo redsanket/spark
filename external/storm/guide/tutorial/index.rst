@@ -14,7 +14,6 @@ count DH Rainbow events.
 
 .. See http://tiny.corp.yahoo.com/3qM6Bg
 
-
 Prerequisites
 =============
 
@@ -37,7 +36,6 @@ Setting Up
 
 Launch Storm Topology
 =====================
-
 
 For example, we will launch our sample topology with 2 machines and 2 spout instances:
 #. Configure the topology to use two machines and two spout instances::

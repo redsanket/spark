@@ -720,6 +720,7 @@ principals and IP addresses for DNS.
              and run the command ``mapred queue -showacls``. You should see the queue names and the operations
              that are allowed. You can use the job queue that list the operation **SUBMIT_APPLICATIONS**.
     
+#. can you also add a step to add the server side properties using the “Driver Configuration” tool(apart from adding through ODBC Administrator). It is based on some recent feedbacks from customers, that the server side properties for Queue only works once they have configured the properties through both of the options.
 #. Click **OK** to close the box.
 #. From the **Hortonworks Hive ODBC Driver DSN Setup** dialog, click **Test** to see if things work. 
    If all goes well, you should see **TESTS COMPLETED SUCCESSFULLY!**.
