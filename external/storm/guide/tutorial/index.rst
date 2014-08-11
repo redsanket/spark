@@ -40,8 +40,10 @@ Launch Storm Topology
 For example, we will launch our sample topology with 2 machines and 2 spout instances:
 #. Configure the topology to use two machines and two spout instances::
 
-   yinst set ystorm.topology_isolate_machines=2
-   storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://dh-demo-ebonyred.ygrid.local:50700 -n dh-demo-w-2spouts -p 2
+       yinst set ystorm.topology_isolate_machines=2
+#. Launch storm with the two spouts::
+
+       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://dh-demo-ebonyred.ygrid.local:50700 -n dh-demo-w-2spouts -p 2
 
 Inject Sample Rainbow Events
 ============================
