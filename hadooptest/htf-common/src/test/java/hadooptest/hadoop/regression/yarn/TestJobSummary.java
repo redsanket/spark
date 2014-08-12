@@ -2,6 +2,7 @@ package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.ParallelMethodTests;
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
@@ -39,9 +40,12 @@ public class TestJobSummary extends YarnTestsBaseClass {
 			if (job.getStatus().getState() == State.SUCCEEDED) {
 				break;
 			}
-			Thread.sleep(1000);
+
+			Util.sleep(1);
 		}
 
+		Util.sleep(10);
+		
 		// Look in the done folder
 		StringBuilder resonsesInDoneAndDoneIntermediateFolder = new StringBuilder();
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
