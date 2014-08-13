@@ -73,6 +73,7 @@ my $storm090 = 0;
 my $stormconf;
 my $spark = 0;
 my $tez = 0;
+my $pig = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $username = getpwuid($<);
@@ -92,6 +93,7 @@ GetOptions(\%options,
     "java|j"             => sub { $use_mvn = 0 },
     "gdm"                => \$gdm,
     "tez"                => \$tez,
+    "pig"                => \$pig,
     "spark"              => \$spark,
     "storm"              => \$storm,
     "storm090"           => \$storm090,
@@ -251,6 +253,16 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 # 1.0.x package so that we can run tests against the Spark jars.
 if ($spark) {
     execute("yinst i yspark_yarn -tag yspark_yarn_1_0_latest_hadoop2 -live -downgrade -br quarantine");
+}
+
+# If the user has provided the -pig option to the script, install the Pig
+# dependencies, for ABF feed, that are needed for the Pig scripts,
+# invoked from within HTF. This does not deploy actual Pig package, because
+# the Jenkins jobs are expected to care for that. This just cares for an internal
+# HTF test dependency.
+if ($pig) {
+    execute("yinst i fetl_base_feed_jar");
+    execute("yinst i fetl_projector");
 }
 
 my $hadoop_version;

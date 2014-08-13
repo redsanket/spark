@@ -13,6 +13,7 @@ import hadooptest.tez.TezUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -25,13 +26,14 @@ public class TestBroadcastAndOneToOneExample extends
 	}
 
 	@Test
+	@Ignore("IGNORE LOCAL MODE FOR NOW")
 	public void testLocalMode() throws Exception {
 		boolean skipLocalityCheck = true;
 		if (skipLocalityCheck) {
 			int returnCode = run(new String[] {}, TezUtils.LocalMode.YES);
-			Assert.assertTrue(returnCode==0);
+			Assert.assertTrue(returnCode == 0);
 		} else {
-			//TODO
+			// TODO
 		}
 	}
 
@@ -40,7 +42,7 @@ public class TestBroadcastAndOneToOneExample extends
 		boolean skipLocalityCheck = true;
 		if (skipLocalityCheck) {
 			int returnCode = run(new String[] {}, TezUtils.LocalMode.NO);
-			Assert.assertTrue(returnCode==0);
+			Assert.assertTrue(returnCode == 0);
 		} else {
 
 		}

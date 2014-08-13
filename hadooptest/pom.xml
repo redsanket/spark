@@ -638,7 +638,6 @@
 				<activeByDefault>false</activeByDefault>
 			</activation>
 			<dependencies>
-
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>system-protobuf</artifactId>

@@ -50,16 +50,10 @@ public class TezUtils {
 		conf.set("mapreduce.framework.name", "yarn-tez");
 
 		if (localMode == LocalMode.YES) {
-			// Do additional settings for local mode
+			conf.set("tez.local.mode", "true");
 		} else {
 			try {
-				/**
-				 * Commenting out the statement below, 'cos got a clarification
-				 * from Jon on Aug 10th This isn't needed for our setup unless
-				 * we want all map reduce jobs to use tez. All tez jobs (pig on
-				 * tez and tez map reduce examples) do this automatically.
-				 */
-				// applyTezSettingsToAllHosts();
+				 applyTezSettingsToAllHosts();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -77,6 +71,7 @@ public class TezUtils {
 		String[] allTezComponentTypes = new String[] {
 				HadooptestConstants.NodeTypes.HISTORY_SERVER,
 				HadooptestConstants.NodeTypes.NODE_MANAGER,
+				HadooptestConstants.NodeTypes.DATANODE,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER };
 		ExecutorService bounceThreadPool = Executors
 				.newFixedThreadPool(allTezComponentTypes.length);
@@ -105,12 +100,22 @@ public class TezUtils {
 						// Since setting the HadoopConf file also backs up the
 						// config dir,
 						// wait for a few seconds.
-						Thread.sleep(20000);
+						Thread.sleep(10000);
+						/**
+						 * Commenting out the statement below, 'cos got a clarification
+						 * from Jon on Aug 10th This isn't needed for our setup unless
+						 * we want all map reduce jobs to use tez. All tez jobs (pig on
+						 * tez and tez map reduce examples) do this automatically.
+						 */
+//						fullyDistributedCluster.getConf(aTezComponentType)
+//								.setHadoopConfFileProp(
+//										"mapreduce.framework.name", "yarn",
+//										"mapred-site.xml", null);
 
-						fullyDistributedCluster.getConf(aTezComponentType)
-								.setHadoopConfFileProp(
-										"mapreduce.framework.name", "yarn-tez",
-										"mapred-site.xml", null);
+						fullyDistributedCluster.getConf(aTezComponentType)						
+						.setHadoopConfFileProp(
+								"mapreduce.job.acl-view-job", "*",
+								"yarn-site.xml", null);
 
 						// Bounce the node
 						fullyDistributedCluster.hadoopDaemon(Action.STOP,
