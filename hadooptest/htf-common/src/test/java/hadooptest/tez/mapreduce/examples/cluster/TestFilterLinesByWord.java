@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce;
+package hadooptest.tez.mapreduce.examples.cluster;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
@@ -9,6 +9,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.TezUtils;
+import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -25,20 +26,6 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 	}
 
 	@Test
-	public void testLocalMode() throws Exception {
-		/**
-		 * Usage: filtelinesrbyword <in> <out> <filter_word>
-		 * [-generateSplitsInClient true/<false>
-		 */
-		long timeStamp = System.currentTimeMillis();
-		String[] filterLinesByWordArgs = new String[] { "/tmp/tez-site.xml",
-				"/tmp/filterLinesByWord-out-" + timeStamp, "tez" };
-
-		int returnCode = run(filterLinesByWordArgs, TezUtils.LocalMode.YES);
-		Assert.assertTrue(returnCode==0);
-	}
-
-	@Test
 	public void testClusterMode() throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
@@ -48,7 +35,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 		String[] filterLinesByWordArgs = new String[] { "/tmp/tez-site.xml",
 				"/tmp/filterLinesByWord-out-" + timeStamp, "tez" };
 
-		int returnCode = run(filterLinesByWordArgs, TezUtils.LocalMode.NO);
+		int returnCode = run(filterLinesByWordArgs, HadooptestConstants.Mode.CLUSTER);
 		Assert.assertTrue(returnCode==0);
 	}
 

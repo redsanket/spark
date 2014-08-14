@@ -1,4 +1,4 @@
-package hadooptest.tez.pig;
+package hadooptest.tez;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,9 +16,6 @@ import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 public class HtfPigBaseClass extends TestSession {
-	public enum ON_TEZ {
-		YES, NO
-	};
 
 	public static String WORKSPACE_SCRIPT_LOCATION = "/htf-common/resources/hadooptest/pig/scripts/";
 	public static String PIG_DATA_DIR_IN_HDFS = "/HTF/testdata/pig/";
@@ -113,19 +110,38 @@ public class HtfPigBaseClass extends TestSession {
 		}
 	}
 
-	int runPigScript(String scriptName, String nnHostname, ON_TEZ onTez)
+	protected int runPigScript(String scriptName, String protocol, String nnHostname, String mode, String execution)
 			throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");
 		sb.append(" ");
-		if (onTez == ON_TEZ.YES) {
+		
+		if (execution.equals(HadooptestConstants.Execution.TEZ)) {
 			sb.append("-x tez");
 			sb.append(" ");
 		}
+		if (mode.equals(HadooptestConstants.Mode.LOCAL)) {
+			sb.append("-tez_local");
+			sb.append(" ");
+		}
+		
+		if (protocol.equals(HadooptestConstants.Schema.HDFS)) {
+			sb.append("-param protocol=" + HadooptestConstants.Schema.HDFS);
+			sb.append(" ");
+		}else if(protocol.equals(HadooptestConstants.Schema.WEBHDFS)){
+			sb.append("-param protocol=" + HadooptestConstants.Schema.WEBHDFS);
+		}else{
+			//Local Mode
+			sb.append("-param protocol=" + "file://");
+		}
+
 		if (!nnHostname.isEmpty()) {
 			sb.append("-param namenode=" + nnHostname);
 			sb.append(" ");
+		}else{
+			sb.append("-param namenode=" + "/grid/0");
+			sb.append(" ");			
 		}
 		sb.append("-f " + TestSession.conf.getProperty("WORKSPACE")
 				+ WORKSPACE_SCRIPT_LOCATION + scriptName);
@@ -137,7 +153,7 @@ public class HtfPigBaseClass extends TestSession {
 		environmentVariablesWrappingTheCommand.put("PIG_HOME",
 				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 						+ "/share/pig");
-		if (onTez == ON_TEZ.YES) {
+		if (execution.equals(HadooptestConstants.Execution.TEZ)) {
 			environmentVariablesWrappingTheCommand.put("TEZ_HOME",
 					"/home/gs/tez/");
 			environmentVariablesWrappingTheCommand.put("TEZ_CONF_DIR",

@@ -30,14 +30,11 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 
 public class TezUtils {
-	public enum LocalMode {
-		YES, NO
-	};
 
 	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
 
 	public static Configuration setupConfForTez(Configuration conf,
-			LocalMode localMode) throws IOException, InterruptedException {
+			String mode) throws IOException, InterruptedException {
 		String tezVersion = getTezVersion();
 		tezVersion = tezVersion.trim();
 		TestSession.logger.info("Read back tez version as:" + tezVersion);
@@ -49,7 +46,7 @@ public class TezUtils {
 
 		conf.set("mapreduce.framework.name", "yarn-tez");
 
-		if (localMode == LocalMode.YES) {
+		if (mode.equals(HadooptestConstants.Mode.LOCAL)) {
 			conf.set("tez.local.mode", "true");
 		} else {
 			try {

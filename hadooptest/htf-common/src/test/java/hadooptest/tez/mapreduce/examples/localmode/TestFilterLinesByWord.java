@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce;
+package hadooptest.tez.mapreduce.examples.localmode;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
@@ -9,44 +9,36 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.TezUtils;
+import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestBroadcastAndOneToOneExample extends
-		BroadcastAndOneToOneExampleExtendedForTezHTF {
+public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
+
 	@BeforeClass
 	public static void beforeClass() {
 		TestSession.start();
 	}
 
 	@Test
-	@Ignore("IGNORE LOCAL MODE FOR NOW")
 	public void testLocalMode() throws Exception {
-		boolean skipLocalityCheck = true;
-		if (skipLocalityCheck) {
-			int returnCode = run(new String[] {}, TezUtils.LocalMode.YES);
-			Assert.assertTrue(returnCode == 0);
-		} else {
-			// TODO
-		}
+		/**
+		 * Usage: filtelinesrbyword <in> <out> <filter_word>
+		 * [-generateSplitsInClient true/<false>
+		 */
+		long timeStamp = System.currentTimeMillis();
+		String[] filterLinesByWordArgs = new String[] { "/tmp/tez-site.xml",
+				"/tmp/filterLinesByWord-out-" + timeStamp, "tez" };
+
+		int returnCode = run(filterLinesByWordArgs, HadooptestConstants.Mode.LOCAL);
+		Assert.assertTrue(returnCode==0);
 	}
 
-	@Test
-	public void testClusterMode() throws Exception {
-		boolean skipLocalityCheck = true;
-		if (skipLocalityCheck) {
-			int returnCode = run(new String[] {}, TezUtils.LocalMode.NO);
-			Assert.assertTrue(returnCode == 0);
-		} else {
-
-		}
-	}
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {
@@ -55,6 +47,11 @@ public class TestBroadcastAndOneToOneExample extends
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
 				SkipTrash.YES, "/tmp/tez/");
+		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA, "",
+				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
+				SkipTrash.YES, "/tmp/filterLinesByWord-out-*");
+
 	}
 
 }

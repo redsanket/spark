@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce;
+package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
 import hadooptest.tez.TezUtils;
@@ -28,8 +28,8 @@ import org.apache.tez.mapreduce.hadoop.MultiStageMRConfigUtil;
 
 public class GroupByOrderByMRRTestExtendedForTezHTF extends
 		GroupByOrderByMRRTest {
-	  public int run(String[] args, TezUtils.LocalMode localModeFlag) throws Exception {
-		    Configuration conf = TezUtils.setupConfForTez(TestSession.cluster.getConf(), localModeFlag);
+	  public int run(String[] args, String mode) throws Exception {
+		    Configuration conf = TezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
 
 		    // Configure intermediate reduces
 		    conf.setInt(MRJobConfig.MRR_INTERMEDIATE_STAGES, 1);

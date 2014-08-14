@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce;
+package hadooptest.tez.mapreduce.examples.localmode;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
@@ -10,6 +10,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.TezUtils;
+import hadooptest.tez.mapreduce.examples.extensions.GroupByOrderByMRRTestExtendedForTezHTF;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -99,23 +100,10 @@ public class TestGroupByOrderByMRRTest extends
 		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
-		int returnCode = run(groupByOrderByMrrArgs, TezUtils.LocalMode.YES);
+		int returnCode = run(groupByOrderByMrrArgs, HadooptestConstants.Mode.LOCAL);
 		Assert.assertTrue(returnCode==0);
 	}
 
-	@Test
-	public void testClusterMode() throws Exception {
-		/**
-		 * Usage: groupbyorderbymrrtest <in> <out>
-		 */
-		copyDataIntoHdfs();
-		long timeStamp = System.currentTimeMillis();
-		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
-				OUTPUT_FILE_NAME + "/" + timeStamp };
-
-		int returnCode = run(groupByOrderByMrrArgs, TezUtils.LocalMode.NO);
-		Assert.assertTrue(returnCode==0);
-	}
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {

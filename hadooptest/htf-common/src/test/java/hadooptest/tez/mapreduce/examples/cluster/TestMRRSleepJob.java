@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce;
+package hadooptest.tez.mapreduce.examples.cluster;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
@@ -9,6 +9,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.TezUtils;
+import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -24,21 +25,6 @@ public class TestMRRSleepJob extends MRRSleepJobExtendedForTezHTF {
 	}
 
 	@Test
-	public void testLocalMode() throws Exception {
-		String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
-				"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
-		/**
-		 * [-m numMapper][-r numReducer] [-ir numIntermediateReducer] [-irs
-		 * numIntermediateReducerStages] [-mt mapSleepTime (msec)] [-rt
-		 * reduceSleepTime (msec)] [-irt intermediateReduceSleepTime] [-recordt
-		 * recordSleepTime (msec)] [-generateSplitsInAM (false)/true]
-		 * [-writeSplitsToDfs (false)/true]
-		 */
-		int returnCode = run(sleepJobArgs, TezUtils.LocalMode.YES);
-		Assert.assertTrue(returnCode==0);
-	}
-
-	@Test
 	public void testClusterMode() throws Exception {
 		String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
 				"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
@@ -49,7 +35,7 @@ public class TestMRRSleepJob extends MRRSleepJobExtendedForTezHTF {
 		 * recordSleepTime (msec)] [-generateSplitsInAM (false)/true]
 		 * [-writeSplitsToDfs (false)/true]
 		 */
-		int returnCode = run(sleepJobArgs, TezUtils.LocalMode.NO);
+		int returnCode = run(sleepJobArgs, HadooptestConstants.Mode.CLUSTER);
 		Assert.assertTrue(returnCode==0);
 	}
 

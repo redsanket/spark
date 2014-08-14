@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce;
+package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
 import hadooptest.tez.TezUtils;
@@ -13,7 +13,7 @@ import org.junit.Test;
 public class BroadcastAndOneToOneExampleExtendedForTezHTF extends BroadcastAndOneToOneExample {
 
 
-	public int run(String[] args, TezUtils.LocalMode localModeFlag) throws Exception {
+	public int run(String[] args, String mode) throws Exception {
 		boolean doLocalityCheck = true;
 		if (args.length == 1) {
 			if (args[0].equals(skipLocalityCheck)) {
@@ -28,7 +28,7 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends BroadcastAndOn
 		}
 
 		Configuration conf = TestSession.cluster.getConf();
-		conf = TezUtils.setupConfForTez(conf, localModeFlag);
+		conf = TezUtils.setupConfForTez(conf, mode);
 		boolean status = run(conf, doLocalityCheck);
 		return status ? 0 : 1;
 	}

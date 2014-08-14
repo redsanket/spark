@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce;
+package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
 import hadooptest.tez.TezUtils;
@@ -18,7 +18,7 @@ import org.apache.tez.mapreduce.examples.MRRSleepJob;
 
 public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	private Credentials credentials = new Credentials();
-	public int run(String[] args, TezUtils.LocalMode localModeFlag) throws Exception {
+	public int run(String[] args, String mode) throws Exception {
 
 		if (args.length < 1) {
 			System.err.println("MRRSleepJob [-m numMapper] [-r numReducer]"
@@ -90,7 +90,7 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 				/ ((double) recSleepTime));
 
 		Configuration nonTezConf = TezUtils.setupConfForTez(
-				TestSession.cluster.getConf(), localModeFlag);
+				TestSession.cluster.getConf(), mode);
 		TezConfiguration conf = new TezConfiguration(nonTezConf);
 		FileSystem remoteFs = FileSystem.get(conf);
 

@@ -138,5 +138,16 @@ public class HadooptestConstants {
 		public static String HDFS = "8020";
 
 	}
+	
+	// Modes
+	public static class Mode {
+		public static String LOCAL = "LOCAL";
+		public static String CLUSTER = "CLUSTER";
+	}
+	// Execution
+	public static class Execution {
+		public static String TEZ = "TEZ";
+		public static String MAPRED = "MAPRED";
+	}
 
 }
