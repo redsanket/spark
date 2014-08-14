@@ -218,7 +218,7 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Monitorable
+	// see hangs issuing 'test -f' on NN @Monitorable
 	@Test
 	public void appendToFile() throws Exception {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
@@ -241,7 +241,7 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		cleanupAfterTest();
 	}
 
-	@Monitorable
+	// see hangs issuing 'test -f' on NN @Monitorable
 	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() throws Exception {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
