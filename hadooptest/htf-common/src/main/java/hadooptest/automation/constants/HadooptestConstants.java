@@ -74,6 +74,9 @@ public class HadooptestConstants {
 
 	// Locations
 	public static class Location {
+		public static String JDK32 = "/home/gs/java/jdk32/current";
+		public static String JDK64 = "/home/gs/java/jdk64/current";
+
 		public static String CORE_SITE_XML = "/home/gs/gridre/yroot."
 				+ System.getProperty("CLUSTER_NAME")
 				+ "/conf/hadoop/core-site.xml";
