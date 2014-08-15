@@ -1268,7 +1268,7 @@
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>yspark_yarn</artifactId>
-					<version>${spark.version}2</version>
+					<version>${spark.version}</version>
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
