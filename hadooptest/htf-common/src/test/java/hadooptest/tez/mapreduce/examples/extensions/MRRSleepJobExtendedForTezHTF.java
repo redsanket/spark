@@ -1,7 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
-import hadooptest.tez.TezUtils;
+import hadooptest.tez.HtfTezUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -18,6 +18,7 @@ import org.apache.tez.mapreduce.examples.MRRSleepJob;
 
 public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	private Credentials credentials = new Credentials();
+
 	public int run(String[] args, String mode) throws Exception {
 
 		if (args.length < 1) {
@@ -89,9 +90,8 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 		iReduceSleepCount = (int) Math.ceil(iReduceSleepTime
 				/ ((double) recSleepTime));
 
-		Configuration nonTezConf = TezUtils.setupConfForTez(
-				TestSession.cluster.getConf(), mode);
-		TezConfiguration conf = new TezConfiguration(nonTezConf);
+		TezConfiguration conf = new TezConfiguration(
+				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode));
 		FileSystem remoteFs = FileSystem.get(conf);
 
 		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, conf.get(

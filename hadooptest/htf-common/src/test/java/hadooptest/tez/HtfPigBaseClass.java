@@ -140,6 +140,8 @@ public class HtfPigBaseClass extends TestSession {
 			sb.append("-param namenode=" + nnHostname);
 			sb.append(" ");
 		}else{
+			
+			// Use the files in the local repository (Localmode)
 			sb.append("-param namenode=" + "/grid/0");
 			sb.append(" ");			
 		}

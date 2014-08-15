@@ -8,7 +8,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
-import hadooptest.tez.TezUtils;
+import hadooptest.tez.HtfTezUtils;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
 
 import org.junit.After;
@@ -33,7 +33,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 		 */
 		long timeStamp = System.currentTimeMillis();
 		String[] filterLinesByWordArgs = new String[] { "/tmp/tez-site.xml",
-				"/tmp/filterLinesByWord-out-" + timeStamp, "tez" };
+				"/tmp/filterLinesByWord-out-" + timeStamp, "tez", "-generateSplitsInClient true" };
 
 		int returnCode = run(filterLinesByWordArgs, HadooptestConstants.Mode.CLUSTER);
 		Assert.assertTrue(returnCode==0);

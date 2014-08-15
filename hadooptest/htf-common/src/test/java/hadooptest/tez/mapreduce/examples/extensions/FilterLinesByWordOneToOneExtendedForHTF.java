@@ -1,6 +1,6 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 import hadooptest.TestSession;
-import hadooptest.tez.TezUtils;
+import hadooptest.tez.HtfTezUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,6 +24,7 @@ import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.tez.client.TezClient;
 import org.apache.tez.client.TezClientUtils;
+import org.apache.tez.common.TezUtils;
 import org.apache.tez.dag.api.DAG;
 import org.apache.tez.dag.api.DataSinkDescriptor;
 import org.apache.tez.dag.api.DataSourceDescriptor;
@@ -80,7 +81,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 		    String outputPath = otherArgs[1];
 		    String filterWord = otherArgs[2];
 		    
-		    Configuration conf = TezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+		    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
 		    FileSystem fs = FileSystem.get(conf);
 		    if (fs.exists(new Path(outputPath))) {
 		      System.err.println("Output directory : " + outputPath + " already exists");
@@ -125,7 +126,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 		    stage2Conf.set(FileOutputFormat.OUTDIR, outputPath);
 		    stage2Conf.setBoolean("mapred.mapper.new-api", false);
 
-		    UserPayload stage1Payload = MRHelpers.createUserPayloadFromConf(stage1Conf);
+		    UserPayload stage1Payload = TezUtils.createUserPayloadFromConf(stage1Conf);
 		    // Setup stage1 Vertex
 		    Vertex stage1Vertex = new Vertex("stage1", new ProcessorDescriptor(
 		        FilterByWordInputProcessor.class.getName()).setUserPayload(stage1Payload))
@@ -145,7 +146,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 
 		    // Setup stage2 Vertex
 		    Vertex stage2Vertex = new Vertex("stage2", new ProcessorDescriptor(
-		        FilterByWordOutputProcessor.class.getName()).setUserPayload(MRHelpers
+		        FilterByWordOutputProcessor.class.getName()).setUserPayload(TezUtils
 		        .createUserPayloadFromConf(stage2Conf)), dsd.getNumberOfShards());
 		    stage2Vertex.setTaskLocalFiles(commonLocalResources);
 
@@ -153,7 +154,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 		    stage2Vertex.addDataSink(
 		        "MROutput",
 		        new DataSinkDescriptor(new OutputDescriptor(MROutput.class.getName())
-		            .setUserPayload(MRHelpers.createUserPayloadFromConf(stage2Conf)),
+		            .setUserPayload(TezUtils.createUserPayloadFromConf(stage2Conf)),
 		            new OutputCommitterDescriptor(MROutputCommitter.class.getName()), null));
 
 		    UnorderedUnpartitionedKVEdgeConfigurer edgeConf = UnorderedUnpartitionedKVEdgeConfigurer
@@ -196,7 +197,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 		          }
 		          dagStatus = dagClient.getDAGStatus(null);
 		        } catch (TezException e) {
-		        	TestSession.logger.fatal("Failed to get application progress. Exiting");
+		          TestSession.logger.fatal("Failed to get application progress. Exiting");
 		          return -1;
 		        }
 		      }

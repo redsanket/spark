@@ -1,7 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
-import hadooptest.tez.TezUtils;
+import hadooptest.tez.HtfTezUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
@@ -28,7 +28,7 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends BroadcastAndOn
 		}
 
 		Configuration conf = TestSession.cluster.getConf();
-		conf = TezUtils.setupConfForTez(conf, mode);
+		conf = HtfTezUtils.setupConfForTez(conf, mode);
 		boolean status = run(conf, doLocalityCheck);
 		return status ? 0 : 1;
 	}

@@ -1,7 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
-import hadooptest.tez.TezUtils;
+import hadooptest.tez.HtfTezUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -23,13 +23,16 @@ import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
 import org.apache.tez.mapreduce.examples.ExampleDriver;
 import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest;
+import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest.MyGroupByReducer;
+import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest.MyMapper;
+import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest.MyOrderByNoOpReducer;
 import org.apache.tez.mapreduce.hadoop.MRJobConfig;
 import org.apache.tez.mapreduce.hadoop.MultiStageMRConfigUtil;
 
 public class GroupByOrderByMRRTestExtendedForTezHTF extends
 		GroupByOrderByMRRTest {
 	  public int run(String[] args, String mode) throws Exception {
-		    Configuration conf = TezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+		    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
 
 		    // Configure intermediate reduces
 		    conf.setInt(MRJobConfig.MRR_INTERMEDIATE_STAGES, 1);
@@ -106,13 +109,13 @@ public class GroupByOrderByMRRTestExtendedForTezHTF extends
 		        }
 		        dagStatus = dagClient.getDAGStatus(null);
 		      } catch (TezException e) {
-		        TestSession.logger.fatal("Failed to get application progress. Exiting");
+		        LOG.fatal("Failed to get application progress. Exiting");
 		        return -1;
 		      }
 		    }
 
 		    ExampleDriver.printDAGStatus(dagClient, vNames);
-		    TestSession.logger.info("Application completed. " + "FinalState=" + dagStatus.getState());
+		    LOG.info("Application completed. " + "FinalState=" + dagStatus.getState());
 		    return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
 		  }
 }

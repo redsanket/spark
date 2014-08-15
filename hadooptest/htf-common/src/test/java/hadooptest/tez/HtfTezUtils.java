@@ -29,7 +29,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 
-public class TezUtils {
+public class HtfTezUtils {
 
 	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
 
