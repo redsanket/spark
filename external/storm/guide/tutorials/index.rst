@@ -47,3 +47,8 @@ For example, we will launch our sample topology with 2 machines and 2 spout inst
        storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://dh-demo-ebonyred.ygrid.local:50700 -n dh-demo-w-2spouts -p 2
  
    .. TBD: Will probably need to change the command above.
+
+Storm With HBase
+================
+
+.. See http://tiny.corp.yahoo.com/3qM6Bg
