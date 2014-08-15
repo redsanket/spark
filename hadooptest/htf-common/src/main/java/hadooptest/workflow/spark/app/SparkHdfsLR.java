@@ -178,7 +178,6 @@ public class SparkHdfsLR extends App {
     protected void submitNoID() throws Exception {
         try {
             this.process = TestSession.exec.runProcBuilderSecurityGetProc(this.assembleCommand(), this.USER);
-
         }
         catch (Exception e) {
             if (this.process != null) {
