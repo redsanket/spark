@@ -419,6 +419,79 @@ public abstract class App extends Thread {
         return false;
     }
 
+    /**
+     * Waits indefinitely for the app to fail, and returns true for fail.
+     * Uses the Hadoop API to check status of the app.
+     * 
+     * @return boolean whether the app succeeded
+     * 
+     * @throws InterruptedException if there is a failure sleeping the current Thread. 
+     * @throws IOException if there is a fatal error waiting for the app state.
+     */
+    public boolean waitForFailure() 
+            throws InterruptedException, IOException, YarnException {
+        return this.waitForFailure(0);
+    }
+
+    /**
+     * Waits for the specified number of minutes for the app to 
+     * FAil, and returns true for success.
+     * Uses the Hadoop API to check status of the app.
+     * 
+     * @param minutes The number of minutes to wait for the success state.
+     * 
+     * @return boolean true if the app was successful, false if it was not or the waitFor timed out.
+     * 
+     * @throws InterruptedException if there is a failure sleeping the current Thread. 
+     * @throws IOException if there is a fatal error waiting for the app state.
+     */
+    public boolean waitForFailure(int minutes) 
+            throws InterruptedException, IOException, YarnException {
+
+        YarnApplicationState currentState; 
+        
+        // Give the sleep app time to complete
+        for (int i = 0; i <= (minutes * 6); i++) {
+
+            currentState = this.getYarnState();
+            if (currentState.equals(YarnApplicationState.FINISHED)) {
+                TestSession.logger.info("APP " + this.ID + " FINISHED");
+
+                // once the application is marked as finished by yarn we need to check the final status
+                // as reported by the application itself
+                if (checkFinalStatus(FinalApplicationStatus.FAILED)) {
+                    return true;
+                } else {
+                    TestSession.logger.error("APP " + this.ID + " finished but didn't SUCCEED.");
+                    return false;
+                }
+            }
+            else if (currentState.equals(YarnApplicationState.NEW)) {
+                TestSession.logger.info("APP " + this.ID + " IS STILL IN NEW STATE");
+            }
+            else if (currentState.equals(YarnApplicationState.SUBMITTED)) {
+                TestSession.logger.info("APP " + this.ID + " IS STILL IN SUBMITTED STATE");
+            }
+            else if (currentState.equals(YarnApplicationState.RUNNING)) {
+                TestSession.logger.info("APP " + this.ID + " IS STILL RUNNING");
+            }
+            else if (currentState.equals(YarnApplicationState.FAILED)) {
+                TestSession.logger.info("APP " + this.ID + " FAILED");
+                return true;
+            }
+            else if (currentState.equals(YarnApplicationState.KILLED)) {
+                TestSession.logger.info("APP " + this.ID + " WAS KILLED");
+                return false;
+            }
+
+            Util.sleep(10);
+        }
+
+        TestSession.logger.error("APP " + this.ID + " didn't SUCCEED within the timeout window.");
+
+        return false;
+    }
+
     public boolean checkFinalStatus(FinalApplicationStatus expectedStatus) 
             throws InterruptedException, IOException, YarnException {
 

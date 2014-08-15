@@ -227,6 +227,7 @@ public class SparkRunClass extends App {
         }
         if (this.shouldUseJdk64) {
             newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
+            newEnv.put("SPARK_YARN_USER_ENV", "JAVA_HOME=" + HadooptestConstants.Location.JDK64);
         } else {
             newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
         }
