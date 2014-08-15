@@ -231,7 +231,6 @@ public class SparkRunClass extends App {
         } else {
             newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
         }
-        //newEnv.put("JAVA_HOME", TestSession.conf.getProperty("JAVA_HOME"));
 
         TestSession.logger.info("SPARK_JAR=" + sparkJar);
         TestSession.logger.info("JAVA_HOME=" + newEnv.get("JAVA_HOME"));
