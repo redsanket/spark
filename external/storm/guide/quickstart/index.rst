@@ -1,9 +1,9 @@
-======================================
-Tutorial: Counting Data Highway Events
-======================================
+===========
+Quick Start 
+===========
 
-This tutorial will show you how to use the DH Rainbow spout and
-count DH Rainbow events.  
+This quick start will show you how to use the DH Rainbow spout and
+count DH Rainbow events from your own OpenStack instance.  
 
 .. images:: images/dh_rb-event_count_bolt.jpg
    :height: 100px
@@ -16,6 +16,8 @@ count DH Rainbow events.
 
 Prerequisites
 =============
+
+- Linux RHEL box or OpenStack instance
 
 Setting Up
 ==========
@@ -59,11 +61,7 @@ To inject events, we'll be using ``yfor`` to enable communication with multiple 
 #. ``LD_PRELOAD=/home/y/lib64/libyfor.so.1``
 . Use cURL to inject an event from a file: ``LD_PRELOAD=/home/y/lib64/libyfor.so.1 curl --data-binary @/homes/afeng/dh_events/out.prism.3 http://dh-demo-ebonyred.ygrid.local:50700``
 
+Next Steps
+==========
 
-For production, contact DH team with the following info:
-
-- Registry URI ... ex, http://registry-a.red.ygrid.yahoo.com:4080
-- Service URI ... ex, http://dh-demo-ebonyred.ygrid.local:50700
-
-The DH team will then direct DH Rainbow stream to your topologies.
-
+`On-Board <../onboarding/>`_ to Storm.
