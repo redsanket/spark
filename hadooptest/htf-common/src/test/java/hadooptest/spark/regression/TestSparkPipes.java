@@ -189,7 +189,7 @@ public class TestSparkPipes extends TestSession {
 			assertTrue("App ID for sleep app (default user) is invalid.", 
 					appUserDefault.verifyID());
             		assertEquals("App name for sleep app is invalid.", 
-                    		"SparkPipesEnvVars", appUserDefault.getAppName());
+                    		"SparkPipesTaskDirs", appUserDefault.getAppName());
 
 			int waitTime = 30;
 			assertTrue("Job (default user) did not succeed.",

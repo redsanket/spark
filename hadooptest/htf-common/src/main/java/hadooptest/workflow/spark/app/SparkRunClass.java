@@ -4,6 +4,7 @@
 
 package hadooptest.workflow.spark.app;
 
+import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.TestSession;
 
 import java.io.BufferedReader;
@@ -47,6 +48,9 @@ public class SparkRunClass extends App {
 
     /** whether to pass --name to cmd */
     private Boolean shouldPassName = false;
+
+    /** whether to use jdk64 */
+    private Boolean shouldUseJdk64 = false;
 
     /** application name */
     private String appName = "sparkTest";
@@ -178,6 +182,15 @@ public class SparkRunClass extends App {
     }
 
     /**
+     * Set whether to use 64 bit jdk (defaults to use 32 bit)
+     * 
+     * @param val - Boolean indicating if should use 64 bit jdk
+     */
+    public void setShouldUseJdk64(Boolean useit) {
+        this.shouldUseJdk64 = useit;
+    }
+
+    /**
      * Submit the app.  This should be done only by the Job.start() as Job should
      * remain threaded.
      * 
@@ -212,10 +225,15 @@ public class SparkRunClass extends App {
         if (setSparkJar) {
             newEnv.put("SPARK_JAR", sparkJar);
         }
-        newEnv.put("JAVA_HOME", TestSession.conf.getProperty("JAVA_HOME"));
+        if (this.shouldUseJdk64) {
+            newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
+            newEnv.put("SPARK_YARN_USER_ENV", "JAVA_HOME=" + HadooptestConstants.Location.JDK64);
+        } else {
+            newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
+        }
 
         TestSession.logger.info("SPARK_JAR=" + sparkJar);
-        TestSession.logger.info("JAVA_HOME=" + TestSession.conf.getProperty("JAVA_HOME"));
+        TestSession.logger.info("JAVA_HOME=" + newEnv.get("JAVA_HOME"));
 
         // for yarn-client mode
         newEnv.put("SPARK_YARN_APP_JAR", this.jarName);
