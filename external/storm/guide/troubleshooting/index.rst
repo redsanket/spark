@@ -1,8 +1,5 @@
-Debugging and Troubleshooting
-=============================
-
-Debugging
-=========
+Troubleshooting/Debugging
+=========================
 
 Topologies
 ----------
@@ -296,9 +293,3 @@ Deploying YourKit
 
 
 
-#. 
-
-Troubleshooting
----------------
-
-TBD

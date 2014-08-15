@@ -1,12 +1,13 @@
-===================================
-Getting Started With Storm at Yahoo
-===================================
+===========
+On-Boarding 
+===========
 
 .. _hbase_getting_started-installation:
 
-In this chapter, we'll show you how to get started using Storm on the Yahoo grid.
-We'll work directly with a Git repository, modify some code, and watch
-the results in real time. 
+In this chapter, we'll show you how to get on-board to the non-production environment for Storm.
+The process make take several days based on your request and
+the response of the Grid team. In the future, the on-boarding
+process to Storm will be automated, and thus, automatic.
 
 Creating a Storm Project
 ========================
@@ -39,10 +40,26 @@ Creating a Storm Project
 Create a New Topology
 =====================
 
-#. From the **Storm Project** page, you'll see your project name listed as one of the projects that you 
+#. From your the **Storm Project** page, you'll see your project name listed as one of the projects that you 
    a member of or have selected as a favorite. Click the project name to open your project page.
 #. From your project page, click the **New topology** button under the label **Topologies**.
-#. 
+#. From the **New Topology** page, enter the following information in the form:
 
+   - **Topology Name** - Enter a unique string. For the first tutorial, you'll be using logging
+     data from the Rainbow Data Highway,  so you might use a relevant topology name.
+   - **Topology Short Description** - Again, your description should be related to your project.
+     If you are creating a topology for one of the `Tutorials <../tutorials>`_, enter
+     a related description.
+   - **Environment Type** - Select **Non-Production**.
+   - **Cluster** - Select any of the non-production environments.
+#. Click **Submit New Topology Request**.
+#. The Grid SEs will review your request before approving it. You also may need to answer questions.
+   The entire process can take from three to five working days.
 
+Next Step
+=========
+
+Try the `Tutorial: <>`_ or on-board to the production environment by
+following the same steps above but selecting **Production** and specifying
+your capacity needs, whether you need Rainbow Data Highway integration, 
 

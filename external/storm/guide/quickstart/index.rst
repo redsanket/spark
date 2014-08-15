@@ -1,9 +1,9 @@
-======================================
-Tutorial: Counting Data Highway Events
-======================================
+===========
+Quick Start 
+===========
 
-This tutorial will show you how to use the DH Rainbow spout and
-count DH Rainbow events.  
+This quick start will show you how to use the DH Rainbow spout and
+count DH Rainbow events from your own OpenStack instance.  
 
 .. images:: images/dh_rb-event_count_bolt.jpg
    :height: 100px
@@ -14,9 +14,10 @@ count DH Rainbow events.
 
 .. See http://tiny.corp.yahoo.com/3qM6Bg
 
-
 Prerequisites
 =============
+
+- Linux RHEL box or OpenStack instance
 
 Setting Up
 ==========
@@ -38,12 +39,13 @@ Setting Up
 Launch Storm Topology
 =====================
 
-
 For example, we will launch our sample topology with 2 machines and 2 spout instances:
 #. Configure the topology to use two machines and two spout instances::
 
-   yinst set ystorm.topology_isolate_machines=2
-   storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://dh-demo-ebonyred.ygrid.local:50700 -n dh-demo-w-2spouts -p 2
+       yinst set ystorm.topology_isolate_machines=2
+#. Launch storm with the two spouts::
+
+       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://dh-demo-ebonyred.ygrid.local:50700 -n dh-demo-w-2spouts -p 2
 
 Inject Sample Rainbow Events
 ============================
@@ -59,11 +61,7 @@ To inject events, we'll be using ``yfor`` to enable communication with multiple 
 #. ``LD_PRELOAD=/home/y/lib64/libyfor.so.1``
 . Use cURL to inject an event from a file: ``LD_PRELOAD=/home/y/lib64/libyfor.so.1 curl --data-binary @/homes/afeng/dh_events/out.prism.3 http://dh-demo-ebonyred.ygrid.local:50700``
 
+Next Steps
+==========
 
-For production, contact DH team with the following info:
-
-- Registry URI ... ex, http://registry-a.red.ygrid.yahoo.com:4080
-- Service URI ... ex, http://dh-demo-ebonyred.ygrid.local:50700
-
-The DH team will then direct DH Rainbow stream to your topologies.
-
+`On-Board <../onboarding/>`_ to Storm.

@@ -2,7 +2,6 @@
 Storm User Guide
 ================
 
-
 About This Guide
 ================
 
@@ -105,8 +104,9 @@ Indicates a user tip related to a procedural step or general information.
    :hidden:
 
    overview/index
-   getting_started/index
-   tutorial/index
+   quickstart/index
+   onboarding/index
+   tutorials/index
    programming/index
    security/index
    registry_service_api/index

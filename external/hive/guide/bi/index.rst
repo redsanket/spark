@@ -646,7 +646,48 @@ principals and IP addresses for DNS.
    ignoring any warnings thrown by anti-virus software. 
 
    .. note:: This is a 32-bit ODBC driver as Tableau is only available as a 32-bit application for now.
-#. Go to **Start > All Programs > Hortonworks Hive ODBC Driver 1.2 (32-bit) > 32-bit ODBC Administrator**.
+#. Go to **Start > All Programs > Hortonworks Hive ODBC Driver 1.2 (32-bit) > Driver Configuration**. 
+#. When prompted by **User Account Control**, click **Yes** to open the **ODBC Data Source Administrator** dialog.
+#. In **Hortonworks Hive ODBC Driver Configuration**, enter the following, being sure not to add extra
+   spaces before or after the configuration value as that will cause errors:
+
+   - **Hive Server Type:** Choose **Hive Server 2** from the drop-down list
+   - **Authentication Mechanism:** Choose **Kerberos** from the drop-down list.
+   - **Realm:** ``YGRID.YAHOO.COM``
+   - **Host FQDN:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (Again, refer to 
+     :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>` when setting up for another grid VIP.)
+   - **Service Name:** ``hive``
+
+   The filled out fields in the dialog **Hortonworks Hive ODBC Driver Configuration** should 
+   look similar to the following figure:
+
+   .. image:: images/hw_hive_odbc_driver_config.jpg
+      :height: 310 px
+      :width: 353 px
+      :scale: 95%
+      :alt:  Hortonworks Hive ODBC Driver Configuration
+      :align: left
+
+#. Click **Advanced Options...** to open the **Advanced Options** dialog.
+#. From the dialog box, set **Rows fetched per block** to ``500`` as shown below. 
+
+   .. image:: images/odbc_dsn_setup_adv_options.jpg
+      :height: 342 px
+      :width: 473 px
+      :scale: 95%
+      :alt:  Hortonworks Hive ODBC Driver DSN Setup: Advanced Options 
+      :align: left
+
+#. From the same dialog box, click **Add...** to add the server property for configuring a job queue.
+#. In the **Edit Property** dialog, enter the key **mapred.job.queue.name**, the name of the job
+   queue to use and click **OK**. You will need to have **SUBMIT_APPLICATION** ACL permission to the job queue.
+
+   .. note:: Again, if you need to find the job queues that you can access, log on to the cluster (``in this case kryptonitered-hs2.ygrid.vip.bf1.yahoo.com``)
+             and run the command ``mapred queue -showacls``. You should see the queue names and the operations
+             that are allowed. You can use the job queue that list the operation **SUBMIT_APPLICATIONS**.
+
+#. Go to **Start > All Programs > Hortonworks Hive ODBC Driver 1.2 (32-bit) > 32-bit ODBC Administrator**. We're
+   going to set many of the same configurations with the administrator tool.
 
 #. When prompted by **User Account Control**, click **Yes** to open the **ODBC Data Source Administrator** dialog.
 #. From the **ODBC Data Source Administrator** dialog shown below, select the second tab **System DSN**. 
@@ -667,7 +708,7 @@ principals and IP addresses for DNS.
       :scale: 95%
       :alt:  ODBC Data Source Administrator: System DSN
       :align: left
-#. In **Hortonworks Hive ODBC Driver DSN Setup**, enter the following, being sure not to add extra
+#. In **Hortonworks Hive ODBC Driver DSN Setup**, enter the following. Again, be sure not to add extra
    spaces before or after the configuration value as that will cause errors:
 
    - **Description:** {Anything that you choose to describe this connection, or even leave 
@@ -683,7 +724,7 @@ principals and IP addresses for DNS.
    - **Realm:** ``YGRID.YAHOO.COM``
    - **Host FQDN:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (Again, refer to 
      :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>` when setting up for another grid VIP.)
-   - **Service Name:** Enter **hive**
+   - **Service Name:** ``hive``
 
    
    The filled out fields in the dialog **Hortonworks Hive ODBC Driver DSN Setup** should 
@@ -697,29 +738,10 @@ principals and IP addresses for DNS.
       :align: left
 
 #. Click **Advanced Options...** to open the **Advanced Options** dialog.
-#. From the dialog box, set **Rows fetched per block** to 500 and shown in the figure below. 
-
-   .. image:: images/odbc_dsn_setup_adv_options.jpg
-      :height: 342 px
-      :width: 473 px
-      :scale: 95%
-      :alt:  Hortonworks Hive ODBC Driver DSN Setup: Advanced Options 
-      :align: left
+#. From the dialog box, set **Rows fetched per block** as we did earlier for the **Hortonworks Hive ODBC Driver Configuration**. 
 #. From the same dialog box, click **Add...** to add the server property for configuring a job queue.
-#. In the **Edit Property** dialog shown below, enter the key **mapred.job.queue.name**, the name of the job
-   queue to use and click **OK**. You will need to have **SUBMIT_APPLICATION** ACL permission to the job queue.
-
-   .. image:: images/tableau_job_queue_config.png
-      :height: 345 px
-      :width: 474 px
-      :scale: 95%
-      :alt:  Advanced Options: Job Queue Configuration 
-      :align: left
-
-   .. note:: To find the job queues that you can access, log on to the cluster (``in this case kryptonitered-hs2.ygrid.vip.bf1.yahoo.com``)
-             and run the command ``mapred queue -showacls``. You should see the queue names and the operations
-             that are allowed. You can use the job queue that list the operation **SUBMIT_APPLICATIONS**.
-    
+#. In the **Edit Property** dialog, as before, enter the key **mapred.job.queue.name**, the same job
+   queue name that you entered before, and click **OK**. (Again, you will need to have **SUBMIT_APPLICATION** ACL permission to the job queue.)
 #. Click **OK** to close the box.
 #. From the **Hortonworks Hive ODBC Driver DSN Setup** dialog, click **Test** to see if things work. 
    If all goes well, you should see **TESTS COMPLETED SUCCESSFULLY!**.
