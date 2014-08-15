@@ -3,6 +3,7 @@ package hadooptest.spark.regression;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.experimental.categories.Category;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.AppMaster;
 import hadooptest.workflow.spark.app.SparkRunClass;
@@ -20,6 +21,7 @@ import org.junit.Test;
 
 import hadooptest.Util;
 
+@Category(hadooptest.ParallelClassAndMethodTests.class)
 public class TestSparkJdk64 extends TestSession {
 
         /****************************************************************
@@ -30,8 +32,7 @@ public class TestSparkJdk64 extends TestSession {
         private static String hdfsDir = "/user/" + System.getProperty("user.name") + "/";
 
         @BeforeClass
-        public static void startTestSession() throws Exception {
-                TestSession.start();
+        public static void setupTest() throws Exception {
                 setupTestDir();
         }
 
@@ -60,38 +61,31 @@ public class TestSparkJdk64 extends TestSession {
 	 * using jdk64.
 	 */
 	@Test
-	public void runSparkPipesEnvVarsJdk64() {
-		try {
-			SparkRunClass appUserDefault = new SparkRunClass();
+	public void runSparkPipesEnvVarsJdk64() throws Exception {
+		SparkRunClass appUserDefault = new SparkRunClass();
 
-                        // set memory high enough to require jdk64
-			appUserDefault.setWorkerMemory("6g");
-			appUserDefault.setNumWorkers(3);
-			appUserDefault.setWorkerCores(1);
-			//appUserDefault.setLRDataFile(lrDatafile);
-			appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
-			appUserDefault.setJarName(localJar);
-                        String[] argsArray = {lrDatafile};
-                        appUserDefault.setArgs(argsArray);
-			appUserDefault.setShouldUseJdk64(true);
+                // set memory high enough to require jdk64
+		appUserDefault.setWorkerMemory("6g");
+		appUserDefault.setNumWorkers(3);
+		appUserDefault.setWorkerCores(1);
+		appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
+		appUserDefault.setJarName(localJar);
+                String[] argsArray = {lrDatafile};
+                appUserDefault.setArgs(argsArray);
+		appUserDefault.setShouldUseJdk64(true);
 
-			appUserDefault.start();
+		appUserDefault.start();
 
-			assertTrue("App (default user) was not assigned an ID within 30 seconds.", 
-					appUserDefault.waitForID(30));
-			assertTrue("App ID for sleep app (default user) is invalid.", 
-					appUserDefault.verifyID());
-            		assertEquals("App name for sleep app is invalid.", 
-                    		"Spark", appUserDefault.getAppName());
+		assertTrue("App (default user) was not assigned an ID within 30 seconds.", 
+			appUserDefault.waitForID(30));
+		assertTrue("App ID for sleep app (default user) is invalid.", 
+			appUserDefault.verifyID());
+            	assertEquals("App name for sleep app is invalid.", 
+                	"Spark", appUserDefault.getAppName());
 
-			int waitTime = 30;
-			assertTrue("Job (default user) did not succeed.",
-				appUserDefault.waitForSuccess(waitTime));
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
+		int waitTime = 30;
+		assertTrue("Job (default user) did not succeed.",
+			appUserDefault.waitForSuccess(waitTime));
 	}
 	
 	/*
@@ -99,38 +93,31 @@ public class TestSparkJdk64 extends TestSession {
 	 * using jdk64.
 	 */
 	@Test
-	public void runSparkPipesEnvVarsJdk32ToLarge() {
-		try {
-			SparkRunClass appUserDefault = new SparkRunClass();
+	public void runSparkPipesEnvVarsJdk32ToLarge() throws Exception {
+	  	SparkRunClass appUserDefault = new SparkRunClass();
 
-                        // ask for mor ememory then jdk32 can handle
-			appUserDefault.setWorkerMemory("6g");
-			appUserDefault.setNumWorkers(1);
-			appUserDefault.setWorkerCores(1);
-			//appUserDefault.setLRDataFile(lrDatafile);
-			appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
-			appUserDefault.setJarName(localJar);
-                        String[] argsArray = {lrDatafile};
-                        appUserDefault.setArgs(argsArray);
-			appUserDefault.setShouldUseJdk64(false);
+                // ask for mor ememory then jdk32 can handle
+		appUserDefault.setWorkerMemory("6g");
+		appUserDefault.setNumWorkers(1);
+		appUserDefault.setWorkerCores(1);
+		appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
+		appUserDefault.setJarName(localJar);
+                String[] argsArray = {lrDatafile};
+                appUserDefault.setArgs(argsArray);
+		appUserDefault.setShouldUseJdk64(false);
 
-			appUserDefault.start();
+		appUserDefault.start();
 
-			assertTrue("App (default user) was not assigned an ID within 30 seconds.", 
-					appUserDefault.waitForID(30));
-			assertTrue("App ID for sleep app (default user) is invalid.", 
-					appUserDefault.verifyID());
-            		assertEquals("App name for sleep app is invalid.", 
-                    		"Spark", appUserDefault.getAppName());
+		assertTrue("App (default user) was not assigned an ID within 30 seconds.", 
+			appUserDefault.waitForID(30));
+		assertTrue("App ID for sleep app (default user) is invalid.", 
+			appUserDefault.verifyID());
+            	assertEquals("App name for sleep app is invalid.", 
+                	"Spark", appUserDefault.getAppName());
 
-			int waitTime = 30;
-			assertTrue("Job (default user) did succeeded but shouldn't have.",
+		int waitTime = 30;
+		assertTrue("Job (default user) succeeded but shouldn't have.",
 				appUserDefault.waitForFailure(waitTime));
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
 	}
 	
 }
