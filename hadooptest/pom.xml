@@ -1268,7 +1268,7 @@
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>yspark_yarn</artifactId>
-					<version>${spark.version}</version>
+					<version>0.9.2</version>
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
@@ -1574,7 +1574,7 @@
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>yspark_yarn</artifactId>
-					<version>${spark.version}</version>
+					<version>0.9.2</version>
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
@@ -1868,7 +1868,7 @@
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>yspark_yarn</artifactId>
-					<version>${spark.version}</version>
+					<version>0.9.2</version>
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
