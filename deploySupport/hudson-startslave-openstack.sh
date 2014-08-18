@@ -49,20 +49,20 @@ export HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 if [ ! -z "$HADOOP_RELEASE_TAG" ]
 then
-    export HADOOP_CONFIG_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
+    export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
     for i in $HADOOP_CORE_PKGS
     do
-        export HADOOP_INSTALL_STRING_PKG=`dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
+        export HADOOP_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
         export HADOOP_INSTALL_STRING="$HADOOP_INSTALL_STRING $HADOOP_INSTALL_STRING_PKG "
     done
     for i in $HADOOP_MVN_PKGS
     do
-        export HADOOP_MVN_INSTALL_STRING_PKG=`dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
+        export HADOOP_MVN_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
         export HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
     done
-    export HADOOP_CORETREE_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
-    export LOCAL_CONFIG_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
-    export HADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
+    export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
+    export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
+    export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
     then
@@ -74,19 +74,19 @@ else
         # - HadoopConfiggeneric10nodeblue
         # - HadoopConfiggeneric500nodeblue
         tag=$HIT_DEPLOYMENT_TAG
-        export HADOOP_CONFIG_INSTALL_STRING=`dist_tag list $HIT_DEPLOYMENT_TAG |grep $confpkg- | cut -d ' ' -f 1`
+        export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $confpkg- | cut -d ' ' -f 1`
         for i in $HADOOP_CORE_PKGS
         do
-            export HADOOP_INSTALL_STRING_PKG=`dist_tag list $HIT_DEPLOYMENT_TAG |grep $i- | cut -d ' ' -f 1`
+            export HADOOP_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $i- | cut -d ' ' -f 1`
             export HADOOP_INSTALL_STRING="$HADOOP_INSTALL_STRING $HADOOP_INSTALL_STRING_PKG "
         done
         for i in $HADOOP_MVN_PKGS
         do
-            export HADOOP_MVN_INSTALL_STRING_PKG=`dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
+            export HADOOP_MVN_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
             export HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
         done
-        export HADOOP_CORETREE_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
-        export LOCAL_CONFIG_INSTALL_STRING=`dist_tag list $HIT_DEPLOYMENT_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
+        export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
+        export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
 
 
         # now constructing the following variables based on HIT_DEPLOYMENT_TAG
