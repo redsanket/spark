@@ -5,6 +5,260 @@ Reference
 .. include:: ../faq/index.rst
 .. include:: ../troubleshooting/index.rst
 
+Environments
+============
+
+.. ebony-gw.red.ygrid.yahoo.com
+
+
+Multi-Tenant Secure Storm
+-------------------------
+
+
+Non-Production
+##############
+
+.. raw:: html
+   <table>
+   	<thead>
+   		<tr>
+   			<th>>Type</th>
+   			<th Cluster</a> </th>
+   			<th>Type</th>
+   			<th>Endpoint</th>
+   			<thNodes</a> </th>
+   			<th>Hardware Configuration</th>
+   		</tr>
+   	</thead>
+   	<tbody>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-ebony" target="_top">Ebony Red</a> <br> <a href="http://ebonyred-ni.red.ygrid.yahoo.com:9999/" target="_top">EbonyRed UI</a></td>
+   			<td>Nimbus</td>
+   			<td>@grid.red.ebony.nimubs</td>
+   			<td>2</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<th bgcolor="#687684" rowspan="15" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <font color="#ffffff">non Prod (Research)</font> </th>
+   			<td>Supervisor</td>
+   			<td>@grid.red.ebony.supervisor</td>
+   			<td>80</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td>zkp42[0-2].red.ygrid</td>
+   			<td>3</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>&nbsp;</td>
+   			<td>gateway</td>
+   			<td>ebony-gw.red.ygrid.yahoo.com</td>
+   			<td>&nbsp;</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-ebony" target="_top">Ebony Blue</a>, <a href="http://ebonyblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">EbonyBlue UI</a></td>
+   			<td>Nimbus</td>
+   			<td>@grid.blue.ebony.nimubs</td>
+   			<td>2</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td>@grid.blue.ebony.supervisor</td>
+   			<td>40</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td>zkp14[0-2].blue.ygrid</td>
+   			<td>3</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>&nbsp;</td>
+   			<td>gateway</td>
+   			<td>ebony-gw.blue.ygrid.yahoo.com</td>
+   			<td>&nbsp;</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-vizorium" target="_top">Vizorium Blue</a>, <a href="http://vizoriumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">VizoriumBlue UI</a></td>
+   			<td>Nimbus</td>
+   			<td>@grid.blue.vizorium.nimubs</td>
+   			<td>2</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td>@grid.blue.vizorium.supervisor</td>
+   			<td>40</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td>zkp14[0-2].blue.ygrid</td>
+   			<td>3</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>&nbsp;</td>
+   			<td>gateway</td>
+   			<td>solium-gw.blue.ygrid.yahoo.com</td>
+   			<td>&nbsp;</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-tan.type-nonprod.cluster-ebony" target="_top">Ebony Tan</a>, <a href="http://ebonytan-ni.tan.ygrid.yahoo.com:9999/" target="_top">EbonyTan UI</a></td>
+   			<td>Nimbus </td>
+   			<td>@grid.tan.ebony.nimubs</td>
+   			<td>2</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td>@grid.tan.ebony.supervisor</td>
+   			<td>40</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td>zkp36[0-2].tan.ygrid</td>
+   			<td>3</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>&nbsp;</td>
+   			<td>gateway</td>
+   			<td>ebony-gw.tan.ygrid.yahoo.com</td>
+   			<td>&nbsp;</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   </tbody></table>
+
+Production
+##########
+
+.. raw:: html
+
+   <table>
+   	<thead>
+   		<tr>
+   			<th>Type</th>
+   			<th>Cluster</th>
+   			<th>Type</th>
+   			<th>Endpoint</th>
+   			<th>Nodes</th>
+   			<th>Hardware Configuration</th>
+   		</tr>
+   	</thead>
+   	<tbody>
+		<tr>
+			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-iridium" target="_top">Iridium Red</a>, <a href="http://iridiumred-ni.red.ygrid.yahoo.com:9999/" target="_top">IridiumRed UI</a></td>
+			<td>Nimbus</td>
+			<td>@grid.red.iridium.nimubs</td>
+			<td>2</td>
+			<td>&nbsp;</td>
+		</tr>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-blue.type-prod.cluster-lux" target="_top">Lux Blue</a>, user - hadoop10, <a href="http://luxblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">LuxBlue UI</a> </td>
+   			<td>Nimbus</td>
+   			<td>@grid.blue.lux.nimbus</td>
+   			<td>2</td>
+   			<td>HP DL380p Gen8, 2 x Xeon E5-2630 2.30GHz, 62.9GB / 64GB 1333MHz DDR3, 12 x 3TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td>@grid.blue.lux.supervisor</td>
+   			<td>116</td>
+   			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper </td>
+   			<td>@ygrid.app.hgp-zookeeper.loc-blue.class-prod </td>
+   			<td>5 </td>
+   			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-lux" target="_top">Lux Red</a>, user - hadoop10, <a href="http://luxred-ni.red.ygrid.yahoo.com:9999/" target="_top">LuxRed UI</a></td>
+   			<td>Nimbus</td>
+   			<td>@grid.red.lux.nimbus</td>
+   			<td>2</td>
+   			<td>HP DL380p Gen8, 2 x Xeon E5-2630 2.30GHz, 62.9GB / 64GB 1333MHz DDR3, 12 x 3TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td bgcolor="#ffffff" valign="top" class="foswikiTableCol3"> @grid.red.lux.supervisor </td>
+   			<td>64</td>
+   			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol3"> @ygrid.app.hgp-zookeeper.loc-red.class-prod </td>
+   			<td>3</td>
+   			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-thaum" target="_top">Thaum Red</a>, user - ngd_ffl, <a href="http://thaumred-ni.red.ygrid.yahoo.com:9999/" target="_top">ThaumRed UI</a> </td>
+   			<td>Nimbus</td>
+   			<td bgcolor="#ffffff" valign="top" class="foswikiTableCol3"> @grid.red.thaum.nimbus </td>
+   			<td>2</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol3"> @grid.red.thaum.supervisor </td>
+   			<td>56</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td>@ygrid.app.hgp-zookeeper.loc-red.class-LuxRedStorm</td>
+   			<td>3</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td><a href="http://thaumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">ThaumBlue UI</a></td>
+   			<td>Nimbus</td>
+   			<td>@grid.blue.thaum.nimbus</td>
+   			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol4"> 2 </td>
+   			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol5 foswikiLastCol"> &nbsp; </td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td>@grid.blue.thaum.supervisor</td>
+   			<td>65</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td>@ygrid.app.hgp-zookeeper.loc-blue.class-rmx_storm</td>
+   			<td>3</td>
+   			<td>&nbsp;</td>
+   		</tr>
+   		<tr>
+   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-tan.type-nonprod.cluster-kryptonite" target="_top">Relux Tan</a>, user - hadoop10, <a href="http://reluxtan-ni.tan.ygrid.yahoo.com:9999/" target="_top">ReluxTan UI</a> </td>
+   			<td>Nimbus</td>
+   			<td>@grid.tan.relux.nimubs</td>
+   			<td>2</td>
+   			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td>Supervisor</td>
+   			<td>@grid.tan.relux.supervisor</td>
+   			<td>40</td>
+   			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
+   		</tr>
+   		<tr>
+   			<td>Zookeeper</td>
+   			<td>@ygrid.app.hgp-zookeeper.loc-tan.class-research</td>
+   			<td>3</td>
+   			<td>HP DL160 G6, 2 x Xeon E5620 2.40GHz, 15.7GB / 16GB 1333MHz DDR3, 1 x 500GB SATA</td>
+   		</tr>
+   </tbody></table>
+
 
 Deployment at Yahoo
 ===================
