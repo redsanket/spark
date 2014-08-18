@@ -23,118 +23,95 @@ Non-Production
    <table>
    	<thead>
    		<tr>
-   			<th>>Type</th>
    			<th Cluster</a> </th>
    			<th>Type</th>
    			<th>Endpoint</th>
-   			<thNodes</a> </th>
-   			<th>Hardware Configuration</th>
+   			<th>Nodes</a> </th>
    		</tr>
    	</thead>
    	<tbody>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-ebony" target="_top">Ebony Red</a> <br> <a href="http://ebonyred-ni.red.ygrid.yahoo.com:9999/" target="_top">EbonyRed UI</a></td>
+   			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-ebony" target="_top">Ebony Red</a> <br> <a href="http://ebonyred-ni.red.ygrid.yahoo.com:9999/" target="_top">Ebony Red UI</a></td>
    			<td>Nimbus</td>
    			<td>@grid.red.ebony.nimubs</td>
    			<td>2</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<th bgcolor="#687684" rowspan="15" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <font color="#ffffff">non Prod (Research)</font> </th>
    			<td>Supervisor</td>
    			<td>@grid.red.ebony.supervisor</td>
    			<td>80</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
    			<td>zkp42[0-2].red.ygrid</td>
    			<td>3</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td>&nbsp;</td>
    			<td>gateway</td>
    			<td>ebony-gw.red.ygrid.yahoo.com</td>
    			<td>&nbsp;</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-ebony" target="_top">Ebony Blue</a>, <a href="http://ebonyblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">EbonyBlue UI</a></td>
+   			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-ebony" target="_top">Ebony Blue</a>, <a href="http://ebonyblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">EbonyBlue UI</a></td>
    			<td>Nimbus</td>
    			<td>@grid.blue.ebony.nimubs</td>
    			<td>2</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
    			<td>@grid.blue.ebony.supervisor</td>
    			<td>40</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
    			<td>zkp14[0-2].blue.ygrid</td>
    			<td>3</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td>&nbsp;</td>
    			<td>gateway</td>
    			<td>ebony-gw.blue.ygrid.yahoo.com</td>
    			<td>&nbsp;</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-vizorium" target="_top">Vizorium Blue</a>, <a href="http://vizoriumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">VizoriumBlue UI</a></td>
+   			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-vizorium" target="_top">Vizorium Blue</a>, <a href="http://vizoriumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">VizoriumBlue UI</a></td>
    			<td>Nimbus</td>
    			<td>@grid.blue.vizorium.nimubs</td>
    			<td>2</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
    			<td>@grid.blue.vizorium.supervisor</td>
    			<td>40</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
    			<td>zkp14[0-2].blue.ygrid</td>
    			<td>3</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td>&nbsp;</td>
    			<td>gateway</td>
    			<td>solium-gw.blue.ygrid.yahoo.com</td>
    			<td>&nbsp;</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-tan.type-nonprod.cluster-ebony" target="_top">Ebony Tan</a>, <a href="http://ebonytan-ni.tan.ygrid.yahoo.com:9999/" target="_top">EbonyTan UI</a></td>
+   			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-tan.type-nonprod.cluster-ebony" target="_top">Ebony Tan</a>, <a href="http://ebonytan-ni.tan.ygrid.yahoo.com:9999/" target="_top">EbonyTan UI</a></td>
    			<td>Nimbus </td>
    			<td>@grid.tan.ebony.nimubs</td>
    			<td>2</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
    			<td>@grid.tan.ebony.supervisor</td>
    			<td>40</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
    			<td>zkp36[0-2].tan.ygrid</td>
    			<td>3</td>
-   			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td>&nbsp;</td>
    			<td>gateway</td>
    			<td>ebony-gw.tan.ygrid.yahoo.com</td>
-   			<td>&nbsp;</td>
    			<td>&nbsp;</td>
    		</tr>
    </tbody></table>
@@ -164,7 +141,7 @@ Production
 			<td>&nbsp;</td>
 		</tr>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-blue.type-prod.cluster-lux" target="_top">Lux Blue</a>, user - hadoop10, <a href="http://luxblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">LuxBlue UI</a> </td>
+   			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-blue.type-prod.cluster-lux" target="_top">Lux Blue</a>, user - hadoop10, <a href="http://luxblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">LuxBlue UI</a> </td>
    			<td>Nimbus</td>
    			<td>@grid.blue.lux.nimbus</td>
    			<td>2</td>
@@ -183,7 +160,7 @@ Production
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-lux" target="_top">Lux Red</a>, user - hadoop10, <a href="http://luxred-ni.red.ygrid.yahoo.com:9999/" target="_top">LuxRed UI</a></td>
+   			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-lux" target="_top">Lux Red</a>, user - hadoop10, <a href="http://luxred-ni.red.ygrid.yahoo.com:9999/" target="_top">LuxRed UI</a></td>
    			<td>Nimbus</td>
    			<td>@grid.red.lux.nimbus</td>
    			<td>2</td>
@@ -202,7 +179,7 @@ Production
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-thaum" target="_top">Thaum Red</a>, user - ngd_ffl, <a href="http://thaumred-ni.red.ygrid.yahoo.com:9999/" target="_top">ThaumRed UI</a> </td>
+   			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-thaum" target="_top">Thaum Red</a>, user - ngd_ffl, <a href="http://thaumred-ni.red.ygrid.yahoo.com:9999/" target="_top">ThaumRed UI</a> </td>
    			<td>Nimbus</td>
    			<td bgcolor="#ffffff" valign="top" class="foswikiTableCol3"> @grid.red.thaum.nimbus </td>
    			<td>2</td>
@@ -221,7 +198,7 @@ Production
    			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td><a href="http://thaumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">ThaumBlue UI</a></td>
+   			<td rowspan="3"><a href="http://thaumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">ThaumBlue UI</a></td>
    			<td>Nimbus</td>
    			<td>@grid.blue.thaum.nimbus</td>
    			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol4"> 2 </td>
@@ -240,7 +217,7 @@ Production
    			<td>&nbsp;</td>
    		</tr>
    		<tr>
-   			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-tan.type-nonprod.cluster-kryptonite" target="_top">Relux Tan</a>, user - hadoop10, <a href="http://reluxtan-ni.tan.ygrid.yahoo.com:9999/" target="_top">ReluxTan UI</a> </td>
+   			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-tan.type-nonprod.cluster-kryptonite" target="_top">Relux Tan</a>, user - hadoop10, <a href="http://reluxtan-ni.tan.ygrid.yahoo.com:9999/" target="_top">ReluxTan UI</a> </td>
    			<td>Nimbus</td>
    			<td>@grid.tan.relux.nimubs</td>
    			<td>2</td>
