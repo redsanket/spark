@@ -126,7 +126,6 @@ Production
    		<tr>
    			<th>Type</th>
    			<th>Cluster</th>
-   			<th>Type</th>
    			<th>Endpoint</th>
    			<th>Nodes</th>
    			<th>Hardware Configuration</th>
