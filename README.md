@@ -47,6 +47,7 @@ Install the following:
 1. Clone your fork locally.
 1. [Add the remote repository](https://help.github.com/articles/adding-a-remote, "Add a Remote") 
    pointing to the original repository so you can pull in the latest changes to your local repository.
+1. (Optional) Create a new branch for your work. This helps you to isolate your changes against the original source files.
 1. Make your changes: edits, new documentation, updates. Use the templates to create documentation when you can.
 1. [Fetch the latest changes](https://help.github.com/articles/fetching-a-remote#fetch, "Fetch From a Remote") 
    from the original remote repository and resolve any conflicts.
@@ -61,16 +62,14 @@ Install the following:
 1. [Create a pull request](https://help.github.com/articles/creating-a-pull-request, "Create Pull Request"). 
 1. Update your pull request based on the feedback and suggestions in the comments.
 1. Once your pull request has been merged, do your regular Git upkeep:
-
    * Pull the updates from the original repository into your master branch.
    * Delete the branch you used for the pull request both locally and remotely.
-
 11. Build your documentation:
-   - Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for
+   * Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for
      internal use.
-   - Use the [YDN Push Tool](http://pushtool.ydn.corp.bf1.yahoo.com/, "YDN Push Tool") to publish the documentation 
+   * Use the [YDN Push Tool](http://pushtool.ydn.corp.bf1.yahoo.com/, "YDN Push Tool") to publish the documentation 
      to [YDN](http://developer.yahoo.com/, "Yahoo! Developer Network") for external use.
-   - Request someone with access to RTFM or the YDN Push Tool to publish documentation on your behalf.
+   * Request someone with access to RTFM or the YDN Push Tool to publish documentation on your behalf.
  
 ## What if I Find Issues With the Documentation?
 
