@@ -88,8 +88,11 @@ public class SparkHdfsLR extends App {
         else if (this.master == AppMaster.YARN_STANDALONE) { 
             appPatternStr = " application identifier: (.*)$";
         } 
-    
+
         Pattern appPattern = Pattern.compile(appPatternStr);
+
+        String errorPatternStr = "Exception in thread (.*): Input path does not exist: (.*)$";
+        Pattern errorPattern = Pattern.compile(errorPatternStr);
 
         // setup spark env
         // TODO - commonize these across apps
@@ -138,9 +141,17 @@ public class SparkHdfsLR extends App {
                 TestSession.logger.debug(line);
 
                 Matcher appMatcher = appPattern.matcher(line);
+                Matcher errorMatcher = errorPattern.matcher(line);
+
                 if (appMatcher.find()) {
                     this.ID = appMatcher.group(1);
                     TestSession.logger.debug("JOB ID: " + this.ID);
+                    reader.close();
+                    break;
+                }
+                if (errorMatcher.find()) {
+                    this.ERROR = errorMatcher.group(2);
+                    TestSession.logger.error("ERROR is: " + errorMatcher.group(2));
                     reader.close();
                     break;
                 }
