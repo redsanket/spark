@@ -21,25 +21,27 @@ The following is the general URI syntax for documentation: `http://devel.corp.ya
 
 ## Contributing Documentation
 
-The process of contributing to the documentation for a project is not much different than contributing code.
-For those who have worked with Git and contributed source code to a project, you'll find that the only
-difference is that you'll need to know a little about the syntax of reStructuredText instead of a programming
-language. 
+The process of contributing to the documentation for a project is not much different from contributing code.
+For those who have worked with Git and contributed source code to a project, you'll only need to learn
+the syntax of [reStructuredText (reST)](http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html).
+
+### Templates
 
 Most likely, you will be contributing tutorials to the guides, so you can pass on your knowledge to your
 teammates and other Yahoos. We have included templates where applicable for tutorials and cookbook examples
 for your convenience. We greatly appreciate any contributions, including corrections of typos, formatting,
 editing, etc.
 
+### How To Contribute
  
-### Prerequisites
+#### Prerequisites
 
 Install the following:
 
 * [Git](http://git-scm.com/book/en/Getting-Started-Installing-Git, "Installing Git")
 * (Optional) [Sphinx](http://sphinx-doc.org/latest/install.html, "Sphinx Installation")
 
-### Steps
+#### Steps
  
 1. [Fork the repository](https://help.github.com/articles/fork-a-repo, "Forking Git Repository") containing the source files for the documentation. 
 1. Clone your fork locally.
@@ -56,19 +58,17 @@ Install the following:
      - Build the documentation locally with Sphinx.
    * (Markdown) - Use GitHub/Git Enterprise to view the rendered HTML.
    * (XML) - Use an XML editor that has the capability of rendering XML into HTML.
-
 1. [Create a pull request](https://help.github.com/articles/creating-a-pull-request, "Create Pull Request"). 
 1. Update your pull request based on the feedback and suggestions in the comments.
 1. Once your pull request has been merged, do your regular Git upkeep:
-
-   - Pull the updates from the original repository into your master branch.
-   - Delete the branch you used for the pull request both locally and remotely.
-1. Build your documentation:
-
-   - Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for internal use.
-   - Use the [YDN Push Tool](http://pushtool.ydn.corp.bf1.yahoo.com/, "YDN Push Tool") to publish the documentation 
+   * Pull the updates from the original repository into your master branch.
+   * Delete the branch you used for the pull request both locally and remotely.
+11. Build your documentation:
+   * Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for
+     internal use.
+   * Use the [YDN Push Tool](http://pushtool.ydn.corp.bf1.yahoo.com/, "YDN Push Tool") to publish the documentation 
      to [YDN](http://developer.yahoo.com/, "Yahoo! Developer Network") for external use.
-   - Request someone with access to RTFM or the YDN Push Tool to publish documentation on your behalf.
+   * Request someone with access to RTFM or the YDN Push Tool to publish documentation on your behalf.
  
 ## What if I Find Issues With the Documentation?
 
