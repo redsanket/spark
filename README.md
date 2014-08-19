@@ -48,7 +48,7 @@ Install the following:
 1. [Add the remote repository](https://help.github.com/articles/adding-a-remote, "Add a Remote") 
    pointing to the original repository so you can pull in the latest changes to your local repository.
 1. (Optional) Create a new branch for your work. This helps you to isolate your changes against the original source files.
-1. Make your changes: edits, new documentation, updates. Use the templates to create documentation when you can.
+1. Make your changes: edits, new documentation, updates. Create new documentation with templates when you can by copying the templates and using a descriptive name for your tutorial/code example.
 1. [Fetch the latest changes](https://help.github.com/articles/fetching-a-remote#fetch, "Fetch From a Remote") 
    from the original remote repository and resolve any conflicts.
 1. View your rendered documentation based on the source file format:
