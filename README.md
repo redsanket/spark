@@ -65,8 +65,10 @@ Install the following:
 
    * Pull the updates from the original repository into your master branch.
    * Delete the branch you used for the pull request both locally and remotely.
+
 1. Build your documentation:
-   - Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for internal use.
+   - Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for
+     internal use.
    - Use the [YDN Push Tool](http://pushtool.ydn.corp.bf1.yahoo.com/, "YDN Push Tool") to publish the documentation 
      to [YDN](http://developer.yahoo.com/, "Yahoo! Developer Network") for external use.
    - Request someone with access to RTFM or the YDN Push Tool to publish documentation on your behalf.
