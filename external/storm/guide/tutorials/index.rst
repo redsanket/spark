@@ -10,6 +10,8 @@ the Yahoo Grid. We hope to have more tutorials in the future,
 so please come back, or better yet, contribute your own tutorials
 to help others.
 
+.. _storm_tutorials-counting:
+
 Counting Data Highway Events
 ============================
 
@@ -28,6 +30,7 @@ You should have completed the following:
 Setting Up
 ----------
 
+#. Log onto the Red Ebony (or the non-production environment that you created a topology for) cluster.
 #. Clone the ``storm-contrib`` repository: git@git.corp.yahoo.com:storm/storm-contrib.git
    .. note:: We'll be using ``/src/main/java/com/yahoo/spout/http/rainbow/EventCountBolt.java``.
 #. Set up your launcher box:
