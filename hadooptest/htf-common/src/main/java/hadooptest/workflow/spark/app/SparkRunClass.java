@@ -61,6 +61,12 @@ public class SparkRunClass extends App {
     /** jar name */
     private String jarName = "";
 
+    /** distributed cache files */
+    private String distCacheFiles = "";
+
+    /** distributed cache archives */
+    private String distCacheArchives = "";
+
     /** args */
     private String[] argsArray;
 
@@ -191,6 +197,24 @@ public class SparkRunClass extends App {
     }
 
     /**
+     * Set a list of files to go into the distributed cache
+     * 
+     * @param files - String of comma separate files
+     */
+    public void setDistributedCacheFiles(String files) {
+        this.distCacheFiles = files;
+    }
+
+    /**
+     * Set a list of archives to go into the distributed cache
+     * 
+     * @param archives - String of comma separate archives
+     */
+    public void setDistributedCacheArchives(String archives) {
+        this.distCacheArchives= archives;
+    }
+
+    /**
      * Submit the app.  This should be done only by the Job.start() as Job should
      * remain threaded.
      * 
@@ -234,26 +258,31 @@ public class SparkRunClass extends App {
 
         TestSession.logger.info("SPARK_JAR=" + sparkJar);
         TestSession.logger.info("JAVA_HOME=" + newEnv.get("JAVA_HOME"));
-
-        // for yarn-client mode
-        newEnv.put("SPARK_YARN_APP_JAR", this.jarName);
-        newEnv.put("SPARK_WORKER_INSTANCES", Integer.toString(this.numWorkers));
-        newEnv.put("SPARK_WORKER_MEMORY", this.workerMemory);
-        newEnv.put("SPARK_WORKER_CORES", Integer.toString(this.workerCores));
-        newEnv.put("SPARK_YARN_QUEUE", this.QUEUE);
         newEnv.put("HADOOP_CONF_DIR", TestSession.cluster.getConf().getHadoopConfDir());
 
-        if (shouldPassName) {
-            newEnv.put("SPARK_YARN_APP_NAME", this.appName);
-            TestSession.logger.info("SPARK_YARN_APP_NAME=" + this.appName);
+        // for yarn-client mode
+        if (this.master == AppMaster.YARN_CLIENT) {
+            newEnv.put("SPARK_YARN_APP_JAR", this.jarName);
+            newEnv.put("SPARK_WORKER_INSTANCES", Integer.toString(this.numWorkers));
+            newEnv.put("SPARK_WORKER_MEMORY", this.workerMemory);
+            newEnv.put("SPARK_WORKER_CORES", Integer.toString(this.workerCores));
+            newEnv.put("SPARK_YARN_QUEUE", this.QUEUE);
+
+            newEnv.put("SPARK_YARN_DIST_FILES", this.distCacheFiles);
+            newEnv.put("SPARK_YARN_DIST_ARCHIVES", this.distCacheArchives);
+
+            if (shouldPassName) {
+                newEnv.put("SPARK_YARN_APP_NAME", this.appName);
+                TestSession.logger.info("SPARK_YARN_APP_NAME=" + this.appName);
+            }
+            TestSession.logger.info("SPARK_YARN_APP_JAR=" + this.jarName);
+            TestSession.logger.info("SPARK_WORKER_INSTANCES=" + Integer.toString(this.numWorkers));
+            TestSession.logger.info("SPARK_WORKER_MEMORY=" + this.workerMemory);
+            TestSession.logger.info("SPARK_WORKER_CORES=" + Integer.toString(this.workerCores));
+            TestSession.logger.info("SPARK_YARN_QUEUE=" + this.QUEUE);
+            TestSession.logger.info("HADOOP_CONF_DIR=" + TestSession.cluster.getConf().getHadoopConfDir());
         }
 
-        TestSession.logger.info("SPARK_YARN_APP_JAR=" + this.jarName);
-        TestSession.logger.info("SPARK_WORKER_INSTANCES=" + Integer.toString(this.numWorkers));
-        TestSession.logger.info("SPARK_WORKER_MEMORY=" + this.workerMemory);
-        TestSession.logger.info("SPARK_WORKER_CORES=" + Integer.toString(this.workerCores));
-        TestSession.logger.info("SPARK_YARN_QUEUE=" + this.QUEUE);
-        TestSession.logger.info("HADOOP_CONF_DIR=" + TestSession.cluster.getConf().getHadoopConfDir());
         
         if (!((sparkJavaOpts == null) || (sparkJavaOpts.isEmpty()))) {
         	TestSession.logger.info("SPARK_JAVA_OPTS is being set to: " + sparkJavaOpts);
@@ -379,6 +408,16 @@ public class SparkRunClass extends App {
             if (shouldPassName) { 
               cmd.add("--name");
               cmd.add(this.appName);
+            }
+
+            if (!this.distCacheFiles.isEmpty()) { 
+              cmd.add("--files");
+              cmd.add(this.distCacheFiles);
+            }
+
+            if (!this.distCacheArchives.isEmpty()) { 
+              cmd.add("--archives");
+              cmd.add(this.distCacheArchives);
             }
 
             for (String arg: this.argsArray) {
