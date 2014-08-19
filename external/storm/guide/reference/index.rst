@@ -33,7 +33,7 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-ebony" target="_top">Ebony Red</a> <br> <a href="http://ebonyred-ni.red.ygrid.yahoo.com:9999/" target="_top">Ebony Red UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.red.ebony.nimubs``</td>
+   			<td>``grid.red.ebony.nimbus``</td>
    			<td>2</td>
    		</tr>
    		<tr>
@@ -54,7 +54,7 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-ebony" target="_top">Ebony Blue</a>, <a href="http://ebonyblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">EbonyBlue UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.blue.ebony.nimubs``</td>
+   			<td>``grid.blue.ebony.nimbus``</td>
    			<td>2</td>
    		</tr>
    		<tr>
@@ -75,7 +75,7 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-vizorium" target="_top">Vizorium Blue</a>, <a href="http://vizoriumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">VizoriumBlue UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.blue.vizorium.nimubs``</td>
+   			<td>``grid.blue.vizorium.nimbus``</td>
    			<td>2</td>
    		</tr>
    		<tr>
@@ -96,7 +96,7 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-tan.type-nonprod.cluster-ebony" target="_top">Ebony Tan</a>, <a href="http://ebonytan-ni.tan.ygrid.yahoo.com:9999/" target="_top">EbonyTan UI</a></td>
    			<td>Nimbus </td>
-   			<td>``grid.tan.ebony.nimubs``</td>
+   			<td>``grid.tan.ebony.nimbus``</td>
    			<td>2</td>
    		</tr>
    		<tr>
@@ -135,7 +135,7 @@ Production
 		<tr>
 			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-iridium" target="_top">Iridium Red</a>, <a href="http://iridiumred-ni.red.ygrid.yahoo.com:9999/" target="_top">IridiumRed UI</a></td>
 			<td>Nimbus</td>
-			<td>``grid.red.iridium.nimubs``</td>
+			<td>``grid.red.iridium.nimbus``</td>
 			<td>2</td>
 			<td>&nbsp;</td>
 		</tr>
@@ -218,7 +218,7 @@ Production
    		<tr>
    			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-tan.type-nonprod.cluster-kryptonite" target="_top">Relux Tan</a>, user - hadoop10, <a href="http://reluxtan-ni.tan.ygrid.yahoo.com:9999/" target="_top">ReluxTan UI</a> </td>
    			<td>Nimbus</td>
-   			<td>``grid.tan.relux.nimubs``</td>
+   			<td>``grid.tan.relux.nimbus``</td>
    			<td>2</td>
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
