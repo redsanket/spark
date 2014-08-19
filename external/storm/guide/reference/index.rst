@@ -33,12 +33,12 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-ebony" target="_top">Ebony Red</a> <br> <a href="http://ebonyred-ni.red.ygrid.yahoo.com:9999/" target="_top">Ebony Red UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.red.ebony.nimbus``</td>
+   			<td><code>grid.red.ebony.nimbus</code></td>
    			<td>2</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.red.ebony.supervisor``</td>
+   			<td><code>grid.red.ebony.supervisor</code></td>
    			<td>80</td>
    		</tr>
    		<tr>
@@ -54,12 +54,12 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-ebony" target="_top">Ebony Blue</a>, <a href="http://ebonyblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">EbonyBlue UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.blue.ebony.nimbus``</td>
+   			<td><code>grid.blue.ebony.nimbus</code></td>
    			<td>2</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.blue.ebony.supervisor``</td>
+   			<td><code>grid.blue.ebony.supervisor</code></td>
    			<td>40</td>
    		</tr>
    		<tr>
@@ -75,12 +75,12 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-blue.type-nonprod.cluster-vizorium" target="_top">Vizorium Blue</a>, <a href="http://vizoriumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">VizoriumBlue UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.blue.vizorium.nimbus``</td>
+   			<td><code>grid.blue.vizorium.nimbus</code></td>
    			<td>2</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.blue.vizorium.supervisor``</td>
+   			<td><code>grid.blue.vizorium.supervisor</code></td>
    			<td>40</td>
    		</tr>
    		<tr>
@@ -96,12 +96,12 @@ Non-Production
    		<tr>
    			<td rowspan="4"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-tan.type-nonprod.cluster-ebony" target="_top">Ebony Tan</a>, <a href="http://ebonytan-ni.tan.ygrid.yahoo.com:9999/" target="_top">EbonyTan UI</a></td>
    			<td>Nimbus </td>
-   			<td>``grid.tan.ebony.nimbus``</td>
+   			<td><code>grid.tan.ebony.nimbus</code></td>
    			<td>2</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.tan.ebony.supervisor``</td>
+   			<td><code>grid.tan.ebony.supervisor</code></td>
    			<td>40</td>
    		</tr>
    		<tr>
@@ -135,102 +135,102 @@ Production
 		<tr>
 			<td><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-mstorm.loc-red.type-nonprod.cluster-iridium" target="_top">Iridium Red</a>, <a href="http://iridiumred-ni.red.ygrid.yahoo.com:9999/" target="_top">IridiumRed UI</a></td>
 			<td>Nimbus</td>
-			<td>``grid.red.iridium.nimbus``</td>
+			<td><code>grid.red.iridium.nimbus</code></td>
 			<td>2</td>
 			<td>&nbsp;</td>
 		</tr>
    		<tr>
    			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-blue.type-prod.cluster-lux" target="_top">Lux Blue</a>, user - hadoop10, <a href="http://luxblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">LuxBlue UI</a> </td>
    			<td>Nimbus</td>
-   			<td>``grid.blue.lux.nimbus``</td>
+   			<td><code>grid.blue.lux.nimbus</code></td>
    			<td>2</td>
    			<td>HP DL380p Gen8, 2 x Xeon E5-2630 2.30GHz, 62.9GB / 64GB 1333MHz DDR3, 12 x 3TB SATA</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.blue.lux.supervisor``</td>
+   			<td><code>grid.blue.lux.supervisor</code></td>
    			<td>116</td>
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
    			<td>Zookeeper </td>
-   			<td>``ygrid.app.hgp-zookeeper.loc-blue.class-prod``</td>
+   			<td><code>ygrid.app.hgp-zookeeper.loc-blue.class-prod</code></td>
    			<td>5 </td>
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
    			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-lux" target="_top">Lux Red</a>, user - hadoop10, <a href="http://luxred-ni.red.ygrid.yahoo.com:9999/" target="_top">LuxRed UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.red.lux.nimbus``</td>
+   			<td><code>grid.red.lux.nimbus</code></td>
    			<td>2</td>
    			<td>HP DL380p Gen8, 2 x Xeon E5-2630 2.30GHz, 62.9GB / 64GB 1333MHz DDR3, 12 x 3TB SATA</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.red.lux.supervisor``</td>
+   			<td><code>grid.red.lux.supervisor</code></td>
    			<td>64</td>
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
-   			<td>``ygrid.app.hgp-zookeeper.loc-red.class-prod``</td>
+   			<td><code>ygrid.app.hgp-zookeeper.loc-red.class-prod</code></td>
    			<td>3</td>
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
    			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-red.type-prod.cluster-thaum" target="_top">Thaum Red</a>, user - ngd_ffl, <a href="http://thaumred-ni.red.ygrid.yahoo.com:9999/" target="_top">ThaumRed UI</a> </td>
    			<td>Nimbus</td>
-   			<td>``grid.red.thaum.nimbus``</td>
+   			<td><code>grid.red.thaum.nimbus</code></td>
    			<td>2</td>
    			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.red.thaum.supervisor``</td>
+   			<td><code>grid.red.thaum.supervisor</code></td>
    			<td>56</td>
    			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
-   			<td>``ygrid.app.hgp-zookeeper.loc-red.class-LuxRedStorm``</td>
+   			<td><code>ygrid.app.hgp-zookeeper.loc-red.class-LuxRedStorm</code></td>
    			<td>3</td>
    			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td rowspan="3"><a href="http://thaumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">ThaumBlue UI</a></td>
    			<td>Nimbus</td>
-   			<td>``grid.blue.thaum.nimbus``</td>
+   			<td><code>grid.blue.thaum.nimbus</code></td>
    			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol4"> 2 </td>
    			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol5 foswikiLastCol"> &nbsp; </td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.blue.thaum.supervisor``</td>
+   			<td><code>grid.blue.thaum.supervisor</code></td>
    			<td>65</td>
    			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
-   			<td>``ygrid.app.hgp-zookeeper.loc-blue.class-rmx_storm``</td>
+   			<td><code>ygrid.app.hgp-zookeeper.loc-blue.class-rmx_storm</code></td>
    			<td>3</td>
    			<td>&nbsp;</td>
    		</tr>
    		<tr>
    			<td rowspan="3"><a href="http://api.igor.corp.yahoo.com:9999/igor/ui/role/members?role=ygrid.app.hgp-storm.loc-tan.type-nonprod.cluster-kryptonite" target="_top">Relux Tan</a>, user - hadoop10, <a href="http://reluxtan-ni.tan.ygrid.yahoo.com:9999/" target="_top">ReluxTan UI</a> </td>
    			<td>Nimbus</td>
-   			<td>``grid.tan.relux.nimbus``</td>
+   			<td><code>grid.tan.relux.nimbus</code></td>
    			<td>2</td>
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
-   			<td>``grid.tan.relux.supervisor``</td>
+   			<td><code>grid.tan.relux.supervisor</code></td>
    			<td>40</td>
    			<td>HP DL180 G6, 2 x Xeon E5620 2.40GHz, 47.2GB / 48GB 1333MHz DDR3, 12 x 2TB SATA</td>
    		</tr>
    		<tr>
    			<td>Zookeeper</td>
-   			<td>``ygrid.app.hgp-zookeeper.loc-tan.class-research``</td>
+   			<td><code>ygrid.app.hgp-zookeeper.loc-tan.class-research</code></td>
    			<td>3</td>
    			<td>HP DL160 G6, 2 x Xeon E5620 2.40GHz, 15.7GB / 16GB 1333MHz DDR3, 1 x 500GB SATA</td>
    		</tr>
@@ -279,13 +279,13 @@ Throughput
    :header: "Configuration", "Default", "Description"
    :widths: 30, 20, 45
 
-   "``topology.receiver.buffer.size``", "<8> messages", "The queue size of the incoming (worker) messages."
-   "``topology.transfer.buffer.size``", "<1024> tuples", "The queue size of outgoing (worker) messages."
-   "``topology.executor.receive.buffer.size``", "<1024> tuples", "The queue size of the incoming (executor) tuple."
-   "``topology.executor.send.buffer.size``", "<1024> tuples", "The queue size of the outgoing (executor) tuple."
-   "``supervisor.slots.ports``", "<24> hyper-threaded cores for dual hex-core machines", "The slots available per supervisor."
-   "``multitenant.scheduler.user.pools``", "N/A", "The user pools for the multi-tenant scheduler: ``<users>:<#nodes>``" 
-   "``topology.isolate.machine``", "The number of machines for a topology."
+   "<code>topology.receiver.buffer.size</code>", "<8> messages", "The queue size of the incoming (worker) messages."
+   "<code>topology.transfer.buffer.size</code>", "<1024> tuples", "The queue size of outgoing (worker) messages."
+   "<code>topology.executor.receive.buffer.size</code>", "<1024> tuples", "The queue size of the incoming (executor) tuple."
+   "<code>topology.executor.send.buffer.size</code>", "<1024> tuples", "The queue size of the outgoing (executor) tuple."
+   "<code>supervisor.slots.ports</code>", "<24> hyper-threaded cores for dual hex-core machines", "The slots available per supervisor."
+   "<code>multitenant.scheduler.user.pools``", "N/A", "The user pools for the multi-tenant scheduler: ``<users>:<#nodes></code>" 
+   "<code>topology.isolate.machine</code>", "The number of machines for a topology."
 
 
 2. Servers Based on Throughput 
@@ -356,7 +356,7 @@ Memory vs. Throughput
    :widths: 40, 50
 
    "Max memory available per Supervisor Node", "C-78U/48/4000 (four 4 TB disks) =  48 GB"
-   "Memory available to Supervisor container (logical)", "``Storm-yarn.yaml`` > master.container.size-mb 42 GB"
+   "Memory available to Supervisor container (logical)", "<code>Storm-yarn.yaml</code> > master.container.size-mb 42 GB"
 
 2. Servers Based on Memory Needs
 ################################
@@ -402,7 +402,7 @@ Logging
 =======
 
 The logs for the Storm daemon are located by default in ``${storm.home}/logs``. 
-The ``ystorm`` daemons (``nimbus``, ``ui``, ``supervisor``, etc.) write 
+The <code>ystorm`` daemons (``nimbus``, ``ui``, ``supervisor</code>, etc.) write 
 logs to ${YINST_ROOT}/y/lib64/storm/current/logs.
 
 For example::
@@ -414,7 +414,7 @@ For example::
     /home/y/lib64/storm/current/logs/ui.log
     ...
 
-The ``ystorm_*`` launcher scripts have logs as well. If the ystorm daemons 
+The <code>ystorm_*</code> launcher scripts have logs as well. If the ystorm daemons 
 fail to write logs, check the launcher logs::
 
     /home/y/logs/ystorm_daemons/nimbus/current
@@ -510,7 +510,7 @@ For example::
     2013-11-08 18:14:15 b.s.d.nimbus [INFO] Cleaning up test-topo-derekd2-9-1383934302
 
 Supervisors can be seen in the Nimbus log by looking for their IDs, which look 
-like UUIDs. For example: ``7c024f9d-673d-49e7-aa7f-56d9e535f994``
+like UUIDs. For example: <code>7c024f9d-673d-49e7-aa7f-56d9e535f994</code>
 
 Supervisor Log 
 --------------
@@ -557,8 +557,8 @@ For example::
 .. tip:: If a log message indicates that a worker is :timed-out, then it means the heartbeat 
          thread was starved from being scheduled to run. This can happen because the garbage 
          collection takes over the JVM. If this happens repeatedly with a worker, try 
-         submitting the topology with an increased worker JVM heap size: ``append -Xmx${SIZE_MB}m`` 
-         to ``topology.worker.childopts``.
+         submitting the topology with an increased worker JVM heap size: <code>append -Xmx${SIZE_MB}m</code> 
+         to <code>topology.worker.childopts</code>.
 
 Worker Log
 ----------
@@ -599,4 +599,3 @@ Other Resources
 - `Apache Storm Documentation <http://storm.incubator.apache.org/documentation.html>`_
 - `Hortonworks: Apache Storm <http://hortonworks.com/hadoop/storm/>`_
 
-- 
