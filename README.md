@@ -58,7 +58,6 @@ Install the following:
      - Build the documentation locally with Sphinx.
    * (Markdown) - Use GitHub/Git Enterprise to view the rendered HTML.
    * (XML) - Use an XML editor that has the capability of rendering XML into HTML.
-
 1. [Create a pull request](https://help.github.com/articles/creating-a-pull-request, "Create Pull Request"). 
 1. Update your pull request based on the feedback and suggestions in the comments.
 1. Once your pull request has been merged, do your regular Git upkeep:
