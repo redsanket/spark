@@ -32,7 +32,7 @@ teammates and other Yahoos. We have included templates where applicable for tuto
 for your convenience. We greatly appreciate any contributions, including corrections of typos, formatting,
 editing, etc.
 
- ### How To Contribute
+### How To Contribute
  
 #### Prerequisites
 
@@ -63,10 +63,9 @@ Install the following:
 1. Update your pull request based on the feedback and suggestions in the comments.
 1. Once your pull request has been merged, do your regular Git upkeep:
 
-   - Pull the updates from the original repository into your master branch.
-   - Delete the branch you used for the pull request both locally and remotely.
+   * Pull the updates from the original repository into your master branch.
+   *  Delete the branch you used for the pull request both locally and remotely.
 1. Build your documentation:
-
    - Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for internal use.
    - Use the [YDN Push Tool](http://pushtool.ydn.corp.bf1.yahoo.com/, "YDN Push Tool") to publish the documentation 
      to [YDN](http://developer.yahoo.com/, "Yahoo! Developer Network") for external use.
