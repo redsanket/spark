@@ -184,7 +184,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
         // Option args for distcp
         String optionArgs = "";
         String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
-        if (httpProxyHost != null && !httpProxyHost.isEmpty()) {
+        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+                !httpProxyHost.equals("default")) {
             optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
             optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
         }
@@ -193,7 +194,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
         String optionArgsRC = "";
         String httpProxyHostRC =
                 System.getProperty("HTTP_PROXY_HOST_REMOTE_CLUSTER", "");
-        if (httpProxyHostRC != null && !httpProxyHostRC.isEmpty()) {
+        if (httpProxyHostRC != null && !httpProxyHostRC.isEmpty() &&
+                !httpProxyHost.equals("default")) {
             optionArgsRC = "-Dhttp.proxyHost=" + httpProxyHostRC;
             optionArgsRC = optionArgsRC + " -Dhttp.proxyPort=4080";
         }
