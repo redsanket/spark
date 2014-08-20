@@ -1222,6 +1222,40 @@ public class DfsCliCommands {
 	}
 
 	/**
+     *
+     * @param envMapSentByTest
+     * @param user
+     * @param srcCluster
+     * @param dstCluster
+     * @param srcFile
+     * @param dstFile
+     * @param srcProtocol
+     * @param dstProtocol
+     * @return
+     * @throws Exception
+     */
+    public GenericCliResponseBO distcp(
+            HashMap<String, String> envMapSentByTest,
+            String user,
+            String srcCluster,
+            String dstCluster,
+            String srcFile,
+            String dstFile,
+            String srcProtocol,
+            String dstProtocol) throws Exception {
+        return this.distcp(
+                envMapSentByTest,
+                user,
+                srcCluster,
+                dstCluster,
+                srcFile,
+                dstFile,
+                srcProtocol,
+                dstProtocol,
+                null);
+    }
+
+	/**
 	 * 
 	 * @param envMapSentByTest
 	 * @param user
@@ -1235,10 +1269,15 @@ public class DfsCliCommands {
 	 * @throws Exception
 	 */
 	public GenericCliResponseBO distcp(
-			HashMap<String, String> envMapSentByTest, String user,
-			String srcCluster, String dstCluster, String srcFile,
-			String dstFile, String srcProtocol, String dstProtocol)
-			throws Exception {
+			HashMap<String, String> envMapSentByTest,
+			String user,
+			String srcCluster,
+			String dstCluster,
+			String srcFile,
+			String dstFile,
+			String srcProtocol,
+			String dstProtocol,
+			String optionArgs) throws Exception {
 		String nameNodePrependedWithProtocol = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HADOOP);
@@ -1255,6 +1294,13 @@ public class DfsCliCommands {
 		String fileName = new File(srcFile).getName();
 		sb.append("-Dmapreduce.job.name=" + fileName+"_"+srcCluster+"_"+dstCluster);
 		sb.append(" ");
+
+		// E.g. Http proxy override:
+		// -Dhttp.proxyHost=ats307.tan.ygrid.yahoo.com -Dhttp.proxyPort=4080'
+		if (optionArgs != null && !optionArgs.isEmpty()) {
+		    sb.append(optionArgs);
+		    sb.append(" ");
+		}
 
 		sb.append("-pbugp");
 		sb.append(" ");
@@ -1290,8 +1336,8 @@ public class DfsCliCommands {
 		sb.append(nameNodePrependedWithProtocol + dstFile);
 		String commandString = sb.toString();
 
-		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
-				envMapSentByTest);
+		Map<String, String> environmentVariablesWrappingTheCommand =
+		        new HashMap<String, String>(envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
         /*
@@ -1308,7 +1354,6 @@ public class DfsCliCommands {
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
 		return responseBO;
-
 	}
 
 	/**
