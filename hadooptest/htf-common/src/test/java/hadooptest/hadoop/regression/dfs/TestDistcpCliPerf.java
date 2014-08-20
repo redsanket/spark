@@ -181,6 +181,23 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
         String destinationFile;
         String appendString;
 
+        // Option args for distcp
+        String optionArgs = "";
+        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+        if (httpProxyHost != null && !httpProxyHost.isEmpty()) {
+            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
+            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
+        }
+
+        // Option args for distcp, for remote cluster
+        String optionArgsRC = "";
+        String httpProxyHostRC =
+                System.getProperty("HTTP_PROXY_HOST_REMOTE_CLUSTER", "");
+        if (httpProxyHostRC != null && !httpProxyHostRC.isEmpty()) {
+            optionArgsRC = "-Dhttp.proxyHost=" + httpProxyHostRC;
+            optionArgsRC = optionArgsRC + " -Dhttp.proxyPort=4080";
+        }
+
         for (String justTheFile : fileMetadataPerf.keySet()) {
 
             if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
@@ -206,20 +223,25 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                 genericCliResponse = dfsCommonCliCommands.distcp(
                         EMPTY_ENV_HASH_MAP,
                         HadooptestConstants.UserNames.HDFSQA,
-                        this.localCluster, this.parametrizedCluster,
+                        this.localCluster,
+                        this.parametrizedCluster,
                         DATA_DIR_IN_HDFS + justTheFile + "_{1.."
                                 + fileMetadataPerf.get(justTheFile) + "}",
-                        destinationFile, HadooptestConstants.Schema.WEBHDFS,
-                        HadooptestConstants.Schema.HDFS);
+                        destinationFile,
+                        HadooptestConstants.Schema.WEBHDFS,
+                        HadooptestConstants.Schema.HDFS,
+                        optionArgs);
                 Assert.assertTrue("distcp exited with non-zero exit code",
                         genericCliResponse.process.exitValue() == 0);
-
-                dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
+                dfsCommonCliCommands.rm(
+                        EMPTY_ENV_HASH_MAP,
                         HadooptestConstants.UserNames.HDFSQA,
                         HadooptestConstants.Schema.WEBHDFS,
-                        this.parametrizedCluster, Recursive.YES, Force.YES,
-                        SkipTrash.YES, destinationFile);
-
+                        this.parametrizedCluster,
+                        Recursive.YES,
+                        Force.YES,
+                        SkipTrash.YES,
+                        destinationFile);
             }
             // Pull
             appendString = ".srcWebhdfs." + this.parametrizedCluster
@@ -232,16 +254,21 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     this.localCluster,
                     DATA_DIR_IN_HDFS + justTheFile + "_{1.."
                             + fileMetadataPerf.get(justTheFile) + "}",
-                    destinationFile, HadooptestConstants.Schema.WEBHDFS,
-                    HadooptestConstants.Schema.HDFS);
+                    destinationFile,
+                    HadooptestConstants.Schema.WEBHDFS,
+                    HadooptestConstants.Schema.HDFS,
+                    optionArgsRC);
             Assert.assertTrue("distcp exited with non-zero exit code",
                     genericCliResponse.process.exitValue() == 0);
-
-            dfsCommonCliCommands.rm(EMPTY_ENV_HASH_MAP,
+            dfsCommonCliCommands.rm(
+                    EMPTY_ENV_HASH_MAP,
                     HadooptestConstants.UserNames.HDFSQA,
-                    HadooptestConstants.Schema.WEBHDFS, this.localCluster,
-                    Recursive.YES, Force.YES, SkipTrash.YES, destinationFile);
-
+                    HadooptestConstants.Schema.WEBHDFS,
+                    this.localCluster,
+                    Recursive.YES,
+                    Force.YES,
+                    SkipTrash.YES,
+                    destinationFile);
         }
     }
 
