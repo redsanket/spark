@@ -1,6 +1,7 @@
 package hadooptest.tez;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -14,7 +15,13 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 
+/**
+ * 
+ * 
+ *
+ */
 public class HtfPigBaseClass extends TestSession {
 
 	public static String WORKSPACE_SCRIPT_LOCATION = "/htf-common/resources/hadooptest/pig/scripts/";
@@ -68,7 +75,7 @@ public class HtfPigBaseClass extends TestSession {
 							HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.NONE, aCluster,
 							PIG_DATA_DIR_IN_HDFS);
-					doChmodRecursively(PIG_DATA_DIR_IN_HDFS);
+					// doChmodRecursively(PIG_DATA_DIR_IN_HDFS);
 					dfsCommonCli.put(EMPTY_ENV_HASH_MAP,
 							HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.NONE, aCluster,
@@ -84,7 +91,8 @@ public class HtfPigBaseClass extends TestSession {
 			dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.NONE,
-					System.getProperty("CLUSTER_NAME"), PIG_DATA_DIR_IN_HDFS, "777");
+					System.getProperty("CLUSTER_NAME"), "/HTF", "777",
+					Recursive.YES);
 
 			dataVerifiedOnce = true;
 		}
@@ -104,47 +112,36 @@ public class HtfPigBaseClass extends TestSession {
 				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.NONE,
-						System.getProperty("CLUSTER_NAME"), pathSoFar, "777");
+						System.getProperty("CLUSTER_NAME"), pathSoFar, "777",
+						Recursive.YES);
 				pathsChmodedSoFar.put(pathSoFar, true);
 			}
 		}
 	}
 
-	protected int runPigScript(String scriptName, String protocol, String nnHostname, String mode, String execution)
-			throws Exception {
+	public int runPigScriptOnCluster(String scriptName, String protocol,
+			String namenode) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");
 		sb.append(" ");
-		
-		if (execution.equals(HadooptestConstants.Execution.TEZ)) {
-			sb.append("-x tez");
-			sb.append(" ");
-		}
-		if (mode.equals(HadooptestConstants.Mode.LOCAL)) {
-			sb.append("-tez_local");
-			sb.append(" ");
-		}
-		
+
+		sb.append("-x tez");
+		sb.append(" ");
+
 		if (protocol.equals(HadooptestConstants.Schema.HDFS)) {
-			sb.append("-param protocol=" + HadooptestConstants.Schema.HDFS);
+			sb.append("-param protocol="
+					+ HadooptestConstants.Schema.HDFS.replace("://", ""));
 			sb.append(" ");
-		}else if(protocol.equals(HadooptestConstants.Schema.WEBHDFS)){
-			sb.append("-param protocol=" + HadooptestConstants.Schema.WEBHDFS);
-		}else{
-			//Local Mode
-			sb.append("-param protocol=" + "file://");
+		} else {
+			sb.append("-param protocol="
+					+ HadooptestConstants.Schema.WEBHDFS.replace("://", ""));
+			sb.append(" ");
 		}
 
-		if (!nnHostname.isEmpty()) {
-			sb.append("-param namenode=" + nnHostname);
-			sb.append(" ");
-		}else{
-			
-			// Use the files in the local repository (Localmode)
-			sb.append("-param namenode=" + "/grid/0");
-			sb.append(" ");			
-		}
+		sb.append("-param namenode=" + namenode);
+		sb.append(" ");
+
 		sb.append("-f " + TestSession.conf.getProperty("WORKSPACE")
 				+ WORKSPACE_SCRIPT_LOCATION + scriptName);
 
@@ -155,12 +152,40 @@ public class HtfPigBaseClass extends TestSession {
 		environmentVariablesWrappingTheCommand.put("PIG_HOME",
 				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 						+ "/share/pig");
-		if (execution.equals(HadooptestConstants.Execution.TEZ)) {
-			environmentVariablesWrappingTheCommand.put("TEZ_HOME",
-					"/home/gs/tez/");
-			environmentVariablesWrappingTheCommand.put("TEZ_CONF_DIR",
-					"/home/gs/conf/tez/");
-		}
+		environmentVariablesWrappingTheCommand.put("TEZ_HOME", "/home/gs/tez/");
+		environmentVariablesWrappingTheCommand.put("TEZ_CONF_DIR",
+				"/home/gs/conf/tez/");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, HadooptestConstants.UserNames.HADOOPQA,
+				environmentVariablesWrappingTheCommand);
+		printResponseAndReturnItAsString(process);
+		return process.exitValue();
+
+	}
+
+	public int runPigScriptLocally(String scriptName, String outdir)
+			throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+				+ "/share/pig/bin/pig");
+		sb.append(" ");
+
+		sb.append("-x tez_local");
+		sb.append(" ");
+		sb.append("-param outdir=" + outdir);
+		sb.append(" ");
+
+		sb.append("-f " + "/home/y/share/htf-data/" + scriptName);
+
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>();
+		environmentVariablesWrappingTheCommand.put("PIG_HOME",
+				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+						+ "/share/pig");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(

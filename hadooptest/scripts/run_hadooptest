@@ -263,12 +263,21 @@ if ($spark) {
 if ($pig) {
     execute("yinst i fetl_base_feed_jar");
     execute("yinst i fetl_projector");
+    execute("yinst i htf_pig_data - br current");
 }
 
 my $hadoop_version;
 my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
 note($cmd);
 chomp($hadoop_version = `$cmd`);
+
+my $tez_version;
+if ($tez){
+  my $cmd = "ls -l /home/gs/tez/tez-api-0*.jar | cut -d'-' -f10 | rev | cut -d. -f2- | rev";
+  note($cmd);
+  chomp($tez_version = `$cmd`);
+}
+note("Tez version = '$tez_version'");
 
 # Fix for GDM to init the hadoop version since it won't be installed and we
 # expect hadoop 2 compatibility
@@ -345,6 +354,7 @@ if ($use_mvn) {
         # Just clean the project.
     	execute("CLUSTER=$cluster " .
             "HADOOP_VERSION=$hadoop_version " .
+            "TEZ_VERSION=$tez_version " .
             "HADOOP_INSTALL=$hadoop_install " .
             "HADOOP_SHARE=$hadoop_share " .
             "HTF_WORKSPACE=$workspace " .
@@ -356,6 +366,7 @@ if ($use_mvn) {
     ############################################################################
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version " .
+            "TEZ_VERSION=$tez_version " .
             "HADOOP_INSTALL=$hadoop_install " .
             "HADOOP_SHARE=$hadoop_share " .
             "HTF_WORKSPACE=$workspace " .

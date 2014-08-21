@@ -91,16 +91,15 @@ public class TestGroupByOrderByMRRTest extends
 	}
 
 	@Test
-	public void testLocalMode() throws Exception {
+	public void testGroupByOrderByMRRTestRunOnLocal() throws Exception {
 		/**
 		 * Usage: groupbyorderbymrrtest <in> <out>
 		 */
-		copyDataIntoHdfs();
 		long timeStamp = System.currentTimeMillis();
 		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
-		int returnCode = run(groupByOrderByMrrArgs, HadooptestConstants.Mode.LOCAL);
+		int returnCode = run(groupByOrderByMrrArgs, HadooptestConstants.Execution.TEZ_LOCAL);
 		Assert.assertTrue(returnCode==0);
 	}
 
@@ -111,15 +110,7 @@ public class TestGroupByOrderByMRRTest extends
 		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, "/tmp/tez/");
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, INPUT_FILE_NAME);
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, OUTPUT_FILE_NAME);
+				SkipTrash.YES, HadooptestConstants.Schema.FILE + OUTPUT_FILE_NAME);
 
 
 	}

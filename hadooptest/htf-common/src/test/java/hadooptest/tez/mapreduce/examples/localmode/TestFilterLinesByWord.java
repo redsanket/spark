@@ -19,6 +19,8 @@ import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
 public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
+	public static String SOURCE_FILE = "/home/y/share/htf-data/excite-small.log";
+	public static String OUTPUT_LOCATION = "/tmp/outOfFilterLinesByWord";
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -26,31 +28,42 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 	}
 
 	@Test
-	public void testLocalMode() throws Exception {
+	public void testFilterLinesByWordWithClientSplitsRunOnLocal()
+			throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
 		 * [-generateSplitsInClient true/<false>
 		 */
-		long timeStamp = System.currentTimeMillis();
-		String[] filterLinesByWordArgs = new String[] { "/tmp/tez-site.xml",
-				"/tmp/filterLinesByWord-out-" + timeStamp, "tez", "-generateSplitsInClient true" };
+		String[] filterLinesByWordArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
 
-		int returnCode = run(filterLinesByWordArgs, HadooptestConstants.Mode.LOCAL);
-		Assert.assertTrue(returnCode==0);
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL);
+		Assert.assertTrue(returnCode == 0);
 	}
 
+	@Test
+	public void testFilterLinesByWordNoClientSplitsRunOnLocal()
+			throws Exception {
+		/**
+		 * Usage: filtelinesrbyword <in> <out> <filter_word>
+		 * [-generateSplitsInClient true/<false>
+		 */
+		String[] filterLinesByWordArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking" };
+
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL);
+		Assert.assertTrue(returnCode == 0);
+	}
 
 	@After
-	public void deleteTezStagingDirs() throws Exception {
+	public void deleteOutputDirs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, "/tmp/tez/");
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, "/tmp/filterLinesByWord-out-*");
+				SkipTrash.YES, OUTPUT_LOCATION);
 
 	}
 

@@ -23,10 +23,8 @@ public class TestAbfFeeds_1 extends HtfPigBaseClass {
 		HadoopNode hadoopNode = TestSession.cluster
 				.getNode(HadooptestConstants.NodeTypes.NAMENODE);
 		String nameNode = hadoopNode.getHostname();
-		int returnCode = runPigScript(SCRIPT_NAME,
-				HadooptestConstants.Schema.HDFS, nameNode,
-				HadooptestConstants.Mode.CLUSTER,
-				HadooptestConstants.Execution.TEZ);
+		int returnCode = runPigScriptOnCluster(SCRIPT_NAME,
+				HadooptestConstants.Schema.HDFS, nameNode);
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -36,10 +34,8 @@ public class TestAbfFeeds_1 extends HtfPigBaseClass {
 		HadoopNode hadoopNode = TestSession.cluster
 				.getNode(HadooptestConstants.NodeTypes.NAMENODE);
 		String nameNode = hadoopNode.getHostname();
-		int returnCode = runPigScript(SCRIPT_NAME,
-				HadooptestConstants.Schema.WEBHDFS, nameNode,
-				HadooptestConstants.Mode.CLUSTER,
-				HadooptestConstants.Execution.TEZ);
+		int returnCode = runPigScriptOnCluster(SCRIPT_NAME,
+				HadooptestConstants.Schema.WEBHDFS, nameNode);
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -51,7 +47,7 @@ public class TestAbfFeeds_1 extends HtfPigBaseClass {
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
 				SkipTrash.YES,
-				"/tmp/HTF/output/" + SCRIPT_NAME.replace(".pig", "") + "*");
+				HadooptestConstants.Schema.HDFS + "/HTF/output/"+ SCRIPT_NAME.replace(".pig", "")+"*");
 
 	}
 }

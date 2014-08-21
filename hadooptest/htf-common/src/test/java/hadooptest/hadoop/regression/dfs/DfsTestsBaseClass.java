@@ -252,7 +252,7 @@ public class DfsTestsBaseClass extends TestSession {
 				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, 
 				        HadooptestConstants.UserNames.HADOOPQA, "", 
 				        cluster, 
-				        DfsTestsBaseClass.DATA_DIR_IN_HDFS + aFile, "777");
+				        DfsTestsBaseClass.DATA_DIR_IN_HDFS + aFile, "777", Recursive.NO);
 			}
 		}
 	}
@@ -281,7 +281,7 @@ public class DfsTestsBaseClass extends TestSession {
 				dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP, 
 				        HadooptestConstants.UserNames.HADOOPQA, "", 
 				        cluster, 
-				        DfsTestsBaseClass.DATA_DIR_IN_HDFS + filePattern, "777");
+				        DfsTestsBaseClass.DATA_DIR_IN_HDFS + filePattern, "777", Recursive.NO);
 			}
 		}
 	}
@@ -300,7 +300,7 @@ public class DfsTestsBaseClass extends TestSession {
 				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
-						"777");
+						"777", Recursive.NO);
 				pathsChmodedSoFar.put(pathSoFar, true);
 			}
 		}

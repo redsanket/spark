@@ -143,7 +143,7 @@ public class DfsCliCommands {
 	 */
 	public GenericCliResponseBO chmod(HashMap<String, String> envMapSentByTest,
 			String user, String protocol, String cluster, String completePath,
-			String permissions) throws Exception {
+			String permissions, Recursive recursively) throws Exception {
 		String nameNodePrependedWithProtocol = "";
 		StringBuilder sb = new StringBuilder();
 		sb.append(HadooptestConstants.Location.Binary.HDFS);
@@ -156,6 +156,10 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-chmod ");
 		sb.append(" ");
+		if (recursively == Recursive.YES){
+			sb.append("-R");
+			sb.append(" ");
+		}
 		sb.append(permissions);
 		sb.append(" ");
 

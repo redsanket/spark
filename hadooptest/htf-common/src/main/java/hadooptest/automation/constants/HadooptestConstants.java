@@ -130,6 +130,7 @@ public class HadooptestConstants {
 		public static String HDFS = "hdfs://";
 		public static String WEBHDFS = "webhdfs://";
 		public static String HFTP = "hftp://";
+		public static String FILE = "file://";
 		public static String NONE = "";
 	}
 
@@ -138,16 +139,10 @@ public class HadooptestConstants {
 		public static String HDFS = "8020";
 
 	}
-	
-	// Modes
-	public static class Mode {
-		public static String LOCAL = "LOCAL";
-		public static String CLUSTER = "CLUSTER";
-	}
-	// Execution
+		// Execution
 	public static class Execution {
 		public static String TEZ = "TEZ";
-		public static String MAPRED = "MAPRED";
+		public static String TEZ_LOCAL = "TEZ_LOCAL";
 	}
 
 }

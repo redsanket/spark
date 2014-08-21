@@ -31,91 +31,100 @@ import org.apache.tez.mapreduce.hadoop.MultiStageMRConfigUtil;
 
 public class GroupByOrderByMRRTestExtendedForTezHTF extends
 		GroupByOrderByMRRTest {
-	  public int run(String[] args, String mode) throws Exception {
-		    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+	public int run(String[] args, String mode) throws Exception {
+		Configuration conf = getConf();
 
-		    // Configure intermediate reduces
-		    conf.setInt(MRJobConfig.MRR_INTERMEDIATE_STAGES, 1);
+		// Configure intermediate reduces
+		conf.setInt(MRJobConfig.MRR_INTERMEDIATE_STAGES, 1);
 
-		    // Set reducer class for intermediate reduce
-		    conf.setClass(MultiStageMRConfigUtil.getPropertyNameForIntermediateStage(1,
-		        "mapreduce.job.reduce.class"), MyGroupByReducer.class, Reducer.class);
-		    // Set reducer output key class
-		    conf.setClass(MultiStageMRConfigUtil.getPropertyNameForIntermediateStage(1,
-		        "mapreduce.map.output.key.class"), IntWritable.class, Object.class);
-		    // Set reducer output value class
-		    conf.setClass(MultiStageMRConfigUtil.getPropertyNameForIntermediateStage(1,
-		        "mapreduce.map.output.value.class"), Text.class, Object.class);
-		    conf.setInt(MultiStageMRConfigUtil.getPropertyNameForIntermediateStage(1,
-		        "mapreduce.job.reduces"), 2);
+		// Set reducer class for intermediate reduce
+		conf.setClass(MultiStageMRConfigUtil
+				.getPropertyNameForIntermediateStage(1,
+						"mapreduce.job.reduce.class"), MyGroupByReducer.class,
+				Reducer.class);
+		// Set reducer output key class
+		conf.setClass(MultiStageMRConfigUtil
+				.getPropertyNameForIntermediateStage(1,
+						"mapreduce.map.output.key.class"), IntWritable.class,
+				Object.class);
+		// Set reducer output value class
+		conf.setClass(MultiStageMRConfigUtil
+				.getPropertyNameForIntermediateStage(1,
+						"mapreduce.map.output.value.class"), Text.class,
+				Object.class);
+		conf.setInt(MultiStageMRConfigUtil.getPropertyNameForIntermediateStage(
+				1, "mapreduce.job.reduces"), 2);
 
-		    String[] otherArgs = new GenericOptionsParser(conf, args).
-		        getRemainingArgs();
-		    if (otherArgs.length != 2) {
-		      System.err.println("Usage: groupbyorderbymrrtest <in> <out>");
-		      ToolRunner.printGenericCommandUsage(System.err);
-		      return 2;
-		    }
+		String[] otherArgs = new GenericOptionsParser(conf, args)
+				.getRemainingArgs();
+		if (otherArgs.length != 2) {
+			System.err.println("Usage: groupbyorderbymrrtest <in> <out>");
+			ToolRunner.printGenericCommandUsage(System.err);
+			return 2;
+		}
 
-		    @SuppressWarnings("deprecation")
-		    Job job = new Job(conf, "groupbyorderbymrrtest");
+		@SuppressWarnings("deprecation")
+		Job job = new Job(conf, "groupbyorderbymrrtest");
 
-		    job.setJarByClass(GroupByOrderByMRRTest.class);
+		job.setJarByClass(GroupByOrderByMRRTest.class);
 
-		    // Configure map
-		    job.setMapperClass(MyMapper.class);
-		    job.setMapOutputKeyClass(Text.class);
-		    job.setMapOutputValueClass(IntWritable.class);
+		// Configure map
+		job.setMapperClass(MyMapper.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(IntWritable.class);
 
-		    // Configure reduce
-		    job.setReducerClass(MyOrderByNoOpReducer.class);
-		    job.setOutputKeyClass(Text.class);
-		    job.setOutputValueClass(IntWritable.class);
-		    job.setNumReduceTasks(1);
+		// Configure reduce
+		job.setReducerClass(MyOrderByNoOpReducer.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(IntWritable.class);
+		job.setNumReduceTasks(1);
 
-		    FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
-		    FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
+		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
+		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
 
-		    job.submit();
-		    JobID jobId = job.getJobID();
-		    ApplicationId appId = TypeConverter.toYarn(jobId).getAppId();
+		job.submit();
+		JobID jobId = job.getJobID();
+		ApplicationId appId = TypeConverter.toYarn(jobId).getAppId();
 
-		    DAGClient dagClient = MRTezClient.getDAGClient(appId, new TezConfiguration(conf));
-		    DAGStatus dagStatus;
-		    String[] vNames = { "initialmap" , "ireduce1" , "finalreduce" };
-		    while (true) {
-		      dagStatus = dagClient.getDAGStatus(null);
-		      if(dagStatus.getState() == DAGStatus.State.RUNNING ||
-		         dagStatus.getState() == DAGStatus.State.SUCCEEDED ||
-		         dagStatus.getState() == DAGStatus.State.FAILED ||
-		         dagStatus.getState() == DAGStatus.State.KILLED ||
-		         dagStatus.getState() == DAGStatus.State.ERROR) {
-		        break;
-		      }
-		      try {
-		        Thread.sleep(500);
-		      } catch (InterruptedException e) {
-		        // continue;
-		      }
-		    }
+		DAGClient dagClient = MRTezClient.getDAGClient(appId,
+				new TezConfiguration(conf), null);
+		DAGStatus dagStatus;
+		String[] vNames = { "initialmap", "ireduce1", "finalreduce" };
+		while (true) {
+			dagStatus = dagClient.getDAGStatus(null);
+			if (dagStatus.getState() == DAGStatus.State.RUNNING
+					|| dagStatus.getState() == DAGStatus.State.SUCCEEDED
+					|| dagStatus.getState() == DAGStatus.State.FAILED
+					|| dagStatus.getState() == DAGStatus.State.KILLED
+					|| dagStatus.getState() == DAGStatus.State.ERROR) {
+				break;
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// continue;
+			}
+		}
 
-		    while (dagStatus.getState() == DAGStatus.State.RUNNING) {
-		      try {
-		        ExampleDriver.printDAGStatus(dagClient, vNames);
-		        try {
-		          Thread.sleep(1000);
-		        } catch (InterruptedException e) {
-		          // continue;
-		        }
-		        dagStatus = dagClient.getDAGStatus(null);
-		      } catch (TezException e) {
-		        LOG.fatal("Failed to get application progress. Exiting");
-		        return -1;
-		      }
-		    }
+		while (dagStatus.getState() == DAGStatus.State.RUNNING) {
+			try {
+				ExampleDriver.printDAGStatus(dagClient, vNames);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// continue;
+				}
+				dagStatus = dagClient.getDAGStatus(null);
+			} catch (TezException e) {
+				TestSession.logger
+						.fatal("Failed to get application progress. Exiting");
+				return -1;
+			}
+		}
 
-		    ExampleDriver.printDAGStatus(dagClient, vNames);
-		    LOG.info("Application completed. " + "FinalState=" + dagStatus.getState());
-		    return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
-		  }
+		ExampleDriver.printDAGStatus(dagClient, vNames);
+		TestSession.logger.info("Application completed. " + "FinalState="
+				+ dagStatus.getState());
+		return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
+	}
 }

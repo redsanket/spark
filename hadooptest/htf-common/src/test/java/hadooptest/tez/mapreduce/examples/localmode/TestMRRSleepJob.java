@@ -35,7 +35,7 @@ public class TestMRRSleepJob extends MRRSleepJobExtendedForTezHTF {
 		 * recordSleepTime (msec)] [-generateSplitsInAM (false)/true]
 		 * [-writeSplitsToDfs (false)/true]
 		 */
-		int returnCode = run(sleepJobArgs, HadooptestConstants.Mode.LOCAL);
+		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ_LOCAL);
 		Assert.assertTrue(returnCode==0);
 	}
 
@@ -45,6 +45,6 @@ public class TestMRRSleepJob extends MRRSleepJobExtendedForTezHTF {
 		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, "/tmp/tez/");
+				SkipTrash.YES, HadooptestConstants.Schema.FILE + "/tmp/tez/");
 	}
 }

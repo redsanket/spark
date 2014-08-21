@@ -91,7 +91,7 @@ public class TestGroupByOrderByMRRTest extends
 	}
 
 	@Test
-	public void testClusterMode() throws Exception {
+	public void testGroupByOrderByMRRTestRunOnCluster() throws Exception {
 		/**
 		 * Usage: groupbyorderbymrrtest <in> <out>
 		 */
@@ -100,21 +100,13 @@ public class TestGroupByOrderByMRRTest extends
 		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
-		int returnCode = run(groupByOrderByMrrArgs, HadooptestConstants.Mode.CLUSTER);
+		int returnCode = run(groupByOrderByMrrArgs, HadooptestConstants.Execution.TEZ);
 		Assert.assertTrue(returnCode==0);
 	}
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, "/tmp/tez/");
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, INPUT_FILE_NAME);
 		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,

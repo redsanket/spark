@@ -11,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class BroadcastAndOneToOneExampleExtendedForTezHTF extends BroadcastAndOneToOneExample {
-
+	protected static String skipLocalityCheck = "-skipLocalityCheck";
 
 	public int run(String[] args, String mode) throws Exception {
 		boolean doLocalityCheck = true;
@@ -38,6 +38,6 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends BroadcastAndOn
 		ToolRunner.printGenericCommandUsage(System.err);
 	}
 
-	static String skipLocalityCheck = "-skipLocalityCheck";
+
 
 }

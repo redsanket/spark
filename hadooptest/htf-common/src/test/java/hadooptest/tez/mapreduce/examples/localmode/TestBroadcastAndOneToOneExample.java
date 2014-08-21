@@ -27,24 +27,19 @@ public class TestBroadcastAndOneToOneExample extends
 	}
 
 	@Test
-	public void testLocalMode() throws Exception {
-		boolean skipLocalityCheck = true;
-		if (skipLocalityCheck) {
-			int returnCode = run(new String[] {}, HadooptestConstants.Mode.LOCAL);
-			Assert.assertTrue(returnCode == 0);
-		} else {
-			// TODO
-		}
+	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnLocal()
+			throws Exception {
+		int returnCode = run(new String[] { skipLocalityCheck },
+				HadooptestConstants.Execution.TEZ_LOCAL);
+		Assert.assertTrue(returnCode == 0);
 	}
 
-
-	@After
-	public void deleteTezStagingDirs() throws Exception {
-		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, "/tmp/tez/");
+	@Test
+	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnLocal()
+			throws Exception {
+		int returnCode = run(new String[] {},
+				HadooptestConstants.Execution.TEZ_LOCAL);
+		Assert.assertTrue(returnCode == 0);
 	}
 
 }

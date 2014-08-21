@@ -32,6 +32,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 public class HtfTezUtils {
 
 	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
+	public static boolean useSession = false;
 
 	public static Configuration setupConfForTez(Configuration conf,
 			String mode) throws IOException, InterruptedException {
@@ -39,18 +40,25 @@ public class HtfTezUtils {
 		tezVersion = tezVersion.trim();
 		TestSession.logger.info("Read back tez version as:" + tezVersion);
 		String fsProtocol = conf.get("fs.defaultFS");
+		TestSession.logger.info("Default FS is:" + fsProtocol);
 		conf.set("tez.lib.uris", "${fs.defaultFS}/sharelib/v1/tez/ytez-"
 				+ tezVersion
 				+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
 				+ tezVersion + "/libexec/tez/lib");
 
 		conf.set("mapreduce.framework.name", "yarn-tez");
+		if (useSession){
+			conf.setBoolean("USE_TEZ_SESSION", true);
+		}else{
+			conf.setBoolean("USE_TEZ_SESSION", false);
+		}
 
-		if (mode.equals(HadooptestConstants.Mode.LOCAL)) {
-			conf.set("tez.local.mode", "true");
+		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+			conf.setBoolean("tez.local.mode", true);
 		} else {
+			conf.setBoolean("tez.local.mode", false);
 			try {
-				 applyTezSettingsToAllHosts();
+//				 applyTezSettingsToAllHosts();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -68,7 +76,6 @@ public class HtfTezUtils {
 		String[] allTezComponentTypes = new String[] {
 				HadooptestConstants.NodeTypes.HISTORY_SERVER,
 				HadooptestConstants.NodeTypes.NODE_MANAGER,
-				HadooptestConstants.NodeTypes.DATANODE,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER };
 		ExecutorService bounceThreadPool = Executors
 				.newFixedThreadPool(allTezComponentTypes.length);
@@ -260,5 +267,45 @@ public class HtfTezUtils {
 		}
 
 	}
+	
+	public static void delete(File file) throws IOException {
+
+	if (file.isDirectory()) {
+
+			// directory is empty, then delete it
+			if (file.list().length == 0) {
+
+				file.delete();
+				System.out.println("Directory is deleted : "
+						+ file.getAbsolutePath());
+
+			} else {
+
+				// list all the directory contents
+				String files[] = file.list();
+
+				for (String temp : files) {
+					// construct the file structure
+					File fileDelete = new File(file, temp);
+
+					// recursive delete
+					delete(fileDelete);
+				}
+
+				// check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+					System.out.println("Directory is deleted : "
+							+ file.getAbsolutePath());
+				}
+			}
+
+		} else {
+			// if file, then delete it
+			file.delete();
+			System.out.println("File is deleted : " + file.getAbsolutePath());
+		}
+	}
+
 
 }

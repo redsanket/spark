@@ -1,7 +1,6 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
-import hadooptest.tez.HtfTezUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -49,13 +48,12 @@ import org.apache.tez.mapreduce.examples.ExampleDriver;
 import org.apache.tez.mapreduce.examples.FilterLinesByWord;
 import org.apache.tez.mapreduce.examples.FilterLinesByWord.TextLongPair;
 import org.apache.tez.mapreduce.examples.helpers.SplitsInClientOptionParser;
-import org.apache.tez.mapreduce.hadoop.MRHelpers;
+import org.apache.tez.mapreduce.examples.processor.FilterByWordInputProcessor;
+import org.apache.tez.mapreduce.examples.processor.FilterByWordOutputProcessor;
 import org.apache.tez.mapreduce.hadoop.MRInputHelpers;
 import org.apache.tez.mapreduce.input.MRInputLegacy;
 import org.apache.tez.mapreduce.output.MROutput;
-import org.apache.tez.processor.FilterByWordInputProcessor;
-import org.apache.tez.processor.FilterByWordOutputProcessor;
-import org.apache.tez.runtime.library.conf.UnorderedUnpartitionedKVEdgeConfigurer;
+import org.apache.tez.runtime.library.conf.UnorderedKVEdgeConfig;
 
 import com.google.common.collect.Sets;
 
@@ -70,7 +68,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 		  }
 
 	  public int run(String[] args, String mode) throws Exception {
-		    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+		    Configuration conf = getConf();
 		    String [] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 		    Credentials credentials = new Credentials();
 
@@ -128,7 +126,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 
 
 
-		    TezClient tezSession = new TezClient("FilterLinesByWordSession", tezConf, 
+		    TezClient tezSession = TezClient.create("FilterLinesByWordSession", tezConf,
 		        commonLocalResources, credentials);
 		    tezSession.start(); // Why do I need to start the TezSession.
 
@@ -141,9 +139,9 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 
 		    UserPayload stage1Payload = TezUtils.createUserPayloadFromConf(stage1Conf);
 		    // Setup stage1 Vertex
-		    Vertex stage1Vertex = new Vertex("stage1", new ProcessorDescriptor(
+		    Vertex stage1Vertex = Vertex.create("stage1", ProcessorDescriptor.create(
 		        FilterByWordInputProcessor.class.getName()).setUserPayload(stage1Payload))
-		        .setTaskLocalFiles(commonLocalResources);
+		        .addTaskLocalFiles(commonLocalResources);
 
 		    DataSourceDescriptor dsd;
 		    if (generateSplitsInClient) {
@@ -152,28 +150,30 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 		      stage1Conf.setBoolean("mapred.mapper.new-api", false);
 		      dsd = MRInputHelpers.configureMRInputWithLegacySplitGeneration(stage1Conf, stagingDir, true);
 		    } else {
-		      dsd = MRInputLegacy.createConfigurer(stage1Conf, TextInputFormat.class, inputPath)
-		          .groupSplitsInAM(false).create();
+		      dsd = MRInputLegacy.createConfigBuilder(stage1Conf, TextInputFormat.class, inputPath)
+		          .groupSplits(false).build();
 		    }
 		    stage1Vertex.addDataSource("MRInput", dsd);
 
 		    // Setup stage2 Vertex
-		    Vertex stage2Vertex = new Vertex("stage2", new ProcessorDescriptor(
+		    Vertex stage2Vertex = Vertex.create("stage2", ProcessorDescriptor.create(
 		        FilterByWordOutputProcessor.class.getName()).setUserPayload(
 		        TezUtils.createUserPayloadFromConf(stage2Conf)), 1);
-		    stage2Vertex.setTaskLocalFiles(commonLocalResources);
+		    stage2Vertex.addTaskLocalFiles(commonLocalResources);
 
 		    // Configure the Output for stage2
-		    OutputDescriptor od = new OutputDescriptor(MROutput.class.getName())
+		    OutputDescriptor od = OutputDescriptor.create(MROutput.class.getName())
 		        .setUserPayload(TezUtils.createUserPayloadFromConf(stage2Conf));
-		    OutputCommitterDescriptor ocd = new OutputCommitterDescriptor(MROutputCommitter.class.getName());
+		    OutputCommitterDescriptor ocd =
+		        OutputCommitterDescriptor.create(MROutputCommitter.class.getName());
 		    stage2Vertex.addDataSink("MROutput", new DataSinkDescriptor(od, ocd, null));
 
-		    UnorderedUnpartitionedKVEdgeConfigurer edgeConf = UnorderedUnpartitionedKVEdgeConfigurer
+		    UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig
 		        .newBuilder(Text.class.getName(), TextLongPair.class.getName()).build();
 
 		    DAG dag = new DAG("FilterLinesByWord");
-		    Edge edge = new Edge(stage1Vertex, stage2Vertex, edgeConf.createDefaultBroadcastEdgeProperty());
+		    Edge edge =
+		        Edge.create(stage1Vertex, stage2Vertex, edgeConf.createDefaultBroadcastEdgeProperty());
 		    dag.addVertex(stage1Vertex).addVertex(stage2Vertex).addEdge(edge);
 
 		    TestSession.logger.info("Submitting DAG to Tez Session");
@@ -209,7 +209,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 		          }
 		          dagStatus = dagClient.getDAGStatus(null);
 		        } catch (TezException e) {
-		        	TestSession.logger.fatal("Failed to get application progress. Exiting");
+		          TestSession.logger.fatal("Failed to get application progress. Exiting");
 		          return -1;
 		        }
 		      }
@@ -224,6 +224,5 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 		    ExampleDriver.printDAGStatus(dagClient, vNames, true, true);
 		    TestSession.logger.info("Application completed. " + "FinalState=" + dagStatus.getState());
 		    return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
-		 	  
 	  }
 }

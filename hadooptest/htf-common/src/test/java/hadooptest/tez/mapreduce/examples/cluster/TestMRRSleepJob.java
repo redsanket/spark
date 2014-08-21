@@ -35,7 +35,7 @@ public class TestMRRSleepJob extends MRRSleepJobExtendedForTezHTF {
 		 * recordSleepTime (msec)] [-generateSplitsInAM (false)/true]
 		 * [-writeSplitsToDfs (false)/true]
 		 */
-		int returnCode = run(sleepJobArgs, HadooptestConstants.Mode.CLUSTER);
+		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ);
 		Assert.assertTrue(returnCode==0);
 	}
 

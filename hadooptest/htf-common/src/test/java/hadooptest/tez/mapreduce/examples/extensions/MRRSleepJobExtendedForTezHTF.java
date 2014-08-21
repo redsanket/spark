@@ -21,116 +21,119 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 
 	public int run(String[] args, String mode) throws Exception {
 
-		if (args.length < 1) {
-			System.err.println("MRRSleepJob [-m numMapper] [-r numReducer]"
-					+ " [-ir numIntermediateReducer]"
-					+ " [-irs numIntermediateReducerStages]"
-					+ " [-mt mapSleepTime (msec)] [-rt reduceSleepTime (msec)]"
-					+ " [-irt intermediateReduceSleepTime]"
-					+ " [-recordt recordSleepTime (msec)]"
-					+ " [-generateSplitsInAM (false)/true]"
-					+ " [-writeSplitsToDfs (false)/true]");
-			ToolRunner.printGenericCommandUsage(System.err);
-			return 2;
-		}
+	    if(args.length < 1) {
+	        System.err.println("MRRSleepJob [-m numMapper] [-r numReducer]" +
+	            " [-ir numIntermediateReducer]" +
+	            " [-irs numIntermediateReducerStages]" +
+	            " [-mt mapSleepTime (msec)] [-rt reduceSleepTime (msec)]" +
+	            " [-irt intermediateReduceSleepTime]" +
+	            " [-recordt recordSleepTime (msec)]" +
+	            " [-generateSplitsInAM (false)/true]" +
+	            " [-writeSplitsToDfs (false)/true]");
+	        ToolRunner.printGenericCommandUsage(System.err);
+	        return 2;
+	      }
 
-		int numMapper = 1, numReducer = 1, numIReducer = 1;
-		long mapSleepTime = 100, reduceSleepTime = 100, recSleepTime = 100, iReduceSleepTime = 1;
-		int mapSleepCount = 1, reduceSleepCount = 1, iReduceSleepCount = 1;
-		int iReduceStagesCount = 1;
-		boolean writeSplitsToDfs = false;
-		boolean generateSplitsInAM = false;
-		boolean splitsOptionFound = false;
+	      int numMapper = 1, numReducer = 1, numIReducer = 1;
+	      long mapSleepTime = 100, reduceSleepTime = 100, recSleepTime = 100,
+	          iReduceSleepTime=1;
+	      int mapSleepCount = 1, reduceSleepCount = 1, iReduceSleepCount = 1;
+	      int iReduceStagesCount = 1;
+	      boolean writeSplitsToDfs = false;
+	      boolean generateSplitsInAM = false;
+	      boolean splitsOptionFound = false;
 
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-m")) {
-				numMapper = Integer.parseInt(args[++i]);
-			} else if (args[i].equals("-r")) {
-				numReducer = Integer.parseInt(args[++i]);
-			} else if (args[i].equals("-ir")) {
-				numIReducer = Integer.parseInt(args[++i]);
-			} else if (args[i].equals("-mt")) {
-				mapSleepTime = Long.parseLong(args[++i]);
-			} else if (args[i].equals("-rt")) {
-				reduceSleepTime = Long.parseLong(args[++i]);
-			} else if (args[i].equals("-irt")) {
-				iReduceSleepTime = Long.parseLong(args[++i]);
-			} else if (args[i].equals("-irs")) {
-				iReduceStagesCount = Integer.parseInt(args[++i]);
-			} else if (args[i].equals("-recordt")) {
-				recSleepTime = Long.parseLong(args[++i]);
-			} else if (args[i].equals("-generateSplitsInAM")) {
-				if (splitsOptionFound) {
-					throw new RuntimeException(
-							"Cannot use both -generateSplitsInAm and -writeSplitsToDfs together");
-				}
-				splitsOptionFound = true;
-				generateSplitsInAM = Boolean.parseBoolean(args[++i]);
+	      for(int i=0; i < args.length; i++ ) {
+	        if(args[i].equals("-m")) {
+	          numMapper = Integer.parseInt(args[++i]);
+	        }
+	        else if(args[i].equals("-r")) {
+	          numReducer = Integer.parseInt(args[++i]);
+	        }
+	        else if(args[i].equals("-ir")) {
+	          numIReducer = Integer.parseInt(args[++i]);
+	        }
+	        else if(args[i].equals("-mt")) {
+	          mapSleepTime = Long.parseLong(args[++i]);
+	        }
+	        else if(args[i].equals("-rt")) {
+	          reduceSleepTime = Long.parseLong(args[++i]);
+	        }
+	        else if(args[i].equals("-irt")) {
+	          iReduceSleepTime = Long.parseLong(args[++i]);
+	        }
+	        else if(args[i].equals("-irs")) {
+	          iReduceStagesCount = Integer.parseInt(args[++i]);
+	        }
+	        else if (args[i].equals("-recordt")) {
+	          recSleepTime = Long.parseLong(args[++i]);
+	        }
+	        else if (args[i].equals("-generateSplitsInAM")) {
+	          if (splitsOptionFound) {
+	            throw new RuntimeException("Cannot use both -generateSplitsInAm and -writeSplitsToDfs together");
+	          }
+	          splitsOptionFound = true;
+	          generateSplitsInAM = Boolean.parseBoolean(args[++i]);
+	          
+	        }
+	        else if (args[i].equals("-writeSplitsToDfs")) {
+	          if (splitsOptionFound) {
+	            throw new RuntimeException("Cannot use both -generateSplitsInAm and -writeSplitsToDfs together");
+	          }
+	          splitsOptionFound = true;
+	          writeSplitsToDfs = Boolean.parseBoolean(args[++i]);
+	        }
+	      }
 
-			} else if (args[i].equals("-writeSplitsToDfs")) {
-				if (splitsOptionFound) {
-					throw new RuntimeException(
-							"Cannot use both -generateSplitsInAm and -writeSplitsToDfs together");
-				}
-				splitsOptionFound = true;
-				writeSplitsToDfs = Boolean.parseBoolean(args[++i]);
-			}
-		}
+	      if (numIReducer > 0 && numReducer <= 0) {
+	        throw new RuntimeException("Cannot have intermediate reduces without"
+	            + " a final reduce");
+	      }
 
-		if (numIReducer > 0 && numReducer <= 0) {
-			throw new RuntimeException(
-					"Cannot have intermediate reduces without"
-							+ " a final reduce");
-		}
+	      // sleep for *SleepTime duration in Task by recSleepTime per record
+	      mapSleepCount = (int)Math.ceil(mapSleepTime / ((double)recSleepTime));
+	      reduceSleepCount = (int)Math.ceil(reduceSleepTime / ((double)recSleepTime));
+	      iReduceSleepCount = (int)Math.ceil(iReduceSleepTime / ((double)recSleepTime));
 
-		// sleep for *SleepTime duration in Task by recSleepTime per record
-		mapSleepCount = (int) Math.ceil(mapSleepTime / ((double) recSleepTime));
-		reduceSleepCount = (int) Math.ceil(reduceSleepTime
-				/ ((double) recSleepTime));
-		iReduceSleepCount = (int) Math.ceil(iReduceSleepTime
-				/ ((double) recSleepTime));
+	      TezConfiguration conf = new TezConfiguration(getConf());
+	      FileSystem remoteFs = FileSystem.get(conf);
 
-		TezConfiguration conf = new TezConfiguration(
-				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode));
-		FileSystem remoteFs = FileSystem.get(conf);
+	      conf.set(TezConfiguration.TEZ_AM_STAGING_DIR,
+	          conf.get(
+	              TezConfiguration.TEZ_AM_STAGING_DIR,
+	              TezConfiguration.TEZ_AM_STAGING_DIR_DEFAULT));
+	      
+	      Path remoteStagingDir =
+	          remoteFs.makeQualified(new Path(conf.get(
+	              TezConfiguration.TEZ_AM_STAGING_DIR,
+	              TezConfiguration.TEZ_AM_STAGING_DIR_DEFAULT),
+	              Long.toString(System.currentTimeMillis())));
+	      TezClientUtils.ensureStagingDirExists(conf, remoteStagingDir);
 
-		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, conf.get(
-				TezConfiguration.TEZ_AM_STAGING_DIR,
-				TezConfiguration.TEZ_AM_STAGING_DIR_DEFAULT));
+	      DAG dag = createDAG(remoteFs, conf, remoteStagingDir,
+	          numMapper, numReducer, iReduceStagesCount, numIReducer,
+	          mapSleepTime, mapSleepCount, reduceSleepTime, reduceSleepCount,
+	          iReduceSleepTime, iReduceSleepCount, writeSplitsToDfs, generateSplitsInAM);
 
-		Path remoteStagingDir = remoteFs.makeQualified(new Path(conf.get(
-				TezConfiguration.TEZ_AM_STAGING_DIR,
-				TezConfiguration.TEZ_AM_STAGING_DIR_DEFAULT), Long
-				.toString(System.currentTimeMillis())));
-		TezClientUtils.ensureStagingDirExists(conf, remoteStagingDir);
+	      TezClient tezSession = TezClient.create("MRRSleep", conf, false, null, credentials);
+	      tezSession.start();
+	      DAGClient dagClient = tezSession.submitDAG(dag);
 
-		DAG dag = createDAG(remoteFs, conf, remoteStagingDir, numMapper,
-				numReducer, iReduceStagesCount, numIReducer, mapSleepTime,
-				mapSleepCount, reduceSleepTime, reduceSleepCount,
-				iReduceSleepTime, iReduceSleepCount, writeSplitsToDfs,
-				generateSplitsInAM);
+	      while (true) {
+	        DAGStatus status = dagClient.getDAGStatus(null);
+	        TestSession.logger.info("DAG Status: " + status);
+	        if (status.isCompleted()) {
+	          break;
+	        }
+	        try {
+	          Thread.sleep(1000);
+	        } catch (InterruptedException e) {
+	          // do nothing
+	        }
+	      }
+	      tezSession.stop();
 
-		TezClient tezSession = new TezClient("MRRSleep", conf, false, null,
-				credentials);
-		tezSession.start();
-		DAGClient dagClient = tezSession.submitDAG(dag);
-
-		while (true) {
-			DAGStatus status = dagClient.getDAGStatus(null);
-			TestSession.logger.info("DAG Status: " + status);
-			if (status.isCompleted()) {
-				break;
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// do nothing
-			}
-		}
-		tezSession.stop();
-
-		return dagClient.getDAGStatus(null).getState()
-				.equals(DAGStatus.State.SUCCEEDED) ? 0 : 1;
-	}
+	      return dagClient.getDAGStatus(null).getState().equals(DAGStatus.State.SUCCEEDED) ? 0 : 1;
+	    }
 
 }
