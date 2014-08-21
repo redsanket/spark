@@ -23,19 +23,19 @@ import org.apache.spark._
 import java.io.{File, PrintWriter, FileReader, BufferedReader}
 import SparkContext._
 
-object SparkDistributedCacheSingleFile {
+object SparkDistributedCacheSingleArchive {
   def main(args: Array[String]) {
     if (args.length < 1) {
-      System.err.println("Usage: SparkDistributedCacheSingleFile <inputfile>")
+      System.err.println("Usage: SparkDistributedCacheSingleArchive <inputfile>")
       System.exit(1)
     }
-    val conf = new SparkConf().setAppName("SparkDistributedCacheSingleFile")
+    val conf = new SparkConf().setAppName("SparkDistributedCacheSingleArchive ")
     val spark = new SparkContext(conf)
 
     val testData = Array((1,1), (1,1), (2,1), (3,5), (2,2), (3,0))
     val result = spark.parallelize(testData).reduceByKey {
-      // file expected to contain single value of 100 
-      val in = new BufferedReader(new FileReader(args(0)))
+      // archive expected which contains a file named singlefile.txt which contain single value of 100 
+      val in = new BufferedReader(new FileReader(args(0) + "/singlefile.txt"))
       val fileVal = in.readLine().toInt
       in.close()
       _ * fileVal + _ * fileVal

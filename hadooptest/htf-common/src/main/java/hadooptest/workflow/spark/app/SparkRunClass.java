@@ -230,9 +230,11 @@ public class SparkRunClass extends App {
             appPatternStr = " application identifier: (.*)$";
         }
 
+        String exceptionPatternStr = "Exception in thread(.*)$";
         String errorPatternStr = "ERROR (.*)Client: (.*)$";
         Pattern appPattern = Pattern.compile(appPatternStr);
         Pattern errorPattern = Pattern.compile(errorPatternStr);
+        Pattern exceptionPattern = Pattern.compile(exceptionPatternStr);
 
         // setup spark env
         Map<String, String> newEnv = new HashMap<String, String>();
@@ -301,6 +303,7 @@ public class SparkRunClass extends App {
 
                 Matcher appMatcher = appPattern.matcher(line);
                 Matcher errorMatcher = errorPattern.matcher(line);
+                Matcher exceptionMatcher = exceptionPattern.matcher(line);
 
                 if (appMatcher.find()) {
                     this.ID = appMatcher.group(1);
@@ -312,6 +315,13 @@ public class SparkRunClass extends App {
                 if (errorMatcher.find()) {
                     this.ERROR = errorMatcher.group(2);
                     TestSession.logger.error("ERROR is: " + errorMatcher.group(2));
+                    reader.close();
+                    break;
+                }
+
+                if (exceptionMatcher.find()) {
+                    this.ERROR = exceptionMatcher.group(1);
+                    TestSession.logger.error("Exception is: " + errorMatcher.group(1));
                     reader.close();
                     break;
                 }

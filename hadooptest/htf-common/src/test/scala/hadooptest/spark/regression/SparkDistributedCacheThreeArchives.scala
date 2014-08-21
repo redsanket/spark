@@ -23,22 +23,27 @@ import org.apache.spark._
 import java.io.{File, PrintWriter, FileReader, BufferedReader}
 import SparkContext._
 
-object SparkDistributedCacheSingleFile {
+object SparkDistributedCacheThreeArchives {
   def main(args: Array[String]) {
     if (args.length < 1) {
-      System.err.println("Usage: SparkDistributedCacheSingleFile <inputfile>")
+      System.err.println("Usage: SparkDistributedCacheThreeArchives <inputarchive> <inputarchive2> <inputarchive3>")
       System.exit(1)
     }
-    val conf = new SparkConf().setAppName("SparkDistributedCacheSingleFile")
+    val conf = new SparkConf().setAppName("SparkDistributedCacheThreeArchives")
     val spark = new SparkContext(conf)
 
     val testData = Array((1,1), (1,1), (2,1), (3,5), (2,2), (3,0))
     val result = spark.parallelize(testData).reduceByKey {
-      // file expected to contain single value of 100 
-      val in = new BufferedReader(new FileReader(args(0)))
+      // archives expected to contain single files name firstfile.txt, secondfile.txt, 
+      // thirdfile.txt that have the value of 20, 30, 50
+      val in = new BufferedReader(new FileReader(args(0) + "/firstfile.txt"))
       val fileVal = in.readLine().toInt
+      val in2 = new BufferedReader(new FileReader(args(1) + "/secondfile.txt"))
+      val fileVal2 = in2.readLine().toInt
+      val in3 = new BufferedReader(new FileReader(args(2) + "/thirdfile.txt"))
+      val fileVal3 = in3.readLine().toInt
       in.close()
-      _ * fileVal + _ * fileVal
+      _ * (fileVal + fileVal2 + fileVal3) + _ * (fileVal + fileVal2 + fileVal3)
     }.collect()
     println("result is: " + result)
     val pass = (result.toSet == Set((1,200), (2,300), (3,500)))
