@@ -106,7 +106,7 @@ unless ($remote_host) {
 }
 
 # my $tmp="/tmp"
-my $tmp="/grid/0/tmp"
+my $tmp="/grid/0/tmp";
 $remote_ws = "$tmp/hadooptest-$remote_username-$cluster"
     unless ($remote_ws);
 $remote_ws_ht = "$remote_ws/hadooptest";
