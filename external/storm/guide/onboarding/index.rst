@@ -40,6 +40,12 @@ http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
 Create a New Topology
 =====================
 
+The topology you are creating in this section is not the Storm topology defined as a *graph of computation*.
+Instead, you are requesting an instance in a cluster for running your Storm topology. For instance,
+your Storm topology might include two spouts and two bolts, so you request an instance on a Storm cluster
+to run your topology. To request an instance, you create a topology in Dopplr. We know that this is confusing
+and plan on changing the nomenclature soon.
+
 #. From your the **Storm Project** page, you'll see your project name listed as one of the projects that you 
    a member of or have selected as a favorite. Click the project name to open your project page.
 #. From your project page, click the **New topology** button under the label **Topologies**.
