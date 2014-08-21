@@ -119,5 +119,28 @@ public class TestSparkHdfsLrCli extends TestSession {
             fail();
         }
     }
+
+   /*
+    * A test for running a SparkHdfsLR with a non-existent hdfs file.
+    * 
+    */
+    @Test
+    public void runSparkHdfsLRTestNonexistHdfsFile() throws Exception {
+        SparkHdfsLR appUserDefault = new SparkHdfsLR();
+
+        appUserDefault.setMaster(AppMaster.YARN_CLIENT);
+        appUserDefault.setWorkerMemory("2g");
+        appUserDefault.setNumWorkers(3);
+        appUserDefault.setWorkerCores(1);
+        appUserDefault.setNumIterations(100);
+        appUserDefault.setLRDataFile("bogusnonexistentfile.txt");
+
+        appUserDefault.start();
+
+        int waitTime = 30;
+        assertTrue("Job (default user) did not error.",
+            appUserDefault.waitForERROR(waitTime));
+    }
+
 }
 

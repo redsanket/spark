@@ -202,7 +202,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 //
 //	}
 
-	@Monitorable
+	// see hangs issuing 'test -f' on NN  @Monitorable
 	@Test
 	public void copyFilesOntoHadoopFS() throws IOException,
 			InterruptedException {
@@ -269,7 +269,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 	
-	@Monitorable
+	// see hangs issuing 'test -f' on NN  @Monitorable
 	@Test(expected = AccessControlException.class)
 	public void checkPermissions() throws IOException, InterruptedException {
 		logger.info("traceMethod:checkPermissions");
@@ -311,7 +311,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Monitorable
+	// see hangs issuing 'test -f' on NN  @Monitorable
 	@Test
 	public void appendToFile() throws Exception {
 		logger.info("traceMethod:appendToFile");
@@ -342,7 +342,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Monitorable
+	// see hangs issuing 'test -f' on NN  @Monitorable
 	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() {
 		logger.info("traceMethod:testdoAMovesInAndOutOfClusterAndChecksum");
