@@ -41,6 +41,8 @@
 		<spark.version>1.0.1.1</spark.version>
 		<spark.hadoop.version>2.4.0.3.1405211906</spark.hadoop.version>
 		<spark.version.full>1.0.1.1_2.4.0.3.1405211906_1408130038</spark.version.full>
+		<spark.compile.systemdep.version>1.0.1.0</spark.compile.systemdep.version>
+		<spark.compile.systemdep.hadoop.version>2.4.0.3.1405211906</spark.compile.systemdep.hadoop.version>
 		<scala.version>2.10.3</scala.version>
 		<storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
 		<storm.version.community>0.9.2-incubating-security</storm.version.community>
@@ -1091,6 +1093,14 @@
 					<systemPath>${yinst.home}/lib64/storm/current/lib/clojure-1.5.1.jar</systemPath>
 				</dependency>
 
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_kryo</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/kryo-2.21.jar</systemPath>
+				</dependency>
+
 				<!-- COMMONS-CODEC -->
 
 				<dependency>
@@ -1397,6 +1407,14 @@
 					<systemPath>${yinst.home}/lib64/storm/current/lib/clojure-1.4.0.jar</systemPath>
 				</dependency>
 
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>ystorm_kryo</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${yinst.home}/lib64/storm/current/lib/kryo-2.21.jar</systemPath>
+				</dependency>
+
 				<!-- COMMONS-CODEC -->
 
 				<dependency>
@@ -1580,6 +1598,7 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		
 		<profile>
 			<!-- When Hadoop is used, the profile-hadoop profile must be called before 
 				profile-ci or any other profile. If another profile is used first, the dependency 
@@ -1625,6 +1644,14 @@
 					<version>0.9.2</version>
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/storm-core-${storm.version.community}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>fetched_ystorm_kryo</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/storm/current/lib/kryo-2.21.jar</systemPath>
 				</dependency>
 
 				<dependency>
