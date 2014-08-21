@@ -20,10 +20,10 @@ then
    tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/
 fi
 
-# yspark_yarn-0.9.0.1.1403181145_hadoop2
+# yspark_yarn-1.0.1.0_2.4.0.3.1405211906_1407071405
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch" ]
 then
-   /usr/local/bin/yinst fetch yspark_yarn-0.9.0.1.1403181145_hadoop2 -br quarantine -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+   /usr/local/bin/yinst fetch yspark_yarn-1.0.1.0_2.4.0.3.1405211906_1407071405 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
 fi
