@@ -46,7 +46,7 @@ public class TestStatusMonitor extends AbstractMonitor {
 			for (String aKey : MonitoringListener.testStatusesWhereTrueMeansPassAndFalseMeansFailed
 					.keySet()) {
 				TestSession.logger
-						.info("testStatusesWhereTrueMeansPassAndFalseMeansFailed has key:"
+						.trace("testStatusesWhereTrueMeansPassAndFalseMeansFailed has key:"
 								+ aKey);
 			}
 			TestSession.logger
