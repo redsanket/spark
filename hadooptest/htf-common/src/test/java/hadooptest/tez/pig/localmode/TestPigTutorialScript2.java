@@ -1,8 +1,8 @@
 package hadooptest.tez.pig.localmode;
 
 
-import hadooptest.tez.HtfPigBaseClass;
-import hadooptest.tez.HtfTezUtils;
+import hadooptest.tez.utils.HtfPigBaseClass;
+import hadooptest.tez.utils.HtfTezUtils;
 
 import java.io.File;
 

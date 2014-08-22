@@ -1,7 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
-import hadooptest.tez.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

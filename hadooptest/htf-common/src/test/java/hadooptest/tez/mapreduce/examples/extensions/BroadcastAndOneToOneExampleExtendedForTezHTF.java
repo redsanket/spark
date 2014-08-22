@@ -1,7 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
-import hadooptest.tez.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;

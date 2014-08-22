@@ -3,8 +3,8 @@ package hadooptest.tez.mapreduce.examples.localmode;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.tez.HtfTezUtils;
 import hadooptest.tez.mapreduce.examples.extensions.OrderedWordCountExtendedForTez;
+import hadooptest.tez.utils.HtfTezUtils;
 
 import java.io.File;
 

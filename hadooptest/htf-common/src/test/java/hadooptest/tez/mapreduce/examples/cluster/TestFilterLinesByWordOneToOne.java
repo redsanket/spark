@@ -9,8 +9,8 @@ import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
-import hadooptest.tez.HtfTezUtils;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordOneToOneExtendedForHTF;
+import hadooptest.tez.utils.HtfTezUtils;
 
 import org.junit.After;
 import org.junit.Assert;

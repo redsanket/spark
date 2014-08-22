@@ -1,4 +1,4 @@
-package hadooptest.tez;
+package hadooptest.tez.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

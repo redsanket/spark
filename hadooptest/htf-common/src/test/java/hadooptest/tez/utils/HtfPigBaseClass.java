@@ -1,4 +1,4 @@
-package hadooptest.tez;
+package hadooptest.tez.utils;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;

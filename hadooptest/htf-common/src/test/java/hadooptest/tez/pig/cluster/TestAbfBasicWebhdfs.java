@@ -12,7 +12,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.node.hadoop.HadoopNode;
-import hadooptest.tez.HtfPigBaseClass;
+import hadooptest.tez.utils.HtfPigBaseClass;
 
 public class TestAbfBasicWebhdfs extends HtfPigBaseClass {
 	private static String SCRIPT_NAME = "abf_basic_webhdfs.pig";
