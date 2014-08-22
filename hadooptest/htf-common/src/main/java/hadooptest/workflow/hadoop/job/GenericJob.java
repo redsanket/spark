@@ -127,7 +127,7 @@ public class GenericJob extends Job {
 		while(line!=null) 
 		{ 
 			TestSession.logger.debug(line);
-			lineBuffer.append(line);
+			lineBuffer.append(line + "\n");
 
 			Matcher jobMatcher = jobPattern.matcher(line);
 
@@ -140,8 +140,11 @@ public class GenericJob extends Job {
 
 			line=reader.readLine();
 		}
-		TestSession.logger.error("Did not find JOB ID for the submitted job:" +
-		        lineBuffer);
+
+		if (this.ID.equals("0")) {
+	        TestSession.logger.error(
+	                "Did not find JOB ID for the submitted job:" + lineBuffer);
+		}
 	} 
 
 	/**
