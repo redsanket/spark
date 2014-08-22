@@ -23,6 +23,15 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+/**
+ * This class has the real test methods meant to be run on the cluster. Their
+ * counterparts live under {@code}hadooptest.tez.mapreduce.examples.localmode
+ * package. All test cases extend an intermediate class, ending in
+ * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
+ * as a part of the Tez distro JAR. 
+ * These test cases flesh out and implement sub-tests that are provisioned in the original test class.
+ * 
+ */
 
 @Category(SerialTests.class)
 public class TestGroupByOrderByMRRTest extends
@@ -35,7 +44,7 @@ public class TestGroupByOrderByMRRTest extends
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		TestSession.start();
-		generateTestData();
+		HtfTezUtils.generateTestData(SHELL_SCRIPT_LOCATION, INPUT_FILE_NAME);
 
 	}
 
@@ -50,45 +59,6 @@ public class TestGroupByOrderByMRRTest extends
 
 	}
 
-	private static void generateTestData() throws IOException,
-			InterruptedException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("#/bin/bash" + "\n");
-		sb.append("i=1000" + "\n");
-		sb.append("j=1000" + "\n");
-		sb.append("id=0" + "\n");
-		sb.append("while [[ \"$id\" -ne \"$i\" ]]" + "\n");
-		sb.append("do" + "\n");
-		sb.append("id=`expr $id + 1`" + "\n");
-		sb.append("deptId=`expr $RANDOM % $j + 1`" + "\n");
-		sb.append("deptName=`echo \"ibase=10;obase=16;$deptId\" | bc`" + "\n");
-		sb.append("echo \"$id O$deptName\"" + "\n");
-		sb.append("done" + "\n");
-
-		File file = new File(SHELL_SCRIPT_LOCATION);
-
-		if (file.exists()) {
-			if (!file.canExecute()) {
-				file.setExecutable(true);
-			}
-		} else {
-			file.createNewFile();
-			Writer writer = new FileWriter(file);
-			BufferedWriter bw = new BufferedWriter(writer);
-			bw.write(sb.toString());
-			bw.close();
-			writer.close();
-			file.setExecutable(true);
-		}
-
-		ProcessBuilder builder = new ProcessBuilder("sh", file.getAbsolutePath());
-		builder.redirectOutput(new File(INPUT_FILE_NAME));
-		builder.redirectErrorStream();
-		Process proc = builder.start();
-		Assert.assertTrue(proc.waitFor()==0);
-		Assert.assertEquals(proc.exitValue(), 0);
-
-	}
 
 	@Test
 	public void testGroupByOrderByMRRTestRunOnCluster() throws Exception {

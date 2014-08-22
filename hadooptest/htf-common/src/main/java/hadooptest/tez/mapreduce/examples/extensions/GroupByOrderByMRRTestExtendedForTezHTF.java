@@ -1,7 +1,6 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
-import hadooptest.tez.HtfTezUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -23,14 +22,42 @@ import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
 import org.apache.tez.mapreduce.examples.ExampleDriver;
 import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest;
-import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest.MyGroupByReducer;
-import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest.MyMapper;
-import org.apache.tez.mapreduce.examples.GroupByOrderByMRRTest.MyOrderByNoOpReducer;
 import org.apache.tez.mapreduce.hadoop.MRJobConfig;
 import org.apache.tez.mapreduce.hadoop.MultiStageMRConfigUtil;
 
+/**
+ * These classes ending in *ExtendedForTezHTF are intermediate classes, that
+ * live between the class that is distributed with original Tez JAR and the
+ * actual test class (that has the @Test implementations) Since the Tez classes
+ * sent out with the distribution 'extends Configured implements Tool' they are
+ * designed to be invoked directly from the command line. When invoked from the
+ * Command line, the run(String[] args) method [from the Tool class] gets
+ * invoked. It parses the arguments and subsequently calls run(...) arguments,
+ * that has the main body of the functionality. Since this 'run' method creates
+ * Configuration objects (and that is where we toggle if this runs on local mode
+ * or cluster mode) we need to overtide (copy/paste) that run method here and
+ * override the getConf() method calls with {@code}
+ * HtfTezUtils.setupConfForTez(conf, mode)
+ * 
+ * That would set up the local/cluster mode correctly.
+ * 
+ */
+
 public class GroupByOrderByMRRTestExtendedForTezHTF extends
 		GroupByOrderByMRRTest {
+
+	/**
+	 * Copy and paste the the code from the parent class's run method here.
+	 * Change all references to getConf() to HtfTezUtils.setupConfForTez(conf,
+	 * mode) Note: Be careful, there could be several run methods there, for
+	 * example those contained inside a Processor, or that overriding the method
+	 * in the Tool class.
+	 * 
+	 * @param args
+	 * @param mode
+	 * @return
+	 * @throws Exception
+	 */
 	public int run(String[] args, String mode) throws Exception {
 		Configuration conf = getConf();
 

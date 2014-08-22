@@ -3,21 +3,22 @@ package hadooptest.tez.mapreduce.examples.cluster;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
-import hadooptest.tez.HtfTezUtils;
 import hadooptest.tez.mapreduce.examples.extensions.BroadcastAndOneToOneExampleExtendedForTezHTF;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+/**
+ * This class has the real test methods meant to be run on the cluster. Their
+ * counterparts live under {@code}hadooptest.tez.mapreduce.examples.localmode
+ * package. All test cases extend an intermediate class, ending in
+ * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
+ * as a part of the Tez distro JAR. These test cases flesh out and implement
+ * sub-tests that are provisioned in the original test class.
+ * 
+ */
 @Category(SerialTests.class)
 public class TestBroadcastAndOneToOneExample extends
 		BroadcastAndOneToOneExampleExtendedForTezHTF {
@@ -37,8 +38,7 @@ public class TestBroadcastAndOneToOneExample extends
 	@Test
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnCluster()
 			throws Exception {
-		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ);
+		int returnCode = run(new String[] {}, HadooptestConstants.Execution.TEZ);
 		Assert.assertTrue(returnCode == 0);
 	}
 

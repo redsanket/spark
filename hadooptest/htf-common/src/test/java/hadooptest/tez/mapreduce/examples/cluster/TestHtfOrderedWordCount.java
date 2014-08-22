@@ -19,6 +19,15 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+/**
+ * This class has the real test methods meant to be run on the cluster. Their
+ * counterparts live under {@code}hadooptest.tez.mapreduce.examples.localmode
+ * package. All test cases extend an intermediate class, ending in
+ * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
+ * as a part of the Tez distro JAR. 
+ * These test cases flesh out and implement sub-tests that are provisioned in the original test class.
+ * 
+ */
 
 @Category(SerialTests.class)
 public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {

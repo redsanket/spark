@@ -2,6 +2,7 @@ package hadooptest.tez;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,15 +30,29 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 
+/**
+ * This class houses all the common util functions that are used used by Tez.
+ * 
+ * TODO: Modify this class for parallel runs
+ */
 public class HtfTezUtils {
 
 	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
 	public static boolean useSession = false;
 
-	public static Configuration setupConfForTez(Configuration conf,
-			String mode) throws IOException, InterruptedException {
+	/**
+	 * Tez supports two modes 'local' and 'cluster'. This flip is controlled via
+	 * a config parameter/file. This convinience method provides that flip.
+	 * 
+	 * @param conf
+	 * @param mode
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static Configuration setupConfForTez(Configuration conf, String mode)
+			throws IOException, InterruptedException {
 		String tezVersion = getTezVersion();
-		tezVersion = tezVersion.trim();
 		TestSession.logger.info("Read back tez version as:" + tezVersion);
 		String fsProtocol = conf.get("fs.defaultFS");
 		TestSession.logger.info("Default FS is:" + fsProtocol);
@@ -47,9 +62,9 @@ public class HtfTezUtils {
 				+ tezVersion + "/libexec/tez/lib");
 
 		conf.set("mapreduce.framework.name", "yarn-tez");
-		if (useSession){
+		if (useSession) {
 			conf.setBoolean("USE_TEZ_SESSION", true);
-		}else{
+		} else {
 			conf.setBoolean("USE_TEZ_SESSION", false);
 		}
 
@@ -58,15 +73,24 @@ public class HtfTezUtils {
 		} else {
 			conf.setBoolean("tez.local.mode", false);
 			try {
-//				 applyTezSettingsToAllHosts();
+				// TODO: Remove this commented method once Amit has been added
+				// to OpsDb role grid_re
+				// applyTezSettingsToAllHosts();
 			} catch (Exception e) {
 				e.printStackTrace();
+				TestSession.logger.info("Exception received when changing confs in all the nodes in the cluster."
+						+ "Remove this commented method once Amit has been added to OpsDb role grid_re");
 			}
 		}
 		return conf;
 	}
 
 	/**
+	 * TODO: This method can be removed later. I have it currently in place
+	 * because I am not a part of an OpsDb group: grid_re, type: opsdb,
+	 * property: Grid.US This inhibits fro looking at the Logs (by drilling down
+	 * to the AM/Container). So this just provides '*' permissions to the world.
+	 * 
 	 * Refer this: http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.0.0.2/
 	 * bk_installing_manually_book/content/rpm-chap-tez-2.html
 	 * 
@@ -106,20 +130,21 @@ public class HtfTezUtils {
 						// wait for a few seconds.
 						Thread.sleep(10000);
 						/**
-						 * Commenting out the statement below, 'cos got a clarification
-						 * from Jon on Aug 10th This isn't needed for our setup unless
-						 * we want all map reduce jobs to use tez. All tez jobs (pig on
-						 * tez and tez map reduce examples) do this automatically.
+						 * Commenting out the statement below, 'cos got a
+						 * clarification from Jon on Aug 10th This isn't needed
+						 * for our setup unless we want all map reduce jobs to
+						 * use tez. All tez jobs (pig on tez and tez map reduce
+						 * examples) do this automatically.
 						 */
-//						fullyDistributedCluster.getConf(aTezComponentType)
-//								.setHadoopConfFileProp(
-//										"mapreduce.framework.name", "yarn",
-//										"mapred-site.xml", null);
+						// fullyDistributedCluster.getConf(aTezComponentType)
+						// .setHadoopConfFileProp(
+						// "mapreduce.framework.name", "yarn",
+						// "mapred-site.xml", null);
 
-						fullyDistributedCluster.getConf(aTezComponentType)						
-						.setHadoopConfFileProp(
-								"mapreduce.job.acl-view-job", "*",
-								"yarn-site.xml", null);
+						fullyDistributedCluster.getConf(aTezComponentType)
+								.setHadoopConfFileProp(
+										"mapreduce.job.acl-view-job", "*",
+										"yarn-site.xml", null);
 
 						// Bounce the node
 						fullyDistributedCluster.hadoopDaemon(Action.STOP,
@@ -128,8 +153,13 @@ public class HtfTezUtils {
 								aTezComponentType);
 
 					} catch (InterruptedException e) {
+						TestSession.logger
+								.info("applyTezSettingsToAllHosts was interrupted... ignoring the interrupt");
 						e.printStackTrace();
 					} catch (Exception e) {
+						TestSession.logger
+								.info("Received Exception while staring/stopping a node. Ignoring it. Because this is a temporary"
+										+ "functionality and would be removed once Amit has access to grid_re OpsDb role.");
 						e.printStackTrace();
 					}
 				}
@@ -164,12 +194,7 @@ public class HtfTezUtils {
 		for (String aHostName : hostnames) {
 			// mkdir
 			String mkdirString = "/bin/mkdir " + remoteCongfigLocation + "/tez";
-			try {
-				fde.runProcBuilder(mkdirString.split("\\s+"));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
+			fde.runProcBuilder(mkdirString.split("\\s+"));
 			// copy
 			copySb.append("scp " + TEZ_SITE_XML + " hadoopqa@" + aHostName
 					+ ":" + remoteCongfigLocation + "tez/tez-site.xml	");
@@ -179,6 +204,19 @@ public class HtfTezUtils {
 
 	}
 
+	/**
+	 * If you run this command readlink /home/gs/conf/tez you would get
+	 * "/grid/0/Releases/tez_conf-0.5.0.1408211546/tez/conf/tez" Notice that
+	 * /home/gs/conf (and also /home/gs/tez) are symbolic links pointing to the
+	 * place where the actual HTF has been stored. One can install multiple
+	 * versions of Tez and use any one of them by changing the symbolic link.
+	 * Hence I've provided a function to read the current version of Tez that is
+	 * currently in play.
+	 * 
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static String getTezVersion() throws IOException,
 			InterruptedException {
 		StringBuilder sb = new StringBuilder();
@@ -200,16 +238,16 @@ public class HtfTezUtils {
 		response = response.replace("/grid/0/Releases/tez-", "");
 		response = response.replace("/libexec/tez", "");
 
-		return response;
+		return response.trim();
 	}
 
 	private static String printResponseAndReturnItAsString(Process process)
-			throws InterruptedException {
+			throws InterruptedException, IOException {
 		StringBuffer sb = new StringBuffer();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				process.getInputStream()));
 		String line;
-		try {
+
 			line = reader.readLine();
 			while (line != null) {
 				sb.append(line);
@@ -218,19 +256,27 @@ public class HtfTezUtils {
 				line = reader.readLine();
 			}
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		process.waitFor();
 		return sb.toString();
 	}
 
-	private static void generateTestData() throws IOException,
+	/**
+	 * This method, generates a shell script on the fly and then runs it to
+	 * generate data used by the Test. TODO: Move this into a htf_pig_data
+	 * package. Alternately consider renaming that package htf_test_data
+	 * package.
+	 * 
+	 * @param shellScriptGoesHere
+	 * @param dataGenByShellScriptGoesHere
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public static void generateTestData(String shellScriptGoesHere,
+			String dataGenByShellScriptGoesHere) throws IOException,
 			InterruptedException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("#/bin/bash" + "\n");
-		sb.append("i=1000000" + "\n");
+		sb.append("i=1000" + "\n");
 		sb.append("j=1000" + "\n");
 		sb.append("id=0" + "\n");
 		sb.append("while [[ \"$id\" -ne \"$i\" ]]" + "\n");
@@ -241,36 +287,42 @@ public class HtfTezUtils {
 		sb.append("echo \"$id O$deptName\"" + "\n");
 		sb.append("done" + "\n");
 
-		File file = new File("~/dataCreationScriptForTestGroupByOrderByMRR.sh");
+		File file = new File(shellScriptGoesHere);
 
 		if (file.exists()) {
 			if (!file.canExecute()) {
 				file.setExecutable(true);
 			}
 		} else {
+			file.createNewFile();
 			Writer writer = new FileWriter(file);
 			BufferedWriter bw = new BufferedWriter(writer);
 			bw.write(sb.toString());
 			bw.close();
+			writer.close();
 			file.setExecutable(true);
-			sb = new StringBuilder();
-			sb.append("/bin/bash" + " ");
-			sb.append(file.getAbsolutePath());
-			String commandString = sb.toString();
-			TestSession.logger.info(commandString);
-			String[] commandFrags = commandString.split("\\s+");
-			Process process = TestSession.exec.runProcBuilderGetProc(
-					commandFrags, null);
-			process.waitFor();
-			Assert.assertEquals(process.exitValue(), 0);
-
 		}
 
+		ProcessBuilder builder = new ProcessBuilder("sh",
+				file.getAbsolutePath());
+		builder.redirectOutput(new File(dataGenByShellScriptGoesHere));
+		builder.redirectErrorStream();
+		Process proc = builder.start();
+		Assert.assertTrue(proc.waitFor() == 0);
+		Assert.assertEquals(proc.exitValue(), 0);
+
 	}
-	
+
+	/**
+	 * This method recursively deletes a file. Typically @After methods invoke
+	 * this after a test run to clean out the test output.
+	 * 
+	 * @param file
+	 * @throws IOException
+	 */
 	public static void delete(File file) throws IOException {
 
-	if (file.isDirectory()) {
+		if (file.isDirectory()) {
 
 			// directory is empty, then delete it
 			if (file.list().length == 0) {
@@ -306,6 +358,5 @@ public class HtfTezUtils {
 			System.out.println("File is deleted : " + file.getAbsolutePath());
 		}
 	}
-
 
 }
