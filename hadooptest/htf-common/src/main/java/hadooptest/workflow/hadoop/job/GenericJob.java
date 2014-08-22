@@ -143,7 +143,8 @@ public class GenericJob extends Job {
 
 		if (this.ID.equals("0")) {
 	        TestSession.logger.error(
-	                "Did not find JOB ID for the submitted job:" + lineBuffer);
+	                "Did not find JOB ID for the submitted job: '" +
+	                        lineBuffer + "'");
 		}
 	} 
 
