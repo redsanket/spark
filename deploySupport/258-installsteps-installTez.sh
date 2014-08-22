@@ -35,8 +35,8 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      /home/gs/hadoop/current/bin/hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
      /home/gs/hadoop/current/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
      /home/gs/hadoop/current/bin/hadoop fs -put /home/gs/conf/tez/tez-site.xml /tmp/ ; \
-     echo Running hadoop jar $TEZ_HOME/tez-mapreduce-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
-     /home/gs/hadoop/current/bin/hadoop jar $TEZ_HOME/tez-mapreduce-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
+     echo Running hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
+     /home/gs/hadoop/current/bin/hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
      /home/gs/hadoop/current/bin/hadoop fs -ls /sharelib/v1/tez/ytez-$TEZVERSION/ "
 fanoutOneTez "$cmd"
 fi
