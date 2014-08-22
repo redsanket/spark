@@ -2,11 +2,14 @@
 Storm User Guide
 ================
 
+This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
+
 About This Guide
 ================
 
-This guide provides Yahoos with a simplified version of documentation for Storm, 
-in this guide, see ....
+The goal of this guide is to help Yahoos use Storm on the Yahoo grid, and thus, is not a comprehensive guide for Storm.
+For more comprehensive documentation, we recommend the `Apache Storm documentation <http://storm.incubator.apache.org>`_. 
+
 
 Getting Help
 ============
@@ -14,41 +17,52 @@ Getting Help
 On-Boarding
 -----------
 
+In addition to an `On-Boarding <./onboarding/>`_ chapter, we also have a `quick start <./quickstart/>`_
+and `tutorials </tutorials>`_ to help you get started.
 
 Asking Questions
 ----------------
 
-Request Support
----------------
+General Questions
+#################
 
-- iList: storm-devel@yahoo-inc.com
-- Phone: Check on-call in the Service Now group "Dev-Spark”
+- storm-users@yahoo-inc.com - Storm User Communications 
+
+Request Support
+###############
+
+- storm-devel@yahoo-inc.com
+
+Product/Engineering 
+###################
+
+Write to the Product Manager or Engineering Manager, whose emails you can find in 
+the **Contacts** section on the `Developer Central: Storm <http://developer.corp.yahoo.com/product/Storm>`_
+page.
 
 Filing Tickets
 --------------
 
+Bugzilla Links
+##############
+
 - Dev: http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency
 - Grid Ops: http://bug.corp.yahoo.com/enter_bug.cgi?product=kryptonite
 
-If you have identified an issue with storm itself in your own environment or while testing, you may file a Bugzilla Ticket.
-When filing the ticket, please include the following if relevant:
-Grid on which the issue was seen. For example, append [ebony-red] to the description of the ticket.
+Ticket Filing Process
+#####################
 
-The topology name, and component names if specific components have problems.
-Gateway used to launch the topology, if applicable.
-Relevant log messages with the error (Please include the entire stack trace).
-If possible, save the output of around 5 complete stack traces (via jstack) of a JVM with the issue.
-If possible, save the heap dump (via jmap) of a JVM with the issue.
-How you observed the issue (Steps to Reproduce)
-Reporting Directly to Dev Team
+If you have identified an issue with Storm withn your environment or 
+while testing, you may file a Bugzilla Ticket. When filing the ticket, 
+include the following if relevant:
 
-If you have identified an issue with storm itself in your own environment or while testing, you may file a Bugzilla Ticket.
-Reporting Issues on the Grid (Production/Non-Production)
-For issues with a storm cluster on the grid, including production, refer to Reporting Problems.
-Reference SupportStorm to see which supported Storm clusters are production and otherwise.
-
-Contact
-#######
+- Grid on which the issue was seen. For example, append [ebony-red] to the description of the ticket.
+- The topology name, and component names if specific components have problems.
+- Gateway used to launch the topology, if applicable.
+- Relevant log messages with the error (Please include the entire stack trace).
+- If possible, save the output of around 5 complete stack traces (via jstack) of a JVM with the issue.
+- If possible, save the heap dump (via jmap) of a JVM with the issue.
+- How you observed the issue (Steps to Reproduce)
 
 
 Typographic Conventions
