@@ -4,6 +4,9 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.monitoring.Monitorable;
 
 import java.io.FileInputStream;
@@ -66,7 +69,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     @Parameters
     public static Collection<Object[]> data() {
 
-        if (DfsTestsBaseClass.crosscoloPerf == true) {
+        if ((DfsTestsBaseClass.crosscoloPerf == true) ||
+            (DfsTestsBaseClass.crossclusterPerf == true)) {
             return Arrays.asList(new Object[][] {
             // Clusters
             { System.getProperty("REMOTE_CLUSTER") }, });
@@ -105,14 +109,13 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                 // Do not make an unnecessary call to get the version, if you'
                 // ve
                 // already made it once.
-                remoteHadoopVersion = versionStore
-                        .get(this.parametrizedCluster);
+                remoteHadoopVersion =
+                        versionStore.get(this.parametrizedCluster);
             } else {
                 remoteHadoopVersion = rmUtils
                         .getHadoopVersion(this.parametrizedCluster);
                 remoteHadoopVersion = remoteHadoopVersion.split("\\.")[0];
                 versionStore.put(this.parametrizedCluster, remoteHadoopVersion);
-
             }
         }
     }
@@ -166,8 +169,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             pathsChmodedSoFar = new HashMap<String, Boolean>();
         }
         isDataCopiedAcrossConcernedClusters = true;
-
     }
+
 
     // @Monitorable
     @Test
@@ -274,11 +277,108 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
         }
     }
 
+
+    @Monitorable
+    @Test
+    public void testHdfsToHdfs() throws Exception {
+
+        // @Ignore("Only valid for cross colo distcp")
+        Assume.assumeTrue(DfsTestsBaseClass.crossclusterPerf);
+
+        // @Ignore("Not valid for cross colo distcp")
+        DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
+        GenericCliResponseBO genericCliResponse;
+        String destinationFile;
+        String appendString;
+
+        // Option args for distcp
+        String optionArgs = "";
+        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+                !httpProxyHost.equals("default")) {
+            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
+            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
+        }
+
+        if ((this.localHadoopVersion.startsWith("0") &&
+             this.remoteHadoopVersion.startsWith("0")) ||
+            (this.localHadoopVersion.startsWith("2") &&
+             this.remoteHadoopVersion.startsWith("2"))) {
+
+            for (String justTheFileName : fileMetadata.keySet()) {
+                // Push
+                appendString = ".srcHdfs." + this.localCluster + ".dstHdfs."
+                        + this.parametrizedCluster;
+                destinationFile = DATA_DIR_IN_HDFS + justTheFileName
+                        + appendString;
+                genericCliResponse = dfsCommonCliCommands.distcp(
+                        EMPTY_ENV_HASH_MAP,
+                        HadooptestConstants.UserNames.HDFSQA,
+                        this.localCluster,
+                        this.parametrizedCluster,
+                        DATA_DIR_IN_HDFS + justTheFileName,
+                        destinationFile,
+                        HadooptestConstants.Schema.HDFS,
+                        HadooptestConstants.Schema.HDFS,
+                        optionArgs);
+                Assert.assertTrue("distcp exited with non-zero exit code", 
+                        genericCliResponse.process.exitValue()==0);
+
+                dfsCommonCliCommands.rm(
+                        EMPTY_ENV_HASH_MAP,
+                        HadooptestConstants.UserNames.HDFSQA,
+                        HadooptestConstants.Schema.WEBHDFS,
+                        this.parametrizedCluster,
+                        Recursive.YES,
+                        Force.YES,
+                        SkipTrash.YES,
+                        destinationFile);
+
+                // Pull
+                appendString = ".srcHdfs." + this.parametrizedCluster
+                        + ".dstHdfs." + this.localCluster;
+                destinationFile = DATA_DIR_IN_HDFS + justTheFileName
+                        + appendString;
+
+                genericCliResponse = dfsCommonCliCommands.distcp(
+                        EMPTY_ENV_HASH_MAP,
+                        HadooptestConstants.UserNames.HDFSQA,
+                        this.parametrizedCluster,
+                        this.localCluster,
+                        DATA_DIR_IN_HDFS + justTheFileName,
+                        destinationFile,
+                        HadooptestConstants.Schema.HDFS,
+                        HadooptestConstants.Schema.HDFS,
+                        optionArgs);
+                Assert.assertTrue("distcp exited with non-zero exit code",
+                        genericCliResponse.process.exitValue()==0);
+
+                dfsCommonCliCommands.rm(
+                        EMPTY_ENV_HASH_MAP,
+                        HadooptestConstants.UserNames.HDFSQA,
+                        HadooptestConstants.Schema.WEBHDFS,
+                        this.localCluster,
+                        Recursive.YES,
+                        Force.YES,
+                        SkipTrash.YES,
+                        destinationFile);
+            }
+
+        } else {
+            logger.info("Skipping test because of possible RPC version mismatch....Local version="
+                    + this.localHadoopVersion
+                    + " Destination version="
+                    + this.remoteHadoopVersion);
+        }
+    }
+
+
     @After
     public void logTaskResportSummary() throws Exception {
         // Override to hide the Test Session logs
 
-        if (crosscoloPerf == true) {
+        if ((DfsTestsBaseClass.crosscoloPerf == true) ||
+            (DfsTestsBaseClass.crossclusterPerf == true)) {
             ArrayList<String> cmd = new ArrayList<String>();
             cmd.add(TestSession.conf.getProperty("WORKSPACE")
                     + "/scripts/calc_perf");

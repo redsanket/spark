@@ -54,8 +54,12 @@ public class DfsTestsBaseClass extends TestSession {
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
 
-	public static boolean crosscoloPerf = 
+	// For ycrypt proxy performance testing
+	public static boolean crosscoloPerf =
 	        Boolean.parseBoolean(System.getProperty("CROSS_COLO_PERF", "false"));
+	// For http proxy performance testing
+	public static boolean crossclusterPerf =
+            Boolean.parseBoolean(System.getProperty("CROSS_CLUSTER_PERF", "false"));
 	
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public static final String EMPTY_FS_ENTITY = "";
@@ -117,7 +121,8 @@ public class DfsTestsBaseClass extends TestSession {
 	public static void ensureDataPresenceInCluster() throws Exception{
 		TestSession.start();
 		ensureLocalFilesPresentBeforeTestRun();
-		if (DfsTestsBaseClass.crosscoloPerf == true) {
+		if ((DfsTestsBaseClass.crosscoloPerf == true) ||
+		        (DfsTestsBaseClass.crossclusterPerf == true)) {
 		    copyFilesIntoClusterForPerf(System.getProperty("CLUSTER_NAME"));
 		} else {
 		    copyFilesIntoCluster(System.getProperty("CLUSTER_NAME"));
@@ -204,7 +209,8 @@ public class DfsTestsBaseClass extends TestSession {
 
 	public static void ensureLocalFilesPresentBeforeTestRun() {
 
-	    if (crosscoloPerf == true) {
+        if ((DfsTestsBaseClass.crosscoloPerf == true) ||
+                (DfsTestsBaseClass.crossclusterPerf == true)) {
 	        setFileMetadataForPerf();
 	    } else {
 	        setFileMetadata();	        
