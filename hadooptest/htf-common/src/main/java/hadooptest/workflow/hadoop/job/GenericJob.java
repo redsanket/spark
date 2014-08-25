@@ -232,6 +232,8 @@ public class GenericJob extends Job {
 	    TestSession.logger.info("Submit job with job name: '" +
 	            this.getJobDisplayName() + "'");
 	    cmd.add("-Dmapreduce.job.name=" + this.jobDisplayName);
+
+	    cmd.addAll(Arrays.asList(this.jobArgs));
 		this.command = cmd.toArray(new String[0]);
 		return this.command;		
 	}
