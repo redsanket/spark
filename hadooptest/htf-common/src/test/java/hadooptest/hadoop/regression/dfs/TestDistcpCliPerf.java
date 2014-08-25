@@ -209,13 +209,9 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     .startsWith("0"))
                     || (this.localHadoopVersion.startsWith("2") && this.remoteHadoopVersion
                             .startsWith("2"))) {
-
                 // Push
                 // appendString = ".srcWebhdfs." + this.localCluster +
-                // ".dstHdfs."
-                // + this.parametrizedCluster;
-                destinationFile = DATA_DIR_IN_HDFS;
-
+                // ".dstHdfs." + this.parametrizedCluster;
                 destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
                 dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
                         HadooptestConstants.UserNames.HDFSQA, "",
@@ -248,10 +244,12 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                         SkipTrash.YES,
                         destinationFile);
             }
+
             // Pull
             appendString = ".srcWebhdfs." + this.parametrizedCluster
                     + ".dstHdfs." + this.localCluster;
-            destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
+            // destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
+            destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
             genericCliResponse = dfsCommonCliCommands.distcp(
                     EMPTY_ENV_HASH_MAP,
                     HadooptestConstants.UserNames.HDFSQA,
@@ -300,23 +298,23 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
         }
 
-        if ((this.localHadoopVersion.startsWith("0") &&
-             this.remoteHadoopVersion.startsWith("0")) ||
-            (this.localHadoopVersion.startsWith("2") &&
-             this.remoteHadoopVersion.startsWith("2"))) {
+        for (String justTheFile : fileMetadataPerf.keySet()) {
 
-            for (String justTheFileName : fileMetadata.keySet()) {
+            if ((this.localHadoopVersion.startsWith("0") &&
+                    this.remoteHadoopVersion.startsWith("0")) ||
+                    (this.localHadoopVersion.startsWith("2") &&
+                            this.remoteHadoopVersion.startsWith("2"))) {
                 // Push
                 appendString = ".srcHdfs." + this.localCluster + ".dstHdfs."
                         + this.parametrizedCluster;
-                destinationFile = DATA_DIR_IN_HDFS + justTheFileName
-                        + appendString;
+                destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
                 genericCliResponse = dfsCommonCliCommands.distcp(
                         EMPTY_ENV_HASH_MAP,
                         HadooptestConstants.UserNames.HDFSQA,
                         this.localCluster,
                         this.parametrizedCluster,
-                        DATA_DIR_IN_HDFS + justTheFileName,
+                        DATA_DIR_IN_HDFS + justTheFile + "_{1.."
+                                + fileMetadataPerf.get(justTheFile) + "}",
                         destinationFile,
                         HadooptestConstants.Schema.HDFS,
                         HadooptestConstants.Schema.HDFS,
@@ -337,15 +335,14 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                 // Pull
                 appendString = ".srcHdfs." + this.parametrizedCluster
                         + ".dstHdfs." + this.localCluster;
-                destinationFile = DATA_DIR_IN_HDFS + justTheFileName
-                        + appendString;
-
+                destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
                 genericCliResponse = dfsCommonCliCommands.distcp(
                         EMPTY_ENV_HASH_MAP,
                         HadooptestConstants.UserNames.HDFSQA,
                         this.parametrizedCluster,
                         this.localCluster,
-                        DATA_DIR_IN_HDFS + justTheFileName,
+                        DATA_DIR_IN_HDFS + justTheFile + "_{1.."
+                                + fileMetadataPerf.get(justTheFile) + "}",
                         destinationFile,
                         HadooptestConstants.Schema.HDFS,
                         HadooptestConstants.Schema.HDFS,
@@ -362,13 +359,12 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                         Force.YES,
                         SkipTrash.YES,
                         destinationFile);
-            }
-
-        } else {
+            } else {
             logger.info("Skipping test because of possible RPC version mismatch....Local version="
                     + this.localHadoopVersion
                     + " Destination version="
                     + this.remoteHadoopVersion);
+            }
         }
     }
 
