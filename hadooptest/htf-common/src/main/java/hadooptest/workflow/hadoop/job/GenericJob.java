@@ -200,6 +200,10 @@ public class GenericJob extends Job {
 		cmd.add("jar");
 		cmd.add(this.jobJar);
 		cmd.add(this.jobName);
+		if (!Arrays.asList(this.jobArgs).contains("mapreduce.job.name")) {
+	        cmd.add("-Dmapreduce.job.name=" + this.jobName + "-" +
+	                this.getTimestamp());
+		}
 		cmd.addAll(Arrays.asList(this.jobArgs));
 		this.command = cmd.toArray(new String[0]);
 		return this.command;		
