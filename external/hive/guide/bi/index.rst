@@ -919,16 +919,14 @@ JDBC Requirements
 - ACLs on JDBC client should be set up.
 - Access to Kerberos servers.
 - Access to HiveServer2 machines and ports.
-- Basically the ACL part of setting up a launcher box.
 - The JDBC driver works with >= RHEL6.4 and Java 7.
-- Paranoid approval must during onboarding since data on the grid might be opened up.
-- Create an onboarding ticket and we will get it going.
+- Paranoid approval during onboarding since data on the grid might be opened up.
+  and we will get it going.
 
 Tutorial
 ########
 
 The following steps will show you how to use the JDBC driver for a simple example. 
-
 
 Prerequisites
 *************
