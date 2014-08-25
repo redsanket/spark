@@ -126,7 +126,7 @@ execute("ssh -t $remote_host \"/bin/mkdir -p $remote_ws_ht\"");
 
 $use_mvn = ( grep( /-j/, @ARGV ) ) ? 0 : 1;
 $local_ws_ht = "/Users/$username/git/hadooptest/hadooptest" unless ($local_ws_ht);
-my $tgz_dir="$tmp";
+my $tgz_dir="/tmp";
 my $tgz_file_ht="hadooptest.tgz";
 
 note("cluster='$cluster'");
