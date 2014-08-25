@@ -2,7 +2,10 @@
 Architecture
 ============
 
-In this chapter, we'll first look at the physical architecture of 
+
+.. Status: Finished first draft. Could use another copy edit and possible a section on topology.
+
+In this chapter, we'll look at how Storm fits in the big Hadoop picture and then the components of a Storm cluster.
 
 Storm in the Hadoop Ecosystem
 =============================
