@@ -278,7 +278,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     }
 
 
-    @Monitorable
+    // @Monitorable
     @Test
     public void testHdfsToHdfs() throws Exception {
 
