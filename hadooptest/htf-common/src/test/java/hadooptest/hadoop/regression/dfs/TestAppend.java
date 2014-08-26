@@ -1,6 +1,5 @@
 package hadooptest.hadoop.regression.dfs;
 
-import static org.junit.Assert.fail;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -30,6 +29,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.fail;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
@@ -197,87 +197,63 @@ public class TestAppend {
         TestSession.logger.info("Dump out Block Location");
         dumpFileBlockLocations(fnameOption);
     }
-
-    @Test public void testAppend1() throws Exception { runTest("1", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z100" } ); }
-    @Test public void testAppend2() throws Exception { runTest("2", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z122" } ); }
-    @Test public void testAppend3() throws Exception { runTest("3", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z123" } ); }
-    @Test public void testAppend4() throws Exception { runTest("4", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z124" } ); }
-    @Test public void testAppend5() throws Exception { runTest("5", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z125" } ); }
-    @Test public void testAppend6() throws Exception { runTest("6", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z126" } ); }
-    @Test public void testAppend7() throws Exception { runTest("7", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z127" } ); }
-    @Test public void testAppend8() throws Exception { runTest("8", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z128" } ); }
-    @Test public void testAppend9() throws Exception { runTest("9", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z132" } ); }
-    @Test public void testAppend10() throws Exception { runTest("10", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z133" } ); }
-    @Test public void testAppend11() throws Exception { runTest("11", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z134" } ); }
-    @Test public void testAppend12() throws Exception { runTest("12", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z135" } ); }
-    @Test public void testAppend13() throws Exception { runTest("13", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z136" } ); }
-    @Test public void testAppend14() throws Exception { runTest("14", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z137" } ); }
-    @Test public void testAppend15() throws Exception { runTest("15", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z138" } ); }
-    @Test public void testAppend16() throws Exception { runTest("16", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z902" } ); }
-    @Test public void testAppend17() throws Exception { runTest("17", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z903" } ); }
-    @Test public void testAppend18() throws Exception { runTest("18", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z904" } ); }
-    @Test public void testAppend19() throws Exception { runTest("19", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z905" } ); }
-    @Test public void testAppend20() throws Exception { runTest("20", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z906" } ); }
-    @Test public void testAppend21() throws Exception { runTest("21", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z907" } ); }
-    @Test public void testAppend22() throws Exception { runTest("22", new String[] { "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z908" } ); }
-    @Test public void testAppend102() throws Exception { runTest("102", new String[] {"-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR + "/Z101" } ); }
-    @Test public void testAppend103() throws Exception { runTest("103", new String[] {"-useFC -rw -n 10 -s 10000 -p 1000 -f " + APPEND_OUTDIR + "/Z102" } ); }
-    @Test public void testAppend104() throws Exception { runTest("104", new String[] {"-useFC -rw -n 10 -s 100000 -p 1000 -f " + APPEND_OUTDIR + "/Z103" } ); }
-    @Test public void testAppend105() throws Exception { runTest("105", new String[] {"-useFC -rw -n 10 -s 1000000 -p 1000 -f " + APPEND_OUTDIR + "/Z104" } ); }
     
-    /*
-    @Test public void testAppend401() throws Exception { runTest("401", new String[] {"-useFC -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z401" } ); }
-    @Test public void testAppend402() throws Exception { runTest("402", new String[] {"-useFC -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z402" } ); }
-    @Test public void testAppend411() throws Exception { runTest("411", new String[] {"-useFC -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z411" } ); }
-    @Test public void testAppend412() throws Exception { runTest("412", new String[] {"-useFC -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z412" } ); }
-    @Test public void testAppend421() throws Exception { runTest("421", new String[] {"-useFC -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z421" } ); }
-    @Test public void testAppend422() throws Exception { runTest("422", new String[] {"-useFC -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z422" } ); }
-    @Test public void testAppend431() throws Exception { runTest("431", new String[] {"-useFC -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z431" } ); }
-    @Test public void testAppend432() throws Exception { runTest("432", new String[] {"-useFC -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z432" } ); }
-    @Test public void testAppend441() throws Exception { runTest("441", new String[] {"-useFC -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z441" } ); }
-    @Test public void testAppend451() throws Exception { runTest("451", new String[] {"-useFC -readFully -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z451" } ); }
-    @Test public void testAppend452() throws Exception { runTest("452", new String[] {"-useFC -readFully -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z452" } ); }
-    @Test public void testAppend461() throws Exception { runTest("461", new String[] {"-useFC -readFully -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z461" } ); }
-    @Test public void testAppend462() throws Exception { runTest("462", new String[] {"-useFC -readFully -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z462" } ); }
-    @Test public void testAppend457() throws Exception { runTest("457", new String[] {"-useFC -readFully -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z471" } ); }
-    @Test public void testAppend471() throws Exception { runTest("471", new String[] {"-useFC -readFully -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z472" } ); }
-    @Test public void testAppend481() throws Exception { runTest("481", new String[] {"-useFC -readFully -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z481" } ); }
-    @Test public void testAppend482() throws Exception { runTest("482", new String[] {"-useFC -readFully -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z482" } ); }
-    @Test public void testAppend496() throws Exception { runTest("496", new String[] {"-useFC -readFully -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z496" } ); }
-    @Test public void testAppend501() throws Exception { runTest("501", new String[] {"-useFC -seqRead -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z501" } ); }
-    @Test public void testAppend502() throws Exception { runTest("502", new String[] {"-useFC -seqRead -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z502" } ); }
-    @Test public void testAppend511() throws Exception { runTest("511", new String[] {"-useFC -seqRead -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z511" } ); }
-    @Test public void testAppend512() throws Exception { runTest("512", new String[] {"-useFC -seqRead -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z512" } ); }
-    @Test public void testAppend521() throws Exception { runTest("521", new String[] {"-useFC -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z521" } ); }
-    @Test public void testAppend522() throws Exception { runTest("522", new String[] {"-useFC -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z522" } ); }
-    @Test public void testAppend531() throws Exception { runTest("531", new String[] {"-useFC -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z531" } ); }
-    @Test public void testAppend532() throws Exception { runTest("532", new String[] {"-useFC -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z532" } ); }
-    @Test public void testAppend541() throws Exception { runTest("541", new String[] {"-useFC -seqRead -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z541" } ); }
-    @Test public void testAppend542() throws Exception { runTest("542", new String[] {"-useFC -seqRead -rw -n 100 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z542" } ); }
-    @Test public void testAppend551() throws Exception { runTest("551", new String[] {"-useFC -readFully -seqRead -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z551" } ); }
-    @Test public void testAppend552() throws Exception { runTest("552", new String[] {"-useFC -readFully -seqRead -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z552" } ); }
-    @Test public void testAppend561() throws Exception { runTest("561", new String[] {"-useFC -readFully -seqRead -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z561" } ); }
-    @Test public void testAppend562() throws Exception { runTest("562", new String[] {"-useFC -readFully -seqRead -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z562" } ); }
-    @Test public void testAppend571() throws Exception { runTest("571", new String[] {"-useFC -readFully -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z571" } ); }
-    @Test public void testAppend572() throws Exception { runTest("572", new String[] {"-useFC -readFully -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z572" } ); }
-    @Test public void testAppend581() throws Exception { runTest("581", new String[] {"-useFC -readFully -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z581" } ); }
-    @Test public void testAppend582() throws Exception { runTest("582", new String[] {"-useFC -readFully -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z582" } ); }
-    @Test public void testAppend596() throws Exception { runTest("596", new String[] {"-useFC -readFully -seqRead -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z596" } ); }
-    @Test public void testAppend597() throws Exception { runTest("597", new String[] {"-useFC -readFully -seqRead -rw -n 100 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z597" } ); }
-    @Test public void testAppend301() throws Exception { runTest("301", new String[] {"-useFC -ro -oc -n 10 -p 1000 -readFully -f " + APPEND_OUTDIR + "/Z101" } ); }
-    @Test public void testAppend302() throws Exception { runTest("302", new String[] {"-useFC -ro -oc -n 100 -p 1000 -readFully -f " + APPEND_OUTDIR + "/Z102" } ); }
+    @Test public void testAppend102() throws Exception { runTest("102", "-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR + "/Z101" ); }
+    @Test public void testAppend103() throws Exception { runTest("103", "-useFC -rw -n 10 -s 10000 -p 1000 -f " + APPEND_OUTDIR + "/Z102" ); }
+    @Test public void testAppend104() throws Exception { runTest("104", "-useFC -rw -n 10 -s 100000 -p 1000 -f " + APPEND_OUTDIR + "/Z103" ); }
+    @Test public void testAppend105() throws Exception { runTest("105", "-useFC -rw -n 10 -s 1000000 -p 1000 -f " + APPEND_OUTDIR + "/Z104" ); }
     
-    */
+    @Test public void testAppend401() throws Exception { runTest("401", "-useFC -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z401" ); }
+    @Test public void testAppend402() throws Exception { runTest("402", "-useFC -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z402" ); }
+    @Test public void testAppend411() throws Exception { runTest("411", "-useFC -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z411" ); }
+    @Test public void testAppend412() throws Exception { runTest("412", "-useFC -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z412" ); }
+    @Test public void testAppend421() throws Exception { runTest("421", "-useFC -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z421" ); }
+    @Test public void testAppend422() throws Exception { runTest("422", "-useFC -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z422" ); }
+    @Test public void testAppend431() throws Exception { runTest("431", "-useFC -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z431" ); }
+    @Test public void testAppend432() throws Exception { runTest("432", "-useFC -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z432" ); }
+    @Test public void testAppend441() throws Exception { runTest("441", "-useFC -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z441" ); }
+    @Test public void testAppend451() throws Exception { runTest("451", "-useFC -readFully -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z451" ); }
+    @Test public void testAppend452() throws Exception { runTest("452", "-useFC -readFully -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z452" ); }
+    @Test public void testAppend461() throws Exception { runTest("461", "-useFC -readFully -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z461" ); }
+    @Test public void testAppend462() throws Exception { runTest("462", "-useFC -readFully -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z462" ); }
+    @Test public void testAppend457() throws Exception { runTest("457", "-useFC -readFully -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z471" ); }
+    @Test public void testAppend471() throws Exception { runTest("471", "-useFC -readFully -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z472" ); }
+    @Test public void testAppend481() throws Exception { runTest("481", "-useFC -readFully -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z481" ); }
+    @Test public void testAppend482() throws Exception { runTest("482", "-useFC -readFully -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z482" ); }
+    @Test public void testAppend496() throws Exception { runTest("496", "-useFC -readFully -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z496" ); }
+    @Test public void testAppend501() throws Exception { runTest("501", "-useFC -seqRead -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z501" ); }
+    @Test public void testAppend502() throws Exception { runTest("502", "-useFC -seqRead -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z502" ); }
+    @Test public void testAppend511() throws Exception { runTest("511", "-useFC -seqRead -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z511" ); }
+    @Test public void testAppend512() throws Exception { runTest("512", "-useFC -seqRead -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z512" ); }
+    @Test public void testAppend521() throws Exception { runTest("521", "-useFC -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z521" ); }
+    @Test public void testAppend522() throws Exception { runTest("522", "-useFC -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z522" ); }
+    @Test public void testAppend531() throws Exception { runTest("531", "-useFC -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z531" ); }
+    @Test public void testAppend532() throws Exception { runTest("532", "-useFC -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z532" ); }
+    @Test public void testAppend541() throws Exception { runTest("541", "-useFC -seqRead -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z541" ); }
+    @Test public void testAppend542() throws Exception { runTest("542", "-useFC -seqRead -rw -n 100 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z542" ); }
+    @Test public void testAppend551() throws Exception { runTest("551", "-useFC -readFully -seqRead -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z551" ); }
+    @Test public void testAppend552() throws Exception { runTest("552", "-useFC -readFully -seqRead -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z552" ); }
+    @Test public void testAppend561() throws Exception { runTest("561", "-useFC -readFully -seqRead -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z561" ); }
+    @Test public void testAppend562() throws Exception { runTest("562", "-useFC -readFully -seqRead -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z562" ); }
+    @Test public void testAppend571() throws Exception { runTest("571", "-useFC -readFully -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z571" ); }
+    @Test public void testAppend572() throws Exception { runTest("572", "-useFC -readFully -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z572" ); }
+    @Test public void testAppend581() throws Exception { runTest("581", "-useFC -readFully -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z581" ); }
+    @Test public void testAppend582() throws Exception { runTest("582", "-useFC -readFully -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z582" ); }
+    @Test public void testAppend596() throws Exception { runTest("596", "-useFC -readFully -seqRead -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z596" ); }
+    @Test public void testAppend597() throws Exception { runTest("597", "-useFC -readFully -seqRead -rw -n 100 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z597" ); }
+    @Test public void testAppend301() throws Exception { runTest("301", "-useFC -ro -oc -n 10 -p 1000 -readFully -f " + APPEND_OUTDIR + "/Z101" ); }
+    @Test public void testAppend302() throws Exception { runTest("302", "-useFC -ro -oc -n 100 -p 1000 -readFully -f " + APPEND_OUTDIR + "/Z102" ); }
     
-    public void runTest(String name, String[] args) throws IOException {
+    public void runTest(String name, String args) throws IOException {
         this.testName = name;
+        this.inputParams = args.split("\\s+");
         
-        System.out.println("+++++++++++++++++++++++++++++++++++");
-        System.out.println("Running " + this.testName + " called with: ");
+        TestSession.logger.info("+++++++++++++++++++++++++++++++++++");
+        TestSession.logger.info("Running " + this.testName + " called with: ");
         for (String temp : this.inputParams) {
-            System.out.print(temp + " ");
+            TestSession.logger.info(temp + " ");
         }
-        System.out.println("+++++++++++++++++++++++++++++++++++");
+        TestSession.logger.info("+++++++++++++++++++++++++++++++++++");
 
         getCmdlineOptions(inputParams);
         setupFS();
@@ -293,14 +269,15 @@ public class TestAppend {
             stat = testReadOnly();
         } else if (writeOnlyOption) {
             stat = testWriteOnly();
-        }
+        } 
 
         if (stat == 0) {
-            System.out.println("Tests done successfully, status = " + stat);
+            TestSession.logger.info("Tests done successfully, status = " + stat);
         } else {
-            System.out.println("Tests failed, status = " + stat
+            TestSession.logger.error("Tests failed, status = " + stat
                     + " ; Dump out Block Location");
             dumpFileBlockLocations(fnameOption);
+            fail();
         }
 
     }
@@ -1542,7 +1519,6 @@ public class TestAppend {
 		return stat;
 	}
 
-	@Test
 	public void testReadBeyondEnd() throws IOException {
 
 		TestSession.logger.info("Test to test the behavior when read from beyond the file length. File name = "
