@@ -885,7 +885,7 @@ Creating Custom Clients with JDBC
 Users can use the Hive JDBC APIs to connect to HiveServer2. 
 The JDBC driver is available as a ``yinst`` package and also through 
 ``yMaven`` for development.  Only Kerberos authentication is supported. 
-The JDBC URIs include  QOP and the Kerberos principal.
+The JDBC URIs include QOP and the Kerberos principal.
 
 
 Syntax::
@@ -932,17 +932,24 @@ Prerequisites
 #############
 
 - Have access to a Grid cluster. If you don't have access to a cluster yet, we recommend
-  `on-boarding to Kryptonite Red <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_ (File request from **User Account** tab.)
+  `on-boarding to Kryptonite Red <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_ 
+  (File request from **User Account** tab.)
 
 Setting Up
 ##########
 
-#. Clone the example code: ``git clone git@git.corp.yahoo.com:thiruvel/hive_jdbc_sample.git``
+#. Clone the example code:: 
+
+       git clone git@git.corp.yahoo.com:thiruvel/hive_jdbc_sample.git
 #. Change to the ``hive_jdbc_sample`` directory.
-#. Update the version of Hive in the ``pom.xml`` file. See the ``hive-client`` column in the `Grid Versions table <http://twiki.corp.yahoo.com/view/Grid/GridVersions?varcache=refresh>`_
+#. Update the version of Hive in the ``pom.xml`` file. See the ``hive-client`` 
+   column in the `Grid Versions table <http://twiki.corp.yahoo.com/view/Grid/GridVersions?varcache=refresh>`_
    to find the Hive version for the cluster you're using. 
-#. Build the project: ``mvn clean package``
-#. Copy the sample code with the built project to Kryptonite (or the cluster you're using). For example: ``scp -r hive_jdbc_sample {your_user_name}@kryptonite-gw.red.ygrid.yahoo.com:~/``
+#. Build the project:: 
+
+       mvn clean package
+#. Copy the sample code with the built project to Kryptonite (or the cluster you're 
+   using). For example: ``scp -r hive_jdbc_sample {your_user_name}@kryptonite-gw.red.ygrid.yahoo.com:~/``
 #. Log onto to the cluster. For example: ``ssh kryptonite-gw.red.ygrid.yahoo.com``
 #. Change to the ``hive_jdbc_sample/scripts`` directory.
 
@@ -954,15 +961,18 @@ Run Query
    or for other clusters.
 
    For other clusters, you'll have to replace {cluster_name} and {colo} with the 
-   appropriate information. See Grid VIP URLs/Ports for those values. 
+   appropriate information. To find the URL to the HiveServer2 in a cluster, 
+   see `Grid Versions table <http://twiki.corp.yahoo.com/view/Grid/GridVersions?varcache=refresh>`_. 
 
-   .. note:: We're using port 5015 and appending -noenc to hs2 because we're not using encryption for this example.   
-             To find the URL to the HiveServer2 in a cluster, see Grid VIP URLs/Ports. We're 
-             using port 5015 and appending ``-noenc`` to ``hs2`` because we're not using encryption for this example.
+   .. note:: We're using port 5015 and appending ``-noenc`` to ``hs2`` because we're not 
+             using encryption for this example.   
+
 #. Use ``kinit`` for authentication: ``kinit {your_user_name}@Y.CORP.YAHOO.COM``
-#. Run the ``results.sh`` script that uses the JDBC driver to execute the HQL (``show tables``) on the specified database.
-#. You should see the following tables in the returned results. If you are getting connection errors, check that the
-   ``JDBCURI`` variable is assigned the correct URL. If you're having issues with the database or table, confirm that the
+#. Run the ``results.sh`` script that uses the JDBC driver to execute the HQL 
+   (``show tables``) on the specified database.
+#. You should see the following tables in the returned results. If you are getting 
+   connection errors, check that the ``JDBCURI`` variable is assigned the correct URL. 
+   If you're having issues with the database or table, confirm that the
    database exists on the cluster and that it has tables.
 
 Closer Look at the Code
