@@ -1005,7 +1005,7 @@ to load the class ``HiveDriver``:
       }
    }
 
-With the ``HiveDriver`` class loaded, we tehn can make a connection 
+With the ``HiveDriver`` class loaded, we then can make a connection 
 to the HiveServer2 with the JDBC and execute the HQL statement
 that simply prints out tables in a given database.
 

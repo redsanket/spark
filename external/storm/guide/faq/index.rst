@@ -2,23 +2,27 @@ FAQ
 ===
 .. See also http://twiki.corp.yahoo.com/view/Grid/StormDocumentation#FAQ.
 
+.. Status: First draft. The doc has been edited, but could use more FAQs.
+
 Questions
 ---------
 
-- `Q: I am seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages.`_
-- `Q: My worker process resets a periodically with no indication of what happened in the logs.`_
-- `Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.`_
-- `Q: Which JDK version does yStorm support?`_
-- `Q: What are the basic steps to launch Storm topologies?`_ 
-- `Q: Why StormSummitter failed to find principal from Kerberos cache?`_
-- `Q: Does Storm support dependency isolation?`_
-- `Q: Are there any libraries that storm is not compatible with?`_
+- :ref:`Q: Why am I seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages? <faq-reset_errs>`
+- :ref:`Q: Why is my worker process resetting periodically with no indication of what happened in the logs? <faq-worker_resets>`
+- :ref:`Q: Why am I seeing "Authentication challenge without WWW-Authenticate header" errors in my topology? <faq-auth_errs>`
+- :ref:`Q: Which JDK version does yStorm support? <faq-jdk_version>`
+- :ref:`Q: What are the basic steps to launch Storm topologies? <faq-launch_storm>` 
+- :ref:`Q: Why did StormSummitter fail to find the principal from the Kerberos cache? <faq-kerberos_cache>`
+- :ref:`Q: Does Storm support dependency isolation? <faq-dependency_isolation>`
+- :ref:`Q: Are there any libraries that storm is not compatible with? <faq-incompatible_libs>`
 
 Answers
 -------
 
-Q: I am seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages.
-#######################################################################################
+.. _faq-reset_errs:
+
+Q: Why am I seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages?
+###########################################################################################
 
 The messages usually take the form of the following::
 
@@ -45,56 +49,65 @@ This is an indication that the worker process on ``{HOST}`` listening on port
 you know. You should look in the logs for the worker process running on ``{HOST}:{PORT}`` 
 to see if there is anything in there indicating why it went down. If there is 
 nothing there and the logs look like they just stopped abruptly, see the
-FAQ on :ref:`worker process resetting <>`.
+FAQ on :ref:`worker process resetting <faq-worker_resets>`.
 
-Q: My worker process resets a periodically with no indication of what happened in the logs.
-###########################################################################################
+.. _faq-worker_resets:
+
+Q: Why is my worker process resetting periodically with no indication of what happened in the logs?
+###################################################################################################
 
 If your worker process dies with no indication as to why it died, it is probably 
 the supervisor shooting it. The supervisor is not always that kind and will sometimes 
-shoot a process with a kill -9. There are usually two reasons why the supervisor 
-will shoot a worker. Either the worker has stopped heartbeating in, or nimbus has 
+shoot a process with a ``kill -9``. There are usually two reasons why the supervisor 
+will kill a worker: either the worker has stopped heartbeating in or Nimbus has 
 decided to reschedule it somewhere else.
 
-The best way to know which is to look if the worker process starts up again on the 
-same host and port. If it does then your worker probably stopped heartbeating. If 
-it starts up somewhere else, then nimbus probably rescheduled it. Nimbus rescheduling 
+The best way to know is to see if the worker process starts up again on the 
+same host and port. If it does, then your worker probably stopped heartbeating. If 
+it starts up somewhere else, then Nimbus probably rescheduled it. Nimbus rescheduling 
 is unlikely if your process is restarting regularly. If you think this is happening 
-please contact the storm team and we can help debug what is going on.
+please contact the Storm team and we can help debug what is going on.
 
-If your worker stopped heartbeating the most likely suspect is java Garbage Collection. 
-If the supervisor does not see heartbeats from your process for more then 5 seconds 
+If your worker stopped heartbeating the most likely suspect is Java Garbage Collection. 
+If the Supervisor does not see heartbeats from your process for more then 5 seconds, 
 it assumes it is dead and will try to restart it. Heartbeats are on a separate 
-high priority thread and really only full stop the world garbage collection tends 
-to stop them. Please look at the size of the HEAP you are using, but be careful 
-to not go over 3.5 GB without checking with the storm team first.
+high-priority thread and really only world garbage collection tends 
+to stop them. Please look at the size of the heap you are using, but be careful 
+to not go over 3.5 GB without checking with the Storm team first.
 
-Q: I am seeing "Authentication challenge without WWW-Authenticate header" errors in my topology.
-################################################################################################
+.. _faq-auth_errs:
+
+Q: Why am I seeing "Authentication challenge without WWW-Authenticate header" errors in my topology?
+####################################################################################################
 
 The "Authentication challenge without WWW-Authenticate header" typically is because 
 the YCA authentication filter violates the HTTP specification by returning a 
 "not authenticated" response code without providing challenge information. Some 
-HTTP clients return this, like the one that we have used with the RegistryService. 
-This usually means that you included a YCAv2 header in the request to the registry 
-service, but did not go through the HTTP proxy. We usually have this set on all 
+HTTP clients return this, like the one that we have used with the Registry Service. 
+This usually means that you included a YCAv2 header in the request to the Registry 
+Service, but did not go through the HTTP proxy. We usually have this set on all 
 the gateways by default. If you ran your topology from a hosted gateway and got 
-this error please file a BUG in Low Latency to let us know. If it was from your 
-launcher box you probably need to configure it. You can look HERE for the available 
-HTTP proxies by colo.
+this error please `file a bug in low latency <http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency>`_ 
+to let us know. If it was from your launcher box you probably need to configure it. 
+You can look HERE for the available HTTP proxies by colo.
 
 If you are setting it for a launcher box you probably want to set it through 
-yinst, with something like the following::
+``yinst`` with something like the following::
 
     yinst set "ystorm.http_registry_proxy=http://httpproxy-res.red.ygrid.yahoo.com:4080”
 
 If you can also set ``"http.registry.proxy"`` manually either on the command line with ``-c``, 
 or programatially in the conf map.
 
+.. _faq-jdk_version:
+
 Q: Which JDK version does yStorm support?
 #########################################
 
-yStorm supports JDK7 on 64bit OS. On grid gateway, please make sure that you are using ``/home/gs/java/jdk64/current/``.
+yStorm supports JDK7 on 64-bit OS. On grid gateway, please make sure that you are 
+using ``/home/gs/java/jdk64/current/``.
+
+.. _faq-launch_storm:
 
 Q: What are the basic steps to launch Storm topologies?
 #######################################################
@@ -104,16 +117,24 @@ Q: What are the basic steps to launch Storm topologies?
 #. Use your topology. 
 #. ``storm kill YourTopology``
 
-Q: Why StormSummitter failed to find principal from Kerberos cache?
-##################################################################
+.. _faq-kerberos_cache:
 
-Please make sure that you don't have any environment settings for krb5. Please check::
+Q: Why did StormSummitter fail to find the principal from the Kerberos cache?
+#############################################################################
+
+Please make sure that you don't have any environment settings for ``krb5``. 
+
+Please check by running the following::
 
     set | grep -i krb5
 
-If you find any krb5 key in the env, please unset them. Example::
+If you find any ``krb5`` key in the environment, please unset them. 
+
+Example::
 
     unset KRB5CCNAME
+
+.. _faq-dependency_isolation:
 
 Q: Does Storm support dependency isolation?
 ###########################################
@@ -124,10 +145,12 @@ in what you can have as a dependency. See the `full list of storms dependencies 
 
 One common dependencies that may cause you problems is ``Guava``.
 
+.. _faq-incompatible_libs:
+
 Q: Are there any libraries that storm is not compatible with?
 #############################################################
 
-After the 0.8.2 release storm switched to ``logback`` for it's logging framework 
-with a shim layer that supports some of the ``log4j`` APIs. If you include log4j 
+After the 0.8.2 release, Storm switched to ``logback`` for it's logging framework 
+with a shim layer that supports some of the ``log4j`` APIs. If you include ``log4j`` 
 in your class path it has been known to cause issue.
 
