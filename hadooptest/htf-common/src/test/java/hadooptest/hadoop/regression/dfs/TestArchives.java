@@ -5,44 +5,25 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestArchives extends DfsTestsBaseClass {
-	String protocol;
-
-	public TestArchives(String protocol) {
-		this.protocol = protocol;
-		logger.info("Test invoked for protocol/schema:" + protocol);
-	}
+	String protocol = HadooptestConstants.Schema.HDFS;
 
 	static Logger logger = Logger.getLogger(TestArchives.class);
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DIR = "/user/hadoopqa/archive_tests/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_SRC_DIR = "/user/hadoopqa/archive_tests/src/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR = "/user/hadoopqa/archive_tests/dst/";
 	private static String localCluster = System.getProperty("CLUSTER_NAME");
-
-	@Parameters
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] {
-		// Schemas
-		// { HadooptestConstants.Schema.WEBHDFS }, { "" },
-		{ HadooptestConstants.Schema.HDFS }, });
-	}
 
 	@Before
 	public void beforeEachTest() throws Exception {
