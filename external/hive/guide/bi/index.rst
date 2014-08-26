@@ -880,7 +880,7 @@ again refer you to the `Tableau Quick Start Guides <http://www.tableausoftware.c
   .. _bi-custom_client:
 
 Creating Custom Clients with JDBC 
----------------------------------
+=================================
 
 Users can use the Hive JDBC APIs to connect to HiveServer2. 
 The JDBC driver is available as a ``yinst`` package and also through 
@@ -913,7 +913,7 @@ For example, let's say we want to use the JDBC client ``Beeline`` to get data th
 
 
 JDBC Requirements
-#################
+-----------------
 
 - JDBC Client should be in the same colo as HS2.
 - ACLs on JDBC client should be set up.
@@ -924,18 +924,18 @@ JDBC Requirements
   and we will get it going.
 
 Tutorial
-########
+--------
 
 The following steps will show you how to use the JDBC driver for a simple example. 
 
 Prerequisites
-*************
+#############
 
 - Have access to a Grid cluster. If you don't have access to a cluster yet, we recommend
   `on-boarding to Kryptonite Red <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_ (File request from **User Account** tab.)
 
 Setting Up
-**********
+##########
 
 #. Clone the example code: ``git clone git@git.corp.yahoo.com:thiruvel/hive_jdbc_sample.git``
 #. Change to the ``hive_jdbc_sample`` directory.
@@ -947,7 +947,7 @@ Setting Up
 #. Change to the ``hive_jdbc_sample/scripts`` directory.
 
 Run Query
-*********
+#########
 
 #. From the scripts directory, if you are **NOT** using Kryptonite Red, 
    either un-comment the variables ``HS2HOST`` and ``DB`` for Cobalt Blue 
@@ -966,9 +966,10 @@ Run Query
    database exists on the cluster and that it has tables.
 
 Closer Look at the Code
-***********************
+#######################
 
-**results.sh**
+results.sh
+**********
 
 We are doing three main tasks in this file:
 
@@ -985,7 +986,8 @@ We are doing three main tasks in this file:
 
        /home/gs/hadoop/current/bin/hadoop jar $JAR com.yahoo.hive.HelloHiveServer2 "$QUERY" "$JDBCURI"
 
-**HelloHiveServer2.java**
+HelloHiveServer2.java
+*********************
 
 The simple ``HelloHiveServer2`` class attempts a connection to the JDBC path,
 executes the HQL statement, and prints the result set. 
