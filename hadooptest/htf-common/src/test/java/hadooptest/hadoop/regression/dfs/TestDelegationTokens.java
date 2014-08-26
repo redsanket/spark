@@ -1,44 +1,27 @@
 package hadooptest.hadoop.regression.dfs;
 
+import hadooptest.SerialTests;
+import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.config.hadoop.HadoopConfiguration;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-import hadooptest.SerialTests;
-import hadooptest.TestSession;
-
-@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestDelegationTokens extends DfsTestsBaseClass {
-	String protocol;
 
-	public TestDelegationTokens(String protocol) {
-		this.protocol = protocol;
-		logger.info("Test invoked for protocol/schema:" + protocol);
-	}
-
+    private String protocol;
 	static Logger logger = Logger.getLogger(TestDelegationTokens.class);
 	private static final String DELEGATION_TOKEN_TESTS_DIR_ON_DFS = "/user/"
 			+ HadooptestConstants.UserNames.HADOOPQA
@@ -47,20 +30,10 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 	File fileStoringDelagationTokenReceivedViaFetchdt;
 	File fileStoringDelegationTokenReceivedViaKinit;
 
-	@Parameters
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] {
-				// Schemas
-				{ HadooptestConstants.Schema.WEBHDFS },
-				// { "" },
-				{ HadooptestConstants.Schema.HDFS }, });
-	}
-
 	@Rule
 	public TemporaryFolder tempDelegationTokenFolder = new TemporaryFolder();
 
-	@Before
-	public void beforeEachTest() throws Exception {
+	public void beforeEachTest(String protocol) throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
@@ -81,11 +54,23 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 
 	}
 
-	/*
-	 * test_SF110_1
-	 */
-	@Test
-	public void test_SF110_1() throws Exception {
+	@Test public void test_SF110_1_WebHDFS() throws Exception { test_SF110_1(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_SF110_1_HDFS() throws Exception { test_SF110_1(HadooptestConstants.Schema.HDFS); }
+    @Test public void test_SF110_2_WebHDFS() throws Exception { test_SF110_2(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_SF110_2_HDFS() throws Exception { test_SF110_2(HadooptestConstants.Schema.HDFS); }
+    @Test public void test_SF110_6_WebHDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_SF110_6_HDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.HDFS); }
+    @Test public void test_SF170_2_WebHDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_SF170_2_HDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.HDFS); }
+    @Test public void test_SF175_1_WebHDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_SF175_1_HDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.HDFS); }
+    @Test public void test_SF190_1_WebHDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_SF190_1_HDFS() throws Exception { test_SF110_6(HadooptestConstants.Schema.HDFS); }
+    
+	public void test_SF110_1(String protocol) throws Exception {
+	    beforeEachTest(protocol);
+	    this.protocol = protocol;
+	    
 		GenericCliResponseBO genericCliResponseBO;
 		logger.info("Absolute file:"
 				+ fileStoringDelagationTokenReceivedViaFetchdt
@@ -141,11 +126,10 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 
 	}
 
-	/*
-	 * test_SF110_2
-	 */
-	@Test
-	public void test_SF110_2() throws Exception {
+	public void test_SF110_2(String protocol) throws Exception {
+        beforeEachTest(protocol);
+        this.protocol = protocol;
+        
 		GenericCliResponseBO genericCliResponseBO;
 
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
@@ -210,8 +194,10 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 	 * above delegation token will be valid for 2 mins. wait 3 mins and run an
 	 * ls command and it should fail #TC ID=1172569
 	 */
-	@Test
-	public void test_SF110_6() throws Exception {
+	public void test_SF110_6(String protocol) throws Exception {
+        beforeEachTest(protocol);
+        this.protocol = protocol;
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponseBO;
 		HashMap<String, String> testSpecificEnvVars = new HashMap<String, String>();
@@ -307,8 +293,10 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 	 * commands and Map reduce job) are allowed and there are no errors.
 	 * #Expected #Hadoop operations should complete successfully. #TC ID=1172572
 	 */
-	@Test
-	public void test_SF170_2() throws Exception {
+	public void test_SF170_2(String protocol) throws Exception {
+        beforeEachTest(protocol);
+        this.protocol = protocol;
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponseBO;
 		HashMap<String, String> testSpecificEnvVars = new HashMap<String, String>();
@@ -367,8 +355,10 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 	 * Map reduce job) are allowed and there are no errors. # #Expected: #Hadoop
 	 * operations should complete successfully #TC ID=1172574
 	 */
-	@Test
-	public void test_SF175_1() throws Exception {
+	public void test_SF175_1(String protocol) throws Exception {
+        beforeEachTest(protocol);
+        this.protocol = protocol;
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponseBO;
 		HashMap<String, String> testSpecificEnvVars = new HashMap<String, String>();
@@ -430,8 +420,10 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 	 * (without kerberos ticket) should fail with access control exception when
 	 * delegation tokens are canceled.
 	 */
-	@Test
-	public void test_SF190_1() throws Exception {
+	public void test_SF190_1(String protocol) throws Exception {
+        beforeEachTest(protocol);
+        this.protocol = protocol;
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponseBO;
 		HashMap<String, String> testSpecificEnvVars = new HashMap<String, String>();
@@ -472,11 +464,6 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 				DELEGATION_TOKEN_TESTS_DIR_ON_DFS);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-	}
-
-	@After
-	public void logTaskResportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 }
