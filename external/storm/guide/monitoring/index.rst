@@ -2,10 +2,30 @@
 YAMAS Metrics/Monitoring
 ========================
 
+.. Status: First draft. Needs editing, possibly more content.
+
 As of ``ystorm_contrib-0.1.0.37``, the HTTP spout exports metrics through the Storm 
 metrics system. The ``ystorm_contrib`` package also includes with it a metrics 
 collector that you can include with your topology to place these metrics 
 in YAMAS.
+
+Overview of YAMAS in Storm
+==========================
+
+You can use YAMAS to monitor Storm at the container and 
+application level as shown in the figure below. At the container
+level, YAMAS is communicating with Nimbus through a connector, allowing
+you to monitor the performance and find issues in the Storm cluster.
+At the application level, YAMAS is communicating with the Supervisor, so
+you can monitor the performance of your topology.
+
+.. image:: images/yamas_storm_metrics.jpg
+   :height: 461 px
+   :width: 850 px
+   :scale: 90 %
+   :alt: Storm With YAMAS 
+   :align: left 
+
 
 Yamas Metrics Consumer Basics
 =============================
@@ -36,7 +56,7 @@ In your driver file,  add the following when submitting your topology:
 
    import com.yahoo.storm.metrics.yamas.YamasMetricsConsumer; 
    ...
-   conf.registerMetricsConsumer(YamasMetricsConsumer.class, “yamas-app”, 1);
+   conf.registerMetricsConsumer(YamasMetricsConsumer.class, "yamas-app", 1);
 
 Supported Metrics
 -----------------
@@ -104,18 +124,53 @@ Worker-Level Metrics
 --------------------
 
 
+.. csv-table:: Supported Metrics for Storm
+   :header: "Purpose", "Metrics"
+   :widths: 20, 45
+
+   "Time", "- ``uptimeSecs``
+            - ``startTimeSecs``"
+   "Garbage Collection", "- ``GC/(ParNew|ConcurrentMarkSweep)_count``
+                          - GC/(ParNew|ConcurrentMarkSweeps)_timeMs``"
+   "Memory Usage", "- ``Memory/(heap|nonHeap)_unusedBytes``
+                    - ``Memory/(heap|nonHeap)_usedBytes``
+                    - ``Memory/(heap|nonHeap)_maxBytes``
+                    - ``Memory/(heap|nonHeap)_initBytes``
+                    - ``Memory/(heap|nonHeap)_virtualFreeBytes``
+                    - ``Memory/(heap|nonHeap)_committedBytes``"
+
+
 Tuple-Level Metrics
 -------------------
+
+.. csv-table:: Supported Metrics for Storm
+   :header: "Purpose", "Metrics"
+   :widths: 20, 45
+
+   "Acknowledge", "- ``__ack-count``
+                   - ``__ack-count_system``"
+   "Failure", "- ``__fail-count``
+               - ``__fail-count_system``"
+   "Emit Throughput", "- ``__emit-count``
+                       - ``__emit-count_system``"
+   "Execute Throughput", "- ``__execute-count``
+                          - ``__execute-count_system``"
+   "Generic", "- Any named metric that is an ``AbsoluteNumber`` will be set.
+               - Any named metric that is any other Number will be incremented by the value."
+
+
+
 
 
 Dimensions
 ==========
 
-YAMAS metrics are collected with the following dimensions:
-worker-host
-worker-port
-component-id (“__system” for worker wide metrics)
-task-id (“-1” for worker wide metrics)
+YAMAS metrics are collected with the following dimensions::
+
+    worker-host
+    worker-port
+    component-id ("__system" for worker wide metrics)
+    task-id ("-1" for worker wide metrics)
 
 Steps for Collecting Metrics
 ============================
@@ -159,35 +214,39 @@ Steps for Collecting Metrics
        _wordLengthMeanMetric.update(word.length());
    } 
 
+
 YAMAS Metrics Consumer
 ======================
 
-Please use YAMAS instead of Logging for metrics.
 
-.. code-block:: java
+Make sure to include ``yamas_metrics_consumer`` in your dependency tree.
 
-   import com.yahoo.storm.metrics.yamas.YamasMetricsConsumer; 
-   conf.registerMetricsConsumer(YamasMetricsConsumer.class, “yamas-app”, 1);
-   
+.. code-block:: xml
+
    <dependency>
        <groupId>yahoo.yinst.ystorm_contrib</groupId>
        <artifactId>yamas_metrics_consumer</artifactId>
        <version>0.1.0</version>
    </dependency>
 
+Please use YAMAS instead of Logging for metrics.
+
+.. code-block:: java
+
+   import com.yahoo.storm.metrics.yamas.YamasMetricsConsumer; 
+   conf.registerMetricsConsumer(YamasMetricsConsumer.class, "yamas-app", 1);
+   
+
+
 Customization of YAMAS Logging
 ==============================
 
 Storm metrics do not distinguish between an increment and a set once they get to the Collector.
-
 They also are very generic and could return complex objects like Maps, Lists, etc.
+To handle set versus increment cases we created an ``AbsoluteNumber`` class, that when a 
+metric returns this YAMAS will call ``set()`` instead of ``increment()``.
 
-To handle set vs. increment cases we created an AbsoluteNumber class, that when a metric returns this YAMAS will call set() instead of increment().
+For more complex metrics you can subclass the collector and override::
 
-For more complex metrics you can subclass the collector and override
-
-public boolean handleDataPoint(DataPoint dp, MonMetrics yamas) throws MonMetricsException;
-
-
-
+    public boolean handleDataPoint(DataPoint dp, MonMetrics yamas) throws MonMetricsException;
 
