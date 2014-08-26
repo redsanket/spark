@@ -911,6 +911,7 @@ For example, let's say we want to use the JDBC client ``Beeline`` to get data th
     | ajaytestdb             |
     | ajeeshr                |
 
+
 JDBC Requirements
 #################
 
@@ -918,8 +919,133 @@ JDBC Requirements
 - ACLs on JDBC client should be set up.
 - Access to Kerberos servers.
 - Access to HiveServer2 machines and ports.
-- Basically the ACL part of setting up a launcher box.
 - The JDBC driver works with >= RHEL6.4 and Java 7.
-- Paranoid approval must during onboarding since data on the grid might be opened up.
-- Create an onboarding ticket and we will get it going.
+- Paranoid approval during onboarding since data on the grid might be opened up.
+  and we will get it going.
+
+Tutorial
+########
+
+The following steps will show you how to use the JDBC driver for a simple example. 
+
+Prerequisites
+*************
+
+- Have access to a Grid cluster. If you don't have access to a cluster yet, we recommend
+  `on-boarding to Kryptonite Red <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_ (File request from **User Account** tab.)
+
+Setting Up
+**********
+
+#. Clone the example code: ``git clone git@git.corp.yahoo.com:thiruvel/hive_jdbc_sample.git``
+#. Change to the ``hive_jdbc_sample`` directory.
+#. Update the version of Hive in the ``pom.xml`` file. See the ``hive-client`` column in the `Grid Versions table <http://twiki.corp.yahoo.com/view/Grid/GridVersions?varcache=refresh>`_
+   to find the Hive version for the cluster you're using. 
+#. Build the project: ``mvn clean package``
+#. Copy the sample code with the built project to Kryptonite (or the cluster you're using). For example: ``scp -r hive_jdbc_sample {your_user_name}@kryptonite-gw.red.ygrid.yahoo.com:~/``
+#. Log onto to the cluster. For example: ``ssh kryptonite-gw.red.ygrid.yahoo.com``
+#. Change to the ``hive_jdbc_sample/scripts`` directory.
+
+Run Query
+*********
+
+#. From the scripts directory, if you are **NOT** using Kryptonite Red, 
+   either un-comment the variables ``HS2HOST`` and ``DB`` for Cobalt Blue 
+   or for other clusters.
+
+   For other clusters, you'll have to replace {cluster_name} and {colo} with the 
+   appropriate information. See Grid VIP URLs/Ports for those values. 
+
+   .. note:: We're using port 5015 and appending -noenc to hs2 because we're not using encryption for this example.   
+             To find the URL to the HiveServer2 in a cluster, see Grid VIP URLs/Ports. We're 
+             using port 5015 and appending ``-noenc`` to ``hs2`` because we're not using encryption for this example.
+#. Use ``kinit`` for authentication: ``kinit {your_user_name}@Y.CORP.YAHOO.COM``
+#. Run the ``results.sh`` script that uses the JDBC driver to execute the HQL (``show tables``) on the specified database.
+#. You should see the following tables in the returned results. If you are getting connection errors, check that the
+   ``JDBCURI`` variable is assigned the correct URL. If you're having issues with the database or table, confirm that the
+   database exists on the cluster and that it has tables.
+
+Closer Look at the Code
+***********************
+
+**results.sh**
+
+We are doing three main tasks in this file:
+
+#. Defining the URI to the JDBC to the Starling table on Cobalt Blue::
+
+       HS2HOST=cobaltblue-hs2-noenc.ygrid.vip.gq1.yahoo.com
+       JDBCURI="jdbc:hive2://$HS2HOST:50515/starling;sasl.qop=auth;principal=hive/$HS2HOST@YGRID.YAHOO.COM?mapred.job.queue.name=unfunded"
+
+#. Pointing to the JAR that we built. That JAR creates the connection and executes our HQL statement::
+
+      JAR="../target/hive_jdbc_example-1.0-SNAPSHOT.jar"
+
+#. Running the Hadoop command that uses the JAR to execute the HQL with the JDBC URI::
+
+       /home/gs/hadoop/current/bin/hadoop jar $JAR com.yahoo.hive.HelloHiveServer2 "$QUERY" "$JDBCURI"
+
+**HelloHiveServer2.java**
+
+The simple ``HelloHiveServer2`` class attempts a connection to the JDBC path,
+executes the HQL statement, and prints the result set. 
+
+Before we can make a connection with the JDBC, we use the private method ``loadClass`` 
+to load the class ``HiveDriver``:
+
+.. code-block:: java
+
+   private static void loadClass() {
+      try {
+         String driverName = "org.apache.hive.jdbc.HiveDriver";
+         Class.forName(driverName);
+      } catch (ClassNotFoundException e) {
+          System.err.println("ERROR: Loading class " + e.getMessage());
+          System.exit(1);
+      }
+   }
+
+With the ``HiveDriver`` class loaded, we then can make a connection 
+to the HiveServer2 with the JDBC and execute the HQL statement
+that simply prints out tables in a given database.
+
+.. code-block:: java
+
+   try {
+
+       /*
+       * Note:
+       * Do not leave a connection object idle for a long time. Since the
+       * connections go through VIP, idle connections are closed by the VIP and one
+       * might get a connection reset error on the client.
+       */
+       connection = DriverManager.getConnection(jdbcURI);
+       stmt = connection.createStatement();
+
+       // One can also set Hive/Hadoop parameters like this. They can also be set via JDBC URI.
+       stmt.execute("set mapred.job.queue.name=unfunded");
+
+       if (stmt.execute(sql)) {
+           resultSet = stmt.getResultSet();
+
+           while (resultSet.next()) {
+               // Print the first String just to confirm we are reading data.
+               System.out.println(resultSet.getString(1));
+           }
+           resultSet.close();
+       }
+
+    } finally {
+
+        /*
+        * Please close all resources as soon as you can. Otherwise, the server will
+        * be holding an idle connection and objects associated with it for a long time.
+        */
+        if (stmt != null) {
+           stmt.close();
+        }
+        if (connection != null) {
+           connection.close();
+        }
+   }
 

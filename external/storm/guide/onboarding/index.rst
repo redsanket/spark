@@ -34,11 +34,17 @@ Creating a Storm Project
 #. Click **Submit New Project**. You'll be taken to a confirmation page. The turnover rate varies,
    but generally, you'll be on-boarded within a few business days. 
    
-
+http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
 .. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm  
 
 Create a New Topology
 =====================
+
+The topology you are creating in this section is not the Storm topology defined as a *graph of computation*.
+Instead, you are requesting an instance in a cluster for running your Storm topology. For instance,
+your Storm topology might include two spouts and two bolts, so you request an instance on a Storm cluster
+to run your topology. To request an instance, you create a topology in Dopplr. We know that this is confusing
+and plan on changing the nomenclature soon.
 
 #. From your the **Storm Project** page, you'll see your project name listed as one of the projects that you 
    a member of or have selected as a favorite. Click the project name to open your project page.
@@ -59,7 +65,14 @@ Create a New Topology
 Next Step
 =========
 
-Try the `Tutorial: <>`_ or on-board to the production environment by
+Try the `Tutorial: Counting Data Highway Events <../tutorials/index.html#storm_tutorials-counting>`_ or on-board to the production environment by
 following the same steps above but selecting **Production** and specifying
-your capacity needs, whether you need Rainbow Data Highway integration, 
+your capacity needs:
 
+- number of servers
+- number of workers
+- number of executors
+- isolated topology
+- Rainbow Data Highway integration
+- throughput
+- SLA requirements
