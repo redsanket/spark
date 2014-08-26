@@ -1,14 +1,15 @@
 package hadooptest.hadoop.regression.dfs;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 
@@ -21,31 +22,19 @@ import org.apache.hadoop.fs.FileChecksum;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Options.CreateOpts;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DFSClient;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.fail;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-import hadooptest.SerialTests;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
-
-//import org.apache.hadoop.DFSClient.*;
-
-@SuppressWarnings("deprecation")
-// @RunWith(Parallelized.class)
-@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestAppend {
-	private String testName;
+    private String testName;
 	private static String FILE_SYSTEM_ENTITY_DIRECTORY = "DIRECTORY";
 	private static final String APPEND_OUTDIR = "/tmp/M";
 	private static final String LOCAL_SOURCE_FILES = "/homes/hdfsqa/hdfsMNNData/";
@@ -73,7 +62,7 @@ public class TestAppend {
 										// default
 	int ntimesOption = 1; // do once by default
 	long chunkSizeOption = 100; // default is to write 100 byte a chunk.
-	String fnameOption = null;
+	static String fnameOption = null;
 
 	boolean openAndCloseOption = false; // during read cycle: open and close the
 										// file during each read
@@ -85,7 +74,7 @@ public class TestAppend {
 	boolean verboseOption = false; // verbose mode
 	boolean useFSOption = false; // use FileSystem to do append (default is use
 									// FileContext)
-	boolean useFCOption = true; // use FileContext to do append (which is
+	static boolean useFCOption = true; // use FileContext to do append (which is
 								// default any way)
 	boolean readFullyOption = false; // in read: if set, read every byte until
 										// the end of file to arrive at the
@@ -132,12 +121,9 @@ public class TestAppend {
 			+ "-s chunkSize: size of write at a time in byte (default 100 byte)\n"
 			+ "-verbose: verbose mode for debugging";
 
-	private FileContext mfc; // my fc
-	private FileSystem mfs; // my fs
+	private static FileContext mfc; // my fc
+	private static FileSystem mfs; // my fs
 	private Configuration mconfig;
-
-	private String hostname; // for debugging printout
-	private String ipaddr;
 
 	private long tsBeforeHflush; // time stamp before and after hflush call
 	private long tsAfterHflush;
@@ -155,236 +141,6 @@ public class TestAppend {
 
 	private String[] inputParams;
 
-	@Parameters
-	public static Collection<Object[]> getParameters() {
-
-		return Arrays.asList(new Object[][] {
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z100" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z122" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z123" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z124" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z125" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z126" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z127" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z128" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z132" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z133" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z134" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z135" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z136" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z137" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z138" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z902" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z903" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z904" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z905" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z906" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z907" },
-				{ "", "-create  -n 1 -s 888 -f " + APPEND_OUTDIR + "/Z908" },
-				/*
-				 * test101_CreateFC_RWThread
-				 */
-				// { "101", "-qt -f " + APPEND_OUTDIR + "/Z100" },
-				{
-						"102",
-						"-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR
-								+ "/Z101" },
-				{
-						"103",
-						"-useFC -rw -n 10 -s 10000 -p 1000 -f " + APPEND_OUTDIR
-								+ "/Z102" },
-				{
-						"104",
-						"-useFC -rw -n 10 -s 100000 -p 1000 -f "
-								+ APPEND_OUTDIR + "/Z103" },
-				{
-						"105",
-						"-useFC -rw -n 10 -s 1000000 -p 1000 -f "
-								+ APPEND_OUTDIR + "/Z104" },
-
-				/*
-				 * test401_CreateFC_RW_PosRead_NonFully_Many
-				 */
-				{
-						"401",
-						"-useFC -rw -n 9         -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z401" },
-				{
-						"402",
-						"-useFC -rw -n 100       -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z402" },
-				{
-						"411",
-						"-useFC -rw -n 9         -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z411" },
-				{
-						"412",
-						"-useFC -rw -n 100       -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z412" },
-				{
-						"421",
-						"-useFC -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z421" },
-				{
-						"422",
-						"-useFC -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z422" },
-				{
-						"431",
-						"-useFC -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z431" },
-				{
-						"432",
-						"-useFC -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z432" },
-				{
-						"441",
-						"-useFC -rw -n 9         -s 1000000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z441" },
-
-				/*
-				 * test451_CreateFC_RW_PosRead_ManyFully
-				 */
-				{
-						"451",
-						"-useFC -readFully -rw -n 9         -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z451" },
-				{
-						"452",
-						"-useFC -readFully -rw -n 100       -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z452" },
-				{
-						"461",
-						"-useFC -readFully -rw -n 9         -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z461" },
-				{
-						"462",
-						"-useFC -readFully -rw -n 100       -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z462" },
-				{
-						"457",
-						"-useFC -readFully -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z471" },
-				{
-						"471",
-						"-useFC -readFully -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z472" },
-				{
-						"481",
-						"-useFC -readFully -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z481" },
-				{
-						"482",
-						"-useFC -readFully -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z482" },
-				{
-						"496",
-						"-useFC -readFully -rw -n 9         -s 1000000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z496" },
-
-				/*
-				 * test501_CreateFC_RW_SeqRead_NonFully_Many
-				 */
-				{
-						"501",
-						"-useFC -seqRead -rw -n 9         -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z501" },
-				{
-						"502",
-						"-useFC -seqRead -rw -n 100       -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z502" },
-				{
-						"511",
-						"-useFC -seqRead -rw -n 9         -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z511" },
-				{
-						"512",
-						"-useFC -seqRead -rw -n 100       -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z512" },
-				{
-						"521",
-						"-useFC -seqRead -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z521" },
-				{
-						"522",
-						"-useFC -seqRead -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z522" },
-				{
-						"531",
-						"-useFC -seqRead -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z531" },
-				{
-						"532",
-						"-useFC -seqRead -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z532" },
-				{
-						"541",
-						"-useFC -seqRead -rw -n 9         -s 1000000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z541" },
-				{
-						"542",
-						"-useFC -seqRead -rw -n 100       -s 1000000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z542" },
-
-				/*
-				 * test551_CreateFC_RW_SeqRead_ManyFully
-				 */
-				{
-						"551",
-						"-useFC -readFully -seqRead -rw -n 9         -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z551" },
-				{
-						"552",
-						"-useFC -readFully -seqRead -rw -n 100       -s 100  -p 100  -f "
-								+ APPEND_OUTDIR + "/Z552" },
-				{
-						"561",
-						"-useFC -readFully -seqRead -rw -n 9         -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z561" },
-				{
-						"562",
-						"-useFC -readFully -seqRead -rw -n 100       -s 1000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z562" },
-				{
-						"571",
-						"-useFC -readFully -seqRead -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z571" },
-				{
-						"572",
-						"-useFC -readFully -seqRead -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z572" },
-				{
-						"581",
-						"-useFC -readFully -seqRead -rw -n 9         -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z581" },
-				{
-						"582",
-						"-useFC -readFully -seqRead -rw -n 100       -s 10000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z582" },
-				{
-						"596",
-						"-useFC -readFully -seqRead -rw -n 9         -s 1000000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z596" },
-				{
-						"597",
-						"-useFC -readFully -seqRead -rw -n 100       -s 1000000 -p 100  -f "
-								+ APPEND_OUTDIR + "/Z597" },
-
-				/*
-				 * test301_ReadFC_OCFully
-				 */
-				{
-						"301",
-						"-useFC -ro -oc -n 10 -p 1000 -readFully -f "
-								+ APPEND_OUTDIR + "/Z101" },
-				{
-						"302",
-						"-useFC -ro -oc -n 100 -p 1000 -readFully -f "
-								+ APPEND_OUTDIR + "/Z102" },
-
-		});
-	}
-
 	@BeforeClass
 	public static void setupData() throws Exception {
 		TestSession.start();
@@ -396,7 +152,7 @@ public class TestAppend {
 				HadooptestConstants.Schema.WEBHDFS, cluster, APPEND_OUTDIR,
 				FILE_SYSTEM_ENTITY_DIRECTORY);
 		if (genericResponseBO.process.exitValue() == 0) {
-			System.out.println("Here deleting dir...!!");
+			TestSession.logger.info("Here deleting dir...!!");
 			dfsCommonCli.rm(new HashMap<String, String>(),
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, cluster, Recursive.YES,
@@ -434,52 +190,98 @@ public class TestAppend {
 	public void setup() throws IOException {
 		setupFS();
 		initDebugInfo();
-
 	}
+	
+    @AfterClass
+    public static void blockLocAfterTests() throws IOException {
+        TestSession.logger.info("Dump out Block Location");
+        dumpFileBlockLocations(fnameOption);
+    }
+    
+    @Test public void testAppend102() throws Exception { runTest("102", "-useFC -rw -n 10 -s 1000 -p 1000 -f " + APPEND_OUTDIR + "/Z101" ); }
+    @Test public void testAppend103() throws Exception { runTest("103", "-useFC -rw -n 10 -s 10000 -p 1000 -f " + APPEND_OUTDIR + "/Z102" ); }
+    @Test public void testAppend104() throws Exception { runTest("104", "-useFC -rw -n 10 -s 100000 -p 1000 -f " + APPEND_OUTDIR + "/Z103" ); }
+    @Test public void testAppend105() throws Exception { runTest("105", "-useFC -rw -n 10 -s 1000000 -p 1000 -f " + APPEND_OUTDIR + "/Z104" ); }
+    
+    @Test public void testAppend401() throws Exception { runTest("401", "-useFC -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z401" ); }
+    @Test public void testAppend402() throws Exception { runTest("402", "-useFC -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z402" ); }
+    @Test public void testAppend411() throws Exception { runTest("411", "-useFC -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z411" ); }
+    @Test public void testAppend412() throws Exception { runTest("412", "-useFC -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z412" ); }
+    @Test public void testAppend421() throws Exception { runTest("421", "-useFC -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z421" ); }
+    @Test public void testAppend422() throws Exception { runTest("422", "-useFC -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z422" ); }
+    @Test public void testAppend431() throws Exception { runTest("431", "-useFC -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z431" ); }
+    @Test public void testAppend432() throws Exception { runTest("432", "-useFC -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z432" ); }
+    @Test public void testAppend441() throws Exception { runTest("441", "-useFC -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z441" ); }
+    @Test public void testAppend451() throws Exception { runTest("451", "-useFC -readFully -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z451" ); }
+    @Test public void testAppend452() throws Exception { runTest("452", "-useFC -readFully -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z452" ); }
+    @Test public void testAppend461() throws Exception { runTest("461", "-useFC -readFully -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z461" ); }
+    @Test public void testAppend462() throws Exception { runTest("462", "-useFC -readFully -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z462" ); }
+    @Test public void testAppend457() throws Exception { runTest("457", "-useFC -readFully -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z471" ); }
+    @Test public void testAppend471() throws Exception { runTest("471", "-useFC -readFully -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z472" ); }
+    @Test public void testAppend481() throws Exception { runTest("481", "-useFC -readFully -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z481" ); }
+    @Test public void testAppend482() throws Exception { runTest("482", "-useFC -readFully -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z482" ); }
+    @Test public void testAppend496() throws Exception { runTest("496", "-useFC -readFully -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z496" ); }
+    @Test public void testAppend501() throws Exception { runTest("501", "-useFC -seqRead -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z501" ); }
+    @Test public void testAppend502() throws Exception { runTest("502", "-useFC -seqRead -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z502" ); }
+    @Test public void testAppend511() throws Exception { runTest("511", "-useFC -seqRead -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z511" ); }
+    @Test public void testAppend512() throws Exception { runTest("512", "-useFC -seqRead -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z512" ); }
+    @Test public void testAppend521() throws Exception { runTest("521", "-useFC -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z521" ); }
+    @Test public void testAppend522() throws Exception { runTest("522", "-useFC -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z522" ); }
+    @Test public void testAppend531() throws Exception { runTest("531", "-useFC -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z531" ); }
+    @Test public void testAppend532() throws Exception { runTest("532", "-useFC -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z532" ); }
+    @Test public void testAppend541() throws Exception { runTest("541", "-useFC -seqRead -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z541" ); }
+    @Test public void testAppend542() throws Exception { runTest("542", "-useFC -seqRead -rw -n 100 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z542" ); }
+    @Test public void testAppend551() throws Exception { runTest("551", "-useFC -readFully -seqRead -rw -n 9 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z551" ); }
+    @Test public void testAppend552() throws Exception { runTest("552", "-useFC -readFully -seqRead -rw -n 100 -s 100  -p 100  -f " + APPEND_OUTDIR + "/Z552" ); }
+    @Test public void testAppend561() throws Exception { runTest("561", "-useFC -readFully -seqRead -rw -n 9 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z561" ); }
+    @Test public void testAppend562() throws Exception { runTest("562", "-useFC -readFully -seqRead -rw -n 100 -s 1000 -p 100  -f " + APPEND_OUTDIR + "/Z562" ); }
+    @Test public void testAppend571() throws Exception { runTest("571", "-useFC -readFully -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z571" ); }
+    @Test public void testAppend572() throws Exception { runTest("572", "-useFC -readFully -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z572" ); }
+    @Test public void testAppend581() throws Exception { runTest("581", "-useFC -readFully -seqRead -rw -n 9 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z581" ); }
+    @Test public void testAppend582() throws Exception { runTest("582", "-useFC -readFully -seqRead -rw -n 100 -s 10000 -p 100  -f " + APPEND_OUTDIR + "/Z582" ); }
+    @Test public void testAppend596() throws Exception { runTest("596", "-useFC -readFully -seqRead -rw -n 9 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z596" ); }
+    @Test public void testAppend597() throws Exception { runTest("597", "-useFC -readFully -seqRead -rw -n 100 -s 1000000 -p 100  -f " + APPEND_OUTDIR + "/Z597" ); }
+    @Test public void testAppend301() throws Exception { runTest("301", "-useFC -ro -oc -n 10 -p 1000 -readFully -f " + APPEND_OUTDIR + "/Z101" ); }
+    @Test public void testAppend302() throws Exception { runTest("302", "-useFC -ro -oc -n 100 -p 1000 -readFully -f " + APPEND_OUTDIR + "/Z102" ); }
+    
+    public void runTest(String name, String args) throws IOException {
+        this.testName = name;
+        this.inputParams = args.split("\\s+");
+        
+        TestSession.logger.info("+++++++++++++++++++++++++++++++++++");
+        TestSession.logger.info("Running " + this.testName + " called with: ");
+        for (String temp : this.inputParams) {
+            TestSession.logger.info(temp + " ");
+        }
+        TestSession.logger.info("+++++++++++++++++++++++++++++++++++");
 
-	/*
-	 * Initialization & Constructor
-	 */
-	public TestAppend(String testName, String args) throws IOException {
-		this.testName = testName;
-		this.inputParams = args.split("\\s+");
-	}
+        getCmdlineOptions(inputParams);
+        setupFS();
+        int stat = 0;
+        // temporary hack to test any new options
+        if (miscOption) {
+            stat = testMisc();
+        } else if (quickTestOption) {
+            stat = testRWSanity();
+        } else if (bothReadWriteOption) {
+            stat = testReadWrite();
+        } else if (readOnlyOption) {
+            stat = testReadOnly();
+        } else if (writeOnlyOption) {
+            stat = testWriteOnly();
+        } 
 
-	@Test
-	public void test() throws IOException {
-		System.out.println("+++++++++++++++++++++++++++++++++++");
-		System.out.println("Running " + this.testName + " called with: ");
-		for (String temp : this.inputParams) {
-			System.out.print(temp + " ");
-		}
-		System.out.println("+++++++++++++++++++++++++++++++++++");
+        if (stat == 0) {
+            TestSession.logger.info("Tests done successfully, status = " + stat);
+        } else {
+            TestSession.logger.error("Tests failed, status = " + stat
+                    + " ; Dump out Block Location");
+            dumpFileBlockLocations(fnameOption);
+            fail();
+        }
 
-		getCmdlineOptions(inputParams);
-		setupFS();
-		int stat = 0;
-		// temporary hack to test any new options
-		if (miscOption) {
-			stat = testMisc();
-		} else if (quickTestOption) {
-			stat = testRWSanity();
-		} else if (bothReadWriteOption) {
-			stat = testReadWrite();
-		} else if (readOnlyOption) {
-			stat = testReadOnly();
-		} else if (writeOnlyOption) {
-			stat = testWriteOnly();
-		}
-
-		if (stat == 0) {
-			System.out.println("Tests done successfully, status = " + stat);
-		} else {
-			System.out.println("Tests failed, status = " + stat
-					+ " ; Dump out Block Location");
-			dumpFileBlockLocations(fnameOption);
-		}
-
-	}
-
+    }
+    
 	// initialize the key context
 	public void setupFS() throws IOException {
 		mfc = FileContext.getFileContext();
@@ -512,14 +314,14 @@ public class TestAppend {
 		String hostname = iaddr.getHostName();
 		String ipString = iaddr.getHostAddress();
 		if (verboseOption)
-			System.out.println("Hostname =" + hostname + "; Host IP = "
+			TestSession.logger.info("Hostname =" + hostname + "; Host IP = "
 					+ ipString);
 	}
 
 	void logWrite(long tafter, long tbefore, long byteVisible,
 			long byteWritten, long loopCount, String msg, long duration) {
 		long tdelta = tafter > tbefore ? tafter - tbefore : tbefore - tafter;
-		System.out.println("TimeRW: tafter=" + tafter + ", tbefore=" + tbefore
+		TestSession.logger.info("TimeRW: tafter=" + tafter + ", tbefore=" + tbefore
 				+ ", visible=" + byteVisible + ", written =" + byteWritten
 				+ ", loopcount=" + loopCount + ", duration=" + duration
 				+ ", delta |tafter-tbefore|=" + tdelta + " ; " + msg);
@@ -528,7 +330,7 @@ public class TestAppend {
 	void logRead(long tafter, long tbefore, long byteRead, long byteVisible,
 			long loopCount, String msg, long duration) {
 		long tdelta = tafter > tbefore ? tafter - tbefore : tbefore - tafter;
-		System.out.println("TimeRW: tafter=" + tafter + ", tbefore=" + tbefore
+		TestSession.logger.info("TimeRW: tafter=" + tafter + ", tbefore=" + tbefore
 				+ ", visible=" + byteVisible + ",    read=" + byteRead
 				+ ", loopcount=" + loopCount + ",  duration=" + duration
 				+ ", delta |tafter-tbefore|=" + tdelta + "; " + msg);
@@ -580,7 +382,7 @@ public class TestAppend {
 				} else {
 					beginPosition = mta.visibleLenFromReadStream - 1000;
 				}
-				System.out.println("Readonly test: read visible length="
+				TestSession.logger.info("Readonly test: read visible length="
 						+ mta.visibleLenFromReadStream
 						+ " ; read beginPosition =" + beginPosition);
 
@@ -620,7 +422,7 @@ public class TestAppend {
 														// switch to reuse the
 														// thread?
 		Thread readt = new Thread(rt);
-		// System.out.println("Thread created to read: testReadInAppendWriteWithNewThread.");
+		// TestSession.logger.info("Thread created to read: testReadInAppendWriteWithNewThread.");
 
 		long totalByteRead = 0;
 		readt.start();
@@ -645,7 +447,7 @@ public class TestAppend {
 	 */
 
 	// length of a file (path name)
-	public long getFileLengthFromFc(Path path) throws IOException {
+	public static long getFileLengthFromFc(Path path) throws IOException {
 		FileStatus fileStatus;
 		if (useFCOption) {
 			fileStatus = mfc.getFileStatus(path);
@@ -688,13 +490,13 @@ public class TestAppend {
 		FSDataInputStream in;
 		if (useFCOption) {
 			if (verboseOption) {
-				System.out.println("Using FileContext to open path for read: "
+				TestSession.logger.info("Using FileContext to open path for read: "
 						+ path.toString());
 			}
 			in = mfc.open(path);
 		} else {
 			if (verboseOption) {
-				System.out.println("Using FileSystem to open path for read: "
+				TestSession.logger.info("Using FileSystem to open path for read: "
 						+ path.toString());
 			}
 			in = mfs.open(path);
@@ -711,7 +513,7 @@ public class TestAppend {
 			return createAppendFileFS(path, overwriteOption, appendOption);
 	}
 
-	public Path getFullyQualifiedPath(String pathString) {
+	public static Path getFullyQualifiedPath(String pathString) {
 		Path path;
 		if (useFCOption) {
 			path = mfc.makeQualified(new Path(APPEND_ROOT_DIR, pathString));
@@ -721,14 +523,14 @@ public class TestAppend {
 		return path;
 	}
 
-	public BlockLocation[] dumpFileBlockLocations(String fname)
+	public static BlockLocation[] dumpFileBlockLocations(String fname)
 			throws IOException {
 		Path path = getFullyQualifiedPath(fname);
 		long filelen = getFileLengthFromFc(path);
 		return dumpFileBlockLocations(path, 0, filelen);
 	}
 
-	public BlockLocation[] dumpFileBlockLocations(Path path, long start,
+	public static BlockLocation[] dumpFileBlockLocations(Path path, long start,
 			long len) throws IOException {
 		BlockLocation[] bl;
 		if (useFCOption) {
@@ -740,7 +542,7 @@ public class TestAppend {
 		if (bl.length <= 0)
 			return null;
 
-		System.out.println("Total Number of blocks=" + bl.length
+		TestSession.logger.info("Total Number of blocks=" + bl.length
 				+ ", block length=" + bl[0].getLength() + ", Host="
 				+ bl[0].getHosts() + ", path=" + path);
 
@@ -750,7 +552,7 @@ public class TestAppend {
 			String[] names = bl[i].getNames(); // String[] topoPaths =
 												// bl[i].getTopologyPaths();
 			for (String dn : names)
-				System.out.println("Block index=" + i + ", DataNode=" + dn
+				TestSession.logger.info("Block index=" + i + ", DataNode=" + dn
 						+ ", Offset=" + offset + ", path=" + path);
 		}
 		return bl;
@@ -780,7 +582,7 @@ public class TestAppend {
 	public void createFileWithData(FileContext fc, String name, int numBlocks,
 			int blockSize) throws IOException {
 		Path path = getFullyQualifiedPath(name);
-		System.out.println("  DEBUG: createFileWithData to create file: "
+		TestSession.logger.info("  DEBUG: createFileWithData to create file: "
 				+ name + "; path = " + path.toString());
 		createFileWithData(fc, path, numBlocks,
 				CreateOpts.blockSize(blockSize), CreateOpts.createParent());
@@ -804,35 +606,35 @@ public class TestAppend {
 	// quick way to dump memory when the content are printable
 	void dumpMem(byte[] data, long n) {
 		String s = new String(data);
-		System.out.println("Dump: \n" + s);
+		TestSession.logger.info("Dump: \n" + s);
 	}
 
 	/*
 	 * Sanity check just create and read 2K worth of data
 	 */
 	public void testCreate2KB(String fname) throws IOException {
-		System.out.println("Testing the creation of file " + fname);
+	    System.out.println("Testing the creation of file " + fname);
 
-		Path path = getFullyQualifiedPath(fname);
-		createFileWithData(mfc, fname, numBlocks, blockSize);
-		System.out.println("Checksum of the file: " + fname + " = "
-				+ mfc.getFileChecksum(path));
+	    Path path = getFullyQualifiedPath(fname);
+	    createFileWithData(mfc, fname, numBlocks, blockSize);
+	    System.out.println("Checksum of the file: " + fname + " = "
+	            + mfc.getFileChecksum(path));
 	}
 
 	/*
 	 * Test reading of file: open and close. Return the number of bytes read.
 	 */
 	public void testRead2KB(String fname) throws IOException {
-		System.out.println("Testing the reading of file " + fname);
+	    System.out.println("Testing the reading of file " + fname);
 
-		Path path = getFullyQualifiedPath(fname);
-		FSDataInputStream in = mfc.open(path);
-		byte[] buffer = new byte[DefaultBufferSize];
+	    Path path = getFullyQualifiedPath(fname);
+	    FSDataInputStream in = mfc.open(path);
+	    byte[] buffer = new byte[DefaultBufferSize];
 
-		int byteRead = in.read(0, buffer, 0, DefaultBufferSize);
-		System.out.println("Number of byte read from file: " + path.toString()
-				+ "; Byte = " + byteRead);
-		in.close();
+	    int byteRead = in.read(0, buffer, 0, DefaultBufferSize);
+	    System.out.println("Number of byte read from file: " + path.toString()
+	            + "; Byte = " + byteRead);
+	    in.close();
 	}
 
 	// do not read pass Visible End
@@ -858,7 +660,7 @@ public class TestAppend {
 		currentFpos = in.getPos();
 
 		if (verboseOption)
-			System.out.println("Reader Until Visible End - begin: position: "
+			TestSession.logger.info("Reader Until Visible End - begin: position: "
 					+ pos + " ; currentOffset = " + currentPosition
 					+ " ; bufferSize =" + buffer.length + " ; VisibleLen ="
 					+ visibleLen + " ; current file Position =" + currentFpos
@@ -890,7 +692,7 @@ public class TestAppend {
 				byteLeftToRead = visibleLen - currentPosition;
 
 				if (verboseOption) {
-					System.out.println("Reader: Number of byte read="
+					TestSession.logger.info("Reader: Number of byte read="
 							+ byteRead + "; toatlByteRead=" + totalByteRead
 							+ "; currentPosition=" + currentPosition
 							+ "; chunkNumber=" + chunkNumber
@@ -928,7 +730,7 @@ public class TestAppend {
 
 		}
 		if (verboseOption)
-			System.out.println("Reader end:   position=" + pos
+			TestSession.logger.info("Reader end:   position=" + pos
 					+ "; currentOffset=" + currentPosition
 					+ "; totalByteRead =" + totalByteRead
 					+ " ; UntilVisibleEnd of Filename = " + fname);
@@ -969,7 +771,7 @@ public class TestAppend {
 		currentFpos = in.getPos();
 
 		if (verboseOption)
-			System.out.println("Reader Until End - begin: position: " + pos
+			TestSession.logger.info("Reader Until End - begin: position: " + pos
 					+ " ; currentOffset = " + currentPosition
 					+ " ; bufferSize =" + buffer.length + " ; VisibleLen ="
 					+ visibleLen + " ; current file Position =" + currentFpos
@@ -995,7 +797,7 @@ public class TestAppend {
 				byteLeftToRead = visibleLen - currentPosition;
 
 				if (verboseOption) {
-					System.out.println("Reader: Number of byte read="
+					TestSession.logger.info("Reader: Number of byte read="
 							+ byteRead + "; toatlByteRead=" + totalByteRead
 							+ "; currentPosition=" + currentPosition
 							+ "; chunkNumber=" + chunkNumber
@@ -1023,7 +825,7 @@ public class TestAppend {
 		}
 
 		if (verboseOption)
-			System.out.println("Reader end:   position=" + pos
+			TestSession.logger.info("Reader end:   position=" + pos
 					+ "; currentOffset=" + currentPosition + "; totalByteRead="
 					+ totalByteRead + "; UntilEnd of Filename = " + fname);
 
@@ -1087,7 +889,7 @@ public class TestAppend {
 	 */
 	public long appendChunk(FSDataOutputStream out, int marker, long length,
 			boolean flushOrNot) throws IOException {
-		// System.out.println("WRITER: marker=" + Integer.toHexString(marker) +
+		// TestSession.logger.info("WRITER: marker=" + Integer.toHexString(marker) +
 		// "; length = " + length);
 
 		if (length < 10) // minimum to write is at least 10 byte
@@ -1104,7 +906,7 @@ public class TestAppend {
 		for (int j = 0; j < 8; j++) {
 			int nibble = ((marker >>> (28 - 4 * j)) & bitmask);
 			buffer[j] = (byte) (nibble >= 10 ? nibble - 10 + 'A' : nibble + '0');
-			// System.out.println("Nibble is " + Integer.toHexString(nibble) +
+			// TestSession.logger.info("Nibble is " + Integer.toHexString(nibble) +
 			// "; bitmask = " +
 			// Integer.toHexString(bitmask) + "; buffer[j] = " +
 			// Integer.toHexString(buffer[j]));
@@ -1137,7 +939,7 @@ public class TestAppend {
 				tsAfterHflush = System.currentTimeMillis();
 			}
 			if (verboseOption)
-				System.out.println("AppendChunk: Total byte written="
+				TestSession.logger.info("AppendChunk: Total byte written="
 						+ totalByteWritten + "; input chunk size = " + length);
 
 			sand++; // next chunk will offset the data pattern by 1
@@ -1160,7 +962,7 @@ public class TestAppend {
 
 		try {
 			Path path = getFullyQualifiedPath(fname);
-			System.out.println("Testing testAppendWriteAndRead " + fname
+			TestSession.logger.info("Testing testAppendWriteAndRead " + fname
 					+ "; using Filecontext: " + useFCOption
 					+ "; fully qualified path = " + path);
 
@@ -1297,7 +1099,7 @@ public class TestAppend {
 					throw new IllegalArgumentException();
 				}
 			} else {
-				// System.out.println("File does not exists. Open with CREATE + APPEND: "
+				// TestSession.logger.info("File does not exists. Open with CREATE + APPEND: "
 				// + path);
 				// out = mfc.create(path, EnumSet.of( CreateFlag.APPEND,
 				// CreateFlag.CREATE));
@@ -1305,7 +1107,7 @@ public class TestAppend {
 						.println("File does not exists. FileContext Open with CREATE: "
 								+ path);
 				out = mfc.create(path, EnumSet.of(CreateFlag.CREATE));
-				System.out.println("Successfully created file, via mfc: "
+				TestSession.logger.info("Successfully created file, via mfc: "
 						+ path);
 			}
 		} catch (IOException e) {
@@ -1340,7 +1142,7 @@ public class TestAppend {
 				throw new IllegalArgumentException();
 			}
 		} else {
-			// System.out.println("File does not exists. Open with CREATE + APPEND: "
+			// TestSession.logger.info("File does not exists. Open with CREATE + APPEND: "
 			// + path);
 			// out = mfc.create(path, EnumSet.of( CreateFlag.APPEND,
 			// CreateFlag.CREATE));
@@ -1353,41 +1155,41 @@ public class TestAppend {
 	}
 
 	public void usageError() {
-		System.out.println(cmdUsage);
+		TestSession.logger.info(cmdUsage);
 		System.exit(100);
 
 	}
 
 	public void dumpOptions() {
 		if (verboseOption) {
-			System.out.println("INFO: fnameOption " + fnameOption);
-			System.out.println("INFO: quickTestOption " + quickTestOption);
-			System.out.println("INFO: readOnlyOption " + readOnlyOption);
-			System.out.println("INFO: bothReadWriteOption "
+			TestSession.logger.info("INFO: fnameOption " + fnameOption);
+			TestSession.logger.info("INFO: quickTestOption " + quickTestOption);
+			TestSession.logger.info("INFO: readOnlyOption " + readOnlyOption);
+			TestSession.logger.info("INFO: bothReadWriteOption "
 					+ bothReadWriteOption);
-			System.out.println("INFO: toPauseOption " + toPauseOption);
-			System.out.println("INFO: useFCOption " + useFCOption);
-			System.out.println("INFO: useFSOption " + useFSOption);
-			System.out.println("INFO: pauseIntervalMsecOption "
+			TestSession.logger.info("INFO: toPauseOption " + toPauseOption);
+			TestSession.logger.info("INFO: useFCOption " + useFCOption);
+			TestSession.logger.info("INFO: useFSOption " + useFSOption);
+			TestSession.logger.info("INFO: pauseIntervalMsecOption "
 					+ pauseIntervalMsecOption);
-			System.out.println("INFO: ntimesOption " + ntimesOption);
-			System.out.println("INFO: chunkSizeOption " + chunkSizeOption);
+			TestSession.logger.info("INFO: ntimesOption " + ntimesOption);
+			TestSession.logger.info("INFO: chunkSizeOption " + chunkSizeOption);
 			System.out
 					.println("INFO: openAndCloseOption " + openAndCloseOption);
-			System.out.println("INFO: overwriteOption " + overwriteOption);
-			System.out.println("INFO: appendOption " + appendOption);
-			System.out.println("INFO: createOption " + createOption);
-			System.out.println("INFO: verboseOption " + verboseOption);
-			System.out.println("INFO: readFullyOption " + readFullyOption);
+			TestSession.logger.info("INFO: overwriteOption " + overwriteOption);
+			TestSession.logger.info("INFO: appendOption " + appendOption);
+			TestSession.logger.info("INFO: createOption " + createOption);
+			TestSession.logger.info("INFO: verboseOption " + verboseOption);
+			TestSession.logger.info("INFO: readFullyOption " + readFullyOption);
 			System.out
 					.println("INFO: alwaysHflushOption " + alwaysHflushOption);
-			System.out.println("INFO: noHflushOption " + noHflushOption);
+			TestSession.logger.info("INFO: noHflushOption " + noHflushOption);
 			System.out
 					.println("INFO: readPassVEndOption " + readPassVEndOption);
-			System.out.println("INFO: miscOption " + miscOption);
-			System.out.println("INFO: miscCmdOption " + miscCmdOption);
-			System.out.println("INFO: posReadOption " + posReadOption);
-			System.out.println("INFO: blockLocOption " + blockLocOption);
+			TestSession.logger.info("INFO: miscOption " + miscOption);
+			TestSession.logger.info("INFO: miscCmdOption " + miscCmdOption);
+			TestSession.logger.info("INFO: posReadOption " + posReadOption);
+			TestSession.logger.info("INFO: blockLocOption " + blockLocOption);
 		}
 	}
 
@@ -1483,7 +1285,7 @@ public class TestAppend {
 	public int testReadWrite() {
 		int errorStat = 0;
 
-		System.out.println("testReadWrite " + fnameOption);
+		TestSession.logger.info("testReadWrite " + fnameOption);
 
 		try {
 			// setupFS();
@@ -1510,8 +1312,7 @@ public class TestAppend {
 		int totalByteRead = 0;
 		byte[] buffer = new byte[DefaultBufferSize];
 
-		System.out
-				.println("testReadOnly to file " + fnameOption + " ; for "
+		TestSession.logger.info("testReadOnly to file " + fnameOption + " ; for "
 						+ ntimesOption + " times with pause "
 						+ pauseIntervalMsecOption);
 
@@ -1526,7 +1327,7 @@ public class TestAppend {
 			long totalByteSeenHere = 0;
 
 			Path path = getFullyQualifiedPath(fname);
-			System.out.println("Testing testReadOnly " + fname
+			TestSession.logger.info("Testing testReadOnly " + fname
 					+ "; fully qualified path = " + path);
 			long lenFromFc = getFileLengthFromFc(path);
 
@@ -1554,7 +1355,7 @@ public class TestAppend {
 					}
 
 					totalByteSeenHere = beginPosition;
-					System.out.println("Readonly test: read visible length="
+					TestSession.logger.info("Readonly test: read visible length="
 							+ knownVisibleLength + " ; read beginPosition ="
 							+ beginPosition + "; iteration = " + i);
 				}
@@ -1589,7 +1390,7 @@ public class TestAppend {
 			e.printStackTrace();
 			return errorStat;
 		}
-		System.out.println("READER: testReadOnly total byte read: "
+		TestSession.logger.info("READER: testReadOnly total byte read: "
 				+ totalByteRead + "; after iterations = " + ntimesOption);
 
 		return errorStat;
@@ -1613,13 +1414,13 @@ public class TestAppend {
 		String fname = fnameOption;
 		FSDataOutputStream out = null;
 
-		System.out.println("testWriteOnly to file " + fnameOption + " ; for "
+		TestSession.logger.info("testWriteOnly to file " + fnameOption + " ; for "
 				+ numBlocks + " times with pause " + pauseIntervalMsecOption);
 
 		try {
 
 			Path path = getFullyQualifiedPath(fname);
-			System.out.println("Testing testWriteOnly " + fname
+			TestSession.logger.info("Testing testWriteOnly " + fname
 					+ "; fully qualified path = " + path);
 
 			// FSDataOutputStream out = mfc.create(path,
@@ -1635,7 +1436,7 @@ public class TestAppend {
 										// append mode; but getPos() does not
 										// work for append mode
 
-			System.out.println("File original length ="
+			TestSession.logger.info("File original length ="
 					+ originalFileVisibleLength + " ; getPos returned: " + fpos
 					+ "; overWriteOption = " + overwriteOption
 					+ "; appendOption =" + appendOption);
@@ -1703,25 +1504,24 @@ public class TestAppend {
 	public int testRWSanity() {
 
 		int stat = 0;
-		System.out.println("testRWSanity " + fnameOption);
+		TestSession.logger.info("testRWSanity " + fnameOption);
 
 		try {
 			// test the creation of file, and write 2K worth of data, close,
 			// then read it to verify the size
-			testCreate2KB(fnameOption);
+			//testCreate2KB(fnameOption);
 			testRead2KB(fnameOption);
 		} catch (IOException e) {
 			stat = -1;
-			System.err.println("##### Caught Exception in testRWSanity");
+			TestSession.logger.error("##### Caught Exception in testRWSanity");
 			e.printStackTrace();
 		}
 		return stat;
 	}
 
-	public int testReadBeyondEnd() throws IOException {
+	public void testReadBeyondEnd() throws IOException {
 
-		System.out
-				.println("Test to test the behavior when read from beyond the file length. File name = "
+		TestSession.logger.info("Test to test the behavior when read from beyond the file length. File name = "
 						+ fnameOption);
 
 		Path path = getFullyQualifiedPath(fnameOption);
@@ -1733,158 +1533,110 @@ public class TestAppend {
 		long beginPosition = 0;
 		long byteRead = readUntilEnd(in, buffer, buffer.length, fnameOption,
 				beginPosition, -1, true, true); // position read
-		System.out
-				.println("Read from begin to end of file: number of byte read in =  "
+		TestSession.logger.info("Read from begin to end of file: number of byte read in =  "
 						+ byteRead);
 
 		// read 100 byte from end of file
 		beginPosition = fileLen - 100;
 		byteRead = readUntilEnd(in, buffer, buffer.length, fnameOption,
 				beginPosition, -1, true, true);
-		System.out
-				.println("Read file 100 byte from end: number of byte read in =  "
+		TestSession.logger.info("Read file 100 byte from end: number of byte read in =  "
 						+ byteRead);
 
 		// read from exactly the end of the file
 		byteRead = readUntilEnd(in, buffer, buffer.length, fnameOption,
 				fileLen, -1, true, true);
-		System.out.println("Read file from. End number of byte read in =  "
+		TestSession.logger.info("Read file from. End number of byte read in =  "
 				+ byteRead);
 
 		// read 200 byte beyond the end of the file
 		byteRead = readUntilEnd(in, buffer, buffer.length, fnameOption,
 				fileLen + 200, -1, true, true);
-		System.out.println("Read file from End. number of byte read in =  "
+		TestSession.logger.info("Read file from End. number of byte read in =  "
 				+ byteRead);
-
-		return 0;
 	}
 
 	public int testBlockLocation(String fname) throws IOException {
-		Path path = getFullyQualifiedPath(fname);
-		long filelen = getFileLengthFromFc(path);
+	    Path path = getFullyQualifiedPath(fname);
+	    long filelen = getFileLengthFromFc(path);
 
-		BlockLocation[] bl = dumpFileBlockLocations(path, 0, filelen);
+	    BlockLocation[] bl = dumpFileBlockLocations(path, 0, filelen);
 
-		return 0;
+	    return 0;
 	}
 
 	public int testSeekSeqRead() throws IOException {
-		setupFS();
-		long fpos;
-		Path path = getFullyQualifiedPath(fnameOption);
-		long filelen = getFileLengthFromFc(path);
-		FSDataInputStream in = openInputStream(path);
-		byte[] buffer = new byte[DefaultBufferSize];
-		int byteRead;
+	    setupFS();
+	    long fpos;
+	    Path path = getFullyQualifiedPath(fnameOption);
+	    long filelen = getFileLengthFromFc(path);
+	    FSDataInputStream in = openInputStream(path);
+	    byte[] buffer = new byte[DefaultBufferSize];
+	    int byteRead;
 
-		try {
-			System.out.println("Seek file to 10L");
-			in.seek(10L);
-			fpos = in.getPos();
-			System.out.println("getPos() returns: " + fpos);
+	    try {
+	        System.out.println("Seek file to 10L");
+	        in.seek(10L);
+	        fpos = in.getPos();
+	        System.out.println("getPos() returns: " + fpos);
 
-			// sequential read does move the file pointer
-			byteRead = in.read(buffer, 0, 100);
-			fpos = in.getPos();
-			System.out.println("After read of " + byteRead
-					+ " byte, getPos() returns: " + fpos);
-			byteRead = in.read(buffer, 0, 200);
-			fpos = in.getPos();
-			System.out.println("After read of " + byteRead
-					+ " byte, getPos() returns: " + fpos);
+	        // sequential read does move the file pointer
+	        byteRead = in.read(buffer, 0, 100);
+	        fpos = in.getPos();
+	        System.out.println("After read of " + byteRead
+	                + " byte, getPos() returns: " + fpos);
+	        byteRead = in.read(buffer, 0, 200);
+	        fpos = in.getPos();
+	        System.out.println("After read of " + byteRead
+	                + " byte, getPos() returns: " + fpos);
 
-			System.out
-					.println("Now Seek file to 1000 from the end where total length of file = "
-							+ filelen);
-			in.seek(filelen - 1000);
-			fpos = in.getPos();
-			System.out.println("getPos() returns: " + fpos);
+	        System.out
+	        .println("Now Seek file to 1000 from the end where total length of file = "
+	                + filelen);
+	        in.seek(filelen - 1000);
+	        fpos = in.getPos();
+	        System.out.println("getPos() returns: " + fpos);
 
-			System.out.println("Now Seek file to exactly end of file: "
-					+ filelen);
-			in.seek(filelen);
-			fpos = in.getPos();
-			System.out.println("getPos() returns: " + fpos);
+	        System.out.println("Now Seek file to exactly end of file: "
+	                + filelen);
+	        in.seek(filelen);
+	        fpos = in.getPos();
+	        System.out.println("getPos() returns: " + fpos);
 
-			System.out
-					.println("Now Seek file to 100000 beyond end of file. Expect Exception.");
-			in.seek(filelen + 100000);
-			System.out.println("OK in seeking beyond the end of file");
-			fpos = in.getPos();
-			System.out.println("End: getPos() returns: " + fpos);
-		} catch (IOException e) {
-			fpos = in.getPos();
-			System.out
-					.println("##### Caught Expected Exception in testSeek: getPos ="
-							+ fpos);
-			return 0;
-		}
+	        System.out
+	        .println("Now Seek file to 100000 beyond end of file. Expect Exception.");
+	        in.seek(filelen + 100000);
+	        System.out.println("OK in seeking beyond the end of file");
+	        fpos = in.getPos();
+	        System.out.println("End: getPos() returns: " + fpos);
+	    } catch (IOException e) {
+	        fpos = in.getPos();
+	        System.out
+	        .println("##### Caught Expected Exception in testSeek: getPos ="
+	                + fpos);
+	        return 0;
+	    }
 
-		return -1;
+	    return -1;
 	}
-
-	// a few handy tests
+	
 	public int testMisc() throws IOException {
 
-		try {
-			if (miscCmdOption.equals("ReadBeyondEnd")) {
-				testReadBeyondEnd();
-			} else if (miscCmdOption.equals("SeqRead")) {
-				testSeekSeqRead();
-			} else if (miscCmdOption.equals("BlockLocation")) {
-				testBlockLocation(fnameOption);
-			} else if (miscCmdOption.equals("All")) {
-				testReadBeyondEnd();
-				testSeekSeqRead();
-			}
-		} catch (IOException e) {
-			throw new IOException("Caught Exception in Misc Test", e);
-		}
-		return 0;
-	}
-
-	public static void main(String[] args) {
-		int stat = 0;
-
-		try {
-			TestAppend ta = new TestAppend("", "");
-
-			ta.getCmdlineOptions(args);
-			stat = 0;
-
-			/*
-			 * if (ta.useFSOption) { ta.useFileSystem(); }
-			 */
-			ta.setupFS();
-			// temporary hack to test any new options
-			if (ta.miscOption) {
-				stat = ta.testMisc();
-
-			} else if (ta.quickTestOption) {
-				stat = ta.testRWSanity();
-			} else if (ta.bothReadWriteOption) {
-				stat = ta.testReadWrite();
-			} else if (ta.readOnlyOption) {
-				stat = ta.testReadOnly();
-			} else if (ta.writeOnlyOption) {
-				stat = ta.testWriteOnly();
-			}
-
-			if (stat == 0) {
-				System.out.println("Tests done successfully, status = " + stat);
-			} else {
-				System.out.println("Tests failed, status = " + stat
-						+ " ; Dump out Block Location");
-				ta.dumpFileBlockLocations(ta.fnameOption);
-			}
-		} catch (IOException e) {
-			stat = -10;
-			System.err.println("##### Caught Exception in main");
-			e.printStackTrace();
-		}
-		System.out.println("Done. Status to return: " + stat);
-		System.exit(stat);
+	    try {
+	        if (miscCmdOption.equals("ReadBeyondEnd")) {
+	            testReadBeyondEnd();
+	        } else if (miscCmdOption.equals("SeqRead")) {
+	            testSeekSeqRead();
+	        } else if (miscCmdOption.equals("BlockLocation")) {
+	            testBlockLocation(fnameOption);
+	        } else if (miscCmdOption.equals("All")) {
+	            testReadBeyondEnd();
+	            testSeekSeqRead();
+	        }
+	    } catch (IOException e) {
+	        throw new IOException("Caught Exception in Misc Test", e);
+	    }
+	    return 0;
 	}
 
 }
