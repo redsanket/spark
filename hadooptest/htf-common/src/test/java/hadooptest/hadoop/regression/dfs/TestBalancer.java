@@ -4,7 +4,6 @@ import hadooptest.SerialTests;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -64,12 +63,6 @@ public class TestBalancer extends DfsTestsBaseClass {
 					.contains(EXPECTED_OUTPUT));
 		}
 
-	}
-	
-	@Override
-	@After
-	public void logTaskReportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 }

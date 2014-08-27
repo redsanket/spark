@@ -10,7 +10,6 @@ import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import java.io.File;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -22,7 +21,6 @@ import org.junit.rules.TemporaryFolder;
 public class TestDelegationTokens extends DfsTestsBaseClass {
 
     private String protocol;
-	static Logger logger = Logger.getLogger(TestDelegationTokens.class);
 	private static final String DELEGATION_TOKEN_TESTS_DIR_ON_DFS = "/user/"
 			+ HadooptestConstants.UserNames.HADOOPQA
 			+ "/delegation_token_tests/";

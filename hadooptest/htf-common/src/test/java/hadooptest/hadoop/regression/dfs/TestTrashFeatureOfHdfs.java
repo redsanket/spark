@@ -5,15 +5,12 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,8 +31,6 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
 		this.protocol = protocol;
 		logger.info("Test invoked for protocol/schema:" + protocol);
 	}
-
-	static Logger logger = Logger.getLogger(TestTrashFeatureOfHdfs.class);
 
 	File folderNamedSuitestartOnHdfs;
 	private static String TEST_FOLDER_NAME_ON_HDFS = "suitestart";

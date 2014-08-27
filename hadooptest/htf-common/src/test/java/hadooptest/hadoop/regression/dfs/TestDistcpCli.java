@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -25,8 +24,6 @@ import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
 public class TestDistcpCli extends DfsTestsBaseClass {
-
-    static Logger logger = Logger.getLogger(TestDistcpCli.class);
 
     private static boolean isDataCopiedAcrossConcernedClusters = false;
     private String parametrizedCluster;

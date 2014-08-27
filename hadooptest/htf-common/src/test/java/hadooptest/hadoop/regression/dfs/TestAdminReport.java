@@ -425,10 +425,4 @@ public class TestAdminReport extends DfsTestsBaseClass {
 
 	}
 
-	@Override
-	@After
-	public void logTaskReportSummary() {
-		// Override to hide the Test Session logs
-	}
-
 }
