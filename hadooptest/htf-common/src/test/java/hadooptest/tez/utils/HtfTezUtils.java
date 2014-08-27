@@ -54,13 +54,49 @@ public class HtfTezUtils {
 			throws IOException, InterruptedException {
 		String tezVersion = getTezVersion();
 		TestSession.logger.info("Read back tez version as:" + tezVersion);
+		String hadoopVersion = "hadoop-" + getHadoopVersion();
+		TestSession.logger.info("Read back Hadoop version as:" + hadoopVersion);
 		String fsProtocol = conf.get("fs.defaultFS");
 		TestSession.logger.info("Default FS is:" + fsProtocol);
-		conf.set("tez.lib.uris", "${fs.defaultFS}/sharelib/v1/tez/ytez-"
-				+ tezVersion
-				+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
-				+ tezVersion + "/libexec/tez/lib");
+		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
+		// ALERT HACK ALERT
+		// Sid (Hortonworks) said
+		// "Put the tez tar ball (that should include the Hadoop JARs as well) … 
+		// and point the tez.lib.uris (in tez-site.xml) to the tarball"
+		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
+		// ALERT HACK ALERT
+		conf.set(
+				"tez.lib.uris",
+				"${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
+						+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
+						+ tezVersion + "/libexec/tez/lib,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion + "/share/hadoop/common,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion + "/share/hadoop/common/lib,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion
+						+ "/share/hadoop/hdfs/,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion + "/share/hadoop/hdfs/lib,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion + "/share/hadoop/yarn,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion + "/share/hadoop/yarn/lib,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion + "/share/hadoop/mapreduce,"
+						+ "file:///home/gs/gridre/yroot."
+						+ System.getProperty("CLUSTER_NAME") + "/share/"
+						+ hadoopVersion + "/share/hadoop/mapreduce/lib");
 
+		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
 		if (useSession) {
 			conf.setBoolean("USE_TEZ_SESSION", true);
@@ -78,8 +114,9 @@ public class HtfTezUtils {
 				// applyTezSettingsToAllHosts();
 			} catch (Exception e) {
 				e.printStackTrace();
-				TestSession.logger.info("Exception received when changing confs in all the nodes in the cluster."
-						+ "Remove this commented method once Amit has been added to OpsDb role grid_re");
+				TestSession.logger
+						.info("Exception received when changing confs in all the nodes in the cluster."
+								+ "Remove this commented method once Amit has been added to OpsDb role grid_re");
 			}
 		}
 		return conf;
@@ -241,6 +278,34 @@ public class HtfTezUtils {
 		return response.trim();
 	}
 
+	public static String getHadoopVersion() throws IOException,
+			InterruptedException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/share/hadoop/bin/hadoop");
+		sb.append(" ");
+		sb.append("version");
+
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+
+		Process process = TestSession.exec.runProcBuilderGetProc(commandFrags,
+				null);
+		process.waitFor();
+		Assert.assertEquals(process.exitValue(), 0);
+		String response = printResponseAndReturnItAsString(process);
+		// Response is of the format
+//		Hadoop 2.5.0.3.1408251445
+//		Subversion git@git.corp.yahoo.com:hadoop/Hadoop.git -r 3afaa2c152b18a45f4314808c9d0dd7af75a4f84
+//		Compiled by hadoopqa on 2014-08-25T21:55Z
+//		Compiled with protoc 2.5.0
+//		From source with checksum 408a7f5aafaa8d578542c88dbc39dbd6
+//		This command was run using /home/gs/gridre/yroot.tiwaripig/share/hadoop-2.5.0.3.1408251445/share/hadoop/common/hadoop-common-2.5.0.3.1408251445.jar
+//		hadoopqa@oxy-oxygen-0a577732 hadooptest>$ 
+
+		return response.split("\n")[0].split("\\s+")[1].trim();
+	}
+
 	private static String printResponseAndReturnItAsString(Process process)
 			throws InterruptedException, IOException {
 		StringBuffer sb = new StringBuffer();
@@ -248,13 +313,13 @@ public class HtfTezUtils {
 				process.getInputStream()));
 		String line;
 
+		line = reader.readLine();
+		while (line != null) {
+			sb.append(line);
+			sb.append("\n");
+			TestSession.logger.debug(line);
 			line = reader.readLine();
-			while (line != null) {
-				sb.append(line);
-				sb.append("\n");
-				TestSession.logger.debug(line);
-				line = reader.readLine();
-			}
+		}
 
 		process.waitFor();
 		return sb.toString();
