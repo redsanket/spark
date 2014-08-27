@@ -2,12 +2,20 @@
 On-Boarding 
 ===========
 
-.. _hbase_getting_started-installation:
+.. Status: first draft. The Dopplr form section may need to be removed or altered.
+   Currently, I've been told that the form is not to be used, but by the time
+   the documentation is finished, the team may be using the form again, but a
+   different version, so I've left the section in the documentation for the time being (08/26/14).
 
-In this chapter, we'll show you how to get on-board to the non-production environment for Storm.
-The process make take several days based on your request and
+In this chapter, we'll show you how to get on-board to the 
+non-production environment for Storm. After you're done, we
+also show you what steps to take to get on-boarded for production.
+ 
+The process of on-boarding may take several days based on your request and
 the response of the Grid team. In the future, the on-boarding
 process to Storm will be automated, and thus, automatic.
+
+.. _onboarding-create:
 
 Creating a Storm Project
 ========================
@@ -15,12 +23,12 @@ Creating a Storm Project
 #. Go to the `Grid Support Shop <http://yo/supportshop>`_.
 #. From the **Grid Support Shop**, click **Storm Onboarding**. 
 
-   .. .. image:: images/support_shop-storm_onboarding.jpg
-        :height: 490px
-        :width: 800 px
-        :scale: 90 %
-        :alt: Figure showing user clicking "Storm Onboarding" from the Support Shop.
-        :align: right
+   .. image:: images/support_shop-storm_onboarding.jpg
+      :height: 490px
+      :width: 800 px
+      :scale: 90 %
+      :alt: Figure showing user clicking "Storm Onboarding" from the Support Shop.
+      :align: left 
 
 #. You'll be taken to a Doppler form to create a Storm project. Click **Create a new project**
    and then confirm by clicking **New Project** in the pop-up confirmation window.
@@ -34,7 +42,7 @@ Creating a Storm Project
 #. Click **Submit New Project**. You'll be taken to a confirmation page. The turnover rate varies,
    but generally, you'll be on-boarded within a few business days. 
    
-http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
+.. http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
 .. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm  
 
 Create a New Topology
@@ -65,9 +73,9 @@ and plan on changing the nomenclature soon.
 Next Step
 =========
 
-Try the `Tutorial: Counting Data Highway Events <../tutorials/index.html#storm_tutorials-counting>`_ or on-board to the production environment by
-following the same steps above but selecting **Production** and specifying
-your capacity needs:
+Try the `Tutorial: Counting Data Highway Events <../tutorials/index.html#storm_tutorials-counting>`_ 
+or on-board to the production environment by following the same steps above but selecting 
+**Production** and specifying your capacity needs:
 
 - number of servers
 - number of workers
