@@ -7,7 +7,6 @@ import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,8 +17,7 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestArchives extends DfsTestsBaseClass {
 	String protocol = HadooptestConstants.Schema.HDFS;
-
-	static Logger logger = Logger.getLogger(TestArchives.class);
+	
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DIR = "/user/hadoopqa/archive_tests/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_SRC_DIR = "/user/hadoopqa/archive_tests/src/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DST_DIR = "/user/hadoopqa/archive_tests/dst/";
@@ -635,12 +633,6 @@ public class TestArchives extends DfsTestsBaseClass {
 				+ TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_ARCHIVE_TESTS_DIR,
 				genericCliResponse.process.exitValue() == 0);
 
-	}
-
-	@Override
-	@After
-	public void logTaskReportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 }
