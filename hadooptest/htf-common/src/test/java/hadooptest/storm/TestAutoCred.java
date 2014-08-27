@@ -87,7 +87,14 @@ public class TestAutoCred extends TestSessionStorm {
         } finally {
             cluster.killTopology(topoName);
         }
-        Util.sleep(20);
+        File outputFile = new File(outputLoc);
+        int tryCount = 60;
+        while (tryCount > 0 && !outputFile.exists()) {
+            logger.info("Waiting for output.  Attempt " + (61-tryCount));
+            tryCount -= 1;
+            Util.sleep(1);
+        }
+        // If the file doesn't exist, we'll blow up trying to read it.
         BufferedReader reader = new BufferedReader(new FileReader(outputLoc));
         String line; 
         //get results

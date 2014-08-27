@@ -19,6 +19,7 @@ public class TestSparkPiCli extends TestSession {
         TestSession.start();
     }
 
+
     /*
      * A test for running SparkPi in Standalone mode
      * 

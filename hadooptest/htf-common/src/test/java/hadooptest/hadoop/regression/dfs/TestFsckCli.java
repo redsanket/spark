@@ -63,8 +63,6 @@ import hadooptest.SerialTests;
 @Category(SerialTests.class)
 public class TestFsckCli extends DfsTestsBaseClass {
 
-	static Logger logger = Logger.getLogger(TestFsckCli.class);
-
 	private static final String FSCK_TESTS_DIR_ON_HDFS = DATA_DIR_IN_HDFS
 			+ "fsck_tests/";
 	private static final String RANDOM_WRITER_DATA_DIR = FSCK_TESTS_DIR_ON_HDFS
@@ -919,11 +917,6 @@ public class TestFsckCli extends DfsTestsBaseClass {
 				+ " got return code:" + returnCode
 				+ " gonna wait for 2 minutes before returning, from function");
 		Thread.sleep(120000);
-	}
-
-	@After
-	public void logTaskResportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 }

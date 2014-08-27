@@ -9,8 +9,10 @@ import hadooptest.TestSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,9 @@ public class GenericJob extends Job {
 	
     /** The job name to run*/
     private String jobName = null;
+
+    /** The job name displayed in webui and stdout*/
+    private String jobDisplayName = null;
 
 	/**
 	 * Get the job jar file path.
@@ -71,12 +76,12 @@ public class GenericJob extends Job {
 	
 	/**
 	 * Get the job name.
-	 * 
+	 *
 	 */
 	public String getJobName() {
 		return this.jobName;
 	}
-	
+
 	/**
 	 * Set the job name.
 	 * 
@@ -85,7 +90,24 @@ public class GenericJob extends Job {
 	public void setJobName(String name) {
 		this.jobName = name;
 	}
-	
+
+    /**
+     * Get the job name.
+     *
+     */
+    public String getJobDisplayName() {
+        return this.jobDisplayName;
+    }
+
+    /**
+     * Set the job name.
+     *
+     * @param job name.
+     */
+    public void setJobDisplayName(String name) {
+        this.jobDisplayName = name;
+    }
+
 	/**
 	 * Get the job args.
 	 * 
@@ -122,9 +144,12 @@ public class GenericJob extends Job {
 		                this.process.getInputStream())); 
 		String line=reader.readLine(); 
 
+		StringBuffer lineBuffer = new StringBuffer();
+
 		while(line!=null) 
 		{ 
 			TestSession.logger.debug(line);
+			lineBuffer.append(line + "\n");
 
 			Matcher jobMatcher = jobPattern.matcher(line);
 
@@ -136,6 +161,12 @@ public class GenericJob extends Job {
 			}
 
 			line=reader.readLine();
+		}
+
+		if (this.ID.equals("0")) {
+	        TestSession.logger.error(
+	                "Did not find JOB ID for the submitted job: '" +
+	                        lineBuffer + "'");
 		}
 	} 
 
@@ -191,7 +222,18 @@ public class GenericJob extends Job {
 		cmd.add("jar");
 		cmd.add(this.jobJar);
 		cmd.add(this.jobName);
-		cmd.addAll(Arrays.asList(this.jobArgs));
+
+	    if ((this.getJobDisplayName() == null) ||
+	        (this.getJobDisplayName().isEmpty())) {
+	        this.setJobDisplayName(
+	                this.jobName + "-" +
+                    new SimpleDateFormat("yyyyMMddhhmmssSSS").format(new Date()));
+	    }
+	    TestSession.logger.info("Submit job with job name: '" +
+	            this.getJobDisplayName() + "'");
+	    cmd.add("-Dmapreduce.job.name=" + this.jobDisplayName);
+
+	    cmd.addAll(Arrays.asList(this.jobArgs));
 		this.command = cmd.toArray(new String[0]);
 		return this.command;		
 	}

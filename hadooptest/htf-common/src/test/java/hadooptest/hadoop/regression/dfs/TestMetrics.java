@@ -11,7 +11,6 @@ import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,8 +29,6 @@ public class TestMetrics extends DfsTestsBaseClass {
 		this.protocol = protocol;
 		logger.info("Test invoked for protocol/schema:" + protocol);
 	}
-
-	static Logger logger = Logger.getLogger(TestMetrics.class);
 
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR = "/user/hadoopqa/FilesInGetListingOps/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 = "/user/hadoopqa/FilesInGetListingOps/dir00/";

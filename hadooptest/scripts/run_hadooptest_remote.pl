@@ -25,7 +25,7 @@ The options
         [ -r|--remote_host <gateway>       ] : remote gateway host
         [ -s|--local_ws <source root dir>  ] : local source root directory
         [ -w|--remote_ws <workspace>       ] : remote workspace. Default remote workspace is 
-                                               "/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
+                                               "/grid/0/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
         [ -h|--help                        ] : help
 
 Pass Through options
@@ -42,7 +42,7 @@ Example:
 \$ run_hadooptest_remote --cluster theoden --remote_host gwbl2003.blue.ygrid.yahoo.com --mvn --install
 \$ run_hadooptest_remote --cluster theoden --java --install
 \$ run_hadooptest_remote --cluster theoden --mvn --install -u hadoopqa
-\$ run_hadooptest_remote --cluster theoden --mvn --workspace /tmp/foo --install -u hadoopqa
+\$ run_hadooptest_remote --cluster theoden --mvn --workspace /grid/0/tmp/foo --install -u hadoopqa
 \$ run_hadooptest_remote -c theoden -r gwbl2003.blue.ygrid.yahoo.com -m -t SleepJobRunner
 \$ run_hadooptest_remote -c theoden -i
 \$ run_hadooptest_remote -c theoden -n
@@ -105,7 +105,9 @@ unless ($remote_host) {
     exit 1;
 }
 
-$remote_ws = "/tmp/hadooptest-$remote_username-$cluster"
+# my $tmp="/tmp"
+my $tmp="/grid/0/tmp";
+$remote_ws = "$tmp/hadooptest-$remote_username-$cluster"
     unless ($remote_ws);
 $remote_ws_ht = "$remote_ws/hadooptest";
 

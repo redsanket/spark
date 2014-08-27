@@ -40,7 +40,7 @@ public class ExceptionPeeler implements Runnable {
 	}
 
 	public void run() {
-		logger.info("Now scouring file[" + aFile.getName()
+		logger.trace("Now scouring file[" + aFile.getName()
 				+ "] for exceptions.");
 		boolean inTheMiddleOfRecordingExceptionLines = false;
 		BufferedReader br = null;

@@ -1,17 +1,15 @@
 package hadooptest.hadoop.regression.dfs;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
-import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -27,7 +25,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,9 +33,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import hadooptest.SerialTests;
 
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
@@ -68,7 +62,6 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 	static String ACTION_MOVE_TO_LOCAL = "moveToLocal";
 	static String ACTION_CHECKSUM = "chucksum";
 
-	static Logger logger = Logger.getLogger(TestHdfsApi.class);
 	private static HashMap<String, String> versionStore;
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
@@ -80,7 +73,19 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 	private String remoteHadoopVersion;
 	private String parametrizedCluster;
 
-	public TestHdfsApi(String cluster) {
+	@Test public void copyFilesOntoHadoopFS_local() throws IOException, InterruptedException { copyFilesOntoHadoopFS(System.getProperty("CLUSTER_NAME")); }
+    @Test public void copyFilesOntoHadoopFS_remote() throws IOException, InterruptedException { copyFilesOntoHadoopFS(System.getProperty("REMOTE_CLUSTER")); }
+	
+    @Test(expected = AccessControlException.class) public void checkPermissions_local() throws IOException, InterruptedException { checkPermissions(System.getProperty("CLUSTER_NAME")); }
+    @Test(expected = AccessControlException.class) public void checkPermissions_remote() throws IOException, InterruptedException { checkPermissions(System.getProperty("REMOTE_CLUSTER")); }
+    
+    @Test public void appendToFile_local() throws Exception { appendToFile(System.getProperty("CLUSTER_NAME")); }
+    @Test public void appendToFile_remote() throws Exception { appendToFile(System.getProperty("REMOTE_CLUSTER")); }
+    
+    @Test public void testdoAMovesInAndOutOfClusterAndChecksum_local() { testdoAMovesInAndOutOfClusterAndChecksum(System.getProperty("CLUSTER_NAME")); }
+    @Test public void testdoAMovesInAndOutOfClusterAndChecksum_remote() { testdoAMovesInAndOutOfClusterAndChecksum(System.getProperty("REMOTE_CLUSTER")); }
+    
+	private void testSetup(String cluster) {
 		this.parametrizedCluster = cluster;
 		Properties crossClusterProperties = new Properties();
 		try {
@@ -98,21 +103,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		logger.info("Invoked test for:[" + cluster + "] Scheme:[" + schema
 				+ "] NodeName:[" + nameNode + "]");
 	}
-
-	/*
-	 * Data Driven HDFS tests... The tests are invoked with the following
-	 * parameters.
-	 */
-	@Parameters
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] {
-
-				// { "betty" }, { "boromir" },
-				{ System.getProperty("CLUSTER_NAME") },
-				{ System.getProperty("REMOTE_CLUSTER") },
-
-		});
-	}
+	
 	/*
 	 * TODO:350MB is a good size, forces use of multiple blocks. Future
 	 * enhancement suggestion, use file sizes of 0, 1, DEFAULT_BLOCKSIZE-1,
@@ -189,23 +180,11 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 
 	}
 
-//	public void getVersions() {
-//		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
-//		localHadoopVersion = rmUtils.getHadoopVersion(
-//				System.getProperty("CLUSTER_NAME")).split("\\.")[0];
-//		if (System.getProperty("CLUSTER_NAME").equals(this.cluster)) {
-//			remoteHadoopVersion = localHadoopVersion;
-//		} else {
-//			remoteHadoopVersion = rmUtils.getHadoopVersion(this.cluster).split(
-//					"\\.")[0];
-//		}
-//
-//	}
-
-	@Monitorable
-	@Test
-	public void copyFilesOntoHadoopFS() throws IOException,
+	// see hangs issuing 'test -f' on NN  @Monitorable
+	private void copyFilesOntoHadoopFS(String cluster) throws IOException,
 			InterruptedException {
+	    testSetup(cluster);
+	    
 		logger.info("traceMethod:copyFilesOntoHadoopFS");
 		for (String aUser : TestHdfsApi.supportingData.keySet()) {
 			String aOwnersFileName = TestHdfsApi.supportingData.get(aUser).get(
@@ -269,9 +248,9 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 	
-	@Monitorable
-	@Test(expected = AccessControlException.class)
-	public void checkPermissions() throws IOException, InterruptedException {
+	// see hangs issuing 'test -f' on NN  @Monitorable
+	private void checkPermissions(String cluster) throws IOException, InterruptedException {
+        testSetup(cluster);
 		logger.info("traceMethod:checkPermissions");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
 			// Test not valid, because the file would not have got copied to
@@ -279,7 +258,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 			// Throw the Exception that the test is expecting.
 			throw new AccessControlException();
 		}
-		copyFilesOntoHadoopFS();
+		copyFilesOntoHadoopFS(cluster);
 		logger.info("traceMethod, after copyFiles");
 		for (String aUser : TestHdfsApi.supportingData.keySet()) {
 			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
@@ -311,9 +290,9 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Monitorable
-	@Test
-	public void appendToFile() throws Exception {
+	// see hangs issuing 'test -f' on NN  @Monitorable
+	private void appendToFile(String cluster) throws Exception {
+        testSetup(cluster);
 		logger.info("traceMethod:appendToFile");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
 			// Test not valid, because the file would not have got copied to
@@ -321,7 +300,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 			return;
 		}
 		// Copy over the files.
-		copyFilesOntoHadoopFS();
+		copyFilesOntoHadoopFS(cluster);
 
 		for (String aUser : TestHdfsApi.supportingData.keySet()) {
 			String aFileName = TestHdfsApi.supportingData.get(aUser).get(
@@ -342,9 +321,9 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Monitorable
-	@Test
-	public void testdoAMovesInAndOutOfClusterAndChecksum() {
+	// see hangs issuing 'test -f' on NN  @Monitorable
+	private void testdoAMovesInAndOutOfClusterAndChecksum(String cluster) {
+        testSetup(cluster);
 		logger.info("traceMethod:testdoAMovesInAndOutOfClusterAndChecksum");
 		if (!localHadoopVersion.equals(remoteHadoopVersion)) {
 			// Test not valid, because the file would not have got copied to
@@ -739,10 +718,6 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	@After
-	public void logTaskResportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 }

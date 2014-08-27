@@ -3,7 +3,6 @@ package hadooptest.hadoop.regression.dfs;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +26,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -66,7 +64,6 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 	static String ACTION_MOVE_TO_LOCAL = "moveToLocal";
 	static String ACTION_CHECKSUM = "chucksum";
 
-	static Logger logger = Logger.getLogger(TestWebHdfsApi.class);
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
@@ -218,7 +215,7 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Monitorable
+	// see hangs issuing 'test -f' on NN @Monitorable
 	@Test
 	public void appendToFile() throws Exception {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
@@ -241,7 +238,7 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		cleanupAfterTest();
 	}
 
-	@Monitorable
+	// see hangs issuing 'test -f' on NN @Monitorable
 	@Test
 	public void testdoAMovesInAndOutOfClusterAndChecksum() throws Exception {
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
