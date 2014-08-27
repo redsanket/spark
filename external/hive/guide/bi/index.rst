@@ -882,40 +882,28 @@ again refer you to the `Tableau Quick Start Guides <http://www.tableausoftware.c
 Creating Custom Clients with JDBC 
 =================================
 
-Users can use the Hive JDBC APIs to connect to HiveServer2. 
-The JDBC driver is available as a ``yinst`` package and also through 
+Introduction
+------------
+
+Users can use the Hive JDBC APIs so that client applications
+can connect to HiveServer2. The JDBC driver is available as a ``yinst`` package and also through 
 ``yMaven`` for development.  Only Kerberos authentication is supported. 
 The JDBC URIs include QOP and the Kerberos principal.
 
+To use JDBC to connect to HiveServer2, you would use the URL below, where ``<host>``
+would be the Grid cluster, ``<database>`` the name of the Hive database you are using,
+and ``<principal>`` being the  HiveServer2 principal.
 
-Syntax::
+    jdbc:hive2://<host>:50515/<database>;sasl.qop=auth;principal=<principal>
 
-    jdbc:hive2://<host>:50515/<database>;sasl.qop=auth;principal=<principal for HS2>
-
-For example, let's say we want to use the JDBC client ``Beeline`` to get data through HiveServer2::
-
-    $ kinit <user>@Y.CORP.YAHOO.COM
-    $ export HADOOP_CLASSPATH=/home/y/libexec/hive_jdbc/lib/hive-jdbc.jar
-    $ hive --service beeline
-    Beeline version 0.12.1.0.1405060032 by Apache Hive
-    beeline> !connect jdbc:hive2://kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com:50515/default;sasl.qop=auth;principal=hive/kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM anon anon org.apache.hive.jdbc.HiveDriver
-    Connecting to jdbc:hive2://kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com:50515/default;sasl.qop=auth;principal=hive/kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM
-    Connected to: Hive (version 0.12.1.0.1405060032)
-    Driver: Hive (version 0.12.1.0.1405060032)
-    Transaction isolation: TRANSACTION_REPEATABLE_READ
-    0: jdbc:hive2://kryptonitered-hs2-noenc.ygrid> show databases;
-    +------------------------+
-    |     database_name     |
-    +------------------------+
-    | acluster               |
-    | ajaytestdb             |
-    | ajeeshr                |
-
+.. note:: If you are using Tableau or MicroStrategy, you do not need to create a custom client with 
+          JDBC. If you are unsure if you need to create a custom client with JDBC, ask Hive users 
+          on the iList yahoo-hive-dev@yahoo-inc.com.
 
 JDBC Requirements
 -----------------
 
-- JDBC Client should be in the same colo as HS2.
+- Client using JDBC should be in the same colo as HS2.
 - ACLs on JDBC client should be set up.
 - Access to Kerberos servers.
 - Access to HiveServer2 machines and ports.
@@ -923,8 +911,40 @@ JDBC Requirements
 - Paranoid approval during onboarding since data on the grid might be opened up.
   and we will get it going.
 
-Tutorial
---------
+Limitations
+-----------
+
+- custom UDFs are not supported
+- only read operations supported
+
+
+Using Beeline With JDBC
+-----------------------
+
+To use the JDBC client ``Beeline`` to get data through HiveServer2,
+follow the steps below.
+
+#. Log onto a Grid server such as Kryptonite Red (``kryptonite-gw.red.ygrid.yahoo.com``). 
+#. ``$ kinit <user>@Y.CORP.YAHOO.COM``
+#. ``$ export HADOOP_CLASSPATH=/home/y/libexec/hive_jdbc/lib/hive-jdbc.jar``
+#. ``$ hive --service beeline``
+#. ``beeline> !connect jdbc:hive2://kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com:50515/default;sasl.qop=auth;principal=hive/kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM anon anon org.apache.hive.jdbc.HiveDriver`` 
+    
+        Connecting to jdbc:hive2://kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com:50515/default;sasl.qop=auth;principal=hive/kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM
+        Connected to: Hive (version 0.12.1.0.1405060032)
+        Driver: Hive (version 0.12.1.0.1405060032)
+        Transaction isolation: TRANSACTION_REPEATABLE_READ
+#. ``0: jdbc:hive2://kryptonitered-hs2-noenc.ygrid> show databases;``
+
+        +------------------------+
+        |     database_name     |
+        +------------------------+
+        | acluster               |
+        | ajaytestdb             |
+        | ajeeshr                |
+
+Tutorial: Creating a Client Application That Uses JDBC 
+-------------------------------------------------------
 
 The following steps will show you how to use the JDBC driver for a simple example. 
 
