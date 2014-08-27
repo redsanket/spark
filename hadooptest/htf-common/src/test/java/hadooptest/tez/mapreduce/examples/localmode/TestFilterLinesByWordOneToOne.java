@@ -1,5 +1,7 @@
 package hadooptest.tez.mapreduce.examples.localmode;
 
+import java.io.File;
+
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -9,6 +11,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordOneToOneExtendedForHTF;
+import hadooptest.tez.utils.HtfTezUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -65,12 +68,7 @@ public class TestFilterLinesByWordOneToOne extends
 
 		@After
 		public void deleteOutputDirs() throws Exception {
-			DfsCliCommands dfsCliCommands = new DfsCliCommands();
-			dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-					HadooptestConstants.UserNames.HDFSQA, "",
-					System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-					SkipTrash.YES, OUTPUT_LOCATION);
-
+			HtfTezUtils.delete(new File(OUTPUT_LOCATION));
 		}
 
 	}

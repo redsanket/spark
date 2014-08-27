@@ -1,5 +1,7 @@
 package hadooptest.tez.mapreduce.examples.localmode;
 
+import java.io.File;
+
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -57,12 +59,7 @@ public class TestGroupByOrderByMRRTest extends
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {
-		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, HadooptestConstants.Schema.FILE + OUTPUT_FILE_NAME);
-
+		HtfTezUtils.delete(new File(OUTPUT_FILE_NAME));
 
 	}
 

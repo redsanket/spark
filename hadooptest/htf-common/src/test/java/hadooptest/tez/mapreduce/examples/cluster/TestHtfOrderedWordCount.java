@@ -92,7 +92,6 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 
 	}
 
-	@Ignore("DO NOT USE SESSION FOR NOW")
 	@Test
 	public void testOrderedWordCountNoSessionRunOnCluster() throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
@@ -109,7 +108,6 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	@Ignore("DO NOT USE SESSION FOR NOW")
 	@Test
 	public void testOrderedWordCountWithSplitsNoSessionRunOnCluster()
 			throws Exception {
@@ -119,7 +117,6 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	@Ignore("DO NOT USE SESSION FOR NOW")
 	@Test
 	public void testOrderedWordCountWithSplitsUseSessioRunOnCluster()
 			throws Exception {

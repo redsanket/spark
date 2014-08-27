@@ -1,6 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
+import hadooptest.tez.utils.HtfTezUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -46,6 +47,7 @@ import org.apache.tez.dag.api.client.StatusGetOpts;
 import org.apache.tez.mapreduce.committer.MROutputCommitter;
 import org.apache.tez.mapreduce.examples.ExampleDriver;
 import org.apache.tez.mapreduce.examples.FilterLinesByWord;
+import org.apache.tez.mapreduce.examples.FilterLinesByWord.TextLongPair;
 import org.apache.tez.mapreduce.examples.helpers.SplitsInClientOptionParser;
 import org.apache.tez.mapreduce.examples.processor.FilterByWordInputProcessor;
 import org.apache.tez.mapreduce.examples.processor.FilterByWordOutputProcessor;
@@ -103,181 +105,161 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	 * @throws Exception
 	 */
 	public int run(String[] args, String mode) throws Exception {
-		Configuration conf = getConf();
-		String[] otherArgs = new GenericOptionsParser(conf, args)
-				.getRemainingArgs();
-		Credentials credentials = new Credentials();
+	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+	    String [] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+	    Credentials credentials = new Credentials();
 
-		boolean generateSplitsInClient = false;
+	    boolean generateSplitsInClient = false;
 
-		SplitsInClientOptionParser splitCmdLineParser = new SplitsInClientOptionParser();
-		try {
-			generateSplitsInClient = splitCmdLineParser.parse(otherArgs, false);
-			otherArgs = splitCmdLineParser.getRemainingArgs();
-		} catch (ParseException e1) {
-			System.err.println("Invalid options");
-			printUsage();
-			return 2;
-		}
+	    SplitsInClientOptionParser splitCmdLineParser = new SplitsInClientOptionParser();
+	    try {
+	      generateSplitsInClient = splitCmdLineParser.parse(otherArgs, false);
+	      otherArgs = splitCmdLineParser.getRemainingArgs();
+	    } catch (ParseException e1) {
+	      System.err.println("Invalid options");
+	      printUsage();
+	      return 2;
+	    }
 
-		if (otherArgs.length != 3) {
-			printUsage();
-			return 2;
-		}
+	    if (otherArgs.length != 3) {
+	      printUsage();
+	      return 2;
+	    }
 
-		String inputPath = otherArgs[0];
-		String outputPath = otherArgs[1];
-		String filterWord = otherArgs[2];
+	    String inputPath = otherArgs[0];
+	    String outputPath = otherArgs[1];
+	    String filterWord = otherArgs[2];
 
-		FileSystem fs = FileSystem.get(conf);
-		if (fs.exists(new Path(outputPath))) {
-			System.err.println("Output directory : " + outputPath
-					+ " already exists");
-			return 2;
-		}
+	    FileSystem fs = FileSystem.get(conf);
+	    if (fs.exists(new Path(outputPath))) {
+	      System.err.println("Output directory : " + outputPath + " already exists");
+	      return 2;
+	    }
 
-		TezConfiguration tezConf = new TezConfiguration(conf);
+	    TezConfiguration tezConf = new TezConfiguration(conf);
 
-		fs.getWorkingDirectory();
-		Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID()
-				.toString());
-		tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
-		TezClientUtils.ensureStagingDirExists(tezConf, stagingDir);
+	    fs.getWorkingDirectory();
+	    Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID().toString());
+	    tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
+	    TezClientUtils.ensureStagingDirExists(tezConf, stagingDir);
 
-		String jarPath = ClassUtil.findContainingJar(FilterLinesByWord.class);
-		if (jarPath == null) {
-			throw new TezUncheckedException("Could not find any jar containing"
-					+ FilterLinesByWord.class.getName() + " in the classpath");
-		}
+	    String jarPath = ClassUtil.findContainingJar(FilterLinesByWord.class);
+	    if (jarPath == null) {
+	      throw new TezUncheckedException("Could not find any jar containing"
+	          + FilterLinesByWord.class.getName() + " in the classpath");
+	    }
 
-		Path remoteJarPath = fs.makeQualified(new Path(stagingDir,
-				"dag_job.jar"));
-		fs.copyFromLocalFile(new Path(jarPath), remoteJarPath);
-		FileStatus remoteJarStatus = fs.getFileStatus(remoteJarPath);
-		TokenCache.obtainTokensForNamenodes(credentials,
-				new Path[] { remoteJarPath }, conf);
+	    Path remoteJarPath = fs.makeQualified(new Path(stagingDir, "dag_job.jar"));
+	    fs.copyFromLocalFile(new Path(jarPath), remoteJarPath);
+	    FileStatus remoteJarStatus = fs.getFileStatus(remoteJarPath);
+	    TokenCache.obtainTokensForNamenodes(credentials, new Path[]{remoteJarPath}, conf);
 
-		Map<String, LocalResource> commonLocalResources = new TreeMap<String, LocalResource>();
-		LocalResource dagJarLocalRsrc = LocalResource
-				.newInstance(ConverterUtils.getYarnUrlFromPath(remoteJarPath),
-						LocalResourceType.FILE,
-						LocalResourceVisibility.APPLICATION,
-						remoteJarStatus.getLen(),
-						remoteJarStatus.getModificationTime());
-		commonLocalResources.put("dag_job.jar", dagJarLocalRsrc);
+	    Map<String, LocalResource> commonLocalResources = new TreeMap<String, LocalResource>();
+	    LocalResource dagJarLocalRsrc = LocalResource.newInstance(
+	        ConverterUtils.getYarnUrlFromPath(remoteJarPath),
+	        LocalResourceType.FILE, LocalResourceVisibility.APPLICATION,
+	        remoteJarStatus.getLen(), remoteJarStatus.getModificationTime());
+	    commonLocalResources.put("dag_job.jar", dagJarLocalRsrc);
 
-		TezClient tezSession = TezClient.create("FilterLinesByWordSession",
-				tezConf, commonLocalResources, credentials);
-		tezSession.start(); // Why do I need to start the TezSession.
 
-		Configuration stage1Conf = new JobConf(conf);
-		stage1Conf.set(FILTER_PARAM_NAME, filterWord);
 
-		Configuration stage2Conf = new JobConf(conf);
-		stage2Conf.set(FileOutputFormat.OUTDIR, outputPath);
-		stage2Conf.setBoolean("mapred.mapper.new-api", false);
+	    TezClient tezSession = TezClient.create("FilterLinesByWordSession", tezConf,
+	        commonLocalResources, credentials);
+	    tezSession.start(); // Why do I need to start the TezSession.
 
-		UserPayload stage1Payload = TezUtils
-				.createUserPayloadFromConf(stage1Conf);
-		// Setup stage1 Vertex
-		Vertex stage1Vertex = Vertex.create(
-				"stage1",
-				ProcessorDescriptor.create(
-						FilterByWordInputProcessor.class.getName())
-						.setUserPayload(stage1Payload)).addTaskLocalFiles(
-				commonLocalResources);
+	    Configuration stage1Conf = new JobConf(conf);
+	    stage1Conf.set(FILTER_PARAM_NAME, filterWord);
 
-		DataSourceDescriptor dsd;
-		if (generateSplitsInClient) {
-			// TODO TEZ-1406. Dont' use MRInputLegacy
-			stage1Conf.set(FileInputFormat.INPUT_DIR, inputPath);
-			stage1Conf.setBoolean("mapred.mapper.new-api", false);
-			dsd = MRInputHelpers.configureMRInputWithLegacySplitGeneration(
-					stage1Conf, stagingDir, true);
-		} else {
-			dsd = MRInputLegacy
-					.createConfigBuilder(stage1Conf, TextInputFormat.class,
-							inputPath).groupSplits(false).build();
-		}
-		stage1Vertex.addDataSource("MRInput", dsd);
+	    Configuration stage2Conf = new JobConf(conf);
+	    stage2Conf.set(FileOutputFormat.OUTDIR, outputPath);
+	    stage2Conf.setBoolean("mapred.mapper.new-api", false);
 
-		// Setup stage2 Vertex
-		Vertex stage2Vertex = Vertex
-				.create("stage2",
-						ProcessorDescriptor
-								.create(FilterByWordOutputProcessor.class
-										.getName())
-								.setUserPayload(
-										TezUtils.createUserPayloadFromConf(stage2Conf)),
-						1);
-		stage2Vertex.addTaskLocalFiles(commonLocalResources);
+	    UserPayload stage1Payload = TezUtils.createUserPayloadFromConf(stage1Conf);
+	    // Setup stage1 Vertex
+	    Vertex stage1Vertex = Vertex.create("stage1", ProcessorDescriptor.create(
+	        FilterByWordInputProcessor.class.getName()).setUserPayload(stage1Payload))
+	        .addTaskLocalFiles(commonLocalResources);
 
-		// Configure the Output for stage2
-		OutputDescriptor od = OutputDescriptor.create(MROutput.class.getName())
-				.setUserPayload(TezUtils.createUserPayloadFromConf(stage2Conf));
-		OutputCommitterDescriptor ocd = OutputCommitterDescriptor
-				.create(MROutputCommitter.class.getName());
-		stage2Vertex.addDataSink("MROutput", new DataSinkDescriptor(od, ocd,
-				null));
+	    DataSourceDescriptor dsd;
+	    if (generateSplitsInClient) {
+	      // TODO TEZ-1406. Dont' use MRInputLegacy
+	      stage1Conf.set(FileInputFormat.INPUT_DIR, inputPath);
+	      stage1Conf.setBoolean("mapred.mapper.new-api", false);
+	      dsd = MRInputHelpers.configureMRInputWithLegacySplitGeneration(stage1Conf, stagingDir, true);
+	    } else {
+	      dsd = MRInputLegacy.createConfigBuilder(stage1Conf, TextInputFormat.class, inputPath)
+	          .groupSplits(false).build();
+	    }
+	    stage1Vertex.addDataSource("MRInput", dsd);
 
-		UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig.newBuilder(
-				Text.class.getName(), TextLongPair.class.getName()).build();
+	    // Setup stage2 Vertex
+	    Vertex stage2Vertex = Vertex.create("stage2", ProcessorDescriptor.create(
+	        FilterByWordOutputProcessor.class.getName()).setUserPayload(
+	        TezUtils.createUserPayloadFromConf(stage2Conf)), 1);
+	    stage2Vertex.addTaskLocalFiles(commonLocalResources);
 
-		DAG dag = new DAG("FilterLinesByWord");
-		Edge edge = Edge.create(stage1Vertex, stage2Vertex,
-				edgeConf.createDefaultBroadcastEdgeProperty());
-		dag.addVertex(stage1Vertex).addVertex(stage2Vertex).addEdge(edge);
+	    // Configure the Output for stage2
+	    OutputDescriptor od = OutputDescriptor.create(MROutput.class.getName())
+	        .setUserPayload(TezUtils.createUserPayloadFromConf(stage2Conf));
+	    OutputCommitterDescriptor ocd =
+	        OutputCommitterDescriptor.create(MROutputCommitter.class.getName());
+	    stage2Vertex.addDataSink("MROutput", new DataSinkDescriptor(od, ocd, null));
 
-		TestSession.logger.info("Submitting DAG to Tez Session");
-		DAGClient dagClient = tezSession.submitDAG(dag);
-		TestSession.logger.info("Submitted DAG to Tez Session");
+	    UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig
+	        .newBuilder(Text.class.getName(), TextLongPair.class.getName()).build();
 
-		DAGStatus dagStatus = null;
-		String[] vNames = { "stage1", "stage2" };
-		try {
-			while (true) {
-				dagStatus = dagClient.getDAGStatus(null);
-				if (dagStatus.getState() == DAGStatus.State.RUNNING
-						|| dagStatus.getState() == DAGStatus.State.SUCCEEDED
-						|| dagStatus.getState() == DAGStatus.State.FAILED
-						|| dagStatus.getState() == DAGStatus.State.KILLED
-						|| dagStatus.getState() == DAGStatus.State.ERROR) {
-					break;
-				}
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					// continue;
-				}
-			}
+	    DAG dag = DAG.create("FilterLinesByWord");
+	    Edge edge =
+	        Edge.create(stage1Vertex, stage2Vertex, edgeConf.createDefaultBroadcastEdgeProperty());
+	    dag.addVertex(stage1Vertex).addVertex(stage2Vertex).addEdge(edge);
 
-			while (dagStatus.getState() == DAGStatus.State.RUNNING) {
-				try {
-					ExampleDriver.printDAGStatus(dagClient, vNames);
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// continue;
-					}
-					dagStatus = dagClient.getDAGStatus(null);
-				} catch (TezException e) {
-					TestSession.logger
-							.fatal("Failed to get application progress. Exiting");
-					return -1;
-				}
-			}
+	    TestSession.logger.info("Submitting DAG to Tez Session");
+	    DAGClient dagClient = tezSession.submitDAG(dag);
+	    TestSession.logger.info("Submitted DAG to Tez Session");
 
-			dagStatus = dagClient.getDAGStatus(Sets
-					.newHashSet(StatusGetOpts.GET_COUNTERS));
+	    DAGStatus dagStatus = null;
+	    String[] vNames = { "stage1", "stage2" };
+	    try {
+	      while (true) {
+	        dagStatus = dagClient.getDAGStatus(null);
+	        if(dagStatus.getState() == DAGStatus.State.RUNNING ||
+	            dagStatus.getState() == DAGStatus.State.SUCCEEDED ||
+	            dagStatus.getState() == DAGStatus.State.FAILED ||
+	            dagStatus.getState() == DAGStatus.State.KILLED ||
+	            dagStatus.getState() == DAGStatus.State.ERROR) {
+	          break;
+	        }
+	        try {
+	          Thread.sleep(500);
+	        } catch (InterruptedException e) {
+	          // continue;
+	        }
+	      }
 
-		} finally {
-			fs.delete(stagingDir, true);
-			tezSession.stop();
-		}
+	      while (dagStatus.getState() == DAGStatus.State.RUNNING) {
+	        try {
+	          ExampleDriver.printDAGStatus(dagClient, vNames);
+	          try {
+	            Thread.sleep(1000);
+	          } catch (InterruptedException e) {
+	            // continue;
+	          }
+	          dagStatus = dagClient.getDAGStatus(null);
+	        } catch (TezException e) {
+	          TestSession.logger.fatal("Failed to get application progress. Exiting");
+	          return -1;
+	        }
+	      }
+	      
+	      dagStatus = dagClient.getDAGStatus(Sets.newHashSet(StatusGetOpts.GET_COUNTERS));
+	      
+	    } finally {
+	      fs.delete(stagingDir, true);
+	      tezSession.stop();
+	    }
 
-		ExampleDriver.printDAGStatus(dagClient, vNames, true, true);
-		TestSession.logger.info("Application completed. " + "FinalState="
-				+ dagStatus.getState());
-		return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
+	    ExampleDriver.printDAGStatus(dagClient, vNames, true, true);
+	    TestSession.logger.info("Application completed. " + "FinalState=" + dagStatus.getState());
+	    return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
 	}
 }

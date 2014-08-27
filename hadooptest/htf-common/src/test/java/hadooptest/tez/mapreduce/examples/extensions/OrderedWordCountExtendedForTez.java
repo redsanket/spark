@@ -88,8 +88,7 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 	 */
 
 	public int run(String[] args, String mode) throws Exception {
-		Configuration conf = HtfTezUtils.setupConfForTez(
-				TestSession.cluster.getConf(), mode);
+		Configuration conf = getConf();
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
 
@@ -106,7 +105,6 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 		}
 
 		boolean useTezSession = conf.getBoolean("USE_TEZ_SESSION", true);
-		TestSession.logger.info("Am I using session?:" + useTezSession);
 		long interJobSleepTimeout = conf.getInt("INTER_JOB_SLEEP_INTERVAL", 0) * 1000;
 
 		boolean retainStagingDir = conf.getBoolean("RETAIN_STAGING_DIR", false);
@@ -306,6 +304,5 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 					+ dagStatus.getState());
 		}
 		return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
-
 	}
 }
