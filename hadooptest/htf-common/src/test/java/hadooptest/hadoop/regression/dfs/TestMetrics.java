@@ -21,11 +21,6 @@ import org.junit.runners.Parameterized.Parameters;
 public class TestMetrics extends DfsTestsBaseClass {
 	String protocol;
 
-	public TestMetrics(String protocol) {
-		this.protocol = protocol;
-		logger.info("Test invoked for protocol/schema:" + protocol);
-	}
-
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR = "/user/hadoopqa/FilesInGetListingOps/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 = "/user/hadoopqa/FilesInGetListingOps/dir00/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR01 = "/user/hadoopqa/FilesInGetListingOps/dir01/";
@@ -70,6 +65,9 @@ public class TestMetrics extends DfsTestsBaseClass {
     @Test public void test_FilesInGetListingOps6_hdfs() throws Exception { test_FilesInGetListingOps6(HadooptestConstants.Schema.HDFS); }
     
 	private void setupTest(String protocol) throws Exception {
+        this.protocol = protocol;
+        logger.info("Test invoked for protocol/schema:" + protocol);
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
