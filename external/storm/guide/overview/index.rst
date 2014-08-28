@@ -2,7 +2,7 @@
 Overview
 ========
 
-.. Status: Still need to edit starting from "Who is Using..." and on (08/27/14).
+.. Status: First draft. May need to add more sections and copy edit.
 
 What is Storm?
 ==============
@@ -44,10 +44,6 @@ Why Use Storm?
 
 Besides expanding the capabilities of Hadoop to now process real-time data, Storm
 offers the following benefits: 
-
-
-
-
 
 .. Storm is simple and developers can write Storm topologies using any programming language.
 
@@ -113,27 +109,28 @@ The owned and operated content is analyzed/categorized and further streamed to o
 Content Agility
 ###############
 
-SIPPER is the inline processing engine to process the Ingested content through HBase, CMS etc in parallel to TIPSY (Batch Layer).
+`SIPPER <http://developer.corp.yahoo.com/product/SIPPER>`_ is the inline processing 
+engine to process the Ingested content through HBase, CMS, etc., in parallel to `TIPSY <http://developer.corp.yahoo.com/product/Tipsy>`_ (Batch Layer).
 
 
 RMX/NGD
 #######
 
 RMX Fast Feedback Loop will be a new data pipeline (in addition to current Hadoop pipeline), and enables campaign budgets to be 
-adjusted within x minutes.
+adjusted within ``n`` minutes.
 
 
 Ads and Data
 ############
 
-A low latency, real-time, or near real-time reporting platform built on top of a stream/ low latency data 
+A low latency, real-time, or near real-time reporting platform built on top of a stream, low latency data 
 processing solution that perpetually transforms and aggregates data. 
 
 Sponsored Search
 ################
 
 Migrating stream pipeline for search to Storm. Getting search events from DH 
-Rainbow, do some in-memory calculation and push the results to http servers.
+Rainbow, do some in-memory calculation and push the results to HTTP servers.
  
 
 Flickr
@@ -148,94 +145,55 @@ Search (Commerce and Shopping)
 ##############################
 
 Grid reporting UI that directly exposes data on grid with a simple UI, minimum 
-data SLA and report response time - Allows users to build their own reports, 
+data SLA, and report response time--allows users to build their own reports and
 choose to compute non-additive metrics (UUs) across various dimension combinations 
 defined at run time.
 
 SMILE
 #####
 
-Smile is a scalable machine learning platform built on top of Storm. While Smile 
+`SMILE <http://twiki.corp.yahoo.com/view/Grid/Smile#Overview>`_ is a scalable machine 
+learning platform built on top of Storm. While SMILE
 emphasizes online machine learning, it also provides hooks to update and produce 
 bulk models via a batch training phase. One can run algorithms both in batch and 
 online mode.
 
-
 External Use
 ------------
 
-Twitter
-#######
+- **Twitter** - discovery, real-time analytics, personalization, search, revenue optimization, and in many more ways.
+- **Groupon** - real-time data integration systems.
+- **Infochimps** - Data Delivery Services (DDS) uses Storm to provide a fault-tolerant and linearly 
+  scalable enterprise data collection, transport, and complex in-stream processing cloud service.
+- **Flipboard** - content search, real-time analytics, generating custom magazine feeds.
+- **Ooyala** - gives customers real-time streaming analytics on consumer viewing behavior and digital content trends.
+- **Baidu** - processes the searching logs to supply real-time stats for accounting such as present value (PV), accounts receivable (AR), and so on.
+- **Alibaba** - processes the application log and the data change in database to supply real-time statistics for data applications.
+- **Rocketfuel** -  tracks impressions, clicks, conversions, bid requests, etc., in real time.
 
-
-Discovery, real-time analytics, personalization, search, revenue optimization, and many more
-
-Groupon
-#######
-
-Real-time data integration systems  
-
-
-Infochimps
-##########
-
-Data Delivery Services (DDS) uses Storm to provide a fault-tolerant and linearly 
-scalable enterprise data collection, transport, and complex in-stream processing cloud service.
-
-Flipboard
-#########
-
-Using Storm across a wide range of services - content search, real-time analytics, 
-generating custom magazine feeds.
-
-Ooyala
-######
-
-Giving customers real-time streaming analytics on consumer viewing behavior and digital content 
-trends
-
-Baidu
-#####
-
-Storm to process the searching logs to supply real-time stats for accounting pv, ar-time and so on.
-
-Alibaba
-#######
-
-Use storm to process the application log and the data change in database to 
-supply realtime stats for data apps.
-
-Rocketfuel
-##########
-
-Tracks impressions, clicks, conversions, bid requests etc. in real time
 
 Other Stream Processing Solutions
 =================================
 
-Samza
------
-
-Spark
------
-
-S4
---
-
-Kinesis
--------
-
-Millwheel
----------
-
-StreamInsight
--------------
-
-DataTorrent
------------
-
-SQLstream
----------
+- `Samza <http://samza.incubator.apache.org/>`_ -  is a distributed stream processing 
+  framework. It uses Apache Kafka for messaging, and Apache Hadoop YARN to provide 
+  fault tolerance, processor isolation, security, and resource management.
+- `Spark <http://spark.apache.org/>`_ -  is a fast and general engine for large-scale data processing.
+- `S4 <http://incubator.apache.org/s4/>`_ -  is a general-purpose, distributed, scalable, 
+  fault-tolerant, pluggable platform that allows programmers to easily develop applications 
+  for processing continuous unbounded streams of data.
+- `Amazon Kinesis <http://aws.amazon.com/kinesis/>`_ -  is a fully managed service 
+  for real-time processing of streaming data at massive scale.  
+- `Millwheel <http://research.google.com/pubs/pub41378.html>`_ - is a framework for 
+  building low-latency data-processing applications that is widely used at Google. 
+- `MicroSoft StreamInsight <http://msdn.microsoft.com/en-us/sqlserver/ee476990.aspx>`_ - makes implementing robust and highly-efficient complex event 
+  processing (CEP) applications easy with its high-throughput stream processing architecture 
+  and familiar .NET-based development platform.
+- `DataTorrent <https://www.datatorrent.com/>`_ - enables enterprises to take action in real-time as a result 
+  of high-performance complex  processing of data as it is created
+- `SQLstream Blaze <http://www.sqlstream.com/blaze/>`_ - is a stream processing 
+  suite for real-time operational intelligence from the integration, analysis and 
+  visualization of high volume, high velocity machine data.  
 
 
 

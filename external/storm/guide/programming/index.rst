@@ -2,19 +2,39 @@
 Programming Storm
 =================
 
-The following sections get 
+The following sections are intended to help those who have already on-boarded and completed
+one or more tutorials to solve more real-world problems.
 
 Overview
 ========
 
+Before we get to code snippets, we're going to look at the types of available grouping and then 
+Yahoo spouts that you can use to tap into data. Grouping allows you to
+define how that stream should be partitioned among the bolt’s tasks.
+
 Types of Available Grouping
 ---------------------------
 
-- Shuffle grouping: pick a random task (but with load balancing)
-- Fields grouping: consistent hashing on a subset of tuple fields
-- All grouping: send to all tasks 
-- Global grouping: pick task with lowest id
-- Shuffle or Local grouping: If there is a local bolt (in the same worker process) use it otherwise use shuffle.
+Storm has seven built-in stream groupings listed below, and 
+you can also create a custom stream grouping 
+with the ``CustomStreamGrouping`` interface.
+
+- **Shuffle grouping:** Streams are randomly distributed acroos the bolt's task and each bolt is
+  guaranteed an equal number of tuples.
+- **Fields grouping:** Streams are partitioned based on specified fields, so that the streamed data 
+  goes to the same tasks.
+- **All grouping:** A stream is replicated across all the bolt's tasks.
+- **Global grouping:** An entire stream is assigned to one of the bolt's tasks (goes to the task with lowest ID). 
+- **Shuffle or Local grouping:** If there is a local bolt (in the same worker process) use it otherwise use shuffle.
+- **None grouping:** This grouping specifies that you don’t care how the stream is grouped. Currently, 
+  none groupings are equivalent to shuffle groupings. Eventually though, Storm will 
+  push down bolts with none groupings to execute in the same thread as the bolt or 
+  spout they subscribe from (when possible).
+- **Direct grouping:** The producer of the tuple determines which task the consumer will receive the tuple. Direct 
+  groupings can only be declared on streams that have been declared as direct streams. 
+- **Local or shuffle grouping:** If the target bolt has one or more tasks in the 
+  same worker process, tuples will be shuffled to just those in-process tasks. Otherwise, this acts like a normal shuffle grouping.
+
 
 Yahoo Spouts
 ------------
