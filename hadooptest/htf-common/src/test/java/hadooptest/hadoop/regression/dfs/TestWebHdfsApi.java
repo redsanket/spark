@@ -25,7 +25,6 @@ import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -89,6 +88,8 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		;
 		logger.info("Invoked test for:[" + cluster + "] Scheme:[" + schema
 				+ "] NodeName:[" + nameNode + "]");
+		
+		copyFilesOntoHadoopFS();
 	}
 
 	/*
@@ -139,8 +140,7 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Before
-	public void copyFilesOntoHadoopFS() {
+	private void copyFilesOntoHadoopFS() {
 		try {
 			testSessionStart();
 		} catch (Exception e1) {
