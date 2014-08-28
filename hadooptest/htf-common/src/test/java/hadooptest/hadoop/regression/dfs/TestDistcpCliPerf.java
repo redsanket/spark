@@ -1,15 +1,18 @@
 package hadooptest.hadoop.regression.dfs;
 
-import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
+import hadooptest.monitoring.Monitorable;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,14 +26,20 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import hadooptest.SerialTests;
+
+@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
     static Logger logger = Logger.getLogger(TestDistcpCliPerf.class);
-    
+
     private static boolean isDataCopiedAcrossConcernedClusters = false;
     private String parametrizedCluster;
     private String localHadoopVersion = "2.x";
