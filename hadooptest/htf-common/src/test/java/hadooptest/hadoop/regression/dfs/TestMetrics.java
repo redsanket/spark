@@ -355,7 +355,7 @@ public class TestMetrics extends DfsTestsBaseClass {
 		int newValue = getJMXPropertyValue(namenodePID);
 		TestSession.logger.info("newValue:" + newValue);
 		int change = newValue - CURRENT_VALUE;
-		Assert.assertTrue("Change:" + change + " is not equal t0 10",
+		Assert.assertTrue("Change:" + change + " is not equal to 10",
 				change == 10);
 		CURRENT_VALUE = newValue;
 
@@ -533,13 +533,13 @@ public class TestMetrics extends DfsTestsBaseClass {
 				+ TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR,
 				genericCliResponse.process.exitValue() == 0);
 		
-        Util.sleep(10);
+        Util.sleep(30);
 		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
 		cluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.HISTORY_SERVER);
 
-        Util.sleep(10);
+        Util.sleep(30);
 		
 	}
 
