@@ -2,40 +2,56 @@
 Programming Storm
 =================
 
-The following sections get 
+.. Status: First Draft. Probably needs more content and copy editing.
+
+The following sections are intended to help those who have already on-boarded and completed
+one or more tutorials to solve more real-world problems.
 
 Overview
 ========
 
+Before we get to code snippets, we're going to look at the types of available grouping and then 
+Yahoo spouts that you can use to tap into data. Grouping allows you to
+define how that stream should be partitioned among the bolt’s tasks.
+
 Types of Available Grouping
 ---------------------------
 
-- Shuffle grouping: pick a random task (but with load balancing)
-- Fields grouping: consistent hashing on a subset of tuple fields
-- All grouping: send to all tasks 
-- Global grouping: pick task with lowest id
-- Shuffle or Local grouping: If there is a local bolt (in the same worker process) use it otherwise use shuffle.
+Storm has seven built-in stream groupings listed below, and 
+you can also create a custom stream grouping 
+with the ``CustomStreamGrouping`` interface.
+
+- **Shuffle grouping:** Streams are randomly distributed acroos the bolt's task and each bolt is
+  guaranteed an equal number of tuples.
+- **Fields grouping:** Streams are partitioned based on specified fields, so that the streamed data 
+  goes to the same tasks.
+- **All grouping:** A stream is replicated across all the bolt's tasks.
+- **Global grouping:** An entire stream is assigned to one of the bolt's tasks (goes to the task with lowest ID). 
+- **Shuffle or Local grouping:** If there is a local bolt (in the same worker process) use it otherwise use shuffle.
+- **None grouping:** This grouping specifies that you don’t care how the stream is grouped. Currently, 
+  none groupings are equivalent to shuffle groupings. Eventually though, Storm will 
+  push down bolts with none groupings to execute in the same thread as the bolt or 
+  spout they subscribe from (when possible).
+- **Direct grouping:** The producer of the tuple determines which task the consumer will receive the tuple. Direct 
+  groupings can only be declared on streams that have been declared as direct streams. 
+- **Local or shuffle grouping:** If the target bolt has one or more tasks in the 
+  same worker process, tuples will be shuffled to just those in-process tasks. Otherwise, this acts like a normal shuffle grouping.
+
 
 Yahoo Spouts
 ------------
 
-DH Rainbow Spout
-################
 
-The Data Highway (DH) Rainbow spout allows Storm to ingest Data Highway Rainbow events. 
-DH Rainbow pushes events directly to customers over HTTP. This model is different from most 
-pub-sub systems that Storm normally interacts with, as such setting up and using 
-the DH Rainbow spout is a bit more involved then a typical Storm spout.
+- **DH Rainbow Spout** - The Data Highway (DH) Rainbow spout allows Storm to ingest Data Highway Rainbow events. 
+  DH Rainbow pushes events directly to customers over HTTP. This model is different from most 
+  pub-sub systems that Storm normally interacts with, as such setting up and using 
+  the DH Rainbow spout is a bit more involved then a typical Storm spout.
 
-CMS Spout
-#########
+- **CMS Spout** - The CMS spout allows your topology to integrate with the 
+  `Yahoo Cloud Messaging Service Queue <http://developer.corp.yahoo.com/product/Cloud%20Messaging%20Service>`_.
 
-Integrate the Storm Topology with Yahoo Cloud Messaging Service Queue.
-
-Redis Spout
-###########
-
-Integrate the Storm Topology with Redis database
+- **Redis Spout** - The Redis spout allows your topology to integrate with the 
+  `Redis <http://developer.corp.yahoo.com/product/Redis>`_ database.
 
 
 Sending Data Directly to Spouts
@@ -48,7 +64,7 @@ test spouts with curl.
 
 ::
 
-curl -v --data-binary @stream.prism http://<host>:<port>
+    curl -v --data-binary @stream.prism http://<host>:<port>
 
 Be aware that curl does not support ``SL_RSA_WITH_NULL_MD5`` so if you are using 
 the registry service and https be sure to use encryption when testing with curl.
@@ -56,20 +72,10 @@ the registry service and https be sure to use encryption when testing with curl.
 Yahoo Bolts
 -----------
 
-HBase Bolt
-##########
+- **HBase Bolt** - This bolt helps you write your data/results to HBase.
+- **HDFS Bolt** -  Write data/results to the HDFS storage.
+- **Sherpa Bolt** -  Write data/results to the Sherpa for serving.
 
-Write data/results to the HBase
-
-HDFS Bolt
-#########
-
-Write data/results to the HDFS storage
-
-Sherpa Bolt
-###########
-
-Write data/results to the Sherpa for serving.
 
 Using Yahoo Spouts
 ==================
@@ -129,7 +135,7 @@ Getting the Rainbow Spout
                    <artifactId>jetty</artifactId>
                </exclusion>
            </exclusions>
-           <!-- keep storm out of the jar-with-dependencies -->
+           <!-- keep Storm out of the jar-with-dependencies -->
            <scope>provided</scope>
        </dependency>
 Notes
@@ -142,11 +148,11 @@ DH Rainbow Spout uses a much newer and more improved version of Jetty, which can
 have a few conflicts with the older version of Jetty when running tests through maven.
 
 Another thing to be aware of is that many dependencies, the Data Highway APIs in 
-particular, use ``slf4j`` as their logging API, but also include the backend bridge 
+particular, use ``slf4j`` as their logging API, but also include the back-end bridge 
 to write the logs out through ``log4j``. Storm 0.9.0 and above has replaced ``log4j`` 
-with logback and included a ``log4j`` compatibility layer so calls to ``log4j`` go 
+with ``logback`` and included a ``log4j`` compatibility layer so calls to ``log4j`` go 
 through ``slf4j`` and on to logback (log4j-over-slf4j). If any of your dependencies 
-include ``log4j`` or slf4j-logj* as dependencies please be sure to exclude these too.
+include ``log4j`` or ``slf4j-logj`` as dependencies please be sure to exclude these, too.
 
 DH Rainbow Spout Location
 #########################
@@ -157,7 +163,7 @@ defaults that are particular to Data Highway Rainbow. These include a plug-in to
 de-serialize the Data Highway payload and a default list YCA roles that Data Highway 
 uses to authenticate itself with the spout. All of these are pluggable and we 
 encourage you to look at potentially using the ``HttpSpout`` for other situations 
-where you may want to push data to a storm topology.
+where you may want to push data to a Storm topology.
 
 Configuring DH Rainbow Spout
 ############################
@@ -189,7 +195,7 @@ wide value, as in the case of the registry service, or it may come from the Stor
    "SSL Data Encryption", "No", "true", "Determines whether the spout uses SSL encryption for data. In general, ``https`` is encouraged for everyone using spouts, so the client can validate it is communicating to the correct server, but for
   that only occur within the colo, the ``SL_RSA_WITH_NULL_MD5`` cipher can be used to provide authentication although no
   data encryption.", "Use the ``setUseSSLEncryption`` method from the spout to set or unset SSL encryption."
-  "Set Registry Role", "No", "``NULL`` (disabled)", "If you are running on a storm cluster that is not multi-tenant you may want to avoid the hassle of pushing new YCA v2 creds periodically. In this case you can use YCA v1 to authenticate with the registry service and have the credentials pulled from each of the compute nodes. Be aware this requires you to trust anyone with access to those compute nodes.", "Use the ``setV1RegistryRole`` method with the role to use."
+  "Set Registry Role", "No", "``NULL`` (disabled)", "If you are running on a Storm cluster that is not multi-tenant you may want to avoid the hassle of pushing new YCA v2 creds periodically. In this case you can use YCA v1 to authenticate with the registry service and have the credentials pulled from each of the compute nodes. Be aware this requires you to trust anyone with access to those compute nodes.", "Use the ``setV1RegistryRole`` method with the role to use."
 
 HTTP Interface
 ##############
@@ -201,32 +207,33 @@ The spout will process the body of a PUT or a POST as a payload. The content len
 must be set or it will return a 411 length required status code. It also supports 
 posting events through a GET, this is much more difficult to use for binary data, 
 but could be used very successfully for something similar to DRPC that wants to 
-push data directly to a spout. In the case of a GET the value of the query parameter 
-"data" is processed as the payload.
+push data directly to a spout. In the case of a GET call, the value of the query parameter 
+``"data"`` is processed as the payload.
+
 If the spout has been deactivated, which happens when the topology is about to 
-shut down or is being resized, the spout will return 503 Service Unavailable.
+shut down or is being resized, the spout will return ``503 Service Unavailable``.
 
 Flow control and deserialization results are handled by the Enqueuer implementation. 
-Both SimpleEnqueuer and RainbowEnqueuer handle these similarly. If there events 
+Both ``SimpleEnqueuer`` and ``RainbowEnqueuer`` handle these similarly. If there events 
 will not fit in the queue a 429 status code is returned. If the batch of events 
-are too large to ever fit in the queue fully 400 Bad Request is returned. If there 
-is a problem deserializing the batch a 400 Bad Request is returned, but if an 
+are too large to ever fit in the queue fully, the message ``400 Bad Request`` 
+is returned. If there is a problem deserializing the batch, a ``400 Bad Request`` is returned, but if an 
 individual event has problems deserializing the event is ignored and an error is logged.
 
 Compatability With Storm Versions
 #################################
 
 The ``HttpSpout`` and ``RainbowSpout`` are not currently compatible with open 
-source Storm or releases of ystorm prior to 0.9.0_wip21.155. This is because we 
-added in a feature to storm that allows for credentials to be pushed to the bolts 
-and spouts periodically. For the time being we offer versions of these spouts that 
+source Storm or releases of ``ystorm`` prior to ``0.9.0_wip21.155``. This is because we 
+added in a feature to Storm that allows for credentials to be pushed to the bolts 
+and spouts periodically. For the time being, we offer versions of these spouts that 
 do not depend on this feature, but should only be run on a cluster that is not 
 multi-tenant because you will need to use YCAv1 for the spouts to authenticate 
 to the registry service. This compatibility will be removed in the future once 
-everyone has had time to migrate to newer releases of ystorm.
-TBD: Avro Schemas
+everyone has had time to migrate to newer releases of ``ystorm``.
 
-http://tiny.corp.yahoo.com/tG2SFQ
+The following are code snippets showing how to use ``RainbowSpout``. You can
+also view the `entire example <http://tiny.corp.yahoo.com/tG2SFQ>`_ on Git.
 
 .. code-block:: java
 
@@ -245,26 +252,26 @@ Kyro Serialization
 ##################
 
 By default the Data Highway Rainbow events are sent unmodified out of the spout. 
-To send them to other worker processes, they need to be serialized through kryo. 
+To send them to other worker processes, they need to be serialized through `Kryo <https://github.com/EsotericSoftware/kryo>`_. 
 We have written some Kryo serializes to accomplish this, but you must configure 
-them on in your topology.
+them on in your topology with something like the following:
 
 .. code-block:: java
 
-   conf.registerSerialization(com.yahoo.dhrainbow.dhapi.AvroEventRecord.class,  com.yahoo.spout.http.rainbow.KryoEventRecord.class);
-   conf.registerSerialization(com.yahoo.dhrainbow.dhapi.ByteBlobEventRecord.class,  com.yahoo.spout.http.rainbow.KryoEventRecord.class);
+   conf.registerSerialization(com.yahoo.dhrainbow.dhapi.AvroEventRecord.class, com.yahoo.spout.http.rainbow.KryoEventRecord.class);
+   conf.registerSerialization(com.yahoo.dhrainbow.dhapi.ByteBlobEventRecord.class, com.yahoo.spout.http.rainbow.KryoEventRecord.class);
 
 
 Avoiding Port Conflicts
 #######################
 
 Storm by default does not try to place spouts or bolts on specific hosts, or try 
-to limit the how many of one spout or bolt are placed on a given host. But in the 
-case of the ``RainbowSpout`` we need to do this, because the port the spout uses 
-cannot be an ephemeral port. As part of multi-tenant storm we added in a new 
-scheduler that supports trying to spread the spout out on multiple different nodes. 
+to limit the how many of one spout or bolt are placed on a given host. 
+For ``RainbowSpout``, however, we need to do this, because the port the spout uses 
+cannot be an ephemeral port. As part of multi-tenant Storm, we added in a new 
+scheduler that supports trying to spread the spout on multiple different nodes. 
 
-To enable this functionality you need to set ``topology.spread.components`` to be a 
+To enable this functionality, you need to set ``topology.spread.components`` to be a 
 list of strings with one of them being the name of the spout.
 
 .. code-block:: java
@@ -273,13 +280,13 @@ list of strings with one of them being the name of the spout.
    builder.setSpout("rainbow", new RainbowSpout(serviceURI)), _spoutParallel);
    conf.put(Config.TOPOLOGY_SPREAD_COMPONENTS, Arrays.asList("rainbow"));
 
-This also requires that you are running the topology in an isolated pool of machines 
+This also requires running the topology in an isolated pool of machines 
 and that the topology has enough machines for all of the spouts.
 
 Security
 ########
 
-Multi-tenant storm tries to be much more like Hadoop, and does not pre-install packages, 
+Multi-tenant Storm tries to be much more like Hadoop, and does not pre-install packages, 
 or credentials on compute nodes for users. It is up to the users to ship those 
 credentials to the topology. To help this out we have added in some new APIs that 
 allow users to push new credentials to a topology asynchronously and for bolts 
@@ -311,7 +318,7 @@ No Official generic Spout YET (http://tiny.corp.yahoo.com/yJ6EYw) is a good star
 Redis Spout
 -----------
 
-Old example that needs a few updates to work with newer storm release. http://tiny.corp.yahoo.com/BPQCDA
+Old example that needs a few updates to work with newer Storm release. http://tiny.corp.yahoo.com/BPQCDA
 
 In the example code please don’t sleep if the queue is empty (Storm will do that for you)
 
@@ -368,7 +375,7 @@ fields from the event and only send those that you care about.
 
 You can filter out events that are not important to you. Please be aware that when 
 filtering try to emit one event, unless the queue is empty (meaning it returned null). 
-When storm sees that you didn't emit a tuple after calling nextTuple, it assumes 
+When Storm sees that you didn't emit a tuple after calling nextTuple, it assumes 
 that there are no more tuples to emit, and will sleep for 1ms. This can seriously 
 impact performance if you in fact did have more to emit.
 
@@ -640,10 +647,6 @@ Topology
        .aggregate(new Fields("count"), new Sum(), new Fields("sum"));
 
 
-
-
-
-
 Example Calls with cURL
 #######################
 
@@ -689,8 +692,8 @@ HTTPS
 
     $ curl --cacert /path/to/certfile -X POST https://my.drpc.server:4949/drpc/exclamation -H "Content-Type: application/json" --data '{ "key1":"value1", "key2": ["list", "of", "values"] }'
 
-Using YCA v1 Certificate for Authentication
-*******************************************
+Using the YCA v1 Certificate for Authentication
+***********************************************
 
 **GET**
 

@@ -2,8 +2,13 @@
 Quick Start 
 ===========
 
-This quick start will show you how to use the DH Rainbow spout and
-count DH Rainbow events from your own OpenStack instance.  
+.. Status: First draft. This has been tested and written by the developer team. More notes could be added to elucidate certain steps. 
+
+This quick start shows you how to set up a Storm project on an OpenStack instance, launch it on the Grid cluster Ebony Red, and
+then create events to alter the results of your project. You will also be using the Data Highway (DH) Rainbow spout,
+a built-in Yahoo spout, to count DH Rainbow events.  
+
+The diagram below shows how the DH Rainbow bolt gets data from the Data Highway and feeds it to the bolt that counts events.
 
 .. images:: images/dh_rb-event_count_bolt.jpg
    :height: 100px

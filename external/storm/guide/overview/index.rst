@@ -2,131 +2,97 @@
 Overview
 ========
 
+.. Status: First draft. May need to add more sections and copy edit.
+
+What is Storm?
+==============
+
+Apache™ Storm is a distributed computation system for the real-time processing of streaming
+data. The real-time data processing of Storm complement the batch-oriented processing
+model of MapReduce in Hadoop. 
+
+Basic Concepts
+==============
+
+Before you can even start understanding the benefits of Storm, you should understand
+a few core concepts. First, let's discuss how data is structured in Storm. We mentioned
+streamed data earlier, but what is the underlying data structure if there is one?
+The **streams** in Storm consist of tuples, which are a list of elements such as ``(3, 5, 2, 4)``.
+The sources of streams in Storm are called **spouts**, which are written in code and can
+draw from any data source (i.e., HBase, Hive tables, REST API, etc.). Code that 
+processes these input streams and produces output streams (results) is collectively
+known as **bolts**. Bolts can filter, aggregate, and join data as well as communicate
+with databases. The network of spouts and bolts in your Storm application is called your
+**topology**, which describes how data flows through your application.  
+
+To learn how your Storm application is executed, allocated, and distributed in a Storm cluster,
+we direct you to the `Architecture <../architecture/>`_ chapter.
+
+Use Cases
+=========
+
+Storm has many use cases: 
+
+- realtime analytic - Example: analyzing Twitter feeds and writing results to Sherpa.
+- online machine learning
+- continuous computation - Example: computing the click metrics for an ads for specific campaigns or user metrics for the media property page.
+- distributed RPC -  Example: regression analysis of user profile vs. buying behavior in real-time.
+- ETL
 
 Why Use Storm?
 ==============
 
-Application Scalability
------------------------
+Besides expanding the capabilities of Hadoop to now process real-time data, Storm
+offers the following benefits: 
+
+.. Storm is simple and developers can write Storm topologies using any programming language.
+
+- **Application Scalability** -  Storm clusters are designed so that workers that execute spouts and bolts can be increased to meet rising throughput needs.
+- **Infrastructure Scalability** - You can also increase the number of supervisors to run more workers and run supervisors with a different number of slots, which define
+  the ports on a machine are open for workers to use.
+- **Resource Guarantees** - Topologies are guaranteed resources based on scheduling at both the topology and user levels.
+- **Fault Tolerance** -   When faults occur during the execution of your computation, Storm reassigns tasks as needed. Storm ensures that computations can 
+  run forever (or until you manually kill the computation).
 
 
-..
+  .. csv-table:: Fault Tolerance
+     :header: "Scenario", "Built-In Tolerance"
+     :widths: 15, 40
 
-    Add more workers and parallelism to Spouts/Bolts with rising throughput needs
+     +--------------------------------+---------------------------------------------------------------------------------------+
+     | Scenario                       | Built-In Tolerance                                                                    |
+     +================================+=======================================================================================+
+     | Worker Dies                    | - Either Supervisor will restart it.                                                  |
+     |                                | - If it fails on startup, then Nimbus will reassign task to another node.             |
+     +--------------------------------+---------------------------------------------------------------------------------------+
+     | Node Dies                      | The task on the node will time out and be assigned to new nodes by Nimbus.            |
+     +--------------------------------+---------------------------------------------------------------------------------------+
+     | Nimbus/Supervisor daemons dies | - Daemons restart as if nothing happened.                                             |
+     |                                | - No worker process is affected.                                                      |
+     +--------------------------------+---------------------------------------------------------------------------------------+
+     | Nimbus dies (SPOF)             | - Workers will continue to function and supervisors will restart workers if they die. |
+     |                                | - Workers WON’T be assigned to other nodes when needed.                               |
+     +--------------------------------+---------------------------------------------------------------------------------------+
 
-    High throughput with low latency with multiple workers
-    e.g. One million 100 byte messages/sec/supervisor
+- **Stream Processing** - Streamed data can be processed and written to a view or database in real time. 
+- **Distributed RPC** - Allows you to execute computations on many machines that would be difficult to do on one machine. 
+- **Continuous Compute** - Functions that needs to continously compute the value are allowed to run perpetually.
+- **Guaranteed Message Processing** - You can configure Storm to guarantee message processing based on your overhead and performance needs as shown
+  in the table below.
 
-
-Infrastructure Scalability
---------------------------
-
-.. 
-
-    Add more supervisors to run more number of workers
-    Run supervisors with different number of slots
-
-Resource Guarantees
--------------------
-
-..
-
-    The topologies are guaranteed to resources based on Isolation scheduling
-
-    Two Modes – 1) At topology level 
-                            2) User level
-
-Fault Tolerance
----------------
-
-.. csv-table:: Fault Tolerance
-   :header: "Scenario", "Built-In Tolerance"
-   :widths: 15, 40
-
-+--------------------------------+---------------------------------------------------------------------------------------+
-| Scenario                       | Built-In Tolerance                                                                    |
-+================================+=======================================================================================+
-| Worker Dies                    | - Either Supervisor will restart it.                                                  |
-|                                | - If it fails on startup, then Nimbus will reassign task to another node.             |
-+--------------------------------+---------------------------------------------------------------------------------------+
-| Node Dies                      | The task on the node will time out and be assigned to new nodes by Nimbus.            |
-+--------------------------------+---------------------------------------------------------------------------------------+
-| Nimbus/Supervisor daemons dies | - Daemons restart as if nothing happened.                                             |
-|                                | - No worker process is affected.                                                      |
-+--------------------------------+---------------------------------------------------------------------------------------+
-| Nimbus dies (SPOF)             | - Workers will continue to function and supervisors will restart workers if they die. |
-|                                | - Workers WON’T be assigned to other nodes when needed.                               |
-+--------------------------------+---------------------------------------------------------------------------------------+
-
-Stream Processing
------------------
-
-Problem: Process data in stream and write to view/DB in real time
-
-Example: Processing twitter feeds and writing aggregates to Sherpa
-
-Distributed RPC
----------------
-
-Problem: A function that is too intense to compute on single m/c
-
-Example: Regression analysis of user profile vs. buying behavior in real-time
-
-
-Continuous Compute
-------------------
-
-Problem: A function that needs to compute the value all time
-
-Example: 
-
-- Computing the Ads click metrics for specific campaigns
-- Computing user metrics for media property page
-
-Guaranteed Message Processing
------------------------------
-
-
-+--------------------------------+--------------------------------------------------------------------------------------------------------------+
-| Options                        | Overhead vs. Performance                                                                                     |
-+================================+==============================================================================================================+
-| None                           | - Low overhead, very fast.                                                                                   |
-|                                | - Anything where the answer does not have to be exact, and too little is better then too much..              |
-+--------------------------------+--------------------------------------------------------------------------------------------------------------+
-| At Least Once                  | - Relatively low overhead.                                                                                   |
-|                                | - Anything where the answer does not have to be exact, and double counting is better then missing something. |
-|                                | - Requires an input source that can do replay.                                                               |
-+--------------------------------+--------------------------------------------------------------------------------------------------------------+
-| Exactly Once                   | - Higher overhead, but still fairly fast.                                                                    |
-|                                | -  Requires input source to support replay, and storage to be able to store batch.
-+--------------------------------+--------------------------------------------------------------------------------------------------------------+
-
-Important Concepts and Terminology
-==================================
-
-Streams
--------
-
-Unbounded sequence of tuples
-
-Spouts
-------
-
-Source of Stream
-E.g. Read from Twitter streaming API
-
-
-Bolts
------
-
-Processes input streams and produces new streams
-E.g. Functions, Filters, Aggregation, Joins
-
-
-Topologies
-----------
-
-Network of spouts and bolts
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
+  | Options                        | Overhead vs. Performance                                                                                     |
+  +================================+==============================================================================================================+
+  | None                           | - Low overhead, very fast.                                                                                   |
+  |                                | - Anything where the answer does not have to be exact, and too little is better then too much..              |
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
+  | At Least Once                  | - Relatively low overhead.                                                                                   |
+  |                                | - Anything where the answer does not have to be exact, and double counting is better then missing something. |
+  |                                | - Requires an input source that can do replay.                                                               |
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
+  | Exactly Once                   | - Higher overhead, but still fairly fast.                                                                    |
+  |                                | -  Requires input source to support replay, and storage to be able to store batch.
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
 
 
 Who is Using Storm?
@@ -143,27 +109,28 @@ The owned and operated content is analyzed/categorized and further streamed to o
 Content Agility
 ###############
 
-SIPPER is the inline processing engine to process the Ingested content through HBase, CMS etc in parallel to TIPSY (Batch Layer).
+`SIPPER <http://developer.corp.yahoo.com/product/SIPPER>`_ is the inline processing 
+engine to process the Ingested content through HBase, CMS, etc., in parallel to `TIPSY <http://developer.corp.yahoo.com/product/Tipsy>`_ (Batch Layer).
 
 
 RMX/NGD
 #######
 
 RMX Fast Feedback Loop will be a new data pipeline (in addition to current Hadoop pipeline), and enables campaign budgets to be 
-adjusted within x minutes.
+adjusted within ``n`` minutes.
 
 
 Ads and Data
 ############
 
-A low latency, real-time, or near real-time reporting platform built on top of a stream/ low latency data 
+A low latency, real-time, or near real-time reporting platform built on top of a stream, low latency data 
 processing solution that perpetually transforms and aggregates data. 
 
 Sponsored Search
 ################
 
 Migrating stream pipeline for search to Storm. Getting search events from DH 
-Rainbow, do some in-memory calculation and push the results to http servers.
+Rainbow, do some in-memory calculation and push the results to HTTP servers.
  
 
 Flickr
@@ -178,94 +145,55 @@ Search (Commerce and Shopping)
 ##############################
 
 Grid reporting UI that directly exposes data on grid with a simple UI, minimum 
-data SLA and report response time - Allows users to build their own reports, 
+data SLA, and report response time--allows users to build their own reports and
 choose to compute non-additive metrics (UUs) across various dimension combinations 
 defined at run time.
 
 SMILE
 #####
 
-Smile is a scalable machine learning platform built on top of Storm. While Smile 
+`SMILE <http://twiki.corp.yahoo.com/view/Grid/Smile#Overview>`_ is a scalable machine 
+learning platform built on top of Storm. While SMILE
 emphasizes online machine learning, it also provides hooks to update and produce 
 bulk models via a batch training phase. One can run algorithms both in batch and 
 online mode.
 
-
 External Use
 ------------
 
-Twitter
-#######
+- **Twitter** - discovery, real-time analytics, personalization, search, revenue optimization, and in many more ways.
+- **Groupon** - real-time data integration systems.
+- **Infochimps** - Data Delivery Services (DDS) uses Storm to provide a fault-tolerant and linearly 
+  scalable enterprise data collection, transport, and complex in-stream processing cloud service.
+- **Flipboard** - content search, real-time analytics, generating custom magazine feeds.
+- **Ooyala** - gives customers real-time streaming analytics on consumer viewing behavior and digital content trends.
+- **Baidu** - processes the searching logs to supply real-time stats for accounting such as present value (PV), accounts receivable (AR), and so on.
+- **Alibaba** - processes the application log and the data change in database to supply real-time statistics for data applications.
+- **Rocketfuel** -  tracks impressions, clicks, conversions, bid requests, etc., in real time.
 
-
-Discovery, real-time analytics, personalization, search, revenue optimization, and many more
-
-Groupon
-#######
-
-Real-time data integration systems  
-
-
-Infochimps
-##########
-
-Data Delivery Services (DDS) uses Storm to provide a fault-tolerant and linearly 
-scalable enterprise data collection, transport, and complex in-stream processing cloud service.
-
-Flipboard
-#########
-
-Using Storm across a wide range of services - content search, real-time analytics, 
-generating custom magazine feeds.
-
-Ooyala
-######
-
-Giving customers real-time streaming analytics on consumer viewing behavior and digital content 
-trends
-
-Baidu
-#####
-
-Storm to process the searching logs to supply real-time stats for accounting pv, ar-time and so on.
-
-Alibaba
-#######
-
-Use storm to process the application log and the data change in database to 
-supply realtime stats for data apps.
-
-Rocketfuel
-##########
-
-Tracks impressions, clicks, conversions, bid requests etc. in real time
 
 Other Stream Processing Solutions
 =================================
 
-Samza
------
-
-Spark
------
-
-S4
---
-
-Kinesis
--------
-
-Millwheel
----------
-
-StreamInsight
--------------
-
-DataTorrent
------------
-
-SQLstream
----------
+- `Samza <http://samza.incubator.apache.org/>`_ -  is a distributed stream processing 
+  framework. It uses Apache Kafka for messaging, and Apache Hadoop YARN to provide 
+  fault tolerance, processor isolation, security, and resource management.
+- `Spark <http://spark.apache.org/>`_ -  is a fast and general engine for large-scale data processing.
+- `S4 <http://incubator.apache.org/s4/>`_ -  is a general-purpose, distributed, scalable, 
+  fault-tolerant, pluggable platform that allows programmers to easily develop applications 
+  for processing continuous unbounded streams of data.
+- `Amazon Kinesis <http://aws.amazon.com/kinesis/>`_ -  is a fully managed service 
+  for real-time processing of streaming data at massive scale.  
+- `Millwheel <http://research.google.com/pubs/pub41378.html>`_ - is a framework for 
+  building low-latency data-processing applications that is widely used at Google. 
+- `MicroSoft StreamInsight <http://msdn.microsoft.com/en-us/sqlserver/ee476990.aspx>`_ - makes implementing robust and highly-efficient complex event 
+  processing (CEP) applications easy with its high-throughput stream processing architecture 
+  and familiar .NET-based development platform.
+- `DataTorrent <https://www.datatorrent.com/>`_ - enables enterprises to take action in real-time as a result 
+  of high-performance complex  processing of data as it is created
+- `SQLstream Blaze <http://www.sqlstream.com/blaze/>`_ - is a stream processing 
+  suite for real-time operational intelligence from the integration, analysis and 
+  visualization of high volume, high velocity machine data.  
 
 
 
