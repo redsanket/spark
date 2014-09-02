@@ -122,7 +122,7 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 				testName, false);
 		Job job = handle.get();
 		waitTillJobStartsRunning(job);
-		waitTillAnyTaskGetsToState(TIPStatus.RUNNING, job, TaskType.MAP, 20);
+		waitTillAnyTaskGetsToState(TIPStatus.RUNNING, job, TaskType.MAP, 120);
 		boolean testConditionMet = true;
 		int countOfRunningMaps = 0;
 		TaskType[] taskTypes = { TaskType.MAP };
