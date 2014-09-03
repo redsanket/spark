@@ -9,10 +9,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.tez.dag.api.TezConfiguration;
 import org.junit.Assert;
 
 import hadooptest.TestSession;
@@ -52,11 +58,61 @@ public class HtfTezUtils {
 	 */
 	public static Configuration setupConfForTez(Configuration conf, String mode)
 			throws IOException, InterruptedException {
+		String fsProtocol;
 		String tezVersion = getTezVersion();
 		TestSession.logger.info("Read back tez version as:" + tezVersion);
 		String hadoopVersion = "hadoop-" + getHadoopVersion();
 		TestSession.logger.info("Read back Hadoop version as:" + hadoopVersion);
-		String fsProtocol = conf.get("fs.defaultFS");
+		Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            System.out.format("%s=%s%n",
+                              envName,
+                              env.get(envName));
+        }
+		TestSession.logger.info("Dumping values before setting anything programatically ..........");
+		Configuration appMasterConf = new Configuration(new YarnConfiguration());
+		TestSession.logger.info("[fs.default.name] as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.default.name"));
+		TestSession.logger.info("[fs.defaultFS]    as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.defaultFS"));
+		TestSession.logger.info("[tez.local.mode]  as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("tez.local.mode"));
+
+		TezConfiguration tezConfVanilla = new TezConfiguration();
+		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.default.name"));
+		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.defaultFS"));
+		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration():" + tezConfVanilla.get("tez.local.mode"));
+
+		TezConfiguration tezConfDerived = new TezConfiguration(conf);
+		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.default.name"));
+		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.defaultFS"));
+		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration(conf):" + tezConfDerived.get("tez.local.mode"));
+
+		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+			conf.set("fs.defaultFS", "");
+//			conf.set("fs.defaultFS", "file:///");
+			conf.set("fs.default.name", "file:///");
+		}
+		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+			conf.setBoolean("tez.local.mode", true);
+		} else {
+			conf.setBoolean("tez.local.mode", false);
+		}
+		TestSession.logger.info("Dumping values AFTER setting 'em programatically ..........");
+		appMasterConf = new Configuration(new YarnConfiguration());
+		TestSession.logger.info("[fs.default.name] as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.default.name"));
+		TestSession.logger.info("[fs.defaultFS]    as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.defaultFS"));
+		TestSession.logger.info("[tez.local.mode]  as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("tez.local.mode"));
+
+		tezConfVanilla = new TezConfiguration();
+		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.default.name"));
+		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.defaultFS"));
+		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration():" + tezConfVanilla.get("tez.local.mode"));
+
+		tezConfDerived = new TezConfiguration(conf);
+		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.default.name"));
+		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.defaultFS"));
+		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration(conf):" + tezConfDerived.get("tez.local.mode"));
+		
+		//fsProtocol = conf.get("fs.defaultFS");
+		fsProtocol = conf.get("fs.default.name");
 		TestSession.logger.info("Default FS is:" + fsProtocol);
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
 		// ALERT HACK ALERT
@@ -67,8 +123,8 @@ public class HtfTezUtils {
 		// ALERT HACK ALERT
 		conf.set(
 				"tez.lib.uris",
-				"${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
-						+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
+				"${fs.default.name}/sharelib/v1/tez/ytez-" + tezVersion
+						+ "/libexec/tez,${fs.default.name}/sharelib/v1/tez/ytez-"
 						+ tezVersion + "/libexec/tez/lib,"
 						+ "file:///home/gs/gridre/yroot."
 						+ System.getProperty("CLUSTER_NAME") + "/share/"
@@ -103,7 +159,16 @@ public class HtfTezUtils {
 		} else {
 			conf.setBoolean("USE_TEZ_SESSION", false);
 		}
+		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+			String user = UserGroupInformation.getCurrentUser().getShortUserName();
+			String stagingDirStr = "." + Path.SEPARATOR + "user" + Path.SEPARATOR
+					+ user + Path.SEPARATOR + ".staging" + Path.SEPARATOR
+					+ Path.SEPARATOR
+					+ Long.toString(System.currentTimeMillis());
 
+			conf.set(TezConfiguration.TEZ_AM_STAGING_DIR,stagingDirStr);
+		}
+		
 		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
 			conf.setBoolean("tez.local.mode", true);
 		} else {

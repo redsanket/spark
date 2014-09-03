@@ -1,5 +1,7 @@
 package hadooptest.tez.mapreduce.examples.cluster;
 
+import java.util.HashMap;
+
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -30,7 +32,9 @@ import org.junit.experimental.categories.Category;
  */
 @Category(SerialTests.class)
 public class TestUnionExample extends UnionExampleExtendedForTezHTF {
-	public static String SOURCE_FILE = "/home/y/share/htf-data/pig_methods_dataset1";
+	public static String JUST_THE_FILE_NAME = "pig_methods_dataset1";
+	public static String SOURCE_FILE = "/home/y/share/htf-data/" + JUST_THE_FILE_NAME;
+	public static String HDFS_DIR_LOC = "/tmp/";
 	public static String INPUT_FILE = "/tmp/union-input-file";
 	public static String OUTPUT_LOCATION = "/tmp/union-output";
 
@@ -43,11 +47,48 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 	public void copyTheFileOnHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 
-		GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
+		GenericCliResponseBO quickCheck = dfsCliCommands.test(
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), SOURCE_FILE, INPUT_FILE);
-		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+				System.getProperty("CLUSTER_NAME"), INPUT_FILE,
+				DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+
+		if (quickCheck.process.exitValue() == 0) {
+			// File exists
+		} else {
+			GenericCliResponseBO dirCheck = dfsCliCommands.test(
+					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA, "",
+					System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC,
+					DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
+			
+			if (dirCheck.process.exitValue() != 0) {
+				// File does not exist 
+				dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA, "",
+						System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC);
+				dfsCliCommands.chmod(new HashMap<String, String>(),
+						HadooptestConstants.UserNames.HDFSQA,
+						HadooptestConstants.Schema.HDFS,
+						System.getProperty("CLUSTER_NAME"),
+						HDFS_DIR_LOC, "777", Recursive.YES);
+
+			}
+
+			GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
+					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HADOOPQA, "",
+					System.getProperty("CLUSTER_NAME"),
+					SOURCE_FILE, INPUT_FILE);
+			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+			genericCliResponse = dfsCliCommands.chmod(new HashMap<String, String>(),
+					HadooptestConstants.UserNames.HDFSQA,
+					HadooptestConstants.Schema.HDFS,
+					System.getProperty("CLUSTER_NAME"),
+					INPUT_FILE, "777", Recursive.YES);
+			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+		}
 
 	}
 

@@ -1,5 +1,7 @@
 package hadooptest.tez.mapreduce.examples.cluster;
 
+import java.util.HashMap;
+
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -18,42 +20,83 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
 /**
  * This class has the real test methods meant to be run on the cluster. Their
  * counterparts live under {@code}hadooptest.tez.mapreduce.examples.localmode
  * package. All test cases extend an intermediate class, ending in
  * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
- * as a part of the Tez distro JAR. 
- * These test cases flesh out and implement sub-tests that are provisioned in the original test class.
+ * as a part of the Tez distro JAR. These test cases flesh out and implement
+ * sub-tests that are provisioned in the original test class.
  * 
  */
 
 @Category(SerialTests.class)
 public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 	public static String SOURCE_FILE = "/home/y/share/htf-data/excite-small.log";
-	public static String INPUT_FILE = "/tmp/excite-small.log";
-	public static String OUTPUT_LOCATION = "/tmp/outOfFilterLinesByWord";
+	public static String HDFS_DIR_LOC = "/tmp/";
+	public static String INPUT_FILE = HDFS_DIR_LOC + "excite-small.log";
+	public static String OUTPUT_LOCATION = HDFS_DIR_LOC
+			+ "outOfFilterLinesByWord";
 
 	@BeforeClass
 	public static void beforeClass() {
 		TestSession.start();
 	}
-	
+
 	@Before
 	public void copyTheFileOnHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 
-		GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
+		GenericCliResponseBO quickCheck = dfsCliCommands.test(
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"),
-				SOURCE_FILE, INPUT_FILE);
-		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+				System.getProperty("CLUSTER_NAME"), INPUT_FILE,
+				DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+
+		if (quickCheck.process.exitValue() == 0) {
+			// File exists
+		} else {
+			GenericCliResponseBO dirCheck = dfsCliCommands.test(
+					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA, "",
+					System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC,
+					DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
+
+			if (dirCheck.process.exitValue() != 0) {
+				// File does not exist
+				dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA, "",
+						System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC);
+				dfsCliCommands.chmod(new HashMap<String, String>(),
+						HadooptestConstants.UserNames.HDFSQA,
+						HadooptestConstants.Schema.HDFS,
+						System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC,
+						"777", Recursive.YES);
+
+			}
+
+			GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
+					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HADOOPQA, "",
+					System.getProperty("CLUSTER_NAME"),
+					"/home/y/share/htf-data/excite-small.log", INPUT_FILE);
+			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+			genericCliResponse = dfsCliCommands.chmod(
+					new HashMap<String, String>(),
+					HadooptestConstants.UserNames.HDFSQA,
+					HadooptestConstants.Schema.HDFS,
+					System.getProperty("CLUSTER_NAME"), INPUT_FILE, "777",
+					Recursive.YES);
+			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+		}
 
 	}
 
 	@Test
-	public void testFilterLinesByWordWithClientSplitsRunOnCluster() throws Exception {
+	public void testFilterLinesByWordWithClientSplitsRunOnCluster()
+			throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
 		 * [-generateSplitsInClient true/<false>
@@ -61,12 +104,14 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 		String[] filterLinesByWordArgs = new String[] { INPUT_FILE,
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
 
-		int returnCode = run(filterLinesByWordArgs, HadooptestConstants.Execution.TEZ);
-		Assert.assertTrue(returnCode==0);
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ);
+		Assert.assertTrue(returnCode == 0);
 	}
-	
+
 	@Test
-	public void testFilterLinesByWordNoClientSplitsRunOnCluster() throws Exception {
+	public void testFilterLinesByWordNoClientSplitsRunOnCluster()
+			throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
 		 * [-generateSplitsInClient true/<false>
@@ -74,11 +119,11 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 		String[] filterLinesByWordArgs = new String[] { INPUT_FILE,
 				OUTPUT_LOCATION, "lionking" };
 
-		int returnCode = run(filterLinesByWordArgs, HadooptestConstants.Execution.TEZ);
-		Assert.assertTrue(returnCode==0);
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ);
+		Assert.assertTrue(returnCode == 0);
 	}
 
-	
 	@After
 	public void deleteTezStagingDirs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();

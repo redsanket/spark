@@ -36,8 +36,13 @@ import org.apache.tez.runtime.library.conf.OrderedPartitionedKVEdgeConfig;
 import org.apache.tez.runtime.library.input.ConcatenatedMergedKeyValuesInput;
 import org.apache.tez.runtime.library.partitioner.HashPartitioner;
 
+/**
+ * Changes to be done, should the file need to be refreshed. 1) Staging dir:
+ * conf.setBoolean("tez.local.mode")
+ * 
+ */
 public class UnionExampleExtendedForTezHTF extends UnionExample {
-	
+
 	public boolean run(String inputPath, String outputPath, Configuration conf)
 			throws Exception {
 		System.out.println("Running UnionExample");
@@ -53,9 +58,20 @@ public class UnionExampleExtendedForTezHTF extends UnionExample {
 
 		// staging dir
 		FileSystem fs = FileSystem.get(tezConf);
-		String stagingDirStr = Path.SEPARATOR + "user" + Path.SEPARATOR + user
-				+ Path.SEPARATOR + ".staging" + Path.SEPARATOR + Path.SEPARATOR
-				+ Long.toString(System.currentTimeMillis());
+		String stagingDirStr;
+		if (conf.getBoolean("tez.local.mode", false) == true) {
+			stagingDirStr = "." + Path.SEPARATOR + "user" + Path.SEPARATOR
+					+ user + Path.SEPARATOR + ".staging" + Path.SEPARATOR
+					+ Path.SEPARATOR
+					+ Long.toString(System.currentTimeMillis());
+
+		} else {
+			stagingDirStr = Path.SEPARATOR + "user" + Path.SEPARATOR + user
+					+ Path.SEPARATOR + ".staging" + Path.SEPARATOR
+					+ Path.SEPARATOR
+					+ Long.toString(System.currentTimeMillis());
+		}
+
 		Path stagingDir = new Path(stagingDirStr);
 		tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 		stagingDir = fs.makeQualified(stagingDir);

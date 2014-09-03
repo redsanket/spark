@@ -51,6 +51,11 @@ import org.apache.tez.mapreduce.examples.helpers.SplitsInClientOptionParser;
  * 
  * That would set up the local/cluster mode correctly.
  * 
+ * NOTE: Changes to be done, should the file need to be refreshed
+ * <p>
+ * 1) Ensure that all references to getConf fetch a configuration instance from
+ * {@link} HtfTezUtils 
+ * </p>
  */
 
 public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
@@ -88,7 +93,8 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 	 */
 
 	public int run(String[] args, String mode) throws Exception {
-		Configuration conf = getConf();
+		Configuration conf = HtfTezUtils.setupConfForTez(
+				TestSession.cluster.getConf(), mode);
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
 

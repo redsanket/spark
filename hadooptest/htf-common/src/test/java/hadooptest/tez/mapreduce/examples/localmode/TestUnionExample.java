@@ -1,5 +1,7 @@
 package hadooptest.tez.mapreduce.examples.localmode;
 
+import java.io.File;
+
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -12,6 +14,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.UnionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,13 +44,7 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 
 	@Before
 	public void copyTheFileOnHdfs() throws Exception {
-		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-
-		GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), SOURCE_FILE, INPUT_FILE);
-		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+		FileUtils.copyFile(new File(SOURCE_FILE), new File(INPUT_FILE));		
 
 	}
 
@@ -63,15 +60,8 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {
-		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, INPUT_FILE);
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, OUTPUT_LOCATION);
+		FileUtils.deleteQuietly(new File(INPUT_FILE));
+		FileUtils.deleteQuietly(new File(OUTPUT_LOCATION));
 
 	}
 

@@ -38,9 +38,10 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	public static void beforeClass() {
 		TestSession.start();
 	}
-
+	public static String JUST_THE_FILE_NAME = "excite-small.log";
+	public static String SOURCE_FILE = "/home/y/share/htf-data/" + JUST_THE_FILE_NAME;
 	public static String HDFS_DIR_LOC = "/tmp/";
-	public static String INPUT_FILE = HDFS_DIR_LOC + "excite-small.log";
+	public static String INPUT_FILE = HDFS_DIR_LOC + JUST_THE_FILE_NAME;
 	public static String OUTPUT_LOCATION = "/tmp/ouOfOrderedWordCount";
 
 	@Before
@@ -79,7 +80,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HADOOPQA, "",
 					System.getProperty("CLUSTER_NAME"),
-					"/home/y/share/htf-data/excite-small.log", INPUT_FILE);
+					SOURCE_FILE, INPUT_FILE);
 			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 			genericCliResponse = dfsCliCommands.chmod(new HashMap<String, String>(),
 					HadooptestConstants.UserNames.HDFSQA,
