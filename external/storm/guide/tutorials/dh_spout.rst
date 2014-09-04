@@ -1,6 +1,8 @@
 Counting Data Highway Events
 ============================
 
+.. Status: first draft. Need more examples.
+
 We're going to revisit the `Quick Start <../quickstart>`_ and run
 the same code using your Storm project and topology that you
 created when  you `on-boarded <../onboarding>`_.

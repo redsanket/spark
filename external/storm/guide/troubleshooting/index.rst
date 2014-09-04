@@ -1,80 +1,118 @@
 Troubleshooting/Debugging
 =========================
 
+.. Status: first draft. May need to revise sections based on technical review.
+
 Topologies
 ----------
 
 Heartbeats & Timeouts
 #####################
 
-Storm is a distributed system, and uses heartbeating to keep track of state. 
-There are several places heartbeats are used, and there are a couple of kinds of 
-heartbeating going on in a storm cluster.
+Storm is a distributed system and uses heartbeating to keep track of state. 
+Heartbeats are used in several places in a Storm cluster and occur at 
+different frequencies, which we'll discuss in the following sections.
 
 Worker -> Supervisor
 ********************
 
-- Workers heartbeat to the Supervisor on the same node via the local file system.
-- Look in /home/y/var/storm/workers/${worker-id}/heartbeats. The workers/ directory
-- On a multi-tenant cluster, file system permissions should be set such that no worker can access another worker's heartbeats.
-  - ``drwxrws--- 4 derekd gstorm 4096 Dec 18 21:45 145bbb17-6a29-4396-bc20-3bb6b96fb4a1`` - the directory is owned by the 
-    user who submitted the topo, the group is the cluster group, and the mode 770 with the sticky bit set.
-  - **Timings:** Beats should happen 1/s, and the supervisor will time out a Worker after 5s by default.
-  - Workers that time out in this way are rescheduled.
+Workers heartbeat to the Supervisor on the same node through the local file system.
+To find the heartbeats, you can go to ``/home/y/var/storm/workers/${worker-id}/heartbeats``.
+
+On a multi-tenant cluster, the file system permissions should be set such that no 
+worker can access another worker's heartbeats.
+
+When we list the information about the ``/workers`` directory, we can learn some information about the topology and cluster.
+In this example, we see ``derekd`` is who submitted the topology, that ``gstorm`` is the cluster group, and that
+the mode ``770`` has the sticky bit set::
+
+    ``drwxrws--- 4 derekd gstorm 4096 Dec 18 21:45 145bbb17-6a29-4396-bc20-3bb6b96fb4a1`` 
+
+Beats should happen once per second, and the supervisor will time out a Worker after five seconds by default.
+Workers that time out in this way are rescheduled.
 
 Worker -> Nimbus
 ****************
 
-- Workers heartbeat to Nimbus via ZooKeeper.
-- On a multi-tenant cluster, heartbeats are protected with ACLs within ZooKeeper such that workers cannot access each others' data.
-  - This requires ZooKeeper to have authentication enabled (See MultiTenantStormSetup#ZooKeeper_Ensemble).
-- **Timings:** Beats should happen 3/s, and the Nimbus will time out a Worker after 30s by default.
-- Workers are killed with SIGKILL when they have timed out.
+Workers also heartbeat to Nimbus through ZooKeeper.
+On a multi-tenant cluster, heartbeats are protected with ACLs within 
+ZooKeeper such that workers cannot access each others' data.
+
+Beats should happen three times per second, and the Nimbus will time out a Worker after 30 seconds by default.
+Workers are killed with ``SIGKILL`` when they have timed out.
 
 Supervisor -> Nimbus
 ********************
 
-- Supervisors heartbeat to Nimbus via ZooKeeper.
-- **Timings:** Beats should happen 5/s, and the Nimbus will time out a Supervisor after 30s by default.
-- Supervisor that have timed out are ignored.
+Supervisors heartbeat to Nimbus through ZooKeeper.
+
+Beats should happen five times per secons, and Nimbus will time out a Supervisor after 30 seconds by default.
+Supervisor that have timed out are ignored.
 
 Persistence and Bouncing Daemons
 ################################
 
+We'll look at how state is maintained, how bouncing occurs, and how to delete/kill jobs/topologies.
+
 Nimbus
 ******
 
-- State
-  - Nimbus stores topologies and their configurations on local disk at /home/y/var/storm/nimbus/stormdist/.
-  - Nimbus stores scheduling assignments in ZooKeeper, and Worker & Supervisor heartbeats are also stored there.
-- Bounce Nimbus: Everything should carry on as normal (even user topologies).
-- Delete Nimbus scheduler data in ZooKeeper (or wipe ZooKeeper): topologies will likely die.
-- Delete Nimbus local disk state: topologies will die.
+**State**
+
+Nimbus stores topologies and their configurations on local disk at ``/home/y/var/storm/nimbus/stormdist/``
+and stores scheduling assignments in ZooKeeper. Worker & Supervisor heartbeats are also stored there.
+
+**Bouncing**
+
+Everything should carry on as normal (even user topologies).
+
+**Deleting**
+
+You can delete Nimbus scheduler data in ZooKeeper (or wipe ZooKeeper): the topologies will likely die.
+When you delete the Nimbus local disk state, the topologies will die.
 
 Supervisors
 ***********
 
-- State
-  - Local disk stores topologies (and confs) downloaded from nimbus, and worker heartbeats.
-  - Bounce Supervisor: Nothing should happen. Workers continue processing.
-    - Workers will not terminate on their own without the Supervisor killing them. So 
-      if the Supervisor is down permanently, you must kill the Workers manually.
-    - Delete Supervisor State: Workers may die, but Supervisor should re-launch them 
-      when it next checks scheduling assignments.
+**State**
+
+Local disk stores topologies (and configurations) are downloaded from Nimbus and worker heartbeats.
+
+**Bouncing**
+
+Nothing should happen. Workers continue processing:
+
+- Workers will not terminate on their own without the Supervisor killing them. So 
+  if the Supervisor is down permanently, you must kill the Workers manually.
+
+**Deleting**
+
+You can delete the Supervisor state. The Workers may die, but Supervisor should re-launch them 
+when it next checks scheduling assignments.
 
 Workers
 *******
 
-- State: Relies on serialized storm config and topology (on disk, downloaded from 
-  Supervisor) to run.
-- Workers don't normally die. They are typically killed by the supervisor when 
-  they time out or are no longer descheduled on the node.
+**State**
+
+This relies on serialized Storm configuration and topology (on disk, downloaded from 
+Supervisor) to run.
+
+**Deleting**
+
+Workers don't normally die. They are typically killed by the Supervisor when 
+they time out or are no longer un-scheduled on the node.
 
 UI and Logviewer
 ****************
 
-- No State (reads logs)
-- Bounce whenever you want.
+**State**
+
+There is no state (reads logs).
+
+**Bouncing**
+
+You can bounce whenever you want.
 
 ZooKeeper 
 ---------
@@ -85,25 +123,24 @@ have faced and here are the work-arounds.
 Disk Load
 #########
 
-- Workers heartbeat via ZK to nimbus. When many workers are alive, this puts tremendous 
-  load on ZK. Heavy disk load means anything using the ZK cluster slows down and 
-  things start timing out or becoming slow & unresponsive.
+- Workers heartbeat through ZooKeeper to Nimbus. When many workers are alive, this puts tremendous 
+  load on ZooKeeper. Heavy disk load means anything using the ZooKeeper cluster slows down and 
+  things start timing out or becoming slow and unresponsive.
   - Mitigations:
-    - Mount disk with nobarrier (Good improvement while on ext3)
-    - Add -Dzookeeper.forceSync=no to zookeeper_server.jvm_args Major Improvement!!
+    - Mount disk with nobarrier (Good improvement while on ``ext3``)
+    - Add ``-Dzookeeper.forceSync=no`` to ``zookeeper_server.jvm_args`` and you will see a major improvement.
 - Cleaning up many huge old data logs at once can peg the disk unless spaced out.
   - Wrote custom purge script available in dist package ``zkp_txnlogs_cleanup``.
-  - Migrated to RHEL6 ext4 (slowed down ZK, until "forceSync=no" was used).
+  - Migrated to RHEL6 ext4 (slowed down ZooKeeper until "forceSync=no" was used).
 
 ZNode Size 
 ##########
 
-- Nimbus uses ZK to store scheduling assignments for topologies, and stores these 
-  atomically in one shot. With larger topologies, this overruns an internal ZK 
+- Nimbus uses ZooKeeper to store scheduling assignments for topologies and stores these 
+  atomically in one shot. With larger topologies, this overruns an internal ZooKeeper 
   buffer that defaults to 1MB.
 - Mitigations
-  - Add -Djute.maxbuffer=4097150 to ZK jvm_opts, and to nimbus, supervisor, and worker .childopts.  
-
+  - Add ``-Djute.maxbuffer=4097150`` to ZooKeeper ``jvm_opts``, and to Nimbus, Supervisor, and Worker ``.childopts``.  
 
 
 JVM
@@ -112,7 +149,7 @@ JVM
 jstack (Stack Traces)
 #####################
 
-jstack works best when run with the same JDK and as the same user as the target process.
+``jstack`` works best when run with the same JDK and as the same user as the target process.
 
 #. Find the PID of the target process using jps and the port number. In this example, 
    we are looking for a the worker running on 6734 on a particular host.
@@ -120,9 +157,15 @@ jstack works best when run with the same JDK and as the same user as the target 
    ::
 
        -bash-4.1$ sudo jps -v | grep 6734
-1870 worker -Xmx1024m -Djute.maxbuffer=4097150 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:NewSize=128m -XX:CMSInitiatingOccupancyFraction=70 -XX:-CMSConcurrentMTEnabled -Djava.net.preferIPv4Stack=true -Djava.security.auth.login.config=/home/y/lib/storm/current/conf/storm_jaas.conf -Djute.maxbuffer=4097150 -Djava.library.path=/home/y/var/storm/supervisor/stormdist/test-word_count-5-1387400559/resources/Linux-amd64:/home/y/var/storm/supervisor/stormdist/test-word_count-5-1387400559/resources:/home/y/lib64:/usr/local/lib64:/usr/lib64:/lib64: -Dlogfile.name=test-word_count-5-1387400559-worker-6734.log -Dstorm.home=/home/y/lib64/storm/0.9.0-wip21 -Dlogback.configurationFile=/home/y/lib64/storm/0.9.0-wip21/logback/worker.xml -Dstorm.id=test-word_count-5-1387400559 -Dworker.id=145bbb17-6a29-4396-bc20-3bb6b96fb4a1 -Dworker.port=6734
+       1870 worker -Xmx1024m -Djute.maxbuffer=4097150 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+UseConcMarkSweepGC 
+       -XX:NewSize=128m -XX:CMSInitiatingOccupancyFraction=70 -XX:-CMSConcurrentMTEnabled -Djava.net.preferIPv4Stack=true 
+       -Djava.security.auth.login.config=/home/y/lib/storm/current/conf/storm_jaas.conf -Djute.maxbuffer=4097150 
+       -Djava.library.path=/home/y/var/storm/supervisor/stormdist/test-word_count-5-1387400559/resources/Linux-amd64:/home/y/var/storm/supervisor/stormdist/test-word_count-5-1387400559/resources:/home/y/lib64:/usr/local/lib64:/usr/lib64:/lib64: 
+       -Dlogfile.name=test-word_count-5-1387400559-worker-6734.log -Dstorm.home=/home/y/lib64/storm/0.9.0-wip21 
+       -Dlogback.configurationFile=/home/y/lib64/storm/0.9.0-wip21/logback/worker.xml -Dstorm.id=test-word_count-5-1387400559 
+       -Dworker.id=145bbb17-6a29-4396-bc20-3bb6b96fb4a1 -Dworker.port=6734
 
-   core is the storm UI. The other daemons appear as nimbus, supervisor, logviewer, and workers as worker.
+   Core is the storm UI. The other daemons appear as Nimbus, Supervisor, Logviewer, and Workers as worker.
 
 #. Find the user and JDK used.
 
@@ -257,8 +300,8 @@ Installing YourKit
 Deploying YourKit
 *****************
 
-#. Check if yjava_yourkit is installed on the host.  If it is not, then download 
-   the Linux tar.bz2 of YourKit and unpack it on the host.
+#. Check if ``yjava_yourkit`` is installed on the host.  If it is not, then download 
+   the Linux ``tar.bz2`` of YourKit and unpack it on the host.
 #. Attach the profiler daemon to the targed process:
    ::
 
@@ -269,27 +312,25 @@ Deploying YourKit
        [YourKit Java Profiler 12.0.5] Log file: /home/derekd/.yjp/log/yjp-12726.log
        The agent is loaded and is listening on port 10001.
        You can connect to it from the profiler UI.
-#. Create an SSH tunnel if you cannot telnet from your machine to the target host and port.
+#. Create an SSH tunnel if you cannot ``telnet`` from your machine to the target host and port.
 
-   - If telnet $host $port times out, you need a tunnel.
+   - If ``telnet $host $port`` times out, you need a tunnel.
    - You can tunnel through a third host, such as a gateway, or you can create a tunnel to the same remote host.
 
      For example: ``ssh -L 10001:gsrd453n26.red.ygrid.yahoo.com:10001 gsrd453n26.red.ygrid.yahoo.com``
-     will connect to gsrd453n26.red.ygrid.yahoo.com, and it will open a port 10001 on your machine 
+     will connect to ``gsrd453n26.red.ygrid.yahoo.com``, and it will open a port 10001 on your machine 
      that connects to port 10001 on the remote host, which is the port on which the profiler daemon is listening. 
 
      This would also work, by connecting to a gateway box with the same tunnel: 
      ``ssh -L 10001:gsrd453n26.red.ygrid.yahoo.com:10001 gwrd111n02.red.ygrid.yahoo.com``. 
-     The -L specifies the local port, remote host, and remote port for the tunnel. The 
+     The ``-L`` specifies the local port, remote host, and remote port for the tunnel. The 
      argument to SSH is the normal host, such that you will be presented a prompt at 
      ``gwrd111n02.red.ygrid.yahoo.com``. 
 
 #. In the YourKit UI on your machine, click "Connect to remote application...".
 
    - If not using the SSH tunnel, just enter the remote host and port number. If using 
-     the tunnel, use localhost for the host name: E.g., localhost:10001
-   - This opens a UI presentation showing CPU usage, Threads, automatic deadlock detection, 
-     Memory, and Garbage Collection.
-
-
+     the tunnel, use localhost for the host name: e.g., ``localhost:10001``
+   - This opens a UI presentation showing CPU usage, threads, automatic deadlock detection, 
+     memory, and garbage collection.
 
