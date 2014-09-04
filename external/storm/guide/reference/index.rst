@@ -2,6 +2,8 @@
 Reference
 =========
 
+.. Status: First draft. This chapter might need more sections.
+
 .. include:: ../faq/index.rst
 .. include:: ../troubleshooting/index.rst
 
@@ -250,8 +252,9 @@ Deployment at Yahoo
 Use Case Example
 ================
 
-The Search team wants to index editorial real-time content that users 
-can search. The editorial content is available in Apache HBase. 
+In this particular use case, the Search team wants to 
+index editorial real-time content that users 
+can search. The editorial content needs to be available in Apache HBase. 
 
 Topography Overview
 -------------------
@@ -309,9 +312,8 @@ Throughput
 CPU vs. Throughput
 ------------------
 
-1. Track CPU usage either by JVM debugging (jmap/jstack)
-########################################################
-
+1. Track CPU Usage Either by JVM Debugging (``jmap/jstack``)
+############################################################
 
 
 .. csv-table:: Server Requirements for Topology
@@ -327,9 +329,10 @@ CPU vs. Throughput
    "Total Workers (equal to number of executors)", "TOPOLOGY_WORKERS, Config#setNumWorkers"
    "Tasks per component", "TOPOLOGY_TASKS, ComponentConfigurationDeclarer#setNumTasks()"
 
-2. Extrapolate for target throughput (Assuming a liner increase of resources)
-#############################################################################
+2. Extrapolate for Target Throughput 
+####################################
 
+We're assuming a liner increase of resources in this case.
 
 .. csv-table:: Server Requirements for Topology
    :header: "", "Default"
@@ -348,8 +351,6 @@ Memory vs. Throughput
 
 1. Supervisor Level-Information 
 ###############################
-
-(configured values in storm.yaml or Storm-yarn.yaml
 
 .. csv-table:: Configuration Values for storm.yaml/Storm-yarn.yaml
    :header: "", ""
@@ -376,14 +377,6 @@ Memory vs. Throughput
    "Data processed per second across bolt 1 executors", "120000 tuples/sec x 100 KB = ~12 GB/sec"
    "Total data processed", "24 GB/second + 8 GB/second + 12 GB/second = 44 GB/second"
    "**Number of Supervisors required to process data**", "**44 / 42 = ~2 Supervisor**"
-
-
-
-
-
-
-
-
 
 
 
