@@ -1,21 +1,10 @@
 package hadooptest.spark.regression;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.workflow.spark.app.AppMaster;
 import hadooptest.workflow.spark.app.SparkRunClass;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.hadoop.fs.Path;
-
 import org.junit.BeforeClass;
-import org.junit.AfterClass;
 import org.junit.Test;
 
 import hadooptest.Util;
