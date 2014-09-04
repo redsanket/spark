@@ -572,21 +572,6 @@ Normally, a worker is not shut down. When it is, the current storm implementatio
 kills the process (``kill -9``), so we do not expect the logs to show anything as the 
 worker does not know what is happening.
 
-Storm Web UI
-============
-
-
-
-
-Storm Support
-=============
-
-- **iList** - storm-devel@yahoo-inc.com
-- **Bugzilla Ticket** - 
-  - **Dev:** http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency
-  - **Grid Ops:** http://bug.corp.yahoo.com/enter_bug.cgi?product=kryptonite
-- **Phone:** Check on-call in the Service Now group "Dev-Spark”
-
 Other Resources
 ===============
 
