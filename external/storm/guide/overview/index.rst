@@ -11,6 +11,14 @@ Apache™ Storm is a distributed computation system for the real-time processing
 data. The real-time data processing of Storm complement the batch-oriented processing
 model of MapReduce in Hadoop. 
 
+Storm has many use cases: 
+
+- realtime analytic - Example: analyzing Twitter feeds and writing results to Sherpa.
+- online machine learning
+- continuous computation - Example: computing the click metrics for an ads for specific campaigns or user metrics for the media property page.
+- distributed RPC -  Example: regression analysis of user profile vs. buying behavior in real-time.
+- ETL
+
 Basic Concepts
 ==============
 
@@ -28,17 +36,6 @@ with databases. The network of spouts and bolts in your Storm application is cal
 To learn how your Storm application is executed, allocated, and distributed in a Storm cluster,
 we direct you to the `Architecture <../architecture/>`_ chapter.
 
-Use Cases
-=========
-
-Storm has many use cases: 
-
-- realtime analytic - Example: analyzing Twitter feeds and writing results to Sherpa.
-- online machine learning
-- continuous computation - Example: computing the click metrics for an ads for specific campaigns or user metrics for the media property page.
-- distributed RPC -  Example: regression analysis of user profile vs. buying behavior in real-time.
-- ETL
-
 Why Use Storm?
 ==============
 
@@ -55,24 +52,20 @@ offers the following benefits:
   run forever (or until you manually kill the computation).
 
 
-  .. csv-table:: Fault Tolerance
-     :header: "Scenario", "Built-In Tolerance"
-     :widths: 15, 40
-
-     +--------------------------------+---------------------------------------------------------------------------------------+
-     | Scenario                       | Built-In Tolerance                                                                    |
-     +================================+=======================================================================================+
-     | Worker Dies                    | - Either Supervisor will restart it.                                                  |
-     |                                | - If it fails on startup, then Nimbus will reassign task to another node.             |
-     +--------------------------------+---------------------------------------------------------------------------------------+
-     | Node Dies                      | The task on the node will time out and be assigned to new nodes by Nimbus.            |
-     +--------------------------------+---------------------------------------------------------------------------------------+
-     | Nimbus/Supervisor daemons dies | - Daemons restart as if nothing happened.                                             |
-     |                                | - No worker process is affected.                                                      |
-     +--------------------------------+---------------------------------------------------------------------------------------+
-     | Nimbus dies (SPOF)             | - Workers will continue to function and supervisors will restart workers if they die. |
-     |                                | - Workers WON’T be assigned to other nodes when needed.                               |
-     +--------------------------------+---------------------------------------------------------------------------------------+
+  +--------------------------------+---------------------------------------------------------------------------------------+
+  | Scenario                       | Built-In Tolerance                                                                    |
+  +================================+=======================================================================================+
+  | Worker Dies                    | - Either Supervisor will restart it.                                                  |
+  |                                | - If it fails on startup, then Nimbus will reassign task to another node.             |
+  +--------------------------------+---------------------------------------------------------------------------------------+
+  | Node Dies                      | The task on the node will time out and be assigned to new nodes by Nimbus.            |
+  +--------------------------------+---------------------------------------------------------------------------------------+
+  | Nimbus/Supervisor daemons dies | - Daemons restart as if nothing happened.                                             |
+  |                                | - No worker process is affected.                                                      |
+  +--------------------------------+---------------------------------------------------------------------------------------+
+  | Nimbus dies (SPOF)             | - Workers will continue to function and supervisors will restart workers if they die. |
+  |                                | - Workers WON’T be assigned to other nodes when needed.                               |
+  +--------------------------------+---------------------------------------------------------------------------------------+
 
 - **Stream Processing** - Streamed data can be processed and written to a view or database in real time. 
 - **Distributed RPC** - Allows you to execute computations on many machines that would be difficult to do on one machine. 
@@ -101,62 +94,29 @@ Who is Using Storm?
 Internal Use
 ------------
 
-Slingstone
-##########
-
-The owned and operated content is analyzed/categorized and further streamed to other serving systems using Storm and HBase.
-
-Content Agility
-###############
-
-`SIPPER <http://developer.corp.yahoo.com/product/SIPPER>`_ is the inline processing 
-engine to process the Ingested content through HBase, CMS, etc., in parallel to `TIPSY <http://developer.corp.yahoo.com/product/Tipsy>`_ (Batch Layer).
-
-
-RMX/NGD
-#######
-
-RMX Fast Feedback Loop will be a new data pipeline (in addition to current Hadoop pipeline), and enables campaign budgets to be 
-adjusted within ``n`` minutes.
-
-
-Ads and Data
-############
-
-A low latency, real-time, or near real-time reporting platform built on top of a stream, low latency data 
-processing solution that perpetually transforms and aggregates data. 
-
-Sponsored Search
-################
-
-Migrating stream pipeline for search to Storm. Getting search events from DH 
-Rainbow, do some in-memory calculation and push the results to HTTP servers.
- 
-
-Flickr
-######
-
-Flickr is auto tagging the photos using the Deep machine learning algorithm. Storm 
-reads data from Redis server and processes them on the fly. The results are written 
-to the Vespa for search and Sherpa to store auto-tags.
-
-
-Search (Commerce and Shopping)
-##############################
-
-Grid reporting UI that directly exposes data on grid with a simple UI, minimum 
-data SLA, and report response time--allows users to build their own reports and
-choose to compute non-additive metrics (UUs) across various dimension combinations 
-defined at run time.
-
-SMILE
-#####
-
-`SMILE <http://twiki.corp.yahoo.com/view/Grid/Smile#Overview>`_ is a scalable machine 
-learning platform built on top of Storm. While SMILE
-emphasizes online machine learning, it also provides hooks to update and produce 
-bulk models via a batch training phase. One can run algorithms both in batch and 
-online mode.
+- **Slingstone** - The owned and operated content is analyzed/categorized and further 
+  streamed to other serving systems using Storm and HBase.
+- **Content Agility** - `SIPPER <http://developer.corp.yahoo.com/product/SIPPER>`_ is the inline processing 
+  engine to process the Ingested content through HBase, CMS, etc., in parallel to 
+  `TIPSY <http://developer.corp.yahoo.com/product/Tipsy>`_ (Batch Layer).
+- **RMX/NGD** -  The RMX Fast Feedback Loop will be a new data pipeline (in addition to current Hadoop 
+  pipeline), and enables campaign budgets to be adjusted within ``n`` minutes.
+- **Ads and Data** - A low latency, real-time, or near real-time reporting platform built on top of a stream, low latency data 
+  processing solution that perpetually transforms and aggregates data. 
+- **Sponsored Search** - Migrating stream pipeline for search to Storm. Getting search events from DH 
+  Rainbow, do some in-memory calculation and push the results to HTTP servers.
+- **Flickr** - Flickr is auto tagging the photos using the Deep machine learning algorithm. Storm 
+  reads data from Redis server and processes them on the fly. The results are written 
+  to the Vespa for search and Sherpa to store auto-tags.
+- **Search (Commerce/Shopping)** - Grid reporting UI that directly exposes data on grid with a simple UI, minimum 
+  data SLA, and report response time--allows users to build their own reports and
+  choose to compute non-additive metrics (UUs) across various dimension combinations 
+  defined at run time.
+- **SMILE** - `SMILE <http://twiki.corp.yahoo.com/view/Grid/Smile#Overview>`_ is a scalable machine 
+  learning platform built on top of Storm. While SMILE
+  emphasizes online machine learning, it also provides hooks to update and produce 
+  bulk models via a batch training phase. One can run algorithms both in batch and 
+  online mode.
 
 External Use
 ------------
