@@ -10,35 +10,39 @@ About This Guide
 The goal of this guide is to help Yahoos use Storm on the Yahoo grid, and thus, is not a comprehensive guide for Storm.
 For more comprehensive documentation, we recommend the `Apache Storm documentation <http://storm.incubator.apache.org>`_. 
 
-
-Getting Help
-============
-
 On-Boarding
------------
+===========
 
 In addition to an `On-Boarding <./onboarding/>`_ chapter, we also have a `quick start <./quickstart/>`_
 and `tutorials </tutorials>`_ to help you get started.
 
-Asking Questions
-----------------
+Getting Help
+============
+
+
+
 
 General Questions
-#################
+-----------------
 
 - storm-users@yahoo-inc.com - Storm User Communications 
 
 Request Support
-###############
+---------------
 
 - storm-devel@yahoo-inc.com
 
 Product/Engineering 
-###################
+-------------------
 
 Write to the Product Manager or Engineering Manager, whose emails you can find in 
 the **Contacts** section on the `Developer Central: Storm <http://developer.corp.yahoo.com/product/Storm>`_
 page.
+
+Emergency Support
+-----------------
+
+Check on-call in the **Service Now** group "Dev-Spark" to get immediate support.
 
 Filing Tickets
 --------------
@@ -64,6 +68,13 @@ include the following if relevant:
 - If possible, save the heap dump (via jmap) of a JVM with the issue.
 - How you observed the issue (Steps to Reproduce)
 
+
+Storm Clusters 
+==============
+
+See the `Storm Support: Deployment Details <http://twiki.corp.yahoo.com/view/Grid/SupportStorm#Deployment_Details>`_
+for a list of the available clusters for both non-production and production. You'll also find
+the type of clusters (Nimbus/Supervisor/ZooKeeper), number of nodes, and the hardware configuration for each cluster.
 
 Typographic Conventions
 =======================

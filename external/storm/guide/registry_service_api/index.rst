@@ -2,6 +2,8 @@
 Storm Registry Service API
 ==========================
 
+.. Status: first draft. 
+
 Overview
 ========
 
@@ -26,14 +28,14 @@ Authentication With Registry
 
 Authentication for the Registry Service is pluggable. When adding a virtual 
 host, a list of owners is given with it. This list of owners determines who 
-is allowed to modify the virtual host, and who is allowed to see private credential 
+is allowed to modify the virtual host and who is allowed to see private credential 
 data about the virtual host. Owners are optionally prefixed with a type to indicate 
-exactly how the user should authenticate. By default an owner without a type 
+exactly how the user should authenticate. By default, an owner without a type 
 corresponds to a user.
 
 At Yahoo, we use YCA for this Authentication: both YCA v1 and v2 are supported. 
 YCA owners must be prefixed with ``"yca:"``. Any API that requires authorization will 
-need to have an appropriate YCA header set, and in the case of YCA v2, will need 
+need to have an appropriate YCA header set, and, in the case of YCA v2, will need 
 to go through the appropriate proxy servers.
 
 .. _registry_service_api-authenticating:
@@ -42,15 +44,16 @@ Authenticating Services
 -----------------------
 
 Because the registry service is polled to find out where server instances are 
-running clients should validate they are talking to a real instance of the 
+running, clients should validate they are talking to a real instance of the 
 service before sending any real data. The Registry Service provides a pluggable 
 mechanism to support this.
 
 These plugins are controlled by the ``securityData`` object in the ``virtualHost``. 
-They keys of all objects in "securityData" are the names of the plugins. When 
+The keys of all objects in ``securityData`` are the names of the plugins. When 
 adding in a new virtual host the object is used as configuration for the plugin. 
 When the virtual host is read, it is used to return information about that plugin. 
-Often a user must be an owner of the virtual host to see all of the data in these sections.
+Typically, a user must be an owner of the virtual host to see all of the data 
+in these sections.
 
 Self-Signed SSL
 ---------------
@@ -64,7 +67,7 @@ When generating a virtual host, the following options can be passed:
 - **dname** - the dname to use with the certificate. This is usually in the for 
   of ``"CN=<Something>, OU=<Something>..."``, defaults to ``"CN=apache, OU=yarn, O=registry"``.
 - **alias** - the name/alias the public/private keys will be stored under in the 
-  keystore, defaults to "selfsigned"
+  keystore, defaults to "selfsigned".
 - **password** - the password used to encrypt the keystore. Defaults to a randomly 
   generated password.
 - **validity** - an integer indicating the number of days that this SSL certificate 
@@ -92,7 +95,7 @@ General
       }
    }
 
-When reading the data there are two possibilities for what is returned: either 
+When reading data, two possible data sets may be returned: either 
 the client is authenticated and an owner of ``virtualHost``, in which case all data 
 will be returned, or it is not, in which case only public information will 
 be returned.
@@ -144,11 +147,11 @@ Bypassing the Registry
 ----------------------
 
 If you are doing simple integration tests on a single node cluster, it can be a 
-pain to use the registry service. If you configure the registry URL to be null 
-or an empty string it will disable all calls to the registry server. Be careful 
+pain to use the registry service. If you configure the registry URL to be ``null`` 
+or an empty string, it will disable all calls to the registry server. Be careful 
 when doing this though, as it can be a real pain in production to think it is 
 working, but really it is not talking to the registry at all. If you do this be 
-sure to set it up to use http, and not https, because the spout will try to pull 
+sure to set it up to use HTTP, and not HTTPS, because the spout will try to pull 
 the private key out of the registry service and fail.
 
 
@@ -156,10 +159,10 @@ the private key out of the registry service and fail.
 Passing a SSL Certificate to cURL
 ---------------------------------
 
-To get the SSL cert to pass to curl, you can either use -k to let it accept any 
-type of cert, or you can grab the cert from the Registry service by calling
+To get the SSL cert to pass to cURL, you can either use the option ``-k`` to let it accept any 
+type of certficate, or you can obtain the certificate from the Registry Service by calling
 ``curl -Ss http://<registry>:<port>/registry/v1/virtualHost/<virtualHostName>/SelfSignedSSL.cert > my.cert``.
-And then you can use the -E option to tell curl to accept the cert.
+And then you can use the ``-E`` option to tell cURL to accept the certificate.
 
 
 
