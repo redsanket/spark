@@ -1,6 +1,7 @@
 package hadooptest.spark.regression;
 
 import static org.junit.Assert.assertTrue;
+import org.junit.experimental.categories.Category;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.SparkRunClass;
 
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import hadooptest.Util;
 
+@Category(hadooptest.ParallelClassAndMethodTests.class)
 public class TestSparkHackJetty extends TestSession {
 
         private static String localJar = null;
