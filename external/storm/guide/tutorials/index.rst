@@ -12,9 +12,6 @@ to help others.
 
 .. toctree::
     :maxdepth: 2
-    :numbered:
-    :titlesonly:
-    :glob:
     :hidden:
 
     dh_spout

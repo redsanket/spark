@@ -19,8 +19,8 @@ batch layer is generally reading and writing data from the storage mechanisms as
 data.
 
 .. image:: images/speed_layer.jpg
-   :height: 866 px
-   :width: 809 px
+   :height: 459 px
+   :width: 850 px
    :scale: 90 %
    :alt: Diagram showing how Storm serves real-time views and its position in the Hadoop ecosystem.
    :align: left
@@ -38,11 +38,11 @@ The Supervisor nodes listens for signals from Nimbus to start and stop workers t
 Zookeeper nodes coordinate the communication between Nimbus and the Supervisors.
 
 .. image:: images/worker_tasks.jpg
-   :height: 100px
-   :width: 200 px
-   :scale: 50 %
-   :alt: alternate text
-   :align: right
+   :height: 402px
+   :width: 850 px
+   :scale: 90 %
+   :alt: Figure that shows the relationship between the components within a Storm cluster. 
+   :align: left
 
 
 
