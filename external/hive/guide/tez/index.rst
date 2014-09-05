@@ -150,7 +150,7 @@ Results for 1 TB
 .. image:: images/1tb_benchmark.jpg
          :height: 572 px
          :width: 850 px
-         :scale: 100%
+         :scale: 95%
          :alt:  Hive 0.10 v Hive 0.13 Benchmark Results for 1 TB Data set
          :align: left
 
