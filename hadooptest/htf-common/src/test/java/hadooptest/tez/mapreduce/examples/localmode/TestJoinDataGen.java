@@ -75,9 +75,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 	}
 
 	private TezClient createTezClient(TezConfiguration tezConf)
-			throws TezException, IOException {
-		tezConf.set("tez.credentials.path", "/homes/hadoopqa/hadoopqa.dev.headless.keytab");
-		
+			throws TezException, IOException {		
 		TezClient tezClient = TezClient.create("JoinDataGen", tezConf, true, null, new Credentials());
 		tezClient.start();
 		return tezClient;
