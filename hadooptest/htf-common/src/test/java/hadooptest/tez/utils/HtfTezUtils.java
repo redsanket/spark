@@ -87,7 +87,7 @@ public class HtfTezUtils {
 			try {
 				// TODO: Remove this commented method once Amit has been added
 				// to OpsDb role grid_re
-				// applyTezSettingsToAllHosts();
+//				 applyTezSettingsToAllHosts();
 			} catch (Exception e) {
 				e.printStackTrace();
 				TestSession.logger
@@ -162,7 +162,6 @@ public class HtfTezUtils {
 	 */
 	public static void applyTezSettingsToAllHosts() throws Exception {
 		String[] allTezComponentTypes = new String[] {
-				HadooptestConstants.NodeTypes.HISTORY_SERVER,
 				HadooptestConstants.NodeTypes.NODE_MANAGER,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER };
 		ExecutorService bounceThreadPool = Executors
@@ -200,10 +199,10 @@ public class HtfTezUtils {
 						 * use tez. All tez jobs (pig on tez and tez map reduce
 						 * examples) do this automatically.
 						 */
-						// fullyDistributedCluster.getConf(aTezComponentType)
-						// .setHadoopConfFileProp(
-						// "mapreduce.framework.name", "yarn",
-						// "mapred-site.xml", null);
+						 fullyDistributedCluster.getConf(aTezComponentType)
+						 .setHadoopConfFileProp(
+						 "mapreduce.framework.name", "yarn-tez",
+						 "mapred-site.xml", null);
 
 						fullyDistributedCluster.getConf(aTezComponentType)
 								.setHadoopConfFileProp(

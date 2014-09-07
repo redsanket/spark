@@ -98,7 +98,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	}
 
 	@Rule
-	TestName testName = new TestName();
+	public TestName testName = new TestName();
 
 	@Test
 	public void testOrderedWordCountRunOnClusterWithSession() throws Exception {
