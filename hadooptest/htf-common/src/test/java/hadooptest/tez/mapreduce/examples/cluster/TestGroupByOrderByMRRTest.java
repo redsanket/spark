@@ -21,15 +21,18 @@ import java.io.Writer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
+
 /**
  * This class has the real test methods meant to be run on the cluster. Their
  * counterparts live under {@code}hadooptest.tez.mapreduce.examples.localmode
  * package. All test cases extend an intermediate class, ending in
  * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
- * as a part of the Tez distro JAR. 
- * These test cases flesh out and implement sub-tests that are provisioned in the original test class.
+ * as a part of the Tez distro JAR. These test cases flesh out and implement
+ * sub-tests that are provisioned in the original test class.
  * 
  */
 
@@ -48,6 +51,9 @@ public class TestGroupByOrderByMRRTest extends
 
 	}
 
+	@Rule
+	TestName testName = new TestName();
+
 	private static void copyDataIntoHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO response = dfsCliCommands.put(
@@ -59,9 +65,9 @@ public class TestGroupByOrderByMRRTest extends
 
 	}
 
-
 	@Test
-	public void testGroupByOrderByMRRTestRunOnCluster() throws Exception {
+	public void testGroupByOrderByMRRTestRunOnClusterWithSession()
+			throws Exception {
 		/**
 		 * Usage: groupbyorderbymrrtest <in> <out>
 		 */
@@ -70,8 +76,27 @@ public class TestGroupByOrderByMRRTest extends
 		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
-		int returnCode = run(groupByOrderByMrrArgs, HadooptestConstants.Execution.TEZ);
-		Assert.assertTrue(returnCode==0);
+		int returnCode = run(groupByOrderByMrrArgs,
+				HadooptestConstants.Execution.TEZ_CLUSTER, true,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testGroupByOrderByMRRTestRunOnClusterWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: groupbyorderbymrrtest <in> <out>
+		 */
+		copyDataIntoHdfs();
+		long timeStamp = System.currentTimeMillis();
+		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
+				OUTPUT_FILE_NAME + "/" + timeStamp };
+
+		int returnCode = run(groupByOrderByMrrArgs,
+				HadooptestConstants.Execution.TEZ_CLUSTER, false,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
 	}
 
 	@After
@@ -81,7 +106,6 @@ public class TestGroupByOrderByMRRTest extends
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
 				SkipTrash.YES, OUTPUT_FILE_NAME);
-
 
 	}
 

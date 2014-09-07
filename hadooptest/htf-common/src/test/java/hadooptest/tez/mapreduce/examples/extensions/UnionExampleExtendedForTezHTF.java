@@ -1,5 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
+import hadooptest.tez.utils.HtfTezUtils;
+
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Map;
@@ -42,10 +44,11 @@ import org.apache.tez.runtime.library.partitioner.HashPartitioner;
  * 
  */
 public class UnionExampleExtendedForTezHTF extends UnionExample {
-
-	public boolean run(String inputPath, String outputPath, Configuration conf)
-			throws Exception {
+	
+	public boolean run(String inputPath, String outputPath, Configuration conf,
+			String mode, boolean session, String testName) throws Exception {	
 		System.out.println("Running UnionExample");
+																	
 		// conf and UGI
 		TezConfiguration tezConf;
 		if (conf != null) {
@@ -54,27 +57,12 @@ public class UnionExampleExtendedForTezHTF extends UnionExample {
 			tezConf = new TezConfiguration();
 		}
 		UserGroupInformation.setConfiguration(tezConf);
-		String user = UserGroupInformation.getCurrentUser().getShortUserName();
 
 		// staging dir
 		FileSystem fs = FileSystem.get(tezConf);
-		String stagingDirStr;
-		if (conf.getBoolean("tez.local.mode", false) == true) {
-			stagingDirStr = "." + Path.SEPARATOR + "user" + Path.SEPARATOR
-					+ user + Path.SEPARATOR + ".staging" + Path.SEPARATOR
-					+ Path.SEPARATOR
-					+ Long.toString(System.currentTimeMillis());
-
-		} else {
-			stagingDirStr = Path.SEPARATOR + "user" + Path.SEPARATOR + user
-					+ Path.SEPARATOR + ".staging" + Path.SEPARATOR
-					+ Path.SEPARATOR
-					+ Long.toString(System.currentTimeMillis());
-		}
-
-		Path stagingDir = new Path(stagingDirStr);
-		tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
-		stagingDir = fs.makeQualified(stagingDir);
+		UserGroupInformation.setConfiguration(tezConf);
+		Path stagingDir = fs.makeQualified(new Path(tezConf
+				.get(TezConfiguration.TEZ_AM_STAGING_DIR)));
 
 		// No need to add jar containing this class as assumed to be part of
 		// the tez jars.

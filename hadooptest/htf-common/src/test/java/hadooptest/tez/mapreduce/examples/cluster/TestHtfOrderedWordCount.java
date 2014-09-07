@@ -19,8 +19,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 /**
  * This class has the real test methods meant to be run on the cluster. Their
@@ -38,8 +40,10 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	public static void beforeClass() {
 		TestSession.start();
 	}
+
 	public static String JUST_THE_FILE_NAME = "excite-small.log";
-	public static String SOURCE_FILE = "/home/y/share/htf-data/" + JUST_THE_FILE_NAME;
+	public static String SOURCE_FILE = "/home/y/share/htf-data/"
+			+ JUST_THE_FILE_NAME;
 	public static String HDFS_DIR_LOC = "/tmp/";
 	public static String INPUT_FILE = HDFS_DIR_LOC + JUST_THE_FILE_NAME;
 	public static String OUTPUT_LOCATION = "/tmp/ouOfOrderedWordCount";
@@ -62,68 +66,72 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 					HadooptestConstants.UserNames.HDFSQA, "",
 					System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC,
 					DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
-			
+
 			if (dirCheck.process.exitValue() != 0) {
-				// File does not exist 
+				// File does not exist
 				dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA, "",
 						System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC);
 				dfsCliCommands.chmod(new HashMap<String, String>(),
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.HDFS,
-						System.getProperty("CLUSTER_NAME"),
-						HDFS_DIR_LOC, "777", Recursive.YES);
+						System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC,
+						"777", Recursive.YES);
 
 			}
 
-			GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
-					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-					HadooptestConstants.UserNames.HADOOPQA, "",
-					System.getProperty("CLUSTER_NAME"),
-					SOURCE_FILE, INPUT_FILE);
+			GenericCliResponseBO genericCliResponse = dfsCliCommands
+					.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+							HadooptestConstants.UserNames.HADOOPQA, "",
+							System.getProperty("CLUSTER_NAME"), SOURCE_FILE,
+							INPUT_FILE);
 			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
-			genericCliResponse = dfsCliCommands.chmod(new HashMap<String, String>(),
+			genericCliResponse = dfsCliCommands.chmod(
+					new HashMap<String, String>(),
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.HDFS,
-					System.getProperty("CLUSTER_NAME"),
-					INPUT_FILE, "777", Recursive.YES);
+					System.getProperty("CLUSTER_NAME"), INPUT_FILE, "777",
+					Recursive.YES);
 			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		}
-
 	}
 
+	@Rule
+	TestName testName = new TestName();
+
 	@Test
-	public void testOrderedWordCountNoSessionRunOnCluster() throws Exception {
+	public void testOrderedWordCountRunOnClusterWithSession() throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = false;
-		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ);
+		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ_CLUSTER,
+				true, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
 	@Test
-	public void testOrderedWordCountUseSessionRunOnCluster() throws Exception {
-		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = true;
-		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ);
-		Assert.assertTrue(returnCode == 0);
-	}
-
-	@Test
-	public void testOrderedWordCountWithSplitsNoSessionRunOnCluster()
+	public void testOrderedWordCountRunOnClusterWithoutSession()
 			throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = false;
-		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ);
+		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ_CLUSTER,
+				false, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
 	@Test
-	public void testOrderedWordCountWithSplitsUseSessioRunOnCluster()
+	public void testOrderedWordCountWithSplitsRunOnClusterWithSession()
 			throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = true;
-		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ);
+		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ_CLUSTER,
+				true, testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testOrderedWordCountWithSplitsRunOnClusterWithoutSession()
+			throws Exception {
+		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
+		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ_CLUSTER,
+				false, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

@@ -140,17 +140,13 @@ my @hadoop_jar_paths = (
     "$hadoop_install/share/hadoop-*/share/hadoop/yarn",
     "$hadoop_install/share/hadoop-*/share/hadoop/yarn/lib",
     "$hadoop_install/share/hadoop-*/share/hadoop/mapreduce",
+    "$hadoop_install/share/hadoop-*/share/hadoop/mapreduce/lib",
     "$hadoop_install/share/hadoop-*/share/hadoop/hdfs"
     );
 
 foreach my $path (@hadoop_jar_paths) {
     push(@classpath, `echo -en $path`.'/*');
 };
-
-if ($tez) {
-  push(@classpath, "/home/gs/conf/tez/");
-  push(@classpath, "/home/gs/tez/");
-}
 
 note("CLASSPATH=".join(":",@classpath));
 

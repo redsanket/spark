@@ -41,7 +41,7 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] args, String mode) throws Exception {
+	public int run(String[] args, String mode, boolean session, String testName) throws Exception {
 		boolean doLocalityCheck = true;
 		if (args.length == 1) {
 			if (args[0].equals(skipLocalityCheck)) {
@@ -56,7 +56,7 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 		}
 
 		Configuration conf = TestSession.cluster.getConf();
-		conf = HtfTezUtils.setupConfForTez(conf, mode);
+		conf = HtfTezUtils.setupConfForTez(conf, mode, session, testName);
 		boolean status = run(conf, doLocalityCheck);
 		return status ? 0 : 1;
 	}

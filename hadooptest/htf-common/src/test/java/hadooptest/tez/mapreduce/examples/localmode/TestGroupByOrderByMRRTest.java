@@ -16,15 +16,18 @@ import hadooptest.tez.utils.HtfTezUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
+
 /**
  * This class has the real test methods meant to be run locally. Their
  * counterparts live under {@code}hadooptest.tez.mapreduce.examples.cluster
  * package. All test cases extend an intermediate class, ending in
  * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
- * as a part of the Tez distro JAR. 
- * These test cases flesh out and implement sub-tests that are provisioned in the original test class.
+ * as a part of the Tez distro JAR. These test cases flesh out and implement
+ * sub-tests that are provisioned in the original test class.
  * 
  */
 
@@ -40,11 +43,14 @@ public class TestGroupByOrderByMRRTest extends
 	public static void beforeClass() throws Exception {
 		TestSession.start();
 		HtfTezUtils.generateTestData(SHELL_SCRIPT_LOCATION, INPUT_FILE_NAME);
-
 	}
 
+	@Rule
+	TestName testName = new TestName();
+
 	@Test
-	public void testGroupByOrderByMRRTestRunOnLocal() throws Exception {
+	public void testGroupByOrderByMRRTestRunOnLocalWithSession()
+			throws Exception {
 		/**
 		 * Usage: groupbyorderbymrrtest <in> <out>
 		 */
@@ -52,10 +58,27 @@ public class TestGroupByOrderByMRRTest extends
 		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
-		int returnCode = run(groupByOrderByMrrArgs, HadooptestConstants.Execution.TEZ_LOCAL);
-		Assert.assertTrue(returnCode==0);
+		int returnCode = run(groupByOrderByMrrArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
 	}
 
+	@Test
+	public void testGroupByOrderByMRRTestRunOnLocalWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: groupbyorderbymrrtest <in> <out>
+		 */
+		long timeStamp = System.currentTimeMillis();
+		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
+				OUTPUT_FILE_NAME + "/" + timeStamp };
+
+		int returnCode = run(groupByOrderByMrrArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {

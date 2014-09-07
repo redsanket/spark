@@ -95,7 +95,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] otherArgs, String mode) throws Exception {
+	public int run(String[] otherArgs, String mode, boolean session, String testName) throws Exception {
 	    boolean generateSplitsInClient = false;
 	    SplitsInClientOptionParser splitCmdLineParser = new SplitsInClientOptionParser();
 	    try {
@@ -116,7 +116,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 	    String outputPath = otherArgs[1];
 	    String filterWord = otherArgs[2];
 	    
-	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, testName);
 	    FileSystem fs = FileSystem.get(conf);
 	    if (fs.exists(new Path(outputPath))) {
 	      System.err.println("Output directory : " + outputPath + " already exists");

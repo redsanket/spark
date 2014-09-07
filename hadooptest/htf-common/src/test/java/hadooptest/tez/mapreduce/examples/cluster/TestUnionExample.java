@@ -18,8 +18,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 /**
  * This class has the real test methods meant to be run on the cluster. Their
@@ -43,6 +45,9 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 		TestSession.start();
 	}
 
+	@Rule
+	TestName testName = new TestName();
+	
 	@Before
 	public void copyTheFileOnHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
@@ -93,12 +98,22 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 	}
 
 	@Test
-	public void testUnionExample()
+	public void testUnionExampleOnClusterWithSession()
 			throws Exception {
 
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ));
+						HadooptestConstants.Execution.TEZ_CLUSTER, true, testName.getMethodName()));
+		Assert.assertTrue(returnCode);
+	}
+
+	@Test
+	public void testUnionExampleOnClusterWithoutSession()
+			throws Exception {
+
+		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
+				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
+						HadooptestConstants.Execution.TEZ_CLUSTER, false, testName.getMethodName()));
 		Assert.assertTrue(returnCode);
 	}
 

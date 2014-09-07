@@ -8,8 +8,10 @@ import hadooptest.tez.mapreduce.examples.extensions.BroadcastAndOneToOneExampleE
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 /**
  * This class has the real test methods meant to be run on the cluster. Their
@@ -28,19 +30,38 @@ public class TestBroadcastAndOneToOneExample extends
 		TestSession.start();
 	}
 
+	@Rule
+	public TestName name = new TestName();
+
 	@Test
-	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnCluster()
+	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnClusterWithSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ);
+				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	@Ignore("for now")
 	@Test
-	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnCluster()
+	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnClusterWithoutSession()
 			throws Exception {
-		int returnCode = run(new String[] {}, HadooptestConstants.Execution.TEZ);
+		int returnCode = run(new String[] { skipLocalityCheck },
+				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnClusterWithSession()
+			throws Exception {
+		int returnCode = run(new String[] {},
+				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnClusterWithoutSession()
+			throws Exception {
+		int returnCode = run(new String[] {},
+				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

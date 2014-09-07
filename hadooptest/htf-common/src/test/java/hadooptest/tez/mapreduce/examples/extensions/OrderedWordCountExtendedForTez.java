@@ -54,7 +54,7 @@ import org.apache.tez.mapreduce.examples.helpers.SplitsInClientOptionParser;
  * NOTE: Changes to be done, should the file need to be refreshed
  * <p>
  * 1) Ensure that all references to getConf fetch a configuration instance from
- * {@link} HtfTezUtils 
+ * {@link} HtfTezUtils
  * </p>
  */
 
@@ -92,9 +92,10 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 	 * @throws Exception
 	 */
 
-	public int run(String[] args, String mode) throws Exception {
+	public int run(String[] args, String mode, boolean session, String testName)
+			throws Exception {
 		Configuration conf = HtfTezUtils.setupConfForTez(
-				TestSession.cluster.getConf(), mode);
+				TestSession.cluster.getConf(), mode, session, testName);
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
 

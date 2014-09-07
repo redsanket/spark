@@ -18,8 +18,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 /**
  * This class has the real test methods meant to be run on the cluster. Their
@@ -43,6 +45,9 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 	public static void beforeClass() {
 		TestSession.start();
 	}
+
+	@Rule
+	public TestName name = new TestName();
 
 	@Before
 	public void copyTheFileOnHdfs() throws Exception {
@@ -95,7 +100,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 	}
 
 	@Test
-	public void testFilterLinesByWordWithClientSplitsRunOnCluster()
+	public void testFilterLinesByWordWithClientSplitsRunOnClusterWithSession()
 			throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
@@ -105,12 +110,27 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ);
+				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
 	@Test
-	public void testFilterLinesByWordNoClientSplitsRunOnCluster()
+	public void testFilterLinesByWordWithClientSplitsRunOnClusterWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: filtelinesrbyword <in> <out> <filter_word>
+		 * [-generateSplitsInClient true/<false>
+		 */
+		String[] filterLinesByWordArgs = new String[] { INPUT_FILE,
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testFilterLinesByWordNoClientSplitsRunOnClusterWithSession()
 			throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
@@ -120,7 +140,22 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ);
+				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testFilterLinesByWordNoClientSplitsRunOnClusterWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: filtelinesrbyword <in> <out> <filter_word>
+		 * [-generateSplitsInClient true/<false>
+		 */
+		String[] filterLinesByWordArgs = new String[] { INPUT_FILE,
+				OUTPUT_LOCATION, "lionking" };
+
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

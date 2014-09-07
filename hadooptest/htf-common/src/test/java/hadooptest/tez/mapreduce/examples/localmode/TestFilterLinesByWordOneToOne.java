@@ -16,15 +16,18 @@ import hadooptest.tez.utils.HtfTezUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
+
 /**
  * This class has the real test methods meant to be run locally. Their
  * counterparts live under {@code}hadooptest.tez.mapreduce.examples.cluster
  * package. All test cases extend an intermediate class, ending in
  * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
- * as a part of the Tez distro JAR. 
- * These test cases flesh out and implement sub-tests that are provisioned in the original test class.
+ * as a part of the Tez distro JAR. These test cases flesh out and implement
+ * sub-tests that are provisioned in the original test class.
  * 
  */
 
@@ -34,42 +37,81 @@ public class TestFilterLinesByWordOneToOne extends
 	public static String SOURCE_FILE = "/home/y/share/htf-data/excite-small.log";
 	public static String OUTPUT_LOCATION = "/tmp/outOfFilterLinesByWordOneToOne";
 
-		@BeforeClass
-		public static void beforeClass() {
-			TestSession.start();
-		}
-
-		@Test
-		public void testFilterLinesByWordWithClientSplitsRunOnLocal() throws Exception {
-			/**
-			 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" 
-		        + " [-generateSplitsInClient true/<false>]
-			 */
-			String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
-					OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
-
-			int returnCode = run(filterLinesByWordOneToOneArgs, HadooptestConstants.Execution.TEZ_LOCAL);
-			Assert.assertTrue(returnCode==0);
-		}
-
-		@Test
-		public void testFilterLinesByWordNoClientSplitsRunOnLocal() throws Exception {
-			/**
-			 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" 
-		        + " [-generateSplitsInClient true/<false>]
-			 */
-			String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
-					OUTPUT_LOCATION, "lionking" };
-
-			int returnCode = run(filterLinesByWordOneToOneArgs, HadooptestConstants.Execution.TEZ_LOCAL);
-			Assert.assertTrue(returnCode==0);
-		}
-
-
-		@After
-		public void deleteOutputDirs() throws Exception {
-			HtfTezUtils.delete(new File(OUTPUT_LOCATION));
-		}
-
+	@BeforeClass
+	public static void beforeClass() {
+		TestSession.start();
 	}
 
+	@Rule
+	TestName testName = new TestName();
+
+	@Test
+	public void testFilterLinesByWordWithClientSplitsRunOnLocalWithSession()
+			throws Exception {
+		/**
+		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
+		 * [-generateSplitsInClient true/<false>]
+		 */
+		String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+
+		int returnCode = run(filterLinesByWordOneToOneArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testFilterLinesByWordWithClientSplitsRunOnLocalWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
+		 * [-generateSplitsInClient true/<false>]
+		 */
+		String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+
+		int returnCode = run(filterLinesByWordOneToOneArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testFilterLinesByWordNoClientSplitsRunOnLocalWithSession()
+			throws Exception {
+		/**
+		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
+		 * [-generateSplitsInClient true/<false>]
+		 */
+		String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking" };
+
+		int returnCode = run(filterLinesByWordOneToOneArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testFilterLinesByWordNoClientSplitsRunOnLocalWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
+		 * [-generateSplitsInClient true/<false>]
+		 */
+		String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking" };
+
+		int returnCode = run(filterLinesByWordOneToOneArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@After
+	public void deleteOutputDirs() throws Exception {
+		HtfTezUtils.delete(new File(OUTPUT_LOCATION));
+	}
+
+}

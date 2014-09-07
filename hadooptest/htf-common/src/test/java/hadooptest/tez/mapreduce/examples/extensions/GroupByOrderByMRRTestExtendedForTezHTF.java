@@ -62,8 +62,8 @@ public class GroupByOrderByMRRTestExtendedForTezHTF extends
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] args, String mode) throws Exception {
-	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+	public int run(String[] args, String mode, boolean session, String testName) throws Exception {
+	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, testName);
 
 	    // Configure intermediate reduces
 	    conf.setInt(MRJobConfig.MRR_INTERMEDIATE_STAGES, 1);

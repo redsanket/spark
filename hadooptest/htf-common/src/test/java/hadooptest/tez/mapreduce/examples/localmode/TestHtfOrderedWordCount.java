@@ -12,15 +12,18 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
+
 /**
  * This class has the real test methods meant to be run locally. Their
  * counterparts live under {@code}hadooptest.tez.mapreduce.examples.cluster
  * package. All test cases extend an intermediate class, ending in
  * *ExtendedForTezHTF which in turn extends the actual classes that are shipped
- * as a part of the Tez distro JAR. 
- * These test cases flesh out and implement sub-tests that are provisioned in the original test class.
+ * as a part of the Tez distro JAR. These test cases flesh out and implement
+ * sub-tests that are provisioned in the original test class.
  * 
  */
 
@@ -34,44 +37,46 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 		TestSession.start();
 	}
 
-	@Ignore("ignore")
+	@Rule
+	TestName testName = new TestName();
+
 	@Test
-	public void testOrderedWordCountNoSessionRunOnLocal() throws Exception {
+	public void testOrderedWordCountRunOnLocalWithSession() throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = false;
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL);
+				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
 	@Test
-	public void testOrderedWordCountUseSessionRunOnLocal() throws Exception {
+	public void testOrderedWordCountRunOnLocalWithoutSession() throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = true;
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL);
+				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	@Ignore("ignore")
 	@Test
-	public void testOrderedWordCountWithSplitNoSessionRunOnLocal() throws Exception {
+	public void testOrderedWordCountWithSplitRunOnLocalWithSession()
+			throws Exception {
 		String[] sleepJobArgs = new String[] { "-generateSplitsInClient",
 				INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = false;
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL);
+				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	@Ignore("ignore")
 	@Test
-	public void testOrderedWordCountWithSplitUseSessionRunOnLocal() throws Exception {
+	public void testOrderedWordCountWithSplitRunOnLocalWithoutSession()
+			throws Exception {
 		String[] sleepJobArgs = new String[] { "-generateSplitsInClient",
 				INPUT_FILE, OUTPUT_LOCATION };
-		HtfTezUtils.useSession = true;
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL);
+				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

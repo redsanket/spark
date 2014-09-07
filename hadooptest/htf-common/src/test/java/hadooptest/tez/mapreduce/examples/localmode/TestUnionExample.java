@@ -1,6 +1,7 @@
 package hadooptest.tez.mapreduce.examples.localmode;
 
 import java.io.File;
+import java.io.IOException;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
@@ -19,8 +20,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 /**
  * This class has the real test methods meant to be run on the cluster. Their
@@ -42,19 +45,38 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 		TestSession.start();
 	}
 
+	@Rule
+	public TestName testName = new TestName();
+	
 	@Before
-	public void copyTheFileOnHdfs() throws Exception {
-		FileUtils.copyFile(new File(SOURCE_FILE), new File(INPUT_FILE));		
+	public void copyTheFileOnHdfs() {
+		try{
+		FileUtils.copyFile(new File(SOURCE_FILE), new File(INPUT_FILE));
+		}catch (IOException ioEx){
+			if (ioEx.getMessage().contains("exists")){
+				//Ignore, 'cos the input file already exists
+			}
+		}
 
 	}
 
 	@Test
-	public void testUnionExample()
+	public void testUnionExampleOnLocalModeWithSession()
 			throws Exception {
 
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_LOCAL));
+						HadooptestConstants.Execution.TEZ_LOCAL, true, testName.getMethodName()));
+		Assert.assertTrue(returnCode);
+	}
+
+	@Test
+	public void testUnionExampleOnLocalModeWithoutSession()
+			throws Exception {
+
+		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
+				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
+						HadooptestConstants.Execution.TEZ_LOCAL, false, testName.getMethodName()));
 		Assert.assertTrue(returnCode);
 	}
 

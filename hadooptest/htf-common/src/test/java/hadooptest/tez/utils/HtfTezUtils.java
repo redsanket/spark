@@ -1,29 +1,7 @@
 package hadooptest.tez.utils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.tez.dag.api.TezConfiguration;
-import org.junit.Assert;
-
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
@@ -36,6 +14,24 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.tez.dag.api.TezConfiguration;
+import org.junit.Assert;
+
 /**
  * This class houses all the common util functions that are used used by Tez.
  * 
@@ -44,7 +40,6 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 public class HtfTezUtils {
 
 	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
-	public static boolean useSession = false;
 
 	/**
 	 * Tez supports two modes 'local' and 'cluster'. This flip is controlled via
@@ -56,75 +51,75 @@ public class HtfTezUtils {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public static Configuration setupConfForTez(Configuration conf, String mode)
+	public static Configuration setupConfForTez(Configuration conf,
+			String mode, boolean useSession, String testName)
 			throws IOException, InterruptedException {
-		String fsProtocol;
+		// Tez version
 		String tezVersion = getTezVersion();
 		TestSession.logger.info("Read back tez version as:" + tezVersion);
+
+		// Hadoop version
 		String hadoopVersion = "hadoop-" + getHadoopVersion();
 		TestSession.logger.info("Read back Hadoop version as:" + hadoopVersion);
+
+		// Dump the env settings.
 		Map<String, String> env = System.getenv();
-        for (String envName : env.keySet()) {
-            System.out.format("%s=%s%n",
-                              envName,
-                              env.get(envName));
-        }
-		TestSession.logger.info("Dumping values before setting anything programatically ..........");
-		Configuration appMasterConf = new Configuration(new YarnConfiguration());
-		TestSession.logger.info("[fs.default.name] as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.default.name"));
-		TestSession.logger.info("[fs.defaultFS]    as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.defaultFS"));
-		TestSession.logger.info("[tez.local.mode]  as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("tez.local.mode"));
-
-		TezConfiguration tezConfVanilla = new TezConfiguration();
-		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.default.name"));
-		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.defaultFS"));
-		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration():" + tezConfVanilla.get("tez.local.mode"));
-
-		TezConfiguration tezConfDerived = new TezConfiguration(conf);
-		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.default.name"));
-		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.defaultFS"));
-		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration(conf):" + tezConfDerived.get("tez.local.mode"));
-
-		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
-			conf.set("fs.defaultFS", "");
-//			conf.set("fs.defaultFS", "file:///");
-			conf.set("fs.default.name", "file:///");
+		for (String envName : env.keySet()) {
+			System.out.format("%s=%s%n", envName, env.get(envName));
 		}
+
+		// Local mode settings
 		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+			conf.set("fs.defaultFS", "file:///");
 			conf.setBoolean("tez.local.mode", true);
+			String user = UserGroupInformation.getCurrentUser()
+					.getShortUserName();
+			String stagingDirStr = "." + Path.SEPARATOR + "user"
+					+ Path.SEPARATOR + user + Path.SEPARATOR + ".staging"
+					+ Path.SEPARATOR + testName
+					+ Long.toString(System.currentTimeMillis());
+
+			conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
+
 		} else {
+			// Cluster mode
 			conf.setBoolean("tez.local.mode", false);
+			try {
+				// TODO: Remove this commented method once Amit has been added
+				// to OpsDb role grid_re
+				// applyTezSettingsToAllHosts();
+			} catch (Exception e) {
+				e.printStackTrace();
+				TestSession.logger
+						.info("Exception received when changing confs in all the nodes in the cluster."
+								+ "Remove this commented method once Amit has been added to OpsDb role grid_re");
+			}
+
 		}
-		TestSession.logger.info("Dumping values AFTER setting 'em programatically ..........");
-		appMasterConf = new Configuration(new YarnConfiguration());
-		TestSession.logger.info("[fs.default.name] as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.default.name"));
-		TestSession.logger.info("[fs.defaultFS]    as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("fs.defaultFS"));
-		TestSession.logger.info("[tez.local.mode]  as seen by, new Configuration(new YarnConfiguration():" + appMasterConf.get("tez.local.mode"));
 
-		tezConfVanilla = new TezConfiguration();
-		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.default.name"));
-		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration():" + tezConfVanilla.get("fs.defaultFS"));
-		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration():" + tezConfVanilla.get("tez.local.mode"));
-
-		tezConfDerived = new TezConfiguration(conf);
-		TestSession.logger.info("[fs.default.name] as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.default.name"));
-		TestSession.logger.info("[fs.defaultFS]    as seen by, new TezConfiguration(conf):" + tezConfDerived.get("fs.defaultFS"));
-		TestSession.logger.info("[tez.local.mode]  as seen by, new TezConfiguration(conf):" + tezConfDerived.get("tez.local.mode"));
+		// Consider using a session
+		if (useSession) {
+			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
+		} else {
+			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
+		}
 		
-		//fsProtocol = conf.get("fs.defaultFS");
-		fsProtocol = conf.get("fs.default.name");
-		TestSession.logger.info("Default FS is:" + fsProtocol);
+		conf.set("mapreduce.job.acl-view-job", "*");
+		conf.set("mapreduce.framework.name", "yarn-tez");
+
+
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
 		// ALERT HACK ALERT
 		// Sid (Hortonworks) said
-		// "Put the tez tar ball (that should include the Hadoop JARs as well) … 
+		// "Put the tez tar ball (that should include the Hadoop JARs as well) …
 		// and point the tez.lib.uris (in tez-site.xml) to the tarball"
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
 		// ALERT HACK ALERT
 		conf.set(
 				"tez.lib.uris",
-				"${fs.default.name}/sharelib/v1/tez/ytez-" + tezVersion
-						+ "/libexec/tez,${fs.default.name}/sharelib/v1/tez/ytez-"
+				"${fs.defaultFS}/sharelib/v1/tez/ytez-"
+						+ tezVersion
+						+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
 						+ tezVersion + "/libexec/tez/lib,"
 						+ "file:///home/gs/gridre/yroot."
 						+ System.getProperty("CLUSTER_NAME") + "/share/"
@@ -134,8 +129,7 @@ public class HtfTezUtils {
 						+ hadoopVersion + "/share/hadoop/common/lib,"
 						+ "file:///home/gs/gridre/yroot."
 						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion
-						+ "/share/hadoop/hdfs/,"
+						+ hadoopVersion + "/share/hadoop/hdfs/,"
 						+ "file:///home/gs/gridre/yroot."
 						+ System.getProperty("CLUSTER_NAME") + "/share/"
 						+ hadoopVersion + "/share/hadoop/hdfs/lib,"
@@ -152,38 +146,6 @@ public class HtfTezUtils {
 						+ System.getProperty("CLUSTER_NAME") + "/share/"
 						+ hadoopVersion + "/share/hadoop/mapreduce/lib");
 
-		conf.set("mapreduce.job.acl-view-job", "*");
-		conf.set("mapreduce.framework.name", "yarn-tez");
-		if (useSession) {
-			conf.setBoolean("USE_TEZ_SESSION", true);
-		} else {
-			conf.setBoolean("USE_TEZ_SESSION", false);
-		}
-		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
-			String user = UserGroupInformation.getCurrentUser().getShortUserName();
-			String stagingDirStr = "." + Path.SEPARATOR + "user" + Path.SEPARATOR
-					+ user + Path.SEPARATOR + ".staging" + Path.SEPARATOR
-					+ Path.SEPARATOR
-					+ Long.toString(System.currentTimeMillis());
-
-			conf.set(TezConfiguration.TEZ_AM_STAGING_DIR,stagingDirStr);
-		}
-		
-		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
-			conf.setBoolean("tez.local.mode", true);
-		} else {
-			conf.setBoolean("tez.local.mode", false);
-			try {
-				// TODO: Remove this commented method once Amit has been added
-				// to OpsDb role grid_re
-				// applyTezSettingsToAllHosts();
-			} catch (Exception e) {
-				e.printStackTrace();
-				TestSession.logger
-						.info("Exception received when changing confs in all the nodes in the cluster."
-								+ "Remove this commented method once Amit has been added to OpsDb role grid_re");
-			}
-		}
 		return conf;
 	}
 
@@ -346,7 +308,8 @@ public class HtfTezUtils {
 	public static String getHadoopVersion() throws IOException,
 			InterruptedException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("/home/gs/gridre/yroot."+System.getProperty("CLUSTER_NAME")+"/share/hadoop/bin/hadoop");
+		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/bin/hadoop");
 		sb.append(" ");
 		sb.append("version");
 
@@ -360,13 +323,15 @@ public class HtfTezUtils {
 		Assert.assertEquals(process.exitValue(), 0);
 		String response = printResponseAndReturnItAsString(process);
 		// Response is of the format
-//		Hadoop 2.5.0.3.1408251445
-//		Subversion git@git.corp.yahoo.com:hadoop/Hadoop.git -r 3afaa2c152b18a45f4314808c9d0dd7af75a4f84
-//		Compiled by hadoopqa on 2014-08-25T21:55Z
-//		Compiled with protoc 2.5.0
-//		From source with checksum 408a7f5aafaa8d578542c88dbc39dbd6
-//		This command was run using /home/gs/gridre/yroot.tiwaripig/share/hadoop-2.5.0.3.1408251445/share/hadoop/common/hadoop-common-2.5.0.3.1408251445.jar
-//		hadoopqa@oxy-oxygen-0a577732 hadooptest>$ 
+		// Hadoop 2.5.0.3.1408251445
+		// Subversion git@git.corp.yahoo.com:hadoop/Hadoop.git -r
+		// 3afaa2c152b18a45f4314808c9d0dd7af75a4f84
+		// Compiled by hadoopqa on 2014-08-25T21:55Z
+		// Compiled with protoc 2.5.0
+		// From source with checksum 408a7f5aafaa8d578542c88dbc39dbd6
+		// This command was run using
+		// /home/gs/gridre/yroot.tiwaripig/share/hadoop-2.5.0.3.1408251445/share/hadoop/common/hadoop-common-2.5.0.3.1408251445.jar
+		// hadoopqa@oxy-oxygen-0a577732 hadooptest>$
 
 		return response.split("\n")[0].split("\\s+")[1].trim();
 	}

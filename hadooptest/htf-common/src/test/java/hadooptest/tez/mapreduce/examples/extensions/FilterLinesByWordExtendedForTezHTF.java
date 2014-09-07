@@ -104,8 +104,8 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] args, String mode) throws Exception {
-	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode);
+	public int run(String[] args, String mode, boolean session, String testName) throws Exception {
+	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, testName);
 	    String [] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 	    Credentials credentials = new Credentials();
 

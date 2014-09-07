@@ -16,8 +16,10 @@ import hadooptest.tez.utils.HtfTezUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 /**
  * This class has the real test methods meant to be run locally. Their
@@ -39,8 +41,11 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 		TestSession.start();
 	}
 
+	@Rule
+	TestName name = new TestName();
+	
 	@Test
-	public void testFilterLinesByWordWithClientSplitsRunOnLocal()
+	public void testFilterLinesByWordWithClientSplitsRunOnLocalWithSession()
 			throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
@@ -50,12 +55,27 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL);
+				HadooptestConstants.Execution.TEZ_LOCAL, true, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
 	@Test
-	public void testFilterLinesByWordNoClientSplitsRunOnLocal()
+	public void testFilterLinesByWordWithClientSplitsRunOnLocalWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: filtelinesrbyword <in> <out> <filter_word>
+		 * [-generateSplitsInClient true/<false>
+		 */
+		String[] filterLinesByWordArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, false, name.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testFilterLinesByWordNoClientSplitsRunOnLocalWithSession()
 			throws Exception {
 		/**
 		 * Usage: filtelinesrbyword <in> <out> <filter_word>
@@ -65,7 +85,22 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL);
+				HadooptestConstants.Execution.TEZ_LOCAL, true, name.getMethodName());
+		Assert.assertTrue(returnCode == 0);
+	}
+
+	@Test
+	public void testFilterLinesByWordNoClientSplitsRunOnLocalWithoutSession()
+			throws Exception {
+		/**
+		 * Usage: filtelinesrbyword <in> <out> <filter_word>
+		 * [-generateSplitsInClient true/<false>
+		 */
+		String[] filterLinesByWordArgs = new String[] { SOURCE_FILE,
+				OUTPUT_LOCATION, "lionking" };
+
+		int returnCode = run(filterLinesByWordArgs,
+				HadooptestConstants.Execution.TEZ_LOCAL, false, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

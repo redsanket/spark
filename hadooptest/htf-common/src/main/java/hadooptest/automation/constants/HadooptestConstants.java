@@ -144,7 +144,7 @@ public class HadooptestConstants {
 	}
 		// Execution
 	public static class Execution {
-		public static String TEZ = "TEZ";
+		public static String TEZ_CLUSTER = "TEZ";
 		public static String TEZ_LOCAL = "TEZ_LOCAL";
 	}
 
