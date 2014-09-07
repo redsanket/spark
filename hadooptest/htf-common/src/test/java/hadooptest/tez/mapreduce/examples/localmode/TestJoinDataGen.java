@@ -50,8 +50,8 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 	public void testJoinDataGenOnLocalModeWithSession() throws Exception {
 		// Usage: joindatagen <outPath1> <path1Size> <outPath2> <path2Size>
 		// <expectedResultPath> <numTasks>
-		String[] args = new String[] { "/tmp/joinDataGenout1", "100",
-				"/tmp/joinDataGenout2", "101", OUTPUT_DIR, "1" };
+		String[] args = new String[] { TEMP_OUT_1, "100",
+				TEMP_OUT_2, "101", OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, true,
@@ -65,7 +65,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 		// Usage: joindatagen <outPath1> <path1Size> <outPath2> <path2Size>
 		// <expectedResultPath> <numTasks>
 		String[] args = new String[] { TEMP_OUT_1, "100", TEMP_OUT_2, "101",
-				"/tmp/expectedResults/", "1" };
+				OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, false,
