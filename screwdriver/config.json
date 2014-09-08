@@ -6,6 +6,7 @@
     "jobs": {
         "component": {
             "test_results_type": "none"
+            "coverage_type": "none"
         }
     }
 }
