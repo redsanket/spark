@@ -1,4 +1,9 @@
-include /home/y/share/yahoo_cfg/screwdriver/Make.rules
+ROOT=/home/y
+YAHOO_CFG=$(ROOT)/share/yahoo_cfg
+
+-include $(YAHOO_CFG)/Make.defs
+-include $(YAHOO_CFG)/Make.rules
+-include $(YAHOO_CFG)/screwdriver/Make.rules
 
 screwdriver: clean compile
 
