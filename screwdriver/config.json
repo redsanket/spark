@@ -4,6 +4,9 @@
         "notification_email": "htf-devel@yahoo-inc.com"
     },
     "jobs": {
-        "component": {}
+        "component": {
+            "test_results_type": "none",
+            "coverage_type": "none"
+        }
     }
 }
