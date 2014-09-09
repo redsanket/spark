@@ -52,7 +52,7 @@ public class TestGroupByOrderByMRRTest extends
 	}
 
 	@Rule
-	TestName testName = new TestName();
+	public TestName testName = new TestName();
 
 	private static void copyDataIntoHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();

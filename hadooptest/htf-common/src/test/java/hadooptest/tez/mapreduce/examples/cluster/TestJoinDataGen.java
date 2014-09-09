@@ -3,6 +3,11 @@ package hadooptest.tez.mapreduce.examples.cluster;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.JoinDataGenExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 
@@ -40,12 +45,12 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 
 	@Rule
 	public TestName testName = new TestName();
-
+	
 	@Test
-	public void testJoinDataGenOnLocalModeWithSession() throws Exception {
+	public void testJoinDataGenOnClusterModeWithSession() throws Exception {
 		// Usage: joindatagen <outPath1> <path1Size> <outPath2> <path2Size>
 		// <expectedResultPath> <numTasks>
-		String[] args = new String[] { TEMP_OUT_1, "100", TEMP_OUT_2, "101",
+		String[] args = new String[] { TEMP_OUT_1, "10240", TEMP_OUT_2, "10241",
 				OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
@@ -56,10 +61,10 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 	}
 
 	@Test
-	public void testJoinDataGenOnLocalModeWithoutSession() throws Exception {
+	public void testJoinDataGenOnClusterModeWithoutSession() throws Exception {
 		// Usage: joindatagen <outPath1> <path1Size> <outPath2> <path2Size>
 		// <expectedResultPath> <numTasks>
-		String[] args = new String[] { TEMP_OUT_1, "100", TEMP_OUT_2, "101",
+		String[] args = new String[] { TEMP_OUT_1, "10240", TEMP_OUT_2, "10241",
 				OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
@@ -78,7 +83,12 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 
 	@After
 	public void deleteOutputDirs() throws Exception {
-		HtfTezUtils.delete(new File(OUTPUT_DIR));
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA, "",
+				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
+				SkipTrash.YES, OUTPUT_DIR);
+
 	}
 
 }

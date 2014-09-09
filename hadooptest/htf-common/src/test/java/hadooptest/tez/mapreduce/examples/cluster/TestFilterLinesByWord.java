@@ -107,7 +107,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 		 * [-generateSplitsInClient true/<false>
 		 */
 		String[] filterLinesByWordArgs = new String[] { INPUT_FILE,
-				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
@@ -122,7 +122,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 		 * [-generateSplitsInClient true/<false>
 		 */
 		String[] filterLinesByWordArgs = new String[] { INPUT_FILE,
-				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());

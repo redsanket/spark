@@ -37,7 +37,7 @@ public class TestMRRSleepJob extends MRRSleepJobExtendedForTezHTF {
 	}
 
 	@Rule
-	TestName testName = new TestName();
+	public TestName testName = new TestName();
 
 	@Test
 	public void testClusterModeWithSession() throws Exception {

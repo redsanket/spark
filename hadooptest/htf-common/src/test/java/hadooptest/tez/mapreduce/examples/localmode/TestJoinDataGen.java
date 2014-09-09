@@ -9,11 +9,7 @@ import hadooptest.tez.utils.HtfTezUtils;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.security.TokenCache;
-import org.apache.hadoop.security.Credentials;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.tez.client.TezClient;
 import org.apache.tez.dag.api.TezConfiguration;
 import org.apache.tez.dag.api.TezException;
@@ -75,11 +71,38 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 	}
 
 	private TezClient createTezClient(TezConfiguration tezConf)
-			throws TezException, IOException {		
-		TezClient tezClient = TezClient.create("JoinDataGen", tezConf, true, null, new Credentials());
+			throws TezException, IOException, InterruptedException {		
+		TezClient tezClient = TezClient.create("JoinDataGen", tezConf, true, null, null);
 		tezClient.start();
 		return tezClient;
 	}
+	public UserGroupInformation loginUserFromKeytabAndReturnUGI(String keytabUser,
+			String keytabDir) {
+		TestSession.logger.info("Set keytab user=" + keytabUser);
+		TestSession.logger.info("Set keytab dir=" + keytabDir);
+		UserGroupInformation ugi;
+		try {
+
+			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(
+					keytabUser, keytabDir);
+			TestSession.logger.info("UGI=" + ugi);
+			TestSession.logger.info("credentials:" + ugi.getCredentials());
+			TestSession.logger.info("group names" + ugi.getGroupNames());
+			TestSession.logger.info("real user:" + ugi.getRealUser());
+			TestSession.logger.info("short user name:" + ugi.getShortUserName());
+			TestSession.logger.info("token identifiers:" + ugi.getTokenIdentifiers());
+			TestSession.logger.info("tokens:" + ugi.getTokens());
+			TestSession.logger.info("username:" + ugi.getUserName());
+			TestSession.logger.info("current user:" + UserGroupInformation.getCurrentUser());
+			TestSession.logger.info("login user:" + UserGroupInformation.getLoginUser());
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return ugi;
+	}
+
+
 
 	@After
 	public void deleteOutputDirs() throws Exception {

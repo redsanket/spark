@@ -46,7 +46,7 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 	}
 
 	@Rule
-	TestName testName = new TestName();
+	public TestName testName = new TestName();
 	
 	@Before
 	public void copyTheFileOnHdfs() throws Exception {

@@ -106,6 +106,7 @@ public class HtfTezUtils {
 		
 		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
+//		conf.set("hadoop.security.authentication", "simple");
 
 
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK

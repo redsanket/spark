@@ -53,7 +53,7 @@ public class TestFilterLinesByWordOneToOne extends
 		 * [-generateSplitsInClient true/<false>]
 		 */
 		String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
-				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, true,
@@ -69,7 +69,7 @@ public class TestFilterLinesByWordOneToOne extends
 		 * [-generateSplitsInClient true/<false>]
 		 */
 		String[] filterLinesByWordOneToOneArgs = new String[] { SOURCE_FILE,
-				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient true" };
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, false,
