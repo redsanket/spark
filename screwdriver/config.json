@@ -1,0 +1,12 @@
+{
+    "version": 2,
+    "shared": {
+        "notification_email": "htf-devel@yahoo-inc.com"
+    },
+    "jobs": {
+        "component": {
+            "test_results_type": "none",
+            "coverage_type": "none"
+        }
+    }
+}

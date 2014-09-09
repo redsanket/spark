@@ -31,10 +31,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestHdfsApi extends DfsTestsBaseClass {
 
@@ -102,6 +99,8 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		;
 		logger.info("Invoked test for:[" + cluster + "] Scheme:[" + schema
 				+ "] NodeName:[" + nameNode + "]");
+		
+		getVersions();
 	}
 	
 	/*
@@ -153,8 +152,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		versionStore = new HashMap<String, String>();
 	}
 
-	@Before
-	public void getVersions() {
+	private void getVersions() {
 		ResourceManagerHttpUtils rmUtils = new ResourceManagerHttpUtils();
 		if (versionStore.containsKey(this.localCluster)) {
 			// Do not make an unnecessary call to get the version, if you've
