@@ -68,10 +68,23 @@ mkmapredhdfs() {
    tar zcf ./hadoopmapreduceonhdfs-${VERSION}.tgz *
 }
 
+mkhdfslink() {
+    YROOTDIR=$1
+    LINKPATH=$2
+    LINKDEST=$3
+    hadoopclasspath=`${YROOTDIR}/share/hadoop/bin/hadoop classpath`
+    toolsclasspath="${YROOTDIR}/share/hadoop/share/hadoop/tools/lib/*"
+    $JAVA_HOME/bin/java -cp "${hadoopclasspath}:${toolsclasspath}" org.apache.hadoop.tools.SymlinkTool mklink ${LINKDEST} ${LINKPATH}
+}
+
 # echo "Part 3: beginning."
 if [ $CMD == "start" ]; then
-namenode=`hostname`
-hadoopversion=`${yroothome}/share/hadoop/bin/hadoop version | sed -n 1p | sed -e 's/Hadoop //' `
+
+    echo "${HADOOP_HDFS_HOME}/bin/hdfs dfsadmin -finalizeUpgrade"
+    ${HADOOP_HDFS_HOME}/bin/hdfs dfsadmin -finalizeUpgrade
+    
+    namenode=`hostname`
+    hadoopversion=`${yroothome}/share/hadoop/bin/hadoop version | sed -n 1p | sed -e 's/Hadoop //' `
 
     shortname=`expr  $namenode : '(' '\([^\.]*\)\..*$' ')'`
     echo name=$namenode shortname=$shortname
@@ -100,38 +113,59 @@ hadoopversion=`${yroothome}/share/hadoop/bin/hadoop version | sed -n 1p | sed -e
 
     if [ "$ERASEENABLED" = true ]
     then
-  echo ============ starting hdfs janitorial services...
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem  /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs /sharelib/v1/mapred/ /sharelib/v1/tez
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapredsystem 
-  echo ============ chown of /mapredsystem/hadoop to user ${MAPREDUSER}
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate
-  echo ============ continuing with hdfs janitorial services...
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapredsystem
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapred 
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapred
-        $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /sharelib
-        $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /sharelib
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/history/done_intermediate
+	echo ============ starting hdfs janitorial services...
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem  /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapredsystem 
+	echo ============ chown of /mapredsystem/hadoop to user ${MAPREDUSER}
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate
+	echo ============ continuing with hdfs janitorial services...
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapredsystem
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapred 
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapred
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/history/done_intermediate
         $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/logs
-  echo ============ almost done with hdfs janitorial services...
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/history
+	echo ============ almost done with hdfs janitorial services...
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/history
         $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/logs
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /data
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /data
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /tmp
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /tmp
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /user/
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
-  $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /data
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /data
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /tmp
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /tmp
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /user/
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
+
+    fi 
+
+    # can't write to sharelib if in safemode
+    echo "waiting to exit safe mode"
+    $HADOOP_COMMON_HOME/bin/hdfs dfsadmin -safemode wait
 
     echo =========== Installing mapreduceonhdfs...
+    # If upgrading from Hadoop 0.23 will need to make these dirs 
+    $HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /sharelib/v1/mapred/
+    $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /sharelib
+    $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /sharelib
 
     mkmapredhdfs ${yroothome} ${hadoopversion}
-    $HADOOP_HDFS_HOME/bin/hdfs  dfs -put /tmp/mapredhdfs/hadoopmapreduceonhdfs-${hadoopversion}.tgz /sharelib/v1/mapred
-    $HADOOP_HDFS_HOME/bin/hadoop fs -setrep 50 /sharelib/v1/mapred/hadoopmapreduceonhdfs-${hadoopversion}.tgz
-    $HADOOP_HDFS_HOME/bin/hadoop fs -chmod 444 /sharelib/v1/mapred/hadoopmapreduceonhdfs-${hadoopversion}.tgz
-    fi 
+    mapredhdfsbasename="hadoopmapreduceonhdfs-${hadoopversion}.tgz"
+    mapredhdfsdir="/sharelib/v1/mapred"
+    mapredhdfspath="${mapredhdfsdir}/${mapredhdfsbasename}"
+    $HADOOP_HDFS_HOME/bin/hdfs  dfs -put /tmp/mapredhdfs/hadoopmapreduceonhdfs-${hadoopversion}.tgz ${mapredhdfspath}
+    $HADOOP_HDFS_HOME/bin/hadoop fs -setrep 50 "${mapredhdfspath}"
+    $HADOOP_HDFS_HOME/bin/hadoop fs -chmod 444 "${mapredhdfspath}"
+
+    # create a current symlink to the mapreduceonhdfs tarball
+    # for 2.5.1 and later releases
+    hadoopversionxyz=`echo ${hadoopversion} | cut -d. -f1-3`
+    if [ "${hadoopversionxyz}" != "2.5.0" ]
+    then
+	hadoopversionxy=`echo ${hadoopversion} | cut -d. -f1-2`
+	linkpath="${mapredhdfsdir}/hadoopmapreduceonhdfs-${hadoopversionxy}-current.tgz"
+	echo "=========== Creating symlink ${linkpath} -> ${mapredhdfsbasename}..."
+	mkhdfslink "${yroothome}" "${linkpath}" "${mapredhdfsbasename}"
+    fi
 elif [ $CMD == "stop" ]; then 
     echo "Part 3: the stop is part of part 2; there is no part 3 for stop.."
 else
