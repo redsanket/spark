@@ -87,7 +87,7 @@ public class HtfTezUtils {
 			try {
 				// TODO: Remove this commented method once Amit has been added
 				// to OpsDb role grid_re
-//				 applyTezSettingsToAllHosts();
+				// applyTezSettingsToAllHosts();
 			} catch (Exception e) {
 				e.printStackTrace();
 				TestSession.logger
@@ -103,11 +103,17 @@ public class HtfTezUtils {
 		} else {
 			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
 		}
-		
+
 		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
-//		conf.set("hadoop.security.authentication", "simple");
+		// conf.set("hadoop.security.authentication", "simple");
+		/**
+		 * Int value. Time (in seconds) for which the Tez AM should wait for a
+		 * DAG to be submitted before shutting down. Only relevant in session
+		 * mode.
+		 */
 
+		conf.setInt(TezConfiguration.TEZ_SESSION_AM_DAG_SUBMIT_TIMEOUT_SECS, 30);
 
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
 		// ALERT HACK ALERT
@@ -118,8 +124,7 @@ public class HtfTezUtils {
 		// ALERT HACK ALERT
 		conf.set(
 				"tez.lib.uris",
-				"${fs.defaultFS}/sharelib/v1/tez/ytez-"
-						+ tezVersion
+				"${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
 						+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
 						+ tezVersion + "/libexec/tez/lib,"
 						+ "file:///home/gs/gridre/yroot."
@@ -200,10 +205,10 @@ public class HtfTezUtils {
 						 * use tez. All tez jobs (pig on tez and tez map reduce
 						 * examples) do this automatically.
 						 */
-						 fullyDistributedCluster.getConf(aTezComponentType)
-						 .setHadoopConfFileProp(
-						 "mapreduce.framework.name", "yarn-tez",
-						 "mapred-site.xml", null);
+						fullyDistributedCluster.getConf(aTezComponentType)
+								.setHadoopConfFileProp(
+										"mapreduce.framework.name", "yarn-tez",
+										"mapred-site.xml", null);
 
 						fullyDistributedCluster.getConf(aTezComponentType)
 								.setHadoopConfFileProp(

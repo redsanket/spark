@@ -117,6 +117,7 @@ public class JoinDataGenExtendedForTezHTF extends
 
 	    tezClient.waitTillReady();
 	    DAGClient dagClient = tezClient.submitDAG(dag);
+	    
 	    DAGStatus dagStatus = dagClient.waitForCompletionWithStatusUpdates(null);
 	    if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
 	      TestSession.logger.info("DAG diagnostics: " + dagStatus.getDiagnostics());

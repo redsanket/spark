@@ -88,6 +88,14 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
 				SkipTrash.YES, OUTPUT_DIR);
+		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA, "",
+				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
+				SkipTrash.YES, TEMP_OUT_1);
+		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA, "",
+				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
+				SkipTrash.YES, TEMP_OUT_2);
 
 	}
 
