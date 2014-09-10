@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -54,10 +55,11 @@ public class TestFilterLinesByWordOneToOne extends
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), SOURCE_FILE, INPUT_FILE);
-//		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 	}
 
+
+	@Ignore("until TEZ-1406 is fixed")
 	@Test
 	public void testFilterLinesByWordWithClientSplitsRunOnClusterWithSession()
 			throws Exception {
@@ -74,6 +76,7 @@ public class TestFilterLinesByWordOneToOne extends
 		Assert.assertTrue(returnCode == 0);
 	}
 
+	@Ignore("until TEZ-1406 is fixed")
 	@Test
 	public void testFilterLinesByWordWithClientSplitsRunOnClusterWithoutSession()
 			throws Exception {
@@ -98,7 +101,7 @@ public class TestFilterLinesByWordOneToOne extends
 		 * [-generateSplitsInClient true/<false>]
 		 */
 		String[] filterLinesByWordOneToOneArgs = new String[] { INPUT_FILE,
-				OUTPUT_LOCATION, "lionking" };
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "false" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, true,
@@ -114,7 +117,7 @@ public class TestFilterLinesByWordOneToOne extends
 		 * [-generateSplitsInClient true/<false>]
 		 */
 		String[] filterLinesByWordOneToOneArgs = new String[] { INPUT_FILE,
-				OUTPUT_LOCATION, "lionking" };
+				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "false" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, false,
