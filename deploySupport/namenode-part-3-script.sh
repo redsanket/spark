@@ -136,6 +136,11 @@ if [ $CMD == "start" ]; then
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
 
+	RMSTORE="/mapred/rmstore"
+	echo "============ creating resourcemanager state store at $RMSTORE"
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p "$RMSTORE"
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown ${MAPREDUSER}:hadoop "$RMSTORE"
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 700 "$RMSTORE"
     fi 
 
     # can't write to sharelib if in safemode
