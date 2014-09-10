@@ -114,7 +114,7 @@ if [ $CMD == "start" ]; then
     if [ "$ERASEENABLED" = true ]
     then
 	echo ============ starting hdfs janitorial services...
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs /mapred/rmstore
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapredsystem  /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate /mapred/logs
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapredsystem 
 	echo ============ chown of /mapredsystem/hadoop to user ${MAPREDUSER}
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapredsystem/hadoop /mapred/history/done /jobtracker /mapred/history/done_intermediate
@@ -122,7 +122,6 @@ if [ $CMD == "start" ]; then
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapredsystem
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapred 
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapred
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 700 /mapred/rmstore
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/history/done_intermediate
         $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/logs
 	echo ============ almost done with hdfs janitorial services...
