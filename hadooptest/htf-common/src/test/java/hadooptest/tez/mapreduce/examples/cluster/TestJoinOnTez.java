@@ -1,8 +1,10 @@
 package hadooptest.tez.mapreduce.examples.cluster;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
@@ -16,12 +18,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * This test class is there to check for backward compatibility, to ensure that
  * legacy MR jobs continue to run on Tez, with the framework set to yarn-tez
  * 
  */
+@Category(SerialTests.class)
 public class TestJoinOnTez extends TestSession {
 	private static String CANNED_DATA1 = "/home/y/share/htf-data/pig_methods_dataset1";
 	private static String CANNED_DATA1_ON_HDFS = "/tmp/pig_methods_dataset1";
@@ -38,14 +42,29 @@ public class TestJoinOnTez extends TestSession {
 	@Before
 	public void copyDataToHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		GenericCliResponseBO genericCliResponse;
+		genericCliResponse = dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), CANNED_DATA1,
 				CANNED_DATA1_ON_HDFS);
-		dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		genericCliResponse.process.waitFor();
+		genericCliResponse = dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), CANNED_DATA2,
 				CANNED_DATA2_ON_HDFS);
+		genericCliResponse.process.waitFor();
+		dfsCliCommands.chmod(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.HDFS,
+				System.getProperty("CLUSTER_NAME"),
+				CANNED_DATA1_ON_HDFS, "777", Recursive.NO);
+		dfsCliCommands.chmod(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.HDFS,
+				System.getProperty("CLUSTER_NAME"),
+				CANNED_DATA2_ON_HDFS, "777", Recursive.NO);
+
+
 
 	}
 
@@ -243,4 +262,10 @@ public class TestJoinOnTez extends TestSession {
 
 
 	}
+	
+
+	public void logTaskReportSummary(){
+		//Override
+	}
+
 }

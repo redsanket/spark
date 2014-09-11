@@ -1,14 +1,10 @@
 package hadooptest.tez.mapreduce.examples.cluster;
 
-import hadooptest.TestSession;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.RunningJob;
-import org.apache.hadoop.mapreduce.Cluster;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.junit.After;
@@ -19,7 +15,7 @@ import org.junit.Test;
  * legacy MR jobs continue to run on Tez, with the framework set to yarn-tez
  * 
  */
-public class TestKillJobsOnTez extends TestSession {
+public class TestKillJobsOnTez {
 
 	@Test
 	public void testKillAllTezJobs() throws Exception {

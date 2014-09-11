@@ -46,7 +46,7 @@ public class TestRandomWriterOnTez extends TestSession {
 	 */
 	public static String OUT_DIR = "/tmp/randomWriter/tez/out/";	
 	@Test
-	public void testRandonmWriter() throws Exception{
+	public void testRandomWriter() throws Exception{
 		RandomWriter randomWriter = new RandomWriter();
 		Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), HadooptestConstants.Execution.TEZ_CLUSTER, false, "n/a");
 		conf.setInt("mapreduce.randomwriter.totalbytes", 10240);
