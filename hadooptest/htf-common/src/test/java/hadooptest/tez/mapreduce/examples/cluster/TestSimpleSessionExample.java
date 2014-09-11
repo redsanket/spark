@@ -38,14 +38,34 @@ import org.junit.rules.TestName;
 @Category(SerialTests.class)
 public class TestSimpleSessionExample extends
 		SimpleSessionExampleExtendedForTezHTF {
-	public static String INPUT_PATH_ON_HDFS = "/home/y/share/htf-data/";
-	public static String INPUT_FILE_1 = INPUT_PATH_ON_HDFS + "pig_methods_dataset1";
-	public static String INPUT_FILE_2 = INPUT_PATH_ON_HDFS + "pig_methods_dataset1";
-	public static String INPUT_FILE_3 = INPUT_PATH_ON_HDFS + "/excite-small.log";
-	public static String OUTPUT_PATH_ON_HDFS ="/tmp/simplesession/out/";
+	public static String INPUT_PATH_ON_LOCAL_FS = "/home/y/share/htf-data/";
+	public static String INPUT_FILE_1_ON_LOCAL_FS = INPUT_PATH_ON_LOCAL_FS
+			+ "pig_methods_dataset1";
+	public static String INPUT_FILE_2_ON_LOCAL_FS = INPUT_PATH_ON_LOCAL_FS
+			+ "pig_methods_dataset1";
+	public static String INPUT_FILE_3_ON_LOCAL_FS = INPUT_PATH_ON_LOCAL_FS
+			+ "/excite-small.log";
+	public static String BASEDIR_ON_HDFS = "/input/";
+	public static String INPUT_PATH_ON_HDFS = BASEDIR_ON_HDFS
+			+ "path/on/hdfs/htf-data/";
+	public static String INPUT_FILE_1_ON_HDFS = INPUT_PATH_ON_HDFS
+			+ "pig_methods_dataset1";
+	public static String INPUT_FILE_2_ON_HDFS = INPUT_PATH_ON_HDFS
+			+ "pig_methods_dataset1";
+	public static String INPUT_FILE_3_ON_HDFS = INPUT_PATH_ON_HDFS
+			+ "/excite-small.log";
+
+	public static String OUTPUT_PATH_ON_HDFS = "/tmp/simplesession/out/";
 	public static String OUT_PATH_1 = OUTPUT_PATH_ON_HDFS + "1";
 	public static String OUT_PATH_2 = OUTPUT_PATH_ON_HDFS + "2";
 	public static String OUT_PATH_3 = OUTPUT_PATH_ON_HDFS + "3";
+
+	String[] inputFilesOnLocalFs = new String[] { INPUT_FILE_1_ON_LOCAL_FS,
+			INPUT_FILE_2_ON_LOCAL_FS, INPUT_FILE_3_ON_LOCAL_FS };
+	String[] inputFilesOnHdfs = new String[] { INPUT_FILE_1_ON_HDFS,
+			INPUT_FILE_2_ON_HDFS, INPUT_FILE_3_ON_HDFS };
+	String[] outputPathsOnHdfs = new String[] { OUT_PATH_1, OUT_PATH_2,
+			OUT_PATH_3 };
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -66,39 +86,35 @@ public class TestSimpleSessionExample extends
 				HadooptestConstants.Schema.HDFS,
 				System.getProperty("CLUSTER_NAME"), INPUT_PATH_ON_HDFS, "777",
 				Recursive.YES);
-
-		String[] inputFiles = new String[] { INPUT_FILE_1, INPUT_FILE_2,
-				INPUT_FILE_3 };
-		for (String inputFile : inputFiles) {
-			GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
+		GenericCliResponseBO genericCliResponse;
+		for (int xx = 0; xx < inputFilesOnLocalFs.length; xx++) {
+			genericCliResponse = dfsCliCommands.put(
 					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, "",
-					System.getProperty("CLUSTER_NAME"), inputFile, inputFile);
+					System.getProperty("CLUSTER_NAME"),
+					inputFilesOnLocalFs[xx], inputFilesOnHdfs[xx]);
 
-			genericCliResponse = dfsCliCommands.chmod(
-					new HashMap<String, String>(),
-					HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.HDFS,
-					System.getProperty("CLUSTER_NAME"), inputFile, "777",
-					Recursive.NO);
-			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 		}
+		genericCliResponse = dfsCliCommands.chmod(
+				new HashMap<String, String>(),
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.HDFS,
+				System.getProperty("CLUSTER_NAME"), BASEDIR_ON_HDFS, "777",
+				Recursive.YES);
+		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 	}
 
 	@Test
 	public void testSimpleSessionExampleOnCluster() throws Exception {
 
-		boolean returnCode = run(new String[] { INPUT_FILE_1, INPUT_FILE_2,
-				INPUT_FILE_3 }, new String[] { OUT_PATH_1, OUT_PATH_2,
-				OUT_PATH_3 }, HtfTezUtils.setupConfForTez(
-				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-				testName.getMethodName()), 2);
+		boolean returnCode = run(inputFilesOnHdfs, outputPathsOnHdfs,
+				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
+						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
+						testName.getMethodName()), 2);
 
 		Assert.assertTrue(returnCode);
 	}
-
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {
