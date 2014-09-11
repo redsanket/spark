@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
@@ -25,7 +26,7 @@ import org.junit.Test;
  *
  */
 public class TestMapredWordCountOnTez extends TestSession {
-	public static String RANDOM_TEXT_WRITTEN_TO_HDFS_HERE = "/tmp/mapredWordCount/tez/out/";
+	public static String RANDOM_TEXT_WRITTEN_TO_HDFS_HERE = "/tmp/random/text/writted/to/hdfs/here";
 	public static String OUT_DIR = "/tmp/mapredWordCount/tez/out/";
 	@Before
 	public void generateData() throws Exception{
@@ -46,6 +47,7 @@ public class TestMapredWordCountOnTez extends TestSession {
 	public void testRandonmWriter() throws Exception{
 		MapredWordCount mapredWordCount = new MapredWordCount();
 		String[] args = new String[]{"-m", "2","-r", "2", RANDOM_TEXT_WRITTEN_TO_HDFS_HERE, OUT_DIR};
+		mapredWordCount.setConf(HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), HadooptestConstants.Execution.TEZ_CLUSTER, false, "n/a"));
 		int returnCode = mapredWordCount.run(args);
 		Assert.assertEquals(returnCode, 0);
 	}
