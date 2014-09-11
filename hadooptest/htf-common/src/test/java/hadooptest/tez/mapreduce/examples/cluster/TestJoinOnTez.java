@@ -245,20 +245,23 @@ public class TestJoinOnTez extends TestSession {
 	@After
 	public void deleteCreatedDir() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse;
 		
-		
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		genericCliResponse = dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
 				SkipTrash.YES, OUT_DIR_INNER_JOIN);
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		genericCliResponse.process.waitFor();
+		genericCliResponse = dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
 				SkipTrash.YES, OUT_DIR_OUTER_JOIN);
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		genericCliResponse.process.waitFor();
+		genericCliResponse = dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
 				SkipTrash.YES, OUT_DIR_OVERRIDE_JOIN);
+		genericCliResponse.process.waitFor();
 
 
 	}
