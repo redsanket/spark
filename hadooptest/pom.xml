@@ -40,7 +40,7 @@
 		<hadoop.version>${hadoop.version.current}</hadoop.version>
 		<spark.version>1.1.0.0</spark.version>
 		<spark.hadoop.version>2.5.0.1.1408041624</spark.hadoop.version>
-		<spark.version.full>1.1.0.0_2.5.0.1.1408041624_1409110422</spark.version.full>
+		<spark.version.full>1.1.0.0_2.5.0.1.1408041624_1409112101</spark.version.full>
 		<scala.version>2.10.3</scala.version>
 		<storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
 		<storm.version.community>0.9.2-incubating-security</storm.version.community>

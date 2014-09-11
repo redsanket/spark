@@ -23,7 +23,7 @@ fi
 # yspark_yarn
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch" ]
 then
-   /usr/local/bin/yinst fetch yspark_yarn-1.1.0.0_2.5.0.1.1408041624_1409110422 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+   /usr/local/bin/yinst fetch yspark_yarn-1.1.0.0_2.5.0.1.1408041624_1409112101 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
 fi
