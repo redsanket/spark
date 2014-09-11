@@ -40,6 +40,10 @@ import org.junit.Assert;
 public class HtfTezUtils {
 
 	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
+	public static enum Session{
+		YES,
+		NO
+	};
 
 	/**
 	 * Tez supports two modes 'local' and 'cluster'. This flip is controlled via
@@ -52,7 +56,7 @@ public class HtfTezUtils {
 	 * @throws InterruptedException
 	 */
 	public static Configuration setupConfForTez(Configuration conf,
-			String mode, boolean useSession, String testName)
+			String mode, Session useSession, String testName)
 			throws IOException, InterruptedException {
 		// Tez version
 		String tezVersion = getTezVersion();
@@ -80,6 +84,7 @@ public class HtfTezUtils {
 					+ Long.toString(System.currentTimeMillis());
 
 			conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
+			conf.set("hadoop.security.authentication", "simple");
 
 		} else {
 			// Cluster mode
@@ -98,7 +103,7 @@ public class HtfTezUtils {
 		}
 
 		// Consider using a session
-		if (useSession) {
+		if (useSession == Session.YES) {
 			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
 		} else {
 			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
@@ -106,7 +111,7 @@ public class HtfTezUtils {
 
 		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
-		// conf.set("hadoop.security.authentication", "simple");
+
 		/**
 		 * Int value. Time (in seconds) for which the Tez AM should wait for a
 		 * DAG to be submitted before shutting down. Only relevant in session

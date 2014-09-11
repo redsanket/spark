@@ -11,10 +11,12 @@ import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
+import hadooptest.tez.mapreduce.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.mapreduce.examples.extensions.UnionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 
+import org.apache.hadoop.conf.Configuration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,13 +36,16 @@ import org.junit.rules.TestName;
  * 
  */
 @Category(SerialTests.class)
-public class TestUnionExample extends UnionExampleExtendedForTezHTF {
-	public static String JUST_THE_FILE_NAME = "pig_methods_dataset1";
-	public static String SOURCE_FILE = "/home/y/share/htf-data/"
-			+ JUST_THE_FILE_NAME;
-	public static String HDFS_DIR_LOC = "/tmp/";
-	public static String INPUT_FILE = "/tmp/union-input-file";
-	public static String OUTPUT_LOCATION = "/tmp/union-output";
+public class TestSimpleSessionExample extends
+		SimpleSessionExampleExtendedForTezHTF {
+	public static String INPUT_PATH_ON_HDFS = "/home/y/share/htf-data/";
+	public static String INPUT_FILE_1 = INPUT_PATH_ON_HDFS + "pig_methods_dataset1";
+	public static String INPUT_FILE_2 = INPUT_PATH_ON_HDFS + "pig_methods_dataset1";
+	public static String INPUT_FILE_3 = INPUT_PATH_ON_HDFS + "/excite-small.log";
+	public static String OUTPUT_PATH_ON_HDFS ="/tmp/simplesession/out/";
+	public static String OUT_PATH_1 = OUTPUT_PATH_ON_HDFS + "1";
+	public static String OUT_PATH_2 = OUTPUT_PATH_ON_HDFS + "2";
+	public static String OUT_PATH_3 = OUTPUT_PATH_ON_HDFS + "3";
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -53,72 +58,47 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 	@Before
 	public void copyTheFileOnHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-
-		GenericCliResponseBO quickCheck = dfsCliCommands.test(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), INPUT_FILE,
-				DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+				System.getProperty("CLUSTER_NAME"), INPUT_PATH_ON_HDFS);
+		dfsCliCommands.chmod(new HashMap<String, String>(),
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.HDFS,
+				System.getProperty("CLUSTER_NAME"), INPUT_PATH_ON_HDFS, "777",
+				Recursive.YES);
 
-		if (quickCheck.process.exitValue() == 0) {
-			// File exists
-		} else {
-			GenericCliResponseBO dirCheck = dfsCliCommands.test(
+		String[] inputFiles = new String[] { INPUT_FILE_1, INPUT_FILE_2,
+				INPUT_FILE_3 };
+		for (String inputFile : inputFiles) {
+			GenericCliResponseBO genericCliResponse = dfsCliCommands.put(
 					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, "",
-					System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC,
-					DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
+					System.getProperty("CLUSTER_NAME"), inputFile, inputFile);
 
-			if (dirCheck.process.exitValue() != 0) {
-				// File does not exist
-				dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-						HadooptestConstants.UserNames.HDFSQA, "",
-						System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC);
-				dfsCliCommands.chmod(new HashMap<String, String>(),
-						HadooptestConstants.UserNames.HDFSQA,
-						HadooptestConstants.Schema.HDFS,
-						System.getProperty("CLUSTER_NAME"), HDFS_DIR_LOC,
-						"777", Recursive.YES);
-
-			}
-
-			GenericCliResponseBO genericCliResponse = dfsCliCommands
-					.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-							HadooptestConstants.UserNames.HADOOPQA, "",
-							System.getProperty("CLUSTER_NAME"), SOURCE_FILE,
-							INPUT_FILE);
-			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 			genericCliResponse = dfsCliCommands.chmod(
 					new HashMap<String, String>(),
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.HDFS,
-					System.getProperty("CLUSTER_NAME"), INPUT_FILE, "777",
-					Recursive.YES);
+					System.getProperty("CLUSTER_NAME"), inputFile, "777",
+					Recursive.NO);
 			Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
-
 		}
 
 	}
 
 	@Test
-	public void testUnionExampleOnClusterWithSession() throws Exception {
+	public void testSimpleSessionExampleOnCluster() throws Exception {
 
-		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
-				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-						testName.getMethodName()));
+		boolean returnCode = run(new String[] { INPUT_FILE_1, INPUT_FILE_2,
+				INPUT_FILE_3 }, new String[] { OUT_PATH_1, OUT_PATH_2,
+				OUT_PATH_3 }, HtfTezUtils.setupConfForTez(
+				TestSession.cluster.getConf(),
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
+				testName.getMethodName()), 2);
+
 		Assert.assertTrue(returnCode);
 	}
 
-	@Test
-	public void testUnionExampleOnClusterWithoutSession() throws Exception {
-
-		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
-				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-						testName.getMethodName()));
-		Assert.assertTrue(returnCode);
-	}
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {
@@ -126,11 +106,12 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, INPUT_FILE);
+				SkipTrash.YES, INPUT_PATH_ON_HDFS);
+
 		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, OUTPUT_LOCATION);
+				SkipTrash.YES, OUTPUT_PATH_ON_HDFS);
 
 	}
 

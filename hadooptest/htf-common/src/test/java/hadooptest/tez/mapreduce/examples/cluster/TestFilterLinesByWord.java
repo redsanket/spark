@@ -13,6 +13,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -110,7 +111,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -125,7 +126,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -140,7 +141,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -155,7 +156,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

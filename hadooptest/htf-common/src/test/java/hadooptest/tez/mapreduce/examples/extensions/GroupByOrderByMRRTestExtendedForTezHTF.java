@@ -2,6 +2,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -62,7 +63,7 @@ public class GroupByOrderByMRRTestExtendedForTezHTF extends
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] args, String mode, boolean session, String testName) throws Exception {
+	public int run(String[] args, String mode, Session session, String testName) throws Exception {
 	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, testName);
 
 	    // Configure intermediate reduces

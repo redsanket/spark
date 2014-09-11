@@ -10,6 +10,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.JoinDataGenExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 				OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, true,
+						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
 						testName.getMethodName()));
 		int returnCode = run(tezConf, args, createTezClient(tezConf));
 		Assert.assertTrue(returnCode == 0);
@@ -68,7 +69,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 				OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, false,
+						HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
 						testName.getMethodName()));
 		int returnCode = run(tezConf, args, createTezClient(tezConf));
 		Assert.assertTrue(returnCode == 0);

@@ -2,6 +2,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -53,7 +54,7 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	 * @throws Exception
 	 */
 
-	public int run(String[] args, String mode, boolean session, String testName) throws Exception {
+	public int run(String[] args, String mode, Session session, String testName) throws Exception {
 
 	    if(args.length < 1) {
 	      System.err.println("MRRSleepJob [-m numMapper] [-r numReducer]" +

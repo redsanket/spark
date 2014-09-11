@@ -1,6 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -46,7 +47,7 @@ import org.apache.tez.runtime.library.partitioner.HashPartitioner;
 public class UnionExampleExtendedForTezHTF extends UnionExample {
 	
 	public boolean run(String inputPath, String outputPath, Configuration conf,
-			String mode, boolean session, String testName) throws Exception {	
+			String mode, Session session, String testName) throws Exception {	
 		System.out.println("Running UnionExample");
 																	
 		// conf and UGI

@@ -2,6 +2,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 	 * @throws Exception
 	 */
 
-	public int run(String[] args, String mode, boolean session, String testName)
+	public int run(String[] args, String mode, Session session, String testName)
 			throws Exception {
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(), mode, session, testName);

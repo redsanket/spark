@@ -10,6 +10,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -37,7 +38,7 @@ public class TestMRRSleepJobHTF extends MRRSleepJobExtendedForTezHTF {
 	}
 
 	@Rule
-	TestName testName = new TestName();
+	public TestName testName = new TestName();
 
 	@Test
 	public void testMrrSleepJobLocalModeWithSession() throws Exception {
@@ -53,7 +54,7 @@ public class TestMRRSleepJobHTF extends MRRSleepJobExtendedForTezHTF {
 		 * [-writeSplitsToDfs (false)/true]
 		 */
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -71,7 +72,7 @@ public class TestMRRSleepJobHTF extends MRRSleepJobExtendedForTezHTF {
 		 * [-writeSplitsToDfs (false)/true]
 		 */
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}

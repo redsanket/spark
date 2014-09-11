@@ -2,6 +2,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -95,7 +96,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] otherArgs, String mode, boolean session, String testName) throws Exception {
+	public int run(String[] otherArgs, String mode, Session session, String testName) throws Exception {
 	    boolean generateSplitsInClient = false;
 	    SplitsInClientOptionParser splitCmdLineParser = new SplitsInClientOptionParser();
 	    try {

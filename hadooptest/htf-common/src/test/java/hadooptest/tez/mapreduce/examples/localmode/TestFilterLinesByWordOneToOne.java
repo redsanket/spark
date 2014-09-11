@@ -12,6 +12,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordOneToOneExtendedForHTF;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -43,7 +44,7 @@ public class TestFilterLinesByWordOneToOne extends
 	}
 
 	@Rule
-	TestName testName = new TestName();
+	public TestName testName = new TestName();
 
 	@Test
 	public void testFilterLinesByWordWithClientSplitsRunOnLocalWithSession()
@@ -56,7 +57,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -72,7 +73,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -88,7 +89,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -104,7 +105,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}

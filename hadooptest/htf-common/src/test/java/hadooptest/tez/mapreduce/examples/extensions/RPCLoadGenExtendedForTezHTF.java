@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -50,7 +51,7 @@ public class RPCLoadGenExtendedForTezHTF extends RPCLoadGen {
 	 * @throws Exception
 	 */
 	public int run(TezConfiguration conf, String[] args,
-			@Nullable TezClient tezClient, String mode, boolean session, String testName) throws IOException,
+			@Nullable TezClient tezClient, String mode, Session session, String testName) throws IOException,
 			TezException, InterruptedException {
 		setConf(conf);
 		String[] otherArgs = new GenericOptionsParser(conf, args)
@@ -72,7 +73,7 @@ public class RPCLoadGenExtendedForTezHTF extends RPCLoadGen {
 	 * @throws InterruptedException
 	 */
 	private int _execute(String[] otherArgs, TezConfiguration tezConf,
-			TezClient tezClient, String mode, boolean session, String testName) throws IOException, TezException,
+			TezClient tezClient, String mode, Session session, String testName) throws IOException, TezException,
 			InterruptedException {
 
 		int result = _validateArgs(otherArgs);

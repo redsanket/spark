@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.OrderedWordCountExtendedForTez;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import java.io.File;
 
@@ -44,7 +45,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	public void testOrderedWordCountRunOnLocalWithSession() throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -53,7 +54,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	public void testOrderedWordCountRunOnLocalWithoutSession() throws Exception {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -64,7 +65,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 		String[] sleepJobArgs = new String[] { "-generateSplitsInClient",
 				INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -75,7 +76,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 		String[] sleepJobArgs = new String[] { "-generateSplitsInClient",
 				INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}

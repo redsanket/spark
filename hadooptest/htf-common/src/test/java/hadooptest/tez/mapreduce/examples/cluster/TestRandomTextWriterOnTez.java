@@ -9,6 +9,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.MRJobConfig;
@@ -63,7 +64,7 @@ public class TestRandomTextWriterOnTez extends TestSession {
 	@Test
 	public void testRandonmWriter() throws Exception{
 		RandomTextWriter randomTextWriter = new RandomTextWriter();
-		Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), HadooptestConstants.Execution.TEZ_CLUSTER, false, "n/a");
+		Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, "n/a");
 		conf.setInt("mapreduce.randomtextwriter.totalbytes", 10240);
 		conf.setInt(MRJobConfig.NUM_MAPS, 2);
 		

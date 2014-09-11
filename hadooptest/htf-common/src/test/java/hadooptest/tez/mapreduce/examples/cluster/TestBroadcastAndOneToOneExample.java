@@ -4,6 +4,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.BroadcastAndOneToOneExampleExtendedForTezHTF;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -39,7 +40,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnClusterWithSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -47,7 +48,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnClusterWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -55,7 +56,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnClusterWithSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_CLUSTER, true, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -63,7 +64,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnClusterWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_CLUSTER, false, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 	

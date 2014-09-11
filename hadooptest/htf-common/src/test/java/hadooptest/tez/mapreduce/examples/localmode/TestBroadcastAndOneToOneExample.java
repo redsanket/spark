@@ -4,6 +4,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.BroadcastAndOneToOneExampleExtendedForTezHTF;
+import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -37,7 +38,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnLocalWithSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -46,7 +47,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnLocalWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -55,7 +56,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnLocalWithSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_LOCAL, true,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -64,7 +65,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnLocalWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_LOCAL, false,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}

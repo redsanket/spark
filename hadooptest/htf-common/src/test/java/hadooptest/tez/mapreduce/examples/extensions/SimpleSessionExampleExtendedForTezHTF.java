@@ -1,13 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
-import hadooptest.TestSession;
-import hadooptest.tez.utils.HtfTezUtils;
-import hadooptest.tez.utils.HtfTezUtils.Session;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.ToolRunner;
-import org.apache.tez.dag.api.TezException;
-import org.apache.tez.mapreduce.examples.BroadcastAndOneToOneExample;
+import org.apache.tez.examples.SimpleSessionExample;
 
 /**
  * These classes ending in *ExtendedForTezHTF are intermediate classes, that
@@ -26,9 +20,8 @@ import org.apache.tez.mapreduce.examples.BroadcastAndOneToOneExample;
  * That would set up the local/cluster mode correctly.
  * 
  */
-public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
-		BroadcastAndOneToOneExample {
-	protected static String skipLocalityCheck = "-skipLocalityCheck";
+public class SimpleSessionExampleExtendedForTezHTF extends
+		SimpleSessionExample {
 
 	/**
 	 * Copy and paste the the code from the parent class's run method here.
@@ -37,38 +30,25 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 	 * example those contained inside a Processor, or that overriding the method
 	 * in the Tool class.
 	 * 
+	 * NOTE: In this case since the run method is accepting a conf object, it is in
+	 * out control to pass it as an argument from our test. This class is provided
+	 * for preserving the consistency of Test Design. 
+	 * 
 	 * @param args
 	 * @param mode
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] args, String mode, Session session, String testName) throws Exception {
-		boolean doLocalityCheck = true;
-		if (args.length == 1) {
-			if (args[0].equals(skipLocalityCheck)) {
-				doLocalityCheck = false;
-			} else {
-				printUsage();
-				throw new TezException("Invalid command line");
-			}
-		} else if (args.length > 1) {
-			printUsage();
-			throw new TezException("Invalid command line");
-		}
-
-		Configuration conf = TestSession.cluster.getConf();
-		conf = HtfTezUtils.setupConfForTez(conf, mode, session, testName);
-		boolean status = run(conf, doLocalityCheck);
-		return status ? 0 : 1;
-	}
-
+	  public boolean run(String[] inputPaths, String[] outputPaths, Configuration conf,
+		      int numPartitions) throws Exception {
+		  return super.run(inputPaths, outputPaths,conf, numPartitions);
+	  }
 	/**
 	 * Re-Provided here, because the corresponding method in the base class is
 	 * marked private.
 	 */
-	private static void printUsage() {
-		System.err.println("broadcastAndOneToOneExample " + skipLocalityCheck);
-		ToolRunner.printGenericCommandUsage(System.err);
-	}
+	  private static void printUsage() {
+		    System.err.println("Usage: " + " simplesessionexample <in1,in2> <out1, out2> [numPartitions]");
+		  }
 
 }
