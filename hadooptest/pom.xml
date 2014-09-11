@@ -38,9 +38,9 @@
 		<hadoop.version.ut.old>2.0.4.0.1304041432</hadoop.version.ut.old>
 		<hadoop.version.current>2.2.0</hadoop.version.current>
 		<hadoop.version>${hadoop.version.current}</hadoop.version>
-		<spark.version>1.0.1.1</spark.version>
-		<spark.hadoop.version>2.4.0.3.1405211906</spark.hadoop.version>
-		<spark.version.full>1.0.1.1_2.4.0.3.1405211906_1408130038</spark.version.full>
+		<spark.version>1.1.0.0</spark.version>
+		<spark.hadoop.version>2.5.0.1.1408041624</spark.hadoop.version>
+		<spark.version.full>1.1.0.0_2.5.0.1.1408041624_1409110422</spark.version.full>
 		<scala.version>2.10.3</scala.version>
 		<storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
 		<storm.version.community>0.9.2-incubating-security</storm.version.community>
@@ -1278,7 +1278,7 @@
 					<artifactId>yspark_yarn</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -1592,7 +1592,7 @@
 					<artifactId>yspark_yarn</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -1895,7 +1895,7 @@
 					<artifactId>yspark_yarn</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-${spark.version}/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
 
 			</dependencies>
