@@ -26,6 +26,7 @@ The options
         [ -s|--local_ws <source root dir>  ] : local source root directory
         [ -w|--remote_ws <workspace>       ] : remote workspace. Default remote workspace is 
                                                "/grid/0/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
+        [ -o|--resultsdir <results dir>    ] : test output results directory to copy to on calling host
         [ -h|--help                        ] : help
 
 Pass Through options
@@ -68,6 +69,7 @@ my $local_ws_ht;
 my ($remote_ws, $remote_ws_ht);
 my $username = getpwuid($<);
 my $remote_username = $username;
+my $test_results_dir;
 
 #
 # Command line options processing
@@ -82,6 +84,7 @@ GetOptions(\%options,
     "local_ws|s=s"         => \$local_ws_ht,
     "remote_ws|w=s"        => \$remote_ws,
     "user|u=s"             => \$remote_username,
+    "resultsdir|o=s"       => \$test_results_dir,
     "help|h|?"
     ) or usage(1);
 usage() if $options{help};
@@ -180,8 +183,10 @@ unless ($install_only) {
         execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
             if ( "clover" ~~ @ARGV );
 
+        $test_results_dir = "$local_ws_ht/target/" unless ($test_results_dir);
+        
         # COPY THE JACOCO CODE COVERAGE FILE BACK IF APPLICABLE
-        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
+        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/site $test_results_dir")
             if ( "jacoco" ~~ @ARGV );
     }
     else {
