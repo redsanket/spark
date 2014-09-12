@@ -165,9 +165,11 @@ unless ($install_only) {
         #########################
         execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
 
+        $test_results_dir = "$local_ws_ht/target/" unless ($test_results_dir);
+        
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
         execute("/bin/mkdir -p $local_ws_ht/target");
-        execute("scp -rp hadoopqa\@$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
+        execute("scp -rp hadoopqa\@$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $test_results_dir");
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
@@ -182,11 +184,9 @@ unless ($install_only) {
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
         execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
             if ( "clover" ~~ @ARGV );
-
-        $test_results_dir = "$local_ws_ht/target/" unless ($test_results_dir);
         
         # COPY THE JACOCO CODE COVERAGE FILE BACK IF APPLICABLE
-        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/site $test_results_dir")
+        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
             if ( "jacoco" ~~ @ARGV );
     }
     else {
