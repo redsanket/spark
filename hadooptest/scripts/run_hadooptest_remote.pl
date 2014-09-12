@@ -167,9 +167,14 @@ unless ($install_only) {
 
         $test_results_dir = "$local_ws_ht/target/" unless ($test_results_dir);
         
-        # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
-        execute("/bin/mkdir -p $local_ws_ht/target");
-        execute("scp -rp hadoopqa\@$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $test_results_dir");
+        # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY
+        if ($test_results_dir) {
+            execute("scp -rp hadoopqa\@$remote_host:$remote_ws_ht/htf-common/target/surefire-reports/*.xml $test_results_dir");
+        }
+        else {
+            execute("/bin/mkdir -p $local_ws_ht/target");
+            execute("scp -rp hadoopqa\@$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
+        }
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
