@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.tez.dag.api.TezConfiguration;
 import org.junit.Assert;
 
@@ -74,6 +75,7 @@ public class HtfTezUtils {
 
 		// Local mode settings
 		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+			TestSession.logger.info("So it is :" + System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
 			conf.set("fs.defaultFS", "file:///");
 			conf.setBoolean("tez.local.mode", true);
 			String user = UserGroupInformation.getCurrentUser()
@@ -85,6 +87,7 @@ public class HtfTezUtils {
 
 			conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 			conf.set("hadoop.security.authentication", "simple");
+			conf.setBoolean("tez.runtime.optimize.local.fetch", true);
 
 		} else {
 			// Cluster mode
