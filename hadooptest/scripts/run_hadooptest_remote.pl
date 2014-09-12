@@ -142,10 +142,10 @@ my $mvn = ($os eq 'linux') ? "/home/y/bin/mvn" : "/usr/bin/mvn";
 # INSTALL HADOOPTEST FRAMEWORK 
 execute("$mvn clean -f $local_ws_ht/pom.xml") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file_ht --exclude='target' -C $local_ws_ht .");
-execute("scp $tgz_dir/$tgz_file_ht $remote_host:$remote_ws_ht");
+execute("scp $tgz_dir/$tgz_file_ht hadoopqa\@$remote_host:$remote_ws_ht");
 execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
 execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
-execute("scp $local_ws_ht/target/*.jar $remote_host:$remote_ws_ht/target");
+execute("scp $local_ws_ht/target/*.jar hadoopqa\@$remote_host:$remote_ws_ht/target");
 execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
 
 execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
@@ -164,24 +164,24 @@ unless ($install_only) {
 
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
         execute("/bin/mkdir -p $local_ws_ht/target");
-        execute("scp -rp $remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
+        execute("scp -rp hadoopqa\@$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
-    	execute("scp -r $remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
+    	execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
 
         # LIST THE BUILD HOST TARGET DIR
         # execute("/usr/bin/tree $local_ws_ht/target/");
         execute("ls -lR $local_ws_ht/target/*");
 
         # COPY THE CLOVER CODE COVERAGE FILE BACK IF APPLICABLE
-        # execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
+        # execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
-        execute("scp -r $remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
+        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
             if ( "clover" ~~ @ARGV );
 
         # COPY THE JACOCO CODE COVERAGE FILE BACK IF APPLICABLE
-        execute("scp -r $remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
+        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
             if ( "jacoco" ~~ @ARGV );
     }
     else {
