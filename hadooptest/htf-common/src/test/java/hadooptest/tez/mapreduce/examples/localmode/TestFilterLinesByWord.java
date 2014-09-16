@@ -14,6 +14,7 @@ import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedFor
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -107,7 +108,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 
 	@After
 	public void deleteOutputDirs() throws Exception {
-		HtfTezUtils.delete(new File(OUTPUT_LOCATION));
+		FileUtils.deleteQuietly(new File(OUTPUT_LOCATION));
 	}
 
 }

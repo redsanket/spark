@@ -10,6 +10,7 @@ import hadooptest.tez.utils.HtfTezUtils.Session;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.tez.client.TezClient;
 import org.apache.tez.dag.api.TezConfiguration;
@@ -107,9 +108,9 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 
 	@After
 	public void deleteOutputDirs() throws Exception {
-		HtfTezUtils.delete(new File(OUTPUT_DIR));
-		HtfTezUtils.delete(new File(TEMP_OUT_1));
-		HtfTezUtils.delete(new File(TEMP_OUT_2));
+		FileUtils.deleteQuietly(new File(OUTPUT_DIR));
+		FileUtils.deleteQuietly(new File(TEMP_OUT_1));
+		FileUtils.deleteQuietly(new File(TEMP_OUT_2));
 	}
 
 }

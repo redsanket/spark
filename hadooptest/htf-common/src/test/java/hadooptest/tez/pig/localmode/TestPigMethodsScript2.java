@@ -5,6 +5,7 @@ import hadooptest.tez.utils.HtfTezUtils;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class TestPigMethodsScript2 extends HtfPigBaseClass {
 
 	@After
 	public void deleteOutputDirInHdfs() throws Exception {
-		HtfTezUtils.delete(new File(OUTPUT_NAME));
+		FileUtils.deleteQuietly(new File(OUTPUT_NAME));
 
 	}
 }

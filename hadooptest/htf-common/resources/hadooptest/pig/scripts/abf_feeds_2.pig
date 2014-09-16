@@ -115,8 +115,8 @@ store NewsGroupJoin into '$protocol://$namenode/HTF/output/abf_feeds_2_$protocol
 PageNonpageJoinFirst = join out by calendar_day, out2 by calendar_day;
 store PageNonpageJoinFirst into '$protocol://$namenode/HTF/output/abf_feeds_2_$protocol/PageNonpageJoinFirst';
 
-PageNonpageJoinSecond = join out1 by calendar_day, out3 by calendar_day;
-store PageNonpageJoinSecond into '$protocol://$namenode/HTF/output/abf_feeds_2_$protocol/PageNonpageJoinSecond';
+--PageNonpageJoinSecond = join out1 by calendar_day, out3 by calendar_day;
+--store PageNonpageJoinSecond into '$protocol://$namenode/HTF/output/abf_feeds_2_$protocol/PageNonpageJoinSecond';
 
 --PageNonpageGroup = group PageNonpageJoin by region;
 --store PageNonpageGroup into '$protocol://$namenode/HTF/output/abf_feeds_2_$protocol/PageNonpageGroup';

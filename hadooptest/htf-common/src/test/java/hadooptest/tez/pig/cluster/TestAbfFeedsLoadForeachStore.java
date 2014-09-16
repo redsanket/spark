@@ -28,7 +28,7 @@ public class TestAbfFeedsLoadForeachStore extends HtfPigBaseClass {
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	@Ignore("For now")
+
 	@Test
 	public void testPigOnTezClusterWebHdfs() throws Exception {
 		HadoopNode hadoopNode = TestSession.cluster

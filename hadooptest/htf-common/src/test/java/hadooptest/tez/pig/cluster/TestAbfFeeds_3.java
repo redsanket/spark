@@ -16,8 +16,9 @@ import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.utils.HtfPigBaseClass;
 
 public class TestAbfFeeds_3 extends HtfPigBaseClass {
-	private static String SCRIPT_NAME = "abf_feeds_3_hdfs.pig";
+	private static String SCRIPT_NAME = "abf_feeds_3.pig";
 
+	@Ignore("Ignore hdfs for now, takes > 1 hour to run")
 	@Test
 	public void testPigOnTezClusterHdfs() throws Exception {
 		HadoopNode hadoopNode = TestSession.cluster
@@ -28,7 +29,7 @@ public class TestAbfFeeds_3 extends HtfPigBaseClass {
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	@Ignore("For now")
+	@Ignore("Ignore webhdfs for now, takes > 1 hour to run")
 	@Test
 	public void testPigOnTezClusterWebHdfs() throws Exception {
 		HadoopNode hadoopNode = TestSession.cluster

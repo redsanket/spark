@@ -14,6 +14,7 @@ import hadooptest.tez.mapreduce.examples.extensions.GroupByOrderByMRRTestExtende
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -83,7 +84,7 @@ public class TestGroupByOrderByMRRTest extends
 
 	@After
 	public void deleteTezStagingDirs() throws Exception {
-		HtfTezUtils.delete(new File(OUTPUT_FILE_NAME));
+		FileUtils.deleteQuietly(new File(OUTPUT_FILE_NAME));
 
 	}
 
