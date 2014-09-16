@@ -48,12 +48,13 @@ offers the following benefits:
 - **Infrastructure Scalability** - You can also increase the number of supervisors to run more workers and run supervisors with a different number of slots, which define
   the ports on a machine are open for workers to use.
 - **Resource Guarantees** - Topologies are guaranteed resources based on scheduling at both the topology and user levels.
-- **Fault Tolerance** -   When faults occur during the execution of your computation, Storm reassigns tasks as needed. Storm ensures that computations can 
-  run forever (or until you manually kill the computation).
+- **Fault Tolerance** -   When faults occur during the execution of your computation, Storm reassigns tasks as needed. 
+  Storm ensures that computations can run forever (or until you manually kill the computation).
+  
 
 
   +--------------------------------+---------------------------------------------------------------------------------------+
-  | Scenario                       | Built-In Tolerance                                                                    |
+  | **Scenario**                   | **Built-In Tolerance**                                                                |
   +================================+=======================================================================================+
   | Worker Dies                    | - Either Supervisor will restart it.                                                  |
   |                                | - If it fails on startup, then Nimbus will reassign task to another node.             |
@@ -65,7 +66,14 @@ offers the following benefits:
   +--------------------------------+---------------------------------------------------------------------------------------+
   | Nimbus dies (SPOF)             | - Workers will continue to function and supervisors will restart workers if they die. |
   |                                | - Workers WON’T be assigned to other nodes when needed.                               |
+  |                                | - If hardware fails, critical information is stored on a filer, so we                 |
+  |                                |   can manually fail over to new hardware. Topologies will not be rescheduled during   |
+  |                                |   this time and the UI will not function, but the supervisors and workers will still  |
+  |                                |   function.                                                                           |
   +--------------------------------+---------------------------------------------------------------------------------------+
+
+
+
 
 - **Stream Processing** - Streamed data can be processed and written to a view or database in real time. 
 - **Distributed RPC** - Allows you to execute computations on many machines that would be difficult to do on one machine. 

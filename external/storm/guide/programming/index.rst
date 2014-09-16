@@ -250,11 +250,7 @@ also view the `entire example <http://tiny.corp.yahoo.com/tG2SFQ>`_ on Git.
 
 Kyro Serialization
 ##################
-
-By default the Data Highway Rainbow events are sent unmodified out of the spout. 
-To send them to other worker processes, they need to be serialized through `Kryo <https://github.com/EsotericSoftware/kryo>`_. 
-We have written some Kryo serializes to accomplish this, but you must configure 
-them on in your topology with something like the following:
+By default the Data Highway Rainbow events are sent unmodified out of the spout.  To send them to other worker processes, they need to be serialized through `Kryo <https://github.com/EsotericSoftware/kryo>`_.  We have written some Kryo serializes to accomplish this, but you must configure them on in your topology with something like the following:
 
 .. code-block:: java
 
@@ -305,7 +301,8 @@ is happening. If you fail to push new credentials the topology will stop working
 CMS (JMS) Spout
 ---------------
 
-No Official generic Spout YET (http://tiny.corp.yahoo.com/yJ6EYw) is a good starting point.
+No official generic spout yet, but you can look at this example `CMSSpout.java <https://git.corp.yahoo.com/slingstone/dataquality_metrics_pipeline/blob/master/src/main/java/com/yahoo/slingstone/dataquality/pipeline/storm/CMSSpout.java>`_. 
+
 
 .. code-block:: java
 
@@ -551,11 +548,26 @@ Acking not required.
 Distributed Remote Procedural Calls (DRPC)
 ==========================================
 
-Turns a RPC call into a tuple sent from a spout
-Takes a result from that and sends it back to the user.
+DRPC turns a RPC call into a tuple sent from a spout and
+then sends back the result from the spout to the user.
 In the following sections, we'll show you how to set up
 the DRPC servers and then give you an example of how to
 use the DRPC library to use from the client.
+
+
+Notes
+-----
+
+We do not support DRPC on the serving path. In other words, a user
+interacting with a Web page **cannot** trigger an event that Storm will process.
+Storm is intended for  back-end processing, and although DRPC can be used for 
+monitoring your topology, the design and timeouts involved currently make it very difficult 
+to give any hard guarantees on SLAs; scalability is also an issue.  
+
+In addition, we have no plans to expand Storm to more colos, 
+which would likely require a cross colo hop if used in 
+the serving path.
+
 
 REST DRPC
 ---------
