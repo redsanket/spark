@@ -26,6 +26,8 @@ The options
         [ -s|--local_ws <source root dir>  ] : local source root directory
         [ -w|--remote_ws <workspace>       ] : remote workspace. Default remote workspace is 
                                                "/grid/0/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
+        [ -o|--resultsdir <results dir>    ] : test output results directory to copy to on calling host
+        [ -b|--screwdriver                     ] : if specified, will use ssh and scp options for screwdriver user
         [ -h|--help                        ] : help
 
 Pass Through options
@@ -68,6 +70,10 @@ my $local_ws_ht;
 my ($remote_ws, $remote_ws_ht);
 my $username = getpwuid($<);
 my $remote_username = $username;
+my $test_results_dir;
+my $use_screwdriver = 0;
+my $screwdriver_ssh_opts = "";
+my $screwdriver_scp_opts = "";
 
 #
 # Command line options processing
@@ -82,11 +88,18 @@ GetOptions(\%options,
     "local_ws|s=s"         => \$local_ws_ht,
     "remote_ws|w=s"        => \$remote_ws,
     "user|u=s"             => \$remote_username,
+    "resultsdir|o=s"       => \$test_results_dir,
+    "screwdriver|b"        => sub { $use_screwdriver = 1 },
     "help|h|?"
     ) or usage(1);
 usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
+
+if ($use_screwdriver) {
+    $screwdriver_ssh_opts = "-l hadoopqa -oStrictHostKeyChecking=no";
+    $screwdriver_scp_opts = "hadoopqa\@";
+}
 
 # Retrieve the cluster gateway from Igor if not specified by remote_host.
 my $igor = "/home/y/bin/igor";
@@ -96,7 +109,7 @@ if (!$remote_host) {
     note("fetch unspecified gateway host from igor role: '$rolename'");
     $remote_host = (-e $igor) ? 
         `/home/y/bin/igor fetch -members $rolename` :
-        `ssh -l hadoopqa -oStrictHostKeyChecking=no $re_host $igor fetch -members $rolename`;
+        `ssh $screwdriver_ssh_opts $re_host $igor fetch -members $rolename`;
     chomp($remote_host);
 }
 note("remote gateway host = '$remote_host'");
@@ -114,15 +127,15 @@ $remote_ws_ht = "$remote_ws/hadooptest";
 # CLEAN UP EXISTING WORKSPACE DIRECTORY
 my $command;
 if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa")) {
-    $command = "ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"if [ -d $remote_ws ]; then sudo /bin/rm -rf $remote_ws; fi\"";
+    $command = "ssh $screwdriver_ssh_opts -t $remote_host \"if [ -d $remote_ws ]; then sudo /bin/rm -rf $remote_ws; fi\"";
 } else {
-    $command = "ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"if [ -d $remote_ws ]; then /bin/rm -rf $remote_ws; fi\"";
+    $command = "ssh $screwdriver_ssh_opts -t $remote_host \"if [ -d $remote_ws ]; then /bin/rm -rf $remote_ws; fi\"";
 }
 execute($command);
 
 # CREATE NEW WORKSPACE DIRECTORY
-execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"/bin/mkdir -p $remote_ws\"");
-execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"/bin/mkdir -p $remote_ws_ht\"");
+execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws\"");
+execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws_ht\"");
 
 $use_mvn = ( grep( /-j/, @ARGV ) ) ? 0 : 1;
 $local_ws_ht = "/Users/$username/git/hadooptest/hadooptest" unless ($local_ws_ht);
@@ -142,13 +155,13 @@ my $mvn = ($os eq 'linux') ? "/home/y/bin/mvn" : "/usr/bin/mvn";
 # INSTALL HADOOPTEST FRAMEWORK 
 execute("$mvn clean -f $local_ws_ht/pom.xml") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file_ht --exclude='target' -C $local_ws_ht .");
-execute("scp $tgz_dir/$tgz_file_ht hadoopqa\@$remote_host:$remote_ws_ht");
-execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
-execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
-execute("scp $local_ws_ht/target/*.jar hadoopqa\@$remote_host:$remote_ws_ht/target");
-execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
+execute("scp $tgz_dir/$tgz_file_ht $screwdriver_scp_opts$remote_host:$remote_ws_ht");
+execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
+execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
+execute("scp $local_ws_ht/target/*.jar $screwdriver_scp_opts$remote_host:$remote_ws_ht/target");
+execute("ssh $screwdriver_ssh_opts -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
 
-execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
+execute("ssh $screwdriver_ssh_opts -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
     if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa"));
 
 # EXECUTE TESTS
@@ -160,35 +173,42 @@ unless ($install_only) {
         #########################
         # Execute tests via maven
         #########################
-        execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
+        execute("ssh $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
 
-        # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY 
-        execute("/bin/mkdir -p $local_ws_ht/target");
-        execute("scp -rp hadoopqa\@$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
+        $test_results_dir = "$local_ws_ht/target/" unless ($test_results_dir);
+        
+        # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY
+        if ($test_results_dir) {
+            execute("scp -rp $screwdriver_scp_opts$remote_host:$remote_ws_ht/htf-common/target/surefire-reports/*.xml $test_results_dir");
+        }
+        else {
+            execute("/bin/mkdir -p $local_ws_ht/target");
+            execute("scp -rp $screwdriver_scp_opts$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
+        }
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
-    	execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
+    	execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
 
         # LIST THE BUILD HOST TARGET DIR
         # execute("/usr/bin/tree $local_ws_ht/target/");
         execute("ls -lR $local_ws_ht/target/*");
 
         # COPY THE CLOVER CODE COVERAGE FILE BACK IF APPLICABLE
-        # execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
+        # execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
-        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
+        execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
             if ( "clover" ~~ @ARGV );
-
+        
         # COPY THE JACOCO CODE COVERAGE FILE BACK IF APPLICABLE
-        execute("scp -r hadoopqa\@$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
+        execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
             if ( "jacoco" ~~ @ARGV );
     }
     else {
         #########################
         # Execute tests via java 
         #########################
-        execute("ssh -l hadoopqa -oStrictHostKeyChecking=no -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
+        execute("ssh $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
     }
 }
 

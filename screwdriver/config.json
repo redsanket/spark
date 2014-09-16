@@ -5,7 +5,7 @@
     },
     "jobs": {
         "component": {
-            "test_results_type": "none",
+            "test_results_type": "junit",
             "coverage_type": "none"
         }
     }

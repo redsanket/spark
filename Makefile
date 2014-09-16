@@ -15,5 +15,5 @@ compileHTF:
 
 testCommit:
 	@echo "HTF Commit tests"
-	hadooptest/scripts/run_hadooptest_remote -c openorange -u hadoopqa -r openorangegw.ygridvm.yahoo.com -s ./hadooptest/ -m -n -f /homes/hadoopqa/hadooptest_conf/hadooptest-ci.conf -t TestVersion,TestFS,TestConf,TestSleepJobCLI,TestYarnClient,TestIgorLookup
+	hadooptest/scripts/run_hadooptest_remote --screwdriver -c openorange -u hadoopqa -r openorangegw.ygridvm.yahoo.com -s ./hadooptest/ -m -n -f /homes/hadoopqa/hadooptest_conf/hadooptest-ci.conf --resultsdir $(TEST_RESULTS_DIR) -t TestVersion,TestFS,TestConf,TestSleepJobCLI,TestYarnClient,TestIgorLookup
 
