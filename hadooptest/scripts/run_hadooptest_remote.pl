@@ -174,8 +174,6 @@ unless ($install_only) {
         # Execute tests via maven
         #########################
         execute("ssh $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
-
-        $test_results_dir = "$local_ws_ht/target/" unless ($test_results_dir);
         
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY
         if ($test_results_dir) {
