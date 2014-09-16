@@ -22,14 +22,6 @@ Creating a Storm Project
 
 #. Go to the `Grid Support Shop <http://yo/supportshop>`_.
 #. From the **Grid Support Shop**, click **Storm Onboarding**. 
-
-   .. image:: images/support_shop-storm_onboarding.jpg
-      :height: 490px
-      :width: 800 px
-      :scale: 90 %
-      :alt: Figure showing user clicking "Storm Onboarding" from the Support Shop.
-      :align: left 
-
 #. You'll be taken to a Doppler form to create a Storm project. Click **Create a new project**
    and then confirm by clicking **New Project** in the pop-up confirmation window.
 #. In the **New Storm Project** page, enter a project name in the **Project Name** text field, 

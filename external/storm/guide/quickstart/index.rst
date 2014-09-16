@@ -3,19 +3,10 @@ Quick Start
 ===========
 
 .. Status: First draft. This has been tested and written by the developer team. More notes could be added to elucidate certain steps. 
+.. Reference: http://twiki.corp.yahoo.com/view/Grid/StormQuickStart
 
-This quick start shows you how to set up a Storm project on an OpenStack instance, launch it on the Grid cluster Ebony Red, and
-then create events to alter the results of your project. You will also be using the Data Highway (DH) Rainbow spout,
-a built-in Yahoo spout, to count DH Rainbow events.  
-
-The diagram below shows how the DH Rainbow bolt gets data from the Data Highway and feeds it to the bolt that counts events.
-
-.. images:: images/dh_rb-event_count_bolt.jpg
-   :height: 100px
-   :width: 200 px
-   :scale: 100 %
-   :alt: Schematic diagram for the DH Rainbow spout and the event count bolt.
-   :align: left
+This quick start shows you how to use a simple convenience package (``ystorm_onabox``) to launch a sample Storm topology on an OpenStack instance.
+We'll be launching the topology from your machine instead of using the Yahoo Grid. 
 
 
 Prerequisites
@@ -23,49 +14,64 @@ Prerequisites
 
 - Linux RHEL box or OpenStack instance
 
+
 Setting Up
 ==========
 
-#. Install the DH Rainbow spout: ``yinst i ystorm_contrib``. 
-#. Clone the ``storm-contrib`` repository: git@git.corp.yahoo.com:storm/storm-contrib.git
-   .. note:: We'll be using ``/src/main/java/com/yahoo/spout/http/rainbow/EventCountBolt.java``.
-#. Set up your launcher box:
+#. SSH into your OpenStack instance.
+#. Set a root OS restriction: ``yinst set root.os_restriction=rhel-6.x``
+#. Install the following packages::
 
-   #. Perform Kerberos authentication:: ``kinit {your_user_name}@Y.CORP.YAHOO.COM`` 
-   #. Specify the registry service: ``yinst set ystorm.http_registry_uri=http://registry-a.{red|blue}.ygrid.yahoo.com:4080/registry/v1/``
-   #. Obtain a unique virtual host name and port from http://twiki.corp.yahoo.com/view/Grid/SupportStormDHRegistry. This tutorial will use the following:
-      - **EbonyRed** (cluster)
-      - **virtual host** - ``dh-demo-ebonyred.ygrid.local (must be unique within a colo, red/BF1)
-      - **virtual port** - 50700 (must be unique within each storm cluster, EbnoyRed?)
-#. Create a virtual service URI with the following syntax: ``http://<virtual_host>:<virtual_post>``  
-#. Add the virtual service URI to Storm: ``storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat addVH http://dh-demo-ebonyred.ygrid.local:5070011
+        yinst i git
+        yinst i yjava_maven
+        yinst i ystorm_onabox -br test
+        yinst i ystorm_starter -br test
+        yinst i ystorm_logviewer -br test
 
-Launch Storm Topology
-=====================
+Launching Topology
+==================
 
-For example, we will launch our sample topology with 2 machines and 2 spout instances:
-#. Configure the topology to use two machines and two spout instances::
+You should see Storm running with the Storm UI located at http://{hostname}:8080.
+If you installed the packages in the last section inside a ``yroot``, however, you will
+need to manually start Storm with the following: ``yinst start daemontools_y zookeeper_server ystorm_onabox``
 
-       yinst set ystorm.topology_isolate_machines=2
-#. Launch storm with the two spouts::
 
-       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://dh-demo-ebonyred.ygrid.local:50700 -n dh-demo-w-2spouts -p 2
+#. To launch one of the sample topologies from the storm-starter package, run the following::
+ 
+        storm jar /home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.ExclamationTopology excltopology
+   
+   If the topology is already running, try killing it (``storm kill excltopology``) and running the command above again.
 
-Inject Sample Rainbow Events
-============================
+#. Go to your Storm UI (make sure to refresh the page), and you should see the topology running.
+#. You can also list the topologies that are running with ``storm list``.
+#. Go ahead and kill the topologies with ``storm kill {topology_name}``.
 
-To inject events, we'll be using ``yfor`` to enable communication with multiple spouts that we have launched.
+Building a Topology From Source
+===============================
 
-#. Install ``yfor``: ``yinst i yfor -b test``
-#. Configure ``yfor`` for routing by adding the following configuration to ``/home/y/etc/yfor/dh-demo-ebonyred.conf``::
+#. Use Git to clone the source for ``storm-starter``. You may need to `set up SSH keys <https://git.corp.yahoo.com/settings/ssh>`_.
 
-       name dh-demo-ebonyred.ygrid.local
-       config-url http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/virtualHost/dh-demo-ebonyred.ygrid.local/ext/yahoo/yfor_config
-       
-#. ``LD_PRELOAD=/home/y/lib64/libyfor.so.1``
-. Use cURL to inject an event from a file: ``LD_PRELOAD=/home/y/lib64/libyfor.so.1 curl --data-binary @/homes/afeng/dh_events/out.prism.3 http://dh-demo-ebonyred.ygrid.local:50700``
+       git clone git@git.corp.yahoo.com:storm/storm-starter.git
+#. Change to ``storm-starter``.
+#. Compile the package with Maven: ``mvn -f m2-pom.xml compile package`` 
+#. Verify you can launch a sample topology from the built package: 
+
+       storm jar target/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.ExclamationTopology topo1 
+#. Confirm that the topology is running and then kill it::
+
+       storm list
+       storm kill topo1
+
+#. Try making some edits and re-running the topology::
+
+       SRCDIR=./src/jvm/storm/starter
+       cp $SRCDIR/ExclamationTopology.java $SRCDIR/MyExclamationTopology.java
+       vi $SRCDIR/MyExclamationTopology.java (rename class to MyExclamationTopology, and any other edits you would like to experiment with)
+       mvn -f m2-pom.xml compile package
+       storm jar target/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.starter.MyExclamationTopology mytopo
 
 Next Steps
 ==========
 
+We're going to cover how to run topologies on the Yahoo Grid, but before you can do that, you'll need to 
 `On-Board <../onboarding/>`_ to Storm.

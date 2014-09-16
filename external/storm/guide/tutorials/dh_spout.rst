@@ -3,50 +3,98 @@ Counting Data Highway Events
 
 .. Status: first draft. Need more examples.
 
-We're going to revisit the `Quick Start <../quickstart>`_ and run
-the same code using your Storm project and topology that you
-created when  you `on-boarded <../onboarding>`_.
+This tutorial shows you how to set up a Storm project on an OpenStack instance, launch it on the Grid cluster Ebony Red, and
+then create events to alter the results of your project. You will also be using the Data Highway (DH) Rainbow spout,
+a built-in Yahoo spout, to count DH Rainbow events. 
+
+The diagram below shows how the DH Rainbow bolt gets data from the Data Highway and feeds it to the bolt that counts events.
+
+.. images:: images/dh_rb-event_count_bolt.jpg
+   :height: 100px
+   :width: 200 px
+   :scale: 100 %
+   :alt: Schematic diagram for the DH Rainbow spout and the event count bolt.
+   :align: left
 
 Prerequisites
 -------------
 
 You should have completed the following:
 
-- `On-Boarding <../onboarding>`_
-- `Quick Start <../quickstart>`_
+- `Quick Start <../quickstart>`_ - You'll need a basic understanding of how Storm topologies are launched, listed, and killed.
+- `On-Boarding <../onboarding>`_ - You'll need a topology that you requested when you on-boarded, which provides you with an environment in the Storm cluster.
 
 Setting Up
 ----------
 
-#. Log onto the Red Ebony (or the non-production environment that you created a topology for) cluster.
+#. Log onto an OpenHouse instance.
+#. Install the following ``yinst`` packages::
+
+       yinst i yjava_jetty_core-9.2.1.v20140609_126
+       yinst i yjava_yca-0.23.218 -br test
+       yinst i mon_metrics_java -br quarantine
+
 #. Clone the ``storm-contrib`` repository: git@git.corp.yahoo.com:storm/storm-contrib.git
    .. note:: We'll be using ``/src/main/java/com/yahoo/spout/http/rainbow/EventCountBolt.java``.
-#. Authenticate with ``kinit``: ``$ kinit {your_user_name}@Y.CORP.YAHOO.COM``
+#. Change to ``storm-contrib``.
+#. Build the package with Maven: ``mvn clean package``
+#. Copy ``storm-contrib`` to Ebony Red: ``scp -r ../storm_contrib {user_name}@ebony-gw.red.ygrid.yahoo.com:~``
 
-Launch Storm Topology
----------------------
+
+
+Launching Your Storm Topology
+-----------------------------
 
 For example, we will launch our sample topology with 2 machines and 2 spout instances:
 
-#. Configure the topology to use two machines and two spout instances::
+#. Log onto the cluster Ebony Red (ebony-gw.red.ygrid.yahoo.com) or another non-production environment that you created a topology for.
+#. Authenticate with ``kinit``: ``$ kinit {your_user_name}@Y.CORP.YAHOO.COM``
+#. Change to ``storm-contrib``.
+#. Launch storm with the two spouts below. Replace ``{your_topology_name}`` with the topology name you requested during on-boarding.
 
-       yinst set ystorm.topology_isolate_machines=2
-#. Launch storm with the two spouts::
+       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{your_topology_name}.ygrid.local:50700 -c topology.isolate.machines=2 -n {your_topology_name} -p 2
 
-       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{your_topology_name}.ygrid.local:50700 -n {your_topology_name} -p 2
-
-   The main difference between the ``storm`` command in this tutorial from that in the quick start is that you are specifying the topology that you requested. The topology gives you an instance within
-   in the environment that you requested when you on-boarded.
+   The main difference between the topology name in this tutorial from that in the 
+   quick start is that the topology here represents an instance on the Storm
+   cluster as well as the name of the topology running.
       
 #. You can see your job running in the **Storm UI**. The URL to the **Storm UI** depends on your
-   environment. The URL syntax is ``http://{environment}-ni.blue.ygrid.yahoo.com:9999/``, so the
-   URL to the **Storm UI** for Ebony Red is ``http://ebonyblue-ni.blue.ygrid.yahoo.com:9999/``.
+   environment. The URL syntax is ``http://{environment}-ni.{color}.ygrid.yahoo.com:9999``, so the
+   URL to the **Storm UI** for Ebony Red is ``http://ebony-ni.red.ygrid.yahoo.com:9999``.
 
 #. Click on your job and take a look at your spouts, bolts, the number of executors, tasks, and the topology
    configuration.
-#. Kill your job to let others use the limited resources in the non-production environments:
 
-   ``
+Injecting Sample Rainbow Events
+-------------------------------
+
+To inject events, we'll be using ``yfor`` to enable communication with multiple spouts that we have launched.
+Fortunately, ``yfor`` is already installed on the node clusters.
+
+#. Configure ``yfor`` for routing by adding the following configuration to ``/home/y/etc/yfor/{topology_name}-ebonyred.conf``::
+
+       name {topology_name}-ebonyred.ygrid.local
+       config-url http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/virtualHost/{topology_name}-ebonyred.ygrid.local/ext/yahoo/yfor_config
+       
+#. ``LD_PRELOAD=/home/y/lib64/libyfor.so.1``
+. Use cURL to inject an event from a file: ``LD_PRELOAD=/home/y/lib64/libyfor.so.1 curl --data-binary @/homes/afeng/dh_events/out.prism.3 http://dh-demo-ebonyred.ygrid.local:50700``
+
+
+.. http://ebonyred-ni.red.ygrid.yahoo.com:9999/
+
+Viewing Your Job With the Storm UI 
+----------------------------------
+
+ You can see your job running in the **Storm UI**. The URL to the **Storm UI** depends on your
+ environment. The URL syntax is ``http://{environment}-ni.blue.ygrid.yahoo.com:9999/``, so the
+ URL to the **Storm UI** for Ebony Red is ``http://ebonyred-ni.red.ygrid.yahoo.com:9999/``.
+
+Killing Your Topology
+---------------------
+
+We recommend killing the topologies you create in tutorials to save Grid resources for others: ``$ storm kill {topology_name}``
+
+
 Looking at the Code
 -------------------
 
