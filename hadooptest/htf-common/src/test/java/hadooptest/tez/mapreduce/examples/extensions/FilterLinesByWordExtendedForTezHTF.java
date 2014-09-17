@@ -204,10 +204,11 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	        .setUserPayload(TezUtils.createUserPayloadFromConf(stage2Conf));
 	    OutputCommitterDescriptor ocd =
 	        OutputCommitterDescriptor.create(MROutputCommitter.class.getName());
-	    stage2Vertex.addDataSink("MROutput", new DataSinkDescriptor(od, ocd, null));
+	    stage2Vertex.addDataSink("MROutput", DataSinkDescriptor.create(od, ocd, null));
 
 	    UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig
-	        .newBuilder(Text.class.getName(), TextLongPair.class.getName()).build();
+	            .newBuilder(Text.class.getName(), TextLongPair.class.getName())
+	            .setFromConfiguration(tezConf).build();
 
 	    DAG dag = DAG.create("FilterLinesByWord");
 	    Edge edge =

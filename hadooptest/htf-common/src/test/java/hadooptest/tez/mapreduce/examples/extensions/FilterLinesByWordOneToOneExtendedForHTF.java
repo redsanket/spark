@@ -188,13 +188,14 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 
 	    // Configure the Output for stage2
 	    stage2Vertex.addDataSink(
-	        "MROutput",
-	        new DataSinkDescriptor(OutputDescriptor.create(MROutput.class.getName())
-	            .setUserPayload(TezUtils.createUserPayloadFromConf(stage2Conf)),
-	            OutputCommitterDescriptor.create(MROutputCommitter.class.getName()), null));
+	            "MROutput",
+	            DataSinkDescriptor.create(OutputDescriptor.create(MROutput.class.getName())
+	                .setUserPayload(TezUtils.createUserPayloadFromConf(stage2Conf)),
+	                OutputCommitterDescriptor.create(MROutputCommitter.class.getName()), null));
 
 	    UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig
-	        .newBuilder(Text.class.getName(), TextLongPair.class.getName()).build();
+	            .newBuilder(Text.class.getName(), TextLongPair.class.getName())
+	            .setFromConfiguration(tezConf).build();
 
 	    DAG dag = DAG.create("FilterLinesByWord");
 	    Edge edge =

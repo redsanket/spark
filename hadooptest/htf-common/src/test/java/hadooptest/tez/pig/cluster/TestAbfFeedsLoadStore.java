@@ -16,7 +16,7 @@ import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.utils.HtfPigBaseClass;
 
 public class TestAbfFeedsLoadStore extends HtfPigBaseClass {
-	private static String SCRIPT_NAME = "abf_feeds_loads_store.pig";
+	private static String SCRIPT_NAME = "abf_feeds_load_store.pig";
 
 	@Test
 	public void testPigOnTezClusterHdfs() throws Exception {

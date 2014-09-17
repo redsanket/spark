@@ -84,6 +84,13 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 
 		Configuration conf = TestSession.cluster.getConf();
 		conf = HtfTezUtils.setupConfForTez(conf, mode, session, testName);
+		if (doLocalityCheck
+				&& conf.getBoolean(TezConfiguration.TEZ_LOCAL_MODE,
+						TezConfiguration.TEZ_LOCAL_MODE_DEFAULT)) {
+			TestSession.logger.info("locality check is not valid in local mode. skipping");
+			doLocalityCheck = false;
+		}
+
 		boolean status = run(conf, doLocalityCheck);
 		return status ? 0 : 1;
 	}
@@ -106,10 +113,13 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 
 		// staging dir
 		FileSystem fs = FileSystem.get(tezConf);
-//		String stagingDirStr = Path.SEPARATOR + "user" + Path.SEPARATOR + user
-//				+ Path.SEPARATOR + ".staging" + Path.SEPARATOR + Path.SEPARATOR
-//				+ Long.toString(System.currentTimeMillis());
-		String stagingDirStr = conf.get(TezConfiguration.TEZ_AM_STAGING_DIR);
+		String stagingDirStr = tezConf.get(TezConfiguration.TEZ_AM_STAGING_DIR,
+				TezConfiguration.TEZ_AM_STAGING_DIR_DEFAULT)
+				+ Path.SEPARATOR
+				+ "BroadcastAndOneToOneExample"
+				+ Path.SEPARATOR
+				+ Long.toString(System.currentTimeMillis());
+
 		Path stagingDir = new Path(stagingDirStr);
 		tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 		stagingDir = fs.makeQualified(stagingDir);
@@ -185,8 +195,9 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 		oneToOneVertex.setVertexManagerPlugin(VertexManagerPluginDescriptor
 				.create(InputReadyVertexManager.class.getName()));
 
-		UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig.newBuilder(
-				Text.class.getName(), IntWritable.class.getName()).build();
+		UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig
+				.newBuilder(Text.class.getName(), IntWritable.class.getName())
+				.setFromConfiguration(tezConf).build();
 
 		DAG dag = DAG.create("BroadcastAndOneToOneExample");
 		dag.addVertex(inputVertex)
