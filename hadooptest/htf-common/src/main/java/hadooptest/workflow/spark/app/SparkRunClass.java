@@ -337,6 +337,13 @@ public class SparkRunClass extends App {
             TestSession.logger.error("Exception " + e.getMessage(), e);
             throw e;
         }
+        // wait for the process to finish and look at the exit code
+        this.process.waitFor();
+        if (this.process.exitValue() != 0) {
+            TestSession.logger.error("Exit code is is: " + process.exitValue());
+            this.ERROR = "exit value is nonzero: " + process.exitValue();
+        }
+
     } 
 
     /**
