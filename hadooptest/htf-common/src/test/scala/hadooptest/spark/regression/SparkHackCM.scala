@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// put in spark packages so we can access internal spark functions
 package org.apache.spark.examples
 
 import java.nio.ByteBuffer

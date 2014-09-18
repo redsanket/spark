@@ -35,7 +35,6 @@ public class TestSparkHackCM extends TestSession {
                 // can only use 1 worker
 		appUserDefault.setNumWorkers(1);
 		appUserDefault.setWorkerCores(1);
-		//appUserDefault.setClassName("hadooptest.spark.regression.SparkRunHackCM");
 		appUserDefault.setClassName("org.apache.spark.examples.SparkRunHackCM");
 		appUserDefault.setJarName(localJar);
 		appUserDefault.setAppName("runSparkHackCM");
@@ -63,7 +62,6 @@ public class TestSparkHackCM extends TestSession {
                 // can only use 1 worker
 		appUserDefault.setNumWorkers(1);
 		appUserDefault.setWorkerCores(1);
-		//appUserDefault.setClassName("hadooptest.spark.regression.SparkRunHackCM");
 		appUserDefault.setClassName("org.apache.spark.examples.SparkRunHackCM");
 		appUserDefault.setJarName(localJar);
 		appUserDefault.setAppName("runSparkHackCM");
