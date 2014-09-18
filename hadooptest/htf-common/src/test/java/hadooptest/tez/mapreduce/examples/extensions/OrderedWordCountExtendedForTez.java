@@ -116,6 +116,9 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 		long interJobSleepTimeout = conf.getInt("INTER_JOB_SLEEP_INTERVAL", 0) * 1000;
 
 		boolean retainStagingDir = conf.getBoolean("RETAIN_STAGING_DIR", false);
+		boolean useMRSettings = conf.getBoolean("USE_MR_CONFIGS", true);
+		// TODO needs to use auto reduce parallelism
+		int intermediateNumReduceTasks = conf.getInt("IREDUCE_NUM_TASKS", 2);
 
 		if (((otherArgs.length % 2) != 0)
 				|| (!useTezSession && otherArgs.length != 2)) {
@@ -206,7 +209,8 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 
 				DAG dag = instance.createDAG(fs, conf, localResources,
 						stagingDir, dagIndex, inputPath, outputPath,
-						generateSplitsInClient);
+						generateSplitsInClient, useMRSettings,
+						intermediateNumReduceTasks);
 
 				boolean doPreWarm = dagIndex == 1 && useTezSession
 						&& conf.getBoolean("PRE_WARM_SESSION", true);

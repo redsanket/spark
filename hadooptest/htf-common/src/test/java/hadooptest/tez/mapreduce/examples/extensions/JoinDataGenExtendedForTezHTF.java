@@ -43,15 +43,14 @@ import org.apache.tez.mapreduce.output.MROutput;
  * That would set up the local/cluster mode correctly.
  * 
  */
-public class JoinDataGenExtendedForTezHTF extends
-		JoinDataGen {
-	  private static final String STREAM_OUTPUT_NAME = "streamoutput";
-	  private static final String HASH_OUTPUT_NAME = "hashoutput";
-	  private static final String EXPECTED_OUTPUT_NAME = "expectedoutput";
-	  
-	  protected static final String OUTPUT_DIR = "/tmp/joindata/expectedResults/";
-	  protected static final String TEMP_OUT_1 = "/tmp/joindata/out1/";
-	  protected static final String TEMP_OUT_2 = "/tmp/joindata/out2/";
+public class JoinDataGenExtendedForTezHTF extends JoinDataGen {
+	private static final String STREAM_OUTPUT_NAME = "streamoutput";
+	private static final String HASH_OUTPUT_NAME = "hashoutput";
+	private static final String EXPECTED_OUTPUT_NAME = "expectedoutput";
+
+	protected static final String OUTPUT_DIR = "/tmp/joindata/expectedResults/";
+	protected static final String TEMP_OUT_1 = "/tmp/joindata/out1/";
+	protected static final String TEMP_OUT_2 = "/tmp/joindata/out2/";
 
 	/**
 	 * Copy and paste the the code from the parent class's run method here.
@@ -60,14 +59,16 @@ public class JoinDataGenExtendedForTezHTF extends
 	 * example those contained inside a Processor, or that overriding the method
 	 * in the Tool class.
 	 * 
-	 * Usage: joindatagen <outPath1> <path1Size> <outPath2> <path2Size> <expectedResultPath> <numTasks>
+	 * Usage: joindatagen <outPath1> <path1Size> <outPath2> <path2Size>
+	 * <expectedResultPath> <numTasks>
 	 * 
 	 * @param args
 	 * @param mode
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(TezConfiguration tezConf, String[] args, TezClient tezClient) throws Exception {
+	public int run(TezConfiguration tezConf, String[] args, TezClient tezClient)
+			throws Exception {
 	    TestSession.logger.info("Running JoinDataGen");
 
 	    UserGroupInformation.setConfiguration(tezConf);
@@ -117,49 +118,50 @@ public class JoinDataGenExtendedForTezHTF extends
 
 	    tezClient.waitTillReady();
 	    DAGClient dagClient = tezClient.submitDAG(dag);
-	    
 	    DAGStatus dagStatus = dagClient.waitForCompletionWithStatusUpdates(null);
 	    if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
 	      TestSession.logger.info("DAG diagnostics: " + dagStatus.getDiagnostics());
 	      return -1;
 	    }
 	    return 0;
+		
 	}
-	
-	  private DAG createDag(TezConfiguration tezConf, Path largeOutPath, Path smallOutPath,
-		      Path expectedOutputPath, int numTasks, long largeOutSize, long smallOutSize)
-		      throws IOException {
 
-		    long largeOutSizePerTask = largeOutSize / numTasks;
-		    long smallOutSizePerTask = smallOutSize / numTasks;
+	private DAG createDag(TezConfiguration tezConf, Path largeOutPath,
+			Path smallOutPath, Path expectedOutputPath, int numTasks,
+			long largeOutSize, long smallOutSize) throws IOException {
 
-		    DAG dag = DAG.create("JoinDataGen");
+	    long largeOutSizePerTask = largeOutSize / numTasks;
+	    long smallOutSizePerTask = smallOutSize / numTasks;
 
-		    Vertex genDataVertex = Vertex.create("datagen", ProcessorDescriptor.create(
-		        GenDataProcessor.class.getName()).setUserPayload(
-		        UserPayload.create(ByteBuffer.wrap(GenDataProcessor.createConfiguration(largeOutSizePerTask,
-		            smallOutSizePerTask)))), numTasks);
-		    genDataVertex.addDataSink(STREAM_OUTPUT_NAME, 
-		        MROutput.createConfigBuilder(new Configuration(tezConf),
-		            TextOutputFormat.class, largeOutPath.toUri().toString()).build());
-		    genDataVertex.addDataSink(HASH_OUTPUT_NAME, 
-		        MROutput.createConfigBuilder(new Configuration(tezConf),
-		            TextOutputFormat.class, smallOutPath.toUri().toString()).build());
-		    genDataVertex.addDataSink(EXPECTED_OUTPUT_NAME, 
-		        MROutput.createConfigBuilder(new Configuration(tezConf),
-		            TextOutputFormat.class, expectedOutputPath.toUri().toString()).build());
+	    DAG dag = DAG.create("JoinDataGen");
 
-		    dag.addVertex(genDataVertex);
+	    Vertex genDataVertex = Vertex.create("datagen", ProcessorDescriptor.create(
+	        GenDataProcessor.class.getName()).setUserPayload(
+	        UserPayload.create(ByteBuffer.wrap(GenDataProcessor.createConfiguration(largeOutSizePerTask,
+	            smallOutSizePerTask)))), numTasks);
+	    genDataVertex.addDataSink(STREAM_OUTPUT_NAME, 
+	        MROutput.createConfigBuilder(new Configuration(tezConf),
+	            TextOutputFormat.class, largeOutPath.toUri().toString()).build());
+	    genDataVertex.addDataSink(HASH_OUTPUT_NAME, 
+	        MROutput.createConfigBuilder(new Configuration(tezConf),
+	            TextOutputFormat.class, smallOutPath.toUri().toString()).build());
+	    genDataVertex.addDataSink(EXPECTED_OUTPUT_NAME, 
+	        MROutput.createConfigBuilder(new Configuration(tezConf),
+	            TextOutputFormat.class, expectedOutputPath.toUri().toString()).build());
 
-		    return dag;
-		  }
+	    dag.addVertex(genDataVertex);
 
-	  private int checkOutputDirectory(FileSystem fs, Path path) throws IOException {
-		    if (fs.exists(path)) {
-		      System.err.println("Output directory: " + path + " already exists");
-		      return 2;
-		    }
-		    return 0;
-		  }
+	    return dag;
+	}
+
+	private int checkOutputDirectory(FileSystem fs, Path path)
+			throws IOException {
+		if (fs.exists(path)) {
+			System.err.println("Output directory: " + path + " already exists");
+			return 2;
+		}
+		return 0;
+	}
 
 }

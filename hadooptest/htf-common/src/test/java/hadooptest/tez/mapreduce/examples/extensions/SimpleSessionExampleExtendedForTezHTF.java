@@ -43,12 +43,4 @@ public class SimpleSessionExampleExtendedForTezHTF extends
 		      int numPartitions) throws Exception {
 		  return super.run(inputPaths, outputPaths,conf, numPartitions);
 	  }
-	/**
-	 * Re-Provided here, because the corresponding method in the base class is
-	 * marked private.
-	 */
-	  private static void printUsage() {
-		    System.err.println("Usage: " + " simplesessionexample <in1,in2> <out1, out2> [numPartitions]");
-		  }
-
 }

@@ -207,8 +207,8 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	    stage2Vertex.addDataSink("MROutput", DataSinkDescriptor.create(od, ocd, null));
 
 	    UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig
-	            .newBuilder(Text.class.getName(), TextLongPair.class.getName())
-	            .setFromConfiguration(tezConf).build();
+	        .newBuilder(Text.class.getName(), TextLongPair.class.getName())
+	        .setFromConfiguration(tezConf).build();
 
 	    DAG dag = DAG.create("FilterLinesByWord");
 	    Edge edge =
@@ -248,7 +248,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	          }
 	          dagStatus = dagClient.getDAGStatus(null);
 	        } catch (TezException e) {
-	          TestSession.logger.fatal("Failed to get application progress. Exiting");
+	        	TestSession.logger.fatal("Failed to get application progress. Exiting");
 	          return -1;
 	        }
 	      }

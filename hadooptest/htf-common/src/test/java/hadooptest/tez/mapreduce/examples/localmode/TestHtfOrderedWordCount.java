@@ -44,8 +44,8 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 
 	@Test
 	public void testOrderedWordCountRunOnLocalWithSession() throws Exception {
-		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
+		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
+		int returnCode = run(jobArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
@@ -53,8 +53,8 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 
 	@Test
 	public void testOrderedWordCountRunOnLocalWithoutSession() throws Exception {
-		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
+		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
+		int returnCode = run(jobArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
@@ -63,9 +63,9 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	@Test
 	public void testOrderedWordCountWithSplitRunOnLocalWithSession()
 			throws Exception {
-		String[] sleepJobArgs = new String[] { "-generateSplitsInClient",
+		String[] jobArgs = new String[] { "-generateSplitsInClient",
 				INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
+		int returnCode = run(jobArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
@@ -74,9 +74,9 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	@Test
 	public void testOrderedWordCountWithSplitRunOnLocalWithoutSession()
 			throws Exception {
-		String[] sleepJobArgs = new String[] { "-generateSplitsInClient",
+		String[] jobArgs = new String[] { "-generateSplitsInClient",
 				INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
+		int returnCode = run(jobArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);

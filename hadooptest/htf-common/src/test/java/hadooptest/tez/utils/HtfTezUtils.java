@@ -78,7 +78,6 @@ public class HtfTezUtils {
 			TestSession.logger.info("So it is :" + System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
 			conf.set("fs.defaultFS", "file:///");
 			conf.setBoolean("tez.local.mode", true);
-
 			conf.set("hadoop.security.authentication", "simple");
 			conf.setBoolean("tez.runtime.optimize.local.fetch", true);
 

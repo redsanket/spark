@@ -158,6 +158,7 @@ public class GroupByOrderByMRRTestExtendedForTezHTF extends
 		      Path stagingDir, String inputPath, String outputPath, boolean useMRSettings)
 		      throws Exception {
 
+
 		    Configuration mapStageConf = new JobConf(conf);
 		    mapStageConf.set(MRJobConfig.MAP_CLASS_ATTR,
 		        MyMapper.class.getName());
