@@ -28,18 +28,19 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
+public class TestStoppedAdminQueues extends YarnTestsBaseClass {
 	public static String CAPACITY_SCHEDULER_XML = "capacity-scheduler.xml";
 	protected static boolean restoredConfig = false;
 
 	@Before
 	public void copyConfigAndRestartNodes() throws Exception {
+
 		if (restoredConfig)
 			return;
 		restoredConfig = true;
 		String replacementConfigFile = TestSession.conf
 				.getProperty("WORKSPACE")
-				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_modified.xml";
+				+ "/htf-common/resources/hadooptest/hadoop/regression/yarn/adminStartStopQueues/capacity-scheduler_c2QueueStopped.xml";
 
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();
@@ -138,10 +139,9 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 	}
 
 	@Test
-	public void testJobSubmissionToQueueWhoseParentNodeIsStopped()
+	public void testJobSubmissionToQueueWhichIsStoppedLeafNode()
 			throws Exception {
-		String stoppedParentQueue = "a";
-		String childQueueWhoseParentIsStopped = "a1";
+		String stoppedQueue = "c2";
 
 		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
 				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
@@ -152,89 +152,6 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 					+ qi.getState());
 
 		}
-
-		Thread.sleep(20000);
-		HashMap<String, String> sleepJobParams = new HashMap<String, String>();
-		sleepJobParams.put("mapreduce.job.queuename",
-				childQueueWhoseParentIsStopped);
-		sleepJobParams.put("mapreduce.job.user.name",
-				HadooptestConstants.UserNames.HADOOPQA);
-		String[] sleepJobArgs = new String[] { "-m 1 -r 1 -mt 1 -rt 1" };
-		try {
-			runStdSleepJob(sleepJobParams, sleepJobArgs);
-		} catch (Exception e) {
-			TestSession.logger.info("CAUSE:" + e.getCause());
-			TestSession.logger.info("MESSAGE:" + e.getMessage());
-			TestSession.logger.info("LOCALIZED MESSAGE:"
-					+ e.getLocalizedMessage());
-
-			Assert.assertTrue(
-					"",
-					e.getMessage().contains(
-							"Cannot accept submission of application"));
-
-		}
-
-	}
-
-	@Test
-	public void testJobSubmissionToRunningLeafQueue() throws Exception {
-		String runningQueue = "c1";
-
-		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
-				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-		Cluster cluster = new Cluster(fdc);
-
-		for (QueueInfo qi : cluster.getQueues()) {
-			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
-					+ qi.getState());
-
-		}
-
-		HashMap<String, String> sleepJobParams = new HashMap<String, String>();
-		sleepJobParams.put("mapreduce.job.queuename", runningQueue);
-		sleepJobParams.put("mapreduce.job.user.name",
-				HadooptestConstants.UserNames.HADOOPQA);
-		String[] sleepJobArgs = new String[] { "-m 1 -r 1 -mt 1 -rt 1" };
-
-		runStdSleepJob(sleepJobParams, sleepJobArgs);
-
-	}
-
-	@Test
-	public void testQueueStatusChangeAndRefreshQueues() throws Exception {
-		GenericYarnCliResponseBO genericYarnCliResponse;
-		YarnCliCommands yarnCliCommands = new YarnCliCommands();
-		String stoppedQueue = "b";
-
-		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
-				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-		Cluster cluster = new Cluster(fdc);
-
-		for (QueueInfo qi : cluster.getQueues()) {
-			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
-					+ qi.getState());
-
-		}
-
-		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
-				.getCluster();
-
-		// Copy over different queue states, than before.
-		fullyDistributedCluster
-				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
-				.copyFileToConfDir(
-						TestSession.conf.getProperty("WORKSPACE")
-								+ "/htf-common/resources/hadooptest/hadoop/regression"
-								+ "/yarn/adminStartStopQueues/capacity-scheduler_refreshQueues.xml",
-						CAPACITY_SCHEDULER_XML);
-
-		genericYarnCliResponse = yarnCliCommands.rmadmin(EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HADOOPQA,
-				HadooptestConstants.Schema.NONE, localCluster,
-				YarnAdminSubCommand.REFRESH_QUEUES, null);
-		Assert.assertTrue("Yarn CLI exited with non-zero exit code",
-				genericYarnCliResponse.process.exitValue() == 0);
 
 		HashMap<String, String> sleepJobParams = new HashMap<String, String>();
 		sleepJobParams.put("mapreduce.job.queuename", stoppedQueue);
@@ -254,6 +171,105 @@ public class TestAdminStartStopQueues5913b extends YarnTestsBaseClass {
 							.contains(
 									stoppedQueue
 											+ " is STOPPED. Cannot accept submission of application"));
+		}
+
+	}
+
+	@Test
+	@Ignore("Does not seem to be a valid test, because with an incorrect state the RM does not come up")
+	public void testJobSubmissionToQueueWhichHasInvalidQueueState()
+			throws Exception {
+		String invalidStateQueue = "c2";
+
+		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		Cluster cluster = new Cluster(fdc);
+
+		for (QueueInfo qi : cluster.getQueues()) {
+			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
+					+ qi.getState());
+
+		}
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		HashMap<String, String> sleepJobParams = new HashMap<String, String>();
+		sleepJobParams.put("mapreduce.job.queuename", invalidStateQueue);
+		sleepJobParams.put("mapreduce.job.user.name",
+				HadooptestConstants.UserNames.HADOOPQA);
+		String[] sleepJobArgs = new String[] { "-m 1 -r 1 -mt 1 -rt 1" };
+		try {
+			runStdSleepJob(sleepJobParams, sleepJobArgs);
+		} catch (Exception e) {
+			TestSession.logger.info("CAUSE:" + e.getCause());
+			TestSession.logger.info("MESSAGE:" + e.getMessage());
+			TestSession.logger.info("LOCALIZED MESSAGE:"
+					+ e.getLocalizedMessage());
+		}
+
+	}
+
+	@Test
+	public void testJobSubmissionToQueueWhichIsNotLeafNode() throws Exception {
+		String notLeafQueue = "a";
+		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		Cluster cluster = new Cluster(fdc);
+
+		for (QueueInfo qi : cluster.getQueues()) {
+			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
+					+ qi.getState());
+
+		}
+
+		HashMap<String, String> sleepJobParams = new HashMap<String, String>();
+		sleepJobParams.put("mapreduce.job.queuename", notLeafQueue);
+		sleepJobParams.put("mapreduce.job.user.name",
+				HadooptestConstants.UserNames.HADOOPQA);
+		String[] sleepJobArgs = new String[] { "-m 1 -r 1 -mt 1 -rt 1" };
+		try {
+			runStdSleepJob(sleepJobParams, sleepJobArgs);
+		} catch (Exception e) {
+			TestSession.logger.info("CAUSE:" + e.getCause());
+			TestSession.logger.info("MESSAGE:" + e.getMessage());
+			TestSession.logger.info("LOCALIZED MESSAGE:"
+					+ e.getLocalizedMessage());
+			Assert.assertTrue(e.getMessage()
+					+ " [DID NOT CONTAIN EXPECTED ERROR MESSAGE]", e
+					.getMessage()
+					.contains("to non-leaf queue: " + notLeafQueue));
+		}
+
+	}
+
+	@Test
+	public void testJobSubmissionToQueueWhichIsNotDefined() throws Exception {
+		String undefinedQueue = "d";
+
+		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
+				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		Cluster cluster = new Cluster(fdc);
+
+		for (QueueInfo qi : cluster.getQueues()) {
+			TestSession.logger.info("Q name:" + qi.getQueueName() + " Q state:"
+					+ qi.getState());
+
+		}
+
+		HashMap<String, String> sleepJobParams = new HashMap<String, String>();
+		sleepJobParams.put("mapreduce.job.queuename", undefinedQueue);
+		sleepJobParams.put("mapreduce.job.user.name",
+				HadooptestConstants.UserNames.HADOOPQA);
+		String[] sleepJobArgs = new String[] { "-m 1 -r 1 -mt 1 -rt 1" };
+		try {
+			runStdSleepJob(sleepJobParams, sleepJobArgs);
+		} catch (Exception e) {
+			TestSession.logger.info("CAUSE:" + e.getCause());
+			TestSession.logger.info("MESSAGE:" + e.getMessage());
+			TestSession.logger.info("LOCALIZED MESSAGE:"
+					+ e.getLocalizedMessage());
+			Assert.assertTrue(
+					"to non-leaf queue: a",
+					e.getMessage().contains(
+							"to unknown queue: " + undefinedQueue));
 		}
 
 	}
