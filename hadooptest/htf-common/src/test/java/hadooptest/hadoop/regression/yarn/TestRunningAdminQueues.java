@@ -63,13 +63,20 @@ public class TestRunningAdminQueues extends YarnTestsBaseClass {
 				HadooptestConstants.NodeTypes.NAMENODE);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.NAMENODE);
-
+		
+        Assert.assertTrue("Did not leave safe mode within timeout.", 
+                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+        
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
 		Thread.sleep(60000);
+		
+        Assert.assertTrue("Did not leave safe mode within timeout.", 
+                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+		
 		// Leave safe-mode
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
@@ -107,6 +114,9 @@ public class TestRunningAdminQueues extends YarnTestsBaseClass {
 				TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE),
 				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
+        Assert.assertTrue("Did not leave safe mode within timeout.", 
+                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+		
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 		fullyDistributedCluster.hadoopDaemon(Action.START,
@@ -117,6 +127,9 @@ public class TestRunningAdminQueues extends YarnTestsBaseClass {
 
 		Thread.sleep(20000);
 
+        Assert.assertTrue("Did not leave safe mode within timeout.", 
+                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+		
 		// Leave safe-mode
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
