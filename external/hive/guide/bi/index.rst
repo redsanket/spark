@@ -465,27 +465,12 @@ Tableau to Hive. What you won't be learning is how to use Tableau. See the
 `Tableau Quick Start Guides <http://www.tableausoftware.com/support/manuals/quickstart>`_
 to learn how to use the software.
 
-.. _tableau-reqs:
+Before You Get Started
+----------------------
 
-Requirements
-------------
-
-- `Windows 7 <http://windows.microsoft.com/en-us/windows7/products/system-requirements>`_ 
-  (Yahoo corporate Win7 64-bit image)
-
-
-.. _tableau-setup:
-
-Setting Up
-----------
-
-.. _tableau_setup-auth:
-
-1. Request HiveServer2 Authorization
-####################################
-
-To access HiveServer2, you must be part of the privileged **hsuser** group by completing
-the following steps.
+Before you can use Tableau on either a Mac or Windows machine, you'll need access to HiveServer2 
+on the Yahoo Grid. Complete the steps below to be a member of the privileged **hsuser** group,
+which will allow you to use Hive.
 
 #. In this tutorial, we'll be using the Kryptonite Red grid (KR), so the VIP URL that
    you'll be using is ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com``. If you plan on using
@@ -513,10 +498,201 @@ the following steps.
    ticket that will track the status of your request.
    At this time HiveServer2 authorization will only be granted to select business units.
 
+
+Instructions for Mac OS
+-----------------------
+
+.. _tableau-mac_reqs:
+
+Miniumum Requirements
+#####################
+
+- iMac (mid 2007 or newer)
+- MacBook (late 2008 Aluminum, or early 2009 or newer)
+- MacBook Pro (mid/late 2007 or newer)
+- MacBook Air (late 2008 or newer)
+- Mac mini (early 2009 or newer)
+- OS X 10.8.1 or later (10.8.6 or later recommended)
+- 2 GB memory
+- 500 MB available disk space
+
+Setting Up
+##########
+
+.. _tableau_windows-instructions:
+
+1. Install and Configure the Hortonworks Hive ODBC Driver
+*********************************************************
+
+#. Download and install the `Hortonworks Hive ODBC Driver for Mac OS X <http://public-repo-1.hortonworks.com/HDP/hive-odbc/1.4.8.1008/Mac_OS_X/hive-odbc-native.dmg>`_.
+#. Append the following to your ``/etc/profile`` file (you will need root access)::
+
+       if [ "${DYLD_LIBRARY_PATH}" = "" ]; then
+           # For Hortonworks Hadoop Hive driver
+           export DYLD_LIBRARY_PATH="/usr/lib/hive/lib/native/universal" 
+       else 
+           export DYLD_LIBRARY_PATH="/usr/lib/hive/lib/native/universal":"${DYLD_LIBRARY_PATH}" 
+       fi
+
+#. Create the file ``/etc/launchd.conf`` with the following:: 
+
+       setenv DYLD_LIBRARY_PATH /usr/lib/hive/lib/native/universal 
+
+   If the  file exists, append ``/usr/lib/hive/lib/native/universal`` to the 
+   existing DYLD_LIBRARY_PATH after a colon. For example:
+
+       setenv DYLD_LIBRARY_PATH <existing text>:/usr/lib/hive/lib/native/universal 
+
+#. Restart your Mac to ensure Tableau loads the driver correctly.
+
+2. Set Up Kerberos 
+******************
+
+#. Create the file ``etc/krb5.conf`` with the following::
+
+   [logging]
+    default = FILE:/var/log/krb5libs.log
+    kdc = FILE:/var/log/krb5kdc.log
+    admin_server = FILE:/var/log/kadmind.log
+   
+   [libdefaults]
+    default_realm = YGRID.YAHOO.COM
+    dns_fallback = true
+    dns_lookup_kdc = false
+    dns_lookup_realm = true
+    ticket_lifetime = 24h
+    forwardable = yes
+    udp_preference_limit = 1
+    renew_lifetime = 7d
+    allow_weak_crypto=true
+    default_tgs_enctypes = des-cbc-md5 des-cbc-crc arcfour-hmac-md5 des3-cbc-sha1 aes128-cts aes256-cts
+   
+   [realms]
+    YGRID.YAHOO.COM = {
+     admin_server = krb-adm.ygrid.yahoo.com.:749
+     kdc = krb-rr1.red.ygrid.yahoo.com.:88
+     kdc = krb-rr2.red.ygrid.yahoo.com.:88
+     kdc = krb-rr3.red.ygrid.yahoo.com.:88
+     kdc = krb-rr4.red.ygrid.yahoo.com.:88
+     auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+     auth_to_local = RULE:[1:$1@$0](.*@YGRID.YAHOO.COM)s/@.*//
+    }
+   
+    DS.CORP.YAHOO.COM = {
+     kdc = bf1-dc1.corp.bf1.yahoo.com.:88
+     kdc = bf1-dc2.corp.bf1.yahoo.com.:88
+     kdc = sp1-dc1.corp.sp1.yahoo.com.:88
+     kdc = sp1-dc2.corp.sp1.yahoo.com.:88
+     kdc = ac4-dc1.corp.ac4.yahoo.com.:88
+     kdc = ac4-dc2.corp.ac4.yahoo.com.:88
+     auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+    }
+   
+    Y.CORP.YAHOO.COM = {
+     kdc = gq1-gdc01.corp.gq1.yahoo.com.:88
+     kdc = gq1-gdc02.corp.gq1.yahoo.com.:88
+     kdc = bf1-gdc01.corp.bf1.yahoo.com.:88
+     kdc = bf1-gdc02.corp.bf1.yahoo.com.:88
+     auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+    }
+#. Request a ticket: ``$ kinit {your_user_name}@Y.CORP.YAHOO.COM``
+#. Confirm that your ticket was created: ``$ klist``
+  
+3. Download and Install Tableau Desktop
+*************************************** 
+
+Install `Tableau Desktop for Mac <http://www.tableausoftware.com/products/desktop/download?os=mac%20os%20x>`_.
+This is a trial version. To get the licensed version, follow the `instructions for obtaining a full license <http://it.corp.yahoo.com/_pages/RequestingSoftware.html-RequestingSiteLicensedSoftware?>`_.
+Essentially, you `file a ticket <http://eportal.corp.yahoo.com/?obj_view=create&obj_type=sr>`_. 
+The money comes out of each organization's budget, so would require a VP approval. Be sure to 
+get the Professional Edition. Again, you'll need **Tableau Desktop**, not **Tableau Server**.
+
+4. Connect to the Hive Server 2 on Kryptonite
+********************************************* 
+
+#. Open **Tableau** and click **Connect** as shown below.
+
+   .. image:: images/tableau_mac.jpg
+      :height: 394 px
+      :width: 506 px
+      :scale: 95%
+      :alt:  Tableau Desktop for Mac
+      :align: left
+
+#. From the **On a server** column, click **Hortonworks Hadoop Hive**.
+
+   .. image:: images/tableau_mac-connect.jpg      
+      :height: 394 px
+      :width: 506 px
+      :scale: 95%
+      :alt:  Connect to Hortonworks Hadoop Hive
+      :align: left
+
+#. Enter the following information in the **Hortonworks Hadoop Hive** form and click **Connect**.
+
+   - **Server:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (or the URL to the HiveServer2 on a different cluster)
+   - **Port:** 50514
+   - **Type:** HiveServer2
+   - **Realm:** YGRID.YAHOO.COM
+   - **Host FQDN:** kryptonitered-hs2.ygrid.vip.bf1.yahoo.com
+   - **Service Name:** hive
+
+   .. image:: images/tableau_mac-hive_form.jpg    
+      :height: 394 px
+      :width: 506 px
+      :scale: 95%
+      :alt:  Hortonworks Hadoop Hive Form
+      :align: left
+   
+#. You should connect to HiveServer2 in 10 seconds or less. If not, you should go back to the
+   last step and try again.
+
+   .. image:: images/tableau_mac-connected.jpg      
+      :width: 506 px
+      :scale: 95%
+      :alt:  Screenshot of Tableau Desktop connected to HiveServer2 on Kryptonite.
+      :align: left
+
+
+5. Connect to a Database and Execute Query 
+****************************************** 
+
+#. In the **Schema** text box, enter **tableau**.
+#. In the **Table** text box, enter **starling**. Your **Tableau**
+   window should look like the following:
+
+   .. image:: images/tableau_mac-tableau_starling.jpg      
+      :width: 506 px
+      :scale: 95%
+      :alt:  Screenshot of Tableau Desktop using the tableau database and the starling table.
+      :align: left
+#. Click **New Custom SQL**.
+#. In the **Edit Custom SQL** dialog, enter the following query: ``select queue, status from tableau.starling``
+
+
+
+
+Instructions for Windows
+------------------------
+
+.. _tableau-reqs:
+
+Requirements
+############
+
+- `Windows 7 <http://windows.microsoft.com/en-us/windows7/products/system-requirements>`_ 
+  (Yahoo corporate Win7 64-bit image)
+
+
+.. _tableau-setup:
+
+Setting Up
+##########
+
 .. _tableau_setup-install:
 
-2. Install MIT Kerberos Software
-################################
+1. Install MIT Kerberos Software
+********************************
 
 #. `Download the installer for 64-bit system <http://twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fweb.mit.edu%2Fkerberos%2Fdist%2Fkfw%2F4.0%2Fkfw-4.0.1-amd64.msi&SIG=1208b47ak>`_. 
 #. Run the installer by clicking the file and choosing the **Typical** install as shown below.
@@ -636,8 +812,8 @@ principals and IP addresses for DNS.
 
 .. _tableau_setup-odbc:
 
-3. Install and Configure the Hortonworks Hive ODBC Driver
-#########################################################
+2. Install and Configure the Hortonworks Hive ODBC Driver
+*********************************************************
 
 #. `Download the installer <http://twiki.corp.yahoo.com/pub/Grid/HiveServer2BITools/HortonworksHiveODBC32-v1.2.15.1020.msi>`_ 
    for the Hortonworks Hive ODBC driver. The driver version must be 1.2.15 and higher for setting job queues.
@@ -756,12 +932,12 @@ principals and IP addresses for DNS.
 .. _tableau-install:
 
 Installing Tableau 8.0
-----------------------
+######################
 
 .. _tableau_install-trial:
 
 Trial Version
-#############
+*************
 
 Before getting a licensed copy of Tableau, first `download a full-functioning free 
 trial of Tableau's Software <https://downloads.tableausoftware.com/tssoftware/TableauDesktop-32bit.exe>`_.  
@@ -772,7 +948,7 @@ licensed copy, see the next section.
 .. _tableau_install-licensed:
 
 Licensed Version
-################
+****************
 
 Follow the `instructions for obtaining a full license <http://it.corp.yahoo.com/_pages/RequestingSoftware.html-RequestingSiteLicensedSoftware?>`_.
 Essentially, you `file a ticket <http://eportal.corp.yahoo.com/?obj_view=create&obj_type=sr>`_. 
@@ -782,7 +958,7 @@ get the Professional Edition. Again, you'll need **Tableau Desktop**, not **Tabl
 .. _tableau-hiveserver2:
 
 Connecting Tableau to HiveServer2
----------------------------------
+#################################
 
 After you've installed Tableau, you can connect Tableau to HiveServer2 
 using the Hortonworks Hive ODBC Driver by following the steps below:
@@ -832,7 +1008,7 @@ using the Hortonworks Hive ODBC Driver by following the steps below:
 .. _tableau-data:
 
 Using Tableau With Data 
------------------------
+#######################
 
 In this section, we're just going to run a couple of queries to verify that Tableau
 has connected to Hive table ``tableau`` on the grid. To learn how to use Tableau, we
