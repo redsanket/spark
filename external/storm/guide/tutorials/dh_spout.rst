@@ -52,8 +52,6 @@ your virtual host URI might be ``mydemo-ebonyred.ygrid.local:50701``.
    to make sure that the   virtual host is not be used.
 #. Add your virtual service URI using the following command::
 
-
-
        registry_client addvh  http://{topology_name}-ebonyred.ygrid.local:{unique_port:50600-50700}
 
 .. storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat addVH http://{topology_name}-ebonyred.ygrid.local:{available_port}
@@ -73,13 +71,13 @@ For example, we will launch our sample topology with 2 machines and 2 spout inst
 #. Change to ``storm-contrib/rainbow_spout_example/target/classes``.
 #. Launch storm with the two spouts below. Replace ``{your_topology_name}`` with the topology name you requested during on-boarding.
 
-       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{your_topology_name}.ebonyred.ygrid.local:50700 -c topology.isolate.machines=2 -n {your_topology_name} -p 2  http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
+       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{your_topology_name}.ebonyred.ygrid.local:{port-specified-with-registry_client} -c topology.isolate.machines=2 -n {your_topology_name} -p 2  http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
 
    The main difference between the topology name in this tutorial from that in the 
    quick start is that the topology here represents an instance on the Storm
    cluster as well as the name of the topology running.
 
-.. storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://RainbowSpoutTest-ebonyred.ygrid.local:50609/ -c topology.isolate.machines=2 -n RainbowSpoutTest -p 2 -c http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
+.. Ex: storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://RainbowSpoutTest-ebonyred.ygrid.local:50609/ -c topology.isolate.machines=2 -n RainbowSpoutTest -p 2 -c http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
  
       
 #. You can see your job running in the **Storm UI**. The URL to the **Storm UI** depends on your
@@ -96,19 +94,24 @@ For example, we will launch our sample topology with 2 machines and 2 spout inst
 Injecting Sample Rainbow Events
 -------------------------------
 
-To inject events, we'll be using ``yfor`` to enable communication with multiple spouts that we have launched.
-Fortunately, ``yfor`` is already installed on the node clusters.
+To inject events, we'll be using ``curl`` to enable communication with multiple spouts that we have launched.
 
-#. Configure ``yfor`` for routing by adding the following configuration to ``/home/y/etc/yfor/{topology_name}-ebonyred.conf``::
+#. The first use of ``curl`` is to get the host that is associated with your virtual host.
 
-       name {topology_name}-ebonyred.ygrid.local
-       config-url http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/virtualHost/{topology_name}-ebonyred.ygrid.local/ext/yahoo/yfor_config
-       
-#. ``LD_PRELOAD=/home/y/lib64/libyfor.so.1``
-   .. Use cURL to inject an event from a file: ``LD_PRELOAD=/home/y/lib64/libyfor.so.1 curl --data-binary @/homes/afeng/dh_events/out.prism.3 http://dh-demo-ebonyred.ygrid.local:50700``
+       curl http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/virtualHost/{your_topology_name}-ebonyred.ygrid.local/ext/yahoo/yfor_config; echo; 
+#. The output should look like the following where the value given to ``host`` is the machine that you will directing HTTP requests to::
 
+       name {your_topology_name}-ebonyred.ygrid.local
+       host gsrd453n02.red.ygrid.yahoo.com
+       check-type none
+       mode all-active
+       ttl 30000
+#. With the host above, you can then send a DH event to your topology (the ``dh_events`` directory has many test files to use for cURL calls):
+   
+       curl --data-binary @/homes/afeng/dh_events/out.prism.30 http://gsrd453n02.red.ygrid.yahoo.com:{port_specified_with_registry_client}
 
-.. http://ebonyred-ni.red.ygrid.yahoo.com:9999/
+#. Go back to the `Storm UI <http://ebonyred-ni.red.ygrid.yahoo.com:9999>`_. You should see changes in the topology statistics as 
+
 
 Viewing Your Job With the Storm UI 
 ----------------------------------
