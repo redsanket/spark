@@ -1,11 +1,12 @@
 {
     "version": 2,
     "shared": {
-        "notification_email": "htf-devel@yahoo-inc.com"
+        "notification_email": "htf-devel@yahoo-inc.com",
+        "build_timeout": 120
     },
     "jobs": {
         "component": {
-            "test_results_type": "none",
+            "test_results_type": "junit",
             "coverage_type": "none"
         }
     }
