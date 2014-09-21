@@ -95,226 +95,218 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 
 	public int run(String[] args, String mode, Session session, String testName)
 			throws Exception {
+		TestSession.logger.info("Arg free memory:" + (int)Runtime.getRuntime().freeMemory()/(1024*1024));
+		TestSession.logger.info("Arg free procc:" + Runtime.getRuntime().availableProcessors());
+
+		for (String anArg:args){
+			TestSession.logger.info("Arg Tez:" + anArg);
+		}
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(), mode, session, testName);
-		String[] otherArgs = new GenericOptionsParser(conf, args)
-				.getRemainingArgs();
+		conf.set(TezConfiguration.TEZ_AM_LOG_LEVEL, "DEBUG");
+	    String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 
-		boolean generateSplitsInClient;
+	    boolean generateSplitsInClient;
 
-		SplitsInClientOptionParser splitCmdLineParser = new SplitsInClientOptionParser();
-		try {
-			generateSplitsInClient = splitCmdLineParser.parse(otherArgs, false);
-			otherArgs = splitCmdLineParser.getRemainingArgs();
-		} catch (ParseException e1) {
-			System.err.println("Invalid options");
-			printUsage();
-			return 2;
-		}
+	    SplitsInClientOptionParser splitCmdLineParser = new SplitsInClientOptionParser();
+	    try {
+	      generateSplitsInClient = splitCmdLineParser.parse(otherArgs, false);
+	      otherArgs = splitCmdLineParser.getRemainingArgs();
+	    } catch (ParseException e1) {
+	      System.err.println("Invalid options");
+	      printUsage();
+	      return 2;
+	    }
 
-		boolean useTezSession = conf.getBoolean("USE_TEZ_SESSION", true);
-		long interJobSleepTimeout = conf.getInt("INTER_JOB_SLEEP_INTERVAL", 0) * 1000;
+	    boolean useTezSession = conf.getBoolean("USE_TEZ_SESSION", true);
+	    long interJobSleepTimeout = conf.getInt("INTER_JOB_SLEEP_INTERVAL", 0)
+	        * 1000;
 
-		boolean retainStagingDir = conf.getBoolean("RETAIN_STAGING_DIR", false);
-		boolean useMRSettings = conf.getBoolean("USE_MR_CONFIGS", true);
-		// TODO needs to use auto reduce parallelism
-		int intermediateNumReduceTasks = conf.getInt("IREDUCE_NUM_TASKS", 2);
+	    boolean retainStagingDir = conf.getBoolean("RETAIN_STAGING_DIR", false);
+	    boolean useMRSettings = conf.getBoolean("USE_MR_CONFIGS", true);
+	    // TODO needs to use auto reduce parallelism
+	    int intermediateNumReduceTasks = conf.getInt("IREDUCE_NUM_TASKS", 2);
 
-		if (((otherArgs.length % 2) != 0)
-				|| (!useTezSession && otherArgs.length != 2)) {
-			printUsage();
-			return 2;
-		}
+	    if (((otherArgs.length%2) != 0)
+	        || (!useTezSession && otherArgs.length != 2)) {
+	      printUsage();
+	      return 2;
+	    }
 
-		List<String> inputPaths = new ArrayList<String>();
-		List<String> outputPaths = new ArrayList<String>();
+	    List<String> inputPaths = new ArrayList<String>();
+	    List<String> outputPaths = new ArrayList<String>();
 
-		for (int i = 0; i < otherArgs.length; i += 2) {
-			inputPaths.add(otherArgs[i]);
-			outputPaths.add(otherArgs[i + 1]);
-		}
+	    for (int i = 0; i < otherArgs.length; i+=2) {
+	      inputPaths.add(otherArgs[i]);
+	      outputPaths.add(otherArgs[i+1]);
+	    }
 
-		UserGroupInformation.setConfiguration(conf);
+	    UserGroupInformation.setConfiguration(conf);
 
-		TezConfiguration tezConf = new TezConfiguration(conf);
-		TestOrderedWordCount instance = new TestOrderedWordCount();
+	    TezConfiguration tezConf = new TezConfiguration(conf);
+	    TestOrderedWordCount instance = new TestOrderedWordCount();
 
-		FileSystem fs = FileSystem.get(conf);
+	    FileSystem fs = FileSystem.get(conf);
 
-		String stagingDirStr = conf.get(TezConfiguration.TEZ_AM_STAGING_DIR,
-				TezConfiguration.TEZ_AM_STAGING_DIR_DEFAULT)
-				+ Path.SEPARATOR
-				+ Long.toString(System.currentTimeMillis());
-		Path stagingDir = new Path(stagingDirStr);
-		FileSystem pathFs = stagingDir.getFileSystem(tezConf);
-		pathFs.mkdirs(new Path(stagingDirStr));
+	    String stagingDirStr =  conf.get(TezConfiguration.TEZ_AM_STAGING_DIR,
+	            TezConfiguration.TEZ_AM_STAGING_DIR_DEFAULT) + Path.SEPARATOR + 
+	            Long.toString(System.currentTimeMillis());
+	    Path stagingDir = new Path(stagingDirStr);
+	    FileSystem pathFs = stagingDir.getFileSystem(tezConf);
+	    pathFs.mkdirs(new Path(stagingDirStr));
 
-		tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
-		stagingDir = pathFs.makeQualified(new Path(stagingDirStr));
+	    tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
+	    stagingDir = pathFs.makeQualified(new Path(stagingDirStr));
+	    
+	    TokenCache.obtainTokensForNamenodes(credentials, new Path[] {stagingDir}, conf);
+	    TezClientUtils.ensureStagingDirExists(tezConf, stagingDir);
 
-		TokenCache.obtainTokensForNamenodes(credentials,
-				new Path[] { stagingDir }, conf);
-		TezClientUtils.ensureStagingDirExists(tezConf, stagingDir);
+	    // No need to add jar containing this class as assumed to be part of
+	    // the tez jars.
 
-		// No need to add jar containing this class as assumed to be part of
-		// the tez jars.
+	    // TEZ-674 Obtain tokens based on the Input / Output paths. For now assuming staging dir
+	    // is the same filesystem as the one used for Input/Output.
+	    
+	    if (useTezSession) {
+	      TestSession.logger.info("Creating Tez Session");
+	      tezConf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
+	    } else {
+	      tezConf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
+	    }
+	    TezClient tezSession = TezClient.create("OrderedWordCountSession", tezConf,
+	        null, credentials);
+	    tezSession.start();
 
-		// TEZ-674 Obtain tokens based on the Input / Output paths. For now
-		// assuming staging dir
-		// is the same filesystem as the one used for Input/Output.
+	    DAGStatus dagStatus = null;
+	    DAGClient dagClient = null;
+	    String[] vNames = { "initialmap", "intermediate_reducer",
+	      "finalreduce" };
 
-		if (useTezSession) {
-			TestSession.logger.info("Creating Tez Session");
-			tezConf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
-		} else {
-			tezConf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
-		}
-		TezClient tezSession = TezClient.create("OrderedWordCountSession",
-				tezConf, null, credentials);
-		tezSession.start();
+	    Set<StatusGetOpts> statusGetOpts = EnumSet.of(StatusGetOpts.GET_COUNTERS);
+	    try {
+	      for (int dagIndex = 1; dagIndex <= inputPaths.size(); ++dagIndex) {
+	        if (dagIndex != 1
+	            && interJobSleepTimeout > 0) {
+	          try {
+	            TestSession.logger.info("Sleeping between jobs, sleepInterval="
+	                + (interJobSleepTimeout/1000));
+	            Thread.sleep(interJobSleepTimeout);
+	          } catch (InterruptedException e) {
+	            TestSession.logger.info("Main thread interrupted. Breaking out of job loop");
+	            break;
+	          }
+	        }
 
-		DAGStatus dagStatus = null;
-		DAGClient dagClient = null;
-		String[] vNames = { "initialmap", "intermediate_reducer", "finalreduce" };
+	        String inputPath = inputPaths.get(dagIndex-1);
+	        String outputPath = outputPaths.get(dagIndex-1);
 
-		Set<StatusGetOpts> statusGetOpts = EnumSet
-				.of(StatusGetOpts.GET_COUNTERS);
-		try {
-			for (int dagIndex = 1; dagIndex <= inputPaths.size(); ++dagIndex) {
-				if (dagIndex != 1 && interJobSleepTimeout > 0) {
-					try {
-						TestSession.logger
-								.info("Sleeping between jobs, sleepInterval="
-										+ (interJobSleepTimeout / 1000));
-						Thread.sleep(interJobSleepTimeout);
-					} catch (InterruptedException e) {
-						TestSession.logger
-								.info("Main thread interrupted. Breaking out of job loop");
-						break;
-					}
-				}
+	        if (fs.exists(new Path(outputPath))) {
+	          throw new FileAlreadyExistsException("Output directory "
+	              + outputPath + " already exists");
+	        }
+	        TestSession.logger.info("Running OrderedWordCount DAG"
+	            + ", dagIndex=" + dagIndex
+	            + ", inputPath=" + inputPath
+	            + ", outputPath=" + outputPath);
 
-				String inputPath = inputPaths.get(dagIndex - 1);
-				String outputPath = outputPaths.get(dagIndex - 1);
+	        Map<String, LocalResource> localResources =
+	          new TreeMap<String, LocalResource>();
+	        
+	        DAG dag = instance.createDAG(fs, conf, localResources,
+	            stagingDir, dagIndex, inputPath, outputPath,
+	            generateSplitsInClient, useMRSettings, intermediateNumReduceTasks);
 
-				if (fs.exists(new Path(outputPath))) {
-					throw new FileAlreadyExistsException("Output directory "
-							+ outputPath + " already exists");
-				}
-				TestSession.logger.info("Running OrderedWordCount DAG"
-						+ ", dagIndex=" + dagIndex + ", inputPath=" + inputPath
-						+ ", outputPath=" + outputPath);
+	        boolean doPreWarm = dagIndex == 1 && useTezSession
+	            && conf.getBoolean("PRE_WARM_SESSION", true);
+	        int preWarmNumContainers = 0;
+	        if (doPreWarm) {
+	          preWarmNumContainers = conf.getInt("PRE_WARM_NUM_CONTAINERS", 0);
+	          if (preWarmNumContainers <= 0) {
+	            doPreWarm = false;
+	          }
+	        }
+	        if (doPreWarm) {
+	          TestSession.logger.info("Pre-warming Session");
+	          PreWarmVertex preWarmVertex = PreWarmVertex.create("PreWarm", preWarmNumContainers, dag
+	              .getVertex("initialmap").getTaskResource());
+	          preWarmVertex.addTaskLocalFiles(dag.getVertex("initialmap").getTaskLocalFiles());
+	          preWarmVertex.setTaskEnvironment(dag.getVertex("initialmap").getTaskEnvironment());
+	          preWarmVertex.setTaskLaunchCmdOpts(dag.getVertex("initialmap").getTaskLaunchCmdOpts());
+	          
+	          tezSession.preWarm(preWarmVertex);
+	        }
 
-				Map<String, LocalResource> localResources = new TreeMap<String, LocalResource>();
+	        if (useTezSession) {
+	          TestSession.logger.info("Waiting for TezSession to get into ready state");
+	          waitForTezSessionReady(tezSession);
+	          TestSession.logger.info("Submitting DAG to Tez Session, dagIndex=" + dagIndex);
+	          dagClient = tezSession.submitDAG(dag);
+	          TestSession.logger.info("Submitted DAG to Tez Session, dagIndex=" + dagIndex);
+	        } else {
+	          TestSession.logger.info("Submitting DAG as a new Tez Application");
+	          dagClient = tezSession.submitDAG(dag);
+	        }
 
-				DAG dag = instance.createDAG(fs, conf, localResources,
-						stagingDir, dagIndex, inputPath, outputPath,
-						generateSplitsInClient, useMRSettings,
-						intermediateNumReduceTasks);
+	        while (true) {
+	          dagStatus = dagClient.getDAGStatus(statusGetOpts);
+	          if (dagStatus.getState() == DAGStatus.State.RUNNING ||
+	              dagStatus.getState() == DAGStatus.State.SUCCEEDED ||
+	              dagStatus.getState() == DAGStatus.State.FAILED ||
+	              dagStatus.getState() == DAGStatus.State.KILLED ||
+	              dagStatus.getState() == DAGStatus.State.ERROR) {
+	            break;
+	          }
+	          try {
+	            Thread.sleep(500);
+	          } catch (InterruptedException e) {
+	            // continue;
+	          }
+	        }
 
-				boolean doPreWarm = dagIndex == 1 && useTezSession
-						&& conf.getBoolean("PRE_WARM_SESSION", true);
-				int preWarmNumContainers = 0;
-				if (doPreWarm) {
-					preWarmNumContainers = conf.getInt(
-							"PRE_WARM_NUM_CONTAINERS", 0);
-					if (preWarmNumContainers <= 0) {
-						doPreWarm = false;
-					}
-				}
-				if (doPreWarm) {
-					TestSession.logger.info("Pre-warming Session");
-					PreWarmVertex preWarmVertex = PreWarmVertex.create(
-							"PreWarm", preWarmNumContainers,
-							dag.getVertex("initialmap").getTaskResource());
-					preWarmVertex.addTaskLocalFiles(dag.getVertex("initialmap")
-							.getTaskLocalFiles());
-					preWarmVertex.setTaskEnvironment(dag
-							.getVertex("initialmap").getTaskEnvironment());
-					preWarmVertex.setTaskLaunchCmdOpts(dag.getVertex(
-							"initialmap").getTaskLaunchCmdOpts());
 
-					tezSession.preWarm(preWarmVertex);
-				}
+	        while (dagStatus.getState() != DAGStatus.State.SUCCEEDED &&
+	            dagStatus.getState() != DAGStatus.State.FAILED &&
+	            dagStatus.getState() != DAGStatus.State.KILLED &&
+	            dagStatus.getState() != DAGStatus.State.ERROR) {
+	          if (dagStatus.getState() == DAGStatus.State.RUNNING) {
+	            ExampleDriver.printDAGStatus(dagClient, vNames);
+	          }
+	          try {
+	            try {
+	              Thread.sleep(1000);
+	            } catch (InterruptedException e) {
+	              // continue;
+	            }
+	            dagStatus = dagClient.getDAGStatus(statusGetOpts);
+	          } catch (TezException e) {
+	            TestSession.logger.fatal("Failed to get application progress. Exiting");
+	            return -1;
+	          }
+	        }
+	        ExampleDriver.printDAGStatus(dagClient, vNames,
+	            true, true);
+	        TestSession.logger.info("DAG " + dagIndex + " completed. "
+	            + "FinalState=" + dagStatus.getState());
+	        if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
+	          TestSession.logger.info("DAG " + dagIndex + " diagnostics: "
+	            + dagStatus.getDiagnostics());
+	        }
+	      }
+	    } catch (Exception e) {
+	      TestSession.logger.error("Error occurred when submitting/running DAGs", e);
+	      throw e;
+	    } finally {
+	      if (!retainStagingDir) {
+	        pathFs.delete(stagingDir, true);
+	      }
+	      TestSession.logger.info("Shutting down session");
+	      tezSession.stop();
+	    }
 
-				if (useTezSession) {
-					TestSession.logger
-							.info("Waiting for TezSession to get into ready state");
-					waitForTezSessionReady(tezSession);
-					TestSession.logger
-							.info("Submitting DAG to Tez Session, dagIndex="
-									+ dagIndex);
-					dagClient = tezSession.submitDAG(dag);
-					TestSession.logger
-							.info("Submitted DAG to Tez Session, dagIndex="
-									+ dagIndex);
-				} else {
-					TestSession.logger
-							.info("Submitting DAG as a new Tez Application");
-					dagClient = tezSession.submitDAG(dag);
-				}
-
-				while (true) {
-					dagStatus = dagClient.getDAGStatus(statusGetOpts);
-					if (dagStatus.getState() == DAGStatus.State.RUNNING
-							|| dagStatus.getState() == DAGStatus.State.SUCCEEDED
-							|| dagStatus.getState() == DAGStatus.State.FAILED
-							|| dagStatus.getState() == DAGStatus.State.KILLED
-							|| dagStatus.getState() == DAGStatus.State.ERROR) {
-						break;
-					}
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e) {
-						// continue;
-					}
-				}
-
-				while (dagStatus.getState() != DAGStatus.State.SUCCEEDED
-						&& dagStatus.getState() != DAGStatus.State.FAILED
-						&& dagStatus.getState() != DAGStatus.State.KILLED
-						&& dagStatus.getState() != DAGStatus.State.ERROR) {
-					if (dagStatus.getState() == DAGStatus.State.RUNNING) {
-						ExampleDriver.printDAGStatus(dagClient, vNames);
-					}
-					try {
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							// continue;
-						}
-						dagStatus = dagClient.getDAGStatus(statusGetOpts);
-					} catch (TezException e) {
-						TestSession.logger
-								.fatal("Failed to get application progress. Exiting");
-						return -1;
-					}
-				}
-				ExampleDriver.printDAGStatus(dagClient, vNames, true, true);
-				TestSession.logger.info("DAG " + dagIndex + " completed. "
-						+ "FinalState=" + dagStatus.getState());
-				if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
-					TestSession.logger.info("DAG " + dagIndex
-							+ " diagnostics: " + dagStatus.getDiagnostics());
-				}
-			}
-		} catch (Exception e) {
-			TestSession.logger.error(
-					"Error occurred when submitting/running DAGs", e);
-			throw e;
-		} finally {
-			if (!retainStagingDir) {
-				pathFs.delete(stagingDir, true);
-			}
-			TestSession.logger.info("Shutting down session");
-			tezSession.stop();
-		}
-
-		if (!useTezSession) {
-			ExampleDriver.printDAGStatus(dagClient, vNames);
-			TestSession.logger.info("Application completed. " + "FinalState="
-					+ dagStatus.getState());
-		}
-		return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
+	    if (!useTezSession) {
+	      ExampleDriver.printDAGStatus(dagClient, vNames);
+	      TestSession.logger.info("Application completed. " + "FinalState=" + dagStatus.getState());
+	    }
+	    return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
 	}
 }

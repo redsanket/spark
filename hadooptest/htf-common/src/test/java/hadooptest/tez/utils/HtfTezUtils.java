@@ -23,10 +23,12 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -72,7 +74,7 @@ public class HtfTezUtils {
 		for (String envName : env.keySet()) {
 			System.out.format("%s=%s%n", envName, env.get(envName));
 		}
-
+		
 		// Local mode settings
 		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
 			TestSession.logger.info("So it is :" + System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
@@ -99,20 +101,26 @@ public class HtfTezUtils {
 
 		// Consider using a session
 		if (useSession == Session.YES) {
-			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
+//			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
+			conf.setBoolean("USE_TEZ_SESSION", true);
 		} else {
-			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
+//			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
+			conf.setBoolean("USE_TEZ_SESSION", false);
 		}
 
 		//Set the staging dir
 		String user = UserGroupInformation.getCurrentUser()
 				.getShortUserName();
-		String stagingDirStr = "." + Path.SEPARATOR + "user"
-				+ Path.SEPARATOR + user + Path.SEPARATOR + ".staging"
-				+ Path.SEPARATOR + testName
-				+ Long.toString(System.currentTimeMillis());
-		
-		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
+//		String stagingDirStr = "." + Path.SEPARATOR + "user"
+//				+ Path.SEPARATOR + user + Path.SEPARATOR + ".staging"
+//				+ Path.SEPARATOR + testName
+//				+ Long.toString(System.currentTimeMillis());
+	    FileSystem fs = FileSystem.get(conf);
+
+	    Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID().toString());
+	    conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
+
+//		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
 

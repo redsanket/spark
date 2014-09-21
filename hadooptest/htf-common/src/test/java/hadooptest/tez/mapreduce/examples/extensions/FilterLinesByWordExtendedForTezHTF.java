@@ -140,18 +140,21 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	    TezConfiguration tezConf = new TezConfiguration(conf);
 
 	    fs.getWorkingDirectory();
+	    TestSession.logger.info("Amit: workingDirectory:" + fs.getWorkingDirectory());
 	    Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID().toString());
+	    TestSession.logger.info("Amit: stagingDirectory:" + stagingDir.toString());
 	    tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
 	    TezClientUtils.ensureStagingDirExists(tezConf, stagingDir);
 
-	    String jarPath = ClassUtil.findContainingJar(FilterLinesByWord.class);
+	    String jarPath = ClassUtil.findContainingJar(FilterLinesByWordExtendedForTezHTF.class);
 	    if (jarPath == null) {
 	      throw new TezUncheckedException("Could not find any jar containing"
-	          + FilterLinesByWord.class.getName() + " in the classpath");
+	          + FilterLinesByWordExtendedForTezHTF.class.getName() + " in the classpath");
 	    }
 
 	    Path remoteJarPath = fs.makeQualified(new Path(stagingDir, "dag_job.jar"));
 	    fs.copyFromLocalFile(new Path(jarPath), remoteJarPath);
+	    TestSession.logger.info("Amit: remoteJarPath:" + remoteJarPath.toString());
 	    FileStatus remoteJarStatus = fs.getFileStatus(remoteJarPath);
 	    TokenCache.obtainTokensForNamenodes(credentials, new Path[]{remoteJarPath}, conf);
 
@@ -161,6 +164,15 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	        LocalResourceType.FILE, LocalResourceVisibility.APPLICATION,
 	        remoteJarStatus.getLen(), remoteJarStatus.getModificationTime());
 	    commonLocalResources.put("dag_job.jar", dagJarLocalRsrc);
+	    
+	    TestSession.logger.info("Amit: ConverterUtils.getYarnUrlFromPath(remoteJarPath):" + ConverterUtils.getYarnUrlFromPath(remoteJarPath));
+	    TestSession.logger.info("Amit: dagJarLocalRsrc.getResource().getFile():" + dagJarLocalRsrc.getResource().getFile());
+	    TestSession.logger.info("Amit: dagJarLocalRsrc.getResource().getHost():" + dagJarLocalRsrc.getResource().getHost());
+	    TestSession.logger.info("Amit: dagJarLocalRsrc.getResource().getScheme():" + dagJarLocalRsrc.getResource().getScheme());
+	    TestSession.logger.info("Amit: dagJarLocalRsrc.getVisibility().name():" + dagJarLocalRsrc.getVisibility().name());
+	    TestSession.logger.info("Amit: dagJarLocalRsrc.getPattern():" + dagJarLocalRsrc.getPattern());
+	    
+	    
 
 
 

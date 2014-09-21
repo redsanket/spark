@@ -199,7 +199,8 @@ elsif ($storm090) {
     $dependencies_opt .= " -Pprofile-storm-090 -Pprofile-all";
 }
 elsif ($tez) {
-    $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    #$dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    $dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 else {
 	# When Hadoop is used, this profile must be called before profile-ci
@@ -274,7 +275,7 @@ chomp($hadoop_version = `$cmd`);
 
 my $tez_version;
 if ($tez){
-  my $cmd = "ls -l /home/gs/tez/tez-api-0*.jar | cut -d'-' -f10 | rev | cut -d. -f2- | rev";
+  my $cmd = "ls -l /home/gs/tez/tez-api-0*.jar | cut -d' ' -f9| cut -d'-' -f3| rev | cut -d. -f2- | rev";
   note($cmd);
   chomp($tez_version = `$cmd`);
 }

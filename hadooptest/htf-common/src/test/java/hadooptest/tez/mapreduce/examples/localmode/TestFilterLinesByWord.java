@@ -11,6 +11,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
+import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordStandAloneHtf;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 
@@ -34,7 +35,12 @@ import org.junit.rules.TestName;
  */
 
 @Category(SerialTests.class)
-public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
+public class TestFilterLinesByWord extends FilterLinesByWordStandAloneHtf {
+//	public TestFilterLinesByWord(boolean exitOnCompletion) {
+//		super(exitOnCompletion);
+//		// TODO Auto-generated constructor stub
+//	}
+
 	public static String SOURCE_FILE = "/home/y/share/htf-data/excite-small.log";
 	public static String OUTPUT_LOCATION = "/tmp/outOfFilterLinesByWord";
 

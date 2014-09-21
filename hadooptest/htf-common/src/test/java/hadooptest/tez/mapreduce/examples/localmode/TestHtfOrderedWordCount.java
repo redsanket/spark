@@ -32,7 +32,7 @@ import org.junit.rules.TestName;
 @Category(SerialTests.class)
 public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	public static String INPUT_FILE = "/home/y/share/htf-data/excite-small.log";
-	public static String OUTPUT_LOCATION = "/tmp/ouOfOrderedWordCount";
+	public static String OUTPUT_LOCATION = "/tmp/outOfOrderedWordCount";
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -63,8 +63,8 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	@Test
 	public void testOrderedWordCountWithSplitRunOnLocalWithSession()
 			throws Exception {
-		String[] jobArgs = new String[] { "-generateSplitsInClient",
-				INPUT_FILE, OUTPUT_LOCATION };
+		String[] jobArgs = new String[] { 
+				INPUT_FILE, OUTPUT_LOCATION, "-generateSplitsInClient" };
 		int returnCode = run(jobArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
@@ -74,8 +74,8 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	@Test
 	public void testOrderedWordCountWithSplitRunOnLocalWithoutSession()
 			throws Exception {
-		String[] jobArgs = new String[] { "-generateSplitsInClient",
-				INPUT_FILE, OUTPUT_LOCATION };
+		String[] jobArgs = new String[] { 
+				INPUT_FILE, OUTPUT_LOCATION, "-generateSplitsInClient" };
 		int returnCode = run(jobArgs,
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());
