@@ -5,15 +5,10 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,35 +16,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
-	String protocol;
-
-	public TestTrashFeatureOfHdfs(String protocol) {
-		this.protocol = protocol;
-		logger.info("Test invoked for protocol/schema:" + protocol);
-	}
-
-	static Logger logger = Logger.getLogger(TestTrashFeatureOfHdfs.class);
+	String protocol = HadooptestConstants.Schema.HDFS;
 
 	File folderNamedSuitestartOnHdfs;
 	private static String TEST_FOLDER_NAME_ON_HDFS = "suitestart";
 	private boolean skipRemovingDotTrashInAfterMethod = false;
 	private boolean skipRemovingFilesOnHdfsInAfterMethod = false;
-
-	@Parameters
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] {
-		// Schemas
-		// { HadooptestConstants.Schema.WEBHDFS },
-		// { "" },
-		{ HadooptestConstants.Schema.HDFS }, });
-	}
 
 	@Rule
 	public TemporaryFolder tempTrashFeatureFolder = new TemporaryFolder();
@@ -57,7 +32,8 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
 	public TemporaryFolder tempTrashFeatureFolderResult = new TemporaryFolder();
 
 	@Before
-	public void beforeEachTest() throws Exception {
+	public void setupTest() throws Exception {
+        logger.info("Test invoked for protocol/schema:" + protocol);
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 		folderNamedSuitestartOnHdfs = tempTrashFeatureFolder
@@ -815,12 +791,6 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
 		TestSession.logger.info("getDotTrashContent is returning:"
 				+ dotTrashFolder);
 		return dotTrashFolder;
-	}
-
-	@Override
-	@After
-	public void logTaskReportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 }

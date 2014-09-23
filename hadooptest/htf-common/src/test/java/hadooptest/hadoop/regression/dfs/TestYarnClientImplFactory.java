@@ -7,11 +7,9 @@ import hadooptest.automation.factories.yarnClientImpl.YarnClientImplFactory;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
 public class TestYarnClientImplFactory extends TestSession {
-	Logger logger = Logger.getLogger(TestYarnClientImplFactory.class);
 
 	@Test
 	@Deprecated

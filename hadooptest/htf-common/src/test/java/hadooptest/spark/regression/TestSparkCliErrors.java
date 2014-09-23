@@ -23,57 +23,6 @@ public class TestSparkCliErrors extends TestSession {
 	}
 
 	/*
-	 * A test running without --class not specified
-	 * 
-	 */
-	@Test
-	public void runSparkPiTestErrorClass() {
-		try {
-			SparkPi appUserDefault = new SparkPi();
-
-			appUserDefault.setWorkerMemory("2g");
-			appUserDefault.setNumWorkers(2);
-			appUserDefault.setWorkerCores(1);
-            appUserDefault.setShouldPassClass(false);
-
-			appUserDefault.start();
-
-			assertTrue("Error because --class not specified",
-					appUserDefault.waitForERROR(10));
-
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-            fail();
-		}
-	}
-	
-	/*
-	 * A test running without --jar not specified
-	 * 
-	 */
-	@Test
-	public void runSparkPiTestErrorJar() {
-		try {
-			SparkPi appUserDefault = new SparkPi();
-
-			appUserDefault.setWorkerMemory("2g");
-			appUserDefault.setNumWorkers(2);
-			appUserDefault.setWorkerCores(1);
-            appUserDefault.setShouldPassJar(false);
-
-			appUserDefault.start();
-
-			assertTrue("Error because --jar not specified",
-					appUserDefault.waitForERROR(10));
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
-	}
-
-	/*
 	 * A test running number of workers 0
 	 * 
 	 */

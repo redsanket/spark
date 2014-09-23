@@ -509,7 +509,6 @@ public class YarnTestsBaseClass extends TestSession {
 
 	}
 	
-
 	@Override
 	public void logTaskReportSummary() {
 		// Override the job summary, as it is not required

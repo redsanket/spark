@@ -337,6 +337,13 @@ public class SparkRunClass extends App {
             TestSession.logger.error("Exception " + e.getMessage(), e);
             throw e;
         }
+        // wait for the process to finish and look at the exit code
+        this.process.waitFor();
+        if (this.process.exitValue() != 0) {
+            TestSession.logger.error("Exit code is is: " + process.exitValue());
+            this.ERROR = "exit value is nonzero: " + process.exitValue();
+        }
+
     } 
 
     /**
@@ -379,7 +386,6 @@ public class SparkRunClass extends App {
                     + ":" + this.jarName
                     + ":" + hadoopHome + "common/hadoop-gpl-compression.jar"
                     + ":" + yahooDNSjar
-                    + ":" + hadoopHome + "common/hadoop-common-" + TestSession.cluster.getVersion() + ".jar"
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ArrayList<String> cmd = new ArrayList<String>(16);

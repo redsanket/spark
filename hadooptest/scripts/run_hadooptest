@@ -31,6 +31,7 @@ The options
         [ -storm090                         ] : Run with a Storm-0.9.0 environment
         [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
+        [ -spark12                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -a|--adm_box                      ] : The admin box to be used by the framework (adm103.blue.ygrid.yahoo.com is the default)
@@ -72,6 +73,7 @@ my $storm = 0;
 my $storm090 = 0;
 my $stormconf;
 my $spark = 0;
+my $spark12 = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $username = getpwuid($<);
@@ -91,6 +93,7 @@ GetOptions(\%options,
     "java|j"             => sub { $use_mvn = 0 },
     "gdm"                => \$gdm,
     "spark"              => \$spark,
+    "spark12"            => \$spark12,
     "storm"              => \$storm,
     "storm090"           => \$storm090,
     "stormconf|y=s"      => \$stormconf,
@@ -193,7 +196,12 @@ elsif ($storm090) {
 	# deployed Storm jars. -->
     $dependencies_opt .= " -Pprofile-storm-090 -Pprofile-all";
 }
-else {
+elsif ($spark12) {
+	# When Spark is used, its the same as Hadoop but here we specify
+	# the spark version to override the default so we can support
+	# multiple versions at once.
+    $dependencies_opt .= " -Dspark.version=1.2.0.0 -Dspark.version.full=1.2.0.0_2.5.0.1.1408041624_1409171654 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+} else {
 	# When Hadoop is used, this profile must be called before profile-ci
 	# or any other profile.  If another profile is used first, the
 	# dependency jars from that profile might have Hadoop configuration
@@ -243,9 +251,19 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
 }
 
 # If the user has provided the -spark option to the script, install the Spark
-# 1.0.x package so that we can run tests against the Spark jars.
+# corresponding spark package so that we can run tests against the Spark jars.
 if ($spark) {
-    execute("yinst i yspark_yarn -tag yspark_yarn_1_0_latest_hadoop2 -live -downgrade -br quarantine");
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_1_latest_hadoop2 -live -downgrade -br quarantine");
+    # Hack to support multiple versions of spark. Remove the version(s) that won't compile.
+    # Note that once you run this, you have to re-copy files over to switch to use the other version.
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+} elsif ($spark12) {
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_2_latest_hadoop2 -live -downgrade -br quarantine");
+    # hack to support multiple versions of spark. Remove the version(s) that won't compile.
+    # Note that once you run this, you have to re-copy files over to switch to use the other version.
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_1");
+} else {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
 
 my $hadoop_version;
@@ -317,7 +335,11 @@ if ($use_mvn) {
     
     # Call the script that gets a number of required system dependencies
     # through "yinst fetch".
-    execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
+    if ($spark12) {
+      execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark12");
+    } else {
+      execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
+    }
     
     if ($storm||$storm090) {
         # Clean the project and build the jars so that we can have a test 

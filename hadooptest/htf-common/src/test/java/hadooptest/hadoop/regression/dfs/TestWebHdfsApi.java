@@ -3,15 +3,12 @@ package hadooptest.hadoop.regression.dfs;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.monitoring.Monitorable;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -27,18 +24,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
-import org.apache.log4j.Logger;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestWebHdfsApi extends DfsTestsBaseClass {
 
@@ -66,14 +56,22 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 	static String ACTION_MOVE_TO_LOCAL = "moveToLocal";
 	static String ACTION_CHECKSUM = "chucksum";
 
-	static Logger logger = Logger.getLogger(TestWebHdfsApi.class);
 	// Supporting Data
 	static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
 	private String schema;
 	private String nameNode;
 
-	public TestWebHdfsApi(String cluster) {
+	@Test(expected = AccessControlException.class) public void checkPermissions_local() throws AccessControlException { checkPermissions(System.getProperty("CLUSTER_NAME")); }
+    @Test(expected = AccessControlException.class) public void checkPermissions_remote() throws AccessControlException { checkPermissions(System.getProperty("REMOTE_CLUSTER")); }
+    
+	@Test public void appendToFile_local() throws Exception { appendToFile(System.getProperty("CLUSTER_NAME")); }
+	@Test public void appendToFile_remote() throws Exception { appendToFile(System.getProperty("REMOTE_CLUSTER")); }
+	
+	@Test public void testdoAMovesInAndOutOfClusterAndChecksum_local() throws Exception { testdoAMovesInAndOutOfClusterAndChecksum(System.getProperty("CLUSTER_NAME")); }
+	@Test public void testdoAMovesInAndOutOfClusterAndChecksum_remote() throws Exception { testdoAMovesInAndOutOfClusterAndChecksum(System.getProperty("REMOTE_CLUSTER")); }
+	
+	private void setupTest(String cluster) {
 
 		Properties crossClusterProperties = new Properties();
 		try {
@@ -90,19 +88,8 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		;
 		logger.info("Invoked test for:[" + cluster + "] Scheme:[" + schema
 				+ "] NodeName:[" + nameNode + "]");
-	}
-
-	/*
-	 * Data Driven HDFS tests... The tests are invoked with the following
-	 * parameters.
-	 */
-	@Parameters
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] {
-				// { "boromir" },
-				// { "betty" },
-				{ System.getProperty("CLUSTER_NAME") },
-				{ System.getProperty("REMOTE_CLUSTER") }, });
+		
+		copyFilesOntoHadoopFS();
 	}
 
 	/*
@@ -153,8 +140,7 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Before
-	public void copyFilesOntoHadoopFS() {
+	private void copyFilesOntoHadoopFS() {
 		try {
 			testSessionStart();
 		} catch (Exception e1) {
@@ -183,8 +169,8 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		}
 	}
 
-	@Test(expected = AccessControlException.class)
-	public void checkPermissions() throws AccessControlException {
+	private void checkPermissions(String cluster) throws AccessControlException {
+	    setupTest(cluster);
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
 			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
@@ -219,8 +205,8 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 	}
 
 	// see hangs issuing 'test -f' on NN @Monitorable
-	@Test
-	public void appendToFile() throws Exception {
+	private void appendToFile(String cluster) throws Exception {
+        setupTest(cluster);
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
 			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
@@ -242,8 +228,8 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 	}
 
 	// see hangs issuing 'test -f' on NN @Monitorable
-	@Test
-	public void testdoAMovesInAndOutOfClusterAndChecksum() throws Exception {
+	private void testdoAMovesInAndOutOfClusterAndChecksum(String cluster) throws Exception {
+        setupTest(cluster);
 		for (String aUser : TestWebHdfsApi.supportingData.keySet()) {
 			String aFileName = TestWebHdfsApi.supportingData.get(aUser).get(
 					OWNED_FILE_WITH_COMPLETE_PATH);
@@ -621,10 +607,6 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	@After
-	public void logTaskResportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 

@@ -20,12 +20,24 @@ then
    tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/yjava_jetty.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_jetty_fetch/
 fi
 
-# yspark_yarn-1.0.1.1_2.4.0.3.1405211906_1408201327
-if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch" ]
+# yspark_yarn
+if [ "$1" == "spark12" ]
 then
-   /usr/local/bin/yinst fetch yspark_yarn-1.0.1.1_2.4.0.3.1405211906_1408201327 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
-   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
-   tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
+   if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-1.2.0.0_2.5.0.1.1408041624_1409171654" ]
+   then
+      rm -rf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch
+      /usr/local/bin/yinst fetch yspark_yarn-1.2.0.0_2.5.0.1.1408041624_1409171654 -br quarantine -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+      gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+      tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
+   fi
+else
+   if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-1.1.0.0_2.5.0.1.1408041624_1409112101" ]
+   then
+      rm -rf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch
+      /usr/local/bin/yinst fetch yspark_yarn-1.1.0.0_2.5.0.1.1408041624_1409112101 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+      gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+      tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
+   fi
 fi
 
 # ystorm_contrib

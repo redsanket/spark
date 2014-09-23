@@ -11,27 +11,15 @@ import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestMetrics extends DfsTestsBaseClass {
 	String protocol;
-
-	public TestMetrics(String protocol) {
-		this.protocol = protocol;
-		logger.info("Test invoked for protocol/schema:" + protocol);
-	}
-
-	static Logger logger = Logger.getLogger(TestMetrics.class);
 
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR = "/user/hadoopqa/FilesInGetListingOps/";
 	private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR00 = "/user/hadoopqa/FilesInGetListingOps/dir00/";
@@ -56,8 +44,30 @@ public class TestMetrics extends DfsTestsBaseClass {
 				{ HadooptestConstants.Schema.HDFS }, });
 	}
 
-	@Before
-	public void beforeEachTest() throws Exception {
+	@Test public void test_FilesInGetListingOps1_webhdfs() throws Exception { test_FilesInGetListingOps1(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_FilesInGetListingOps1_none() throws Exception { test_FilesInGetListingOps1(""); }
+    @Test public void test_FilesInGetListingOps1_hdfs() throws Exception { test_FilesInGetListingOps1(HadooptestConstants.Schema.HDFS); }
+    
+	@Test public void test_FilesInGetListingOps2_webhdfs() throws Exception { test_FilesInGetListingOps2(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_FilesInGetListingOps2_none() throws Exception { test_FilesInGetListingOps2(""); }
+    @Test public void test_FilesInGetListingOps2_hdfs() throws Exception { test_FilesInGetListingOps2(HadooptestConstants.Schema.HDFS); }
+    
+	@Test public void test_FilesInGetListingOps4_webhdfs() throws Exception { test_FilesInGetListingOps4(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_FilesInGetListingOps4_none() throws Exception { test_FilesInGetListingOps4(""); }
+    @Test public void test_FilesInGetListingOps4_hdfs() throws Exception { test_FilesInGetListingOps4(HadooptestConstants.Schema.HDFS); }
+    
+    @Test public void test_FilesInGetListingOps5_webhdfs() throws Exception { test_FilesInGetListingOps5(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_FilesInGetListingOps5_none() throws Exception { test_FilesInGetListingOps5(""); }
+    @Test public void test_FilesInGetListingOps5_hdfs() throws Exception { test_FilesInGetListingOps5(HadooptestConstants.Schema.HDFS); }
+    
+    @Test public void test_FilesInGetListingOps6_webhdfs() throws Exception { test_FilesInGetListingOps6(HadooptestConstants.Schema.WEBHDFS); }
+    @Test public void test_FilesInGetListingOps6_none() throws Exception { test_FilesInGetListingOps6(""); }
+    @Test public void test_FilesInGetListingOps6_hdfs() throws Exception { test_FilesInGetListingOps6(HadooptestConstants.Schema.HDFS); }
+    
+	private void setupTest(String protocol) throws Exception {
+        this.protocol = protocol;
+        logger.info("Test invoked for protocol/schema:" + protocol);
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
@@ -326,8 +336,9 @@ public class TestMetrics extends DfsTestsBaseClass {
 
 	}
 
-	@Test
-	public void test_FilesInGetListingOps1() throws Exception {
+	private void test_FilesInGetListingOps1(String protocol) throws Exception {
+	    setupTest(protocol);
+	    
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
@@ -344,14 +355,15 @@ public class TestMetrics extends DfsTestsBaseClass {
 		int newValue = getJMXPropertyValue(namenodePID);
 		TestSession.logger.info("newValue:" + newValue);
 		int change = newValue - CURRENT_VALUE;
-		Assert.assertTrue("Change:" + change + " is not equal t0 10",
+		Assert.assertTrue("Change:" + change + " is not equal to 10",
 				change == 10);
 		CURRENT_VALUE = newValue;
 
 	}
 
-	@Test
-	public void test_FilesInGetListingOps2() throws Exception {
+	private void test_FilesInGetListingOps2(String protocol) throws Exception {
+        setupTest(protocol);
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
@@ -375,8 +387,9 @@ public class TestMetrics extends DfsTestsBaseClass {
 
 	}
 
-	@Test
-	public void test_FilesInGetListingOps4() throws Exception {
+	private void test_FilesInGetListingOps4(String protocol) throws Exception {
+        setupTest(protocol);
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
@@ -419,8 +432,9 @@ public class TestMetrics extends DfsTestsBaseClass {
 
 	}
 
-	@Test
-	public void test_FilesInGetListingOps5() throws Exception {
+	private void test_FilesInGetListingOps5(String protocol) throws Exception {
+        setupTest(protocol);
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
@@ -476,8 +490,9 @@ public class TestMetrics extends DfsTestsBaseClass {
 
 	}
 
-	@Test
-	public void test_FilesInGetListingOps6() throws Exception {
+	private void test_FilesInGetListingOps6(String protocol) throws Exception {
+        setupTest(protocol);
+        
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
 
@@ -518,20 +533,14 @@ public class TestMetrics extends DfsTestsBaseClass {
 				+ TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_DATA_DIR,
 				genericCliResponse.process.exitValue() == 0);
 		
-        Util.sleep(10);
+        Util.sleep(30);
 		
 		FullyDistributedCluster cluster = (FullyDistributedCluster) TestSession.cluster;
 		cluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.HISTORY_SERVER);
 
-        Util.sleep(10);
+        Util.sleep(30);
 		
-	}
-
-	@Override
-	@After
-	public void logTaskReportSummary() {
-		// Override to hide the Test Session logs
 	}
 
 }
