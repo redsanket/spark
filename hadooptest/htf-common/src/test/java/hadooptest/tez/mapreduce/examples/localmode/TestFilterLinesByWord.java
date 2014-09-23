@@ -1,19 +1,12 @@
 package hadooptest.tez.mapreduce.examples.localmode;
 
-import java.io.File;
-
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
-import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordStandAloneHtf;
-import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+
+import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
