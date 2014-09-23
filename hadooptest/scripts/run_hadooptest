@@ -262,6 +262,8 @@ if ($spark) {
     # hack to support multiple versions of spark. Remove the version(s) that won't compile.
     # Note that once you run this, you have to re-copy files over to switch to use the other version.
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_1");
+} else {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
 
 my $hadoop_version;
