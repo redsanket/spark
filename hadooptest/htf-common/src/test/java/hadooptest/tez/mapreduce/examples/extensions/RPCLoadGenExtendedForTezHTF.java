@@ -1,6 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import java.io.IOException;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -8,15 +9,22 @@ import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 
+import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.tez.client.TezClient;
+import org.apache.tez.dag.api.DAG;
 import org.apache.tez.dag.api.TezConfiguration;
 import org.apache.tez.dag.api.TezException;
+import org.apache.tez.dag.api.client.DAGClient;
+import org.apache.tez.dag.api.client.DAGStatus;
+import org.apache.tez.dag.api.client.StatusGetOpts;
 import org.apache.tez.mapreduce.examples.BroadcastAndOneToOneExample;
 import org.apache.tez.mapreduce.examples.RPCLoadGen;
+
+import com.google.common.collect.Sets;
 
 /**
  * These classes ending in *ExtendedForTezHTF are intermediate classes, that
@@ -54,6 +62,7 @@ public class RPCLoadGenExtendedForTezHTF extends RPCLoadGen {
 			@Nullable TezClient tezClient, String mode, Session session, String testName) throws IOException,
 			TezException, InterruptedException {
 		setConf(conf);
+		
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
 		return _execute(otherArgs, conf, tezClient, mode, session, testName);
@@ -132,4 +141,28 @@ public class RPCLoadGenExtendedForTezHTF extends RPCLoadGen {
 		}
 		return 0;
 	}
+	  /**
+	   * Have to override this method from {@link} org.apache.tez.mapreduce.examples.TezExampleBase}
+	   * because, within this method it references tezClientInternal (which is a private member).
+	   */
+	@Override
+	  public int runDag(DAG dag, boolean printCounters, Log logger) throws TezException,
+	      InterruptedException, IOException {
+	    tezClientInternal.waitTillReady();
+	    DAGClient dagClient = tezClientInternal.submitDAG(dag);
+	    Set<StatusGetOpts> getOpts = Sets.newHashSet();
+	    if (printCounters) {
+	      getOpts.add(StatusGetOpts.GET_COUNTERS);
+	    }
+
+	    DAGStatus dagStatus;
+	    dagStatus = dagClient.waitForCompletionWithStatusUpdates(getOpts);
+
+	    if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
+	      logger.info("DAG diagnostics: " + dagStatus.getDiagnostics());
+	      return -1;
+	    }
+	    return 0;
+	  }
+
 }

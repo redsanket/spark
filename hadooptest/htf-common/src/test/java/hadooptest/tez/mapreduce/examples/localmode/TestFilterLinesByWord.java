@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -35,7 +36,7 @@ import org.junit.rules.TestName;
  */
 
 @Category(SerialTests.class)
-public class TestFilterLinesByWord extends FilterLinesByWordStandAloneHtf {
+public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 //	public TestFilterLinesByWord(boolean exitOnCompletion) {
 //		super(exitOnCompletion);
 //		// TODO Auto-generated constructor stub
@@ -53,6 +54,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordStandAloneHtf {
 	public TestName name = new TestName();
 	
 	@Test
+	@Ignore("Until TEZ-1406 is fixed")
 	public void testFilterLinesByWordWithClientSplitsRunOnLocalWithSession()
 			throws Exception {
 		/**
@@ -68,6 +70,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordStandAloneHtf {
 	}
 
 	@Test
+	@Ignore("Until TEZ-1406 is fixed")
 	public void testFilterLinesByWordWithClientSplitsRunOnLocalWithoutSession()
 			throws Exception {
 		/**

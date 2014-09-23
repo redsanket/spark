@@ -76,7 +76,7 @@ public class HtfTezUtils {
 		}
 		
 		// Local mode settings
-		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {			
 			TestSession.logger.info("So it is :" + System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
 			conf.set("fs.defaultFS", "file:///");
 			conf.setBoolean("tez.local.mode", true);

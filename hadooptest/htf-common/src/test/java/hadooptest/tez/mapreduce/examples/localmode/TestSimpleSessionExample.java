@@ -13,6 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -57,6 +58,7 @@ public class TestSimpleSessionExample extends
 	public TestName testName = new TestName();
 
 	@Test
+	@Ignore("Until TEZ-1406 is fixed")
 	public void testSimpleSessionExampleOnCluster() throws Exception {
 
 		boolean returnCode = run(inputFilesOnLocalFs, outputPathsOnLocalFs,

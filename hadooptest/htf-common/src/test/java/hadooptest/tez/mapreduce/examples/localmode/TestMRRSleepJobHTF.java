@@ -15,6 +15,7 @@ import hadooptest.tez.utils.HtfTezUtils.Session;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -41,6 +42,7 @@ public class TestMRRSleepJobHTF extends MRRSleepJobExtendedForTezHTF {
 	public TestName testName = new TestName();
 
 	@Test
+	@Ignore("Until http://bug.corp.yahoo.com/show_bug.cgi?id=7112403 is fixed")
 	public void testMrrSleepJobLocalModeWithSession() throws Exception {
 		String[] sleepJobArgs = new String[] { "-m 1", "-r 1", "-ir 1",
 				"-irs 1", "-mt 50000", "-rt 40000", "-irt 10000",
@@ -60,6 +62,7 @@ public class TestMRRSleepJobHTF extends MRRSleepJobExtendedForTezHTF {
 	}
 
 	@Test
+	@Ignore("Until http://bug.corp.yahoo.com/show_bug.cgi?id=7112403 is fixed")
 	public void testMrrSleepJobLocalModeWithout() throws Exception {
 		String[] sleepJobArgs = new String[] { "-m 1", "-r 1", "-ir 1",
 				"-irs 1", "-mt 50000", "-rt 40000", "-irt 10000",
