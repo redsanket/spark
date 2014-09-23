@@ -52,7 +52,6 @@ object SparkHackJetty{
       if (turnSecurityOff) {
         // with security off we should just get a 404 or not found error
         if (!httpError.contains("404")) {
-          sc.stop()
           // we have to throw for the spark application master to mark app as failed
           throw new Exception("Error, curl command failed")
           System.exit(1)
@@ -60,7 +59,6 @@ object SparkHackJetty{
       } else {
         // with security on we should just get a unauthorized
         if (!httpError.contains("401")) {
-          sc.stop()
           // we have to throw for the spark application master to mark app as failed
           throw new Exception("Error, curl command failed")
           System.exit(1)
@@ -68,14 +66,12 @@ object SparkHackJetty{
       }
     } catch {
       case e: Exception =>  {
-        sc.stop()
         // we have to throw for the spark application master to mark app as failed
         throw new Exception("Error, curl command failed")
         System.exit(1)
       }
     }
 
-    sc.stop()
     System.exit(0)
   }
 }

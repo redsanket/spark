@@ -386,7 +386,6 @@ public class SparkRunClass extends App {
                     + ":" + this.jarName
                     + ":" + hadoopHome + "common/hadoop-gpl-compression.jar"
                     + ":" + yahooDNSjar
-                    + ":" + hadoopHome + "common/hadoop-common-" + TestSession.cluster.getVersion() + ".jar"
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ArrayList<String> cmd = new ArrayList<String>(16);
