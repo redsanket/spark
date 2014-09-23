@@ -1,0 +1,159 @@
+#!/usr/bin/env perl 
+
+# HDFS Proxy Performance Test
+# 1. Get the hosts for the cluster under test
+# 2. Run load / performance tests on each hosts
+# 3. Each host will run 16 threads, copy does a hdfs create N times
+
+# ./deploySupport/ru_generatejob_cli --cluster sam --release hadoopXXX2X2Xlatest 
+# ./deploySupport/ru_generatejob_cli --cluster sam --release hadoop_2_2_1_2_rc0
+
+# Requires:
+# yinst i ypan/perl-XML-XML2JSON
+# yinst i ypan/perl-Text-Trim
+
+use strict;
+use warnings;
+use FindBin qw($Bin $Script);
+use Test::More;
+use File::Copy;
+use File::Basename;
+use JSON qw( decode_json );
+use Data::Dumper;
+use XML::XML2JSON; 
+use JSON qw( decode_json );
+use Text::Trim;
+
+sub usage {
+    my ($err_msg) = @_;
+    print "Usage: $Script -c <cluster> -p <proxy> -l <payload per thread> <option1> <values1> <option2> <values2> ...";
+    die($err_msg) if ($err_msg);
+    exit 0;
+}
+
+# PARAM
+my %options=();
+trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
+my $payload_size = "3";
+my $payload_unit = "G";
+my $threads_per_host=16;
+my $file_size="64";
+my $file_size_unit="M";
+my $num_iterate="1";
+my $host_index;
+my $num_hosts;
+
+#
+# Command line options processing
+#
+use Getopt::Long;
+&Getopt::Long::Configure( 'pass_through');
+my $result = 
+GetOptions(\%options,
+    "proxy|p=s"          => \$hproxy,
+    "load|l=s"           => \$payload_size,
+    "thread|t=s"         => \$threads_per_host,
+    "file_size|f=s"      => \$file_size,
+    "file_size_unit|u=s" => \$file_size_unit,
+    "iterate|i=s"        => \$num_iterate,
+    "host_index=s"       => \$host_index,
+    "num_hosts=s"        => \$num_hosts,
+    "help|h|?"
+    ) or usage(1);
+usage() if $options{help};
+usage("Invalid arguments!!!") if (!$result);
+
+my $cmd;
+my $hproxy_url="https://$hproxy:4443";
+note("hdfsproxy server='$hproxy'");
+note("hdfsproxy URL='$hproxy_url'");
+note("Payload per host per thread='$payload_size$payload_unit'");
+note("Number threads per host='$threads_per_host'");
+note("File size='$file_size$file_size_unit'");
+note("num iterations per thread='$num_iterate'");
+
+# DEBUG
+# note("sleep 20...");
+# sleep(20);
+# exit;
+trim(my $hostname=`hostname -s`);
+
+#################################################################################
+# 1. Fork N processes on the localhost for load & performance testing.
+#################################################################################
+my $perf_test_script="./run_hproxy_perf_single_thread";
+use POSIX ":sys_wait_h";
+my @pids;
+my $host_id="host-$host_index/$num_hosts $hostname";
+
+for my $num_thread (1..$threads_per_host) {
+    # http://perldoc.perl.org/functions/fork.html
+    my $pid = fork();
+    if ($pid == 0) {
+        # forked child process has pid of 0
+        logger("----> Forked Child Process #$num_thread/$threads_per_host on $host_id: Started");
+        run_single_thread($num_thread);
+        logger("----> Forked Child Process #$num_thread/$threads_per_host on $host_id: Finished");
+        exit(0);
+    } else {
+        # parent process has non zero pid
+        logger("--> Forked Child Process #$num_thread/$threads_per_host PID=$pid on $host_id:");
+        $pids[($num_thread-1)] = $pid;
+    }
+}
+
+#################################################################################
+# 2. Wait for forked processes to finish
+#################################################################################
+logger("--> Wait for ".scalar(@pids)." Child Processes [".join(",", @pids)."] ".
+       "running on $host_id to finish:");
+my $keep_waiting;
+do {
+    $keep_waiting = 0;
+    # Check all PID not yet completed (i.e. non zero)
+    for my $num_thread (1..$threads_per_host) {
+        my $i = ($num_thread-1);
+        if ($pids[$i] > 0) {
+            if (waitpid($pids[$i], WNOHANG) != 0) {
+                logger("----> Forked Child Process #$num_thread/$threads_per_host ".
+                       "on $host_id: PID $pids[$i] completed.");
+                $pids[$i] = 0;
+            } else {
+                # logger("Waiting on Forked Child Process #$num_thread: PID $pids[$i]");
+                $keep_waiting = 1;
+            }
+        }
+        # Give up timeslice and prevent hard loop: this may not work on all flavors of Unix
+        sleep(0);
+    }
+} while ($keep_waiting);
+
+sub run_single_thread {
+    my $num_thread = shift;
+    # Set autoflush to true
+    $| = 1;
+
+    # sleep(20);
+    my $cmd  = "/tmp/$perf_test_script";
+    $cmd .= " -proxy $hproxy";
+    $cmd .= " -thread_id $num_thread";
+    $cmd .= " -threads_per_host $threads_per_host";
+    $cmd .= " -file_size $file_size -file_size_unit $file_size_unit";
+    $cmd .= " -host_index $host_index";
+    $cmd .= " -num_hosts $num_hosts";
+    $cmd .= " -iterate $num_iterate";
+    # $cmd .= " &";
+    execute($cmd);
+}
+
+sub execute {
+    my ($command) = @_;
+    note($command);
+    system ($command);
+}
+
+sub logger{
+    my ($msg) = @_;
+    note(scalar localtime(), ": $msg");
+}
+
