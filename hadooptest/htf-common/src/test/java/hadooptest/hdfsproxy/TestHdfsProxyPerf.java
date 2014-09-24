@@ -1,8 +1,12 @@
 package hadooptest.hdfsproxy;
 
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+
 import hadooptest.TestSession;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -35,6 +39,12 @@ public class TestHdfsProxyPerf extends TestSession {
 	                    "-threads_per_host",
                         System.getProperty("THREADS_PER_HOST", DEFAULT_NUM_THREADS),
 	                    });
+	    TestSession.logger.trace(Arrays.toString(output));
 	    assertTrue( "Could not run hdfsproxy perf!!!", output[0].equals("0") );
 	}
+
+    @After
+    public void logTaskReportSummary() throws Exception  {
+    }
+
 }
