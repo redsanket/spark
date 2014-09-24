@@ -1,6 +1,6 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
-import hadooptest.tez.utils.HtfTezUtils;
+import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import java.io.IOException;
@@ -32,6 +32,7 @@ import org.apache.tez.dag.api.VertexGroup;
 import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
 import org.apache.tez.dag.api.client.StatusGetOpts;
+import org.apache.tez.examples.WordCount.TokenProcessor;
 import org.apache.tez.mapreduce.examples.UnionExample;
 import org.apache.tez.mapreduce.input.MRInput;
 import org.apache.tez.mapreduce.output.MROutput;
@@ -40,16 +41,22 @@ import org.apache.tez.runtime.library.input.ConcatenatedMergedKeyValuesInput;
 import org.apache.tez.runtime.library.partitioner.HashPartitioner;
 
 /**
- * Changes to be done, should the file need to be refreshed. 1) Staging dir:
- * conf.setBoolean("tez.local.mode")
+ * https://issues.apache.org/jira/secure/attachment/12668975/tez-1587.1.patch
  * 
+ * Refer to the above JIRA. Ensure that when you are setting edge configuration
+ * always remember to include 'setFromConfiguration'. See below:
+ * 
+ * 		OrderedPartitionedKVEdgeConfig edgeConf = OrderedPartitionedKVEdgeConfig
+				.newBuilder(Text.class.getName(), IntWritable.class.getName(),
+						HashPartitioner.class.getName())
+				.setFromConfiguration(tezConf).build();
+
  */
 public class UnionExampleExtendedForTezHTF extends UnionExample {
-	
+
 	public boolean run(String inputPath, String outputPath, Configuration conf,
-			String mode, Session session, String testName) throws Exception {	
+			String mode, Session session, String testName) throws Exception {
 		System.out.println("Running UnionExample");
-																	
 		// conf and UGI
 		TezConfiguration tezConf;
 		if (conf != null) {
@@ -58,12 +65,16 @@ public class UnionExampleExtendedForTezHTF extends UnionExample {
 			tezConf = new TezConfiguration();
 		}
 		UserGroupInformation.setConfiguration(tezConf);
+		String user = UserGroupInformation.getCurrentUser().getShortUserName();
 
 		// staging dir
 		FileSystem fs = FileSystem.get(tezConf);
-		UserGroupInformation.setConfiguration(tezConf);
-		Path stagingDir = fs.makeQualified(new Path(tezConf
-				.get(TezConfiguration.TEZ_AM_STAGING_DIR)));
+		String stagingDirStr = Path.SEPARATOR + "user" + Path.SEPARATOR + user
+				+ Path.SEPARATOR + ".staging" + Path.SEPARATOR + Path.SEPARATOR
+				+ Long.toString(System.currentTimeMillis());
+		Path stagingDir = new Path(stagingDirStr);
+		tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
+		stagingDir = fs.makeQualified(stagingDir);
 
 		// No need to add jar containing this class as assumed to be part of
 		// the tez jars.
@@ -110,6 +121,7 @@ public class UnionExampleExtendedForTezHTF extends UnionExample {
 	private DAG createDAG(FileSystem fs, TezConfiguration tezConf,
 			Map<String, LocalResource> localResources, Path stagingDir,
 			String inputPath, String outputPath) throws IOException {
+		TestSession.logger.info("My UnionExample");
 		DAG dag = DAG.create("UnionExample");
 
 		int numMaps = -1;
@@ -153,8 +165,8 @@ public class UnionExampleExtendedForTezHTF extends UnionExample {
 
 		OrderedPartitionedKVEdgeConfig edgeConf = OrderedPartitionedKVEdgeConfig
 				.newBuilder(Text.class.getName(), IntWritable.class.getName(),
-						HashPartitioner.class.getName()).build();
-
+						HashPartitioner.class.getName())
+				.setFromConfiguration(tezConf).build();
 		dag.addVertex(mapVertex1)
 				.addVertex(mapVertex2)
 				.addVertex(mapVertex3)

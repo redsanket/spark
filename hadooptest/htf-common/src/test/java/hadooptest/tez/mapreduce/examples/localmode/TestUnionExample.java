@@ -1,20 +1,14 @@
 package hadooptest.tez.mapreduce.examples.localmode;
 
-import java.io.File;
-import java.io.IOException;
-
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.UnionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -48,36 +42,40 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 
 	@Rule
 	public TestName testName = new TestName();
-	
+
 	@Before
 	public void copyTheFileLocally() {
-		try{
-		FileUtils.copyFile(new File(SOURCE_FILE), new File(INPUT_FILE));
-		}catch (IOException ioEx){
-			if (ioEx.getMessage().contains("exists")){
-				//Ignore, 'cos the input file already exists
+		try {
+			FileUtils.copyFile(new File(SOURCE_FILE), new File(INPUT_FILE));
+		} catch (IOException ioEx) {
+			if (ioEx.getMessage().contains("exists")) {
+				// Ignore, 'cos the input file already exists
 			}
 		}
 
 	}
 
 	@Test
-	public void testUnionExampleOnLocalModeWithSession()
-			throws Exception {
+	public void testUnionExampleOnLocalModeWithSession() throws Exception {
 
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_LOCAL, Session.YES, testName.getMethodName()));
+						HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+						testName.getMethodName()),
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+				testName.getMethodName());
 		Assert.assertTrue(returnCode);
 	}
 
 	@Test
-	public void testUnionExampleOnLocalModeWithoutSession()
-			throws Exception {
+	public void testUnionExampleOnLocalModeWithoutSession() throws Exception {
 
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_LOCAL, Session.NO, testName.getMethodName()));
+						HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+						testName.getMethodName()),
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+				testName.getMethodName());
 		Assert.assertTrue(returnCode);
 	}
 

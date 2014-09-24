@@ -106,7 +106,8 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-						testName.getMethodName()));
+						testName.getMethodName()),HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
+						testName.getMethodName());
 		Assert.assertTrue(returnCode);
 	}
 
@@ -116,7 +117,8 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-						testName.getMethodName()));
+						testName.getMethodName()),HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
+						testName.getMethodName());
 		Assert.assertTrue(returnCode);
 	}
 
