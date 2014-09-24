@@ -2,14 +2,14 @@
 On-Boarding 
 ===========
 
-.. Status: first draft. The Dopplr form section may need to be removed or altered.
+.. Status: second draft. (The Dopplr form section may need to be removed or altered.
    Currently, I've been told that the form is not to be used, but by the time
    the documentation is finished, the team may be using the form again, but a
-   different version, so I've left the section in the documentation for the time being (08/26/14).
+   different version, so I've left the section in the documentation for the time being (09/21/14).
 
-In this chapter, we'll show you how to get on-board to the 
+In this chapter, we'll show you how to on-board to the 
 non-production environment for Storm. After you're done, we
-also show you what steps to take to get on-boarded for production.
+also direct you on how to on-board for production.
  
 The process of on-boarding may take several days based on your request and
 the response of the Grid team. In the future, the on-boarding
@@ -65,7 +65,7 @@ and plan on changing the nomenclature soon.
 Next Step
 =========
 
-Try the `Tutorial: Counting Data Highway Events <../tutorials/index.html#storm_tutorials-counting>`_ 
+Try the `Tutorial: Counting Data Highway Events <../tutorials/index.html#storm_tutorials-counting>`_
 or on-board to the production environment by following the same steps above but selecting 
 **Production** and specifying your capacity needs:
 

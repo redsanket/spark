@@ -202,8 +202,8 @@ Production
    			<td rowspan="3"><a href="http://thaumblue-ni.blue.ygrid.yahoo.com:9999/" target="_top">ThaumBlue UI</a></td>
    			<td>Nimbus</td>
    			<td><code>grid.blue.thaum.nimbus</code></td>
-   			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol4"> 2 </td>
-   			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol5 foswikiLastCol"> &nbsp; </td>
+   			<td bgcolor="#edf4f9" valign="top">2</td>
+   			<td bgcolor="#edf4f9" valign="top">&nbsp;</td>
    		</tr>
    		<tr>
    			<td>Supervisor</td>
@@ -303,7 +303,7 @@ Throughput
    "The number of spout executors required.", "8000/1000 = 8"
    "The number of tuples executed across the first bolt (5 executors)", "10000 tuples/second"
    "The total number of executors required across the first bolt", "8 x 5= 40"
-   "The number of tuples executed across the secondd bolt (5 executors)",  "8 x 5= 40"
+   "The number of tuples executed across the second bolt (5 executors)",  "8 x 5= 40"
    "The total number of executors required across second bolt", "8 x 5 = 40"
    "The total number of executors and workers (4 executions per worker slot)", "8 + 40 + 40 = 88 executors (i.e., 88/4 = 22 Slots)"
    "**Number of Supervisors required to process data**", "**22/24 =~ 1 supervisors (24 slots per supervisor)**"
@@ -470,7 +470,7 @@ Shutdown is similar with the message "Shutting down master" followed by "Shut do
     2013-11-08 18:44:32 b.s.d.nimbus [INFO] Shut down master
 
 
-Topology Sumbission, Assignment, and Killing
+Topology Submission, Assignment, and Killing
 --------------------------------------------
 
 When topologies are submitted, the log message will being with "Received topology submission for..."::
@@ -484,7 +484,7 @@ This is following by "Activating ..."::
     2013-11-08 18:09:21 b.s.d.nimbus [INFO] Activating test-topo-derekd2: test-topo-derekd2-8-1383934161 ...
 
 Assignments are the result of scheduling, so when a topology has successfully 
-been scheduled, or has been rebalanced, etc., you'll see the message "Setting new assignment for topology id..."::
+been scheduled, or has been re-balanced, etc., you'll see the message "Setting new assignment for topology id..."::
 
     2013-11-08 18:09:21 b.s.d.nimbus [INFO] Setting new assignment for topology id test-topo-derekd2-8-1383934161: #backtype.storm.daemon.common.Assignment{:master-code-dir "/home/y/var/storm/nimbus/stormdist/test-topo-derekd2-8-1383934161", ...
 

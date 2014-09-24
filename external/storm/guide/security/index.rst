@@ -20,11 +20,11 @@ Plugin API
 
 A plugin API has also been added to block unwanted operations, along with some reasonable implementations.
 
-For Example ``SimpleACLAuthorizer`` for Nimbus.
+For example ``SimpleACLAuthorizer`` for Nimbus.
 
 - Can configure administrators to do anything.
 - Users that the supervisors are running as.
-- Topology can also configure who is allowed to kill or rebalance it.
+- Topology can also configure who is allowed to kill or re-balance it.
 
 
 Authentication
@@ -42,7 +42,7 @@ The following authorization methods are supported:
 - **File System** - OS user + file system (FS) permissions. Some processes on the same system communicate through files.
 - **Worker to Worker** - Can use encryption with shared secret, but still does not 
   allow Simple Authentication and Security Layer (SASL) authorization.
-- **External Services (like HBase)** - For the time being, you have to implement your authorization method for external services. 
+- **External Services (like HBase)** - For the time being, you have to implement your authorization method for external services.
 
 
 Kerberos Authentication
@@ -75,7 +75,7 @@ cache use a ``jaas.conf`` similar to the following::
     };
 
 
-If you have a headless user with a keytab, you can use a ``jaas.conf`` like the following::
+If you have a headless user with a ``keytab``, you can use a ``jaas.conf`` like the following::
 
     StormClient {
        com.sun.security.auth.module.Krb5LoginModule required
@@ -123,7 +123,7 @@ Automatic Credentials Push
 ##########################
 
 As of ``ystorm-0.9.0_wip21.205`` credentials can be gathered automatically by the 
-client and put into the current Java Subject on the workers. By default on 
+client and put into the current Java Subject on the workers. By default, on 
 multi-tenant clusters that support this a plugin for pushing the TGT and setting 
 it up so that it is compatible with Hadoop should be automatic. There is also a 
 plugin that will renew the Granting Ticket Ticket (TGT), so you will only have to push a new TGT once or 
@@ -150,39 +150,41 @@ To push new credentials, use the command-line tool::
 
     storm upload-credentials <topology-name> [-f <cred-file.properties>] [<cred-key> <cred-value>]*
 
-As of ``ystorm-0.9.0_wip21.205`,` you can use the ``StormSubmitter.pushCredentials`` API. 
+As of ``ystorm-0.9.0_wip21.205``, you can use the ``StormSubmitter.pushCredentials`` API. 
 (If you have to do this on an older cluster please see the ystorm team for your options.)
 
-See :ref:`Accessing External Services Through Multitenant Storm <auth-access_ext_services>` for details about specific services.
+See :ref:`Accessing External Services Through Multitenant Storm <auth-access_ext_services>` 
+for details about specific services.
 
-Credentials Push (Authenticating with External Services)
+Credentials Push (Authenticating With External Services)
 --------------------------------------------------------
 
 A set of APIs and plugins that allow credentials to securely be delivered and renewed.
 
-- **ICredentialsListener** - Using HTTP Authentication or with a Custom Java Servlet Filter.
+- **ICredentialsListener** - using HTTP Authentication or with a Custom Java Servlet Filter.
 - **IAutoCredentials** - Kerberos (Possibly through a forwarded TGT).
 - **ICredentialsRenewer** - Kerberos for system processes (Because there is a 
   keytab available) a shared secret for worker processes with MD5SUM in ZooKeeper.
-- **storm upload_credentials** - OS user + FS permissions. Some processes on the 
+- **storm upload_credentials** - OS user and filesystem permissions. Some processes on the 
   same system communicate through files.
-- **AutoTGT** - Can use encryption with shared secret, but SASL Authorization is still not enabled.
+- **AutoTGT** - can use encryption with shared secret, but SASL Authorization is still not enabled.
 
 
 Accessing External Services Through Multitenant Storm 
 ======================================================
 
 We've discussed authorization and authentication for Storm at Yahoo. In this section, 
-we'll look at using credentials for multi-tenant storm to access external services. 
+we'll look at using credentials for multi-tenant Storm to access external services. 
 
 If you are running your own cluster without multi-tenancy, you can simply use 
 credentials in a more traditional way with host-based YCA v1, ``ykeykey``, etc. For 
-multi-tenant storm, we do not plan on installing any credentials for individuals on the cluster. 
+multi-tenant Storm, we do not plan on installing any credentials for individuals on the cluster. 
 You will have to transmit those credentials with the topology.
 
 There are numerous services used at Yahoo that require authentication to be able to access them. 
 We are working on proper solutions and examples for many of these. If you need 
-more of them, please mention it when `on-boarding <../onboarding>`_ or `file a bug <http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency>`_
+more of them, please mention it when `on-boarding <../onboarding>`_ 
+or `file a bug <http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency>`_
 so that we can work on it with the other teams involved.
 
 Credentials API
@@ -215,7 +217,7 @@ plugins that automatically push them with a small amount of configuration.
 Credentials Push
 ################
 
-To submit a topology with this new API you would run the following:
+To submit a topology with this new API you would run something like the following:
 
 .. code-block:: java
 
@@ -238,7 +240,6 @@ To submit a topology with this new API you would run the following:
     StormSubmitter.submitTopology(topologyName, conf, builder.createTopology(), opts);
 
 To use the plugins to send credentials::
-
 
 .. code-block:: java
 
@@ -272,7 +273,7 @@ Receiving Credentials
 
 To get the pushed credentials, a spout or a bolt can implement the 
 `ICredentialsListener <https://git.corp.yahoo.com/storm/storm/blob/master-security/storm-core/src/jvm/backtype/storm/ICredentialsListener.java>`_ 
-interface. It provides the following  single method:
+interface. It provides the following single method:
 
 .. code-block:: java
 
@@ -292,11 +293,11 @@ role in the ``griduser`` namespace with the role name matching the user name. Al
 this is generally reserved for launcher boxes, anyone with access to the 
 box can get the corresponding certificate.
 
-The V2 certficate being fetched must be for a role that includes a special host name for the user::
+The V2 certificate being fetched must be for a role that includes a special host name for the user::
 
     <username>.wsca.user.yahoo.com
 
-As of ``ystorm-0.9.0_wip21.225`` code has been added to storm to automatically fetch 
+As of ``ystorm-0.9.0_wip21.225`` code has been added to Storm to automatically fetch 
 and push YCA certificates on your behalf. To use this, you need to know about the
 three configurations in the table below.
 
@@ -308,9 +309,9 @@ three configurations in the table below.
    "``yahoo.autoyca.v1appid``",	"If set this is the YCAv1 cert that should be used when fetching YCAv2 certs. If not set kerberos will be used instead."
    "``yahoo.autoyca.proxyappid``", "This is the role for the http proxies that should be used with this YCAv2 cert. If not set YCA will guess based off of the colo you are in. It almost always gets this correct."
 
-On the worker side you can fetch the most up-to-date certificate using static methods in 
+On the worker side, you can fetch the most up-to-date certificate using static methods in 
 the ``com.yahoo.storm.security.yca.AutoYCA`` class. This class is in a separate Yahoo-
-specific ``storm`` jar in the same yinst package/maven artifact. You need to 
+specific ``storm`` jar in the same ``yinst`` package/maven artifact. You need to 
 include a dependency on ``storm_yahoo`` to compile your code.
 
 .. code-block:: xml
@@ -330,7 +331,7 @@ include a dependency on ``storm_yahoo`` to compile your code.
 (Exclusions are due to incompatibilities between Maven and Yinst.)
 
 You should only use the method ``getYcaV2Cert(String appId)`` to get a specific YCA v2 certificate. 
-It returns ``null`` if the certificate is not found. There are other methods to help with testing, 
+It returns ``null`` if the certificate is not found. There are other methods to help with testing
 or to support other use cases.
 
 The following are some examples:
@@ -385,13 +386,13 @@ code that will log you into a keytab because we have already done that for
 you. 
     
 Because TGTs expire, you will need to push a new TGT at least once a day to
-your topology. You can do this by rerunning kinit just like before, and then
+your topology. You can do this by re-running ``kinit`` just like before, and then
 running the following::
     
     storm upload-credentials <name-of-topology>
     
-    This will push the new TGT to your topology and AutoTGT will put it where it
-    needs to go for HBase/Hadoop to access it.
+ This will push the new TGT to your topology and AutoTGT will put it where it
+ needs to go for HBase/Hadoop to access it.
 
 Include a file like the following ``hadoop-site.xml`` in your topology jar:
 
