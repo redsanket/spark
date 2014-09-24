@@ -43,6 +43,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	public TestName testName = new TestName();
 
 	@Test
+	@Ignore("Until TEZ-1406 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
 	public void testOrderedWordCountRunOnLocalWithSession() throws Exception {
 		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(jobArgs,
@@ -52,6 +53,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	}
 
 	@Test
+	@Ignore("Until TEZ-1406 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
 	public void testOrderedWordCountRunOnLocalWithoutSession() throws Exception {
 		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(jobArgs,
