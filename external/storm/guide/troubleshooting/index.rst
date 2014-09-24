@@ -46,7 +46,7 @@ Supervisor -> Nimbus
 
 Supervisors heartbeat to Nimbus through ZooKeeper.
 
-Beats should happen five times per secons, and Nimbus will time out a Supervisor after 30 seconds by default.
+Beats should happen five times per seconds, and Nimbus will time out a Supervisor after 30 seconds by default.
 Supervisor that have timed out are ignored.
 
 Persistence and Bouncing Daemons
@@ -60,7 +60,7 @@ Nimbus
 **State**
 
 Nimbus stores topologies and their configurations on local disk at ``/home/y/var/storm/nimbus/stormdist/``
-and stores scheduling assignments in ZooKeeper. Worker & Supervisor heartbeats are also stored there.
+and stores scheduling assignments in ZooKeeper. Worker and Supervisor heartbeats are also stored there.
 
 **Bouncing**
 
@@ -127,7 +127,7 @@ Disk Load
   load on ZooKeeper. Heavy disk load means anything using the ZooKeeper cluster slows down and 
   things start timing out or becoming slow and unresponsive.
   - Mitigations:
-    - Mount disk with nobarrier (Good improvement while on ``ext3``)
+    - Mount disk with no-barrier (Good improvement while on ``ext3``)
     - Add ``-Dzookeeper.forceSync=no`` to ``zookeeper_server.jvm_args`` and you will see a major improvement.
 - Cleaning up many huge old data logs at once can peg the disk unless spaced out.
   - Wrote custom purge script available in dist package ``zkp_txnlogs_cleanup``.
@@ -151,7 +151,7 @@ jstack (Stack Traces)
 
 ``jstack`` works best when run with the same JDK and as the same user as the target process.
 
-#. Find the PID of the target process using jps and the port number. In this example, 
+#. Find the PID of the target process using ``jps`` and the port number. In this example, 
    we are looking for a the worker running on 6734 on a particular host.
   
    ::
@@ -261,7 +261,7 @@ gdb (For Memory leaks/Direct Byte Buffers)
 ##########################################
 
 #. Follow similar steps as above to discover the user and PID.
-#. Execute a gdb to attach to the pid gdb --pid.
+#. Execute a gdb to attach to the PID: gdb --pid.
 
    ::
 
@@ -277,7 +277,7 @@ gdb (For Memory leaks/Direct Byte Buffers)
        end
        c
 #. This should help you get stack trace for non-heap stacktraces.
-#. The gdb hookup can pause the process causing heatbeat miss and supervisor killing 
+#. The gdb hookup can pause the process causing heartbeat miss and supervisor killing 
    that processes. You may have to stop supervisor in order to avoid worker process getting killed.
 
 Profiling with YourKit
@@ -291,7 +291,7 @@ Installing YourKit
 
 #. Download from http://yourkit.com/java/profiler/index.jsp
 #. The program may prompt you for a License Key, but if it does not, 
-   you can choose "Enter License Key..." from the Help menue.
+   you can choose "Enter License Key..." from the Help menu.
    - Select "Use a license server, and Enter java.corp.yahoo.com. 
 
      .. note:: Note that there is a limited pool of licenses, so avoid leave YourKit 
@@ -302,7 +302,8 @@ Deploying YourKit
 
 #. Check if ``yjava_yourkit`` is installed on the host.  If it is not, then download 
    the Linux ``tar.bz2`` of YourKit and unpack it on the host.
-#. Attach the profiler daemon to the targed process:
+#. Attach the profiler daemon to the target process:
+
    ::
 
        bash-4.1$ bin/yjp.sh -attach 1924

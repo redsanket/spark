@@ -2,7 +2,7 @@
 Overview
 ========
 
-.. Status: First draft. May need to add more sections and copy edit.
+.. Status: Second draft. May need to add more information.
 
 What is Storm?
 ==============
@@ -13,11 +13,11 @@ model of MapReduce in Hadoop.
 
 Storm has many use cases: 
 
-- realtime analytic - Example: analyzing Twitter feeds and writing results to Sherpa.
+- real-time analytic - Example: analyzing Twitter feeds and writing results to Sherpa.
 - online machine learning
 - continuous computation - Example: computing the click metrics for an ads for specific campaigns or user metrics for the media property page.
 - distributed RPC -  Example: regression analysis of user profile vs. buying behavior in real-time.
-- ETL
+- extraction, transformation, load (ETL)
 
 Basic Concepts
 ==============
@@ -44,14 +44,15 @@ offers the following benefits:
 
 .. Storm is simple and developers can write Storm topologies using any programming language.
 
-- **Application Scalability** -  Storm clusters are designed so that workers that execute spouts and bolts can be increased to meet rising throughput needs.
-- **Infrastructure Scalability** - You can also increase the number of supervisors to run more workers and run supervisors with a different number of slots, which define
-  the ports on a machine are open for workers to use.
+- **Application Scalability** - Storm clusters are designed so that workers that execute spouts and bolts can be increased to 
+  meet rising throughput needs.
+- **Infrastructure Scalability** - You can also increase the number of supervisors to run more workers and run supervisors 
+  with a different number of slots, which define
+  the ports on a machine that are open for workers to use.
 - **Resource Guarantees** - Topologies are guaranteed resources based on scheduling at both the topology and user levels.
-- **Fault Tolerance** -   When faults occur during the execution of your computation, Storm reassigns tasks as needed. 
+- **Fault Tolerance** - When faults occur during the execution of your computation, Storm reassigns tasks as needed. 
   Storm ensures that computations can run forever (or until you manually kill the computation).
   
-
 
   +--------------------------------+---------------------------------------------------------------------------------------+
   | **Scenario**                   | **Built-In Tolerance**                                                                |
@@ -77,12 +78,12 @@ offers the following benefits:
 
 - **Stream Processing** - Streamed data can be processed and written to a view or database in real time. 
 - **Distributed RPC** - Allows you to execute computations on many machines that would be difficult to do on one machine. 
-- **Continuous Compute** - Functions that needs to continously compute the value are allowed to run perpetually.
+- **Continuous Compute** - Functions that needs to continuously compute the value are allowed to run perpetually.
 - **Guaranteed Message Processing** - You can configure Storm to guarantee message processing based on your overhead and performance needs as shown
   in the table below.
 
   +--------------------------------+--------------------------------------------------------------------------------------------------------------+
-  | Options                        | Overhead vs. Performance                                                                                     |
+  | **Options**                    | **Overhead vs. Performance**                                                                                 |
   +================================+==============================================================================================================+
   | None                           | - Low overhead, very fast.                                                                                   |
   |                                | - Anything where the answer does not have to be exact, and too little is better then too much..              |
@@ -92,7 +93,7 @@ offers the following benefits:
   |                                | - Requires an input source that can do replay.                                                               |
   +--------------------------------+--------------------------------------------------------------------------------------------------------------+
   | Exactly Once                   | - Higher overhead, but still fairly fast.                                                                    |
-  |                                | -  Requires input source to support replay, and storage to be able to store batch.
+  |                                | - Requires input source to support replay, and storage to be able to store batch.                            |
   +--------------------------------+--------------------------------------------------------------------------------------------------------------+
 
 
@@ -113,8 +114,8 @@ Internal Use
   processing solution that perpetually transforms and aggregates data. 
 - **Sponsored Search** - Migrating stream pipeline for search to Storm. Getting search events from DH 
   Rainbow, do some in-memory calculation and push the results to HTTP servers.
-- **Flickr** - Flickr is auto tagging the photos using the Deep machine learning algorithm. Storm 
-  reads data from Redis server and processes them on the fly. The results are written 
+- **Flickr** - Flickr is auto tagging the photos using the deep machine learning algorithm. Storm 
+  reads data from Redis server and processes them in real time. The results are written 
   to the Vespa for search and Sherpa to store auto-tags.
 - **Search (Commerce/Shopping)** - Grid reporting UI that directly exposes data on grid with a simple UI, minimum 
   data SLA, and report response time--allows users to build their own reports and
@@ -128,6 +129,8 @@ Internal Use
 
 External Use
 ------------
+
+Storm was originally a Twitter project, but as you can see from the list, many companies are now using it.
 
 - **Twitter** - discovery, real-time analytics, personalization, search, revenue optimization, and in many more ways.
 - **Groupon** - real-time data integration systems.
@@ -143,14 +146,17 @@ External Use
 Other Stream Processing Solutions
 =================================
 
-- `Samza <http://samza.incubator.apache.org/>`_ -  is a distributed stream processing 
+Some companies have turned to other technologies to process streams or developed their own.
+The following lists only a few examples.
+
+- `Samza <http://samza.incubator.apache.org/>`_ - is a distributed stream processing 
   framework. It uses Apache Kafka for messaging, and Apache Hadoop YARN to provide 
   fault tolerance, processor isolation, security, and resource management.
-- `Spark <http://spark.apache.org/>`_ -  is a fast and general engine for large-scale data processing.
-- `S4 <http://incubator.apache.org/s4/>`_ -  is a general-purpose, distributed, scalable, 
+- `Spark <http://spark.apache.org/>`_ - is a fast and general engine for large-scale data processing.
+- `S4 <http://incubator.apache.org/s4/>`_ - is a general-purpose, distributed, scalable, 
   fault-tolerant, pluggable platform that allows programmers to easily develop applications 
   for processing continuous unbounded streams of data.
-- `Amazon Kinesis <http://aws.amazon.com/kinesis/>`_ -  is a fully managed service 
+- `Amazon Kinesis <http://aws.amazon.com/kinesis/>`_ - is a fully managed service 
   for real-time processing of streaming data at massive scale.  
 - `Millwheel <http://research.google.com/pubs/pub41378.html>`_ - is a framework for 
   building low-latency data-processing applications that is widely used at Google. 
@@ -162,7 +168,4 @@ Other Stream Processing Solutions
 - `SQLstream Blaze <http://www.sqlstream.com/blaze/>`_ - is a stream processing 
   suite for real-time operational intelligence from the integration, analysis and 
   visualization of high volume, high velocity machine data.  
-
-
-
 

@@ -7,7 +7,7 @@ Storm Registry Service API
 Overview
 ========
 
-The registry service is a simple Web service designed to allow clients to discover 
+The Registry Service is a simple Web service designed to allow clients to discover 
 services running on a cloud, similar to Hadoop or Storm, and securely connect to 
 them (as the registry is a trusted 3rd party). There are really two concepts involved here.
 
@@ -43,14 +43,14 @@ to go through the appropriate proxy servers.
 Authenticating Services
 -----------------------
 
-Because the registry service is polled to find out where server instances are 
+Because the Registry Service is polled to find out where server instances are 
 running, clients should validate they are talking to a real instance of the 
 service before sending any real data. The Registry Service provides a pluggable 
 mechanism to support this.
 
 These plugins are controlled by the ``securityData`` object in the ``virtualHost``. 
 The keys of all objects in ``securityData`` are the names of the plugins. When 
-adding in a new virtual host the object is used as configuration for the plugin. 
+adding in a new virtual host, the object is used as configuration for the plugin. 
 When the virtual host is read, it is used to return information about that plugin. 
 Typically, a user must be an owner of the virtual host to see all of the data 
 in these sections.
@@ -67,7 +67,7 @@ When generating a virtual host, the following options can be passed:
 - **dname** - the dname to use with the certificate. This is usually in the for 
   of ``"CN=<Something>, OU=<Something>..."``, defaults to ``"CN=apache, OU=yarn, O=registry"``.
 - **alias** - the name/alias the public/private keys will be stored under in the 
-  keystore, defaults to "selfsigned".
+  keystore. The defaults is ``"selfsigned"``.
 - **password** - the password used to encrypt the keystore. Defaults to a randomly 
   generated password.
 - **validity** - an integer indicating the number of days that this SSL certificate 
@@ -100,7 +100,8 @@ the client is authenticated and an owner of ``virtualHost``, in which case all d
 will be returned, or it is not, in which case only public information will 
 be returned.
 
-Return values:
+Return Values
+^^^^^^^^^^^^^
 
 - **password** - (PRIVATE) the password used to encrypt the ``pkcs12`` key store.
 - **alias** - (PRIVATE) where in the key store the public/private key pairs are stored.
@@ -146,21 +147,20 @@ There is a special endpoint for self-signed SSL to just fetch the public certifi
 Bypassing the Registry
 ----------------------
 
-If you are doing simple integration tests on a single node cluster, it can be a 
-pain to use the registry service. If you configure the registry URL to be ``null`` 
+If you are doing simple integration tests on a single node cluster, it can be
+cumbersome to use the Registry Service. If you configure the registry URL to be ``null`` 
 or an empty string, it will disable all calls to the registry server. Be careful 
-when doing this though, as it can be a real pain in production to think it is 
+when doing this though, as it can be difficult in production to think it is 
 working, but really it is not talking to the registry at all. If you do this be 
 sure to set it up to use HTTP, and not HTTPS, because the spout will try to pull 
-the private key out of the registry service and fail.
-
+the private key out of the Registry Service and fail.
 
 
 Passing a SSL Certificate to cURL
 ---------------------------------
 
 To get the SSL cert to pass to cURL, you can either use the option ``-k`` to let it accept any 
-type of certficate, or you can obtain the certificate from the Registry Service by calling
+type of certificate, or you can obtain the certificate from the Registry Service by calling
 ``curl -Ss http://<registry>:<port>/registry/v1/virtualHost/<virtualHostName>/SelfSignedSSL.cert > my.cert``.
 And then you can use the ``-E`` option to tell cURL to accept the certificate.
 
@@ -189,7 +189,7 @@ GET
 ###
 
 Updates the encryption on all virtual hosts to use the newest keys. This is 
-intended to be done by adminstrators after they role a secret key, but before the old 
+intended to be done by administrators after they role a secret key, but before the old 
 key expires.
 
 Example Response
@@ -238,7 +238,7 @@ Parameters
 - **timeout** - (OPTIONAL) integer number of seconds a server can go without 
   heart-beating into the registry and still be considered alive. The default 
   value is 600.
-- **owner** - (See Below) a list of the owners of this virtual host.
+- **owner** - a list of the owners of this virtual host (see below) .
 - **securityData** - see :ref:`Authenticating Services <registry_service_api-authenticating>` for
   details.
 
@@ -246,6 +246,7 @@ If the ``securityData`` parameter is not specified or has an empty value,
 the virtual host is considered to be insecure and having the ``owner`` parameter 
 is not required. Otherwise, it is considered to be a secure virtual host and the 
 ``owner`` parameter is required.
+
 If the ``owner`` parameter is specified, the ``virtualHost`` will only be added 
 if the user adding the virtual host is an administrator or one of the owners.
 

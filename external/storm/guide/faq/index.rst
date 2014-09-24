@@ -14,7 +14,7 @@ Questions
 - :ref:`Q: What are the basic steps to launch Storm topologies? <faq-launch_storm>` 
 - :ref:`Q: Why did StormSummitter fail to find the principal from the Kerberos cache? <faq-kerberos_cache>`
 - :ref:`Q: Does Storm support dependency isolation? <faq-dependency_isolation>`
-- :ref:`Q: Are there any libraries that storm is not compatible with? <faq-incompatible_libs>`
+- :ref:`Q: Are there any libraries that Storm is not compatible with? <faq-incompatible_libs>`
 
 Answers
 -------
@@ -24,7 +24,7 @@ Answers
 Q: Why am I seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages?
 ###########################################################################################
 
-The messages usually take the form of the following::
+The messages usually take the following form::
 
     [INFO] b.s.m.n.Client:88 thd=netty-client-timer tplg= cmpn= trcid= msg= Reconnect ... [2] to {HOST}/{IP}:{PORT}
     or
@@ -44,9 +44,9 @@ The messages usually take the form of the following::
             at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615) [na:1.7.0_51]
             at java.lang.Thread.run(Thread.java:744) [na:1.7.0_51]
 
-This is an indication that the worker process on ``{HOST}`` listening on port 
+This indicates that the worker process on ``{HOST}`` is listening on port 
 ``{PORT}`` has gone down for some reason and this worker process is just letting 
-you know. You should look in the logs for the worker process running on ``{HOST}:{PORT}`` 
+you know. You should check the logs for the worker process running on ``{HOST}:{PORT}`` 
 to see if there is anything in there indicating why it went down. If there is 
 nothing there and the logs look like they just stopped abruptly, see the
 FAQ on :ref:`worker process resetting <faq-worker_resets>`.
@@ -57,21 +57,21 @@ Q: Why is my worker process resetting periodically with no indication of what ha
 ###################################################################################################
 
 If your worker process dies with no indication as to why it died, it is probably 
-the supervisor shooting it. The supervisor is not always that kind and will sometimes 
-shoot a process with a ``kill -9``. There are usually two reasons why the supervisor 
-will kill a worker: either the worker has stopped heartbeating in or Nimbus has 
+the Supervisor that killed it. The Supervisor is not always that kind and will sometimes 
+shoot a process with a ``kill -9``. There are usually two reasons why the Supervisor 
+will kill a worker: either the worker has stopped heartbeating or Nimbus has 
 decided to reschedule it somewhere else.
 
 The best way to know is to see if the worker process starts up again on the 
 same host and port. If it does, then your worker probably stopped heartbeating. If 
 it starts up somewhere else, then Nimbus probably rescheduled it. Nimbus rescheduling 
-is unlikely if your process is restarting regularly. If you think this is happening 
-please contact the Storm team and we can help debug what is going on.
+is unlikely if your process is restarting regularly. If you think this is happening, 
+contact the Storm team and we can help debug what is going on.
 
-If your worker stopped heartbeating the most likely suspect is Java Garbage Collection. 
-If the Supervisor does not see heartbeats from your process for more then 5 seconds, 
+If your worker stopped heartbeating, the most likely suspect is Java Garbage Collection. 
+If the Supervisor does not see heartbeats from your process for more then five seconds, 
 it assumes it is dead and will try to restart it. Heartbeats are on a separate 
-high-priority thread and really only world garbage collection tends 
+high-priority thread and only world garbage collection tends 
 to stop them. Please look at the size of the heap you are using, but be careful 
 to not go over 3.5 GB without checking with the Storm team first.
 
@@ -88,8 +88,9 @@ This usually means that you included a YCAv2 header in the request to the Regist
 Service, but did not go through the HTTP proxy. We usually have this set on all 
 the gateways by default. If you ran your topology from a hosted gateway and got 
 this error please `file a bug in low latency <http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency>`_ 
-to let us know. If it was from your launcher box you probably need to configure it. 
-You can look HERE for the available HTTP proxies by colo.
+to let us know. If it was from your launcher box, you probably need to configure it. 
+See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_ for 
+the available HTTP proxies by colo.
 
 If you are setting it for a launcher box you probably want to set it through 
 ``yinst`` with something like the following::
@@ -97,14 +98,14 @@ If you are setting it for a launcher box you probably want to set it through
     yinst set "ystorm.http_registry_proxy=http://httpproxy-res.red.ygrid.yahoo.com:4080”
 
 If you can also set ``"http.registry.proxy"`` manually either on the command line with ``-c``, 
-or programatially in the conf map.
+or programmatically in the conf map.
 
 .. _faq-jdk_version:
 
 Q: Which JDK version does yStorm support?
 #########################################
 
-yStorm supports JDK7 on 64-bit OS. On grid gateway, please make sure that you are 
+Storm at Yahoo (yStorm) supports JDK7 on 64-bit OS. On grid gateway, make sure that you are 
 using ``/home/gs/java/jdk64/current/``.
 
 .. _faq-launch_storm:
@@ -147,7 +148,7 @@ One common dependencies that may cause you problems is ``Guava``.
 
 .. _faq-incompatible_libs:
 
-Q: Are there any libraries that storm is not compatible with?
+Q: Are there any libraries that Storm is not compatible with?
 #############################################################
 
 After the 0.8.2 release, Storm switched to ``logback`` for it's logging framework 
