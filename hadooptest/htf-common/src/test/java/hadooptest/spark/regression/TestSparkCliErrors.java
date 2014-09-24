@@ -2,6 +2,9 @@ package hadooptest.spark.regression;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.experimental.categories.Category;
+
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.SparkPi;
 
@@ -10,88 +13,57 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import hadooptest.Util;
 
+@Category(SerialTests.class)
 public class TestSparkCliErrors extends TestSession {
-	
-	@BeforeClass
-	public static void startTestSession() {
-		TestSession.start();
-	}
 
-	/*
-	 * A test running number of workers 0
-	 * 
-	 */
-	@Test
-	public void runSparkPiTestWorkersZero() {
-		try {
-			SparkPi appUserDefault = new SparkPi();
+    @BeforeClass
+    public static void startTestSession() {
+        TestSession.start();
+    }
 
-			appUserDefault.setWorkerMemory("2g");
-			appUserDefault.setNumWorkers(0);
-			appUserDefault.setWorkerCores(1);
+    /*
+     * A test running number of workers 0
+     *
+     */
+    @Test
+    public void runSparkPiTestWorkersZero() throws Exception {
+        SparkPi appUserDefault = new SparkPi();
 
-			appUserDefault.start();
+        appUserDefault.setWorkerMemory("2g");
+        appUserDefault.setNumWorkers(0);
+        appUserDefault.setWorkerCores(1);
 
-			assertTrue("Error because workers are 0",
-					appUserDefault.waitForERROR(10));
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
-	}
+        appUserDefault.start();
 
-	/*
-	 * A test running small am memory
-	 * 
-	 */
-	@Test
-	public void runSparkPiTestAmMemorySmall() {
-		try {
-			SparkPi appUserDefault = new SparkPi();
+        assertTrue("Error because workers are 0",
+            appUserDefault.waitForERROR(10));
 
-			appUserDefault.setWorkerMemory("2g");
-			appUserDefault.setMasterMemory("2m");
-			appUserDefault.setNumWorkers(1);
-			appUserDefault.setWorkerCores(1);
+    }
 
-			appUserDefault.start();
+    /*
+     * A test running number of workers 0
+     *
+     */
+    @Test
+    public void runSparkPiTestWorkersZeroSparkSubmit() throws Exception {
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
-			assertTrue("Error because AM memory to small",
-					appUserDefault.waitForERROR(10));
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
-	}
+        appUserDefault.setWorkerMemory("2g");
+        appUserDefault.setNumWorkers(0);
+        appUserDefault.setWorkerCores(1);
+        appUserDefault.setClassName("org.apache.spark.examples.SparkPi");
 
-	/*
-	 * A test running small worker memory
-	 * 
-	 */
-	@Test
-	public void runSparkPiTestWorkerMemorySmall() {
-		try {
-			SparkPi appUserDefault = new SparkPi();
+        appUserDefault.start();
 
-			appUserDefault.setWorkerMemory("1024");
-			appUserDefault.setNumWorkers(1);
-			appUserDefault.setWorkerCores(1);
+        assertTrue("Error because workers are 0",
+            appUserDefault.waitForERROR(10));
 
-			appUserDefault.start();
+    }
 
-			assertTrue("Error because worker memory to small",
-					appUserDefault.waitForERROR(10));
-		}
-		catch (Exception e) {
-			TestSession.logger.error("Exception failure.", e);
-			fail();
-		}
-	}
 }

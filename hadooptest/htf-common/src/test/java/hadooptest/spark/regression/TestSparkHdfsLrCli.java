@@ -3,12 +3,14 @@ package hadooptest.spark.regression;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.workflow.spark.app.AppMaster;
 import hadooptest.workflow.spark.app.SparkHdfsLR;
 
+import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 import org.apache.hadoop.fs.Path;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -18,9 +20,11 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestSparkHdfsLrCli extends TestSession {
 
-    /****************************************************************
-     *  Please set up input file name here *
-     ****************************************************************/
+    /**
+     * *************************************************************
+     * Please set up input file name here *
+     * **************************************************************
+     */
     private static String localDir = null;
     private static String lrDatafile = "lr_data.txt";
     private static String hdfsDir = "/user/" + System.getProperty("user.name") + "/";
@@ -68,18 +72,17 @@ public class TestSparkHdfsLrCli extends TestSession {
 
             appUserDefault.start();
 
-            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.", 
-                    appUserDefault.waitForID(120));
-            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.", 
-                    appUserDefault.verifyID());
-            assertEquals("SparkHdfsLR app name for sleep app is invalid.", 
-                    "Spark", appUserDefault.getAppName());
+            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.",
+                appUserDefault.waitForID(120));
+            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.",
+                appUserDefault.verifyID());
+            assertEquals("SparkHdfsLR app name for sleep app is invalid.",
+                "Spark", appUserDefault.getAppName());
 
             int waitTime = 30;
             assertTrue("Job (default user) did not succeed.",
-                    appUserDefault.waitForSuccess(waitTime));
-        }
-        catch (Exception e) {
+                appUserDefault.waitForSuccess(waitTime));
+        } catch (Exception e) {
             TestSession.logger.error("Exception failure.", e);
             fail();
         }
@@ -99,31 +102,31 @@ public class TestSparkHdfsLrCli extends TestSession {
             appUserDefault.setNumWorkers(3);
             appUserDefault.setWorkerCores(1);
             appUserDefault.setNumIterations(100);
-            appUserDefault.setLRDataFile("/user/" + System.getProperty("user.name") + "/" + lrDatafile);
+            appUserDefault
+                .setLRDataFile("/user/" + System.getProperty("user.name") + "/" + lrDatafile);
 
             appUserDefault.start();
 
-            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.", 
-                    appUserDefault.waitForID(120));
-            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.", 
-                    appUserDefault.verifyID());
-            assertEquals("SparkHdfsLR app name for sleep app is invalid.", 
-                    "SparkHdfsLR", appUserDefault.getAppName());
+            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.",
+                appUserDefault.waitForID(120));
+            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.",
+                appUserDefault.verifyID());
+            assertEquals("SparkHdfsLR app name for sleep app is invalid.",
+                "SparkHdfsLR", appUserDefault.getAppName());
 
             int waitTime = 30;
             assertTrue("Job (default user) did not succeed.",
-                    appUserDefault.waitForSuccess(waitTime));
-        }
-        catch (Exception e) {
+                appUserDefault.waitForSuccess(waitTime));
+        } catch (Exception e) {
             TestSession.logger.error("Exception failure.", e);
             fail();
         }
     }
 
-   /*
-    * A test for running a SparkHdfsLR with a non-existent hdfs file.
-    * 
-    */
+    /*
+     * A test for running a SparkHdfsLR with a non-existent hdfs file.
+     *
+     */
     @Test
     public void runSparkHdfsLRTestNonexistHdfsFile() throws Exception {
         SparkHdfsLR appUserDefault = new SparkHdfsLR();
@@ -133,7 +136,94 @@ public class TestSparkHdfsLrCli extends TestSession {
         appUserDefault.setNumWorkers(3);
         appUserDefault.setWorkerCores(1);
         appUserDefault.setNumIterations(100);
+
         appUserDefault.setLRDataFile("bogusnonexistentfile.txt");
+
+        appUserDefault.start();
+
+        int waitTime = 30;
+        assertTrue("Job (default user) did not error.",
+            appUserDefault.waitForERROR(waitTime));
+    }
+
+
+
+    @Test
+    public void runSparkHdfsLRTestStandaloneModeSparkSubmit() {
+        try {
+            SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
+
+            appUserDefault.setMaster(AppMaster.YARN_STANDALONE);
+            appUserDefault.setWorkerMemory("2g");
+            appUserDefault.setNumWorkers(3);
+            appUserDefault.setWorkerCores(1);
+            appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
+            String[] argsArray = {lrDatafile, "100"};
+            appUserDefault.setArgs(argsArray);
+
+            appUserDefault.start();
+
+            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.",
+                appUserDefault.waitForID(120));
+            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.",
+                appUserDefault.verifyID());
+            assertEquals("SparkHdfsLR app name for sleep app is invalid.",
+                "org.apache.spark.examples.SparkHdfsLR", appUserDefault.getAppName());
+
+            int waitTime = 30;
+            assertTrue("Job (default user) did not succeed.",
+                appUserDefault.waitForSuccess(waitTime));
+        } catch (Exception e) {
+            TestSession.logger.error("Exception failure.", e);
+            fail();
+        }
+    }
+
+
+    @Test
+    public void runSparkHdfsLRTestYarnClientModeSparkSubmit() {
+        try {
+            SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
+
+            appUserDefault.setMaster(AppMaster.YARN_CLIENT);
+            appUserDefault.setWorkerMemory("2g");
+            appUserDefault.setNumWorkers(3);
+            appUserDefault.setWorkerCores(1);
+            appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
+            String[] argsArray = {"/user/" + System.getProperty("user.name") + "/" + lrDatafile,
+                "100"};
+            appUserDefault.setArgs(argsArray);
+
+            appUserDefault.start();
+
+            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.",
+                appUserDefault.waitForID(120));
+            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.",
+                appUserDefault.verifyID());
+            assertEquals("SparkHdfsLR app name for sleep app is invalid.",
+                "SparkHdfsLR", appUserDefault.getAppName());
+
+            int waitTime = 30;
+            assertTrue("Job (default user) did not succeed.",
+                appUserDefault.waitForSuccess(waitTime));
+        } catch (Exception e) {
+            TestSession.logger.error("Exception failure.", e);
+            fail();
+        }
+    }
+
+
+    @Test
+    public void runSparkHdfsLRTestNonexistHdfsFileSparkSubmit() throws Exception {
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
+
+        appUserDefault.setMaster(AppMaster.YARN_CLIENT);
+        appUserDefault.setWorkerMemory("2g");
+        appUserDefault.setNumWorkers(3);
+        appUserDefault.setWorkerCores(1);
+        appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
+        String[] argsArray = {"bogusnonexistentfile.txt", "100"};
+        appUserDefault.setArgs(argsArray);
 
         appUserDefault.start();
 
