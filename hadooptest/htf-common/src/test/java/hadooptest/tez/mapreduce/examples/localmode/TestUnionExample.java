@@ -50,7 +50,7 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 	public TestName testName = new TestName();
 	
 	@Before
-	public void copyTheFileOnHdfs() {
+	public void copyTheFileLocally() {
 		try{
 		FileUtils.copyFile(new File(SOURCE_FILE), new File(INPUT_FILE));
 		}catch (IOException ioEx){
