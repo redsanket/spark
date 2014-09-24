@@ -1,0 +1,192 @@
+#!/usr/bin/env perl 
+
+# HDFS Proxy Performance Test
+# 1. Get the hosts for the cluster under test
+# 2. Run load / performance tests on each hosts
+# 3. Each host will run 16 threads, copy does a hdfs create N times
+
+# ./deploySupport/ru_generatejob_cli --cluster sam --release hadoopXXX2X2Xlatest 
+# ./deploySupport/ru_generatejob_cli --cluster sam --release hadoop_2_2_1_2_rc0
+
+# Requires:
+# yinst i ypan/perl-XML-XML2JSON
+# yinst i ypan/perl-Text-Trim
+
+use strict;
+use warnings;
+use FindBin qw($Bin $Script);
+use Test::More;
+use File::Copy;
+use File::Basename;
+use JSON qw( decode_json );
+use Data::Dumper;
+use XML::XML2JSON; 
+use JSON qw( decode_json );
+use Text::Trim;
+
+sub usage {
+    my ($err_msg) = @_;
+    print "Usage: $Script -c <cluster> -p <proxy> -l <payload per thread> <option1> <values1> <option2> <values2> ...";
+    die($err_msg) if ($err_msg);
+    exit 0;
+}
+
+# PARAM
+my %options=();
+trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
+my $payload_size = "3";
+my $payload_unit = "G";
+my $threads_per_host=16;
+my $file_size="64";
+my $file_size_unit="M";
+my $num_iterate="1";
+my $host_index;
+my $num_hosts;
+my $thread_id=1;
+trim(my $hostname=`hostname -s`);
+my $curl_log="/tmp/run3.log";
+
+#
+# Command line options processing
+#
+use Getopt::Long;
+&Getopt::Long::Configure( 'pass_through');
+my $result = 
+GetOptions(\%options,
+    "proxy|p=s"            => \$hproxy,
+    "load|l=s"             => \$payload_size, 
+    "threads_per_host|t=s" => \$threads_per_host,
+    "thread_id|i=s"        => \$thread_id,
+    "file_size|f=s"        => \$file_size,
+    "file_size_unit|u=s"   => \$file_size_unit,
+    "host_index=s"         => \$host_index,
+    "num_hosts=s"          => \$num_hosts,
+    "iterate|i=s"          => \$num_iterate,
+    "help|h|?"
+    ) or usage(1);
+usage() if $options{help};
+usage("Invalid arguments!!!") if (!$result);
+
+
+my $cmd;
+my $hproxy_url="https://$hproxy:4443";
+my $host_id="Host-$host_index/$num_hosts $hostname";
+note("#################################################################################");
+note("$host_id: Thread-$thread_id/$threads_per_host: Iterate-$num_iterate"."X");
+note("#################################################################################");
+note("hdfsproxy server='$hproxy'");
+note("hdfsproxy URL='$hproxy_url'");
+note("Payload per host per thread='$payload_size$payload_unit'");
+note("File size='$file_size$file_size_unit'");
+note("num iterations per thread='$num_iterate'");
+
+#################################################################################
+# 1. Run load / performance tests on each hosts
+#################################################################################
+execute("rm -f $curl_log");
+create_hdfs_files($thread_id, $num_iterate, $file_size, $file_size_unit);
+ 
+done_testing( $num_iterate );
+
+
+sub execute {
+    my ($command) = @_;
+    note($command);
+    system ($command);
+}
+
+# Create hdfs files for N interations
+sub create_hdfs_files {
+    my ($thread_id, $num_iterate, $file_size, $file_size_unit) = @_;
+
+    # Setup / cleanup
+    my $target_dir="fs/tmp";
+    my $file_prefix="file-".$file_size.$file_size_unit."-".$hostname."-thread-".$thread_id;
+    my $target_files = "$target_dir/$file_prefix"."-"."[1-$num_iterate]";
+    # my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\" >> $curl_log";
+    my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\"";
+    note("cmd='$cmd'");
+    my $xml_status=`$cmd`;
+    #note("status='$xml_status'");
+
+    # $cmd = "curl -s -k --negotiate -u: -X PUT \"$hproxy_url/$target_files?op=delete\" >> $curl_log";
+    $cmd = "curl -s -k --negotiate -u: -X PUT \"$hproxy_url/$target_files?op=delete\"";
+    note("cmd='$cmd'");
+    $xml_status=`$cmd`;
+    #note("status='$xml_status'");
+
+    # Create files
+    my $target_file;
+    for my $index (1..$num_iterate) {
+        note("#################################################################################");
+        note("$host_id, Thread-$thread_id/$threads_per_host, Iterate-$index/$num_iterate: create hdfs file");
+        note("#################################################################################");
+        $target_file = "$target_dir/$file_prefix"."-"."$index";
+        create_hdfs_file($file_size, $file_size_unit, $target_file);
+        # note("************ DEBUG *************");
+        # exit;
+    }
+}
+
+# Create a single hdfs file
+sub create_hdfs_file {
+  my ($file_size, $file_size_unit, $target_file) = @_;
+  my $file="file-".$file_size.$file_size_unit;
+  my $tmp_dir="/grid/0/tmp";
+  my $cmd;
+
+  if (-e "$tmp_dir/$file") {
+      # note("--> Data file '$tmp_dir/$file' already exists.");
+  } else {
+      note("--> Create data file '$tmp_dir/$file'...");
+      $cmd="/usr/bin/fallocate -l $file_size$file_size_unit $tmp_dir/$file";
+      execute("$cmd") 
+  }
+
+  note("--> Create the HDFS file via the HDFS Proxy");
+  my $target_dir="fs/tmp";
+  $cmd="curl -s -b /tmp/cookies.txt --negotiate -u: --cacert /tmp/ca.crt -T \"$tmp_dir/$file\" \"$hproxy_url/$target_file?op=create\"";
+  execute("$cmd");
+
+  validate_hdfs_file($target_file, $file_size, $file_size_unit); 
+}
+
+# Validate the hdfs file is created successfully
+sub validate_hdfs_file {
+  my ($file, $file_size, $file_size_unit) = @_;
+  note("--> Check the created HDFS file status");
+  my $cmd;
+  $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$file?op=status\"";
+  note("cmd='$cmd'");
+  my $xml_status=`$cmd`;
+  # note("status='$xml_status'");
+
+  my $XML2JSON = XML::XML2JSON->new();
+  my $json_status = $XML2JSON->convert($xml_status);
+  # note $json_status;
+  my $json_ref = decode_json($json_status);
+  # note Dumper $json_ref;
+
+  my $actual_size=$json_ref->{"listing"}->{"file"}->{'@size'};
+  # note("actual size='$actual_size'");
+
+  my $byteSize = convert_to_byte($file_size, $file_size_unit);
+
+  note("--> Assert file is created successfully");
+  ok($byteSize eq $actual_size, "Assert created file size '$actual_size' == expected size of '$byteSize'.");
+}
+
+sub convert_to_byte {
+  my ($file_size, $file_size_unit) = @_;
+  # my $file_size_unit=substr($file_size, -1);
+  my $byte;
+  if ($file_size_unit eq "M") {
+    $byte = $file_size*1024*1024;
+  } elsif ($file_size_unit eq "G") {
+    $byte = $file_size*1024*1024*1024;
+  } else {
+    $byte = $file_size;
+  } 
+  return $byte;
+}
+

@@ -1,0 +1,320 @@
+#!/usr/bin/env perl 
+
+# HDFS Proxy Performance Test
+# Get the hosts for the cluster under test
+# Run load / performance tests on each hosts
+#
+# 1. run_hproxy_perf --> 
+# 2. run_hproxy_perf_single_host --> 
+# 3. run_hproxy_perf_single_thread
+# 
+# run_hproxy_perf -cluster <cluster> -payload_size <payload size> -payload_unit=<payload unit> -threads_per_host=<num threads>
+# run_hproxy_perf -cluster sam -payload_size=500 -payload_unit=G -threads_per_host=16
+#
+
+# Requires:
+# yinst i ypan/perl-Data-Dumper-2.139_05
+# yinst i ypan/perl-JSON-2.90_148
+# yinst i ypan/perl-Math-Round
+# yinst i ypan/perl-Text-Trim
+# yinst i ypan/perl-XML-XML2JSON
+# yinst i ysar
+# yinst set ysar.gather_freq=1; yinst restart ycron
+
+use strict;
+use warnings;
+use FindBin qw($Bin $Script);
+use Test::More;
+use File::Copy;
+use File::Basename;
+use JSON qw( decode_json );
+use Data::Dumper;
+use XML::XML2JSON; 
+use JSON qw( decode_json );
+use Text::Trim;
+use Math::Round;
+
+sub usage {
+    my ($err_msg) = @_;
+    print "Usage: $Script -c <cluster> -p <proxy> -l <total payload> <option1> <values1> <option2> <values2> ...";
+    die($err_msg) if ($err_msg);
+    exit 0;
+}
+
+# PARAM
+my %options=();
+my $cluster='sam';
+trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
+my $payload_size = "500";
+my $payload_unit = "G";
+my $threads_per_host=16;
+
+#
+# Command line options processing
+#
+use Getopt::Long;
+&Getopt::Long::Configure( 'pass_through');
+my $result = 
+GetOptions(\%options,
+    "cluster|c=s"          => \$cluster,
+    "proxy|p=s"            => \$hproxy,
+    "payload|p=s"          => \$payload_size,
+    "threads_per_host|t=s" => \$threads_per_host,
+    "help|h|?"
+    ) or usage(1);
+usage() if $options{help};
+usage("Invalid arguments!!!") if (!$result);
+usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
+
+
+my $cmd;
+my $hproxy_url="https://$hproxy:4443";
+note("cluster='$cluster'");
+note("hdfsproxy server='$hproxy'");
+note("hdfsproxy URL='$hproxy_url'");
+note("Total payload='$payload_size$payload_unit'");
+
+trim(my $start_time=`date +%s`);
+
+#################################################################################
+# 1. Get the hosts for the cluster under test
+#################################################################################
+my @hosts=split("\n", `yinst range -ir "(\@grid_re.clusters.$cluster,-\@grid_re.clusters.$cluster.namenode,-\@grid_re.clusters.$cluster.namenode2,-\@grid_re.clusters.$cluster.hdfsproxy)"`);
+note("hosts='".join(",",@hosts)."'");
+my $num_hosts=scalar(@hosts);
+note("number of hosts='$num_hosts'");
+
+# PARAM
+my $payload_mb_per_host = round(convert_to_mb($payload_size, $payload_unit)/$threads_per_host/$num_hosts);
+note("Payload per host='$payload_mb_per_host"."M'");
+note("Number of threads per hosts='$threads_per_host'");
+
+my $payload_mb_per_thread = round($payload_mb_per_host/$threads_per_host);
+note("Payload per host per thread='$payload_mb_per_thread"."M'");
+
+# PARAM
+# 104857600
+my $file_size="64";
+my $file_size_unit="M";
+note("File size='$file_size$file_size_unit'");
+
+#$max=(convert_to_byte($payload_size, $payload_unit) / convert_to_byte($file_size, $file_size_unit));
+my $num_iterate=round($payload_mb_per_thread/convert_to_mb($file_size,$file_size_unit));
+note("Number of iterations per thread='$num_iterate'");
+
+#################################################################################
+# 2. Run load / performance tests on each hosts as a forked process
+#################################################################################
+my $remote_test_script="run_hproxy_perf_single_host";
+my $remote_test_script2="run_hproxy_perf_single_thread";
+my $host_index=1;
+my $host_id;
+
+use POSIX ":sys_wait_h";
+my @pids;
+
+for my $host (@hosts) {
+    $host_id="host-$host_index/$num_hosts $host";
+    # http://perldoc.perl.org/functions/fork.html
+    my $pid = fork();
+    if ($pid == 0) {
+        # forked child process has pid of 0
+        logger("----> Forked Child Process #$host_index to $host_id: Started");
+        run_threads_on_single_host($host_index, $host);
+        logger("----> Forked Child Process #$host_index to $host_id: Finished");
+        exit(0);
+    } else {
+        # parent process has non zero pid
+        logger("--> Forked Child Process #$host_index PID=$pid to $host_id:");
+        $pids[($host_index-1)] = $pid;
+    }
+    $host_index++;
+    # debug
+    # exit;
+}
+
+#################################################################################
+# 2. Wait for forked processes to finish
+#################################################################################
+logger("--> Wait for ".scalar(@pids)." Child Processes [".join(",", @pids)."] ".
+       "running on $num_hosts hosts to finish:");
+my $keep_waiting;
+do {
+    $keep_waiting = 0;
+    # Check all PID not yet completed (i.e. non zero)
+    for my $num_host (1..$num_hosts) {
+        my $i = ($num_host-1);
+        if ($pids[$i] > 0) {
+            if (waitpid($pids[$i], WNOHANG) != 0) {
+                logger("----> Forked Child Process #$num_host to $host_id: PID $pids[$i] completed.");
+                $pids[$i] = 0;
+            } else {
+                # logger("Waiting on Forked Child Process #$num_host: PID $pids[$i]");
+                $keep_waiting = 1;
+            }
+        }
+        # Give up timeslice and prevent hard loop: this may not work on all flavors of Unix
+        sleep(0);
+    }
+} while ($keep_waiting);
+
+
+#################################################################################
+# Audit
+#################################################################################
+$cmd  = "kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM";
+execute($cmd);
+my $target_dir="fs/tmp";
+my $file_prefix="file-".$file_size.$file_size_unit;
+my $target_files = "$target_dir/$file_prefix"."*";
+# my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\" >> $curl_log";
+# $cmd = "curl -k --negotiate -u: \"$hproxy_url/$target_files?op=status\"";
+
+$cmd="hadoop fs -ls /tmp/$file_prefix*|sort -t '-' -k13,13n";
+note("cmd='$cmd'");
+my $xml_status=`$cmd`;
+note("output='$xml_status'");
+
+
+my $ysar_interval=1;
+my $ysar="/home/y/bin/ysar";
+$ysar .= " -interval $ysar_interval";
+# $ysar .= " -f /grid/0/yroot/var/yroots/hit_hp/home/y/logs/ysar/ysar.dat -Summary";
+
+$cmd="ssh $hproxy $ysar";
+note($cmd);
+my $ysar_output=`$cmd`;
+note("ysar out='$ysar_output'");
+
+#################################################################################
+# 3. Determine the in and out kbps after the payload transfer has completed.
+#################################################################################
+note("#################################################################################");
+note("Determine the in and out kbps after the playload transfer of ".
+     "'$payload_size$payload_unit' has completed");
+note("(hosts='$num_hosts', threads_per_host='$threads_per_host', ".
+     "iteration_per_thread='$num_iterate', file_size='$file_size$file_size_unit').");
+note("#################################################################################");
+
+#################################################################################
+# Get start time, end time, time duration, and midpoint time
+#################################################################################
+use POSIX qw(strftime);
+trim(my $end_time=`date +%s`);
+# note("start_time='$start_time, end_time='$end_time'");
+show_time("start_time", $start_time);
+show_time("end_time", $end_time);
+my $duration=($end_time-$start_time);
+note("duration='$duration"."s'");
+my $midpoint_duration=round(($duration)/2);
+my $midpoint_time=$start_time+$midpoint_duration;
+show_time("midpoint runtime", $midpoint_time);
+# note("midpoint runtime='$midpoint_time'");
+# note("midpoint runtime='".strftime("%m/%d-%H:%M", localtime($midpoint_time))."'");
+
+#################################################################################
+# Construct the time string to grep from ysar
+#################################################################################
+my $seek_time=strftime("%m/%d-%H:%M", localtime($midpoint_time));
+
+# # Rounding
+# my $seek_time=strftime("%m/%d-%H:", localtime($midpoint_time));
+# my $seek_time_min=strftime("%M", localtime($midpoint_time))+0;
+# # DEBUG
+# # $seek_time_min="11"+0;
+# # note("seek time min='$seek_time_min'");
+# use POSIX qw(ceil floor);
+# $seek_time_min= floor($seek_time_min/5)*5;
+# # This could be in the future
+# # $seek_time_min = nearest(5, $seek_time_min);
+# $seek_time_min = sprintf("%02d", $seek_time_min);
+# # note("seek time min='$seek_time_min'");
+# $seek_time.=$seek_time_min;
+
+#################################################################################
+# Get the ysar output for the specified time, and parse the in and out kbps
+# E.g. 09/19-12:00
+#################################################################################
+$cmd="ssh $hproxy $ysar |grep $seek_time|head -1";
+note($cmd);
+trim($ysar_output = `$cmd`);
+note("ysar_out='$ysar_output'");
+my @tokens=split(" ", $ysar_output);
+my $inkbps = $tokens[-2];
+my $outkbps = $tokens[-1];
+note("inkbps='$inkbps', outkbps='$outkbps'");
+
+sub execute {
+    my ($command) = @_;
+    note($command);
+    system ($command);
+}
+
+sub logger {
+    my ($msg) = @_;
+    note(scalar localtime(), ": $msg");
+}
+
+sub show_time {
+  my ($msg, $time) = @_;
+  note("$msg='$time'='".strftime("%m/%d-%H:%M", localtime($time))."'");
+}
+
+sub convert_to_byte {
+  my ($file_size, $file_size_unit) = @_;
+  # my $file_size_unit=substr($file_size, -1);
+  my $byte;
+  if ($file_size_unit eq "M") {
+    $byte = $file_size*1024*1024;
+  } elsif ($file_size_unit eq "G") {
+    $byte = $file_size*1024*1024*1024;
+  } else {
+    $byte = $file_size;
+  } 
+  return $byte;
+}
+
+sub convert_to_mb {
+  my ($file_size, $file_size_unit) = @_;
+  # my $file_size_unit=substr($file_size, -1);
+  my $mb;
+  if ($file_size_unit eq "M") {
+      $mb = $file_size;
+  } elsif ($file_size_unit eq "G") {
+    $mb = $file_size*1024;
+  } else {
+    $mb = $file_size;
+  } 
+  return $mb;
+}
+
+sub run_threads_on_single_host {
+    my ($host_index, $host) = @_;
+    note("#################################################################################");
+    note("ssh to host-$host_index/$num_hosts $host to run hdfs create load testing");
+    note("#################################################################################");
+
+    my $cmd="ssh $host rm /tmp/$remote_test_script /tmp/$remote_test_script2 /tmp/ca.crt";
+    execute($cmd);
+
+    $cmd="scp $remote_test_script $remote_test_script2 /tmp/ca.crt $host:/tmp";
+    execute($cmd);
+
+    # $cmd = "ssh -t $host yinst i ypan/perl-XML-XML2JSON";
+    # execute($cmd);
+
+    $cmd  = "ssh $host \"kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM\"";
+    execute($cmd);
+
+    # debug 
+    # $threads_per_host=2;
+
+    $cmd  = "ssh $host /tmp/$remote_test_script";
+    $cmd .= " -proxy $hproxy";
+    $cmd .= " -thread $threads_per_host";
+    $cmd .= " -file_size $file_size -file_size_unit $file_size_unit";
+    $cmd .= " -host_index $host_index";
+    $cmd .= " -num_hosts $num_hosts";
+    $cmd .= " -iterate $num_iterate";
+    execute($cmd);
+}

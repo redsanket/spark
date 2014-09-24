@@ -53,7 +53,6 @@ object SparkRunHackCM {
       if (setSecurityOn.toBoolean) {
         // with security on this should have failed
         System.err.println("pipes should have thrown an exception")
-        sc.stop()
         // we have to throw for the spark application master to mark app as failed
         throw new Exception("Error, spark hack cm command failed")
         System.exit(1)
@@ -63,10 +62,8 @@ object SparkRunHackCM {
         if (setSecurityOn.toBoolean) {
           System.err.println("Exception is expected, exiting cleanly")
           sc.stop()
-          System.exit(0)
         } else {
           System.err.println("Exception should not have been thrown")
-          sc.stop()
           // we have to throw for the spark application master to mark app as failed
           throw new Exception("Error, spark hack cm command failed")
           System.exit(1)
@@ -75,7 +72,6 @@ object SparkRunHackCM {
     }
 
     sc.stop()
-    System.exit(0)
   }
 
 }
