@@ -1405,7 +1405,7 @@ public class GraphGenerationUtilAndNotATest extends TestSession {
 	}
 
 	@After
-	public void logTaskResportSummary() {
+	public void logTaskReportSummary() {
 
 	}
 }
