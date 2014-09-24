@@ -36,7 +36,7 @@ public class TestEndToEndCompression extends TestSession {
     @After
     public void logTaskReportSummary() 
             throws InterruptedException, IOException {
-        TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
+        TestSession.logger.info("--------- @After: TestSession: logTaskReportSummary ----------------------------");
         TestSession.logger.debug(
                 "logTaskReportSummary currently does not support " +
                 "parallel method tests.");
@@ -48,7 +48,7 @@ public class TestEndToEndCompression extends TestSession {
     @AfterClass
     public static void logTaskReportSummaryAfterClass() 
             throws InterruptedException, IOException {
-        TestSession.logger.info("--------- @AfterClass: TestSession: logTaskResportSummary ----------------------------");
+        TestSession.logger.info("--------- @AfterClass: TestSession: logTaskReportSummary ----------------------------");
 
         // Log the tasks report summary for jobs that ran as part of this test 
         JobClient jobClient = TestSession.cluster.getJobClient();
