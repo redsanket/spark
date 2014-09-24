@@ -25,7 +25,7 @@ public class TestHdfsProxyPerf extends TestSession {
         String DEFAULT_NUM_THREADS  = "16";
         String scriptDir            = 
                 TestSession.conf.getProperty("WORKSPACE") +
-                "htf-common/src/test/java/hadooptest/hdfsproxy/bin";
+                "/htf-common/src/test/java/hadooptest/hdfsproxy/bin";
         String script = scriptDir + "/run_hproxy_perf";
 	    String output[] = TestSession.exec.runProcBuilder(
 	            new String[] {
