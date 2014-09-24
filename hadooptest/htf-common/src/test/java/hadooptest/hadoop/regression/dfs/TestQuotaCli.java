@@ -506,7 +506,7 @@ public class TestQuotaCli extends DfsTestsBaseClass {
 	}
 
 	@After
-	public void logTaskResportSummary() {
+	public void logTaskReportSummary() {
 		// Override to hide the Test Session logs
 	}
 
