@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import hadooptest.SerialTests;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 
 /**
  * Starts a cluster.
@@ -33,10 +32,6 @@ public class TestHdfsProxyPerf extends TestSession {
         /*
 	    String output[] = TestSession.exec.runProcBuilder(
 	            new String[] {
-	                    "/home/y/bin/yroot",
-	                    TestSession.cluster.getClusterName(),
-	                    "--cmd",
-	                    "'",
 	                    script,
 	                    "-cluster",
 	                    TestSession.cluster.getClusterName(),
@@ -46,7 +41,6 @@ public class TestHdfsProxyPerf extends TestSession {
                         System.getProperty("PAYLOAD_UNIT", DEFAULT_PAYLOAD_UNIT),
 	                    "-threads_per_host",
                         System.getProperty("THREADS_PER_HOST", DEFAULT_NUM_THREADS),
-                        "'",
 	                    });
 	    TestSession.logger.trace(Arrays.toString(output));
 	    assertTrue( "Could not run hdfsproxy perf!!!", output[0].equals("0") );
@@ -55,10 +49,6 @@ public class TestHdfsProxyPerf extends TestSession {
 	    Process process = null;
 	    process = TestSession.exec.runProcBuilderGetProc(
                 new String[] {
-                        "/home/y/bin/yroot",
-                        TestSession.cluster.getClusterName(),
-                        "--cmd",
-                        "'",
                         script,
                         "-cluster",
                         TestSession.cluster.getClusterName(),
@@ -68,7 +58,6 @@ public class TestHdfsProxyPerf extends TestSession {
                         System.getProperty("PAYLOAD_UNIT", DEFAULT_PAYLOAD_UNIT),
                         "-threads_per_host",
                         System.getProperty("THREADS_PER_HOST", DEFAULT_NUM_THREADS),
-                        "'",
                         });
 	    String response = TestSession.exec.getProcessInputStream(process);
 	}
