@@ -262,9 +262,12 @@ my $outkbps = $tokens[-1];
 note("inkbps='$inkbps', outkbps='$outkbps'");
 
 # Plot Data
-my $filename = "$Bin/hdfsproxy_perf_plot.txt";
-`echo "inkbps,outkbps" > $filename`;
-`echo "$inkbps,$outkbps" >> $filename`;
+my $report_dir="$Bin/../../../../../../target/surefire-reports/";
+my $filename = "hdfsproxy_perf_plot.txt";
+if (-e $report_dir) {
+    `echo "inkbps,outkbps" > $report_dir/$filename`;
+    `echo "$inkbps,$outkbps" >> $report_dir/$filename`;
+}
 
 #################################################################################
 # SUBROUTINES
