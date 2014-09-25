@@ -314,7 +314,7 @@ sub run_threads_on_single_host {
     # $cmd="ssh $host rm /tmp/$remote_test_script /tmp/$remote_test_script2 /tmp/ca.crt";
     # execute($cmd);
 
-    $cmd="scp $remote_test_script $remote_test_script2 $tmpdir/ca.crt $host:$tmpdir";
+    $cmd="scp $Bin/$remote_test_script $Bin/$remote_test_script2 $tmpdir/ca.crt $host:$tmpdir";
     execute($cmd);
 
     # $cmd = "ssh -t $host yinst i ypan/perl-XML-XML2JSON";
