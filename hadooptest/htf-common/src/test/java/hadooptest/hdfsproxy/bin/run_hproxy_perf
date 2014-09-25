@@ -185,7 +185,7 @@ my $target_files = "$target_dir/$file_prefix"."*";
 # $cmd = "curl -k --negotiate -u: \"$hproxy_url/$target_files?op=status\"";
 
 $cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
-$cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ "
+$cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
 $cmd .= "fs -ls /tmp/$file_prefix*";
 $cmd .= "|sort -t '-' -k13,13n";
 note("cmd='$cmd'");
