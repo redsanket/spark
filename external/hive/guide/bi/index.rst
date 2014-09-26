@@ -514,7 +514,10 @@ Mac
 
 When running Tableau on Mac, you can use Tableau to run queries to read data from
 Hive tables on any Hadoop cluster, but you can only execute queries that write data
-to clusters that have a ``default`` queue. This is because we have not found a 
+to clusters that have a ``default`` queue. For example, on Kryptonite Red, which we'll
+be using in the tutorial, there is a ``default`` queue, so you can execute write statements
+to a Hive table, but on Cobalt Blue, there is no ``default`` queue, so you're limited to
+executing read queries to Hive tables. This is because we have not found a 
 way to specify a queue name in the Mac version of Tableau. 
 
 Setting Up for Mac OS X
@@ -562,51 +565,51 @@ Miniumum Requirements
 
 #. Create the file ``etc/krb5.conf`` with the following::
 
-   [logging]
-    default = FILE:/var/log/krb5libs.log
-    kdc = FILE:/var/log/krb5kdc.log
-    admin_server = FILE:/var/log/kadmind.log
+       [logging]
+           default = FILE:/var/log/krb5libs.log
+           kdc = FILE:/var/log/krb5kdc.log
+           admin_server = FILE:/var/log/kadmind.log
    
-   [libdefaults]
-    default_realm = YGRID.YAHOO.COM
-    dns_fallback = true
-    dns_lookup_kdc = false
-    dns_lookup_realm = true
-    ticket_lifetime = 24h
-    forwardable = yes
-    udp_preference_limit = 1
-    renew_lifetime = 7d
-    allow_weak_crypto=true
-    default_tgs_enctypes = des-cbc-md5 des-cbc-crc arcfour-hmac-md5 des3-cbc-sha1 aes128-cts aes256-cts
+       [libdefaults]
+           default_realm = YGRID.YAHOO.COM
+           dns_fallback = true
+           dns_lookup_kdc = false
+           dns_lookup_realm = true
+           ticket_lifetime = 24h
+           forwardable = yes
+           udp_preference_limit = 1
+           renew_lifetime = 7d
+           allow_weak_crypto=true
+           default_tgs_enctypes = des-cbc-md5 des-cbc-crc arcfour-hmac-md5 des3-cbc-sha1 aes128-cts aes256-cts
    
-   [realms]
-    YGRID.YAHOO.COM = {
-     admin_server = krb-adm.ygrid.yahoo.com.:749
-     kdc = krb-rr1.red.ygrid.yahoo.com.:88
-     kdc = krb-rr2.red.ygrid.yahoo.com.:88
-     kdc = krb-rr3.red.ygrid.yahoo.com.:88
-     kdc = krb-rr4.red.ygrid.yahoo.com.:88
-     auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
-     auth_to_local = RULE:[1:$1@$0](.*@YGRID.YAHOO.COM)s/@.*//
-    }
+       [realms]
+           YGRID.YAHOO.COM = {
+              admin_server = krb-adm.ygrid.yahoo.com.:749
+              kdc = krb-rr1.red.ygrid.yahoo.com.:88
+              kdc = krb-rr2.red.ygrid.yahoo.com.:88
+              kdc = krb-rr3.red.ygrid.yahoo.com.:88
+              kdc = krb-rr4.red.ygrid.yahoo.com.:88
+              auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+              auth_to_local = RULE:[1:$1@$0](.*@YGRID.YAHOO.COM)s/@.*//
+           }
    
-    DS.CORP.YAHOO.COM = {
-     kdc = bf1-dc1.corp.bf1.yahoo.com.:88
-     kdc = bf1-dc2.corp.bf1.yahoo.com.:88
-     kdc = sp1-dc1.corp.sp1.yahoo.com.:88
-     kdc = sp1-dc2.corp.sp1.yahoo.com.:88
-     kdc = ac4-dc1.corp.ac4.yahoo.com.:88
-     kdc = ac4-dc2.corp.ac4.yahoo.com.:88
-     auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
-    }
+           DS.CORP.YAHOO.COM = {
+               kdc = bf1-dc1.corp.bf1.yahoo.com.:88
+               kdc = bf1-dc2.corp.bf1.yahoo.com.:88
+               kdc = sp1-dc1.corp.sp1.yahoo.com.:88
+               kdc = sp1-dc2.corp.sp1.yahoo.com.:88
+               kdc = ac4-dc1.corp.ac4.yahoo.com.:88
+               kdc = ac4-dc2.corp.ac4.yahoo.com.:88
+               auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+           }
    
-    Y.CORP.YAHOO.COM = {
-     kdc = gq1-gdc01.corp.gq1.yahoo.com.:88
-     kdc = gq1-gdc02.corp.gq1.yahoo.com.:88
-     kdc = bf1-gdc01.corp.bf1.yahoo.com.:88
-     kdc = bf1-gdc02.corp.bf1.yahoo.com.:88
-     auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
-    }
+           Y.CORP.YAHOO.COM = {
+               kdc = gq1-gdc01.corp.gq1.yahoo.com.:88
+               kdc = gq1-gdc02.corp.gq1.yahoo.com.:88
+               kdc = bf1-gdc01.corp.bf1.yahoo.com.:88
+               kdc = bf1-gdc02.corp.bf1.yahoo.com.:88
+               auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+           }
 #. Request a ticket: ``$ kinit {your_user_name}@Y.CORP.YAHOO.COM``
 #. Confirm that your ticket was created: ``$ klist``
   
@@ -877,6 +880,7 @@ Trial Version
 
 Before getting a licensed copy of Tableau, first download a full-functioning free 
 trial of Tableau's Software:
+
 - `Tableau Desktop (Windows) <https://downloads.tableausoftware.com/tssoftware/TableauDesktop-32bit.exe>`_
 - `Tableau Desktop (Mac) <http://www.tableausoftware.com/products/desktop/download?os=mac%20os%20x>`_
 
@@ -920,16 +924,18 @@ using the Hortonworks Hive ODBC Driver by following the steps below:
    * **Host FQDN:**  ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com``
    * **Service Name:** hive
 #. Click **Connect**.
-#. If you are denied access, make sure that your MIT Kerberos ticket has not expired. If it has expired,
+#. (**Windows**) If you are denied access, make sure that your MIT Kerberos ticket has not expired. If it has expired,
    for Windows, go to **Start > All Programs > Kerberos for Windows (64-bit) > MIT Kerberos Ticket Manager**  
-   as shown below and click **Renew Ticket**. For Macs, run ``kinit {user_name}@Y.CORP.YAHOO.COM`` from a terminal.
-
+   as shown below and click **Renew Ticket**. 
    .. image:: images/kerberos_renew_ticket.jpg
       :height: 397 px
       :width: 741 px
       :scale: 95%
       :alt:  MIT Kerberos: Renew Ticket 
       :align: left
+   
+   (**Mac**) For Macs, if you are denied access, run ``kinit {user_name}@Y.CORP.YAHOO.COM`` from a terminal
+   to renew your Kerberos ticket.
 
 #. For **Step 4: Select a schema on the server**, the field should be automatically populated
    with 'default' upon a successful connection. Replace that value with **tableau**.
