@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x 
+
 # hudson-startslave.sh
 # 	The first script called by Hudson. It massages the arguments
 # 	given, then creates a yinst-package of the scripts needed (by
