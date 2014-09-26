@@ -940,6 +940,7 @@ using the Hortonworks Hive ODBC Driver by following the steps below:
 #. (**Windows**) If you are denied access, make sure that your MIT Kerberos ticket has not expired. If it has expired,
    for Windows, go to **Start > All Programs > Kerberos for Windows (64-bit) > MIT Kerberos Ticket Manager**  
    as shown below and click **Renew Ticket**. 
+
    .. image:: images/kerberos_renew_ticket.jpg
       :height: 397 px
       :width: 741 px
