@@ -549,8 +549,8 @@ Miniumum Requirements
 
 .. _tableau_windows-instructions:
 
-1. Install and Configure the Hortonworks Hive ODBC Driver
-*********************************************************
+Install and Configure the Hortonworks Hive ODBC Driver
+******************************************************
 
 #. Download and install the `Hortonworks Hive ODBC Driver for Mac OS X <http://public-repo-1.hortonworks.com/HDP/hive-odbc/1.4.8.1008/Mac_OS_X/hive-odbc-native.dmg>`_.
 #. Append the following to your ``/etc/profile`` file (you will need root access)::
@@ -573,8 +573,8 @@ Miniumum Requirements
 
 #. Restart your Mac to ensure Tableau loads the driver correctly.
 
-2. Set Up Kerberos 
-******************
+Set Up Kerberos 
+***************
 
 #. Create the file ``etc/krb5.conf`` with the following::
 
@@ -643,8 +643,8 @@ Requirements
 
 .. _tableau_setup-install:
 
-1. Install MIT Kerberos Software
-********************************
+Install MIT Kerberos Software
+*****************************
 
 #. `Download the installer for 64-bit system <http://twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fweb.mit.edu%2Fkerberos%2Fdist%2Fkfw%2F4.0%2Fkfw-4.0.1-amd64.msi&SIG=1208b47ak>`_. 
 #. Run the installer by clicking the file and choosing the **Typical** install as shown below.
@@ -764,8 +764,8 @@ principals and IP addresses for DNS.
 
 .. _tableau_setup-odbc:
 
-2. Install and Configure the Hortonworks Hive ODBC Driver
-*********************************************************
+Install and Configure the Hortonworks Hive ODBC Driver
+******************************************************
 
 #. `Download the installer <http://twiki.corp.yahoo.com/pub/Grid/HiveServer2BITools/HortonworksHiveODBC32-v1.2.15.1020.msi>`_ 
    for the Hortonworks Hive ODBC driver. The driver version must be 1.2.15 and higher for setting job queues.
