@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestSparkPiCli extends TestSession {
+public class TestSparkPiCliSparkSubmit extends TestSession {
 
     @BeforeClass
     public static void startTestSession() {
@@ -24,17 +24,18 @@ public class TestSparkPiCli extends TestSession {
 
     /*
      * A test for running SparkPi in Standalone mode
-     * 
+     *
      */
     @Test
-    public void runSparkPiTestStandaloneMode() throws Exception {
-        SparkPi appUserDefault = new SparkPi();
+    public void runSparkPiTestStandaloneModeSparkSubmit() throws Exception {
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
         appUserDefault.setMaster(AppMaster.YARN_STANDALONE);
         appUserDefault.setWorkerMemory("1g");
         appUserDefault.setNumWorkers(1);
         appUserDefault.setWorkerCores(1);
-        String appName = "SparkTestPiCli";
+        appUserDefault.setClassName("org.apache.spark.examples.SparkPi");
+        String appName = "SparkTestPiCliSparkSubmit";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
         appUserDefault.setQueueName("unfunded");
@@ -55,17 +56,18 @@ public class TestSparkPiCli extends TestSession {
 
     /*
      * A test for running SparkPi in YARN-client mode
-     * 
+     *
      */
     @Test
-    public void runSparkPiTestYarnClientMode() throws Exception {
-        SparkPi appUserDefault = new SparkPi();
+    public void runSparkPiTestYarnClientModeSparkSubmit() throws Exception {
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
         appUserDefault.setMaster(AppMaster.YARN_CLIENT);
         appUserDefault.setWorkerMemory("1g");
         appUserDefault.setNumWorkers(1);
         appUserDefault.setWorkerCores(1);
-        String appName = "SparkTestPiCli";
+        appUserDefault.setClassName("org.apache.spark.examples.SparkPi");
+        String appName = "SparkTestPiCliSparkSubmit";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
         appUserDefault.setQueueName("unfunded");
