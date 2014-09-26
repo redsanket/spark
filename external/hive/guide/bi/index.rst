@@ -498,16 +498,12 @@ which will allow you to use Hive.
    ticket that will track the status of your request.
    At this time HiveServer2 authorization will only be granted to select business units.
 
+.. _tableau-env:
+
 Grid Environments and Queues
 ############################
 
-Windows
-*******
-
-When using Tableau on Windows, you can specify the queue that you want to
-use on any Hadoop cluster. This allows you to use Tableau to run queries to both read and
-write data. We show you how to specify a queue in :ref:`Setting Up for Windows <tableau_setup-windows>`.
-
+.. _tableau_env-mac:
 
 Mac
 ***
@@ -520,13 +516,30 @@ to a Hive table, but on Cobalt Blue, there is no ``default`` queue, so you're li
 executing read queries to Hive tables. This is because we have not found a 
 way to specify a queue name in the Mac version of Tableau. 
 
-Setting Up for Mac OS X
------------------------
+.. _tableau_env-windows:
+
+Windows
+*******
+
+When using Tableau on Windows, you can specify the queue that you want to
+use on any Hadoop cluster. This allows you to use Tableau to run queries to both read and
+write data. We show you how to specify a queue in :ref:`Setting Up for Windows <tableau_setup-windows>`.
+
+.. _tableau-setting_up:
+
+I. Setting Up
+-------------
+
+.. _tableau_settingup-mac:
+
+Mac
+###
+
 
 .. _tableau-mac_reqs:
 
 Miniumum Requirements
-#####################
+*********************
 
 - MacBook Pro (mid/late 2007 or newer)
 - MacBook Air (late 2008 or newer)
@@ -537,7 +550,7 @@ Miniumum Requirements
 .. _tableau_windows-instructions:
 
 1. Install and Configure the Hortonworks Hive ODBC Driver
-#########################################################
+*********************************************************
 
 #. Download and install the `Hortonworks Hive ODBC Driver for Mac OS X <http://public-repo-1.hortonworks.com/HDP/hive-odbc/1.4.8.1008/Mac_OS_X/hive-odbc-native.dmg>`_.
 #. Append the following to your ``/etc/profile`` file (you will need root access)::
@@ -561,7 +574,7 @@ Miniumum Requirements
 #. Restart your Mac to ensure Tableau loads the driver correctly.
 
 2. Set Up Kerberos 
-##################
+******************
 
 #. Create the file ``etc/krb5.conf`` with the following::
 
@@ -617,12 +630,12 @@ Miniumum Requirements
 .. _tableau_setup-windows:
 
 Setting Up for Windows
-----------------------
+######################
 
 .. _tableau-reqs:
 
 Requirements
-############
+************
 
 - `Windows 7 <http://windows.microsoft.com/en-us/windows7/products/system-requirements>`_ 
   (Yahoo corporate Win7 64-bit image)
@@ -631,7 +644,7 @@ Requirements
 .. _tableau_setup-install:
 
 1. Install MIT Kerberos Software
-################################
+********************************
 
 #. `Download the installer for 64-bit system <http://twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fweb.mit.edu%2Fkerberos%2Fdist%2Fkfw%2F4.0%2Fkfw-4.0.1-amd64.msi&SIG=1208b47ak>`_. 
 #. Run the installer by clicking the file and choosing the **Typical** install as shown below.
@@ -752,7 +765,7 @@ principals and IP addresses for DNS.
 .. _tableau_setup-odbc:
 
 2. Install and Configure the Hortonworks Hive ODBC Driver
-#########################################################
+*********************************************************
 
 #. `Download the installer <http://twiki.corp.yahoo.com/pub/Grid/HiveServer2BITools/HortonworksHiveODBC32-v1.2.15.1020.msi>`_ 
    for the Hortonworks Hive ODBC driver. The driver version must be 1.2.15 and higher for setting job queues.
@@ -870,8 +883,8 @@ principals and IP addresses for DNS.
 
 .. _tableau-install:
 
-Installing Tableau 8.0 (Mac/Windows)
-------------------------------------
+II. Installing Tableau 8.0
+--------------------------
 
 .. _tableau_install-trial:
 
@@ -899,8 +912,8 @@ get the Professional Edition. Again, you'll need **Tableau Desktop**, not **Tabl
 
 .. _tableau-hiveserver2:
 
-Connecting Tableau to HiveServer2 (Mac/Windows)
------------------------------------------------
+III. Connecting Tableau to HiveServer2
+--------------------------------------
 
 After you've installed Tableau, you can connect Tableau to HiveServer2 
 using the Hortonworks Hive ODBC Driver by following the steps below:
@@ -963,8 +976,8 @@ using the Hortonworks Hive ODBC Driver by following the steps below:
 
 .. _tableau-data:
 
-Using Tableau With Data 
------------------------
+IV. Using Tableau With Data 
+---------------------------
 
 In this section, we're just going to run a couple of queries to verify that Tableau
 has connected to Hive table ``tableau`` on the grid. To learn how to use Tableau, we
@@ -1011,9 +1024,8 @@ again refer you to the `Tableau Quick Start Guides <http://www.tableausoftware.c
 #. Great, you have confirmed that **Tableau** has accessed your **tableau** table and gotten 
    the basic idea of how to use it. 
 
-..
 
-  .. _bi-custom_client:
+.. _bi-custom_client:
 
 Creating Custom Clients with JDBC 
 =================================
