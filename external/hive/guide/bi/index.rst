@@ -629,8 +629,8 @@ Miniumum Requirements
 
 .. _tableau_setup-windows:
 
-Setting Up for Windows
-######################
+Windows
+#######
 
 .. _tableau-reqs:
 
