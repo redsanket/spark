@@ -998,9 +998,9 @@ again refer you to the `Tableau Quick Start Guides <http://www.tableausoftware.c
       :alt:  Tableau: Book1
       :align: left
 
-#. From the **Tableau - Book1** window, select **status** from the **Data** panel and
+#. From the **Tableau - Book1** window, select **status** (**Status** on Macs) from the **Data** panel and
    drag it to the **Columns** field.
-#. Again from the **Data** panel, drag **grid** to the **Rows** field. You should
+#. Again from the **Data** panel, drag **grid** (**Grid** on Macs) to the **Rows** field. You should
    see the status codes as the top row and the grids listed in the first column.
 #. From the **Data** panel, go to **Measures**, select **Number of Records** and drag
    it to **Text** in the **Marks** panel. 
