@@ -397,6 +397,9 @@ if ($use_mvn) {
             "HADOOP_INSTALL=$hadoop_install " .
             "HADOOP_SHARE=$hadoop_share " .
             "HTF_WORKSPACE=$workspace " .
+            "HADOOP_CONF_DIR=/home/gs/gridre/yroot." . $cluster . "/conf/hadoop " .
+            "HADOOP_HOME=/home/gs/gridre/yroot." . $cluster . "/share/hadoop " .
+            "HADOOP_PREFIX=/home/gs/gridre/yroot." . $cluster. "/share/hadoop " .
             "/home/y/bin/mvn $pom_opt $mvn_settings_opt test -DfailIfNoTests=false ".
             join(" ", @common_args) . " " .
             $test_opt);
