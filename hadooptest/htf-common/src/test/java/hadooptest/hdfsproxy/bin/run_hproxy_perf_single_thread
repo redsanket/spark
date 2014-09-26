@@ -148,7 +148,8 @@ sub create_hdfs_file {
 
   note("--> Create the HDFS file via the HDFS Proxy");
   my $target_dir="fs/tmp";
-  $cmd="curl -s -b $tmpdir/cookies.txt --negotiate -u: --cacert $tmpdir/ca.crt -T \"$tmp_dir/$file\" \"$hproxy_url/$target_file?op=create\"";
+  # $cmd="curl -s -b $tmpdir/cookies.txt --negotiate -u: --cacert $tmpdir/ca.crt -T \"$tmp_dir/$file\" \"$hproxy_url/$target_file?op=create\"";
+  $cmd="curl -s -b $tmpdir/cookies.txt --negotiate -u: -k -T \"$tmp_dir/$file\" \"$hproxy_url/$target_file?op=create\"";
   execute("$cmd");
 
   validate_hdfs_file($target_file, $file_size, $file_size_unit); 
