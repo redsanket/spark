@@ -4,7 +4,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
@@ -14,7 +16,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.utils.HtfPigBaseClass;
-
+@Category(SerialTests.class)
 public class TestAbfFeeds_1 extends HtfPigBaseClass {
 	private static String SCRIPT_NAME = "abf_feeds_1.pig";
 
