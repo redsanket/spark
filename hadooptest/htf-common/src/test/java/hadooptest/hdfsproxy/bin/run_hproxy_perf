@@ -1,3 +1,4 @@
+#!/home/y/bin64/perl
 #!/usr/bin/env perl 
 
 # HDFS Proxy Performance Test
@@ -44,10 +45,22 @@ sub usage {
 # PARAM
 my %options=();
 my $cluster='sam';
-trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
+# trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
+trim(my $hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
+# $hproxy="gsbl90600.blue.ygrid.yahoo.com";
+
+trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
+
 my $payload_size = "500";
 my $payload_unit = "G";
 my $threads_per_host=16;
+
+my $username = getpwuid( $< );
+my $tmpdir = "/tmp/hdfsproxy_perf_$username";
+execute("rm -rf $tmpdir");
+execute("mkdir -p $tmpdir");
+
+execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 
 #
 # Command line options processing
@@ -65,7 +78,6 @@ GetOptions(\%options,
 usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
-
 
 my $cmd;
 my $hproxy_url="https://$hproxy:4443";
@@ -162,7 +174,8 @@ do {
 #################################################################################
 # Audit
 #################################################################################
-$cmd  = "kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM";
+# $cmd  = "kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM";
+$cmd = "kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa";
 execute($cmd);
 my $target_dir="fs/tmp";
 my $file_prefix="file-".$file_size.$file_size_unit;
@@ -170,7 +183,10 @@ my $target_files = "$target_dir/$file_prefix"."*";
 # my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\" >> $curl_log";
 # $cmd = "curl -k --negotiate -u: \"$hproxy_url/$target_files?op=status\"";
 
-$cmd="hadoop fs -ls /tmp/$file_prefix*|sort -t '-' -k13,13n";
+$cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
+$cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
+$cmd .= "fs -ls /tmp/$file_prefix*";
+$cmd .= "|sort -t '-' -k13,13n";
 note("cmd='$cmd'");
 my $xml_status=`$cmd`;
 note("output='$xml_status'");
@@ -244,6 +260,24 @@ my $inkbps = $tokens[-2];
 my $outkbps = $tokens[-1];
 note("inkbps='$inkbps', outkbps='$outkbps'");
 
+# Plot Data
+my $report_dir="$Bin/../../../../../../../htf-common/target/surefire-reports/";
+unless (-e $report_dir) {
+    `mkdir -p $report_dir`;
+}
+note("report_dir=$report_dir");
+my $filename = "hdfsproxy_perf_plot.txt";
+`echo "inkbps,outkbps" > $report_dir/$filename`;
+`echo "$inkbps,$outkbps" >> $report_dir/$filename`;
+# execute("echo \"inkbps,outkbps\" > $report_dir/$filename");
+# execute("echo \"$inkbps,$outkbps\" >> $report_dir/$filename");
+execute("ls -l $report_dir/$filename");
+
+
+#################################################################################
+# SUBROUTINES
+#################################################################################
+
 sub execute {
     my ($command) = @_;
     note($command);
@@ -294,22 +328,26 @@ sub run_threads_on_single_host {
     note("ssh to host-$host_index/$num_hosts $host to run hdfs create load testing");
     note("#################################################################################");
 
-    my $cmd="ssh $host rm /tmp/$remote_test_script /tmp/$remote_test_script2 /tmp/ca.crt";
+    my $cmd="ssh $host \"rm -rf $tmpdir; mkdir -p $tmpdir\"";
     execute($cmd);
 
-    $cmd="scp $remote_test_script $remote_test_script2 /tmp/ca.crt $host:/tmp";
+    # $cmd="ssh $host rm /tmp/$remote_test_script /tmp/$remote_test_script2 /tmp/ca.crt";
+    # execute($cmd);
+
+    $cmd="scp $Bin/$remote_test_script $Bin/$remote_test_script2 $tmpdir/ca.crt $host:$tmpdir";
     execute($cmd);
 
     # $cmd = "ssh -t $host yinst i ypan/perl-XML-XML2JSON";
     # execute($cmd);
 
-    $cmd  = "ssh $host \"kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM\"";
+    # $cmd = "ssh $host \"kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM\"";
+    $cmd = "ssh $host \"kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa\"";
     execute($cmd);
 
     # debug 
     # $threads_per_host=2;
 
-    $cmd  = "ssh $host /tmp/$remote_test_script";
+    $cmd  = "ssh $host $tmpdir/$remote_test_script";
     $cmd .= " -proxy $hproxy";
     $cmd .= " -thread $threads_per_host";
     $cmd .= " -file_size $file_size -file_size_unit $file_size_unit";

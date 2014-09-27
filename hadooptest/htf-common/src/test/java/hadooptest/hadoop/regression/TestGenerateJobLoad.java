@@ -2,12 +2,20 @@ package hadooptest.hadoop.regression;
 
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.ClusterState;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_EXEC_MODE;
 import hadooptest.cluster.hadoop.HadoopCluster.HADOOP_JOB_TYPE;
+import hadooptest.cluster.hadoop.dfs.DFS;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.workflow.hadoop.job.JobClient;
 import hadooptest.workflow.hadoop.job.JobState;
 import hadooptest.workflow.hadoop.job.SleepJob;
+import hadooptest.workflow.hadoop.job.SleepJobNNCheck;
 import hadooptest.workflow.hadoop.job.WordCountAPIJob;
 import hadooptest.workflow.hadoop.job.WordCountJob;
 import hadooptest.workflow.hadoop.job.TeraGenJob;
@@ -23,6 +31,7 @@ import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -173,7 +183,7 @@ public class TestGenerateJobLoad extends TestSession {
             return;
         }
         
-        TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
+        TestSession.logger.info("--------- @After: TestSession: logTaskReportSummary ----------------------------");
 
         // Log the tasks report summary for jobs that ran as part of this test 
         int numAcceptableNonCompleteMapTasks = 20;
@@ -481,7 +491,55 @@ public class TestGenerateJobLoad extends TestSession {
      * CLI BATCH JOBS 
      * *************************************************************************
      */
-    
+
+    /*
+     * Run a batch of jobs in the background in CLI mode
+     */
+    public void submitJobCLI(HADOOP_JOB_TYPE[] jobTypes, int numJobs, int index)
+            throws Exception {
+        HADOOP_JOB_TYPE jobType;
+        int numJobTypes = jobTypes.length;
+        int delay = 5;
+
+        jobType = jobTypes[index%numJobTypes];
+        jobIndex++;
+        String username="hadoopqa";
+        if (multiUsersMode) {
+            username = "hadoop" + ((index%20)+1);
+        }
+        TestSession.logger.info("---------- Submit job #" + jobIndex +
+                " type=" + jobType + " user=" + username +
+                " (batch job " + (index+1) + "/" + numJobs +
+                ") ---------------");
+        switch (jobType) {
+            case WORDCOUNT:
+                this.submitWordCountJobCLI(username);
+                break;
+            case TERAGEN:
+                this.submitTeraGenJobCLI(username);
+                break;
+            case TERASORT:
+                this.submitTeraSortJobCLI(username);
+                break;
+            case DFSIO:
+                this.submitDFSIOJobCLI(username);
+                break;
+            case SLEEP_NN_CHECK:
+                this.submitSleepNNCheckJobCLI(username);
+                break;
+            default:
+                this.submitSleepJobCLI(username);
+                break;
+        }
+        index++;
+        // Sleep for delay seconds if job is not waiting for job id.
+        // This is so we don't overload the queue unnecessarily.
+        if (!waitForJobId) {
+            TestSession.logger.info("Sleep for " + delay + " seconds.");
+            Thread.sleep(interval*1000);
+        }
+    }
+
     /*
      * Run a batch of jobs in the background in CLI mode
      */
@@ -556,34 +614,7 @@ public class TestGenerateJobLoad extends TestSession {
                             "proceed");                    
                 }
             }
-            
-            jobType = jobTypes[index%numJobTypes];
-            jobIndex++;
-            String username="hadoopqa";
-            if (multiUsersMode) {
-                username = "hadoop" + ((index%20)+1);
-            }
-            TestSession.logger.info("---------- Submit job #" + jobIndex +
-                    " type=" + jobType + " user=" + username + 
-                    " (batch job " + (index+1) + "/" + numJobs +
-                    ") ---------------");
-            switch (jobType) {
-                case WORDCOUNT: 
-                    this.submitWordCountJobCLI(username);                
-                    break;
-                case TERAGEN: 
-                    this.submitTeraGenJobCLI(username);                
-                    break;
-                case TERASORT:
-                    this.submitTeraSortJobCLI(username);                
-                    break;
-                case DFSIO:
-                    this.submitDFSIOJobCLI(username);                
-                    break;
-                default:
-                    this.submitSleepJobCLI(username);
-                    break;
-            }
+            submitJobCLI(jobTypes, numJobs, index);
             index++;
             // Sleep for delay seconds if job is not waiting for job id. 
             // This is so we don't overload the queue unnecessarily.
@@ -612,6 +643,55 @@ public class TestGenerateJobLoad extends TestSession {
         job.setJobInitSetID(waitForJobId);
         job.start();                        
     }
+
+    /*
+     * Run a batch of sleep jobs in the background in API mode
+     */
+    public void submitSleepNNCheckJobCLI(String username) throws Exception {
+        TestSession.logger.info("Submit Sleep Job With Namenode Check for user "
+                + username + ":");
+
+        DfsCliCommands dfsCommonCli = new DfsCliCommands();
+
+        DFS.createLocalFile("/tmp/testFileForNamenodeCheck");
+
+        dfsCommonCli.rm(new HashMap<String, String>(),
+                HadooptestConstants.UserNames.HDFSQA,
+                HadooptestConstants.Schema.HDFS,
+                System.getProperty("CLUSTER_NAME"),
+                Recursive.NO,
+                Force.NO,
+                SkipTrash.NO,
+                "/tmp/testFileForNamenodeCheck");
+
+        GenericCliResponseBO cliResponse = dfsCommonCli.copyFromLocal(
+                new HashMap<String, String>(),
+                HadooptestConstants.UserNames.HDFSQA,
+                HadooptestConstants.Schema.HDFS,
+                System.getProperty("CLUSTER_NAME"),
+                "/tmp/testFileForNamenodeCheck", "/tmp/");
+        Assert.assertTrue("Cannot copy file from local to hdfs" ,cliResponse.process.exitValue()==0);
+
+        dfsCommonCli.chmod(new HashMap<String, String>(),
+                HadooptestConstants.UserNames.HDFSQA,
+                HadooptestConstants.Schema.HDFS,
+                System.getProperty("CLUSTER_NAME"),
+                "/tmp/testFileForNamenodeCheck", "777");
+
+        TestSession.logger.info("Submit Sleep Job.");
+
+        SleepJobNNCheck job = new SleepJobNNCheck();
+        job.setNumMappers(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_NUM_MAPPER", "10")));
+        job.setNumReducers(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_NUM_REDUCER", "10")));
+        job.setMapDuration(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_MAP_SLEEP_TIME", "5000")));
+        job.setReduceDuration(
+                Integer.parseInt(System.getProperty("SLEEP_JOB_RED_SLEEP_TIME", "5000")));
+        job.setUser("hadoopqa");
+        job.start();
+     }
 
     /* 
      * Submit a DFSIO job

@@ -370,7 +370,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
 
     @After
-    public void logTaskResportSummary() throws Exception {
+    public void logTaskReportSummary() throws Exception  {
         // Override to hide the Test Session logs
 
         if ((DfsTestsBaseClass.crosscoloPerf == true) ||

@@ -1,9 +1,11 @@
 package hadooptest.spark.regression;
 
 import static org.junit.Assert.assertTrue;
+
+import hadooptest.workflow.spark.app.SparkRunClass;
 import org.junit.experimental.categories.Category;
 import hadooptest.TestSession;
-import hadooptest.workflow.spark.app.SparkRunClass;
+import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +32,7 @@ public class TestSparkHackJetty extends TestSession {
         // requires that authentication is on
 	@Test
 	public void runSparkHackJettyBroadcast() throws Exception {
-		SparkRunClass appUserDefault = new SparkRunClass();
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
 		appUserDefault.setWorkerMemory("2g");
 		appUserDefault.setNumWorkers(3);
@@ -55,7 +57,7 @@ public class TestSparkHackJetty extends TestSession {
 	}
 	@Test
 	public void runSparkHackJettyBroadcastAuthOff() throws Exception {
-		SparkRunClass appUserDefault = new SparkRunClass();
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
 		appUserDefault.setWorkerMemory("2g");
 		appUserDefault.setNumWorkers(3);
@@ -81,7 +83,7 @@ public class TestSparkHackJetty extends TestSession {
 	
 	@Test
 	public void runSparkHackJettyFileServer() throws Exception {
-		SparkRunClass appUserDefault = new SparkRunClass();
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
 		appUserDefault.setWorkerMemory("2g");
 		appUserDefault.setNumWorkers(3);
@@ -107,7 +109,7 @@ public class TestSparkHackJetty extends TestSession {
 
 	@Test
 	public void runSparkHackJettyFileServerAuthOff() throws Exception {
-		SparkRunClass appUserDefault = new SparkRunClass();
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
 		appUserDefault.setWorkerMemory("2g");
 		appUserDefault.setNumWorkers(3);

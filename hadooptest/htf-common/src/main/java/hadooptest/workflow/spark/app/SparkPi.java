@@ -54,6 +54,18 @@ public class SparkPi extends App {
     /** application name */
     private String appName = "sparkTest";
     
+    /** queue name */
+    private String queueName = this.QUEUE;
+
+    /**
+     * Set the queue name
+     * 
+     * @param String of the name of the queue
+     */
+    public void setQueueName(String name) { 
+        this.queueName = name;
+    }
+    
     /**
      * Set the master
      * 
@@ -198,7 +210,7 @@ public class SparkPi extends App {
         newEnv.put("SPARK_WORKER_INSTANCES", Integer.toString(this.numWorkers));
         newEnv.put("SPARK_WORKER_MEMORY", this.workerMemory);
         newEnv.put("SPARK_WORKER_CORES", Integer.toString(this.workerCores));
-        newEnv.put("SPARK_YARN_QUEUE", this.QUEUE);
+        newEnv.put("SPARK_YARN_QUEUE", this.queueName);
         newEnv.put("HADOOP_CONF_DIR", TestSession.cluster.getConf().getHadoopConfDir());
 
         if (shouldPassName) { 
@@ -210,7 +222,7 @@ public class SparkPi extends App {
         TestSession.logger.info("SPARK_WORKER_INSTANCES=" + Integer.toString(this.numWorkers));
         TestSession.logger.info("SPARK_WORKER_MEMORY=" + this.workerMemory);
         TestSession.logger.info("SPARK_WORKER_CORES=" + Integer.toString(this.workerCores));
-        TestSession.logger.info("SPARK_YARN_QUEUE=" + this.QUEUE);
+        TestSession.logger.info("SPARK_YARN_QUEUE=" + this.queueName);
         TestSession.logger.info("HADOOP_CONF_DIR=" + TestSession.cluster.getConf().getHadoopConfDir()); 
         
         if (!((sparkJavaOpts == null) || (sparkJavaOpts.isEmpty()))) {
@@ -339,7 +351,7 @@ public class SparkPi extends App {
                     "--worker-memory", this.workerMemory,
                     "--master-memory", this.masterMemory,
                     "--worker-cores", Integer.toString(this.workerCores),
-                    "--queue", this.QUEUE} ));
+                    "--queue", this.queueName} ));
 
             ret = cmd.toArray(new String[0]);
         }

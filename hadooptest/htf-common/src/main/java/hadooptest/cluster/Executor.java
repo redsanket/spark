@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import hadooptest.TestSession;
 import hadooptest.TestSessionCore;
 import hadooptest.automation.constants.HadooptestConstants;
 
@@ -446,4 +447,27 @@ public abstract class Executor {
 		}
 
 	}
+
+    public String getProcessInputStream(Process process)
+            throws InterruptedException {
+        StringBuffer sb = new StringBuffer();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()));
+        String line;
+        try {
+            line = reader.readLine();
+            while (line != null) {
+                sb.append(line);
+                sb.append("\n");
+                TestSession.logger.debug(line);
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        process.waitFor();
+        return sb.toString();
+    }
+
 }

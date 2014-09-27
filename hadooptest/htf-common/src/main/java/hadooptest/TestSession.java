@@ -71,7 +71,7 @@ public abstract class TestSession extends TestSessionCore {
      */
     @After
     public void logTaskReportSummary() 
-            throws InterruptedException, IOException {
+            throws Exception {
 
         // Do Nothing For GDM
         if ((conf.getProperty("GDM_ONLY") != null) && 
@@ -93,7 +93,7 @@ public abstract class TestSession extends TestSessionCore {
             return;
         }
         
-        TestSession.logger.info("--------- @After: TestSession: logTaskResportSummary ----------------------------");
+        TestSession.logger.info("--------- @After: TestSession: logTaskReportSummary ----------------------------");
 
         // Log the tasks report summary for jobs that ran as part of this test 
         JobClient jobClient = TestSession.cluster.getJobClient();
