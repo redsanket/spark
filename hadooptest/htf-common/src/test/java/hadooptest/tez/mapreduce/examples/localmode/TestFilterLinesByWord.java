@@ -30,10 +30,6 @@ import org.junit.rules.TestName;
 
 @Category(SerialTests.class)
 public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
-//	public TestFilterLinesByWord(boolean exitOnCompletion) {
-//		super(exitOnCompletion);
-//		// TODO Auto-generated constructor stub
-//	}
 
 	public static String SOURCE_FILE = "/home/y/share/htf-data/excite-small.log";
 	public static String OUTPUT_LOCATION = "/tmp/outOfFilterLinesByWord";
