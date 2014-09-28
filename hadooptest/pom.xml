@@ -30,6 +30,7 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+
 	</repositories>
 
 	<!-- Global variables for version numbers, etc. -->
@@ -50,7 +51,7 @@
 		<thread.count>8</thread.count>
 		<yinst.home>/home/y</yinst.home>
 		<home.gs>/home/gs</home.gs>
-		<tez.version>0.5.0-SNAPSHOT</tez.version>
+		<tez.version>0.6.0-SNAPSHOT</tez.version>
 	</properties>
 
 	<build>
@@ -1628,6 +1629,7 @@
 				</dependency>
 
 				<!-- TEZ   -->
+				<!--
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-api</artifactId>
@@ -1699,8 +1701,10 @@
 					<scope>system</scope>
 					<systemPath>/home/gs/tez/tez-yarn-timeline-history-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
+-->
 
 				<!-- Tez & /lib dependencies -->
+				<!--
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>commons-cli</artifactId>
@@ -1787,7 +1791,7 @@
 					<scope>system</scope>
 					<systemPath>${home.gs}/tez/lib/protobuf-java-2.5.0.jar  </systemPath>
 				</dependency>
-
+-->
 				<!-- STORM -->
 
 				<dependency>
@@ -2281,6 +2285,14 @@
 					<version>${tez.version}</version>
 				</dependency>
 
+				<!--
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-dist</artifactId>
+					<version>0.2.0.SNAPSHOT</version>
+				</dependency>
+			-->
+
 				<dependency>
 					<groupId>org.apache.tez</groupId>
 					<artifactId>tez-common</artifactId>
@@ -2305,6 +2317,13 @@
 					<version>${tez.version}</version>
 				</dependency>
 
+<!--
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-plugins</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+-->
 				<dependency>
 					<groupId>org.apache.tez</groupId>
 					<artifactId>tez-runtime-internals</artifactId>
@@ -2317,15 +2336,15 @@
 					<version>${tez.version}</version>
 				</dependency>
 
+<dependency>
+	<groupId>org.apache.tez</groupId>
+	<artifactId>tez-yarn-timeline-history</artifactId>
+	<version>${tez.version}</version>
+</dependency>
+
 				<dependency>
 				<groupId>org.apache.tez</groupId>
 					<artifactId>tez-tests</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-yarn-timeline-history</artifactId>
 					<version>${tez.version}</version>
 				</dependency>
 

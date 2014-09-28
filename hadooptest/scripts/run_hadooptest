@@ -210,8 +210,8 @@ elsif ($spark12) {
 }
 
 elsif ($tez) {
-    #$dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
-    $dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    #$dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 } else {
 
 	# When Hadoop is used, this profile must be called before profile-ci
