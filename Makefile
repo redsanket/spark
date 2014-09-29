@@ -3,7 +3,7 @@ YAHOO_CFG=$(ROOT)/share/yahoo_cfg
 
 -include $(YAHOO_CFG)/screwdriver/Make.rules
 
-screwdriver: cleanHTF compileHTF testCommit
+screwdriver: cleanHTF compileHTF
 
 cleanHTF:
 	@echo "Cleaning HTF"
@@ -11,6 +11,7 @@ cleanHTF:
 
 compileHTF:
 	@echo "Building HTF"
+	rm -rf hadooptest/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2
 	mvn -f hadooptest/pom.xml package -gs hadooptest/resources/yjava_maven/settings.xml.orig -Pprofile-all -Pprofile-corp -DskipTests
 
 testCommit:
