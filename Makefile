@@ -3,7 +3,7 @@ YAHOO_CFG=$(ROOT)/share/yahoo_cfg
 
 -include $(YAHOO_CFG)/screwdriver/Make.rules
 
-screwdriver: cleanHTF compileHTF testCommit
+screwdriver: cleanHTF compileHTF
 
 cleanHTF:
 	@echo "Cleaning HTF"
