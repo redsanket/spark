@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
@@ -142,7 +143,7 @@ public class TestTokenRenewalDoasBlockCleanUgiProxyUser extends
 			dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.NONE, aCluster, DATA_DIR_IN_HDFS
-							+ justTheFileName, "777");
+							+ justTheFileName, "777", Recursive.NO);
 		}
 
 	}

@@ -676,7 +676,7 @@ public class TestGenerateJobLoad extends TestSession {
                 HadooptestConstants.UserNames.HDFSQA,
                 HadooptestConstants.Schema.HDFS,
                 System.getProperty("CLUSTER_NAME"),
-                "/tmp/testFileForNamenodeCheck", "777");
+                "/tmp/testFileForNamenodeCheck", "777", Recursive.YES);
 
         TestSession.logger.info("Submit Sleep Job.");
 

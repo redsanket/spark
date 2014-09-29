@@ -65,12 +65,12 @@ public class TestReproduceHeadRoomJira extends CapacitySchedulerBaseClass {
 		dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS,
-				System.getProperty("CLUSTER_NAME"), "/tmp", "777");
+				System.getProperty("CLUSTER_NAME"), "/tmp", "777", Recursive.NO);
 		dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.WEBHDFS,
 				System.getProperty("CLUSTER_NAME"),
-				"/tmp/htf-common-1.0-SNAPSHOT-tests.jar", "777");
+				"/tmp/htf-common-1.0-SNAPSHOT-tests.jar", "777", Recursive.NO);
 
 	}
 

@@ -182,7 +182,7 @@ public class TestAppend {
 			dfsCommonCli.chmod(new HashMap<String, String>(),
 					HadooptestConstants.UserNames.HDFSQA,
 					HadooptestConstants.Schema.WEBHDFS, cluster, pathSoFar,
-					"777");
+					"777", Recursive.NO);
 		}
 	}
 

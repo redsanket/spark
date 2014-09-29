@@ -30,6 +30,7 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+
 	</repositories>
 
 	<!-- Global variables for version numbers, etc. -->
@@ -46,9 +47,11 @@
 		<storm.version.community>0.9.2-incubating-security</storm.version.community>
 		<storm.version.release>271</storm.version.release>
 	    <jetty.version>9.1.4.v20140401</jetty.version>
-	    <jetty.version.release>65</jetty.version.release> 
+	    <jetty.version.release>65</jetty.version.release>
 		<thread.count>8</thread.count>
 		<yinst.home>/home/y</yinst.home>
+		<home.gs>/home/gs</home.gs>
+		<tez.version>0.6.0-SNAPSHOT</tez.version>
 	</properties>
 
 	<build>
@@ -86,9 +89,9 @@
 						</jvmArgs>
 					</configuration>
 				</plugin>
-				
-				<!-- This plugin's configuration is used to store Eclipse m2e 
-				settings only. It has no influence on the Maven build 
+
+				<!-- This plugin's configuration is used to store Eclipse m2e
+				settings only. It has no influence on the Maven build
 				itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -146,10 +149,10 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.13</version>
 				<configuration>
-					<!-- Skip the default running of this plug-in (or everything will run 
+					<!-- Skip the default running of this plug-in (or everything will run
 						twice... see below) -->
 					<skip>true</skip>
-					<!-- Skip the default running of this plug-in (or everything will run 
+					<!-- Skip the default running of this plug-in (or everything will run
 						twice... see below) -->
 					<!-- Continue build after encountering error, override with -Dmaven.test.failure.ignore=true -->
 					<testFailureIgnore>true</testFailureIgnore>
@@ -160,12 +163,12 @@
 						</exclusion>
 					</exclusions>
 					<!-- Set JVM heap max size -->
-					<!-- The compression job submission explicity needs to use the 64-bit 
-						compression libraries (i386-32) for the jobs to run successfully as the nodes 
-						in the cluster run in 32-bit mode JVMs. The verification of the jobs needs 
-						to be done with the 64-bit compression libraries (amd64-64) as the gateway 
-						node JVM (and thus all framework access of the hadoop API) is done through 
-						a 64-bit JVM. Setting the java.library.path to 64-bit native libraries here 
+					<!-- The compression job submission explicity needs to use the 64-bit
+						compression libraries (i386-32) for the jobs to run successfully as the nodes
+						in the cluster run in 32-bit mode JVMs. The verification of the jobs needs
+						to be done with the 64-bit compression libraries (amd64-64) as the gateway
+						node JVM (and thus all framework access of the hadoop API) is done through
+						a 64-bit JVM. Setting the java.library.path to 64-bit native libraries here
 						allows Hadoop API access via 64-bit java from the gateways. -->
 					<argLine>-Djava.library.path=/home/gs/gridre/yroot.${CLUSTER}/share/hadoop/lib/native/Linux-amd64-64/:/home/y/lib64
 						-Xmx3g</argLine>
@@ -187,8 +190,8 @@
 					</properties>
 				</configuration>
 
-				<!-- Executions in the plugin specify the different test 
-				categories in HTF, like SerialTests, 
+				<!-- Executions in the plugin specify the different test
+				categories in HTF, like SerialTests,
 				ParallelMethodTests, etc -->
 				<executions>
 
@@ -292,9 +295,9 @@
 				<version>2.2</version>
 			</plugin>
 
-			<!-- This plugin is necessary to build the HTF javadoc.  Create a 
-			directory called hadooptest-javadoc that shares its top level with 
-			the hadooptest local git repo, and clone hadooptest's gh-pages 
+			<!-- This plugin is necessary to build the HTF javadoc.  Create a
+			directory called hadooptest-javadoc that shares its top level with
+			the hadooptest local git repo, and clone hadooptest's gh-pages
 			branch to that directory.  Building javadoc for HTF through maven
 			will then put the new javadoc in that directory with the following
 			configuration. -->
@@ -316,8 +319,8 @@
 	</build>
 
 	<profiles>
-		<!-- This profile should only be used from a corp box that has access to 
-			ymaven.corp.yahoo.com to download yahoo.yinst dependencies. It will not work 
+		<!-- This profile should only be used from a corp box that has access to
+			ymaven.corp.yahoo.com to download yahoo.yinst dependencies. It will not work
 			from the grid. On the grid, use system dependencies from the pom-ci. -->
 		<profile>
 			<id>profile-corp</id>
@@ -552,7 +555,7 @@
 						<version>${jacoco.version}</version>
 						<configuration>
 							<!-- [DEBUG] (f) dataFile = /tmp/hadooptest-hadoopqa-theoden/target/jacoco.exec -->
-							<!-- this plugin is searching for the jacoco.exec file in the ../target 
+							<!-- this plugin is searching for the jacoco.exec file in the ../target
 								directory -->
 							<destfile>${basedir}/data/exec/jacoco.exec</destfile>
 							<datafile>${basedir}/data/exec/jacoco.exec</datafile>
@@ -630,12 +633,12 @@
 		</profile>
 
 		<!-- BASE PROFILE FOR HADDOP -->
-		<!-- When Hadoop is used, this profile must be called before profile-ci 
-			or any other profile. If another profile is used first, the dependency jars 
-			from that profile might have Hadoop configuration or classes that will upset 
-			the classpath assembled by maven, and can lead to unexpected configuration 
-			or classes ending up in the classpath before the necessary Hadoop support. 
-			By putting profile-hadoop first in the maven profile order, it ensures that 
+		<!-- When Hadoop is used, this profile must be called before profile-ci
+			or any other profile. If another profile is used first, the dependency jars
+			from that profile might have Hadoop configuration or classes that will upset
+			the classpath assembled by maven, and can lead to unexpected configuration
+			or classes ending up in the classpath before the necessary Hadoop support.
+			By putting profile-hadoop first in the maven profile order, it ensures that
 			Hadoop API calls and configuration will be using the deployed Hadoop jars. -->
 		<profile>
 			<id>profile-hadoop</id>
@@ -643,7 +646,6 @@
 				<activeByDefault>false</activeByDefault>
 			</activation>
 			<dependencies>
-
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>system-protobuf</artifactId>
@@ -705,6 +707,14 @@
 					<version>0.9.2</version>
 					<scope>system</scope>
 					<systemPath>${HADOOP_SHARE}/hdfs/hadoop-hdfs-${HADOOP_VERSION}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>system37</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${HADOOP_SHARE}/hdfs/lib/YahooDNSToSwitchMapping-2.4.1405061231.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -973,12 +983,12 @@
 		</profile>
 
 		<!-- BASE PROFILE FOR STORM -->
-		<!-- When Storm is used, this profile must be called before profile-ci 
-			or any other profile. If another profile is used first, the dependency jars 
-			from that profile might have Storm configuration or classes that will upset 
-			the classpath assembled by maven, and can lead to unexpected configuration 
-			or classes ending up in the classpath before the necessary Storm support. 
-			By putting profile-storm first in the maven profile order, it ensures that 
+		<!-- When Storm is used, this profile must be called before profile-ci
+			or any other profile. If another profile is used first, the dependency jars
+			from that profile might have Storm configuration or classes that will upset
+			the classpath assembled by maven, and can lead to unexpected configuration
+			or classes ending up in the classpath before the necessary Storm support.
+			By putting profile-storm first in the maven profile order, it ensures that
 			Storm API calls and configuration will be using the deployed Storm jars. -->
 		<profile>
 			<id>profile-storm</id>
@@ -1284,12 +1294,12 @@
 		</profile>
 
 		<!-- BASE PROFILE FOR STORM-090 -->
-		<!-- When Storm is used, this profile must be called before profile-ci 
-			or any other profile. If another profile is used first, the dependency jars 
-			from that profile might have Storm configuration or classes that will upset 
-			the classpath assembled by maven, and can lead to unexpected configuration 
-			or classes ending up in the classpath before the necessary Storm support. 
-			By putting profile-storm first in the maven profile order, it ensures that 
+		<!-- When Storm is used, this profile must be called before profile-ci
+			or any other profile. If another profile is used first, the dependency jars
+			from that profile might have Storm configuration or classes that will upset
+			the classpath assembled by maven, and can lead to unexpected configuration
+			or classes ending up in the classpath before the necessary Storm support.
+			By putting profile-storm first in the maven profile order, it ensures that
 			Storm API calls and configuration will be using the deployed Storm jars. -->
 		<profile>
 			<id>profile-storm-090</id>
@@ -1596,15 +1606,15 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
-			<!-- When Hadoop is used, the profile-hadoop profile must be called before 
-				profile-ci or any other profile. If another profile is used first, the dependency 
-				jars from that profile might have Hadoop configuration or classes that will 
-				upset the classpath assembled by maven, and can lead to unexpected configuration 
-				or classes ending up in the classpath before the necessary Hadoop support. 
-				By putting profile-hadoop first in the maven profile order, it ensures that 
-				Hadoop API calls and configuration will be using the deployed Hadoop jars. 
+			<!-- When Hadoop is used, the profile-hadoop profile must be called before
+				profile-ci or any other profile. If another profile is used first, the dependency
+				jars from that profile might have Hadoop configuration or classes that will
+				upset the classpath assembled by maven, and can lead to unexpected configuration
+				or classes ending up in the classpath before the necessary Hadoop support.
+				By putting profile-hadoop first in the maven profile order, it ensures that
+				Hadoop API calls and configuration will be using the deployed Hadoop jars.
 				If Hadoop is not being used, profile-ci should be used in all other cases. -->
 			<id>profile-ci</id>
 			<activation>
@@ -1618,6 +1628,170 @@
 					<version>1.2.12</version>
 				</dependency>
 
+				<!-- TEZ   -->
+				<!--
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-api</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-api-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-common</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-common-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-dag</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-dag-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-examples</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-examples-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-mapreduce</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-mapreduce-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-runtime-internals</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-runtime-internals-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-runtime-library</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-runtime-library-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-tests</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-tests-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-yarn-timeline-history</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>/home/gs/tez/tez-yarn-timeline-history-${TEZ_VERSION}.jar</systemPath>
+				</dependency>
+-->
+
+				<!-- Tez & /lib dependencies -->
+				<!--
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-cli</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-cli-1.2.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-codec</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-codec-1.4.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-collections3</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-collections-3.2.1.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-collections4</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-collections4-4.0.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-io</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-io-2.4.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-lang</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-lang-2.6.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-logging</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-logging-1.1.3.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-math3</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/commons-math3-3.1.1.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>guava</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/guava-11.0.2.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>jettisin</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/jettison-1.3.4.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>jsr305</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/jsr305-2.0.3.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>protobuf</artifactId>
+					<version>0.9.2</version>
+					<scope>system</scope>
+					<systemPath>${home.gs}/tez/lib/protobuf-java-2.5.0.jar  </systemPath>
+				</dependency>
+-->
 				<!-- STORM -->
 
 				<dependency>
@@ -2094,8 +2268,76 @@
 					<scope>provided</scope>
 				</dependency>
 
+				<!-- TEZ Dependencies needed for compilation -->
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-api</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<!--
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-dist</artifactId>
+					<version>0.2.0.SNAPSHOT</version>
+				</dependency>
+				-->
+
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-common</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-dag</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-examples</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-mapreduce</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<!--
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-plugins</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+				-->
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-runtime-internals</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-runtime-library</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.tez</groupId>
+					<artifactId>tez-yarn-timeline-history</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
+
+				<dependency>
+				<groupId>org.apache.tez</groupId>
+					<artifactId>tez-tests</artifactId>
+					<version>${tez.version}</version>
+				</dependency>
 			</dependencies>
 		</profile>
 	</profiles>
-
 </project>

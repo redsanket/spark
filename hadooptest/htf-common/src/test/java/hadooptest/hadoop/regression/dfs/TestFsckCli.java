@@ -216,7 +216,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
 						HadooptestConstants.UserNames.HDFSQA,
 						HadooptestConstants.Schema.NONE, this.localCluster,
-						pathSoFar, "777");
+						pathSoFar, "777", Recursive.NO);
 				pathsChmodedSoFar.put(pathSoFar, true);
 			}
 		}
