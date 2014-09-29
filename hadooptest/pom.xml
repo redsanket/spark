@@ -2337,10 +2337,6 @@
 					<artifactId>tez-tests</artifactId>
 					<version>${tez.version}</version>
 				</dependency>
-
-			</dependencies>
-		</profile>
-
 			</dependencies>
 		</profile>
 	</profiles>
