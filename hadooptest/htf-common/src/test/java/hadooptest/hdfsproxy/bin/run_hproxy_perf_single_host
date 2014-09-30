@@ -40,7 +40,7 @@ my $payload_size = "3";
 my $payload_unit = "G";
 my $threads_per_host=16;
 my $file_size="64";
-my $file_size_unit="M";
+my $file_unit="M";
 my $num_iterate="1";
 my $host_index;
 my $num_hosts;
@@ -56,7 +56,7 @@ GetOptions(\%options,
     "load|l=s"           => \$payload_size,
     "thread|t=s"         => \$threads_per_host,
     "file_size|f=s"      => \$file_size,
-    "file_size_unit|u=s" => \$file_size_unit,
+    "file_unit|u=s"      => \$file_unit,
     "iterate|i=s"        => \$num_iterate,
     "host_index=s"       => \$host_index,
     "num_hosts=s"        => \$num_hosts,
@@ -74,7 +74,7 @@ note("hdfsproxy server='$hproxy'");
 note("hdfsproxy URL='$hproxy_url'");
 note("Payload per host per thread='$payload_size$payload_unit'");
 note("Number threads per host='$threads_per_host'");
-note("File size='$file_size$file_size_unit'");
+note("File size='$file_size$file_unit'");
 note("num iterations per thread='$num_iterate'");
 
 # DEBUG
@@ -143,7 +143,7 @@ sub run_single_thread {
     $cmd .= " -proxy $hproxy";
     $cmd .= " -thread_id $num_thread";
     $cmd .= " -threads_per_host $threads_per_host";
-    $cmd .= " -file_size $file_size -file_size_unit $file_size_unit";
+    $cmd .= " -file_size $file_size -file_unit $file_unit";
     $cmd .= " -host_index $host_index";
     $cmd .= " -num_hosts $num_hosts";
     $cmd .= " -iterate $num_iterate";
