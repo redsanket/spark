@@ -54,6 +54,8 @@ trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alia
 my $payload_size = "500";
 my $payload_unit = "G";
 my $threads_per_host=16;
+my $file_size="64";
+my $file_unit="M";
 
 my $username = getpwuid( $< );
 my $tmpdir = "/tmp/hdfsproxy_perf_$username";
@@ -73,6 +75,8 @@ GetOptions(\%options,
     "proxy|p=s"            => \$hproxy,
     "payload_size|p=s"     => \$payload_size,
     "payload_unit|u=s"     => \$payload_unit,
+    "file_size|f=s"        => \$file_size,
+    "file_unit|n=s"        => \$file_unit,
     "threads_per_host|t=s" => \$threads_per_host,
     "help|h|?"
     ) or usage(1);
@@ -117,18 +121,16 @@ note("(Payload per host='$payload_per_host$payload_unit')/(Number of threads per
 
 # PARAM
 # 104857600
-my $file_size="64";
-my $file_size_unit="M";
-# note("File size='$file_size$file_size_unit'");
+# note("File size='$file_size$file_unit'");
 
-#$max=(convert_to_byte($payload_size, $payload_unit) / convert_to_byte($file_size, $file_size_unit));
-# my $num_iterate=round($payload_mb_per_thread/convert_to_mb($file_size,$file_size_unit));
+#$max=(convert_to_byte($payload_size, $payload_unit) / convert_to_byte($file_size, $file_unit));
+# my $num_iterate=round($payload_mb_per_thread/convert_to_mb($file_size,$file_unit));
 # note("Number of iterations per thread='$num_iterate'");
 
-# note("'num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_size_unit))'");
-my $num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_size_unit));
+# note("'num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_unit))'");
+my $num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_unit));
 #note("Number of iterations per thread='$num_iterate'");
-note("(Payload per host thread='$payload_per_thread$payload_unit')/(File size='$file_size$file_size_unit')=(Number of iterations per thread='$num_iterate')");
+note("(Payload per host thread='$payload_per_thread$payload_unit')/(File size='$file_size$file_unit')=(Number of iterations per thread='$num_iterate')");
 
 # debug
 # exit;
@@ -197,7 +199,7 @@ do {
 $cmd = "kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa";
 execute($cmd);
 my $target_dir="fs/tmp";
-my $file_prefix="file-".$file_size.$file_size_unit;
+my $file_prefix="file-".$file_size.$file_unit;
 my $target_files = "$target_dir/$file_prefix"."*";
 # my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\" >> $curl_log";
 # $cmd = "curl -k --negotiate -u: \"$hproxy_url/$target_files?op=status\"";
@@ -228,7 +230,7 @@ note("##########################################################################
 note("Determine the in and out kbps after the playload transfer of ".
      "'$payload_size$payload_unit' has completed");
 note("(hosts='$num_hosts', threads_per_host='$threads_per_host', ".
-     "iteration_per_thread='$num_iterate', file_size='$file_size$file_size_unit').");
+     "iteration_per_thread='$num_iterate', file_size='$file_size$file_unit').");
 note("#################################################################################");
 
 #################################################################################
@@ -314,12 +316,12 @@ sub show_time {
 }
 
 sub convert_to_byte {
-  my ($file_size, $file_size_unit) = @_;
-  # my $file_size_unit=substr($file_size, -1);
+  my ($file_size, $file_unit) = @_;
+  # my $file_unit=substr($file_size, -1);
   my $byte;
-  if ($file_size_unit eq "M") {
+  if ($file_unit eq "M") {
     $byte = $file_size*1024*1024;
-  } elsif ($file_size_unit eq "G") {
+  } elsif ($file_unit eq "G") {
     $byte = $file_size*1024*1024*1024;
   } else {
     $byte = $file_size;
@@ -328,12 +330,12 @@ sub convert_to_byte {
 }
 
 sub convert_to_mb {
-  my ($file_size, $file_size_unit) = @_;
-  # my $file_size_unit=substr($file_size, -1);
+  my ($file_size, $file_unit) = @_;
+  # my $file_unit=substr($file_size, -1);
   my $mb;
-  if ($file_size_unit eq "M") {
+  if ($file_unit eq "M") {
       $mb = $file_size;
-  } elsif ($file_size_unit eq "G") {
+  } elsif ($file_unit eq "G") {
     $mb = $file_size*1024;
   } else {
     $mb = $file_size;
@@ -369,7 +371,7 @@ sub run_threads_on_single_host {
     $cmd  = "ssh $host $tmpdir/$remote_test_script";
     $cmd .= " -proxy $hproxy";
     $cmd .= " -thread $threads_per_host";
-    $cmd .= " -file_size $file_size -file_size_unit $file_size_unit";
+    $cmd .= " -file_size $file_size -file_unit $file_unit";
     $cmd .= " -host_index $host_index";
     $cmd .= " -num_hosts $num_hosts";
     $cmd .= " -iterate $num_iterate";
