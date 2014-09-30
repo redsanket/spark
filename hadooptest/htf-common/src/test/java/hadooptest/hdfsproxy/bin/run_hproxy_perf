@@ -71,7 +71,8 @@ my $result =
 GetOptions(\%options,
     "cluster|c=s"          => \$cluster,
     "proxy|p=s"            => \$hproxy,
-    "payload|p=s"          => \$payload_size,
+    "payload_size|p=s"     => \$payload_size,
+    "payload_unit|u=s"     => \$payload_unit,
     "threads_per_host|t=s" => \$threads_per_host,
     "help|h|?"
     ) or usage(1);
@@ -84,7 +85,6 @@ my $hproxy_url="https://$hproxy:4443";
 note("cluster='$cluster'");
 note("hdfsproxy server='$hproxy'");
 note("hdfsproxy URL='$hproxy_url'");
-note("Total payload='$payload_size$payload_unit'");
 
 trim(my $start_time=`date +%s`);
 
@@ -94,25 +94,44 @@ trim(my $start_time=`date +%s`);
 my @hosts=split("\n", `yinst range -ir "(\@grid_re.clusters.$cluster,-\@grid_re.clusters.$cluster.namenode,-\@grid_re.clusters.$cluster.namenode2,-\@grid_re.clusters.$cluster.hdfsproxy)"`);
 note("hosts='".join(",",@hosts)."'");
 my $num_hosts=scalar(@hosts);
-note("number of hosts='$num_hosts'");
+# note("Number of hosts='$num_hosts'");
 
 # PARAM
-my $payload_mb_per_host = round(convert_to_mb($payload_size, $payload_unit)/$threads_per_host/$num_hosts);
-note("Payload per host='$payload_mb_per_host"."M'");
-note("Number of threads per hosts='$threads_per_host'");
+# my $payload_per_host = round($payload_size/$num_hosts);
+my $payload_per_host = nearest(0.01, $payload_size/$num_hosts);
+#note("Payload per host='$payload_per_host$payload_unit'");
+note("(Total payload='$payload_size$payload_unit')/(Number of hosts='$num_hosts')=(Payload per host='$payload_per_host$payload_unit')");
 
-my $payload_mb_per_thread = round($payload_mb_per_host/$threads_per_host);
-note("Payload per host per thread='$payload_mb_per_thread"."M'");
+# my $payload_mb_per_host = round(convert_to_mb($payload_size, $payload_unit)/$num_hosts);
+# note("Payload per host='$payload_mb_per_host"."M'");
+
+# note("Number of threads per host='$threads_per_host'");
+# my $payload_per_thread = round($payload_per_host/$threads_per_host);
+my $payload_per_thread = nearest(0.01, $payload_per_host/$threads_per_host);
+# note("Payload per host thread='$payload_per_thread$payload_unit'");
+note("(Payload per host='$payload_per_host$payload_unit')/(Number of threads per host='$threads_per_host')=(Payload per host thread='$payload_per_thread$payload_unit')");
+
+# note("Number of threads per host='$threads_per_host'");
+# my $payload_mb_per_thread = round($payload_mb_per_host/$threads_per_host);
+# note("Payload per host thread='$payload_mb_per_thread"."M'");
 
 # PARAM
 # 104857600
 my $file_size="64";
 my $file_size_unit="M";
-note("File size='$file_size$file_size_unit'");
+# note("File size='$file_size$file_size_unit'");
 
 #$max=(convert_to_byte($payload_size, $payload_unit) / convert_to_byte($file_size, $file_size_unit));
-my $num_iterate=round($payload_mb_per_thread/convert_to_mb($file_size,$file_size_unit));
-note("Number of iterations per thread='$num_iterate'");
+# my $num_iterate=round($payload_mb_per_thread/convert_to_mb($file_size,$file_size_unit));
+# note("Number of iterations per thread='$num_iterate'");
+
+# note("'num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_size_unit))'");
+my $num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_size_unit));
+#note("Number of iterations per thread='$num_iterate'");
+note("(Payload per host thread='$payload_per_thread$payload_unit')/(File size='$file_size$file_size_unit')=(Number of iterations per thread='$num_iterate')");
+
+# debug
+# exit;
 
 #################################################################################
 # 2. Run load / performance tests on each hosts as a forked process
