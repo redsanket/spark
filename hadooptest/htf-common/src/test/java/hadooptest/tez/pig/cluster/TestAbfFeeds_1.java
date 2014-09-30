@@ -21,10 +21,6 @@ import hadooptest.tez.utils.HtfPigBaseClass;
 public class TestAbfFeeds_1 extends HtfPigBaseClass {
 	private static String SCRIPT_NAME = "abf_feeds_1.pig";
 
-	@Before
-	public int printVersion() throws Exception{
-		return super.printVersion();
-	}
 	@Test
 	public void testPigOnTezClusterHdfs() throws Exception {
 		HadoopNode hadoopNode = TestSession.cluster

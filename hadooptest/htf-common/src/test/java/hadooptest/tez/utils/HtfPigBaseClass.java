@@ -81,6 +81,7 @@ public class HtfPigBaseClass extends TestSession {
 	@Before
 	public void ensurePigDataPresenceinClusterBeforeTest() throws Exception {
 		if (!dataVerifiedOnce) {
+			printVersion();
 			DfsCliCommands dfsCommonCli = new DfsCliCommands();
 			logger.info("running ensurePigDataPresenceinClusterBeforeTest");
 			String aCluster = System.getProperty("CLUSTER_NAME");
