@@ -133,6 +133,29 @@ public class HtfPigBaseClass extends TestSession {
 		}
 
 	}
+	public int printVersion() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+				+ "/share/pig/bin/pig");
+		sb.append(" ");
+
+		sb.append("-version");
+
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>();
+		environmentVariablesWrappingTheCommand.put("PIG_HOME",
+				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+						+ "/share/pig");
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, HadooptestConstants.UserNames.HADOOPQA,
+				environmentVariablesWrappingTheCommand);
+		printResponseAndReturnItAsString(process);
+		return process.exitValue();
+
+	}
 
 	/**
 	 * This is where the arguments are resolved into real arguments on the

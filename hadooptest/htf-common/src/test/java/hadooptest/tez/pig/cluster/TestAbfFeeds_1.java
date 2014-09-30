@@ -2,6 +2,7 @@ package hadooptest.tez.pig.cluster;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -20,6 +21,10 @@ import hadooptest.tez.utils.HtfPigBaseClass;
 public class TestAbfFeeds_1 extends HtfPigBaseClass {
 	private static String SCRIPT_NAME = "abf_feeds_1.pig";
 
+	@Before
+	public int printVersion() throws Exception{
+		return super.printVersion();
+	}
 	@Test
 	public void testPigOnTezClusterHdfs() throws Exception {
 		HadoopNode hadoopNode = TestSession.cluster
