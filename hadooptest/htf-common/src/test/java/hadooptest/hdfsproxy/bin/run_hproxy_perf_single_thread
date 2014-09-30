@@ -39,7 +39,7 @@ my $payload_size = "3";
 my $payload_unit = "G";
 my $threads_per_host=16;
 my $file_size="64";
-my $file_size_unit="M";
+my $file_unit="M";
 my $num_iterate="1";
 my $host_index;
 my $num_hosts;
@@ -59,7 +59,7 @@ GetOptions(\%options,
     "threads_per_host|t=s" => \$threads_per_host,
     "thread_id|i=s"        => \$thread_id,
     "file_size|f=s"        => \$file_size,
-    "file_size_unit|u=s"   => \$file_size_unit,
+    "file_unit|u=s"        => \$file_unit,
     "host_index=s"         => \$host_index,
     "num_hosts=s"          => \$num_hosts,
     "iterate|i=s"          => \$num_iterate,
@@ -80,14 +80,14 @@ note("##########################################################################
 note("hdfsproxy server='$hproxy'");
 note("hdfsproxy URL='$hproxy_url'");
 note("Payload per host per thread='$payload_size$payload_unit'");
-note("File size='$file_size$file_size_unit'");
+note("File size='$file_size$file_unit'");
 note("num iterations per thread='$num_iterate'");
 
 #################################################################################
 # 1. Run load / performance tests on each hosts
 #################################################################################
 execute("rm -f $curl_log");
-create_hdfs_files($thread_id, $num_iterate, $file_size, $file_size_unit);
+create_hdfs_files($thread_id, $num_iterate, $file_size, $file_unit);
  
 done_testing( $num_iterate );
 
@@ -100,11 +100,11 @@ sub execute {
 
 # Create hdfs files for N interations
 sub create_hdfs_files {
-    my ($thread_id, $num_iterate, $file_size, $file_size_unit) = @_;
+    my ($thread_id, $num_iterate, $file_size, $file_unit) = @_;
 
     # Setup / cleanup
     my $target_dir="fs/tmp";
-    my $file_prefix="file-".$file_size.$file_size_unit."-".$hostname."-thread-".$thread_id;
+    my $file_prefix="file-".$file_size.$file_unit."-".$hostname."-thread-".$thread_id;
     my $target_files = "$target_dir/$file_prefix"."-"."[1-$num_iterate]";
     # my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\" >> $curl_log";
     my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\"";
@@ -125,7 +125,7 @@ sub create_hdfs_files {
         note("$host_id, Thread-$thread_id/$threads_per_host, Iterate-$index/$num_iterate: create hdfs file");
         note("#################################################################################");
         $target_file = "$target_dir/$file_prefix"."-"."$index";
-        create_hdfs_file($file_size, $file_size_unit, $target_file);
+        create_hdfs_file($file_size, $file_unit, $target_file);
         # note("************ DEBUG *************");
         # exit;
     }
@@ -133,8 +133,8 @@ sub create_hdfs_files {
 
 # Create a single hdfs file
 sub create_hdfs_file {
-  my ($file_size, $file_size_unit, $target_file) = @_;
-  my $file="file-".$file_size.$file_size_unit;
+  my ($file_size, $file_unit, $target_file) = @_;
+  my $file="file-".$file_size.$file_unit;
   my $tmp_dir="/grid/0/tmp";
   my $cmd;
 
@@ -142,7 +142,7 @@ sub create_hdfs_file {
       # note("--> Data file '$tmp_dir/$file' already exists.");
   } else {
       note("--> Create data file '$tmp_dir/$file'...");
-      $cmd="/usr/bin/fallocate -l $file_size$file_size_unit $tmp_dir/$file";
+      $cmd="/usr/bin/fallocate -l $file_size$file_unit $tmp_dir/$file";
       execute("$cmd") 
   }
 
@@ -152,12 +152,12 @@ sub create_hdfs_file {
   $cmd="curl -s -b $tmpdir/cookies.txt --negotiate -u: -k -T \"$tmp_dir/$file\" \"$hproxy_url/$target_file?op=create\"";
   execute("$cmd");
 
-  validate_hdfs_file($target_file, $file_size, $file_size_unit); 
+  validate_hdfs_file($target_file, $file_size, $file_unit); 
 }
 
 # Validate the hdfs file is created successfully
 sub validate_hdfs_file {
-  my ($file, $file_size, $file_size_unit) = @_;
+  my ($file, $file_size, $file_unit) = @_;
   note("--> Check the created HDFS file status");
   my $cmd;
   $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$file?op=status\"";
@@ -174,19 +174,19 @@ sub validate_hdfs_file {
   my $actual_size=$json_ref->{"listing"}->{"file"}->{'@size'};
   # note("actual size='$actual_size'");
 
-  my $byteSize = convert_to_byte($file_size, $file_size_unit);
+  my $byteSize = convert_to_byte($file_size, $file_unit);
 
   note("--> Assert file is created successfully");
   ok($byteSize eq $actual_size, "Assert created file size '$actual_size' == expected size of '$byteSize'.");
 }
 
 sub convert_to_byte {
-  my ($file_size, $file_size_unit) = @_;
-  # my $file_size_unit=substr($file_size, -1);
+  my ($file_size, $file_unit) = @_;
+  # my $file_unit=substr($file_size, -1);
   my $byte;
-  if ($file_size_unit eq "M") {
+  if ($file_unit eq "M") {
     $byte = $file_size*1024*1024;
-  } elsif ($file_size_unit eq "G") {
+  } elsif ($file_unit eq "G") {
     $byte = $file_size*1024*1024*1024;
   } else {
     $byte = $file_size;
