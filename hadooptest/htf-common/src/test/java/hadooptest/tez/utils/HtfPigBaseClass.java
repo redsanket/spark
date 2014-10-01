@@ -135,6 +135,7 @@ public class HtfPigBaseClass extends TestSession {
 
 	}
 	public int printVersion() throws Exception {
+		TestSession.logger.info("Retrieveing PIG version..now:");
 		StringBuilder sb = new StringBuilder();
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");

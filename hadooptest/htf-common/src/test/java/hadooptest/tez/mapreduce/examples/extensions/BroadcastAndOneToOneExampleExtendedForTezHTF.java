@@ -1,11 +1,11 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -30,43 +30,23 @@ import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
 import org.apache.tez.dag.library.vertexmanager.InputReadyVertexManager;
 import org.apache.tez.mapreduce.examples.BroadcastAndOneToOneExample;
-import org.apache.tez.mapreduce.examples.BroadcastAndOneToOneExample.InputProcessor;
-import org.apache.tez.mapreduce.examples.BroadcastAndOneToOneExample.OneToOneProcessor;
 import org.apache.tez.runtime.library.conf.UnorderedKVEdgeConfig;
 
 /**
- * These classes ending in *ExtendedForTezHTF are intermediate classes, that
- * live between the class that is distributed with original Tez JAR and the
- * actual test class (that has the @Test implementations) Since the Tez classes
- * sent out with the distribution 'extends Configured implements Tool' they are
- * designed to be invoked directly from the command line. When invoked from the
- * Command line, the run(String[] args) method [from the Tool class] gets
- * invoked. It parses the arguments and subsequently calls run(...) arguments,
- * that has the main body of the functionality. Since this 'run' method creates
- * Configuration objects (and that is where we toggle if this runs on local mode
- * or cluster mode) we need to overtide (copy/paste) that run method here and
- * override the getConf() method calls with {@code}
- * HtfTezUtils.setupConfForTez(conf, mode)
+ * Don't forget to include setFromConfiguration when creating the edge.
  * 
- * That would set up the local/cluster mode correctly.
+ * UnorderedKVEdgeConfig edgeConf = UnorderedKVEdgeConfig
+ * .newBuilder(Text.class.getName(), IntWritable.class.getName())
+ * .setFromConfiguration(tezConf).build();
  * 
+ * Refer to: http://bug.corp.yahoo.com/show_bug.cgi?id=7122641
+ * JIRA: https://issues.apache.org/jira/browse/TEZ-1587
  */
+
 public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 		BroadcastAndOneToOneExample {
 	protected static String skipLocalityCheck = "-skipLocalityCheck";
 
-	/**
-	 * Copy and paste the the code from the parent class's run method here.
-	 * Change all references to getConf() to HtfTezUtils.setupConfForTez(conf,
-	 * mode) Note: Be careful, there could be several run methods there, for
-	 * example those contained inside a Processor, or that overriding the method
-	 * in the Tool class.
-	 * 
-	 * @param args
-	 * @param mode
-	 * @return
-	 * @throws Exception
-	 */
 	public int run(String[] args, String mode, Session session, String testName)
 			throws Exception {
 		boolean doLocalityCheck = true;
@@ -87,7 +67,8 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 		if (doLocalityCheck
 				&& conf.getBoolean(TezConfiguration.TEZ_LOCAL_MODE,
 						TezConfiguration.TEZ_LOCAL_MODE_DEFAULT)) {
-			TestSession.logger.info("locality check is not valid in local mode. skipping");
+			TestSession.logger
+					.info("locality check is not valid in local mode. skipping");
 			doLocalityCheck = false;
 		}
 
