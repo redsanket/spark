@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,48 +131,65 @@ public class DfsTestsBaseClass extends TestSession {
 	}
 
     public static void setFileMetadata() {
-        fileMetadata.put("file_empty", String.valueOf(new Double((double) 0)));
+    	DecimalFormat df = new DecimalFormat("#");
+    	Double dbl = new Double((double) 0);
+    	fileMetadata.put("file_empty", df.format(dbl));
+        
         /*
          * The file below actually ends up putting 2 bytes, because it is a
          * double
          */
-        fileMetadata.put(ONE_BYTE_FILE, String.valueOf(new Double((double) 1)));
+        dbl = new Double((double) 1);
+        fileMetadata.put(ONE_BYTE_FILE,df.format(dbl));
+        
         // 64 MB file size variations
-        fileMetadata.put("file_1_byte_short_of_64MB", 
-			 String.valueOf(new Double((double) 64 * 1024 * 1024) - 1));
-        fileMetadata.put("file_64MB", 
-			 String.valueOf(new Double((double) 64 * 1024 * 1024)));
-        fileMetadata.put("file_1_byte_more_than_64MB", 
-			 String.valueOf(new Double((double) 64 * 1024 * 1024) + 1));
+        dbl = new Double((double) 64 * 1024 * 1024) - 1;
+        fileMetadata.put("file_1_byte_short_of_64MB", df.format(dbl));
+
+        dbl = new Double((double) 64 * 1024 * 1024);
+        fileMetadata.put("file_64MB", df.format(dbl));
+
+        dbl = new Double((double) 64 * 1024 * 1024) + 1;
+        fileMetadata.put("file_1_byte_more_than_64MB", df.format(dbl));
+
 
         // 128 MB file size variations
-        fileMetadata.put("file_1_byte_short_of_128MB", 
-			 String.valueOf(new Double((double) 128 * 1024 * 1024) - 1));
-        fileMetadata.put("file_128MB", 
-			 String.valueOf(new Double((double) 128 * 1024 * 1024)));
-        fileMetadata.put("file_1_byte_more_than_128MB", 
-			 String.valueOf(new Double((double) 128 * 1024 * 1024) + 1));
+        dbl = new Double((double) 128 * 1024 * 1024) - 1;
+        fileMetadata.put("file_1_byte_short_of_128MB", df.format(dbl));
 
-        fileMetadata.put("file_255MB", 
-                String.valueOf(new Double((double) 255 * 1024 * 1024)));
-        fileMetadata.put("file_256MB", 
-                String.valueOf(new Double((double) 256 * 1024 * 1024)));
-        fileMetadata.put("file_257MB", 
-                String.valueOf(new Double((double) 257 * 1024 * 1024)));
+        dbl = new Double((double) 128 * 1024 * 1024);
+        fileMetadata.put("file_128MB", df.format(dbl));
 
-        fileMetadata.put("file_767MB", 
-                String.valueOf(new Double((double) 767 * 1024 * 1024)));
-        fileMetadata.put("file_768MB", 
-                String.valueOf(new Double((double) 768 * 1024 * 1024)));
-        fileMetadata.put("file_769MB", 
-                String.valueOf(new Double((double) 769 * 1024 * 1024)));
+        dbl = new Double((double) 128 * 1024 * 1024) + 1;
+        fileMetadata.put("file_1_byte_more_than_128MB", df.format(dbl));
+
+        dbl = new Double((double) 255 * 1024 * 1024);
+        fileMetadata.put("file_255MB", df.format(dbl));
+
+        dbl = new Double((double) 256 * 1024 * 1024);
+        fileMetadata.put("file_256MB", df.format(dbl));
+
+        dbl = new Double((double) 257 * 1024 * 1024);
+        fileMetadata.put("file_257MB", df.format(dbl));
+
+        dbl = new Double((double) 767 * 1024 * 1024);
+        fileMetadata.put("file_767MB", df.format(dbl));
+
+        dbl = new Double((double) 768 * 1024 * 1024);
+        fileMetadata.put("file_768MB", df.format(dbl));
+
+        dbl = new Double((double) 769 * 1024 * 1024);
+        fileMetadata.put("file_769MB", df.format(dbl));
+
         // Huge file
-        fileMetadata.put("file_11GB",
-                String.valueOf(new Double(((double) ((double) (double) 10 * (double) 1024
-						     * 1024 * 1024) + (double) (700 * 1024 * 1024)))));
-        fileMetadata.put(INPUT_TO_WORD_COUNT, 
-			 String.valueOf(new Double(((double) ((double) (double) 1 * (double) 1024
-							      * 1024 * 1024)))));
+      dbl = new Double(((double) ((double) (double) 10 * (double) 1024
+			     * 1024 * 1024) + (double) (700 * 1024 * 1024)));
+
+      fileMetadata.put("file_11GB", df.format(dbl));
+
+      dbl = new Double(((double) ((double) (double) 1 * (double) 1024 * 1024 * 1024)));
+      fileMetadata.put(INPUT_TO_WORD_COUNT, df.format(dbl));
+
     }
 
     public static void setFileMetadataForPerf(String fileSize, int numFiles) {
