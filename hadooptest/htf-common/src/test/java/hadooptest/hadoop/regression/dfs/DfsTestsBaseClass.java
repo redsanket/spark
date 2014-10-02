@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.rules.TemporaryFolder;
@@ -51,7 +52,7 @@ public class DfsTestsBaseClass extends TestSession {
 	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
-			+ "HTF/testdata/dfs/";
+			+ "tmp/HTF/testdata/dfs/";
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
 
@@ -372,7 +373,13 @@ public class DfsTestsBaseClass extends TestSession {
             } else {
                 String[] command = 
                     {"/usr/bin/fallocate", "-l", size, completeLocalName};
-                String output[] = TestSession.exec.runProcBuilder(command);                
+        		Process process = TestSession.exec.runProcBuilderSecurityGetProc(
+        				command,
+        		        HadooptestConstants.UserNames.HADOOPQA);
+        		DfsCliCommands dfsCommonCli = new DfsCliCommands();
+        		dfsCommonCli.printResponseAndReturnItAsString(process);
+        		Assert.assertTrue("fallocate command errored!", process.exitValue() == 0);
+
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
