@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x 
+set -x
 
 # hudson-startslave.sh
 # 	The first script called by Hudson. It massages the arguments
@@ -65,6 +65,7 @@ then
     export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
     export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
     export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
+    export FULLHADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-'`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
     then
@@ -96,12 +97,18 @@ else
         if [ $? = 0 ]; then
             . exportHITpkgs.sh
         else
-            echo "Error: cannot construct hadoop service pkg string from HIT_DEPLOYMENT_TAG=$tag"  
-        fi    
+            echo "Error: cannot construct hadoop service pkg string from HIT_DEPLOYMENT_TAG=$tag"
+        fi
     else
         echo "Error: You have to select a dist tag for deployment!!"
         exit 1
     fi
+fi
+
+if [ ! -z "$TEZ_DIST_TAG" ]
+then
+    export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -c11-28`
+    echo "readback tez version as:$TEZVERSION"
 fi
 
 if [ ! -z "$AUTO_CREATE_RELEASE_TAG" ]
@@ -283,4 +290,3 @@ fi
 
 # Review: note that the exit-status of the deploy is indeterminate, and seems to reflect the success of that final 'yinst-remove'.
 exit $?
-
