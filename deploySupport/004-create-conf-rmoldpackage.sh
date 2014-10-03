@@ -14,6 +14,7 @@
     # echo "$yinst remove -yes -live -all -root ${yroothome}  $confpkg "
     # echo "$yinst remove -yes -live -all -root ${yroothome}  gridjdk gridjdk64 hadoop yinst"
     echo "chattr -a ${yroothome}/var/yinst/log/yinstlog"
+    echo "find ${yroothome} -name yinstlog | xargs chattr -a"
     echo "rm -rf ${yroothome}"
     echo "mkdir -p ${yroothome}"
     # clean up old dir /grid/0/gs
