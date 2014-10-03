@@ -7,13 +7,13 @@ export PATH=$PATH:/home/gs/current/bin
 if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
 cmd="echo installing Tez on Tez hosts ; \
      export TEZ_HOME=/home/gs/tez/ ; \
-     mkdir -p /grid/0/Releases/tez_conf-$TEZVERSION/tez ; \
-     mkdir -p /grid/0/Releases/tez-$TEZVERSION ; \
-     yinst inst -root /grid/0/Releases/tez_conf-$TEZVERSION/tez -same -live -yes ytez_conf-$TEZVERSION -br quarantine ; \
+     mkdir -p ${yroothome}/tez_conf-$TEZVERSION/tez ; \
+     mkdir -p ${yroothome}/tez-$TEZVERSION ; \
+     yinst inst -root ${yroothome}/tez_conf-$TEZVERSION/tez -same -live -yes ytez_conf-$TEZVERSION -br quarantine ; \
      rm -f /home/gs/conf/tez /home/gs/tez ; \
-     ln -s  /grid/0/Releases/tez_conf-$TEZVERSION/tez/conf/tez /home/gs/conf/tez ; \
-     yinst inst -root /grid/0/Releases/tez-$TEZVERSION -same -live -yes ytez-$TEZVERSION -br quarantine ; \
-     ln -s /grid/0/Releases/tez-$TEZVERSION/libexec/tez /home/gs/tez ; \
+     ln -s  ${yroothome}/tez_conf-$TEZVERSION/tez/conf/tez /home/gs/conf/tez ; \
+     yinst inst -root ${yroothome}/tez-$TEZVERSION -same -live -yes ytez-$TEZVERSION -br quarantine ; \
+     ln -s ${yroothome}/tez-$TEZVERSION/libexec/tez /home/gs/tez ; \
      echo Tez version as I see it ; \
      readlink /home/gs/tez "
 fanoutOneTez "$cmd"
