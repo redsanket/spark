@@ -239,6 +239,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 	 * @throws Exception
 	 */
 	@Test
+	@Ignore
 	public void testNonPrivilegedUserExcludedNodes() throws Exception {
 		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 				.getCluster();

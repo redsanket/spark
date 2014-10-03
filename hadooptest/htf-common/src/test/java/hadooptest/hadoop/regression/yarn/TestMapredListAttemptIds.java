@@ -108,6 +108,7 @@ public class TestMapredListAttemptIds extends YarnTestsBaseClass {
 	 * @throws IOException
 	 */
 	@Test
+	@Ignore
 	public void testListAttemptIdsWithNoCompletedMapsAndTaskStatusCompleted()
 			throws InterruptedException, ExecutionException, IOException {
 		String testName = "testListAttemptIdsForValidJobIdTaskTypeTaskState";

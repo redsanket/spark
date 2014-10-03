@@ -221,6 +221,7 @@ public class TestStoppedAdminQueues extends YarnTestsBaseClass {
 	}
 
 	@Test
+	@Ignore
 	public void testJobSubmissionToQueueWhichIsNotLeafNode() throws Exception {
 		String notLeafQueue = "a";
 		FullyDistributedConfiguration fdc = ((FullyDistributedCluster) TestSession.cluster)
