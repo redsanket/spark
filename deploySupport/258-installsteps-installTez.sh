@@ -10,9 +10,11 @@ cmd="echo installing Tez on Tez hosts ; \
      mkdir -p ${yroothome}/tez_conf-$TEZVERSION/tez ; \
      mkdir -p ${yroothome}/tez-$TEZVERSION ; \
      yinst inst -root ${yroothome}/tez_conf-$TEZVERSION/tez -same -live -yes ytez_conf-$TEZVERSION -br quarantine ; \
+     chattr -a ${yroothome}/tez_conf-$TEZVERSION/tez/var/yinst/log/yinstlog ; \
      rm -f /home/gs/conf/tez /home/gs/tez ; \
      ln -s  ${yroothome}/tez_conf-$TEZVERSION/tez/conf/tez /home/gs/conf/tez ; \
      yinst inst -root ${yroothome}/tez-$TEZVERSION -same -live -yes ytez-$TEZVERSION -br quarantine ; \
+     chattr -a ${yroothome}/tez-$TEZVERSION/var/yinst/log/yinstlog ; \
      ln -s ${yroothome}/tez-$TEZVERSION/libexec/tez /home/gs/tez ; \
      echo Tez version as I see it ; \
      readlink /home/gs/tez "
