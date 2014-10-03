@@ -21,8 +21,8 @@ st=$?
 [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez <<<<<<<<<<" && exit $st
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      export TEZ_HOME=/home/gs/tez/ ; \
-     export HADOOP_HOME=$GSHOME/hadoop/current ; \
-     export HADOOP_CLASSPATH="$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*:$HADOOP_HOME" ; \     
+
+     export HADOOP_CLASSPATH="$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*:$yrootHadoopCurrent" ; \
      export JAVA_HOME=$GSHOME/java/jdk ; \
      kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
      echo installing Tez into hdfs ; \
