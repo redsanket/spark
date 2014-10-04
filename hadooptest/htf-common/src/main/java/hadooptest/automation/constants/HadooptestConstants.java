@@ -36,6 +36,10 @@ public class HadooptestConstants {
 		public static String HADOOP3 = "hadoop3";
 		public static String HADOOP4 = "hadoop4";
 		public static String HADOOP5 = "hadoop5";
+		public static String HITUSR_1 = "hitusr_1";
+		public static String HITUSR_2 = "hitusr_2";
+		public static String HITUSR_3 = "hitusr_3";
+		public static String HITUSR_4 = "hitusr_4";
 	}
 
 	// Log
