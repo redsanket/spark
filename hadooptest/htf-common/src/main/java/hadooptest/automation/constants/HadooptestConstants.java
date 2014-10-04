@@ -127,6 +127,12 @@ public class HadooptestConstants {
 		public static class Bouncer {
 			public static String SSO_SERVER = "https://gh.bouncer.login.yahoo.com/login/";
 		}
+		
+		public static class Identity{
+			public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+			public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
+
+		}
 	}
 
 	// Schemas

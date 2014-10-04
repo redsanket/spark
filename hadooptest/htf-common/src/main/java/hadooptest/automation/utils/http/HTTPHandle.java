@@ -1,8 +1,8 @@
 package hadooptest.automation.utils.http;
 
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -10,6 +10,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -63,19 +65,23 @@ public class HTTPHandle {
 		logger.info("SSO auth cookie set");
 	}
 
-	public String loginAndReturnCookie(String username){
+	public String loginAndReturnCookie(String username) throws Exception{
 		String cookie = null;
-        String[] retrievePasswordCommand = 
-            {"/home/y/bin/keydbgetkey", "hit_bouncer.passwd"};
-
-            String[] output = TestSession.exec.runProcBuilder(
-            		retrievePasswordCommand, null, false, false);
-            String password = output[1];
+//        String[] retrievePasswordCommand = 
+//            {"/home/y/bin/keydbgetkey", "hit_bouncer.passwd"};
+//
+//            String[] output = TestSession.exec.runProcBuilder(
+//            		retrievePasswordCommand, null, false, false);
+//            String password = output[1];
+		String gdmConfigPath = Util.getResourceFullPath(
+				"gdm/conf/config.xml");
+		 	Configuration gdmConf = new XMLConfiguration(gdmConfigPath);
+			String password = gdmConf.getString("auth.pp");
     		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
     		try {
     			cookie = localHttpClientBouncerAuth.authenticate(
     					HadooptestConstants.Location.Bouncer.SSO_SERVER, username,
-    					password);
+    					password.toCharArray());
     		} catch (Exception localException) {
     			logger.error(new StringBuilder()
     					.append("SSO authentication failed. ")
