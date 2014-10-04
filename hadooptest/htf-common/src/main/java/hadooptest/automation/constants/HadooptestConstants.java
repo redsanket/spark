@@ -124,7 +124,9 @@ public class HadooptestConstants {
 			public static String DIRECTORY = "/home/gs/gridre/yroot."
 					+ System.getProperty("CLUSTER_NAME") + "/conf/hadoop/";
 		}
-
+		public static class Bouncer {
+			public static String SSO_SERVER = "https://gh.bouncer.login.yahoo.com/login/";
+		}
 	}
 
 	// Schemas

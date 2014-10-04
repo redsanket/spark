@@ -320,9 +320,11 @@ public class HtfTezUtils {
 		Assert.assertEquals(process.exitValue(), 0);
 		String response = printResponseAndReturnItAsString(process);
 		// Response is of the format
-		// '/grid/0/Releases/tez-0.5.0.1408070056/libexec/tez'
-		response = response.replace("/grid/0/Releases/tez-", "");
-		response = response.replace("/libexec/tez", "");
+		// '/home/gs/gridre/yroot.omegak/tez-0.5.1.0.1410031854/libexec/tez'
+		String prefix = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/tez-";
+		response = response.replace(prefix, "");
+		String suffix = "/libexec/tez";
+		response = response.replace(suffix, "");
 
 		return response.trim();
 	}

@@ -1,5 +1,9 @@
 package hadooptest.automation.utils.http;
 
+import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,6 +18,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 
 import yjava.byauth.jaas.HttpClientBouncerAuth;
 
@@ -32,7 +37,6 @@ public class HTTPHandle {
 	public HTTPHandle() {
 		this.httpClient = new HttpClient();
 
-		SSO_SERVER = "https://gh.bouncer.login.yahoo.com/login/";
 		this.baseURL = null;
 
 		this.httpClient.getParams().setParameter("User-Agent",
@@ -46,7 +50,7 @@ public class HTTPHandle {
 		YBYCookie = null; 
 		try {
 		    YBYCookie = localHttpClientBouncerAuth.authenticate(
-					"https://gh.bouncer.login.yahoo.com/login/", paramString1,
+					HadooptestConstants.Location.Bouncer.SSO_SERVER, paramString1,
 					paramString2.toCharArray());
 		} catch (Exception localException) {
 			logger.error(new StringBuilder()
@@ -59,6 +63,27 @@ public class HTTPHandle {
 		logger.info("SSO auth cookie set");
 	}
 
+	public String loginAndReturnCookie(String username){
+		String cookie = null;
+        String[] retrievePasswordCommand = 
+            {"/home/y/bin/keydbgetkey", "hit_bouncer.passwd"};
+
+            String[] output = TestSession.exec.runProcBuilder(
+            		retrievePasswordCommand, null, false, false);
+            String password = output[1];
+    		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
+    		try {
+    			cookie = localHttpClientBouncerAuth.authenticate(
+    					HadooptestConstants.Location.Bouncer.SSO_SERVER, username,
+    					password);
+    		} catch (Exception localException) {
+    			logger.error(new StringBuilder()
+    					.append("SSO authentication failed. ")
+    					.append(localException.toString()).toString(), localException);
+    		}    	
+    		return cookie;
+	}
+	
 	public HttpMethod makeGET(String schemaAndHost, String resource,
 	        ArrayList<CustomNameValuePair> paramArrayList) {
 	    String str = constructFinalURL(schemaAndHost, resource, paramArrayList);
