@@ -9,9 +9,15 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.InetAddress;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.After;
 
+import com.jayway.restassured.config.RedirectConfig;
+import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -20,9 +26,15 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
+import static com.jayway.restassured.config.HttpClientConfig.httpClientConfig;
+import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
+import static org.apache.http.client.params.ClientPNames.COOKIE_POLICY;
+import static org.apache.http.client.params.CookiePolicy.BROWSER_COMPATIBILITY;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.HTTPHandle;
+import static org.hamcrest.Matchers.is;
 
 public class ATSTestsBaseClass extends TestSession {
 	public static boolean timelineserverStarted = false;
@@ -30,20 +42,42 @@ public class ATSTestsBaseClass extends TestSession {
 
 	public void ensureTimelineserverStarted(String rmHost) throws Exception {
 
+		String url = "http://" + rmHost + ":" + ATS_PORT + "/ws/v1/timeline/";
+		int MAX_COUNT = 1;
+		int count = 1;
 		HTTPHandle httpHandle = new HTTPHandle();
 		String hitusr_1_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_1);
-		String url = "http://" + rmHost + ":" + ATS_PORT + "/ws/v1/timeline/";
-		int MAX_COUNT = 10;
-		int count = 1;
+
 		do {
 			Thread.sleep(1000);
-			try {
-				Response response = given().cookie(hitusr_1_cookie).get(url);
+			try {				
+				Response response = given().log().all()
+						.cookie(hitusr_1_cookie)
+						.param("User-Agent", "Mozilla/5.0")
+						.param("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+						.param(ClientPNames.COOKIE_POLICY, CookiePolicy.RFC_2965)
+						.param("Content-Type", "application/json")
+
+						.config(newConfig().httpClient(httpClientConfig().setParam(COOKIE_POLICY, BROWSER_COMPATIBILITY)))
+						.redirects().follow(false)
+						.get(url);
+				
+				TestSession.logger.info("Response status Line:" + response.getStatusLine());
+				TestSession.logger.info("Response status code:" + response.getStatusCode());
+				
+				for (Header aResponseHeader:response.getHeaders()){
+					TestSession.logger.info(aResponseHeader.getName() + " : " + aResponseHeader.getValue());
+				}
+
+				TestSession.logger.info(response.body().asString());
+				
 				if(response.getStatusCode() == 202){
 					break;
+				}else if (response.getStatusCode() == 302){
+					
 				}else{
-					TestSession.logger.info("Response code:" + response.getStatusCode() + " received.");
+					TestSession.logger.info("Response code:" + response.getStatusCode() + " received.");					
 				}
 			} catch (Exception e) {
 				TestSession.logger
@@ -51,7 +85,7 @@ public class ATSTestsBaseClass extends TestSession {
 								+ e.getClass()
 								+ " Received and the timeline server has not started yet. Loop count ["
 								+ count + "/" + MAX_COUNT+"]");
-
+				TestSession.logger.error(e.getCause());
 
 			}
 		} while (++count <= MAX_COUNT);

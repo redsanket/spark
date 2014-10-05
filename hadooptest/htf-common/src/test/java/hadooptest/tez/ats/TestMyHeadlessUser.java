@@ -56,7 +56,9 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		
 
 		String url = "http://" + rmHostname + ":" + ATS_PORT + "/ws/v1/timeline/";
-		Response response = given().cookie(hitusr_1_cookie).get(url);
+		Response response = given()
+				.param("http.protocol.allow-circular-redirects", true)
+				.cookie(hitusr_1_cookie).get(url);
 		TestSession.logger.info("R E S P O N S E:" + response.asString());
 		TestSession.logger.info("R E S P O N S E  B O D Y :" + response.body());
 		TestSession.logger.info("R E S P O N S E  STATUSLINE :"
