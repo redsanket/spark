@@ -18,7 +18,8 @@ cmd="echo installing Tez on Tez hosts ; \
      ln -s ${yroothome}/tez-$TEZVERSION/libexec/tez /home/gs/tez ; \
      echo Tez version as I see it ; \
      readlink /home/gs/tez "
-fanoutOneTez "$cmd"
+fanoutTez "$cmd"
+#fanoutOneTez "$cmd"
 st=$?
 [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez <<<<<<<<<<" && exit $st
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
