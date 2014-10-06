@@ -270,15 +270,7 @@ public class SparkRunSparkSubmit extends App {
      * @throws Exception if there is a fatal error running the process to submit the app.
      */
     protected void submit() throws Exception {
-        String appPatternStr = null;
-
-        if (this.master == AppMaster.YARN_CLIENT) {
-            appPatternStr = " Submitted application (.*)"; 
-        }
-        else if (this.master == AppMaster.YARN_STANDALONE) {
-            appPatternStr = " application identifier: (.*)$";
-        }
-
+        String appPatternStr = " Submitted application (.*)"; 
         String exceptionPatternStr = "Exception in thread(.*)$";
         String errorPatternStr = "ERROR (.*)Client: (.*)$";
         Pattern appPattern = Pattern.compile(appPatternStr);
