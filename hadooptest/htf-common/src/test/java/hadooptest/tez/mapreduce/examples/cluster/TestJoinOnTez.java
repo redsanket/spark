@@ -11,6 +11,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
@@ -92,7 +93,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -120,7 +121,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED,"n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -148,7 +149,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -176,7 +177,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -204,7 +205,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -232,7 +233,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}

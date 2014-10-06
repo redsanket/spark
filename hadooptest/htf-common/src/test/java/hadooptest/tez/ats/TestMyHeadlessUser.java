@@ -4,24 +4,30 @@ import static com.jayway.restassured.RestAssured.given;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
 
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.hadoop.service.LifecycleEvent;
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEntities;
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
+import org.apache.hadoop.yarn.api.records.timeline.TimelineEvent;
+import org.apache.hadoop.yarn.client.api.TimelineClient;
+import org.apache.hadoop.yarn.client.api.impl.TimelineClientImpl;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response;
-
+import com.sun.jersey.api.client.ClientResponse;
 @Category(SerialTests.class)
 public class TestMyHeadlessUser extends ATSTestsBaseClass {
 	
 	
-	@Test
+//	@Test
 	public void test1() throws Exception {
 		String rmHostname = null;
 		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
@@ -37,25 +43,9 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 
 		if (!timelineserverStarted){
 			startTimelineServerOnRM(rmHostname);
-		}
+		}		
 
-		HTTPHandle httpHandle = new HTTPHandle();
-		String hitusr_1_cookie = httpHandle.loginAndReturnCookie("hitusr_1");
-		TestSession.logger
-				.info("Got cookie for hitusr_1 as:" + hitusr_1_cookie);
-		String hitusr_2_cookie = httpHandle.loginAndReturnCookie("hitusr_2");
-		TestSession.logger
-				.info("Got cookie for hitusr_2 as:" + hitusr_2_cookie);
-		String hitusr_3_cookie = httpHandle.loginAndReturnCookie("hitusr_3");
-		TestSession.logger
-				.info("Got cookie for hitusr_3 as:" + hitusr_3_cookie);
-		String hitusr_4_cookie = httpHandle.loginAndReturnCookie("hitusr_4");
-		TestSession.logger
-				.info("Got cookie for hitusr_4 as:" + hitusr_4_cookie);
-
-		
-
-		String url = "http://" + rmHostname + ":" + ATS_PORT + "/ws/v1/timeline/";
+		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/";
 		Response response = given()
 				.param("http.protocol.allow-circular-redirects", true)
 				.cookie(hitusr_1_cookie).get(url);
@@ -80,4 +70,43 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //		stopTimelineServerOnRM(rmHostname);
 
 	}
+	
+//	@Test
+	public void testTimelineClient(){
+		TimelineClientImpl tlc = createTimelineClient();
+		TestSession.logger.info("TLC start time " + tlc.getStartTime());
+		Map<String, String> blockerMap = tlc.getBlockers();
+		for (String key:blockerMap.keySet()){
+			TestSession.logger.info("Blocker key:" + key + " Value:" + blockerMap.get(key));
+		}
+		TestSession.logger.info("Failure state:" + tlc.getFailureState());
+
+		List<LifecycleEvent> lifecycleHistory = tlc.getLifecycleHistory();
+		for (LifecycleEvent aLifecycleEvent:lifecycleHistory){
+			TestSession.logger.info("LifecycleEvent STATE:" + aLifecycleEvent.state);
+			TestSession.logger.info("LifecycleEvent TIME:" + aLifecycleEvent.time);
+		}
+		TestSession.logger.info("NAME: " + tlc.getName());
+		TimelineEntities entities = new TimelineEntities();
+		TimelineEntity entity = new TimelineEntity();
+		TimelineEvent tlEvent = new TimelineEvent();
+		tlEvent.setEventType("AMIT EVENT");
+		tlEvent.setTimestamp(1412607913351L);
+		entity.addEvent(tlEvent);
+		entities.addEntity(entity);
+		ClientResponse clientResponse = tlc.doPostingEntities(entities);
+		TestSession.logger.info("Got maa status:" + clientResponse.getStatus());
+		TestSession.logger.info("Location " + clientResponse.getLocation());
+		
+		
+	}
+	  private static TimelineClientImpl createTimelineClient() {
+		    TimelineClientImpl client =
+		        (TimelineClientImpl) TimelineClient.createTimelineClient();
+		    client.init(TestSession.cluster.getConf());
+		    client.start();
+		    return client;
+		  }
+
+	
 }

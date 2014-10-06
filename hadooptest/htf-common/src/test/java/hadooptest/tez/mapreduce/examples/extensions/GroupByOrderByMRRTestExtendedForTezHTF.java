@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
@@ -92,8 +93,8 @@ public class GroupByOrderByMRRTestExtendedForTezHTF extends
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] args, String mode, Session session, String testName) throws Exception {
-	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, testName);
+	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName) throws Exception {
+	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, timelineServer, testName);
 
 	    String[] otherArgs = new GenericOptionsParser(conf, args).
 	            getRemainingArgs();

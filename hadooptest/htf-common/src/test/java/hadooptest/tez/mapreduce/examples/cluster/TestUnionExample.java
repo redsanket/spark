@@ -14,6 +14,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.UnionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -105,7 +106,7 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
+						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED, 
 						testName.getMethodName()),HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
 						testName.getMethodName());
 		Assert.assertTrue(returnCode);
@@ -116,7 +117,7 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
+						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED, 
 						testName.getMethodName()),HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
 						testName.getMethodName());
 		Assert.assertTrue(returnCode);

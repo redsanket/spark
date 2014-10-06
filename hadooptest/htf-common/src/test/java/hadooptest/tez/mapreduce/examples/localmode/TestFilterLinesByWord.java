@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.File;
 
@@ -54,7 +55,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -70,7 +71,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -85,7 +86,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -100,7 +101,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

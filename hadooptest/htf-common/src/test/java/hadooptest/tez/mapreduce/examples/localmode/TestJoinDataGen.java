@@ -6,6 +6,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.JoinDataGenExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+						TimelineServer.DISABLED,
 						testName.getMethodName()));
 		int returnCode = run(tezConf, args, createTezClient(tezConf));
 		Assert.assertTrue(returnCode == 0);
@@ -67,6 +69,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+						TimelineServer.DISABLED,
 						testName.getMethodName()));
 		int returnCode = run(tezConf, args, createTezClient(tezConf));
 		Assert.assertTrue(returnCode == 0);

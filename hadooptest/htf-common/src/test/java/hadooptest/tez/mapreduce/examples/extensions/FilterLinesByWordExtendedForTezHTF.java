@@ -3,6 +3,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -105,8 +106,8 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[] args, String mode, Session session, String testName) throws Exception {
-	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, testName);
+	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName) throws Exception {
+	    Configuration conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, timelineServer, testName);
 	    String [] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 	    Credentials credentials = new Credentials();
 

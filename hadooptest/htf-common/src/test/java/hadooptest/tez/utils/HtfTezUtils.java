@@ -47,6 +47,10 @@ public class HtfTezUtils {
 		YES,
 		NO
 	};
+	public static enum TimelineServer{
+		ENABLED,
+		DISABLED
+	};
 
 	/**
 	 * Tez supports two modes 'local' and 'cluster'. This flip is controlled via
@@ -59,7 +63,7 @@ public class HtfTezUtils {
 	 * @throws InterruptedException
 	 */
 	public static Configuration setupConfForTez(Configuration conf,
-			String mode, Session useSession, String testName)
+			String mode, Session useSession, TimelineServer timelineServer, String testName)
 			throws IOException, InterruptedException {
 		// Tez version
 		String tezVersion = getTezVersion();
@@ -106,6 +110,13 @@ public class HtfTezUtils {
 		} else {
 //			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
 			conf.setBoolean("USE_TEZ_SESSION", false);
+		}
+		
+		//If using Timeline Server
+		if (timelineServer == TimelineServer.ENABLED) {			
+			TestSession.logger.info("Timeline server is enabled for test " + testName);
+			conf.set("tez.history.logging.service.class", "org.apache.tez.dag.history.logging.ats.ATSHistoryLoggingService");
+			conf.setBoolean("yarn.timeline-service.enabled", true);
 		}
 
 		//Set the staging dir

@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
@@ -59,13 +60,13 @@ public class RPCLoadGenExtendedForTezHTF extends RPCLoadGen {
 	 * @throws Exception
 	 */
 	public int run(TezConfiguration conf, String[] args,
-			@Nullable TezClient tezClient, String mode, Session session, String testName) throws IOException,
+			@Nullable TezClient tezClient, String mode, Session session, TimelineServer timelineServer, String testName) throws IOException,
 			TezException, InterruptedException {
 		setConf(conf);
 		
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
-		return _execute(otherArgs, conf, tezClient, mode, session, testName);
+		return _execute(otherArgs, conf, tezClient, mode, session, timelineServer, testName);
 	}
 
 	/**
@@ -82,7 +83,7 @@ public class RPCLoadGenExtendedForTezHTF extends RPCLoadGen {
 	 * @throws InterruptedException
 	 */
 	private int _execute(String[] otherArgs, TezConfiguration tezConf,
-			TezClient tezClient, String mode, Session session, String testName) throws IOException, TezException,
+			TezClient tezClient, String mode, Session session, TimelineServer timelineServer, String testName) throws IOException, TezException,
 			InterruptedException {
 
 		int result = _validateArgs(otherArgs);
@@ -92,7 +93,7 @@ public class RPCLoadGenExtendedForTezHTF extends RPCLoadGen {
 
 		if (tezConf == null) {
 			tezConf = new TezConfiguration(HtfTezUtils.setupConfForTez(
-					TestSession.cluster.getConf(), mode, session, testName));
+					TestSession.cluster.getConf(), mode, session,  timelineServer, testName));
 		}
 		UserGroupInformation.setConfiguration(tezConf);
 		boolean ownTezClient = false;

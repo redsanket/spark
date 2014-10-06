@@ -13,6 +13,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.GroupByOrderByMRRTestExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -63,7 +64,7 @@ public class TestGroupByOrderByMRRTest extends
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
 		int returnCode = run(groupByOrderByMrrArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,TimelineServer.DISABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -80,7 +81,7 @@ public class TestGroupByOrderByMRRTest extends
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
 		int returnCode = run(groupByOrderByMrrArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,TimelineServer.DISABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}

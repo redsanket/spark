@@ -15,6 +15,7 @@ import hadooptest.tez.mapreduce.examples.extensions.SimpleSessionExampleExtended
 import hadooptest.tez.mapreduce.examples.extensions.UnionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.junit.After;
@@ -111,7 +112,7 @@ public class TestSimpleSessionExample extends
 		boolean returnCode = run(inputFilesOnHdfs, outputPathsOnHdfs,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-						testName.getMethodName()), 2);
+						TimelineServer.DISABLED, testName.getMethodName()), 2);
 
 		Assert.assertTrue(returnCode);
 	}

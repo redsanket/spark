@@ -3,6 +3,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -54,7 +55,7 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	 * @throws Exception
 	 */
 
-	public int run(String[] args, String mode, Session session, String testName) throws Exception {
+	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName) throws Exception {
 
 	    if(args.length < 1) {
 	      System.err.println("MRRSleepJob [-m numMapper] [-r numReducer]" +
@@ -130,7 +131,7 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	    reduceSleepCount = (int)Math.ceil(reduceSleepTime / ((double)recSleepTime));
 	    iReduceSleepCount = (int)Math.ceil(iReduceSleepTime / ((double)recSleepTime));
 
-	    TezConfiguration conf = new TezConfiguration(HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, testName));
+	    TezConfiguration conf = new TezConfiguration(HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, timelineServer, testName));
 	    FileSystem remoteFs = FileSystem.get(conf);
 
 	    conf.set(TezConfiguration.TEZ_AM_STAGING_DIR,

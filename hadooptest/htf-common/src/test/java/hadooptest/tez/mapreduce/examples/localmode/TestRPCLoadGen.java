@@ -6,6 +6,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.RPCLoadGenExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.tez.dag.api.TezConfiguration;
 import org.junit.After;
@@ -45,10 +46,12 @@ public class TestRPCLoadGen extends RPCLoadGenExtendedForTezHTF {
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+						TimelineServer.DISABLED,
 						testName.getMethodName()));
 		String[] args = new String[] { "1", "1000", "20" };
 		int returnCode = run(tezConf, args, null,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES, testName.getMethodName());
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES, TimelineServer.DISABLED,
+				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

@@ -6,6 +6,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.UnionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +62,7 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+						TimelineServer.DISABLED,
 						testName.getMethodName()),
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
 				testName.getMethodName());
@@ -73,6 +75,7 @@ public class TestUnionExample extends UnionExampleExtendedForTezHTF {
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+						TimelineServer.DISABLED,
 						testName.getMethodName()),
 				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
 				testName.getMethodName());

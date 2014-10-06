@@ -3,6 +3,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 	 * @throws Exception
 	 */
 
-	public int run(String[] args, String mode, Session session, String testName)
+	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName)
 			throws Exception {
 		TestSession.logger.info("Arg free memory:" + (int)Runtime.getRuntime().freeMemory()/(1024*1024));
 		TestSession.logger.info("Arg free procc:" + Runtime.getRuntime().availableProcessors());
@@ -102,7 +103,7 @@ public class OrderedWordCountExtendedForTez extends TestOrderedWordCount {
 			TestSession.logger.info("Arg Tez:" + anArg);
 		}
 		Configuration conf = HtfTezUtils.setupConfForTez(
-				TestSession.cluster.getConf(), mode, session, testName);
+				TestSession.cluster.getConf(), mode, session, timelineServer, testName);
 		conf.set(TezConfiguration.TEZ_AM_LOG_LEVEL, "DEBUG");
 	    String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 

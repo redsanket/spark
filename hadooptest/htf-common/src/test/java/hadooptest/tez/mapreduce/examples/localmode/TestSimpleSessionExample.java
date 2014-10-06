@@ -6,6 +6,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.File;
 
@@ -64,6 +65,7 @@ public class TestSimpleSessionExample extends
 		boolean returnCode = run(inputFilesOnLocalFs, outputPathsOnLocalFs,
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 						HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+						TimelineServer.DISABLED,
 						testName.getMethodName()), 1);
 
 		Assert.assertTrue(returnCode);

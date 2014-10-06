@@ -3,6 +3,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,7 +48,7 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 		BroadcastAndOneToOneExample {
 	protected static String skipLocalityCheck = "-skipLocalityCheck";
 
-	public int run(String[] args, String mode, Session session, String testName)
+	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName)
 			throws Exception {
 		boolean doLocalityCheck = true;
 		if (args.length == 1) {
@@ -63,7 +64,7 @@ public class BroadcastAndOneToOneExampleExtendedForTezHTF extends
 		}
 
 		Configuration conf = TestSession.cluster.getConf();
-		conf = HtfTezUtils.setupConfForTez(conf, mode, session, testName);
+		conf = HtfTezUtils.setupConfForTez(conf, mode, session, timelineServer, testName);
 		if (doLocalityCheck
 				&& conf.getBoolean(TezConfiguration.TEZ_LOCAL_MODE,
 						TezConfiguration.TEZ_LOCAL_MODE_DEFAULT)) {

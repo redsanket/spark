@@ -14,6 +14,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -111,7 +112,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -126,7 +127,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -141,7 +142,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -156,7 +157,7 @@ public class TestFilterLinesByWord extends FilterLinesByWordExtendedForTezHTF {
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

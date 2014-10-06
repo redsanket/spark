@@ -13,6 +13,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.mapreduce.examples.extensions.FilterLinesByWordOneToOneExtendedForHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -60,7 +61,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,TimelineServer.DISABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -77,7 +78,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,TimelineServer.DISABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -93,7 +94,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,TimelineServer.DISABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -109,7 +110,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,TimelineServer.DISABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}

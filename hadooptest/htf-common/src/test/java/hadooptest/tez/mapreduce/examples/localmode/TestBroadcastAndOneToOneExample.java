@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.mapreduce.examples.extensions.BroadcastAndOneToOneExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils.Session;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -38,7 +39,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnLocalWithSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,TimelineServer.DISABLED,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -47,7 +48,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnLocalWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,TimelineServer.DISABLED,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -56,7 +57,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnLocalWithSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,TimelineServer.DISABLED,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -65,7 +66,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnLocalWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,TimelineServer.DISABLED,
 				name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
