@@ -435,7 +435,7 @@ public abstract class App extends Thread {
 
     /**
      * Waits for the specified number of minutes for the app to 
-     * FAil, and returns true for success.
+     * Fail, and returns true for success.
      * Uses the Hadoop API to check status of the app.
      * 
      * @param minutes The number of minutes to wait for the success state.
