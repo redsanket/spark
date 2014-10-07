@@ -201,7 +201,6 @@ public class SparkHdfsLR extends App {
                     + ":" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR")
                     + ":" + hadoopHome + "common/hadoop-gpl-compression.jar"
                     + ":" + yahooDNSjar
-                    + ":" + hadoopHome + "common/hadoop-common-" + TestSession.cluster.getVersion() + ".jar"
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ret = new String[] { "java",
