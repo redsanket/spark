@@ -83,31 +83,4 @@ public class TestSparkNewAPIHadoop extends TestSession {
             appUserDefault.waitForSuccess(waitTime));
     }
 
-    @Test
-    public void runSparkNewAPIHadoopClient() throws Exception {
-        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
-
-        appUserDefault.setMaster(AppMaster.YARN_CLIENT);
-        appUserDefault.setWorkerMemory("2g");
-        appUserDefault.setNumWorkers(1);
-        appUserDefault.setWorkerCores(1);
-        appUserDefault.setClassName("hadooptest.spark.regression.SparkNewAPIHadoopRDD");
-        appUserDefault.setJarName(localJar);
-        String[] argsArray = {ctrlBFile};
-        appUserDefault.setArgs(argsArray);
-
-        appUserDefault.start();
-
-        assertTrue("App (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
-        assertTrue("App ID for sleep app (default user) is invalid.",
-            appUserDefault.verifyID());
-        assertEquals("App name for sleep app is invalid.",
-            "SparkNewAPIHadoopRDD", appUserDefault.getAppName());
-
-        int waitTime = 30;
-        assertTrue("Job (default user) did not succeed.",
-            appUserDefault.waitForSuccess(waitTime));
-    }
-
 }
