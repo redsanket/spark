@@ -58,6 +58,9 @@ public class SparkRunSparkSubmit extends App {
     /** application name */
     private String appName = "sparkTest";
 
+    /** lo4j properties file */
+    private String log4jFile = "";
+
     /** class name */
     private String className = "";
 
@@ -231,6 +234,15 @@ public class SparkRunSparkSubmit extends App {
     }
 
     /**
+     * Set the log4j properties file.
+     * 
+     * @param name the name of the file.
+     */
+    public void setLog4jFile(String name) {
+        this.log4jFile = name;
+    }
+
+    /**
      * Set a list of archives to go into the distributed cache
      * 
      * @param archives - String of comma separate archives
@@ -401,6 +413,11 @@ public class SparkRunSparkSubmit extends App {
         if (shouldPassName) { 
             cmd.add("--name");
             cmd.add(this.appName);
+        }
+
+        if (!this.log4jFile.isEmpty()) {
+            cmd.add("--files");
+            cmd.add(this.log4jFile);
         }
 
         if (!this.distCacheFiles.isEmpty()) { 

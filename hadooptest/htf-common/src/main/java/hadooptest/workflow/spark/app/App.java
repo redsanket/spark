@@ -268,6 +268,60 @@ public abstract class App extends Thread {
         TestSession.logger.error("APP " + this.ID + " WAS NOT KILLED");
         return false;
     }
+
+    /**
+     * Get the yarn logs for this application.  Uses yarn CLI.
+     * Assumes the user who started the job is calling it.
+     * Application must be completed for this to work.
+     * 
+     * @return 
+     * 
+     * @throws Exception if there is a fatal error.
+     */
+    public boolean grepLogsCLI(String patternString) throws Exception {
+
+        Process yarnProc = null;
+        
+        String[] yarnCmd = {
+                TestSession.cluster.getConf().getHadoopProp("YARN_BIN"), 
+                "--config", TestSession.cluster.getConf().getHadoopConfDir(),
+                "logs", "-applicationId", this.ID };
+
+        TestSession.logger.debug(yarnCmd);
+
+        Pattern appPattern = Pattern.compile(patternString);
+        
+        try {
+            yarnProc = TestSession.exec.runProcBuilderSecurityGetProc(yarnCmd, this.USER);
+            BufferedReader reader=new BufferedReader(new InputStreamReader(yarnProc.getInputStream())); 
+            String line=reader.readLine(); 
+            while(line!=null) 
+            { 
+                TestSession.logger.debug(line);
+
+                Matcher appMatcher = appPattern.matcher(line);
+
+                if (appMatcher.find()) {
+                    TestSession.logger.info("found in line: " + line);
+                    reader.close();
+                    return true;
+                }
+                
+                line=reader.readLine();
+            } 
+        }
+        catch (Exception e) {
+            if (yarnProc != null) {
+                yarnProc.destroy();
+            }
+            
+            TestSession.logger.error("Exception " + e.getMessage(), e);
+            throw e;
+        }
+        
+        TestSession.logger.error("Pattern: " + patternString + " for APP " + this.ID + " not found in logs");
+        return false;
+    }
     
 
     /**
