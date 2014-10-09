@@ -1,5 +1,7 @@
 #!/usr/local/bin/bash
 
+set -x 
+
 # for each gateway/yroot, remove it then create it.
 #
 # Populate with things we will need: updated yinst,
