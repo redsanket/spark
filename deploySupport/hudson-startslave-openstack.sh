@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export scriptnames=openstacklargedisk ;;
+export scriptnames=openstacklargedisk
 export confpkg=HadoopConfigopenstacklargedisk
 export localconfpkg=hadooplocalconfigsopenstacklarge
 
