@@ -1,41 +1,18 @@
 #!/bin/bash
 
-set -x
-
-# hudson-startslave.sh
-# 	The first script called by Hudson. It massages the arguments
-# 	given, then creates a yinst-package of the scripts needed (by
-# 	calling yinstify.sh), then copies that package to the destination
-# 	machine and runs it, which runs installgrid.sh on ADMIN_HOST.
-
-case "$CLUSTER" in
-   *Fill*in*your*cluster*)
-      echo ====================================================
-      echo ERROR: CLUSTER was not defined.  Exiting.
-      echo Please make sure you specify CLUSTER from hudson UI
-      echo ====================================================
-      exit 1
-      ;;
-   dense*)
-      export scriptnames=generic10node12disk
-      export localnames=12disk
-      ;;
-   *) export scriptnames=openstacklargedisk ;;
-esac
+export scriptnames=openstacklargedisk ;;
 export confpkg=HadoopConfigopenstacklargedisk
 export localconfpkg=hadooplocalconfigsopenstacklarge
 
 echo =========================================
-echo Beginning of Hudson-driven deployment job.
+echo Beginning of Openstack deployment job.
 echo hostname = `hostname`
 echo date = `TZ=PDT8PDT date `
 echo date = `TZ= date`
 echo =========================================
-echo
 
 export PATH=$PATH:/usr/bin:/usr/local/bin:/bin:/home/y/bin:/sroot:/sbin
 export DATESTRING=`date +%y%m%d%H%M`
-
 
 # echo environment follows:
 # /bin/env
@@ -49,6 +26,7 @@ cd deploySupport
 
 export HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon gridjdk64 gridjdk"
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
+
 if [ ! -z "$HADOOP_RELEASE_TAG" ]
 then
     export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
