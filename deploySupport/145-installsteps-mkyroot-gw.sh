@@ -71,6 +71,11 @@ do
     echo "chgrp -R users /home/y/var/yroots/${yrootname}/home/hadoopqa " |  ssh $machname
     echo "chmod 700 /home/y/var/yroots/${yrootname}/home/hadoopqa/.ssh " |  ssh $machname
     echo "/home/y/bin/yroot --mount ${yrootname} /root" |  ssh $machname
+    echo "mkdir -p /home/y/var/builds " | ssh $machname
+    echo "chown hadoopqa /home/y/var/builds " | ssh $machname
+    echo "chmod 755 /home/y/var/builds " | ssh $machname
+    echo "yinst install yhudson_slave " | ssh $machname
+
 #    m=`df ~hadoopqa | sed -n 2p`
 #    echo "echo 'mount $m ~hadoopqa' | /home/y/bin/yroot  ${yrootname}" |  ssh $machname
 done
