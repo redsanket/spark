@@ -10,6 +10,8 @@ then
     fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
     fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
     fanoutGW "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk64/current/bin/java"
+    # Because we create gateways from new virtual hosts
+    fanoutGW "$yinst install yhudson_slave"
 
 #
 # At this point, the packages are installed - except the configs.
