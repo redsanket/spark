@@ -9,14 +9,1702 @@ Tables
 ------
 
 
-Data and retention
+Data and Retention
 ==================
 
 Schemas
 =======
 
-Descriptions
+Introduction
 ------------
+
+Raw and processed logs are stored using HCatalog and partitioned by cluster and date. 
+These partitioning keys are grid (of type string) and within that dt (of type string 
+and format YYYY_MM_DD) respectively. This partitioning drastically reduces the amount 
+of data that Hive has to process through for generating the results for most queries. 
+If a log is collected more frequently than once per day, there will be another partition 
+tm (of type string and format HH_MM) within the dt partition.
+
+Raw logs are stored after maximal compression in order to reduce storage requirements. 
+Processed logs are stored as compressed tables using columnar-storage provided by 
+the RCFile storage-format in order to maximize the potential for compression (as 
+many columns have the same values). Processed logs are accessed via Hive using 
+HiveQL to produce both canned and ad hoc reports. Apart from the primary tables 
+corresponding to the processed logs, Starling will also have secondary tables derived 
+from these primary tables in order to speed up the execution of common queries and 
+the generation of common reports. The retention of both raw and processed logs is 
+determined by an appropriate configuration of HCatalog.
+
+
+.. important:: All tables reside in the default database (since HCatalog doesn't properly support 
+               multiple databases yet) and have a prefix of ``starling_`` in their names to distinguish 
+               them from other tables in the database. For example, the jobs table described below 
+               will actually be accessible as the ``starling_jobs`` table in the default database in HCatalog.
+
+Schemas for MapReduce
+---------------------
+
+Starling collects and processes the following logs related to MapReduce on a source cluster:
+
+- **Job History** - this provides detailed information on an executed Job, including Tasks and Task Attempts, Counters, etc.
+- **Job Configuration** - this provides the configuration information for an executed Job.
+- **Job Summary** - this provides a summary of an executed Job.
+
+starling_jobs
+#############
+
+**Source Log:** Job History
+
+The ``starling_jobs`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td><code>job_id</code></td>
+   <td><code>string</code></td>
+   <td> The identifier for the Job within the cluster. </td>
+   </tr>
+   <tr>
+   <td> <code>job_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name for the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>user</code> </td>
+   <td> <code>string</code> </td>
+   <td> The user who submitted the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>queue</code> </td>
+   <td> <code>string</code> </td>
+   <td> The queue to which the Job was submitted. </td>
+   </tr>
+   <tr>
+   <td> <code>conf_loc</code> </td>
+   <td> <code>string</code> </td>
+   <td> The location on HDFS for the Job Configuration. </td>
+   </tr>
+   <tr>
+   <td> <code>view_acl</code> </td>
+   <td> <code>string</code> </td>
+   <td> The access-control list for viewing the Job. This is either empty, a <code>*</code> or space-separated lists of comma-separated users and groups respectively. </td>
+   </tr>
+   <tr>
+   <td> <code>modify_acl</code> </td>
+   <td> <code>string</code> </td>
+   <td> The access-control list for modifying the Job. This is either empty, a <code>*</code> or space-separated lists of comma-separated users and groups respectively. </td>
+   </tr>
+   <tr>
+   <td> <code>priority</code> </td>
+   <td> <code>string</code> </td>
+   <td> The priority of the Job (e.g. <code>NORMAL</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>status</code> </td>
+   <td> <code>string</code> </td>
+   <td> The final status of the Job (e.g. <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   </tr>
+   <tr>
+   <td> <code>submit_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time when the Job was submitted in UTC as milliseconds since the UNIX epoch. </td>
+   </tr>
+   <tr>
+   <td> <code>wait_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time in milliseconds spent by the Job waiting to be launched. </td>
+   </tr>
+   <tr>
+   <td> <code>run_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time in milliseconds spent by the Job running after being launched. (The total time taken by the Job is therefore <code>wait_time</code> + <code>run_time</code>.) </td>
+   </tr>
+   <tr>
+   <td> <code>total_maps</code> </td>
+   <td> <code>int</code> </td>
+   <td> The total number of Map Tasks launched by the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>total_reduces</code> </td>
+   <td> <code>int</code> </td>
+   <td> The total number of Reduce Tasks launched by the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>finished_maps</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of Map Tasks that finished successfully. </td>
+   </tr>
+   <tr>
+   <td> <code>finished_reduces</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of Reduce Tasks that finished successfully. </td>
+   </tr>
+   <tr>
+   <td> <code>failed_maps</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of Map Tasks that failed. </td>
+   </tr>
+   <tr>
+   <td> <code>failed_reduces</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of Reduce Tasks that failed. </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+
+starling_job_counters
+#####################
+
+**Source Log:** Job History
+
+The ``starling_job_counters`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+	
+.. raw:: html
+
+   <table>
+		<thead>
+			<tr>
+				<th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=3;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+				<th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=3;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+				<th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=3;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td> <code>job_id</code> </td>
+				<td> <code>string</code> </td>
+				<td> The identifier for a Job within the cluster. </td>
+			</tr>
+			<tr>
+				<td> <code>map_counters</code> </td>
+				<td> <code>map&lt;string,string&gt;</code> </td>
+				<td> The aggregated Counters for Map Tasks for the Job with the name of a Counter mapping to its value. </td>
+			</tr>
+			<tr>
+				<td> <code>reduce_counters</code> </td>
+				<td> <code>map&lt;string,string&gt;</code> </td>
+				<td> The aggregated Counters for Reduce Tasks for the Job with the name of a Counter mapping to its value. </td>
+			</tr>
+			<tr>
+				<td> <code>total_counters</code> </td>
+				<td> <code>map&lt;string,string&gt;</code> </td>
+				<td> The overall Counters for the Job with the name of a Counter mapping to its value. </td>
+			</tr>
+			<tr>
+				<td> <code>grid</code> </td>
+				<td> <code>string</code> </td>
+				<td>?</a></span> </td>
+			</tr>
+			<tr>
+				<td> <code>dt</code> </td>
+				<td> <code>string</code> </td>
+				<td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+			</tr>
+       </tbody>
+   </table>
+		
+
+
+starling_tasks
+##############
+
+**Source Log:** Job History
+
+The ``starling_tasks`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=4;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=4;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=4;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>job_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The identifier for a Job within the cluster. </td>
+   </tr>
+   <tr>
+   <td> <code>task_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The identifier for a Task for the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>type</code> </td>
+   <td> <code>string</code> </td>
+   <td> The type of the Task (e.g. <code>SETUP</code>, <code>MAP</code>, <code>REDUCE</code>, <code>CLEANUP</code>, etc.). </td>
+   </tr>
+   <tr>
+   <td> <code>status</code> </td>
+   <td> <code>string</code> </td>
+   <td> The final status of the Task (e.g. <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   </tr>
+   <tr>
+   <td> <code>splits</code> </td>
+   <td> <code>string</code> </td>
+   <td> The splits created for the Task. </td>
+   </tr>
+   <tr>
+   <td> <code>start_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time when the Task started in UTC as milliseconds since the UNIX epoch. </td>
+   </tr>
+   <tr>
+   <td> <code>run_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time in milliseconds taken by the Task to finish, if available, else <code>-1</code>. </td>
+   </tr>
+   <tr>
+   <td> <code>error_msg</code> </td>
+   <td> <code>string</code> </td>
+   <td> The error-message for the Task, if any, else an empty string. </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+   
+
+
+
+starling_task_counters
+######################
+
+**Source Log:** Job History
+
+The ``starling_task_counters`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type/th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>task_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The identifier for a Task for a Job. </td>
+   </tr>
+   <tr>
+   <td> <code>counters</code> </td>
+   <td> <code>map&lt;string,string&gt;</code> </td>
+   <td> The Counters for the Task with the name of a Counter mapping to its value. </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+
+
+starling_task_attempts
+######################
+
+**Source Log:** Job History
+
+The ``starling_task_attempts`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=6;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=6;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=6;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>task_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The identifier for a Task for a Job. </td>
+   </tr>
+   <tr>
+   <td> <code>task_attempt_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The identifier for a Task Attempt for the Task. </td>
+   </tr>
+   <tr>
+   <td> <code>type</code> </td>
+   <td> <code>string</code> </td>
+   <td> The type of the Task Attempt (e.g. <code>SETUP</code>, <code>MAP</code>, <code>REDUCE</code>, <code>CLEANUP</code>, etc.). </td>
+   </tr>
+   <tr>
+   <td> <code>tracker_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the Task Tracker for the Task Attempt. </td>
+   </tr>
+   <tr>
+   <td> <code>http_port</code> </td>
+   <td> <code>string</code> </td>
+   <td> The HTTP port number for the Task Tracker for the Task Attempt. </td>
+   </tr>
+   <tr>
+   <td> <code>host_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The host-name for the Task Attempt. </td>
+   </tr>
+   <tr>
+   <td> <code>rack_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The rack-id, if available, for the Task Attempt. </td>
+   </tr>
+   <tr>
+   <td> <code>status</code> </td>
+   <td> <code>string</code> </td>
+   <td> The final status of the Task Attempt (e.g. <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   </tr>
+   <tr>
+   <td> <code>state</code> </td>
+   <td> <code>string</code> </td>
+   <td> The final state of the Task Attempt. </td>
+   </tr>
+   <tr>
+   <td> <code>start_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time when the Task Attempt was started in UTC as milliseconds since the UNIX epoch. </td>
+   </tr>
+   <tr>
+   <td> <code>shuffle_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time in milliseconds spent by the Task Attempt in the shuffle phase (valid only for Reduce Task Attempts, <code>0</code> otherwise). </td>
+   </tr>
+   <tr>
+   <td> <code>sort_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time in milliseconds spent by the Task Attempt in the sort phase (valid only for Reduce Task Attempts, <code>0</code> otherwise). </td>
+   </tr>
+   <tr>
+   <td> <code>finish_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time in milliseconds spent by the Task Attempt after being started (for a Map Task Attempt) or after the end of sort phase (for a Reduce Task Attempt). The total time taken by the Task Attempt is therefore <code>shuffle_time</code> + <code>sort_time</code> + <code>finish_time</code>. </td>
+   </tr>
+   <tr>
+   <td> <code>error_msg</code> </td>
+   <td> <code>string</code> </td>
+   <td> The error-message for the Task Attempt, if any, else an empty string. </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+   
+
+
+starling_task_attempt_counters
+##############################
+
+
+**Source Log:** Job History
+
+The ``starling_task_attempt_counters`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+.. raw:: html
+
+   <table>
+	<thead>
+		<tr>
+			<th>Column Name</th>
+			<th>Type</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td> <code>task_attempt_id</code> </td>
+			<td> <code>string</code> </td>
+			<td bgcolor="#ffffff" valign="top" class="foswikiTableCol2 foswikiLastCol"> The identifier for a Task Attempt for a Task. </td>
+		</tr>
+		<tr class="foswikiTableOdd foswikiTableRowdataBgSorted1 foswikiTableRowdataBg1">
+			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <code>counters</code> </td>
+			<td> <code>map&lt;string,string&gt;</code> </td>
+			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol2 foswikiLastCol"> The Counters for the Task Attempt with the name of a Counter mapping to its value. </td>
+		</tr>
+		<tr>
+			<td><code>grid</code> </td>
+			<td> <code>string</code> </td>
+			<td> partition variable. Grid job was run on 'AB' for AxoniteBlue.</td>
+		</tr>
+		<tr>
+			<td><code>dt</code> </td>
+			<td><code>string</code> </td>
+			<td>partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+		</tr>
+   </tbody></table>
+
+
+
+starling_job_confs
+##################
+
+**Source Log:** Job Configuration 
+
+The ``starling_job_confs`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+
+.. raw:: html
+
+
+   <table>
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=8;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=8;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=8;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>job_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The identifier for a Job within the cluster. </td>
+   </tr>
+   <tr>
+   <td> <code>params</code> </td>
+   <td> <code>map&lt;string,string&gt;</code> </td>
+   <td> The configuration parameters for the Job with the name of a parameter mapping to its value. If a value has embedded tab or new-line characters, they are represented as <code>\t</code> and <code>\n</code> respectively (in order to prevent Hive from getting confused). </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+   
+
+
+starling_job_summary
+####################
+
+**Source Log:** Job Summary
+
+The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=9;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=9;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=9;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>job_id</code> </td>
+   <td> <code>string</code> </td>
+   <td> The identifier for the Job within the cluster. </td>
+   </tr>
+   <tr>
+   <td> <code>submit_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time when the Job was submitted in UTC as milliseconds since the UNIX epoch. </td>
+   </tr>
+   <tr>
+   <td> <code>wait_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time in milliseconds spent by the Job waiting to be launched. </td>
+   </tr>
+   <tr>
+   <td> <code>first_job_setup_task_launch_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time taken, in milliseconds, for the first job setup task to be initiated after the job launch. </td>
+   </tr>
+   <tr>
+   <td> <code>first_map_task_launch_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time taken, in milliseconds, for the first map task to be initiated after the job launch. </td>
+   </tr>
+   <tr>
+   <td> <code>first_reduce_task_launch_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time taken, in milliseconds, for the first reduce task to be initiated after the job launch. </td>
+   </tr>
+   <tr>
+   <td> <code>first_job_cleanup_task_launch_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time taken, in milliseconds, for the first job cleanup to be initiated after the job launch. </td>
+   </tr>
+   <tr>
+   <td> <code>run_time</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time taken in milliseconds by the job to complete after being launched. (The total time taken by the Job is therefore wait_time + run_time.) </td>
+   </tr>
+   <tr>
+   <td> <code>num_maps</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of Map Tasks spawned for the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>num_slots_per_map</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of slots per Map Task for the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>num_reduces</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of Reduce Tasks spawned for the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>num_slots_per_reduce</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of slots per Reduce Task for the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>user</code> </td>
+   <td> <code>string</code> </td>
+   <td> The user who submitted the Job. </td>
+   </tr>
+   <tr>
+   <td> <code>queue</code> </td>
+   <td> <code>string</code> </td>
+   <td> The queue to which the Job was submitted. </td>
+   </tr>
+   <tr>
+   <td> <code>status</code> </td>
+   <td> <code>string</code> </td>
+   <td> The final status of the Job (e.g. <code>SUCCEEDED</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   </tr>
+   <tr>
+   <td> <code>map_slot_seconds</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The total Slot-time in seconds taken by Map Tasks for this Job. </td>
+   </tr>
+   <tr>
+   <td> <code>reduce_slots_seconds</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The total Slot-time in seconds taken by Reduce Tasks for this Job. </td>
+   </tr>
+   <tr>
+   <td> <code>cluster_map_capacity</code> </td>
+   <td> <code>int</code> </td>
+   <td> The cluster-wide capacity of Map Task Slots at the time the Job finished. </td>
+   </tr>
+   <tr>
+   <td> <code>cluster_reduce_capacity</code> </td>
+   <td> <code>int</code> </td>
+   <td> The cluster-wide capacity of Reduce Task Slots at the time the Job finished. </td>
+   </tr>
+   <tr>
+   <td> <code>job_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name for the Job. Populated only for Hadoop 1.0.2 clusters. Value would be NULL for Hadoop 0.20.205 clusters </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+   
+
+
+Schemas for HDFS
+----------------
+
+Starling collects and processes the following logs related to HDFS on a source cluster:
+
+- **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary Name Node in less-recent versions of Hadoop). This is collected every month by default.
+- **Audit Logs** - these contain records of accesses and modifications to file-system objects.
+
+.. warning:: Unlike the data in other tables, the tables created from an FSImage (``fs_namespaces``, ``fs_entries``, and ``fs_blocks``) 
+             represent a snapshot rather than incremental information for each period. You must 
+             use a partition key with these tables to use the correct snapshot - otherwise your 
+             queries will return incorrect results, not to mention scan a lot of data unnecessarily.
+
+
+starling_fs_namespaces
+######################
+
+**Source Log:** FSImage
+
+The ``starling_fs_namespaces`` table has following schema and describes the FSImage details and is paritioned by keys ``grid`` and ``dt`` :
+
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>version</code> </td>
+   <td> <code>int</code> </td>
+   <td> The FSImage version (e.g. <code>-19</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>ns_id</code> </td>
+   <td> <code>int</code> </td>
+   <td> The ID of the FSImage Namespace. </td>
+   </tr>
+   <tr>
+   <td> <code>gen_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> Generation stamp of the Namespace. </td>
+   </tr>
+   <tr>
+   <td> <code>compressed</code> </td>
+   <td> <code>boolean</code> </td>
+   <td> If the FSImage was compressed when written. </td>
+   </tr>
+   <tr>
+   <td> <code>codec</code> </td>
+   <td> <code>string</code> </td>
+   <td> Compression codec used in FSImage. </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+
+
+starling_fs_entries
+###################
+
+**Source Log:** FSImage
+
+
+The ``starling_fs_entries`` table describe the name space listing and has the following schema and is paritioned by keys ``grid`` and ``dt``:
+
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=12;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=12;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=12;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>path</code> </td>
+   <td> <code>string</code> </td>
+   <td> The path of the INode (e.g. <code>/foo/bar/snafu</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>dir</code> </td>
+   <td> <code>boolean</code> </td>
+   <td> If given path is a directory. </td>
+   </tr>
+   <tr>
+   <td> <code>replicas</code> </td>
+   <td> <code>int</code> </td>
+   <td> The number of times each block in the file is replicated. </td>
+   </tr>
+   <tr>
+   <td> <code>ns_id</code> </td>
+   <td> <code>int</code> </td>
+   <td> The name-space identifier for the INode. </td>
+   </tr>
+   <tr>
+   <td> <code>mod_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The last modification time of the file in UTC format. In milliseconds since Epoch <code>let d=1278543204209/1000; date --date='1970-01-01 UTC '$d' seconds'</code> </td>
+   </tr>
+   <tr>
+   <td> <code>acc_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The last access time of the file in UTC format. In milliseconds since Epoch. </td>
+   </tr>
+   <tr>
+   <td> <code>block_size</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The size of blocks that store the data for the file. </td>
+   </tr>
+   <tr>
+   <td> <code>size</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The size of the file in bytes. </td>
+   </tr>
+   <tr>
+   <td> <code>ns_quota</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The NS Quota of the file. </td>
+   </tr>
+   <tr>
+   <td> <code>ds_quota</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The DS Quota of the file. </td>
+   </tr>
+   <tr>
+   <td> <code>symlink</code> </td>
+   <td> <code>String</code> </td>
+   <td> Link target if the INode is a symlink. </td>
+   </tr>
+   <tr>
+   <td> <code>user</code> </td>
+   <td> <code>string</code> </td>
+   <td> The user-name of the owner of this file (e.g. <code>dfsload</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>groupname</code> </td>
+   <td> <code>string</code> </td>
+   <td> The group-name of the owner of this file (e.g. <code>users</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>perms</code> </td>
+   <td> <code>string</code> </td>
+   <td> The permissions for the file as a 3-letter octal string (e.g. <code>755</code> for <code>rwxr-xr-x</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+
+
+
+.. note:: Make sure you convert ``mod_ts`` and ``act_ts`` before calling any of the Hive date time functions otherwise, you'll get a nasty surprise.
+          e.g., ``select E.path``, ``from_unixtime(E.acc_ts)``, ``E.size``, ``E.user``, ``E.grid``, ``E.dt``, ``datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
+          ``to_date(from_unixtime(unix_timestamp()))) as DAYS_OLD? from starling_fs_entries E where E.dir and datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
+          ``to_date(from_unixtime(unix_timestamp()))) > 90 and grid='DG' and DT='2011_11_08' limit 10;``
+
+.. note:: The ``acc_ts`` should not be used at Yahoo. Most name nodes don't set this value when files 
+          are read due to performance issues. This value will always be set to the create time for 
+          the file or it will be set to epoch (epoch for files created before 0.20 hadoop was released).
+
+
+starling_fs_blocks
+##################
+
+**Source Log:** FSImage
+
+The ``starling_fs_blocks`` table has following schema and describes 
+the Block details and is paritioned by keys ``grid`` and ``dt``:
+
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=13;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=13;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=13;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>path</code> </td>
+   <td> <code>string</code> </td>
+   <td> The path of the INode (e.g. <code>/foo/bar/snafu</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>block_id</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> Id of the block representing the file. </td>
+   </tr>
+   <tr>
+   <td> <code>size</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> Size of the block representing the file in bytes. </td>
+   </tr>
+   <tr>
+   <td> <code>gen_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> Generation of the block representing the file. </td>
+   </tr>
+   <tr>
+   <td> <code>position</code> </td>
+   <td> <code>int</code> </td>
+   <td> Index position of the block for a given Inode, position of 0 says it is the first block and so on. </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+
+
+.. note:: The version of the FSImage parser used in the Starling processor deliberately 
+          omits information pertaining to INodeUnderConstruction and DelegationToken, which 
+          are maintained by the NameNode.
+
+starling_fs_audit
+#################
+
+**Source Log:** Name Node Audit
+
+The ``starling_fs_audit`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=14;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=14;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=14;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>src_path</code> </td>
+   <td> <code>string</code> </td>
+   <td> Path of the source file/directory. </td>
+   </tr>
+   <tr>
+   <td> <code>cmd_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time when the command was executed on the file in UTC as milliseconds since the UNIX epoch. </td>
+   </tr>
+   <tr>
+   <td> <code>cmd</code> </td>
+   <td> <code>string</code> </td>
+   <td> The command that was executed ( <code>open</code>, <code>create</code>, <code>delete</code>, <code>liststatus</code>, <code>mkdirs</code>, <code>rename</code>, <code>setOwner</code>, <code>setPermission</code>, <code>setReplication</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>ugi</code> </td>
+   <td> <code>string</code> </td>
+   <td> The user-group information (UGI) on whose behalf the command was executed (e.g. <code>gmetrics@YGRID.YAHOO.COM</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>ip_addr</code> </td>
+   <td> <code>string</code> </td>
+   <td> The IP address from where the command was received (e.g. <code>98.137.112.252</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>dest_path</code> </td>
+   <td> <code>string</code> </td>
+   <td> Path of the destination file/directory </td>
+   </tr>
+   <tr>
+   <td> <code>user</code> </td>
+   <td> <code>string</code> </td>
+   <td> The user-name of the <em>owner</em> of this file (e.g. <code>dfsload</code>). Note that this is <em>not</em> the user who executed the command (see <code>ugi</code> instead). </td>
+   </tr>
+   <tr>
+   <td> <code>groupname</code> </td>
+   <td> <code>string</code> </td>
+   <td> The group-name of the owner of this file (e.g. <code>users</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>perms</code> </td>
+   <td> <code>string</code> </td>
+   <td> String representation of the file permissions (e.g. <code>rwx--r---</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>grid</code> </td>
+   <td> <code>string</code> </td>
+   <td>?</a></span> </td>
+   </tr>
+   <tr>
+   <td> <code>dt</code> </td>
+   <td> <code>string</code> </td>
+   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   </tr>
+   </tbody></table>
+
+
+Schemas for Simon
+-----------------
+
+Starling collects and processes the following logs related to Simon on a source cluster:
+
+- **Aggregator Dumps** - this provides periodic dumps of different metrics related to various sub-systems for a given cluster.
+
+
+starling_simon_reports
+######################
+
+**Source Log:** Aggregator Dumps
+
+The ``simon_reports`` table has the following schema (apart from the partitioning keys ``grid`` and ``dt``):
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>app_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The application corresponding to the report (e.g. <code>jvm</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>report_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the report (e.g. <code>JVM</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>report_cluster</code> </td>
+   <td> <code>string</code> </td>
+   <td> The cluster for the report (e.g. <code>jvm.mithrilgold</code>). Note that this is <em>not</em> the same as the value of the <code>grid</code> partitioning key. </td>
+   </tr>
+   <tr>
+   <td> <code>report_version</code> </td>
+   <td> <code>string</code> </td>
+   <td> The version of the report (e.g. <code>0.1.0.0</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>report_period</code> </td>
+   <td> <code>int</code> </td>
+   <td> The period after which the report is generated (e.g. <code>60</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>report_ts</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> The time when the report was generated in UTC as milliseconds since the UNIX epoch. </td>
+   </tr>
+   <tr>
+   <td> <code>report_item</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of an item within the report (e.g. <code>by node name</code>). </td>
+   </tr>
+   <tr>
+   <td> <code>tags</code> </td>
+   <td> <code>map&lt;string,string&gt;</code> </td>
+   <td> The tag-values for a particular row within a report-item with the name of a tag mapping to its value. </td>
+   </tr>
+   <tr>
+   <td> <code>metrics</code> </td>
+   <td> <code>map&lt;string,string&gt;</code> </td>
+   <td> The reported metrics for a particular row within a report-item with the name of a metric mapping to its value. </td>
+   </tr>
+   </tbody></table>
+
+
+.. note:: Simon aggregator dumps are processed on a "best-effort" basis due to the way the metrics are collected and the dumps captured and made available to Starling. It is quite possible therefore to see missing or duplicate metrics in this table. If you want a unique row for a given metric for a given time-stamp, you must put the appropriate DISTINCT clauses in your queries.
+
+.. note:: There are at least 15 different types of reports recorded: FSNamesystem status, by node name ,by process name,by session,hdfs throughput,individual datanode throughput,jobtracker,jobtracker totals,namenode operations,perCluster,perDisk ,perNode ,shuffle output by host ,tasktracker , and tasktracker totals. Be sure to select the right report type otherwise you'll aggregate apples with oranges. (See example below.)
+
+Schemas for GDM Configuration
+-----------------------------
+
+Grid Data Management (GDM) is a flexible, scalable platform for making large volume 
+of data available on the Grid. GDM is deployed as a managed service and is used 
+primarily by the Grid Ops team to schedule and manage the flow of data to and from 
+the Grid. The GDM configuration is segregated into dataset and datasource configuration.
+
+Starling collects the snapshot of the GDM configuration everyday to the warehouse 
+directory and processes them.
+
+starling_gdm_dataset
+####################
+
+**Source Log:** GDM dataset configuration
+
+The ``starling_gdm_dataset`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+
+.. raw:: html
+
+  <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description/th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>dsname</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the dataset (e.g. <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>description</code> </td>
+   <td> <code>string</code> </td>
+   <td> Description about the dataset </td>
+   </tr>
+   <tr>
+   <td> <code>catalog</code> </td>
+   <td> <code>string</code> </td>
+   <td> The catalog under which the dataset falls (e.g. <code>YST-LOGS-NET</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>active</code> </td>
+   <td> <code>string</code> </td>
+   <td> Specifies the activity status of the dataset. Allowed values are <code>NEW,TRUE,FALSE</code> </td>
+   </tr>
+   <tr>
+   <td> <code>verification_instance</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>priority</code> </td>
+   <td> <code>string</code> </td>
+   <td> Priority of the dataset. Allowed values are <code>HIGHEST,HIGH,NORMAL,LOW,LOWEST</code> </td>
+   </tr>
+   <tr>
+   <td> <code>contact_owner</code> </td>
+   <td> <code>string</code> </td>
+   <td> Contact information of the owner of the dataset. (e.g. <code>dfsload@yahoo-inc.com</code> ) </td>
+   </tr>
+   <tr>
+   <td> <code>publisher</code> </td>
+   <td> <code>string</code> </td>
+   <td> Contact information of the publisher of the dataset. (e.g. <code>grid-data-ops@yahoo-inc.com</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>consumer</code> </td>
+   <td> <code>string</code> </td>
+   <td> Contact information of the consumer of the dataset. (e.g. <code>grid-data-ops@yahoo-inc.com</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>comments</code> </td>
+   <td> <code>string</code> </td>
+   <td> Comments about the dataset. </td>
+   </tr>
+   <tr>
+   <td> <code>owner</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the user owning the dataset. (e.g. <code>dfsload</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>groupname</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the group owning the dataset. (e.g. <code>users</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>permission</code> </td>
+   <td> <code>string</code> </td>
+   <td> The permissions set on the dataset. (e.g. 755) </td>
+   </tr>
+   <tr>
+   <td> <code>frequency</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>disc_frequency</code> </td>
+   <td> <code>int</code> </td>
+   <td> Discovery frequency. (e.g. <code>7200</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>disc_interface</code> </td>
+   <td> <code>string</code> </td>
+   <td> Discovery Interface (e.g. <code>FDI</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>paths</code> </td>
+   <td> <code>map&lt;string,string&gt;</code> </td>
+   <td> A map containing information about paths of various types( <code>data</code>, <code>schema</code>, <code>count</code>, <code>invalid</code> etc). </td>
+   </tr>
+   <tr>
+   <td> <code>params</code> </td>
+   <td> <code>map&lt;string,string&gt;</code> </td>
+   <td> A parameters map containing key value pairs. </td>
+   </tr>
+   <tr>
+   <td> <code>part_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the partition. (e.g. <code>srcid</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>part_type</code> </td>
+   <td> <code>string</code> </td>
+   <td> The partition type. (e.g. <code>DSD</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>part_value</code> </td>
+   <td> <code>string</code> </td>
+   <td> Set of Partition values. </td>
+   </tr>
+   <tr>
+   <td> <code>target_type</code> </td>
+   <td> <code>string</code> </td>
+   <td> The type of the target. Allowed values are <code>SOURCE</code>, <code>TARGET</code>. </td>
+   </tr>
+   <tr>
+   <td> <code>target_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the target. </td>
+   </tr>
+   <tr>
+   <td> <code>latency</code> </td>
+   <td> <code>string</code> </td>
+   <td> Latency in minutes. </td>
+   </tr>
+   <tr>
+   <td> <code>retention</code> </td>
+   <td> <code>int</code> </td>
+   <td> Retention period in days. </td>
+   </tr>
+   <tr>
+   <td> <code>start_date</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> Start date for copying the data into Target. This value is applied for only target_type=TARGET. </td>
+   </tr>
+   <tr>
+   <td> <code>end_date</code> </td>
+   <td> <code>bigint</code> </td>
+   <td> End date for copying the data into Target. This value is applied for only target_type=TARGET. </td>
+   </tr>
+   <tr>
+   <td> <code>target_status</code> </td>
+   <td> <code>string</code> </td>
+   <td> Status of the target. </td>
+   </tr>
+   <tr>
+   <td> <code>target_resources</code> </td>
+   <td> <code>map&lt;string, int&gt;</code> </td>
+   <td> A map containing the information of the target resources with the name of the resource as key and its capacity as the value. </td>
+   </tr>
+   <tr>
+   <td> <code>target_policies</code> </td>
+   <td> <code>map&lt;string, string&gt;</code> </td>
+   <td> A map containing the information of the target policies with the type of the policy as key and its condition as the value. </td>
+   </tr>
+   <tr>
+   <td> <code>replication_exclude_paths</code> </td>
+   <td> <code>array&lt;string&gt;</code> </td>
+   <td> The Path to be excluded during replication. </td>
+   </tr>
+   </tbody></table>
+
+
+.. note:: Be careful with your selects from this table. There are multiple entries for each data set. There will be an entry for each datasource and one for each dataset. Also, if there are duplicate sources inside each config, there will be duplicate entries in this table.
+
+.. note:: ``target_type`` is not really the type of target since it can be either source or 
+          target. This corresponds to the Sources or Targets tags inside a GDM dataset configuration file.
+
+starling_gdm_data_definition
+############################
+
+Source Log: GDM dataset configuration
+
+The ``starling_gdm_data_definition`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+
+.. raw:: html
+
+
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>dsname</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the dataset (e.g. <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>static_schema_path</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>record_delimiter</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>field_delimiter</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>input_format</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>output_format</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>skip_comments</code> </td>
+   <td> <code>boolean</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>sort_key</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>partition_key</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>data_path_mask</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>add_fields</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>remove_fields</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>select_records</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+
+
+
+starling_gdm_data_validation
+############################
+
+Source Log: GDM dataset configuration
+
+The ``starling_gdm_data_validation`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+
+.. raw:: html
+
+   <table cellspacing="0" id="table18" cellpadding="0" class="foswikiTable" rules="rows" border="1">
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=18;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=18;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=18;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>dsname</code> </td>
+   <td> <code>string</code> </td>
+   <td> The name of the dataset (e.g. <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
+   </tr>
+   <tr>
+   <td> <code>type</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>on_failure</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>condition</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>threshold</code> </td>
+   <td> <code>int</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+
+
+starling_gdm_data_workflow_strategy
+###################################
+
+**Source Log:** GDM dataset configuration
+
+The ``starling_gdm_data_workflow_strategy`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+.. raw:: html
+
+
+   <table cellspacing="0" id="table19" cellpadding="0" class="foswikiTable" rules="rows" border="1">
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=19;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=19;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=19;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>dsname</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>load_strategy</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>retry_count</code> </td>
+   <td> <code>int</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>skip_data_commit</code> </td>
+   <td> <code>boolean</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>skip_verify</code> </td>
+   <td> <code>boolean</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>parts_count</code> </td>
+   <td> <code>int</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>parts_per_partition</code> </td>
+   <td> <code>int</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+
+
+starling_gdm_data_flow
+######################
+
+**Source Log:** GDM dataset configuration
+
+The ``starling_gdm_data_flow`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+.. raw:: html
+
+   <table cellspacing="0" id="table20" cellpadding="0" class="foswikiTable" rules="rows" border="1">
+   <thead>
+   <tr>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=20;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
+   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=20;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
+   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=20;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>dsname</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>replicate_from_colo</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>replicate_to_colo</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+
+starling_gdm_datasource
+#######################
+
+**Source Log:** GDM datasource configuration
+
+The ``starling_gdm_data_source`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type/th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>data_src_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>type</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>colo</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>version</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>working_dir</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>eviction_dir</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>active</code> </td>
+   <td> <code>boolean</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>bandwidth_per_connection</code> </td>
+   <td> <code>int</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>params</code> </td>
+   <td> <code>map</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+   
+
+
+
+starling_gdm_datasource_interfaces
+##################################
+
+**Source Log:** GDM datasource configuration
+
+The ``starling_gdm_data_source_interfaces`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+.. raw:: html
+
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</a> </th>
+   <th>Type</th>
+   <th<Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>data_src_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>auth_schema</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>auth_params</code> </td>
+   <td> <code>map&lt;string,string&gt;</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>discovery_types</code> </td>
+   <td> <code>array&lt;string&gt;</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>interface_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>interface_type</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>interface_version</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+   
+
+
+starling_gdm_datasource_interface_cmds
+######################################
+
+**Source Log:** GDM datasource configuration
+
+The ``starling_gdm_data_source_interface_cmds`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+
+.. raw:: html
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>data_src_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>interface_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>cmd_base_url</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>cmd_args</code> </td>
+   <td> <code>array&lt;string&gt;</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>cmd</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+
+
+starling_gdm_datasource_resources
+#################################
+
+**Source Log:** GDM datasource configuration
+
+The ``starling_gdm_data_source_resources`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+
+.. raw:: html
+
+
+   <table>
+   <thead>
+   <tr>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
+   </tr>
+   </thead>
+   <tbody>
+   <tr>
+   <td> <code>data_src_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>resource_name</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>capacity</code> </td>
+   <td> <code>int</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   <tr>
+   <td> <code>applicable_colo</code> </td>
+   <td> <code>string</code> </td>
+   <td> &nbsp; </td>
+   </tr>
+   </tbody></table>
+
+
 
 Use of Data
 ===========
