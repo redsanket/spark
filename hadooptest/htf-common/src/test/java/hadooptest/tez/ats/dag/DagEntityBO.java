@@ -5,33 +5,38 @@ import hadooptest.TestSession;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DagEntity {
+public class DagEntityBO {
 	String entityType;
 	String entity;
 	Long starttime;
-	List<DagRelatedEntity>relatedentities;
-	List<DagEventsEntity> events;
+	List<DagRelatedEntityBO>relatedentities;
+	List<DagEventsEntityBO> events;
 	List<DagPrimaryFiltersBO> primaryfilters;
 	DagOtherInfoBO otherinfo;
-	DagEntity(){
-		this.events = new ArrayList<DagEventsEntity>();
-		
+	List<DagEdgeBO>edges;
+	DagEntityBO(){
+		this.events = new ArrayList<DagEventsEntityBO>();		
 		this.primaryfilters = new ArrayList<DagPrimaryFiltersBO>();
 		this.otherinfo = new DagOtherInfoBO();
-		this.relatedentities = new ArrayList<DagRelatedEntity>();
+		this.relatedentities = new ArrayList<DagRelatedEntityBO>();
+		this.edges = new ArrayList<DagEdgeBO>();
 	}
+	
 	public void dump(){
 		TestSession.logger.info("entitytype:" + entityType);
 		TestSession.logger.info("entity:" + entity);
 		TestSession.logger.info("starttime:" + starttime);
-		for (DagEventsEntity aDagEventsEntity:events){
+		for (DagEventsEntityBO aDagEventsEntity:events){
 			aDagEventsEntity.dump();
 		}
-		for (DagRelatedEntity aDagRelatedEntity:relatedentities){
+		for (DagRelatedEntityBO aDagRelatedEntity:relatedentities){
 			aDagRelatedEntity.dump();
 		}
 		for (DagPrimaryFiltersBO aDagPrimaryFiltersBO:primaryfilters){
 			aDagPrimaryFiltersBO.dump();
+		}
+		for (DagEdgeBO aDagEdgeBO:edges){
+			aDagEdgeBO.dump();
 		}
 
 		otherinfo.dump();

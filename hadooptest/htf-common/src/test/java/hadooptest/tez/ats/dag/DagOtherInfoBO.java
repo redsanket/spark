@@ -8,9 +8,9 @@ public class DagOtherInfoBO {
 	Long initTime;
 	Long timeTaken;
 	String applicationId;
-	DagPlan dagPlan;
+	DagPlanBO dagPlan;
 	DagOtherInfoBO(){
-		this.dagPlan = new DagPlan();
+		this.dagPlan = new DagPlanBO();
 	}
 	public void dump(){
 		TestSession.logger.info("DUMPING OTHER INFO");

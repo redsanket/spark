@@ -2,7 +2,7 @@ package hadooptest.tez.ats.dag;
 
 import hadooptest.TestSession;
 
-public class DagVertexAdditionalInput {
+public class DagVertexAdditionalInputBO {
 	String name;
 	String clazz;
 	String initializer;

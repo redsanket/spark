@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DagPrimaryFiltersBO {
-	List<DagPrimaryFilterEntity> primaryFilters;
+	List<DagPrimaryFilterEntityBO> primaryFilters;
 	DagPrimaryFiltersBO(){
-		this.primaryFilters = new ArrayList<DagPrimaryFilterEntity>();
+		this.primaryFilters = new ArrayList<DagPrimaryFilterEntityBO>();
 	}
 	public void dump(){
-		for (DagPrimaryFilterEntity aDagPrimaryFilterEntity:primaryFilters){
+		for (DagPrimaryFilterEntityBO aDagPrimaryFilterEntity:primaryFilters){
 			aDagPrimaryFilterEntity.dump();
 		}
 	}

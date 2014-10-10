@@ -5,11 +5,11 @@ import hadooptest.TestSession;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DagRelatedEntity {
+public class DagRelatedEntityBO {
 	String relatedEntityName;
 	List<String> tezVertexIds;
 
-	DagRelatedEntity(String relatedEntityName) {
+	DagRelatedEntityBO(String relatedEntityName) {
 		this.relatedEntityName = relatedEntityName;
 		this.tezVertexIds = new ArrayList<String>();
 	}

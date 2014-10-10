@@ -5,10 +5,10 @@ import hadooptest.TestSession;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DagPrimaryFilterEntity {
+public class DagPrimaryFilterEntityBO {
 	String filterName;
 	List<String> filterList;
-	DagPrimaryFilterEntity(String filterName){
+	DagPrimaryFilterEntityBO(String filterName){
 		this.filterName = filterName;
 		filterList = new ArrayList<String>();
 	}

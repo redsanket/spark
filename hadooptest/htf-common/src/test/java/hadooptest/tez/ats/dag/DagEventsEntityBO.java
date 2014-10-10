@@ -3,7 +3,7 @@ import hadooptest.TestSession;
 
 import org.json.simple.JSONObject;
 
-public class DagEventsEntity {
+public class DagEventsEntityBO {
 	public Long timestamp;
 	public String eventtype;
 	public JSONObject eventinfo;

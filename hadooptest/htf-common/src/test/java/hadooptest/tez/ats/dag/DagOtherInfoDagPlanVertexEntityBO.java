@@ -5,16 +5,16 @@ import hadooptest.TestSession;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DagOtherInfoDagPlanVertexEntity {
+public class DagOtherInfoDagPlanVertexEntityBO {
 	String vertexName;
 	String processorClass;
 	List<String> inEdgeIds;
 	List<String> outEdgeIds;
-	List<DagVertexAdditionalInput> additionalInputs;
-	DagOtherInfoDagPlanVertexEntity(){
+	List<DagVertexAdditionalInputBO> additionalInputs;
+	DagOtherInfoDagPlanVertexEntityBO(){
 		inEdgeIds = new ArrayList<String>();
 		outEdgeIds = new ArrayList<String>();
-		additionalInputs = new ArrayList<DagVertexAdditionalInput>();
+		additionalInputs = new ArrayList<DagVertexAdditionalInputBO>();
 	}
 	public void dump(){
 		TestSession.logger.info("DAG INFO VERTEX PLAN ENTITY");
