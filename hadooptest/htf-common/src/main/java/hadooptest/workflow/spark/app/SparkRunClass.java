@@ -61,6 +61,9 @@ public class SparkRunClass extends App {
     /** jar name */
     private String jarName = "";
 
+    /** log4j properties file */
+    private String log4jFile = "";
+
     /** distributed cache files */
     private String distCacheFiles = "";
 
@@ -122,6 +125,15 @@ public class SparkRunClass extends App {
      */
     public void setAppName(String name) {
         this.appName = name;
+    }
+
+    /**
+     * Set the log4j properties file.
+     * 
+     * @param name the name of the file.
+     */
+    public void setLog4jFile(String name) {
+        this.log4jFile = name;
     }
 
     /**
@@ -221,15 +233,7 @@ public class SparkRunClass extends App {
      * @throws Exception if there is a fatal error running the process to submit the app.
      */
     protected void submit() throws Exception {
-        String appPatternStr = null;
-
-        if (this.master == AppMaster.YARN_CLIENT) {
-            appPatternStr = " Submitted application (.*)"; 
-        }
-        else if (this.master == AppMaster.YARN_STANDALONE) {
-            appPatternStr = " application identifier: (.*)$";
-        }
-
+        String appPatternStr = " Submitted application (.*)"; 
         String exceptionPatternStr = "Exception in thread(.*)$";
         String errorPatternStr = "ERROR (.*)Client: (.*)$";
         Pattern appPattern = Pattern.compile(appPatternStr);
@@ -256,6 +260,10 @@ public class SparkRunClass extends App {
             newEnv.put("SPARK_YARN_USER_ENV", "JAVA_HOME=" + HadooptestConstants.Location.JDK64);
         } else {
             newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
+        }
+
+        if (!log4jFile.isEmpty()) {
+            newEnv.put("SPARK_LOG4J_CONF", log4jFile);
         }
 
         TestSession.logger.info("SPARK_JAR=" + sparkJar);

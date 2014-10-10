@@ -172,19 +172,14 @@ public class SparkPi extends App {
      * @throws Exception if there is a fatal error running the process to submit the app.
      */
     protected void submit() throws Exception {
-        String appPatternStr = null;
-
-        if (this.master == AppMaster.YARN_CLIENT) {
-            appPatternStr = " Submitted application (.*)";
-        }
-        else if (this.master == AppMaster.YARN_STANDALONE) {
-            appPatternStr = " application identifier: (.*)$";
-        }
+        String appPatternStr = " Submitted application (.*)";
 
         Pattern appPattern = Pattern.compile(appPatternStr);
 
         String errorPatternStr = "ERROR (.*)Client: (.*)$";
         Pattern errorPattern = Pattern.compile(errorPatternStr);
+        String errorPatternStr2 = "Usage: (.*)Client (.*)$";
+        Pattern errorPattern2 = Pattern.compile(errorPatternStr2);
 
         // setup spark env
         Map<String, String> newEnv = new HashMap<String, String>();
@@ -243,6 +238,7 @@ public class SparkPi extends App {
 
                 Matcher appMatcher = appPattern.matcher(line);
                 Matcher errorMatcher = errorPattern.matcher(line);
+                Matcher errorMatcher2 = errorPattern2.matcher(line);
 
                 if (appMatcher.find()) {
                     this.ID = appMatcher.group(1);
@@ -254,6 +250,13 @@ public class SparkPi extends App {
                 if (errorMatcher.find()) {
                     this.ERROR = errorMatcher.group(2);
                     TestSession.logger.error("ERROR is: " + errorMatcher.group(2));
+                    reader.close();
+                    break;
+                }
+
+                if (errorMatcher2.find()) {
+                    this.ERROR = errorMatcher2.group(2);
+                    TestSession.logger.error("Usage statement found");
                     reader.close();
                     break;
                 }
@@ -310,7 +313,6 @@ public class SparkPi extends App {
                     + ":" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR")
                     + ":" + hadoopHome + "common/hadoop-gpl-compression.jar"
                     + ":" + yahooDNSjar
-                    + ":" + hadoopHome + "common/hadoop-common-" + TestSession.cluster.getVersion() + ".jar"
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ret = new String[] { "java",

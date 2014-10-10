@@ -80,14 +80,7 @@ public class SparkHdfsLR extends App {
      * @throws Exception if there is a fatal error running the process to submit the app.
      */
     protected void submit() throws Exception {
-        String appPatternStr = null;
-
-        if (this.master == AppMaster.YARN_CLIENT) { 
-            appPatternStr = " Submitted application (.*)";
-        }
-        else if (this.master == AppMaster.YARN_STANDALONE) { 
-            appPatternStr = " application identifier: (.*)$";
-        } 
+        String appPatternStr = " Submitted application (.*)";
 
         Pattern appPattern = Pattern.compile(appPatternStr);
 
@@ -208,7 +201,6 @@ public class SparkHdfsLR extends App {
                     + ":" + TestSession.conf.getProperty("SPARK_EXAMPLES_JAR")
                     + ":" + hadoopHome + "common/hadoop-gpl-compression.jar"
                     + ":" + yahooDNSjar
-                    + ":" + hadoopHome + "common/hadoop-common-" + TestSession.cluster.getVersion() + ".jar"
                     + ":" + TestSession.conf.getProperty("SPARK_JAR");
 
             ret = new String[] { "java",
