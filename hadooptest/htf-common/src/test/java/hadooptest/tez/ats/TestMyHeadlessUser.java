@@ -6,19 +6,31 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.tez.ats.dag.ATSUtils;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.hadoop.mapreduce.Cluster;
+import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.service.LifecycleEvent;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntities;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 import org.apache.hadoop.yarn.api.records.timeline.TimelineEvent;
 import org.apache.hadoop.yarn.client.api.TimelineClient;
 import org.apache.hadoop.yarn.client.api.impl.TimelineClientImpl;
+import org.apache.tez.client.TezClient;
+import org.apache.tez.dag.api.TezConfiguration;
+import org.apache.tez.dag.api.client.DAGClient;
+import org.apache.tez.dag.api.client.DAGClientImpl;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response;
@@ -26,8 +38,16 @@ import com.sun.jersey.api.client.ClientResponse;
 @Category(SerialTests.class)
 public class TestMyHeadlessUser extends ATSTestsBaseClass {
 	
-	
 //	@Test
+	public void test4() throws IOException, InterruptedException{
+		TezClient tezClient =  TezClient.create("maaTezClient", new TezConfiguration());
+		
+		Cluster aCluster = new Cluster(TestSession.cluster.getConf());
+		for (JobStatus aJobStatus:aCluster.getAllJobStatuses()){
+			TestSession.logger.info("Amit: " + aJobStatus.getJobName());
+		}
+	}
+	@Test
 	public void test1() throws Exception {
 		String rmHostname = null;
 		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
@@ -42,15 +62,14 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		}
 
 		if (!timelineserverStarted){
-			startTimelineServerOnRM(rmHostname);
+//			startTimelineServerOnRM(rmHostname);
 		}		
 
-		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/";
+		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID/";
 		Response response = given()
-				.param("http.protocol.allow-circular-redirects", true)
 				.cookie(hitusr_1_cookie).get(url);
-		TestSession.logger.info("R E S P O N S E:" + response.asString());
-		TestSession.logger.info("R E S P O N S E  B O D Y :" + response.body());
+		String responseAsString = response.getBody().asString();
+		TestSession.logger.info("R E S P O N S E  B O D Y :" + responseAsString);
 		TestSession.logger.info("R E S P O N S E  STATUSLINE :"
 				+ response.getStatusLine());
 		TestSession.logger.info("R E S P O N S E  STATUSCODE :"
@@ -67,8 +86,8 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 			TestSession.logger.info("C O O K I E: [key]" + key + " [value] "
 					+ cookies.get(key));
 		}
-//		stopTimelineServerOnRM(rmHostname);
-
+		ATSUtils atsUtils = new ATSUtils();
+		atsUtils.processDagResponse(responseAsString);
 	}
 	
 //	@Test
@@ -94,9 +113,6 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		tlEvent.setTimestamp(1412607913351L);
 		entity.addEvent(tlEvent);
 		entities.addEntity(entity);
-		ClientResponse clientResponse = tlc.doPostingEntities(entities);
-		TestSession.logger.info("Got maa status:" + clientResponse.getStatus());
-		TestSession.logger.info("Location " + clientResponse.getLocation());
 		
 		
 	}
