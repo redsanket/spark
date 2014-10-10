@@ -18,8 +18,7 @@ This document is **Yahoo Proprietary/Confidential**. Do not release the contents
 About This Guide
 ================
 
-The goal of this guide is to help Yahoos use Starling, on the Yahoo grid, and thus, is not a comprehensive guide for Storm.
-For more comprehensive documentation, we recommend the `Apache Storm documentation <http://storm.incubator.apache.org>`_. 
+The goal of this guide is to help Yahoos use Starling, on the Yahoo grid, and thus, is not a comprehensive guide for Starling.
 
 .. _onboard:
 
@@ -51,8 +50,8 @@ Product/Engineering
 -------------------
 
 Write to the Product Manager or Engineering Manager, whose emails you can find in 
-the **Contacts** section on the `Developer Central: Storm <http://developer.corp.yahoo.com/product/Storm>`_
-page.
+the **Contacts** section on the `Developer Central: Starling <http://developer.corp.yahoo.com/product/Starling>`_ page.
+
 
 Emergency Support
 -----------------
@@ -71,7 +70,7 @@ Bugzilla Links
 Ticket Filing Process
 #####################
 
-If you have identified an issue with Storm withn your environment or 
+If you have identified an issue with Starling withn your environment or 
 while testing, you may file a Bugzilla Ticket. When filing the ticket, 
 include the following if relevant:
 

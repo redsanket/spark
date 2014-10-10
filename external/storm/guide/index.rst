@@ -111,19 +111,20 @@ Indicates a user tip related to a procedural step or general information.
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
 | **Convention**                                                                  | **Description**                                                        |
 +=================================================================================+========================================================================+
-| .. note:: YMonkey is compatible with YGorilla.                                  | Calls attention to additional information.                             |
+| .. note:: Storm is compatible with Tej.                                         | Calls attention to additional information.                             |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
-| .. warning:: YMonkey does not run on Node.js.                                   | Indicates an important caution or warning related to a procedural step |
+| .. warning:: Storm does not replace the need for batch operations.              | Indicates an important caution or warning related to a procedural step |
 |                                                                                 | or general information.                                                |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
-| .. tip:: It's easy to create templates with YChimp.                             | Indicates a best practice that we recommend.                           |
+| .. tip:: It's easy to use Yahoo Spouts to tap into data.                        | Indicates a best practice that we recommend.                           |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
-| .. important:: Before you install YMonkey, be sure to review the prerequisites. | Emphasizes the importance of information given earlier.                |
+| .. important:: Be sure to use a non-production environment for testing Storm.   | Emphasizes the importance of information given earlier.                |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
-| .. error:: Can't find ``ymonkey-renderer``.                                     | Indicates a commonly seen error message that users may see.            |
+| .. error:: Topology submission exception.                                       | Indicates a commonly seen error message that users may see.            |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
-| .. caution:: Use ``wss`` for WebSocket connections in YMonkey.                  | Advises user to perform actions to avoid errors.                       |
+| .. caution:: Your topology must be assigned to a supervisor.                    | Advises user to perform actions to avoid errors.                       |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
+
 .. toctree::
    :maxdepth: 2
    :hidden:
