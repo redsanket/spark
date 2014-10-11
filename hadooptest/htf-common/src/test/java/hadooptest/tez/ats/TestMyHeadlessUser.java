@@ -86,7 +86,33 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 					+ cookies.get(key));
 		}
 		ATSUtils atsUtils = new ATSUtils();
-		atsUtils.processDagIdResponse(responseAsString);
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
+		consumedResponse.dump();
+		TestSession.logger.info("############################################ CONTAINER ID NOW ########################################################################");
+		//Container ID
+		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
+		response = given()
+				.cookie(hitusr_1_cookie).get(url);
+		responseAsString = response.getBody().asString();
+		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID);
+		consumedResponse.dump();
+//		TestSession.logger.info("############################################ WITH FILTER NOW ########################################################################");
+//		//Container ID
+//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
+//		response = given()
+//				.cookie(hitusr_1_cookie).get(url);
+//		responseAsString = response.getBody().asString();
+//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
+//		consumedResponse.dump();
+		TestSession.logger.info("############################################ WITH APPLICATION ATTEMPT NOW ########################################################################");
+		//Container ID
+		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_APPLICATION_ATTEMPT";
+		response = given()
+				.cookie(hitusr_1_cookie).get(url);
+		responseAsString = response.getBody().asString();
+		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT);
+		consumedResponse.dump();
+
 	}
 	
 //	@Test

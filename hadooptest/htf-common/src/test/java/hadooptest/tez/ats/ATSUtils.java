@@ -1,5 +1,6 @@
 package hadooptest.tez.ats;
 
+import hadooptest.TestSession;
 import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
 
 import java.util.ArrayList;
@@ -12,37 +13,89 @@ import org.json.simple.parser.ParseException;
 
 public class ATSUtils {
 
-	public GenericATSResponseBO processDagIdResponse(String responseAsString)
+	public GenericATSResponseBO processATSResponse(String responseAsJsonString, EntityTypes entityType)
 			throws ParseException {
 		GenericATSResponseBO genericATSResponse = new GenericATSResponseBO();
 		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(responseAsString);
+		Object obj = parser.parse(responseAsJsonString);
 		JSONObject jsonObject = (JSONObject) obj;
 
+		EntityInGenericATSResponseBO responseBuiltThusFar;
+		EntityInGenericATSResponseBO completelyProcessedSingleEntity;
 		// ENTITIES
 		JSONArray entities = (JSONArray) jsonObject.get("entities");
 		if (entities != null) {
 			for (int entityIdx = 0; entityIdx < entities.size(); entityIdx++) {
 				JSONObject aDagEntityJson = (JSONObject) entities
 						.get(entityIdx);
-				// FINALLY ADD THE ENTITY
-				genericATSResponse.entities
-						.add(consumeDagIdResponse(aDagEntityJson));
+				 responseBuiltThusFar = consumeCommonPortionsInResponse(aDagEntityJson, entityType);
+				 completelyProcessedSingleEntity = 
+						 consumeOtherInfoBasedOnEntityType(responseBuiltThusFar,aDagEntityJson, entityType);
+				 genericATSResponse.entities.add(completelyProcessedSingleEntity);
 			}
 		} else {
 			JSONObject aDagEntityJson = jsonObject;
-			// FINALLY ADD THE ENTITY
-			genericATSResponse.entities
-					.add(consumeDagIdResponse(aDagEntityJson));
+			 responseBuiltThusFar = consumeCommonPortionsInResponse(aDagEntityJson, entityType);
+			 completelyProcessedSingleEntity = 
+					 consumeOtherInfoBasedOnEntityType(responseBuiltThusFar,aDagEntityJson, entityType);
+			 genericATSResponse.entities.add(completelyProcessedSingleEntity);
 		}
 
-		genericATSResponse.dump();
 		return genericATSResponse;
 	}
+	
+	private EntityInGenericATSResponseBO consumeOtherInfoBasedOnEntityType(
+			EntityInGenericATSResponseBO entityPopulatedThusFar,
+			JSONObject aDagEntityJson, EntityTypes entityType){
+		
+		switch (entityType){
+			case TEZ_DAG_ID:
+				consumeOtherInfoFromDagIdResponse(entityPopulatedThusFar, aDagEntityJson);
+				TestSession.logger.info("Ok in Tez_Gag_Id");
+				break;
+			case TEZ_CONTAINER_ID:
+				consumeOtherInfoFromContainerIdResponse(entityPopulatedThusFar, aDagEntityJson);
+				break;
+			case TEZ_APPLICATION_ATTEMPT:
+				consumeOtherInfoFromApplicationAttemptResponse(entityPopulatedThusFar, aDagEntityJson);
+				break;
+			case TEZ_TASK_ATTEMPT_ID:
+				TestSession.logger.info("Not implemented yet.... !");
+				break;
+			case TEZ_TASK_ID:
+				TestSession.logger.info("Not implemented yet.... !");
+				break;
+			case TEZ_VERTEX_ID:
+				TestSession.logger.info("Not implemented yet.... !");
+				break;
+		
+		}
+		return entityPopulatedThusFar;
+	}
 
-	EntityInGenericATSResponseBO consumeDagIdResponse(JSONObject aDagEntityJson) {
-		EntityInGenericATSResponseBO anEntityInGenericATSResponseBO = 
-				new EntityInGenericATSResponseBO(EntityTypes.TEZ_DAG_ID);
+	EntityInGenericATSResponseBO consumeCommonPortionsInResponse(JSONObject aDagEntityJson, EntityTypes entityType) {
+		EntityInGenericATSResponseBO anEntityInGenericATSResponseBO = null;
+		switch (entityType){
+			case TEZ_DAG_ID:
+				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_DAG_ID);
+				TestSession.logger.info("Ok in Tez_Gag_Id");
+				break;
+			case TEZ_CONTAINER_ID:
+				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_CONTAINER_ID);
+				break;
+			case TEZ_APPLICATION_ATTEMPT:
+				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_APPLICATION_ATTEMPT);
+				break;
+			case TEZ_TASK_ATTEMPT_ID:
+				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_TASK_ATTEMPT_ID);
+				break;
+			case TEZ_TASK_ID:
+				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_TASK_ID);
+				break;
+			case TEZ_VERTEX_ID:
+				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_VERTEX_ID);
+				break;			
+		}		
 
 		JSONArray eventsJsonArray = (JSONArray) (aDagEntityJson.get("events"));
 		for (int eventIdx = 0; eventIdx < eventsJsonArray.size(); eventIdx++) {
@@ -64,7 +117,8 @@ public class ATSUtils {
 		JSONObject relatedEntitiesJson = (JSONObject) (aDagEntityJson.get("relatedentities"));
 		for (String relatedEntityKey:anEntityInGenericATSResponseBO.relatedentities.keySet()){
 			List<String>relatedEntitiesList = new ArrayList<String>();
-			JSONArray relatedEntitiesJsonArray = (JSONArray) relatedEntitiesJson.get(relatedEntityKey);			
+			JSONArray relatedEntitiesJsonArray = (JSONArray) relatedEntitiesJson.get(relatedEntityKey);
+			TestSession.logger.info(relatedEntityKey);
 			for (int ii = 0; ii < relatedEntitiesJsonArray.size(); ii++) {
 				String aRelatedEntity = (String) relatedEntitiesJsonArray.get(ii);
 				relatedEntitiesList.add(aRelatedEntity);
@@ -84,8 +138,24 @@ public class ATSUtils {
 			
 		}
 
+		return anEntityInGenericATSResponseBO;
+	}
+	
+	/**
+	 * The HTTP response across enities has certain common elements. Those are handled by the
+	 * {@code} consumeCommonPortionsInResponse. But the otherInfo varies. Hence for each of the
+	 * entities, we will just write specialized functions to consume the said otherInfo. This
+	 * function consumes otherInfo for TEZ_DAG_ID
+	 * @param entityPopulatedThusFar
+	 * @param aDagEntityJson
+	 * @return
+	 */
+	EntityInGenericATSResponseBO consumeOtherInfoFromDagIdResponse(
+			EntityInGenericATSResponseBO entityPopulatedThusFar,
+			JSONObject aDagEntityJson) {
+
 		// OTHER INFO
-		DagOtherInfoBO dagOtherInfoBO = new DagOtherInfoBO();
+		TezDagIdOtherInfoBO dagOtherInfoBO = new TezDagIdOtherInfoBO();
 		JSONObject otherInfoJson = (JSONObject) (aDagEntityJson.get("otherinfo"));
 		dagOtherInfoBO.startTime = (Long) otherInfoJson.get("startTime");
 		dagOtherInfoBO.status = (String) otherInfoJson.get("status");
@@ -94,7 +164,7 @@ public class ATSUtils {
 		dagOtherInfoBO.applicationId = (String) otherInfoJson.get("applicationId");
 
 		// DagPlan is a part of it
-		DagOtherInfoBO.DagPlanBO dagPlanBO = new DagOtherInfoBO.DagPlanBO();
+		TezDagIdOtherInfoBO.DagPlanBO dagPlanBO = new TezDagIdOtherInfoBO.DagPlanBO();
 		JSONObject dagPlanJson = (JSONObject) otherInfoJson.get("dagPlan");
 		dagPlanBO.dagName = (String) dagPlanJson.get("dagName");
 		dagPlanBO.version = (Long) dagPlanJson.get("version");
@@ -102,7 +172,7 @@ public class ATSUtils {
 		// dagPlan vertices
 		for (int vv = 0; vv < dagPlanVerticesJsonArray.size(); vv++) {
 			JSONObject vertexJson = (JSONObject) dagPlanVerticesJsonArray.get(vv);
-			DagOtherInfoBO.DagPlanBO.DagPlanVertexBO aVertexEntityInDagPlanBO = new DagOtherInfoBO.DagPlanBO.DagPlanVertexBO();
+			TezDagIdOtherInfoBO.DagPlanBO.DagPlanVertexBO aVertexEntityInDagPlanBO = new TezDagIdOtherInfoBO.DagPlanBO.DagPlanVertexBO();
 			aVertexEntityInDagPlanBO.vertexName = (String) vertexJson.get("vertexName");
 			aVertexEntityInDagPlanBO.processorClass = (String) vertexJson.get("processorClass");
 			// outedges
@@ -124,8 +194,8 @@ public class ATSUtils {
 			JSONArray additionalInputsJsonArray = (JSONArray) vertexJson.get("additionalInputs");
 			if (additionalInputsJsonArray != null) {
 				for (int aa = 0; aa < additionalInputsJsonArray.size(); aa++) {
-					DagOtherInfoBO.DagPlanBO.DagPlanVertexBO.DagVertexAdditionalInputBO 
-						dagVertexAdditionalInput = new DagOtherInfoBO.DagPlanBO.DagPlanVertexBO.DagVertexAdditionalInputBO();
+					TezDagIdOtherInfoBO.DagPlanBO.DagPlanVertexBO.DagVertexAdditionalInputBO 
+						dagVertexAdditionalInput = new TezDagIdOtherInfoBO.DagPlanBO.DagPlanVertexBO.DagVertexAdditionalInputBO();
 					JSONObject additionalInputsJson = (JSONObject) additionalInputsJsonArray.get(aa);
 					dagVertexAdditionalInput.name = (String) additionalInputsJson.get("name");
 					dagVertexAdditionalInput.clazz = (String) additionalInputsJson.get("class");
@@ -144,7 +214,7 @@ public class ATSUtils {
 		JSONArray edgesJsonArray = (JSONArray) (dagPlanJson.get("edges"));
 		for (int ee = 0; ee < edgesJsonArray.size(); ee++) {
 			JSONObject anEdgeJson = (JSONObject) edgesJsonArray.get(ee);
-			DagOtherInfoBO.DagPlanBO.DagPlanEdgeBO aDagEdgeBO = new DagOtherInfoBO.DagPlanBO.DagPlanEdgeBO();
+			TezDagIdOtherInfoBO.DagPlanBO.DagPlanEdgeBO aDagEdgeBO = new TezDagIdOtherInfoBO.DagPlanBO.DagPlanEdgeBO();
 			aDagEdgeBO.edgeId = (String) anEdgeJson.get("edgeId");
 			aDagEdgeBO.inputVertexName = (String) anEdgeJson
 					.get("inputVertexName");
@@ -168,8 +238,60 @@ public class ATSUtils {
 		dagOtherInfoBO.dagPlan = dagPlanBO;
 
 		// Add otherInfo to DagEntityBO
-		anEntityInGenericATSResponseBO.otherinfo = dagOtherInfoBO;
+		entityPopulatedThusFar.otherinfo = dagOtherInfoBO;
 
-		return anEntityInGenericATSResponseBO;
+		return entityPopulatedThusFar;
 	}
+
+	/**
+	 * The HTTP response across enities has certain common elements. Those are handled by the
+	 * {@code} consumeCommonPortionsInResponse. But the otherInfo varies. Hence for each of the
+	 * entities, we will just write specialized functions to consume the said otherInfo. This
+	 * function consumes otherInfo for TEZ_CONTAINER_ID
+	 * @param entityPopulatedThusFar
+	 * @param aDagEntityJson
+	 * @return
+	 */
+
+	EntityInGenericATSResponseBO consumeOtherInfoFromContainerIdResponse(
+			EntityInGenericATSResponseBO entityPopulatedThusFar,
+			JSONObject aDagEntityJson) {
+
+		// OTHER INFO
+		TezContainerIdOtherInfoBO containerIdgOtherInfoBO = new TezContainerIdOtherInfoBO();
+		JSONObject otherInfoJson = (JSONObject) (aDagEntityJson.get("otherinfo"));
+		containerIdgOtherInfoBO.exitStatus = (Long) otherInfoJson.get("exitStatus");
+		containerIdgOtherInfoBO.endTime = (Long) otherInfoJson.get("endTime");
+
+		// Add otherInfo to DagEntityBO
+		entityPopulatedThusFar.otherinfo = containerIdgOtherInfoBO;
+
+		return entityPopulatedThusFar;
+	}
+
+	/**
+	 * The HTTP response across enities has certain common elements. Those are handled by the
+	 * {@code} consumeCommonPortionsInResponse. But the otherInfo varies. Hence for each of the
+	 * entities, we will just write specialized functions to consume the said otherInfo. This
+	 * function consumes otherInfo for TEZ_CONTAINER_ID
+	 * @param entityPopulatedThusFar
+	 * @param aDagEntityJson
+	 * @return
+	 */
+
+	EntityInGenericATSResponseBO consumeOtherInfoFromApplicationAttemptResponse(
+			EntityInGenericATSResponseBO entityPopulatedThusFar,
+			JSONObject aDagEntityJson) {
+
+		// OTHER INFO
+		TezApplicationAttemptOtherInfoBO applicationAttemptOtherInfoBO = new TezApplicationAttemptOtherInfoBO();
+		JSONObject otherInfoJson = (JSONObject) (aDagEntityJson.get("otherinfo"));
+		applicationAttemptOtherInfoBO.appSubmitTime = (Long) otherInfoJson.get("appSubmitTime");
+
+		// Add otherInfo to DagEntityBO
+		entityPopulatedThusFar.otherinfo = applicationAttemptOtherInfoBO;
+
+		return entityPopulatedThusFar;
+	}
+
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import hadooptest.TestSession;
 
-public class DagOtherInfoBO extends ATSOtherInfoEntityBO {
+public class TezDagIdOtherInfoBO extends ATSOtherInfoEntityBO {
 	public Long startTime;
 	public String status;
 	public Long initTime;
@@ -13,7 +13,7 @@ public class DagOtherInfoBO extends ATSOtherInfoEntityBO {
 	public String applicationId;
 	public DagPlanBO dagPlan;
 
-	public DagOtherInfoBO() {
+	public TezDagIdOtherInfoBO() {
 		this.dagPlan = new DagPlanBO();
 	}
 
