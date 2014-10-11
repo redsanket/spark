@@ -18,7 +18,7 @@ my %opts;
 
 # Default values
 $opts{igor_namespace} = "grid_re.clusters";
-$opts{gw_dest_dir} = "/home/y/var/grid_re/builds/workspace";
+$opts{gw_dest_dir} = "/home/y/var/gridre/workspace";
 
 # Get CLI options
 GetOptions(
