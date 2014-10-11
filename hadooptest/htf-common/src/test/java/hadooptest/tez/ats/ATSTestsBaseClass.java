@@ -33,11 +33,20 @@ public class ATSTestsBaseClass extends TestSession {
 	public static boolean timelineserverStarted = false;
 
 	public static int HTTP_ATS_PORT = 8188;
-//	public static int HTTPS_ATS_PORT = 8190;
 	public static String hitusr_1_cookie = null;
 	public static String hitusr_2_cookie = null;
 	public static String hitusr_3_cookie = null;
 	public static String hitusr_4_cookie = null;
+	
+	public enum EntityTypes {
+		  TEZ_APPLICATION_ATTEMPT,
+		  TEZ_CONTAINER_ID,
+		  TEZ_DAG_ID,
+		  TEZ_VERTEX_ID,
+		  TEZ_TASK_ID,
+		  TEZ_TASK_ATTEMPT_ID,
+		}
+
 
 	@Before
 	public void getCookiesForAllUsers() throws Exception {

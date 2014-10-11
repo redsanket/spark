@@ -6,7 +6,6 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
-import hadooptest.tez.ats.dag.ATSUtils;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -87,7 +86,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 					+ cookies.get(key));
 		}
 		ATSUtils atsUtils = new ATSUtils();
-		atsUtils.processDagResponse(responseAsString);
+		atsUtils.processDagIdResponse(responseAsString);
 	}
 	
 //	@Test

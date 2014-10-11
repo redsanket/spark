@@ -1,9 +1,9 @@
-package hadooptest.tez.ats.dag;
+package hadooptest.tez.ats;
 import hadooptest.TestSession;
 
 import org.json.simple.JSONObject;
 
-public class DagEventsEntityBO {
+public class ATSEventsEntityBO {
 	public Long timestamp;
 	public String eventtype;
 	public JSONObject eventinfo;
