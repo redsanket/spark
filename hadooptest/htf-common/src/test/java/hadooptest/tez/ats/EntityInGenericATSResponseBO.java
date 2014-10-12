@@ -8,7 +8,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * A REST call into a timelineserver returns either a single entity or a
+ * JSONArray of entities. An entity has a set of common keys and a "otherinfo"
+ * key that varies from call to call. 
+ * Also within the common portion the "primaryfilters" key can have different
+ * keys based on the REST call. To keep the downstream code generic this
+ * class cares for seeding those keys, when it is constructed, so that the clients
+ * are agnostic to the details and can work off of keySet() contents.
+ * The otherInfo object is null, because it is an abstract class here. Since the info
+ * varies drastically from call to call, the {@code ATSUtils} class provides
+ * methods that provide the correct implementation Object. 
+ * @author tiwari
+ *
+ */
 public class EntityInGenericATSResponseBO {
 	public List<ATSEventsEntityBO> events;
 	public String entityType;

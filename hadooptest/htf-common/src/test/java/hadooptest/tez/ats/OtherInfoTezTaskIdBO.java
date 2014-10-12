@@ -4,6 +4,14 @@ import hadooptest.TestSession;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * This class provides the real Object to be used for the abstract
+ * parent class {@code ATSOtherInfoEntityBO}. The object is instantiated
+ * in individual methods in {@code ATSUtils} that consume the "otherinfo"
+ * key in the response.
+ * @author tiwari
+ *
+ */
 
 public class OtherInfoTezTaskIdBO extends ATSOtherInfoEntityBO {
 	public Long startTime;

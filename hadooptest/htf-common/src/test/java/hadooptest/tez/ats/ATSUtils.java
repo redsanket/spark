@@ -1,10 +1,8 @@
 package hadooptest.tez.ats;
 
-import hadooptest.TestSession;
 import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
-import hadooptest.tez.ats.CounterGroup.Counterr;
+import hadooptest.tez.ats.CounterGroup.Counter;
 import hadooptest.tez.ats.OtherInfoTezVertexIdBO.Stats;
-import hadooptest.tez.ats.CounterGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +11,25 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
+/**
+ * This class has all the methods needed to consume a REST response received from the
+ * timelineserver.  
+ * @author tiwari
+ *
+ */
 public class ATSUtils {
-
+/**
+ * Tests would call this method and pass the JSON response body. EntityType 
+ * e.g TEZ_TASK_ATTEMPT_ID or TEZ_DAG_ID etc is also passed to this method.
+ * The reason being, in the response there is a field called primaryFilters
+ * that can vary. So before we start consuming the data, the response "BO"
+ * (Business Object) class would pre-populate the expected keys. This 
+ * helps in keeping the functions generic and fosters reuse.
+ * @param responseAsJsonString
+ * @param entityType
+ * @return
+ * @throws ParseException
+ */
 	public GenericATSResponseBO processATSResponse(String responseAsJsonString, EntityTypes entityType)
 			throws ParseException {
 		GenericATSResponseBO genericATSResponse = new GenericATSResponseBO();
@@ -42,6 +56,17 @@ public class ATSUtils {
 		return genericATSResponse;
 	}
 	
+	/**
+	 * The REST response contains two sections. One I've observed is common across all the
+	 * responses and the other (called "otherinfo") is very specific to the call that has
+	 * been made. Thats the reason why {@code ATSOtherInfoEntityBO} class has been made
+	 * abstract. The {@code consumeOtherInfoFromDagId} method are called based upon the
+	 * entity type. Thats where the correct Object is constructed and assigned to the
+	 * otherInfo property.
+	 * @param aDagEntityJson
+	 * @param entityType
+	 * @return
+	 */
 	private EntityInGenericATSResponseBO consumeResponse(
 			JSONObject aDagEntityJson, EntityTypes entityType){
 		
@@ -74,7 +99,16 @@ public class ATSUtils {
 		}
 		return anEntityInGenericATSResponseBO;
 	}
-
+	
+	/**
+	 * This method consumes the common portion of the REST response. Calls such as
+	 * /ws/v1/timeline/TEZ_TASK_ATTEMPT_ID  or /ws/v1/timeline/TEZ_TASK_ID etc
+	 * have a set of keys that are common, so this is a common method to consume
+	 * those values
+	 * @param aDagEntityJson
+	 * @param anEntityInGenericATSResponseBO
+	 * @return
+	 */
 	EntityInGenericATSResponseBO consumeCommonPortionsInResponse(JSONObject aDagEntityJson, 
 			EntityInGenericATSResponseBO anEntityInGenericATSResponseBO) {
 
@@ -451,7 +485,7 @@ public class ATSUtils {
 				JSONArray countersJsonArray =  (JSONArray) aCounterGroupJson.get("counters");
 				for(int yy=0;yy<countersJsonArray.size();yy++){
 					JSONObject aCounterJson = (JSONObject) countersJsonArray.get(yy);
-					Counterr counterBO = new Counterr();
+					Counter counterBO = new Counter();
 					counterBO.counterName = (String) aCounterJson.get("counterName");
 					counterBO.counterDisplayName = (String) aCounterJson.get("counterDisplayName");
 					counterBO.counterValue = (Long) aCounterJson.get("counterValue");
