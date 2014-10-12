@@ -22,32 +22,18 @@ import org.apache.hadoop.yarn.client.api.TimelineClient;
 import org.apache.hadoop.yarn.client.api.impl.TimelineClientImpl;
 import org.apache.tez.client.TezClient;
 import org.apache.tez.dag.api.TezConfiguration;
-import org.apache.tez.dag.api.client.DAGClient;
-import org.apache.tez.dag.api.client.DAGClientImpl;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response;
-import com.sun.jersey.api.client.ClientResponse;
+
 @Category(SerialTests.class)
 public class TestMyHeadlessUser extends ATSTestsBaseClass {
 	
-//	@Test
-	public void test4() throws IOException, InterruptedException{
-		TezClient tezClient =  TezClient.create("maaTezClient", new TezConfiguration());
-		
-		Cluster aCluster = new Cluster(TestSession.cluster.getConf());
-		for (JobStatus aJobStatus:aCluster.getAllJobStatuses()){
-			TestSession.logger.info("Amit: " + aJobStatus.getJobName());
-		}
-	}
 	@Test
-	public void test1() throws Exception {
+	public void testDagIdResponse() throws Exception {
 		String rmHostname = null;
 		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
@@ -88,58 +74,191 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		ATSUtils atsUtils = new ATSUtils();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
 		consumedResponse.dump();
-//		TestSession.logger.info("############################################ CONTAINER ID NOW ########################################################################");
-//		//Container ID
-//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
-//		response = given()
-//				.cookie(hitusr_1_cookie).get(url);
-//		responseAsString = response.getBody().asString();
-//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID);
-//		consumedResponse.dump();
-//		TestSession.logger.info("############################################ WITH FILTER NOW ########################################################################");
-//		//Container ID
-//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
-//		response = given()
-//				.cookie(hitusr_1_cookie).get(url);
-//		responseAsString = response.getBody().asString();
-//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
-//		consumedResponse.dump();
-//		TestSession.logger.info("############################################ WITH APPLICATION ATTEMPT NOW ########################################################################");
-//		//Container ID
-//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_APPLICATION_ATTEMPT";
-//		response = given()
-//				.cookie(hitusr_1_cookie).get(url);
-//		responseAsString = response.getBody().asString();
-//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT);
-//		consumedResponse.dump();
-//
-//		TestSession.logger.info("############################################ WITH TEZ VERTEX ID NOW ########################################################################");
-//		//Container ID
-//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_VERTEX_ID";
-//		response = given()
-//				.cookie(hitusr_1_cookie).get(url);
-//		responseAsString = response.getBody().asString();
-//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_VERTEX_ID);
-//		consumedResponse.dump();
 
-//		TestSession.logger.info("############################################ WITH TEZ TASK ID NOW ########################################################################");
-//		//Container ID
-//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ID";
-//		response = given()
-//				.cookie(hitusr_1_cookie).get(url);
-//		responseAsString = response.getBody().asString();
-//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ID);
-//		consumedResponse.dump();
-		TestSession.logger.info("############################################ WITH TEZ TASK ATTEMPT ID NOW ########################################################################");
+	}
+
+	@Test
+	public void testContainerIdResponse() throws Exception {
+		String rmHostname = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated hostname is:"
+					+ nodesHash.get(key).getHostname());
+			rmHostname = nodesHash.get(key).getHostname();
+		}
+
+		if (!timelineserverStarted){
+//			startTimelineServerOnRM(rmHostname);
+		}		
+
+
+		ATSUtils atsUtils = new ATSUtils();
+		TestSession.logger.info("############################################ CONTAINER ID NOW ########################################################################");
 		//Container ID
-		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ATTEMPT_ID";
-		response = given()
-				.cookie(hitusr_1_cookie).get(url);
-		responseAsString = response.getBody().asString();
-		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID);
+		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
+		Response response = given().cookie(hitusr_1_cookie).get(url);
+		String responseAsString = response.getBody().asString();
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID);
 		consumedResponse.dump();
 
 	}
+
+	@Ignore("Unless http://bug.corp.yahoo.com/show_bug.cgi?id=7166198 is addressed")
+	@Test
+	public void testDagIdWithFilterResponse() throws Exception {
+		String rmHostname = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated hostname is:"
+					+ nodesHash.get(key).getHostname());
+			rmHostname = nodesHash.get(key).getHostname();
+		}
+
+		if (!timelineserverStarted){
+//			startTimelineServerOnRM(rmHostname);
+		}		
+
+		ATSUtils atsUtils = new ATSUtils();
+		TestSession.logger.info("############################################ WITH FILTER NOW ########################################################################");
+		//Container ID
+		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
+		Response response = given().cookie(hitusr_1_cookie).get(url);
+		String responseAsString = response.getBody().asString();
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
+		consumedResponse.dump();
+
+	}
+	
+	@Test
+	public void testApplicationAttemptResponse() throws Exception {
+		String rmHostname = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated hostname is:"
+					+ nodesHash.get(key).getHostname());
+			rmHostname = nodesHash.get(key).getHostname();
+		}
+
+		if (!timelineserverStarted){
+//			startTimelineServerOnRM(rmHostname);
+		}		
+
+		ATSUtils atsUtils = new ATSUtils();
+		TestSession.logger.info("############################################ WITH APPLICATION ATTEMPT NOW ########################################################################");
+		//Container ID
+		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_APPLICATION_ATTEMPT";
+		Response response = given()
+				.cookie(hitusr_1_cookie).get(url);
+		String responseAsString = response.getBody().asString();
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT);
+		consumedResponse.dump();
+
+	}
+	
+	@Test
+	public void testVertexIdResponse() throws Exception {
+		String rmHostname = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated hostname is:"
+					+ nodesHash.get(key).getHostname());
+			rmHostname = nodesHash.get(key).getHostname();
+		}
+
+		if (!timelineserverStarted){
+//			startTimelineServerOnRM(rmHostname);
+		}		
+
+		ATSUtils atsUtils = new ATSUtils();
+
+		TestSession.logger.info("############################################ WITH TEZ VERTEX ID NOW ########################################################################");
+		//Container ID
+		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_VERTEX_ID";
+		Response response = given()
+				.cookie(hitusr_1_cookie).get(url);
+		String responseAsString = response.getBody().asString();
+		GenericATSResponseBO  consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_VERTEX_ID);
+		consumedResponse.dump();
+
+	}
+	
+	@Test
+	public void testTaskIdResponse() throws Exception {
+		String rmHostname = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated hostname is:"
+					+ nodesHash.get(key).getHostname());
+			rmHostname = nodesHash.get(key).getHostname();
+		}
+
+		if (!timelineserverStarted){
+//			startTimelineServerOnRM(rmHostname);
+		}		
+
+		ATSUtils atsUtils = new ATSUtils();
+
+		TestSession.logger.info("############################################ WITH TEZ TASK ID NOW ########################################################################");
+		//Container ID
+		 String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ID";
+		Response response = given()
+				.cookie(hitusr_1_cookie).get(url);
+		String responseAsString = response.getBody().asString();
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ID);
+		consumedResponse.dump();
+
+	}
+	
+	@Test
+	public void testTaskAttemptIdResponse() throws Exception {
+		String rmHostname = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated hostname is:"
+					+ nodesHash.get(key).getHostname());
+			rmHostname = nodesHash.get(key).getHostname();
+		}
+
+		if (!timelineserverStarted){
+//			startTimelineServerOnRM(rmHostname);
+		}		
+
+		ATSUtils atsUtils = new ATSUtils();
+
+		TestSession.logger.info("############################################ WITH TEZ TASK ATTEMPT ID NOW ########################################################################");
+		//Container ID
+		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ATTEMPT_ID";
+		Response response = given().cookie(hitusr_1_cookie).get(url);
+		String responseAsString = response.getBody().asString();
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID);
+		consumedResponse.dump();
+
+	}
+	
 	
 //	@Test
 	public void testTimelineClient(){
@@ -175,5 +294,14 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		    return client;
 		  }
 
-	
+//		@Test
+		public void test4() throws IOException, InterruptedException{
+			TezClient tezClient =  TezClient.create("maaTezClient", new TezConfiguration());
+			
+			Cluster aCluster = new Cluster(TestSession.cluster.getConf());
+			for (JobStatus aJobStatus:aCluster.getAllJobStatuses()){
+				TestSession.logger.info("Amit: " + aJobStatus.getJobName());
+			}
+		}
+
 }
