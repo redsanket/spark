@@ -88,14 +88,14 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		ATSUtils atsUtils = new ATSUtils();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
 		consumedResponse.dump();
-		TestSession.logger.info("############################################ CONTAINER ID NOW ########################################################################");
-		//Container ID
-		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
-		response = given()
-				.cookie(hitusr_1_cookie).get(url);
-		responseAsString = response.getBody().asString();
-		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID);
-		consumedResponse.dump();
+//		TestSession.logger.info("############################################ CONTAINER ID NOW ########################################################################");
+//		//Container ID
+//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
+//		response = given()
+//				.cookie(hitusr_1_cookie).get(url);
+//		responseAsString = response.getBody().asString();
+//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID);
+//		consumedResponse.dump();
 //		TestSession.logger.info("############################################ WITH FILTER NOW ########################################################################");
 //		//Container ID
 //		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
@@ -121,6 +121,23 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //		responseAsString = response.getBody().asString();
 //		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_VERTEX_ID);
 //		consumedResponse.dump();
+
+//		TestSession.logger.info("############################################ WITH TEZ TASK ID NOW ########################################################################");
+//		//Container ID
+//		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ID";
+//		response = given()
+//				.cookie(hitusr_1_cookie).get(url);
+//		responseAsString = response.getBody().asString();
+//		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ID);
+//		consumedResponse.dump();
+		TestSession.logger.info("############################################ WITH TEZ TASK ATTEMPT ID NOW ########################################################################");
+		//Container ID
+		 url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ATTEMPT_ID";
+		response = given()
+				.cookie(hitusr_1_cookie).get(url);
+		responseAsString = response.getBody().asString();
+		consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID);
+		consumedResponse.dump();
 
 	}
 	

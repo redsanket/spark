@@ -23,7 +23,6 @@ public class ATSUtils {
 		Object obj = parser.parse(responseAsJsonString);
 		JSONObject jsonObject = (JSONObject) obj;
 
-		EntityInGenericATSResponseBO responseBuiltThusFar;
 		EntityInGenericATSResponseBO completelyProcessedSingleEntity;
 		// ENTITIES
 		JSONArray entities = (JSONArray) jsonObject.get("entities");
@@ -31,74 +30,53 @@ public class ATSUtils {
 			for (int entityIdx = 0; entityIdx < entities.size(); entityIdx++) {
 				JSONObject aDagEntityJson = (JSONObject) entities
 						.get(entityIdx);
-				 responseBuiltThusFar = consumeCommonPortionsInResponse(aDagEntityJson, entityType);
-				 completelyProcessedSingleEntity = 
-						 consumeOtherInfoBasedOnEntityType(responseBuiltThusFar,aDagEntityJson, entityType);
-				 genericATSResponse.entities.add(completelyProcessedSingleEntity);
+				completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType);
+				genericATSResponse.entities.add(completelyProcessedSingleEntity);
 			}
 		} else {
 			JSONObject aDagEntityJson = jsonObject;
-			 responseBuiltThusFar = consumeCommonPortionsInResponse(aDagEntityJson, entityType);
-			 completelyProcessedSingleEntity = 
-					 consumeOtherInfoBasedOnEntityType(responseBuiltThusFar,aDagEntityJson, entityType);
-			 genericATSResponse.entities.add(completelyProcessedSingleEntity);
+			completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType);
+			genericATSResponse.entities.add(completelyProcessedSingleEntity);
 		}
 
 		return genericATSResponse;
 	}
 	
-	private EntityInGenericATSResponseBO consumeOtherInfoBasedOnEntityType(
-			EntityInGenericATSResponseBO entityPopulatedThusFar,
+	private EntityInGenericATSResponseBO consumeResponse(
 			JSONObject aDagEntityJson, EntityTypes entityType){
+		
+		EntityInGenericATSResponseBO anEntityInGenericATSResponseBO =
+				new EntityInGenericATSResponseBO(entityType);
+		
+		anEntityInGenericATSResponseBO = consumeCommonPortionsInResponse(
+				aDagEntityJson, anEntityInGenericATSResponseBO);
 		
 		switch (entityType){
 			case TEZ_DAG_ID:
-				consumeOtherInfoFromDagId(entityPopulatedThusFar, aDagEntityJson);
-				TestSession.logger.info("Ok in Tez_Gag_Id");
+				consumeOtherInfoFromDagId(anEntityInGenericATSResponseBO, aDagEntityJson);
 				break;
 			case TEZ_CONTAINER_ID:
-				consumeOtherInfoFromContainerId(entityPopulatedThusFar, aDagEntityJson);
+				consumeOtherInfoFromContainerId(anEntityInGenericATSResponseBO, aDagEntityJson);
 				break;
 			case TEZ_APPLICATION_ATTEMPT:
-				consumeOtherInfoFromApplicationAttempt(entityPopulatedThusFar, aDagEntityJson);
+				consumeOtherInfoFromApplicationAttempt(anEntityInGenericATSResponseBO, aDagEntityJson);
 				break;
 			case TEZ_TASK_ATTEMPT_ID:
-				TestSession.logger.info("Not implemented yet.... !");
+				consumeOtherInfoFromTezTaskAttemptId(anEntityInGenericATSResponseBO, aDagEntityJson);
 				break;
 			case TEZ_TASK_ID:
-				TestSession.logger.info("Not implemented yet.... !");
+				consumeOtherInfoFromTezTaskId(anEntityInGenericATSResponseBO, aDagEntityJson);
 				break;
 			case TEZ_VERTEX_ID:
-				consumeOtherInfoFromTezVertexId(entityPopulatedThusFar, aDagEntityJson);
+				consumeOtherInfoFromTezVertexId(anEntityInGenericATSResponseBO, aDagEntityJson);
 				break;
 		
 		}
-		return entityPopulatedThusFar;
+		return anEntityInGenericATSResponseBO;
 	}
 
-	EntityInGenericATSResponseBO consumeCommonPortionsInResponse(JSONObject aDagEntityJson, EntityTypes entityType) {
-		EntityInGenericATSResponseBO anEntityInGenericATSResponseBO = null;
-		switch (entityType){
-			case TEZ_DAG_ID:
-				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_DAG_ID);
-				TestSession.logger.info("Ok in Tez_Gag_Id");
-				break;
-			case TEZ_CONTAINER_ID:
-				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_CONTAINER_ID);
-				break;
-			case TEZ_APPLICATION_ATTEMPT:
-				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_APPLICATION_ATTEMPT);
-				break;
-			case TEZ_TASK_ATTEMPT_ID:
-				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_TASK_ATTEMPT_ID);
-				break;
-			case TEZ_TASK_ID:
-				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_TASK_ID);
-				break;
-			case TEZ_VERTEX_ID:
-				anEntityInGenericATSResponseBO = new EntityInGenericATSResponseBO(EntityTypes.TEZ_VERTEX_ID);
-				break;			
-		}		
+	EntityInGenericATSResponseBO consumeCommonPortionsInResponse(JSONObject aDagEntityJson, 
+			EntityInGenericATSResponseBO anEntityInGenericATSResponseBO) {
 
 		JSONArray eventsJsonArray = (JSONArray) (aDagEntityJson.get("events"));
 		for (int eventIdx = 0; eventIdx < eventsJsonArray.size(); eventIdx++) {
@@ -383,7 +361,77 @@ public class ATSUtils {
 
 		return entityPopulatedThusFar;
 	}
+
+	/**
+	 * The HTTP response across enities has certain common elements. Those are handled by the
+	 * {@code} consumeCommonPortionsInResponse. But the otherInfo varies. Hence for each of the
+	 * entities, we will just write specialized functions to consume the said otherInfo. This
+	 * function consumes otherInfo for TEZ_TASK_ID and provides a specialized class to the
+	 * abstract implementation.
+	 * @param entityPopulatedThusFar
+	 * @param aDagEntityJson
+	 * @return
+	 */
+
+	EntityInGenericATSResponseBO consumeOtherInfoFromTezTaskId(
+			EntityInGenericATSResponseBO entityPopulatedThusFar,
+			JSONObject aDagEntityJson) {
+
+		// OTHER INFO
+		OtherInfoTezTaskIdBO tezTaskIdOtherInfoBO = new OtherInfoTezTaskIdBO();
+		JSONObject otherInfoJson = (JSONObject) (aDagEntityJson.get("otherinfo"));
+		tezTaskIdOtherInfoBO.startTime = (Long) otherInfoJson.get("startTime");
+		tezTaskIdOtherInfoBO.status = (String) otherInfoJson.get("status");
+		tezTaskIdOtherInfoBO.timeTaken = (Long) otherInfoJson.get("timeTaken");
+		tezTaskIdOtherInfoBO.scheduledTime = (Long) otherInfoJson.get("scheduledTime");
+		tezTaskIdOtherInfoBO.endTime = (Long) otherInfoJson.get("endTime");
+		tezTaskIdOtherInfoBO.diagnostics = (String) otherInfoJson.get("diagnostics");
+		
+		//Retrieve the counters
+		tezTaskIdOtherInfoBO.counters = retrieveCounters(otherInfoJson);
+		
+		// Add otherInfo to DagEntityBO
+		entityPopulatedThusFar.otherinfo = tezTaskIdOtherInfoBO;
+
+		return entityPopulatedThusFar;
+	}
 	
+	/**
+	 * The HTTP response across enities has certain common elements. Those are handled by the
+	 * {@code} consumeCommonPortionsInResponse. But the otherInfo varies. Hence for each of the
+	 * entities, we will just write specialized functions to consume the said otherInfo. This
+	 * function consumes otherInfo for TEZ_TASK_ATTEMPT_ID and provides a specialized class to the
+	 * abstract implementation.
+	 * @param entityPopulatedThusFar
+	 * @param aDagEntityJson
+	 * @return
+	 */
+
+	EntityInGenericATSResponseBO consumeOtherInfoFromTezTaskAttemptId(
+			EntityInGenericATSResponseBO entityPopulatedThusFar,
+			JSONObject aDagEntityJson) {
+
+		// OTHER INFO
+		OtherInfoTezTaskAttemptIdBO tezTaskAttemptIdOtherInfoBO = new OtherInfoTezTaskAttemptIdBO();
+		JSONObject otherInfoJson = (JSONObject) (aDagEntityJson.get("otherinfo"));
+		tezTaskAttemptIdOtherInfoBO.startTime = (Long) otherInfoJson.get("startTime");
+		tezTaskAttemptIdOtherInfoBO.status = (String) otherInfoJson.get("status");
+		tezTaskAttemptIdOtherInfoBO.timeTaken = (Long) otherInfoJson.get("timeTaken");
+		tezTaskAttemptIdOtherInfoBO.inProgressLogsURL = (String) otherInfoJson.get("inProgressLogsURL");
+		tezTaskAttemptIdOtherInfoBO.completedLogsURL = (String) otherInfoJson.get("completedLogsURL");
+		tezTaskAttemptIdOtherInfoBO.endTime = (Long) otherInfoJson.get("endTime");
+		tezTaskAttemptIdOtherInfoBO.diagnostics = (String) otherInfoJson.get("diagnostics");
+		
+		//Retrieve the counters
+		tezTaskAttemptIdOtherInfoBO.counters = retrieveCounters(otherInfoJson);
+		
+		// Add otherInfo to DagEntityBO
+		entityPopulatedThusFar.otherinfo = tezTaskAttemptIdOtherInfoBO;
+
+		return entityPopulatedThusFar;
+	}
+	
+
 	/**
 	 * Several responses have counters JSON present in them. This generalized routine
 	 * should care for all the cases.
@@ -392,24 +440,26 @@ public class ATSUtils {
 	List<CounterGroup> retrieveCounters(JSONObject otherInfoJson){
 		List<CounterGroup> counterGroups = new ArrayList<CounterGroup>();
 		JSONObject countersJsonObject =  (JSONObject) otherInfoJson.get("counters");
-		JSONArray counterGroupsJsonArray =  (JSONArray) countersJsonObject.get("counterGroups");
-		for (int xx=0;xx<counterGroupsJsonArray.size();xx++){
-			JSONObject aCounterGroupJson = (JSONObject) counterGroupsJsonArray.get(xx);
-			CounterGroup aCounterGroupBO = new CounterGroup();
-			aCounterGroupBO.counterGroupName = (String) aCounterGroupJson.get("counterGroupName");
-			aCounterGroupBO.counterGroupDisplayName = (String) aCounterGroupJson.get("counterGroupDisplayName");
-			//Get the counters, off the array
-			JSONArray countersJsonArray =  (JSONArray) aCounterGroupJson.get("counters");
-			for(int yy=0;yy<countersJsonArray.size();yy++){
-				JSONObject aCounterJson = (JSONObject) countersJsonArray.get(yy);
-				Counterr counterBO = new Counterr();
-				counterBO.counterName = (String) aCounterJson.get("counterName");
-				counterBO.counterDisplayName = (String) aCounterJson.get("counterDisplayName");
-				counterBO.counterValue = (Long) aCounterJson.get("counterValue");
+		if (countersJsonObject.containsKey("counterGroups")){
+			JSONArray counterGroupsJsonArray =  (JSONArray) countersJsonObject.get("counterGroups");
+			for (int xx=0;xx<counterGroupsJsonArray.size();xx++){
+				JSONObject aCounterGroupJson = (JSONObject) counterGroupsJsonArray.get(xx);
+				CounterGroup aCounterGroupBO = new CounterGroup();
+				aCounterGroupBO.counterGroupName = (String) aCounterGroupJson.get("counterGroupName");
+				aCounterGroupBO.counterGroupDisplayName = (String) aCounterGroupJson.get("counterGroupDisplayName");
+				//Get the counters, off the array
+				JSONArray countersJsonArray =  (JSONArray) aCounterGroupJson.get("counters");
+				for(int yy=0;yy<countersJsonArray.size();yy++){
+					JSONObject aCounterJson = (JSONObject) countersJsonArray.get(yy);
+					Counterr counterBO = new Counterr();
+					counterBO.counterName = (String) aCounterJson.get("counterName");
+					counterBO.counterDisplayName = (String) aCounterJson.get("counterDisplayName");
+					counterBO.counterValue = (Long) aCounterJson.get("counterValue");
 				
-				aCounterGroupBO.addCounter(counterBO);
+					aCounterGroupBO.addCounter(counterBO);
+				}
+				counterGroups.add(aCounterGroupBO);
 			}
-			counterGroups.add(aCounterGroupBO);
 		}
 		
 		return counterGroups;
