@@ -5,16 +5,20 @@ import java.util.List;
 
 import hadooptest.TestSession;
 
-public class TezDagIdOtherInfoBO extends ATSOtherInfoEntityBO {
+public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 	public Long startTime;
 	public String status;
 	public Long initTime;
 	public Long timeTaken;
 	public String applicationId;
 	public DagPlanBO dagPlan;
+	public Long endTime;
+	public String diagnostics;
+	public List<CounterGroup>counters;
 
-	public TezDagIdOtherInfoBO() {
+	public OtherInfoTezDagIdBO() {
 		this.dagPlan = new DagPlanBO();
+		this.counters = new ArrayList<CounterGroup>();
 	}
 
 	public void dump() {
@@ -24,7 +28,12 @@ public class TezDagIdOtherInfoBO extends ATSOtherInfoEntityBO {
 		TestSession.logger.info("initTime:" + initTime);
 		TestSession.logger.info("timeTaken:" + timeTaken);
 		TestSession.logger.info("applicationId:" + applicationId);
+		TestSession.logger.info("endTime:" + endTime);
+		TestSession.logger.info("diagnostics:" + diagnostics);
 		dagPlan.dump();
+		for(CounterGroup aCounterGroup:counters){
+			aCounterGroup.dump();
+		}
 	}
 
 	public static class DagPlanBO {

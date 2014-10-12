@@ -2,7 +2,7 @@ package hadooptest.tez.ats;
 
 import hadooptest.TestSession;
 
-public class TezContainerIdOtherInfoBO extends ATSOtherInfoEntityBO {
+public class OtherInfoTezContainerIdBO extends ATSOtherInfoEntityBO {
 	public Long exitStatus;
 	public Long endTime;
 

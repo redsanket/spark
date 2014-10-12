@@ -2,7 +2,7 @@ package hadooptest.tez.ats;
 
 import hadooptest.TestSession;
 
-public class TezApplicationAttemptOtherInfoBO extends ATSOtherInfoEntityBO {
+public class OtherInfoTezApplicationAttemptBO extends ATSOtherInfoEntityBO {
 	public Long appSubmitTime;
 
 	public void dump() {
