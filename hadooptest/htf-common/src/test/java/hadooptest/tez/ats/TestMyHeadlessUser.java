@@ -50,9 +50,9 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //			startTimelineServerOnRM(rmHostname);
 		}		
 
-		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID/";
+		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID/";
 		Response response = given()
-				.cookie(hitusr_1_cookie).get(url);
+				.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		TestSession.logger.info("R E S P O N S E  B O D Y :" + responseAsString);
 		TestSession.logger.info("R E S P O N S E  STATUSLINE :"
@@ -99,8 +99,8 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		ATSUtils atsUtils = new ATSUtils();
 		TestSession.logger.info("############################################ CONTAINER ID NOW ########################################################################");
 		//Container ID
-		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
-		Response response = given().cookie(hitusr_1_cookie).get(url);
+		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
+		Response response = given().cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID);
 		consumedResponse.dump();
@@ -129,8 +129,8 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		ATSUtils atsUtils = new ATSUtils();
 		TestSession.logger.info("############################################ WITH FILTER NOW ########################################################################");
 		//Container ID
-		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
-		Response response = given().cookie(hitusr_1_cookie).get(url);
+		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
+		Response response = given().cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
 		consumedResponse.dump();
@@ -158,9 +158,9 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		ATSUtils atsUtils = new ATSUtils();
 		TestSession.logger.info("############################################ WITH APPLICATION ATTEMPT NOW ########################################################################");
 		//Container ID
-		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_APPLICATION_ATTEMPT";
+		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_APPLICATION_ATTEMPT";
 		Response response = given()
-				.cookie(hitusr_1_cookie).get(url);
+				.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT);
 		consumedResponse.dump();
@@ -189,9 +189,9 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 
 		TestSession.logger.info("############################################ WITH TEZ VERTEX ID NOW ########################################################################");
 		//Container ID
-		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_VERTEX_ID";
+		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_VERTEX_ID";
 		Response response = given()
-				.cookie(hitusr_1_cookie).get(url);
+				.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO  consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_VERTEX_ID);
 		consumedResponse.dump();
@@ -220,9 +220,9 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 
 		TestSession.logger.info("############################################ WITH TEZ TASK ID NOW ########################################################################");
 		//Container ID
-		 String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ID";
+		 String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ID";
 		Response response = given()
-				.cookie(hitusr_1_cookie).get(url);
+				.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ID);
 		consumedResponse.dump();
@@ -251,8 +251,8 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 
 		TestSession.logger.info("############################################ WITH TEZ TASK ATTEMPT ID NOW ########################################################################");
 		//Container ID
-		String url = "http://" + rmHostname + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ATTEMPT_ID";
-		Response response = given().cookie(hitusr_1_cookie).get(url);
+		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ATTEMPT_ID";
+		Response response = given().cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID);
 		consumedResponse.dump();

@@ -6,6 +6,7 @@ import hadooptest.tez.ats.OtherInfoTezVertexIdBO.Stats;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -497,6 +498,21 @@ public class ATSUtils {
 		}
 		
 		return counterGroups;
+	}
+	
+	public boolean areAllTheResponsesSame(Queue<GenericATSResponseBO> queue) {
+		boolean verdict = true;
+		if (queue.size() == 0)
+			return true;
+		GenericATSResponseBO referenceItem = queue.peek();
+		GenericATSResponseBO anItem;
+		while ((anItem = queue.poll()) != null) {
+			if (!referenceItem.equals(anItem)) {
+				verdict = false;
+				break;
+			}
+		}
+		return verdict;
 	}
 
 }

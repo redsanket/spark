@@ -26,7 +26,47 @@ public class OtherInfoTezTaskIdBO extends ATSOtherInfoEntityBO {
 	public OtherInfoTezTaskIdBO() {
 		this.counters = new ArrayList<CounterGroup>();
 	}
-
+	@Override
+	public boolean equals(Object arg){
+		if(!(arg instanceof OtherInfoTezTaskIdBO)){
+			TestSession.logger.error("Equality failed here!");
+			return false;
+		}
+		OtherInfoTezTaskIdBO other = (OtherInfoTezTaskIdBO) arg;
+		if (this.counters.size()!=other.counters.size()){
+			TestSession.logger.error("Equality failed here!");
+			return false;
+		}
+		for (int xx=0;xx<this.counters.size();xx++){
+			if (!(this.counters.get(xx).equals(other.counters.get(xx)))){
+				TestSession.logger.error("Equality failed here!");
+				return false;
+			}
+		}
+		if( (this.startTime.longValue()!=other.startTime.longValue() ||
+				!this.status.equals(other.status) ||
+				this.timeTaken.longValue()!=other.timeTaken.longValue() ||
+				this.scheduledTime.longValue()!=other.scheduledTime.longValue() ||
+				this.endTime.longValue()!=other.endTime.longValue() ||
+				!this.diagnostics.equals(other.diagnostics))){
+			TestSession.logger.error("Equality failed here!");
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode(){
+		int hash = 0;
+		hash = hash * 37 + this.startTime.hashCode();
+		hash = hash * 37 + this.status.hashCode();
+		hash = hash * 37 + this.timeTaken.hashCode();
+		hash = hash * 37 + this.scheduledTime.hashCode();
+		hash = hash * 37 + this.endTime.hashCode();
+		hash = hash * 37 + this.diagnostics.hashCode();
+		return hash;
+	}
+	
 	public void dump() {
 		TestSession.logger.info("DUMPING OTHER INFO FOR TASK ID");
 		TestSession.logger.info("status:" + status);

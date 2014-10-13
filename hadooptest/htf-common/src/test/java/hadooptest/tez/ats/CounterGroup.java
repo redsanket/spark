@@ -22,6 +22,41 @@ public class CounterGroup {
 	CounterGroup() {
 		counters = new ArrayList<Counter>();
 	}
+	@Override
+	public boolean equals(Object arg){
+		if (!(arg instanceof CounterGroup)){
+			TestSession.logger.error("Equality failed here!");
+			return false;
+		}
+		CounterGroup other = (CounterGroup) arg;
+		if (!this.counterGroupDisplayName.equals(other.counterGroupDisplayName) ||
+				!this.counterGroupName.equals(other.counterGroupName)){
+			TestSession.logger.error("Equality failed here!");
+			return false;
+		}
+		if (this.counters.size() != other.counters.size()){
+			TestSession.logger.error("Equality failed here!");
+			return false;
+		}
+		for (int xx=0;xx<this.counters.size();xx++){
+			if (!this.counters.get(xx).equals(other.counters.get(xx))){
+				TestSession.logger.error("Equality failed here!");
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode(){
+		int hash = 0;
+		hash = hash *37 + counterGroupName.hashCode();
+		hash = hash * 37 + counterGroupDisplayName.hashCode();
+		hash = hash * 37 + counters.hashCode();
+		
+		return hash;
+				
+	}
 	public void addCounter(Counter c){
 		this.counters.add(c);
 	}
@@ -29,6 +64,32 @@ public class CounterGroup {
 		public String counterName;
 		public String counterDisplayName;
 		public Long counterValue;
+		
+		@Override
+		public boolean equals(Object arg){
+			if (!(arg instanceof Counter)){
+				TestSession.logger.error("Equality failed here!");
+				return false;
+			}
+			Counter other = (Counter) arg;
+			if (!(this.counterName.equals(other.counterName)) ||
+					!(this.counterDisplayName.equals(other.counterDisplayName))||
+					this.counterValue.longValue()!=other.counterValue.longValue()){
+				TestSession.logger.error("Equality failed here!");
+				return false;
+			}
+			return true;
+		}
+		
+		@Override
+		public int hashCode(){
+			int hash = 0;
+			hash = hash * 37 + this.counterDisplayName.hashCode();
+			hash = hash *37 + this.counterName.hashCode();
+			hash = hash * 37 + this.counterValue.hashCode();
+			
+			return hash;
+		}
 		
 		public void dump(){
 			TestSession.logger.info("counterName:" + counterName);

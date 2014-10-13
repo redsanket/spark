@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.util.HashMap;
 
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.http.client.params.ClientPNames;
@@ -32,11 +33,9 @@ import com.jcraft.jsch.UserInfo;
 public class ATSTestsBaseClass extends TestSession {
 	public static boolean timelineserverStarted = false;
 
-	public static int HTTP_ATS_PORT = 8188;
-	public static String hitusr_1_cookie = null;
-	public static String hitusr_2_cookie = null;
-	public static String hitusr_3_cookie = null;
-	public static String hitusr_4_cookie = null;
+
+	
+	public static HashMap<String, String> userCookies = new HashMap<String, String>();
 	
 	public enum EntityTypes {
 		  TEZ_APPLICATION_ATTEMPT,
@@ -51,21 +50,29 @@ public class ATSTestsBaseClass extends TestSession {
 	@Before
 	public void getCookiesForAllUsers() throws Exception {
 		HTTPHandle httpHandle = new HTTPHandle();
+		String hitusr_1_cookie = null;
+		String hitusr_2_cookie = null;
+		String hitusr_3_cookie = null;
+		String hitusr_4_cookie = null;
 
 		hitusr_1_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_1);
+		userCookies.put(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_cookie);
 		hitusr_2_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_2);
+		userCookies.put(HadooptestConstants.UserNames.HITUSR_2, hitusr_2_cookie);
 		hitusr_3_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_3);
+		userCookies.put(HadooptestConstants.UserNames.HITUSR_3, hitusr_3_cookie);
 		hitusr_4_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_4);
+		userCookies.put(HadooptestConstants.UserNames.HITUSR_4, hitusr_4_cookie);		
 
 	}
 
 	public void ensureTimelineserverStarted(String resourceManagerHost) throws Exception {
 
-		String url = "http://" + resourceManagerHost + ":" + HTTP_ATS_PORT + "/ws/v1/timeline/";
+		String url = "http://" + resourceManagerHost + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/";
 		int MAX_COUNT = 10;
 		int count = 1;
 
@@ -75,7 +82,7 @@ public class ATSTestsBaseClass extends TestSession {
 				Response response = given()
 						.log()
 						.all()
-						.cookie(hitusr_1_cookie)
+						.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1))
 						.param("User-Agent", "Mozilla/5.0")
 						.param("Accept",
 								"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
