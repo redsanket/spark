@@ -199,7 +199,7 @@ To request a paranoid review:
 #. Enter a project ID and a summary.
 #. Click **Send to Bugzilla**. 
 
-.. _ms-setup-kerberos:
+.. _gs_ms-setup-kerberos:
 
 Configure Kerberos
 ------------------
@@ -225,7 +225,7 @@ Hive through the HiveServer2.
    HiveServer2. If you want to keep the MicroStrategy Server running, you will need to run the
    command above in a cron job at least twice per day.
 
-.. _ms-setup-odbc:
+.. _gs_ms-install:
 
 Install the ODBC Driver
 -----------------------
@@ -381,7 +381,7 @@ Connect to HiveServer2
 
 
 
-.. _ms-setup-access:
+.. _gs_ms-setup-access:
 
 Request Access to the Grid Cluster and HiveServer2
 --------------------------------------------------
