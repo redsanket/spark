@@ -150,7 +150,11 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 
 		HtfATSUtils atsUtils = new HtfATSUtils();
 
-		ExecutorService execService = Executors.newFixedThreadPool(10);
+		ExecutorService dagIdExecService = Executors.newFixedThreadPool(10);
+		ExecutorService vertexIdExecService = Executors.newFixedThreadPool(10);
+		ExecutorService taskIdExecService = Executors.newFixedThreadPool(10);
+		ExecutorService taskAttemptIdExecService = Executors.newFixedThreadPool(10);
+
 
 		Queue<GenericATSResponseBO> dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		Queue<GenericATSResponseBO> containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
@@ -166,15 +170,29 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 		List<String> taskAttemptIds = new ArrayList<String>();;
 
 		// TEZ_DAG_ID
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_DAG_ID, "dag_1412943684044_0003_1", dagIdQueue);
+		makeRESTCall(dagIdExecService, rmHostname, EntityTypes.TEZ_DAG_ID, "dag_1412943684044_0003_1", dagIdQueue);
+		dagIdExecService.shutdown();
+		while (!dagIdExecService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting DAG ID REST calls");
+			Thread.sleep(1000);
+		}
+
 		vertexIds = atsUtils.givenDagIdResponseRetrieveVertexIds(dagIdQueue.poll());
 		tezDagIdPrimaryFilter.add("dag_1412943684044_0003_1");
 		expectedPrimaryfilters.put("TEZ_DAG_ID", tezDagIdPrimaryFilter);
 		
 		// TEZ_VERTEX_ID
 		for (String aVertexId : vertexIds) {
-			makeRESTCall(execService, rmHostname, EntityTypes.TEZ_VERTEX_ID, aVertexId, tezVertexIdQueue);
+			makeRESTCall(vertexIdExecService, rmHostname, EntityTypes.TEZ_VERTEX_ID, aVertexId, tezVertexIdQueue);			
 		}
+		vertexIdExecService.shutdown();
+		while (!vertexIdExecService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting VERTEX ID REST calls");
+			Thread.sleep(1000);
+		}
+		
 		GenericATSResponseBO vertexIdResponse;		
 		// Drain the queue
 		while ((vertexIdResponse = tezVertexIdQueue.poll()) != null) {
@@ -185,8 +203,15 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 
 		// TEZ_TASK_ID
 		for (String aTaskId : taskIds) {
-			makeRESTCall(execService, rmHostname, EntityTypes.TEZ_TASK_ID, aTaskId, tezTaskIdQueue);
+			makeRESTCall(taskIdExecService, rmHostname, EntityTypes.TEZ_TASK_ID, aTaskId, tezTaskIdQueue);
 		}		
+		taskIdExecService.shutdown();
+		while (!taskIdExecService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting DAG ID REST calls");
+			Thread.sleep(1000);
+		}
+
 		GenericATSResponseBO taskIdResponse;
 		// Drain the queue
 		while ((taskIdResponse = tezTaskIdQueue.poll()) != null) {
@@ -197,13 +222,19 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 		
 		// TASK_ATTEMPT_ID
 		for (String aTaskAttemptId : taskAttemptIds) {
-			makeRESTCall(execService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID, aTaskAttemptId, tezTaskAttemptIdQueue);
+			makeRESTCall(taskAttemptIdExecService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID, aTaskAttemptId, tezTaskAttemptIdQueue);
 		}		
+
 		GenericATSResponseBO taskAttemptIdResponse;
 		// Drain the queue
 		while ((taskAttemptIdResponse = tezTaskAttemptIdQueue.poll()) != null) {
 			assertPrimaryFiltersDetails(taskAttemptIdResponse, expectedPrimaryfilters);
-			taskAttemptIds.addAll(atsUtils.givenTaskIdResponseRetrieveTaskAttemptIds(taskIdResponse));
+		}
+		taskAttemptIdExecService.shutdown();
+		while (!taskAttemptIdExecService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting REST calls");
+			Thread.sleep(1000);
 		}
 
 	}
@@ -217,7 +248,6 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 				HadooptestConstants.UserNames.HITUSR_1, entityType,
 				queue);
 		execService.execute(tezDagIdCaller);
-		execService.awaitTermination(2, TimeUnit.SECONDS);
 
 	}
 
@@ -266,7 +296,6 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 				TestSession.logger.error(e);
 			}
 			queue.add(consumedResponse);
-			// consumedResponse.dump();
 
 		}
 
