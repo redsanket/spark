@@ -19,7 +19,7 @@ public class CounterGroup {
 	public String counterGroupDisplayName;
 	List<Counter> counters;
 
-	CounterGroup() {
+	public CounterGroup() {
 		counters = new ArrayList<Counter>();
 	}
 	@Override

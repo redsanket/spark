@@ -32,6 +32,7 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 
 	@Override
 	public boolean equals(Object arg){
+		TestSession.logger.info("Comparing OtherInfoTezDagIdBO");
 		if (!(arg instanceof OtherInfoTezDagIdBO)){
 			TestSession.logger.error("Equality failed here!");
 			return false;
@@ -112,6 +113,7 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 		
 		@Override
 		public boolean equals(Object arg){
+			TestSession.logger.info("Comparing DagPlanBO");
 			if (!(arg instanceof DagPlanBO)){
 				TestSession.logger.error("Equality failed here!");
 				return false;
@@ -171,6 +173,7 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 			
 			@Override
 			public boolean equals(Object arg){
+				TestSession.logger.info("Comparing DagPlanVertexBO");
 				if (!(arg instanceof DagPlanVertexBO))
 					return false;
 				
@@ -235,6 +238,7 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 				
 				@Override
 				public boolean equals(Object arg){
+					TestSession.logger.info("Comparing DagVertexAdditionalInputBO");
 					if (!(arg instanceof DagVertexAdditionalInputBO))
 						return false;
 					DagVertexAdditionalInputBO other = (DagVertexAdditionalInputBO)arg;
@@ -289,6 +293,7 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 
 			@Override
 			public boolean equals(Object arg){
+				TestSession.logger.info("Comparing DagPlanEdgeBO");
 				if(!(arg instanceof DagPlanEdgeBO)){
 					TestSession.logger.error("Equality failed here!");
 					return false;

@@ -1,11 +1,28 @@
-package hadooptest.tez.ats;
+package hadooptest.tez.utils;
 
+import hadooptest.TestSession;
+import hadooptest.tez.ats.ATSEventsEntityBO;
+import hadooptest.tez.ats.ATSTestsBaseClass;
+import hadooptest.tez.ats.CounterGroup;
+import hadooptest.tez.ats.EntityInGenericATSResponseBO;
+import hadooptest.tez.ats.GenericATSResponseBO;
+import hadooptest.tez.ats.OtherInfoTezApplicationAttemptBO;
+import hadooptest.tez.ats.OtherInfoTezContainerIdBO;
+import hadooptest.tez.ats.OtherInfoTezDagIdBO;
+import hadooptest.tez.ats.OtherInfoTezTaskAttemptIdBO;
+import hadooptest.tez.ats.OtherInfoTezTaskIdBO;
+import hadooptest.tez.ats.OtherInfoTezVertexIdBO;
 import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
 import hadooptest.tez.ats.CounterGroup.Counter;
+import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO;
+import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO.DagPlanEdgeBO;
+import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO.DagPlanVertexBO;
+import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO.DagPlanVertexBO.DagVertexAdditionalInputBO;
 import hadooptest.tez.ats.OtherInfoTezVertexIdBO.Stats;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import org.json.simple.JSONArray;
@@ -18,7 +35,7 @@ import org.json.simple.parser.ParseException;
  * @author tiwari
  *
  */
-public class ATSUtils {
+public class HtfATSUtils {
 /**
  * Tests would call this method and pass the JSON response body. EntityType 
  * e.g TEZ_TASK_ATTEMPT_ID or TEZ_DAG_ID etc is also passed to this method.
@@ -500,7 +517,7 @@ public class ATSUtils {
 		return counterGroups;
 	}
 	
-	public boolean areAllTheResponsesSame(Queue<GenericATSResponseBO> queue) {
+	public boolean compareSimilarResponses(Queue<GenericATSResponseBO> queue) {
 		boolean verdict = true;
 		if (queue.size() == 0)
 			return true;
@@ -513,6 +530,69 @@ public class ATSUtils {
 			}
 		}
 		return verdict;
+	}
+
+	public boolean compareSimilarEntities(Queue<EntityInGenericATSResponseBO> queue) {
+		boolean verdict = true;
+		if (queue.size() == 0)
+			return true;
+		EntityInGenericATSResponseBO referenceItem = queue.peek();
+		EntityInGenericATSResponseBO anItem;
+		while ((anItem = queue.poll()) != null) {
+			if (!referenceItem.equals(anItem)) {
+				verdict = false;
+				break;
+			}
+		}
+		return verdict;
+	}
+	
+	public List<String> givenDagIdResponseRetrieveVertexIds(GenericATSResponseBO dagIdResponse){
+		List<String> vertexIds = new ArrayList<String>();
+		Map<String, List<String>> relatedEntities = dagIdResponse.entities.get(0).relatedentities;
+		TestSession.logger.info("Going to add tez_vertex_ids:");
+		for (String aVertexId:relatedEntities.get("TEZ_VERTEX_ID")){
+			TestSession.logger.info(aVertexId);
+		}
+		vertexIds.addAll(relatedEntities.get("TEZ_VERTEX_ID"));		
+		
+		return vertexIds;
+	}
+	public List<String> givenVertexIdResponseRetrieveTaskIds(GenericATSResponseBO vertexIdResponse){
+		List<String> taskIds = new ArrayList<String>();
+		Map<String, List<String>> relatedEntities = vertexIdResponse.entities.get(0).relatedentities;
+		TestSession.logger.info("Going to add tez_task_ids:");
+		for (String aTaskId:relatedEntities.get("TEZ_TASK_ID")){
+			TestSession.logger.info(aTaskId);
+		}
+		taskIds.addAll(relatedEntities.get("TEZ_TASK_ID"));		
+		
+		return taskIds;
+	}
+	public List<String> givenTaskIdResponseRetrieveTaskAttemptIds(GenericATSResponseBO taskIdResponse){
+		List<String> taskAttemptIds = new ArrayList<String>();
+		Map<String, List<String>> relatedEntities = taskIdResponse.entities.get(0).relatedentities;
+		TestSession.logger.info("Going to add tez_task_attempt_ids:");
+		for (String aTaskAttemptId:relatedEntities.get("TEZ_TASK_ATTEMPT_ID")){
+			TestSession.logger.info(aTaskAttemptId);
+		}
+		taskAttemptIds.addAll(relatedEntities.get("TEZ_TASK_ATTEMPT_ID"));		
+		
+		return taskAttemptIds;
+	}
+	
+	public EntityInGenericATSResponseBO retrieveSingleEntityFromBunch(
+			GenericATSResponseBO bunch,
+			EntityTypes entityType, GenericATSResponseBO singleResponse) {
+		EntityInGenericATSResponseBO retrievedEntity = null;
+		for(EntityInGenericATSResponseBO anEntityInBunch:bunch.entities){
+			if (anEntityInBunch.entityType.equals(entityType.name())
+					&& anEntityInBunch.entity.equals(singleResponse.entities.get(0).entity)){
+				retrievedEntity = anEntityInBunch;
+				break;
+			}
+		}
+		return retrievedEntity;
 	}
 
 }

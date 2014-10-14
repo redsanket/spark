@@ -6,6 +6,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.tez.utils.HtfATSUtils;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -71,7 +72,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 			TestSession.logger.info("C O O K I E: [key]" + key + " [value] "
 					+ cookies.get(key));
 		}
-		ATSUtils atsUtils = new ATSUtils();
+		HtfATSUtils atsUtils = new HtfATSUtils();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
 		consumedResponse.dump();
 
@@ -96,7 +97,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		}		
 
 
-		ATSUtils atsUtils = new ATSUtils();
+		HtfATSUtils atsUtils = new HtfATSUtils();
 		TestSession.logger.info("############################################ CONTAINER ID NOW ########################################################################");
 		//Container ID
 		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
@@ -126,7 +127,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //			startTimelineServerOnRM(rmHostname);
 		}		
 
-		ATSUtils atsUtils = new ATSUtils();
+		HtfATSUtils atsUtils = new HtfATSUtils();
 		TestSession.logger.info("############################################ WITH FILTER NOW ########################################################################");
 		//Container ID
 		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
@@ -155,7 +156,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //			startTimelineServerOnRM(rmHostname);
 		}		
 
-		ATSUtils atsUtils = new ATSUtils();
+		HtfATSUtils atsUtils = new HtfATSUtils();
 		TestSession.logger.info("############################################ WITH APPLICATION ATTEMPT NOW ########################################################################");
 		//Container ID
 		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_APPLICATION_ATTEMPT";
@@ -185,7 +186,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //			startTimelineServerOnRM(rmHostname);
 		}		
 
-		ATSUtils atsUtils = new ATSUtils();
+		HtfATSUtils atsUtils = new HtfATSUtils();
 
 		TestSession.logger.info("############################################ WITH TEZ VERTEX ID NOW ########################################################################");
 		//Container ID
@@ -216,7 +217,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //			startTimelineServerOnRM(rmHostname);
 		}		
 
-		ATSUtils atsUtils = new ATSUtils();
+		HtfATSUtils atsUtils = new HtfATSUtils();
 
 		TestSession.logger.info("############################################ WITH TEZ TASK ID NOW ########################################################################");
 		//Container ID
@@ -247,7 +248,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 //			startTimelineServerOnRM(rmHostname);
 		}		
 
-		ATSUtils atsUtils = new ATSUtils();
+		HtfATSUtils atsUtils = new HtfATSUtils();
 
 		TestSession.logger.info("############################################ WITH TEZ TASK ATTEMPT ID NOW ########################################################################");
 		//Container ID
