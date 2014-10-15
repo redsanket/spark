@@ -87,7 +87,7 @@ do
 done
 [ "\$written" -gt 0  -a "\$read" = "\$written" ]
 zz
-fanoutGW "mount gridnfs-001.blue.ygrid.yahoo.com:/vol/gridhomevol/mapred
+fanoutGW "mount gridnfs-b.blue.ygrid.yahoo.com:/vol/gridhomevol/mapred
   ~mapred ; chsh -s /bin/bash mapred ; rsync -a $scriptaddr/$cluster.testYarndeploy.sh /tmp/ && su mapred -c 'sh  /tmp/$cluster.testYarndeploy.sh' " # > /dev/null 2>&1"
 [ $? -eq 0 ] && (
    rm -fr /tmp/$cluster.*.handoff.txt
