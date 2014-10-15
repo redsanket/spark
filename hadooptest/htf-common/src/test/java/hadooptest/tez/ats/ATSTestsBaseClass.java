@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.http.client.params.ClientPNames;
@@ -44,7 +45,43 @@ public class ATSTestsBaseClass extends TestSession {
 		  TEZ_VERTEX_ID,
 		  TEZ_TASK_ID,
 		  TEZ_TASK_ATTEMPT_ID,
+		};
+	
+		public enum EVENTS{
+			EXPECTED,
+			NOT_EXPECTED
 		}
+
+		public enum ENTITYTYPE{
+			EXPECTED,
+			NOT_EXPECTED
+		}
+
+		public enum ENTITY{
+			EXPECTED,
+			NOT_EXPECTED
+		}
+
+		public enum STARTTIME{
+			EXPECTED,
+			NOT_EXPECTED
+		}
+
+		public enum RELATEDENTITIES{
+			EXPECTED,
+			NOT_EXPECTED
+		}
+
+		public enum PRIMARYFILTERS{
+			EXPECTED,
+			NOT_EXPECTED
+		}
+		
+		public enum OTHERINFO{
+			EXPECTED,
+			NOT_EXPECTED
+		}
+
 
 
 	@Before
@@ -70,6 +107,63 @@ public class ATSTestsBaseClass extends TestSession {
 
 	}
 
+	public Map<String, Boolean> expectEverythingMap(){
+		Map<String,Boolean> expectedFieldsMap = new HashMap<String, Boolean>();
+
+			expectedFieldsMap.put("events", true);
+			expectedFieldsMap.put("entitytype", true);
+			expectedFieldsMap.put("entity", true);
+			expectedFieldsMap.put("starttime", true);
+			expectedFieldsMap.put("relatedentities", true);
+			expectedFieldsMap.put("primaryfilters", true);
+			expectedFieldsMap.put("otherinfo", true);
+
+		return expectedFieldsMap;
+
+	}
+	public Map<String, Boolean> getExpectedFieldsMap(EVENTS events, ENTITYTYPE entitytype, ENTITY entity,
+			STARTTIME starttime, RELATEDENTITIES relatedentities, PRIMARYFILTERS primaryfilters,
+			OTHERINFO otherinfo){
+		Map<String,Boolean> expectedFieldsMap = new HashMap<String, Boolean>();
+		if (events == EVENTS.EXPECTED){
+			expectedFieldsMap.put("events", true);
+		}else{
+			expectedFieldsMap.put("events", false);
+		}
+		if (entitytype == ENTITYTYPE.EXPECTED){
+			expectedFieldsMap.put("entitytype", true);
+		}else{
+			expectedFieldsMap.put("entitytype", false);
+		}
+		if (entity == ENTITY.EXPECTED){
+			expectedFieldsMap.put("entity", true);
+		}else{
+			expectedFieldsMap.put("entity", false);
+		}
+		if (starttime == STARTTIME.EXPECTED){
+			expectedFieldsMap.put("starttime", true);
+		}else{
+			expectedFieldsMap.put("starttime", false);
+		}
+		if (relatedentities == RELATEDENTITIES.EXPECTED){
+			expectedFieldsMap.put("relatedentities", true);
+		}else{
+			expectedFieldsMap.put("relatedentities", false);
+		}
+		if (primaryfilters == PRIMARYFILTERS.EXPECTED){
+			expectedFieldsMap.put("primaryfilters", true);
+		}else{
+			expectedFieldsMap.put("primaryfilters", false);
+		}
+		if (otherinfo == OTHERINFO.EXPECTED){
+			expectedFieldsMap.put("otherinfo", true);
+		}else{
+			expectedFieldsMap.put("otherinfo", false);
+		}
+
+		return expectedFieldsMap;
+		
+	}
 	public void ensureTimelineserverStarted(String resourceManagerHost) throws Exception {
 
 		String url = "http://" + resourceManagerHost + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/";

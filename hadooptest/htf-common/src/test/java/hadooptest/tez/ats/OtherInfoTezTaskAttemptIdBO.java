@@ -1,6 +1,7 @@
 package hadooptest.tez.ats;
 
 import hadooptest.TestSession;
+import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,12 @@ public class OtherInfoTezTaskAttemptIdBO extends ATSOtherInfoEntityBO {
 	public String completedLogsURL;
 	public Long endTime;
 	public String diagnostics;
-
 	public List<CounterGroup> counters;
 
-	public OtherInfoTezTaskAttemptIdBO() {
+	public OtherInfoTezTaskAttemptIdBO(){
 		this.counters = new ArrayList<CounterGroup>();
 	}
+
 
 	@Override
 	public boolean equals(Object arg) {

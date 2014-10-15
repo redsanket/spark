@@ -33,7 +33,7 @@ public class OtherInfoTezVertexIdBO extends ATSOtherInfoEntityBO {
 	public Long startRequestedTime;
 	public Stats stats;
 
-	public OtherInfoTezVertexIdBO() {
+	public OtherInfoTezVertexIdBO(){
 		this.counters = new ArrayList<CounterGroup>();
 	}
 

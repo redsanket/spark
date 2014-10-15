@@ -73,7 +73,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 					+ cookies.get(key));
 		}
 		HtfATSUtils atsUtils = new HtfATSUtils();
-		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID,expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -103,7 +103,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_CONTAINER_ID/";
 		Response response = given().cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
-		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID);
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_CONTAINER_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -133,7 +133,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_DAG_ID?primaryFilter=dagName:MRRSleepJob";
 		Response response = given().cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
-		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID);
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_DAG_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -163,7 +163,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		Response response = given()
 				.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
-		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT);
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -194,7 +194,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		Response response = given()
 				.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
-		GenericATSResponseBO  consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_VERTEX_ID);
+		GenericATSResponseBO  consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_VERTEX_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -225,7 +225,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		Response response = given()
 				.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
-		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ID);
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -255,7 +255,7 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ATTEMPT_ID";
 		Response response = given().cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
-		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID);
+		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}

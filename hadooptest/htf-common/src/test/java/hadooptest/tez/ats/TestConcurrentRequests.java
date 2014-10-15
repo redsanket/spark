@@ -67,7 +67,7 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 				.info("R E S P O N S E  B O D Y :" + responseAsString);
 		HtfATSUtils atsUtils = new HtfATSUtils();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(
-				responseAsString, EntityTypes.TEZ_DAG_ID);
+				responseAsString, EntityTypes.TEZ_DAG_ID, expectEverythingMap());
 		consumedResponse.dump();
 		RestCaller tezDagIdCaller = new RestCaller("http://" + rmHostname + ":"
 				+ HadooptestConstants.Ports.HTTP_ATS_PORT
@@ -291,7 +291,7 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 			GenericATSResponseBO consumedResponse = null;
 			try {
 				consumedResponse = atsUtils.processATSResponse(
-						responseAsString, entityType);
+						responseAsString, entityType, expectEverythingMap());
 			} catch (ParseException e) {
 				TestSession.logger.error(e);
 			}

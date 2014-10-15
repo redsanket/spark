@@ -14,6 +14,9 @@ import hadooptest.TestSession;
 public class OtherInfoTezApplicationAttemptBO extends ATSOtherInfoEntityBO {
 	public Long appSubmitTime;
 
+	public OtherInfoTezApplicationAttemptBO(){
+	}
+	
 	@Override
 	public boolean equals(Object arg) {
 		if (!(arg instanceof OtherInfoTezApplicationAttemptBO))

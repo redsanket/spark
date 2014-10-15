@@ -25,10 +25,11 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 	public String diagnostics;
 	public List<CounterGroup>counters;
 
-	public OtherInfoTezDagIdBO() {
+	public OtherInfoTezDagIdBO(){
 		this.dagPlan = new DagPlanBO();
 		this.counters = new ArrayList<CounterGroup>();
 	}
+
 
 	@Override
 	public boolean equals(Object arg){

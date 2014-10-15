@@ -48,8 +48,8 @@ public class HtfATSUtils {
  * @return
  * @throws ParseException
  */
-	public GenericATSResponseBO processATSResponse(String responseAsJsonString, EntityTypes entityType)
-			throws ParseException {
+	public GenericATSResponseBO processATSResponse(String responseAsJsonString, EntityTypes entityType,
+			Map<String, Boolean>includes)throws ParseException {
 		GenericATSResponseBO genericATSResponse = new GenericATSResponseBO();
 		JSONParser parser = new JSONParser();
 		Object obj = parser.parse(responseAsJsonString);
@@ -62,12 +62,12 @@ public class HtfATSUtils {
 			for (int entityIdx = 0; entityIdx < entities.size(); entityIdx++) {
 				JSONObject aDagEntityJson = (JSONObject) entities
 						.get(entityIdx);
-				completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType);
+				completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType, includes);
 				genericATSResponse.entities.add(completelyProcessedSingleEntity);
 			}
 		} else {
 			JSONObject aDagEntityJson = jsonObject;
-			completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType);
+			completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType, includes);
 			genericATSResponse.entities.add(completelyProcessedSingleEntity);
 		}
 
@@ -81,39 +81,42 @@ public class HtfATSUtils {
 	 * abstract. The {@code consumeOtherInfoFromDagId} method are called based upon the
 	 * entity type. Thats where the correct Object is constructed and assigned to the
 	 * otherInfo property.
-	 * @param aDagEntityJson
+	 * @param entityJsonObject
 	 * @param entityType
 	 * @return
 	 */
 	private EntityInGenericATSResponseBO consumeResponse(
-			JSONObject aDagEntityJson, EntityTypes entityType){
+			JSONObject entityJsonObject, EntityTypes entityType, 
+			Map<String, Boolean>expectedEntities){
 		
 		EntityInGenericATSResponseBO anEntityInGenericATSResponseBO =
 				new EntityInGenericATSResponseBO(entityType);
 		
 		anEntityInGenericATSResponseBO = consumeCommonPortionsInResponse(
-				aDagEntityJson, anEntityInGenericATSResponseBO);
+				entityJsonObject, anEntityInGenericATSResponseBO, expectedEntities);
 		
-		switch (entityType){
-			case TEZ_DAG_ID:
-				consumeOtherInfoFromDagId(anEntityInGenericATSResponseBO, aDagEntityJson);
-				break;
-			case TEZ_CONTAINER_ID:
-				consumeOtherInfoFromContainerId(anEntityInGenericATSResponseBO, aDagEntityJson);
-				break;
-			case TEZ_APPLICATION_ATTEMPT:
-				consumeOtherInfoFromApplicationAttempt(anEntityInGenericATSResponseBO, aDagEntityJson);
-				break;
-			case TEZ_TASK_ATTEMPT_ID:
-				consumeOtherInfoFromTezTaskAttemptId(anEntityInGenericATSResponseBO, aDagEntityJson);
-				break;
-			case TEZ_TASK_ID:
-				consumeOtherInfoFromTezTaskId(anEntityInGenericATSResponseBO, aDagEntityJson);
-				break;
-			case TEZ_VERTEX_ID:
-				consumeOtherInfoFromTezVertexId(anEntityInGenericATSResponseBO, aDagEntityJson);
-				break;
 		
+		if(expectedEntities.get("otherinfo")){
+			switch (entityType){
+				case TEZ_DAG_ID:				
+					consumeOtherInfoFromDagId(anEntityInGenericATSResponseBO, entityJsonObject);				
+					break;
+				case TEZ_CONTAINER_ID:
+					consumeOtherInfoFromContainerId(anEntityInGenericATSResponseBO, entityJsonObject);
+					break;
+				case TEZ_APPLICATION_ATTEMPT:
+					consumeOtherInfoFromApplicationAttempt(anEntityInGenericATSResponseBO, entityJsonObject);
+					break;
+				case TEZ_TASK_ATTEMPT_ID:
+					consumeOtherInfoFromTezTaskAttemptId(anEntityInGenericATSResponseBO, entityJsonObject);
+					break;
+				case TEZ_TASK_ID:
+					consumeOtherInfoFromTezTaskId(anEntityInGenericATSResponseBO, entityJsonObject);
+					break;
+				case TEZ_VERTEX_ID:
+					consumeOtherInfoFromTezVertexId(anEntityInGenericATSResponseBO, entityJsonObject);
+					break;
+			}
 		}
 		return anEntityInGenericATSResponseBO;
 	}
@@ -128,16 +131,20 @@ public class HtfATSUtils {
 	 * @return
 	 */
 	EntityInGenericATSResponseBO consumeCommonPortionsInResponse(JSONObject aDagEntityJson, 
-			EntityInGenericATSResponseBO anEntityInGenericATSResponseBO) {
+			EntityInGenericATSResponseBO anEntityInGenericATSResponseBO, Map<String,Boolean>expectedEntities) {
 
-		JSONArray eventsJsonArray = (JSONArray) (aDagEntityJson.get("events"));
-		for (int eventIdx = 0; eventIdx < eventsJsonArray.size(); eventIdx++) {
-			ATSEventsEntityBO anATSEventsEntityBO = new ATSEventsEntityBO();
-			JSONObject anEventJsonObject = (JSONObject) eventsJsonArray.get(eventIdx);
-			anATSEventsEntityBO.timestamp = (Long) anEventJsonObject.get("timestamp");
-			anATSEventsEntityBO.eventtype = (String) anEventJsonObject.get("eventtype");
-			anATSEventsEntityBO.eventinfo = (JSONObject) anEventJsonObject.get("eventinfo");
-			anEntityInGenericATSResponseBO.events.add(anATSEventsEntityBO);
+		if(expectedEntities.get("events")){
+			JSONArray eventsJsonArray = (JSONArray) (aDagEntityJson.get("events"));
+			for (int eventIdx = 0; eventIdx < eventsJsonArray.size(); eventIdx++) {
+				ATSEventsEntityBO anATSEventsEntityBO = new ATSEventsEntityBO(expectedEntities.get("events"));
+				JSONObject anEventJsonObject = (JSONObject) eventsJsonArray.get(eventIdx);
+				anATSEventsEntityBO.timestamp = (Long) anEventJsonObject.get("timestamp");
+				anATSEventsEntityBO.eventtype = (String) anEventJsonObject.get("eventtype");
+				anATSEventsEntityBO.eventinfo = (JSONObject) anEventJsonObject.get("eventinfo");
+				anEntityInGenericATSResponseBO.events.add(anATSEventsEntityBO);
+			}
+		}else{
+			anEntityInGenericATSResponseBO.events=null;
 		}
 		// ENTITY TYPE
 		anEntityInGenericATSResponseBO.entityType = (String) aDagEntityJson.get("entitytype");
@@ -147,28 +154,36 @@ public class HtfATSUtils {
 		anEntityInGenericATSResponseBO.starttime = (Long) aDagEntityJson.get("starttime");
 
 		// RELATED ENTITIES
-		JSONObject relatedEntitiesJson = (JSONObject) (aDagEntityJson.get("relatedentities"));
-		for (String relatedEntityKey:anEntityInGenericATSResponseBO.relatedentities.keySet()){
-			List<String>relatedEntitiesList = new ArrayList<String>();
-			JSONArray relatedEntitiesJsonArray = (JSONArray) relatedEntitiesJson.get(relatedEntityKey);
-
-			for (int ii = 0; ii < relatedEntitiesJsonArray.size(); ii++) {
-				String aRelatedEntity = (String) relatedEntitiesJsonArray.get(ii);
-				relatedEntitiesList.add(aRelatedEntity);
+		if(expectedEntities.get("relatedentities")){
+			JSONObject relatedEntitiesJson = (JSONObject) (aDagEntityJson.get("relatedentities"));
+			for (String relatedEntityKey:anEntityInGenericATSResponseBO.relatedentities.keySet()){
+				List<String>relatedEntitiesList = new ArrayList<String>();
+				JSONArray relatedEntitiesJsonArray = (JSONArray) relatedEntitiesJson.get(relatedEntityKey);
+	
+				for (int ii = 0; ii < relatedEntitiesJsonArray.size(); ii++) {
+					String aRelatedEntity = (String) relatedEntitiesJsonArray.get(ii);
+					relatedEntitiesList.add(aRelatedEntity);
+				}
+				anEntityInGenericATSResponseBO.relatedentities.put(relatedEntityKey,relatedEntitiesList);			
 			}
-			anEntityInGenericATSResponseBO.relatedentities.put(relatedEntityKey,relatedEntitiesList);			
+		}else{
+			anEntityInGenericATSResponseBO.relatedentities=null;
 		}
 		// PRIMARY FILTER
-		JSONObject primaryFiltersJson = (JSONObject) (aDagEntityJson.get("primaryfilters"));
-		for (String aPrimaryFilterKey:anEntityInGenericATSResponseBO.primaryfilters.keySet()){
-			List<String>primaryFiltersList = new ArrayList<String>();
-			JSONArray primaryFiltersJsonArray = (JSONArray) primaryFiltersJson.get(aPrimaryFilterKey);			
-			for (int ii = 0; ii < primaryFiltersJsonArray.size(); ii++) {
-				String aPrimaryFilter = (String) primaryFiltersJsonArray.get(ii);
-				primaryFiltersList.add(aPrimaryFilter);
+		if(expectedEntities.get("primaryfilters")){
+			JSONObject primaryFiltersJson = (JSONObject) (aDagEntityJson.get("primaryfilters"));
+			for (String aPrimaryFilterKey:anEntityInGenericATSResponseBO.primaryfilters.keySet()){
+				List<String>primaryFiltersList = new ArrayList<String>();
+				JSONArray primaryFiltersJsonArray = (JSONArray) primaryFiltersJson.get(aPrimaryFilterKey);			
+				for (int ii = 0; ii < primaryFiltersJsonArray.size(); ii++) {
+					String aPrimaryFilter = (String) primaryFiltersJsonArray.get(ii);
+					primaryFiltersList.add(aPrimaryFilter);
+				}
+				anEntityInGenericATSResponseBO.primaryfilters.put(aPrimaryFilterKey,primaryFiltersList);
+				
 			}
-			anEntityInGenericATSResponseBO.primaryfilters.put(aPrimaryFilterKey,primaryFiltersList);
-			
+		}else{
+			anEntityInGenericATSResponseBO.primaryfilters=null;
 		}
 
 		return anEntityInGenericATSResponseBO;

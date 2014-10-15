@@ -66,7 +66,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 		HtfATSUtils atsUtils = new HtfATSUtils();
 		GenericATSResponseBO bunchedProcessedResponses = atsUtils
 				.processATSResponse(multiResponseAsString,
-						EntityTypes.TEZ_DAG_ID);
+						EntityTypes.TEZ_DAG_ID, expectEverythingMap());
 		bunchedProcessedResponses.dump();
 
 		url = "http://" + rmHostname + ":"
@@ -81,7 +81,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 		atsUtils = new HtfATSUtils();
 		GenericATSResponseBO singleConsumedResponse = atsUtils
 				.processATSResponse(singleResponseAsString,
-						EntityTypes.TEZ_DAG_ID);
+						EntityTypes.TEZ_DAG_ID, expectEverythingMap());
 		singleConsumedResponse.dump();
 
 		EntityInGenericATSResponseBO retrievedEntityFromBunch = atsUtils
@@ -127,7 +127,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 				url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(
-				responseAsString, EntityTypes.TEZ_CONTAINER_ID);
+				responseAsString, EntityTypes.TEZ_CONTAINER_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -165,7 +165,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 				url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(
-				responseAsString, EntityTypes.TEZ_DAG_ID);
+				responseAsString, EntityTypes.TEZ_DAG_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -201,7 +201,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 				url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(
-				responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT);
+				responseAsString, EntityTypes.TEZ_APPLICATION_ATTEMPT, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -238,7 +238,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 				url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(
-				responseAsString, EntityTypes.TEZ_VERTEX_ID);
+				responseAsString, EntityTypes.TEZ_VERTEX_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -275,7 +275,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 				url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(
-				responseAsString, EntityTypes.TEZ_TASK_ID);
+				responseAsString, EntityTypes.TEZ_TASK_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}
@@ -312,7 +312,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 				url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(
-				responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID);
+				responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID, expectEverythingMap());
 		consumedResponse.dump();
 
 	}

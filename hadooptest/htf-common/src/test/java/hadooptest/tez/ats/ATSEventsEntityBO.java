@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import org.json.simple.JSONObject;
 
 public class ATSEventsEntityBO {
+	public boolean expectedInResponse;
 	public Long timestamp;
 	public String eventtype;
 	public JSONObject eventinfo;
@@ -16,6 +17,9 @@ public class ATSEventsEntityBO {
 		TestSession.logger.info("eventinfo:" + eventinfo.toString());
 	}
 
+	public ATSEventsEntityBO(Boolean expectedInResponse){
+		this.expectedInResponse = expectedInResponse;
+	}
 	@Override
 	public boolean equals(Object argument) {
 		if (!(argument instanceof ATSEventsEntityBO)){

@@ -14,6 +14,9 @@ public class OtherInfoTezContainerIdBO extends ATSOtherInfoEntityBO {
 	public Long exitStatus;
 	public Long endTime;
 
+	public OtherInfoTezContainerIdBO(){
+	}
+
 	@Override
 	public boolean equals(Object arg) {
 		if (!(arg instanceof OtherInfoTezContainerIdBO))
