@@ -547,40 +547,17 @@ public class HtfATSUtils {
 		return verdict;
 	}
 	
-	public List<String> givenDagIdResponseRetrieveVertexIds(GenericATSResponseBO dagIdResponse){
+	public List<String> getRelatedEntities(GenericATSResponseBO dagIdResponse, String lookupKey){
 		List<String> vertexIds = new ArrayList<String>();
 		Map<String, List<String>> relatedEntities = dagIdResponse.entities.get(0).relatedentities;
-		TestSession.logger.info("Going to add tez_vertex_ids:");
-		for (String aVertexId:relatedEntities.get("TEZ_VERTEX_ID")){
-			TestSession.logger.info(aVertexId);
+		for (String aVertexId:relatedEntities.get(lookupKey)){
+			TestSession.logger.info("Fetched related entry:" + aVertexId);
 		}
-		vertexIds.addAll(relatedEntities.get("TEZ_VERTEX_ID"));		
+		vertexIds.addAll(relatedEntities.get(lookupKey));		
 		
 		return vertexIds;
 	}
-	public List<String> givenVertexIdResponseRetrieveTaskIds(GenericATSResponseBO vertexIdResponse){
-		List<String> taskIds = new ArrayList<String>();
-		Map<String, List<String>> relatedEntities = vertexIdResponse.entities.get(0).relatedentities;
-		TestSession.logger.info("Going to add tez_task_ids:");
-		for (String aTaskId:relatedEntities.get("TEZ_TASK_ID")){
-			TestSession.logger.info(aTaskId);
-		}
-		taskIds.addAll(relatedEntities.get("TEZ_TASK_ID"));		
 		
-		return taskIds;
-	}
-	public List<String> givenTaskIdResponseRetrieveTaskAttemptIds(GenericATSResponseBO taskIdResponse){
-		List<String> taskAttemptIds = new ArrayList<String>();
-		Map<String, List<String>> relatedEntities = taskIdResponse.entities.get(0).relatedentities;
-		TestSession.logger.info("Going to add tez_task_attempt_ids:");
-		for (String aTaskAttemptId:relatedEntities.get("TEZ_TASK_ATTEMPT_ID")){
-			TestSession.logger.info(aTaskAttemptId);
-		}
-		taskAttemptIds.addAll(relatedEntities.get("TEZ_TASK_ATTEMPT_ID"));		
-		
-		return taskAttemptIds;
-	}
-	
 	public EntityInGenericATSResponseBO retrieveSingleEntityFromBunch(
 			GenericATSResponseBO bunch,
 			EntityTypes entityType, GenericATSResponseBO singleResponse) {

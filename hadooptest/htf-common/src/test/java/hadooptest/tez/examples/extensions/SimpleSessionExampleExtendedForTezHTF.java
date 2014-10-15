@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce.examples.extensions;
+package hadooptest.tez.examples.extensions;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.tez.examples.SimpleSessionExample;

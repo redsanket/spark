@@ -178,7 +178,7 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 			Thread.sleep(1000);
 		}
 
-		vertexIds = atsUtils.givenDagIdResponseRetrieveVertexIds(dagIdQueue.poll());
+		vertexIds = atsUtils.getRelatedEntities(dagIdQueue.poll(), EntityTypes.TEZ_VERTEX_ID.name());
 		tezDagIdPrimaryFilter.add("dag_1412943684044_0003_1");
 		expectedPrimaryfilters.put("TEZ_DAG_ID", tezDagIdPrimaryFilter);
 		
@@ -197,7 +197,7 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 		// Drain the queue
 		while ((vertexIdResponse = tezVertexIdQueue.poll()) != null) {
 			assertPrimaryFiltersDetails(vertexIdResponse,expectedPrimaryfilters);
-			taskIds.addAll(atsUtils.givenVertexIdResponseRetrieveTaskIds(vertexIdResponse));
+			taskIds.addAll(atsUtils.getRelatedEntities(vertexIdResponse, EntityTypes.TEZ_TASK_ID.name()));
 		}
 		expectedPrimaryfilters.put("TEZ_VERTEX_ID", vertexIds);
 
@@ -216,7 +216,7 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 		// Drain the queue
 		while ((taskIdResponse = tezTaskIdQueue.poll()) != null) {
 			assertPrimaryFiltersDetails(taskIdResponse, expectedPrimaryfilters);
-			taskAttemptIds.addAll(atsUtils.givenTaskIdResponseRetrieveTaskAttemptIds(taskIdResponse));
+			taskAttemptIds.addAll(atsUtils.getRelatedEntities(taskIdResponse, EntityTypes.TEZ_TASK_ATTEMPT_ID.name()));
 		}
 		expectedPrimaryfilters.put("TEZ_TASK_ID", taskIds);
 		

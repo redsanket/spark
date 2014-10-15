@@ -1,4 +1,4 @@
-package hadooptest.tez.mapreduce.examples.cluster;
+package hadooptest.tez.examples.cluster;
 
 import java.util.HashMap;
 
@@ -11,7 +11,7 @@ import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
-import hadooptest.tez.mapreduce.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
+import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.mapreduce.examples.extensions.UnionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;

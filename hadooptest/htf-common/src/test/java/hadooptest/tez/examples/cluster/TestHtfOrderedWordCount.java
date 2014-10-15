@@ -1,4 +1,6 @@
-package hadooptest.tez.mapreduce.examples.cluster;
+package hadooptest.tez.examples.cluster;
+
+import java.util.HashMap;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
@@ -9,16 +11,16 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
-import hadooptest.tez.mapreduce.examples.extensions.OrderedWordCountExtendedForHtf;
+import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
+import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
-
-import java.util.HashMap;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -101,51 +103,17 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 	public TestName testName = new TestName();
 
 	@Test
-	public void testOrderedWordCountRunOnClusterWithSession() throws Exception {
-		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-				TimelineServer.DISABLED, testName.getMethodName());
-		Assert.assertTrue(returnCode == 0);
+	public void testOrderedWordCountWithPartitions() throws Exception {
+		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION, null, 2,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == true);
 	}
-
 	@Test
-	public void testOrderedWordCountRunOnClusterWithoutSession()
-			throws Exception {
-		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
-				TimelineServer.DISABLED, testName.getMethodName());
-		Assert.assertTrue(returnCode == 0);
-	}
-
-	@Test
-	public void testOrderedWordCountWithSplitsRunOnClusterWithSession()
-			throws Exception {
-		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-				TimelineServer.DISABLED, testName.getMethodName());
-		Assert.assertTrue(returnCode == 0);
-	}
-
-	@Test
-	public void testOrderedWordCountWithSplitsRunOnClusterWithoutSession()
-			throws Exception {
-		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(sleepJobArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
-				TimelineServer.DISABLED, testName.getMethodName());
-		Assert.assertTrue(returnCode == 0);
-	}
-
-	@After
-	public void deleteOutputDirs() throws Exception {
-		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
-				SkipTrash.YES, HadooptestConstants.Schema.HDFS
-						+ OUTPUT_LOCATION);
+	public void testOrderedWordCountWithoutPartitions() throws Exception {
+		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION, null, 0,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED,
+				testName.getMethodName());
+		Assert.assertTrue(returnCode == true);
 	}
 }

@@ -3,7 +3,7 @@ package hadooptest.tez.mapreduce.examples.localmode;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.tez.mapreduce.examples.extensions.OrderedWordCountExtendedForTez;
+import hadooptest.tez.mapreduce.examples.extensions.OrderedWordCountExtendedForHtf;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
@@ -31,7 +31,7 @@ import org.junit.rules.TestName;
  */
 
 @Category(SerialTests.class)
-public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
+public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 	public static String INPUT_FILE = "/home/y/share/htf-data/excite-small.log";
 	public static String OUTPUT_LOCATION = "/tmp/outOfOrderedWordCount";
 
@@ -44,22 +44,20 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	public TestName testName = new TestName();
 
 	@Test
-//	@Ignore("Until TEZ-1618 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
+	// @Ignore("Until TEZ-1618 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
 	public void testOrderedWordCountRunOnLocalWithSession() throws Exception {
 		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(jobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,TimelineServer.DISABLED,
-				testName.getMethodName());
+		int returnCode = run(jobArgs, HadooptestConstants.Execution.TEZ_LOCAL,
+				Session.YES, TimelineServer.DISABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
 	@Test
-//	@Ignore("Until TEZ-1618 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
+	// @Ignore("Until TEZ-1618 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
 	public void testOrderedWordCountRunOnLocalWithoutSession() throws Exception {
 		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
-		int returnCode = run(jobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,TimelineServer.DISABLED,
-				testName.getMethodName());
+		int returnCode = run(jobArgs, HadooptestConstants.Execution.TEZ_LOCAL,
+				Session.NO, TimelineServer.DISABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -67,11 +65,10 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	@Ignore("Until TEZ-1406 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
 	public void testOrderedWordCountWithSplitRunOnLocalWithSession()
 			throws Exception {
-		String[] jobArgs = new String[] { 
-				INPUT_FILE, OUTPUT_LOCATION, "-generateSplitsInClient" };
-		int returnCode = run(jobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,TimelineServer.DISABLED,
-				testName.getMethodName());
+		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION,
+				"-generateSplitsInClient" };
+		int returnCode = run(jobArgs, HadooptestConstants.Execution.TEZ_LOCAL,
+				Session.YES, TimelineServer.DISABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -79,11 +76,10 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForTez {
 	@Ignore("Until TEZ-1406 and http://bug.corp.yahoo.com/show_bug.cgi?id=7132271 are fixed")
 	public void testOrderedWordCountWithSplitRunOnLocalWithoutSession()
 			throws Exception {
-		String[] jobArgs = new String[] { 
-				INPUT_FILE, OUTPUT_LOCATION, "-generateSplitsInClient" };
-		int returnCode = run(jobArgs,
-				HadooptestConstants.Execution.TEZ_LOCAL, Session.NO,TimelineServer.DISABLED,
-				testName.getMethodName());
+		String[] jobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION,
+				"-generateSplitsInClient" };
+		int returnCode = run(jobArgs, HadooptestConstants.Execution.TEZ_LOCAL,
+				Session.NO, TimelineServer.DISABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

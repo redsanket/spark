@@ -1,9 +1,9 @@
-package hadooptest.tez.mapreduce.examples.localmode;
+package hadooptest.tez.examples.localmode;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.tez.mapreduce.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
+import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
