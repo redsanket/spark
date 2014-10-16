@@ -2,10 +2,12 @@
 Getting Started
 ===============
 
+.. 10/16/14 - Copy edited documentation.
+
 Introduction
 ============
 
-Starling runs on the Cobalt Blue (CB) cluser and uses the `HCatalog <https://cwiki.apache.org/confluence/display/Hive/HCatalog>`_
+Starling runs on the Cobalt Blue (CB) cluster and uses the `HCatalog <https://cwiki.apache.org/confluence/display/Hive/HCatalog>`_
 server to  store the meta-data about its tables and the HDFS on this cluster to store all the 
 data. The tables used by Starling are stored in the ``starling`` database and have 
 the ``starling_`` prefix in their names. 
@@ -17,8 +19,8 @@ Because Starling uses HCatalog, you can use Hive, Pig or even the MapReduce Java
 to access data.
 
 HCatalog (see the HCatalog documentation for details). Note that the HCatalog 
-server on CB is secured - it has the URI thrift://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513 
-and uses the Kerberos principal hcat/_HOST@YGRID.YAHOO.COM.
+server on CB is secured: it has the URI ``thrift://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513`` 
+and uses the Kerberos principal ``hcat/_HOST@YGRID.YAHOO.COM``.
 
 Prerequisites
 =============
@@ -38,8 +40,10 @@ Using Hive
 
        hive> SET mapred.job.queue.name=unfunded;
 
-   .. note:: To avoid having to set the queue manually, you can set the queue in the Hive configuration file ``$HOME/.hiverc``.
-             Hive will use the queue set in the configuration file. You can use see a list of queues that you have
+   .. note:: To avoid having to set the queue manually, you can set the queue in the 
+             Hive configuration file ``$HOME/.hiverc``.
+             Hive will use the queue set in the configuration file. You can use see a list 
+             of queues that you have
              access to by running the following: ``mapred queue -showacls``
 
 #. Use the ``starling`` database: ``hive> use starling;``
@@ -47,9 +51,13 @@ Using Hive
 
        hive> SELECT * FROM starling_jobs WHERE grid='AB' and dt='2012_05_03' LIMIT 10;
 
-   .. note:: Unless you know what you're doing, always use the partition keys in your query (e.g., ``grid`` and ``dt``). 
-             If you don't, your hive sessionA will say ``"Error in semantic analysis: org.apache.thrift.transport.TTransportException: java.net.SocketTimeoutException: 
-             Read timed out"``, and you will need to restart your hive client (all other hive queries issued in that session will fail.)
+   .. note:: Unless you know what you're doing, always use the partition keys in your 
+             query (e.g., ``grid`` and ``dt``). 
+             If you don't, your hive ``sessionA`` will say ``"Error in semantic analysis: 
+             org.apache.thrift.transport.TTransportException: java.net.SocketTimeoutException: 
+             Read timed out"``, and you will need to restart your Hive client (all other Hive 
+             queries issued in that session will fail.)
+
 #. Check out the other tables in the ``starling`` database: ``hive> show tables;``
 #. As you do need to specify a partition, it's good to also see the list of available partitions: ``hive> SHOW PARTITIONS starling_jobs;``
 

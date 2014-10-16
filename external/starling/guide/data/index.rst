@@ -2,11 +2,65 @@
 Data in Starling
 ================
 
-Data Base 
-=========
+.. 10/16/14 - Performed a spellcheck, cleaned up tables.
+
+Overview
+========
+
+What Data is Collected?
+-----------------------
+
+
+When is it Collected?
+---------------------
+
+Data is collected every night, but trends are computed initially on a monthly 
+basis possibly improved in future.
+
+How is it Collected?
+--------------------
+
+A predefined workflow that triggers a series of steps where in the first step will 
+copy configured log files in the Hadoop ecosystem into the cluster. A subsequent 
+step would extract information from the log file and store the data into a scalable 
+store such as Hive. The raw log files can then be removed after the workflow completes. 
+This workflow will be scheduled to run on a recurring basis.
+
+Users can execute an ad hoc query against this warehouse. We also propose to have a 
+workflow that triggers a series of predetermined computation of trends from this 
+warehouse and results stored in the same warehouse or an SQL store.
+Integration Points
+
+
+Data Warehouse
+==============
+
+What is the Data Warehouse?
+---------------------------
+
+Where is the Data Warehouse?
+----------------------------
+
+Can the Data Warehouse Be Accessed?
+-----------------------------------
+
+How is the Data Warehouse Accessed?
+-----------------------------------
+
+
+HCatalog
+========
+
+
+Hive Database 
+=============
+
+The Hive database that stores the Starling data is ``starling``. 
+
 
 Tables
 ------
+
 
 
 Data and Retention
@@ -19,11 +73,11 @@ Introduction
 ------------
 
 Raw and processed logs are stored using HCatalog and partitioned by cluster and date. 
-These partitioning keys are grid (of type string) and within that dt (of type string 
+These partitioning keys are grid (of type string) and within that ``dt`` (of type string 
 and format YYYY_MM_DD) respectively. This partitioning drastically reduces the amount 
 of data that Hive has to process through for generating the results for most queries. 
 If a log is collected more frequently than once per day, there will be another partition 
-tm (of type string and format HH_MM) within the dt partition.
+``tm`` (of type string and format HH_MM) within the ``dt`` partition.
 
 Raw logs are stored after maximal compression in order to reduce storage requirements. 
 Processed logs are stored as compressed tables using columnar-storage provided by 
@@ -106,12 +160,12 @@ The ``starling_jobs`` table has the following schema (apart from the partitionin
    <tr>
    <td> <code>priority</code> </td>
    <td> <code>string</code> </td>
-   <td> The priority of the Job (e.g. <code>NORMAL</code>). </td>
+   <td> The priority of the Job (e.g., <code>NORMAL</code>). </td>
    </tr>
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Job (e.g. <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the Job (e.g., <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>submit_ts</code> </td>
@@ -166,7 +220,7 @@ The ``starling_jobs`` table has the following schema (apart from the partitionin
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -183,9 +237,9 @@ The ``starling_job_counters`` table has the following schema (apart from the par
    <table>
 		<thead>
 			<tr>
-				<th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=3;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-				<th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=3;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-				<th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=3;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+				<th>Column Name</th>
+				<th>Type</th>
+				<th>Description</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -217,7 +271,7 @@ The ``starling_job_counters`` table has the following schema (apart from the par
 			<tr>
 				<td> <code>dt</code> </td>
 				<td> <code>string</code> </td>
-				<td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+				<td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
 			</tr>
        </tbody>
    </table>
@@ -237,9 +291,9 @@ The ``starling_tasks`` table has the following schema (apart from the partitioni
    <table>
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=4;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=4;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=4;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
@@ -256,12 +310,12 @@ The ``starling_tasks`` table has the following schema (apart from the partitioni
    <tr>
    <td> <code>type</code> </td>
    <td> <code>string</code> </td>
-   <td> The type of the Task (e.g. <code>SETUP</code>, <code>MAP</code>, <code>REDUCE</code>, <code>CLEANUP</code>, etc.). </td>
+   <td> The type of the Task (e.g., <code>SETUP</code>, <code>MAP</code>, <code>REDUCE</code>, <code>CLEANUP</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Task (e.g. <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the Task (e.g., <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>splits</code> </td>
@@ -291,7 +345,7 @@ The ``starling_tasks`` table has the following schema (apart from the partitioni
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -335,7 +389,7 @@ The ``starling_task_counters`` table has the following schema (apart from the pa
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -353,9 +407,9 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <table>
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=6;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=6;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=6;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
@@ -372,7 +426,7 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <tr>
    <td> <code>type</code> </td>
    <td> <code>string</code> </td>
-   <td> The type of the Task Attempt (e.g. <code>SETUP</code>, <code>MAP</code>, <code>REDUCE</code>, <code>CLEANUP</code>, etc.). </td>
+   <td> The type of the Task Attempt (e.g., <code>SETUP</code>, <code>MAP</code>, <code>REDUCE</code>, <code>CLEANUP</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>tracker_name</code> </td>
@@ -397,7 +451,7 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Task Attempt (e.g. <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the Task Attempt (e.g., <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>state</code> </td>
@@ -437,7 +491,7 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -465,12 +519,12 @@ The ``starling_task_attempt_counters`` table has the following schema (apart fro
 		<tr>
 			<td> <code>task_attempt_id</code> </td>
 			<td> <code>string</code> </td>
-			<td bgcolor="#ffffff" valign="top" class="foswikiTableCol2 foswikiLastCol"> The identifier for a Task Attempt for a Task. </td>
+			<td>The identifier for a Task Attempt for a Task.</td>
 		</tr>
-		<tr class="foswikiTableOdd foswikiTableRowdataBgSorted1 foswikiTableRowdataBg1">
-			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <code>counters</code> </td>
+		<tr>
+			<td><code>counters</code></td>
 			<td> <code>map&lt;string,string&gt;</code> </td>
-			<td bgcolor="#edf4f9" valign="top" class="foswikiTableCol2 foswikiLastCol"> The Counters for the Task Attempt with the name of a Counter mapping to its value. </td>
+			<td>The Counters for the Task Attempt with the name of a Counter mapping to its value. </td>
 		</tr>
 		<tr>
 			<td><code>grid</code> </td>
@@ -480,7 +534,7 @@ The ``starling_task_attempt_counters`` table has the following schema (apart fro
 		<tr>
 			<td><code>dt</code> </td>
 			<td><code>string</code> </td>
-			<td>partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+			<td>partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
 		</tr>
    </tbody></table>
 
@@ -500,9 +554,9 @@ The ``starling_job_confs`` table has the following schema (apart from the partit
    <table>
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=8;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=8;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=8;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
@@ -524,7 +578,7 @@ The ``starling_job_confs`` table has the following schema (apart from the partit
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -542,9 +596,9 @@ The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema 
    <table>
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=9;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=9;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=9;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
@@ -621,7 +675,7 @@ The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema 
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Job (e.g. <code>SUCCEEDED</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the Job (e.g., <code>SUCCEEDED</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>map_slot_seconds</code> </td>
@@ -656,7 +710,7 @@ The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema 
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -681,7 +735,7 @@ starling_fs_namespaces
 
 **Source Log:** FSImage
 
-The ``starling_fs_namespaces`` table has following schema and describes the FSImage details and is paritioned by keys ``grid`` and ``dt`` :
+The ``starling_fs_namespaces`` table has following schema and describes the FSImage details and is partitioned by keys ``grid`` and ``dt`` :
 
 
 .. raw:: html
@@ -698,7 +752,7 @@ The ``starling_fs_namespaces`` table has following schema and describes the FSIm
    <tr>
    <td> <code>version</code> </td>
    <td> <code>int</code> </td>
-   <td> The FSImage version (e.g. <code>-19</code>). </td>
+   <td> The FSImage version (e.g., <code>-19</code>). </td>
    </tr>
    <tr>
    <td> <code>ns_id</code> </td>
@@ -728,7 +782,7 @@ The ``starling_fs_namespaces`` table has following schema and describes the FSIm
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -739,7 +793,7 @@ starling_fs_entries
 **Source Log:** FSImage
 
 
-The ``starling_fs_entries`` table describe the name space listing and has the following schema and is paritioned by keys ``grid`` and ``dt``:
+The ``starling_fs_entries`` table describe the name space listing and has the following schema and is partitioned by keys ``grid`` and ``dt``:
 
 
 .. raw:: html
@@ -747,16 +801,16 @@ The ``starling_fs_entries`` table describe the name space listing and has the fo
    <table>
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=12;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=12;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=12;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
    <tr>
    <td> <code>path</code> </td>
    <td> <code>string</code> </td>
-   <td> The path of the INode (e.g. <code>/foo/bar/snafu</code>). </td>
+   <td> The path of the INode (e.g., <code>/foo/bar/snafu</code>). </td>
    </tr>
    <tr>
    <td> <code>dir</code> </td>
@@ -811,17 +865,17 @@ The ``starling_fs_entries`` table describe the name space listing and has the fo
    <tr>
    <td> <code>user</code> </td>
    <td> <code>string</code> </td>
-   <td> The user-name of the owner of this file (e.g. <code>dfsload</code>). </td>
+   <td> The user-name of the owner of this file (e.g., <code>dfsload</code>). </td>
    </tr>
    <tr>
    <td> <code>groupname</code> </td>
    <td> <code>string</code> </td>
-   <td> The group-name of the owner of this file (e.g. <code>users</code>). </td>
+   <td> The group-name of the owner of this file (e.g., <code>users</code>). </td>
    </tr>
    <tr>
    <td> <code>perms</code> </td>
    <td> <code>string</code> </td>
-   <td> The permissions for the file as a 3-letter octal string (e.g. <code>755</code> for <code>rwxr-xr-x</code>). </td>
+   <td> The permissions for the file as a 3-letter octal string (e.g., <code>755</code> for <code>rwxr-xr-x</code>). </td>
    </tr>
    <tr>
    <td> <code>grid</code> </td>
@@ -831,7 +885,7 @@ The ``starling_fs_entries`` table describe the name space listing and has the fo
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -853,7 +907,7 @@ starling_fs_blocks
 **Source Log:** FSImage
 
 The ``starling_fs_blocks`` table has following schema and describes 
-the Block details and is paritioned by keys ``grid`` and ``dt``:
+the Block details and is partitioned by keys ``grid`` and ``dt``:
 
 
 .. raw:: html
@@ -861,16 +915,16 @@ the Block details and is paritioned by keys ``grid`` and ``dt``:
    <table>
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=13;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=13;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=13;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
    <tr>
    <td> <code>path</code> </td>
    <td> <code>string</code> </td>
-   <td> The path of the INode (e.g. <code>/foo/bar/snafu</code>). </td>
+   <td> The path of the INode (e.g., <code>/foo/bar/snafu</code>). </td>
    </tr>
    <tr>
    <td> <code>block_id</code> </td>
@@ -900,7 +954,7 @@ the Block details and is paritioned by keys ``grid`` and ``dt``:
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -921,9 +975,9 @@ The ``starling_fs_audit`` table has the following schema (apart from the partiti
    <table>
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=14;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=14;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=14;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
@@ -945,12 +999,12 @@ The ``starling_fs_audit`` table has the following schema (apart from the partiti
    <tr>
    <td> <code>ugi</code> </td>
    <td> <code>string</code> </td>
-   <td> The user-group information (UGI) on whose behalf the command was executed (e.g. <code>gmetrics@YGRID.YAHOO.COM</code>). </td>
+   <td> The user-group information (UGI) on whose behalf the command was executed (e.g., <code>gmetrics@YGRID.YAHOO.COM</code>). </td>
    </tr>
    <tr>
    <td> <code>ip_addr</code> </td>
    <td> <code>string</code> </td>
-   <td> The IP address from where the command was received (e.g. <code>98.137.112.252</code>). </td>
+   <td> The IP address from where the command was received (e.g., <code>98.137.112.252</code>). </td>
    </tr>
    <tr>
    <td> <code>dest_path</code> </td>
@@ -960,17 +1014,17 @@ The ``starling_fs_audit`` table has the following schema (apart from the partiti
    <tr>
    <td> <code>user</code> </td>
    <td> <code>string</code> </td>
-   <td> The user-name of the <em>owner</em> of this file (e.g. <code>dfsload</code>). Note that this is <em>not</em> the user who executed the command (see <code>ugi</code> instead). </td>
+   <td> The user-name of the <em>owner</em> of this file (e.g., <code>dfsload</code>). Note that this is <em>not</em> the user who executed the command (see <code>ugi</code> instead). </td>
    </tr>
    <tr>
    <td> <code>groupname</code> </td>
    <td> <code>string</code> </td>
-   <td> The group-name of the owner of this file (e.g. <code>users</code>). </td>
+   <td> The group-name of the owner of this file (e.g., <code>users</code>). </td>
    </tr>
    <tr>
    <td> <code>perms</code> </td>
    <td> <code>string</code> </td>
-   <td> String representation of the file permissions (e.g. <code>rwx--r---</code>) </td>
+   <td> String representation of the file permissions (e.g., <code>rwx--r---</code>) </td>
    </tr>
    <tr>
    <td> <code>grid</code> </td>
@@ -980,7 +1034,7 @@ The ``starling_fs_audit`` table has the following schema (apart from the partiti
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g. <code>YYYY_MM_DD</code> </td>
+   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -1014,27 +1068,27 @@ The ``simon_reports`` table has the following schema (apart from the partitionin
    <tr>
    <td> <code>app_name</code> </td>
    <td> <code>string</code> </td>
-   <td> The application corresponding to the report (e.g. <code>jvm</code>). </td>
+   <td> The application corresponding to the report (e.g., <code>jvm</code>). </td>
    </tr>
    <tr>
    <td> <code>report_name</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of the report (e.g. <code>JVM</code>). </td>
+   <td> The name of the report (e.g., <code>JVM</code>). </td>
    </tr>
    <tr>
    <td> <code>report_cluster</code> </td>
    <td> <code>string</code> </td>
-   <td> The cluster for the report (e.g. <code>jvm.mithrilgold</code>). Note that this is <em>not</em> the same as the value of the <code>grid</code> partitioning key. </td>
+   <td> The cluster for the report (e.g., <code>jvm.mithrilgold</code>). Note that this is <em>not</em> the same as the value of the <code>grid</code> partitioning key. </td>
    </tr>
    <tr>
    <td> <code>report_version</code> </td>
    <td> <code>string</code> </td>
-   <td> The version of the report (e.g. <code>0.1.0.0</code>). </td>
+   <td> The version of the report (e.g., <code>0.1.0.0</code>). </td>
    </tr>
    <tr>
    <td> <code>report_period</code> </td>
    <td> <code>int</code> </td>
-   <td> The period after which the report is generated (e.g. <code>60</code>). </td>
+   <td> The period after which the report is generated (e.g., <code>60</code>). </td>
    </tr>
    <tr>
    <td> <code>report_ts</code> </td>
@@ -1044,7 +1098,7 @@ The ``simon_reports`` table has the following schema (apart from the partitionin
    <tr>
    <td> <code>report_item</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of an item within the report (e.g. <code>by node name</code>). </td>
+   <td> The name of an item within the report (e.g., <code>by node name</code>). </td>
    </tr>
    <tr>
    <td> <code>tags</code> </td>
@@ -1069,7 +1123,7 @@ Schemas for GDM Configuration
 Grid Data Management (GDM) is a flexible, scalable platform for making large volume 
 of data available on the Grid. GDM is deployed as a managed service and is used 
 primarily by the Grid Ops team to schedule and manage the flow of data to and from 
-the Grid. The GDM configuration is segregated into dataset and datasource configuration.
+the Grid. The GDM configuration is segregated into data-set and data-source configuration.
 
 Starling collects the snapshot of the GDM configuration everyday to the warehouse 
 directory and processes them.
@@ -1077,9 +1131,9 @@ directory and processes them.
 starling_gdm_dataset
 ####################
 
-**Source Log:** GDM dataset configuration
+**Source Log:** GDM data-set configuration
 
-The ``starling_gdm_dataset`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_dataset`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 
 .. raw:: html
@@ -1096,22 +1150,22 @@ The ``starling_gdm_dataset`` table has the following schema (apart from the part
    <tr>
    <td> <code>dsname</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of the dataset (e.g. <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
+   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
    </tr>
    <tr>
    <td> <code>description</code> </td>
    <td> <code>string</code> </td>
-   <td> Description about the dataset </td>
+   <td> Description about the data set.</td>
    </tr>
    <tr>
    <td> <code>catalog</code> </td>
    <td> <code>string</code> </td>
-   <td> The catalog under which the dataset falls (e.g. <code>YST-LOGS-NET</code>) </td>
+   <td> The catalog under which the data set falls (e.g., <code>YST-LOGS-NET</code>). </td>
    </tr>
    <tr>
    <td> <code>active</code> </td>
    <td> <code>string</code> </td>
-   <td> Specifies the activity status of the dataset. Allowed values are <code>NEW,TRUE,FALSE</code> </td>
+   <td> Specifies the activity status of the data set. Allowed values are <code>NEW,TRUE,FALSE</code> </td>
    </tr>
    <tr>
    <td> <code>verification_instance</code> </td>
@@ -1121,42 +1175,42 @@ The ``starling_gdm_dataset`` table has the following schema (apart from the part
    <tr>
    <td> <code>priority</code> </td>
    <td> <code>string</code> </td>
-   <td> Priority of the dataset. Allowed values are <code>HIGHEST,HIGH,NORMAL,LOW,LOWEST</code> </td>
+   <td> Priority of the taste. Allowed values are <code>HIGHEST,HIGH,NORMAL,LOW,LOWEST</code> </td>
    </tr>
    <tr>
    <td> <code>contact_owner</code> </td>
    <td> <code>string</code> </td>
-   <td> Contact information of the owner of the dataset. (e.g. <code>dfsload@yahoo-inc.com</code> ) </td>
+   <td> Contact information of the owner of the data set. (e.g., <code>dfsload@yahoo-inc.com</code> ) </td>
    </tr>
    <tr>
    <td> <code>publisher</code> </td>
    <td> <code>string</code> </td>
-   <td> Contact information of the publisher of the dataset. (e.g. <code>grid-data-ops@yahoo-inc.com</code>) </td>
+   <td> Contact information of the publisher of the data set. (e.g., <code>grid-data-ops@yahoo-inc.com</code>) </td>
    </tr>
    <tr>
    <td> <code>consumer</code> </td>
    <td> <code>string</code> </td>
-   <td> Contact information of the consumer of the dataset. (e.g. <code>grid-data-ops@yahoo-inc.com</code>) </td>
+   <td> Contact information of the consumer of the data set. (e.g., <code>grid-data-ops@yahoo-inc.com</code>) </td>
    </tr>
    <tr>
    <td> <code>comments</code> </td>
    <td> <code>string</code> </td>
-   <td> Comments about the dataset. </td>
+   <td> Comments about the data set. </td>
    </tr>
    <tr>
    <td> <code>owner</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of the user owning the dataset. (e.g. <code>dfsload</code>) </td>
+   <td> The name of the user owning the data set. (e.g., <code>dfsload</code>) </td>
    </tr>
    <tr>
    <td> <code>groupname</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of the group owning the dataset. (e.g. <code>users</code>) </td>
+   <td> The name of the group owning the data set. (e.g., <code>users</code>) </td>
    </tr>
    <tr>
    <td> <code>permission</code> </td>
    <td> <code>string</code> </td>
-   <td> The permissions set on the dataset. (e.g. 755) </td>
+   <td> The permissions set on the data set. (e.g., 755) </td>
    </tr>
    <tr>
    <td> <code>frequency</code> </td>
@@ -1166,12 +1220,12 @@ The ``starling_gdm_dataset`` table has the following schema (apart from the part
    <tr>
    <td> <code>disc_frequency</code> </td>
    <td> <code>int</code> </td>
-   <td> Discovery frequency. (e.g. <code>7200</code>) </td>
+   <td> Discovery frequency. (e.g., <code>7200</code>) </td>
    </tr>
    <tr>
    <td> <code>disc_interface</code> </td>
    <td> <code>string</code> </td>
-   <td> Discovery Interface (e.g. <code>FDI</code>) </td>
+   <td> Discovery Interface (e.g., <code>FDI</code>) </td>
    </tr>
    <tr>
    <td> <code>paths</code> </td>
@@ -1186,12 +1240,12 @@ The ``starling_gdm_dataset`` table has the following schema (apart from the part
    <tr>
    <td> <code>part_name</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of the partition. (e.g. <code>srcid</code>) </td>
+   <td> The name of the partition. (e.g., <code>srcid</code>) </td>
    </tr>
    <tr>
    <td> <code>part_type</code> </td>
    <td> <code>string</code> </td>
-   <td> The partition type. (e.g. <code>DSD</code>) </td>
+   <td> The partition type. (e.g., <code>DSD</code>) </td>
    </tr>
    <tr>
    <td> <code>part_value</code> </td>
@@ -1251,17 +1305,17 @@ The ``starling_gdm_dataset`` table has the following schema (apart from the part
    </tbody></table>
 
 
-.. note:: Be careful with your selects from this table. There are multiple entries for each data set. There will be an entry for each datasource and one for each dataset. Also, if there are duplicate sources inside each config, there will be duplicate entries in this table.
+.. note:: Be careful with your selects from this table. There are multiple entries for each data set. There will be an entry for each data source and one for each data set. Also, if there are duplicate sources inside each config, there will be duplicate entries in this table.
 
 .. note:: ``target_type`` is not really the type of target since it can be either source or 
-          target. This corresponds to the Sources or Targets tags inside a GDM dataset configuration file.
+          target. This corresponds to the Sources or Targets tags inside a GDM data set configuration file.
 
 starling_gdm_data_definition
 ############################
 
-Source Log: GDM dataset configuration
+Source Log: GDM data set configuration
 
-The ``starling_gdm_data_definition`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_definition`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 
 .. raw:: html
@@ -1280,7 +1334,7 @@ The ``starling_gdm_data_definition`` table has the following schema (apart from 
    <tr>
    <td> <code>dsname</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of the dataset (e.g. <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
+   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
    </tr>
    <tr>
    <td> <code>static_schema_path</code> </td>
@@ -1349,9 +1403,9 @@ The ``starling_gdm_data_definition`` table has the following schema (apart from 
 starling_gdm_data_validation
 ############################
 
-Source Log: GDM dataset configuration
+Source Log: GDM data-set configuration
 
-The ``starling_gdm_data_validation`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_validation`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 
 .. raw:: html
@@ -1359,16 +1413,16 @@ The ``starling_gdm_data_validation`` table has the following schema (apart from 
    <table cellspacing="0" id="table18" cellpadding="0" class="foswikiTable" rules="rows" border="1">
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=18;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=18;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=18;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
    <tr>
    <td> <code>dsname</code> </td>
    <td> <code>string</code> </td>
-   <td> The name of the dataset (e.g. <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
+   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
    </tr>
    <tr>
    <td> <code>type</code> </td>
@@ -1401,9 +1455,9 @@ The ``starling_gdm_data_validation`` table has the following schema (apart from 
 starling_gdm_data_workflow_strategy
 ###################################
 
-**Source Log:** GDM dataset configuration
+**Source Log:** GDM data-set configuration
 
-The ``starling_gdm_data_workflow_strategy`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_workflow_strategy`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 .. raw:: html
 
@@ -1411,9 +1465,9 @@ The ``starling_gdm_data_workflow_strategy`` table has the following schema (apar
    <table cellspacing="0" id="table19" cellpadding="0" class="foswikiTable" rules="rows" border="1">
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=19;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=19;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=19;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
@@ -1458,18 +1512,18 @@ The ``starling_gdm_data_workflow_strategy`` table has the following schema (apar
 starling_gdm_data_flow
 ######################
 
-**Source Log:** GDM dataset configuration
+**Source Log:** GDM data-set configuration
 
-The ``starling_gdm_data_flow`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_flow`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 .. raw:: html
 
    <table cellspacing="0" id="table20" cellpadding="0" class="foswikiTable" rules="rows" border="1">
    <thead>
    <tr>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol0 foswikiFirstCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=0;table=20;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Column Name</font></a> </th>
-   <th bgcolor="#687684" valign="top"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=1;table=20;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Type</font></a> </th>
-   <th bgcolor="#687684" valign="top" class="foswikiTableCol2 foswikiLastCol"> <a rel="nofollow" href="/view/Grid/StarlingSchemas?sortcol=2;table=20;up=0#sorted_table" title="Sort by this column"><font color="#ffffff">Description</font></a> </th>
+   <th>Column Name</th>
+   <th>Type</th>
+   <th>Description</th>
    </tr>
    </thead>
    <tbody>
@@ -1493,9 +1547,9 @@ The ``starling_gdm_data_flow`` table has the following schema (apart from the pa
 starling_gdm_datasource
 #######################
 
-**Source Log:** GDM datasource configuration
+**Source Log:** GDM data-source configuration
 
-The ``starling_gdm_data_source`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_source`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 .. raw:: html
 
@@ -1561,9 +1615,9 @@ The ``starling_gdm_data_source`` table has the following schema (apart from the 
 starling_gdm_datasource_interfaces
 ##################################
 
-**Source Log:** GDM datasource configuration
+**Source Log:** GDM data-source configuration
 
-The ``starling_gdm_data_source_interfaces`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_source_interfaces`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 .. raw:: html
 
@@ -1619,9 +1673,9 @@ The ``starling_gdm_data_source_interfaces`` table has the following schema (apar
 starling_gdm_datasource_interface_cmds
 ######################################
 
-**Source Log:** GDM datasource configuration
+**Source Log:** GDM data-source configuration
 
-The ``starling_gdm_data_source_interface_cmds`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_source_interface_cmds`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 
 .. raw:: html
@@ -1666,9 +1720,9 @@ The ``starling_gdm_data_source_interface_cmds`` table has the following schema (
 starling_gdm_datasource_resources
 #################################
 
-**Source Log:** GDM datasource configuration
+**Source Log:** GDM data-source configuration
 
-The ``starling_gdm_data_source_resources`` table has the following schema (apart from the partioning keys ``console`` and ``dt``):
+The ``starling_gdm_data_source_resources`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
 
 .. raw:: html
 
@@ -1703,7 +1757,6 @@ The ``starling_gdm_data_source_resources`` table has the following schema (apart
    <td> &nbsp; </td>
    </tr>
    </tbody></table>
-
 
 
 Use of Data
