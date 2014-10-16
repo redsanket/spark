@@ -29,6 +29,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.junit.Assert;
 /**
  * This class has all the methods needed to consume a REST response received from the
  * timelineserver.  
@@ -61,7 +62,7 @@ public class HtfATSUtils {
 		if (entities != null) {
 			for (int entityIdx = 0; entityIdx < entities.size(); entityIdx++) {
 				JSONObject aDagEntityJson = (JSONObject) entities
-						.get(entityIdx);
+						.get(entityIdx);				
 				completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType, includes);
 				genericATSResponse.entities.add(completelyProcessedSingleEntity);
 			}
@@ -96,7 +97,7 @@ public class HtfATSUtils {
 				entityJsonObject, anEntityInGenericATSResponseBO, expectedEntities);
 		
 		
-		if(expectedEntities.get("otherinfo")){
+		if(expectedEntities.get("otherinfo") == true){
 			switch (entityType){
 				case TEZ_DAG_ID:				
 					consumeOtherInfoFromDagId(anEntityInGenericATSResponseBO, entityJsonObject);				
@@ -117,6 +118,8 @@ public class HtfATSUtils {
 					consumeOtherInfoFromTezVertexId(anEntityInGenericATSResponseBO, entityJsonObject);
 					break;
 			}
+		}else{
+			Assert.assertNull((entityJsonObject.get("otherinfo")));
 		}
 		return anEntityInGenericATSResponseBO;
 	}
@@ -133,7 +136,7 @@ public class HtfATSUtils {
 	EntityInGenericATSResponseBO consumeCommonPortionsInResponse(JSONObject aDagEntityJson, 
 			EntityInGenericATSResponseBO anEntityInGenericATSResponseBO, Map<String,Boolean>expectedEntities) {
 
-		if(expectedEntities.get("events")){
+		if(expectedEntities.get("events")==true){
 			JSONArray eventsJsonArray = (JSONArray) (aDagEntityJson.get("events"));
 			for (int eventIdx = 0; eventIdx < eventsJsonArray.size(); eventIdx++) {
 				ATSEventsEntityBO anATSEventsEntityBO = new ATSEventsEntityBO(expectedEntities.get("events"));
@@ -154,7 +157,7 @@ public class HtfATSUtils {
 		anEntityInGenericATSResponseBO.starttime = (Long) aDagEntityJson.get("starttime");
 
 		// RELATED ENTITIES
-		if(expectedEntities.get("relatedentities")){
+		if(expectedEntities.get("relatedentities") == true){
 			JSONObject relatedEntitiesJson = (JSONObject) (aDagEntityJson.get("relatedentities"));
 			for (String relatedEntityKey:anEntityInGenericATSResponseBO.relatedentities.keySet()){
 				List<String>relatedEntitiesList = new ArrayList<String>();
@@ -167,10 +170,11 @@ public class HtfATSUtils {
 				anEntityInGenericATSResponseBO.relatedentities.put(relatedEntityKey,relatedEntitiesList);			
 			}
 		}else{
+			Assert.assertNull((aDagEntityJson.get("relatedentities")));
 			anEntityInGenericATSResponseBO.relatedentities=null;
 		}
 		// PRIMARY FILTER
-		if(expectedEntities.get("primaryfilters")){
+		if(expectedEntities.get("primaryfilters")== true){
 			JSONObject primaryFiltersJson = (JSONObject) (aDagEntityJson.get("primaryfilters"));
 			for (String aPrimaryFilterKey:anEntityInGenericATSResponseBO.primaryfilters.keySet()){
 				List<String>primaryFiltersList = new ArrayList<String>();
@@ -183,6 +187,7 @@ public class HtfATSUtils {
 				
 			}
 		}else{
+			Assert.assertNull((aDagEntityJson.get("primaryfilters")));
 			anEntityInGenericATSResponseBO.primaryfilters=null;
 		}
 
@@ -532,7 +537,7 @@ public class HtfATSUtils {
 		return counterGroups;
 	}
 	
-	public boolean compareSimilarResponses(Queue<GenericATSResponseBO> queue) {
+	public boolean takeFirstItemAndCompareItAgainstAllTheOtherItemsInQueue(Queue<GenericATSResponseBO> queue) {
 		boolean verdict = true;
 		if (queue.size() == 0)
 			return true;
@@ -546,23 +551,8 @@ public class HtfATSUtils {
 		}
 		return verdict;
 	}
-
-	public boolean compareSimilarEntities(Queue<EntityInGenericATSResponseBO> queue) {
-		boolean verdict = true;
-		if (queue.size() == 0)
-			return true;
-		EntityInGenericATSResponseBO referenceItem = queue.peek();
-		EntityInGenericATSResponseBO anItem;
-		while ((anItem = queue.poll()) != null) {
-			if (!referenceItem.equals(anItem)) {
-				verdict = false;
-				break;
-			}
-		}
-		return verdict;
-	}
 	
-	public List<String> getRelatedEntities(GenericATSResponseBO dagIdResponse, String lookupKey){
+	public List<String> getRelatedentities(GenericATSResponseBO dagIdResponse, String lookupKey){
 		List<String> vertexIds = new ArrayList<String>();
 		Map<String, List<String>> relatedEntities = dagIdResponse.entities.get(0).relatedentities;
 		for (String aVertexId:relatedEntities.get(lookupKey)){
@@ -573,7 +563,7 @@ public class HtfATSUtils {
 		return vertexIds;
 	}
 		
-	public EntityInGenericATSResponseBO retrieveSingleEntityFromBunch(
+	public EntityInGenericATSResponseBO searchAndRetrieveSingleEntityFromBunch (
 			GenericATSResponseBO bunch,
 			EntityTypes entityType, GenericATSResponseBO singleResponse) {
 		EntityInGenericATSResponseBO retrievedEntity = null;

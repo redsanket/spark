@@ -85,7 +85,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 		singleConsumedResponse.dump();
 
 		EntityInGenericATSResponseBO retrievedEntityFromBunch = atsUtils
-				.retrieveSingleEntityFromBunch(bunchedProcessedResponses,
+				.searchAndRetrieveSingleEntityFromBunch(bunchedProcessedResponses,
 						EntityTypes.TEZ_DAG_ID, singleConsumedResponse);
 		Queue<EntityInGenericATSResponseBO> dagIdQueue = new ConcurrentLinkedQueue<EntityInGenericATSResponseBO>();
 		dagIdQueue.add(singleConsumedResponse.entities.get(0));

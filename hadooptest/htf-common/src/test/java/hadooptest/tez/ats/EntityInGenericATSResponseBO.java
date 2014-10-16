@@ -147,25 +147,33 @@ public class EntityInGenericATSResponseBO {
 	}
 
 	public void dump() {
+
 		TestSession.logger.info("entitytype:" + entityType);
 		TestSession.logger.info("entity:" + entity);
 		TestSession.logger.info("starttime:" + starttime);
-		for (ATSEventsEntityBO aDagEventsEntity : events) {
-			aDagEventsEntity.dump();
+		if (events != null) {
+			for (ATSEventsEntityBO aDagEventsEntity : events) {
+				aDagEventsEntity.dump();
+			}
 		}
-		TestSession.logger.info("DUMPING RELATED ENTITIES");
-		for (String key : relatedentities.keySet()) {
-			TestSession.logger.info(key + ":");
-			TestSession.logger.info(relatedentities.get(key));
-		}
-
-		TestSession.logger.info("DUMPING PRIMARY FILTERS");
-		for (String key : primaryfilters.keySet()) {
-			TestSession.logger.info(key + ":");
-			TestSession.logger.info(primaryfilters.get(key));
+		if (relatedentities != null) {
+			TestSession.logger.info("DUMPING RELATED ENTITIES");
+			for (String key : relatedentities.keySet()) {
+				TestSession.logger.info(key + ":");
+				TestSession.logger.info(relatedentities.get(key));
+			}
 		}
 
-		otherinfo.dump();
+		if (primaryfilters != null) {
+			TestSession.logger.info("DUMPING PRIMARY FILTERS");
+			for (String key : primaryfilters.keySet()) {
+				TestSession.logger.info(key + ":");
+				TestSession.logger.info(primaryfilters.get(key));
+			}
+		}
+		if (otherinfo != null){
+			otherinfo.dump();
+		}
 	}
 
 }

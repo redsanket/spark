@@ -8,6 +8,9 @@ import static org.apache.http.client.params.CookiePolicy.BROWSER_COMPATIBILITY;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.HTTPHandle;
+import hadooptest.cluster.hadoop.HadoopComponent;
+import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.tez.utils.HtfATSUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,10 +18,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.http.client.params.ClientPNames;
+import org.json.simple.parser.ParseException;
 import org.junit.After;
 import org.junit.Before;
 
@@ -33,10 +42,14 @@ import com.jcraft.jsch.UserInfo;
 
 public class ATSTestsBaseClass extends TestSession {
 	public static boolean timelineserverStarted = false;
-
-
-	
 	public static HashMap<String, String> userCookies = new HashMap<String, String>();
+	Queue<GenericATSResponseBO> dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> tezVertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> tezTaskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> tezTaskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	AtomicInteger errorCount = new AtomicInteger();
 	
 	public enum EntityTypes {
 		  TEZ_APPLICATION_ATTEMPT,
@@ -85,7 +98,8 @@ public class ATSTestsBaseClass extends TestSession {
 
 
 	@Before
-	public void getCookiesForAllUsers() throws Exception {
+	public void cleanupAndPrepareForTestRun() throws Exception {
+		//Fetch cookies
 		HTTPHandle httpHandle = new HTTPHandle();
 		String hitusr_1_cookie = null;
 		String hitusr_2_cookie = null;
@@ -104,6 +118,17 @@ public class ATSTestsBaseClass extends TestSession {
 		hitusr_4_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_4);
 		userCookies.put(HadooptestConstants.UserNames.HITUSR_4, hitusr_4_cookie);		
+		
+		//Reset the error count
+		errorCount.set(0);
+		
+		//"Drain" the queues
+		dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		tezVertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		tezTaskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		tezTaskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 
 	}
 
@@ -361,6 +386,77 @@ public class ATSTestsBaseClass extends TestSession {
 		System.out.println("And the Host name of the g/w is:"
 				+ iaddr.getHostName());
 		return iaddr.getHostName();
+
+	}
+	public String getATSUrl(){
+		String rmHostname = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated hostname is:"
+					+ nodesHash.get(key).getHostname());
+			rmHostname = nodesHash.get(key).getHostname();
+		}
+
+		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/";
+		return url;
+	}
+	
+	class RunnableRESTCaller implements Runnable {
+		String url;
+		String user;
+		EntityTypes entityType;
+		Queue<GenericATSResponseBO> queue;
+		Map<String, Boolean> expectedEntities;
+
+		public RunnableRESTCaller(String url, String user, EntityTypes entityType,
+				Queue<GenericATSResponseBO> queue,
+				Map<String, Boolean> expectedEntities) {
+			this.url = url;
+			this.user = user;
+			this.entityType = entityType;
+			this.queue = queue;
+			this.expectedEntities = expectedEntities;
+		}
+
+		public void run() {
+			TestSession.logger
+					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+			TestSession.logger.info("Url:" + url);
+			TestSession.logger
+					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+			Response response = given().cookie(userCookies.get(user)).get(url);
+			String responseAsString = response.getBody().asString();
+			TestSession.logger.info("R E S P O N S E  B O D Y :"
+					+ responseAsString);
+			HtfATSUtils atsUtils = new HtfATSUtils();
+			GenericATSResponseBO consumedResponse = null;
+			try {
+				consumedResponse = atsUtils.processATSResponse(
+						responseAsString, entityType, expectedEntities);
+			} catch (ParseException e) {
+				TestSession.logger.error(e);
+				errorCount.incrementAndGet();
+			} catch (Exception e){
+				errorCount.incrementAndGet();
+			}
+			queue.add(consumedResponse);
+
+		}
+	}
+	void makeRESTCall(ExecutorService execService, String rmHostname,
+			EntityTypes entityType, String resource,
+			Queue<GenericATSResponseBO> queue,
+			Map<String, Boolean> expectedEntities) throws InterruptedException {
+		RunnableRESTCaller tezDagIdCaller = new RunnableRESTCaller("http://" + rmHostname + ":"
+				+ HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/"
+				+ entityType + "/" + resource,
+				HadooptestConstants.UserNames.HITUSR_1, entityType, queue,
+				expectedEntities);
+		execService.execute(tezDagIdCaller);
 
 	}
 
