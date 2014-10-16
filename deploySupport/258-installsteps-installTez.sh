@@ -43,20 +43,9 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      echo after -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/*.jar ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
      echo after fs -chmod 744 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/common/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     echo after fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/common/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/common/lib/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/hdfs/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/hdfs/lib/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/yarn/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/yarn/lib/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/mapreduce/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -copyFromLocal -f  /home/gs/gridre/yroot.$CLUSTER/share/hadoop-$FULLHADOOPVERSION/share/hadoop/mapreduce/lib/*.jar /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 644 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
      echo after -chmod 644 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
-
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
-     echo after fs -chmod -R 755 /sharelib/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/conf/tez/tez-site.xml /tmp/ ; \
      echo Running hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
