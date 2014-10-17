@@ -2,6 +2,10 @@
 Overview
 ========
 
+.. 10/17/14 Reorganized the sections, rewrote the sections "Who Should Use Starling?" and "Starling Users"
+.. Need information about how application developers use Starling, Howl, an architecture diagram, info about Rumen, and 
+.. a list of competing tecnologies with comparisons (see TBDs).
+
 What is Starling?
 =================  
 
@@ -22,8 +26,8 @@ Starling offers the following:
 - key information to manage the data better such as Archival decisions or 
   management of replicas, etc.
 - capability to compute the window between a data set’s retention and the last access time trends.
-- data from multiple logs at one place holistically.
-- capability to find the "Query of Death"--jobs that cause the clusters to go down.
+- data from multiple logs in one place holistically.
+- capability to find the "Query of Death"--jobs that cause clusters to go down.
 - capability to add additional logs using pluggable integration points.
 - logs for analyzing the following:
 
@@ -32,74 +36,20 @@ Starling offers the following:
   - Hadoop Job History logs
   - DAQ/GDM Metrics
   - DAQ/GDM Configuration files
-  - Howl
-
-You can also use tools like Rumen to gather data from Starling.
-
+  - Howl (TBD)
 
 Who Should Use Starling?
 ========================
 
 Starling serves a wide audience with each using Starling in a different way.
+Let's look at three key audiences and consider how representatives
+from these groups might use Starling.
 
-**Product Managers** will want to use Starling to get product metrics, usage reports,
-find the top users, and generate reports.
-
-**Service Engineers** will use Starling to debug and improve the efficiency of jobs, 
-storage, and compression.
-
-**Application Developers** 
-
-Starling Uses
-=============
-
-
-Audit Log Tool
---------------
-
-In many circumstances, you will want to capture who accessed which feed 
-or identify a set of feeds which haven't been accessed for a specified period of time.
-
-data source:  Namenode, Auditlog data
-schema: http://twiki.corp.yahoo.com/view/Grid/NameNodeAuditLogsTool
-
-Oozie Usage Report
-------------------
-
-Starling allows you generate Oozie usage reports, so you can analyze and identify the following:
-
-- volume and peak usage
-- latency
-- feature usage
-
-You can also capture the status and starting/ending time of Oozie actions such as bundles/coord,
-jobs/coord, actions/workflow, jobs/workflow. This information can help you 
-to do the following:
-
-- load balance and plan for capacity when on-boarding, or after on-boarding. 
-- analyze the average/deviation/distribution of job execution latency
-  to detect abnormality and debug slowness (e.g., why SLAs were breached). 
-- determing which features that the customer's coord/workflow jobs are using,
-  which helps evaluate the impace of an outage/decommission/update of a product.
-
-
-Utilization of Grid
--------------------
-
-You can inspect how you are using HDFS by looking at ``jobsummary`` logs from JobTracker
-as well as Y Org charts and the owners of logical space.
-
-
-Architecture
-============  
-
-Starling connects to several source clusters spread across different data-centers, 
-collects relevant logs from these clusters into a central warehouse cluster, processes 
-these logs, and stores the processed logs in a data warehouse. This warehouse can 
-then be queried using various tools in order to determine KPIs for the clusters 
-and for performing other such analyses.
-
-TBD: Need diagram
+- **Product Managers** - use Starling to get product metrics, usage reports,
+  find the top users, and generate reports.
+- **Service Engineers** - use Starling to debug and improve the efficiency of jobs, 
+  storage, and compression.
+- **Application Developers**  - TBD
 
 How It Works
 ============
@@ -125,14 +75,67 @@ Ways to Access Starling
 - **HCatalog** - 
 - **MapReduce** - You can use the MapReduce Java API to access data through HCatalog as well.
 - **Query Server** - This is a REST-based API for accessing Starling data. (TBD: auth/read-only?/query params?)
+- **Rumen** - (TBD) ...to gather data from Starling.
 
 
-HCatalog
---------
+Starling Uses
+=============
+
+We've already discussed how different audiences might use Starling and its benefits,
+but now we'd like to describe in more detail a few more formalized uses.
+
+Audit Log Tool
+--------------
+
+In many circumstances, you will want to capture who accessed which feed 
+or identify a set of feeds which haven't been accessed for a specified period of time.
+Starling lets you access `Watch Dog (the NameNode/Audit Logs tool) <http://twiki.corp.yahoo.com/view/Grid/NameNodeAuditLogsTool
+>`_, so you capture key information from the NameNode audit log of each user-facing grid 
+and to store it in a way that allows flexible reporting and trouble-shooting. 
+
+Oozie Usage Report
+------------------
+
+Starling allows you generate Oozie usage reports, so you can analyze and identify the following:
+
+- volume and peak usage
+- latency
+- feature usage
+
+You can also capture the status and starting/ending time of Oozie actions such as bundles/coord,
+jobs/coord, actions/workflow, jobs/workflow. This information can help you 
+to do the following:
+
+- load balance and plan for capacity when on-boarding, or after on-boarding. 
+- analyze the average/deviation/distribution of job execution latency
+  to detect abnormality and debug slowness (e.g., why SLAs were breached). 
+- determing which features that the customer's coord/workflow jobs are using,
+  which helps evaluate the impace of an outage/decommission/update of a product.
+
+
+Utilization of Grid
+-------------------
+
+You can inspect how you are using HDFS by looking at ``jobsummary`` logs from JobTracker
+as well as Y organizaton charts and the owners of logical space.
+
+
+Architecture
+============  
+
+Starling connects to several source clusters spread across different data-centers, 
+collects relevant logs from these clusters into a central warehouse cluster, processes 
+these logs, and stores the processed logs in a data warehouse. This warehouse can 
+then be queried using various tools in order to determine KPIs for the clusters 
+and for performing other such analyses.
+
+TBD: Need diagram
+
+
 
 Alternatives to Starling
 ========================
 
-
+TBD
 pros/cons vs. other solution
 
