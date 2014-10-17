@@ -2,6 +2,12 @@
 Query Bank
 ==========
 
+To help Starling users (product managers, application developers and service engineers), we've 
+aggregated some commonly used queries. We have to categorize
+the queries by the type of user in the future, and also provide examples of other
+ways to access Starling data such as Pig commands, MapReduce examples, etc.
+
+
 Number of Jobs Run by a User
 ============================
 
@@ -144,18 +150,19 @@ Note: INSERT OVERWRITE LOCAL DIRECTORY 'test.csv' won't do what you think it mig
 Query
 -----
 
+:: 
 
-select F.grid as GRID, F.dt as DT, F.ugi as USER,
+    select F.grid as GRID, F.dt as DT, F.ugi as USER,
        regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4) as DATASET,
        min(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as FIRST_INSTANCE,
        max(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as LAST_INSTANCE,
        count(1) as COUNT
-from (
-   select src.grid as grid,
+    from (
+        select src.grid as grid,
           src.dt as dt,
           src.ugi as ugi,
           src.src_path as src_path
-     from  starling_fs_audit src 
+        from  starling_fs_audit src 
      where 
         src.grid='DG' and src.dt='2011_11_08'
         and regexp_extract(src.src_path,'(/data/SDS/data)/([^/]*)/([^/]*)', 1) == '/data/SDS/data'
