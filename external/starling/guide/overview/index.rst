@@ -2,6 +2,10 @@
 Overview
 ========
 
+.. 10/17/14 Reorganized the sections, rewrote the sections "Who Should Use Starling?" and "Starling Users"
+.. Need information about how application developers use Starling, Howl, an architecture diagram, info about Rumen, and 
+.. a list of competing tecnologies with comparisons (see TBDs).
+
 What is Starling?
 =================  
 
@@ -15,50 +19,123 @@ research and development.
 Why Use Starling?
 =================
 
+Starling offers the following:
+
+- insights into the Hadoop Clusters usage to allow us to tune 
+  better and  prioritize features.
+- key information to manage the data better such as Archival decisions or 
+  management of replicas, etc.
+- capability to compute the window between a data set’s retention and the last access time trends.
+- data from multiple logs in one place holistically.
+- capability to find the "Query of Death"--jobs that cause clusters to go down.
+- capability to add additional logs using pluggable integration points.
+- logs for analyzing the following:
+
+  - Name node Static File System Images
+  - Name node audit logs
+  - Hadoop Job History logs
+  - DAQ/GDM Metrics
+  - DAQ/GDM Configuration files
+  - Howl (TBD)
+
+Who Should Use Starling?
+========================
+
+Starling serves a wide audience with each using Starling in a different way.
+Let's look at three key audiences and consider how representatives
+from these groups might use Starling.
+
+- **Product Managers** - use Starling to get product metrics, usage reports,
+  find the top users, and generate reports.
+- **Service Engineers** - use Starling to debug and improve the efficiency of jobs, 
+  storage, and compression.
+- **Application Developers**  - TBD
+
+How It Works
+============
+
+Starling uses an Oozie coordinator job and work-flows running on a central warehouse 
+cluster to periodically pull logs from various source clusters, process these logs 
+and store the processed logs as tables in a central data-warehouse backed by HCatalog. 
+These tables can then be queried by developers, performance analysts, etc., using a 
+Query Server, Hive, or Pig. Starling does not have a separate stand-alone server--all 
+the collection and processing happens as a part of Oozie work-flows and an Oozie 
+coordinator job executes these work-flows at an appropriate frequency.
+
+Starling has an extensible architecture that allows it to handle different services 
+and their logs. It allows easy configuration to handle different source clusters 
+or frequencies of log-collection without requiring any modification or addition of code.
+
+Ways to Access Starling
+=======================
+
+- **Hive** - Starling data is stored in the ``starling`` database on the Cobalt Blue cluster. The database contains 
+  many tables for auditing and getting filesystem, job, queue, and task information.
+- **Pig** - You can access the tables through Pig through HCatalog.  
+- **HCatalog** - 
+- **MapReduce** - You can use the MapReduce Java API to access data through HCatalog as well.
+- **Query Server** - This is a REST-based API for accessing Starling data. (TBD: auth/read-only?/query params?)
+- **Rumen** - (TBD) ...to gather data from Starling.
+
+
+Starling Uses
+=============
+
+We've already discussed how different audiences might use Starling and its benefits,
+but now we'd like to describe in more detail a few more formalized uses.
 
 Audit Log Tool
 --------------
 
-want to capture who accessed which feed. or identify a set of feeds which haven't not been accessed during last 3 months
-
-data source:  Namenode, Auditlog data
-schema: http://twiki.corp.yahoo.com/view/Grid/NameNodeAuditLogsTool
+In many circumstances, you will want to capture who accessed which feed 
+or identify a set of feeds which haven't been accessed for a specified period of time.
+Starling lets you access `Watch Dog (the NameNode/Audit Logs tool) <http://twiki.corp.yahoo.com/view/Grid/NameNodeAuditLogsTool
+>`_, so you capture key information from the NameNode audit log of each user-facing grid 
+and to store it in a way that allows flexible reporting and trouble-shooting. 
 
 Oozie Usage Report
 ------------------
 
-Solution would do 1) volume/peak analysis, 2) performance(latency) analysis, 3) feature-usage analysis. For 1). Capture status of how many Oozie bundles/coord jobs/coord actions/workflow jobs/workflow actions are running at any given time period (month, day, hour). This allows for identifying peak time where most coord jobs/actions are running, which could help proper load-balancing, and capacity-planning at onboarding time. For 2), Capture starting/ending time of coord jobs/cood actions/workflow jobs/workflow actions. This enables to analyze average/deviation/distribution of job execution latency, used to detect abnormality and debug slowness (e.g. why SLAs were breached). For 3), Capture features that customer's coord/workflow jobs are using. This could help analyze the full impact of outage/decomission/update of product.
+Starling allows you generate Oozie usage reports, so you can analyze and identify the following:
+
+- volume and peak usage
+- latency
+- feature usage
+
+You can also capture the status and starting/ending time of Oozie actions such as bundles/coord,
+jobs/coord, actions/workflow, jobs/workflow. This information can help you 
+to do the following:
+
+- load balance and plan for capacity when on-boarding, or after on-boarding. 
+- analyze the average/deviation/distribution of job execution latency
+  to detect abnormality and debug slowness (e.g., why SLAs were breached). 
+- determing which features that the customer's coord/workflow jobs are using,
+  which helps evaluate the impace of an outage/decommission/update of a product.
+
+
+Utilization of Grid
+-------------------
+
+You can inspect how you are using HDFS by looking at ``jobsummary`` logs from JobTracker
+as well as Y organizaton charts and the owners of logical space.
 
 
 Architecture
 ============  
 
-Starling connects to several source clusters spread across different data-centers, collects relevant logs from these clusters into a central warehouse cluster, processes these logs and stores the processed logs in a data warehouse. This warehouse can then be queried using various tools in order to determine KPIs for the clusters and for performing other such analyses.
+Starling connects to several source clusters spread across different data-centers, 
+collects relevant logs from these clusters into a central warehouse cluster, processes 
+these logs, and stores the processed logs in a data warehouse. This warehouse can 
+then be queried using various tools in order to determine KPIs for the clusters 
+and for performing other such analyses.
+
+TBD: Need diagram
 
 
-
-
-How It Works
-============
-
-Starling uses an Oozie coordinator job and work-flows running on a central warehouse cluster to periodically pull logs from various source clusters, process these logs and store the processed logs as tables in a central data-warehouse backed by HCatalog. These tables can then be queried by developers, performance analysts, etc. using a Query Server, Hive or Pig. Starling does not have a separate stand-alone server - all the collection and processing happens as a part of Oozie work-flows and an Oozie coordinator job executes these work-flows at an appropriate frequency.
-Starling has an extensible architecture that allows it to handle different services and their logs. It allows easy configuration to handle different source clusters or frequencies of log-collection without requiring any modification or addition of code.
-
-Ways to Access Starling
-=======================
-
-Hive
-----
-
-Pig
----
-
-HCatalog
---------
 
 Alternatives to Starling
 ========================
 
-
+TBD
 pros/cons vs. other solution
 

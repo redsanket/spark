@@ -9,7 +9,6 @@ Starling User Guide
    overview/index
    data/index
    getting_started/index
-   usage/index
    query_bank/index
 
 
