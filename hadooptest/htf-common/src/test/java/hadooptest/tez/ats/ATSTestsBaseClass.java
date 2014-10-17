@@ -10,6 +10,8 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
+import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
 import hadooptest.tez.utils.HtfATSUtils;
 
 import java.io.BufferedReader;
@@ -46,60 +48,49 @@ public class ATSTestsBaseClass extends TestSession {
 	Queue<GenericATSResponseBO> dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	Queue<GenericATSResponseBO> containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	Queue<GenericATSResponseBO> applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-	Queue<GenericATSResponseBO> tezVertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-	Queue<GenericATSResponseBO> tezTaskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-	Queue<GenericATSResponseBO> tezTaskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> vertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> taskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+	Queue<GenericATSResponseBO> taskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	AtomicInteger errorCount = new AtomicInteger();
-	
+
 	public enum EntityTypes {
-		  TEZ_APPLICATION_ATTEMPT,
-		  TEZ_CONTAINER_ID,
-		  TEZ_DAG_ID,
-		  TEZ_VERTEX_ID,
-		  TEZ_TASK_ID,
-		  TEZ_TASK_ATTEMPT_ID,
-		};
-	
-		public enum EVENTS{
-			EXPECTED,
-			NOT_EXPECTED
+		TEZ_APPLICATION_ATTEMPT, TEZ_CONTAINER_ID, TEZ_DAG_ID, TEZ_VERTEX_ID, TEZ_TASK_ID, TEZ_TASK_ATTEMPT_ID,
+	};
+
+	public static class ResponseComposition {
+		public enum EVENTS {
+			EXPECTED, NOT_EXPECTED
 		}
 
-		public enum ENTITYTYPE{
-			EXPECTED,
-			NOT_EXPECTED
+		public enum ENTITYTYPE {
+			EXPECTED, NOT_EXPECTED
 		}
 
-		public enum ENTITY{
-			EXPECTED,
-			NOT_EXPECTED
+		public enum ENTITY {
+			EXPECTED, NOT_EXPECTED
 		}
 
-		public enum STARTTIME{
-			EXPECTED,
-			NOT_EXPECTED
+		public enum STARTTIME {
+			EXPECTED, NOT_EXPECTED
 		}
 
-		public enum RELATEDENTITIES{
-			EXPECTED,
-			NOT_EXPECTED
+		public enum RELATEDENTITIES {
+			EXPECTED, NOT_EXPECTED
 		}
 
-		public enum PRIMARYFILTERS{
-			EXPECTED,
-			NOT_EXPECTED
-		}
-		
-		public enum OTHERINFO{
-			EXPECTED,
-			NOT_EXPECTED
+		public enum PRIMARYFILTERS {
+			EXPECTED, NOT_EXPECTED
 		}
 
+		public enum OTHERINFO {
+			EXPECTED, NOT_EXPECTED
+		}		
 
+	}
 
 	@Before
 	public void cleanupAndPrepareForTestRun() throws Exception {
-		//Fetch cookies
+		// Fetch cookies
 		HTTPHandle httpHandle = new HTTPHandle();
 		String hitusr_1_cookie = null;
 		String hitusr_2_cookie = null;
@@ -108,90 +99,103 @@ public class ATSTestsBaseClass extends TestSession {
 
 		hitusr_1_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_1);
-		userCookies.put(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_cookie);
+		userCookies
+				.put(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_cookie);
 		hitusr_2_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_2);
-		userCookies.put(HadooptestConstants.UserNames.HITUSR_2, hitusr_2_cookie);
+		userCookies
+				.put(HadooptestConstants.UserNames.HITUSR_2, hitusr_2_cookie);
 		hitusr_3_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_3);
-		userCookies.put(HadooptestConstants.UserNames.HITUSR_3, hitusr_3_cookie);
+		userCookies
+				.put(HadooptestConstants.UserNames.HITUSR_3, hitusr_3_cookie);
 		hitusr_4_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_4);
-		userCookies.put(HadooptestConstants.UserNames.HITUSR_4, hitusr_4_cookie);		
-		
-		//Reset the error count
+		userCookies
+				.put(HadooptestConstants.UserNames.HITUSR_4, hitusr_4_cookie);
+
+		// Reset the error count
 		errorCount.set(0);
-		
-		//"Drain" the queues
+
+		// "Drain" the queues
 		dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		tezVertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		tezTaskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		tezTaskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		vertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		taskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		taskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 
 	}
 
-	public Map<String, Boolean> expectEverythingMap(){
-		Map<String,Boolean> expectedFieldsMap = new HashMap<String, Boolean>();
+	public Map<String, Boolean> expectEverythingMap() {
+		Map<String, Boolean> expectedFieldsMap = new HashMap<String, Boolean>();
 
-			expectedFieldsMap.put("events", true);
-			expectedFieldsMap.put("entitytype", true);
-			expectedFieldsMap.put("entity", true);
-			expectedFieldsMap.put("starttime", true);
-			expectedFieldsMap.put("relatedentities", true);
-			expectedFieldsMap.put("primaryfilters", true);
-			expectedFieldsMap.put("otherinfo", true);
+		expectedFieldsMap.put("events", true);
+		expectedFieldsMap.put("entitytype", true);
+		expectedFieldsMap.put("entity", true);
+		expectedFieldsMap.put("starttime", true);
+		expectedFieldsMap.put("relatedentities", true);
+		expectedFieldsMap.put("primaryfilters", true);
+		expectedFieldsMap.put("otherinfo", true);
 
 		return expectedFieldsMap;
 
 	}
-	public Map<String, Boolean> getExpectedFieldsMap(EVENTS events, ENTITYTYPE entitytype, ENTITY entity,
-			STARTTIME starttime, RELATEDENTITIES relatedentities, PRIMARYFILTERS primaryfilters,
-			OTHERINFO otherinfo){
-		Map<String,Boolean> expectedFieldsMap = new HashMap<String, Boolean>();
-		if (events == EVENTS.EXPECTED){
+
+	public Map<String, Boolean> getExpectedFieldsMap(
+			ResponseComposition.EVENTS events,
+			ResponseComposition.ENTITYTYPE entitytype,
+			ResponseComposition.ENTITY entity,
+			ResponseComposition.STARTTIME starttime,
+			ResponseComposition.RELATEDENTITIES relatedentities,
+			ResponseComposition.PRIMARYFILTERS primaryfilters,
+			ResponseComposition.OTHERINFO otherinfo) {
+		Map<String, Boolean> expectedFieldsMap = new HashMap<String, Boolean>();
+		if (events == EVENTS.EXPECTED) {
 			expectedFieldsMap.put("events", true);
-		}else{
+		} else {
 			expectedFieldsMap.put("events", false);
 		}
-		if (entitytype == ENTITYTYPE.EXPECTED){
+		if (entitytype == ResponseComposition.ENTITYTYPE.EXPECTED) {
 			expectedFieldsMap.put("entitytype", true);
-		}else{
+		} else {
 			expectedFieldsMap.put("entitytype", false);
 		}
-		if (entity == ENTITY.EXPECTED){
+		if (entity == ResponseComposition.ENTITY.EXPECTED) {
 			expectedFieldsMap.put("entity", true);
-		}else{
+		} else {
 			expectedFieldsMap.put("entity", false);
 		}
-		if (starttime == STARTTIME.EXPECTED){
+		if (starttime == ResponseComposition.STARTTIME.EXPECTED) {
 			expectedFieldsMap.put("starttime", true);
-		}else{
+		} else {
 			expectedFieldsMap.put("starttime", false);
 		}
-		if (relatedentities == RELATEDENTITIES.EXPECTED){
+		if (relatedentities == ResponseComposition.RELATEDENTITIES.EXPECTED) {
 			expectedFieldsMap.put("relatedentities", true);
-		}else{
+		} else {
 			expectedFieldsMap.put("relatedentities", false);
 		}
-		if (primaryfilters == PRIMARYFILTERS.EXPECTED){
+		if (primaryfilters == ResponseComposition.PRIMARYFILTERS.EXPECTED) {
 			expectedFieldsMap.put("primaryfilters", true);
-		}else{
+		} else {
 			expectedFieldsMap.put("primaryfilters", false);
 		}
-		if (otherinfo == OTHERINFO.EXPECTED){
+		if (otherinfo == ResponseComposition.OTHERINFO.EXPECTED) {
 			expectedFieldsMap.put("otherinfo", true);
-		}else{
+		} else {
 			expectedFieldsMap.put("otherinfo", false);
 		}
 
 		return expectedFieldsMap;
-		
-	}
-	public void ensureTimelineserverStarted(String resourceManagerHost) throws Exception {
 
-		String url = "http://" + resourceManagerHost + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/";
+	}
+
+	public void ensureTimelineserverStarted(String resourceManagerHost)
+			throws Exception {
+
+		String url = "http://" + resourceManagerHost + ":"
+				+ HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/";
 		int MAX_COUNT = 10;
 		int count = 1;
 
@@ -201,7 +205,8 @@ public class ATSTestsBaseClass extends TestSession {
 				Response response = given()
 						.log()
 						.all()
-						.cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1))
+						.cookie(userCookies
+								.get(HadooptestConstants.UserNames.HITUSR_1))
 						.param("User-Agent", "Mozilla/5.0")
 						.param("Accept",
 								"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
@@ -210,8 +215,7 @@ public class ATSTestsBaseClass extends TestSession {
 						.param("Content-Type", "application/json")
 						.config(newConfig().httpClient(
 								httpClientConfig().setParam(COOKIE_POLICY,
-										BROWSER_COMPATIBILITY)))
-						.redirects()
+										BROWSER_COMPATIBILITY))).redirects()
 						.follow(false).get(url);
 
 				TestSession.logger.info("Response status Line:"
@@ -388,7 +392,8 @@ public class ATSTestsBaseClass extends TestSession {
 		return iaddr.getHostName();
 
 	}
-	public String getATSUrl(){
+
+	public String getATSUrl() {
 		String rmHostname = null;
 		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
@@ -401,19 +406,20 @@ public class ATSTestsBaseClass extends TestSession {
 			rmHostname = nodesHash.get(key).getHostname();
 		}
 
-		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/";
+		String url = "http://" + rmHostname + ":"
+				+ HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/";
 		return url;
 	}
-	
-	class RunnableRESTCaller implements Runnable {
+
+	class RunnableHttpGetAndEnqueue implements Runnable {
 		String url;
 		String user;
 		EntityTypes entityType;
 		Queue<GenericATSResponseBO> queue;
 		Map<String, Boolean> expectedEntities;
 
-		public RunnableRESTCaller(String url, String user, EntityTypes entityType,
-				Queue<GenericATSResponseBO> queue,
+		public RunnableHttpGetAndEnqueue(String url, String user,
+				EntityTypes entityType, Queue<GenericATSResponseBO> queue,
 				Map<String, Boolean> expectedEntities) {
 			this.url = url;
 			this.user = user;
@@ -440,23 +446,21 @@ public class ATSTestsBaseClass extends TestSession {
 			} catch (ParseException e) {
 				TestSession.logger.error(e);
 				errorCount.incrementAndGet();
-			} catch (Exception e){
+			} catch (Exception e) {
 				errorCount.incrementAndGet();
 			}
 			queue.add(consumedResponse);
 
 		}
 	}
-	void makeRESTCall(ExecutorService execService, String rmHostname,
-			EntityTypes entityType, String resource,
+
+	void makeHttpCallAndEnqueueConsumedResponse(ExecutorService execService,
+			String url, String user, EntityTypes entityType,
 			Queue<GenericATSResponseBO> queue,
 			Map<String, Boolean> expectedEntities) throws InterruptedException {
-		RunnableRESTCaller tezDagIdCaller = new RunnableRESTCaller("http://" + rmHostname + ":"
-				+ HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/"
-				+ entityType + "/" + resource,
-				HadooptestConstants.UserNames.HITUSR_1, entityType, queue,
-				expectedEntities);
-		execService.execute(tezDagIdCaller);
+		RunnableHttpGetAndEnqueue runnableHttpGetAndEnqueue = new RunnableHttpGetAndEnqueue(
+				url, user, entityType, queue, expectedEntities);
+		execService.execute(runnableHttpGetAndEnqueue);
 
 	}
 

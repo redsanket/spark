@@ -13,6 +13,7 @@ import hadooptest.tez.ats.OtherInfoTezTaskAttemptIdBO;
 import hadooptest.tez.ats.OtherInfoTezTaskIdBO;
 import hadooptest.tez.ats.OtherInfoTezVertexIdBO;
 import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
+import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 import hadooptest.tez.ats.CounterGroup.Counter;
 import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO;
 import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO.DagPlanEdgeBO;
@@ -552,15 +553,33 @@ public class HtfATSUtils {
 		return verdict;
 	}
 	
-	public List<String> getRelatedentities(GenericATSResponseBO dagIdResponse, String lookupKey){
-		List<String> vertexIds = new ArrayList<String>();
-		Map<String, List<String>> relatedEntities = dagIdResponse.entities.get(0).relatedentities;
-		for (String aVertexId:relatedEntities.get(lookupKey)){
-			TestSession.logger.info("Fetched related entry:" + aVertexId);
-		}
-		vertexIds.addAll(relatedEntities.get(lookupKey));		
+	public List<String> retrieveValuesFromFormattedResponse(GenericATSResponseBO dagIdResponse, 
+			Object field, String lookupKey, int indexPos){
+		List<String> retrievedStrings = new ArrayList<String>();
 		
-		return vertexIds;
+		if (field instanceof ResponseComposition.EVENTS){
+			//Ignore EVENTS for now
+		}else if(field instanceof ResponseComposition.ENTITYTYPE){
+			retrievedStrings.add(dagIdResponse.entities.get(indexPos).entityType);		
+			
+		}else if(field instanceof ResponseComposition.ENTITY){
+			retrievedStrings.add(dagIdResponse.entities.get(indexPos).entity);
+			
+		}else if(field instanceof ResponseComposition.STARTTIME){
+			retrievedStrings.add(dagIdResponse.entities.get(indexPos).starttime.toString());			
+			
+		}else if(field instanceof ResponseComposition.RELATEDENTITIES){
+			List<String>tempList;
+			tempList = dagIdResponse.entities.get(indexPos).relatedentities.get(lookupKey);
+			retrievedStrings.addAll(tempList);
+			
+		}else if(field instanceof ResponseComposition.PRIMARYFILTERS){
+			List<String>tempList;
+			tempList = dagIdResponse.entities.get(indexPos).primaryfilters.get(lookupKey);			
+			retrievedStrings.addAll(tempList);
+		}	
+		
+		return retrievedStrings;
 	}
 		
 	public EntityInGenericATSResponseBO searchAndRetrieveSingleEntityFromBunch (

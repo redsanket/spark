@@ -53,22 +53,22 @@ public class TestFilterRequests extends ATSTestsBaseClass {
 				STARTTIME.EXPECTED, RELATEDENTITIES.NOT_EXPECTED,
 				PRIMARYFILTERS.NOT_EXPECTED, OTHERINFO.NOT_EXPECTED);
 
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_DAG_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_DAG_ID,
 				"?primaryFilter=dagName:MRRSleepJob&fields=events", dagIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_CONTAINER_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_CONTAINER_ID,
 				"?fields=events", containerIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_APPLICATION_ATTEMPT,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_APPLICATION_ATTEMPT,
 				"?fields=events", applicationAttemptQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_VERTEX_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_VERTEX_ID,
 				"?fields=events", tezVertexIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_TASK_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ID,
 				"?fields=events", tezTaskIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID,
 				"?fields=events", tezTaskAttemptIdQueue,
 				expectedEntities);
 
@@ -115,22 +115,22 @@ public class TestFilterRequests extends ATSTestsBaseClass {
 				STARTTIME.EXPECTED, RELATEDENTITIES.EXPECTED,
 				PRIMARYFILTERS.NOT_EXPECTED, OTHERINFO.NOT_EXPECTED);
 
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_DAG_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_DAG_ID,
 				"?primaryFilter=dagName:MRRSleepJob&fields=relatedentities", dagIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_CONTAINER_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_CONTAINER_ID,
 				"?fields=relatedentities", containerIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_APPLICATION_ATTEMPT,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_APPLICATION_ATTEMPT,
 				"?fields=relatedentities", applicationAttemptQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_VERTEX_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_VERTEX_ID,
 				"?fields=relatedentities", tezVertexIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_TASK_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ID,
 				"?fields=relatedentities", tezTaskIdQueue,
 				expectedEntities);
-		makeRESTCall(execService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID,
+		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID,
 				"?fields=relatedentities", tezTaskAttemptIdQueue,
 				expectedEntities);
 

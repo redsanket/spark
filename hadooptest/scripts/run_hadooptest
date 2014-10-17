@@ -209,10 +209,7 @@ elsif ($spark12) {
     $dependencies_opt .= " -Dspark.version=1.2.0.0 -Dspark.version.full=1.2.0.0_2.5.0.1.1408041624_1409171654 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 
-elsif ($tez) {
-    $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
-    #$dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
-} else {
+else {
 
 	# When Hadoop is used, this profile must be called before profile-ci
 	# or any other profile.  If another profile is used first, the
