@@ -15,20 +15,17 @@ research and development.
 Why Use Starling?
 =================
 
-As we mentioned in the previous section, the data in Starling can be analyzed and used to generate
-reports or for research purposes. More commonly though, you will be using Starling to generate 
-certain types of reports and for monitoring grid usage. Let's take a look at some of these 
-usages now.
+Starling offers the following:
 
-- Starling can provide insights into the Hadoop Clusters usage to allow us to tune 
+- insights into the Hadoop Clusters usage to allow us to tune 
   better and  prioritize features.
-- Provides key information to manage the data better such as Archival decisions or 
+- key information to manage the data better such as Archival decisions or 
   management of replicas, etc.
-- Ability to compute the window between a data set’s retention and the last access time trends.
-- Provides data from multiple logs at one place holistically.
-- Find the Query of Death, jobs that cause the clusters to go down.
-- Tools like Rumen could gather data from this store.
-- Logs used to Analyze
+- capability to compute the window between a data set’s retention and the last access time trends.
+- data from multiple logs at one place holistically.
+- capability to find the "Query of Death"--jobs that cause the clusters to go down.
+- capability to add additional logs using pluggable integration points.
+- logs for analyzing the following:
 
   - Name node Static File System Images
   - Name node audit logs
@@ -36,7 +33,9 @@ usages now.
   - DAQ/GDM Metrics
   - DAQ/GDM Configuration files
   - Howl
-  - Capability to add additional logs – Pluggablea Integration Points
+
+You can also use tools like Rumen to gather data from Starling.
+
 
 Who Should Use Starling?
 ========================
