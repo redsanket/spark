@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -23,54 +24,48 @@ public class TestFilterRequests extends ATSTestsBaseClass {
 //	@Test
 	public void testFilteringOnEvents() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
-		Queue<GenericATSResponseBO> dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> tezVertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> tezTaskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> tezTaskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-
-
-		String rmHostname = null;
-		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-
-		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
-		for (String key : nodesHash.keySet()) {
-			TestSession.logger.info("Key:" + key);
-			TestSession.logger.info("The associated hostname is:"
-					+ nodesHash.get(key).getHostname());
-			rmHostname = nodesHash.get(key).getHostname();
-		}
 
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-
-
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
-				EVENTS.EXPECTED, ENTITYTYPE.EXPECTED, ENTITY.EXPECTED,
-				STARTTIME.EXPECTED, RELATEDENTITIES.NOT_EXPECTED,
-				PRIMARYFILTERS.NOT_EXPECTED, OTHERINFO.NOT_EXPECTED);
+				ResponseComposition.EVENTS.EXPECTED, 
+				ResponseComposition.ENTITYTYPE.EXPECTED, 
+				ResponseComposition.ENTITY.EXPECTED,
+				ResponseComposition.STARTTIME.EXPECTED, 
+				ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED, 
+				ResponseComposition.OTHERINFO.NOT_EXPECTED);
+		
+		EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
+		String url = getATSUrl() + "/" + entityTypeInRequest + "/" + "?fields=events";
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, dagIdQueue, expectedEntities);
 
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_DAG_ID,
-				"?primaryFilter=dagName:MRRSleepJob&fields=events", dagIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_CONTAINER_ID,
-				"?fields=events", containerIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_APPLICATION_ATTEMPT,
-				"?fields=events", applicationAttemptQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_VERTEX_ID,
-				"?fields=events", tezVertexIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ID,
-				"?fields=events", tezTaskIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID,
-				"?fields=events", tezTaskAttemptIdQueue,
-				expectedEntities);
+		entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + "?fields=events";
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, vertexIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + "?fields=events";
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + "?fields=events";
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskAttemptIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_APPLICATION_ATTEMPT;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + "?fields=events";
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, applicationAttemptQueue, expectedEntities);
 
 		execService.shutdown();
 		while (!execService.isTerminated()) {
@@ -85,54 +80,48 @@ public class TestFilterRequests extends ATSTestsBaseClass {
 	@Test
 	public void testFilteringOnRelatedentities() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
-		Queue<GenericATSResponseBO> dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> tezVertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> tezTaskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		Queue<GenericATSResponseBO> tezTaskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-
-
-		String rmHostname = null;
-		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-
-		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
-		for (String key : nodesHash.keySet()) {
-			TestSession.logger.info("Key:" + key);
-			TestSession.logger.info("The associated hostname is:"
-					+ nodesHash.get(key).getHostname());
-			rmHostname = nodesHash.get(key).getHostname();
-		}
 
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-
-
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
-				EVENTS.NOT_EXPECTED, ENTITYTYPE.EXPECTED, ENTITY.EXPECTED,
-				STARTTIME.EXPECTED, RELATEDENTITIES.EXPECTED,
-				PRIMARYFILTERS.NOT_EXPECTED, OTHERINFO.NOT_EXPECTED);
+				ResponseComposition.EVENTS.NOT_EXPECTED, 
+				ResponseComposition.ENTITYTYPE.EXPECTED, 
+				ResponseComposition.ENTITY.EXPECTED,
+				ResponseComposition.STARTTIME.EXPECTED, 
+				ResponseComposition.RELATEDENTITIES.EXPECTED,
+				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED, 
+				ResponseComposition.OTHERINFO.NOT_EXPECTED);
+		String FILTER_STRING = "?fields=relatedentities";
+		EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
+		String url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, dagIdQueue, expectedEntities);
 
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_DAG_ID,
-				"?primaryFilter=dagName:MRRSleepJob&fields=relatedentities", dagIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_CONTAINER_ID,
-				"?fields=relatedentities", containerIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_APPLICATION_ATTEMPT,
-				"?fields=relatedentities", applicationAttemptQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_VERTEX_ID,
-				"?fields=relatedentities", tezVertexIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ID,
-				"?fields=relatedentities", tezTaskIdQueue,
-				expectedEntities);
-		makeHttpCallAndEnqueueConsumedResponse(execService, rmHostname, EntityTypes.TEZ_TASK_ATTEMPT_ID,
-				"?fields=relatedentities", tezTaskAttemptIdQueue,
-				expectedEntities);
+		entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, vertexIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskAttemptIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_APPLICATION_ATTEMPT;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, applicationAttemptQueue, expectedEntities);
 
 		execService.shutdown();
 		while (!execService.isTerminated()) {
@@ -140,7 +129,127 @@ public class TestFilterRequests extends ATSTestsBaseClass {
 					.info("Thread sleeping while awaiting DAG ID REST calls");
 			Thread.sleep(1000);
 		}
+
 		Assert.assertEquals(errorCount.get(), 0);
+	}
+
+	@Test
+	public void testTwoComboFiltering() throws Exception {
+		ExecutorService execService = Executors.newFixedThreadPool(10);
+
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		String FILTER_STRING = "?primaryFilter=dagName:MRRSleepJob&fields=relatedentities";
+		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+				ResponseComposition.EVENTS.NOT_EXPECTED, 
+				ResponseComposition.ENTITYTYPE.EXPECTED, 
+				ResponseComposition.ENTITY.EXPECTED,
+				ResponseComposition.STARTTIME.EXPECTED, 
+				ResponseComposition.RELATEDENTITIES.EXPECTED,
+				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED, 
+				ResponseComposition.OTHERINFO.NOT_EXPECTED);
+		
+		EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
+		String url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, dagIdQueue, expectedEntities);
+
+		entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, vertexIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskAttemptIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_APPLICATION_ATTEMPT;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, applicationAttemptQueue, expectedEntities);
+
+		execService.shutdown();
+		while (!execService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting REST calls");
+			Thread.sleep(1000);
+		}
+
+		Assert.assertEquals(errorCount.get(), 0);
+	}
+	
+	@Test
+	public void testThreeComboFiltering() throws Exception {
+		ExecutorService execService = Executors.newFixedThreadPool(10);
+
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		String FILTER_STRING = "?primaryFilter=dagName:MRRSleepJob&fields=relatedentities&limit=2";
+		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+				ResponseComposition.EVENTS.EXPECTED, 
+				ResponseComposition.ENTITYTYPE.EXPECTED, 
+				ResponseComposition.ENTITY.EXPECTED,
+				ResponseComposition.STARTTIME.EXPECTED, 
+				ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED, 
+				ResponseComposition.OTHERINFO.NOT_EXPECTED);
+		
+		EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
+		String url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, dagIdQueue, expectedEntities);
+
+		entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, vertexIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, taskAttemptIdQueue, expectedEntities);
+		
+		entityTypeInRequest = EntityTypes.TEZ_APPLICATION_ATTEMPT;
+		url = getATSUrl() + "/" + entityTypeInRequest + "/" + FILTER_STRING;
+		makeHttpCallAndEnqueueConsumedResponse(execService, url,
+				HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, applicationAttemptQueue, expectedEntities);
+
+		execService.shutdown();
+		while (!execService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting REST calls");
+			Thread.sleep(1000);
+		}
+
+		Assert.assertEquals(errorCount.get(), 0);
+		Assert.assertTrue(dagIdQueue.size() <=2);
+		Assert.assertTrue(vertexIdQueue.size() <=2);
+		Assert.assertTrue(taskIdQueue.size() <=2);
+		Assert.assertTrue(taskAttemptIdQueue.size() <=2);
+		Assert.assertTrue(applicationAttemptQueue.size() <=2);
 	}
 
 }
