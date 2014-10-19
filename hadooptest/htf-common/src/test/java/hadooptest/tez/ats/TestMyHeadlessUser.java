@@ -174,7 +174,6 @@ public class TestMyHeadlessUser extends ATSTestsBaseClass {
 		TestSession.logger.info("############################################ WITH TEZ TASK ATTEMPT ID NOW ########################################################################");
 		//Container ID
 		String url = getATSUrl() +"TEZ_TASK_ATTEMPT_ID";
-		String url = "http://" + rmHostname + ":" + HadooptestConstants.Ports.HTTP_ATS_PORT + "/ws/v1/timeline/TEZ_TASK_ATTEMPT_ID";
 		Response response = given().cookie(userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(url);
 		String responseAsString = response.getBody().asString();
 		GenericATSResponseBO consumedResponse = atsUtils.processATSResponse(responseAsString, EntityTypes.TEZ_TASK_ATTEMPT_ID, expectEverythingMap());

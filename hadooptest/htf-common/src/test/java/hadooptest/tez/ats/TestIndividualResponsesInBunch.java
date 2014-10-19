@@ -91,7 +91,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 		dagIdQueue.add(singleConsumedResponse.entities.get(0));
 		dagIdQueue.add(retrievedEntityFromBunch);
 		
-		Assert.assertTrue(atsUtils.compareSimilarEntities(dagIdQueue)==true);
+//		Assert.assertTrue(retrievedEntityFromBunch.equals(arg));
 		
 
 	}

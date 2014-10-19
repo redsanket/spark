@@ -19,18 +19,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.http.client.params.ClientPNames;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 
 import com.jayway.restassured.response.Header;
@@ -117,6 +121,10 @@ public class ATSTestsBaseClass extends TestSession {
 		// Reset the error count
 		errorCount.set(0);
 
+		drainQueues();
+	}
+	
+	public void drainQueues(){
 		// "Drain" the queues
 		dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
@@ -124,7 +132,7 @@ public class ATSTestsBaseClass extends TestSession {
 		vertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		taskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		taskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-
+		
 	}
 
 	public Map<String, Boolean> expectEverythingMap() {
@@ -435,6 +443,7 @@ public class ATSTestsBaseClass extends TestSession {
 			TestSession.logger
 					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 			Response response = given().cookie(userCookies.get(user)).get(url);
+			
 			String responseAsString = response.getBody().asString();
 			TestSession.logger.info("R E S P O N S E  B O D Y :"
 					+ responseAsString);
@@ -464,6 +473,199 @@ public class ATSTestsBaseClass extends TestSession {
 
 	}
 
+	public Map<String, List<String>> getCascadedEntitiesMap(String additionToUrl) throws InterruptedException{
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		ExecutorService execService = Executors.newFixedThreadPool(10);
+
+		HtfATSUtils atsUtils = new HtfATSUtils();
+
+		List<String> retrievedValuesList = new ArrayList<String>();
+		List<String> expectedPrimaryfilterList = new ArrayList<String>();
+		Map<String, List<String>> cascadedEntitiesMap = new HashMap<String, List<String>>();
+		List<String> vertexIds = new ArrayList<String>();
+		List<String> taskIds = new ArrayList<String>();
+
+		List<String> taskAttemptIds = new ArrayList<String>();
+
+		/**
+		 * Make calls into TEZ_DAG_ID
+		 */
+		EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
+		String url = getATSUrl() + entityTypeInRequest + "/";
+
+		makeHttpCallAndEnqueueConsumedResponse(execService, url
+				+ additionToUrl,
+				HadooptestConstants.UserNames.HITUSR_1, entityTypeInRequest,
+				dagIdQueue, expectEverythingMap());
+		execService.shutdown();
+		while (!execService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting DAG ID REST calls");
+			Thread.sleep(1000);
+		}
+		GenericATSResponseBO dagIdResponse = dagIdQueue.poll();
+		retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+				dagIdResponse, ResponseComposition.PRIMARYFILTERS.EXPECTED,
+				"dagName", 0);
+		// Check dagName
+		expectedPrimaryfilterList.add("MRRSleepJob");
+		cascadedEntitiesMap.put("dagName", expectedPrimaryfilterList);
+		Assert.assertTrue(retrievedValuesList
+				.containsAll(cascadedEntitiesMap.get("dagName")));
+		// Check user
+		expectedPrimaryfilterList.clear();
+		expectedPrimaryfilterList.add(HadooptestConstants.UserNames.HADOOPQA);
+		cascadedEntitiesMap.put("user", expectedPrimaryfilterList);
+		retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+				dagIdResponse, ResponseComposition.PRIMARYFILTERS.EXPECTED,
+				"user", 0);
+
+		Assert.assertTrue(retrievedValuesList
+				.containsAll(cascadedEntitiesMap.get("user")));
+
+		/**
+		 * Make calls into TEZ_VERTEX_ID
+		 */
+		execService = Executors.newFixedThreadPool(10);
+		vertexIds = atsUtils.retrieveValuesFromFormattedResponse(dagIdResponse,
+				ResponseComposition.RELATEDENTITIES.EXPECTED,
+				EntityTypes.TEZ_VERTEX_ID.name(), 0);
+		entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+		for (String aVertexId : vertexIds) {
+			url = getATSUrl() + entityTypeInRequest + "/" + aVertexId;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, vertexIdQueue, expectEverythingMap());
+		}
+		execService.shutdown();
+		while (!execService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting VERTEX ID REST calls");
+			Thread.sleep(1000);
+		}
+		// Prepare the filter, Expect the dag id in the primary filter
+		expectedPrimaryfilterList.clear();
+		expectedPrimaryfilterList.add(dagIdResponse.entities.get(0).entity);
+		cascadedEntitiesMap.put(EntityTypes.TEZ_DAG_ID.name(),
+				expectedPrimaryfilterList);
+		GenericATSResponseBO vertexIdResponse;
+		while ((vertexIdResponse = vertexIdQueue.poll()) != null) {
+			taskIds.addAll(atsUtils.retrieveValuesFromFormattedResponse(
+					vertexIdResponse,
+					ResponseComposition.RELATEDENTITIES.EXPECTED,
+					EntityTypes.TEZ_TASK_ID.name(), 0));
+			vertexIds.add(vertexIdResponse.entities.get(0).entity);
+			retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+					vertexIdResponse,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					EntityTypes.TEZ_DAG_ID.name(), 0);
+
+			Assert.assertTrue(retrievedValuesList
+					.containsAll(cascadedEntitiesMap
+							.get(EntityTypes.TEZ_DAG_ID.name())));
+		}
+		cascadedEntitiesMap.put(EntityTypes.TEZ_VERTEX_ID.name(),
+				vertexIds);
+		cascadedEntitiesMap.put(EntityTypes.TEZ_TASK_ID.name(), taskIds);
+
+		/**
+		 * Make calls into TEZ_TASK_ID
+		 */
+		execService = Executors.newFixedThreadPool(10);
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+		for (String aTaskId : taskIds) {
+			url = getATSUrl() + entityTypeInRequest + "/" + aTaskId;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, taskIdQueue, expectEverythingMap());
+		}
+		execService.shutdown();
+		while (!execService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting TASK ID REST calls");
+			Thread.sleep(1000);
+		}
+		GenericATSResponseBO taskIdResponse;
+		while ((taskIdResponse = taskIdQueue.poll()) != null) {
+			// Gather related entities
+			taskAttemptIds.addAll(atsUtils.retrieveValuesFromFormattedResponse(
+					taskIdResponse,
+					ResponseComposition.RELATEDENTITIES.EXPECTED,
+					EntityTypes.TEZ_TASK_ATTEMPT_ID.name(), 0));
+			// Gather Primaryfilter
+			retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+					taskIdResponse,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					EntityTypes.TEZ_DAG_ID.name(), 0);
+			Assert.assertTrue(cascadedEntitiesMap.get(
+					EntityTypes.TEZ_DAG_ID.name()).containsAll(
+					retrievedValuesList));
+			// Gather Primaryfilter
+			retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+					taskIdResponse,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					EntityTypes.TEZ_VERTEX_ID.name(), 0);
+			Assert.assertTrue(cascadedEntitiesMap.get(
+					EntityTypes.TEZ_VERTEX_ID.name()).containsAll(
+					retrievedValuesList));
+		}
+		cascadedEntitiesMap.put(EntityTypes.TEZ_TASK_ATTEMPT_ID.name(),
+				taskAttemptIds);
+
+		/**
+		 * Make calls into TEZ_TASK_ATTEMPT_ID
+		 */
+		execService = Executors.newFixedThreadPool(10);
+		entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+		for (String aTaskAttemptId : taskAttemptIds) {
+			url = getATSUrl() + entityTypeInRequest + "/" + aTaskAttemptId;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, taskAttemptIdQueue,
+					expectEverythingMap());
+		}
+		execService.shutdown();
+		while (!execService.isTerminated()) {
+			TestSession.logger
+					.info("Thread sleeping while awaiting TASK ID REST calls");
+			Thread.sleep(1000);
+		}
+		GenericATSResponseBO taskAttemptIdResponse;
+		while ((taskAttemptIdResponse = taskAttemptIdQueue.poll()) != null) {
+			// Check that it contains the DAG Id in Primary Filter
+			retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+					taskAttemptIdResponse,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					EntityTypes.TEZ_DAG_ID.name(), 0);
+			Assert.assertTrue(cascadedEntitiesMap.get(
+					EntityTypes.TEZ_DAG_ID.name()).containsAll(
+					retrievedValuesList));
+			// Check that it contains the Vertex Id in Primary Filter
+			retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+					taskAttemptIdResponse,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					EntityTypes.TEZ_VERTEX_ID.name(), 0);
+			Assert.assertTrue(cascadedEntitiesMap.get(
+					EntityTypes.TEZ_VERTEX_ID.name()).containsAll(
+					retrievedValuesList));
+			// Check that it contains the Vertex Id in Primary Filter
+			retrievedValuesList = atsUtils.retrieveValuesFromFormattedResponse(
+					taskAttemptIdResponse,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					EntityTypes.TEZ_TASK_ID.name(), 0);
+			Assert.assertTrue(cascadedEntitiesMap.get(
+					EntityTypes.TEZ_TASK_ID.name()).containsAll(
+					retrievedValuesList));
+
+		}
+
+		Assert.assertEquals(errorCount.get(), 0);
+		drainQueues();
+		return cascadedEntitiesMap;
+
+	}
 	@After
 	public void logTaskReportSummary() throws Exception {
 	}
