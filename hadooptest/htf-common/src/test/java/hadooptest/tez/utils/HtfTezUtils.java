@@ -7,6 +7,7 @@ import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
+import hadooptest.hadoop.regression.dfs.TestHdfsApi;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearSpaceQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.PrintTopology;
@@ -180,7 +181,7 @@ public class HtfTezUtils {
 						+ System.getProperty("CLUSTER_NAME") + "/share/"
 						+ hadoopVersion + "/share/hadoop/mapreduce/lib");
 
-		return conf;
+		return new TezConfiguration(conf);
 	}
 
 	/**
@@ -442,51 +443,5 @@ public class HtfTezUtils {
 		Assert.assertEquals(proc.exitValue(), 0);
 
 	}
-
-	/**
-	 * This method recursively deletes a file. Typically @After methods invoke
-	 * this after a test run to clean out the test output.
-	 * 
-	 * @param file
-	 * @throws IOException
-	 */
-//	public static void delete(File file) throws IOException {
-//
-//		if (file.isDirectory()) {
-//
-//			// directory is empty, then delete it
-//			if (file.list().length == 0) {
-//
-//				file.delete();
-//				System.out.println("Directory is deleted : "
-//						+ file.getAbsolutePath());
-//
-//			} else {
-//
-//				// list all the directory contents
-//				String files[] = file.list();
-//
-//				for (String temp : files) {
-//					// construct the file structure
-//					File fileDelete = new File(file, temp);
-//
-//					// recursive delete
-//					delete(fileDelete);
-//				}
-//
-//				// check the directory again, if empty then delete it
-//				if (file.list().length == 0) {
-//					file.delete();
-//					System.out.println("Directory is deleted : "
-//							+ file.getAbsolutePath());
-//				}
-//			}
-//
-//		} else {
-//			// if file, then delete it
-//			file.delete();
-//			System.out.println("File is deleted : " + file.getAbsolutePath());
-//		}
-//	}
 
 }

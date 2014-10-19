@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.utils.HtfATSUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -98,8 +100,15 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 
 	}
 
-	@Test
+//	@Test
 	public void testCascadingOnDagId() throws Exception {
 		getCascadedEntitiesMap("dag_1413669561424_0007_1");
+	}
+	
+	@Test
+	public void testUGI() throws IOException, InterruptedException{
+		UserGroupInformation ugi = getUgiForUser(HadooptestConstants.UserNames.HDFSQA);
+		DoAs doAs = new DoAs(ugi,TestSession.cluster.getConf());
+		doAs.doAction();
 	}
 }

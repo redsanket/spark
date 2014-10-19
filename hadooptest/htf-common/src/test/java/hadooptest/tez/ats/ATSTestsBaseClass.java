@@ -12,13 +12,16 @@ import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
-import hadooptest.tez.utils.HtfATSUtils;
+import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
+import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
+import hadooptest.tez.utils.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -30,7 +33,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BlockLocation;
+import org.apache.hadoop.fs.ContentSummary;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileChecksum;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.AccessControlException;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
 import org.apache.http.client.params.ClientPNames;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
@@ -88,7 +103,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 		public enum OTHERINFO {
 			EXPECTED, NOT_EXPECTED
-		}		
+		}
 
 	}
 
@@ -123,8 +138,8 @@ public class ATSTestsBaseClass extends TestSession {
 
 		drainQueues();
 	}
-	
-	public void drainQueues(){
+
+	public void drainQueues() {
 		// "Drain" the queues
 		dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
@@ -132,7 +147,7 @@ public class ATSTestsBaseClass extends TestSession {
 		vertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		taskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 		taskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		
+
 	}
 
 	public Map<String, Boolean> expectEverythingMap() {
@@ -443,7 +458,7 @@ public class ATSTestsBaseClass extends TestSession {
 			TestSession.logger
 					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 			Response response = given().cookie(userCookies.get(user)).get(url);
-			
+
 			String responseAsString = response.getBody().asString();
 			TestSession.logger.info("R E S P O N S E  B O D Y :"
 					+ responseAsString);
@@ -473,7 +488,8 @@ public class ATSTestsBaseClass extends TestSession {
 
 	}
 
-	public Map<String, List<String>> getCascadedEntitiesMap(String additionToUrl) throws InterruptedException{
+	public Map<String, List<String>> getCascadedEntitiesMap(String additionToUrl)
+			throws InterruptedException {
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
@@ -495,10 +511,9 @@ public class ATSTestsBaseClass extends TestSession {
 		EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
 		String url = getATSUrl() + entityTypeInRequest + "/";
 
-		makeHttpCallAndEnqueueConsumedResponse(execService, url
-				+ additionToUrl,
-				HadooptestConstants.UserNames.HITUSR_1, entityTypeInRequest,
-				dagIdQueue, expectEverythingMap());
+		makeHttpCallAndEnqueueConsumedResponse(execService,
+				url + additionToUrl, HadooptestConstants.UserNames.HITUSR_1,
+				entityTypeInRequest, dagIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			TestSession.logger
@@ -512,8 +527,8 @@ public class ATSTestsBaseClass extends TestSession {
 		// Check dagName
 		expectedPrimaryfilterList.add("MRRSleepJob");
 		cascadedEntitiesMap.put("dagName", expectedPrimaryfilterList);
-		Assert.assertTrue(retrievedValuesList
-				.containsAll(cascadedEntitiesMap.get("dagName")));
+		Assert.assertTrue(retrievedValuesList.containsAll(cascadedEntitiesMap
+				.get("dagName")));
 		// Check user
 		expectedPrimaryfilterList.clear();
 		expectedPrimaryfilterList.add(HadooptestConstants.UserNames.HADOOPQA);
@@ -522,8 +537,8 @@ public class ATSTestsBaseClass extends TestSession {
 				dagIdResponse, ResponseComposition.PRIMARYFILTERS.EXPECTED,
 				"user", 0);
 
-		Assert.assertTrue(retrievedValuesList
-				.containsAll(cascadedEntitiesMap.get("user")));
+		Assert.assertTrue(retrievedValuesList.containsAll(cascadedEntitiesMap
+				.get("user")));
 
 		/**
 		 * Make calls into TEZ_VERTEX_ID
@@ -563,11 +578,10 @@ public class ATSTestsBaseClass extends TestSession {
 					EntityTypes.TEZ_DAG_ID.name(), 0);
 
 			Assert.assertTrue(retrievedValuesList
-					.containsAll(cascadedEntitiesMap
-							.get(EntityTypes.TEZ_DAG_ID.name())));
+					.containsAll(cascadedEntitiesMap.get(EntityTypes.TEZ_DAG_ID
+							.name())));
 		}
-		cascadedEntitiesMap.put(EntityTypes.TEZ_VERTEX_ID.name(),
-				vertexIds);
+		cascadedEntitiesMap.put(EntityTypes.TEZ_VERTEX_ID.name(), vertexIds);
 		cascadedEntitiesMap.put(EntityTypes.TEZ_TASK_ID.name(), taskIds);
 
 		/**
@@ -666,6 +680,84 @@ public class ATSTestsBaseClass extends TestSession {
 		return cascadedEntitiesMap;
 
 	}
+
+	UserGroupInformation getUgiForUser(String aUser) {
+
+		String keytabDir = HadooptestConstants.Location.Keytab.HDFSQA;
+		if (aUser.equals(HadooptestConstants.UserNames.HDFSQA)) {
+			keytabDir = HadooptestConstants.Location.Keytab.HDFSQA;
+		}
+		UserGroupInformation ugi;
+		try {
+
+			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(aUser,
+					keytabDir);
+			TestSession.logger.info("UGI=" + ugi);
+			TestSession.logger.info("credentials:" + ugi.getCredentials());
+			TestSession.logger.info("group names" + ugi.getGroupNames());
+			TestSession.logger.info("real user:" + ugi.getRealUser());
+			TestSession.logger
+					.info("short user name:" + ugi.getShortUserName());
+			TestSession.logger.info("token identifiers:"
+					+ ugi.getTokenIdentifiers());
+			TestSession.logger.info("tokens:" + ugi.getTokens());
+			TestSession.logger.info("username:" + ugi.getUserName());
+			TestSession.logger.info("current user:"
+					+ UserGroupInformation.getCurrentUser());
+			TestSession.logger.info("login user:"
+					+ UserGroupInformation.getLoginUser());
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return ugi;
+	}
+	class DoAs {
+		UserGroupInformation ugi;
+		Configuration configuration;
+		String action;
+
+		DoAs(UserGroupInformation ugi,Configuration configuration)
+				throws IOException {
+			this.ugi = ugi;
+			this.configuration = configuration;
+		}
+
+		public void doAction() throws AccessControlException, IOException,
+				InterruptedException {
+			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
+					ugi, action, configuration);
+			ugi.doAs(privilegedExceptionActor);
+
+		}
+	}
+	
+	class PrivilegedExceptionActionImpl implements
+			PrivilegedExceptionAction<String> {
+		UserGroupInformation ugi;
+		String action;
+		Configuration configuration;
+
+		PrivilegedExceptionActionImpl(UserGroupInformation ugi, String action,
+				Configuration configuration) throws IOException {
+			this.ugi = ugi;
+			this.action = action;
+			this.configuration = configuration;
+		}
+
+		public String run() throws Exception {
+			String returnString = null;
+			CaptiveOrderedWordCount owc = new CaptiveOrderedWordCount();
+			
+			boolean returnCode = owc.run("/tmp/tez-site.xml", "/tmp/brah" + System.currentTimeMillis(), null, 2,
+					HadooptestConstants.Execution.TEZ_CLUSTER, HtfTezUtils.Session.NO,TimelineServer.ENABLED,
+					"ATSFromdoAS", ugi);
+			Assert.assertTrue(returnCode == true);
+
+			return returnString;
+		}
+	}
+
 	@After
 	public void logTaskReportSummary() throws Exception {
 	}
