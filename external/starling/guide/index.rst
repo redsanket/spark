@@ -7,8 +7,9 @@ Starling User Guide
    :hidden:
 
    overview/index
-   data/index
    getting_started/index
+   architecture/index
+   data/index
    query_bank/index
 
 

@@ -45,11 +45,12 @@ Starling serves a wide audience with each using Starling in a different way.
 Let's look at three key audiences and consider how representatives
 from these groups might use Starling.
 
-- **Product Managers** - use Starling to get product metrics, usage reports,
+- **Product Managers** - to get product metrics, usage reports,
   find the top users, and generate reports.
-- **Service Engineers** - use Starling to debug and improve the efficiency of jobs, 
+- **Service Engineers** - to debug and improve the efficiency of jobs, 
   storage, and compression.
-- **Application Developers**  - TBD
+- **Application Developers**  - to optimize their jobs, monitor counters, time take, utilization, etc. 
+  They could use counters to understand how the data has changed over a period of time, too.
 
 How It Works
 ============
@@ -74,7 +75,6 @@ Ways to Access Starling
 - **Pig** - You can access the tables through Pig through HCatalog.  
 - **HCatalog** - 
 - **MapReduce** - You can use the MapReduce Java API to access data through HCatalog as well.
-- **Query Server** - This is a REST-based API for accessing Starling data. (TBD: auth/read-only?/query params?)
 - **Rumen** - (TBD) ...to gather data from Starling.
 
 
@@ -120,22 +120,7 @@ You can inspect how you are using HDFS by looking at ``jobsummary`` logs from Jo
 as well as Y organizaton charts and the owners of logical space.
 
 
-Architecture
-============  
-
-Starling connects to several source clusters spread across different data-centers, 
-collects relevant logs from these clusters into a central warehouse cluster, processes 
-these logs, and stores the processed logs in a data warehouse. This warehouse can 
-then be queried using various tools in order to determine KPIs for the clusters 
-and for performing other such analyses.
-
-TBD: Need diagram
 
 
 
-Alternatives to Starling
-========================
-
-TBD
-pros/cons vs. other solution
 
