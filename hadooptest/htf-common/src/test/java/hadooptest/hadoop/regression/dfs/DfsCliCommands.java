@@ -2,6 +2,7 @@ package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearSpaceQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
@@ -11,6 +12,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
+import hadooptest.node.hadoop.HadoopNode;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -156,7 +159,7 @@ public class DfsCliCommands {
 		sb.append(" ");
 		sb.append("-chmod ");
 		sb.append(" ");
-		if (recursively == Recursive.YES){
+		if (recursively == Recursive.YES) {
 			sb.append("-R");
 			sb.append(" ");
 		}
@@ -182,15 +185,15 @@ public class DfsCliCommands {
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
-        /*
-         * If the command uses bash wildcards (*, {..}), we will need to specify
-         * the path to the shell. Otherwise, they will not get interpreted by
-         * the process builder.
-         */	
+		/*
+		 * If the command uses bash wildcards (*, {..}), we will need to specify
+		 * the path to the shell. Otherwise, they will not get interpreted by
+		 * the process builder.
+		 */
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-		        new String[] {"/bin/bash","-c",commandString},
-		        user, environmentVariablesWrappingTheCommand);
+				new String[] { "/bin/bash", "-c", commandString }, user,
+				environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -246,16 +249,15 @@ public class DfsCliCommands {
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
-        /*
-         * If the command uses bash wildcards (*, {..}), we will need to specify
-         * the path to the shell. Otherwise, they will not get interpreted by
-         * the process builder.
-         */
+		/*
+		 * If the command uses bash wildcards (*, {..}), we will need to specify
+		 * the path to the shell. Otherwise, they will not get interpreted by
+		 * the process builder.
+		 */
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-		        new String[] {"/bin/bash","-c",commandString},
-		        user,
-		        environmentVariablesWrappingTheCommand);
+				new String[] { "/bin/bash", "-c", commandString }, user,
+				environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -263,6 +265,7 @@ public class DfsCliCommands {
 		return responseBO;
 
 	}
+
 	/**
 	 * 
 	 * @param envMapSentByTest
@@ -273,9 +276,8 @@ public class DfsCliCommands {
 	 * @return
 	 * @throws Exception
 	 */
-	public GenericCliResponseBO cat(
-			HashMap<String, String> envMapSentByTest, String user,
-			String protocol, String cluster, String completePath)
+	public GenericCliResponseBO cat(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster, String completePath)
 			throws Exception {
 		String nameNodePrependedWithProtocol = "";
 
@@ -860,15 +862,15 @@ public class DfsCliCommands {
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
-        /*
-         * If the command uses bash wildcards (*, {..}), we will need to specify
-         * the path to the shell. Otherwise, they will not get interpreted by
-         * the process builder.
-         */    
+		/*
+		 * If the command uses bash wildcards (*, {..}), we will need to specify
+		 * the path to the shell. Otherwise, they will not get interpreted by
+		 * the process builder.
+		 */
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-		        new String[] {"/bin/bash","-c",commandString},
-		        user, environmentVariablesWrappingTheCommand);
+				new String[] { "/bin/bash", "-c", commandString }, user,
+				environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -926,16 +928,15 @@ public class DfsCliCommands {
 				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
-        /*
-         * If the command uses bash wildcards (*, {..}), we will need to specify
-         * the path to the shell. Otherwise, they will not get interpreted by
-         * the process builder.
-         */ 		
+		/*
+		 * If the command uses bash wildcards (*, {..}), we will need to specify
+		 * the path to the shell. Otherwise, they will not get interpreted by
+		 * the process builder.
+		 */
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-		        new String[] {"/bin/bash","-c",commandString},
-		        user, 
-		        environmentVariablesWrappingTheCommand);
+				new String[] { "/bin/bash", "-c", commandString }, user,
+				environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
@@ -1140,6 +1141,24 @@ public class DfsCliCommands {
 
 	}
 
+	static String getNamenodeForLocalCluster() {
+		// This is the same cluster, no need to lookup the config file
+		String namenodeHostName = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.NAMENODE);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated namenode host is:"
+					+ nodesHash.get(key).getHostname());
+			namenodeHostName = nodesHash.get(key).getHostname();
+			break;
+		}
+		return namenodeHostName;
+
+	}
+
 	/**
 	 * Given a cluster, create the NameNode decorated with the proper schema. In
 	 * this case webhdfs://
@@ -1148,15 +1167,29 @@ public class DfsCliCommands {
 	 * @return
 	 */
 	public static String getNNUrlForWebhdfs(String cluster) {
-		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
-				.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
+		String namenodeHost;
+		String nameNodeWithNoPortButSchemaSetAsWebhdfs = null;
+		if (cluster.equalsIgnoreCase(System.getProperty("CLUSTER_NAME"))) {
 
-		String nameNodeWithNoPortForWebhdfs = nnReadFromPropFile.replace(
-				":50070", "");
-		String nameNodeWithNoPortAndSchemaForWebhdfs = nameNodeWithNoPortForWebhdfs
-				.replace(HadooptestConstants.Schema.HTTP,
-						HadooptestConstants.Schema.WEBHDFS);
-		return nameNodeWithNoPortAndSchemaForWebhdfs;
+			namenodeHost = getNamenodeForLocalCluster();
+			nameNodeWithNoPortButSchemaSetAsWebhdfs = HadooptestConstants.Schema.WEBHDFS
+					+ namenodeHost;
+
+		} else {
+			//Remote cluster
+			namenodeHost = crossClusterProperties.getProperty(cluster
+					.toLowerCase()
+					+ "."
+					+ HadooptestConstants.NodeTypes.NAMENODE);
+			nameNodeWithNoPortButSchemaSetAsWebhdfs = namenodeHost.replace(
+					":50070", "");
+			nameNodeWithNoPortButSchemaSetAsWebhdfs = nameNodeWithNoPortButSchemaSetAsWebhdfs
+					.replace(HadooptestConstants.Schema.HTTP,
+							HadooptestConstants.Schema.WEBHDFS);
+
+		}
+
+		return nameNodeWithNoPortButSchemaSetAsWebhdfs;
 
 	}
 
@@ -1168,18 +1201,27 @@ public class DfsCliCommands {
 	 * @return
 	 */
 	static public String getNNUrlForHdfs(String cluster) {
-		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
-				.trim().toLowerCase()
-				+ "."
-				+ HadooptestConstants.NodeTypes.NAMENODE);
+		String namenodeHost;
+		String nameNodeWithNoPortButSchemaSetAsHdfs = null;
+		if (cluster.equalsIgnoreCase(System.getProperty("CLUSTER_NAME"))) {
+			namenodeHost = getNamenodeForLocalCluster();
+			nameNodeWithNoPortButSchemaSetAsHdfs = HadooptestConstants.Schema.HDFS
+					+ namenodeHost;
 
-		String nameNodeWithPortForHdfs = nnReadFromPropFile.replace("50070",
-				"8020");
-		String nameNodeWithPortAndSchemaForHdfs = nameNodeWithPortForHdfs
-				.replace(HadooptestConstants.Schema.HTTP,
-						HadooptestConstants.Schema.HDFS);
-		return nameNodeWithPortAndSchemaForHdfs;
+		} else {
+			//Remote cluster
+			namenodeHost = crossClusterProperties.getProperty(cluster
+					.toLowerCase()
+					+ "."
+					+ HadooptestConstants.NodeTypes.NAMENODE);
+			nameNodeWithNoPortButSchemaSetAsHdfs = namenodeHost.replace(
+					":50070", "");
+			nameNodeWithNoPortButSchemaSetAsHdfs = nameNodeWithNoPortButSchemaSetAsHdfs
+					.replace(HadooptestConstants.Schema.HTTP,
+							HadooptestConstants.Schema.HDFS);
+		}
 
+		return nameNodeWithNoPortButSchemaSetAsHdfs;
 	}
 
 	/**
@@ -1226,38 +1268,26 @@ public class DfsCliCommands {
 	}
 
 	/**
-     *
-     * @param envMapSentByTest
-     * @param user
-     * @param srcCluster
-     * @param dstCluster
-     * @param srcFile
-     * @param dstFile
-     * @param srcProtocol
-     * @param dstProtocol
-     * @return
-     * @throws Exception
-     */
-    public GenericCliResponseBO distcp(
-            HashMap<String, String> envMapSentByTest,
-            String user,
-            String srcCluster,
-            String dstCluster,
-            String srcFile,
-            String dstFile,
-            String srcProtocol,
-            String dstProtocol) throws Exception {
-        return this.distcp(
-                envMapSentByTest,
-                user,
-                srcCluster,
-                dstCluster,
-                srcFile,
-                dstFile,
-                srcProtocol,
-                dstProtocol,
-                null);
-    }
+	 * 
+	 * @param envMapSentByTest
+	 * @param user
+	 * @param srcCluster
+	 * @param dstCluster
+	 * @param srcFile
+	 * @param dstFile
+	 * @param srcProtocol
+	 * @param dstProtocol
+	 * @return
+	 * @throws Exception
+	 */
+	public GenericCliResponseBO distcp(
+			HashMap<String, String> envMapSentByTest, String user,
+			String srcCluster, String dstCluster, String srcFile,
+			String dstFile, String srcProtocol, String dstProtocol)
+			throws Exception {
+		return this.distcp(envMapSentByTest, user, srcCluster, dstCluster,
+				srcFile, dstFile, srcProtocol, dstProtocol, null);
+	}
 
 	/**
 	 * 
@@ -1273,14 +1303,9 @@ public class DfsCliCommands {
 	 * @throws Exception
 	 */
 	public GenericCliResponseBO distcp(
-			HashMap<String, String> envMapSentByTest,
-			String user,
-			String srcCluster,
-			String dstCluster,
-			String srcFile,
-			String dstFile,
-			String srcProtocol,
-			String dstProtocol,
+			HashMap<String, String> envMapSentByTest, String user,
+			String srcCluster, String dstCluster, String srcFile,
+			String dstFile, String srcProtocol, String dstProtocol,
 			String optionArgs) throws Exception {
 		String nameNodePrependedWithProtocol = null;
 		StringBuilder sb = new StringBuilder();
@@ -1296,14 +1321,15 @@ public class DfsCliCommands {
 
 		// Use the file name for the job name
 		String fileName = new File(srcFile).getName();
-		sb.append("-Dmapreduce.job.name=" + fileName+"_"+srcCluster+"_"+dstCluster);
+		sb.append("-Dmapreduce.job.name=" + fileName + "_" + srcCluster + "_"
+				+ dstCluster);
 		sb.append(" ");
 
 		// E.g. Http proxy override:
 		// -Dhttp.proxyHost=ats307.tan.ygrid.yahoo.com -Dhttp.proxyPort=4080'
 		if (optionArgs != null && !optionArgs.isEmpty()) {
-		    sb.append(optionArgs);
-		    sb.append(" ");
+			sb.append(optionArgs);
+			sb.append(" ");
 		}
 
 		sb.append("-pbugp");
@@ -1336,24 +1362,23 @@ public class DfsCliCommands {
 				.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
 			nameNodePrependedWithProtocol = getNNUrlForHftp(dstCluster);
 		}
-		
+
 		sb.append(nameNodePrependedWithProtocol + dstFile);
 		String commandString = sb.toString();
 
-		Map<String, String> environmentVariablesWrappingTheCommand =
-		        new HashMap<String, String>(envMapSentByTest);
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
 		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
-        /*
-         * If the command uses bash wildcards (*, {..}), we will need to specify
-         * the path to the shell. Otherwise, they will not get interpreted by
-         * the process builder.
-         */    
+		/*
+		 * If the command uses bash wildcards (*, {..}), we will need to specify
+		 * the path to the shell. Otherwise, they will not get interpreted by
+		 * the process builder.
+		 */
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
-		        new String[] {"/bin/bash","-c",commandString},
-		        user, 
-		        environmentVariablesWrappingTheCommand);
+				new String[] { "/bin/bash", "-c", commandString }, user,
+				environmentVariablesWrappingTheCommand);
 		String response = printResponseAndReturnItAsString(process);
 		GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
 				response);
