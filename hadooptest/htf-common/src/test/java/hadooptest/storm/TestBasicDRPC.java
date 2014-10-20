@@ -10,6 +10,11 @@ import hadooptest.workflow.storm.topology.grouping.YidGrouping;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.ArrayList;
@@ -34,6 +39,7 @@ import backtype.storm.drpc.ReturnResults;
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
+import backtype.storm.testing.ForwardingMetricsConsumer;
 import backtype.storm.topology.TopologyBuilder;
 
 @SuppressWarnings("deprecation")
@@ -437,6 +443,155 @@ public class TestBasicDRPC extends TestSessionStorm {
         }
         */
     }
+
+
+    @Test(timeout=600000)
+    public void TestMetrics() throws Exception{
+        logger.info("Starting TestMetrics");
+        ServerSocket ss = new ServerSocket(0);
+        int port = ss.getLocalPort();
+        String dest = InetAddress.getLocalHost().getCanonicalHostName()+":"+ss.getLocalPort();
+
+        StormTopology topology = buildTopology();
+
+        String topoName = "drpc-metrics-test1";
+
+        _conf2.setDebug(true);
+        _conf2.setNumWorkers(3);
+        _conf2.registerMetricsConsumer(ForwardingMetricsConsumer.class, dest, 1);
+        _conf2.put(backtype.storm.Config.TOPOLOGY_BUILTIN_METRICS_BUCKET_SIZE_SECS, 15); //15 seconds to make the test run faster
+
+        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
+        try {
+            cluster.submitTopology(jar, topoName, _conf2, topology);
+        } catch (Exception e) {
+            logger.error("Couldn't launch topology: ", e );
+            throw new Exception(e);
+        }
+
+        Socket s = ss.accept();
+        BufferedReader r = new BufferedReader(new InputStreamReader(s.getInputStream()));
+
+        boolean passed = false;
+        // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
+        // Create and start client
+        HttpClient client = new HttpClient();
+        client.setIdleTimeout(30000);
+        try {
+            client.start();
+        } catch (Exception e) {
+            cluster.killTopology(topoName);
+            throw new IOException("Could not start Http Client", e);
+        }
+        // Get the URI to ping
+        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
+        if(servers == null || servers.isEmpty()) {
+            cluster.killTopology(topoName);
+            throw new RuntimeException("No DRPC servers configured for topology");   
+        }
+
+        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/exclamation/hello";
+        logger.info("Attempting to connect to drpc server with " + DRPCURI);
+
+        // Let's try for 3 minutes, or until we get a 200 back.
+        boolean done = false;
+        int tryCount = 200;
+        while (!done && tryCount > 0) {
+            Thread.sleep(1000);
+            Request req;
+            try {
+                if (secureMode()) {
+                    String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
+                    String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
+                    req = client.newRequest(DRPCURI).header("Yahoo-App-Auth", ycaCert);
+                } else {
+                    req = client.newRequest(DRPCURI);
+                }
+            } catch (Exception e) {
+                TestSessionStorm.logger.error("Request failed to URL " + DRPCURI, e);
+                cluster.killTopology(topoName);
+                throw new IOException("Could not start build request", e);
+            }
+            ContentResponse resp = null;
+            TestSessionStorm.logger.warn("Trying to get status at " + DRPCURI);
+            try {
+                resp = req.send();
+            } catch (Exception e) {
+                tryCount -= 1;
+            }
+
+            if (resp != null && resp.getStatus() == 200) {
+                done = true;
+                // Check the response value.  Should be "hello!"
+                String respString = resp.getContentAsString();
+                logger.info("Got back " + respString + " from drpc.");
+                if (respString.equals("hello!")) {
+                    passed = true;
+                }
+            }
+        }
+        String line;
+        tryCount = 0;
+        boolean foundRecv = false;
+        boolean foundSend = false;
+        while ((!foundRecv || !foundSend) && tryCount < 200 && (line = r.readLine()) != null) {
+          TestSessionStorm.logger.info(line);
+          //Right now we are just checking that we got metrics back, and they look like they are in the right form
+          String[] parts = line.split("\t", 6);
+          assertEquals(6, parts.length);
+          //[0] is ts
+          //[1] is host/port
+          //[2] is task id
+          //[3] is bolt/spout name
+          //[4] is metric name
+          //[5] is metric value
+          //We are looking for __send-iconnection and __recv-iconnection
+          if ("__recv-iconnection".equals(parts[4])) {
+            foundRecv = true;
+            assertEquals("-1", parts[2]);
+            assertEquals("__system", parts[3]);
+            assertTrue(parts[5].contains("enqueued"));
+            assertTrue(parts[5].contains("pending"));
+            assertTrue(parts[5].contains("dequeuedMessages"));
+          }
+          if ("__send-iconnection".equals(parts[4])) {
+            foundSend = true;
+            assertEquals("-1", parts[2]);
+            assertEquals("__system", parts[3]);
+            assertTrue(parts[5].contains("enqueued"));
+            assertTrue(parts[5].contains("sent"));
+            assertTrue(parts[5].contains("lostOnSend"));
+            assertTrue(parts[5].contains("dest"));
+            assertTrue(parts[5].contains("queue_length"));
+            assertTrue(parts[5].contains("reconnects"));
+            assertTrue(parts[5].contains("src"));
+          }
+
+          tryCount++;
+        }
+      
+        cluster.killTopology(topoName);
+
+        // Stop client
+        try {
+            client.stop();
+        } catch (Exception e) {
+            throw new IOException("Could not stop http client", e);
+        }
+
+        // Did we fail?
+        if (!done) {
+            throw new IOException("Timed out trying to get DRPC response\n");
+        }
+
+        if (!passed) {
+            logger.error("A test case failed.  Throwing error");
+            throw new Exception();
+        }
+        assertTrue(foundRecv);
+        assertTrue(foundSend);
+    }
+
 
     public StormTopology buildRamTopology() throws Exception {
             TopologyBuilder builder = new TopologyBuilder();
