@@ -39,16 +39,9 @@ import org.apache.tez.examples.OrderedWordCount;
  */
 
 public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
-	private static void printUsage() {
-		String options = " [-generateSplitsInClient true/<false>]";
-		System.err.println("Usage: testorderedwordcount <in> <out>" + options);
-		System.err.println("Usage (In Session Mode):"
-				+ " testorderedwordcount <in1> <out1> ... <inN> <outN>"
-				+ options);
-		ToolRunner.printGenericCommandUsage(System.err);
-	}
 
-
+	public String applicationIdThatJustRan = null;
+	public String dagNameThatJustRan = null;
 	/**
 	 * Copy and paste the the code from the parent class's run method here.
 	 * Change all references to getConf() to HtfTezUtils.setupConfForTez(conf,
@@ -96,4 +89,68 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	    }
 
 	}
+	/**
+	 * Needed by HTF.
+	 * The following code is used for ATS testing, wher we need to pass the UGI as an additional parameter
+	 * @param inputPath
+	 * @param outputPath
+	 * @param conf
+	 * @param numPartitions
+	 * @param mode
+	 * @param session
+	 * @param timelineServer
+	 * @param testName
+	 * @param ugi
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean run(String inputPath, String outputPath, Configuration conf,
+		      int numPartitions, String mode, Session session, TimelineServer timelineServer, String testName, UserGroupInformation ugi)
+			throws Exception {
+	    TestSession.logger.info("Running OrderedWordCount");
+	    TezConfiguration tezConf;
+	    if (conf != null) {
+	      tezConf = new TezConfiguration(conf);
+	    } else {
+	      tezConf = (TezConfiguration) HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, timelineServer, testName);
+	    }
+	    
+	    UserGroupInformation.setConfiguration(tezConf);
+	    UserGroupInformation.setLoginUser(ugi);
+	    TezClient tezClient = TezClient.create("OrderedWordCount", tezConf);
+	    tezClient.start();
+
+	    try {
+	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "OWC-" + ugi.getUserName());
+	        dagNameThatJustRan = dag.getName();
+	        tezClient.waitTillReady();
+	        DAGClient dagClient = tezClient.submitDAG(dag);
+	        applicationIdThatJustRan = tezClient.getAppMasterApplicationId().toString();
+	        // monitoring
+	        DAGStatus dagStatus = dagClient.waitForCompletionWithStatusUpdates(null);
+	        if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
+	          System.out.println("OrderedWordCount failed with diagnostics: " + dagStatus.getDiagnostics());
+	          return false;
+	        }
+	        return true;
+	    } finally {
+	      tezClient.stop();
+	    }
+
+	}
+	/**
+	 * HTF
+	 * read and store the dag name
+	 */
+	public String getDagNameThatJustRan(){
+		return dagNameThatJustRan;
+	}
+	/**
+	 * HTF
+	 * read and store the application id
+	 */
+	public String getApplicationIdForTheJobThatRan(){
+		return applicationIdThatJustRan;
+	}
+
 }

@@ -44,13 +44,13 @@ import org.junit.Assert;
 public class HtfTezUtils {
 
 	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
-	public static enum Session{
-		YES,
-		NO
+
+	public static enum Session {
+		YES, NO
 	};
-	public static enum TimelineServer{
-		ENABLED,
-		DISABLED
+
+	public static enum TimelineServer {
+		ENABLED, DISABLED
 	};
 
 	/**
@@ -64,8 +64,8 @@ public class HtfTezUtils {
 	 * @throws InterruptedException
 	 */
 	public static Configuration setupConfForTez(Configuration conf,
-			String mode, Session useSession, TimelineServer timelineServer, String testName)
-			throws IOException, InterruptedException {
+			String mode, Session useSession, TimelineServer timelineServer,
+			String testName) throws IOException, InterruptedException {
 		// Tez version
 		String tezVersion = getTezVersion();
 		TestSession.logger.info("Read back tez version as:" + tezVersion);
@@ -79,10 +79,12 @@ public class HtfTezUtils {
 		for (String envName : env.keySet()) {
 			System.out.format("%s=%s%n", envName, env.get(envName));
 		}
-		
+
 		// Local mode settings
-		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {			
-			TestSession.logger.info("So it is :" + System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
+		if (mode.equals(HadooptestConstants.Execution.TEZ_LOCAL)) {
+			TestSession.logger.info("So it is :"
+					+ System.getenv(ApplicationConstants.Environment.NM_HOST
+							.toString()));
 			conf.set("fs.defaultFS", "file:///");
 			conf.setBoolean("tez.local.mode", true);
 			conf.set("hadoop.security.authentication", "simple");
@@ -106,33 +108,35 @@ public class HtfTezUtils {
 
 		// Consider using a session
 		if (useSession == Session.YES) {
-//			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
+			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true);
 			conf.setBoolean("USE_TEZ_SESSION", true);
 		} else {
-//			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
+			conf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, false);
 			conf.setBoolean("USE_TEZ_SESSION", false);
 		}
-		
-		//If using Timeline Server
-		if (timelineServer == TimelineServer.ENABLED) {			
-			TestSession.logger.info("Timeline server is enabled for test " + testName);
-			conf.set("tez.history.logging.service.class", "org.apache.tez.dag.history.logging.ats.ATSHistoryLoggingService");
+
+		// If using Timeline Server
+		if (timelineServer == TimelineServer.ENABLED) {
+			TestSession.logger.info("Timeline server is enabled for test "
+					+ testName);
+			conf.set("tez.history.logging.service.class",
+					"org.apache.tez.dag.history.logging.ats.ATSHistoryLoggingService");
 			conf.setBoolean("yarn.timeline-service.enabled", true);
 		}
 
-		//Set the staging dir
-		String user = UserGroupInformation.getCurrentUser()
-				.getShortUserName();
-//		String stagingDirStr = "." + Path.SEPARATOR + "user"
-//				+ Path.SEPARATOR + user + Path.SEPARATOR + ".staging"
-//				+ Path.SEPARATOR + testName
-//				+ Long.toString(System.currentTimeMillis());
-	    FileSystem fs = FileSystem.get(conf);
+		// Set the staging dir
+		String user = UserGroupInformation.getCurrentUser().getShortUserName();
+		// String stagingDirStr = "." + Path.SEPARATOR + "user"
+		// + Path.SEPARATOR + user + Path.SEPARATOR + ".staging"
+		// + Path.SEPARATOR + testName
+		// + Long.toString(System.currentTimeMillis());
+		FileSystem fs = FileSystem.get(conf);
 
-	    Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID().toString());
-	    conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
+		Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID()
+				.toString());
+		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
 
-//		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
+		// conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
 
@@ -143,7 +147,14 @@ public class HtfTezUtils {
 		 */
 
 		conf.setInt(TezConfiguration.TEZ_SESSION_AM_DAG_SUBMIT_TIMEOUT_SECS, 30);
+		conf.set("tez.lib.uris","${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
+		 + "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"+ tezVersion + "/libexec/tez/lib");
 
+		/**
+		 * The following hack is not needed since we set <property>
+		 * <name>tez.use.cluster.hadoop-libs</name> <value>true</value>
+		 * </property> in tez-site now (Since Oct 15 2014)
+		 */
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
 		// ALERT HACK ALERT
 		// Sid (Hortonworks) said
@@ -151,35 +162,35 @@ public class HtfTezUtils {
 		// and point the tez.lib.uris (in tez-site.xml) to the tarball"
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
 		// ALERT HACK ALERT
-		conf.set(
-				"tez.lib.uris",
-				"${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
-						+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
-						+ tezVersion + "/libexec/tez/lib,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/common,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/common/lib,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/hdfs/,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/hdfs/lib,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/yarn,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/yarn/lib,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/mapreduce,"
-						+ "file:///home/gs/gridre/yroot."
-						+ System.getProperty("CLUSTER_NAME") + "/share/"
-						+ hadoopVersion + "/share/hadoop/mapreduce/lib");
+		// conf.set(
+		// "tez.lib.uris",
+		// "${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
+		// + "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
+		// + tezVersion + "/libexec/tez/lib,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/common,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/common/lib,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/hdfs/,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/hdfs/lib,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/yarn,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/yarn/lib,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/mapreduce,"
+		// + "file:///home/gs/gridre/yroot."
+		// + System.getProperty("CLUSTER_NAME") + "/share/"
+		// + hadoopVersion + "/share/hadoop/mapreduce/lib");
 
 		return new TezConfiguration(conf);
 	}
@@ -333,7 +344,8 @@ public class HtfTezUtils {
 		String response = printResponseAndReturnItAsString(process);
 		// Response is of the format
 		// '/home/gs/gridre/yroot.omegak/tez-0.5.1.0.1410031854/libexec/tez'
-		String prefix = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME") + "/tez-";
+		String prefix = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME") + "/tez-";
 		response = response.replace(prefix, "");
 		String suffix = "/libexec/tez";
 		response = response.replace(suffix, "");

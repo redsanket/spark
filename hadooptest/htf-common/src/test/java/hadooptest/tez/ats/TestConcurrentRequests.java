@@ -3,6 +3,7 @@ package hadooptest.tez.ats;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
 import hadooptest.tez.utils.HtfATSUtils;
 
 import java.io.IOException;
@@ -108,7 +109,7 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 	@Test
 	public void testUGI() throws IOException, InterruptedException{
 		UserGroupInformation ugi = getUgiForUser(HadooptestConstants.UserNames.HDFSQA);
-		DoAs doAs = new DoAs(ugi,TestSession.cluster.getConf());
+		DoAs doAs = new DoAs(ugi,TestSession.cluster.getConf(),new OrderedWordCountExtendedForHtf());
 		doAs.doAction();
 	}
 }

@@ -2,6 +2,7 @@ package hadooptest.hadoop.regression.dfs;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.ClearSpaceQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
@@ -11,6 +12,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Report;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
+import hadooptest.node.hadoop.HadoopNode;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1148,15 +1151,43 @@ public class DfsCliCommands {
 	 * @return
 	 */
 	public static String getNNUrlForWebhdfs(String cluster) {
-		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
-				.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
+		String namenodeHost;
+		String nameNodeWithNoPortButSchemaSetAsWebhdfs = null;
+		if (cluster.equalsIgnoreCase(System.getProperty(
+						"CLUSTER_NAME"))){
 
-		String nameNodeWithNoPortForWebhdfs = nnReadFromPropFile.replace(
-				":50070", "");
-		String nameNodeWithNoPortAndSchemaForWebhdfs = nameNodeWithNoPortForWebhdfs
-				.replace(HadooptestConstants.Schema.HTTP,
-						HadooptestConstants.Schema.WEBHDFS);
-		return nameNodeWithNoPortAndSchemaForWebhdfs;
+			namenodeHost = getNamenodeForLocalCluster();
+			nameNodeWithNoPortButSchemaSetAsWebhdfs = HadooptestConstants.Schema.WEBHDFS + namenodeHost;
+			
+		}else{
+			namenodeHost = crossClusterProperties.getProperty(cluster
+					.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
+			nameNodeWithNoPortButSchemaSetAsWebhdfs = namenodeHost.replace(
+					":50070", "");
+			nameNodeWithNoPortButSchemaSetAsWebhdfs = nameNodeWithNoPortButSchemaSetAsWebhdfs
+						.replace(HadooptestConstants.Schema.HTTP,
+								HadooptestConstants.Schema.WEBHDFS);
+
+		}
+
+		return nameNodeWithNoPortButSchemaSetAsWebhdfs;
+
+	}
+	static String getNamenodeForLocalCluster(){
+		//This is the same cluster, no need to lookup the config file
+		String namenodeHostName = null;
+		HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+				HadooptestConstants.NodeTypes.NAMENODE);
+
+		Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+		for (String key : nodesHash.keySet()) {
+			TestSession.logger.info("Key:" + key);
+			TestSession.logger.info("The associated namenode host is:"
+					+ nodesHash.get(key).getHostname());
+			namenodeHostName = nodesHash.get(key).getHostname();
+			break;
+		}
+		return namenodeHostName;
 
 	}
 
@@ -1168,18 +1199,24 @@ public class DfsCliCommands {
 	 * @return
 	 */
 	static public String getNNUrlForHdfs(String cluster) {
-		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
-				.trim().toLowerCase()
-				+ "."
-				+ HadooptestConstants.NodeTypes.NAMENODE);
+		String namenodeHost;
+		String nameNodeWithNoPortButSchemaSetAsHdfs = null;
+		if (cluster.equalsIgnoreCase(System.getProperty(
+						"CLUSTER_NAME"))){
+			namenodeHost = getNamenodeForLocalCluster();
+			nameNodeWithNoPortButSchemaSetAsHdfs = HadooptestConstants.Schema.HDFS + namenodeHost;
+			
+		}else{
+			namenodeHost = crossClusterProperties.getProperty(cluster
+					.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
+			nameNodeWithNoPortButSchemaSetAsHdfs = namenodeHost.replace(
+					":50070", "");
+			nameNodeWithNoPortButSchemaSetAsHdfs = nameNodeWithNoPortButSchemaSetAsHdfs
+						.replace(HadooptestConstants.Schema.HTTP,
+								HadooptestConstants.Schema.HDFS);
+		}
 
-		String nameNodeWithPortForHdfs = nnReadFromPropFile.replace("50070",
-				"8020");
-		String nameNodeWithPortAndSchemaForHdfs = nameNodeWithPortForHdfs
-				.replace(HadooptestConstants.Schema.HTTP,
-						HadooptestConstants.Schema.HDFS);
-		return nameNodeWithPortAndSchemaForHdfs;
-
+		return nameNodeWithNoPortButSchemaSetAsHdfs;
 	}
 
 	/**

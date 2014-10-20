@@ -1,6 +1,14 @@
 package hadooptest.tez.examples.extensions;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.tez.client.TezClient;
+import org.apache.tez.dag.api.DAG;
+import org.apache.tez.dag.api.PreWarmVertex;
+import org.apache.tez.dag.api.TezConfiguration;
+import org.apache.tez.dag.api.client.DAGClient;
+import org.apache.tez.dag.api.client.DAGStatus;
+import org.apache.tez.examples.OrderedWordCount;
 import org.apache.tez.examples.SimpleSessionExample;
 
 /**
@@ -43,4 +51,77 @@ public class SimpleSessionExampleExtendedForTezHTF extends
 		      int numPartitions) throws Exception {
 		  return super.run(inputPaths, outputPaths,conf, numPartitions);
 	  }
+	  
+	  /**
+	   * HTF
+	   * Needed to pass UGI, hence overloading the run method here
+	   */
+	  private static final String enablePrewarmConfig = "simplesessionexample.prewarm";
+	  public boolean run(String[] inputPaths, String[] outputPaths, Configuration conf,
+		      int numPartitions, UserGroupInformation ugi) throws Exception {
+		    TezConfiguration tezConf;
+		    if (conf != null) {
+		      tezConf = new TezConfiguration(conf);
+		    } else {
+		      tezConf = new TezConfiguration();
+		    }
+		    /**
+		     * HTF:
+		     * Set the UGI
+		     */
+		    UserGroupInformation.setConfiguration(tezConf);
+		    UserGroupInformation.setLoginUser(ugi);
+
+		    // start TezClient in session mode. The same code run in session mode or non-session mode. The 
+		    // mode can be changed via configuration. However if the application wants to run exclusively in 
+		    // session mode then it can do so in code directly using the appropriate constructor
+		    
+		    // tezConf.setBoolean(TezConfiguration.TEZ_AM_SESSION_MODE, true); // via config OR via code
+		    TezClient tezClient = TezClient.create("SimpleSessionExample-" + ugi.getUserName(), tezConf, true);
+		    tezClient.start();
+		    
+		    // Session pre-warming allows the user to hide initial startup, resource acquisition latency etc.
+		    // by pre-allocating execution resources in the Tez session. They can run initialization logic 
+		    // in these pre-allocated resources (containers) to pre-warm the containers.
+		    // In between DAG executions, the session can hold on to a minimum number of containers.
+		    // Ideally, this would be enough to provide desired balance of efficiency for the application 
+		    // and sharing of resources with other applications. Typically, the number of containers to be 
+		    // pre-warmed equals the number of containers to be held between DAGs.
+
+		    if (tezConf.getBoolean(enablePrewarmConfig, false)) {
+		      // the above parameter is not a Tez parameter. Its only for this example.
+		      // In this example we are pre-warming enough containers to run all the sum tasks in parallel.
+		      // This means pre-warming numPartitions number of containers.
+		      // We are making the pre-warm and held containers to be the same and using the helper API to 
+		      // set up pre-warming. They can be made different and also custom initialization logic can be 
+		      // specified using other API's. We know that the OrderedWordCount dag uses default files and 
+		      // resources. Otherwise we would have to specify matching parameters in the preWarm API too.
+		      tezConf.setInt(TezConfiguration.TEZ_AM_SESSION_MIN_HELD_CONTAINERS, numPartitions);
+		      tezClient.preWarm(PreWarmVertex.createConfigBuilder(tezConf).build());
+		    }
+
+		    // the remaining code is the same as submitting any DAG.
+		    try {
+		      for (int i=0; i<inputPaths.length; ++i) {
+		        DAG dag = OrderedWordCount.createDAG(tezConf, inputPaths[i], outputPaths[i], numPartitions,
+		            ("DAG-Iteration-" + i)); // the names of the DAGs must be unique in a session
+
+		        tezClient.waitTillReady();
+		        System.out.println("Running dag number " + i);
+		        DAGClient dagClient = tezClient.submitDAG(dag);
+
+		        // wait to finish
+		        DAGStatus dagStatus = dagClient.waitForCompletion();
+		        if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
+		          System.out.println("Iteration " + i + " failed with diagnostics: "
+		              + dagStatus.getDiagnostics());
+		          return false;
+		        }
+		      }
+		      return true;
+		    } finally {
+		      tezClient.stop();
+		    }
+		  }
+
 }

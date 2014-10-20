@@ -12,7 +12,10 @@ import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
+import hadooptest.tez.examples.cluster.TestHtfOrderedWordCount;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
+import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
+import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 import hadooptest.tez.utils.*;
 
@@ -712,50 +715,82 @@ public class ATSTestsBaseClass extends TestSession {
 		}
 		return ugi;
 	}
+
 	class DoAs {
 		UserGroupInformation ugi;
 		Configuration configuration;
-		String action;
+		Object jobObjectToRun;
 
-		DoAs(UserGroupInformation ugi,Configuration configuration)
-				throws IOException {
+		DoAs(UserGroupInformation ugi, Configuration configuration,
+				Object jobObjectToRun) throws IOException {
 			this.ugi = ugi;
 			this.configuration = configuration;
+			this.jobObjectToRun = jobObjectToRun;
 		}
 
 		public void doAction() throws AccessControlException, IOException,
 				InterruptedException {
 			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
-					ugi, action, configuration);
+					ugi, configuration, jobObjectToRun);
 			ugi.doAs(privilegedExceptionActor);
+			TestSession.logger.info("APP ID THAT JUST RAN:" + privilegedExceptionActor.getAppIdThatJustRan());
 
 		}
 	}
-	
+
 	class PrivilegedExceptionActionImpl implements
 			PrivilegedExceptionAction<String> {
 		UserGroupInformation ugi;
-		String action;
 		Configuration configuration;
+		Object jobObjectToRun;
+		String appIdThatJustRan = null;
+		String dagNameThatJustRan = null;
 
-		PrivilegedExceptionActionImpl(UserGroupInformation ugi, String action,
-				Configuration configuration) throws IOException {
+		PrivilegedExceptionActionImpl(UserGroupInformation ugi,
+				Configuration configuration, Object jobObjectToRun)
+				throws IOException {
 			this.ugi = ugi;
-			this.action = action;
 			this.configuration = configuration;
+			this.jobObjectToRun = jobObjectToRun;
 		}
 
 		public String run() throws Exception {
 			String returnString = null;
-			CaptiveOrderedWordCount owc = new CaptiveOrderedWordCount();
-			
-			boolean returnCode = owc.run("/tmp/tez-site.xml", "/tmp/brah" + System.currentTimeMillis(), null, 2,
-					HadooptestConstants.Execution.TEZ_CLUSTER, HtfTezUtils.Session.NO,TimelineServer.ENABLED,
-					"ATSFromdoAS", ugi);
-			Assert.assertTrue(returnCode == true);
+			if (this.jobObjectToRun instanceof OrderedWordCountExtendedForHtf) {
+				TestHtfOrderedWordCount test = new TestHtfOrderedWordCount();
+				test.copyTheFileOnHdfs();
+				boolean returnCode = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+						.run(TestHtfOrderedWordCount.INPUT_FILE,
+								TestHtfOrderedWordCount.OUTPUT_LOCATION
+										+ System.currentTimeMillis(), null, 2,
+								HadooptestConstants.Execution.TEZ_CLUSTER,
+								HtfTezUtils.Session.NO, TimelineServer.ENABLED,
+								"OWCFromDoAS", ugi);
+				TestSession.logger.info("A P P L I C A T I O N - I D:"
+						+ ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+								.getApplicationIdForTheJobThatRan());
+				this.appIdThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+						.getApplicationIdForTheJobThatRan();
+				this.dagNameThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+						.getDagNameThatJustRan();
+
+				Assert.assertTrue(returnCode == true);
+
+			} else if (this.jobObjectToRun instanceof SimpleSessionExampleExtendedForTezHTF) {
+
+			} else if (this.jobObjectToRun instanceof MRRSleepJobExtendedForTezHTF) {
+
+			}
 
 			return returnString;
 		}
+		public String getAppIdThatJustRan(){
+			return this.appIdThatJustRan;
+		}
+		public String getDagNameThatJustRan(){
+			return this.dagNameThatJustRan;
+		}
+
 	}
 
 	@After
