@@ -93,6 +93,7 @@ public class HtfTezUtils {
 		} else {
 			// Cluster mode
 			conf.setBoolean("tez.local.mode", false);
+			conf.setBoolean("tez.use.cluster.hadoop-libs", true);
 			try {
 				// TODO: Remove this commented method once Amit has been added
 				// to OpsDb role grid_re

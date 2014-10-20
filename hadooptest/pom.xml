@@ -711,7 +711,7 @@
 
 				<dependency>
 					<groupId>system</groupId>
-					<artifactId>system37</artifactId>
+					<artifactId>system38</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
 					<systemPath>${HADOOP_SHARE}/hdfs/lib/YahooDNSToSwitchMapping-2.4.1405061231.jar</systemPath>
