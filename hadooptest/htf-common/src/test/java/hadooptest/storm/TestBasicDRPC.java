@@ -21,10 +21,13 @@ import java.util.ArrayList;
 import java.util.Map;
 import static org.junit.Assert.*;
 
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -32,6 +35,7 @@ import org.junit.experimental.categories.Category;
 import backtype.storm.drpc.LinearDRPCTopologyBuilder;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.TopologySummary;
+import backtype.storm.generated.KillOptions;
 
 import backtype.storm.StormSubmitter;
 import backtype.storm.drpc.DRPCSpout;
@@ -48,6 +52,9 @@ public class TestBasicDRPC extends TestSessionStorm {
     static ModifiableStormCluster mc;
     private backtype.storm.Config _conf;
     private backtype.storm.Config _conf2;
+    private HttpClient _http_client;
+    private String _drpc_base;
+    private String _topo_name;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -67,6 +74,33 @@ public class TestBasicDRPC extends TestSessionStorm {
             mc.resetConfigs();
         }
         stop();
+    }
+
+    @Before
+    public void topoSetup() throws Exception {
+        _http_client = new HttpClient();
+        _http_client.setIdleTimeout(30000);
+        _http_client.start();
+        // Get the URI to ping
+        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
+        if(servers == null || servers.isEmpty()) {
+            throw new RuntimeException("No DRPC servers configured");   
+        }
+        _drpc_base = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/";
+    }
+
+    @After
+    public void topoCleanup() throws Exception {
+        if (_http_client != null) {
+            _http_client.stop();
+            _http_client = null;
+        }
+        if (_topo_name != null) {
+            KillOptions ko = new KillOptions();
+            ko.set_wait_secs(0);
+            cluster.killTopology(_topo_name, ko);
+            _topo_name = null;
+        }
     }
 
     public TopologySummary getTS(String name) throws Exception {
@@ -89,6 +123,7 @@ public class TestBasicDRPC extends TestSessionStorm {
         _conf2 = new backtype.storm.Config();
     }
 
+
     public boolean secureMode() throws Exception {
         String filter = null;
         filter = (String)_conf.get("drpc.http.filter");
@@ -99,349 +134,135 @@ public class TestBasicDRPC extends TestSessionStorm {
         return false;
     }
 
-    @Test(timeout=600000)
-    public void TestDRPCTopologyHTTP() throws Exception{
-        logger.info("Starting TestDRPCTopologyHTTP");
-        StormTopology topology = buildTopology();
-
-        String topoName = "drpc-topology-test1";
-
-        _conf2.setDebug(true);
-        _conf2.setNumWorkers(3);
-
+    public void submitTopology(StormTopology topology, String topoName, backtype.storm.Config topoConf) throws Exception{
         File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         try {
-            cluster.submitTopology(jar, topoName, _conf2, topology);
+            cluster.submitTopology(jar, topoName, topoConf, topology);
+            _topo_name = topoName;
         } catch (Exception e) {
             logger.error("Couldn't launch topology: ", e );
-            throw new Exception(e);
+            throw e;
         }
+    }
 
-        boolean passed = false;
-        // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
-        // Create and start client
-        HttpClient client = new HttpClient();
-        client.setIdleTimeout(30000);
-        try {
-            client.start();
-        } catch (Exception e) {
-            cluster.killTopology(topoName);
-            throw new IOException("Could not start Http Client", e);
-        }
-        // Get the URI to ping
-        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
-        if(servers == null || servers.isEmpty()) {
-            cluster.killTopology(topoName);
-            throw new RuntimeException("No DRPC servers configured for topology");   
-        }
+    public ContentResponse drpcTryLoop(String uri) throws Exception {
+        return drpcTryLoop(uri, null, null, null);
+    }
 
-        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/exclamation/hello";
-        logger.info("Attempting to connect to drpc server with " + DRPCURI);
-
-        // Let's try for 3 minutes, or until we get a 200 back.
+    public ContentResponse drpcTryLoop(String uri, HttpMethod method, String inputFile, String contentType) throws Exception {
         boolean done = false;
         int tryCount = 200;
+        Exception other = null;
         while (!done && tryCount > 0) {
-            Thread.sleep(1000);
             Request req;
             try {
+                req = _http_client.newRequest(uri);
                 if (secureMode()) {
                     String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
                     String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
-                    req = client.newRequest(DRPCURI).header("Yahoo-App-Auth", ycaCert);
-                } else {
-                    req = client.newRequest(DRPCURI);
+                    req = req.header("Yahoo-App-Auth", ycaCert);
+                }
+                if (method != null) {
+                    req.method(method);
+                }
+                if (contentType != null) {
+                    req.header("Content-Type", contentType);
+                }
+                if (inputFile != null) {
+                    java.nio.file.Path inputPath = Paths.get(inputFile);
+                    req.file(inputPath);
                 }
             } catch (Exception e) {
-                TestSessionStorm.logger.error("Request failed to URL " + DRPCURI, e);
-                cluster.killTopology(topoName);
-                throw new IOException("Could not start build request", e);
+                TestSessionStorm.logger.error("Request failed to URL " + uri, e);
+                throw e;
             }
             ContentResponse resp = null;
-            TestSessionStorm.logger.warn("Trying to get status at " + DRPCURI);
+            TestSessionStorm.logger.warn("Trying " + req);
             try {
                 resp = req.send();
             } catch (Exception e) {
                 tryCount -= 1;
+                other = e;
             }
 
             if (resp != null && resp.getStatus() == 200) {
                 done = true;
-                // Check the response value.  Should be "hello!"
-                String respString = resp.getContentAsString();
-                logger.info("Got back " + respString + " from drpc.");
-                if (respString.equals("hello!")) {
-                    passed = true;
-                }
+                return resp;
             }
+            Thread.sleep(1000);
         }
-        
-        cluster.killTopology(topoName);
-
-        // Stop client
-        try {
-            client.stop();
-        } catch (Exception e) {
-            throw new IOException("Could not stop http client", e);
-        }
-
-        // Did we fail?
-        if (!done) {
-            throw new IOException("Timed out trying to get DRPC response\n");
-        }
-
-        if (!passed) {
-            logger.error("A test case failed.  Throwing error");
-            throw new Exception();
+        if (other != null) {
+            throw new Exception("Could not get a proper response back from "+uri, other);
+        } else {
+            throw new Exception("Could not get a proper response back from "+uri);
         }
     }
-    
-    @Test(timeout=600000)
-    public void TestDRPCTopologyHTTPPut() throws Exception{
-        logger.info("Starting TestDRPCTopologyHTTPPost");
-        StormTopology topology = buildTopology();
 
-        String topoName = "drpc-topology-test-post";
+    @Test(timeout=600000)
+    public void TestDRPCTopologyHTTP() throws Exception{
+        logger.info("Starting TestDRPCTopologyHTTP");
 
         _conf2.setDebug(true);
         _conf2.setNumWorkers(3);
+        submitTopology(buildTopology(), "drpc-topology-test1", _conf2);
 
-        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
-        try {
-            cluster.submitTopology(jar, topoName, _conf2, topology);
-        } catch (Exception e) {
-            logger.error("Couldn't launch topology: ", e );
-            throw new Exception(e);
-        }
-        
+        boolean passed = false;
+        String DRPCURI = _drpc_base + "exclamation/hello";
+        logger.info("Attempting to connect to drpc server with " + DRPCURI);
+
+        ContentResponse resp = drpcTryLoop(DRPCURI);
+        // Check the response value.  Should be "hello!"
+        String respString = resp.getContentAsString();
+        logger.info("Got back " + respString + " from drpc.");
+        assertEquals("hello!", respString);
+    }
+    
+    @Test(timeout=600000)
+    public void TestDRPCTopologyHTTPPost() throws Exception{
+        logger.info("Starting TestDRPCTopologyHTTPPost");
+
+        _conf2.setDebug(true);
+        _conf2.setNumWorkers(3);
+        submitTopology(buildTopology(), "drpc-topology-test-post", _conf2);
+
         String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestBasicDRPC/input.txt");
         java.nio.file.Path inputPath = Paths.get(inputFileDir);
 
         boolean passed = false;
-        // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
-        // Create and start client
-        HttpClient client = new HttpClient();
-        client.setIdleTimeout(30000);
-        try {
-            client.start();
-        } catch (Exception e) {
-            cluster.killTopology(topoName);
-            throw new IOException("Could not start Http Client", e);
-        }
-        // Get the URI to ping
-        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
-        if(servers == null || servers.isEmpty()) {
-            cluster.killTopology(topoName);
-            throw new RuntimeException("No DRPC servers configured for topology");   
-        }
-
-        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/exclamation";
+        String DRPCURI = _drpc_base + "exclamation";
         logger.info("Attempting to connect to drpc server with " + DRPCURI);
 
-        // Let's try for 3 minutes, or until we get a 200 back.
-        boolean done = false;
-        int tryCount = 200;
-        Exception ex = null;
-        while (!done && tryCount > 0) {
-            Thread.sleep(1000);
-            ContentResponse putResp = null;
-            
-            try {
-                if (secureMode()) {
-                    String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-                    String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
-                    putResp = client.POST(DRPCURI).header("Yahoo-App-Auth", ycaCert).file(inputPath).send();
-                } else {
-                    putResp = client.POST(DRPCURI).file(inputPath).send();
-                }
-            } catch (Exception e) {
-                TestSessionStorm.logger.error("POST failed to URL " + DRPCURI, e);
-                ex = e;
-            }
-
-            if (putResp != null && putResp.getStatus() == 200) {
-                done = true;
-                // Check the response value.  Should be "Hello World!"
-                String respString = putResp.getContentAsString();
-                logger.info("Got back " + respString + " from drpc.");
-                if (respString.equals("Hello World!")) {
-                    passed = true;
-                }
-            }
-        }
-        
-        cluster.killTopology(topoName);
-
-        // Stop client
-        try {
-            client.stop();
-        } catch (Exception e) {
-            throw new IOException("Could not stop http client", e);
-        }
-
-        // Did we fail?
-        if (!done) {
-                if ( ex != null ) {
-                    throw new IOException("Could not put to DRPC", ex);
-                } else {
-                    throw new IOException("Timed out trying to get DRPC response\n");
-                }
-        }
-
-        if (!passed) {
-            logger.error("A test case failed.  Throwing error");
-            throw new Exception();
-        }
+        ContentResponse resp = drpcTryLoop(DRPCURI, HttpMethod.POST, inputFileDir, null);
+        // Check the response value.  Should be "Hello World!"
+        String respString = resp.getContentAsString();
+        logger.info("Got back " + respString + " from drpc.");
+        assertEquals("Hello World!", respString);
     }
 
     @Test(timeout=600000)
     public void TestDRPCTopologyJSONPost() throws Exception{
         logger.info("Starting TestDRPCTopologyJSONPost");
-        StormTopology topology = buildRamTopology();
 
-        String topoName = "drpc-topology-json-post";
-
-        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
-        try {
-            backtype.storm.Config stormConfig = new backtype.storm.Config();
-                stormConfig.setDebug(true);
-                stormConfig.put(backtype.storm.Config.TOPOLOGY_RECEIVER_BUFFER_SIZE, 8);
-                stormConfig.put(backtype.storm.Config.TOPOLOGY_TRANSFER_BUFFER_SIZE, 32);
-                stormConfig.put(backtype.storm.Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 16384);
-                stormConfig.put(backtype.storm.Config.TOPOLOGY_EXECUTOR_SEND_BUFFER_SIZE, 16384);
-                stormConfig.setNumWorkers(3);
-                stormConfig.setNumAckers(3);
-                cluster.submitTopology(jar, topoName, stormConfig, topology);
-        } catch (Exception e) {
-            logger.error("Couldn't launch topology: ", e );
-            throw new Exception(e);
-        }
+        backtype.storm.Config stormConfig = new backtype.storm.Config();
+        stormConfig.setDebug(true);
+        stormConfig.put(backtype.storm.Config.TOPOLOGY_RECEIVER_BUFFER_SIZE, 8);
+        stormConfig.put(backtype.storm.Config.TOPOLOGY_TRANSFER_BUFFER_SIZE, 32);
+        stormConfig.put(backtype.storm.Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 16384);
+        stormConfig.put(backtype.storm.Config.TOPOLOGY_EXECUTOR_SEND_BUFFER_SIZE, 16384);
+        stormConfig.setNumWorkers(3);
+        stormConfig.setNumAckers(3);
+        submitTopology(buildRamTopology(), "drpc-topology-json-post", stormConfig);
 
         String inputFileDir = new String(conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestBasicDRPC/input.json");
-        java.nio.file.Path inputPath = Paths.get(inputFileDir);
-
-        boolean passed = false;
-        // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
-        // Create and start client
-        HttpClient client = new HttpClient();
-        client.setIdleTimeout(30000);
-        try {
-            client.start();
-        } catch (Exception e) {
-            cluster.killTopology(topoName);
-            throw new IOException("Could not start Http Client", e);
-        }
-        // Get the URI to ping
-        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
-        if(servers == null || servers.isEmpty()) {
-            cluster.killTopology(topoName);
-            throw new RuntimeException("No DRPC servers configured for topology");   
-        }
-
-        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/jsonpost";
+        String DRPCURI = _drpc_base + "jsonpost";
         logger.info("Attempting to connect to drpc server with " + DRPCURI);
 
-        // Let's try for 3 minutes, or until we get a 200 back.
-        int numPosts = 3;
-        boolean done = false;
-        while (numPosts > 0) {
-            int tryCount = 200;
-            Exception ex = null;
-            done = false;
-            while (!done && tryCount > 0) {
-                Thread.sleep(1000);
-                ContentResponse putResp = null;
-                
-                try {
-                    if (secureMode()) {
-                        String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-                        String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
-                        putResp = client.POST(DRPCURI).header("Yahoo-App-Auth", ycaCert).header("Content-Type", "application/json").file(inputPath).send();
-                    } else {
-                        putResp = client.POST(DRPCURI).header("Content-Type", "application/json").file(inputPath).send();
-                    }
-                } catch (Exception e) {
-                    TestSessionStorm.logger.error("POST failed to URL " + DRPCURI, e);
-                    ex = e;
-                }
-
-                if (putResp != null && putResp.getStatus() == 200) {
-                    done = true;
-                    // Check the response value.  Should be "Hello World!"
-                    String respString = putResp.getContentAsString();
-                    logger.info("Got back " + respString + " from drpc.");
-                    if (respString.contains("login")) {
-                        passed = true;
-                    }
-                }
-            }
-            // Did we fail?
-            if (!done) {
-                    cluster.killTopology(topoName);
-                    // Stop client
-                    try {
-                        client.stop();
-                    } catch (Exception e) {
-                        throw new IOException("Could not stop http client", e);
-                    }
-
-                    if ( ex != null ) {
-                        throw new IOException("Could not put to DRPC", ex);
-                    } else {
-                        throw new IOException("Timed out trying to get DRPC response\n");
-                    }
-            }
-            numPosts -= 1;
-            Thread.sleep(1000);
+        for (int i = 0; i < 3; i++) {
+            ContentResponse resp = drpcTryLoop(DRPCURI, HttpMethod.POST, inputFileDir, "application/json");
+            String respString = resp.getContentAsString();
+            logger.info("Got back " + respString + " from drpc.");
+            assertTrue(respString.contains("login"));
         }
-        
-        cluster.killTopology(topoName);
-
-        // Stop client
-        try {
-            client.stop();
-        } catch (Exception e) {
-            throw new IOException("Could not stop http client", e);
-        }
-
-/*
-        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/jsonpost";
-        logger.info("Attempting to connect to drpc server with " + DRPCURI);
-
-        // Let's do what Ram did, and just call out to curl and hit it with the same data.
-        String myJSONPost = "'{\"src\":\"mobile_web\",\"asn\":\"5089\",\"login\":\"1545227ad14cc686e8325319df5e09bc\"}'";
-
-        // Give topology enough time to come up.
-        logger.info("Sleep for 1 seconds to allow topology to register DRPC");
-        Thread.sleep(10000);
-        String[] returnValue = null;
-        boolean done = false;
-        int tryCount = 200;
-        while (!done && tryCount > 0) {
-            if (secureMode()) {
-                logger.info("Attempting to connect to secure drpc server with " + DRPCURI);
-                logger.info("Attempting to connect to secure drpc server with json" + myJSONPost);
-                String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-                String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
-                returnValue = exec.runProcBuilder(new String[] { "curl", "-X", "POST", "-H", "\"Yahoo-App-Auth:" + ycaCert + "\"", "-H", "\"Content-Type: application/json\"", "--data", myJSONPost, DRPCURI } , true);
-                logger.info("returnValue[0] = " + returnValue[0]);
-                logger.info("returnValue[1] = " + returnValue[1]);
-                logger.info("returnValue[2] = " + returnValue[2]);
-            } else {
-                returnValue = exec.runProcBuilder(new String[] { "curl", "-X", "POST", "-H", "Content-Type: application/json", "--data", myJSONPost, DRPCURI } , true);
-            }
-
-            if ( returnValue[0].equals("0") ) {
-                //done = true;
-                Thread.sleep(10000);
-                tryCount -= 1;
-            } else {
-                logger.warn("curl returned error.  Sleeping and retrying");
-                Thread.sleep(10000);
-                tryCount -= 1;
-            }
-        }
-        */
     }
 
 
@@ -452,86 +273,23 @@ public class TestBasicDRPC extends TestSessionStorm {
         int port = ss.getLocalPort();
         String dest = InetAddress.getLocalHost().getCanonicalHostName()+":"+ss.getLocalPort();
 
-        StormTopology topology = buildTopology();
-
-        String topoName = "drpc-metrics-test1";
-
         _conf2.setDebug(true);
         _conf2.setNumWorkers(3);
         _conf2.registerMetricsConsumer(ForwardingMetricsConsumer.class, dest, 1);
         _conf2.put(backtype.storm.Config.TOPOLOGY_BUILTIN_METRICS_BUCKET_SIZE_SECS, 15); //15 seconds to make the test run faster
-
-        File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
-        try {
-            cluster.submitTopology(jar, topoName, _conf2, topology);
-        } catch (Exception e) {
-            logger.error("Couldn't launch topology: ", e );
-            throw new Exception(e);
-        }
+        submitTopology(buildTopology(), "drpc-metrics-test1", _conf2);
 
         Socket s = ss.accept();
         BufferedReader r = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
-        boolean passed = false;
-        // Configure the Jetty client to talk to the RS.  TODO:  Add API to the registry stub to do all this for us.....
-        // Create and start client
-        HttpClient client = new HttpClient();
-        client.setIdleTimeout(30000);
-        try {
-            client.start();
-        } catch (Exception e) {
-            cluster.killTopology(topoName);
-            throw new IOException("Could not start Http Client", e);
-        }
-        // Get the URI to ping
-        List<String> servers = (List<String>) _conf.get(backtype.storm.Config.DRPC_SERVERS);
-        if(servers == null || servers.isEmpty()) {
-            cluster.killTopology(topoName);
-            throw new RuntimeException("No DRPC servers configured for topology");   
-        }
+        String DRPCURI = _drpc_base + "exclamation/hello";
+        ContentResponse resp = drpcTryLoop(DRPCURI);
+        String respString = resp.getContentAsString();
+        logger.info("Got back " + respString + " from drpc.");
+        assertEquals("hello!", respString);
 
-        String DRPCURI = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/exclamation/hello";
-        logger.info("Attempting to connect to drpc server with " + DRPCURI);
-
-        // Let's try for 3 minutes, or until we get a 200 back.
-        boolean done = false;
-        int tryCount = 200;
-        while (!done && tryCount > 0) {
-            Thread.sleep(1000);
-            Request req;
-            try {
-                if (secureMode()) {
-                    String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-                    String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
-                    req = client.newRequest(DRPCURI).header("Yahoo-App-Auth", ycaCert);
-                } else {
-                    req = client.newRequest(DRPCURI);
-                }
-            } catch (Exception e) {
-                TestSessionStorm.logger.error("Request failed to URL " + DRPCURI, e);
-                cluster.killTopology(topoName);
-                throw new IOException("Could not start build request", e);
-            }
-            ContentResponse resp = null;
-            TestSessionStorm.logger.warn("Trying to get status at " + DRPCURI);
-            try {
-                resp = req.send();
-            } catch (Exception e) {
-                tryCount -= 1;
-            }
-
-            if (resp != null && resp.getStatus() == 200) {
-                done = true;
-                // Check the response value.  Should be "hello!"
-                String respString = resp.getContentAsString();
-                logger.info("Got back " + respString + " from drpc.");
-                if (respString.equals("hello!")) {
-                    passed = true;
-                }
-            }
-        }
         String line;
-        tryCount = 0;
+        int tryCount = 0;
         boolean foundRecv = false;
         boolean foundSend = false;
         while ((!foundRecv || !foundSend) && tryCount < 200 && (line = r.readLine()) != null) {
@@ -570,41 +328,22 @@ public class TestBasicDRPC extends TestSessionStorm {
           tryCount++;
         }
       
-        cluster.killTopology(topoName);
-
-        // Stop client
-        try {
-            client.stop();
-        } catch (Exception e) {
-            throw new IOException("Could not stop http client", e);
-        }
-
-        // Did we fail?
-        if (!done) {
-            throw new IOException("Timed out trying to get DRPC response\n");
-        }
-
-        if (!passed) {
-            logger.error("A test case failed.  Throwing error");
-            throw new Exception();
-        }
         assertTrue(foundRecv);
         assertTrue(foundSend);
     }
 
 
     public StormTopology buildRamTopology() throws Exception {
-            TopologyBuilder builder = new TopologyBuilder();
+        TopologyBuilder builder = new TopologyBuilder();
 
-            DRPCSpout spout = new DRPCSpout("jsonpost");
-            builder.setSpout("drpc", spout, 1);
-            builder.setBolt("return", new ReturnResults(),1).customGrouping("drpc", new YidGrouping());
+        DRPCSpout spout = new DRPCSpout("jsonpost");
+        builder.setSpout("drpc", spout, 1);
+        builder.setBolt("return", new ReturnResults(),1).customGrouping("drpc", new YidGrouping());
             
-            return builder.createTopology();
+        return builder.createTopology();
     }
 
     public StormTopology buildTopology() throws Exception {
-
         LinearDRPCTopologyBuilder builder = new LinearDRPCTopologyBuilder("exclamation");
         builder.addBolt(new ExclaimBolt(), 3);
 
