@@ -4,6 +4,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
+import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfATSUtils;
 
 import java.io.IOException;
@@ -106,10 +107,16 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 		getCascadedEntitiesMap("dag_1413669561424_0007_1");
 	}
 	
-	@Test
-	public void testUGI() throws IOException, InterruptedException{
+//	@Test
+	public void testOrderedWordCountExtendedForHtf() throws IOException, InterruptedException{
 		UserGroupInformation ugi = getUgiForUser(HadooptestConstants.UserNames.HDFSQA);
 		DoAs doAs = new DoAs(ugi,TestSession.cluster.getConf(),new OrderedWordCountExtendedForHtf());
+		doAs.doAction();
+	}
+	@Test
+	public void testSimpleSessionExampleExtendedForTezHTF() throws IOException, InterruptedException{
+		UserGroupInformation ugi = getUgiForUser(HadooptestConstants.UserNames.HDFSQA);
+		DoAs doAs = new DoAs(ugi,TestSession.cluster.getConf(),new SimpleSessionExampleExtendedForTezHTF());
 		doAs.doAction();
 	}
 }

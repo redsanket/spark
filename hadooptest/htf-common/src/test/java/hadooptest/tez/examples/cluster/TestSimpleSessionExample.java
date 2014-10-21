@@ -61,11 +61,11 @@ public class TestSimpleSessionExample extends
 	public static String OUT_PATH_2 = OUTPUT_PATH_ON_HDFS + "2";
 	public static String OUT_PATH_3 = OUTPUT_PATH_ON_HDFS + "3";
 
-	String[] inputFilesOnLocalFs = new String[] { INPUT_FILE_1_ON_LOCAL_FS,
+	public static String[] inputFilesOnLocalFs = new String[] { INPUT_FILE_1_ON_LOCAL_FS,
 			INPUT_FILE_2_ON_LOCAL_FS, INPUT_FILE_3_ON_LOCAL_FS };
-	String[] inputFilesOnHdfs = new String[] { INPUT_FILE_1_ON_HDFS,
+	public static String[] inputFilesOnHdfs = new String[] { INPUT_FILE_1_ON_HDFS,
 			INPUT_FILE_2_ON_HDFS, INPUT_FILE_3_ON_HDFS };
-	String[] outputPathsOnHdfs = new String[] { OUT_PATH_1, OUT_PATH_2,
+	public static String[] outputPathsOnHdfs = new String[] { OUT_PATH_1, OUT_PATH_2,
 			OUT_PATH_3 };
 
 	@BeforeClass

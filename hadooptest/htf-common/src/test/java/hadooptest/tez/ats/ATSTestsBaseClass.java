@@ -13,6 +13,7 @@ import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
 import hadooptest.tez.examples.cluster.TestHtfOrderedWordCount;
+import hadooptest.tez.examples.cluster.TestSimpleSessionExample;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
 import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
@@ -733,7 +734,7 @@ public class ATSTestsBaseClass extends TestSession {
 			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
 					ugi, configuration, jobObjectToRun);
 			ugi.doAs(privilegedExceptionActor);
-			TestSession.logger.info("APP ID THAT JUST RAN:" + privilegedExceptionActor.getAppIdThatJustRan());
+			TestSession.logger.info("APP ID THAT JUST RAN:" + privilegedExceptionActor.getAppIdsThatJustRan());
 
 		}
 	}
@@ -743,8 +744,8 @@ public class ATSTestsBaseClass extends TestSession {
 		UserGroupInformation ugi;
 		Configuration configuration;
 		Object jobObjectToRun;
-		String appIdThatJustRan = null;
-		String dagNameThatJustRan = null;
+		List<String> appIdsThatJustRan = null;
+		List<String> dagNamesThatJustRan = null;
 
 		PrivilegedExceptionActionImpl(UserGroupInformation ugi,
 				Configuration configuration, Object jobObjectToRun)
@@ -769,14 +770,30 @@ public class ATSTestsBaseClass extends TestSession {
 				TestSession.logger.info("A P P L I C A T I O N - I D:"
 						+ ((OrderedWordCountExtendedForHtf) jobObjectToRun)
 								.getApplicationIdForTheJobThatRan());
-				this.appIdThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+				this.appIdsThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
 						.getApplicationIdForTheJobThatRan();
-				this.dagNameThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+				this.dagNamesThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
 						.getDagNameThatJustRan();
 
 				Assert.assertTrue(returnCode == true);
 
 			} else if (this.jobObjectToRun instanceof SimpleSessionExampleExtendedForTezHTF) {
+				TestSimpleSessionExample test = new TestSimpleSessionExample();
+				test.copyTheFileOnHdfs();
+				boolean returnCode = ((SimpleSessionExampleExtendedForTezHTF) jobObjectToRun)
+						.run(TestSimpleSessionExample.inputFilesOnHdfs,
+								TestSimpleSessionExample.outputPathsOnHdfs, HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
+										HadooptestConstants.Execution.TEZ_CLUSTER, HtfTezUtils.Session.YES,
+										TimelineServer.DISABLED, "TSSEFromDoAs"), 2,ugi);
+				TestSession.logger.info("A P P L I C A T I O N - I D:"
+						+ ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+								.getApplicationIdForTheJobThatRan());
+				this.appIdsThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+						.getApplicationIdForTheJobThatRan();
+				this.dagNamesThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+						.getDagNameThatJustRan();
+
+				Assert.assertTrue(returnCode == true);
 
 			} else if (this.jobObjectToRun instanceof MRRSleepJobExtendedForTezHTF) {
 
@@ -784,11 +801,11 @@ public class ATSTestsBaseClass extends TestSession {
 
 			return returnString;
 		}
-		public String getAppIdThatJustRan(){
-			return this.appIdThatJustRan;
+		public List<String> getAppIdsThatJustRan(){
+			return this.appIdsThatJustRan;
 		}
-		public String getDagNameThatJustRan(){
-			return this.dagNameThatJustRan;
+		public List<String> getDagNamesThatJustRan(){
+			return this.dagNamesThatJustRan;
 		}
 
 	}
