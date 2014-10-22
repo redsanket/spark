@@ -45,7 +45,7 @@
 		<scala.version>2.10.3</scala.version>
 		<storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
 		<storm.version.community>0.9.2-incubating-security</storm.version.community>
-		<storm.version.release>271</storm.version.release>
+		<storm.version.release>339</storm.version.release>
 	    <jetty.version>9.1.4.v20140401</jetty.version>
 	    <jetty.version.release>65</jetty.version.release>
 		<thread.count>8</thread.count>
@@ -385,7 +385,7 @@
 				<dependency>
 					<groupId>yahoo.yinst.ystorm</groupId>
 					<artifactId>storm_yahoo</artifactId>
-					<version>0.9.0_wip21.265</version>
+					<version>${storm.version.yinst}.${storm.version.release}</version>
 					<exclusions>
 						<exclusion>
 							<groupId>storm</groupId>
@@ -395,9 +395,9 @@
 					<scope>provided</scope>
 				</dependency>
 				<dependency>
-					<groupId>yahoo.yinst.ystorm</groupId>
-					<artifactId>storm</artifactId>
-					<version>0.9.0_wip21.265</version>
+					<groupId>org.apache.storm</groupId>
+					<artifactId>storm-core</artifactId>
+					<version>${storm.version.yinst}.${storm.version.release}</version>
 					<exclusions>
 						<exclusion>
 							<groupId>javax.servlet</groupId>
