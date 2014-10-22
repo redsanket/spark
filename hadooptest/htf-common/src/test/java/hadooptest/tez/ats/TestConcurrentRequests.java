@@ -107,13 +107,13 @@ public class TestConcurrentRequests extends ATSTestsBaseClass {
 		getCascadedEntitiesMap("dag_1413669561424_0007_1");
 	}
 	
-//	@Test
+	@Test
 	public void testOrderedWordCountExtendedForHtf() throws IOException, InterruptedException{
 		UserGroupInformation ugi = getUgiForUser(HadooptestConstants.UserNames.HDFSQA);
 		DoAs doAs = new DoAs(ugi,TestSession.cluster.getConf(),new OrderedWordCountExtendedForHtf());
 		doAs.doAction();
 	}
-	@Test
+//	@Test
 	public void testSimpleSessionExampleExtendedForTezHTF() throws IOException, InterruptedException{
 		UserGroupInformation ugi = getUgiForUser(HadooptestConstants.UserNames.HDFSQA);
 		DoAs doAs = new DoAs(ugi,TestSession.cluster.getConf(),new SimpleSessionExampleExtendedForTezHTF());

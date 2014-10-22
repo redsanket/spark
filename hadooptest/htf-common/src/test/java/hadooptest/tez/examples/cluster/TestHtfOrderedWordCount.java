@@ -1,26 +1,22 @@
 package hadooptest.tez.examples.cluster;
 
-import java.util.HashMap;
-
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
-import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
+
+import java.util.HashMap;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -105,15 +101,27 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 	@Test
 	public void testOrderedWordCountWithPartitions() throws Exception {
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION, null, 2,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED,
-				testName.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
+				TimelineServer.DISABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == true);
 	}
+
 	@Test
 	public void testOrderedWordCountWithoutPartitions() throws Exception {
-		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION, null, 0,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED,
-				testName.getMethodName());
+		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION, null, 1,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
+				TimelineServer.DISABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == true);
+	}
+
+	@After
+	public void removeOutputFileFromHdfs() throws Exception {
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		GenericCliResponseBO genericCliResponse = dfsCliCommands.rmdir(
+				new HashMap<String, String>(),
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.HDFS,
+				System.getProperty("CLUSTER_NAME"), OUTPUT_LOCATION);
+		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 	}
 }

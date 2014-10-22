@@ -34,7 +34,7 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response;
 
 @Category(SerialTests.class)
-public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
+public class TestAnIndividualResponseAgainstThatReceivedInAGroup extends ATSTestsBaseClass {
 
 	@Test
 	public void testDagIdResponse() throws Exception {
@@ -71,7 +71,7 @@ public class TestIndividualResponsesInBunch extends ATSTestsBaseClass {
 
 		url = "http://" + rmHostname + ":"
 				+ HadooptestConstants.Ports.HTTP_ATS_PORT
-				+ "/ws/v1/timeline/TEZ_DAG_ID/" + "dag_1412943684044_0003_1";
+				+ "/ws/v1/timeline/TEZ_DAG_ID/" + "dag_1413669561424_0019_1";
 		Response singleResponse = given().cookie(
 				userCookies.get(HadooptestConstants.UserNames.HITUSR_1)).get(
 				url);

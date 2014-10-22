@@ -1,7 +1,9 @@
 package hadooptest.tez.examples.extensions;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
@@ -43,8 +45,8 @@ import org.apache.tez.examples.OrderedWordCount;
 
 public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 
-	public List<String> applicationIdsThatJustRan = new ArrayList<String>();
-	public List<String> dagNamesThatJustRan = new ArrayList<String>();
+	public Set<String> applicationIdsThatJustRan = new LinkedHashSet<String>();
+	public Set<String> dagNamesThatJustRan = new LinkedHashSet<String>();
 	/**
 	 * Copy and paste the the code from the parent class's run method here.
 	 * Change all references to getConf() to HtfTezUtils.setupConfForTez(conf,
@@ -127,10 +129,10 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "OWC-" + ugi.getUserName());
 	        dagNamesThatJustRan.add(dag.getName());
 	        tezClient.waitTillReady();
-	        DAGClient dagClient = tezClient.submitDAG(dag);
-	        applicationIdsThatJustRan.add(tezClient.getAppMasterApplicationId().toString());
+	        DAGClient dagClient = tezClient.submitDAG(dag);	        
 	        // monitoring
 	        DAGStatus dagStatus = dagClient.waitForCompletionWithStatusUpdates(null);
+	        applicationIdsThatJustRan.add(tezClient.getAppMasterApplicationId().toString());
 	        if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
 	          System.out.println("OrderedWordCount failed with diagnostics: " + dagStatus.getDiagnostics());
 	          return false;
@@ -145,14 +147,14 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	 * HTF
 	 * read and store the dag name
 	 */
-	public List<String> getDagNameThatJustRan(){
+	public Set<String> getDagNameThatJustRan(){
 		return dagNamesThatJustRan;
 	}
 	/**
 	 * HTF
 	 * read and store the application id
 	 */
-	public List<String> getApplicationIdForTheJobThatRan(){
+	public Set<String> getApplicationIdForTheJobThatRan(){
 		return applicationIdsThatJustRan;
 	}
 

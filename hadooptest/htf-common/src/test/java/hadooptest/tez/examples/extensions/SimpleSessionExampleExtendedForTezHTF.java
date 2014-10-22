@@ -1,7 +1,9 @@
 package hadooptest.tez.examples.extensions;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -57,8 +59,8 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	/**
 	 * HTF Needed to pass UGI, hence overloading the run method here
 	 */
-	public List<String> applicationIdsThatJustRan = new ArrayList<String>();
-	public List<String> dagNamesThatJustRan = new ArrayList<String>();
+	public Set<String> applicationIdsThatJustRan = new LinkedHashSet<String>();
+	public Set<String> dagNamesThatJustRan = new LinkedHashSet<String>();
 
 	private static final String enablePrewarmConfig = "simplesessionexample.prewarm";
 
@@ -128,17 +130,9 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 		try {
 			for (int i = 0; i < inputPaths.length; ++i) {
 				DAG dag = OrderedWordCount.createDAG(tezConf, inputPaths[i],
-						outputPaths[i], numPartitions, ("DAG-Iteration-" + i)); // the
-																				// names
-																				// of
-																				// the
-																				// DAGs
-																				// must
-																				// be
-																				// unique
-																				// in
-																				// a
-																				// session
+						//The names of DAG must be unique in a session
+						outputPaths[i], numPartitions, ("DAG-Iteration-" + i)); 
+				
 
 				tezClient.waitTillReady();
 				System.out.println("Running dag number " + i);
@@ -164,14 +158,14 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	/**
 	 * HTF read and store the dag name
 	 */
-	public List<String> getDagNameThatJustRan() {
+	public Set<String> getDagNameThatJustRan() {
 		return dagNamesThatJustRan;
 	}
 
 	/**
 	 * HTF read and store the application id
 	 */
-	public List<String> getApplicationIdForTheJobThatRan() {
+	public Set<String> getApplicationIdForTheJobThatRan() {
 		return applicationIdsThatJustRan;
 	}
 

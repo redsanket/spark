@@ -1,5 +1,8 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
@@ -161,6 +164,19 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	    return dagClient.getDAGStatus(null).getState().equals(DAGStatus.State.SUCCEEDED) ? 0 : 1;
 	}
 
+	/**
+	 * HTF-ATS (Timelineserver related change, to pass ugi)
+	 * @param args
+	 * @param mode
+	 * @param session
+	 * @param timelineServer
+	 * @param testName
+	 * @param ugi
+	 * @return
+	 * @throws Exception
+	 */
+	public Set<String> applicationIdsThatJustRan = new LinkedHashSet<String>();
+	public Set<String> dagNamesThatJustRan = new LinkedHashSet<String>();
 	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName,
 			UserGroupInformation ugi) throws Exception {
 
@@ -249,7 +265,7 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	     */
 	    UserGroupInformation.setConfiguration(conf);
 	    UserGroupInformation.setLoginUser(ugi);
-
+	    
 
 	    conf.set(TezConfiguration.TEZ_AM_STAGING_DIR,
 	        conf.get(
@@ -267,14 +283,30 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	        numMapper, numReducer, iReduceStagesCount, numIReducer,
 	        mapSleepTime, mapSleepCount, reduceSleepTime, reduceSleepCount,
 	        iReduceSleepTime, iReduceSleepCount, writeSplitsToDfs, generateSplitsInAM);
-
-	    TezClient tezSession = TezClient.create("MRRSleep", conf, false, null, credentials);
+	    dagNamesThatJustRan.add(dag.getName());
+	    TezClient tezSession = TezClient.create("MRRSleep", conf, false, null, ugi.getCredentials());
 	    tezSession.start();
 	    DAGClient dagClient = tezSession.submitDAG(dag);
 	    dagClient.waitForCompletion();
+	    applicationIdsThatJustRan.add(tezSession.getAppMasterApplicationId().toString());
 	    tezSession.stop();
 
 	    return dagClient.getDAGStatus(null).getState().equals(DAGStatus.State.SUCCEEDED) ? 0 : 1;
 	}
+	/**
+	 * HTF
+	 * read and store the dag name
+	 */
+	public Set<String> getDagNameThatJustRan(){
+		return dagNamesThatJustRan;
+	}
+	/**
+	 * HTF
+	 * read and store the application id
+	 */
+	public Set<String> getApplicationIdForTheJobThatRan(){
+		return applicationIdsThatJustRan;
+	}
+
 
 }

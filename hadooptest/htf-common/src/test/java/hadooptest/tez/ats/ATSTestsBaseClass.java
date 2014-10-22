@@ -32,6 +32,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -743,24 +744,24 @@ public class ATSTestsBaseClass extends TestSession {
 			PrivilegedExceptionAction<String> {
 		UserGroupInformation ugi;
 		Configuration configuration;
-		Object jobObjectToRun;
-		List<String> appIdsThatJustRan = null;
-		List<String> dagNamesThatJustRan = null;
+		Object theJobToRun;
+		Set<String> appIdsThatJustRan = null;
+		Set<String> dagNamesThatJustRan = null;
 
 		PrivilegedExceptionActionImpl(UserGroupInformation ugi,
 				Configuration configuration, Object jobObjectToRun)
 				throws IOException {
 			this.ugi = ugi;
 			this.configuration = configuration;
-			this.jobObjectToRun = jobObjectToRun;
+			this.theJobToRun = jobObjectToRun;
 		}
 
 		public String run() throws Exception {
 			String returnString = null;
-			if (this.jobObjectToRun instanceof OrderedWordCountExtendedForHtf) {
+			if (this.theJobToRun instanceof OrderedWordCountExtendedForHtf) {
 				TestHtfOrderedWordCount test = new TestHtfOrderedWordCount();
 				test.copyTheFileOnHdfs();
-				boolean returnCode = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+				boolean returnCode = ((OrderedWordCountExtendedForHtf) theJobToRun)
 						.run(TestHtfOrderedWordCount.INPUT_FILE,
 								TestHtfOrderedWordCount.OUTPUT_LOCATION
 										+ System.currentTimeMillis(), null, 2,
@@ -768,43 +769,56 @@ public class ATSTestsBaseClass extends TestSession {
 								HtfTezUtils.Session.NO, TimelineServer.ENABLED,
 								"OWCFromDoAS", ugi);
 				TestSession.logger.info("A P P L I C A T I O N - I D:"
-						+ ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+						+ ((OrderedWordCountExtendedForHtf) theJobToRun)
 								.getApplicationIdForTheJobThatRan());
-				this.appIdsThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+				this.appIdsThatJustRan = ((OrderedWordCountExtendedForHtf) theJobToRun)
 						.getApplicationIdForTheJobThatRan();
-				this.dagNamesThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+				this.dagNamesThatJustRan = ((OrderedWordCountExtendedForHtf) theJobToRun)
 						.getDagNameThatJustRan();
 
 				Assert.assertTrue(returnCode == true);
 
-			} else if (this.jobObjectToRun instanceof SimpleSessionExampleExtendedForTezHTF) {
+			} else if (this.theJobToRun instanceof SimpleSessionExampleExtendedForTezHTF) {
 				TestSimpleSessionExample test = new TestSimpleSessionExample();
 				test.copyTheFileOnHdfs();
-				boolean returnCode = ((SimpleSessionExampleExtendedForTezHTF) jobObjectToRun)
+				boolean returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
 						.run(TestSimpleSessionExample.inputFilesOnHdfs,
 								TestSimpleSessionExample.outputPathsOnHdfs, HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
 										HadooptestConstants.Execution.TEZ_CLUSTER, HtfTezUtils.Session.YES,
-										TimelineServer.DISABLED, "TSSEFromDoAs"), 2,ugi);
+										TimelineServer.ENABLED, "TSSEFromDoAs"), 2,ugi);
 				TestSession.logger.info("A P P L I C A T I O N - I D:"
-						+ ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+						+ ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
 								.getApplicationIdForTheJobThatRan());
-				this.appIdsThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+				this.appIdsThatJustRan = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
 						.getApplicationIdForTheJobThatRan();
-				this.dagNamesThatJustRan = ((OrderedWordCountExtendedForHtf) jobObjectToRun)
+				this.dagNamesThatJustRan = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
 						.getDagNameThatJustRan();
-
+				test.deleteTezStagingDirs();
 				Assert.assertTrue(returnCode == true);
 
-			} else if (this.jobObjectToRun instanceof MRRSleepJobExtendedForTezHTF) {
+			} else if (this.theJobToRun instanceof MRRSleepJobExtendedForTezHTF) {
+				
+				String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
+						"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
+				/**
+				 * [-m numMapper][-r numReducer] [-ir numIntermediateReducer] [-irs
+				 * numIntermediateReducerStages] [-mt mapSleepTime (msec)] [-rt
+				 * reduceSleepTime (msec)] [-irt intermediateReduceSleepTime] [-recordt
+				 * recordSleepTime (msec)] [-generateSplitsInAM (false)/true]
+				 * [-writeSplitsToDfs (false)/true]
+				 */
+				int returnCode = ((MRRSleepJobExtendedForTezHTF) theJobToRun).run(sleepJobArgs, HadooptestConstants.Execution.TEZ_CLUSTER,
+						HtfTezUtils.Session.YES, TimelineServer.DISABLED,"MRRSleepFromDoAs", ugi);
+				Assert.assertTrue(returnCode == 0);
 
 			}
 
 			return returnString;
 		}
-		public List<String> getAppIdsThatJustRan(){
+		public Set<String> getAppIdsThatJustRan(){
 			return this.appIdsThatJustRan;
 		}
-		public List<String> getDagNamesThatJustRan(){
+		public Set<String> getDagNamesThatJustRan(){
 			return this.dagNamesThatJustRan;
 		}
 

@@ -1,4 +1,4 @@
-package hadooptest.tez.ats;
+package hadooptest.hadoop.regression.yarn;
 
 import hadooptest.TestSession;
 
