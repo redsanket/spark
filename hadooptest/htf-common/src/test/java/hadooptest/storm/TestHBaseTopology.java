@@ -36,33 +36,12 @@ public class TestHBaseTopology extends TestSessionStorm {
 
     @BeforeClass
     public static void setup() throws Exception {
-        cluster.setDrpcInvocationAuthAclForFunction("hbase", "hadoopqa");
-        String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-        cluster.setDrpcClientAuthAclForFunction("hbase", "hadoopqa," +v1Role );
+        cluster.setDrpcAclForFunction("hbase");
     }
 
     @AfterClass
     public static void cleanup() throws Exception {
         stop();
-    }
-
-    public TopologySummary getTS(String name) throws Exception {
-        for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
-            if (name.equals(ts.get_name())) {
-                return ts;
-            }
-        }
-        throw new IllegalArgumentException("Topology "+name+" does not appear to be up yet");
-    }
-
-    public String getId(String name) throws Exception {
-        TopologySummary ts = getTS( name );
-
-        return ts.get_id();
-    }
- 
-    public int getUptime(String name) throws Exception {
-        return getTS(name).get_uptime_secs();
     }
 
     public void launchHBaseTopology() throws Exception {
@@ -74,51 +53,7 @@ public class TestHBaseTopology extends TestSessionStorm {
     }
 
     public void checkLogviewerLog(String topoName) throws Exception {
-        final String topoId = getFirstTopoIdForName(topoName);
-
-        // Worker Host
-        TopologyInfo ti = cluster.getTopologyInfo(topoId);
-        String host = ti.get_executors().get(0).get_host();
-        int workerPort = ti.get_executors().get(0).get_port();
-
-        // Logviewer port on worker host
-        String jsonStormConf = cluster.getNimbusConf();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> stormConf =
-                (Map<String, Object>) JSONValue.parse(jsonStormConf);
-        Integer logviewerPort = Utils.getInt(stormConf
-                .get(Config.LOGVIEWER_PORT));
-        
-        ModifiableStormCluster mc;
-        mc = (ModifiableStormCluster)cluster;
-        
-        backtype.storm.Config theconf = new backtype.storm.Config();
-        theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
-
-        String filter = (String)theconf.get("ui.filter");
-        String pw = null;
-        String user = null;
-
-        // Only get bouncer auth on secure cluster.
-        if ( filter != null ) {
-            if (mc != null) {
-                user = mc.getBouncerUser();
-                pw = mc.getBouncerPassword();
-            }
-        }
-        
-        HTTPHandle client = new HTTPHandle();
-        if (filter != null) {
-            client.logonToBouncer(user,pw);
-        }
-        logger.info("Cookie = " + client.YBYCookie);
-        
-        String getURL = "http://" + host + ":" + logviewerPort + 
-                "/download/" + topoId + "-worker-" + workerPort + ".log";
-        logger.info("URL to get is: " + getURL);
-        HttpMethod getMethod = client.makeGET(getURL, new String(""), null);
-        Response response = new Response(getMethod, false);
-        String output = response.getResponseBodyAsString();
+        String output = getLogForTopology(topoName);
         logger.info("******* OUTPUT = " + output);
         
         final String expectedRegex =

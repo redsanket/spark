@@ -51,9 +51,7 @@ public class TestDRPCPerf extends TestSessionStorm {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         mc = (ModifiableStormCluster)cluster;
 
-        cluster.setDrpcInvocationAuthAclForFunction(function, "hadoopqa");
-        String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-        cluster.setDrpcClientAuthAclForFunction(function, "hadoopqa," +v1Role );
+        cluster.setDrpcAclForFunction(function);
     }
 
     @AfterClass
@@ -62,19 +60,6 @@ public class TestDRPCPerf extends TestSessionStorm {
             mc.resetConfigs();
         }
         stop();
-    }
-
-    public TopologySummary getTS(String name) throws Exception {
-        for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
-            if (name.equals(ts.get_name())) {
-                return ts;
-            }
-        }
-        throw new IllegalArgumentException("Topology "+name+" does not appear to be up yet");
-    }
-
-    public int getUptime(String name) throws Exception {
-        return getTS(name).get_uptime_secs();
     }
 
     public TestDRPCPerf(){
