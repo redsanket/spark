@@ -15,9 +15,15 @@ This chapter includes reference information to help you use Hive at Yahoo.
 Grid VIP URLs/Ports
 ===================
 
+The following table provides the URIs and ports to the Hive Server on different clusters.
+For more information about the software installed on the different clusters,
+see `Grid Versions <http://twiki.corp.yahoo.com/view/Grid/GridVersions>`_.
+
 +-----------+-------------------------------------------------+------------+-----------------+
 | **Grid**  | **VIP**                                         | **Port**   | **Comments**    |
 +===========+=================================================+============+=================+
+| AR        | ``axonitered-hs2.ygrid.vip.bf1.yahoo.com``      | 50514      |                 |
++-----------+-------------------------------------------------+------------+-----------------+
 | BR        | ``bassniumred-hs2.ygrid.vip.bf1.yahoo.com``     | 50514      |                 |
 +-----------+-------------------------------------------------+------------+-----------------+
 | BT        | ``bassniumtan-hs2.ygrid.vip.ne1.yahoo.com``     | 50514      |                 |
