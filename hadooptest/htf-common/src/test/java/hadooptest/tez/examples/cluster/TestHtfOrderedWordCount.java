@@ -6,7 +6,9 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
@@ -117,11 +119,12 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 	@After
 	public void removeOutputFileFromHdfs() throws Exception {
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-		GenericCliResponseBO genericCliResponse = dfsCliCommands.rmdir(
+		GenericCliResponseBO genericCliResponse = dfsCliCommands.rm(
 				new HashMap<String, String>(),
 				HadooptestConstants.UserNames.HDFSQA,
 				HadooptestConstants.Schema.HDFS,
-				System.getProperty("CLUSTER_NAME"), OUTPUT_LOCATION);
+				System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES,
+				SkipTrash.YES, OUTPUT_LOCATION);
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 	}
 }

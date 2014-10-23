@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import hadooptest.TestSession;
+import hadooptest.tez.ats.SeedData;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
@@ -17,6 +18,7 @@ import org.apache.tez.client.TezClient;
 import org.apache.tez.client.TezClientUtils;
 import org.apache.tez.dag.api.DAG;
 import org.apache.tez.dag.api.TezConfiguration;
+import org.apache.tez.dag.api.Vertex;
 import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
 import org.apache.tez.mapreduce.examples.MRRSleepJob;
@@ -175,10 +177,8 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	 * @return
 	 * @throws Exception
 	 */
-	public Set<String> applicationIdsThatJustRan = new LinkedHashSet<String>();
-	public Set<String> dagNamesThatJustRan = new LinkedHashSet<String>();
 	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName,
-			UserGroupInformation ugi) throws Exception {
+			UserGroupInformation ugi, SeedData seedData) throws Exception {
 
 	    if(args.length < 1) {
 	      System.err.println("MRRSleepJob [-m numMapper] [-r numReducer]" +
@@ -283,30 +283,30 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	        numMapper, numReducer, iReduceStagesCount, numIReducer,
 	        mapSleepTime, mapSleepCount, reduceSleepTime, reduceSleepCount,
 	        iReduceSleepTime, iReduceSleepCount, writeSplitsToDfs, generateSplitsInAM);
-	    dagNamesThatJustRan.add(dag.getName());
-	    TezClient tezSession = TezClient.create("MRRSleep", conf, false, null, ugi.getCredentials());
-	    tezSession.start();
-	    DAGClient dagClient = tezSession.submitDAG(dag);
+	    
+	    TezClient tezClient = TezClient.create("MRRSleep", conf, false, null, ugi.getCredentials());
+	    tezClient.start();
+	    DAGClient dagClient = tezClient.submitDAG(dag);
 	    dagClient.waitForCompletion();
-	    applicationIdsThatJustRan.add(tezSession.getAppMasterApplicationId().toString());
-	    tezSession.stop();
+	    populateSeedData(dag, seedData, tezClient);
+	    tezClient.stop();
 
 	    return dagClient.getDAGStatus(null).getState().equals(DAGStatus.State.SUCCEEDED) ? 0 : 1;
 	}
 	/**
 	 * HTF
-	 * read and store the dag name
+	 * Seed data 
 	 */
-	public Set<String> getDagNameThatJustRan(){
-		return dagNamesThatJustRan;
+	void populateSeedData(DAG aDag, SeedData seedData, TezClient tezClient){
+		seedData.appId = tezClient.getAppMasterApplicationId().toString();
+		SeedData.DAG seedDag = new SeedData.DAG();
+		seedDag.name = aDag.getName();
+		for (Vertex aVertex:aDag.getVertices()){
+			SeedData.DAG.Vertex seedVertex = new SeedData.DAG.Vertex();
+			seedVertex.name = aVertex.getName();			
+			seedDag.vertices.add(seedVertex);
+		}
+		seedData.dags.add(seedDag);
 	}
-	/**
-	 * HTF
-	 * read and store the application id
-	 */
-	public Set<String> getApplicationIdForTheJobThatRan(){
-		return applicationIdsThatJustRan;
-	}
-
 
 }

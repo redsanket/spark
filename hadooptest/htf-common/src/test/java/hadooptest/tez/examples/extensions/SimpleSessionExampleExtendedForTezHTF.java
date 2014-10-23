@@ -1,5 +1,8 @@
 package hadooptest.tez.examples.extensions;
 
+import hadooptest.TestSession;
+import hadooptest.tez.ats.SeedData;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -11,6 +14,7 @@ import org.apache.tez.client.TezClient;
 import org.apache.tez.dag.api.DAG;
 import org.apache.tez.dag.api.PreWarmVertex;
 import org.apache.tez.dag.api.TezConfiguration;
+import org.apache.tez.dag.api.Vertex;
 import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
 import org.apache.tez.examples.OrderedWordCount;
@@ -59,13 +63,10 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	/**
 	 * HTF Needed to pass UGI, hence overloading the run method here
 	 */
-	public Set<String> applicationIdsThatJustRan = new LinkedHashSet<String>();
-	public Set<String> dagNamesThatJustRan = new LinkedHashSet<String>();
-
 	private static final String enablePrewarmConfig = "simplesessionexample.prewarm";
 
 	public boolean run(String[] inputPaths, String[] outputPaths,
-			Configuration conf, int numPartitions, UserGroupInformation ugi)
+			Configuration conf, int numPartitions, UserGroupInformation ugi, SeedData seedData)
 			throws Exception {
 		TezConfiguration tezConf;
 		if (conf != null) {
@@ -131,23 +132,20 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 			for (int i = 0; i < inputPaths.length; ++i) {
 				DAG dag = OrderedWordCount.createDAG(tezConf, inputPaths[i],
 						//The names of DAG must be unique in a session
-						outputPaths[i], numPartitions, ("DAG-Iteration-" + i)); 
-				
-
+						outputPaths[i], numPartitions, ("DAG-Iteration-" + i)); 				
 				tezClient.waitTillReady();
 				System.out.println("Running dag number " + i);
 				DAGClient dagClient = tezClient.submitDAG(dag);
-				dagNamesThatJustRan.add(dag.getName());
 				// wait to finish
 				DAGStatus dagStatus = dagClient.waitForCompletion();
+				populateSeedData(dag, seedData, tezClient);
 				if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
 					System.out.println("Iteration " + i
 							+ " failed with diagnostics: "
 							+ dagStatus.getDiagnostics());
 					return false;
 				}
-				applicationIdsThatJustRan.add(tezClient
-						.getAppMasterApplicationId().toString());
+				
 			}
 			return true;
 		} finally {
@@ -156,17 +154,17 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	}
 
 	/**
-	 * HTF read and store the dag name
+	 * Seed data 
 	 */
-	public Set<String> getDagNameThatJustRan() {
-		return dagNamesThatJustRan;
+	void populateSeedData(DAG aDag, SeedData seedData, TezClient tezClient){
+		seedData.appId = tezClient.getAppMasterApplicationId().toString();
+		SeedData.DAG seedDag = new SeedData.DAG();
+		seedDag.name = aDag.getName();
+		for (Vertex aVertex:aDag.getVertices()){
+			SeedData.DAG.Vertex seedVertex = new SeedData.DAG.Vertex();
+			seedVertex.name = aVertex.getName();			
+			seedDag.vertices.add(seedVertex);
+		}
+		seedData.dags.add(seedDag);
 	}
-
-	/**
-	 * HTF read and store the application id
-	 */
-	public Set<String> getApplicationIdForTheJobThatRan() {
-		return applicationIdsThatJustRan;
-	}
-
 }

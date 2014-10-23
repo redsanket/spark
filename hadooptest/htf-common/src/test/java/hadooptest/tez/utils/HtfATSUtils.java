@@ -581,7 +581,8 @@ public class HtfATSUtils {
 		
 		return retrievedStrings;
 	}
-		
+
+	
 	public EntityInGenericATSResponseBO searchAndRetrieveSingleEntityFromBunch (
 			GenericATSResponseBO bunch,
 			EntityTypes entityType, GenericATSResponseBO singleResponse) {

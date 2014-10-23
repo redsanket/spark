@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import hadooptest.TestSession;
+import hadooptest.tez.ats.SeedData;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
@@ -16,6 +17,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.tez.client.TezClient;
 import org.apache.tez.dag.api.DAG;
 import org.apache.tez.dag.api.TezConfiguration;
+import org.apache.tez.dag.api.Vertex;
 import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
 import org.apache.tez.examples.OrderedWordCount;
@@ -44,9 +46,6 @@ import org.apache.tez.examples.OrderedWordCount;
  */
 
 public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
-
-	public Set<String> applicationIdsThatJustRan = new LinkedHashSet<String>();
-	public Set<String> dagNamesThatJustRan = new LinkedHashSet<String>();
 	/**
 	 * Copy and paste the the code from the parent class's run method here.
 	 * Change all references to getConf() to HtfTezUtils.setupConfForTez(conf,
@@ -110,7 +109,7 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	 * @throws Exception
 	 */
 	public boolean run(String inputPath, String outputPath, Configuration conf,
-		      int numPartitions, String mode, Session session, TimelineServer timelineServer, String testName, UserGroupInformation ugi)
+		      int numPartitions, String mode, Session session, TimelineServer timelineServer, String testName, UserGroupInformation ugi, SeedData seedData)
 			throws Exception {
 	    TestSession.logger.info("Running OrderedWordCount");
 	    TezConfiguration tezConf;
@@ -126,13 +125,12 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	    tezClient.start();
 
 	    try {
-	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "OWC-" + ugi.getUserName());
-	        dagNamesThatJustRan.add(dag.getName());
+	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "DAG-" + testName +"-" + ugi.getUserName() + System.currentTimeMillis());
 	        tezClient.waitTillReady();
 	        DAGClient dagClient = tezClient.submitDAG(dag);	        
 	        // monitoring
 	        DAGStatus dagStatus = dagClient.waitForCompletionWithStatusUpdates(null);
-	        applicationIdsThatJustRan.add(tezClient.getAppMasterApplicationId().toString());
+	        populateSeedData(dag, seedData, tezClient);
 	        if (dagStatus.getState() != DAGStatus.State.SUCCEEDED) {
 	          System.out.println("OrderedWordCount failed with diagnostics: " + dagStatus.getDiagnostics());
 	          return false;
@@ -143,19 +141,21 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	    }
 
 	}
+	
 	/**
 	 * HTF
-	 * read and store the dag name
+	 * Seed data 
 	 */
-	public Set<String> getDagNameThatJustRan(){
-		return dagNamesThatJustRan;
-	}
-	/**
-	 * HTF
-	 * read and store the application id
-	 */
-	public Set<String> getApplicationIdForTheJobThatRan(){
-		return applicationIdsThatJustRan;
+	void populateSeedData(DAG aDag, SeedData seedData, TezClient tezClient){
+		seedData.appId = tezClient.getAppMasterApplicationId().toString();
+		SeedData.DAG seedDag = new SeedData.DAG();
+		seedDag.name = aDag.getName();
+		for (Vertex aVertex:aDag.getVertices()){
+			SeedData.DAG.Vertex seedVertex = new SeedData.DAG.Vertex();
+			seedVertex.name = aVertex.getName();			
+			seedDag.vertices.add(seedVertex);
+		}
+		seedData.dags.add(seedDag);
 	}
 
 }

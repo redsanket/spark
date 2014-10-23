@@ -270,7 +270,8 @@ public class TestFilterRequests extends ATSTestsBaseClass {
 	@Test
 	public void testThreeComboFilteringUsingFilterAsDagName() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
-		Map<String, List<String>> cascadedEntitiesMap = getCascadedEntitiesMap("dag_1413669561424_0007_1");
+//		Map<String, List<String>> cascadedEntitiesMap = givenDagIdGetCascadedEntitiesMap("dag_1413669561424_0007_1");
+		Map<String, List<String>> cascadedEntitiesMap = null;
 		List<String> dagNames = cascadedEntitiesMap.get("dagName");
 		String FILTER_STRING = "?primaryFilter=dagName:" + dagNames.get(0) +"&fields=relatedentities&limit=2";
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
