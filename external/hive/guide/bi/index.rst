@@ -33,7 +33,39 @@ that ultimately are executed as MapReduce functions on Hadoop.
        :alt:  BI on the Grid
        :align: left
 
+Grid Environments for BI
+------------------------
 
+In the instructions for MicroStrategy and Tableau in the sections below,
+we'll be using the Kryptonite Red cluster. 
+Although we cover the details in the instructions below, you should
+know the URI and port to the HiveServer 2 as well as the principal
+on Krytponite Red for MicroStrategy and Tableau:
+
+
+- **Host:**  ``http://kryptonitered-hs2.ygrid.vip.bf1.yahoo.com``
+- **Port:** 50514
+- **Principal:** ``hive/kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com`` 
+
+
+To use Hive Server 2 with Tez, you need to use the Axonite Red (AR) cluster.
+Note that the host, port, and principal for Axonite Red are different for
+Tableau and MicroStrategy.
+
+**MicroStrategy**
+
+- **Host:**  ``axonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com``
+- **Port:** 50515
+- **Principal:** ``hive/axonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com`` 
+
+**Tableau**
+
+- **Host:**  ``axonitered-hs2.ygrid.vip.bf1.yahoo.com``
+- **Port:** 50514
+- **Principal:** ``hive/axonitered-hs2.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM`` 
+
+
+For other grid environments, see :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>`.
 
 .. _bi-tableau_ms:
 
@@ -1086,11 +1118,12 @@ follow the steps below.
 #. ``0: jdbc:hive2://kryptonitered-hs2-noenc.ygrid> show databases;``
 
         +------------------------+
-        |     database_name     |
+        |     database_name      |
         +------------------------+
         | acluster               |
         | ajaytestdb             |
         | ajeeshr                |
+
 
 Tutorial: Creating a Client Application That Uses JDBC 
 -------------------------------------------------------
