@@ -27,25 +27,6 @@ public class TestStormCli extends TestSessionStorm {
         stop();
     }
 
-    public TopologySummary getTS(String name) throws Exception {
-        for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
-            if (name.equals(ts.get_name())) {
-                return ts;
-            }
-        }
-        throw new IllegalArgumentException("Topology "+name+" does not appear to be up yet");
-    }
-
-    public String getId(String name) throws Exception {
-        TopologySummary ts = getTS( name );
-
-        return ts.get_id();
-    }
- 
-    public int getUptime(String name) throws Exception {
-        return getTS(name).get_uptime_secs();
-    }
-
     public void LaunchExclamationTopology() throws Exception {
         String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", "/home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "storm.starter.ExclamationTopology",  "exclaim", "-c", "ui.users=[\"user1\", \"user2\", \"user3\"]" }, true);
         assertTrue( "Could not launch topology", returnValue[0].equals("0") );

@@ -39,10 +39,7 @@ public class TestKillWorker extends TestSessionStorm {
 
     @BeforeClass
     public static void setup() throws Exception {
-        logger.info("About to set invocation for " + function );
-        cluster.setDrpcInvocationAuthAclForFunction(function, "hadoopqa");
-        logger.info("About to set client auth for " + function );
-        cluster.setDrpcClientAuthAclForFunction(function, "hadoopqa"); 
+        cluster.setDrpcAclForFunction(function);
         mc = (ModifiableStormCluster)cluster;
     }
     

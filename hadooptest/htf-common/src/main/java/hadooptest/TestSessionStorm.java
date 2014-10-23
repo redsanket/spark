@@ -2,14 +2,18 @@ package hadooptest;
 
 import backtype.storm.generated.TopologySummary;
 import backtype.storm.generated.KillOptions;
-
+import backtype.storm.generated.TopologyInfo;
+import org.json.simple.JSONValue;
+import hadooptest.automation.utils.http.HTTPHandle;
+import hadooptest.automation.utils.http.Response;
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
-
+import hadooptest.cluster.storm.ModifiableStormCluster;
 import java.io.File;
+import java.util.Map;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
-
+import org.apache.commons.httpclient.HttpMethod;
 import org.junit.BeforeClass;
 
 /**
@@ -164,6 +168,16 @@ public abstract class TestSessionStorm extends TestSessionCore {
                 + "does not appear to be up yet");
     }
 
+    protected String getId(String name) throws Exception {
+        TopologySummary ts = getTS( name );
+
+        return ts.get_id();
+    }
+
+    protected int getUptime(String name) throws Exception {
+        return getTS(name).get_uptime_secs();
+    }
+
     protected String getFirstTopoIdForName(final String topoName)
             throws Exception {
         return getTS(topoName).get_id();
@@ -176,5 +190,57 @@ public abstract class TestSessionStorm extends TestSessionCore {
                 < waitSeconds) {
             Util.sleep(waitSeconds - uptime);
         }
+    }
+
+    protected String getLogForTopology(String topoName, Integer executor) throws Exception {
+        final String topoId = getFirstTopoIdForName(topoName);
+
+        // Worker Host
+        TopologyInfo ti = cluster.getTopologyInfo(topoId);
+        String host = ti.get_executors().get(executor).get_host();
+        int workerPort = ti.get_executors().get(executor).get_port();
+
+        // Logviewer port on worker host
+        String jsonStormConf = cluster.getNimbusConf();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> stormConf =
+                (Map<String, Object>) JSONValue.parse(jsonStormConf);
+        Integer logviewerPort = backtype.storm.utils.Utils.getInt(stormConf
+                .get(backtype.storm.Config.LOGVIEWER_PORT));
+
+        ModifiableStormCluster mc;
+        mc = (ModifiableStormCluster)cluster;
+
+        backtype.storm.Config theconf = new backtype.storm.Config();
+        theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
+
+        String filter = (String)theconf.get("ui.filter");
+        String pw = null;
+        String user = null;
+
+        // Only get bouncer auth on secure cluster.
+        if ( filter != null ) {
+            if (mc != null) {
+                user = mc.getBouncerUser();
+                pw = mc.getBouncerPassword();
+            }
+        }
+
+        HTTPHandle client = new HTTPHandle();
+        if (filter != null) {
+            client.logonToBouncer(user,pw);
+        }
+        logger.info("Cookie = " + client.YBYCookie);
+
+        String getURL = "http://" + host + ":" + logviewerPort +
+                "/download/" + topoId + "-worker-" + workerPort + ".log";
+        logger.info("URL to get is: " + getURL);
+        HttpMethod getMethod = client.makeGET(getURL, new String(""), null);
+        Response response = new Response(getMethod, false);
+        return response.getResponseBodyAsString();
+    }
+
+    protected String getLogForTopology(String topoName) throws Exception {
+        return getLogForTopology( topoName, 0 );
     }
 }

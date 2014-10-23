@@ -585,6 +585,57 @@ public class YahooStormCluster extends ModifiableStormCluster {
     } 
     
     /**
+     * Set the yinst configuration for DRPC authorization for running a
+     * function securely.
+     * 
+     * @param function The name of the function
+     * @param user The comma separated list of thrift clients or yca roles
+     *             allowed to access the function
+     * @param v1Role The yca v1 role allowed to access the function
+     * 
+     * @throws Exception if there is a problem setting the yinst configuration
+     */
+    public void setDrpcAclForFunction(String function, String user, String v1Role) 
+        throws Exception 
+    {
+         setDrpcInvocationAuthAclForFunction(function, user);
+         setDrpcClientAuthAclForFunction(function, user + ","  + v1Role );
+    }
+    
+    /**
+     * Set the yinst configuration for DRPC authorization for running a
+     * function securely.
+     * 
+     * @param function The name of the function
+     * @param user The comma separated list of thrift clients or yca roles
+     *             allowed to access the function
+     * Default the v1 role to be based on the cluster name
+     * 
+     * @throws Exception if there is a problem setting the yinst configuration
+     */
+    public void setDrpcAclForFunction(String function, String user) 
+        throws Exception 
+    {
+         String v1Role = "yahoo.grid_re.storm." + TestSessionStorm.conf.getProperty("CLUSTER_NAME");
+         setDrpcAclForFunction(function, user, v1Role);
+    }
+    
+    /**
+     * Set the yinst configuration for DRPC authorization for running a
+     * function securely.
+     * 
+     * @param function The name of the function
+     * @throws Exception if there is a problem setting the yinst configuration
+     *
+     * Make the default user hadoopqa and the default role based off of cluster name
+     */
+    public void setDrpcAclForFunction(String function) 
+        throws Exception 
+    {
+         setDrpcAclForFunction(function, "hadoopqa");
+    }
+
+    /**
      * Get the bouncer user used for testing.
      * 
      * @throws Exception if there is a problem getting user name

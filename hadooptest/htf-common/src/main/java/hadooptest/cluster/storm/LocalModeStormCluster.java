@@ -131,9 +131,20 @@ public class LocalModeStormCluster extends StormCluster {
         return drpcServer.execute(func, args);
     }
     
+    /**
+     * The following functions are not implemented in Local mode
+     */
     public void setDrpcClientAuthAclForFunction(String function, String user) 
         throws Exception {} 
     
+    public void setDrpcAclForFunction(String function, String user, String v1role) 
+        throws Exception {} 
+
+    public void setDrpcAclForFunction(String function, String user) 
+        throws Exception {} 
+    
+    public void setDrpcAclForFunction(String function) 
+        throws Exception {} 
     /**
      * Does nothing for LocalModeStormCluster.  Only fully implemented for 
      * YahooStormCluster.
