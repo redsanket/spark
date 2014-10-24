@@ -125,7 +125,7 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	    tezClient.start();
 
 	    try {
-	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "DAG-" + testName +"-" + ugi.getUserName() + System.currentTimeMillis());
+	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "DAG-" + testName +"-" + ugi.getUserName());
 	        tezClient.waitTillReady();
 	        DAGClient dagClient = tezClient.submitDAG(dag);	        
 	        // monitoring

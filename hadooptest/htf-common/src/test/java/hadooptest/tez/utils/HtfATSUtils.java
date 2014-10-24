@@ -48,10 +48,10 @@ public class HtfATSUtils {
  * @param responseAsJsonString
  * @param entityType
  * @return
- * @throws ParseException
+ * @throws Exception 
  */
-	public GenericATSResponseBO processATSResponse(String responseAsJsonString, EntityTypes entityType,
-			Map<String, Boolean>includes)throws ParseException {
+	public synchronized GenericATSResponseBO processATSResponse(String responseAsJsonString, EntityTypes entityType,
+			Map<String, Boolean>includes, Queue<GenericATSResponseBO> queue)throws Exception {
 		GenericATSResponseBO genericATSResponse = new GenericATSResponseBO();
 		JSONParser parser = new JSONParser();
 		Object obj = parser.parse(responseAsJsonString);
@@ -61,17 +61,21 @@ public class HtfATSUtils {
 		// ENTITIES
 		JSONArray entities = (JSONArray) jsonObject.get("entities");
 		if (entities != null) {
+			//Multiple entities
 			for (int entityIdx = 0; entityIdx < entities.size(); entityIdx++) {
 				JSONObject aDagEntityJson = (JSONObject) entities
 						.get(entityIdx);				
 				completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType, includes);
 				genericATSResponse.entities.add(completelyProcessedSingleEntity);
+				
 			}
 		} else {
+			//Single entity in response
 			JSONObject aDagEntityJson = jsonObject;
 			completelyProcessedSingleEntity = consumeResponse(aDagEntityJson, entityType, includes);
 			genericATSResponse.entities.add(completelyProcessedSingleEntity);
 		}
+		queue.add(genericATSResponse);
 
 		return genericATSResponse;
 	}
@@ -101,7 +105,8 @@ public class HtfATSUtils {
 		if(expectedEntities.get("otherinfo") == true){
 			switch (entityType){
 				case TEZ_DAG_ID:				
-					consumeOtherInfoFromDagId(anEntityInGenericATSResponseBO, entityJsonObject);				
+					consumeOtherInfoFromDagId(anEntityInGenericATSResponseBO, entityJsonObject);		
+						TestSession.logger.info("anEntityInGenericATSResponseBO.otherinfo.status:" + ((OtherInfoTezDagIdBO)anEntityInGenericATSResponseBO.otherinfo).status);
 					break;
 				case TEZ_CONTAINER_ID:
 					consumeOtherInfoFromContainerId(anEntityInGenericATSResponseBO, entityJsonObject);
@@ -117,7 +122,7 @@ public class HtfATSUtils {
 					break;
 				case TEZ_VERTEX_ID:
 					consumeOtherInfoFromTezVertexId(anEntityInGenericATSResponseBO, entityJsonObject);
-					break;
+					break;					
 			}
 		}else{
 			Assert.assertNull((entityJsonObject.get("otherinfo")));
@@ -143,8 +148,11 @@ public class HtfATSUtils {
 				ATSEventsEntityBO anATSEventsEntityBO = new ATSEventsEntityBO(expectedEntities.get("events"));
 				JSONObject anEventJsonObject = (JSONObject) eventsJsonArray.get(eventIdx);
 				anATSEventsEntityBO.timestamp = (Long) anEventJsonObject.get("timestamp");
+				TestSession.logger.trace("anATSEventsEntityBO.timestamp: " + anATSEventsEntityBO.timestamp);
 				anATSEventsEntityBO.eventtype = (String) anEventJsonObject.get("eventtype");
+				TestSession.logger.trace("anATSEventsEntityBO.eventtype: " + anATSEventsEntityBO.eventtype);
 				anATSEventsEntityBO.eventinfo = (JSONObject) anEventJsonObject.get("eventinfo");
+				TestSession.logger.trace("anATSEventsEntityBO.eventinfo: " + anATSEventsEntityBO.eventinfo);
 				anEntityInGenericATSResponseBO.events.add(anATSEventsEntityBO);
 			}
 		}else{
@@ -152,10 +160,13 @@ public class HtfATSUtils {
 		}
 		// ENTITY TYPE
 		anEntityInGenericATSResponseBO.entityType = (String) aDagEntityJson.get("entitytype");
+		TestSession.logger.trace("anEntityInGenericATSResponseBO.entityType: " + anEntityInGenericATSResponseBO.entityType);
 		// ENTITY
 		anEntityInGenericATSResponseBO.entity = (String) aDagEntityJson.get("entity");
+		TestSession.logger.trace("anEntityInGenericATSResponseBO.entity: " + anEntityInGenericATSResponseBO.entity);
 		// START TIME
 		anEntityInGenericATSResponseBO.starttime = (Long) aDagEntityJson.get("starttime");
+		TestSession.logger.trace("anEntityInGenericATSResponseBO.starttime: " + anEntityInGenericATSResponseBO.starttime);
 
 		// RELATED ENTITIES
 		if(expectedEntities.get("relatedentities") == true){
@@ -167,6 +178,7 @@ public class HtfATSUtils {
 				for (int ii = 0; ii < relatedEntitiesJsonArray.size(); ii++) {
 					String aRelatedEntity = (String) relatedEntitiesJsonArray.get(ii);
 					relatedEntitiesList.add(aRelatedEntity);
+					TestSession.logger.trace("aRelatedEntity: " + aRelatedEntity);
 				}
 				anEntityInGenericATSResponseBO.relatedentities.put(relatedEntityKey,relatedEntitiesList);			
 			}
@@ -183,6 +195,7 @@ public class HtfATSUtils {
 				for (int ii = 0; ii < primaryFiltersJsonArray.size(); ii++) {
 					String aPrimaryFilter = (String) primaryFiltersJsonArray.get(ii);
 					primaryFiltersList.add(aPrimaryFilter);
+					TestSession.logger.trace("aPrimaryFilter: " + aPrimaryFilter);
 				}
 				anEntityInGenericATSResponseBO.primaryfilters.put(aPrimaryFilterKey,primaryFiltersList);
 				
@@ -212,26 +225,34 @@ public class HtfATSUtils {
 		// OTHER INFO
 		OtherInfoTezDagIdBO dagOtherInfoBO = new OtherInfoTezDagIdBO();
 		JSONObject otherInfoJson = (JSONObject) (aDagEntityJson.get("otherinfo"));
-		dagOtherInfoBO.startTime = (Long) otherInfoJson.get("startTime");
+		dagOtherInfoBO.startTime = (Long) otherInfoJson.get("startTime");		
 		dagOtherInfoBO.status = (String) otherInfoJson.get("status");
+		TestSession.logger.trace("dagOtherInfoBO.status:" + dagOtherInfoBO.status);
 		dagOtherInfoBO.initTime = (Long) otherInfoJson.get("initTime");
+		TestSession.logger.trace("dagOtherInfoBO.initTime:" + dagOtherInfoBO.initTime);
 		dagOtherInfoBO.timeTaken = (Long) otherInfoJson.get("timeTaken");
+		TestSession.logger.trace("dagOtherInfoBO.timeTaken:" + dagOtherInfoBO.timeTaken);
 		dagOtherInfoBO.applicationId = (String) otherInfoJson.get("applicationId");
+		TestSession.logger.trace("dagOtherInfoBO.applicationId:" + dagOtherInfoBO.applicationId);
 
 		// DagPlan is a part of it
 		OtherInfoTezDagIdBO.DagPlanBO dagPlanBO = new OtherInfoTezDagIdBO.DagPlanBO();
 		JSONObject dagPlanJson = (JSONObject) otherInfoJson.get("dagPlan");
 		dagPlanBO.dagName = (String) dagPlanJson.get("dagName");
+		TestSession.logger.trace("dagPlanBO.dagName:" + dagPlanBO.dagName);
 		dagPlanBO.version = (Long) dagPlanJson.get("version");
+		TestSession.logger.trace("dagPlanBO.version:" + dagPlanBO.version);
 		JSONArray dagPlanVerticesJsonArray = (JSONArray) dagPlanJson.get("vertices");
 		// dagPlan vertices
 		for (int vv = 0; vv < dagPlanVerticesJsonArray.size(); vv++) {
 			JSONObject vertexJson = (JSONObject) dagPlanVerticesJsonArray.get(vv);
 			OtherInfoTezDagIdBO.DagPlanBO.DagPlanVertexBO aVertexEntityInDagPlanBO = new OtherInfoTezDagIdBO.DagPlanBO.DagPlanVertexBO();
 			aVertexEntityInDagPlanBO.vertexName = (String) vertexJson.get("vertexName");
+			TestSession.logger.trace("aVertexEntityInDagPlanBO.vertexName:" + aVertexEntityInDagPlanBO.vertexName);
 			aVertexEntityInDagPlanBO.processorClass = (String) vertexJson.get("processorClass");
+			TestSession.logger.trace("aVertexEntityInDagPlanBO.processorClass:" + aVertexEntityInDagPlanBO.processorClass);
 			// outedges
-			JSONArray outEdgeIdsArrayJson = (JSONArray) vertexJson.get("outEdgeIds");
+			JSONArray outEdgeIdsArrayJson = (JSONArray) vertexJson.get("outEdgeIds");			
 			if (outEdgeIdsArrayJson != null) {
 				for (int oo = 0; oo < outEdgeIdsArrayJson.size(); oo++) {
 					aVertexEntityInDagPlanBO.outEdgeIds.add((String) outEdgeIdsArrayJson.get(oo));
@@ -253,8 +274,11 @@ public class HtfATSUtils {
 						dagVertexAdditionalInput = new OtherInfoTezDagIdBO.DagPlanBO.DagPlanVertexBO.DagVertexAdditionalInputBO();
 					JSONObject additionalInputsJson = (JSONObject) additionalInputsJsonArray.get(aa);
 					dagVertexAdditionalInput.name = (String) additionalInputsJson.get("name");
+					TestSession.logger.trace("dagVertexAdditionalInput.name:" + dagVertexAdditionalInput.name);
 					dagVertexAdditionalInput.clazz = (String) additionalInputsJson.get("class");
+					TestSession.logger.trace("dagVertexAdditionalInput.clazz:" + dagVertexAdditionalInput.clazz);
 					dagVertexAdditionalInput.initializer = (String) additionalInputsJson.get("initializer");
+					TestSession.logger.trace("dagVertexAdditionalInput.initializer:" + dagVertexAdditionalInput.initializer);
 					//Add the additional input to the vertex entity that is being built
 					aVertexEntityInDagPlanBO.additionalInputs.add(dagVertexAdditionalInput);
 
@@ -293,14 +317,15 @@ public class HtfATSUtils {
 		dagOtherInfoBO.dagPlan = dagPlanBO;
 		
 		dagOtherInfoBO.endTime = (Long) otherInfoJson.get("endTime");
+		TestSession.logger.trace("dagOtherInfoBO.endTime:" + dagOtherInfoBO.endTime);
 		dagOtherInfoBO.diagnostics = (String) otherInfoJson.get("diagnostics");
+		
 
 		//Retrieve the counters
 		dagOtherInfoBO.counters = retrieveCounters(otherInfoJson);
 
 		// Add otherInfo to DagEntityBO
-		entityPopulatedThusFar.otherinfo = dagOtherInfoBO;
-
+		entityPopulatedThusFar.otherinfo = dagOtherInfoBO;		
 		return entityPopulatedThusFar;
 	}
 
@@ -353,6 +378,7 @@ public class HtfATSUtils {
 
 		// Add otherInfo to DagEntityBO
 		entityPopulatedThusFar.otherinfo = applicationAttemptOtherInfoBO;
+		TestSession.logger.trace("App attempt otherinfo" + applicationAttemptOtherInfoBO.appSubmitTime);
 
 		return entityPopulatedThusFar;
 	}
@@ -538,11 +564,12 @@ public class HtfATSUtils {
 		return counterGroups;
 	}
 	
-	public boolean takeFirstItemAndCompareItAgainstAllTheOtherItemsInQueue(Queue<GenericATSResponseBO> queue) {
+	public boolean peekQAndCmpAgainstOtherEnquedItems(Queue<GenericATSResponseBO> queue) {
 		boolean verdict = true;
 		if (queue.size() == 0)
 			return true;
 		GenericATSResponseBO referenceItem = queue.peek();
+		referenceItem.dump();
 		GenericATSResponseBO anItem;
 		while ((anItem = queue.poll()) != null) {
 			if (!referenceItem.equals(anItem)) {

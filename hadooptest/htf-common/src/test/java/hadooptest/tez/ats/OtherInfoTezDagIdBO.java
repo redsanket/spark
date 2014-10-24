@@ -174,7 +174,6 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 			
 			@Override
 			public boolean equals(Object arg){
-				TestSession.logger.info("Comparing DagPlanVertexBO");
 				if (!(arg instanceof DagPlanVertexBO))
 					return false;
 				
@@ -294,7 +293,6 @@ public class OtherInfoTezDagIdBO extends ATSOtherInfoEntityBO {
 
 			@Override
 			public boolean equals(Object arg){
-				TestSession.logger.info("Comparing DagPlanEdgeBO");
 				if(!(arg instanceof DagPlanEdgeBO)){
 					TestSession.logger.error("Equality failed here!");
 					return false;

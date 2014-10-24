@@ -87,45 +87,53 @@ public class EntityInGenericATSResponseBO {
 		}
 		EntityInGenericATSResponseBO other = (EntityInGenericATSResponseBO) arg;
 
-		if (this.events.size() != other.events.size()
-				|| this.relatedentities.size() != other.relatedentities.size()
-				|| this.primaryfilters.size() != other.primaryfilters.size()) {
+		if (this.events != null && (this.events.size() != other.events.size())
+				|| (this.relatedentities != null)
+				&& this.relatedentities.size() != other.relatedentities.size()
+				|| (this.primaryfilters != null)
+				&& this.primaryfilters.size() != other.primaryfilters.size()) {
 			TestSession.logger.error("Equality failed here!");
 			return false;
 		}
-
-		for (int xx = 0; xx < this.events.size(); xx++) {
-			if (!(this.events.get(xx).equals(other.events.get(xx)))) {
-				TestSession.logger.error("Equality failed here!");
-				return false;
+		if (this.events != null) {
+			for (int xx = 0; xx < this.events.size(); xx++) {
+				if (!(this.events.get(xx).equals(other.events.get(xx)))) {
+					TestSession.logger.error("Equality failed here!");
+					return false;
+				}
 			}
 		}
-		for (String key : this.relatedentities.keySet()) {
-			if (!other.relatedentities.containsKey(key)) {
-				TestSession.logger.error("Equality failed here!");
-				return false;
-			}
-			if (!(this.relatedentities.get(key).equals(other.relatedentities
-					.get(key)))) {
-				TestSession.logger.error("Equality failed here!");
-				return false;
+		if (this.relatedentities != null) {
+			for (String key : this.relatedentities.keySet()) {
+				if (!other.relatedentities.containsKey(key)) {
+					TestSession.logger.error("Equality failed here!");
+					return false;
+				}
+				if (!(this.relatedentities.get(key)
+						.equals(other.relatedentities.get(key)))) {
+					TestSession.logger.error("Equality failed here!");
+					return false;
+				}
 			}
 		}
-		for (String key : this.primaryfilters.keySet()) {
-			if (!other.primaryfilters.containsKey(key)) {
-				TestSession.logger.error("Equality failed here!");
-				return false;
-			}
-			if (!(this.primaryfilters.get(key).equals(other.primaryfilters
-					.get(key)))) {
-				TestSession.logger.error("Equality failed here!");
-				return false;
+		if (this.primaryfilters != null) {
+			for (String key : this.primaryfilters.keySet()) {
+				if (!other.primaryfilters.containsKey(key)) {
+					TestSession.logger.error("Equality failed here!");
+					return false;
+				}
+				if (!(this.primaryfilters.get(key).equals(other.primaryfilters
+						.get(key)))) {
+					TestSession.logger.error("Equality failed here!");
+					return false;
+				}
 			}
 		}
 
 		if (!this.entity.equals(other.entity)
 				|| !this.entityType.equals(other.entityType)
-				|| !this.otherinfo.equals(other.otherinfo)
+				|| (this.otherinfo != null)
+				&& !this.otherinfo.equals(other.otherinfo)
 				|| this.starttime.longValue() != other.starttime.longValue()) {
 			TestSession.logger.error("Equality failed here!");
 			return false;
@@ -171,7 +179,7 @@ public class EntityInGenericATSResponseBO {
 				TestSession.logger.info(primaryfilters.get(key));
 			}
 		}
-		if (otherinfo != null){
+		if (otherinfo != null) {
 			otherinfo.dump();
 		}
 	}

@@ -79,11 +79,11 @@ public class ATSTestsBaseClass extends TestSession {
 	AtomicInteger errorCount = new AtomicInteger();
 
 	public static Boolean jobsLaunchedOnceToSeedData = false;
-	
+
 	public static SeedData sleepJobSleepData = null;
-	public static SeedData simpleSessionExampleSeedData=null;
-	public static SeedData orderedWordCountSeedData=null;
-	
+	public static SeedData simpleSessionExampleSeedData = null;
+	public static SeedData orderedWordCountSeedData = null;
+
 	public enum EntityTypes {
 		TEZ_APPLICATION_ATTEMPT, TEZ_CONTAINER_ID, TEZ_DAG_ID, TEZ_VERTEX_ID, TEZ_TASK_ID, TEZ_TASK_ATTEMPT_ID,
 	};
@@ -127,11 +127,10 @@ public class ATSTestsBaseClass extends TestSession {
 		String hitusr_2_cookie = null;
 		String hitusr_3_cookie = null;
 		String hitusr_4_cookie = null;
-		
 
 		hitusr_1_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_1);
-		TestSession.logger.info("Got cookie:" + hitusr_1_cookie );
+		TestSession.logger.info("Got cookie:" + hitusr_1_cookie);
 		userCookies
 				.put(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_cookie);
 		hitusr_2_cookie = httpHandle
@@ -146,23 +145,24 @@ public class ATSTestsBaseClass extends TestSession {
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_4);
 		userCookies
 				.put(HadooptestConstants.UserNames.HITUSR_4, hitusr_4_cookie);
-		
 
 		// Reset the error count
 		errorCount.set(0);
 
 		drainQueues();
-		launchJobsOnceToSeedData();
+		// launchJobsOnceToSeedData();
 	}
 
 	public void launchJobsOnceToSeedData() throws Exception {
 		if (!jobsLaunchedOnceToSeedData) {
 			launchOrderedWordCountExtendedForHtf(HadooptestConstants.UserNames.HITUSR_1);
-//			String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
-//					"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
-//			launchMRRSleepJob(HadooptestConstants.UserNames.HITUSR_2,
-//					sleepJobArgs);
-//			launchSimpleSessionExampleExtendedForTezHTF(HadooptestConstants.UserNames.HITUSR_3);
+			String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
+					"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
+			// TODO: Make the user HITUSR_2
+			launchMRRSleepJob(HadooptestConstants.UserNames.HITUSR_1,
+					sleepJobArgs);
+			// TODO: Make the user HITUSR_3
+			launchSimpleSessionExampleExtendedForTezHTF(HadooptestConstants.UserNames.HITUSR_1);
 			jobsLaunchedOnceToSeedData = true;
 		}
 	}
@@ -173,10 +173,11 @@ public class ATSTestsBaseClass extends TestSession {
 		DoAs doAs = new DoAs(ugi, new OrderedWordCountExtendedForHtf(),
 				new String[0]);
 		doAs.doAction();
-		 orderedWordCountSeedData = doAs.getSeedDataForAppThatJustRan();
-		 GenericATSResponseBO processedDagIdResponses = getDagIdResponses(orderedWordCountSeedData);
-		 populateAdditionalSeedData(processedDagIdResponses, orderedWordCountSeedData);
-		 orderedWordCountSeedData.dump();
+		orderedWordCountSeedData = doAs.getSeedDataForAppThatJustRan();
+		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(orderedWordCountSeedData.appStartedByUser);
+		populateAdditionalSeedData(processedDagIdResponses,
+				orderedWordCountSeedData);
+		orderedWordCountSeedData.dump();
 	}
 
 	public void launchSimpleSessionExampleExtendedForTezHTF(String user)
@@ -186,6 +187,7 @@ public class ATSTestsBaseClass extends TestSession {
 				new String[0]);
 		doAs.doAction();
 		simpleSessionExampleSeedData = doAs.getSeedDataForAppThatJustRan();
+		simpleSessionExampleSeedData.dump();
 	}
 
 	public void launchMRRSleepJob(String user, String[] sleepJobArgs)
@@ -194,56 +196,100 @@ public class ATSTestsBaseClass extends TestSession {
 		DoAs doAs = new DoAs(ugi, new MRRSleepJobExtendedForTezHTF(),
 				sleepJobArgs);
 		doAs.doAction();
-		 sleepJobSleepData = doAs.getSeedDataForAppThatJustRan();
+		sleepJobSleepData = doAs.getSeedDataForAppThatJustRan();
+		sleepJobSleepData.dump();
 	}
 
-	void populateAdditionalSeedData(GenericATSResponseBO dagIdResponse, SeedData seedData) throws InterruptedException{
+	void populateAdditionalSeedData(GenericATSResponseBO dagIdResponse,
+			SeedData seedData) throws InterruptedException {
 		String appId = seedData.appId.replace("application_", "");
-		for (EntityInGenericATSResponseBO anEntityInResponse:dagIdResponse.entities){
-			if(anEntityInResponse.entity.contains(appId)){
-				String rxDagName = anEntityInResponse.primaryfilters.get("dagName").get(0);
+		for (EntityInGenericATSResponseBO anEntityInResponse : dagIdResponse.entities) {
+			if (anEntityInResponse.entity.contains(appId)) {
+				String rxDagName = anEntityInResponse.primaryfilters.get(
+						"dagName").get(0);
 				TestSession.logger.info("Got rxDagName:" + rxDagName);
-				SeedData.DAG aSeedDag = seedData.getDagObject(rxDagName); 
-				 aSeedDag.id = anEntityInResponse.entity; 
-				
-				//Get the Vertex details
-				for (String aVertexId:anEntityInResponse.relatedentities.get("TEZ_VERTEX_ID")){
+				SeedData.DAG aSeedDag = seedData.getDagObject(rxDagName);
+				aSeedDag.id = anEntityInResponse.entity;
+
+				// Get the Vertex details
+				for (String aVertexId : anEntityInResponse.relatedentities
+						.get("TEZ_VERTEX_ID")) {
 					populateVertexDetails(seedData, aSeedDag, aVertexId);
 				}
 			}
 		}
 	}
-	public GenericATSResponseBO getDagIdResponses(SeedData seedData) throws InterruptedException{
+
+	public GenericATSResponseBO getDagIdResponses(String user)
+			throws InterruptedException {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
-		//TODO: Change the user below to seedData.appStartedByUser
-		makeHttpCallAndEnqueueConsumedResponse(execService,
-//				getATSUrl()+ "TEZ_DAG_ID/" , seedData.appStartedByUser,
-				getATSUrl()+ "TEZ_DAG_ID/" , HadooptestConstants.UserNames.HITUSR_1,
-				EntityTypes.TEZ_DAG_ID, dagIdQueue, expectEverythingMap());
+		// TODO: Change the user below to seedData.appStartedByUser
+		makeHttpCallAndEnqueueConsumedResponse(
+				execService,
+				// getATSUrl()+ "TEZ_DAG_ID/" , seedData.appStartedByUser,
+				getATSUrl() + "TEZ_DAG_ID/",
+				HadooptestConstants.UserNames.HITUSR_1, EntityTypes.TEZ_DAG_ID,
+				dagIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);
 		}
-		GenericATSResponseBO dagIdResponse = dagIdQueue.poll();		
+		GenericATSResponseBO dagIdResponse = dagIdQueue.poll();
 		return dagIdResponse;
 
 	}
-	public void populateVertexDetails(SeedData seedData, SeedData.DAG dag, String vertexId) throws InterruptedException{
+
+	int countNumberOfFailedJobs(String user) throws InterruptedException {
+		int count = 0;
 		ExecutorService execService = Executors.newFixedThreadPool(10);
-		makeHttpCallAndEnqueueConsumedResponse(execService,
-				//TODO: Change the user below to seedData.appStartedByUser
-				getATSUrl()+ "TEZ_VERTEX_ID/" + vertexId , HadooptestConstants.UserNames.HITUSR_1,
+
+		// TODO: Change the user below to user
+		makeHttpCallAndEnqueueConsumedResponse(execService, getATSUrl()
+				+ "TEZ_DAG_ID/", user, EntityTypes.TEZ_DAG_ID, dagIdQueue,
+				expectEverythingMap());
+		execService.shutdown();
+		while (!execService.isTerminated()) {
+			Thread.sleep(1000);
+		}
+		TestSession.logger.info("dagIdqueue size:" + dagIdQueue.size());
+		GenericATSResponseBO dagIdResponse = dagIdQueue.poll();
+		for (EntityInGenericATSResponseBO anEntity : dagIdResponse.entities) {
+			try {
+				if (((OtherInfoTezDagIdBO) anEntity.otherinfo).status
+						.equals("FAILED")) {
+					count++;
+				}
+			} catch (Exception e) {
+				TestSession.logger.error(e.getMessage());
+				TestSession.logger.info("exception received while processing:"
+						+ anEntity.entity);
+			}
+		}
+		return count;
+
+	}
+
+	public void populateVertexDetails(SeedData seedData, SeedData.DAG dag,
+			String vertexId) throws InterruptedException {
+		ExecutorService execService = Executors.newFixedThreadPool(10);
+		makeHttpCallAndEnqueueConsumedResponse(
+				execService,
+				// TODO: Change the user below to seedData.appStartedByUser
+				getATSUrl() + "TEZ_VERTEX_ID/" + vertexId,
+				HadooptestConstants.UserNames.HITUSR_1,
 				EntityTypes.TEZ_VERTEX_ID, vertexIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);
 		}
-		GenericATSResponseBO vertexIdResponse = vertexIdQueue.poll();		
-		String vertexName = ((OtherInfoTezVertexIdBO)(vertexIdResponse.entities.get(0).otherinfo)).vertexName;
-		SeedData.DAG.Vertex aSeedVertex = dag.getVertexObject(vertexName); 
+		GenericATSResponseBO vertexIdResponse = vertexIdQueue.poll();
+		String vertexName = ((OtherInfoTezVertexIdBO) (vertexIdResponse.entities
+				.get(0).otherinfo)).vertexName;
+		SeedData.DAG.Vertex aSeedVertex = dag.getVertexObject(vertexName);
 		aSeedVertex.id = vertexId;
-		
-		for (String aTaskId:vertexIdResponse.entities.get(0).relatedentities.get(EntityTypes.TEZ_TASK_ID.name())){
+
+		for (String aTaskId : vertexIdResponse.entities.get(0).relatedentities
+				.get(EntityTypes.TEZ_TASK_ID.name())) {
 			SeedData.DAG.Vertex.Task aSeedTask = new SeedData.DAG.Vertex.Task();
 			aSeedTask.id = aTaskId;
 			aSeedVertex.tasks.add(aSeedTask);
@@ -251,33 +297,39 @@ public class ATSTestsBaseClass extends TestSession {
 		}
 
 	}
-	public void populateTaskDetails(SeedData seedData, SeedData.DAG.Vertex.Task aSeedTask, String taskId) throws InterruptedException{
+
+	public void populateTaskDetails(SeedData seedData,
+			SeedData.DAG.Vertex.Task aSeedTask, String taskId)
+			throws InterruptedException {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
-		makeHttpCallAndEnqueueConsumedResponse(execService,
-				//TODO: Change the user below to seedData.appStartedByUser
-				getATSUrl()+ "TEZ_TASK_ID/" + taskId , HadooptestConstants.UserNames.HITUSR_1,
+		makeHttpCallAndEnqueueConsumedResponse(
+				execService,
+				// TODO: Change the user below to seedData.appStartedByUser
+				getATSUrl() + "TEZ_TASK_ID/" + taskId,
+				HadooptestConstants.UserNames.HITUSR_1,
 				EntityTypes.TEZ_TASK_ID, taskIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);
 		}
 		GenericATSResponseBO taskIdResponse = taskIdQueue.poll();
-		for (String aTaskAttemptId:taskIdResponse.entities.get(0).relatedentities.get(EntityTypes.TEZ_TASK_ATTEMPT_ID.name())){
+		for (String aTaskAttemptId : taskIdResponse.entities.get(0).relatedentities
+				.get(EntityTypes.TEZ_TASK_ATTEMPT_ID.name())) {
 			SeedData.DAG.Vertex.Task.Attempt aTaskAttempt = new SeedData.DAG.Vertex.Task.Attempt();
 			aTaskAttempt.id = aTaskAttemptId;
 			aSeedTask.attempts.add(aTaskAttempt);
 		}
-		
+
 	}
 
 	public void drainQueues() {
 		// "Drain" the queues
-		dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		vertexIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		taskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
-		taskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
+		dagIdQueue.clear();
+		containerIdQueue.clear();
+		applicationAttemptQueue.clear();
+		vertexIdQueue.clear();
+		taskIdQueue.clear();
+		taskAttemptIdQueue.clear();
 
 	}
 
@@ -583,28 +635,36 @@ public class ATSTestsBaseClass extends TestSession {
 		}
 
 		public void run() {
-			TestSession.logger
-					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
-			TestSession.logger.info("Url:" + url);
-			TestSession.logger
-					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
-			Response response = given().cookie(userCookies.get(user)).get(url);
+				TestSession.logger
+						.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+				TestSession.logger.info("Url:" + url);
+				TestSession.logger
+						.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+				Response response = given().cookie(userCookies.get(user)).get(
+						url);
 
-			String responseAsString = response.getBody().asString();
-			TestSession.logger.info("R E S P O N S E  B O D Y :"
-					+ responseAsString);
-			HtfATSUtils atsUtils = new HtfATSUtils();
-			GenericATSResponseBO consumedResponse = null;
-			try {
-				consumedResponse = atsUtils.processATSResponse(
-						responseAsString, entityType, expectedEntities);
-			} catch (ParseException e) {
-				TestSession.logger.error(e);
-				errorCount.incrementAndGet();
-			} catch (Exception e) {
-				errorCount.incrementAndGet();
-			}
-			queue.add(consumedResponse);
+				String responseAsString = response.getBody().asString();
+				TestSession.logger.info("R E S P O N S E  B O D Y :"
+						+ responseAsString);
+				HtfATSUtils atsUtils = new HtfATSUtils();
+				
+				try {
+
+					atsUtils.processATSResponse(
+							responseAsString, entityType, expectedEntities, queue);
+
+				} catch (ParseException e) {
+					TestSession.logger.error(e);
+					errorCount.incrementAndGet();
+				} catch (Exception e) {
+					for (StackTraceElement x:e.getStackTrace()){
+						TestSession.logger.error(x);
+					}
+					TestSession.logger.error(e);
+					errorCount.incrementAndGet();
+				}
+
+
 
 		}
 	}
@@ -618,8 +678,6 @@ public class ATSTestsBaseClass extends TestSession {
 		execService.execute(runnableHttpGetAndEnqueue);
 
 	}
-
-
 
 	UserGroupInformation getUgiForUser(String aUser) {
 
@@ -659,6 +717,7 @@ public class ATSTestsBaseClass extends TestSession {
 		Object jobObjectToRun;
 		String[] sleepJobArgs;
 		SeedData seedData;
+
 		DoAs(UserGroupInformation ugi, Object jobObjectToRun,
 				String[] sleepJobArgs) throws IOException {
 			this.ugi = ugi;
@@ -666,14 +725,16 @@ public class ATSTestsBaseClass extends TestSession {
 			this.sleepJobArgs = sleepJobArgs;
 		}
 
-		public void doAction() throws AccessControlException,
-				IOException, InterruptedException {
+		public void doAction() throws AccessControlException, IOException,
+				InterruptedException {
 			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
 					ugi, jobObjectToRun, sleepJobArgs);
 			ugi.doAs(privilegedExceptionActor);
-			this.seedData = privilegedExceptionActor.getSeedDataForAppThatJustRan();
+			this.seedData = privilegedExceptionActor
+					.getSeedDataForAppThatJustRan();
 		}
-		public SeedData getSeedDataForAppThatJustRan(){
+
+		public SeedData getSeedDataForAppThatJustRan() {
 			return this.seedData;
 		}
 	}
@@ -702,7 +763,7 @@ public class ATSTestsBaseClass extends TestSession {
 			if (this.theJobToRun instanceof OrderedWordCountExtendedForHtf) {
 				TestHtfOrderedWordCount test = new TestHtfOrderedWordCount();
 				test.copyTheFileOnHdfs();
-				
+
 				boolean returnCode = ((OrderedWordCountExtendedForHtf) theJobToRun)
 						.run(TestHtfOrderedWordCount.INPUT_FILE,
 								TestHtfOrderedWordCount.OUTPUT_LOCATION
@@ -723,8 +784,8 @@ public class ATSTestsBaseClass extends TestSession {
 										TestSession.cluster.getConf(),
 										HadooptestConstants.Execution.TEZ_CLUSTER,
 										HtfTezUtils.Session.YES,
-										TimelineServer.ENABLED, "SimpleSessionEx"),
-								2, ugi, seedData);
+										TimelineServer.ENABLED,
+										"SimpleSessionEx"), 2, ugi, seedData);
 				test.deleteTezStagingDirs();
 				Assert.assertTrue(returnCode == true);
 
@@ -742,8 +803,8 @@ public class ATSTestsBaseClass extends TestSession {
 						.run(sleepJobArgs,
 								HadooptestConstants.Execution.TEZ_CLUSTER,
 								HtfTezUtils.Session.YES,
-								TimelineServer.DISABLED, "MRRSleepJob",
-								ugi, seedData);
+								TimelineServer.DISABLED, "MRRSleepJob", ugi,
+								seedData);
 				Assert.assertTrue(returnCode == 0);
 
 			}
