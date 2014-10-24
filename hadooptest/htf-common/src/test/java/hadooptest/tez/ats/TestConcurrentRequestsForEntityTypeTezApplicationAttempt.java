@@ -23,7 +23,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends ATSTestsBaseClass {
+public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
+		ATSTestsBaseClass {
 	@Test
 	public void testExpectEverything() throws Exception {
 		HtfATSUtils atsUtils = new HtfATSUtils();
@@ -31,14 +32,15 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-
-		for (int xx = 0; xx < 1; xx++) {
+		int LOOP = 2;
+		for (int xx = 0; xx < LOOP; xx++) {
 
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_APPLICATION_ATTEMPT;
 			String url = getATSUrl() + entityTypeInRequest;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, applicationAttemptQueue, expectEverythingMap());
+					entityTypeInRequest, applicationAttemptQueue,
+					expectEverythingMap());
 
 		}
 		execService.shutdown();
@@ -48,7 +50,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 		Assert.assertTrue(atsUtils
 				.peekQAndCmpAgainstOtherEnquedItems(applicationAttemptQueue));
 		int failedJobCount = countNumberOfFailedJobs(HadooptestConstants.UserNames.HITUSR_1);
-		Assert.assertEquals(failedJobCount, errorCount.get());
+		Assert.assertEquals(failedJobCount * LOOP, errorCount.get());
 	}
 
 	@Test
@@ -74,7 +76,8 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, applicationAttemptQueue, expectedEntities);
+					entityTypeInRequest, applicationAttemptQueue,
+					expectedEntities);
 
 		}
 		execService.shutdown();
@@ -104,14 +107,15 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 				ResponseComposition.RELATEDENTITIES.EXPECTED,
 				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
 				ResponseComposition.OTHERINFO.NOT_EXPECTED);
-
-		for (int xx = 0; xx < 200; xx++) {
+		int LOOP = 200;
+		for (int xx = 0; xx < LOOP; xx++) {
 
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_APPLICATION_ATTEMPT;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, applicationAttemptQueue, expectedEntities);
+					entityTypeInRequest, applicationAttemptQueue,
+					expectedEntities);
 		}
 		execService.shutdown();
 		while (!execService.isTerminated()) {
@@ -120,7 +124,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 		Assert.assertTrue(atsUtils
 				.peekQAndCmpAgainstOtherEnquedItems(applicationAttemptQueue));
 		int failedJobCount = countNumberOfFailedJobs(HadooptestConstants.UserNames.HITUSR_1);
-		Assert.assertEquals(failedJobCount, errorCount.get());
+		Assert.assertEquals(failedJobCount * LOOP, errorCount.get());
 
 	}
 
@@ -147,7 +151,8 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, applicationAttemptQueue, expectedEntities);
+					entityTypeInRequest, applicationAttemptQueue,
+					expectedEntities);
 
 		}
 		execService.shutdown();
@@ -161,7 +166,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 
 	}
 
-	@Test 
+	@Test
 	public void testExpectOnlyPrimaryFilters() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
 		if (!timelineserverStarted) {
@@ -184,7 +189,8 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends AT
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, applicationAttemptQueue, expectedEntities);
+					entityTypeInRequest, applicationAttemptQueue,
+					expectedEntities);
 
 		}
 		execService.shutdown();
