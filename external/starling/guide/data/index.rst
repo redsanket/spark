@@ -7,8 +7,34 @@ Data in Starling
 Overview
 ========
 
+.. _data_overview-what:
+
 What Data is Collected?
 -----------------------
+
+Starling collects log data from the grid in a variety of formats.
+The log data includes information about jobs, HDFS, audit log
+for NameNode, HCatalog, and HiveServer 2, as well as Simon metrics. 
+
+The following logs in bold are collected by Starling:
+
+- **Job History** - this provides detailed information on an executed job, including asks and task attempts, counters, etc.
+- **Job Configuration** - this provides the configuration information forn executed Job.
+- **Job Summary** - this provides a summary of an executed Job.data is written in 
+- **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary
+  NameNode in less-recent versions of Hadoop). This is collected every month by default.
+- **Audit Logs** - these contain records of accesses and modifications to file-system objects.
+- **Aggregator Dumps** - this provides periodic dumps of different metrics related to various sub-systems for a given cluster.
+
+
+.. MapReduce JobHistory (Avro format)
+   MapReduce Job Configuration (XML)
+   MapReduce JobSummary (text files)
+   HDFS fsimage (binary format, hadoop specific)
+   HDFS NameNode audit logs (text files)
+   Hadoop Simon metrics (JMX metrics serialized to text files)
+   Hcatalog audit logs (text files)
+   HiveServer2 audit logs – both encryped and unencrypted (text files)
 
 
 When is it Collected?
@@ -29,8 +55,11 @@ This workflow will be scheduled to run on a recurring basis.
 Users can execute an ad hoc query against this warehouse. We also propose to have a 
 workflow that triggers a series of predetermined computation of trends from this 
 warehouse and results stored in the same warehouse or an SQL store.
-Integration Points
 
+Data Retention Policy
+---------------------
+
+The retention policy depends on the data set. Generally though, we retain some data between one and two years.
 
 Data Warehouse
 ==============
@@ -38,56 +67,65 @@ Data Warehouse
 What is the Data Warehouse?
 ---------------------------
 
+The Data Warehouse for Starling is simply the Hive database
+``starling``. Many of the source logs discussed in :ref:`What Data is Collected? <data_overview-what`
+are mapped to Hive tables through HCatalog. Thus, if you wanted to analyze
+Job History logs, you could run a query against the ``starling_job_summary``
+table.  
+
+
 Where is the Data Warehouse?
 ----------------------------
 
-Can the Data Warehouse Be Accessed?
------------------------------------
+You can access the Hive ``starling`` database on Cobalt Blue (cobalt-gw.blue.ygrid.yahoo.com).
+For many of the source logs discussed in :ref:`What Data is Collected? <data_overview-what>`_,
+there is a corresponding Hive table in the ``starling`` database.
+
 
 How is the Data Warehouse Accessed?
 -----------------------------------
 
+The typical and suggested way to access Starling data is through Hive, but Pig can use
+the library ``org.apache.hcatalog.pig.HCatLoader();`` to access
+the tables through HCatalog. You can also use MapReduce 
+again through HCatalog.
 
-HCatalog
-========
-
-
-Hive Database 
-=============
-
-The Hive database that stores the Starling data is ``starling``. 
+To learn how, see `Getting Started <../getting_started/>`_ and
+for examples in Hive and Pig, see `Query Bank <../query_bank>`_.
 
 
-Tables
-------
-
-
-
-Data and Retention
-==================
-
-Schemas
-=======
+HCatalog Schemas
+================
 
 Introduction
 ------------
 
+HCatalog is a metadata management layer for all Hadoop grids. All datasets and 
+their schemas are registered in HCatalog, allowing engines such as Hive, Pig, 
+or MapReduce query this layer to get the data on HDFS and what schema is used to 
+represent it.
+
+How Does It Work?
+#################
+
 Raw and processed logs are stored using HCatalog and partitioned by cluster and date. 
 These partitioning keys are grid (of type string) and within that ``dt`` (of type string 
-and format YYYY_MM_DD) respectively. This partitioning drastically reduces the amount 
+and format YYYY_MM_DD) respectively. Partitioning drastically reduces the amount 
 of data that Hive has to process through for generating the results for most queries. 
 If a log is collected more frequently than once per day, there will be another partition 
 ``tm`` (of type string and format HH_MM) within the ``dt`` partition.
 
-Raw logs are stored after maximal compression in order to reduce storage requirements. 
-Processed logs are stored as compressed tables using columnar-storage provided by 
-the RCFile storage-format in order to maximize the potential for compression (as 
-many columns have the same values). Processed logs are accessed via Hive using 
-HiveQL to produce both canned and ad hoc reports. Apart from the primary tables 
-corresponding to the processed logs, Starling will also have secondary tables derived 
-from these primary tables in order to speed up the execution of common queries and 
-the generation of common reports. The retention of both raw and processed logs is 
-determined by an appropriate configuration of HCatalog.
+ 
+
+..  Raw logs are stored after maximal compression to reduce storage requirements. 
+    Processed logs are stored as compressed tables using columnar-storage provided by 
+    the RCFile storage-format in order to maximize the potential for compression (as 
+    many columns have the same values). Processed logs are accessed via Hive using 
+    HiveQL to produce both canned and ad hoc reports. Apart from the primary tables 
+    corresponding to the processed logs, Starling will also have secondary tables derived 
+    from these primary tables in order to speed up the execution of common queries and 
+    the generation of common reports. The retention of both raw and processed logs is 
+    determined by an appropriate configuration of HCatalog.
 
 
 .. important:: All tables reside in the default database (since HCatalog doesn't properly support 
@@ -100,9 +138,6 @@ Schemas for MapReduce
 
 Starling collects and processes the following logs related to MapReduce on a source cluster:
 
-- **Job History** - this provides detailed information on an executed Job, including Tasks and Task Attempts, Counters, etc.
-- **Job Configuration** - this provides the configuration information for an executed Job.
-- **Job Summary** - this provides a summary of an executed Job.
 
 starling_jobs
 #############
@@ -125,72 +160,72 @@ The ``starling_jobs`` table has the following schema (apart from the partitionin
    <tr>
    <td><code>job_id</code></td>
    <td><code>string</code></td>
-   <td> The identifier for the Job within the cluster. </td>
+   <td> The identifier for the job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>job_name</code> </td>
    <td> <code>string</code> </td>
-   <td> The name for the Job. </td>
+   <td> The name of the job. </td>
    </tr>
    <tr>
    <td> <code>user</code> </td>
    <td> <code>string</code> </td>
-   <td> The user who submitted the Job. </td>
+   <td> The user who submitted the job. </td>
    </tr>
    <tr>
    <td> <code>queue</code> </td>
    <td> <code>string</code> </td>
-   <td> The queue to which the Job was submitted. </td>
+   <td> The queue to which the job was submitted. </td>
    </tr>
    <tr>
    <td> <code>conf_loc</code> </td>
    <td> <code>string</code> </td>
-   <td> The location on HDFS for the Job Configuration. </td>
+   <td> The location on HDFS for the job configuration. </td>
    </tr>
    <tr>
    <td> <code>view_acl</code> </td>
    <td> <code>string</code> </td>
-   <td> The access-control list for viewing the Job. This is either empty, a <code>*</code> or space-separated lists of comma-separated users and groups respectively. </td>
+   <td> The access-control list for viewing the job. This is either empty, a <code>'*'</code> or space-separated lists of comma-separated users and groups respectively. </td>
    </tr>
    <tr>
    <td> <code>modify_acl</code> </td>
    <td> <code>string</code> </td>
-   <td> The access-control list for modifying the Job. This is either empty, a <code>*</code> or space-separated lists of comma-separated users and groups respectively. </td>
+   <td> The access-control list for modifying the job. This is either empty, a <code>'*'</code> or space-separated lists of comma-separated users and groups respectively. </td>
    </tr>
    <tr>
    <td> <code>priority</code> </td>
    <td> <code>string</code> </td>
-   <td> The priority of the Job (e.g., <code>NORMAL</code>). </td>
+   <td> The priority of the job (e.g., <code>NORMAL</code>). </td>
    </tr>
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Job (e.g., <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the job (e.g., <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>submit_ts</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time when the Job was submitted in UTC as milliseconds since the UNIX epoch. </td>
+   <td> The time when the job was submitted in UTC as milliseconds since the UNIX epoch. </td>
    </tr>
    <tr>
    <td> <code>wait_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time in milliseconds spent by the Job waiting to be launched. </td>
+   <td> The time in milliseconds spent by the job waiting to be launched.</td>
    </tr>
    <tr>
    <td> <code>run_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time in milliseconds spent by the Job running after being launched. (The total time taken by the Job is therefore <code>wait_time</code> + <code>run_time</code>.) </td>
+   <td> The time in milliseconds spent by the job running after being launched. (The total time taken by the job is therefore <code>wait_time</code> + <code>run_time</code>.) </td>
    </tr>
    <tr>
    <td> <code>total_maps</code> </td>
    <td> <code>int</code> </td>
-   <td> The total number of Map Tasks launched by the Job. </td>
+   <td> The total number of Map Tasks launched by the job. </td>
    </tr>
    <tr>
    <td> <code>total_reduces</code> </td>
    <td> <code>int</code> </td>
-   <td> The total number of Reduce Tasks launched by the Job. </td>
+   <td> The total number of Reduce Tasks launched by the job. </td>
    </tr>
    <tr>
    <td> <code>finished_maps</code> </td>
@@ -215,12 +250,12 @@ The ``starling_jobs`` table has the following schema (apart from the partitionin
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td>The The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -246,32 +281,32 @@ The ``starling_job_counters`` table has the following schema (apart from the par
 			<tr>
 				<td> <code>job_id</code> </td>
 				<td> <code>string</code> </td>
-				<td> The identifier for a Job within the cluster. </td>
+				<td> The identifier for a job within the cluster. </td>
 			</tr>
 			<tr>
 				<td> <code>map_counters</code> </td>
 				<td> <code>map&lt;string,string&gt;</code> </td>
-				<td> The aggregated Counters for Map Tasks for the Job with the name of a Counter mapping to its value. </td>
+				<td> The aggregated Counters for Map Tasks for the job with the name of a Counter mapping to its value. </td>
 			</tr>
 			<tr>
 				<td> <code>reduce_counters</code> </td>
 				<td> <code>map&lt;string,string&gt;</code> </td>
-				<td> The aggregated Counters for Reduce Tasks for the Job with the name of a Counter mapping to its value. </td>
+				<td> The aggregated Counters for Reduce Tasks for the job with the name of a Counter mapping to its value. </td>
 			</tr>
 			<tr>
 				<td> <code>total_counters</code> </td>
 				<td> <code>map&lt;string,string&gt;</code> </td>
-				<td> The overall Counters for the Job with the name of a Counter mapping to its value. </td>
+				<td> The overall Counters for the job with the name of a Counter mapping to its value. </td>
 			</tr>
 			<tr>
 				<td> <code>grid</code> </td>
 				<td> <code>string</code> </td>
-				<td>?</a></span> </td>
+				<td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
 			</tr>
 			<tr>
 				<td> <code>dt</code> </td>
 				<td> <code>string</code> </td>
-				<td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+				<td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
 			</tr>
        </tbody>
    </table>
@@ -300,12 +335,12 @@ The ``starling_tasks`` table has the following schema (apart from the partitioni
    <tr>
    <td> <code>job_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Job within the cluster. </td>
+   <td> The identifier for a job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>task_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Task for the Job. </td>
+   <td> The identifier for a Task for the job. </td>
    </tr>
    <tr>
    <td> <code>type</code> </td>
@@ -340,12 +375,12 @@ The ``starling_tasks`` table has the following schema (apart from the partitioni
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -374,7 +409,7 @@ The ``starling_task_counters`` table has the following schema (apart from the pa
    <tr>
    <td> <code>task_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Task for a Job. </td>
+   <td> The identifier for a Task for a job. </td>
    </tr>
    <tr>
    <td> <code>counters</code> </td>
@@ -384,12 +419,12 @@ The ``starling_task_counters`` table has the following schema (apart from the pa
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -416,7 +451,7 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <tr>
    <td> <code>task_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Task for a Job. </td>
+   <td> The identifier for a Task for a job. </td>
    </tr>
    <tr>
    <td> <code>task_attempt_id</code> </td>
@@ -486,12 +521,12 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -529,12 +564,12 @@ The ``starling_task_attempt_counters`` table has the following schema (apart fro
 		<tr>
 			<td><code>grid</code> </td>
 			<td> <code>string</code> </td>
-			<td> partition variable. Grid job was run on 'AB' for AxoniteBlue.</td>
+			<td> The partition variable. Grid job was run on 'AB' for AxoniteBlue.</td>
 		</tr>
 		<tr>
 			<td><code>dt</code> </td>
 			<td><code>string</code> </td>
-			<td>partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+			<td>The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
 		</tr>
    </tbody></table>
 
@@ -563,22 +598,22 @@ The ``starling_job_confs`` table has the following schema (apart from the partit
    <tr>
    <td> <code>job_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Job within the cluster. </td>
+   <td> The identifier for a job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>params</code> </td>
    <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> The configuration parameters for the Job with the name of a parameter mapping to its value. If a value has embedded tab or new-line characters, they are represented as <code>\t</code> and <code>\n</code> respectively (in order to prevent Hive from getting confused). </td>
+   <td> The configuration parameters for the job with the name of a parameter mapping to its value. If a value has embedded tab or new-line characters, they are represented as <code>\t</code> and <code>\n</code> respectively (in order to prevent Hive from getting confused). </td>
    </tr>
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -605,17 +640,17 @@ The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema 
    <tr>
    <td> <code>job_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for the Job within the cluster. </td>
+   <td> The identifier for the job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>submit_ts</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time when the Job was submitted in UTC as milliseconds since the UNIX epoch. </td>
+   <td> The time when the job was submitted in UTC as milliseconds since the UNIX epoch. </td>
    </tr>
    <tr>
    <td> <code>wait_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time in milliseconds spent by the Job waiting to be launched. </td>
+   <td> The time in milliseconds spent by the job waiting to be launched. </td>
    </tr>
    <tr>
    <td> <code>first_job_setup_task_launch_time</code> </td>
@@ -640,77 +675,77 @@ The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema 
    <tr>
    <td> <code>run_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time taken in milliseconds by the job to complete after being launched. (The total time taken by the Job is therefore wait_time + run_time.) </td>
+   <td> The time taken in milliseconds by the job to complete after being launched. (The total time taken by the job is therefore wait_time + run_time.) </td>
    </tr>
    <tr>
    <td> <code>num_maps</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of Map Tasks spawned for the Job. </td>
+   <td> The number of Map Tasks spawned for the job. </td>
    </tr>
    <tr>
    <td> <code>num_slots_per_map</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of slots per Map Task for the Job. </td>
+   <td> The number of slots per Map Task for the job. </td>
    </tr>
    <tr>
    <td> <code>num_reduces</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of Reduce Tasks spawned for the Job. </td>
+   <td> The number of Reduce Tasks spawned for the job. </td>
    </tr>
    <tr>
    <td> <code>num_slots_per_reduce</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of slots per Reduce Task for the Job. </td>
+   <td> The number of slots per Reduce Task for the job. </td>
    </tr>
    <tr>
    <td> <code>user</code> </td>
    <td> <code>string</code> </td>
-   <td> The user who submitted the Job. </td>
+   <td> The user who submitted the job. </td>
    </tr>
    <tr>
    <td> <code>queue</code> </td>
    <td> <code>string</code> </td>
-   <td> The queue to which the Job was submitted. </td>
+   <td> The queue to which the job was submitted. </td>
    </tr>
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Job (e.g., <code>SUCCEEDED</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the job (e.g., <code>SUCCEEDED</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>map_slot_seconds</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The total Slot-time in seconds taken by Map Tasks for this Job. </td>
+   <td> The total Slot-time in seconds taken by Map Tasks for this job. </td>
    </tr>
    <tr>
    <td> <code>reduce_slots_seconds</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The total Slot-time in seconds taken by Reduce Tasks for this Job. </td>
+   <td> The total Slot-time in seconds taken by Reduce Tasks for this job. </td>
    </tr>
    <tr>
    <td> <code>cluster_map_capacity</code> </td>
    <td> <code>int</code> </td>
-   <td> The cluster-wide capacity of Map Task Slots at the time the Job finished. </td>
+   <td> The cluster-wide capacity of Map Task Slots at the time the job finished. </td>
    </tr>
    <tr>
    <td> <code>cluster_reduce_capacity</code> </td>
    <td> <code>int</code> </td>
-   <td> The cluster-wide capacity of Reduce Task Slots at the time the Job finished. </td>
+   <td> The cluster-wide capacity of Reduce Task Slots at the time the job finished. </td>
    </tr>
    <tr>
    <td> <code>job_name</code> </td>
    <td> <code>string</code> </td>
-   <td> The name for the Job. Populated only for Hadoop 1.0.2 clusters. Value would be NULL for Hadoop 0.20.205 clusters </td>
+   <td> The name for the job. Populated only for Hadoop 1.0.2 clusters. Value would be NULL for Hadoop 0.20.205 clusters </td>
    </tr>
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -721,8 +756,6 @@ Schemas for HDFS
 
 Starling collects and processes the following logs related to HDFS on a source cluster:
 
-- **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary Name Node in less-recent versions of Hadoop). This is collected every month by default.
-- **Audit Logs** - these contain records of accesses and modifications to file-system objects.
 
 .. warning:: Unlike the data in other tables, the tables created from an FSImage (``fs_namespaces``, ``fs_entries``, and ``fs_blocks``) 
              represent a snapshot rather than incremental information for each period. You must 
@@ -777,12 +810,12 @@ The ``starling_fs_namespaces`` table has following schema and describes the FSIm
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -880,25 +913,27 @@ The ``starling_fs_entries`` table describe the name space listing and has the fo
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
 
+Notes
+*****
 
-.. note:: Make sure you convert ``mod_ts`` and ``act_ts`` before calling any of the Hive date time functions otherwise, you'll get a nasty surprise.
-          e.g., ``select E.path``, ``from_unixtime(E.acc_ts)``, ``E.size``, ``E.user``, ``E.grid``, ``E.dt``, ``datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
-          ``to_date(from_unixtime(unix_timestamp()))) as DAYS_OLD? from starling_fs_entries E where E.dir and datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
-          ``to_date(from_unixtime(unix_timestamp()))) > 90 and grid='DG' and DT='2011_11_08' limit 10;``
+Make sure you convert ``mod_ts`` and ``act_ts`` before calling any of the Hive date time functions otherwise, you'll get a nasty surprise.
+e.g., ``select E.path``, ``from_unixtime(E.acc_ts)``, ``E.size``, ``E.user``, ``E.grid``, ``E.dt``, ``datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
+``to_date(from_unixtime(unix_timestamp()))) as DAYS_OLD? from starling_fs_entries E where E.dir and datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
+``to_date(from_unixtime(unix_timestamp()))) > 90 and grid='DG' and DT='2011_11_08' limit 10;``
 
-.. note:: The ``acc_ts`` should not be used at Yahoo. Most name nodes don't set this value when files 
-          are read due to performance issues. This value will always be set to the create time for 
-          the file or it will be set to epoch (epoch for files created before 0.20 hadoop was released).
+The ``acc_ts`` should not be used at Yahoo. Most name nodes don't set this value when files 
+are read due to performance issues. This value will always be set to the create time for 
+the file or it will be set to epoch (epoch for files created before 0.20 hadoop was released).
 
 
 starling_fs_blocks
@@ -929,7 +964,7 @@ the Block details and is partitioned by keys ``grid`` and ``dt``:
    <tr>
    <td> <code>block_id</code> </td>
    <td> <code>bigint</code> </td>
-   <td> Id of the block representing the file. </td>
+   <td> The ID of the block representing the file. </td>
    </tr>
    <tr>
    <td> <code>size</code> </td>
@@ -949,12 +984,12 @@ the Block details and is partitioned by keys ``grid`` and ``dt``:
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -1029,12 +1064,12 @@ The ``starling_fs_audit`` table has the following schema (apart from the partiti
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -1044,7 +1079,6 @@ Schemas for Simon
 
 Starling collects and processes the following logs related to Simon on a source cluster:
 
-- **Aggregator Dumps** - this provides periodic dumps of different metrics related to various sub-systems for a given cluster.
 
 
 starling_simon_reports
@@ -1116,649 +1150,3 @@ The ``simon_reports`` table has the following schema (apart from the partitionin
 .. note:: Simon aggregator dumps are processed on a "best-effort" basis due to the way the metrics are collected and the dumps captured and made available to Starling. It is quite possible therefore to see missing or duplicate metrics in this table. If you want a unique row for a given metric for a given time-stamp, you must put the appropriate DISTINCT clauses in your queries.
 
 .. note:: There are at least 15 different types of reports recorded: FSNamesystem status, by node name ,by process name,by session,hdfs throughput,individual datanode throughput,jobtracker,jobtracker totals,namenode operations,perCluster,perDisk ,perNode ,shuffle output by host ,tasktracker , and tasktracker totals. Be sure to select the right report type otherwise you'll aggregate apples with oranges. (See example below.)
-
-Schemas for GDM Configuration
------------------------------
-
-Grid Data Management (GDM) is a flexible, scalable platform for making large volume 
-of data available on the Grid. GDM is deployed as a managed service and is used 
-primarily by the Grid Ops team to schedule and manage the flow of data to and from 
-the Grid. The GDM configuration is segregated into data-set and data-source configuration.
-
-Starling collects the snapshot of the GDM configuration everyday to the warehouse 
-directory and processes them.
-
-starling_gdm_dataset
-####################
-
-**Source Log:** GDM data-set configuration
-
-The ``starling_gdm_dataset`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-  <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description/th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>description</code> </td>
-   <td> <code>string</code> </td>
-   <td> Description about the data set.</td>
-   </tr>
-   <tr>
-   <td> <code>catalog</code> </td>
-   <td> <code>string</code> </td>
-   <td> The catalog under which the data set falls (e.g., <code>YST-LOGS-NET</code>). </td>
-   </tr>
-   <tr>
-   <td> <code>active</code> </td>
-   <td> <code>string</code> </td>
-   <td> Specifies the activity status of the data set. Allowed values are <code>NEW,TRUE,FALSE</code> </td>
-   </tr>
-   <tr>
-   <td> <code>verification_instance</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>priority</code> </td>
-   <td> <code>string</code> </td>
-   <td> Priority of the taste. Allowed values are <code>HIGHEST,HIGH,NORMAL,LOW,LOWEST</code> </td>
-   </tr>
-   <tr>
-   <td> <code>contact_owner</code> </td>
-   <td> <code>string</code> </td>
-   <td> Contact information of the owner of the data set. (e.g., <code>dfsload@yahoo-inc.com</code> ) </td>
-   </tr>
-   <tr>
-   <td> <code>publisher</code> </td>
-   <td> <code>string</code> </td>
-   <td> Contact information of the publisher of the data set. (e.g., <code>grid-data-ops@yahoo-inc.com</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>consumer</code> </td>
-   <td> <code>string</code> </td>
-   <td> Contact information of the consumer of the data set. (e.g., <code>grid-data-ops@yahoo-inc.com</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>comments</code> </td>
-   <td> <code>string</code> </td>
-   <td> Comments about the data set. </td>
-   </tr>
-   <tr>
-   <td> <code>owner</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the user owning the data set. (e.g., <code>dfsload</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>groupname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the group owning the data set. (e.g., <code>users</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>permission</code> </td>
-   <td> <code>string</code> </td>
-   <td> The permissions set on the data set. (e.g., 755) </td>
-   </tr>
-   <tr>
-   <td> <code>frequency</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>disc_frequency</code> </td>
-   <td> <code>int</code> </td>
-   <td> Discovery frequency. (e.g., <code>7200</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>disc_interface</code> </td>
-   <td> <code>string</code> </td>
-   <td> Discovery Interface (e.g., <code>FDI</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>paths</code> </td>
-   <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> A map containing information about paths of various types( <code>data</code>, <code>schema</code>, <code>count</code>, <code>invalid</code> etc). </td>
-   </tr>
-   <tr>
-   <td> <code>params</code> </td>
-   <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> A parameters map containing key value pairs. </td>
-   </tr>
-   <tr>
-   <td> <code>part_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the partition. (e.g., <code>srcid</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>part_type</code> </td>
-   <td> <code>string</code> </td>
-   <td> The partition type. (e.g., <code>DSD</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>part_value</code> </td>
-   <td> <code>string</code> </td>
-   <td> Set of Partition values. </td>
-   </tr>
-   <tr>
-   <td> <code>target_type</code> </td>
-   <td> <code>string</code> </td>
-   <td> The type of the target. Allowed values are <code>SOURCE</code>, <code>TARGET</code>. </td>
-   </tr>
-   <tr>
-   <td> <code>target_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the target. </td>
-   </tr>
-   <tr>
-   <td> <code>latency</code> </td>
-   <td> <code>string</code> </td>
-   <td> Latency in minutes. </td>
-   </tr>
-   <tr>
-   <td> <code>retention</code> </td>
-   <td> <code>int</code> </td>
-   <td> Retention period in days. </td>
-   </tr>
-   <tr>
-   <td> <code>start_date</code> </td>
-   <td> <code>bigint</code> </td>
-   <td> Start date for copying the data into Target. This value is applied for only target_type=TARGET. </td>
-   </tr>
-   <tr>
-   <td> <code>end_date</code> </td>
-   <td> <code>bigint</code> </td>
-   <td> End date for copying the data into Target. This value is applied for only target_type=TARGET. </td>
-   </tr>
-   <tr>
-   <td> <code>target_status</code> </td>
-   <td> <code>string</code> </td>
-   <td> Status of the target. </td>
-   </tr>
-   <tr>
-   <td> <code>target_resources</code> </td>
-   <td> <code>map&lt;string, int&gt;</code> </td>
-   <td> A map containing the information of the target resources with the name of the resource as key and its capacity as the value. </td>
-   </tr>
-   <tr>
-   <td> <code>target_policies</code> </td>
-   <td> <code>map&lt;string, string&gt;</code> </td>
-   <td> A map containing the information of the target policies with the type of the policy as key and its condition as the value. </td>
-   </tr>
-   <tr>
-   <td> <code>replication_exclude_paths</code> </td>
-   <td> <code>array&lt;string&gt;</code> </td>
-   <td> The Path to be excluded during replication. </td>
-   </tr>
-   </tbody></table>
-
-
-.. note:: Be careful with your selects from this table. There are multiple entries for each data set. There will be an entry for each data source and one for each data set. Also, if there are duplicate sources inside each config, there will be duplicate entries in this table.
-
-.. note:: ``target_type`` is not really the type of target since it can be either source or 
-          target. This corresponds to the Sources or Targets tags inside a GDM data set configuration file.
-
-starling_gdm_data_definition
-############################
-
-Source Log: GDM data set configuration
-
-The ``starling_gdm_data_definition`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>static_schema_path</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>record_delimiter</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>field_delimiter</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>input_format</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>output_format</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>skip_comments</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>sort_key</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>partition_key</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>data_path_mask</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>add_fields</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>remove_fields</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>select_records</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-
-starling_gdm_data_validation
-############################
-
-Source Log: GDM data-set configuration
-
-The ``starling_gdm_data_validation`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-   <table cellspacing="0" id="table18" cellpadding="0" class="foswikiTable" rules="rows" border="1">
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>type</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>on_failure</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>condition</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>threshold</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-starling_gdm_data_workflow_strategy
-###################################
-
-**Source Log:** GDM data-set configuration
-
-The ``starling_gdm_data_workflow_strategy`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-
-   <table cellspacing="0" id="table19" cellpadding="0" class="foswikiTable" rules="rows" border="1">
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>load_strategy</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>retry_count</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>skip_data_commit</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>skip_verify</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>parts_count</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>parts_per_partition</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-starling_gdm_data_flow
-######################
-
-**Source Log:** GDM data-set configuration
-
-The ``starling_gdm_data_flow`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-   <table cellspacing="0" id="table20" cellpadding="0" class="foswikiTable" rules="rows" border="1">
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>replicate_from_colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>replicate_to_colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-starling_gdm_datasource
-#######################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type/th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>type</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>version</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>working_dir</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>eviction_dir</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>active</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>bandwidth_per_connection</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>params</code> </td>
-   <td> <code>map</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-   
-
-
-
-starling_gdm_datasource_interfaces
-##################################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source_interfaces`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</a> </th>
-   <th>Type</th>
-   <th<Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>auth_schema</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>auth_params</code> </td>
-   <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>discovery_types</code> </td>
-   <td> <code>array&lt;string&gt;</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_type</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_version</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-   
-
-
-starling_gdm_datasource_interface_cmds
-######################################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source_interface_cmds`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>cmd_base_url</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>cmd_args</code> </td>
-   <td> <code>array&lt;string&gt;</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>cmd</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-starling_gdm_datasource_resources
-#################################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source_resources`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>resource_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>capacity</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>applicable_colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-Use of Data
-===========
-
