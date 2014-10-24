@@ -18,11 +18,11 @@ for NameNode, HCatalog, and HiveServer 2, as well as Simon metrics.
 
 The following logs in bold are collected by Starling:
 
-- **Job History** - this provides detailed information on an executed Job, including Tasks and Task Attempts, Counters, etc.
-- **Job Configuration** - this provides the configuration information for an executed Job.
+- **Job History** - this provides detailed information on an executed job, including asks and task attempts, counters, etc.
+- **Job Configuration** - this provides the configuration information forn executed Job.
 - **Job Summary** - this provides a summary of an executed Job.data is written in 
 - **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary
-  Name Node in less-recent versions of Hadoop). This is collected every month by default.
+  NameNode in less-recent versions of Hadoop). This is collected every month by default.
 - **Audit Logs** - these contain records of accesses and modifications to file-system objects.
 - **Aggregator Dumps** - this provides periodic dumps of different metrics related to various sub-systems for a given cluster.
 
@@ -58,6 +58,8 @@ warehouse and results stored in the same warehouse or an SQL store.
 
 Data Retention Policy
 ---------------------
+
+The retention policy depends on the data set. Generally though, we retain some data between one and two years.
 
 Data Warehouse
 ==============
@@ -158,72 +160,72 @@ The ``starling_jobs`` table has the following schema (apart from the partitionin
    <tr>
    <td><code>job_id</code></td>
    <td><code>string</code></td>
-   <td> The identifier for the Job within the cluster. </td>
+   <td> The identifier for the job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>job_name</code> </td>
    <td> <code>string</code> </td>
-   <td> The name for the Job. </td>
+   <td> The name of the job. </td>
    </tr>
    <tr>
    <td> <code>user</code> </td>
    <td> <code>string</code> </td>
-   <td> The user who submitted the Job. </td>
+   <td> The user who submitted the job. </td>
    </tr>
    <tr>
    <td> <code>queue</code> </td>
    <td> <code>string</code> </td>
-   <td> The queue to which the Job was submitted. </td>
+   <td> The queue to which the job was submitted. </td>
    </tr>
    <tr>
    <td> <code>conf_loc</code> </td>
    <td> <code>string</code> </td>
-   <td> The location on HDFS for the Job Configuration. </td>
+   <td> The location on HDFS for the job configuration. </td>
    </tr>
    <tr>
    <td> <code>view_acl</code> </td>
    <td> <code>string</code> </td>
-   <td> The access-control list for viewing the Job. This is either empty, a <code>*</code> or space-separated lists of comma-separated users and groups respectively. </td>
+   <td> The access-control list for viewing the job. This is either empty, a <code>'*'</code> or space-separated lists of comma-separated users and groups respectively. </td>
    </tr>
    <tr>
    <td> <code>modify_acl</code> </td>
    <td> <code>string</code> </td>
-   <td> The access-control list for modifying the Job. This is either empty, a <code>*</code> or space-separated lists of comma-separated users and groups respectively. </td>
+   <td> The access-control list for modifying the job. This is either empty, a <code>'*'</code> or space-separated lists of comma-separated users and groups respectively. </td>
    </tr>
    <tr>
    <td> <code>priority</code> </td>
    <td> <code>string</code> </td>
-   <td> The priority of the Job (e.g., <code>NORMAL</code>). </td>
+   <td> The priority of the job (e.g., <code>NORMAL</code>). </td>
    </tr>
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Job (e.g., <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the job (e.g., <code>SUCCESS</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>submit_ts</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time when the Job was submitted in UTC as milliseconds since the UNIX epoch. </td>
+   <td> The time when the job was submitted in UTC as milliseconds since the UNIX epoch. </td>
    </tr>
    <tr>
    <td> <code>wait_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time in milliseconds spent by the Job waiting to be launched. </td>
+   <td> The time in milliseconds spent by the job waiting to be launched.</td>
    </tr>
    <tr>
    <td> <code>run_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time in milliseconds spent by the Job running after being launched. (The total time taken by the Job is therefore <code>wait_time</code> + <code>run_time</code>.) </td>
+   <td> The time in milliseconds spent by the job running after being launched. (The total time taken by the job is therefore <code>wait_time</code> + <code>run_time</code>.) </td>
    </tr>
    <tr>
    <td> <code>total_maps</code> </td>
    <td> <code>int</code> </td>
-   <td> The total number of Map Tasks launched by the Job. </td>
+   <td> The total number of Map Tasks launched by the job. </td>
    </tr>
    <tr>
    <td> <code>total_reduces</code> </td>
    <td> <code>int</code> </td>
-   <td> The total number of Reduce Tasks launched by the Job. </td>
+   <td> The total number of Reduce Tasks launched by the job. </td>
    </tr>
    <tr>
    <td> <code>finished_maps</code> </td>
@@ -248,12 +250,12 @@ The ``starling_jobs`` table has the following schema (apart from the partitionin
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td>The The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -279,32 +281,32 @@ The ``starling_job_counters`` table has the following schema (apart from the par
 			<tr>
 				<td> <code>job_id</code> </td>
 				<td> <code>string</code> </td>
-				<td> The identifier for a Job within the cluster. </td>
+				<td> The identifier for a job within the cluster. </td>
 			</tr>
 			<tr>
 				<td> <code>map_counters</code> </td>
 				<td> <code>map&lt;string,string&gt;</code> </td>
-				<td> The aggregated Counters for Map Tasks for the Job with the name of a Counter mapping to its value. </td>
+				<td> The aggregated Counters for Map Tasks for the job with the name of a Counter mapping to its value. </td>
 			</tr>
 			<tr>
 				<td> <code>reduce_counters</code> </td>
 				<td> <code>map&lt;string,string&gt;</code> </td>
-				<td> The aggregated Counters for Reduce Tasks for the Job with the name of a Counter mapping to its value. </td>
+				<td> The aggregated Counters for Reduce Tasks for the job with the name of a Counter mapping to its value. </td>
 			</tr>
 			<tr>
 				<td> <code>total_counters</code> </td>
 				<td> <code>map&lt;string,string&gt;</code> </td>
-				<td> The overall Counters for the Job with the name of a Counter mapping to its value. </td>
+				<td> The overall Counters for the job with the name of a Counter mapping to its value. </td>
 			</tr>
 			<tr>
 				<td> <code>grid</code> </td>
 				<td> <code>string</code> </td>
-				<td>?</a></span> </td>
+				<td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
 			</tr>
 			<tr>
 				<td> <code>dt</code> </td>
 				<td> <code>string</code> </td>
-				<td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+				<td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
 			</tr>
        </tbody>
    </table>
@@ -333,12 +335,12 @@ The ``starling_tasks`` table has the following schema (apart from the partitioni
    <tr>
    <td> <code>job_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Job within the cluster. </td>
+   <td> The identifier for a job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>task_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Task for the Job. </td>
+   <td> The identifier for a Task for the job. </td>
    </tr>
    <tr>
    <td> <code>type</code> </td>
@@ -373,12 +375,12 @@ The ``starling_tasks`` table has the following schema (apart from the partitioni
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -407,7 +409,7 @@ The ``starling_task_counters`` table has the following schema (apart from the pa
    <tr>
    <td> <code>task_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Task for a Job. </td>
+   <td> The identifier for a Task for a job. </td>
    </tr>
    <tr>
    <td> <code>counters</code> </td>
@@ -417,12 +419,12 @@ The ``starling_task_counters`` table has the following schema (apart from the pa
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -449,7 +451,7 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <tr>
    <td> <code>task_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Task for a Job. </td>
+   <td> The identifier for a Task for a job. </td>
    </tr>
    <tr>
    <td> <code>task_attempt_id</code> </td>
@@ -519,12 +521,12 @@ The ``starling_task_attempts`` table has the following schema (apart from the pa
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -562,12 +564,12 @@ The ``starling_task_attempt_counters`` table has the following schema (apart fro
 		<tr>
 			<td><code>grid</code> </td>
 			<td> <code>string</code> </td>
-			<td> partition variable. Grid job was run on 'AB' for AxoniteBlue.</td>
+			<td> The partition variable. Grid job was run on 'AB' for AxoniteBlue.</td>
 		</tr>
 		<tr>
 			<td><code>dt</code> </td>
 			<td><code>string</code> </td>
-			<td>partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+			<td>The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
 		</tr>
    </tbody></table>
 
@@ -596,22 +598,22 @@ The ``starling_job_confs`` table has the following schema (apart from the partit
    <tr>
    <td> <code>job_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for a Job within the cluster. </td>
+   <td> The identifier for a job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>params</code> </td>
    <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> The configuration parameters for the Job with the name of a parameter mapping to its value. If a value has embedded tab or new-line characters, they are represented as <code>\t</code> and <code>\n</code> respectively (in order to prevent Hive from getting confused). </td>
+   <td> The configuration parameters for the job with the name of a parameter mapping to its value. If a value has embedded tab or new-line characters, they are represented as <code>\t</code> and <code>\n</code> respectively (in order to prevent Hive from getting confused). </td>
    </tr>
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</a></td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -638,17 +640,17 @@ The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema 
    <tr>
    <td> <code>job_id</code> </td>
    <td> <code>string</code> </td>
-   <td> The identifier for the Job within the cluster. </td>
+   <td> The identifier for the job within the cluster. </td>
    </tr>
    <tr>
    <td> <code>submit_ts</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time when the Job was submitted in UTC as milliseconds since the UNIX epoch. </td>
+   <td> The time when the job was submitted in UTC as milliseconds since the UNIX epoch. </td>
    </tr>
    <tr>
    <td> <code>wait_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time in milliseconds spent by the Job waiting to be launched. </td>
+   <td> The time in milliseconds spent by the job waiting to be launched. </td>
    </tr>
    <tr>
    <td> <code>first_job_setup_task_launch_time</code> </td>
@@ -673,77 +675,77 @@ The ``starling_job_summary`` table (see MAPREDUCE-740) has the following schema 
    <tr>
    <td> <code>run_time</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The time taken in milliseconds by the job to complete after being launched. (The total time taken by the Job is therefore wait_time + run_time.) </td>
+   <td> The time taken in milliseconds by the job to complete after being launched. (The total time taken by the job is therefore wait_time + run_time.) </td>
    </tr>
    <tr>
    <td> <code>num_maps</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of Map Tasks spawned for the Job. </td>
+   <td> The number of Map Tasks spawned for the job. </td>
    </tr>
    <tr>
    <td> <code>num_slots_per_map</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of slots per Map Task for the Job. </td>
+   <td> The number of slots per Map Task for the job. </td>
    </tr>
    <tr>
    <td> <code>num_reduces</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of Reduce Tasks spawned for the Job. </td>
+   <td> The number of Reduce Tasks spawned for the job. </td>
    </tr>
    <tr>
    <td> <code>num_slots_per_reduce</code> </td>
    <td> <code>int</code> </td>
-   <td> The number of slots per Reduce Task for the Job. </td>
+   <td> The number of slots per Reduce Task for the job. </td>
    </tr>
    <tr>
    <td> <code>user</code> </td>
    <td> <code>string</code> </td>
-   <td> The user who submitted the Job. </td>
+   <td> The user who submitted the job. </td>
    </tr>
    <tr>
    <td> <code>queue</code> </td>
    <td> <code>string</code> </td>
-   <td> The queue to which the Job was submitted. </td>
+   <td> The queue to which the job was submitted. </td>
    </tr>
    <tr>
    <td> <code>status</code> </td>
    <td> <code>string</code> </td>
-   <td> The final status of the Job (e.g., <code>SUCCEEDED</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
+   <td> The final status of the job (e.g., <code>SUCCEEDED</code>, <code>FAILED</code>, <code>KILLED</code>, etc.). </td>
    </tr>
    <tr>
    <td> <code>map_slot_seconds</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The total Slot-time in seconds taken by Map Tasks for this Job. </td>
+   <td> The total Slot-time in seconds taken by Map Tasks for this job. </td>
    </tr>
    <tr>
    <td> <code>reduce_slots_seconds</code> </td>
    <td> <code>bigint</code> </td>
-   <td> The total Slot-time in seconds taken by Reduce Tasks for this Job. </td>
+   <td> The total Slot-time in seconds taken by Reduce Tasks for this job. </td>
    </tr>
    <tr>
    <td> <code>cluster_map_capacity</code> </td>
    <td> <code>int</code> </td>
-   <td> The cluster-wide capacity of Map Task Slots at the time the Job finished. </td>
+   <td> The cluster-wide capacity of Map Task Slots at the time the job finished. </td>
    </tr>
    <tr>
    <td> <code>cluster_reduce_capacity</code> </td>
    <td> <code>int</code> </td>
-   <td> The cluster-wide capacity of Reduce Task Slots at the time the Job finished. </td>
+   <td> The cluster-wide capacity of Reduce Task Slots at the time the job finished. </td>
    </tr>
    <tr>
    <td> <code>job_name</code> </td>
    <td> <code>string</code> </td>
-   <td> The name for the Job. Populated only for Hadoop 1.0.2 clusters. Value would be NULL for Hadoop 0.20.205 clusters </td>
+   <td> The name for the job. Populated only for Hadoop 1.0.2 clusters. Value would be NULL for Hadoop 0.20.205 clusters </td>
    </tr>
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
    
@@ -808,12 +810,12 @@ The ``starling_fs_namespaces`` table has following schema and describes the FSIm
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -911,25 +913,27 @@ The ``starling_fs_entries`` table describe the name space listing and has the fo
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
 
+Notes
+*****
 
-.. note:: Make sure you convert ``mod_ts`` and ``act_ts`` before calling any of the Hive date time functions otherwise, you'll get a nasty surprise.
-          e.g., ``select E.path``, ``from_unixtime(E.acc_ts)``, ``E.size``, ``E.user``, ``E.grid``, ``E.dt``, ``datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
-          ``to_date(from_unixtime(unix_timestamp()))) as DAYS_OLD? from starling_fs_entries E where E.dir and datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
-          ``to_date(from_unixtime(unix_timestamp()))) > 90 and grid='DG' and DT='2011_11_08' limit 10;``
+Make sure you convert ``mod_ts`` and ``act_ts`` before calling any of the Hive date time functions otherwise, you'll get a nasty surprise.
+e.g., ``select E.path``, ``from_unixtime(E.acc_ts)``, ``E.size``, ``E.user``, ``E.grid``, ``E.dt``, ``datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
+``to_date(from_unixtime(unix_timestamp()))) as DAYS_OLD? from starling_fs_entries E where E.dir and datediff(to_date(from_unixtime(round(E.acc_ts/1000)))``, 
+``to_date(from_unixtime(unix_timestamp()))) > 90 and grid='DG' and DT='2011_11_08' limit 10;``
 
-.. note:: The ``acc_ts`` should not be used at Yahoo. Most name nodes don't set this value when files 
-          are read due to performance issues. This value will always be set to the create time for 
-          the file or it will be set to epoch (epoch for files created before 0.20 hadoop was released).
+The ``acc_ts`` should not be used at Yahoo. Most name nodes don't set this value when files 
+are read due to performance issues. This value will always be set to the create time for 
+the file or it will be set to epoch (epoch for files created before 0.20 hadoop was released).
 
 
 starling_fs_blocks
@@ -960,7 +964,7 @@ the Block details and is partitioned by keys ``grid`` and ``dt``:
    <tr>
    <td> <code>block_id</code> </td>
    <td> <code>bigint</code> </td>
-   <td> Id of the block representing the file. </td>
+   <td> The ID of the block representing the file. </td>
    </tr>
    <tr>
    <td> <code>size</code> </td>
@@ -980,12 +984,12 @@ the Block details and is partitioned by keys ``grid`` and ``dt``:
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 
@@ -1060,12 +1064,12 @@ The ``starling_fs_audit`` table has the following schema (apart from the partiti
    <tr>
    <td> <code>grid</code> </td>
    <td> <code>string</code> </td>
-   <td>?</a></span> </td>
+   <td>The abbreviation of the grid cluster. For example, the value for Axonite Blue would be 'AB'.</td>
    </tr>
    <tr>
    <td> <code>dt</code> </td>
    <td> <code>string</code> </td>
-   <td> partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
+   <td> The partition variable. Date when job was run e.g., <code>YYYY_MM_DD</code> </td>
    </tr>
    </tbody></table>
 

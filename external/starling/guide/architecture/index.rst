@@ -43,8 +43,6 @@ A typical log collected by Starling goes through the following states in its lif
    by applications using Hive or Pig.
 #. **Purged** - the log has exceeded its retention period and is purged from the system.
 
-.. note:: The retention policy depends on the data set. Generally though, we retain some 
-          data between one and two years.
           
 
 Error Handling and Recovery

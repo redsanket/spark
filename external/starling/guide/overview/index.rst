@@ -23,19 +23,18 @@ Starling offers the following:
 
 - insights into the Hadoop Clusters usage to allow us to tune 
   better and  prioritize features.
-- key information to manage the data better such as Archival decisions or 
+- key information to manage the data better such as archiving or 
   management of replicas, etc.
-- capability to compute the window between a data set’s retention and the last access time trends.
+- capability to compute the window between a data set's retention and the last access time trends.
 - data from multiple logs in one place holistically.
 - capability to find the "Query of Death"--jobs that cause clusters to go down.
 - capability to add additional logs using pluggable integration points.
 - logs for analyzing the following:
 
-  - Name node Static File System Images
-  - Name node audit logs
-  - Hadoop Job History logs
-  - DAQ/GDM Metrics
-  - DAQ/GDM Configuration files
+  - NameNode static file system images
+  - NameNode audit logs
+  - Hadoop JobHistory logs
+  - `Simon metrics <http://twiki.corp.yahoo.com/view/Yst/ProjectSimon#Simon_Overview>`_
   - Howl (TBD)
 
 Who Should Use Starling?
@@ -118,9 +117,4 @@ Utilization of Grid
 
 You can inspect how you are using HDFS by looking at ``jobsummary`` logs from JobTracker
 as well as Y organizaton charts and the owners of logical space.
-
-
-
-
-
 
