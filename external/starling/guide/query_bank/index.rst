@@ -1,6 +1,6 @@
-----------
+==========
 Query Bank
-----------
+==========
 
 Hive
 ====
@@ -138,12 +138,15 @@ Sample Result
 Instances Read on Dilithium Gold
 --------------------------------
 
-For the directories /data/SDS/data and /data/FETL/*, what were the oldest, newest 
-instances read and how many times were individual pieces read on DilithiumGold??
+For the directories ``/data/SDS/data`` and ``/data/FETL/*``, what were the oldest, newest 
+instances read and how many times were individual pieces read on Dilithium Gold.
 
-Note: if you want to save these results to import into excel or other program, save this query in a file and execute: /home/y/bin/hive #f foobar.file >results.csv You can then import the results.csv file into excel using tab as the delimiter.
+If you want to save these results to import into excel or other program, 
+save this query in a file and execute: ``/home/y/bin/hive #f foobar.file >results.csv``. 
+You can then import the results.csv file into excel using tab as the delimiter.
 
-Note: INSERT OVERWRITE LOCAL DIRECTORY 'test.csv' won't do what you think it might do. The test.csv directory will contain a single hadoop compressed file not usable by mere mortals.
+.. note:: ``INSERT OVERWRITE LOCAL DIRECTORY 'test.csv'`` won't do what you think it might do. 
+          The ```test.csv`` directory will contain a single hadoop compressed file that isn't human readable.
 
 Query
 #####
@@ -214,41 +217,25 @@ Now do the same for ``/data/FETL/{ABF,LL_Web}/``::
 Sample Result
 #############
 
-
-
-Query
-#####
-
-
-
-Sample Result
-#############
-
-
-
-Query
-#####
-
-
-
-Sample Result
-#############
-
-
-
-Query
-#####
-
-
-
-Sample Result
-#############
-
+TBD
 
 
 Pig
 ===
 
+Number of Jobs Run by a User
+----------------------------
+
+Pig Statements
+##############
+
+TBD
+
+
+Sample Result
+#############
+
+TBD
 
 MapReduce
 =========
