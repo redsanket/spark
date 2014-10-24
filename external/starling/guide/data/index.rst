@@ -7,8 +7,34 @@ Data in Starling
 Overview
 ========
 
+.. _data_overview-what:
+
 What Data is Collected?
 -----------------------
+
+Starling collects log data from the grid in a variety of formats.
+The log data includes information about jobs, HDFS, audit log
+for NameNode, HCatalog, and HiveServer 2, as well as Simon metrics. 
+
+The following logs in bold are collected by Starling:
+
+- **Job History** - this provides detailed information on an executed Job, including Tasks and Task Attempts, Counters, etc.
+- **Job Configuration** - this provides the configuration information for an executed Job.
+- **Job Summary** - this provides a summary of an executed Job.data is written in 
+- **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary
+  Name Node in less-recent versions of Hadoop). This is collected every month by default.
+- **Audit Logs** - these contain records of accesses and modifications to file-system objects.
+- **Aggregator Dumps** - this provides periodic dumps of different metrics related to various sub-systems for a given cluster.
+
+
+.. MapReduce JobHistory (Avro format)
+   MapReduce Job Configuration (XML)
+   MapReduce JobSummary (text files)
+   HDFS fsimage (binary format, hadoop specific)
+   HDFS NameNode audit logs (text files)
+   Hadoop Simon metrics (JMX metrics serialized to text files)
+   Hcatalog audit logs (text files)
+   HiveServer2 audit logs – both encryped and unencrypted (text files)
 
 
 When is it Collected?
@@ -29,8 +55,9 @@ This workflow will be scheduled to run on a recurring basis.
 Users can execute an ad hoc query against this warehouse. We also propose to have a 
 workflow that triggers a series of predetermined computation of trends from this 
 warehouse and results stored in the same warehouse or an SQL store.
-Integration Points
 
+Data Retention Policy
+---------------------
 
 Data Warehouse
 ==============
@@ -38,56 +65,65 @@ Data Warehouse
 What is the Data Warehouse?
 ---------------------------
 
+The Data Warehouse for Starling is simply the Hive database
+``starling``. Many of the source logs discussed in :ref:`What Data is Collected? <data_overview-what`
+are mapped to Hive tables through HCatalog. Thus, if you wanted to analyze
+Job History logs, you could run a query against the ``starling_job_summary``
+table.  
+
+
 Where is the Data Warehouse?
 ----------------------------
 
-Can the Data Warehouse Be Accessed?
------------------------------------
+You can access the Hive ``starling`` database on Cobalt Blue (cobalt-gw.blue.ygrid.yahoo.com).
+For many of the source logs discussed in :ref:`What Data is Collected? <data_overview-what>`_,
+there is a corresponding Hive table in the ``starling`` database.
+
 
 How is the Data Warehouse Accessed?
 -----------------------------------
 
+The typical and suggested way to access Starling data is through Hive, but Pig can use
+the library ``org.apache.hcatalog.pig.HCatLoader();`` to access
+the tables through HCatalog. You can also use MapReduce 
+again through HCatalog.
 
-HCatalog
-========
-
-
-Hive Database 
-=============
-
-The Hive database that stores the Starling data is ``starling``. 
+To learn how, see `Getting Started <../getting_started/>`_ and
+for examples in Hive and Pig, see `Query Bank <../query_bank>`_.
 
 
-Tables
-------
-
-
-
-Data and Retention
-==================
-
-Schemas
-=======
+HCatalog Schemas
+================
 
 Introduction
 ------------
 
+HCatalog is a metadata management layer for all Hadoop grids. All datasets and 
+their schemas are registered in HCatalog, allowing engines such as Hive, Pig, 
+or MapReduce query this layer to get the data on HDFS and what schema is used to 
+represent it.
+
+How Does It Work?
+#################
+
 Raw and processed logs are stored using HCatalog and partitioned by cluster and date. 
 These partitioning keys are grid (of type string) and within that ``dt`` (of type string 
-and format YYYY_MM_DD) respectively. This partitioning drastically reduces the amount 
+and format YYYY_MM_DD) respectively. Partitioning drastically reduces the amount 
 of data that Hive has to process through for generating the results for most queries. 
 If a log is collected more frequently than once per day, there will be another partition 
 ``tm`` (of type string and format HH_MM) within the ``dt`` partition.
 
-Raw logs are stored after maximal compression in order to reduce storage requirements. 
-Processed logs are stored as compressed tables using columnar-storage provided by 
-the RCFile storage-format in order to maximize the potential for compression (as 
-many columns have the same values). Processed logs are accessed via Hive using 
-HiveQL to produce both canned and ad hoc reports. Apart from the primary tables 
-corresponding to the processed logs, Starling will also have secondary tables derived 
-from these primary tables in order to speed up the execution of common queries and 
-the generation of common reports. The retention of both raw and processed logs is 
-determined by an appropriate configuration of HCatalog.
+ 
+
+..  Raw logs are stored after maximal compression to reduce storage requirements. 
+    Processed logs are stored as compressed tables using columnar-storage provided by 
+    the RCFile storage-format in order to maximize the potential for compression (as 
+    many columns have the same values). Processed logs are accessed via Hive using 
+    HiveQL to produce both canned and ad hoc reports. Apart from the primary tables 
+    corresponding to the processed logs, Starling will also have secondary tables derived 
+    from these primary tables in order to speed up the execution of common queries and 
+    the generation of common reports. The retention of both raw and processed logs is 
+    determined by an appropriate configuration of HCatalog.
 
 
 .. important:: All tables reside in the default database (since HCatalog doesn't properly support 
@@ -100,9 +136,6 @@ Schemas for MapReduce
 
 Starling collects and processes the following logs related to MapReduce on a source cluster:
 
-- **Job History** - this provides detailed information on an executed Job, including Tasks and Task Attempts, Counters, etc.
-- **Job Configuration** - this provides the configuration information for an executed Job.
-- **Job Summary** - this provides a summary of an executed Job.
 
 starling_jobs
 #############
@@ -721,8 +754,6 @@ Schemas for HDFS
 
 Starling collects and processes the following logs related to HDFS on a source cluster:
 
-- **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary Name Node in less-recent versions of Hadoop). This is collected every month by default.
-- **Audit Logs** - these contain records of accesses and modifications to file-system objects.
 
 .. warning:: Unlike the data in other tables, the tables created from an FSImage (``fs_namespaces``, ``fs_entries``, and ``fs_blocks``) 
              represent a snapshot rather than incremental information for each period. You must 
@@ -1044,7 +1075,6 @@ Schemas for Simon
 
 Starling collects and processes the following logs related to Simon on a source cluster:
 
-- **Aggregator Dumps** - this provides periodic dumps of different metrics related to various sub-systems for a given cluster.
 
 
 starling_simon_reports
@@ -1116,649 +1146,3 @@ The ``simon_reports`` table has the following schema (apart from the partitionin
 .. note:: Simon aggregator dumps are processed on a "best-effort" basis due to the way the metrics are collected and the dumps captured and made available to Starling. It is quite possible therefore to see missing or duplicate metrics in this table. If you want a unique row for a given metric for a given time-stamp, you must put the appropriate DISTINCT clauses in your queries.
 
 .. note:: There are at least 15 different types of reports recorded: FSNamesystem status, by node name ,by process name,by session,hdfs throughput,individual datanode throughput,jobtracker,jobtracker totals,namenode operations,perCluster,perDisk ,perNode ,shuffle output by host ,tasktracker , and tasktracker totals. Be sure to select the right report type otherwise you'll aggregate apples with oranges. (See example below.)
-
-Schemas for GDM Configuration
------------------------------
-
-Grid Data Management (GDM) is a flexible, scalable platform for making large volume 
-of data available on the Grid. GDM is deployed as a managed service and is used 
-primarily by the Grid Ops team to schedule and manage the flow of data to and from 
-the Grid. The GDM configuration is segregated into data-set and data-source configuration.
-
-Starling collects the snapshot of the GDM configuration everyday to the warehouse 
-directory and processes them.
-
-starling_gdm_dataset
-####################
-
-**Source Log:** GDM data-set configuration
-
-The ``starling_gdm_dataset`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-  <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description/th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>description</code> </td>
-   <td> <code>string</code> </td>
-   <td> Description about the data set.</td>
-   </tr>
-   <tr>
-   <td> <code>catalog</code> </td>
-   <td> <code>string</code> </td>
-   <td> The catalog under which the data set falls (e.g., <code>YST-LOGS-NET</code>). </td>
-   </tr>
-   <tr>
-   <td> <code>active</code> </td>
-   <td> <code>string</code> </td>
-   <td> Specifies the activity status of the data set. Allowed values are <code>NEW,TRUE,FALSE</code> </td>
-   </tr>
-   <tr>
-   <td> <code>verification_instance</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>priority</code> </td>
-   <td> <code>string</code> </td>
-   <td> Priority of the taste. Allowed values are <code>HIGHEST,HIGH,NORMAL,LOW,LOWEST</code> </td>
-   </tr>
-   <tr>
-   <td> <code>contact_owner</code> </td>
-   <td> <code>string</code> </td>
-   <td> Contact information of the owner of the data set. (e.g., <code>dfsload@yahoo-inc.com</code> ) </td>
-   </tr>
-   <tr>
-   <td> <code>publisher</code> </td>
-   <td> <code>string</code> </td>
-   <td> Contact information of the publisher of the data set. (e.g., <code>grid-data-ops@yahoo-inc.com</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>consumer</code> </td>
-   <td> <code>string</code> </td>
-   <td> Contact information of the consumer of the data set. (e.g., <code>grid-data-ops@yahoo-inc.com</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>comments</code> </td>
-   <td> <code>string</code> </td>
-   <td> Comments about the data set. </td>
-   </tr>
-   <tr>
-   <td> <code>owner</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the user owning the data set. (e.g., <code>dfsload</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>groupname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the group owning the data set. (e.g., <code>users</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>permission</code> </td>
-   <td> <code>string</code> </td>
-   <td> The permissions set on the data set. (e.g., 755) </td>
-   </tr>
-   <tr>
-   <td> <code>frequency</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>disc_frequency</code> </td>
-   <td> <code>int</code> </td>
-   <td> Discovery frequency. (e.g., <code>7200</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>disc_interface</code> </td>
-   <td> <code>string</code> </td>
-   <td> Discovery Interface (e.g., <code>FDI</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>paths</code> </td>
-   <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> A map containing information about paths of various types( <code>data</code>, <code>schema</code>, <code>count</code>, <code>invalid</code> etc). </td>
-   </tr>
-   <tr>
-   <td> <code>params</code> </td>
-   <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> A parameters map containing key value pairs. </td>
-   </tr>
-   <tr>
-   <td> <code>part_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the partition. (e.g., <code>srcid</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>part_type</code> </td>
-   <td> <code>string</code> </td>
-   <td> The partition type. (e.g., <code>DSD</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>part_value</code> </td>
-   <td> <code>string</code> </td>
-   <td> Set of Partition values. </td>
-   </tr>
-   <tr>
-   <td> <code>target_type</code> </td>
-   <td> <code>string</code> </td>
-   <td> The type of the target. Allowed values are <code>SOURCE</code>, <code>TARGET</code>. </td>
-   </tr>
-   <tr>
-   <td> <code>target_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the target. </td>
-   </tr>
-   <tr>
-   <td> <code>latency</code> </td>
-   <td> <code>string</code> </td>
-   <td> Latency in minutes. </td>
-   </tr>
-   <tr>
-   <td> <code>retention</code> </td>
-   <td> <code>int</code> </td>
-   <td> Retention period in days. </td>
-   </tr>
-   <tr>
-   <td> <code>start_date</code> </td>
-   <td> <code>bigint</code> </td>
-   <td> Start date for copying the data into Target. This value is applied for only target_type=TARGET. </td>
-   </tr>
-   <tr>
-   <td> <code>end_date</code> </td>
-   <td> <code>bigint</code> </td>
-   <td> End date for copying the data into Target. This value is applied for only target_type=TARGET. </td>
-   </tr>
-   <tr>
-   <td> <code>target_status</code> </td>
-   <td> <code>string</code> </td>
-   <td> Status of the target. </td>
-   </tr>
-   <tr>
-   <td> <code>target_resources</code> </td>
-   <td> <code>map&lt;string, int&gt;</code> </td>
-   <td> A map containing the information of the target resources with the name of the resource as key and its capacity as the value. </td>
-   </tr>
-   <tr>
-   <td> <code>target_policies</code> </td>
-   <td> <code>map&lt;string, string&gt;</code> </td>
-   <td> A map containing the information of the target policies with the type of the policy as key and its condition as the value. </td>
-   </tr>
-   <tr>
-   <td> <code>replication_exclude_paths</code> </td>
-   <td> <code>array&lt;string&gt;</code> </td>
-   <td> The Path to be excluded during replication. </td>
-   </tr>
-   </tbody></table>
-
-
-.. note:: Be careful with your selects from this table. There are multiple entries for each data set. There will be an entry for each data source and one for each data set. Also, if there are duplicate sources inside each config, there will be duplicate entries in this table.
-
-.. note:: ``target_type`` is not really the type of target since it can be either source or 
-          target. This corresponds to the Sources or Targets tags inside a GDM data set configuration file.
-
-starling_gdm_data_definition
-############################
-
-Source Log: GDM data set configuration
-
-The ``starling_gdm_data_definition`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>static_schema_path</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>record_delimiter</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>field_delimiter</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>input_format</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>output_format</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>skip_comments</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>sort_key</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>partition_key</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>data_path_mask</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>add_fields</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>remove_fields</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>select_records</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-
-starling_gdm_data_validation
-############################
-
-Source Log: GDM data-set configuration
-
-The ``starling_gdm_data_validation`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-   <table cellspacing="0" id="table18" cellpadding="0" class="foswikiTable" rules="rows" border="1">
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> The name of the data set (e.g., <code>YST-LOGS-NET-llf531log4-DAILY</code>) </td>
-   </tr>
-   <tr>
-   <td> <code>type</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>on_failure</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>condition</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>threshold</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-starling_gdm_data_workflow_strategy
-###################################
-
-**Source Log:** GDM data-set configuration
-
-The ``starling_gdm_data_workflow_strategy`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-
-   <table cellspacing="0" id="table19" cellpadding="0" class="foswikiTable" rules="rows" border="1">
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>load_strategy</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>retry_count</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>skip_data_commit</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>skip_verify</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>parts_count</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>parts_per_partition</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-starling_gdm_data_flow
-######################
-
-**Source Log:** GDM data-set configuration
-
-The ``starling_gdm_data_flow`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-   <table cellspacing="0" id="table20" cellpadding="0" class="foswikiTable" rules="rows" border="1">
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>dsname</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>replicate_from_colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>replicate_to_colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-starling_gdm_datasource
-#######################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type/th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>type</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>version</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>working_dir</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>eviction_dir</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>active</code> </td>
-   <td> <code>boolean</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>bandwidth_per_connection</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>params</code> </td>
-   <td> <code>map</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-   
-
-
-
-starling_gdm_datasource_interfaces
-##################################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source_interfaces`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</a> </th>
-   <th>Type</th>
-   <th<Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>auth_schema</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>auth_params</code> </td>
-   <td> <code>map&lt;string,string&gt;</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>discovery_types</code> </td>
-   <td> <code>array&lt;string&gt;</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_type</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_version</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-   
-
-
-starling_gdm_datasource_interface_cmds
-######################################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source_interface_cmds`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-
-.. raw:: html
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>interface_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>cmd_base_url</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>cmd_args</code> </td>
-   <td> <code>array&lt;string&gt;</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>cmd</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-starling_gdm_datasource_resources
-#################################
-
-**Source Log:** GDM data-source configuration
-
-The ``starling_gdm_data_source_resources`` table has the following schema (apart from the partitioning keys ``console`` and ``dt``):
-
-.. raw:: html
-
-
-   <table>
-   <thead>
-   <tr>
-   <th>Column Name</th>
-   <th>Type</th>
-   <th>Description</th>
-   </tr>
-   </thead>
-   <tbody>
-   <tr>
-   <td> <code>data_src_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>resource_name</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>capacity</code> </td>
-   <td> <code>int</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   <tr>
-   <td> <code>applicable_colo</code> </td>
-   <td> <code>string</code> </td>
-   <td> &nbsp; </td>
-   </tr>
-   </tbody></table>
-
-
-Use of Data
-===========
-
