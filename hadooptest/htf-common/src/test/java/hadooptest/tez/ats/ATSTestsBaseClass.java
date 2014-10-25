@@ -1,6 +1,7 @@
 package hadooptest.tez.ats;
 
 import static com.jayway.restassured.RestAssured.given;
+
 import static com.jayway.restassured.config.HttpClientConfig.httpClientConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.apache.http.client.params.ClientPNames.COOKIE_POLICY;
@@ -9,6 +10,10 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.hadoop.HadoopComponent;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
+import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
@@ -19,6 +24,7 @@ import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 import hadooptest.tez.utils.*;
+import hadooptest.tez.utils.HtfPigBaseClass;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -121,6 +127,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 	@Before
 	public void cleanupAndPrepareForTestRun() throws Exception {
+		TestSession.logger.info("Running cleanupAndPrepareForTestRun");
 		// Fetch cookies
 		HTTPHandle httpHandle = new HTTPHandle();
 		String hitusr_1_cookie = null;
@@ -150,11 +157,15 @@ public class ATSTestsBaseClass extends TestSession {
 		errorCount.set(0);
 
 		drainQueues();
-		// launchJobsOnceToSeedData();
+		 launchJobsOnceToSeedData();
 	}
 
 	public void launchJobsOnceToSeedData() throws Exception {
+		TestSession.logger.info("I launchJobsOnceToSeedData");
 		if (!jobsLaunchedOnceToSeedData) {
+			groundWorkForPigScriptExecution();
+			runPigOnTezScriptOnCluster();
+			
 			launchOrderedWordCountExtendedForHtf(HadooptestConstants.UserNames.HITUSR_1);
 			String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
 					"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
@@ -166,6 +177,58 @@ public class ATSTestsBaseClass extends TestSession {
 			jobsLaunchedOnceToSeedData = true;
 		}
 	}
+
+	public void groundWorkForPigScriptExecution() throws Exception {
+		TestSession.logger.info("Doing groundWorkForPigScriptExecution");
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+
+		GenericCliResponseBO quickCheck = dfsCliCommands.test(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA, "",
+				System.getProperty("CLUSTER_NAME"),
+				"/home/y/share/htf-data/excite-small.log",
+				DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+
+		if (quickCheck.process.exitValue() != 0) {
+			dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA, "",
+					System.getProperty("CLUSTER_NAME"),
+					"/home/y/share/htf-data/");
+			dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA, "",
+					System.getProperty("CLUSTER_NAME"),
+					"/home/y/share/htf-data/excite-small.log",
+					"/home/y/share/htf-data/excite-small.log");
+		}
+		//Check if o/p dir exists
+		quickCheck = dfsCliCommands.test(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA, "",
+				System.getProperty("CLUSTER_NAME"), "/tmp/pigout/",
+				DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
+
+		// Delete the output dir
+		if (quickCheck.process.exitValue() != 0) {
+			GenericCliResponseBO dirCheck = dfsCliCommands.rmdir(
+					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA, "",
+					System.getProperty("CLUSTER_NAME"), "/tmp/pigout/");
+		}
+
+	}
+	public void runPigOnTezScriptOnCluster() throws Exception {
+		TestSession.logger.info("Running seed Pig script on cluster");
+		HadoopNode hadoopNode = TestSession.cluster
+				.getNode(HadooptestConstants.NodeTypes.NAMENODE);
+		String nameNode = hadoopNode.getHostname();
+		List<String>params = new ArrayList<String>();
+		params.add("outdir=/tmp/pigout/script2-mapreduce");
+		String scriptLocation = "/home/y/share/htf-data/script2-local.pig ";
+		HtfPigBaseClass htfPigBaseClass = new HtfPigBaseClass();
+		int returnCode = htfPigBaseClass.runPigScriptOnCluster(
+				params, scriptLocation);
+		Assert.assertTrue(returnCode == 0);
+	}
+
 
 	public void launchOrderedWordCountExtendedForHtf(String user)
 			throws IOException, InterruptedException {
@@ -635,36 +698,33 @@ public class ATSTestsBaseClass extends TestSession {
 		}
 
 		public void run() {
-				TestSession.logger
-						.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
-				TestSession.logger.info("Url:" + url);
-				TestSession.logger
-						.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
-				Response response = given().cookie(userCookies.get(user)).get(
-						url);
+			TestSession.logger
+					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+			TestSession.logger.info("Url:" + url);
+			TestSession.logger
+					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+			Response response = given().cookie(userCookies.get(user)).get(url);
 
-				String responseAsString = response.getBody().asString();
-				TestSession.logger.info("R E S P O N S E  B O D Y :"
-						+ responseAsString);
-				HtfATSUtils atsUtils = new HtfATSUtils();
-				
-				try {
+			String responseAsString = response.getBody().asString();
+			TestSession.logger.info("R E S P O N S E  B O D Y :"
+					+ responseAsString);
+			HtfATSUtils atsUtils = new HtfATSUtils();
 
-					atsUtils.processATSResponse(
-							responseAsString, entityType, expectedEntities, queue);
+			try {
 
-				} catch (ParseException e) {
-					TestSession.logger.error(e);
-					errorCount.incrementAndGet();
-				} catch (Exception e) {
-					for (StackTraceElement x:e.getStackTrace()){
-						TestSession.logger.error(x);
-					}
-					TestSession.logger.error(e);
-					errorCount.incrementAndGet();
+				atsUtils.processATSResponse(responseAsString, entityType,
+						expectedEntities, queue);
+
+			} catch (ParseException e) {
+				TestSession.logger.error(e);
+				errorCount.incrementAndGet();
+			} catch (Exception e) {
+				for (StackTraceElement x : e.getStackTrace()) {
+					TestSession.logger.error(x);
 				}
-
-
+				TestSession.logger.error(e);
+				errorCount.incrementAndGet();
+			}
 
 		}
 	}

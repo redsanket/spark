@@ -23,7 +23,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBaseClass {
+public class TestConcurrentRequestsForEntityTypeTezContainerId extends
+		ATSTestsBaseClass {
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7167877")
 	@Test
 	public void testExpectEverything() throws Exception {
 		HtfATSUtils atsUtils = new HtfATSUtils();
@@ -31,14 +33,15 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
+		int LOOP = 2;
+		for (int xx = 0; xx < LOOP; xx++) {
 
-		for (int xx = 0; xx <= 2; xx++) {
-
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_CONTAINER_ID;
 			String url = getATSUrl() + entityTypeInRequest;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, vertexIdQueue, expectEverythingMap());
+					entityTypeInRequest, containerIdQueue,
+					expectEverythingMap());
 
 		}
 		execService.shutdown();
@@ -46,7 +49,9 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnqueuedItems(vertexIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(containerIdQueue));
+		int failedJobCount = countNumberOfFailedJobs(HadooptestConstants.UserNames.HITUSR_1);
+		Assert.assertEquals(failedJobCount * LOOP, errorCount.get());
 	}
 
 	@Test
@@ -68,11 +73,12 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 
 		for (int xx = 0; xx < 200; xx++) {
 
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_CONTAINER_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, vertexIdQueue, expectedEntities);
+					entityTypeInRequest, containerIdQueue,
+					expectedEntities);
 
 		}
 		execService.shutdown();
@@ -80,48 +86,13 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnqueuedItems(vertexIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(containerIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
 	}
 
-	@Test
-	public void testExpectOnlyRelatedEntities() throws Exception {
-		ExecutorService execService = Executors.newFixedThreadPool(10);
-		if (!timelineserverStarted) {
-			// startTimelineServerOnRM(rmHostname);
-		}
-		String addendum = "?fields=relatedentities";
-		HtfATSUtils atsUtils = new HtfATSUtils();
-		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
-				ResponseComposition.EVENTS.NOT_EXPECTED,
-				ResponseComposition.ENTITYTYPE.EXPECTED,
-				ResponseComposition.ENTITY.EXPECTED,
-				ResponseComposition.STARTTIME.EXPECTED,
-				ResponseComposition.RELATEDENTITIES.EXPECTED,
-				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
-				ResponseComposition.OTHERINFO.NOT_EXPECTED);
-
-		for (int xx = 0; xx < 200; xx++) {
-
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
-			String url = getATSUrl() + entityTypeInRequest + addendum;
-			makeHttpCallAndEnqueueConsumedResponse(execService, url,
-					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, vertexIdQueue, expectedEntities);
-		}
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
-		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnqueuedItems(vertexIdQueue));
-
-		Assert.assertEquals(0, errorCount.get());
-
-	}
-
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7167877")
 	@Test
 	public void testExpectOnlyOtherInfo() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
@@ -141,11 +112,12 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 
 		for (int xx = 0; xx < 10; xx++) {
 
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_CONTAINER_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, vertexIdQueue, expectedEntities);
+					entityTypeInRequest, containerIdQueue,
+					expectedEntities);
 
 		}
 		execService.shutdown();
@@ -153,7 +125,7 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnqueuedItems(vertexIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(containerIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -178,11 +150,12 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 
 		for (int xx = 0; xx < 200; xx++) {
 
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_CONTAINER_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, vertexIdQueue, expectedEntities);
+					entityTypeInRequest, containerIdQueue,
+					expectedEntities);
 
 		}
 		execService.shutdown();
@@ -190,7 +163,7 @@ public class TestConcurrentRequestsForEntityTypeTezVertexId extends ATSTestsBase
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnqueuedItems(vertexIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(containerIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 

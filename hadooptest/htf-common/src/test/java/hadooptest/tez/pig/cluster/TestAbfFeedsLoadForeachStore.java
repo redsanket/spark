@@ -1,5 +1,8 @@
 package hadooptest.tez.pig.cluster;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -25,8 +28,13 @@ public class TestAbfFeedsLoadForeachStore extends HtfPigBaseClass {
 		HadoopNode hadoopNode = TestSession.cluster
 				.getNode(HadooptestConstants.NodeTypes.NAMENODE);
 		String nameNode = hadoopNode.getHostname();
-		int returnCode = runPigScriptOnCluster(SCRIPT_NAME,
-				HadooptestConstants.Schema.HDFS, nameNode);
+		List<String>params = new ArrayList<String>();
+		params.add("protocol=" + HadooptestConstants.Schema.HDFS.replace("://", ""));
+		params.add("namenode=" + nameNode);
+		String scriptLocation = TestSession.conf.getProperty("WORKSPACE")
+				+ WORKSPACE_SCRIPT_LOCATION + SCRIPT_NAME;
+		int returnCode = runPigScriptOnCluster(
+				params, scriptLocation);
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -36,8 +44,13 @@ public class TestAbfFeedsLoadForeachStore extends HtfPigBaseClass {
 		HadoopNode hadoopNode = TestSession.cluster
 				.getNode(HadooptestConstants.NodeTypes.NAMENODE);
 		String nameNode = hadoopNode.getHostname();
-		int returnCode = runPigScriptOnCluster(SCRIPT_NAME,
-				HadooptestConstants.Schema.WEBHDFS, nameNode);
+		List<String>params = new ArrayList<String>();
+		params.add("protocol=" + HadooptestConstants.Schema.WEBHDFS.replace("://", ""));
+		params.add("namenode=" + nameNode);
+		String scriptLocation = TestSession.conf.getProperty("WORKSPACE")
+				+ WORKSPACE_SCRIPT_LOCATION + SCRIPT_NAME;
+		int returnCode = runPigScriptOnCluster(
+				params, scriptLocation);
 		Assert.assertTrue(returnCode == 0);
 	}
 

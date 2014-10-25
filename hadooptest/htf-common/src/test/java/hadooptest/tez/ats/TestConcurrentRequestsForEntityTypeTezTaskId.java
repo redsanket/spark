@@ -46,7 +46,7 @@ public class TestConcurrentRequestsForEntityTypeTezTaskId extends ATSTestsBaseCl
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(taskIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(taskIdQueue));
 		Assert.assertEquals(0, errorCount.get());
 	}
 
@@ -81,7 +81,7 @@ public class TestConcurrentRequestsForEntityTypeTezTaskId extends ATSTestsBaseCl
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(taskIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(taskIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -117,7 +117,7 @@ public class TestConcurrentRequestsForEntityTypeTezTaskId extends ATSTestsBaseCl
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(taskIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(taskIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -154,7 +154,7 @@ public class TestConcurrentRequestsForEntityTypeTezTaskId extends ATSTestsBaseCl
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(taskIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(taskIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -191,7 +191,7 @@ public class TestConcurrentRequestsForEntityTypeTezTaskId extends ATSTestsBaseCl
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(taskIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(taskIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 

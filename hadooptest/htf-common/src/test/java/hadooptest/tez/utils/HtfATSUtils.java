@@ -564,7 +564,7 @@ public class HtfATSUtils {
 		return counterGroups;
 	}
 	
-	public boolean peekQAndCmpAgainstOtherEnquedItems(Queue<GenericATSResponseBO> queue) {
+	public boolean peekQAndCmpAgainstOtherEnqueuedItems(Queue<GenericATSResponseBO> queue) {
 		boolean verdict = true;
 		if (queue.size() == 0)
 			return true;

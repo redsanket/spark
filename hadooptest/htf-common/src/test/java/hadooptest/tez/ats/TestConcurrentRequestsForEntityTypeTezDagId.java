@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestConcurrentRequestsForEntityTypeDagId extends ATSTestsBaseClass {
+public class TestConcurrentRequestsForEntityTypeTezDagId extends ATSTestsBaseClass {
 	@Test
 	public void testExpectEverything() throws Exception {
 		HtfATSUtils atsUtils = new HtfATSUtils();
@@ -46,7 +46,7 @@ public class TestConcurrentRequestsForEntityTypeDagId extends ATSTestsBaseClass 
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(dagIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(dagIdQueue));
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class TestConcurrentRequestsForEntityTypeDagId extends ATSTestsBaseClass 
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(dagIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(dagIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -116,7 +116,7 @@ public class TestConcurrentRequestsForEntityTypeDagId extends ATSTestsBaseClass 
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(dagIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(dagIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -153,7 +153,7 @@ public class TestConcurrentRequestsForEntityTypeDagId extends ATSTestsBaseClass 
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(dagIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(dagIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -190,7 +190,7 @@ public class TestConcurrentRequestsForEntityTypeDagId extends ATSTestsBaseClass 
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(dagIdQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(dagIdQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 

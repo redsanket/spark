@@ -48,7 +48,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(applicationAttemptQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(applicationAttemptQueue));
 		int failedJobCount = countNumberOfFailedJobs(HadooptestConstants.UserNames.HITUSR_1);
 		Assert.assertEquals(failedJobCount * LOOP, errorCount.get());
 	}
@@ -85,7 +85,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(applicationAttemptQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(applicationAttemptQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -122,7 +122,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(applicationAttemptQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(applicationAttemptQueue));
 		int failedJobCount = countNumberOfFailedJobs(HadooptestConstants.UserNames.HITUSR_1);
 		Assert.assertEquals(failedJobCount * LOOP, errorCount.get());
 
@@ -160,7 +160,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(applicationAttemptQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(applicationAttemptQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 
@@ -198,7 +198,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(atsUtils
-				.peekQAndCmpAgainstOtherEnquedItems(applicationAttemptQueue));
+				.peekQAndCmpAgainstOtherEnqueuedItems(applicationAttemptQueue));
 
 		Assert.assertEquals(0, errorCount.get());
 

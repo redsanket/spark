@@ -169,8 +169,8 @@ public class HtfPigBaseClass extends TestSession {
 	 * @return
 	 * @throws Exception
 	 */
-	public int runPigScriptOnCluster(String scriptName, String protocol,
-			String namenode) throws Exception {
+	public int runPigScriptOnCluster(List<String> params,
+			String scriptWithLocation) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");
@@ -179,21 +179,10 @@ public class HtfPigBaseClass extends TestSession {
 		sb.append("-x tez");
 		sb.append(" ");
 
-		if (protocol.equals(HadooptestConstants.Schema.HDFS)) {
-			sb.append("-param protocol="
-					+ HadooptestConstants.Schema.HDFS.replace("://", ""));
-			sb.append(" ");
-		} else {
-			sb.append("-param protocol="
-					+ HadooptestConstants.Schema.WEBHDFS.replace("://", ""));
-			sb.append(" ");
+		for (String aParam:params){
+			sb.append(" -param " + aParam);
 		}
-
-		sb.append("-param namenode=" + namenode);
-		sb.append(" ");
-
-		sb.append("-f " + TestSession.conf.getProperty("WORKSPACE")
-				+ WORKSPACE_SCRIPT_LOCATION + scriptName);
+		sb.append(" -f " + scriptWithLocation);
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
