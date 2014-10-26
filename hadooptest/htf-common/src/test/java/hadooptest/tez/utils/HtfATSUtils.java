@@ -580,29 +580,29 @@ public class HtfATSUtils {
 		return verdict;
 	}
 	
-	public List<String> retrieveValuesFromFormattedResponse(GenericATSResponseBO dagIdResponse, 
+	public List<String> retrieveValuesFromFormattedResponse(GenericATSResponseBO genericATSResponseBO, 
 			Object field, String lookupKey, int indexPos){
 		List<String> retrievedStrings = new ArrayList<String>();
 		
 		if (field instanceof ResponseComposition.EVENTS){
 			//Ignore EVENTS for now
 		}else if(field instanceof ResponseComposition.ENTITYTYPE){
-			retrievedStrings.add(dagIdResponse.entities.get(indexPos).entityType);		
+			retrievedStrings.add(genericATSResponseBO.entities.get(indexPos).entityType);		
 			
 		}else if(field instanceof ResponseComposition.ENTITY){
-			retrievedStrings.add(dagIdResponse.entities.get(indexPos).entity);
+			retrievedStrings.add(genericATSResponseBO.entities.get(indexPos).entity);
 			
 		}else if(field instanceof ResponseComposition.STARTTIME){
-			retrievedStrings.add(dagIdResponse.entities.get(indexPos).starttime.toString());			
+			retrievedStrings.add(genericATSResponseBO.entities.get(indexPos).starttime.toString());			
 			
 		}else if(field instanceof ResponseComposition.RELATEDENTITIES){
 			List<String>tempList;
-			tempList = dagIdResponse.entities.get(indexPos).relatedentities.get(lookupKey);
+			tempList = genericATSResponseBO.entities.get(indexPos).relatedentities.get(lookupKey);
 			retrievedStrings.addAll(tempList);
 			
 		}else if(field instanceof ResponseComposition.PRIMARYFILTERS){
 			List<String>tempList;
-			tempList = dagIdResponse.entities.get(indexPos).primaryfilters.get(lookupKey);			
+			tempList = genericATSResponseBO.entities.get(indexPos).primaryfilters.get(lookupKey);			
 			retrievedStrings.addAll(tempList);
 		}	
 		

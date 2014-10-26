@@ -99,6 +99,11 @@ public class HadooptestConstants {
 			public static String DFSLOAD = "/homes/dfsload/dfsload.dev.headless.keytab";
 			public static String HDFSQA = "/homes/hdfsqa/etc/keytabs/hdfsqa.dev.headless.keytab";
 			public static String HADOOPQA1 = "/homes/hdfsqa/etc/keytabs/hadoopqa1.dev.headless.keytab";
+			public static String HITUSR_1 = "/homes/hitusr_1/hitusr_1.dev.headless.keytab";
+			public static String HITUSR_2 = "/homes/hitusr_1/hitusr_2.dev.headless.keytab";
+			public static String HITUSR_3 = "/homes/hitusr_1/hitusr_3.dev.headless.keytab";
+			public static String HITUSR_4 = "/homes/hitusr_1/hitusr_4.dev.headless.keytab";
+
 		}
 
 		public static class TestProperties {

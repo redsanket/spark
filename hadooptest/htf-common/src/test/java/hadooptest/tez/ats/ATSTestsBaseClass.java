@@ -1,7 +1,6 @@
 package hadooptest.tez.ats;
 
 import static com.jayway.restassured.RestAssured.given;
-
 import static com.jayway.restassured.config.HttpClientConfig.httpClientConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.apache.http.client.params.ClientPNames.COOKIE_POLICY;
@@ -24,7 +23,6 @@ import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 import hadooptest.tez.utils.*;
-import hadooptest.tez.utils.HtfPigBaseClass;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +31,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -73,9 +72,21 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
+/**
+ * This is how the users have been created on our grids
+ * <pre>
+ * 			hadoop hadoopqa	gdmdev	gdmqa
+ * hitusr_1	 X
+ * hitusr_2			X
+ * hitusr_3					X
+ * hitusr_4			X		X		X
+ * </pre>
+ */
+
 public class ATSTestsBaseClass extends TestSession {
+
 	public static boolean timelineserverStarted = false;
-	public static HashMap<String, String> userCookies = new HashMap<String, String>();
+	public static Map<String, String> userCookies = new HashMap<String, String>();
 	Queue<GenericATSResponseBO> dagIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	Queue<GenericATSResponseBO> containerIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	Queue<GenericATSResponseBO> applicationAttemptQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
@@ -86,7 +97,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 	public static Boolean jobsLaunchedOnceToSeedData = false;
 
-	public static SeedData sleepJobSleepData = null;
+	public static SeedData sleepJobSeedData = null;
 	public static SeedData simpleSessionExampleSeedData = null;
 	public static SeedData orderedWordCountSeedData = null;
 
@@ -137,19 +148,22 @@ public class ATSTestsBaseClass extends TestSession {
 
 		hitusr_1_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_1);
-		TestSession.logger.info("Got cookie:" + hitusr_1_cookie);
+		TestSession.logger.info("Got cookie hitusr_1:" + hitusr_1_cookie);
 		userCookies
 				.put(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_cookie);
 		hitusr_2_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_2);
+		TestSession.logger.info("Got cookie hitusr_2:" + hitusr_2_cookie);
 		userCookies
 				.put(HadooptestConstants.UserNames.HITUSR_2, hitusr_2_cookie);
 		hitusr_3_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_3);
+		TestSession.logger.info("Got cookie hitusr_3:" + hitusr_3_cookie);
 		userCookies
 				.put(HadooptestConstants.UserNames.HITUSR_3, hitusr_3_cookie);
 		hitusr_4_cookie = httpHandle
 				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_4);
+		TestSession.logger.info("Got cookie hitusr_4:" + hitusr_4_cookie);
 		userCookies
 				.put(HadooptestConstants.UserNames.HITUSR_4, hitusr_4_cookie);
 
@@ -157,15 +171,50 @@ public class ATSTestsBaseClass extends TestSession {
 		errorCount.set(0);
 
 		drainQueues();
-		 launchJobsOnceToSeedData();
+		launchJobsOnceToSeedData();
+
+		HadoopNode hadoopNode = TestSession.cluster
+				.getNode(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		String rmHost = hadoopNode.getHostname();
+		TestSession.logger.info("RESOURCE MANAGER HOST:::::::::::::::::::::"
+				+ rmHost);
+
+		// restartRMWithTheseArgs(rmHost, new ArrayList<String>());
+
+	}
+
+	public void restartRMWithTheseArgs(String rmHost, List<String> args)
+			throws Exception {
+		String command = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/sbin/yarn-daemon.sh stop resourcemanager";
+		doJavaSSHClientExec(
+				HadooptestConstants.UserNames.MAPREDQA,
+				rmHost,
+				command,
+				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+
+		StringBuilder sb = new StringBuilder();
+		for (String anArg : args) {
+			sb.append(" -D" + anArg + " ");
+		}
+		command = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/sbin/yarn-daemon.sh start resourcemanager"
+				+ sb.toString();
+		doJavaSSHClientExec(
+				HadooptestConstants.UserNames.MAPREDQA,
+				rmHost,
+				command,
+				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+
 	}
 
 	public void launchJobsOnceToSeedData() throws Exception {
 		TestSession.logger.info("I launchJobsOnceToSeedData");
 		if (!jobsLaunchedOnceToSeedData) {
 			groundWorkForPigScriptExecution();
-			runPigOnTezScriptOnCluster();
-			
+			// runPigOnTezScriptOnCluster();
+
 			launchOrderedWordCountExtendedForHtf(HadooptestConstants.UserNames.HITUSR_1);
 			String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
 					"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
@@ -200,7 +249,7 @@ public class ATSTestsBaseClass extends TestSession {
 					"/home/y/share/htf-data/excite-small.log",
 					"/home/y/share/htf-data/excite-small.log");
 		}
-		//Check if o/p dir exists
+		// Check if o/p dir exists
 		quickCheck = dfsCliCommands.test(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), "/tmp/pigout/",
@@ -215,20 +264,20 @@ public class ATSTestsBaseClass extends TestSession {
 		}
 
 	}
+
 	public void runPigOnTezScriptOnCluster() throws Exception {
 		TestSession.logger.info("Running seed Pig script on cluster");
 		HadoopNode hadoopNode = TestSession.cluster
 				.getNode(HadooptestConstants.NodeTypes.NAMENODE);
 		String nameNode = hadoopNode.getHostname();
-		List<String>params = new ArrayList<String>();
+		List<String> params = new ArrayList<String>();
 		params.add("outdir=/tmp/pigout/script2-mapreduce");
 		String scriptLocation = "/home/y/share/htf-data/script2-local.pig ";
 		HtfPigBaseClass htfPigBaseClass = new HtfPigBaseClass();
-		int returnCode = htfPigBaseClass.runPigScriptOnCluster(
-				params, scriptLocation);
+		int returnCode = htfPigBaseClass.runPigScriptOnCluster(params,
+				scriptLocation);
 		Assert.assertTrue(returnCode == 0);
 	}
-
 
 	public void launchOrderedWordCountExtendedForHtf(String user)
 			throws IOException, InterruptedException {
@@ -250,6 +299,10 @@ public class ATSTestsBaseClass extends TestSession {
 				new String[0]);
 		doAs.doAction();
 		simpleSessionExampleSeedData = doAs.getSeedDataForAppThatJustRan();
+		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(simpleSessionExampleSeedData.appStartedByUser);
+		populateAdditionalSeedData(processedDagIdResponses,
+				simpleSessionExampleSeedData);
+
 		simpleSessionExampleSeedData.dump();
 	}
 
@@ -259,8 +312,12 @@ public class ATSTestsBaseClass extends TestSession {
 		DoAs doAs = new DoAs(ugi, new MRRSleepJobExtendedForTezHTF(),
 				sleepJobArgs);
 		doAs.doAction();
-		sleepJobSleepData = doAs.getSeedDataForAppThatJustRan();
-		sleepJobSleepData.dump();
+		sleepJobSeedData = doAs.getSeedDataForAppThatJustRan();
+		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(sleepJobSeedData.appStartedByUser);
+		populateAdditionalSeedData(processedDagIdResponses,
+				sleepJobSeedData);
+
+		sleepJobSeedData.dump();
 	}
 
 	void populateAdditionalSeedData(GenericATSResponseBO dagIdResponse,
@@ -703,6 +760,8 @@ public class ATSTestsBaseClass extends TestSession {
 			TestSession.logger.info("Url:" + url);
 			TestSession.logger
 					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+			TestSession.logger.info(userCookies);
+			TestSession.logger.info("USer:" + user + " Cookie:" + userCookies.get(user));
 			Response response = given().cookie(userCookies.get(user)).get(url);
 
 			String responseAsString = response.getBody().asString();
@@ -733,6 +792,10 @@ public class ATSTestsBaseClass extends TestSession {
 			String url, String user, EntityTypes entityType,
 			Queue<GenericATSResponseBO> queue,
 			Map<String, Boolean> expectedEntities) throws InterruptedException {
+		/**
+		 * TODO: REMOVE THIS HITUSR_1 AND PASS THE user FROM ARG
+		 */
+		user = HadooptestConstants.UserNames.HITUSR_1;
 		RunnableHttpGetAndEnqueue runnableHttpGetAndEnqueue = new RunnableHttpGetAndEnqueue(
 				url, user, entityType, queue, expectedEntities);
 		execService.execute(runnableHttpGetAndEnqueue);
@@ -740,16 +803,21 @@ public class ATSTestsBaseClass extends TestSession {
 	}
 
 	UserGroupInformation getUgiForUser(String aUser) {
-
-		String keytabDir = HadooptestConstants.Location.Keytab.HDFSQA;
-		if (aUser.equals(HadooptestConstants.UserNames.HDFSQA)) {
-			keytabDir = HadooptestConstants.Location.Keytab.HDFSQA;
+		String keyTabLocation = null;
+		if (aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_1)){
+			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_1;
+		}else if(aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_2)){
+			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_2;
+		}else if(aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)){
+			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_3;
+		}else if(aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)){
+			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_4;
 		}
 		UserGroupInformation ugi;
 		try {
 
 			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(aUser,
-					keytabDir);
+					keyTabLocation);
 			TestSession.logger.info("UGI=" + ugi);
 			TestSession.logger.info("credentials:" + ugi.getCredentials());
 			TestSession.logger.info("group names" + ugi.getGroupNames());
@@ -787,6 +855,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 		public void doAction() throws AccessControlException, IOException,
 				InterruptedException {
+			TestSession.logger.info("In DoAs as user:" + ugi.getUserName() + " the same will be passed downstream");
 			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
 					ugi, jobObjectToRun, sleepJobArgs);
 			ugi.doAs(privilegedExceptionActor);
@@ -819,6 +888,7 @@ public class ATSTestsBaseClass extends TestSession {
 		}
 
 		public String run() throws Exception {
+			TestSession.logger.info("In PrivilegedExceptionActionImpl as user:" + ugi.getUserName() );
 			String returnString = null;
 			if (this.theJobToRun instanceof OrderedWordCountExtendedForHtf) {
 				TestHtfOrderedWordCount test = new TestHtfOrderedWordCount();
