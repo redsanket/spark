@@ -42,6 +42,7 @@
 		<spark.version>1.1.0.1</spark.version>
 		<spark.hadoop.version>2.5.0.1.1408041624</spark.hadoop.version>
 		<spark.version.full>1.1.0.1_2.5.0.1.1408041624_1409241409</spark.version.full>
+		<hbase.version>0.98.7.3.1410030038_h2</hbase.version>
 		<scala.version>2.10.3</scala.version>
 		<storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
 		<storm.version.community>0.9.2-incubating-security</storm.version.community>
@@ -367,6 +368,41 @@
 					<version>${spark.version.full}</version>
 					<scope>provided</scope>
 				</dependency>
+
+				<!-- HBase Client -->
+                <dependency>
+                  <groupId>org.apache.hbase</groupId>
+                  <artifactId>hbase-client</artifactId>
+                  <version>${hbase.version}</version>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+                <dependency>
+                  <groupId>org.apache.hbase</groupId>
+                  <artifactId>hbase-common</artifactId>
+                  <version>${hbase.version}</version>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+                <dependency>
+                  <groupId>org.apache.hbase</groupId>
+                  <artifactId>hbase-hadoop2-compat</artifactId>
+                  <version>${hbase.version}</version>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
 
 				<!-- STORM -->
 
@@ -979,6 +1015,60 @@
 					<systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
 				</dependency>
 
+                                <!-- HBase -->
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-client</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-client.jar</systemPath>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>cloudera-htrace-protocol</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/htrace-core-2.04.jar</systemPath>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-protocol</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-protocol.jar</systemPath>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-common</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-common.jar</systemPath>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-hadoop2-compat</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-hadoop2-compat.jar</systemPath>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
 			</dependencies>
 		</profile>
 
@@ -1280,6 +1370,60 @@
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-xml-${jetty.version}.jar</systemPath>
 				</dependency>
+                                <!-- HBase -->
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-client</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-client.jar</systemPath>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>cloudera-htrace-protocol</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/htrace-core-2.04.jar</systemPath>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-protocol</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-protocol.jar</systemPath>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-common</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-common.jar</systemPath>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+                <dependency>
+                  <groupId>system</groupId>
+                  <artifactId>hbase-hadoop2-compat</artifactId>
+                  <version>${hbase.version}</version>
+                  <scope>system</scope>
+                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-hadoop2-compat.jar</systemPath>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
 
 				<!-- SPARK -->
 

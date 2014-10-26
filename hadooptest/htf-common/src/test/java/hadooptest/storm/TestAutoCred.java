@@ -30,20 +30,6 @@ public class TestAutoCred extends TestSessionStorm {
         stop();
     }
 
-    public TopologySummary getTS(String name) throws Exception {
-        for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
-            if (name.equals(ts.get_name())) {
-                return ts;
-            }
-        }
-        throw new IllegalArgumentException("Topology "+name+" does not appear to be up yet");
-    }
- 
-    public int getUptime(String name) throws Exception {
-        return getTS(name).get_uptime_secs();
-    }
-
-
     @Test
     public void AutoCredTest() throws Exception{
         StormTopology topology = buildTopology();

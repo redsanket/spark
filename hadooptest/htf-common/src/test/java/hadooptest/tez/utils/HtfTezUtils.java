@@ -125,19 +125,13 @@ public class HtfTezUtils {
 			conf.setBoolean("yarn.timeline-service.enabled", true);
 		}
 
-		// Set the staging dir
-		String user = UserGroupInformation.getCurrentUser().getShortUserName();
-		// String stagingDirStr = "." + Path.SEPARATOR + "user"
-		// + Path.SEPARATOR + user + Path.SEPARATOR + ".staging"
-		// + Path.SEPARATOR + testName
-		// + Long.toString(System.currentTimeMillis());
-		FileSystem fs = FileSystem.get(conf);
+//		// Set the staging dir
+//		String user = UserGroupInformation.getCurrentUser().getShortUserName();
+//		FileSystem fs = FileSystem.get(conf);
+//		Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID()
+//				.toString());
+//		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
 
-		Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID()
-				.toString());
-		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
-
-		// conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
 
@@ -148,8 +142,11 @@ public class HtfTezUtils {
 		 */
 
 		conf.setInt(TezConfiguration.TEZ_SESSION_AM_DAG_SUBMIT_TIMEOUT_SECS, 30);
-		conf.set("tez.lib.uris","${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
-		 + "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"+ tezVersion + "/libexec/tez/lib");
+
+		conf.set("tez.lib.uris", "${fs.defaultFS}/sharelib/v1/tez/ytez-"
+				+ tezVersion
+				+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
+				+ tezVersion + "/libexec/tez/lib");
 
 		/**
 		 * The following hack is not needed since we set <property>
@@ -163,35 +160,36 @@ public class HtfTezUtils {
 		// and point the tez.lib.uris (in tez-site.xml) to the tarball"
 		// TODO: HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK ALERT HACK
 		// ALERT HACK ALERT
-		// conf.set(
-		// "tez.lib.uris",
-		// "${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
-		// + "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
-		// + tezVersion + "/libexec/tez/lib,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/common,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/common/lib,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/hdfs/,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/hdfs/lib,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/yarn,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/yarn/lib,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/mapreduce,"
-		// + "file:///home/gs/gridre/yroot."
-		// + System.getProperty("CLUSTER_NAME") + "/share/"
-		// + hadoopVersion + "/share/hadoop/mapreduce/lib");
+
+//		conf.set(
+//				"tez.lib.uris",
+//				"${fs.defaultFS}/sharelib/v1/tez/ytez-" + tezVersion
+//						+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
+//						+ tezVersion + "/libexec/tez/lib,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/common,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/common/lib,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/hdfs/,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/hdfs/lib,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/yarn,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/yarn/lib,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/mapreduce,"
+//						+ "file:///home/gs/gridre/yroot."
+//						+ System.getProperty("CLUSTER_NAME") + "/share/"
+//						+ hadoopVersion + "/share/hadoop/mapreduce/lib");
 
 		return new TezConfiguration(conf);
 	}

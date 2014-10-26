@@ -57,6 +57,8 @@ public class TestFilterLinesByWordOneToOne extends
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"), SOURCE_FILE, INPUT_FILE);
+		
+		dfsCliCommands.chmod(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, "", System.getProperty("CLUSTER_NAME"), INPUT_FILE, "777", Recursive.YES);
 
 	}
 

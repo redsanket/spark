@@ -51,6 +51,9 @@ public abstract class StormCluster {
     public abstract String DRPCExecute(String func, String args) throws TException, DRPCExecutionException, AuthorizationException;
     public abstract void setDrpcClientAuthAclForFunction(String function, String user) throws Exception;
     public abstract void setDrpcInvocationAuthAclForFunction(String function, String user) throws Exception; 
+    public abstract void setDrpcAclForFunction(String function, String user, String v1role) throws Exception;
+    public abstract void setDrpcAclForFunction(String function, String user) throws Exception;
+    public abstract void setDrpcAclForFunction(String function) throws Exception;
     public abstract ArrayList<String> lookupRole(StormDaemon roleName) throws Exception; 
     
     /**

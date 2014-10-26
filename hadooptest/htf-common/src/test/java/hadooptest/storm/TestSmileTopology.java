@@ -110,10 +110,8 @@ public class TestSmileTopology extends TestSessionStorm {
             rsVersion = getPackageVersion("ystorm_registry");
         }
         
-        cluster.setDrpcInvocationAuthAclForFunction("query", "hadoopqa");
-        cluster.setDrpcClientAuthAclForFunction("query", "hadoopqa");
-        cluster.setDrpcInvocationAuthAclForFunction("gradientquery", "hadoopqa");
-        cluster.setDrpcClientAuthAclForFunction("gradientquery", "hadoopqa"); 
+        cluster.setDrpcAclForFunction("query");
+        cluster.setDrpcAclForFunction("gradientquery");
         
         oldPassword = System.getProperty("org.eclipse.jetty.ssl.password");
         oldKeyPassword = System.getProperty("org.eclipse.jetty.ssl.keypassword");
@@ -167,19 +165,6 @@ public class TestSmileTopology extends TestSessionStorm {
         for (TopologySummary ts: mc.getClusterInfo().get_topologies()) {
             mc.killTopology(ts.get_name());
         }
-    }
-
-    public TopologySummary getTS(String name) throws Exception {
-        for (TopologySummary ts: cluster.getClusterInfo().get_topologies()) {
-            if (name.equals(ts.get_name())) {
-                return ts;
-            }
-        }
-        throw new IllegalArgumentException("Topology "+name+" does not appear to be up yet");
-    }
-
-    public int getUptime(String name) throws Exception {
-        return getTS(name).get_uptime_secs();
     }
 
     public TestSmileTopology(){
