@@ -72,16 +72,6 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
-/**
- * This is how the users have been created on our grids
- * <pre>
- * 			hadoop hadoopqa	gdmdev	gdmqa
- * hitusr_1	 X
- * hitusr_2			X
- * hitusr_3					X
- * hitusr_4			X		X		X
- * </pre>
- */
 
 public class ATSTestsBaseClass extends TestSession {
 
