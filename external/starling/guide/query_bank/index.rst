@@ -219,6 +219,86 @@ Sample Result
 
 TBD
 
+Advanced Example
+----------------
+
+Using Starling With MySQL
+#########################
+
+This example is from the Slingshot team who are using 
+Starling to get a list of jobs with both the expected
+and actual grid performance. The team can
+then compare to find those jobs that are
+considered resource bottlenecks. 
+
+Process for Collecting Starling Data
+************************************
+
+To get data from Starling to MySQL, the Slingshot
+team runs an Oozie job that runs a Pig script
+that dumps data from the
+``starling_job_summary`` table into HDFS.
+They then use the shell script ``grid_monitor_fetch.sh``
+to import the data into their MySQL database ``grid``.
+
+
+MySQL Database Structure
+************************
+
+The ``grid`` database has the following three tables:
+
+- ``job_expect`` - contains job lists and each job's expected performance.
+- ``job_summary`` - stores a dump of the Yahoo grid meta data.
+- ``job_actual`` - shows the actual resource usage and performance. 
+
+<<<< Question: I thought the tables were created w/ a pig script. Is it the case that ``job_summary`` is created w/ a Pig script, and the other tables are created from SQL queries? >>>>
+
+The ``job_actual`` table is created with the following query::
+
+   SELECT "2014-09-30", grid, queue, user, job_name, ROUND(SUM(GB_Hours)) as TOT_GB_Hours, count(*) as NUM_jobs,  ROUND (SUM(GB_Hours)/count(*), 0)  as AVG_GB_Hours_per_job
+   FROM (
+       SELECT grid, queue, user, job_name,(
+         map_slot_seconds * resources_per_map + reduce_slots_seconds * resources_per_reduce
+         ) / ( 1000 *3600 ) AS GB_Hours
+       FROM `starling_job_summary`
+       WHERE date = '2014-09-30'
+   ) t
+   group by grid, queue, user, job_name
+   order by TOT_GB_Hours desc;
+
+
+Metric for Comparing Performance
+********************************
+
+The metric that they use to measure the performance is
+called a *GB hour*. The GB hour represents the number
+of Gigabytes of memory allocation per hour for MapReduce
+jobs and is calculated from Starling
+data in the following way:
+
+#. look at map slot seconds and reduce slot seconds.
+#. convert to hours
+#. look at allocated memory for map and reduce for each job.
+#. (map_slot_sec/3600) * (map_mb/1000) = GB hour Map + GB hour Reduce 
+
+Example Query
+*************
+
+The Slingshot team can use the ``job_actual`` table to identify problematic jobs 
+and then drill down to get more information about a particular job
+with a query like the one below.
+
+::
+
+    SELECT grid, job_name, run_time, num_maps, num_reduces, (
+       map_slot_seconds * resources_per_map + reduce_slots_seconds * resources_per_reduce
+    ) / ( 1000 *3600 ) AS GB_Hours
+    FROM `starling_job_summary` 
+    WHERE job_name LIKE '%hattrick_gen_train_dataset.pig%'
+    AND date = '2014_09_27'
+    LIMIT 0 , 30
+
+
 
 Pig
 ===

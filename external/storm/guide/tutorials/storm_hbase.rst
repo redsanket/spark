@@ -10,8 +10,7 @@ Prerequisites
 
 You should have completed the following:
 
-- `Quick Start <../quickstart>`_
-- `On-Boarding for Storm <../onboarding>`_ and `On-Boarding for HBase <http://devel.corp.yahoo.com/hbase/guide/onboarding/>`_
+- `Counting Data Highway Events <dh_spout.html>`_
 
 
 Setting Up
