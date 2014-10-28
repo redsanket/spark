@@ -1147,6 +1147,30 @@ The ``simon_reports`` table has the following schema (apart from the partitionin
    </tbody></table>
 
 
-.. note:: Simon aggregator dumps are processed on a "best-effort" basis due to the way the metrics are collected and the dumps captured and made available to Starling. It is quite possible therefore to see missing or duplicate metrics in this table. If you want a unique row for a given metric for a given time-stamp, you must put the appropriate DISTINCT clauses in your queries.
+Notes
+*****
 
-.. note:: There are at least 15 different types of reports recorded: FSNamesystem status, by node name ,by process name,by session,hdfs throughput,individual datanode throughput,jobtracker,jobtracker totals,namenode operations,perCluster,perDisk ,perNode ,shuffle output by host ,tasktracker , and tasktracker totals. Be sure to select the right report type otherwise you'll aggregate apples with oranges. (See example below.)
+The Simon aggregator dumps are processed on a "best-effort" basis due to the way 
+the metrics are collected and the dumps captured and made available to Starling. 
+It is quite possible therefore to see missing or duplicate metrics in this table. 
+If you want a unique row for a given metric for a given time-stamp, you must put the 
+appropriate ``DISTINCT`` clauses in your queries.
+
+There are at least 15 different types of reports recorded: 
+
+- FSNamesystem status 
+- by node name 
+- by process name
+- by session
+- HDFS throughput
+- individual datanode throughput
+- JobTracker
+- JobTracker totals
+- NameNode operations
+- perCluster
+- perDisk 
+- perNode 
+- shuffle output by host 
+- tasktracker and tasktracker totals
+
+Be sure to select the right report type to avoid commingling disparate data.
