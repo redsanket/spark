@@ -1,5 +1,6 @@
 package hadooptest.storm;
 
+import hadooptest.Util;
 import backtype.storm.Config;
 import backtype.storm.blobstore.AtomicOutputStream;
 import backtype.storm.blobstore.ClientBlobStore;
@@ -8,6 +9,7 @@ import backtype.storm.generated.*;
 import backtype.storm.utils.Utils;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
+import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,11 +28,21 @@ import static org.junit.Assert.*;
 @Category(SerialTests.class)
 public class TestStormDistCacheApi extends TestSessionStorm {
 
+    @BeforeClass
+    public static void setup() throws Exception {
+        cluster.setDrpcAclForFunction("blobstore");
+    }
+
   @AfterClass
   public static void cleanup() throws Exception {
     stop();
   }
 
+    public void launchBlobStoreTopology(String key, String filename) throws Exception {
+        String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
+        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology", "blob", "-c", "topology.blobstore.map={\""+key+"\":\""+filename+"\"}" }, true);
+        assertTrue( "Could not launch topology", returnValue[0].equals("0") );
+    }
 
   @Test(timeout=600000)
   public void testDistCacheApi() throws Exception {
@@ -60,10 +72,39 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     String actualContent = getBlobContent(blobKey, clientBlobStore);
     assertEquals("Blob Content is not matching", blobContent, actualContent);
 
-    String modifiedBlobContent = "This is modified content";
-    updateBlobWithContent(blobKey, clientBlobStore, modifiedBlobContent);
-    String actualModfiedContent = getBlobContent(blobKey, clientBlobStore);
-    assertEquals("Updated Blob Content is not matching", modifiedBlobContent, actualModfiedContent);
+    try {
+        String theFile="myTestFile";
+        // Launch a topology that will read a local file we give it over drpc
+        launchBlobStoreTopology(blobKey, theFile);
+
+        // Wait for it to come up
+        Util.sleep(30);
+    
+        // Hit it with drpc function
+        String drpcResult = cluster.DRPCExecute( "blobstore", theFile );
+        logger.debug("drpc result = " + drpcResult);
+
+        // Make sure the value returned is correct.
+        assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals(blobContent));
+
+        String modifiedBlobContent = "This is modified content";
+        updateBlobWithContent(blobKey, clientBlobStore, modifiedBlobContent);
+        String actualModfiedContent = getBlobContent(blobKey, clientBlobStore);
+        assertEquals("Updated Blob Content is not matching", modifiedBlobContent, actualModfiedContent);
+
+        // Wait for content to get pushed
+        Util.sleep(30);
+
+        // Hit it with drpc function
+        drpcResult = cluster.DRPCExecute( "blobstore", theFile );
+        logger.debug("drpc result = " + drpcResult);
+
+        // Make sure the value returned is correct.
+        assertTrue("Did not get updated result back from blobstore topology", drpcResult.equals(modifiedBlobContent));
+    } finally {
+        cluster.killTopology("blob");
+    }
+
 
     String otherACLString = "o::r-a";
     AccessControl othersACL = Utils.parseAccessControl(otherACLString);
