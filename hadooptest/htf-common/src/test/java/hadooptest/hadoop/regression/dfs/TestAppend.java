@@ -25,6 +25,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options.CreateOpts;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DFSClient;
+import org.apache.hadoop.hdfs.client.HdfsDataInputStream;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -460,7 +461,7 @@ public class TestAppend {
 	}
 
 	public long getVisibleFileLength(FSDataInputStream in) throws IOException {
-		DFSClient.DFSDataInputStream din = (DFSClient.DFSDataInputStream) in;
+		HdfsDataInputStream din = (HdfsDataInputStream) in;
 		long len = din.getVisibleLength();
 		return len;
 	}
