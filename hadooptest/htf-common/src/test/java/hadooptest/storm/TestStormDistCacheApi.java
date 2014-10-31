@@ -58,11 +58,30 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     return new SettableBlobMeta(acls);
   }
 
-  @Test(timeout=600000)
-  public void testDistCacheIntegrationGoodAcls() throws Exception {
+  @Test(timeout=240000)
+  public void testDistCacheOtherAcl() throws Exception {
+    testDistCacheIntegration("o::rwa");
+  }
+
+  @Test(timeout=240000)
+  public void testDistCacheNoFqdnAcl() throws Exception {
+    testDistCacheIntegration("u:hadoopqa:rwa");
+  }
+
+  @Test(timeout=240000)
+  public void testDistCacheInvalidAcl() throws Exception {
+    Boolean didItFail = false;
+    try {
+        testDistCacheIntegration("u:bogus:rwa");
+    } catch (Exception e) {
+        didItFail = true;
+    }
+    assertTrue( "We launched topology when we should not have", didItFail );
+  }
+
+  public void testDistCacheIntegration(String blobACLs) throws Exception {
     UUID uuid = UUID.randomUUID();
     String blobKey = uuid.toString() + ".jar";
-    String blobACLs = "u:hadoopqa@DEV.YGRID.YAHOO.COM:rwa";
     String blobContent = "This is integration blob content";
     String fileName = "myFile";
 
@@ -74,6 +93,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
     try {
         // Launch a topology that will read a local file we give it over drpc
+        logger.debug("About to launch topology");
         launchBlobStoreTopology(blobKey, fileName);
 
         // Wait for it to come up
@@ -101,7 +121,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
         // Skipping until feature fix is ready.
         //assertTrue("Did not get updated result back from blobstore topology", drpcResult.equals(modifiedBlobContent));
     } finally {
-        cluster.killTopology("blob");
+	killAll();
         clientBlobStore.deleteBlob(blobKey);
     }
   }
@@ -156,6 +176,49 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     boolean deletedKeyFound = isBlobFound(blobKey, clientBlobStore);
     assertFalse("Deleted Blob is listed on the blobstore", deletedKeyFound);
 
+    // Add API test for principal to local
+    UUID uuid2 = UUID.randomUUID();
+    String blobKey2 = uuid2.toString() + ".jar";
+    String blobNoFqdnACLs = "u:hadoopqa:rwa";
+    SettableBlobMeta noFqdnBlobMeta = makeAclBlobMeta(blobNoFqdnACLs);
+    createBlobWithContent(blobKey2, blobContent, clientBlobStore, noFqdnBlobMeta);
+    
+    // Now read it back
+    actualContent = getBlobContent(blobKey2, clientBlobStore);
+    assertEquals("Blob Content with no fqdn is not matching", blobContent, actualContent);
+    
+    // Delete it
+    clientBlobStore.deleteBlob(blobKey2);
+
+    // Check for deletion
+    deletedKeyFound = isBlobFound(blobKey2, clientBlobStore);
+    assertFalse("Deleted Blob with local principal is listed on the blobstore", deletedKeyFound);
+
+    // Add API test for using other acl.  It should default to "o::r-a"
+    UUID uuid3 = UUID.randomUUID();
+    String blobKey3 = uuid3.toString() + ".jar";
+    String otherACLs = "o::rwa";
+    
+    // Other acl list
+    SettableBlobMeta otherBlobMeta = makeAclBlobMeta(otherACLs);
+    createBlobWithContent(blobKey3, blobContent, clientBlobStore, otherBlobMeta);
+    ReadableBlobMeta otherReadBlobMeta = clientBlobStore.getBlobMeta(blobKey3);
+    assertNotNull(otherReadBlobMeta);
+    AccessControl otherActualAcl = modifiedBlobMeta.get_settable().get_acl().get(1);
+    String otherActualAclString = Utils.toString(otherActualAcl);
+    logger.info("No acl string is " + otherActualAclString);
+    assertEquals("No Acl isnt as expected", otherActualAclString, otherACLs);
+
+    // Now read it back
+    actualContent = getBlobContent(blobKey3, clientBlobStore);
+    assertEquals("Blob Content with no acl is not matching", blobContent, actualContent);
+    
+    // Delete it
+    clientBlobStore.deleteBlob(blobKey3);
+
+    // Check for deletion
+    deletedKeyFound = isBlobFound(blobKey3, clientBlobStore);
+    assertFalse("Deleted Blob with local principal is listed on the blobstore", deletedKeyFound);
   }
 
   private boolean isBlobFound(String blobKey, ClientBlobStore clientBlobStore) {
@@ -189,6 +252,4 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     BufferedReader r = new BufferedReader(new InputStreamReader(blobInputStream));
     return r.readLine();
   }
-
-
 }
