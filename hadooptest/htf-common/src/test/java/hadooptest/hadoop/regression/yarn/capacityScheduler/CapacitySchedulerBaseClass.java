@@ -281,7 +281,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	void resetTheMaxQueueCapacity() throws IOException {
+	protected void resetTheMaxQueueCapacity() throws IOException {
 		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
 		for (JobQueueInfo aJobQueueInfo : jobClient.getQueues()) {
 			String valueToResetAsItTendsToPersistAcrossTests = "yarn.scheduler.capacity.root."
@@ -310,7 +310,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		}
 	}
 
-	LeafQueue getLeafSnapshotWithHighestMemUtil(String queue,
+	protected LeafQueue getLeafSnapshotWithHighestMemUtil(String queue,
 			RuntimeRESTStatsBO runtimeStatsBO) {
 		LeafQueue snapshotWithHighestMemUtil = null;
 		for (SchedulerRESTStatsSnapshot aSchedulerRESTStatsSnapshot : runtimeStatsBO.listOfRESTSnapshotsAcrossAllLeafQueues) {
@@ -336,7 +336,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	void printSelfCalculatedStats(
+	protected void printSelfCalculatedStats(
 			CalculatedCapacityLimitsBO calculatedCapacityBO) {
 		for (QueueCapacityDetail aCalculatedQueueDetail : calculatedCapacityBO.queueCapacityDetails) {
 			TestSession.logger.info("Q name****:" + aCalculatedQueueDetail.name
@@ -364,7 +364,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	void waitFor(int timeInMilliseconds) {
+	protected void waitFor(int timeInMilliseconds) {
 		try {
 			Thread.sleep(timeInMilliseconds);
 		} catch (InterruptedException e) {
@@ -499,7 +499,7 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 
 	}
 
-	void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
+	protected void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
 			throws Exception {
 		TestSession.logger
 				.info("Copying over canned cap sched file localted @:"

@@ -313,6 +313,10 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		baseConf.setBoolean("tez.use.cluster.hadoop-libs", true);
 		baseConf.set("mapreduce.job.acl-view-job", "*");
 		baseConf.set("mapreduce.framework.name", "yarn-tez");
+		baseConf.setBoolean("tez.am.speculation.enabled", true);
+		baseConf.setBoolean("tez.am.speculation.enabled.default", true);
+		baseConf.set("tez.am.legacy.speculative.slowtask.threshold", "1");
+		
 
 		/**
 		 * 	Int value. Time (in seconds) for which the Tez AM should wait for a

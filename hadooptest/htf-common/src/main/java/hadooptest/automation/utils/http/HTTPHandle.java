@@ -233,7 +233,7 @@ public class HTTPHandle {
 			}
 		}
 
-		logger.debug(new StringBuilder()
+		logger.info(new StringBuilder()
 				.append("Constructing final URL from 'base'> ")
 				.append(schemaAndHost).append(" and 'resource'>")
 				.append(resource).append(" and 'queryString'>")
@@ -242,6 +242,7 @@ public class HTTPHandle {
 		localStringBuilder.insert(0, new StringBuilder().append(schemaAndHost)
 				.append(resource).toString());
 		String str1 = localStringBuilder.toString();
+		logger.info(str1);
 		try {
 			localURL = new URL(str1);
 		} catch (MalformedURLException localMalformedURLException) {

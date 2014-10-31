@@ -173,6 +173,31 @@ public class ATSTestsBaseClass extends TestSession {
 
 	}
 
+	public void restartATSWithTheseArgs(String rmHost, List<String> args)
+			throws Exception {
+		String command = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/sbin/yarn-daemon.sh stop timelineserver";
+		doJavaSSHClientExec(
+				HadooptestConstants.UserNames.MAPREDQA,
+				rmHost,
+				command,
+				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+
+		StringBuilder sb = new StringBuilder();
+		for (String anArg : args) {
+			sb.append(" -D" + anArg + " ");
+		}
+		command = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/sbin/yarn-daemon.sh start timelineserver"
+				+ sb.toString();
+		doJavaSSHClientExec(
+				HadooptestConstants.UserNames.MAPREDQA,
+				rmHost,
+				command,
+				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+
+	}
 	public void restartRMWithTheseArgs(String rmHost, List<String> args)
 			throws Exception {
 		String command = "/home/gs/gridre/yroot."

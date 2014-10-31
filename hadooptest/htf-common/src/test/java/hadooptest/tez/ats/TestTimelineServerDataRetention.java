@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
-public class TestHistoryServerMaxAge extends ATSTestsBaseClass {
+public class TestTimelineServerDataRetention extends ATSTestsBaseClass {
 	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7184153")
 	@Test
 	public void testOrderedWordCount() throws Exception {

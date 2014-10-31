@@ -2,12 +2,16 @@ package hadooptest.hadoop.regression.yarn.capacityScheduler;
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.http.CustomNameValuePair;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
+import hadooptest.cluster.hadoop.HadoopComponent;
+import hadooptest.node.hadoop.HadoopNode;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import net.sf.json.JSONObject;
@@ -36,7 +40,6 @@ public class RuntimeRESTStatsBO {
 	}
 
 	class RESTStatCollector implements Runnable {
-		Properties crossClusterProperties;
 		String workingDir;
 		int periodicityInMilliseconds;
 
@@ -44,28 +47,16 @@ public class RuntimeRESTStatsBO {
 			this.periodicityInMilliseconds = periodicity;
 			workingDir = System
 					.getProperty(HadooptestConstants.Miscellaneous.USER_DIR);
-			crossClusterProperties = new Properties();
-			try {
-				//Conf folder hasn't been moved into htf-common, hence the '..'
-				crossClusterProperties.load(new FileInputStream(workingDir
-						+ "/conf/CrossCluster/Resource.properties"));
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
 
 		}
 
 		public void run() {
 			while (keepCollecting) {
-				String resourceManager = crossClusterProperties
-						.getProperty(System.getProperty("CLUSTER_NAME")
-								+ "."
-								+ HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-
+				String rmHost = "http://" + getRMForLocalCluster() + ":8088";
 				String resource = "/ws/v1/cluster/scheduler";
 				HTTPHandle httpHandle = new HTTPHandle();
-				HttpMethod getMethod = httpHandle.makeGET(resourceManager,
-						resource, null);
+				HttpMethod getMethod = httpHandle.makeGET(rmHost,
+						resource, new ArrayList<CustomNameValuePair>());
 				Response response = new Response(getMethod);
 
 				TestSession.logger.info(response.toString());
@@ -82,6 +73,24 @@ public class RuntimeRESTStatsBO {
 
 			}
 		}
+		 String getRMForLocalCluster() {
+			// This is the same cluster, no need to lookup the config file
+			String rmHostName = null;
+			HadoopComponent hadoopComp = TestSession.cluster.getComponents().get(
+					HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+			Hashtable<String, HadoopNode> nodesHash = hadoopComp.getNodes();
+			for (String key : nodesHash.keySet()) {
+				TestSession.logger.info("Key:" + key);
+				TestSession.logger.info("The associated RM host is:"
+						+ nodesHash.get(key).getHostname());
+				rmHostName = nodesHash.get(key).getHostname();
+				break;
+			}
+			return rmHostName;
+
+		}
+
 
 	}
 }
