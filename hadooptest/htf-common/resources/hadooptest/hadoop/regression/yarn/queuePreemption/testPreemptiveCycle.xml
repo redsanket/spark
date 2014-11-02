@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+
+<!-- 3 queues
+	A has nothing
+	B has 40 but is working over its capacity
+	C has 20 but is working over its capacity
+	Since A is unused, its resources would be shared between B and C
+ -->
+<configuration>
+  <property>
+    <name>yarn.resourcemanager.scheduler.monitor.enable</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.scheduler.monitor.policies</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.ProportionalCapacityPreemptionPolicy</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.monitor.capacity.preemption.monitoring_interval</name>
+    <value>3000</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.monitor.capacity.preemption.max_wait_before_kill</name>
+    <value>3000</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.monitor.capacity.preemption.total_preemption_per_round</name>
+    <value>20</value>
+  </property>
+  
+  <property>
+    <name>yarn.scheduler.minimum-allocation-mb</name>
+    <value>1024</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+    <value>0.1</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.maximum-applications</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.maximum-capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.queues</name>
+    <value>a,b,c</value>
+  </property>
+
+<!-- queue a -->
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.capacity</name>
+    <value>40</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.maximum-capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.user-limit-factor</name>
+    <value>5</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.a.minimum-user-limit-percent</name>
+    <value>25</value>
+  </property>
+
+<!-- queue b -->
+
+  <property>
+    <name>yarn.scheduler.capacity.root.b.capacity</name>
+    <value>40</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.b.maximum-capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.b.user-limit-factor</name>
+    <value>5</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.b.minimum-user-limit-percent</name>
+    <value>25</value>
+  </property>
+  
+  <!-- queue c -->
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.capacity</name>
+    <value>20</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.maximum-capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.user-limit-factor</name>
+    <value>5</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.c.minimum-user-limit-percent</name>
+    <value>25</value>
+  </property>
+  
+</configuration>
+

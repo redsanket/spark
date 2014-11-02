@@ -7,8 +7,11 @@ import hadooptest.hadoop.regression.yarn.capacityScheduler.CalculatedCapacityLim
 import hadooptest.hadoop.regression.yarn.capacityScheduler.CapacitySchedulerBaseClass;
 import hadooptest.hadoop.regression.yarn.capacityScheduler.RuntimeRESTStatsBO;
 import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.LeafQueue;
+import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.tez.ats.ATSTestsBaseClass.MyUserInfo;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,159 +28,217 @@ import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UserInfo;
+/**
+ * Documents referred
+ * http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html
+ * http://twiki.corp.yahoo.com/view/GridDocumentation/GridDocScheduler
+ * Unit Tests from:package org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.TestProportionalCapacityPreemptionPolicy
+ * 
+ * In these tests, I have not implemented automatic restarting of RMs. So you would be required to restart RMs
+ * after replacing the capacity-scheduler.xml file with the ones used in these tests.
+ * @author tiwari
+ *
+ */
 @Category(SerialTests.class)
 public class TestQueuePreemption extends CapacitySchedulerBaseClass {
+	
+	class Triple {
+		String userName;
+		String queueName;
+		String file;
+		Queue<Job> runningJobsInQ = new ConcurrentLinkedQueue<Job>();
+		ExecutorService execService = Executors.newFixedThreadPool(1);
+		List<RunnableWordCount> runnableJobs = new ArrayList<RunnableWordCount>();
+	}
 
-	// @Test
-	public void testQueuePreemption1() throws Exception {
-		Queue<Job> submittedJobsQueueA = new ConcurrentLinkedQueue<Job>();
-		Queue<Job> submittedJobsQueueB = new ConcurrentLinkedQueue<Job>();
+/**
+ * Works off of {@link testProportionalPreemption.xml} data file
+ *   //  /   A   B   C  D
+      { 100, 10, 40, 20, 30 },  // abs
+      { 100, 100, 100, 100, 100 },  // maxCap
+      { 100, 30, 60, 10,  0 },  // used
+      {  45, 20,  5, 20,  0 },  // pending
+      {   0,  0,  0,  0,  0 },  // reserved
+      {   3,  1,  1,  1,  0 },  // apps
+      {  -1,  1,  1,  1,  1 },  // req granularity
+      {   4,  0,  0,  0,  0 },  // subqueues
 
-		// copyResMgrConfigAndRestartNodes(TestSession.conf
-		// .getProperty("WORKSPACE")
-		// + "/htf-common/resources/hadooptest"
-		// + "/hadoop/regression/yarn/capacityScheduler"
-		// + "/queuePreemptionCapacitySchedulerLimits.xml");
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-		resetTheMaxQueueCapacity();
-		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
-		printSelfCalculatedStats(calculatedCapacityBO);
-		List<RunnableWordCount> runnableWordCountsA = new ArrayList<RunnableWordCount>();
-		List<RunnableWordCount> runnableWordCountsB = new ArrayList<RunnableWordCount>();
-		String[] users = new String[] { HadooptestConstants.UserNames.HITUSR_1
-		// ,HadooptestConstants.UserNames.HITUSR_2,
-		// HadooptestConstants.UserNames.HITUSR_3,HadooptestConstants.UserNames.HITUSR_4
-		};
+ * Since 'c' is under-utilized, none of the other queues
+ * like 'a' and 'b', despte consuming over their capacity should 
+ * not contribute to it.
+ * @throws Exception
+ */
+	 @Test
+	public void testProportionalPreemption() throws Exception {
+		List<Triple> triples = new ArrayList<Triple>();
+		Triple a = new Triple();
+		a.userName = HadooptestConstants.UserNames.HITUSR_1;
+		a.queueName = "a";
+		a.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a);
 
-		for (String aUser : users) {
-			TestSession.logger.info("Adding job to run for user:" + aUser);
-			RunnableWordCount aWordCountToRun = new RunnableWordCount(aUser,
-					"a", submittedJobsQueueA, "/tmp/bigfile4.txt");
-			runnableWordCountsA.add(aWordCountToRun);
-		}
+		Triple b = new Triple();
+		b.userName = HadooptestConstants.UserNames.HITUSR_2;
+		b.queueName = "b";
+		b.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(b);
 
-		ExecutorService execServiceA = submitWordCount(runnableWordCountsA);
-		TestSession.logger.info("after submitWordCount A");
-		Thread.sleep(60000);
-		for (String aUser : users) {
-			TestSession.logger.info("Adding 2nd job to run for user:" + aUser);
-			RunnableWordCount aWordCountToRun = new RunnableWordCount(aUser,
-					"b", submittedJobsQueueB, "/tmp/bigfile4.txt");
-			runnableWordCountsB.add(aWordCountToRun);
-		}
-		ExecutorService execServiceB = submitWordCount(runnableWordCountsB);
-		Thread.sleep(60000);
+		Triple c = new Triple();
+		c.userName = HadooptestConstants.UserNames.HITUSR_3;
+		c.queueName = "c";
+		c.file = "/tmp/smallFileForQPreemptionTest.txt";
+		triples.add(c);
 
-		TestSession.logger.info("after submitWordCount B");
-		TestSession.logger.info("submittedJobsQueueA size:"
-				+ submittedJobsQueueA.size());
-		TestSession.logger.info("submittedJobsQueueB size:"
-				+ submittedJobsQueueB.size());
-		Job aJobThatRan = submittedJobsQueueA.poll();
-		TestSession.logger.info("jobId:" + aJobThatRan.getJobID());
-		TestSession.logger.info("jobName:" + aJobThatRan.getJobName());
-		TaskReport[] mapTaskReports = aJobThatRan.getTaskReports(TaskType.MAP);
+		consumeTriples(triples);
+	}
 
-		int numMapTasks = aJobThatRan.getTaskReports(TaskType.MAP).length;
+	/**
+	 * Works off of {@link textMaxCap.xml} data file
+	 * 
+	 * Expected result: Queue 'a' should hog all the cluster resources
+	 * leaving 'b' just enough resources to function its max cap of 40.
+	 *         //  /   A   B   C
+        { 100, 40, 40, 20 },  // abs
+        { 100, 100, 45, 100 },  // maxCap
+        { 100, 55, 45,  0 },  // used
+        {  20, 10, 10,  0 },  // pending
+        {   0,  0,  0,  0 },  // reserved
+        {   2,  1,  1,  0 },  // apps
+        {  -1,  1,  1,  0 },  // req granularity
+        {   3,  0,  0,  0 },  // subqueues
 
-		RuntimeRESTStatsBO runtimeRESTStatsBO = startCollectingRestStats(2 * 1000);
-		waitFor(10 * 1000);
-		stopCollectingRuntimeStatsAcrossQueues(runtimeRESTStatsBO);
-		LeafQueue leafQueueSnapshotWithHighestMemUtil = getLeafSnapshotWithHighestMemUtil(
-				"a", runtimeRESTStatsBO);
-		TestSession.logger.info("Abs capacity:"
-				+ leafQueueSnapshotWithHighestMemUtil.absoluteCapacity);
-		TestSession.logger.info("Abs absoluteMaxCapacity:"
-				+ leafQueueSnapshotWithHighestMemUtil.absoluteMaxCapacity);
-		TestSession.logger.info("Abs absoluteUsedCapacity:"
-				+ leafQueueSnapshotWithHighestMemUtil.absoluteUsedCapacity);
-		TestSession.logger.info("Capacity:"
-				+ leafQueueSnapshotWithHighestMemUtil.capacity);
-		TestSession.logger.info("Max capacity:"
-				+ leafQueueSnapshotWithHighestMemUtil.maxCapacity);
-		TestSession.logger.info("QueueName:"
-				+ leafQueueSnapshotWithHighestMemUtil.queueName);
-		TestSession.logger.info("Used capacity:"
-				+ leafQueueSnapshotWithHighestMemUtil.usedCapacity);
+	 */
+//	 @Test
+	public void testMaxCap() throws Exception {
+			List<Triple> triples = new ArrayList<Triple>();
+			Triple a = new Triple();
+			a.userName = HadooptestConstants.UserNames.HITUSR_1;
+			a.queueName = "a";
+			a.file = "/tmp/bigFileForQPreemptionTest.txt";
+			triples.add(a);
 
-		// if (leafQueueSnapshotWithHighestMemUtil.usedCapacity > 100) {
-		// int overagePercent = (int)
-		// (leafQueueSnapshotWithHighestMemUtil.usedCapacity - 100);
-		// int countOfTasksToKill = (overagePercent * numMapTasks) / 100;
-		// for (int xx = 0; countOfTasksToKill > 0; countOfTasksToKill--, xx++)
-		// {
-		//
-		// for (TaskAttemptID aTaskAttemptId : mapTaskReports[xx]
-		// .getRunningTaskAttemptIds()) {
-		// aJobThatRan.killTask(aTaskAttemptId);
-		// TestSession.logger
-		// .info("Killed map task:" + aTaskAttemptId);
-		// }
-		//
-		// }
-		// }
+			Triple b = new Triple();
+			b.userName = HadooptestConstants.UserNames.HITUSR_2;
+			b.queueName = "b";
+			b.file = "/tmp/bigFileForQPreemptionTest.txt";
+			triples.add(b);
 
-		while (!execServiceA.isTerminated() && !execServiceB.isTerminated()) {
-			Thread.sleep(1000);
-		}
+			consumeTriples(triples);
+	}
 
+	/**
+	 * Works off of {@link testPreemptiveCycle.xml} data file
+	 * 
+	 * Expected result: Resources from queue 'a' get consumed
+	 * by other queues 'b' and 'c'. They would each work > 100%
+	 * of their capacities.
+	 *       //  /   A   B   C
+      { 100, 40, 40, 20 },  // abs
+      { 100, 100, 100, 100 },  // maxCap
+      { 100,  0, 60, 40 },  // used
+      {  10, 10,  0,  0 },  // pending
+      {   0,  0,  0,  0 },  // reserved
+      {   3,  1,  1,  1 },  // apps
+      {  -1,  1,  1,  1 },  // req granularity
+      {   3,  0,  0,  0 },  // subqueues
+
+	 */
+//	 @Test
+	public void testPreemptiveCycle() throws Exception {
+		List<Triple> triples = new ArrayList<Triple>();
+		Triple b = new Triple();
+		b.userName = HadooptestConstants.UserNames.HITUSR_1;
+		b.queueName = "b";
+		b.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(b);
+
+		Triple c = new Triple();
+		c.userName = HadooptestConstants.UserNames.HITUSR_2;
+		c.queueName = "c";
+		c.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(c);
+
+		consumeTriples(triples);
+	}
+
+	/**
+	 * Works off of {@link testHierarchical.xml} data file
+	 *       //  /    A   B   C    D   E   F
+      { 200, 100, 50, 50, 100, 10, 90 },  // abs
+      { 200, 200, 200, 200, 200, 200, 200 },  // maxCap
+      { 200, 110, 60, 50,  90, 90,  0 },  // used
+      {  10,   0,  0,  0,  10,  0, 10 },  // pending
+      {   0,   0,  0,  0,   0,  0,  0 },  // reserved
+      {   4,   2,  1,  1,   2,  1,  1 },  // apps
+      {  -1,  -1,  1,  1,  -1,  1,  1 },  // req granularity
+      {   2,   2,  0,  0,   2,  0,  0 },  // subqueues
+
+	 */
+//	 @Test
+	public void testHierarchical() throws Exception {
+		 
+		List<Triple> triples = new ArrayList<Triple>();
+		Triple a1 = new Triple();
+		a1.userName = HadooptestConstants.UserNames.HITUSR_1;
+		a1.queueName = "a1";
+		a1.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a1);
+
+		Triple a2 = new Triple();
+		a2.userName = HadooptestConstants.UserNames.HITUSR_2;
+		a2.queueName = "a2";
+		a2.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a2);
+
+		Triple a3 = new Triple();
+		a3.userName = HadooptestConstants.UserNames.HITUSR_3;
+		a3.queueName = "b1";
+		a3.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a3);
+
+		consumeTriples(triples);
 	}
 
 	@Test
-	public void testQueuePreemption() throws Exception {
-		Queue<Job> submittedJobsQueueA = new ConcurrentLinkedQueue<Job>();
-		Queue<Job> submittedJobsQueueB = new ConcurrentLinkedQueue<Job>();
-		Queue<Job> submittedJobsQueueC = new ConcurrentLinkedQueue<Job>();
+	@Ignore("How can queue a1 have 0 abs capacity and still have 60% utilization")
+	public void testZeroGuar() {
 
-		// copyResMgrConfigAndRestartNodes(TestSession.conf
-		// .getProperty("WORKSPACE")
-		// + "/htf-common/resources/hadooptest"
-		// + "/hadoop/regression/yarn/capacityScheduler"
-		// + "/queuePreemptionCapacitySchedulerLimits.xml");
-		JobClient jobClient = new JobClient(TestSession.cluster.getConf());
-		resetTheMaxQueueCapacity();
-		CalculatedCapacityLimitsBO calculatedCapacityBO = selfCalculateCapacityLimits();
-		printSelfCalculatedStats(calculatedCapacityBO);
-		List<RunnableWordCount> runnableWordCountsA = new ArrayList<RunnableWordCount>();
-		List<RunnableWordCount> runnableWordCountsB = new ArrayList<RunnableWordCount>();
-		List<RunnableWordCount> runnableWordCountsC = new ArrayList<RunnableWordCount>();
-		
-		String user = HadooptestConstants.UserNames.HITUSR_1;
+	}
 
-		TestSession.logger.info("Adding 1st job to run for user:" + user);
-		RunnableWordCount aWordCountToRun = new RunnableWordCount(user, "a",
-				submittedJobsQueueA, "/tmp/bigfile4.txt");
-		runnableWordCountsA.add(aWordCountToRun);
-
-		ExecutorService execServiceA = submitWordCount(runnableWordCountsA);
-		TestSession.logger.info("after submitWordCount A");
-		Thread.sleep(60000);
-		
-		user = HadooptestConstants.UserNames.HITUSR_2;
-		TestSession.logger.info("Adding 2nd job to run for user:" + user);
-		aWordCountToRun = new RunnableWordCount(user, "b", submittedJobsQueueB,
-				"/tmp/smallFileForQPreemptionTest.txt");
-		runnableWordCountsB.add(aWordCountToRun);
-
-		ExecutorService execServiceB = submitWordCount(runnableWordCountsB);
-		Thread.sleep(60000);
-		
-		user = HadooptestConstants.UserNames.HITUSR_3;
-		TestSession.logger.info("Adding 3rd job to run for user:" + user);
-		aWordCountToRun = new RunnableWordCount(user, "c", submittedJobsQueueC,
-				"/tmp/bigfile4.txt");
-		runnableWordCountsC.add(aWordCountToRun);
-
-		ExecutorService execServiceC = submitWordCount(runnableWordCountsC);
-
-		while (!execServiceA.isTerminated() || !execServiceB.isTerminated() || !execServiceC.isTerminated()) {
-			Thread.sleep(1000);
+	private void consumeTriples(List<Triple> triples)
+			throws ClassNotFoundException, IOException, InterruptedException {
+		RunnableWordCount aWordCountToRun;
+		for (Triple aTriple : triples) {
+			TestSession.logger.info("Submitting triple for user:"
+					+ aTriple.userName + " file:" + aTriple.file + " on Q:"
+					+ aTriple.queueName);
+			aWordCountToRun = new RunnableWordCount(aTriple.userName,
+					aTriple.queueName, aTriple.runningJobsInQ, aTriple.file);
+			aTriple.runnableJobs.add(aWordCountToRun);
+			aTriple.execService = submitWordCount(aTriple.runnableJobs);
+			TestSession.logger.info("SubmittED triple for user:"
+					+ aTriple.userName + " file:" + aTriple.file + " on Q:"
+					+ aTriple.queueName);
+			Thread.sleep(60000);
+		}
+		for (Triple aTriple : triples) {
+			if (!aTriple.execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
 		}
 
 	}
+
 
 	public ExecutorService submitWordCount(List<RunnableWordCount> runMe)
 			throws ClassNotFoundException, IOException, InterruptedException {
@@ -315,6 +376,123 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 		}
 		TestSession.logger.info("Got UGI for user:" + ugi.getUserName());
 		return ugi;
+	}
+
+	public void restartRMWithTheseArgs(String rmHost, List<String> args)
+			throws Exception {
+		String command = "/home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/sbin/yarn-daemon.sh stop resourcemanager";
+		doJavaSSHClientExec(
+				HadooptestConstants.UserNames.MAPREDQA,
+				rmHost,
+				command,
+				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+
+		StringBuilder sb = new StringBuilder();
+		for (String anArg : args) {
+			sb.append(" -D" + anArg + " ");
+		}
+		command = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/sbin/yarn-daemon.sh start resourcemanager"
+				+ sb.toString();
+		doJavaSSHClientExec(
+				HadooptestConstants.UserNames.MAPREDQA,
+				rmHost,
+				command,
+				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+
+	}
+
+	public String doJavaSSHClientExec(String user, String host, String command,
+			String identityFile) {
+		JSch jsch = new JSch();
+		TestSession.logger.info("SSH Client is about to run command:" + command
+				+ " on host:" + host + "as user:" + user
+				+ " using identity file:" + identityFile);
+		Session session;
+		StringBuilder sb = new StringBuilder();
+		try {
+			session = jsch.getSession(user, host, 22);
+			jsch.addIdentity(identityFile);
+			UserInfo ui = new MyUserInfo();
+			session.setUserInfo(ui);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.connect();
+			Channel channel = session.openChannel("exec");
+			((ChannelExec) channel).setCommand(command);
+			channel.setInputStream(null);
+			((ChannelExec) channel).setErrStream(System.err);
+
+			InputStream in = channel.getInputStream();
+
+			channel.connect();
+
+			byte[] tmp = new byte[1024];
+			while (true) {
+				while (in.available() > 0) {
+					int i = in.read(tmp, 0, 1024);
+					if (i < 0)
+						break;
+					String outputFragment = new String(tmp, 0, i);
+					TestSession.logger.info(outputFragment);
+					sb.append(outputFragment);
+				}
+				if (channel.isClosed()) {
+					TestSession.logger.info("exit-status: "
+							+ channel.getExitStatus());
+					break;
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (Exception ee) {
+				}
+			}
+			channel.disconnect();
+			session.disconnect();
+
+		} catch (JSchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return sb.toString();
+	}
+
+	public class MyUserInfo implements UserInfo {
+
+		public String getPassphrase() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public String getPassword() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public boolean promptPassphrase(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean promptPassword(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean promptYesNo(String arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public void showMessage(String arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 
 	@AfterClass

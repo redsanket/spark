@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 
 <!-- 3 queues
-	Have A overshoot limits
-	Have B work within limits
-	Have C ask for capacity, watch A drain and not B
+	Has A overshoot limits
+	Has B work at exactly its max limit
+	Have C be empty
+	Nothing should drain, since B is already at max
  -->
 <configuration>
   <property>
@@ -57,7 +58,7 @@
     <value>a,b,c</value>
   </property>
 
-<!-- queue a -->
+<!-- queue A -->
 
   <property>
     <name>yarn.scheduler.capacity.root.a.capacity</name>
@@ -93,12 +94,12 @@
 
   <property>
     <name>yarn.scheduler.capacity.root.b.user-limit-factor</name>
-    <value>5</value>
+    <value>1</value>
   </property>
 
   <property>
     <name>yarn.scheduler.capacity.root.b.minimum-user-limit-percent</name>
-    <value>60</value>
+    <value>50</value>
   </property>
   
   <!-- queue c -->
@@ -115,12 +116,12 @@
 
   <property>
     <name>yarn.scheduler.capacity.root.c.user-limit-factor</name>
-    <value>1</value>
+    <value>5</value>
   </property>
 
   <property>
     <name>yarn.scheduler.capacity.root.c.minimum-user-limit-percent</name>
-    <value>40</value>
+    <value>10</value>
   </property>
   
 </configuration>

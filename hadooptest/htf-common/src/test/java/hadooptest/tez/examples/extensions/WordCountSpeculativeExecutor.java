@@ -114,10 +114,10 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 					word.set(itr.nextToken());
 					// Count 1 every time a word is observed. Word is the key a
 					// 1 is the value
-					System.out.println("Processing taskId " + myContext.getTaskIndex() +" now......");
+//					System.out.println("Processing taskId " + myContext.getTaskIndex() +" now......");
 					if (myContext.getTaskIndex() == 13) {						
 						if (myContext.getTaskAttemptNumber() == 0) {
-							System.out.println("Processing taskAttempt 0 now.......going slow");
+//							System.out.println("Processing taskAttempt 0 now.......going slow");
 							Thread.sleep(1000);
 							kvWriter.write(word, one);
 						} else {
@@ -182,6 +182,7 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		// MRInput to read text
 		// data from the given input path. The TextInputFormat is used to read
 		// the text data.
+		
 		DataSourceDescriptor dataSource = MRInput.createConfigBuilder(
 				new Configuration(tezConf), TextInputFormat.class, inputPath)
 				.build();
@@ -316,6 +317,7 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		baseConf.setBoolean("tez.am.speculation.enabled", true);
 		baseConf.setBoolean("tez.am.speculation.enabled.default", true);
 		baseConf.set("tez.am.legacy.speculative.slowtask.threshold", "1");
+		baseConf.set("tez.queue.name", "a");
 		
 
 		/**
@@ -325,10 +327,7 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		 */
 
 		baseConf.setInt(TezConfiguration.TEZ_SESSION_AM_DAG_SUBMIT_TIMEOUT_SECS, 30);
-		baseConf.set("tez.lib.uris", "${fs.defaultFS}/sharelib/v1/tez/ytez-"
-                + HtfTezUtils.getTezVersion()
-                + "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
-                + HtfTezUtils.getTezVersion() + "/libexec/tez/lib");		
+		baseConf.set("tez.lib.uris", "${fs.defaultFS}/sharelib/v1/tez/TezSpecExec,${fs.defaultFS}/sharelib/v1/tez/TezSpecExec/lib");		
 		
 		TezConfiguration tezConf;
 		tezConf = new TezConfiguration(baseConf);

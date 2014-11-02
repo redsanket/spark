@@ -48,7 +48,8 @@ public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
 
 	@Test
 	public void testOrderedWordCountWithPartitions() throws Exception {
-		boolean returnCode = run("/tmp/bigfile4.txt", "/tmp/specEx", TestSession.cluster.getConf(), 2,
+//		boolean returnCode = run("/tmp/bigFileForQPreemptionTest.txt", "/tmp/specEx", TestSession.cluster.getConf(), 2,
+		boolean returnCode = run("/tmp/teragen", "/tmp/specEx", TestSession.cluster.getConf(), 2,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
 				TimelineServer.DISABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == true);
