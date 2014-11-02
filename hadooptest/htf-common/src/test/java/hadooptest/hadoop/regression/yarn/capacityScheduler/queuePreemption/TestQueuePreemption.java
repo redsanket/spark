@@ -78,7 +78,7 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
  * not contribute to it.
  * @throws Exception
  */
-	 @Test
+//	 @Test
 	public void testProportionalPreemption() throws Exception {
 		List<Triple> triples = new ArrayList<Triple>();
 		Triple a = new Triple();
@@ -200,11 +200,98 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 		a2.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a2);
 
-		Triple a3 = new Triple();
-		a3.userName = HadooptestConstants.UserNames.HITUSR_3;
-		a3.queueName = "b1";
-		a3.file = "/tmp/bigFileForQPreemptionTest.txt";
-		triples.add(a3);
+		Triple b1 = new Triple();
+		b1.userName = HadooptestConstants.UserNames.HITUSR_3;
+		b1.queueName = "b1";
+		b1.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(b1);
+
+		consumeTriples(triples);
+	}
+	
+	/**
+	 * Works off of {@link testDisablePreemption.xml} data file
+		This is the same data file as testHierarchical.xml, but
+		queue a.a1 has its preemption disabled.
+	 */
+
+//	 @Test
+	public void testDisablePreemption() throws Exception {
+		 
+		List<Triple> triples = new ArrayList<Triple>();
+		Triple a1 = new Triple();
+		a1.userName = HadooptestConstants.UserNames.HITUSR_1;
+		a1.queueName = "a1";
+		a1.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a1);
+
+		Triple a2 = new Triple();
+		a2.userName = HadooptestConstants.UserNames.HITUSR_2;
+		a2.queueName = "a2";
+		a2.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a2);
+
+		Triple b1 = new Triple();
+		b1.userName = HadooptestConstants.UserNames.HITUSR_3;
+		b1.queueName = "b1";
+		b1.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(b1);
+
+		consumeTriples(triples);
+	}
+
+/**
+ *       /    A   B   C    D   E   F    G   H   I
+      { 400, 200, 60, 140, 100, 70, 30, 100, 20, 80  },  // abs
+      { 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, },  // maxCap
+      { 400, 210, 70,140, 100, 50, 50,  90, 90,  0  },  // used
+      {  10,   0,  0,  0,   0,  0,  0,   0,  0, 15  },  // pending
+      {   0,   0,  0,  0,   0,  0,  0,   0,  0,  0  },  // reserved
+      {   6,   2,  1,  1,   2,  1,  1,   2,  1,  1  },  // apps
+      {  -1,  -1,  1,  1,  -1,  1,  1,  -1,  1,  1  },  // req granularity
+      {   3,   2,  0,  0,   2,  0,  0,   2,  0,  0  },  // subqueues
+
+ * @throws Exception
+ */
+	 @Test
+	public void testHierarchicalLarge() throws Exception {
+		 
+		List<Triple> triples = new ArrayList<Triple>();
+		Triple a1 = new Triple();
+		a1.userName = HadooptestConstants.UserNames.HITUSR_1;
+		a1.queueName = "a1";
+		a1.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a1);
+
+		Triple a2 = new Triple();
+		a2.userName = HadooptestConstants.UserNames.HITUSR_1;
+		a2.queueName = "a2";
+		a2.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(a2);
+
+		Triple b1 = new Triple();
+		b1.userName = HadooptestConstants.UserNames.HITUSR_2;
+		b1.queueName = "b1";
+		b1.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(b1);
+
+		Triple b2 = new Triple();
+		b2.userName = HadooptestConstants.UserNames.HITUSR_2;
+		b2.queueName = "b2";
+		b2.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(b2);
+
+		Triple c1 = new Triple();
+		c1.userName = HadooptestConstants.UserNames.HITUSR_3;
+		c1.queueName = "c1";
+		c1.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(c1);
+
+		Triple c2 = new Triple();
+		c2.userName = HadooptestConstants.UserNames.HITUSR_3;
+		c2.queueName = "c2";
+		c2.file = "/tmp/bigFileForQPreemptionTest.txt";
+		triples.add(c2);
 
 		consumeTriples(triples);
 	}

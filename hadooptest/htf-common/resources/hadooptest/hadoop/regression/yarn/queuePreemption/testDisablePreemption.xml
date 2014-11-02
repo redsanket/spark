@@ -97,6 +97,10 @@
      <name>yarn.scheduler.capacity.root.a.a1.user-limit-factor</name>
      <value>5</value>
    </property>
+   <property>
+     <name>yarn.scheduler.capacity.root.a.a1.disable_preemption</name>
+     <value>true</value>
+   </property>
    
 <!-- queue a2 -->
    <property>
