@@ -120,6 +120,7 @@ public class WordCountForQueuePreemmption extends Configured {
 		FileInputFormat.setInputPaths(jobHandle, inputPath);
 		FileOutputFormat.setOutputPath(jobHandle, outputPath);
 		jobHandle.submit();		
+		jobHandle.waitForCompletion(true);
 		System.out.println("there... submitte job....now...");
 	}
 

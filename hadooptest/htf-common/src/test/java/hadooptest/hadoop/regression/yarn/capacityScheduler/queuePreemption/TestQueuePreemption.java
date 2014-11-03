@@ -3,12 +3,7 @@ package hadooptest.hadoop.regression.yarn.capacityScheduler.queuePreemption;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.hadoop.regression.yarn.capacityScheduler.CalculatedCapacityLimitsBO;
 import hadooptest.hadoop.regression.yarn.capacityScheduler.CapacitySchedulerBaseClass;
-import hadooptest.hadoop.regression.yarn.capacityScheduler.RuntimeRESTStatsBO;
-import hadooptest.hadoop.regression.yarn.capacityScheduler.SchedulerRESTStatsSnapshot.LeafQueue;
-import hadooptest.node.hadoop.HadoopNode;
-import hadooptest.tez.ats.ATSTestsBaseClass.MyUserInfo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,10 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.TaskReport;
-import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.AfterClass;
@@ -44,6 +36,12 @@ import com.jcraft.jsch.UserInfo;
  * http://twiki.corp.yahoo.com/view/GridDocumentation/GridDocScheduler
  * Unit Tests from:package org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.TestProportionalCapacityPreemptionPolicy
  * 
+ * Here is the size of files used
+ * /grid/0/tmp/ (hostname: opentezgw.ygridvm.corp.ne1.yahoo.com)
+ * -rw-r--r--  1 hadoopqa users  39136161420 Oct 29 19:49 bigFileForQPreemptionTest.txt
+ * -rw-r--r--  1 tiwari   users       132333 Oct 30 19:59 smallFileForQPreemptionTest.txt
+ * 
+ * Make sure to copy these files (or similar such files) on to HDFS /tmp/*
  * In these tests, I have not implemented automatic restarting of RMs. So you would be required to restart RMs
  * after replacing the capacity-scheduler.xml file with the ones used in these tests.
  * @author tiwari
@@ -52,7 +50,7 @@ import com.jcraft.jsch.UserInfo;
 @Category(SerialTests.class)
 public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 	
-	class Triple {
+	class JobDetails {
 		String userName;
 		String queueName;
 		String file;
@@ -80,20 +78,20 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
  */
 //	 @Test
 	public void testProportionalPreemption() throws Exception {
-		List<Triple> triples = new ArrayList<Triple>();
-		Triple a = new Triple();
+		List<JobDetails> triples = new ArrayList<JobDetails>();
+		JobDetails a = new JobDetails();
 		a.userName = HadooptestConstants.UserNames.HITUSR_1;
 		a.queueName = "a";
 		a.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a);
 
-		Triple b = new Triple();
+		JobDetails b = new JobDetails();
 		b.userName = HadooptestConstants.UserNames.HITUSR_2;
 		b.queueName = "b";
 		b.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(b);
 
-		Triple c = new Triple();
+		JobDetails c = new JobDetails();
 		c.userName = HadooptestConstants.UserNames.HITUSR_3;
 		c.queueName = "c";
 		c.file = "/tmp/smallFileForQPreemptionTest.txt";
@@ -120,14 +118,14 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 	 */
 //	 @Test
 	public void testMaxCap() throws Exception {
-			List<Triple> triples = new ArrayList<Triple>();
-			Triple a = new Triple();
+			List<JobDetails> triples = new ArrayList<JobDetails>();
+			JobDetails a = new JobDetails();
 			a.userName = HadooptestConstants.UserNames.HITUSR_1;
 			a.queueName = "a";
 			a.file = "/tmp/bigFileForQPreemptionTest.txt";
 			triples.add(a);
 
-			Triple b = new Triple();
+			JobDetails b = new JobDetails();
 			b.userName = HadooptestConstants.UserNames.HITUSR_2;
 			b.queueName = "b";
 			b.file = "/tmp/bigFileForQPreemptionTest.txt";
@@ -155,14 +153,14 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 	 */
 //	 @Test
 	public void testPreemptiveCycle() throws Exception {
-		List<Triple> triples = new ArrayList<Triple>();
-		Triple b = new Triple();
+		List<JobDetails> triples = new ArrayList<JobDetails>();
+		JobDetails b = new JobDetails();
 		b.userName = HadooptestConstants.UserNames.HITUSR_1;
 		b.queueName = "b";
 		b.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(b);
 
-		Triple c = new Triple();
+		JobDetails c = new JobDetails();
 		c.userName = HadooptestConstants.UserNames.HITUSR_2;
 		c.queueName = "c";
 		c.file = "/tmp/bigFileForQPreemptionTest.txt";
@@ -187,20 +185,20 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 //	 @Test
 	public void testHierarchical() throws Exception {
 		 
-		List<Triple> triples = new ArrayList<Triple>();
-		Triple a1 = new Triple();
+		List<JobDetails> triples = new ArrayList<JobDetails>();
+		JobDetails a1 = new JobDetails();
 		a1.userName = HadooptestConstants.UserNames.HITUSR_1;
 		a1.queueName = "a1";
 		a1.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a1);
 
-		Triple a2 = new Triple();
+		JobDetails a2 = new JobDetails();
 		a2.userName = HadooptestConstants.UserNames.HITUSR_2;
 		a2.queueName = "a2";
 		a2.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a2);
 
-		Triple b1 = new Triple();
+		JobDetails b1 = new JobDetails();
 		b1.userName = HadooptestConstants.UserNames.HITUSR_3;
 		b1.queueName = "b1";
 		b1.file = "/tmp/bigFileForQPreemptionTest.txt";
@@ -215,23 +213,23 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 		queue a.a1 has its preemption disabled.
 	 */
 
-//	 @Test
+	 @Test
 	public void testDisablePreemption() throws Exception {
 		 
-		List<Triple> triples = new ArrayList<Triple>();
-		Triple a1 = new Triple();
+		List<JobDetails> triples = new ArrayList<JobDetails>();
+		JobDetails a1 = new JobDetails();
 		a1.userName = HadooptestConstants.UserNames.HITUSR_1;
 		a1.queueName = "a1";
 		a1.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a1);
 
-		Triple a2 = new Triple();
+		JobDetails a2 = new JobDetails();
 		a2.userName = HadooptestConstants.UserNames.HITUSR_2;
 		a2.queueName = "a2";
 		a2.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a2);
 
-		Triple b1 = new Triple();
+		JobDetails b1 = new JobDetails();
 		b1.userName = HadooptestConstants.UserNames.HITUSR_3;
 		b1.queueName = "b1";
 		b1.file = "/tmp/bigFileForQPreemptionTest.txt";
@@ -253,41 +251,41 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 
  * @throws Exception
  */
-	 @Test
+//	 @Test
 	public void testHierarchicalLarge() throws Exception {
 		 
-		List<Triple> triples = new ArrayList<Triple>();
-		Triple a1 = new Triple();
+		List<JobDetails> triples = new ArrayList<JobDetails>();
+		JobDetails a1 = new JobDetails();
 		a1.userName = HadooptestConstants.UserNames.HITUSR_1;
 		a1.queueName = "a1";
 		a1.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a1);
 
-		Triple a2 = new Triple();
+		JobDetails a2 = new JobDetails();
 		a2.userName = HadooptestConstants.UserNames.HITUSR_1;
 		a2.queueName = "a2";
 		a2.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(a2);
 
-		Triple b1 = new Triple();
+		JobDetails b1 = new JobDetails();
 		b1.userName = HadooptestConstants.UserNames.HITUSR_2;
 		b1.queueName = "b1";
 		b1.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(b1);
 
-		Triple b2 = new Triple();
+		JobDetails b2 = new JobDetails();
 		b2.userName = HadooptestConstants.UserNames.HITUSR_2;
 		b2.queueName = "b2";
 		b2.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(b2);
 
-		Triple c1 = new Triple();
+		JobDetails c1 = new JobDetails();
 		c1.userName = HadooptestConstants.UserNames.HITUSR_3;
 		c1.queueName = "c1";
 		c1.file = "/tmp/bigFileForQPreemptionTest.txt";
 		triples.add(c1);
 
-		Triple c2 = new Triple();
+		JobDetails c2 = new JobDetails();
 		c2.userName = HadooptestConstants.UserNames.HITUSR_3;
 		c2.queueName = "c2";
 		c2.file = "/tmp/bigFileForQPreemptionTest.txt";
@@ -302,10 +300,10 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 
 	}
 
-	private void consumeTriples(List<Triple> triples)
+	private void consumeTriples(List<JobDetails> triples)
 			throws ClassNotFoundException, IOException, InterruptedException {
 		RunnableWordCount aWordCountToRun;
-		for (Triple aTriple : triples) {
+		for (JobDetails aTriple : triples) {
 			TestSession.logger.info("Submitting triple for user:"
 					+ aTriple.userName + " file:" + aTriple.file + " on Q:"
 					+ aTriple.queueName);
@@ -317,8 +315,9 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 					+ aTriple.userName + " file:" + aTriple.file + " on Q:"
 					+ aTriple.queueName);
 			Thread.sleep(60000);
+//			TestSession.logger.info("Peeked jobid:" + aTriple.runningJobsInQ.peek().getJobID() + " and job name:" +aTriple.runningJobsInQ.peek().getJobName()); 
 		}
-		for (Triple aTriple : triples) {
+		for (JobDetails aTriple : triples) {
 			if (!aTriple.execService.isTerminated()) {
 				Thread.sleep(1000);
 			}
@@ -403,22 +402,22 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 	private class PrivilegedExceptionActionImpl implements
 			PrivilegedExceptionAction<String> {
 		UserGroupInformation ugi;
-		String queueToSubmitJob;
-		Queue<Job> liveJobsQueue;
+		String rmQueueToSubmitJob;
+		Queue<Job> localQToTrackSubmittedJobs;
 		String inputFile;
 
 		PrivilegedExceptionActionImpl(UserGroupInformation ugi,
 				String queueToSubmitJob, Queue<Job> liveJobsQueue,
 				String inputFile) throws IOException {
 			this.ugi = ugi;
-			this.queueToSubmitJob = queueToSubmitJob;
-			this.liveJobsQueue = liveJobsQueue;
+			this.rmQueueToSubmitJob = queueToSubmitJob;
+			this.localQToTrackSubmittedJobs = liveJobsQueue;
 			this.inputFile = inputFile;
 		}
 
 		public String run() throws Exception {
 			WordCountForQueuePreemmption wordCountForQueuePreemption = new WordCountForQueuePreemmption(
-					queueToSubmitJob);
+					rmQueueToSubmitJob);
 			Configuration conf = new Configuration();
 			TestSession.logger
 					.info("In privilegedExceptionAction about to run wordCountForQueuePreemption now...");
@@ -429,9 +428,9 @@ public class TestQueuePreemption extends CapacitySchedulerBaseClass {
 			TestSession.logger.info("Got job handle:"
 					+ wordCountForQueuePreemption.jobHandle);
 			Job job = wordCountForQueuePreemption.jobHandle;
-			liveJobsQueue.add(job);
+			localQToTrackSubmittedJobs.add(job);
 			TestSession.logger.info("Added job to queue, size:"
-					+ liveJobsQueue.size());
+					+ localQToTrackSubmittedJobs.size());
 			return "";
 
 		}
