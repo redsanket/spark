@@ -32,6 +32,7 @@ The options
         [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark12                            ] : Install and setup a Spark environment on the gateway prior to running tests
+        [ -hadoop26                         ] : use Hadoop dependencies for Hadoop 2.6 and greater versions (Hadoop 2.5 dependencies are default)
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -a|--adm_box                      ] : The admin box to be used by the framework (adm103.blue.ygrid.yahoo.com is the default)
@@ -74,6 +75,7 @@ my $storm090 = 0;
 my $stormconf;
 my $spark = 0;
 my $tez = 0;
+my $hadoop26 = 0;
 my $pig = 0;
 my $spark12 = 0;
 my $workspace = "$Bin/..";
@@ -95,6 +97,7 @@ GetOptions(\%options,
     "java|j"             => sub { $use_mvn = 0 },
     "gdm"                => \$gdm,
     "tez"                => \$tez,
+    "hadoop26"           => \$hadoop26,
     "pig"                => \$pig,
     "spark"              => \$spark,
     "spark12"            => \$spark12,
@@ -209,7 +212,9 @@ elsif ($spark12) {
     $dependencies_opt .= " -Dspark.version=1.2.0.0 -Dspark.version.full=1.2.0.0_2.5.0.1.1408041624_1409171654 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 
-else {
+elsif ($hadoop26) {
+    $dependencies_opt .= " -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
+} else {
 
 	# When Hadoop is used, this profile must be called before profile-ci
 	# or any other profile.  If another profile is used first, the
