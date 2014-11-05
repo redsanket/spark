@@ -160,6 +160,8 @@ All Oozie Jobs
 
 ::
 
+    TBD
+
 Percentage of Jobs Initiated By Oozie Per Month 
 ###############################################
 
@@ -189,7 +191,7 @@ Number of Unique Oozie (Backyard ID / Headless) Users on Grid
 
 ::
 
-    
+    TBD    
 
 Number of Oozie Applications on the Grid 
 ########################################
@@ -205,6 +207,7 @@ Number of Oozie Applications on the Grid
 
 ::
 
+    TBD
 
 Total Number of Monthly Jobs From Oozie Within a Year
 -----------------------------------------------------
@@ -220,6 +223,8 @@ Hive Jobs Per Month
 **Example Output**
 
 ::
+
+    TBD
 
 Oozie Jobs Per Month
 ####################
@@ -243,6 +248,7 @@ Pig Jobs Per Month
 
 ::
 
+    TBD
 
 
 
@@ -304,7 +310,7 @@ Wait Times for Jobs in a Date Range
     1       4058
     1       7604
 
-Total HDFS Bytes Read (in GB) by Non#dfsload Jobs in a Date#Range
+Total HDFS Bytes Read (in GB) by Non-dfsload Jobs in a Date Range
 -----------------------------------------------------------------
 
 .. code-block:: sql
@@ -358,7 +364,9 @@ How much data is being read local to a rack (from a data node in the same rack) 
 
 **Example Output** 
 
-??
+::
+
+    TBD
 
 Instances Read on Dilithium Gold
 --------------------------------
@@ -533,35 +541,25 @@ Advanced Examples
 Calculating the Total Job Completion Time
 -----------------------------------------
 
-Target Audience
-###############
-
-- business owners of data pipelines
-- lead data SE
-- segment owners
-- capacity managers
-- program managers
-
-Problem
-#######
-
-The members of the target audience need different
-time frames for grid activity that may involve a complex
+Business owners of data pipelines, lead data SEs, segment owners,
+capacity managers, and program managers all require different
+completion times for grid activity that may involve a complex
 set of jobs, data pipeplines, segments, applications, and 
-products. For example, a business owner of a data pipeline
+products. A business owner of a data pipeline
 might need data move through a pipeline on the grid in
 under 3.5 hours, whereas, a lead data SE instead focuses
 on the total time needed to execute an application.
 
-The total job completion time might involve tracing a job
-belonging to a segment that is part of a larger pipeline.
-This pipeline might be part of an application that is, in turn,
+Calculating the total job completion time may be complex because
+it might involve tracing a job elonging to a segment that is part of a larger pipeline.
+This pipeline could be part of an application that is, in turn,
 part of a larger product. The L2 of the business unit will have
 a SLA and utilization metrics for this product along with others. 
 
-So, based on the simple figure below, how do you calculate the total actual 
-time to compare with your expected time? The answers is with **tags**, which we'll
-look at in the next section.
+Given an start and end time in the simple figure below, how would you calculate the total actual 
+time to compare with your expected time (SLA/required time)? 
+The answers is with **tags**, which we'll look at next before 
+showing how to use them.
 
 .. image:: images/data_pipeline.jpg
    :height: 160 px
@@ -571,8 +569,8 @@ look at in the next section.
    :align: left
 
 
-Solution
-######## 
+Tags
+#### 
 
 Starling allows you to set different tags for different types
 of information. Once tags have been set, YARN starts 
@@ -581,12 +579,9 @@ You can then then estimate the total time for SLAs,
 capacity consumption for any product, intitiative, or BU
 through the rolled-up tag values.
 
-Tags
-****
-
 .. csv-table:: Data Pipeline Modeling and Tag Values
    :header: "Tag Type", "Tag Name", "Hive Default", "Pig Default", "Oozie Default", MapReduce Default"
-   :widths: 30, 30, 30, 30, 30
+   :widths: 30, 30, 30, 30, 30, 30
 
    "Identifier", "``tagx_identifier_projectId``", "377", "378", "379", "380"
    "Identifier", "``tagx_identifier_pipelineName``", "Test Hive app","Test pig app","Test oozie app","Test MR app"
