@@ -74,6 +74,8 @@ then
 	done
     )  >> $pkg.yicf
 fi
+
+git update-index --assume-unchanged $pkg.yicf
 yinst_create -t release $pkg.yicf
 
 exit 0
