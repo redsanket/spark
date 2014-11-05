@@ -563,7 +563,7 @@ So, based on the simple figure below, how do you calculate the total actual
 time to compare with your expected time? The answers is with **tags**, which we'll
 look at in the next section.
 
-.. image:: images/data_pipline.jpg
+.. image:: images/data_pipeline.jpg
    :height: 160 px
    :width: 581 px
    :scale: 90%
