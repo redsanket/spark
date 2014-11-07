@@ -374,7 +374,7 @@ public class TestAppend {
 				in = mta.openInputStream(path);
 				mta.tsAfterOpen4Read = System.currentTimeMillis();
 
-				DFSClient.DFSDataInputStream dfsin = (DFSClient.DFSDataInputStream) in;
+				HdfsDataInputStream dfsin = (HdfsDataInputStream) in;
 				mta.visibleLenFromReadStream = dfsin.getVisibleLength();
 
 				long beginPosition;
@@ -1344,7 +1344,7 @@ public class TestAppend {
 					in = mfc.open(path);
 					tsAfterOpen4Read = System.currentTimeMillis();
 
-					DFSClient.DFSDataInputStream dfsin = (DFSClient.DFSDataInputStream) in;
+					HdfsDataInputStream dfsin = (HdfsDataInputStream) in;
 
 					knownVisibleLength = dfsin.getVisibleLength();
 
