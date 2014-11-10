@@ -69,6 +69,23 @@ public class HTTPHandle
 		return cookie;
 	}
 	
+	/**
+	 * Invoked when users want to set the base url explicitly. example in case of cross colo where 
+	 * the user want to switch between the current console url to the cross colo url.
+	 * @param currentConsoleURL  - current console url
+	 */
+	public void setBaseURL(String currentConsoleURL) {
+		this.baseURL = currentConsoleURL;
+		TestSession.logger.info("current baseURL = " + this.baseURL);
+	}
+	
+	/*
+	 * Get base url of the current console
+	 */
+	public String getBaseURL() {
+		return this.baseURL;
+	}
+	
 	public void logonToBouncer(String paramString1, String paramString2)
 	{
 		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();

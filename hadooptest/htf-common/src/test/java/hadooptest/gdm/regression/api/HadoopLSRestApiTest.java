@@ -1,7 +1,6 @@
 package hadooptest.gdm.regression.api;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
@@ -13,11 +12,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
-import com.jayway.restassured.path.json.JsonPath;
 
 import hadooptest.SerialTests;
 
@@ -43,81 +44,75 @@ public class HadoopLSRestApiTest extends TestSession {
 		String hostName = TestSession.conf.getProperty("GDM_CONSOLE_NAME") + ":" + Integer.parseInt(TestSession.conf.getProperty("GDM_CONSOLE_PORT"));
 		TestSession.logger.info("hostName = " + hostName);
 		HTTPHandle httpHandle = new HTTPHandle();
-		consoleHandle = new ConsoleHandle();
+		this.consoleHandle = new ConsoleHandle();
 		jsonUtil = new JSONUtil();
 		cookie = httpHandle.getBouncerCookie();
 		this.url = "http://" + hostName ;
 		TestSession.logger.info("url = " + url);
 		this.dataSet  =  getDataSet();
 		TestSession.logger.info("dataSet = " + this.dataSet);
-		//this.dataSource = getDataSource();
 		TestSession.logger.info("dataSource = " + this.dataSource);
 	}
 	
-	//@Test
+	@Test
 	public void testHadoopLSWithDataSourceAndPathWithJsonFormat() {
 		String testURL = url  + this.hadoopLSCommand + "?dataSource=" + this.dataSource + "&path=" +  this.dataPath + this.dataSet + "&format=json";
 		TestSession.logger.info("testurl = " + testURL ) ;
 		com.jayway.restassured.response.Response response = given().cookie(cookie).get(testURL);
-		JsonPath jsonPath = response.jsonPath();
-		List<String>paths = jsonPath.getList("Files.Path");
-		if (paths == null) {
-			fail("failed to get the response = " +  jsonUtil.formatString(response.prettyPrint()));
-		}
-		TestSession.logger.info("result = " + jsonUtil.formatString(response.prettyPrint()));
+		String responseString = response.getBody().asString();
+		TestSession.logger.info("Response  : " + responseString);
 		
-		// check for path , dataset and protocol as part of response Files.Path value
-		for (String path : paths) {
-			
-			// check for dataset is the part of the path
-			assertTrue("expected " + this.dataSet + " to be the part  "+ this.dataPath +" , but found " + path , path.contains(this.dataSet) == true);
-			
-			// check datapath is part of the response path value
-			assertTrue("expected " + this.dataPath +" to be the part " + path + " but found " + path, path.contains(this.dataPath) == true );
-			
-			// check for path protocol
-			assertTrue("Expected hdfs as the protocol, but got " + path + " protocol ", path.contains("hdfs") == true);
-		}
-
-		// check whether specified path is a directory, i,e dataset is always the directory in HDFS 
-		List<String> directories = jsonPath.getList("Files.Directory");
-		for (String directory : directories) {
-			assertTrue("Expected directory, but got " + directory , directory.equals("yes"));
-		}
+		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(responseString);
+		JSONArray filesJSONArray = jsonObject.getJSONArray("Files");
+		TestSession.logger.info("files - " + filesJSONArray);
 		
-		// check for directory permission
-		List<String> permission = response.jsonPath().getList("Files.Permission");
-		for (String per : permission) { 
-			assertTrue("Expected directory permission = rwxr-xr-x , but got " + per , per.equals("rwxr-xr-x"));
+		if ( filesJSONArray.size() > 0 ) {
+			
+			for (int i = 0 ; i <filesJSONArray.size() ; i++) {
+				JSONObject jsonObject1 = filesJSONArray.getJSONObject(i);
+				
+				String path = jsonObject1.getString("Path");
+				TestSession.logger.info(" Path = " + path);
+				
+				// check for dataset is the part of the path
+				assertTrue("expected " + this.dataSet + " to be the part  "+ this.dataPath +" , but found " + path , path.contains(this.dataSet) == true);
+				
+				// check for path protocol
+				assertTrue("Expected hdfs as the protocol, but got " + path + " protocol ", path.contains("hdfs") == true);
+			}
 		}
-		// Note : I am not going to test Group and Owner, since doAs feature may change there values
+		assertTrue("There is no data available for the given path = " + this.dataPath + this.dataSet  +  " on " +  this.dataSource  +  " grid" , filesJSONArray.toString().contains("[]") == true);
 	}
 	
 	/**
 	 * Test Scenario : Verify whether 
 	 */
-	@Test
+	//@Test
 	public void testHadoopLSWithWrongDataSource() {
 		String testURL = url  + this.hadoopLSCommand + "?dataSource=" + "UNKNOW_DATASOURCE" + "&path=" +  this.dataPath + this.dataSet + "&format=json";
 		TestSession.logger.info("testurl = " + testURL ) ;
 		com.jayway.restassured.response.Response response = given().cookie(cookie).get(testURL);
-		TestSession.logger.info("Response = " + response.prettyPrint());
-		JsonPath jsonPath = response.jsonPath();
 		
+		String responseString = response.getBody().asString();
+		TestSession.logger.info("Response : " + responseString);
+		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(responseString);
+		
+		JSONObject responseObject = jsonObject.getJSONObject("Response");
+ 		
 		// check for action name
-		List<String> actionName  =  jsonPath.getList("Response.ActionName");
-		assertTrue("Expected hadoopls, but got " + actionName.get(0) , actionName.equals("hadoopls"));
-		/*
-		String responseId = jsonPath.getString("Response.ResponseId");
+		String actionName = responseObject.getString("ActionName").trim();
+		assertTrue("Expected hadoopls, but got " + actionName , actionName.equals("hadoopls"));
+		
+		String responseId = responseObject.getString("ResponseId").trim();
 		assertTrue("Expected -2 , but got " + responseId , responseId.equals("-2"));
 		
-		String responseMessage = jsonPath.getString("Response.ResponseMessage");
-		assertTrue("Expeced DataSource UNKNOW_DATASOURCE does not exist , but got " + responseMessage , responseMessage.equals("DataSource UNKNOW_DATASOURCE does not exist"));		*/
+		String responseMessage = responseObject.getString("ResponseMessage").trim();
+		assertTrue("Expeced DataSource UNKNOW_DATASOURCE does not exist , but got " + responseMessage , responseMessage.contains("DataSource UNKNOW_DATASOURCE does not exist"));
 	}
 	
 	private String getDataSet() {
 		String dataSet = null;
-		datasetsResultList = consoleHandle.getDataSetListing(cookie , this.url + this.dataSetPath).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+		datasetsResultList = this.getDataSetListing(cookie , this.url + this.dataSetPath).getBody().jsonPath().getList("DatasetsResult.DatasetName");
 		if (datasetsResultList == null) {
 			fail("Failed to get the datasets");
 		} else {
@@ -128,7 +123,7 @@ public class HadoopLSRestApiTest extends TestSession {
 	
 	private String getDataSource() { 
 		String dataSource = null;
-		List<String>tempSource = Arrays.asList(consoleHandle.getDataSetListing(cookie , this.url + this.dataSourcePath).getBody().prettyPrint().replace("/", "").split("datasource"));
+		List<String>tempSource = Arrays.asList(this.getDataSetListing(cookie , this.url + this.dataSourcePath).getBody().prettyPrint().replace("/", "").split("datasource"));
 		if (tempSource == null) {
 			fail("Failed to get the data sources");
 		}
@@ -147,6 +142,11 @@ public class HadoopLSRestApiTest extends TestSession {
 		}
 		dataSource = dataSourceList.get(0);
 		return dataSource;
-	}	
+	}
+	
+	private com.jayway.restassured.response.Response getDataSetListing(String cookie , String url)  {
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url );
+		return response;
+	}
 	
 }
