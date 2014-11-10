@@ -52,7 +52,7 @@
 		<thread.count>8</thread.count>
 		<yinst.home>/home/y</yinst.home>
 		<home.gs>/home/gs</home.gs>
-		<tez.version>0.6.0-SNAPSHOT</tez.version>
+		<tez.version>0.5.2-SNAPSHOT</tez.version>
 	</properties>
 
 	<build>
@@ -183,12 +183,14 @@
 					<excludes>
 						<exclude>**/TestEndToEndCompression.java</exclude>
 					</excludes>
+					<!--
 					<properties>
 						<property>
 							<name>listener</name>
 							<value>hadooptest.monitoring.listeners.MonitoringListener</value>
 						</property>
 					</properties>
+					-->
 				</configuration>
 
 				<!-- Executions in the plugin specify the different test

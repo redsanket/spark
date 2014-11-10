@@ -61,7 +61,7 @@ public class HtfPigBaseClass extends TestSession {
 	public static String PIG_DATA_DIR_IN_HDFS = "/HTF/testdata/pig/";
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
-			+ "HTF/testdata/pig/";
+			+ "HTF/testdata/pig/ABF_Daily";
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public static HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	private static boolean dataVerifiedOnce = false;
