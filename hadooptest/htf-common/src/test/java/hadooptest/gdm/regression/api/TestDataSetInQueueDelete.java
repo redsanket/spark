@@ -51,7 +51,7 @@ public class TestDataSetInQueueDelete  extends TestSession {
 	}
 
 	@Test
-	public void testAbortDatasetFromQueu() {
+	public void testAbortDatasetFromQueue() {
 		// create a dataset.
 		createDataSet(this.dataSetName);
 
