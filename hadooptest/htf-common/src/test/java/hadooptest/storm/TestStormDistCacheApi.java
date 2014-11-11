@@ -132,7 +132,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
             assertTrue("Did not get expected failure", drpcResult.equals("Got IO exception"));
         } else {
             assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals(blobContent));
-            assertTrue("Did not get expected result back from permissions check", persmResult.equals("hadoopqa:rwxrwx---"));
+            assertTrue("Did not get expected result back from permissions check", permsResult.equals("hadoopqa:rwxrwx---"));
         }
 
         String modifiedBlobContent = "This is modified integration content";
