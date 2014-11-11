@@ -2,8 +2,10 @@ package hadooptest.cluster.gdm;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,17 +13,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import junit.framework.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.httpclient.HttpMethod;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.path.xml.XmlPath; 
+import com.jayway.restassured.path.xml.XmlPath;
 
 import hadooptest.Util;
 
@@ -35,6 +46,8 @@ public final class ConsoleHandle
 	private HTTPHandle httpHandle = new HTTPHandle();
 	private Response response;
 	private String consoleURL;
+	private String crossColoConsoleURL;
+	private String preserveConsoleURL;
 	private Configuration conf;
 	private String username;
 	private String passwd;
@@ -50,10 +63,13 @@ public final class ConsoleHandle
 	{
 		try
 		{
-			String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
+			String configPath = Util.getResourceFullPath(
+					"gdm/conf/config.xml");
 
 			this.conf = new XMLConfiguration(configPath);
 			this.consoleURL = this.conf.getString("hostconfig.console.base_url");
+			this.crossColoConsoleURL = this.conf.getString("hostconfig.console.crossColo_url");
+			TestSession.logger.info("crossColoConsoleURL  = " + this.crossColoConsoleURL);
 
 			TestSession.logger.debug("Found conf/config.xml configuration file.");
 			TestSession.logger.debug("Console Base URL: " + this.consoleURL);
@@ -83,6 +99,43 @@ public final class ConsoleHandle
 
 	public Configuration getConf (){
 		return conf;
+	}
+
+	public String getConsoleURL() {
+		return this.consoleURL;
+	}
+
+	/**
+	 * This method is very helpful when you want to work with two console
+	 * example : Cross colo testing, we have to create the dataset on the cross colo console and then back to the original console.
+	 * @param currentConsoleURL
+	 */
+	public void setCurrentConsoleURL(String currentConsoleURL) {
+		this.consoleURL = currentConsoleURL;
+		this.httpHandle.setBaseURL(currentConsoleURL);
+		TestSession.logger.info("INFO : Current console URL = " + this.consoleURL);
+	}
+
+	/**
+	 * Get the current console url
+	 * @return
+	 */
+	public String getCurrentConsoleURL() {
+		return this.consoleURL;
+	}
+
+	/*
+	 * Get the cross colo console url
+	 */
+	public String getCrossColoConsoleURL() {
+		return this.crossColoConsoleURL;
+	}
+
+	/*
+	 * This method will restore the original console url.
+	 */
+	public void restoreConsoleURL() {
+		this.consoleURL = this.preserveConsoleURL;
 	}
 
 	public Response activateDataSet(String dataSetName)
@@ -834,7 +887,7 @@ public final class ConsoleHandle
 	 * @param dataSetName
 	 * @return xml file as String
 	 */
-	public String getDataSetXml(String dataSetName){
+	public String getDataSetXml(String dataSetName) {
 		return this.getXml(this.consoleURL + "/console/query/config/dataset/"+dataSetName);
 	}
 
@@ -898,15 +951,15 @@ public final class ConsoleHandle
 	/**
 	 * Creates a dataSet config from an Xml source and submits it to the console
 	 *
-	 * @param dataSetName Desired name of dataSet
-	 * @param xmlFileContent Xml for dataSet
+	 * @param dataSetName    Desired name of dataSet
+	 * @param xmlFileContent   Xml for dataSet
 	 * @return console response from submitting dataSet
 	 */
 	public Response createDataSource(String oldDataSetName, String newDataSetName, String xmlFileContent) {
 		String resource = this.conf.getString("hostconfig.console.datasource.clone.resource");
 
 		xmlFileContent = xmlFileContent.replaceAll(oldDataSetName, newDataSetName);
-		TestSession.logger.info("xmlFileContent = "+xmlFileContent);
+		TestSession.logger.info("xmlFileContent  = "+xmlFileContent);
 
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
@@ -919,67 +972,17 @@ public final class ConsoleHandle
 		return this.response;
 	}
 
-	public com.jayway.restassured.response.Response getDataSetListing(String cookie , String url) {
-		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url );
-		return response;
-	}
-
-	/**
-	 * Get all target(s) which is having HCatSupported enabled tag
-	 * @return
-	 */
-	public List<String> getHCatEnabledDataSources(String cookie , String url) {
-		List<String> dataTargetList= new ArrayList<String>();
-		List<String> tempSource = Arrays.asList(given().cookie(cookie).get(url + "/console/query/config/datasource").getBody().prettyPrint().replace("/", "").split("datasource"));
-		TestSession.logger.info("tempSource = " + tempSource.toString());
-		for (String str : tempSource) {
-			TestSession.logger.info("str = " + str);
-			if (str.contains("target") ) {
-				TestSession.logger.info("target str = " + str);
-				String temp[] = str.split(",");
-				if (temp[0] != null && temp[0] != "" && !temp[0].contains("archival"))
-					if (isHCatEnabledForDataSource(cookie , url, temp[0].trim()))
-						dataTargetList.add(temp[0]);
-			}
-		}
-		TestSession.logger.info("targets = " +dataTargetList.toString());
-		if (dataTargetList.size() > 0) {
-			return dataTargetList;
-		}
-		else {
-			return null;
-		}
-	}
-
-	/**
-	 * Get HCatSupported tag value for a given datasource
-	 * @param dataSourceName - Name of the datasource
-	 * @return
-	 */
-	public boolean isHCatEnabledForDataSource(String cookie , String url, String dataSourceName){
-		// get xml representation string of datasource
-		String xml = given().cookie(cookie).get(url + "/console/query/config/datasource/"+dataSourceName).andReturn().asString();
-		XmlPath xmlPath = new XmlPath(xml);
-		xmlPath.setRoot("DataSource");
-
-		// Select HCatSupported tag & its value
-		boolean flag = xmlPath.getBoolean("HCatSupported");
-		return flag;
-	}
-
 	/**
 	 * Modify the specified tag value of the specified datasource
-	 * @param hostName -
-	 * @param dataSourceName - datasource name
+	 * @param dataSourceName  - datasource name 
 	 * @param tagName - tag that needs to modify its value
-	 * @param oldValue - old value of the tag
+	 * @param oldValue  - old value of the tag
 	 * @param newValue = new value of the tag
 	 */
-	public void modifyDataSource(String dataSourceName , String tagName , String oldValue , String newValue){
+	public void modifyDataSource(String cookie , String dataSourceName ,  String tagName , String oldValue , String newValue){
 
 		// read the specified datasource file & change the HCatSupported tag value
-		String hostName =  this.conf.getString("hostconfig.console.base_url");
-		String cookie = this.httpHandle.cookie;
+		String hostName = this.getConsoleURL();
 		String xml = given().cookie(cookie).get(hostName + "/console/query/config/datasource/"+dataSourceName).andReturn().asString();
 		String oldTag = "<"+tagName+">"+oldValue +"</"+tagName+">";
 		String newTag = "<"+tagName+">"+newValue +"</"+tagName+">";
@@ -992,12 +995,19 @@ public final class ConsoleHandle
 		postBody.append("\naction=Edit\n");
 		postBody.append("operation=1\n");
 
-		// post the modified datasource file.
+		// post the modified datasource file. 
 		HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource", null, postBody.toString());
 		this.response = new Response(postMethod, false);
-		assertTrue("Cloned failed and got http response " + response.getStatusCode() , response.getStatusCode() == SUCCESS);
+		assertTrue("Cloned failed and got  http response " + response.getStatusCode() , response.getStatusCode() == SUCCESS);
 	}
 
+	/**
+	 * Get a list of source or target names of the specified dataset
+	 * @param dataSetName - dataset for which either source or target name(s) need be returned.
+	 * @param sourceType - specify either source or target name.
+	 * @param attribute - attribute name of the source or target tage usually its name attribute.
+	 * @return - List<String> of source or target name(s) of the dataset.
+	 */
 	public List<String> getDataSource(String dataSetName , String sourceType , String attribute ) {
 		List<String>source = new ArrayList<String>();
 		String xml = this.getDataSetXml(dataSetName);
@@ -1009,7 +1019,7 @@ public final class ConsoleHandle
 		}else if(sourceType.equals("target")){
 			size = xmlPath.get("Targets.Target.size()");
 		}
-		TestSession.logger.info("size = "+size);
+		TestSession.logger.info("size  = "+size);
 		String value = null;
 		for(int i=0;i<= size - 1 ; i++){
 			if(sourceType.equals("source")){
@@ -1032,17 +1042,17 @@ public final class ConsoleHandle
 
 
 	/**
-	 * Print the reason for the failure of the dataset. Failure information is very much useful for debugging when testcase fails
-	 * on CI.
-	 * @param dataSetName - dataset for which failure information need to fetch.
-	 * @param datasetActivationTime - dataset activate time.
+	 * Print the reason for the failure of the dataset. Failure information is very much useful for debugging when testcase fails 
+	 * on CI.  
+	 * @param dataSetName  - dataset for which failure information need to fetch.
+	 * @param datasetActivationTime -  dataset activate time.
 	 */
-	public void getFailureInformation(String url , String cookie , String dataSetName , String datasetActivationTime) {	
+	public void getFailureInformation(String url , String cookie , String dataSetName , String datasetActivationTime) {		
 		String endTime = GdmUtils.getCalendarAsString();
 		JSONUtil jsonUtil = new JSONUtil();
 		TestSession.logger.info("endTime = " + endTime);
 		com.jayway.restassured.response.Response res = given().cookie(cookie).get(url + "/console/api/workflows/failed?exclude=false&starttime=" + datasetActivationTime + "&endtime=" + endTime +
-				"&joinType=innerJoin&datasetname=" + dataSetName);
+				"&joinType=innerJoin&datasetname=" +  dataSetName);
 		JsonPath jsonPath = res.getBody().jsonPath();
 		String executionID = jsonPath.getString("failedWorkflows[0].ExecutionID");
 		TestSession.logger.info("executionID = " + executionID);
@@ -1054,6 +1064,402 @@ public final class ConsoleHandle
 		// get the failure information.
 		Response response = this.getWorkflowStepExecution(executionID, facetName, coloName);
 		TestSession.logger.info("Failed Response = " + jsonUtil.formatString(response.toString()));
+	}
+
+	/**
+	 * Deactivate all the targets from the given dataset
+	 * @param dataSetName -  for which the targets needs to deactivate.
+	 */
+	public void deactivateTargetsInDataSet(String dataSetName ) {
+		List<String>newDataTargetList = this.getDataSource(dataSetName, "target" ,"name");
+		TestSession.logger.info("this.newDataTargetList  = " + newDataTargetList);
+		int size = newDataTargetList.size();
+
+		JSONUtil jsonUtil = new JSONUtil();
+
+		// create args parameter
+		String args = jsonUtil.constructArgumentParameter(newDataTargetList,"deactivateTarget");
+		TestSession.logger.info("args *****"+jsonUtil.formatString(args));
+
+		// wait for some time, so that changes are reflected in the dataset i,e TARGETS gets INACTIVE
+		this.sleep(40000);
+
+		String resource = jsonUtil.constructResourceNamesParameter(Arrays.asList(dataSetName));
+		TestSession.logger.info("resource = "+jsonUtil.formatString(resource));
+
+		com.jayway.restassured.response.Response res = given().cookie(this.httpHandle.cookie).param("resourceNames", resource).param("command","update").param("args", args)
+				.post(this.getConsoleURL() + "/console/rest/config/dataset/actions");
+		String resString = res.asString();
+		TestSession.logger.info("response after deactivating the targets *****"+jsonUtil.formatString(resString));
+
+		// check for response values
+		JsonPath jsonPath = new JsonPath(resString);
+		String actionName = jsonPath.getString("Response.ActionName");
+		String responseId = jsonPath.getString("Response.ResponseId");
+		assertTrue("Expected update action name , but found " + actionName , actionName.equals("update"));
+		assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
+		String responseMessage = jsonPath.getString("Response.ResponseMessage");
+		boolean flag = responseMessage.contains(dataSetName) && responseMessage.contains("successful");
+		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
+
+		// wait for some time, so that changes are reflected in the dataset i,e TARGETS gets INACTIVE
+		this.sleep(30000);
+
+		// Check whether targets in dataset are set to INACTIVE state
+		List<String>targetsStatus = this.getDataSource(dataSetName , "target" , "status");
+		TestSession.logger.info("************ testDeativateAllTargetsInDataSet ******** = " +targetsStatus.toString() );
+		for(String tarStatus : targetsStatus){
+			String status[] = tarStatus.split(":");
+			assertTrue("Expected that targets are inactive , but got " + tarStatus , status[1].trim().equals("inactive"));
+		}
+
+		this.sleep(30000);
+	}
+
+
+	/**
+	 * remove all the targets from the dataset.
+	 * @param dataSetName
+	 */
+	public void removeTargetsFromDataset(String dataSetName) {
+		JSONUtil jsonUtil = new JSONUtil();
+		List<String>newDataTargetList = this.getDataSource(dataSetName, "target" ,"name");
+		String resource = jsonUtil.constructResourceNamesParameter(Arrays.asList(dataSetName));
+		TestSession.logger.info("resource = "+jsonUtil.formatString(resource));
+		int size = newDataTargetList.size();
+
+		// Since last target in the dataset can't be removed, so removing all the targets expect the last one.
+		List<String>targets = newDataTargetList.subList(0, (size - 1));
+		String args = jsonUtil.constructArgumentParameter(targets,"removeTarget");
+		TestSession.logger.info("args *****"+jsonUtil.formatString(args));
+		this.sleep(40000);
+
+		com.jayway.restassured.response.Response res = given().cookie(this.httpHandle.cookie).param("resourceNames", resource).param("command","update").param("args", args)
+				.post( this.getConsoleURL() + "/console/rest/config/dataset/actions");
+
+		String resString = res.asString();
+		TestSession.logger.info("response after removing the targets *****"+jsonUtil.formatString(resString));
+
+		// Check for Response values
+		JsonPath jsonPath = new JsonPath(resString);
+		String actionName = jsonPath.getString("Response.ActionName");
+		String responseId = jsonPath.getString("Response.ResponseId");
+		assertTrue("Expected update action name , but found " + actionName , actionName.equals("update"));
+		assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
+		String responseMessage = jsonPath.getString("Response.ResponseMessage");
+		boolean flag = responseMessage.contains(dataSetName) && responseMessage.contains("successful");
+		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
+	}
+
+	/**
+	 * Removes or deletes the given dataset
+	 */
+	public void removeDataSet( String dataSetName ) {
+		JSONUtil jsonUtil = new JSONUtil();
+		String resource = jsonUtil.constructResourceNamesParameter(Arrays.asList(dataSetName));
+		TestSession.logger.info("resource = "+jsonUtil.formatString(resource));
+
+		// remove the dataset
+		com.jayway.restassured.response.Response res = given().cookie(this.httpHandle.cookie).param("resourceNames", resource).param("command","remove")
+				.post(this.getConsoleURL() + "/console/rest/config/dataset/actions");
+
+		String resString = res.asString();
+		TestSession.logger.info("response *****"+jsonUtil.formatString(resString));
+
+		// Check for Response
+		JsonPath jsonPath = new JsonPath(resString);
+		String actionName = jsonPath.getString("Response.ActionName");
+		String responseId = jsonPath.getString("Response.ResponseId");
+		assertTrue("Expected remove action, but got " + actionName , actionName.equals("remove"));
+		assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
+		String responseMessage = jsonPath.getString("Response.ResponseMessage");
+		boolean flag = responseMessage.contains(dataSetName) && responseMessage.contains("successful");
+		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
+	}
+
+	/*
+	 * Print the reason for the failure of the dataset. Failure information is very much useful for debugging when testcase fails
+	 * on CI.
+	 * @param dataSetName  - dataset for which failure information need to fetch.
+	 * @param datasetActivationTime -  dataset activate time.
+	 */
+	public void getFailureInformation(String dataSetName , String datasetActivationTime , String cookie) {
+		String endTime = GdmUtils.getCalendarAsString();
+		JSONUtil jsonUtil = new JSONUtil();
+		TestSession.logger.info("endTime = " + endTime);
+		String failureURL = this.consoleURL + "/console/api/workflows/failed?exclude=false&starttime=" + datasetActivationTime + "&endtime=" + endTime +
+				"&joinType=innerJoin&datasetname=" +  dataSetName;
+		com.jayway.restassured.response.Response res = given().cookie(cookie).get(failureURL);
+		assertTrue("Failed to get the response for " + failureURL , (response != null || response.toString() != "") );
+
+		JsonPath jsonPath = res.getBody().jsonPath();
+		String executionID = jsonPath.getString("failedWorkflows[0].ExecutionID");
+		TestSession.logger.info("ExecutionID = " + executionID);
+		String facetName = jsonPath.getString("failedWorkflows[0].FacetName");
+		TestSession.logger.info("FacetName = " + facetName);
+		String coloName = jsonPath.getString("failedWorkflows[0].FacetColo");
+		TestSession.logger.info("ColoName = " + coloName);
+
+		// get the failure information.
+		Response response = this.getWorkflowStepExecution(executionID, facetName, coloName);
+		TestSession.logger.info("Failed Response = " + jsonUtil.formatString(response.toString()));
+	}
+
+	/**
+	 * Get all the hcat enabled clusters
+	 * @return - returns List<String> having all the hcat enabled cluster or return null if no cluster is hcat is enabled
+	 */
+	public List<String> getHCatEnabledGrid( ) {
+		List<String> hcatEnabledGrid = new ArrayList<String>();
+		String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
+		TestSession.logger.info("testURL = " + testURL);
+		JsonPath jsonPath = given().cookie(httpHandle.cookie).get(testURL).jsonPath();
+		TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
+		hcatEnabledGrid = jsonPath.getList("HadoopClusterVersions.findAll { it.HCatVersion.startsWith('hcat_common') }.ClusterName ");
+		if (hcatEnabledGrid == null) {
+			try {
+				throw new Exception("Failed to get hcatEnabled");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return hcatEnabledGrid;
+	}
+
+	/**
+	 * Get HCatSupported tag value for a given datasource
+	 * @param dataSourceName - Name of the datasource
+	 * @return
+	 */
+	public boolean isHCatEnabledForDataSource(String dataSourceName) {
+		// get xml representation string of datasource
+		String url = this.consoleURL + "/console/query/config/datasource/"+dataSourceName.trim();
+		TestSession.logger.info("url = " + url);
+		String xml = given().cookie(httpHandle.cookie).get(url).andReturn().asString();
+		assertTrue("failed to get the source value for " + url , (xml != null || xml != "") );
+		XmlPath xmlPath = new XmlPath(xml);
+		xmlPath.setRoot("DataSource");
+		boolean flag = xmlPath.getBoolean("HCatSupported");
+		return flag;
+	}
+
+	/**
+	 * Modify the specified tag value of the specified datasource
+	 * @param hostName -
+	 * @param dataSourceName - datasource name
+	 * @param tagName - tag that needs to modify its value
+	 * @param oldValue - old value of the tag
+	 * @param newValue = new value of the tag
+	 */
+	public void modifyDataSource(String dataSourceName , String tagName , String oldValue , String newValue) {
+
+		// read the specified datasource file & change the HCatSupported tag value
+		String hostName =  this.conf.getString("hostconfig.console.base_url");
+		String cookie = this.httpHandle.cookie;
+		String testURL = hostName + "/console/query/config/datasource/"+dataSourceName;
+		String xml = given().cookie(cookie).get(testURL).andReturn().asString();
+		assertTrue("failed to get the source value for " + testURL , (xml != null || xml != "") );
+		String oldTag = "<"+tagName+">"+oldValue +"</"+tagName+">";
+		String newTag = "<"+tagName+">"+newValue +"</"+tagName+">";
+		// check if the <tagName> exists i,e HCatSupported tag exists
+		boolean isTagExist = xml.contains("HCatSupported");
+		TestSession.logger.info("************  isTagExist = "+isTagExist);
+		if (!isTagExist) {
+			StringBuilder strBuilder = new StringBuilder(xml);
+			int len = strBuilder.indexOf("<Resources>");
+			TestSession.logger.info("length = " + len);
+			strBuilder.insert(len , newTag);
+			TestSession.logger.info("strBuilder = " + strBuilder);
+			xml = strBuilder.toString();
+			TestSession.logger.info("&&&&&&&& xml = "+xml);
+
+		} else  {
+			xml = xml.replaceAll(oldTag , newTag );
+		}
+
+		TestSession.logger.info("xml = "+xml);
+
+		StringBuilder postBody = new StringBuilder();
+		postBody.append("xmlFileContent=");
+		postBody.append(xml);
+		postBody.append("\naction=Edit\n");
+		postBody.append("operation=1\n");
+
+		// post the modified datasource file.
+		HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource", null, postBody.toString());
+		this.response = new Response(postMethod, false);
+		assertTrue("Cloned failed and got http response " + response.getStatusCode() , response.getStatusCode() == 200);
+		this.sleep(30000);
+	}
+
+	/**
+	 * Method that returns specified attribute value of the tag
+	 * @param dataSetName
+	 * @param tagName
+	 * @param attributeName
+	 * @return
+	 */
+	public String getDataSetTagsAttributeValue(String dataSetName , String tagName, String attributeName) {
+		String attributeValue = null;
+		String xml = this.getDataSetXml(dataSetName);
+		TestSession.logger.info("*****************xml = " + xml);
+		XmlPath xmlPath = new XmlPath(xml);
+		if(xmlPath == null)  {
+			try {
+				throw new Exception("Could not able to create an instance of xmlPath");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		TestSession.logger.info("*****" + xmlPath.prettyPrint());
+		xmlPath.setRoot("DataSet");
+		int size = 0;
+		if (tagName.equals("Parameters")) {
+			attributeValue = xmlPath.getString("Parameters.attribute[0].@" + attributeName);
+		} else if (tagName.equals("Sources")) {
+			attributeValue = xmlPath.getString("Sources.Source[0].@" + attributeName);
+		} else if (tagName.equals("DateRange")) {
+			attributeValue = xmlPath.getString("DateRange.@" + attributeName);
+		}
+		return attributeValue;
+	}
+
+	/**
+	 * Get the HCat information about the given dataset.
+	 * @param dataSourceName
+	 * @param dataSetName
+	 * @return
+	 */
+	public com.jayway.restassured.response.Response getHCatTableDetailsForDataSet(String dataSourceName , String dataSetName) {
+		String HCatList = "/acquisition/api/admin/hcat/table/list";
+		String dbName = "gdm";
+		this.sleep(40000);
+		String hcatListURL =  this.getConsoleURL().replace("9999", "4080") + HCatList +"?dataSource=" + dataSourceName + "&dbName="+ dbName + "&dataSet=" + dataSetName;
+		TestSession.logger.info("hcatListURL  = "  + hcatListURL);
+		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(hcatListURL);
+		assertTrue("Failed to get the response for " + hcatListURL , (response != null || response.toString() != "") );
+		return response;
+	}
+
+	/*
+	 * Convert com.jayway.restassured.response.Response to jsonArray
+	 */
+	public JSONArray convertResponseToJSONArray(com.jayway.restassured.response.Response response , String jsonName) {
+		JSONArray jsonArray =  null ;
+		String res = response.getBody().asString();
+		TestSession.logger.info("response = " + res);
+		JSONObject obj =  (JSONObject) JSONSerializer.toJSON(res.toString());
+		TestSession.logger.info("obj = " + obj.toString());
+		jsonArray = obj.getJSONArray(jsonName);
+		return jsonArray;
+	}
+
+	/**
+	 * Get the port number for the specified facet
+	 * @param facetName
+	 * @return
+	 */
+	public String getFacetPortNo(String facetName) {
+		String portNo = "9999";
+		if (facetName.equals("acquisition")) {
+			portNo = "4080";
+		} else if (facetName.equals("replication")) {
+			portNo = "4081";
+		} else if (facetName.equals("retention")) {
+			portNo = "4082";
+		}
+		return portNo;
+	}
+
+	/**
+	 * Restart completed workflow of the specified workflow
+	 * @param dataSetName - completed workflow dataset name
+	 * @param facetName - facetname
+	 */
+	public void restartCompletedWorkFlow( String dataSetName , String facetName ) {
+		String completedWorkFlowURL = this.getConsoleURL() +  "/" +   "console/api/workflows/completed?datasetname=" + dataSetName + "&instancessince=F&joinType=innerJoin";
+		TestSession.logger.info("----------------------- restartWorkFlowURL = " + completedWorkFlowURL);
+		String cookie = this.httpHandle.getBouncerCookie();
+		com.jayway.restassured.response.Response restartCompletedWorkFlowResponse = given().cookie(cookie).get(completedWorkFlowURL);
+		JSONArray jsonArray =   convertResponseToJSONArray(restartCompletedWorkFlowResponse , "completedWorkflows");
+
+		TestSession.logger.info("--------------  size  = " + jsonArray.size());
+
+		//String restartCompletedWorkFlowURL = this.getConsoleURL().replace("9999", this.getFacetPortNo(facetName)) +  "/" + facetName + "/api/admin/workflows";
+
+		if ( jsonArray.size() > 0 ) {
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				TestSession.logger.info("failedJsonObject  = " + jsonObject.toString());
+				String fName = jsonObject.getString("FacetName");
+				String facetColo = jsonObject.getString("FacetColo");
+				String executionId = jsonObject.getString("ExecutionID");
+
+				JSONArray resourceArray = new JSONArray();
+				resourceArray.add(new JSONObject().element("ExecutionID",executionId).element("FacetName", facetName).element("FacetColo", facetColo));
+				
+				String restartCompletedWorkFlowURL = this.getConsoleURL().replace("9999", this.getFacetPortNo(facetName)) +  "/" + facetName + "/api/admin/workflows";
+				TestSession.logger.info("restartCompletedWorkFlowURL   = "  + restartCompletedWorkFlowURL);
+				com.jayway.restassured.response.Response restartResponse = given().cookie(cookie).param("command" , "restart").parameters("workflowIds", resourceArray.toString()).post(restartCompletedWorkFlowURL);
+				JsonPath jsonPath = restartResponse.getBody().jsonPath();
+				TestSession.logger.info("restartResponse = " + jsonPath.prettyPrint());
+
+				String responseId = jsonPath.getString("Response.ResponseId");
+				assertTrue("Failed to restart the completed workflow for executionId  = " + executionId + "   dataset name = "  + dataSetName +  "   facet = " + facetName +"    responseId = "+ responseId  , responseId.equals("0"));
+			}
+		} 
+	}
+
+	/**
+	 * returns HCat Partition values for a given dataSet
+	 * @param dataSetName  - 
+	 * @param dataSource
+	 * @return
+	 */
+	public List<List<String>> checkHCatParitionValues(String dataSetName , String dataSource , String facetName) {
+		String cookie = this.httpHandle.getBouncerCookie();
+		String HCatParition = "/api/admin/hcat/partition/list";
+		String hcatPartition = this.getConsoleURL().replace("9999", this.getFacetPortNo(facetName)) + "/"  + facetName + HCatParition +"?dataSource=" + dataSource + "&dataSet=" + dataSetName;
+		TestSession.logger.info("hcatPartition  url =  " + hcatPartition);
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(hcatPartition);
+		JsonPath jsonPath = response.getBody().jsonPath();
+		TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
+
+		List<List<String>>partitions = jsonPath.getList("Partitions.Values.Value");
+		TestSession.logger.info("partitions  = " + partitions.toString() );
+		return partitions;
+	}
+
+	/**
+	 *  Get all the dataset name
+	 * @return - all the dataset names as List<String>
+	 */
+	public List<String> getAllDataSetName()  {
+		String cookie = this.httpHandle.getBouncerCookie();
+		String url = this.getConsoleURL() + "/console/api/datasets/view";
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
+		JsonPath jsonPath = response.getBody().jsonPath();
+		TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
+
+		List<String> datasetNames = jsonPath.getList("DatasetsResult.DatasetName");
+		assertTrue("Failed to get the dataset name = "  , datasetNames != null && datasetNames.size() > 0);
+		return datasetNames;
+	}
+
+	/**
+	 * Get all the installed grid names
+	 * @return grid names as List
+	 */
+	public List<String> getAllInstalledGridName() {
+		List<String> grids = null;
+		String testURL = this.getConsoleURL() + "/console/api/datasources/view";
+		TestSession.logger.info("testURL = " + testURL);
+		String cookie = this.httpHandle.getBouncerCookie();
+		JsonPath jsonPath = given().cookie(cookie).get(testURL).jsonPath();
+		TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
+		grids = jsonPath.getList("DataSourceResult.findAll { it.Type.equals('grid') }.DataSourceName ");
+		return grids;
 	}
 
 }

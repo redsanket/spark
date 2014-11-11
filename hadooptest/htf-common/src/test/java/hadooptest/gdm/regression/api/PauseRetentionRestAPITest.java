@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -21,6 +23,11 @@ import com.jayway.restassured.response.Response;
 
 import hadooptest.SerialTests;
 
+/**
+ * 
+ * TestCase : PauseRetention REST API
+ *
+ */
 @Category(SerialTests.class)
 public class PauseRetentionRestAPITest extends TestSession {
 
@@ -34,19 +41,22 @@ public class PauseRetentionRestAPITest extends TestSession {
 	private String hostName;
 	public static final int SUCCESS = 200;
 
+	@BeforeClass
+	public static void startTestSession() throws Exception {
+		TestSession.start();
+	}
+
 	@Before
 	public void setUp() throws NumberFormatException, Exception {
-		String hostName = TestSession.conf.getProperty("GDM_CONSOLE_NAME") + ":" + Integer.parseInt(TestSession.conf.getProperty("GDM_CONSOLE_PORT"));
-		TestSession.logger.info("hostName = " + hostName);
 		HTTPHandle httpHandle = new HTTPHandle();
 		consoleHandle = new ConsoleHandle();
 		jsonUtil = new JSONUtil();
 		cookie = httpHandle.getBouncerCookie();
-		this.url = "http://" + hostName;
+		this.url = this.consoleHandle.getConsoleURL();
 		TestSession.logger.info("url = " + url);
 
 		// Invoke "/console/query/config/dataset/getDatasets" GDM REST API and select DatasetName element(s) from the response & store them in List
-		datasetsResultList = consoleHandle.getDataSetListing(cookie , this.url + this.DataSetPath).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+		datasetsResultList = getDataSetListing(cookie , this.url + this.DataSetPath).getBody().jsonPath().getList("DatasetsResult.DatasetName");
 		if (datasetsResultList == null) {
 			fail("Failed to get the datasets");
 		}
@@ -137,4 +147,10 @@ public class PauseRetentionRestAPITest extends TestSession {
 		TestSession.logger.info("Response = " + jsonPath.prettyPrint());
 		assertTrue("Expected -1 but got " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("-1"));
 		assertTrue("Expected failed. Error: ConfigStore Exception. But got " +jsonPath.getString("Response.ResponseMessage") , jsonPath.getString("Response.ResponseMessage").contains("failed. Error: ConfigStore Exception.") );
-	}}
+	}
+	
+	private com.jayway.restassured.response.Response getDataSetListing(String cookie , String url)  {
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url );
+		return response;
+	}
+}
