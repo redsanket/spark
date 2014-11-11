@@ -579,7 +579,8 @@ public class HtfATSUtils {
 		}
 		return verdict;
 	}
-	
+
+	@Deprecated
 	public List<String> retrieveValuesFromFormattedResponse(GenericATSResponseBO genericATSResponseBO, 
 			Object field, String lookupKey, int indexPos){
 		List<String> retrievedStrings = new ArrayList<String>();
@@ -609,15 +610,29 @@ public class HtfATSUtils {
 		return retrievedStrings;
 	}
 
+	public boolean isEntityPresentInResponse(GenericATSResponseBO processedResponse, EntityTypes entityType,
+			String entity){
+		boolean valueFound = false;
+		for (EntityInGenericATSResponseBO anEntityPresentInBunch : processedResponse.entities){
+			if (anEntityPresentInBunch.entityType.equals(entityType.name())
+					&& anEntityPresentInBunch.entity.equals(entity)){
+				valueFound = true;
+				TestSession.logger.info("Entity:" + entity + " is present in bunch");
+				break;
+			}
+		}
+		
+		return valueFound;
+	}
 	
-	public EntityInGenericATSResponseBO searchAndRetrieveSingleEntityFromBunch (
+	public EntityInGenericATSResponseBO retrieveCloneFromBunch (
 			GenericATSResponseBO bunch,
 			EntityTypes entityType, GenericATSResponseBO singleResponse) {
 		EntityInGenericATSResponseBO retrievedEntity = null;
-		for(EntityInGenericATSResponseBO anEntityInBunch:bunch.entities){
-			if (anEntityInBunch.entityType.equals(entityType.name())
-					&& anEntityInBunch.entity.equals(singleResponse.entities.get(0).entity)){
-				retrievedEntity = anEntityInBunch;
+		for(EntityInGenericATSResponseBO anEntityPresentInBunch:bunch.entities){
+			if (anEntityPresentInBunch.entityType.equals(entityType.name())
+					&& anEntityPresentInBunch.entity.equals(singleResponse.entities.get(0).entity)){
+				retrievedEntity = anEntityPresentInBunch;
 				break;
 			}
 		}

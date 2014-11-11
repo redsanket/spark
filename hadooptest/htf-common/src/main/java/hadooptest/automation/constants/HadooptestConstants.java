@@ -41,6 +41,15 @@ public class HadooptestConstants {
 		public static String HITUSR_3 = "hitusr_3";
 		public static String HITUSR_4 = "hitusr_4";
 	}
+	
+	// User names
+	public static class UserGroups {
+		public static String HADOOP = "hadoop";
+		public static String HADOOPQA = "hadoopqa";
+		public static String GDMDEV = "gdmdev";
+		public static String GDMQA = "gdmdev";
+	}
+		
 
 	// Log
 	public static class Log {

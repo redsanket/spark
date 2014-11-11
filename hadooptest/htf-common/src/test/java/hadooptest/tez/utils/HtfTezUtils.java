@@ -168,8 +168,6 @@ public class HtfTezUtils {
 				.toString());
 		conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDir.toString());
 
-		// conf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
-		conf.set("mapreduce.job.acl-view-job", "*");
 		conf.set("mapreduce.framework.name", "yarn-tez");
 
 		/**

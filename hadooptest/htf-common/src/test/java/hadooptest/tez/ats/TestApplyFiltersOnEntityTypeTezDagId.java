@@ -32,11 +32,11 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + orderedWordCountSeedData.appStartedByUser +"&limit=" + LIMIT;
+		String addendum = "?primaryFilter=user:" + seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser +"&limit=" + LIMIT;
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
-					orderedWordCountSeedData.appStartedByUser,
+					seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser,
 					entityTypeInRequest, dagIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
@@ -53,7 +53,7 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + orderedWordCountSeedData.appStartedByUser +"&fields=events&limit=" + LIMIT;
+		String addendum = "?primaryFilter=user:" + seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser +"&fields=events&limit=" + LIMIT;
 		HtfATSUtils atsUtils = new HtfATSUtils();
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.EXPECTED,
@@ -91,7 +91,7 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + orderedWordCountSeedData.appStartedByUser +"&fields=relatedentities&limit=" + LIMIT;
+		String addendum = "?primaryFilter=user:" + seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser +"&fields=relatedentities&limit=" + LIMIT;
 		
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.NOT_EXPECTED,
@@ -126,7 +126,7 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + orderedWordCountSeedData.appStartedByUser +"&fields=otherinfo&limit=" + LIMIT;
+		String addendum = "?primaryFilter=user:" + seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser +"&fields=otherinfo&limit=" + LIMIT;
 		HtfATSUtils atsUtils = new HtfATSUtils();
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.NOT_EXPECTED,
@@ -159,7 +159,7 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + orderedWordCountSeedData.appStartedByUser +"&fields=primaryfilters&limit=" + LIMIT;
+		String addendum = "?primaryFilter=user:" + seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser +"&fields=primaryfilters&limit=" + LIMIT;
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.NOT_EXPECTED,
 				ResponseComposition.ENTITYTYPE.EXPECTED,

@@ -66,7 +66,7 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	private static final String enablePrewarmConfig = "simplesessionexample.prewarm";
 
 	public boolean run(String[] inputPaths, String[] outputPaths,
-			Configuration conf, int numPartitions, UserGroupInformation ugi, SeedData seedData)
+			Configuration conf, int numPartitions, UserGroupInformation ugi, SeedData seedData, String acls)
 			throws Exception {
 		TezConfiguration tezConf;
 		if (conf != null) {
@@ -75,10 +75,12 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 			tezConf = new TezConfiguration();
 		}
 		/**
-		 * HTF: Set the UGI
+		 * HTF: Set the UGI and acls
 		 */
 		UserGroupInformation.setConfiguration(tezConf);
 		UserGroupInformation.setLoginUser(ugi);
+		tezConf.set("tez.am.dag.view-acls", acls);
+		
 
 		// start TezClient in session mode. The same code run in session mode or
 		// non-session mode. The

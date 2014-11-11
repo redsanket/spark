@@ -109,8 +109,8 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	 * @throws Exception
 	 */
 	public boolean run(String inputPath, String outputPath, Configuration conf,
-		      int numPartitions, String mode, Session session, TimelineServer timelineServer, String testName, UserGroupInformation ugi, SeedData seedData)
-			throws Exception {
+		      int numPartitions, String mode, Session session, TimelineServer timelineServer, String testName, UserGroupInformation ugi, 
+		      SeedData seedData, String acls) throws Exception {
 	    TestSession.logger.info("Running OrderedWordCount");
 	    TezConfiguration tezConf;
 	    if (conf != null) {
@@ -118,9 +118,13 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	    } else {
 	      tezConf = (TezConfiguration) HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, timelineServer, testName);
 	    }
-	    
+	    /**
+	     * HTF: set the seed data and ACLs
+	     */
 	    UserGroupInformation.setConfiguration(tezConf);
 	    UserGroupInformation.setLoginUser(ugi);
+	    tezConf.set("tez.am.dag.view-acls", acls);
+	    
 	    TezClient tezClient = TezClient.create("OrderedWordCount", tezConf);
 	    tezClient.start();
 

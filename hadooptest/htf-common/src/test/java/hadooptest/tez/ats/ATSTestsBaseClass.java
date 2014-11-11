@@ -10,19 +10,20 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
-import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.node.hadoop.HadoopNode;
-import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
 import hadooptest.tez.examples.cluster.TestHtfOrderedWordCount;
 import hadooptest.tez.examples.cluster.TestSimpleSessionExample;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
 import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
+import hadooptest.tez.utils.HtfATSUtils;
+import hadooptest.tez.utils.HtfPigBaseClass;
+import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
-import hadooptest.tez.utils.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +32,6 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -43,25 +43,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.BlockLocation;
-import org.apache.hadoop.fs.ContentSummary;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileChecksum;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.token.Token;
 import org.apache.http.client.params.ClientPNames;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response;
@@ -71,7 +61,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
-
 
 public class ATSTestsBaseClass extends TestSession {
 
@@ -85,11 +74,11 @@ public class ATSTestsBaseClass extends TestSession {
 	Queue<GenericATSResponseBO> taskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	AtomicInteger errorCount = new AtomicInteger();
 
-	public static Boolean jobsLaunchedOnceToSeedData = false;
+	public static Boolean jobsLaunchedOnceToSeedData = Boolean.FALSE;
 
-	public static SeedData sleepJobSeedData = null;
-	public static SeedData simpleSessionExampleSeedData = null;
-	public static SeedData orderedWordCountSeedData = null;
+	public static SeedData seedDataForAutomaticallyLaunchedSleepJob = null;
+	public static SeedData seedDataForAutomaticallyLaunchedSimpleSessionExample = null;
+	public static SeedData seedDataForAutomaticallyLaunchedOrderedWordCount = null;
 
 	public enum EntityTypes {
 		TEZ_APPLICATION_ATTEMPT, TEZ_CONTAINER_ID, TEZ_DAG_ID, TEZ_VERTEX_ID, TEZ_TASK_ID, TEZ_TASK_ATTEMPT_ID,
@@ -198,6 +187,7 @@ public class ATSTestsBaseClass extends TestSession {
 				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
 
 	}
+
 	public void restartRMWithTheseArgs(String rmHost, List<String> args)
 			throws Exception {
 		String command = "/home/gs/gridre/yroot."
@@ -224,21 +214,54 @@ public class ATSTestsBaseClass extends TestSession {
 
 	}
 
+	public String getAllTheGroupsThatUserBelongsTo(String username) {
+		StringBuilder sb = new StringBuilder();
+		if (username.equalsIgnoreCase(HadooptestConstants.UserNames.HADOOPQA)) {
+			sb.append(HadooptestConstants.UserGroups.HADOOP).append(",")
+					.append(HadooptestConstants.UserGroups.HADOOPQA);
+		} else if (username
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_1)) {
+			sb.append(HadooptestConstants.UserGroups.HADOOP);
+		} else if (username
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_2)) {
+			sb.append(HadooptestConstants.UserGroups.HADOOPQA);
+		} else if (username
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)) {
+			sb.append(HadooptestConstants.UserGroups.GDMDEV);
+		} else if (username
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_4)) {
+			sb.append(HadooptestConstants.UserGroups.HADOOP).append(",")
+					.append(HadooptestConstants.UserGroups.HADOOPQA).append(",")
+					.append(HadooptestConstants.UserGroups.GDMDEV).append(",")
+					.append(HadooptestConstants.UserGroups.GDMQA);
+		}
+		return sb.toString();
+	}
+
 	public void launchJobsOnceToSeedData() throws Exception {
 		TestSession.logger.info("I launchJobsOnceToSeedData");
-		if (!jobsLaunchedOnceToSeedData) {
+		if (jobsLaunchedOnceToSeedData.booleanValue() == Boolean.FALSE) {
+			jobsLaunchedOnceToSeedData = Boolean.TRUE;
 			groundWorkForPigScriptExecution();
 			// runPigOnTezScriptOnCluster();
 
-			launchOrderedWordCountExtendedForHtf(HadooptestConstants.UserNames.HITUSR_1);
+			// Run a OrderedWordCount as hitusr_1
+			seedDataForAutomaticallyLaunchedOrderedWordCount = launchOrderedWordCountExtendedForHtfAndGetSeedData(
+					HadooptestConstants.UserNames.HITUSR_1,
+					HadooptestConstants.UserNames.HITUSR_1);
+
+			// Run a Sleep Job, as hitusr_2
 			String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
 					"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
-			// TODO: Make the user HITUSR_2
-			launchMRRSleepJob(HadooptestConstants.UserNames.HITUSR_1,
-					sleepJobArgs);
-			// TODO: Make the user HITUSR_3
-			launchSimpleSessionExampleExtendedForTezHTF(HadooptestConstants.UserNames.HITUSR_1);
-			jobsLaunchedOnceToSeedData = true;
+			seedDataForAutomaticallyLaunchedSleepJob = launchMRRSleepJobAndGetSeedData(
+					HadooptestConstants.UserNames.HITUSR_2, sleepJobArgs,
+					HadooptestConstants.UserNames.HITUSR_2);
+
+			// Run a SimpleSessionExample as hitusr_3
+			seedDataForAutomaticallyLaunchedSimpleSessionExample = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
+					HadooptestConstants.UserNames.HITUSR_3,
+					HadooptestConstants.UserNames.HITUSR_3);
+
 		}
 	}
 
@@ -250,19 +273,24 @@ public class ATSTestsBaseClass extends TestSession {
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"),
-				"/home/y/share/htf-data/excite-small.log",
+				TestHtfOrderedWordCount.INPUT_FILE,
 				DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
 
 		if (quickCheck.process.exitValue() != 0) {
-			dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-					HadooptestConstants.UserNames.HDFSQA, "",
-					System.getProperty("CLUSTER_NAME"),
-					"/home/y/share/htf-data/");
+			// dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+			// HadooptestConstants.UserNames.HDFSQA, "",
+			// System.getProperty("CLUSTER_NAME"),
+			// "/home/y/share/htf-data/");
 			dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, "",
 					System.getProperty("CLUSTER_NAME"),
-					"/home/y/share/htf-data/excite-small.log",
-					"/home/y/share/htf-data/excite-small.log");
+					TestHtfOrderedWordCount.SOURCE_FILE,
+					TestHtfOrderedWordCount.INPUT_FILE);
+			dfsCliCommands.chmod(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA,
+					System.getProperty("CLUSTER_NAME"),
+					System.getProperty("CLUSTER_NAME"),
+					TestHtfOrderedWordCount.INPUT_FILE, "777", Recursive.YES);
 		}
 		// Check if o/p dir exists
 		quickCheck = dfsCliCommands.test(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
@@ -294,45 +322,53 @@ public class ATSTestsBaseClass extends TestSession {
 		Assert.assertTrue(returnCode == 0);
 	}
 
-	public void launchOrderedWordCountExtendedForHtf(String user)
-			throws IOException, InterruptedException {
+	public SeedData launchOrderedWordCountExtendedForHtfAndGetSeedData(
+			String user, String acls) throws IOException, InterruptedException {
 		UserGroupInformation ugi = getUgiForUser(user);
 		DoAs doAs = new DoAs(ugi, new OrderedWordCountExtendedForHtf(),
-				new String[0]);
+				new String[0], acls);
 		doAs.doAction();
-		orderedWordCountSeedData = doAs.getSeedDataForAppThatJustRan();
-		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(orderedWordCountSeedData.appStartedByUser);
+		SeedData seedDataForLaunchedJob;
+		seedDataForLaunchedJob = doAs.getSeedDataForAppThatJustRan();
+		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(seedDataForLaunchedJob.appStartedByUser);
 		populateAdditionalSeedData(processedDagIdResponses,
-				orderedWordCountSeedData);
-		orderedWordCountSeedData.dump();
+				seedDataForLaunchedJob);
+		seedDataForLaunchedJob.dump();
+		return seedDataForLaunchedJob;
 	}
 
-	public void launchSimpleSessionExampleExtendedForTezHTF(String user)
-			throws IOException, InterruptedException {
+	public SeedData launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
+			String user, String acls) throws IOException, InterruptedException {
 		UserGroupInformation ugi = getUgiForUser(user);
+		ugi.reloginFromKeytab();
 		DoAs doAs = new DoAs(ugi, new SimpleSessionExampleExtendedForTezHTF(),
-				new String[0]);
+				new String[0], acls);
 		doAs.doAction();
-		simpleSessionExampleSeedData = doAs.getSeedDataForAppThatJustRan();
-		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(simpleSessionExampleSeedData.appStartedByUser);
+		SeedData seedDataForLaunchedJob;
+		seedDataForLaunchedJob = doAs.getSeedDataForAppThatJustRan();
+		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(seedDataForLaunchedJob.appStartedByUser);
 		populateAdditionalSeedData(processedDagIdResponses,
-				simpleSessionExampleSeedData);
+				seedDataForLaunchedJob);
 
-		simpleSessionExampleSeedData.dump();
+		seedDataForLaunchedJob.dump();
+		return seedDataForLaunchedJob;
 	}
 
-	public void launchMRRSleepJob(String user, String[] sleepJobArgs)
-			throws Exception {
+	public SeedData launchMRRSleepJobAndGetSeedData(String user,
+			String[] sleepJobArgs, String acls) throws Exception {
+		TestSession.logger.info("About to launch MRRSleepJob as user:" + user);
 		UserGroupInformation ugi = getUgiForUser(user);
 		DoAs doAs = new DoAs(ugi, new MRRSleepJobExtendedForTezHTF(),
-				sleepJobArgs);
+				sleepJobArgs, acls);
 		doAs.doAction();
-		sleepJobSeedData = doAs.getSeedDataForAppThatJustRan();
-		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(sleepJobSeedData.appStartedByUser);
+		SeedData seedDataForLaunchedJob;
+		seedDataForLaunchedJob = doAs.getSeedDataForAppThatJustRan();
+		GenericATSResponseBO processedDagIdResponses = getDagIdResponses(seedDataForLaunchedJob.appStartedByUser);
 		populateAdditionalSeedData(processedDagIdResponses,
-				sleepJobSeedData);
+				seedDataForLaunchedJob);
 
-		sleepJobSeedData.dump();
+		seedDataForLaunchedJob.dump();
+		return seedDataForLaunchedJob;
 	}
 
 	void populateAdditionalSeedData(GenericATSResponseBO dagIdResponse,
@@ -357,14 +393,11 @@ public class ATSTestsBaseClass extends TestSession {
 
 	public GenericATSResponseBO getDagIdResponses(String user)
 			throws InterruptedException {
-		ExecutorService execService = Executors.newFixedThreadPool(10);
+		ExecutorService execService = Executors.newFixedThreadPool(1);
 		// TODO: Change the user below to seedData.appStartedByUser
-		makeHttpCallAndEnqueueConsumedResponse(
-				execService,
-				// getATSUrl()+ "TEZ_DAG_ID/" , seedData.appStartedByUser,
-				getATSUrl() + "TEZ_DAG_ID/",
-				HadooptestConstants.UserNames.HITUSR_1, EntityTypes.TEZ_DAG_ID,
-				dagIdQueue, expectEverythingMap());
+		makeHttpCallAndEnqueueConsumedResponse(execService, getATSUrl()
+				+ "TEZ_DAG_ID/", user,
+				EntityTypes.TEZ_DAG_ID, dagIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);
@@ -406,7 +439,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 	public void populateVertexDetails(SeedData seedData, SeedData.DAG dag,
 			String vertexId) throws InterruptedException {
-		ExecutorService execService = Executors.newFixedThreadPool(10);
+		ExecutorService execService = Executors.newFixedThreadPool(1);
 		makeHttpCallAndEnqueueConsumedResponse(
 				execService,
 				// TODO: Change the user below to seedData.appStartedByUser
@@ -776,7 +809,8 @@ public class ATSTestsBaseClass extends TestSession {
 			TestSession.logger
 					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 			TestSession.logger.info(userCookies);
-			TestSession.logger.info("USer:" + user + " Cookie:" + userCookies.get(user));
+			TestSession.logger.info("USer:" + user + " Cookie:"
+					+ userCookies.get(user));
 			Response response = given().cookie(userCookies.get(user)).get(url);
 
 			String responseAsString = response.getBody().asString();
@@ -819,18 +853,34 @@ public class ATSTestsBaseClass extends TestSession {
 
 	UserGroupInformation getUgiForUser(String aUser) {
 		String keyTabLocation = null;
-		if (aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_1)){
+
+		try {
+			TestSession.logger.info("Even before the call Current user:"
+					+ UserGroupInformation.getCurrentUser());
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		if (aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_1)) {
 			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_1;
-		}else if(aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_2)){
+		} else if (aUser
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_2)) {
 			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_2;
-		}else if(aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)){
+		} else if (aUser
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)) {
 			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_3;
-		}else if(aUser.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)){
+		} else if (aUser
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)) {
 			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_4;
 		}
 		UserGroupInformation ugi;
 		try {
-
+			TestSession.logger.info("Is login keytab based:"
+					+ UserGroupInformation.isLoginKeytabBased());
+			TestSession.logger.info("Is security enabled:"
+					+ UserGroupInformation.isSecurityEnabled());
+			TestSession.logger.info("Fetching keytab as " + aUser
+					+ " from keytab:" + keyTabLocation);
 			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(aUser,
 					keyTabLocation);
 			TestSession.logger.info("UGI=" + ugi);
@@ -860,19 +910,22 @@ public class ATSTestsBaseClass extends TestSession {
 		Object jobObjectToRun;
 		String[] sleepJobArgs;
 		SeedData seedData;
+		String acls = null;
 
 		DoAs(UserGroupInformation ugi, Object jobObjectToRun,
-				String[] sleepJobArgs) throws IOException {
+				String[] sleepJobArgs, String acls) throws IOException {
 			this.ugi = ugi;
 			this.jobObjectToRun = jobObjectToRun;
 			this.sleepJobArgs = sleepJobArgs;
+			this.acls = acls;
 		}
 
 		public void doAction() throws AccessControlException, IOException,
 				InterruptedException {
-			TestSession.logger.info("In DoAs as user:" + ugi.getUserName() + " the same will be passed downstream");
+			TestSession.logger.info("In DoAs as user:" + ugi.getUserName()
+					+ " the same will be passed downstream");
 			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
-					ugi, jobObjectToRun, sleepJobArgs);
+					ugi, jobObjectToRun, sleepJobArgs, acls);
 			ugi.doAs(privilegedExceptionActor);
 			this.seedData = privilegedExceptionActor
 					.getSeedDataForAppThatJustRan();
@@ -892,18 +945,21 @@ public class ATSTestsBaseClass extends TestSession {
 		Set<String> dagNamesThatJustRan = null;
 		String[] sleepJobArgs = null;
 		SeedData seedData = new SeedData();
+		String acls = null;
 
 		PrivilegedExceptionActionImpl(UserGroupInformation ugi,
-				Object jobObjectToRun, String[] sleepJobArgs)
+				Object jobObjectToRun, String[] sleepJobArgs, String acls)
 				throws IOException {
 			this.ugi = ugi;
 			this.theJobToRun = jobObjectToRun;
 			this.sleepJobArgs = sleepJobArgs;
 			this.seedData.appStartedByUser = ugi.getUserName();
+			this.acls = acls;
 		}
 
 		public String run() throws Exception {
-			TestSession.logger.info("In PrivilegedExceptionActionImpl as user:" + ugi.getUserName() );
+			TestSession.logger.info("In PrivilegedExceptionActionImpl as user:"
+					+ ugi.getUserName());
 			String returnString = null;
 			if (this.theJobToRun instanceof OrderedWordCountExtendedForHtf) {
 				TestHtfOrderedWordCount test = new TestHtfOrderedWordCount();
@@ -915,7 +971,7 @@ public class ATSTestsBaseClass extends TestSession {
 										+ System.currentTimeMillis(), null, 2,
 								HadooptestConstants.Execution.TEZ_CLUSTER,
 								HtfTezUtils.Session.NO, TimelineServer.ENABLED,
-								"OrdWrdCnt", ugi, seedData);
+								"OrdWrdCnt", ugi, seedData, acls);
 
 				Assert.assertTrue(returnCode == true);
 
@@ -930,7 +986,8 @@ public class ATSTestsBaseClass extends TestSession {
 										HadooptestConstants.Execution.TEZ_CLUSTER,
 										HtfTezUtils.Session.YES,
 										TimelineServer.ENABLED,
-										"SimpleSessionEx"), 2, ugi, seedData);
+										"SimpleSessionEx"), 2, ugi, seedData,
+								acls);
 				test.deleteTezStagingDirs();
 				Assert.assertTrue(returnCode == true);
 
@@ -949,7 +1006,7 @@ public class ATSTestsBaseClass extends TestSession {
 								HadooptestConstants.Execution.TEZ_CLUSTER,
 								HtfTezUtils.Session.YES,
 								TimelineServer.DISABLED, "MRRSleepJob", ugi,
-								seedData);
+								seedData, acls);
 				Assert.assertTrue(returnCode == 0);
 
 			}

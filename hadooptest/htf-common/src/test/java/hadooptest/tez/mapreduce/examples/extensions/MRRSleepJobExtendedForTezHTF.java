@@ -178,7 +178,7 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	 * @throws Exception
 	 */
 	public int run(String[] args, String mode, Session session, TimelineServer timelineServer, String testName,
-			UserGroupInformation ugi, SeedData seedData) throws Exception {
+			UserGroupInformation ugi, SeedData seedData, String acls) throws Exception {
 
 	    if(args.length < 1) {
 	      System.err.println("MRRSleepJob [-m numMapper] [-r numReducer]" +
@@ -256,6 +256,7 @@ public class MRRSleepJobExtendedForTezHTF extends MRRSleepJob {
 	    iReduceSleepCount = (int)Math.ceil(iReduceSleepTime / ((double)recSleepTime));
 
 	    TezConfiguration conf = new TezConfiguration(HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(), mode, session, timelineServer, testName));
+	    conf.set("tez.am.dag.view-acls", acls);
 
 	    FileSystem remoteFs = FileSystem.get(conf);
 	    
