@@ -243,4 +243,23 @@ public abstract class TestSessionStorm extends TestSessionCore {
     protected String getLogForTopology(String topoName) throws Exception {
         return getLogForTopology( topoName, 0 );
     }
+
+    protected void kinit(String keytab, String principal) throws Exception {
+        logger.debug("About to kinit to " + principal + " with keytab " + keytab );
+        String[] kinitReturnValue = exec.runProcBuilder(new String[] { "kinit", "-kt", keytab, principal }, true);
+        if (!kinitReturnValue[0].equals("0")) {
+            throw new IllegalArgumentException("Could not kinit to " + principal + " from keytab " + keytab );
+        }
+
+        // We need to sleep to make sure that the ticket cache file is written before we use it
+        Util.sleep(10);
+
+        // Debug.  Let's do a klist and see what's there
+        String[] klistReturnValue = exec.runProcBuilder(new String[] { "klist" }, true);
+        logger.info("Principal is now " + klistReturnValue[1]);
+    }
+    
+    protected void kinit() throws Exception {
+        kinit(conf.getProperty("DEFAULT_KEYTAB"), conf.getProperty("DEFAULT_PRINCIPAL") );
+    }
 }

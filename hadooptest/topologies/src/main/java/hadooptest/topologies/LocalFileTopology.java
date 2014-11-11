@@ -21,6 +21,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 
 import hadooptest.workflow.storm.topology.bolt.LocalFileBolt;
+import hadooptest.workflow.storm.topology.bolt.ListFileBolt;
 
 public class LocalFileTopology {
     private static Logger LOG = Logger.getLogger(LocalFileTopology.class);
@@ -44,8 +45,13 @@ public class LocalFileTopology {
         DRPCSpout drpcSpout = new DRPCSpout("blobstore");
         builder.setSpout("drpc", drpcSpout, 1);
         builder.setBolt("blobstore", new LocalFileBolt(), 1).shuffleGrouping("drpc");
-
         builder.setBolt("rr", new ReturnResults()).globalGrouping("blobstore");
+
+        DRPCSpout permsSpout = new DRPCSpout("permissions");
+        builder.setSpout("perms", permsSpout, 1);
+        builder.setBolt("permsbolt", new ListFileBolt(), 1).shuffleGrouping("perms");
+        builder.setBolt("rrperms", new ReturnResults()).globalGrouping("permsbolt");
+
 
         Config storm_conf = new Config();
         storm_conf.putAll(Utils.readStormConfig());

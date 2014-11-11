@@ -89,11 +89,7 @@ public class TestHBaseTopology extends TestSessionStorm {
         assertTrue("Did not get expected result back from hbase topology", drpcResult.equals("mike"));
         
         // Update creds
-        //
-        // ToDo:  Make this configurable.  The orininal kinit is hardcoded from run_hadooptest.  It should be in some sort of a generic method.
-        String[] kinitReturnValue = exec.runProcBuilder(new String[] { "kinit", "-kt", "/homes/hadoopqa/hadoopqa.dev.headless.keytab", "hadoopqa@DEV.YGRID.YAHOO.COM" }, true);
-        assertTrue( "Could not kinit", kinitReturnValue[0].equals("0") );
-        Util.sleep(2);
+        kinit();
         String[] uploadReturnValue = exec.runProcBuilder(new String[] { "storm", "upload-credentials", "run" }, true);
         assertTrue( "Could not push credentials", uploadReturnValue[0].equals("0") );
         Util.sleep(30);
