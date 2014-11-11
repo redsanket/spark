@@ -73,6 +73,7 @@ public class ATSTestsBaseClass extends TestSession {
 	Queue<GenericATSResponseBO> taskIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	Queue<GenericATSResponseBO> taskAttemptIdQueue = new ConcurrentLinkedQueue<GenericATSResponseBO>();
 	AtomicInteger errorCount = new AtomicInteger();
+	public static Map<String, String> userGroupMapping = new HashMap<String, String>();
 
 	public static Boolean jobsLaunchedOnceToSeedData = Boolean.FALSE;
 
@@ -162,6 +163,28 @@ public class ATSTestsBaseClass extends TestSession {
 
 	}
 
+	public void createUserGroupMapping() {
+		String user;
+		// hitusr_1
+		user = HadooptestConstants.UserNames.HITUSR_1;
+		userGroupMapping.put(user, HadooptestConstants.UserGroups.HADOOP);
+
+		// hitusr_2
+		user = HadooptestConstants.UserNames.HITUSR_2;
+		userGroupMapping.put(user, HadooptestConstants.UserGroups.HADOOPQA);
+
+		// hitusr_3
+		user = HadooptestConstants.UserNames.HITUSR_3;
+		userGroupMapping.put(user, HadooptestConstants.UserGroups.GDMDEV);
+
+		// hitusr_4
+		user = HadooptestConstants.UserNames.HITUSR_4;
+		userGroupMapping.put(user, HadooptestConstants.UserGroups.HADOOPQA
+				+ "," + HadooptestConstants.UserGroups.GDMQA + ","
+				+ HadooptestConstants.UserGroups.GDMDEV);
+
+	}
+
 	public void restartATSWithTheseArgs(String rmHost, List<String> args)
 			throws Exception {
 		String command = "/home/gs/gridre/yroot."
@@ -231,9 +254,9 @@ public class ATSTestsBaseClass extends TestSession {
 		} else if (username
 				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_4)) {
 			sb.append(HadooptestConstants.UserGroups.HADOOP).append(",")
-					.append(HadooptestConstants.UserGroups.HADOOPQA).append(",")
-					.append(HadooptestConstants.UserGroups.GDMDEV).append(",")
-					.append(HadooptestConstants.UserGroups.GDMQA);
+					.append(HadooptestConstants.UserGroups.HADOOPQA)
+					.append(",").append(HadooptestConstants.UserGroups.GDMDEV)
+					.append(",").append(HadooptestConstants.UserGroups.GDMQA);
 		}
 		return sb.toString();
 	}
@@ -396,8 +419,8 @@ public class ATSTestsBaseClass extends TestSession {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		// TODO: Change the user below to seedData.appStartedByUser
 		makeHttpCallAndEnqueueConsumedResponse(execService, getATSUrl()
-				+ "TEZ_DAG_ID/", user,
-				EntityTypes.TEZ_DAG_ID, dagIdQueue, expectEverythingMap());
+				+ "TEZ_DAG_ID/", user, EntityTypes.TEZ_DAG_ID, dagIdQueue,
+				expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);

@@ -42,7 +42,7 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestATSAuthorizationAroundUserSpecifyingSelf extends
+public class TestAuthorizationWhenUserSpecifiesSelfInACL extends
 		ATSTestsBaseClass {
 	@Test
 	public void testUserHimselfCanSee() throws Exception {
@@ -182,11 +182,11 @@ public class TestATSAuthorizationAroundUserSpecifyingSelf extends
 	}
 
 	@Test
-	public void testUserInDifferentGroupCannotSee() throws Exception {
-		String hitusr_1 = HadooptestConstants.UserNames.HITUSR_3;
+	public void testUserInMutexGroup() throws Exception {
+		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInTheSameGroup = HadooptestConstants.UserNames.HITUSR_1;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				hitusr_1, hitusr_1);
+				self, self);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
