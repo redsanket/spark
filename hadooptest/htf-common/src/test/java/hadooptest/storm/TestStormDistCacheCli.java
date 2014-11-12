@@ -29,7 +29,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
   }
 
   public void testCreateAccessDelete(String blobKey, String blobACLs) throws Exception {
-    String fileName = "/home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar";
+    String fileName = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestStormDistCacheCli/input.txt";
     String[] returnValue = null;
     if (blobACLs == null) {
         returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -70,7 +70,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
   @Test(timeout=600000)
   public void testDistCacheCliNoUserWrite() throws Exception {
-    String fileName = "/home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar";
+    String fileName = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestStormDistCacheCli/input.txt";
     String blobKey = UUID.randomUUID().toString();
     String[] returnValue = null;
 
@@ -111,7 +111,6 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
             "create", blobKey, "-f", fileName, "-a", "u:hadoopqa:r--,o::r" }, true);
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
-    // storm blobstore set-acl empty-acls.txt -s "u:kpatil:rw-"  -c "java.security.auth.login.config=/jaas/gw-jaas.conf"
 
     // Make sure the one we want is there.
     findAclInFile(blobKey, "u:hadoopqa:rwa", "o::r--", superuserAcl);
@@ -193,7 +192,8 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
   public void launchBlobStoreTopology(String key, String filename) throws Exception {
     String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
-    String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology", "blob", "-c", "topology.blobstore.map={\""+key+"\":\""+filename+"\"}" }, true);
+    String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology",
+        "blob", "-c", "topology.blobstore.map={\""+key+"\":\""+filename+"\"}" }, true);
     assertTrue( "Could not launch topology", returnValue[0].equals("0") );
   }
 

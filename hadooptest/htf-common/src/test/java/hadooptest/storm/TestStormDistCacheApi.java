@@ -308,7 +308,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     String modifiedActualAclString = Utils.toString(modifiedActualAcl);
     AccessControl myActualAcl = modifiedBlobMeta.get_settable().get_acl().get(0);
     String myActualAclString = Utils.toString(myActualAcl);
-    logger.info("Acutal modified ACL is " + modifiedActualAclString);
+    logger.info("Actual modified ACL is " + modifiedActualAclString);
     logger.info("Other modified ACL is " + modifiedActualAclString);
     logger.info("My modified ACL is " + modifiedActualAclString);
     assertEquals("Actual ACL is different for modified blob", otherACLString, modifiedActualAclString);
