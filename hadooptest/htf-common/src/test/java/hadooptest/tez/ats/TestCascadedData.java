@@ -35,12 +35,12 @@ public class TestCascadedData extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		HtfATSUtils htfAtsUtils = new HtfATSUtils();
-		for (DAG aSeedDag : seedDataForAutomaticallyLaunchedOrderedWordCount.dags) {
+		for (DAG aSeedDag : seedDataForAutoLaunchedOrderedWordCount.dags) {
 			addendum = "?primaryFilter=dagName:" + aSeedDag.name;
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
-					seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser,
+					seedDataForAutoLaunchedOrderedWordCount.appStartedByUser,
 					entityTypeInRequest, dagIdQueue, expectEverythingMap());
 			execService.shutdown();
 			while (!execService.isTerminated()) {
@@ -49,7 +49,7 @@ public class TestCascadedData extends ATSTestsBaseClass {
 			GenericATSResponseBO genericATSResponse = dagIdQueue.poll();
 			for (EntityInGenericATSResponseBO anEntityInGenericATSResponseBO : genericATSResponse.entities) {
 				if (anEntityInGenericATSResponseBO.entity
-						.contains(seedDataForAutomaticallyLaunchedOrderedWordCount.appId)) {
+						.contains(seedDataForAutoLaunchedOrderedWordCount.appId)) {
 					if (!anEntityInGenericATSResponseBO.primaryfilters.get(
 							"dagName").contains(aSeedDag.name)) {
 						// DAG does not belong to this run
@@ -58,8 +58,8 @@ public class TestCascadedData extends ATSTestsBaseClass {
 					// This is the DAG we are interested in
 					compareAppIdUserNameAndVertexIdsInResponse(aSeedDag,
 							anEntityInGenericATSResponseBO,
-							seedDataForAutomaticallyLaunchedOrderedWordCount.appId,
-							seedDataForAutomaticallyLaunchedOrderedWordCount.appStartedByUser);
+							seedDataForAutoLaunchedOrderedWordCount.appId,
+							seedDataForAutoLaunchedOrderedWordCount.appStartedByUser);
 				}
 			}
 
@@ -75,12 +75,12 @@ public class TestCascadedData extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		HtfATSUtils htfAtsUtils = new HtfATSUtils();
-		for (DAG aSeedDag : seedDataForAutomaticallyLaunchedSimpleSessionExample.dags) {
+		for (DAG aSeedDag : seedDataForAutoLaunchedSimpleSessionExample.dags) {
 			addendum = "?primaryFilter=dagName:" + aSeedDag.name;
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
-					seedDataForAutomaticallyLaunchedSimpleSessionExample.appStartedByUser,
+					seedDataForAutoLaunchedSimpleSessionExample.appStartedByUser,
 					entityTypeInRequest, dagIdQueue, expectEverythingMap());
 			execService.shutdown();
 			while (!execService.isTerminated()) {
@@ -89,7 +89,7 @@ public class TestCascadedData extends ATSTestsBaseClass {
 			GenericATSResponseBO genericATSResponse = dagIdQueue.poll();
 			for (EntityInGenericATSResponseBO anEntityInGenericATSResponseBO : genericATSResponse.entities) {
 				if (anEntityInGenericATSResponseBO.entity
-						.contains(seedDataForAutomaticallyLaunchedSimpleSessionExample.appId)) {
+						.contains(seedDataForAutoLaunchedSimpleSessionExample.appId)) {
 					if (!anEntityInGenericATSResponseBO.primaryfilters.get(
 							"dagName").contains(aSeedDag.name)) {
 						// DAG does not belong to this run
@@ -98,8 +98,8 @@ public class TestCascadedData extends ATSTestsBaseClass {
 					// This is the DAG we are interested in
 					compareAppIdUserNameAndVertexIdsInResponse(aSeedDag,
 							anEntityInGenericATSResponseBO,
-							seedDataForAutomaticallyLaunchedSimpleSessionExample.appId,
-							seedDataForAutomaticallyLaunchedSimpleSessionExample.appStartedByUser);
+							seedDataForAutoLaunchedSimpleSessionExample.appId,
+							seedDataForAutoLaunchedSimpleSessionExample.appStartedByUser);
 				}
 			}
 
@@ -115,12 +115,12 @@ public class TestCascadedData extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		HtfATSUtils htfAtsUtils = new HtfATSUtils();
-		for (DAG aSeedDag : seedDataForAutomaticallyLaunchedSleepJob.dags) {
+		for (DAG aSeedDag : seedDataForAutoLaunchedSleepJob.dags) {
 			addendum = "?primaryFilter=dagName:" + aSeedDag.name;
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
-					seedDataForAutomaticallyLaunchedSleepJob.appStartedByUser, entityTypeInRequest,
+					seedDataForAutoLaunchedSleepJob.appStartedByUser, entityTypeInRequest,
 					dagIdQueue, expectEverythingMap());
 			execService.shutdown();
 			while (!execService.isTerminated()) {
@@ -129,7 +129,7 @@ public class TestCascadedData extends ATSTestsBaseClass {
 			GenericATSResponseBO genericATSResponse = dagIdQueue.poll();
 			for (EntityInGenericATSResponseBO anEntityInGenericATSResponseBO : genericATSResponse.entities) {
 				if (anEntityInGenericATSResponseBO.entity
-						.contains(seedDataForAutomaticallyLaunchedSleepJob.appId)) {
+						.contains(seedDataForAutoLaunchedSleepJob.appId)) {
 					if (!anEntityInGenericATSResponseBO.primaryfilters.get(
 							"dagName").contains(aSeedDag.name)) {
 						// DAG does not belong to this run
@@ -138,8 +138,8 @@ public class TestCascadedData extends ATSTestsBaseClass {
 					// This is the DAG we are interested in
 					compareAppIdUserNameAndVertexIdsInResponse(aSeedDag,
 							anEntityInGenericATSResponseBO,
-							seedDataForAutomaticallyLaunchedSleepJob.appId,
-							seedDataForAutomaticallyLaunchedSleepJob.appStartedByUser);
+							seedDataForAutoLaunchedSleepJob.appId,
+							seedDataForAutoLaunchedSleepJob.appStartedByUser);
 				}
 			}
 

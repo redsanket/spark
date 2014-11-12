@@ -77,9 +77,9 @@ public class ATSTestsBaseClass extends TestSession {
 
 	public static Boolean jobsLaunchedOnceToSeedData = Boolean.FALSE;
 
-	public static SeedData seedDataForAutomaticallyLaunchedSleepJob = null;
-	public static SeedData seedDataForAutomaticallyLaunchedSimpleSessionExample = null;
-	public static SeedData seedDataForAutomaticallyLaunchedOrderedWordCount = null;
+	public static SeedData seedDataForAutoLaunchedSleepJob = null;
+	public static SeedData seedDataForAutoLaunchedSimpleSessionExample = null;
+	public static SeedData seedDataForAutoLaunchedOrderedWordCount = null;
 
 	public enum EntityTypes {
 		TEZ_APPLICATION_ATTEMPT, TEZ_CONTAINER_ID, TEZ_DAG_ID, TEZ_VERTEX_ID, TEZ_TASK_ID, TEZ_TASK_ATTEMPT_ID,
@@ -269,19 +269,19 @@ public class ATSTestsBaseClass extends TestSession {
 			// runPigOnTezScriptOnCluster();
 
 			// Run a OrderedWordCount as hitusr_1
-			seedDataForAutomaticallyLaunchedOrderedWordCount = launchOrderedWordCountExtendedForHtfAndGetSeedData(
+			seedDataForAutoLaunchedOrderedWordCount = launchOrderedWordCountExtendedForHtfAndGetSeedData(
 					HadooptestConstants.UserNames.HITUSR_1,
 					HadooptestConstants.UserNames.HITUSR_1);
 
 			// Run a Sleep Job, as hitusr_2
 			String[] sleepJobArgs = new String[] { "-m 5", "-r 4", "-ir 4",
 					"-irs 4", "-mt 500", "-rt 200", "-irt 100", "-recordt 100" };
-			seedDataForAutomaticallyLaunchedSleepJob = launchMRRSleepJobAndGetSeedData(
+			seedDataForAutoLaunchedSleepJob = launchMRRSleepJobAndGetSeedData(
 					HadooptestConstants.UserNames.HITUSR_2, sleepJobArgs,
 					HadooptestConstants.UserNames.HITUSR_2);
 
 			// Run a SimpleSessionExample as hitusr_3
-			seedDataForAutomaticallyLaunchedSimpleSessionExample = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
+			seedDataForAutoLaunchedSimpleSessionExample = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 					HadooptestConstants.UserNames.HITUSR_3,
 					HadooptestConstants.UserNames.HITUSR_3);
 
@@ -363,7 +363,6 @@ public class ATSTestsBaseClass extends TestSession {
 	public SeedData launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 			String user, String acls) throws IOException, InterruptedException {
 		UserGroupInformation ugi = getUgiForUser(user);
-		ugi.reloginFromKeytab();
 		DoAs doAs = new DoAs(ugi, new SimpleSessionExampleExtendedForTezHTF(),
 				new String[0], acls);
 		doAs.doAction();
