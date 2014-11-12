@@ -42,14 +42,13 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthorizationWhenUserExclusivelyAllowsADiffGroupInACL extends
+public class TestAuthorizationWhenUserSpecifiesNothingInACL extends
 		ATSTestsBaseClass {
 	@Test
 	public void testUserHimselfCanSee() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
-		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
+				self, "");
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -115,11 +114,10 @@ public class TestAuthorizationWhenUserExclusivelyAllowsADiffGroupInACL extends
 
 	@Test
 	public void testUsersInSameGroupCanSee() throws Exception {
-		String self = HadooptestConstants.UserNames.HITUSR_3;		
-		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
-		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
+		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String otherInSameGroup = HadooptestConstants.UserNames.HITUSR_4;
+		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
+				self, "");
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -186,10 +184,9 @@ public class TestAuthorizationWhenUserExclusivelyAllowsADiffGroupInACL extends
 	@Test
 	public void testUserInMutexGroup() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
-		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
+		String userNotInTheSameGroup = HadooptestConstants.UserNames.HITUSR_1;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
-		
+				self, "");
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -204,9 +201,9 @@ public class TestAuthorizationWhenUserExclusivelyAllowsADiffGroupInACL extends
 			String url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 			TestSession.logger.info("Processing:" + url);
 			makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-					userNotInSameGroupButHisGroupIsAllowed, currentQueue);
+					userNotInTheSameGroup, currentQueue);
 			polled = currentQueue.poll();
-			Assert.assertTrue(atsUtils.isEntityPresentInResponse(polled,
+			Assert.assertFalse(atsUtils.isEntityPresentInResponse(polled,
 					entityTypeBeingTested, entity));
 			for (Vertex aVertex : aDAG.vertices) {
 				entity = aVertex.id;
@@ -215,9 +212,9 @@ public class TestAuthorizationWhenUserExclusivelyAllowsADiffGroupInACL extends
 				url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 				TestSession.logger.info("Processing:" + url);
 				makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-						userNotInSameGroupButHisGroupIsAllowed, currentQueue);
+						userNotInTheSameGroup, currentQueue);
 				polled = currentQueue.poll();
-				Assert.assertTrue(atsUtils.isEntityPresentInResponse(polled,
+				Assert.assertFalse(atsUtils.isEntityPresentInResponse(polled,
 						entityTypeBeingTested, entity));
 				for (Task aTask : aVertex.tasks) {
 					entity = aTask.id;
@@ -227,9 +224,9 @@ public class TestAuthorizationWhenUserExclusivelyAllowsADiffGroupInACL extends
 					url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 					TestSession.logger.info("Processing:" + url);
 					makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-							userNotInSameGroupButHisGroupIsAllowed, currentQueue);
+							userNotInTheSameGroup, currentQueue);
 					polled = currentQueue.poll();
-					Assert.assertTrue(atsUtils.isEntityPresentInResponse(
+					Assert.assertFalse(atsUtils.isEntityPresentInResponse(
 							polled, entityTypeBeingTested, entity));
 					for (Attempt anAttempt : aTask.attempts) {
 						entity = anAttempt.id;
@@ -239,9 +236,9 @@ public class TestAuthorizationWhenUserExclusivelyAllowsADiffGroupInACL extends
 								+ entity;
 						TestSession.logger.info("Processing:" + url);
 						makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-								userNotInSameGroupButHisGroupIsAllowed, currentQueue);
+								userNotInTheSameGroup, currentQueue);
 						polled = currentQueue.poll();
-						Assert.assertTrue(atsUtils.isEntityPresentInResponse(
+						Assert.assertFalse(atsUtils.isEntityPresentInResponse(
 								polled, entityTypeBeingTested, entity));
 
 					}
