@@ -45,7 +45,7 @@ import org.junit.experimental.categories.Category;
 public class TestAuthorizationWhenUserSpecifiesUserAndGroupComboInACL extends
 		ATSTestsBaseClass {
 	@Test
-	public void testUserHimselfCanSee() throws Exception {
+	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String explicitUser = HadooptestConstants.UserNames.HITUSR_2;
 		String otherGroupAllowed = HadooptestConstants.UserGroups.HADOOP;
@@ -137,20 +137,5 @@ public class TestAuthorizationWhenUserSpecifiesUserAndGroupComboInACL extends
 		}
 
 	}
-	// public boolean isEntityPresentInResponsea(GenericATSResponseBO
-	// processedResponse, EntityTypes entityType,
-	// String entity){
-	// boolean valueFound = false;
-	// for (EntityInGenericATSResponseBO anEntityPresentInBunch :
-	// processedResponse.entities){
-	// if (anEntityPresentInBunch.entityType.equals(entityType.name())
-	// && anEntityPresentInBunch.entity.equals(entity)){
-	// valueFound = true;
-	// break;
-	// }
-	// }
-	//
-	// return valueFound;
-	// }
 
 }

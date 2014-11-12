@@ -45,7 +45,7 @@ import org.junit.experimental.categories.Category;
 public class TestAuthorizationWhenDiffGroupAllowedInACL extends
 		ATSTestsBaseClass {
 	@Test
-	public void testUserHimselfCanSee() throws Exception {
+	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
@@ -114,7 +114,7 @@ public class TestAuthorizationWhenDiffGroupAllowedInACL extends
 	}
 
 	@Test
-	public void testUsersInSameGroupCanSee() throws Exception {
+	public void testUsersInSameGroup() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;		
 		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(

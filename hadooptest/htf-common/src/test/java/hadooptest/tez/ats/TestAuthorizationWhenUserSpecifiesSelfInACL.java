@@ -45,7 +45,7 @@ import org.junit.experimental.categories.Category;
 public class TestAuthorizationWhenUserSpecifiesSelfInACL extends
 		ATSTestsBaseClass {
 	@Test
-	public void testUserHimselfCanSee() throws Exception {
+	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 				self, self);
@@ -113,7 +113,7 @@ public class TestAuthorizationWhenUserSpecifiesSelfInACL extends
 	}
 
 	@Test
-	public void testUsersInSameGroupCanSee() throws Exception {
+	public void testUsersInSameGroup() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String otherInSameGroup = HadooptestConstants.UserNames.HITUSR_4;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
