@@ -1,22 +1,13 @@
 package hadooptest.tez.ats;
 
 import hadooptest.SerialTests;
-import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
-import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
-import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfATSUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -148,7 +139,8 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 		}
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = dagIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>1 && entityCount<=LIMIT);
 
 	}
 
@@ -180,7 +172,8 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 		}
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = dagIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>1 && entityCount<=LIMIT);
 
 
 	}

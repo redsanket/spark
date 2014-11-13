@@ -12,7 +12,9 @@ import hadooptest.cluster.hadoop.HadoopComponent;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
+import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
 import hadooptest.tez.examples.cluster.TestHtfOrderedWordCount;
@@ -266,7 +268,7 @@ public class ATSTestsBaseClass extends TestSession {
 		if (jobsLaunchedOnceToSeedData.booleanValue() == Boolean.FALSE) {
 			jobsLaunchedOnceToSeedData = Boolean.TRUE;
 			groundWorkForPigScriptExecution();
-			// runPigOnTezScriptOnCluster();
+			 runPigOnTezScriptOnCluster();
 
 			// Run a OrderedWordCount as hitusr_1
 			seedDataForAutoLaunchedOrderedWordCount = launchOrderedWordCountExtendedForHtfAndGetSeedData(
@@ -291,29 +293,30 @@ public class ATSTestsBaseClass extends TestSession {
 	public void groundWorkForPigScriptExecution() throws Exception {
 		TestSession.logger.info("Doing groundWorkForPigScriptExecution");
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
-
+		String MIMIC_THIS_NAME_ON_HDFS = TestHtfOrderedWordCount.YINST_DIR_LOCATION_OF_HTF_DATA;
+		String DATA_FILE="excite-small.log";
 		GenericCliResponseBO quickCheck = dfsCliCommands.test(
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
 				System.getProperty("CLUSTER_NAME"),
-				TestHtfOrderedWordCount.INPUT_FILE,
+				MIMIC_THIS_NAME_ON_HDFS + DATA_FILE,
 				DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
 
 		if (quickCheck.process.exitValue() != 0) {
-			// dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-			// HadooptestConstants.UserNames.HDFSQA, "",
-			// System.getProperty("CLUSTER_NAME"),
-			// "/home/y/share/htf-data/");
+			 dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+			 HadooptestConstants.UserNames.HDFSQA, "",
+			 System.getProperty("CLUSTER_NAME"),
+			 MIMIC_THIS_NAME_ON_HDFS);
 			dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, "",
 					System.getProperty("CLUSTER_NAME"),
 					TestHtfOrderedWordCount.SOURCE_FILE,
-					TestHtfOrderedWordCount.INPUT_FILE);
+					MIMIC_THIS_NAME_ON_HDFS);
 			dfsCliCommands.chmod(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					System.getProperty("CLUSTER_NAME"),
 					System.getProperty("CLUSTER_NAME"),
-					TestHtfOrderedWordCount.INPUT_FILE, "777", Recursive.YES);
+					"/" + MIMIC_THIS_NAME_ON_HDFS.split("/")[1], "777", Recursive.YES);
 		}
 		// Check if o/p dir exists
 		quickCheck = dfsCliCommands.test(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
@@ -321,12 +324,11 @@ public class ATSTestsBaseClass extends TestSession {
 				System.getProperty("CLUSTER_NAME"), "/tmp/pigout/",
 				DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
 
-		// Delete the output dir
-		if (quickCheck.process.exitValue() != 0) {
-			GenericCliResponseBO dirCheck = dfsCliCommands.rmdir(
-					DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+		// Delete the output dir, if it exists
+		if (quickCheck.process.exitValue() == 0) {
+			dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, "",
-					System.getProperty("CLUSTER_NAME"), "/tmp/pigout/");
+					System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES, SkipTrash.YES, "/tmp/pigout/");
 		}
 
 	}
@@ -944,7 +946,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 		public void doAction() throws AccessControlException, IOException,
 				InterruptedException {
-			TestSession.logger.info("In DoAs as user:" + ugi.getUserName()
+			TestSession.logger.info("In DoAs as user:" + ugi.getShortUserName()
 					+ " the same will be passed downstream");
 			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
 					ugi, jobObjectToRun, sleepJobArgs, acls);
@@ -975,13 +977,13 @@ public class ATSTestsBaseClass extends TestSession {
 			this.ugi = ugi;
 			this.theJobToRun = jobObjectToRun;
 			this.sleepJobArgs = sleepJobArgs;
-			this.seedData.appStartedByUser = ugi.getUserName();
+			this.seedData.appStartedByUser = ugi.getShortUserName();
 			this.acls = acls;
 		}
 
 		public String run() throws Exception {
 			TestSession.logger.info("In PrivilegedExceptionActionImpl as user:"
-					+ ugi.getUserName());
+					+ ugi.getShortUserName());
 			String returnString = null;
 			if (this.theJobToRun instanceof OrderedWordCountExtendedForHtf) {
 				TestHtfOrderedWordCount test = new TestHtfOrderedWordCount();

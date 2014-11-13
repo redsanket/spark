@@ -178,11 +178,12 @@ public class HtfPigBaseClass extends TestSession {
 
 		sb.append("-x tez");
 		sb.append(" ");
-
+		
+		sb.append(" -f " + scriptWithLocation);
+		
 		for (String aParam:params){
 			sb.append(" -param " + aParam);
-		}
-		sb.append(" -f " + scriptWithLocation);
+		}		
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);

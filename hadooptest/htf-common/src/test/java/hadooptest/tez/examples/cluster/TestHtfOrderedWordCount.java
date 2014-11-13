@@ -42,7 +42,8 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 	}
 
 	public static String JUST_THE_FILE_NAME = "excite-small.log";
-	public static String SOURCE_FILE = "/home/y/share/htf-data/"
+	public static String YINST_DIR_LOCATION_OF_HTF_DATA = "/home/y/share/htf-data/";
+	public static String SOURCE_FILE = YINST_DIR_LOCATION_OF_HTF_DATA
 			+ JUST_THE_FILE_NAME;
 	public static String HDFS_DIR_LOC = "/tmp/";
 	public static String INPUT_FILE = HDFS_DIR_LOC + JUST_THE_FILE_NAME;
