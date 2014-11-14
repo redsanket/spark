@@ -12,6 +12,7 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
 import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass.YarnAdminSubCommand;
+import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass.YarnApplicationSubCommand;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,8 +47,8 @@ public class YarnCliCommands {
 	 * A CLI Response Business Object. All CLI responses can conform to this.
 	 */
 	public class GenericYarnCliResponseBO {
-		Process process;
-		String response;
+		public Process process;
+		public String response;
 
 		public GenericYarnCliResponseBO(Process process, String response) {
 			this.process = process;
@@ -93,6 +94,51 @@ public class YarnCliCommands {
 			sb.append("-refreshSuperUserGroupsConfiguration"); sb.append(" ");
 		}else if(yarnSubCommand == YarnAdminSubCommand.REFRESH_USER_TO_GROUPS_MAPPING){
 			sb.append("-refreshUserToGroupsMappings"); sb.append(" ");
+		}
+
+
+		String commandString = sb.toString();
+		TestSession.logger.info(commandString);
+		String[] commandFrags = commandString.split("\\s+");
+		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+				envMapSentByTest);
+		environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+		Process process = null;
+		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+				commandFrags, user, environmentVariablesWrappingTheCommand);
+		String response = printResponseAndReturnItAsString(process);
+		GenericYarnCliResponseBO responseBO = new GenericYarnCliResponseBO(process,
+				response);
+		return responseBO;
+	}
+
+	public GenericYarnCliResponseBO application(HashMap<String, String> envMapSentByTest,
+			String user, String protocol, String cluster,
+			YarnApplicationSubCommand yarnSubCommand, String argList) throws Exception {
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(HadooptestConstants.Location.Binary.YARN);
+		sb.append(" ");
+		sb.append("--config");
+		sb.append(" ");
+		sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+		sb.append(" ");
+		sb.append("application");
+		sb.append(" ");
+		
+		if (yarnSubCommand == YarnApplicationSubCommand.APPSTATES){
+			sb.append("-appStates").append(" ").append(argList);
+		}else if(yarnSubCommand == YarnApplicationSubCommand.APPTYPES){
+			sb.append("-appTypes").append(" ").append(argList);
+		}else if(yarnSubCommand == YarnApplicationSubCommand.KILL){
+			sb.append("-kill").append(" ").append(argList);
+		}else if(yarnSubCommand == YarnApplicationSubCommand.LIST){
+			sb.append("-list").append(" ").append(argList);
+		}else if(yarnSubCommand == YarnApplicationSubCommand.MOVE_TO_QUEUE){
+			sb.append("-movetoqueue").append(" ").append(argList);
+		}else if(yarnSubCommand == YarnApplicationSubCommand.QUEUE){
+			sb.append("-queue").append(" ").append(argList);
 		}
 
 

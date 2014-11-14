@@ -15,6 +15,9 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Recursive;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SkipTrash;
+import hadooptest.hadoop.regression.yarn.YarnCliCommands;
+import hadooptest.hadoop.regression.yarn.YarnCliCommands.GenericYarnCliResponseBO;
+import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass.YarnApplicationSubCommand;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition.EVENTS;
 import hadooptest.tez.examples.cluster.TestHtfOrderedWordCount;
@@ -82,6 +85,7 @@ public class ATSTestsBaseClass extends TestSession {
 	public static SeedData seedDataForAutoLaunchedSleepJob = null;
 	public static SeedData seedDataForAutoLaunchedSimpleSessionExample = null;
 	public static SeedData seedDataForAutoLaunchedOrderedWordCount = null;
+	public static SeedData seedDataForAutoLaunchedPigJob = new SeedData();
 
 	public enum EntityTypes {
 		TEZ_APPLICATION_ATTEMPT, TEZ_CONTAINER_ID, TEZ_DAG_ID, TEZ_VERTEX_ID, TEZ_TASK_ID, TEZ_TASK_ATTEMPT_ID,
@@ -268,8 +272,18 @@ public class ATSTestsBaseClass extends TestSession {
 		if (jobsLaunchedOnceToSeedData.booleanValue() == Boolean.FALSE) {
 			jobsLaunchedOnceToSeedData = Boolean.TRUE;
 			groundWorkForPigScriptExecution();
-			 runPigOnTezScriptOnCluster();
+			List<String> listOfPigJobsRanOnTheClusterOld = pigJobsOnTheCluster();
+			runPigOnTezScriptOnCluster();
+			List<String> listOfPigJobsRanOnTheClusterNew = pigJobsOnTheCluster();
+			listOfPigJobsRanOnTheClusterNew
+					.removeAll(listOfPigJobsRanOnTheClusterOld);
+			seedDataForAutoLaunchedPigJob.appId = listOfPigJobsRanOnTheClusterNew
+					.get(0);
+			seedDataForAutoLaunchedPigJob.appStartedByUser = HadooptestConstants.UserNames.HADOOPQA;
+			TestSession.logger.info("New Pig job app Id:"
+					+ seedDataForAutoLaunchedPigJob.appId);
 
+			System.exit(0);
 			// Run a OrderedWordCount as hitusr_1
 			seedDataForAutoLaunchedOrderedWordCount = launchOrderedWordCountExtendedForHtfAndGetSeedData(
 					HadooptestConstants.UserNames.HITUSR_1,
@@ -294,19 +308,19 @@ public class ATSTestsBaseClass extends TestSession {
 		TestSession.logger.info("Doing groundWorkForPigScriptExecution");
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		String MIMIC_THIS_NAME_ON_HDFS = TestHtfOrderedWordCount.YINST_DIR_LOCATION_OF_HTF_DATA;
-		String DATA_FILE="excite-small.log";
+		String DATA_FILE = "excite-small.log";
 		GenericCliResponseBO quickCheck = dfsCliCommands.test(
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "",
-				System.getProperty("CLUSTER_NAME"),
-				MIMIC_THIS_NAME_ON_HDFS + DATA_FILE,
-				DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+				System.getProperty("CLUSTER_NAME"), MIMIC_THIS_NAME_ON_HDFS
+						+ DATA_FILE, DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
 
 		if (quickCheck.process.exitValue() != 0) {
-			 dfsCliCommands.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-			 HadooptestConstants.UserNames.HDFSQA, "",
-			 System.getProperty("CLUSTER_NAME"),
-			 MIMIC_THIS_NAME_ON_HDFS);
+			dfsCliCommands
+					.mkdir(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+							HadooptestConstants.UserNames.HDFSQA, "",
+							System.getProperty("CLUSTER_NAME"),
+							MIMIC_THIS_NAME_ON_HDFS);
 			dfsCliCommands.put(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, "",
 					System.getProperty("CLUSTER_NAME"),
@@ -315,8 +329,9 @@ public class ATSTestsBaseClass extends TestSession {
 			dfsCliCommands.chmod(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA,
 					System.getProperty("CLUSTER_NAME"),
-					System.getProperty("CLUSTER_NAME"),
-					"/" + MIMIC_THIS_NAME_ON_HDFS.split("/")[1], "777", Recursive.YES);
+					System.getProperty("CLUSTER_NAME"), "/"
+							+ MIMIC_THIS_NAME_ON_HDFS.split("/")[1], "777",
+					Recursive.YES);
 		}
 		// Check if o/p dir exists
 		quickCheck = dfsCliCommands.test(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
@@ -328,16 +343,32 @@ public class ATSTestsBaseClass extends TestSession {
 		if (quickCheck.process.exitValue() == 0) {
 			dfsCliCommands.rm(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
 					HadooptestConstants.UserNames.HDFSQA, "",
-					System.getProperty("CLUSTER_NAME"), Recursive.YES, Force.YES, SkipTrash.YES, "/tmp/pigout/");
+					System.getProperty("CLUSTER_NAME"), Recursive.YES,
+					Force.YES, SkipTrash.YES, "/tmp/pigout/");
 		}
 
 	}
 
+	private List<String> pigJobsOnTheCluster() throws Exception {
+		List<String> pigJobsRan = new ArrayList<String>();
+		YarnCliCommands yarnCliCommands = new YarnCliCommands();
+		GenericYarnCliResponseBO yarnResponse = yarnCliCommands.application(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+				HadooptestConstants.UserNames.HDFSQA, "",
+				System.getProperty("CLUSTER_NAME"),
+				YarnApplicationSubCommand.LIST, "-appStates" + " " + "ALL");
+		String[] allLines = yarnResponse.response.split("\n");
+		for (String aLine : allLines) {
+			if (!aLine.contains("PigLatin")) {
+				continue;
+			}
+			pigJobsRan.add(aLine.split("\\s+")[0]);
+		}
+		return pigJobsRan;
+	}
+
 	public void runPigOnTezScriptOnCluster() throws Exception {
 		TestSession.logger.info("Running seed Pig script on cluster");
-		HadoopNode hadoopNode = TestSession.cluster
-				.getNode(HadooptestConstants.NodeTypes.NAMENODE);
-		String nameNode = hadoopNode.getHostname();
 		List<String> params = new ArrayList<String>();
 		params.add("outdir=/tmp/pigout/script2-mapreduce");
 		String scriptLocation = "/home/y/share/htf-data/script2-local.pig ";

@@ -125,17 +125,6 @@ public class HtfTezUtils {
 			// Cluster mode
 			conf.setBoolean("tez.local.mode", false);
 			conf.setBoolean("tez.use.cluster.hadoop-libs", true);
-			try {
-				// TODO: Remove this commented method once Amit has been added
-				// to OpsDb role grid_re
-				// applyTezSettingsToAllHosts();
-			} catch (Exception e) {
-				e.printStackTrace();
-				TestSession.logger
-						.info("Exception received when changing confs in all the nodes in the cluster."
-								+ "Remove this commented method once Amit has been added to OpsDb role grid_re");
-			}
-
 		}
 
 		// Consider using a session
@@ -158,10 +147,6 @@ public class HtfTezUtils {
 
 		// Set the staging dir
 		String user = UserGroupInformation.getCurrentUser().getShortUserName();
-		// String stagingDirStr = "." + Path.SEPARATOR + "user"
-		// + Path.SEPARATOR + user + Path.SEPARATOR + ".staging"
-		// + Path.SEPARATOR + testName
-		// + Long.toString(System.currentTimeMillis());
 		FileSystem fs = FileSystem.get(conf);
 
 		Path stagingDir = new Path(fs.getWorkingDirectory(), UUID.randomUUID()
@@ -185,123 +170,6 @@ public class HtfTezUtils {
 		return new TezConfiguration(conf);
 	}
 
-	/**
-	 * TODO: This method can be removed later. I have it currently in place
-	 * because I am not a part of an OpsDb group: grid_re, type: opsdb,
-	 * property: Grid.US This inhibits fro looking at the Logs (by drilling down
-	 * to the AM/Container). So this just provides '*' permissions to the world.
-	 * 
-	 * Refer this: http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.0.0.2/
-	 * bk_installing_manually_book/content/rpm-chap-tez-2.html
-	 * 
-	 * @throws Exception
-	 */
-	public static void applyTezSettingsToAllHosts() throws Exception {
-		String[] allTezComponentTypes = new String[] {
-				HadooptestConstants.NodeTypes.NODE_MANAGER,
-				HadooptestConstants.NodeTypes.RESOURCE_MANAGER };
-		ExecutorService bounceThreadPool = Executors
-				.newFixedThreadPool(allTezComponentTypes.length);
-		ArrayList<Thread> spawnedThreads = new ArrayList<Thread>();
-		for (final String aTezComponentType : allTezComponentTypes) {
-			Runnable aRunnableBouncer = new Runnable() {
-
-				public void run() {
-					FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
-							.getCluster();
-
-					try {
-						fullyDistributedCluster.getConf(aTezComponentType)
-								.backupConfDir();
-
-						String dirWhereConfHasBeenCopiedOnTheRemoteMachine = fullyDistributedCluster
-								.getConf(aTezComponentType).getHadoopConfDir();
-
-						copyTezSiteXmlOverToHadoopHost(aTezComponentType,
-								dirWhereConfHasBeenCopiedOnTheRemoteMachine);
-
-						TestSession.logger.info("Backed up "
-								+ aTezComponentType + " conf dir in :"
-								+ dirWhereConfHasBeenCopiedOnTheRemoteMachine);
-
-						// Since setting the HadoopConf file also backs up the
-						// config dir,
-						// wait for a few seconds.
-						Thread.sleep(10000);
-						/**
-						 * Commenting out the statement below, 'cos got a
-						 * clarification from Jon on Aug 10th This isn't needed
-						 * for our setup unless we want all map reduce jobs to
-						 * use tez. All tez jobs (pig on tez and tez map reduce
-						 * examples) do this automatically.
-						 */
-						fullyDistributedCluster.getConf(aTezComponentType)
-								.setHadoopConfFileProp(
-										"mapreduce.framework.name", "yarn-tez",
-										"mapred-site.xml", null);
-
-						fullyDistributedCluster.getConf(aTezComponentType)
-								.setHadoopConfFileProp(
-										"mapreduce.job.acl-view-job", "*",
-										"yarn-site.xml", null);
-
-						// Bounce the node
-						fullyDistributedCluster.hadoopDaemon(Action.STOP,
-								aTezComponentType);
-						fullyDistributedCluster.hadoopDaemon(Action.START,
-								aTezComponentType);
-
-					} catch (InterruptedException e) {
-						TestSession.logger
-								.info("applyTezSettingsToAllHosts was interrupted... ignoring the interrupt");
-						e.printStackTrace();
-					} catch (Exception e) {
-						TestSession.logger
-								.info("Received Exception while staring/stopping a node. Ignoring it. Because this is a temporary"
-										+ "functionality and would be removed once Amit has access to grid_re OpsDb role.");
-						e.printStackTrace();
-					}
-				}
-
-			};
-			Thread t = new Thread(aRunnableBouncer);
-			t.start();
-			spawnedThreads.add(t);
-		}
-		for (Thread t : spawnedThreads) {
-			t.join();
-		}
-		Thread.sleep(10000);
-		DfsCliCommands dfsCommonCli = new DfsCliCommands();
-		dfsCommonCli.dfsadmin(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP, Report.NO,
-				"leave", ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-				SetSpaceQuota.NO, 0, PrintTopology.NO,
-				DfsTestsBaseClass.EMPTY_FS_ENTITY);
-		dfsCommonCli.dfsadmin(DfsTestsBaseClass.EMPTY_ENV_HASH_MAP, Report.NO,
-				"get", ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-				SetSpaceQuota.NO, 0, PrintTopology.NO,
-				DfsTestsBaseClass.EMPTY_FS_ENTITY);
-
-	}
-
-	private static void copyTezSiteXmlOverToHadoopHost(String nodeType,
-			String remoteCongfigLocation) throws Exception {
-		String[] hostnames = TestSession.cluster.getNodeNames(nodeType);
-		FullyDistributedExecutor fde = new FullyDistributedExecutor();
-
-		StringBuilder copySb = new StringBuilder();
-		for (String aHostName : hostnames) {
-			// mkdir
-			String mkdirString = "/bin/mkdir " + remoteCongfigLocation + "/tez";
-			fde.runProcBuilder(mkdirString.split("\\s+"));
-			// copy
-			copySb.append("scp " + TEZ_SITE_XML + " hadoopqa@" + aHostName
-					+ ":" + remoteCongfigLocation + "tez/tez-site.xml ");
-			String command = copySb.toString();
-			fde.runProcBuilder(command.split("\\s+"));
-		}
-
-	}
 
 	/**
 	 * If you run this command readlink /home/gs/conf/tez you would get

@@ -2,8 +2,10 @@ package hadooptest.tez.utils;
 
 import hadooptest.TestSession;
 import hadooptest.tez.ats.ATSEventsEntityBO;
-import hadooptest.tez.ats.ATSTestsBaseClass;
+import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
+import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 import hadooptest.tez.ats.CounterGroup;
+import hadooptest.tez.ats.CounterGroup.Counter;
 import hadooptest.tez.ats.EntityInGenericATSResponseBO;
 import hadooptest.tez.ats.GenericATSResponseBO;
 import hadooptest.tez.ats.OtherInfoTezApplicationAttemptBO;
@@ -12,13 +14,6 @@ import hadooptest.tez.ats.OtherInfoTezDagIdBO;
 import hadooptest.tez.ats.OtherInfoTezTaskAttemptIdBO;
 import hadooptest.tez.ats.OtherInfoTezTaskIdBO;
 import hadooptest.tez.ats.OtherInfoTezVertexIdBO;
-import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
-import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
-import hadooptest.tez.ats.CounterGroup.Counter;
-import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO;
-import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO.DagPlanEdgeBO;
-import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO.DagPlanVertexBO;
-import hadooptest.tez.ats.OtherInfoTezDagIdBO.DagPlanBO.DagPlanVertexBO.DagVertexAdditionalInputBO;
 import hadooptest.tez.ats.OtherInfoTezVertexIdBO.Stats;
 
 import java.util.ArrayList;
@@ -29,7 +24,6 @@ import java.util.Queue;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.junit.Assert;
 /**
  * This class has all the methods needed to consume a REST response received from the

@@ -59,6 +59,10 @@ public class YarnTestsBaseClass extends TestSession {
 		REFRESH_QUEUES, REFRESH_NODES, REFRESH_SUPERUSER_GROUPS_CONFIGURATION, REFRESH_USER_TO_GROUPS_MAPPING, REFRESH_ADMIN_ACLS, REFRESH_SERVICE_ACL, GET_GROUPS
 	};
 
+	public static enum YarnApplicationSubCommand {
+		APPSTATES, APPTYPES, KILL, LIST, MOVE_TO_QUEUE, QUEUE, STATUS
+	};
+
 	public void killAllJobs() throws IOException, InterruptedException {
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
