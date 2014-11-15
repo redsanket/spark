@@ -18,7 +18,7 @@ import static org.junit.Assume.assumeTrue;
 import hadooptest.cluster.storm.StormDaemon;
 
 @Category(SerialTests.class)
-public class TestStormDistCacheApiLocal extends TestStormDistCacheApi {
+public class TestStormDistCacheCliLocal extends TestStormDistCacheCli {
 
     static ModifiableStormCluster mc = null;
 

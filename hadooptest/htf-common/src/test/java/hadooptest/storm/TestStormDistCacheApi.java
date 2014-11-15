@@ -7,6 +7,7 @@ import backtype.storm.blobstore.ClientBlobStore;
 import backtype.storm.blobstore.InputStreamWithMeta;
 import backtype.storm.generated.*;
 import backtype.storm.utils.Utils;
+import backtype.storm.blobstore.BlobStoreAclHandler;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import org.junit.BeforeClass;
@@ -28,11 +29,12 @@ import static org.junit.Assert.*;
 @Category(SerialTests.class)
 public class TestStormDistCacheApi extends TestSessionStorm {
 
-    @BeforeClass
-    public static void setup() throws Exception {
-        cluster.setDrpcAclForFunction("blobstore");
-        cluster.setDrpcAclForFunction("permissions");
-    }
+  @BeforeClass
+  public static void setup() throws Exception {
+    start();
+    cluster.setDrpcAclForFunction("blobstore");
+    cluster.setDrpcAclForFunction("permissions");
+  }
 
   @AfterClass
   public static void cleanup() throws Exception {
@@ -54,7 +56,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
   public  SettableBlobMeta makeAclBlobMeta(String blobACLs) {
     List<AccessControl> acls = new LinkedList<AccessControl>();
-    AccessControl blobACL = Utils.parseAccessControl(blobACLs);
+    AccessControl blobACL = BlobStoreAclHandler.parseAccessControl(blobACLs);
     acls.add(blobACL);
     return new SettableBlobMeta(acls);
   }
@@ -66,7 +68,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
   @Test(timeout=240000)
   public void testDistUserNoWrite() throws Exception {
-    testDistCacheIntegration("u:hadoopqa:r--");
+    testDistCacheIntegration("u:"+conf.getProperty("USER")+":r--");
   }
 
   @Test(timeout=240000)
@@ -76,7 +78,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
   @Test(timeout=240000)
   public void testDistCacheNoFqdnAcl() throws Exception {
-    testDistCacheIntegration("u:hadoopqa:rwa");
+    testDistCacheIntegration("u:"+conf.getProperty("USER")+":rwa");
   }
 
   //@Test(timeout=240000)
@@ -132,7 +134,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
             assertTrue("Did not get expected failure", drpcResult.equals("Got IO exception"));
         } else {
             assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals(blobContent));
-            assertTrue("Did not get expected result back from permissions check", permsResult.equals("hadoopqa:rwxrwx---"));
+            assertTrue("Did not get expected result back from permissions check", permsResult.equals(conf.getProperty("USER")+":rwxrwx---"));
         }
 
         String modifiedBlobContent = "This is modified integration content";
@@ -175,7 +177,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // Now verify hadoopqa (primary user) is in the acl list.
     ReadableBlobMeta blobMeta = clientBlobStore.getBlobMeta(blobKey);
     assertNotNull(blobMeta);
-    assertTrue("Hadoopqa was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "u:hadoopqa:rwa"));
+    assertTrue("Hadoopqa was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
     // Delete it
     clientBlobStore.deleteBlob(blobKey);
@@ -191,9 +193,9 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // Create with acl list with user-wa and see what it does
     ClientBlobStore clientBlobStore = getClientBlobStore();
     List<AccessControl> acls = new LinkedList<AccessControl>();
-    AccessControl blobACL = Utils.parseAccessControl("u:hadoopqa:r--");
+    AccessControl blobACL = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":r--");
     acls.add(blobACL);
-    blobACL = Utils.parseAccessControl("o::r");
+    blobACL = BlobStoreAclHandler.parseAccessControl("o::r");
     acls.add(blobACL);
     SettableBlobMeta settableBlobMeta = new SettableBlobMeta(acls);
     createBlobWithContent(blobKey, blobContent, clientBlobStore, settableBlobMeta);
@@ -201,24 +203,24 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // Now verify hadoopqa (primary user) is in the acl list.
     ReadableBlobMeta blobMeta = clientBlobStore.getBlobMeta(blobKey);
     assertNotNull(blobMeta);
-    assertTrue("Hadoopqa was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "u:hadoopqa:rwa"));
+    assertTrue("Hadoopqa was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
     assertTrue("other was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "o::r--"));
 
     //Now try to unset my own permissions
-    AccessControl updateAcl = Utils.parseAccessControl("u:hadoopqa:rw-");
+    AccessControl updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":rw-");
     List<AccessControl> updateAcls = new LinkedList<AccessControl>();
     updateAcls.add(updateAcl);
     SettableBlobMeta modifiedSettableBlobMeta = new SettableBlobMeta(updateAcls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
-    assertTrue("Hadoopqa was not found in the modified acl list", lookForAcl(clientBlobStore, blobKey, "u:hadoopqa:rwa"));
+    assertTrue("Hadoopqa was not found in the modified acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
     //Now turn off my own write, and then try to write 
-    AccessControl noWriteAcl = Utils.parseAccessControl("u:hadoopqa:r-a");
+    AccessControl noWriteAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":r-a");
     List<AccessControl> noWriteAcls = new LinkedList<AccessControl>();
     noWriteAcls.add(noWriteAcl);
     modifiedSettableBlobMeta = new SettableBlobMeta(noWriteAcls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
-    assertTrue("Hadoopqa was not found in the modified acl list", lookForAcl(clientBlobStore, blobKey, "u:hadoopqa:r-a"));
+    assertTrue("Hadoopqa was not found in the modified acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":r-a"));
     String modifiedBlobContent = "This is modified content";
     Boolean updateFailed = false;
     try {
@@ -235,15 +237,15 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // We have to use superuser permissions to read the acl list once we have turned off our own read permissions
     kinit(conf.getProperty("BLOB_SUPERUSER_KEYTAB"), conf.getProperty("BLOB_SUPERUSER_PRINCIPAL") );
     ClientBlobStore clientSUBlobStore = getClientBlobStore();
-    assertTrue("Hadoopqa was not found in the empty acl list", lookForAcl(clientSUBlobStore, blobKey, "u:hadoopqa:--a"));
+    assertTrue("Hadoopqa was not found in the empty acl list", lookForAcl(clientSUBlobStore, blobKey, "u:"+conf.getProperty("USER")+":--a"));
 
     // Turn on rw again.
-    updateAcl = Utils.parseAccessControl("u:hadoopqa:rwa");
+    updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":rwa");
     List<AccessControl> restoreAcls = new LinkedList<AccessControl>();
     restoreAcls.add(updateAcl);
     modifiedSettableBlobMeta = new SettableBlobMeta(restoreAcls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
-    assertTrue("Hadoopqa was not found in the restored acl list", lookForAcl(clientBlobStore, blobKey, "u:hadoopqa:rwa"));
+    assertTrue("Hadoopqa was not found in the restored acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
     // Delete it
     clientBlobStore.deleteBlob(blobKey);
@@ -257,7 +259,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     assertNotNull(blobMeta);
     Boolean foundAcl = false;
     for (AccessControl acl :  blobMeta.get_settable().get_acl() ) {
-        String thisAclString = Utils.toString(acl);
+        String thisAclString = BlobStoreAclHandler.accessControlToString(acl);
         logger.info("Looking for: " + aclString + " Found: " + thisAclString);
         if (thisAclString.equals(aclString)) {
             foundAcl = true;
@@ -270,14 +272,14 @@ public class TestStormDistCacheApi extends TestSessionStorm {
   public void testDistCacheApi() throws Exception {
     UUID uuid = UUID.randomUUID();
     String blobKey = uuid.toString() + ".jar";
-    String blobACLs = "u:hadoopqa:rwa";
+    String blobACLs = "u:"+conf.getProperty("USER")+":rwa";
     String fileName = "/home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar";
     String blobContent = "This is a sample blob content";
 
     ClientBlobStore clientBlobStore = getClientBlobStore();
 
     List<AccessControl> acls = new LinkedList<AccessControl>();
-    AccessControl blobACL = Utils.parseAccessControl(blobACLs);
+    AccessControl blobACL = BlobStoreAclHandler.parseAccessControl(blobACLs);
     acls.add(blobACL);
     SettableBlobMeta settableBlobMeta = new SettableBlobMeta(acls);
 
@@ -286,7 +288,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     ReadableBlobMeta blobMeta = clientBlobStore.getBlobMeta(blobKey);
     assertNotNull(blobMeta);
     AccessControl actualAcl = blobMeta.get_settable().get_acl().get(0);
-    String actualAclString = Utils.toString(actualAcl);
+    String actualAclString = BlobStoreAclHandler.accessControlToString(actualAcl);
     assertEquals("Actual ACL is different for created blob", blobACLs, actualAclString);
 
     String actualContent = getBlobContent(blobKey, clientBlobStore);
@@ -298,16 +300,16 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     assertEquals("Updated Blob Content is not matching", modifiedBlobContent, actualModfiedContent);
 
     String otherACLString = "o::r-a";
-    AccessControl othersACL = Utils.parseAccessControl(otherACLString);
+    AccessControl othersACL = BlobStoreAclHandler.parseAccessControl(otherACLString);
     acls.add(othersACL);
     SettableBlobMeta modifiedSettableBlobMeta = new SettableBlobMeta(acls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
     ReadableBlobMeta modifiedBlobMeta = clientBlobStore.getBlobMeta(blobKey);
     assertNotNull(modifiedBlobMeta);
     AccessControl modifiedActualAcl = modifiedBlobMeta.get_settable().get_acl().get(1);
-    String modifiedActualAclString = Utils.toString(modifiedActualAcl);
+    String modifiedActualAclString = BlobStoreAclHandler.accessControlToString(modifiedActualAcl);
     AccessControl myActualAcl = modifiedBlobMeta.get_settable().get_acl().get(0);
-    String myActualAclString = Utils.toString(myActualAcl);
+    String myActualAclString = BlobStoreAclHandler.accessControlToString(myActualAcl);
     logger.info("Actual modified ACL is " + modifiedActualAclString);
     logger.info("Other modified ACL is " + modifiedActualAclString);
     logger.info("My modified ACL is " + modifiedActualAclString);
@@ -324,7 +326,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // Add API test for principal to local
     UUID uuid2 = UUID.randomUUID();
     String blobKey2 = uuid2.toString() + ".jar";
-    String blobNoFqdnACLs = "u:hadoopqa:rwa";
+    String blobNoFqdnACLs = "u:"+conf.getProperty("USER")+":rwa";
     SettableBlobMeta noFqdnBlobMeta = makeAclBlobMeta(blobNoFqdnACLs);
     createBlobWithContent(blobKey2, blobContent, clientBlobStore, noFqdnBlobMeta);
     
@@ -352,8 +354,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     AccessControl otherActualAcl = otherReadBlobMeta.get_settable().get_acl().get(1);
     AccessControl anotherActualAcl = otherReadBlobMeta.get_settable().get_acl().get(0);
     printACLs("  Other ACL only", otherReadBlobMeta.get_settable());
-    String otherActualAclString = Utils.toString(anotherActualAcl);
-    logger.info("In entry point 0, " + Utils.toString(anotherActualAcl));
+    String otherActualAclString = BlobStoreAclHandler.accessControlToString(anotherActualAcl);
+    logger.info("In entry point 0, " + BlobStoreAclHandler.accessControlToString(anotherActualAcl));
     logger.info("No acl string is " + otherActualAclString);
     assertEquals("No Acl isnt as expected", otherActualAclString, worldAll);
 
@@ -402,7 +404,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
   private void printACLs(String prefix, SettableBlobMeta settableBlobMeta) {
     for (AccessControl acl :  settableBlobMeta.get_acl() ) {
-        String aclString = Utils.toString(acl);
+        String aclString = BlobStoreAclHandler.accessControlToString(acl);
         logger.info(prefix + " " + aclString);
     }
   }

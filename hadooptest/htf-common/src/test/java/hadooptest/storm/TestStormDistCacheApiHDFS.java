@@ -18,7 +18,7 @@ import static org.junit.Assume.assumeTrue;
 import hadooptest.cluster.storm.StormDaemon;
 
 @Category(SerialTests.class)
-public class TestStormDistCacheApiLocal extends TestStormDistCacheApi {
+public class TestStormDistCacheApiHDFS extends TestStormDistCacheApi {
 
     static ModifiableStormCluster mc = null;
 
@@ -30,9 +30,14 @@ public class TestStormDistCacheApiLocal extends TestStormDistCacheApi {
         cluster.setDrpcAclForFunction("blobstore");
         cluster.setDrpcAclForFunction("permissions");
         if (mc != null) {
-            mc.setConf("client_blobstore_class", "backtype.storm.blobstore.NimbusBlobStore");
-            mc.setConf("nimbus_blobstore_class", "backtype.storm.blobstore.LocalFsBlobStore");
-            mc.setConf("supervisor_blobstore_class", "backtype.storm.blobstore.NimbusBlobStore");
+            mc.setConf("NIMBUS_EXTRA_CLASSPATHS", conf.getProperty("HADOOP_CLASSPATH"), StormDaemon.NIMBUS);
+            mc.setConf("SUPERVISOR_EXTRA_CLASSPATHS", conf.getProperty("HADOOP_CLASSPATH"), StormDaemon.SUPERVISOR);
+            mc.setConf("blobstore_dir", conf.getProperty("BLOBSTORE_DIR"));
+            mc.setConf("blobstore_hdfs_keytab", conf.getProperty("HDFS_KEYTAB"));
+            mc.setConf("blobstore_hdfs_principal", conf.getProperty("HDFS_PRINCIPAL"));
+            mc.setConf("client_blobstore_class", "backtype.storm.blobstore.NimbusBlobStore", StormDaemon.NIMBUS);
+            mc.setConf("nimbus_blobstore_class", "backtype.storm.blobstore.HdfsBlobStore", StormDaemon.NIMBUS);
+            mc.setConf("supervisor_blobstore_class", "backtype.storm.blobstore.HdfsClientBlobStore", StormDaemon.SUPERVISOR);
             mc.restartCluster();
         }
     }

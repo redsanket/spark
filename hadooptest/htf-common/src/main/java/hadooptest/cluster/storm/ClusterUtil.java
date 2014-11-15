@@ -252,14 +252,18 @@ public class ClusterUtil {
      * @throws Exception
      */
     public void unsetConf(String key) throws Exception {
+        unsetConf(key, StormDaemon.ALL);
+    }
+    
+    public void unsetConf(String key, StormDaemon daemon) throws Exception {
     	
         ArrayList<String> dnsNames = null;
         if (clusterRoleConfExists()) {
-            dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.ALL);
+            dnsNames = StormDaemon.lookupClusterRoles(daemon);
         }
         else {
             dnsNames = 
-                    StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+                    StormDaemon.lookupIgorRoles(daemon, 
                             TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
         }
     	
@@ -300,6 +304,10 @@ public class ClusterUtil {
      * @throws Exception
      */
     public void setConf(String key, Object value) throws Exception {
+        setConf(key, value, StormDaemon.ALL);
+    }
+
+    public void setConf(String key, Object value, StormDaemon daemon) throws Exception {
     	TestSessionStorm.logger.info("Setting " + key + "=" + value);
     	TestSessionStorm.logger.info(
     			"*** SETTING CONFIGURATION FOR ALL STORM NODES:  " + 
@@ -341,11 +349,11 @@ public class ClusterUtil {
 
         ArrayList<String> dnsNames = null;
         if (clusterRoleConfExists()) {
-            dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.ALL);
+            dnsNames = StormDaemon.lookupClusterRoles(daemon);
         }
         else {
             dnsNames = 
-                    StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
+                    StormDaemon.lookupIgorRoles(daemon, 
                             TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
         }
 

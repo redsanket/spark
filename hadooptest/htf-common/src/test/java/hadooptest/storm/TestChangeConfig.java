@@ -2,6 +2,7 @@ package hadooptest.storm;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
+import hadooptest.Util;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
@@ -54,9 +55,10 @@ public class TestChangeConfig extends TestSessionStorm {
         String newUIPort = "8101";
         
         logger.info("Setting a new UI port");
-        mc.setConf("ui.port", newUIPort);
+        mc.setConf("ui.port", newUIPort, StormDaemon.UI);
         logger.info("Restart ui");
-        mc.restartCluster();
+        mc.restartDaemon(StormDaemon.UI);
+        Util.sleep(120);
 
         logger.info("Asserting test result");
         //TODO lets find a good way to get the different hosts
