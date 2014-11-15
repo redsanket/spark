@@ -42,13 +42,13 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthorizationWhenUserSpecifiesNothingInACL extends
+public class TestAuthWhenUserSpecifiesSelfInACL extends
 		ATSTestsBaseClass {
 	@Test
 	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, "");
+				self, self);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -117,7 +117,7 @@ public class TestAuthorizationWhenUserSpecifiesNothingInACL extends
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String otherInSameGroup = HadooptestConstants.UserNames.HITUSR_4;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, "");
+				self, self);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -186,7 +186,7 @@ public class TestAuthorizationWhenUserSpecifiesNothingInACL extends
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInTheSameGroup = HadooptestConstants.UserNames.HITUSR_1;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, "");
+				self, self);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;

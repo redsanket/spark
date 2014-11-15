@@ -283,7 +283,6 @@ public class ATSTestsBaseClass extends TestSession {
 			TestSession.logger.info("New Pig job app Id:"
 					+ seedDataForAutoLaunchedPigJob.appId);
 
-			System.exit(0);
 			// Run a OrderedWordCount as hitusr_1
 			seedDataForAutoLaunchedOrderedWordCount = launchOrderedWordCountExtendedForHtfAndGetSeedData(
 					HadooptestConstants.UserNames.HITUSR_1,
@@ -898,8 +897,7 @@ public class ATSTestsBaseClass extends TestSession {
 			Map<String, Boolean> expectedEntities) throws InterruptedException {
 		/**
 		 * TODO: REMOVE THIS HITUSR_1 AND PASS THE user FROM ARG
-		 */
-		user = HadooptestConstants.UserNames.HITUSR_1;
+		 */		
 		RunnableHttpGetAndEnqueue runnableHttpGetAndEnqueue = new RunnableHttpGetAndEnqueue(
 				url, user, entityType, queue, expectedEntities);
 		execService.execute(runnableHttpGetAndEnqueue);

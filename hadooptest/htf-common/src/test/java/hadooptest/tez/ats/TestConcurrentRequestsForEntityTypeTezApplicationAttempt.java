@@ -25,7 +25,7 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 		ATSTestsBaseClass {
-	@Test
+//	@Test
 	public void testExpectEverything() throws Exception {
 		HtfATSUtils atsUtils = new HtfATSUtils();
 		ExecutorService execService = Executors.newFixedThreadPool(10);
@@ -91,7 +91,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 
 	}
 
-	@Test
+//	@Test
 	public void testExpectOnlyRelatedEntities() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
 		if (!timelineserverStarted) {
@@ -128,7 +128,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 
 	}
 
-	@Test
+//	@Test
 	public void testExpectOnlyOtherInfo() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
 		if (!timelineserverStarted) {
@@ -166,7 +166,7 @@ public class TestConcurrentRequestsForEntityTypeTezApplicationAttempt extends
 
 	}
 
-	@Test
+//	@Test
 	public void testExpectOnlyPrimaryFilters() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
 		if (!timelineserverStarted) {

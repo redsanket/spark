@@ -28,13 +28,14 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestCascadedData extends ATSTestsBaseClass {
 	@Test
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
 	public void testOrderedWordCount() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		String addendum;
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-		HtfATSUtils htfAtsUtils = new HtfATSUtils();
+
 		for (DAG aSeedDag : seedDataForAutoLaunchedOrderedWordCount.dags) {
 			addendum = "?primaryFilter=dagName:" + aSeedDag.name;
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
@@ -68,13 +69,14 @@ public class TestCascadedData extends ATSTestsBaseClass {
 	}
 
 	@Test
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
 	public void testSimpleSessionExample() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		String addendum;
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-		HtfATSUtils htfAtsUtils = new HtfATSUtils();
+
 		for (DAG aSeedDag : seedDataForAutoLaunchedSimpleSessionExample.dags) {
 			addendum = "?primaryFilter=dagName:" + aSeedDag.name;
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;
@@ -108,13 +110,14 @@ public class TestCascadedData extends ATSTestsBaseClass {
 	}
 
 	@Test
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
 	public void testSleepJob() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		String addendum;
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-		HtfATSUtils htfAtsUtils = new HtfATSUtils();
+
 		for (DAG aSeedDag : seedDataForAutoLaunchedSleepJob.dags) {
 			addendum = "?primaryFilter=dagName:" + aSeedDag.name;
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_DAG_ID;

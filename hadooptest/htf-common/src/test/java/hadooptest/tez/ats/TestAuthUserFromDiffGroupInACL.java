@@ -42,7 +42,7 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthorizationUserFromDiffGroupInACL extends
+public class TestAuthUserFromDiffGroupInACL extends
 		ATSTestsBaseClass {
 	@Test
 	public void testSelf() throws Exception {

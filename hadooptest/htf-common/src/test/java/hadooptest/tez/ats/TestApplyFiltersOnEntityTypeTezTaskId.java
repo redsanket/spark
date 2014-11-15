@@ -4,6 +4,9 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
+import hadooptest.tez.ats.SeedData.DAG;
+import hadooptest.tez.ats.SeedData.DAG.Vertex;
+import hadooptest.tez.ats.SeedData.DAG.Vertex.Task;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
 import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfATSUtils;
@@ -25,164 +28,635 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestApplyFiltersOnEntityTypeTezTaskId extends ATSTestsBaseClass {
 	@Test
-	public void testExpectEverything() throws Exception {
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
+	public void testExpectEverythingFilterOnVertexId() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&limit=" + LIMIT;
-		
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (Vertex vertex : seedDataForAutoLaunchedOrderedWordCount.dags
+				.get(0).vertices) {
+			String addendum = "?primaryFilter=TEZ_VERTEX_ID:" + vertex.id
+					+ "&limit=" + LIMIT;
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					seedDataForAutoLaunchedOrderedWordCount.appStartedByUser,
 					entityTypeInRequest, taskIdQueue, expectEverythingMap());
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
+
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			GenericATSResponseBO genericATSResponse = taskIdQueue.poll();
+			int entityCount = genericATSResponse.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
 		}
-		GenericATSResponseBO genericATSResponse = taskIdQueue.poll();
-		Assert.assertTrue(genericATSResponse.entities.size() <=LIMIT);
+
 	}
 
 	@Test
-	public void testExpectOnlyEvents() throws Exception {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
-		if (!timelineserverStarted) {
-			// startTimelineServerOnRM(rmHostname);
-		}
-		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=events&limit=" + LIMIT;
-		HtfATSUtils atsUtils = new HtfATSUtils();
-		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
-				ResponseComposition.EVENTS.EXPECTED,
-				ResponseComposition.ENTITYTYPE.EXPECTED,
-				ResponseComposition.ENTITY.EXPECTED,
-				ResponseComposition.STARTTIME.EXPECTED,
-				ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
-				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
-				ResponseComposition.OTHERINFO.NOT_EXPECTED);
-
-
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
-			String url = getATSUrl() + entityTypeInRequest + addendum;
-			makeHttpCallAndEnqueueConsumedResponse(execService, url,
-					HadooptestConstants.UserNames.HITUSR_1,
-					entityTypeInRequest, taskIdQueue, expectedEntities);
-
-
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
-
-		Assert.assertEquals(0, errorCount.get());
-		GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
-
-	}
- 
-
-	@Test
-	public void testExpectOnlyRelatedEntities() throws Exception {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
-		if (!timelineserverStarted) {
-			// startTimelineServerOnRM(rmHostname);
-		}
-		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=relatedentities&limit=" + LIMIT;
+	public void testExpectOnlyEventsFilterOnVertexId() throws Exception {
 		
-		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
-				ResponseComposition.EVENTS.NOT_EXPECTED,
-				ResponseComposition.ENTITYTYPE.EXPECTED,
-				ResponseComposition.ENTITY.EXPECTED,
-				ResponseComposition.STARTTIME.EXPECTED,
-				ResponseComposition.RELATEDENTITIES.EXPECTED,
-				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
-				ResponseComposition.OTHERINFO.NOT_EXPECTED);
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (Vertex vertex : seedDataForAutoLaunchedOrderedWordCount.dags
+				.get(0).vertices) {
+			ExecutorService execService = Executors.newFixedThreadPool(1);
+			String addendum = "?primaryFilter=TEZ_VERTEX_ID:" + vertex.id
+					+ "&fields=events&limit=" + LIMIT;
+			HtfATSUtils atsUtils = new HtfATSUtils();
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+					ResponseComposition.OTHERINFO.NOT_EXPECTED);
 
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
 					entityTypeInRequest, taskIdQueue, expectedEntities);
 
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
 
-		Assert.assertEquals(0, errorCount.get());
-		GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+		}
 
 	}
 
 	@Test
-	public void testExpectOnlyOtherInfo() throws Exception {
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
+	public void testExpectOnlyRelatedEntitiesFilterOnVertexId()
+			throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=otherinfo&limit=" + LIMIT;
-		HtfATSUtils atsUtils = new HtfATSUtils();
-		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
-				ResponseComposition.EVENTS.NOT_EXPECTED,
-				ResponseComposition.ENTITYTYPE.EXPECTED,
-				ResponseComposition.ENTITY.EXPECTED,
-				ResponseComposition.STARTTIME.EXPECTED,
-				ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
-				ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
-				ResponseComposition.OTHERINFO.EXPECTED);
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (Vertex vertex : seedDataForAutoLaunchedOrderedWordCount.dags
+				.get(0).vertices) {
 
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+			String addendum = "?primaryFilter=TEZ_VERTEX_ID:" + vertex.id
+					+ "&fields=relatedentities&limit=" + LIMIT;
+
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.NOT_EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+					ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
 					entityTypeInRequest, taskIdQueue, expectedEntities);
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
+
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
 		}
-		Assert.assertEquals(0, errorCount.get());
-		GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
 
 	}
 
 	@Test
-	public void testExpectOnlyPrimaryFilter() throws Exception {
+	public void testExpectOnlyOtherInfoFilterOnVertexId() throws Exception {
+		
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (Vertex vertex : seedDataForAutoLaunchedOrderedWordCount.dags
+				.get(0).vertices) {
+			ExecutorService execService = Executors.newFixedThreadPool(1);
+			String addendum = "?primaryFilter=TEZ_VERTEX_ID:" + vertex.id
+					+ "&fields=otherinfo&limit=" + LIMIT;
+			HtfATSUtils atsUtils = new HtfATSUtils();
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.NOT_EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+					ResponseComposition.OTHERINFO.EXPECTED);
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+			String url = getATSUrl() + entityTypeInRequest + addendum;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, taskIdQueue, expectedEntities);
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+		}
+
+	}
+
+	@Test
+	public void testExpectOnlyPrimaryFilterFilterOnVertexId() throws Exception {
+		
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (Vertex vertex : seedDataForAutoLaunchedOrderedWordCount.dags
+				.get(0).vertices) {
+			ExecutorService execService = Executors.newFixedThreadPool(10);
+			String addendum = "?primaryFilter=TEZ_VERTEX_ID:" + vertex.id
+					+ "&fields=primaryfilters&limit=" + LIMIT;
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.NOT_EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+			String url = getATSUrl() + entityTypeInRequest + addendum;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, taskIdQueue, expectedEntities);
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+		}
+
+	}
+
+	// FILTER ON DAG ID
+
+	@Test
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
+	public void testExpectEverythingFilterOnDagId() throws Exception {
+		ExecutorService execService = Executors.newFixedThreadPool(1);
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			String addendum = "?primaryFilter=TEZ_DAG_ID:" + dag.id + "&limit="
+					+ LIMIT;
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+			String url = getATSUrl() + entityTypeInRequest + addendum;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					seedDataForAutoLaunchedOrderedWordCount.appStartedByUser,
+					entityTypeInRequest, taskIdQueue, expectEverythingMap());
+
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			GenericATSResponseBO genericATSResponse = taskIdQueue.poll();
+			int entityCount = genericATSResponse.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+		}
+
+	}
+
+	@Test
+	public void testExpectOnlyEventsFilterOnDagId() throws Exception {
+		ExecutorService execService = Executors.newFixedThreadPool(1);
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+
+			String addendum = "?primaryFilter=TEZ_DAG_ID:" + dag.id
+					+ "&fields=events&limit=" + LIMIT;
+			HtfATSUtils atsUtils = new HtfATSUtils();
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+					ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+			String url = getATSUrl() + entityTypeInRequest + addendum;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, taskIdQueue, expectedEntities);
+
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+		}
+
+	}
+
+	@Test
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
+	public void testExpectOnlyRelatedEntitiesFilterOnDagId() throws Exception {
+		ExecutorService execService = Executors.newFixedThreadPool(1);
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			String addendum = "?primaryFilter=TEZ_DAG_ID:" + dag.id
+					+ "&fields=relatedentities&limit=" + LIMIT;
+
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.NOT_EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+					ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+			String url = getATSUrl() + entityTypeInRequest + addendum;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, taskIdQueue, expectedEntities);
+
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+		}
+
+	}
+
+	@Test
+	public void testExpectOnlyOtherInfoFilterOnDagId() throws Exception {
+		ExecutorService execService = Executors.newFixedThreadPool(1);
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			String addendum = "?primaryFilter=TEZ_DAG_ID:" + dag.id
+					+ "&fields=otherinfo&limit=" + LIMIT;
+			HtfATSUtils atsUtils = new HtfATSUtils();
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.NOT_EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+					ResponseComposition.OTHERINFO.EXPECTED);
+
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+			String url = getATSUrl() + entityTypeInRequest + addendum;
+			makeHttpCallAndEnqueueConsumedResponse(execService, url,
+					HadooptestConstants.UserNames.HITUSR_1,
+					entityTypeInRequest, taskIdQueue, expectedEntities);
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+		}
+
+	}
+
+	@Test
+	public void testExpectOnlyPrimaryFilterFilterOnDagId() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
-		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=primaryfilters&limit=" + LIMIT;
-		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
-				ResponseComposition.EVENTS.NOT_EXPECTED,
-				ResponseComposition.ENTITYTYPE.EXPECTED,
-				ResponseComposition.ENTITY.EXPECTED,
-				ResponseComposition.STARTTIME.EXPECTED,
-				ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
-				ResponseComposition.PRIMARYFILTERS.EXPECTED,
-				ResponseComposition.OTHERINFO.NOT_EXPECTED);
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			String addendum = "?primaryFilter=TEZ_DAG_ID:" + dag.id
+					+ "&fields=primaryfilters&limit=" + LIMIT;
+			Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+					ResponseComposition.EVENTS.NOT_EXPECTED,
+					ResponseComposition.ENTITYTYPE.EXPECTED,
+					ResponseComposition.ENTITY.EXPECTED,
+					ResponseComposition.STARTTIME.EXPECTED,
+					ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+					ResponseComposition.PRIMARYFILTERS.EXPECTED,
+					ResponseComposition.OTHERINFO.NOT_EXPECTED);
 
-			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ID;
+			EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
 			makeHttpCallAndEnqueueConsumedResponse(execService, url,
 					HadooptestConstants.UserNames.HITUSR_1,
 					entityTypeInRequest, taskIdQueue, expectedEntities);
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
+			execService.shutdown();
+			while (!execService.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			Assert.assertEquals(0, errorCount.get());
+			GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
+			int entityCount = genericAtsResponseBo.entities.size();
+			Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
 		}
-		Assert.assertEquals(0, errorCount.get());
-		GenericATSResponseBO genericAtsResponseBo = taskIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
 
+	}
 
+	// FILTER ON TASK ID
+
+	@Test
+	public void testExpectEverythingFilterOnTaskId() throws Exception {
+		
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			for (Vertex vertex : dag.vertices) {
+				for (Task task : vertex.tasks) {
+					ExecutorService execService = Executors.newFixedThreadPool(1);
+					String addendum = "?primaryFilter=TEZ_TASK_ID:" + task.id
+							+ "&limit=" + LIMIT;
+
+					EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+					String url = getATSUrl() + entityTypeInRequest + addendum;
+					makeHttpCallAndEnqueueConsumedResponse(
+							execService,
+							url,
+							seedDataForAutoLaunchedOrderedWordCount.appStartedByUser,
+							entityTypeInRequest, taskIdQueue,
+							expectEverythingMap());
+
+					execService.shutdown();
+					while (!execService.isTerminated()) {
+						Thread.sleep(1000);
+					}
+					GenericATSResponseBO genericATSResponse = taskIdQueue
+							.poll();
+					int entityCount = genericATSResponse.entities.size();
+					Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+				}
+			}
+		}
+
+	}
+
+	@Test
+	public void testExpectOnlyEventsFilterOnTaskId() throws Exception {
+		
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			for (Vertex vertex : dag.vertices) {
+				for (Task task : vertex.tasks) {
+					ExecutorService execService = Executors.newFixedThreadPool(1);
+					String addendum = "?primaryFilter=TEZ_TASK_ID:" + task.id
+							+ "&fields=events&limit=" + LIMIT;
+					HtfATSUtils atsUtils = new HtfATSUtils();
+					Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+							ResponseComposition.EVENTS.EXPECTED,
+							ResponseComposition.ENTITYTYPE.EXPECTED,
+							ResponseComposition.ENTITY.EXPECTED,
+							ResponseComposition.STARTTIME.EXPECTED,
+							ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+							ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+							ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+					EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+					String url = getATSUrl() + entityTypeInRequest + addendum;
+					makeHttpCallAndEnqueueConsumedResponse(execService, url,
+							HadooptestConstants.UserNames.HITUSR_1,
+							entityTypeInRequest, taskIdQueue, expectedEntities);
+
+					execService.shutdown();
+					while (!execService.isTerminated()) {
+						Thread.sleep(1000);
+					}
+
+					Assert.assertEquals(0, errorCount.get());
+					GenericATSResponseBO genericAtsResponseBo = taskIdQueue
+							.poll();
+					int entityCount = genericAtsResponseBo.entities.size();
+					Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+				}
+			}
+		}
+
+	}
+
+	@Test
+	public void testExpectOnlyRelatedEntitiesFilterOnTaskId() throws Exception {
+		
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			for (Vertex vertex : dag.vertices) {
+				for (Task task : vertex.tasks) {
+					ExecutorService execService = Executors.newFixedThreadPool(1);
+					String addendum = "?primaryFilter=TEZ_TASK_ID:" + task.id
+							+ "&fields=relatedentities&limit=" + LIMIT;
+
+					Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+							ResponseComposition.EVENTS.NOT_EXPECTED,
+							ResponseComposition.ENTITYTYPE.EXPECTED,
+							ResponseComposition.ENTITY.EXPECTED,
+							ResponseComposition.STARTTIME.EXPECTED,
+							ResponseComposition.RELATEDENTITIES.EXPECTED,
+							ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+							ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+					EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+					String url = getATSUrl() + entityTypeInRequest + addendum;
+					makeHttpCallAndEnqueueConsumedResponse(execService, url,
+							HadooptestConstants.UserNames.HITUSR_1,
+							entityTypeInRequest, taskIdQueue, expectedEntities);
+
+					execService.shutdown();
+					while (!execService.isTerminated()) {
+						Thread.sleep(1000);
+					}
+
+					Assert.assertEquals(0, errorCount.get());
+					GenericATSResponseBO genericAtsResponseBo = taskIdQueue
+							.poll();
+					int entityCount = genericAtsResponseBo.entities.size();
+					Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testExpectOnlyOtherInfoFilterOnTaskId() throws Exception {
+		ExecutorService execService = Executors.newFixedThreadPool(1);
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			for (Vertex vertex : dag.vertices) {
+				for (Task task : vertex.tasks) {
+
+					String addendum = "?primaryFilter=TEZ_TASK_ID:" + task.id
+							+ "&fields=otherinfo&limit=" + LIMIT;
+					HtfATSUtils atsUtils = new HtfATSUtils();
+					Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+							ResponseComposition.EVENTS.NOT_EXPECTED,
+							ResponseComposition.ENTITYTYPE.EXPECTED,
+							ResponseComposition.ENTITY.EXPECTED,
+							ResponseComposition.STARTTIME.EXPECTED,
+							ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+							ResponseComposition.PRIMARYFILTERS.NOT_EXPECTED,
+							ResponseComposition.OTHERINFO.EXPECTED);
+
+					EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+					String url = getATSUrl() + entityTypeInRequest + addendum;
+					makeHttpCallAndEnqueueConsumedResponse(execService, url,
+							HadooptestConstants.UserNames.HITUSR_1,
+							entityTypeInRequest, taskIdQueue, expectedEntities);
+					execService.shutdown();
+					while (!execService.isTerminated()) {
+						Thread.sleep(1000);
+					}
+					Assert.assertEquals(0, errorCount.get());
+					GenericATSResponseBO genericAtsResponseBo = taskIdQueue
+							.poll();
+					int entityCount = genericAtsResponseBo.entities.size();
+					Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+				}
+			}
+		}
+
+	}
+
+	@Test
+	public void testExpectOnlyPrimaryFilterFilterOnTaskId() throws Exception {
+		
+		if (!timelineserverStarted) {
+			// startTimelineServerOnRM(rmHostname);
+		}
+		int LIMIT = 2;
+		/**
+		 * There is just 1 DAG for OrderedWordCount
+		 */
+		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
+			for (Vertex vertex : dag.vertices) {
+				for (Task task : vertex.tasks) {
+					ExecutorService execService = Executors.newFixedThreadPool(10);
+					String addendum = "?primaryFilter=TEZ_TASK_ID:" + task.id
+							+ "&fields=primaryfilters&limit=" + LIMIT;
+					Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+							ResponseComposition.EVENTS.NOT_EXPECTED,
+							ResponseComposition.ENTITYTYPE.EXPECTED,
+							ResponseComposition.ENTITY.EXPECTED,
+							ResponseComposition.STARTTIME.EXPECTED,
+							ResponseComposition.RELATEDENTITIES.NOT_EXPECTED,
+							ResponseComposition.PRIMARYFILTERS.EXPECTED,
+							ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+					EntityTypes entityTypeInRequest = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+					String url = getATSUrl() + entityTypeInRequest + addendum;
+					makeHttpCallAndEnqueueConsumedResponse(execService, url,
+							HadooptestConstants.UserNames.HITUSR_1,
+							entityTypeInRequest, taskIdQueue, expectedEntities);
+					execService.shutdown();
+					while (!execService.isTerminated()) {
+						Thread.sleep(1000);
+					}
+					Assert.assertEquals(0, errorCount.get());
+					GenericATSResponseBO genericAtsResponseBo = taskIdQueue
+							.poll();
+					int entityCount = genericAtsResponseBo.entities.size();
+					Assert.assertTrue(entityCount > 0 && entityCount <= LIMIT);
+				}
+			}
+		}
 	}
 
 }

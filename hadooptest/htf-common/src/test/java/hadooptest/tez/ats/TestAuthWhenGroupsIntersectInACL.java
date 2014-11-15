@@ -42,20 +42,17 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthorizationWhenUserSpecifiesUserAndGroupComboInACL extends
+public class TestAuthWhenGroupsIntersectInACL extends
 		ATSTestsBaseClass {
 	@Test
-	public void testSelf() throws Exception {
-		String self = HadooptestConstants.UserNames.HITUSR_3;
-		String explicitUser = HadooptestConstants.UserNames.HITUSR_2;
-		String otherGroupAllowed = HadooptestConstants.UserGroups.HADOOP;
-		String implicitUserBelongingToSpecifiedGroup = HadooptestConstants.UserNames.HITUSR_1;
-		String implicitUserBelongingToSameGroup = HadooptestConstants.UserNames.HITUSR_4;
-		String[] allowedUsers = new String[] { self, explicitUser,
-				implicitUserBelongingToSpecifiedGroup,
-				implicitUserBelongingToSameGroup };
+	public void testAllowedUsers() throws Exception {
+		String self = HadooptestConstants.UserNames.HITUSR_4;
+		String allowedGroup = HadooptestConstants.UserGroups.HADOOPQA;
+		String implicitUserBelongingToSpecifiedGroup = HadooptestConstants.UserNames.HITUSR_2;
+		String[] allowedUsers = new String[] { self, 
+				implicitUserBelongingToSpecifiedGroup};
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, explicitUser + "," + otherGroupAllowed);
+				self, allowedGroup);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -124,6 +121,83 @@ public class TestAuthorizationWhenUserSpecifiesUserAndGroupComboInACL extends
 		}
 	}
 
+	@Test
+	public void testNotAllowedUsers() throws Exception {
+		String self = HadooptestConstants.UserNames.HITUSR_4;
+		String allowedGroup = HadooptestConstants.UserGroups.HADOOPQA;
+		String notAllowedUser = HadooptestConstants.UserNames.HITUSR_1;
+		String anotherNotAllowedUser = HadooptestConstants.UserNames.HITUSR_3;
+		String[] notAllowedUsers = new String[] { notAllowedUser, anotherNotAllowedUser};
+		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
+				self, allowedGroup);
+
+		EntityTypes entityTypeBeingTested;
+		Queue<GenericATSResponseBO> currentQueue;
+		GenericATSResponseBO polled;
+		String entity;
+		HtfATSUtils atsUtils = new HtfATSUtils();
+		for (String aNotAllowedUser : notAllowedUsers) {
+			for (DAG aDAG : seedData.dags) {
+				entity = aDAG.id;
+				entityTypeBeingTested = EntityTypes.TEZ_DAG_ID;
+				currentQueue = dagIdQueue;
+
+				String url = getATSUrl() + entityTypeBeingTested + "/" + entity;
+				TestSession.logger.info("Processing:" + url);
+				makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
+						aNotAllowedUser, currentQueue);
+				polled = currentQueue.poll();
+				Assert.assertFalse(atsUtils.isEntityPresentInResponse(polled,
+						entityTypeBeingTested, entity));
+				for (Vertex aVertex : aDAG.vertices) {
+					entity = aVertex.id;
+					entityTypeBeingTested = EntityTypes.TEZ_VERTEX_ID;
+					currentQueue = vertexIdQueue;
+					url = getATSUrl() + entityTypeBeingTested + "/" + entity;
+					TestSession.logger.info("Processing:" + url);
+					makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
+							aNotAllowedUser, currentQueue);
+					polled = currentQueue.poll();
+					Assert.assertFalse(atsUtils.isEntityPresentInResponse(
+							polled, entityTypeBeingTested, entity));
+					for (Task aTask : aVertex.tasks) {
+						entity = aTask.id;
+						entityTypeBeingTested = EntityTypes.TEZ_TASK_ID;
+						currentQueue = taskIdQueue;
+
+						url = getATSUrl() + entityTypeBeingTested + "/"
+								+ entity;
+						TestSession.logger.info("Processing:" + url);
+						makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
+								aNotAllowedUser, currentQueue);
+						polled = currentQueue.poll();
+						Assert.assertFalse(atsUtils.isEntityPresentInResponse(
+								polled, entityTypeBeingTested, entity));
+						for (Attempt anAttempt : aTask.attempts) {
+							entity = anAttempt.id;
+							entityTypeBeingTested = EntityTypes.TEZ_TASK_ATTEMPT_ID;
+							currentQueue = taskAttemptIdQueue;
+							url = getATSUrl() + entityTypeBeingTested + "/"
+									+ entity;
+							TestSession.logger.info("Processing:" + url);
+							makeHttpRequestAndEnqueue(url,
+									entityTypeBeingTested, aNotAllowedUser,
+									currentQueue);
+							polled = currentQueue.poll();
+							Assert.assertFalse(atsUtils
+									.isEntityPresentInResponse(polled,
+											entityTypeBeingTested, entity));
+
+						}
+
+					}
+
+				}
+
+			}
+		}
+	}
+
 	public void makeHttpRequestAndEnqueue(String url, EntityTypes entityType,
 			String user,
 			Queue<GenericATSResponseBO> enqueueProcessedResponseHere)
@@ -137,5 +211,20 @@ public class TestAuthorizationWhenUserSpecifiesUserAndGroupComboInACL extends
 		}
 
 	}
+	// public boolean isEntityPresentInResponsea(GenericATSResponseBO
+	// processedResponse, EntityTypes entityType,
+	// String entity){
+	// boolean valueFound = false;
+	// for (EntityInGenericATSResponseBO anEntityPresentInBunch :
+	// processedResponse.entities){
+	// if (anEntityPresentInBunch.entityType.equals(entityType.name())
+	// && anEntityPresentInBunch.entity.equals(entity)){
+	// valueFound = true;
+	// break;
+	// }
+	// }
+	//
+	// return valueFound;
+	// }
 
 }

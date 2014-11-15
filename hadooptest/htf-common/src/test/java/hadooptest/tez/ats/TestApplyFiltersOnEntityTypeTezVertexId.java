@@ -4,6 +4,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
+import hadooptest.tez.ats.SeedData.DAG;
 import hadooptest.tez.examples.extensions.OrderedWordCountExtendedForHtf;
 import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.utils.HtfATSUtils;
@@ -25,13 +26,20 @@ import org.junit.experimental.categories.Category;
 @Category(SerialTests.class)
 public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 	@Test
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
 	public void testExpectEverything() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&limit=" + LIMIT;
+		/**
+		 * seedDataForAutoLaunchedOrderedWordCount, just launches 1 DAG
+		 * 
+		 */
+		DAG dagId = seedDataForAutoLaunchedOrderedWordCount.dags.get(0);
+
+		String addendum = "?primaryFilter=TEZ_DAG_ID:" + dagId.id +"&limit=" + LIMIT;
 		
 			EntityTypes entityTypeInRequest = EntityTypes.TEZ_VERTEX_ID;
 			String url = getATSUrl() + entityTypeInRequest + addendum;
@@ -43,7 +51,9 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 			Thread.sleep(1000);
 		}
 		GenericATSResponseBO genericATSResponse = vertexIdQueue.poll();
-		Assert.assertTrue(genericATSResponse.entities.size() <=LIMIT);
+		int entityCount = genericATSResponse.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
+
 	}
 
 	@Test
@@ -53,7 +63,12 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=events&limit=" + LIMIT;
+		/**
+		 * seedDataForAutoLaunchedOrderedWordCount, just launches 1 DAG
+		 * 
+		 */
+		DAG dagId = seedDataForAutoLaunchedOrderedWordCount.dags.get(0);
+		String addendum = "?primaryFilter=TEZ_DAG_ID:" + dagId.id +"&fields=events&limit=" + LIMIT;
 		HtfATSUtils atsUtils = new HtfATSUtils();
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.EXPECTED,
@@ -79,19 +94,28 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = vertexIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
+
 
 	}
  
 
 	@Test
+	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
 	public void testExpectOnlyRelatedEntities() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=relatedentities&limit=" + LIMIT;
+		/**
+		 * seedDataForAutoLaunchedOrderedWordCount, just launches 1 DAG
+		 * 
+		 */
+		DAG dagId = seedDataForAutoLaunchedOrderedWordCount.dags.get(0);
+
+		String addendum = "?primaryFilter=TEZ_DAG_ID:" + dagId.id +"&fields=relatedentities&limit=" + LIMIT;
 		
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.NOT_EXPECTED,
@@ -115,7 +139,9 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = vertexIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
+
 
 	}
 
@@ -126,7 +152,13 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=otherinfo&limit=" + LIMIT;
+		/**
+		 * seedDataForAutoLaunchedOrderedWordCount, just launches 1 DAG
+		 * 
+		 */
+		DAG dagId = seedDataForAutoLaunchedOrderedWordCount.dags.get(0);
+
+		String addendum = "?primaryFilter=TEZ_DAG_ID:" + dagId.id +"&fields=otherinfo&limit=" + LIMIT;
 		HtfATSUtils atsUtils = new HtfATSUtils();
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.NOT_EXPECTED,
@@ -148,7 +180,9 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 		}
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = vertexIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
+
 
 	}
 
@@ -159,7 +193,13 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 			// startTimelineServerOnRM(rmHostname);
 		}
 		int LIMIT=2;
-		String addendum = "?primaryFilter=user:" + seedDataForAutoLaunchedOrderedWordCount.appStartedByUser +"&fields=primaryfilters&limit=" + LIMIT;
+		/**
+		 * seedDataForAutoLaunchedOrderedWordCount, just launches 1 DAG
+		 * 
+		 */
+		DAG dagId = seedDataForAutoLaunchedOrderedWordCount.dags.get(0);
+
+		String addendum = "?primaryFilter=TEZ_DAG_ID:" + dagId.id +"&fields=primaryfilters&limit=" + LIMIT;
 		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
 				ResponseComposition.EVENTS.NOT_EXPECTED,
 				ResponseComposition.ENTITYTYPE.EXPECTED,
@@ -180,7 +220,8 @@ public class TestApplyFiltersOnEntityTypeTezVertexId extends ATSTestsBaseClass {
 		}
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = vertexIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
 
 
 	}

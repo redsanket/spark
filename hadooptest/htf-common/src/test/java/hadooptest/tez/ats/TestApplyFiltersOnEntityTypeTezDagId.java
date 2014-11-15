@@ -33,8 +33,10 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);
 		}
-		GenericATSResponseBO genericATSResponse = dagIdQueue.poll();
-		Assert.assertTrue(genericATSResponse.entities.size() <=LIMIT);
+		GenericATSResponseBO genericAtsResponseBo = dagIdQueue.poll();
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
+
 	}
 
 //	@Test
@@ -70,8 +72,8 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = dagIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
-
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
 	}
  
 	@Ignore("http://bug.corp.yahoo.com/show_bug.cgi?id=7166198")
@@ -106,11 +108,12 @@ public class TestApplyFiltersOnEntityTypeTezDagId extends ATSTestsBaseClass {
 
 		Assert.assertEquals(0, errorCount.get());
 		GenericATSResponseBO genericAtsResponseBo = dagIdQueue.poll();
-		Assert.assertTrue(genericAtsResponseBo.entities.size()<=LIMIT);
+		int entityCount = genericAtsResponseBo.entities.size();
+		Assert.assertTrue(entityCount>0 && entityCount<=LIMIT);
 
 	}
 
-//	@Test
+	@Test
 	public void testExpectOnlyOtherInfo() throws Exception {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
 		if (!timelineserverStarted) {
