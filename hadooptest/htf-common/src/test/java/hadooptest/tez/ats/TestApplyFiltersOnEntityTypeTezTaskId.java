@@ -571,7 +571,7 @@ public class TestApplyFiltersOnEntityTypeTezTaskId extends ATSTestsBaseClass {
 
 	@Test
 	public void testExpectOnlyOtherInfoFilterOnTaskId() throws Exception {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
+		
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}
@@ -582,7 +582,7 @@ public class TestApplyFiltersOnEntityTypeTezTaskId extends ATSTestsBaseClass {
 		for (DAG dag : seedDataForAutoLaunchedOrderedWordCount.dags) {
 			for (Vertex vertex : dag.vertices) {
 				for (Task task : vertex.tasks) {
-
+					ExecutorService execService = Executors.newFixedThreadPool(1);
 					String addendum = "?primaryFilter=TEZ_TASK_ID:" + task.id
 							+ "&fields=otherinfo&limit=" + LIMIT;
 					HtfATSUtils atsUtils = new HtfATSUtils();
