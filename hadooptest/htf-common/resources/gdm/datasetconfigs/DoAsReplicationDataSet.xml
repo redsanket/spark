@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DataSet catalog="gdm-catalog"
-    description="gdm-doAsRetentionDataSet"
+    description="gdm-dataset-GDM-5.7.0-QE-build"
     name="NEW_DATA_SET_NAME"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
-    <Active>TRUE</Active>
+    <Active>FALSE</Active>
     <RetentionEnabled>TRUE</RetentionEnabled>
     <VerificationInstance/>
     <Priority>HIGHEST</Priority>
     <Contact consumer="gdm-dev@yahoo-inc.com"
         owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
-    <Comments>GDM automated test dataset built by deploy scripts.</Comments>
+    <Comments>GDM doAs replication automated testcase </Comments>
     <UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755"/>
-    <RunAsOwner>retention</RunAsOwner>
+    <RunAsOwner>replication</RunAsOwner>
     <Frequency>daily</Frequency>
     <DiscoveryFrequency>180</DiscoveryFrequency>
-    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <DiscoveryInterface>HDFS</DiscoveryInterface>
     <Paths>
-        <Path location='DATA_PATH' type="data"  />
-		<Path location='SCHEMA_PATH' type="schema"  />
-		<Path location='COUNT_PATH' type="count"  />
+        <Path
+            location="REPLICATION_SOURCE_DATA_PATH" type="data"/>
+        <Path
+            location="REPLICATION_SOURCE_COUNT_PATH" type="count"/>
+        <Path
+            location="REPLICATION_SOURCE_SCHEMA_PATH" type="schema"/>
     </Paths>
     <Parameters>
-        <attribute name="feed" value='FEED_NAME'/>
+        <attribute value='FEED_NAME' name='feed'></attribute>
         <attribute name="frequency" value="daily"/>
         <attribute name="bucket" value="0-998"/>
         <attribute name="statsfeed" value='FEED_STATS' />
@@ -50,40 +53,25 @@
         <NoOfParts>1</NoOfParts>
         <PartsPerPartition>4</PartsPerPartition>
     </WorkflowStrategy>
-    <Sources/>
+    <Sources>
+        <Source latency="720" name="ACQUISITION_SOURCE_NAME" switchovertype="Standard"/>
+    </Sources>
     <DataFlow/>
     <Targets>
-    	<Target latency="1440" name="TARGET1" status="active">
-            <DateRange end="20220131" start="20120125"/>
-            <HCatTargetType>HCAT_TYPE</HCatTargetType>
-             <Paths>
-                <Path
-                    location="ACQ_CUSTOM_COUNT_PATH" type="count"/>
-                <Path
-                    location="ACQ_CUSTOM_DATA_PATH" type="data"/>
-                <Path
-                    location="ACQ_CUSTOM_SCHEMA_PATH" type="schema"/>
-            </Paths>
-            <Policies>
-                <Policy
-                    condition="numberOfInstances(instancelist, instance) > 0" type="retention"/>
-            </Policies>
-            <Resource capacity="10" name="bandwidth"/>
-        </Target>
-        <Target latency="1440" name="TARGET2" status="active">
-            <DateRange end="20220131" start="20120125"/>
+        <Target latency="1440" name="TARGET1" status="active">
+            <DateRange end="20220131" start="20130725"/>
             <HCatTargetType>HCAT_TYPE</HCatTargetType>
             <Paths>
                 <Path
-                    location="REP_CUSTOM_COUNT_PATH" type="count"/>
+                    location="CUSTOM_COUNT_PATH" type="count"/>
                 <Path
-                    location="REP_CUSTOM_DATA_PATH" type="data"/>
+                    location="CUSTOM_DATA_PATH" type="data"/>
                 <Path
-                    location="REP_CUSTOM_SCHEMA_PATH" type="schema"/>
+                    location="CUSTOM_SCHEMA_PATH" type="schema"/>
             </Paths>
             <Policies>
                 <Policy
-                    condition="numberOfInstances(instancelist, instance) > 0" type="retention"/>
+                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
             </Policies>
             <Resource capacity="10" name="bandwidth"/>
         </Target>
