@@ -888,7 +888,9 @@ public final class ConsoleHandle
 	 * @return xml file as String
 	 */
 	public String getDataSetXml(String dataSetName) {
-		return this.getXml(this.consoleURL + "/console/query/config/dataset/"+dataSetName);
+		String url = this.getConsoleURL() + "/console/query/config/dataset/"+dataSetName;
+		TestSession.logger.info("test url = " + url);
+		return this.getXml(url);
 	}
 
 	/**
@@ -896,8 +898,10 @@ public final class ConsoleHandle
 	 * @param dataSetName
 	 * @return xml file as String
 	 */
-	public String getDataSourcetXml(String dataSourceName){                
-		return this.getXml(this.consoleURL + "/console/query/config/datasource/"+dataSourceName);
+	public String getDataSourcetXml(String dataSourceName) {               
+		String url = this.getConsoleURL() + "/console/query/config/datasource/"+dataSourceName;
+		TestSession.logger.info("url = " + url);
+		return this.getXml(url);
 	}
 
 	private String getXml(String query) {
@@ -905,8 +909,9 @@ public final class ConsoleHandle
 		com.jayway.restassured.response.Response response = RestAssured.given().cookie(httpHandle.cookie).get(query);
 		if (response.getStatusCode() == 200) {
 			xml = response.andReturn().asString();
+			TestSession.logger.info("dataset = " + xml);
+			return xml;
 		}
-
 		return xml;
 	}
 
@@ -1460,6 +1465,47 @@ public final class ConsoleHandle
 		TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
 		grids = jsonPath.getList("DataSourceResult.findAll { it.Type.equals('grid') }.DataSourceName ");
 		return grids;
+	}
+	
+	/**
+	 * Returns a JSONArray representing the instance files for a given path in the given datasource
+	 * @param dataSourceName - target grid name, where the instance files exists
+	 * @param dataPath - string representing the data example : /data/daqdev/data/ or /data/daqdev/data/datasetName
+	 * @return
+	 */
+	public JSONArray getDataSetInstanceFilesDetailsByPath(String dataSourceName , String dataPath) {
+		String hadoopLSCommand = "/console/api/admin/hadoopls";
+		String testURL = this.getConsoleURL()  + hadoopLSCommand + "?dataSource=" + dataSourceName + "&path=" +  dataPath  + "&format=json";
+		TestSession.logger.info("testurl = " + testURL ) ;
+		String cookie = this.httpHandle.getBouncerCookie();
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(testURL);
+		String responseString = response.getBody().asString();
+		TestSession.logger.info("Response  : " + responseString);
+		
+		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(responseString);
+		JSONArray filesJSONArray = jsonObject.getJSONArray("Files");
+		return filesJSONArray;
+	}
+	
+	/**
+	 * Returns a JSONArray representing the instance files for a given dataset & given datasource
+	 * @param dataSourceName
+	 * @param dataSetName
+	 * @return
+	 */
+	public JSONArray getDataSetInstanceFilesDetailsByDataSetName(String dataSourceName , String dataSetName) {
+		JSONArray files = null;
+		String hadoopLSCommand = "/console/api/admin/hadoopls";
+		String testURL = this.getConsoleURL()  + hadoopLSCommand + "?dataSource=" + dataSourceName + "&dataSet=" +  dataSetName  + "&format=json";
+		TestSession.logger.info("testurl = " + testURL ) ;
+		String cookie = this.httpHandle.getBouncerCookie();
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(testURL);
+		String responseString = response.getBody().asString();
+		TestSession.logger.info("Response  : " + responseString);
+		
+		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(responseString);
+		JSONArray filesJSONArray = jsonObject.getJSONArray("Files");
+		return files;
 	}
 
 }
