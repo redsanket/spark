@@ -131,10 +131,13 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
         // Make sure the value returned is correct.
         if (expectFailure) {
-            assertTrue("Did not get expected failure", drpcResult.equals("Got IO exception"));
+            assertTrue("Did not get expected failure",
+                drpcResult.equals("Got IO exception"));
         } else {
-            assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals(blobContent));
-            assertTrue("Did not get expected result back from permissions check", permsResult.equals(conf.getProperty("USER")+":rwxrwx---"));
+            assertTrue("Did not get expected result back from blobstore topology",
+                drpcResult.equals(blobContent));
+            assertTrue("Did not get expected result back from permissions check",
+                permsResult.equals(conf.getProperty("USER")+":rwxrwx---"));
         }
 
         String modifiedBlobContent = "This is modified integration content";
@@ -151,7 +154,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
         // Make sure the value returned is correct.
         // Skipping until feature fix is ready.
         if (expectFailure) {
-            assertTrue("Did not get expected failure", drpcResult.equals("Got IO exception"));
+            assertTrue("Did not get expected failure",
+                drpcResult.equals("Got IO exception"));
         } else {
             //assertTrue("Did not get updated result back from blobstore topology", drpcResult.equals(modifiedBlobContent));
         }
@@ -177,7 +181,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // Now verify hadoopqa (primary user) is in the acl list.
     ReadableBlobMeta blobMeta = clientBlobStore.getBlobMeta(blobKey);
     assertNotNull(blobMeta);
-    assertTrue("Hadoopqa was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
+    assertTrue("Hadoopqa was not found in the acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
     // Delete it
     clientBlobStore.deleteBlob(blobKey);
@@ -203,8 +208,10 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // Now verify hadoopqa (primary user) is in the acl list.
     ReadableBlobMeta blobMeta = clientBlobStore.getBlobMeta(blobKey);
     assertNotNull(blobMeta);
-    assertTrue("Hadoopqa was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
-    assertTrue("other was not found in the acl list", lookForAcl(clientBlobStore, blobKey, "o::r--"));
+    assertTrue("Hadoopqa was not found in the acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
+    assertTrue("other was not found in the acl list",
+        lookForAcl(clientBlobStore, blobKey, "o::r--"));
 
     //Now try to unset my own permissions
     AccessControl updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":rw-");
@@ -212,7 +219,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     updateAcls.add(updateAcl);
     SettableBlobMeta modifiedSettableBlobMeta = new SettableBlobMeta(updateAcls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
-    assertTrue("Hadoopqa was not found in the modified acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
+    assertTrue("Hadoopqa was not found in the modified acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
     //Now turn off my own write, and then try to write 
     AccessControl noWriteAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":r-a");
@@ -220,7 +228,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     noWriteAcls.add(noWriteAcl);
     modifiedSettableBlobMeta = new SettableBlobMeta(noWriteAcls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
-    assertTrue("Hadoopqa was not found in the modified acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":r-a"));
+    assertTrue("Hadoopqa was not found in the modified acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":r-a"));
     String modifiedBlobContent = "This is modified content";
     Boolean updateFailed = false;
     try {
@@ -237,7 +246,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     // We have to use superuser permissions to read the acl list once we have turned off our own read permissions
     kinit(conf.getProperty("BLOB_SUPERUSER_KEYTAB"), conf.getProperty("BLOB_SUPERUSER_PRINCIPAL") );
     ClientBlobStore clientSUBlobStore = getClientBlobStore();
-    assertTrue("Hadoopqa was not found in the empty acl list", lookForAcl(clientSUBlobStore, blobKey, "u:"+conf.getProperty("USER")+":--a"));
+    assertTrue("Hadoopqa was not found in the empty acl list",
+        lookForAcl(clientSUBlobStore, blobKey, "u:"+conf.getProperty("USER")+":--a"));
 
     // Turn on rw again.
     updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":rwa");
@@ -245,7 +255,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     restoreAcls.add(updateAcl);
     modifiedSettableBlobMeta = new SettableBlobMeta(restoreAcls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
-    assertTrue("Hadoopqa was not found in the restored acl list", lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
+    assertTrue("Hadoopqa was not found in the restored acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
     // Delete it
     clientBlobStore.deleteBlob(blobKey);
@@ -289,15 +300,18 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     assertNotNull(blobMeta);
     AccessControl actualAcl = blobMeta.get_settable().get_acl().get(0);
     String actualAclString = BlobStoreAclHandler.accessControlToString(actualAcl);
-    assertEquals("Actual ACL is different for created blob", blobACLs, actualAclString);
+    assertEquals("Actual ACL is different for created blob",
+        blobACLs, actualAclString);
 
     String actualContent = getBlobContent(blobKey, clientBlobStore);
-    assertEquals("Blob Content is not matching", blobContent, actualContent);
+    assertEquals("Blob Content is not matching",
+        blobContent, actualContent);
 
     String modifiedBlobContent = "This is modified content";
     updateBlobWithContent(blobKey, clientBlobStore, modifiedBlobContent);
     String actualModfiedContent = getBlobContent(blobKey, clientBlobStore);
-    assertEquals("Updated Blob Content is not matching", modifiedBlobContent, actualModfiedContent);
+    assertEquals("Updated Blob Content is not matching",
+        modifiedBlobContent, actualModfiedContent);
 
     String otherACLString = "o::r-a";
     AccessControl othersACL = BlobStoreAclHandler.parseAccessControl(otherACLString);
@@ -313,7 +327,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     logger.info("Actual modified ACL is " + modifiedActualAclString);
     logger.info("Other modified ACL is " + modifiedActualAclString);
     logger.info("My modified ACL is " + modifiedActualAclString);
-    assertEquals("Actual ACL is different for modified blob", otherACLString, modifiedActualAclString);
+    assertEquals("Actual ACL is different for modified blob",
+        otherACLString, modifiedActualAclString);
 
     boolean keyFound = isBlobFound(blobKey, clientBlobStore);
     assertTrue("Blob is not listed on the blobstore", keyFound);
@@ -339,7 +354,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
     // Check for deletion
     deletedKeyFound = isBlobFound(blobKey2, clientBlobStore);
-    assertFalse("Deleted Blob with local principal is listed on the blobstore", deletedKeyFound);
+    assertFalse("Deleted Blob with local principal is listed on the blobstore",
+        deletedKeyFound);
 
     // Add API test for using other acl.  It should default to "o::r-a"
     UUID uuid3 = UUID.randomUUID();
@@ -368,7 +384,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
     // Check for deletion
     deletedKeyFound = isBlobFound(blobKey3, clientBlobStore);
-    assertFalse("Deleted Blob with local principal is listed on the blobstore", deletedKeyFound);
+    assertFalse("Deleted Blob with local principal is listed on the blobstore",
+        deletedKeyFound);
   }
 
   private boolean isBlobFound(String blobKey, ClientBlobStore clientBlobStore) {
