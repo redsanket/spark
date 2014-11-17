@@ -90,6 +90,91 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
     }
 
+    private static String getWithBouncer(String user, String pw, String url, int expectedCode) {
+        HTTPHandle client = new HTTPHandle();
+        client.logonToBouncer(user,pw);
+        logger.info("Cookie = " + client.YBYCookie);
+        logger.info("URL to get is: " + url);
+        HttpMethod getMethod = client.makeGET(url, new String(""), null);
+        Response response = new Response(getMethod, false);
+        assertEquals("Status code for "+url+" does not match the expected value", expectedCode, response.getStatusCode());
+        String output = response.getResponseBodyAsString();
+        logger.info("******* OUTPUT = " + output);
+        return output;
+    }
+
+    @Test(timeout=300000)
+    public void UILogviewerGroupsTest() throws Exception {
+        assumeTrue(cluster instanceof ModifiableStormCluster);
+        Config config = new Config();
+        assumeTrue(config.get("ui.filter") != null);
+        StormTopology topology = buildTopology();
+
+        String topoName = "logviewer-ui-groups-test";
+        String outputLoc = new File("/tmp", topoName).getCanonicalPath();
+
+        config.put("test.output.location", outputLoc);
+        config.setDebug(true);
+        config.setNumWorkers(1);
+        config.put(Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
+        config.put(Config.STORM_ZOOKEEPER_TOPOLOGY_AUTH_PAYLOAD, "123:456");
+        List<String> whiteList = Arrays.asList("hadoop_re");
+        config.put(Config.UI_USERS, whiteList);
+        config.put(Config.LOGS_USERS, whiteList);
+        List<String> groupWhiteList = Arrays.asList("hadoop"); //Only hitusr_1 is in this group of the three we have
+        //TODO uncomment when code is pushed to dist
+        //config.put(Config.UI_GROUPS, groupWhiteList);
+        //config.put(Config.LOGS_GROUPS, groupWhiteList);
+        config.put("ui.groups", groupWhiteList);
+        config.put("logs.groups", groupWhiteList);
+
+
+        cluster.submitTopology(getTopologiesJarFile(), topoName, config, topology);
+        try {
+            final String topoId = getFirstTopoIdForName(topoName);
+            waitForTopoUptimeSeconds(topoId, 20);
+
+            // Worker Host
+            TopologyInfo ti = cluster.getTopologyInfo(topoId);
+            String host = ti.get_executors().get(0).get_host();
+            int workerPort = ti.get_executors().get(0).get_port();
+
+            // Logviewer port on worker host
+            String jsonStormConf = cluster.getNimbusConf();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> stormConf =
+                    (Map<String, Object>) JSONValue.parse(jsonStormConf);
+            //TODO what is the right way to get the UI host???
+            String uiHost = (String)stormConf.get(Config.NIMBUS_HOST);
+            Integer uiPort = Utils.getInt(stormConf
+                    .get(Config.UI_PORT));
+            Integer logviewerPort = Utils.getInt(stormConf
+                    .get(Config.LOGVIEWER_PORT));
+            
+            ModifiableStormCluster mc;
+            mc = (ModifiableStormCluster)cluster;
+            
+            Config theconf = new Config();
+            theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
+
+            String getURL = "http://" + host + ":" + logviewerPort + 
+                "/download/" + topoId + "-worker-" + workerPort + ".log";
+            String uiURL = "http://" + uiHost + ":" + uiPort + "/api/v1/topology/"+topoId;
+
+            getWithBouncer(mc.getBouncerUser(), mc.getBouncerPassword(), getURL, 200);
+            getWithBouncer(mc.getBouncerUser(), mc.getBouncerPassword(), uiURL, 200);
+            getWithBouncer("hitusr_1", "New2@password", getURL, 200);
+            getWithBouncer("hitusr_1", "New2@password", uiURL, 200);
+            getWithBouncer("hitusr_2", "New2@password", getURL, 403);
+            getWithBouncer("hitusr_2", "New2@password", uiURL, 403);
+            getWithBouncer("hitusr_3", "New2@password", getURL, 403);
+            getWithBouncer("hitusr_3", "New2@password", uiURL, 403);
+        } finally {
+            cluster.killTopology(topoName);
+        }
+    }
+
+
     @Test(timeout=300000)
     public void LogviewerPagingTest() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
