@@ -19,6 +19,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
   @BeforeClass
   public static void setup() throws Exception {
+      start();
       cluster.setDrpcAclForFunction("blobstore");
       cluster.setDrpcAclForFunction("permissions");
   }
@@ -87,7 +88,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:hadoopqa:rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
 
     // Now delete it.
     String[] deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -100,7 +101,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:hadoopqa:rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
 
     // Now delete it.
     deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -109,19 +110,19 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
     // Create blob with bad permissions
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-            "create", blobKey, "-f", fileName, "-a", "u:hadoopqa:r--,o::r" }, true);
+            "create", blobKey, "-f", fileName, "-a", "u:"+conf.getProperty("USER")+":r--,o::r" }, true);
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:hadoopqa:rwa", "o::r--", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", "o::r--", superuserAcl);
 
     // modify blob with bad permissions
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-            "set-acl", blobKey, "-s", "u:hadoopqa:rw-" }, true);
+            "set-acl", blobKey, "-s", "u:"+conf.getProperty("USER")+":rw-" }, true);
     assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:hadoopqa:rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
 
     // modify blob with no permissions
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -132,24 +133,24 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     kinit(conf.getProperty("BLOB_SUPERUSER_KEYTAB"), conf.getProperty("BLOB_SUPERUSER_PRINCIPAL") );
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:hadoopqa:--a", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":--a", superuserAcl);
 
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-            "set-acl", blobKey, "-s", "u:hadoopqa:rwa" }, true);
+            "set-acl", blobKey, "-s", "u:"+conf.getProperty("USER")+":rwa" }, true);
     assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:hadoopqa:rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
 
     // switch back
     kinit();
 
     // Now try to remove superuser acl
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-            "set-acl", blobKey, "-s", "u:hadoopqa:rwa,u:" + superuser + ":-wa" }, true);
+            "set-acl", blobKey, "-s", "u:"+conf.getProperty("USER")+":rwa,u:" + superuser + ":-wa" }, true);
     assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:hadoopqa:rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
 
     // Now delete it.
     deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -222,7 +223,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     logger.debug("permissions result = " + permsResult);
 
     assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals("This is original content."));
-    assertTrue("File was not created with proper permissions", permsResult.equals("hadoopqa:rwxrwx---"));
+    assertTrue("File was not created with proper permissions", permsResult.equals(conf.getProperty("USER")+":rwxrwx---"));
     killAll();
 
     String[] deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -232,7 +233,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
   @Test(timeout=240000)
   public void testTopoWithFullAcl() throws Exception {
-    testCreateModifyFromTopology(UUID.randomUUID().toString() + ".jar", "u:hadoopqa:rwa");
+    testCreateModifyFromTopology(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":rwa");
   }
 
   @Test(timeout=240000)
@@ -242,8 +243,8 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
   @Test(timeout=600000)
   public void testDistCacheCli() throws Exception {
-    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", "u:hadoopqa:rwa");
-    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", "u:hadoopqa:r");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":rwa");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":r");
     testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", null);
   }
 }
