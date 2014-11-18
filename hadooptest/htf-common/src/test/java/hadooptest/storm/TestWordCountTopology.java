@@ -9,6 +9,7 @@ import hadooptest.Util;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.automation.utils.http.Response;
 import hadooptest.cluster.storm.ModifiableStormCluster;
+import hadooptest.cluster.storm.StormDaemon;
 import hadooptest.workflow.storm.topology.bolt.Split;
 import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
 
@@ -25,6 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -144,8 +146,9 @@ public class TestWordCountTopology extends TestSessionStorm {
             @SuppressWarnings("unchecked")
             Map<String, Object> stormConf =
                     (Map<String, Object>) JSONValue.parse(jsonStormConf);
-            //TODO what is the right way to get the UI host???
-            String uiHost = (String)stormConf.get(Config.NIMBUS_HOST);
+            ArrayList<String> uiNodes = cluster.lookupRole(StormDaemon.UI);
+            String uiHost = uiNodes.get(0);
+            logger.info("Will be connecting to UI at " + uiHost);
             Integer uiPort = Utils.getInt(stormConf
                     .get(Config.UI_PORT));
             Integer logviewerPort = Utils.getInt(stormConf
