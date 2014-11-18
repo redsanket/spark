@@ -107,9 +107,13 @@ public class TestWordCountTopology extends TestSessionStorm {
 
     @Test(timeout=300000)
     public void UILogviewerGroupsTest() throws Exception {
+        logger.info("Starting Groups Test");
         assumeTrue(cluster instanceof ModifiableStormCluster);
         Config config = new Config();
+        config.putAll(Utils.readStormConfig());
+        logger.info("Is ui.filter enabled? "+config.get("ui.filter"));
         assumeTrue(config.get("ui.filter") != null);
+        logger.info("Running Groups Test...");
         StormTopology topology = buildTopology();
 
         String topoName = "logviewer-ui-groups-test";
