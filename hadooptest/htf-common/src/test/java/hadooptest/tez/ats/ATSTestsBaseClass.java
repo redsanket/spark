@@ -27,6 +27,7 @@ import hadooptest.tez.examples.extensions.SimpleSessionExampleExtendedForTezHTF;
 import hadooptest.tez.mapreduce.examples.extensions.MRRSleepJobExtendedForTezHTF;
 import hadooptest.tez.utils.HtfATSUtils;
 import hadooptest.tez.utils.HtfPigBaseClass;
+import hadooptest.tez.utils.HtfPigBaseClass.TIMELINE_SEVICE;
 import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
@@ -371,7 +372,7 @@ public class ATSTestsBaseClass extends TestSession {
 		List<String> params = new ArrayList<String>();
 		params.add("outdir=/tmp/pigout/script2-mapreduce");
 		String scriptLocation = "/home/y/share/htf-data/script2-local.pig ";
-		HtfPigBaseClass htfPigBaseClass = new HtfPigBaseClass();
+		HtfPigBaseClass htfPigBaseClass = new HtfPigBaseClass(TIMELINE_SEVICE.ENABLED);
 		int returnCode = htfPigBaseClass.runPigScriptOnCluster(params,
 				scriptLocation);
 		Assert.assertTrue(returnCode == 0);

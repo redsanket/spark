@@ -284,27 +284,29 @@ public class HtfATSUtils {
 		}// End FOR loop processing of dagplan vertices
 		
 		//EDGES
-		JSONArray edgesJsonArray = (JSONArray) (dagPlanJson.get("edges"));
-		for (int ee = 0; ee < edgesJsonArray.size(); ee++) {
-			JSONObject anEdgeJson = (JSONObject) edgesJsonArray.get(ee);
-			OtherInfoTezDagIdBO.DagPlanBO.DagPlanEdgeBO aDagEdgeBO = new OtherInfoTezDagIdBO.DagPlanBO.DagPlanEdgeBO();
-			aDagEdgeBO.edgeId = (String) anEdgeJson.get("edgeId");
-			aDagEdgeBO.inputVertexName = (String) anEdgeJson
-					.get("inputVertexName");
-			aDagEdgeBO.outputVertexName = (String) anEdgeJson
-					.get("outputVertexName");
-			aDagEdgeBO.dataMovementType = (String) anEdgeJson
-					.get("dataMovementType");
-			aDagEdgeBO.dataSourceType = (String) anEdgeJson
-					.get("dataSourceType");
-			aDagEdgeBO.schedulingType = (String) anEdgeJson
-					.get("schedulingType");
-			aDagEdgeBO.edgeSourceClass = (String) anEdgeJson
-					.get("edgeSourceClass");
-			aDagEdgeBO.edgeDestinationClass = (String) anEdgeJson
-					.get("edgeDestinationClass");
-
-			dagPlanBO.edges.add(aDagEdgeBO);
+		if (dagPlanJson.containsKey("edges")){
+			JSONArray edgesJsonArray = (JSONArray) (dagPlanJson.get("edges"));
+			for (int ee = 0; ee < edgesJsonArray.size(); ee++) {
+				JSONObject anEdgeJson = (JSONObject) edgesJsonArray.get(ee);
+				OtherInfoTezDagIdBO.DagPlanBO.DagPlanEdgeBO aDagEdgeBO = new OtherInfoTezDagIdBO.DagPlanBO.DagPlanEdgeBO();
+				aDagEdgeBO.edgeId = (String) anEdgeJson.get("edgeId");
+				aDagEdgeBO.inputVertexName = (String) anEdgeJson
+						.get("inputVertexName");
+				aDagEdgeBO.outputVertexName = (String) anEdgeJson
+						.get("outputVertexName");
+				aDagEdgeBO.dataMovementType = (String) anEdgeJson
+						.get("dataMovementType");
+				aDagEdgeBO.dataSourceType = (String) anEdgeJson
+						.get("dataSourceType");
+				aDagEdgeBO.schedulingType = (String) anEdgeJson
+						.get("schedulingType");
+				aDagEdgeBO.edgeSourceClass = (String) anEdgeJson
+						.get("edgeSourceClass");
+				aDagEdgeBO.edgeDestinationClass = (String) anEdgeJson
+						.get("edgeDestinationClass");
+	
+				dagPlanBO.edges.add(aDagEdgeBO);
+			}
 		}
 
 		// Add dagPlan to the OtherInfo

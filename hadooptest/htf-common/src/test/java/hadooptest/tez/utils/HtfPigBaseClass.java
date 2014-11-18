@@ -65,14 +65,30 @@ public class HtfPigBaseClass extends TestSession {
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public static HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	private static boolean dataVerifiedOnce = false;
+	private boolean timeLineServerEnabled=false;
 
 	protected static List<String> fileNames = new ArrayList<String>();
+	public enum TIMELINE_SEVICE{
+		ENABLED,
+		DISABLED
+	};
 
 	static {
 		fileNames.add("20130309/");
 		fileNames.add("20130310/");
 	}
+	public HtfPigBaseClass(){
+		super();
+	}
 
+	public HtfPigBaseClass(TIMELINE_SEVICE timelineServer ){
+		if (timelineServer.equals(TIMELINE_SEVICE.ENABLED)){
+		this.timeLineServerEnabled = true;
+		}else{
+			this.timeLineServerEnabled = false;
+		}
+	}
+	
 	/**
 	 * Before a test runs, ensure that it has canned data to work off of.
 	 * 
@@ -174,10 +190,10 @@ public class HtfPigBaseClass extends TestSession {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");
-		sb.append(" ");
-
-		sb.append("-x tez");
-		sb.append(" ");
+		sb.append(" ").append("-x tez").append(" ");
+		if (timeLineServerEnabled){
+			sb.append("-Dyarn.timeline-service.enabled=true").append(" ");
+		}
 		
 		sb.append(" -f " + scriptWithLocation);
 		
@@ -189,6 +205,7 @@ public class HtfPigBaseClass extends TestSession {
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>();
+		
 		environmentVariablesWrappingTheCommand.put("PIG_HOME",
 				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 						+ "/share/pig");
