@@ -3,6 +3,7 @@ package hadooptest.gdm.regression;
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
@@ -75,6 +76,8 @@ public class TestWorkFlowStepProgress extends TestSession {
 		if (targetGrids != null  && targetGrids.size() >= 2) {
 			targetGrid1 = targetGrids.get(0);
 			targetGrid2 = targetGrids.get(1);
+		} else {
+			assertTrue("There is no enough grid installed to test this testcase." , true);
 		}
 	}
 
@@ -204,6 +207,9 @@ public class TestWorkFlowStepProgress extends TestSession {
 			if (workflowCompleted) {
 				break;
 			}
+		}
+		if (workflowCompleted == false || waitTime >= waitTimeForWorkflowPolling) {
+			fail( this.dataSetName + " did not come to completed state & its TIME OUT in replication workflow.");
 		}
 	}
 
@@ -339,6 +345,9 @@ public class TestWorkFlowStepProgress extends TestSession {
 			if (workflowCompleted) {
 				break;
 			}
+		}
+		if (workflowCompleted == false || waitTime >= waitTimeForWorkflowPolling) {
+			fail( this.dataSetName + " did not come to completed state & its TIME OUT in acquisition workflow.");
 		}
 	}
 
