@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="SAGE" description="ss_search_click hourly feed for performance testing"
+    name="NEW_DATA_SET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>FALSE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>HIGH</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments/>
+    <UGI group="users" permission="750"/>
+    <RunAsOwner/>
+    <Frequency>hourly</Frequency>
+    <DiscoveryFrequency>10</DiscoveryFrequency>
+    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <Paths>
+        <Path
+            location='DATA_PATH' type="data"/>
+        <Path
+            location='COUNT_PATH' type="count"/>
+        <Path
+            location='SCHEMA_PATH' type="schema"/>
+    </Paths>
+    <Parameters>
+        <attribute name="frequency" value="hourly"/>
+        <attribute name="statsfeed" value='FEED_STATS' />
+        <attribute name="bucket" value="0-998"/>
+        <attribute name="instancepattern" value="yyyyMMddhh"/>
+        <attribute value='FEED_NAME' name='feed'></attribute>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>canon_query,ss_serve_id,ss_serve_timestamp</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$10/$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>4</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>true</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>10</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720" name="FDI_SERVER_NAME" switchovertype="Standard"/>
+    </Sources>
+    <DataFlow/>
+	<Targets>
+		<Target latency="1440" name='TARGET1' status="active">
+			<DateRange end="END_DATE" start="START_DATE" />
+			<HCatTargetType>HCAT_TYPE</HCatTargetType>
+			<Policies>
+				<Policy condition="numberOfInstances(instancelist, instance) > 10"
+					type="retention" />
+			</Policies>
+			<Resource capacity="1" name="bandwidth" />
+		</Target>
+		<Target latency="1440" name='TARGET2' status="active">
+			<DateRange end="END_DATE" start="START_DATE" />
+			<HCatTargetType>HCAT_TYPE</HCatTargetType>
+			<Policies>
+				<Policy condition="numberOfInstances(instancelist, instance) > 10"
+					type="retention" />
+			</Policies>
+			<Resource capacity="10" name="bandwidth" />
+		</Target>
+	</Targets>
+    <HCat>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatSchemaFile>schema.dat</HCatSchemaFile>
+        <HCatSchemaFormat>ULT</HCatSchemaFormat>
+        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
+    </HCat>
+    <SelfServe>
+        <RequireGroupAdmin>FALSE</RequireGroupAdmin>
+        <SelfServeEnabled>FALSE</SelfServeEnabled>
+        <UseOpsdbGroup>FALSE</UseOpsdbGroup>
+    </SelfServe>
+    <Project/>
+    <Tags/>
+</DataSet>
