@@ -16,7 +16,10 @@ will want to do the following:
 - Increase the timeout by starting Hive with the following command: ``hive –hiveconf hive.metastore.client.socket.timeout=200``
 - Use a queue that you can access:
   - View the queues that you have access to: ``mapred queue -showacls``
-  - Set the queue to use for executing queries: 
+  - Set the queue to use for executing queries::
+        
+        $ hive 
+        hive> set mapreduce.job.queuename=default;
 
 
 
@@ -36,7 +39,7 @@ All Jobs
 
 ::
 
-    Output: 19,538,923
+    19,538,923
 
 All Pig Jobs
 ############
@@ -102,7 +105,14 @@ All Java MapReduce Jobs
       and not(job_name like 'PigLatin%') and not(job_name like '%oozie-wrkf%') 
       and not(lower(job_name) like 'select %') and not(lower(job_name) like 'update %') 
       and not(lower(job_name) like 'insert %')
-      and not(user ='dfsload') and not(job_name like '%jar%')
+      and not(user ='dfsload') and not(job_name like '%jar%');
+
+**Example Output**
+
+::
+
+    3260192
+
 
 Total Number of Jobs From Oozie Within a Month 
 ----------------------------------------------
@@ -184,15 +194,45 @@ Number of Unique Oozie (Backyard ID / Headless) Users on Grid
 
 .. code-block:: sql
 
-   select distinct user from starling_jobs where dt between '2013_11_01' and '2013_11_30' and job_name like 'oozie:launcher%' 
+   select distinct user from starling_jobs where dt between '2013_11_01' and '2013_11_30' and job_name like 'oozie:launcher%';
 
 
 **Example Output**
 
 ::
 
-    TBD    
+    abychay
+    ac_pv
+    adwprd
+    ahmedf
+    ajeetps
+    akagian
+    alles
+    amd_dev
+    amdgrd_1
+    amitgupt
+    amitjain
+    amitkuma
+    amulay
+    anejar
+    anithar
+    apodev
+    apollog
+    apollost
+    asd_head
+    ashishg
+    autosgrd
+    baiyi
+    bgopalan
+    bhardwaj
+    bhaskar
+    bishan
+    boliu1
+    boomuser
+    btdb
+    ...
 
+    
 Number of Oozie Applications on the Grid 
 ########################################
 
@@ -201,7 +241,7 @@ Number of Oozie Applications on the Grid
 
    select conf.params['oozie.wf.application.path'] from starling_job_summary jobs 
        join starling_job_confs conf on (jobs.job_id=conf.job_id) where jobs.dt between '2013_08_01' 
-       and '2013_08_30' and jobs.job_name like 'oozie:launcher%'
+       and '2013_08_30' and jobs.job_name like 'oozie:launcher%';
 
 **Example Output**
 
@@ -345,16 +385,16 @@ How much data is being read local to a rack (from a data node in the same rack) 
    select  T.grid, T.dt, round(avg(T.datalocal)), round(avg(T.racklocal)), round(avg(T.others))
    from (
            select
-                   J.grid grid, J.dt dt, J.jobid,
+                   J.grid grid, J.dt dt, J.job_id,
                    (J.datalocal * 100)/J.total datalocal,
                    (J.rack * 100)/J.total racklocal,
-                   ((J.total # J.datalocal # J.rack) * 100)/J.total others
+                   ((J.total - J.datalocal - J.rack) * 100)/J.total others
            from (
                select
-                   grid, dt, jobid,
+                   grid, dt, job_id,
                    cast(counters['Job Counters/Launched map tasks'] as bigint)  total,
-                   cast(counters['Job Counters/Data#local map tasks'] as bigint) datalocal,
-                   cast(counters['Job Counters/Rack#local map tasks'] as bigint) rack
+                   cast(counters['Job Counters/Data-local map tasks'] as bigint) datalocal,
+                   cast(counters['Job Counters/Rack-local map tasks'] as bigint) rack
                from job
        ) J 
        where J.total is not null and J.datalocal is not null and J.rack is not null and
@@ -477,6 +517,7 @@ Find the Number of Jobs Using Compressed Output Files
 Find Non-Pig Jobs Using Compressed Output Files
 -----------------------------------------------
 
+.. No permission to execute.
 
 .. code-block:: sql
 
@@ -498,14 +539,15 @@ Find Non-Pig Jobs Using Compressed Output Files
 Find MapReduce Jobs Reading/Writing to /tmp
 -------------------------------------------
 
+.. No permission to execute.
 
 .. code-block:: sql
 
    select count(1) jobs_count
    from starling_job_confs
    where dt between '2013_05_01' and '2013_06_01'
-       and (params['mapreduce.input.fileinputformat.inputdir'] like '/tmp/%'
-       or params['mapreduce.output.fileoutputformat.outputdir'] like '/tmp/%');
+       and (params['mapreduce.input.fileinputformat.inputdir'] like './tmp/%'
+       or params['mapreduce.output.fileoutputformat.outputdir'] like './tmp/%');
 
 **Example Output** 
 
