@@ -128,12 +128,8 @@ public class TestWordCountTopology extends TestSessionStorm {
         config.put(Config.UI_USERS, whiteList);
         config.put(Config.LOGS_USERS, whiteList);
         List<String> groupWhiteList = Arrays.asList("hadoop"); //Only hitusr_1 is in this group of the three we have
-        //TODO uncomment when code is pushed to dist
-        //config.put(Config.UI_GROUPS, groupWhiteList);
-        //config.put(Config.LOGS_GROUPS, groupWhiteList);
-        config.put("ui.groups", groupWhiteList);
-        config.put("logs.groups", groupWhiteList);
-
+        config.put(Config.UI_GROUPS, groupWhiteList);
+        config.put(Config.LOGS_GROUPS, groupWhiteList);
 
         cluster.submitTopology(getTopologiesJarFile(), topoName, config, topology);
         try {
