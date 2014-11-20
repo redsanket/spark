@@ -1,6 +1,7 @@
 package hadooptest.storm;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
@@ -65,6 +66,7 @@ public class TestChangeConfig extends TestSessionStorm {
             client.logonToBouncer(user,pw);
         }
         logger.info("Cookie = " + client.YBYCookie);
+        assertNotNull("Cookie is null", client.YBYCookie);
         ArrayList<String> uiNodes = mc.lookupRole(StormDaemon.UI);
         logger.info("Will be connecting to UI at " + uiNodes.get(0));
         String uiURL = "http://" + uiNodes.get(0) + ":8101";

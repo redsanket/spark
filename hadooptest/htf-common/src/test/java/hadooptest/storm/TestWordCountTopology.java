@@ -2,6 +2,7 @@ package hadooptest.storm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
@@ -147,6 +148,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             if (filter != null) {
                 client.logonToBouncer(user,pw);
             }
+            assertNotNull("cookie is null", client.YBYCookie);
             logger.info("Cookie = " + client.YBYCookie);
             
             String getURL = "http://" + host + ":" + logviewerPort + 
