@@ -42,8 +42,7 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthUserFromDiffGroupInACL extends
-		ATSTestsBaseClass {
+public class TestAuthUserFromDiffGroupInACL extends AclDomainBaseClass {
 	@Test
 	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
@@ -115,7 +114,7 @@ public class TestAuthUserFromDiffGroupInACL extends
 
 	@Test
 	public void testUsersInSameGroup() throws Exception {
-		String self = HadooptestConstants.UserNames.HITUSR_3;		
+		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInSameGroup = HadooptestConstants.UserNames.HITUSR_1;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 				self, userNotInSameGroup);
@@ -189,7 +188,6 @@ public class TestAuthUserFromDiffGroupInACL extends
 		String userNotInTheSameGroupButAllowed = HadooptestConstants.UserNames.HITUSR_1;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 				self, userNotInTheSameGroupButAllowed);
-		
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -252,34 +250,5 @@ public class TestAuthUserFromDiffGroupInACL extends
 
 		}
 	}
-
-	public void makeHttpRequestAndEnqueue(String url, EntityTypes entityType,
-			String user,
-			Queue<GenericATSResponseBO> enqueueProcessedResponseHere)
-			throws InterruptedException {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
-		makeHttpCallAndEnqueueConsumedResponse(execService, url, user,
-				entityType, enqueueProcessedResponseHere, expectEverythingMap());
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
-
-	}
-	// public boolean isEntityPresentInResponsea(GenericATSResponseBO
-	// processedResponse, EntityTypes entityType,
-	// String entity){
-	// boolean valueFound = false;
-	// for (EntityInGenericATSResponseBO anEntityPresentInBunch :
-	// processedResponse.entities){
-	// if (anEntityPresentInBunch.entityType.equals(entityType.name())
-	// && anEntityPresentInBunch.entity.equals(entity)){
-	// valueFound = true;
-	// break;
-	// }
-	// }
-	//
-	// return valueFound;
-	// }
 
 }

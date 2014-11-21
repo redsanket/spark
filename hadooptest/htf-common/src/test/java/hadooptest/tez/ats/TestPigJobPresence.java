@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.utils.HtfATSUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +29,18 @@ public class TestPigJobPresence extends ATSTestsBaseClass {
 	 */
 	@Test
 	public void testPigJobGetsListed() throws Exception {
-		ExecutorService execService = Executors.newFixedThreadPool(10);
+		List<String> listOfPigJobsRanOnTheClusterOld = pigJobsOnTheCluster();
+		runPigOnTezScriptOnCluster();
+		List<String> listOfPigJobsRanOnTheClusterNew = pigJobsOnTheCluster();
+		listOfPigJobsRanOnTheClusterNew
+				.removeAll(listOfPigJobsRanOnTheClusterOld);
+		seedDataForAutoLaunchedPigJob.appId = listOfPigJobsRanOnTheClusterNew
+				.get(0);
+		seedDataForAutoLaunchedPigJob.appStartedByUser = HadooptestConstants.UserNames.HADOOPQA;
+		TestSession.logger.info("New Pig job app Id:"
+				+ seedDataForAutoLaunchedPigJob.appId);
+
+		ExecutorService execService = Executors.newFixedThreadPool(1);
 		if (!timelineserverStarted) {
 			// startTimelineServerOnRM(rmHostname);
 		}

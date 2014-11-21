@@ -43,7 +43,7 @@ import org.junit.experimental.categories.Category;
 
 @Category(SerialTests.class)
 public class TestAuthWhenUserSpecifiesUserAndGroupComboInACL extends
-		ATSTestsBaseClass {
+		AclDomainBaseClass {
 	@Test
 	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
@@ -123,19 +123,4 @@ public class TestAuthWhenUserSpecifiesUserAndGroupComboInACL extends
 			}
 		}
 	}
-
-	public void makeHttpRequestAndEnqueue(String url, EntityTypes entityType,
-			String user,
-			Queue<GenericATSResponseBO> enqueueProcessedResponseHere)
-			throws InterruptedException {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
-		makeHttpCallAndEnqueueConsumedResponse(execService, url, user,
-				entityType, enqueueProcessedResponseHere, expectEverythingMap());
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
-
-	}
-
 }

@@ -42,14 +42,14 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthWhenDiffGroupAllowedInACL extends
-		ATSTestsBaseClass {
+public class TestAuthWhenDiffGroupAllowedInACL extends AclDomainBaseClass {
 	@Test
 	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
+				self,
+				userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -115,10 +115,11 @@ public class TestAuthWhenDiffGroupAllowedInACL extends
 
 	@Test
 	public void testUsersInSameGroup() throws Exception {
-		String self = HadooptestConstants.UserNames.HITUSR_3;		
+		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
+				self,
+				userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
 		String otherInSameGroup = HadooptestConstants.UserNames.HITUSR_4;
 
 		EntityTypes entityTypeBeingTested;
@@ -188,8 +189,8 @@ public class TestAuthWhenDiffGroupAllowedInACL extends
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInSameGroupButHisGroupIsAllowed = HadooptestConstants.UserNames.HITUSR_2;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
-		
+				self,
+				userGroupMapping.get(userNotInSameGroupButHisGroupIsAllowed));
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -227,7 +228,8 @@ public class TestAuthWhenDiffGroupAllowedInACL extends
 					url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 					TestSession.logger.info("Processing:" + url);
 					makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-							userNotInSameGroupButHisGroupIsAllowed, currentQueue);
+							userNotInSameGroupButHisGroupIsAllowed,
+							currentQueue);
 					polled = currentQueue.poll();
 					Assert.assertTrue(atsUtils.isEntityPresentInResponse(
 							polled, entityTypeBeingTested, entity));
@@ -239,7 +241,8 @@ public class TestAuthWhenDiffGroupAllowedInACL extends
 								+ entity;
 						TestSession.logger.info("Processing:" + url);
 						makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-								userNotInSameGroupButHisGroupIsAllowed, currentQueue);
+								userNotInSameGroupButHisGroupIsAllowed,
+								currentQueue);
 						polled = currentQueue.poll();
 						Assert.assertTrue(atsUtils.isEntityPresentInResponse(
 								polled, entityTypeBeingTested, entity));
@@ -252,34 +255,5 @@ public class TestAuthWhenDiffGroupAllowedInACL extends
 
 		}
 	}
-
-	public void makeHttpRequestAndEnqueue(String url, EntityTypes entityType,
-			String user,
-			Queue<GenericATSResponseBO> enqueueProcessedResponseHere)
-			throws InterruptedException {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
-		makeHttpCallAndEnqueueConsumedResponse(execService, url, user,
-				entityType, enqueueProcessedResponseHere, expectEverythingMap());
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
-
-	}
-	// public boolean isEntityPresentInResponsea(GenericATSResponseBO
-	// processedResponse, EntityTypes entityType,
-	// String entity){
-	// boolean valueFound = false;
-	// for (EntityInGenericATSResponseBO anEntityPresentInBunch :
-	// processedResponse.entities){
-	// if (anEntityPresentInBunch.entityType.equals(entityType.name())
-	// && anEntityPresentInBunch.entity.equals(entity)){
-	// valueFound = true;
-	// break;
-	// }
-	// }
-	//
-	// return valueFound;
-	// }
 
 }

@@ -273,16 +273,6 @@ public class ATSTestsBaseClass extends TestSession {
 		if (jobsLaunchedOnceToSeedData.booleanValue() == Boolean.FALSE) {
 			jobsLaunchedOnceToSeedData = Boolean.TRUE;
 			groundWorkForPigScriptExecution();
-			List<String> listOfPigJobsRanOnTheClusterOld = pigJobsOnTheCluster();
-			runPigOnTezScriptOnCluster();
-			List<String> listOfPigJobsRanOnTheClusterNew = pigJobsOnTheCluster();
-			listOfPigJobsRanOnTheClusterNew
-					.removeAll(listOfPigJobsRanOnTheClusterOld);
-			seedDataForAutoLaunchedPigJob.appId = listOfPigJobsRanOnTheClusterNew
-					.get(0);
-			seedDataForAutoLaunchedPigJob.appStartedByUser = HadooptestConstants.UserNames.HADOOPQA;
-			TestSession.logger.info("New Pig job app Id:"
-					+ seedDataForAutoLaunchedPigJob.appId);
 
 			// Run a OrderedWordCount as hitusr_1
 			seedDataForAutoLaunchedOrderedWordCount = launchOrderedWordCountExtendedForHtfAndGetSeedData(
@@ -349,7 +339,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 	}
 
-	private List<String> pigJobsOnTheCluster() throws Exception {
+	public List<String> pigJobsOnTheCluster() throws Exception {
 		List<String> pigJobsRan = new ArrayList<String>();
 		YarnCliCommands yarnCliCommands = new YarnCliCommands();
 		GenericYarnCliResponseBO yarnResponse = yarnCliCommands.application(
@@ -449,10 +439,20 @@ public class ATSTestsBaseClass extends TestSession {
 	public GenericATSResponseBO getDagIdResponses(String user)
 			throws InterruptedException {
 		ExecutorService execService = Executors.newFixedThreadPool(1);
-		// TODO: Change the user below to seedData.appStartedByUser
+		String filter = "?fields=events,relatedentities,primaryfilters";
+		Map<String, Boolean> expectedEntities = getExpectedFieldsMap(
+				ResponseComposition.EVENTS.EXPECTED,
+				ResponseComposition.ENTITYTYPE.EXPECTED,
+				ResponseComposition.ENTITY.EXPECTED,
+				ResponseComposition.STARTTIME.EXPECTED,
+				ResponseComposition.RELATEDENTITIES.EXPECTED,
+				ResponseComposition.PRIMARYFILTERS.EXPECTED,
+				ResponseComposition.OTHERINFO.NOT_EXPECTED);
+
+		// TODO: Change the user below to seedData.appStartedByUser		
 		makeHttpCallAndEnqueueConsumedResponse(execService, getATSUrl()
-				+ "TEZ_DAG_ID/", user, EntityTypes.TEZ_DAG_ID, dagIdQueue,
-				expectEverythingMap());
+				+ "TEZ_DAG_ID" + filter, user, EntityTypes.TEZ_DAG_ID, dagIdQueue,
+				expectedEntities);
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);

@@ -42,8 +42,7 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthWhenUserSpecifiesOwnGroupInACL extends
-		ATSTestsBaseClass {
+public class TestAuthWhenUserSpecifiesOwnGroupInACL extends AclDomainBaseClass {
 	@Test
 	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
@@ -114,7 +113,7 @@ public class TestAuthWhenUserSpecifiesOwnGroupInACL extends
 
 	@Test
 	public void testUsersInSameGroup() throws Exception {
-		String self = HadooptestConstants.UserNames.HITUSR_3;		
+		String self = HadooptestConstants.UserNames.HITUSR_3;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 				self, userGroupMapping.get(self));
 		String otherInSameGroup = HadooptestConstants.UserNames.HITUSR_4;
@@ -249,34 +248,4 @@ public class TestAuthWhenUserSpecifiesOwnGroupInACL extends
 
 		}
 	}
-
-	public void makeHttpRequestAndEnqueue(String url, EntityTypes entityType,
-			String user,
-			Queue<GenericATSResponseBO> enqueueProcessedResponseHere)
-			throws InterruptedException {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
-		makeHttpCallAndEnqueueConsumedResponse(execService, url, user,
-				entityType, enqueueProcessedResponseHere, expectEverythingMap());
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
-
-	}
-	// public boolean isEntityPresentInResponsea(GenericATSResponseBO
-	// processedResponse, EntityTypes entityType,
-	// String entity){
-	// boolean valueFound = false;
-	// for (EntityInGenericATSResponseBO anEntityPresentInBunch :
-	// processedResponse.entities){
-	// if (anEntityPresentInBunch.entityType.equals(entityType.name())
-	// && anEntityPresentInBunch.entity.equals(entity)){
-	// valueFound = true;
-	// break;
-	// }
-	// }
-	//
-	// return valueFound;
-	// }
-
 }

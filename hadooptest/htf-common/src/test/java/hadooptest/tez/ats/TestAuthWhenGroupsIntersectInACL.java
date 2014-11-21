@@ -42,15 +42,14 @@ import org.junit.experimental.categories.Category;
  */
 
 @Category(SerialTests.class)
-public class TestAuthWhenGroupsIntersectInACL extends
-		ATSTestsBaseClass {
+public class TestAuthWhenGroupsIntersectInACL extends AclDomainBaseClass {
 	@Test
 	public void testAllowedUsers() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_4;
 		String allowedGroup = HadooptestConstants.UserGroups.HADOOPQA;
 		String implicitUserBelongingToSpecifiedGroup = HadooptestConstants.UserNames.HITUSR_2;
-		String[] allowedUsers = new String[] { self, 
-				implicitUserBelongingToSpecifiedGroup};
+		String[] allowedUsers = new String[] { self,
+				implicitUserBelongingToSpecifiedGroup };
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 				self, allowedGroup);
 
@@ -127,7 +126,8 @@ public class TestAuthWhenGroupsIntersectInACL extends
 		String allowedGroup = HadooptestConstants.UserGroups.HADOOPQA;
 		String notAllowedUser = HadooptestConstants.UserNames.HITUSR_1;
 		String anotherNotAllowedUser = HadooptestConstants.UserNames.HITUSR_3;
-		String[] notAllowedUsers = new String[] { notAllowedUser, anotherNotAllowedUser};
+		String[] notAllowedUsers = new String[] { notAllowedUser,
+				anotherNotAllowedUser };
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
 				self, allowedGroup);
 
@@ -197,34 +197,5 @@ public class TestAuthWhenGroupsIntersectInACL extends
 			}
 		}
 	}
-
-	public void makeHttpRequestAndEnqueue(String url, EntityTypes entityType,
-			String user,
-			Queue<GenericATSResponseBO> enqueueProcessedResponseHere)
-			throws InterruptedException {
-		ExecutorService execService = Executors.newFixedThreadPool(1);
-		makeHttpCallAndEnqueueConsumedResponse(execService, url, user,
-				entityType, enqueueProcessedResponseHere, expectEverythingMap());
-		execService.shutdown();
-		while (!execService.isTerminated()) {
-			Thread.sleep(1000);
-		}
-
-	}
-	// public boolean isEntityPresentInResponsea(GenericATSResponseBO
-	// processedResponse, EntityTypes entityType,
-	// String entity){
-	// boolean valueFound = false;
-	// for (EntityInGenericATSResponseBO anEntityPresentInBunch :
-	// processedResponse.entities){
-	// if (anEntityPresentInBunch.entityType.equals(entityType.name())
-	// && anEntityPresentInBunch.entity.equals(entity)){
-	// valueFound = true;
-	// break;
-	// }
-	// }
-	//
-	// return valueFound;
-	// }
 
 }

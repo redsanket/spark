@@ -191,6 +191,8 @@ public class HtfPigBaseClass extends TestSession {
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");
 		sb.append(" ").append("-x tez").append(" ");
+		//TODO: Remove the following statement after 
+		//http://bug.corp.yahoo.com/show_bug.cgi?id=7205383 is addressed
 		if (timeLineServerEnabled){
 			sb.append("-Dyarn.timeline-service.enabled=true").append(" ");
 		}
