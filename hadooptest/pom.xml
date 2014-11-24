@@ -40,7 +40,7 @@
 		<hadoop.version.current>2.2.0</hadoop.version.current>
 		<hadoop.version>${hadoop.version.current}</hadoop.version>
 		<spark.version>1.1.0.1</spark.version>
-		<spark.hadoop.version>2.6.0.1.1411101121<</spark.hadoop.version>
+		<spark.hadoop.version>2.6.0.1.1411101121</spark.hadoop.version>
 		<spark.version.full>1.1.0.1_2.6.0.1.1411101121_1411111608</spark.version.full>
 		<hbase.version>0.98.7.3.1410030038_h2</hbase.version>
 		<scala.version>2.10.3</scala.version>
