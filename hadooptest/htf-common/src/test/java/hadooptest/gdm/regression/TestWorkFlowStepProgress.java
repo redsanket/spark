@@ -8,10 +8,11 @@ import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
+import hadooptest.cluster.gdm.GeneratePerformanceFeeds;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
-import hadooptest.gdm.regression.performance.GeneratePerformanceFeeds;
+
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -350,7 +351,6 @@ public class TestWorkFlowStepProgress extends TestSession {
 			fail( this.dataSetName + " did not come to completed state & its TIME OUT in acquisition workflow.");
 		}
 	}
-
 
 	/**
 	 * Create a dataset & activate it.
