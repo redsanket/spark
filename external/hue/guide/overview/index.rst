@@ -88,7 +88,7 @@ and use `ATS <http://developer.corp.yahoo.com/product/ATS>`_ for proxying reques
 Our Hue frontend is the same, and as of yet, we do not offer the SDK to create your own
 Hue applications.
 
-.. image:: hue_arch.png
+.. image:: images/hue_arch.png
    :height: 686 px 
    :width: 850 px
    :scale: 95 %
