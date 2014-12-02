@@ -37,7 +37,9 @@ Getting Help
 General Questions
 -----------------
 
-- TBD: hue-users@yahoo-inc.com 
+- yahoo-hue-users@yahoo-inc.com 
+
+
 
 Request Support
 ---------------
