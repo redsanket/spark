@@ -1,4 +1,4 @@
-package hadooptest.gdm.regression.hcat;
+package hadooptest.gdm.regression.hcat.doAs;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
@@ -28,11 +28,7 @@ import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 
-/**
- * TestCase : Verify whether creating a dynamic schema to an instance registers in HCAT. 
- * Used : Data Discovery HCAT api for testing.
- */
-public class TestHCatDynamicSchema  extends TestSession {
+public class TestHCatDyamicSchemaDoAs  extends TestSession {
 
 	private String cookie;
 	private ConsoleHandle consoleHandle;
@@ -61,7 +57,9 @@ public class TestHCatDynamicSchema  extends TestSession {
 	private static final String FIRST_INSTANCE = "20120125";
 	private static final String SECOND_INSTANCE = "20120126";
 	private static final String THIRD_INSTANCE = "20120127";
-	private static final String DATABASE_NAME = "gdm";
+	private static final String GROUP_NAME = "users";
+	private static final String DATA_OWNER = "lawkp";
+	private static  final String DATABASE_NAME = "law_doas_gdm";
 	private static final String ADDED_COLUMN_NAME = "bogus_name";
 	
 	@BeforeClass
@@ -75,7 +73,7 @@ public class TestHCatDynamicSchema  extends TestSession {
 		this.hcatHelperObj = new HCatHelper();
 		this.consoleHandle = new ConsoleHandle();
 		cookie = httpHandle.getBouncerCookie();
-		this.dataSetName = "TestHCatDynamicSchema_" + System.currentTimeMillis();
+		this.dataSetName = "TestDoAsHCatDynamicSchema_" + System.currentTimeMillis();
 		this.feedName = this.dataSetName;
 
 		// get all the hcat supported clusters
@@ -127,8 +125,14 @@ public class TestHCatDynamicSchema  extends TestSession {
 				boolean isAcquisitionFirstInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME , this.acquisitionHCatServerName , this.acquisitionTableName , FIRST_INSTANCE);
 				assertTrue("Failed to create " + FIRST_INSTANCE + " partition in " + this.acquisitionTableName , isAcquisitionFirstInstancePartitionCreated == true);
 				
-				// get the acquisition table schema for the FIRST_INSTANCE
+				// get the acquisition table schema for the FIRST_INSTANCE 
 				this.fistInstanceAcquisitionSchemaJSONArray = this.hcatHelperObj.getHCatTableColumns(this.DATABASE_NAME , this.acquisitionHCatServerName , this.acquisitionTableName); 
+				
+				// check for table owner
+				String tableOwner = this.hcatHelperObj.getHCatTableOwner(this.targetGrid1 , this.dataSetName , "acquisition");
+				boolean flag = tableOwner.contains(this.DATA_OWNER);
+				assertTrue("Expected " + this.DATA_OWNER  + "  data owner but got " + tableOwner , flag == true );
+
 			}
 			
 			// replication workflow
@@ -145,8 +149,13 @@ public class TestHCatDynamicSchema  extends TestSession {
 				
 				// check for FIRST_INSTANCE created for acquisition hcat 
 				this.replicationTableName = this.dataSetName.toLowerCase().replaceAll("-", "_").trim();
-				boolean isReplicationFirstInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME, this.replicationHCatServerName , replicationTableName , FIRST_INSTANCE);
+				boolean isReplicationFirstInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME , this.replicationHCatServerName , replicationTableName , FIRST_INSTANCE);
 				assertTrue("Failed to create " + FIRST_INSTANCE + " partition in " + this.replicationTableName , isReplicationFirstInstancePartitionCreated == true);
+				
+				// check for table owner
+				String tableOwner = this.hcatHelperObj.getHCatTableOwner(this.targetGrid2 , this.dataSetName , "replication");
+				boolean flag = tableOwner.contains(this.DATA_OWNER);
+				assertTrue("Expected " + this.DATA_OWNER  + "  data owner but got " + tableOwner , flag == true );
 				
 				this.fistInstanceReplicationSchemaJSONArray = this.hcatHelperObj.getHCatTableColumns(this.DATABASE_NAME , this.replicationHCatServerName , this.replicationTableName); 
 			}
@@ -167,11 +176,11 @@ public class TestHCatDynamicSchema  extends TestSession {
 			this.workFlowHelper.checkWorkFlow(this.dataSetName , "acquisition" , this.datasetActivationTime , SECOND_INSTANCE );
 			
 			// check for SECOND_INSTANCE created for acquisition hcat
-			boolean isAcquisitionSecondInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME, this.acquisitionHCatServerName , this.acquisitionTableName , SECOND_INSTANCE);
+			boolean isAcquisitionSecondInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME , this.acquisitionHCatServerName , this.acquisitionTableName , SECOND_INSTANCE);
 			assertTrue("Failed to create " + SECOND_INSTANCE + " partition in " + acquisitionTableName , isAcquisitionSecondInstancePartitionCreated == true);
 			
 			// get the acquisition table schema for SECOND_INSTANCE where schema is changed in the table.
-			this.secondInstanceAcqusisitionSchemaJSONArray =  this.hcatHelperObj.getHCatTableColumns(this.DATABASE_NAME ,this.acquisitionHCatServerName , this.acquisitionTableName); 
+			this.secondInstanceAcqusisitionSchemaJSONArray =  this.hcatHelperObj.getHCatTableColumns(this.DATABASE_NAME , this.acquisitionHCatServerName , this.acquisitionTableName); 
 			
 			// if schema is updated succcessfully, then newly added column is added.
 			assertTrue("Failed : Acquisition creating of dynamic schema failed i,e HCAT failed to create a new column or partition." ,  this.secondInstanceAcqusisitionSchemaJSONArray.size()  > this.fistInstanceAcquisitionSchemaJSONArray.size());
@@ -180,11 +189,11 @@ public class TestHCatDynamicSchema  extends TestSession {
 			this.workFlowHelper.checkWorkFlow(this.dataSetName , "replication" , this.datasetActivationTime , SECOND_INSTANCE );
 				
 			// check for SECOND_INSTANCE created for acquisition hcat
-			boolean isReplicationSecondInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME, this.replicationHCatServerName , this.replicationTableName , SECOND_INSTANCE);
+			boolean isReplicationSecondInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME , this.replicationHCatServerName , this.replicationTableName , SECOND_INSTANCE);
 			assertTrue("Failed to create " + SECOND_INSTANCE + " partition in " + this.replicationTableName , isReplicationSecondInstancePartitionCreated == true);
 
 			// get the replication table schema for SECOND_INSTANCE where schema is changed in the table.
-			this.secondInstanceReplicationSchemaJSONArray =  this.hcatHelperObj.getHCatTableColumns(this.DATABASE_NAME ,this.replicationHCatServerName , this.replicationTableName); 
+			this.secondInstanceReplicationSchemaJSONArray =  this.hcatHelperObj.getHCatTableColumns(this.DATABASE_NAME , this.replicationHCatServerName , this.replicationTableName); 
 
 			// if schema is updated succcessfully, then newly added column is added.
 			assertTrue("Failed : replication creating of dynamic schema failed i,e HCAT failed to create a new column or partition." , this.secondInstanceReplicationSchemaJSONArray.size() > this.fistInstanceReplicationSchemaJSONArray.size() );
@@ -215,7 +224,6 @@ public class TestHCatDynamicSchema  extends TestSession {
 			// check for SECOND_INSTANCE created for acquisition hcat
 			boolean isReplicationThirdInstancePartitionCreated = this.hcatHelperObj.isPartitionIDExists(this.DATABASE_NAME , this.replicationHCatServerName , this.replicationTableName , THIRD_INSTANCE);
 			assertTrue("Failed to create " + SECOND_INSTANCE + " partition in " + this.replicationTableName , isReplicationThirdInstancePartitionCreated == true);
-			
 		}
 
 	}
@@ -317,16 +325,16 @@ public class TestHCatDynamicSchema  extends TestSession {
 		String sourceName = this.consoleHandle.getDataSetTagsAttributeValue(this.baseDataSetName , "Sources" , "name");
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", this.dataSetName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", this.dataSetName + "_stats" );
+		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", this.GROUP_NAME);
+		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", this.DATA_OWNER);
 		dataSetXml = dataSetXml.replaceAll("FDI_SERVER_NAME", sourceName );
-		dataSetXml = dataSetXml.replaceAll("GROUP_NAME","users");
-		dataSetXml = dataSetXml.replaceAll("owner=\"DATA_OWNER\"", "");
 		dataSetXml = dataSetXml.replaceAll("TARGET1", this.targetGrid1 );
 		dataSetXml = dataSetXml.replaceAll("TARGET2", this.targetGrid2 );
 		dataSetXml = dataSetXml.replaceAll("HCAT_TYPE", this.HCAT_TYPE );
 		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 		dataSetXml = dataSetXml.replaceAll("TABLE_NAME", this.dataSetName );
-		dataSetXml = dataSetXml.replaceAll("<RunAsOwner>FACETS</RunAsOwner>", "");
-
+		dataSetXml = dataSetXml.replaceAll("FACETS", "acquisition,replication" );
+		
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
 			try {
@@ -417,7 +425,6 @@ public class TestHCatDynamicSchema  extends TestSession {
 		TestSession.logger.info("DataSource " + fdiServerName + " exists");
 	}
 
-
 	/**
 	 * deactivate the dataset(s)	
 	 */
@@ -431,3 +438,4 @@ public class TestHCatDynamicSchema  extends TestSession {
 	}
 	
 }
+

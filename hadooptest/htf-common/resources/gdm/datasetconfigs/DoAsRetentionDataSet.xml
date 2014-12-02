@@ -16,9 +16,9 @@
     <DiscoveryFrequency>180</DiscoveryFrequency>
     <DiscoveryInterface>FDI</DiscoveryInterface>
     <Paths>
-        <Path location='DATA_PATH' type="data"  />
-		<Path location='SCHEMA_PATH' type="schema"  />
-		<Path location='COUNT_PATH' type="count"  />
+        <Path location="/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
+        <Path location="/data/daqdev/count/${DataSetName}/%{date}" type="count"/>
+        <Path location="/data/daqdev/schema/${DataSetName}/%{date}" type="schema"/>
     </Paths>
     <Parameters>
         <attribute name="feed" value='FEED_NAME'/>
@@ -89,7 +89,7 @@
         </Target>
     </Targets>
     <HCat>
-        <HCatDatabaseName>gdm</HCatDatabaseName>
+        <HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
         <HCatInstanceKey>instancedate</HCatInstanceKey>
         <HCatSchemaFile>schema.dat</HCatSchemaFile>
         <HCatSchemaFormat>ULT</HCatSchemaFormat>

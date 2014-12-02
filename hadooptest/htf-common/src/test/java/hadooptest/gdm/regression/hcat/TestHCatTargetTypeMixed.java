@@ -37,8 +37,8 @@ public class TestHCatTargetTypeMixed extends TestSession {
 	private WorkFlowHelper workFlowHelper;
 	private HCatHelper hcatHelperObject = null;
 	private static final String HCAT_TYPE = "Mixed";
+	private static final String DATABASE_NAME = "gdm";
 	private static final int SUCCESS = 200;
-
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -99,7 +99,7 @@ public class TestHCatTargetTypeMixed extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on acquisition facet's HCat server
-			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.dataSetName);
+			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.dataSetName , this.DATABASE_NAME);
 			assertTrue("Failed to HCAT create table for " + this.dataSetName , isAcqusitionTableCreated == true);
 		}
 
@@ -113,7 +113,7 @@ public class TestHCatTargetTypeMixed extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server.
-			boolean isReplicationTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.dataSetName);
+			boolean isReplicationTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.dataSetName , this.DATABASE_NAME);
 			assertTrue("Failed to create HCAT table for " + this.dataSetName , isReplicationTableCreated == true);
 		}
 	}
@@ -134,7 +134,11 @@ public class TestHCatTargetTypeMixed extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replaceAll("FDI_SERVER_NAME", sourceName );
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
-		dataSetXml = dataSetXml.replace("TABLE_NAME", this.dataSetName);
+		dataSetXml = dataSetXml.replace("GROUP_NAME", "users");
+		dataSetXml = dataSetXml.replaceAll("owner=\"DATA_OWNER\"", "");
+		dataSetXml = dataSetXml.replace("<RunAsOwner>FACETS</RunAsOwner>", "");
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
+		dataSetXml = dataSetXml.replaceAll("TABLE_NAME", this.dataSetName);
 
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
