@@ -18,7 +18,6 @@ can expect new applications that give you access to other Hadoop components in t
 .. programs, build custom search engines with Solr, and schedule repetitive workflows with Oozie.
 
 
-
 Why Use Hue?
 ============
 
@@ -27,7 +26,6 @@ You also do not need to on-board with the Grid team or download/install software
 any Yahoo cluster. This opens the grid to anyone at Yahoo. As long as you have used
 a file browser, you can view and modify data. If you know some SQL, you should be able to
 quickly learn how to run Hive queries. 
-
 
 Who Should Use Hue?
 ===================
