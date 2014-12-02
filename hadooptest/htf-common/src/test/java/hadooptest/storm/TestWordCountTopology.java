@@ -169,9 +169,9 @@ public class TestWordCountTopology extends TestSessionStorm {
             getWithBouncer(mc.getBouncerUser(), mc.getBouncerPassword(), uiURL, 200);
             getWithBouncer("hitusr_1", "New2@password", getURL, 200);
             getWithBouncer("hitusr_1", "New2@password", uiURL, 200);
-            getWithBouncer("hitusr_2", "New2@password", getURL, 403);
+            getWithBouncer("hitusr_2", "New2@password", getURL, 500);
             getWithBouncer("hitusr_2", "New2@password", uiURL, 500);
-            getWithBouncer("hitusr_3", "New2@password", getURL, 403);
+            getWithBouncer("hitusr_3", "New2@password", getURL, 500);
             getWithBouncer("hitusr_3", "New2@password", uiURL, 500);
         } finally {
             cluster.killTopology(topoName);
