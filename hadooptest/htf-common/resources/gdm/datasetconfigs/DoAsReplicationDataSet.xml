@@ -77,11 +77,12 @@
         </Target>
     </Targets>
     <HCat>
-        <HCatDatabaseName>gdm</HCatDatabaseName>
+        <HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
         <HCatInstanceKey>instancedate</HCatInstanceKey>
         <HCatSchemaFile>schema.dat</HCatSchemaFile>
         <HCatSchemaFormat>ULT</HCatSchemaFormat>
         <HCatSchemaLocked>FALSE</HCatSchemaLocked>
         <HCatTableName>HCAT_TABLE_NAME</HCatTableName>
+        <HCatTablePropagationEnabled>HCAT_TABLE_PROPAGATION</HCatTablePropagationEnabled>
     </HCat>
 </DataSet>

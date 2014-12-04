@@ -1,4 +1,4 @@
-package hadooptest.gdm.regression.hcat;
+package hadooptest.gdm.regression.hcat.doAs;
 
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
@@ -15,15 +15,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-/**
- * TestCase : Verify whether HCat table and HCat partition is created when <HCatTargetType>HCatOnly</HCatTargetType> is set for replication dataset.
- *             
- *  Acquisition : Copy data from FDI server to GRID and create HCat table and partition in acquisition HCat server once the acquisition workflow is successful.
- *  Replication : Make sure data is not copied replication facet, instead just copy the meta data on the replication HCat server, data location still pointing to acquisition GRID.
- *
- */
-public class TestHCatTargetTypeHCatOnly extends TestSession {
+public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private List<String> hcatSupportedGrid;
@@ -38,7 +30,9 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 	private static final String ACQ_HCAT_TYPE = "Mixed";
 	private static final String REP_HCAT_TYPE = "HCatOnly";
 	private static final int SUCCESS = 200;
-	private static final String DATABASE_NAME = "gdm";
+	private static final String GROUP_NAME = "users";
+	private static final String DATA_OWNER = "lawkp";
+	private static  final String DATABASE_NAME = "law_doas_gdm";
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -93,6 +87,12 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 			// check whether hcat table is created for Mixed HCatTargetType.
 			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
 			assertTrue("Failed : Expected that HCAT table is created " + this.acqDataSetName , isAcqusitionTableCreated == true);
+			
+			
+			// check for table owner
+			String tableOwner = this.hcatHelperObject.getHCatTableOwner(this.targetGrid1 , this.acqDataSetName , "acquisition");
+			boolean flag =  tableOwner.contains(this.DATA_OWNER);
+			assertTrue("Expected " + this.DATA_OWNER  + "  data owner but got " + tableOwner ,   flag == true);
 		}
 
 		// replication
@@ -113,6 +113,11 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 			// check whether hcat table is created for HCatOnly HCatTargetType.
 			boolean isTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
 			assertTrue("Failed : Expected that HCAT table is  created  " + this.repDataSetName , isTableCreated == true);
+			
+			// check for table owner
+			String tableOwner = this.hcatHelperObject.getHCatTableOwner(this.targetGrid2 , this.repDataSetName , "replication");
+			boolean flag = tableOwner.contains(this.DATA_OWNER);
+			assertTrue("Expected " + this.DATA_OWNER  + "  data owner but got " + tableOwner , flag == true );
 		}
 	}
 
@@ -131,10 +136,11 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replaceAll("FDI_SERVER_NAME", sourceName );
+		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", this.GROUP_NAME);
+		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", this.DATA_OWNER);
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.ACQ_HCAT_TYPE);
 		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 		dataSetXml = dataSetXml.replace("<UGI group=\"GROUP_NAME\" owner=\"DATA_OWNER\" permission=\"755\"/>", "<UGI group=\"users\" permission=\"755\"/>");
-		dataSetXml = dataSetXml.replaceAll("<RunAsOwner>acquisition</RunAsOwner>", "");
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", getCustomPath("data", this.acqDataSetName) );
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", getCustomPath("count", this.acqDataSetName) );
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.acqDataSetName));
@@ -159,18 +165,24 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/" + dataSetFileName);
 		String feedName = this.consoleHandle.getDataSetTagsAttributeValue(this.baseDataSetName , "Parameters" , "value");
 		
+		
 		StringBuffer dataSetXmlBuffer = new StringBuffer(this.consoleHandle.createDataSetXmlFromConfig(this.repDataSetName, dataSetConfigFile));
+	//	int index = dataSetXmlBuffer.indexOf("</HCatTableName>") + "</HCatTableName>".length() + 2;
+	//	dataSetXmlBuffer.insert(index, "<HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>");
 		
 		String dataSetXml = dataSetXmlBuffer.toString();
 		dataSetXml = dataSetXml.replaceAll("TARGET1", this.targetGrid2 );
-		dataSetXml = dataSetXml.replace("<UGI group=\"GROUP_NAME\" owner=\"DATA_OWNER\" permission=\"755\"/>", "<UGI group=\"users\" permission=\"755\"/>");
-		dataSetXml = dataSetXml.replaceAll("<RunAsOwner>replication</RunAsOwner>", "");
+		//dataSetXml = dataSetXml.replace("<UGI group=\"GROUP_NAME\" owner=\"DATA_OWNER\" permission=\"755\"/>", "<UGI group=\"users\" permission=\"755\"/>");
+		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", this.GROUP_NAME);
+		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", this.DATA_OWNER);
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.repDataSetName);
+		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", this.GROUP_NAME);
+		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", this.DATA_OWNER);
+		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_PROPAGATION", "TRUE");
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replaceAll("ACQUISITION_SOURCE_NAME", this.targetGrid1 );
 		dataSetXml = dataSetXml.replaceAll("HDFS", "HCAT" );
-		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_PROPAGATION", "TRUE" );
 		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.REP_HCAT_TYPE);
 		String acqTableName = this.acqDataSetName.toLowerCase().replace("-", "_").trim();
@@ -205,5 +217,5 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 		return  "/data/daqdev/"+ pathType +"/"+ dataSet + "/%{date}";
 	}
 
-
 }
+

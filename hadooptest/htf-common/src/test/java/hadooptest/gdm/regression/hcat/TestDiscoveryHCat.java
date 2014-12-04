@@ -51,6 +51,7 @@ public class TestDiscoveryHCat extends TestSession {
 	private static final String DB_NAME = "gdm";
 	private static final int SUCCESS = 200;
 	private static final int SLEEP_TIME = 50000;
+	private static final String DATABASE_NAME = "gdm";
 	private static final String HCAT_TYPE = "Mixed";
 
 	@BeforeClass
@@ -115,7 +116,7 @@ public class TestDiscoveryHCat extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on acquisition facet's HCat server
-			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acquisitionDataSetName);
+			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acquisitionDataSetName , this.DATABASE_NAME);
 			assertTrue("Failed to HCAT create table for " + this.acquisitionDataSetName , isAcqusitionTableCreated == true);
 		}
 
@@ -137,7 +138,7 @@ public class TestDiscoveryHCat extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server.
-			boolean isReplicationTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.acquisitionDataSetName);
+			boolean isReplicationTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.acquisitionDataSetName , this.DATABASE_NAME);
 			assertTrue("Failed to create HCAT table for " + this.replicationDataSetName , isReplicationTableCreated == true);
 		}
 	}
@@ -162,6 +163,7 @@ public class TestDiscoveryHCat extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("FDI_SERVER_NAME", sourceName );
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.acquisitionDataSetName.trim());
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", getCustomPath("data", this.acquisitionDataSetName) );
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", getCustomPath("count", this.acquisitionDataSetName) );
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.acquisitionDataSetName));
@@ -198,6 +200,7 @@ public class TestDiscoveryHCat extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replaceAll("ACQUISITION_SOURCE_NAME", this.targetGrid1 );
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 		
 		// this is doAs specific , so no need of this tag
 		dataSetXml = dataSetXml.replaceAll("<RunAsOwner>replication</RunAsOwner>", "");
