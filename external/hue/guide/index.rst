@@ -7,6 +7,7 @@ Hue User Guide
    :hidden:
 
    overview/index
+   ui/index
    getting_started/index
    reference/index
 
