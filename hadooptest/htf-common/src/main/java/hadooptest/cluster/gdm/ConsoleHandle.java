@@ -1495,7 +1495,7 @@ public final class ConsoleHandle
 	 */
 	public JSONArray getDataSetInstanceFilesDetailsByDataSetName(String dataSourceName , String dataSetName) {
 		JSONArray files = null;
-		String hadoopLSCommand = "/console/api/admin/hadoopls";
+		String hadoopLSCommand = "/console/api/admin/hadoopls"; 
 		String testURL = this.getConsoleURL()  + hadoopLSCommand + "?dataSource=" + dataSourceName + "&dataSet=" +  dataSetName  + "&format=json";
 		TestSession.logger.info("testurl = " + testURL ) ;
 		String cookie = this.httpHandle.getBouncerCookie();
@@ -1505,7 +1505,63 @@ public final class ConsoleHandle
 		
 		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(responseString);
 		JSONArray filesJSONArray = jsonObject.getJSONArray("Files");
-		return files;
+		TestSession.logger.info("filesJSONArray  = " + filesJSONArray.size());
+		return filesJSONArray;
 	}
+	
+	
+	public int getInstanceFilesExistsOnHDFSSearchByDataSetName(String dataSourceName , String dataSetName) {
+		JSONArray instanceFilesJSONArray = this.getDataSetInstanceFilesDetailsByDataSetName(dataSourceName , dataSetName);
+		TestSession.logger.info("instanceFilesJSONArray  = " + instanceFilesJSONArray.size());
+		List<String> filesNames = new ArrayList<String>();
+		int fileCount = 0;
+		// select only the files
+		if (instanceFilesJSONArray.size() > 0) {
+			Iterator iterator = instanceFilesJSONArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				TestSession.logger.info("Instance files details  = " + jsonObject.toString());
+				
+				String directory = jsonObject.getString("Directory");
+				if (directory.equals("no")) {
+					String path = jsonObject.getString("Path").trim();
+					filesNames.add(path);
+				}
+			}
+		}
+		
+		// check for data files only , we can discard schema and  count files
+		for (String fileName : filesNames) {
+			if (! (fileName.contains("schema")) || (fileName.contains("count")) ) {
+				if (fileName.contains("part-")) {
+					fileCount ++;
+				}
+			}
+		}
+		TestSession.logger.info("There are " + fileCount + " data files for " + dataSetName);
+		return fileCount;
+	}
+	
+	
+	public JsonPath getAcquiredFilesFromHDFS(String dataSetName, String targetName, String path) {
+        JsonPath acqJsonPath = getHDSFFileInfo(dataSetName,targetName,path);
+        return acqJsonPath;
+    }
+
+    public void getReplicationFilesFromHDFS(String dataSetName, String targetName, String path) {
+        JsonPath repJsonPath = getHDSFFileInfo(dataSetName,targetName,path);
+    }
+   
+    public JsonPath getHDSFFileInfo(String dataSetName , String targetName , String path) {
+        String hadoopLSCommand = "/console/api/admin/hadoopls";
+        String hadoopLsURL = "http://" + TestSession.conf.getProperty("GDM_CONSOLE_NAME") + ":" + Integer.parseInt(TestSession.conf.getProperty("GDM_CONSOLE_PORT")) +
+                        hadoopLSCommand + "?format=json&dataSource="+targetName + "&path="+path + dataSetName;
+        TestSession.logger.info("hadoopLsURL = " + hadoopLsURL);
+                com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(hadoopLsURL);
+                JsonPath jsonPath = response.getBody().jsonPath();
+                //List<String> hdfsPath = jsonPath.getList("Files.Path");
+                TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
+                return jsonPath;
+    }
 
 }
