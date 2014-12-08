@@ -113,7 +113,7 @@ public class TestHCatDoAsWithMixed extends TestSession {
 
 				// add acquisition dataset name to list
 				dataSetNames.add(this.acqDataSetName);
-
+ 
 				// check for acquisition workflow
 				this.helper.checkWorkFlow(this.acqDataSetName, "acquisition", this.datasetActivationTime);
 
