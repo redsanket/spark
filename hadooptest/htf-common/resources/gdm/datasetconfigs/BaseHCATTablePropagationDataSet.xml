@@ -1,0 +1,85 @@
+<DataSet catalog="gdm-catalog"
+    description="gdm-dataset-Table-propagation-for-hierachical-partitions"
+    name="NEW_DATA_SET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>FALSE</Active>
+    <RetentionEnabled>FALSE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>gdm-dataset-Table-propagation-for-hierachical-partitions</Comments>
+    <UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755"/>
+    <RunAsOwner>FACET</RunAsOwner>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>180</DiscoveryFrequency>
+    <DiscoveryInterface>HDFS</DiscoveryInterface>
+    <Paths>
+        <Path location="/data/SOURCE_ABF/ABF_DAILY/%{date}" type="data"/>
+        <Path location="/data/SOURCE_ABF/ABF_DAILY/%{date}/" type="schema"/>
+    </Paths>
+    <Parameters>
+        <attribute value='FEED_NAME' name='feed'></attribute>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="bucket" value="0-998"/>
+        <attribute name="statsfeed" value='FEED_STATS' />
+        <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="retentionPeriod" value="390"/>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>mrkt_sid</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720" name="SOURCE_NAME" switchovertype="Standard"/>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="1440" name="TARGET1" status="active">
+            <DateRange end="20220131" start="20130309"/>
+            <HCatTargetType>HCAT_TYPE</HCatTargetType>
+            <Paths>
+                <Path location="CUSTOM_DATA_PATH" type="data"/>
+                <Path location="CUSTOM_SCHEMA_PATH" type="schema"/>
+            </Paths>
+            <Policies>
+                <Policy condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+    </Targets>
+        <HCat>
+        <HCatDatabaseName>DATABASE</HCatDatabaseName>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatPartitionDataPathMask>$instancedate/$pagivity/$validity/$property</HCatPartitionDataPathMask>
+        <HCatPartitionKeys>instancedate,pagivity,validity,property</HCatPartitionKeys>
+        <HCatSchemaFile>_abf_v1.jr</HCatSchemaFile>
+        <HCatSchemaFormat>Record</HCatSchemaFormat>
+        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
+        <HCatTableName>TABLE_NAME</HCatTableName>
+        <HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>
+    </HCat>
+    <SelfServe>
+        <RequireGroupAdmin>FALSE</RequireGroupAdmin>
+        <SelfServeEnabled>FALSE</SelfServeEnabled>
+        <UseOpsdbGroup>FALSE</UseOpsdbGroup>
+    </SelfServe>
+</DataSet>
