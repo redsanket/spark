@@ -136,8 +136,10 @@ public class TestStormDistCacheApi extends TestSessionStorm {
         } else {
             assertTrue("Did not get expected result back from blobstore topology",
                 drpcResult.equals(blobContent));
+            // Accepting both rwxrwx and rw-rw- until YSTORM-470 is addressed
             assertTrue("Did not get expected result back from permissions check",
-                permsResult.equals(conf.getProperty("USER")+":rwxrwx---"));
+                permsResult.equals(conf.getProperty("USER")+":rwxrwx---") ||
+                permsResult.equals(conf.getProperty("USER")+":rw-rw----"));
         }
 
         String modifiedBlobContent = "This is modified integration content";
@@ -157,7 +159,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
             assertTrue("Did not get expected failure",
                 drpcResult.equals("Got IO exception"));
         } else {
-            //assertTrue("Did not get updated result back from blobstore topology", drpcResult.equals(modifiedBlobContent));
+            assertTrue("Did not get updated result back from blobstore topology", drpcResult.equals(modifiedBlobContent));
         }
     } finally {
         killAll();
