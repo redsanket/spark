@@ -120,6 +120,34 @@ public class WorkFlowHelper {
 		this.consoleHandle.sleep(30000);
 		return result;
 	}
+	
+	
+	/**
+	 * checks whether the dataset has come to the running state. If the 
+	 * @param dataSetName
+	 * @param facetName
+	 * @return returns true if dataset is in running state else returns false
+	 */
+	public boolean checkWhetherDataSetReachedRunningState( String dataSetName  , String facetName) {
+		boolean isWorkFlowRunning = false;
+		String runningWorkFlowTestURL =  this.consoleHandle.getConsoleURL() + "/console/api/workflows/running?datasetname="+ dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + facetName;
+		TestSession.logger.info("runningWorkFlowTestURL =  "  +  runningWorkFlowTestURL);
+		long waitTimeForWorkflowPolling = 5 * 60 * 1000;
+		long sleepTime = 15000; // 15 sec  sleep time.
+		long waitTime=0;
+		while (waitTime <= waitTimeForWorkflowPolling) {
+			com.jayway.restassured.response.Response workFlowResponse = given().cookie(this.cookie).get(runningWorkFlowTestURL);
+			String workFlowResult = checkWorkFlowStatus(workFlowResponse , "runningWorkflows");
+			if (workFlowResult.equals("running") ) {
+				isWorkFlowRunning = true;
+				break;
+			} else {
+				this.consoleHandle.sleep(sleepTime);
+				waitTime += sleepTime;
+			}
+		}
+		return isWorkFlowRunning;
+	}
 
 	/**
 	 * Checks for the workflow of the specified facet. This method checks for all the workflow ( Failed , Running & Completed )
@@ -281,7 +309,7 @@ public class WorkFlowHelper {
 			assertTrue(facetName + " completed : " + dataSetName + "   dataset  ", isWorkFlowCompleted == true);
 		}
 	}
-	
+		
 	/**
 	 * Navigate throught the workflow response and create the performance report.
 	 * @param workFlowResponse
@@ -572,6 +600,111 @@ public class WorkFlowHelper {
 			}
 		}
 	}
+	
+	/**
+	 * Gets the Progress value  from the running workflow details 
+	 * @param dataSetName
+	 * @param datasetActivationTime
+	 * @param workflowType
+	 * @return
+	 */
+	public int getProgressValue(String dataSetName , String datasetActivationTime , String workflowType) {
+		return getWorkFlowProgressOREffectiveDataRate(dataSetName , datasetActivationTime , workflowType , "Progress");
+	}
+	
+	/**
+	 * Get the 'Effective Data Rate' value  from  running workflow details.
+	 * @param dataSetName
+	 * @param datasetActivationTime
+	 * @param workflowType
+	 * @return
+	 */
+	public int getEffectiveDataRateValue(String dataSetName , String datasetActivationTime , String workflowType) {
+		return getWorkFlowProgressOREffectiveDataRate(dataSetName , datasetActivationTime , workflowType , "Effective Data Rate");
+	}
+	
+	/**
+	 * Get the progress value or Effective Data Rate value from the running workflow json response
+	 * @param dataSetName
+	 * @param datasetActivationTime
+	 * @param workflowType
+	 * @param checkValueFor
+	 * @return
+	 */
+	public int getWorkFlowProgressOREffectiveDataRate(String dataSetName , String datasetActivationTime , String workflowType , String checkValueFor) {
+		String endTime = GdmUtils.getCalendarAsString();
+		JSONUtil jsonUtil = new JSONUtil();
+		JSONArray jsonArray = null;
+		boolean isDataSetRunning = false;
+		boolean isDataCompletedInCompletedState = false;
+		TestSession.logger.info("endTime = " + endTime);
+		String url =  this.consoleHandle.getConsoleURL() + "/console/api/workflows/running?datasetname="+ dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + workflowType;
+	/*	String url = this.consoleHandle.getConsoleURL() + "/console/api/workflows/" + workflowType   + "?exclude=false&starttime=" + datasetActivationTime + "&endtime=" + endTime +
+				"&joinType=innerJoin&datasetname=" +  dataSetName ;*/
+		TestSession.logger.info("url = " + url);
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
+		String res = response.getBody().asString();
+		TestSession.logger.info("response = " + res);
+
+		// convert string to jsonObject
+		JSONObject obj =  (JSONObject) JSONSerializer.toJSON(res.toString());
+		TestSession.logger.info("obj = " + obj.toString());
+		
+		if (workflowType.equals("running")) {
+			jsonArray = obj.getJSONArray("runningWorkflows");
+			isDataSetRunning = true;
+		} else if (workflowType.equals("completed")) {
+			jsonArray = obj.getJSONArray("completedWorkflows");
+			isDataCompletedInCompletedState = true;
+		}/* else if (workflowType.equals("failed")) {
+			jsonArray = obj.getJSONArray("failedWorkflows");
+		}*/
+
+		int returnValue = 0;
+		String currentStep = null;
+		
+		if (jsonArray.size() > 0 && jsonArray != null) {
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				TestSession.logger.info("failedJsonObject  = " + jsonObject.toString());
+				String fName = jsonObject.getString("FacetName");
+				String facetColo = jsonObject.getString("FacetColo");
+				String executionId = jsonObject.getString("ExecutionID");
+
+				// get steps for workflow 
+				String testURL =this.consoleHandle.getConsoleURL() +  "/console/api/workflows/" + executionId + "/view?facet=" + fName + "&colo=" + facetColo;
+				TestSession.logger.info("url = " + testURL);
+				response = given().cookie(this.cookie).get(testURL);
+				String res1 = response.getBody().asString();
+				TestSession.logger.info(" response = " + res1);
+				JSONObject detailsWorkFlowJSONObject =  (JSONObject) JSONSerializer.toJSON(res1.toString());
+				TestSession.logger.info("obj1 = " + detailsWorkFlowJSONObject.toString());
+
+				currentStep = detailsWorkFlowJSONObject.getString("CurrentStep").trim();
+				
+				if (currentStep.equals("data.load")  || currentStep.equals("data.transform")) {
+					
+					if (checkValueFor.equals("")) {
+						returnValue =  Integer.parseInt( detailsWorkFlowJSONObject.getString("Progress") );
+						TestSession.logger.info("Progress value = " + returnValue);
+					} else if (checkValueFor.equals("")) {
+						List<String> temp = Arrays.asList(detailsWorkFlowJSONObject.getString("Effective Data Rate").split(" "));
+						int dataRate =  Integer.parseInt( temp.get(0) );
+						returnValue = dataRate;
+					}
+				}
+			}
+		} else if (isDataSetRunning ) {
+			TestSession.logger.info(dataSetName + " dataset is running, current step is  " + currentStep);
+		} else if (!isDataSetRunning) {
+			TestSession.logger.info(dataSetName + " dataset is not in running state, wait till the dataset comes to running state.");
+		}
+		return returnValue;
+
+	}
+	
+	
 	
 	
 	/**

@@ -54,7 +54,11 @@ public class GeneratePerformanceFeeds {
 			sourcePath = "/grid/0/yroot/var/yroots/fdiserver/tmp/GDMDeploy." + this.suffix.trim() + "/dataset_scripts/ss_search_click_hourly/dataset_2";
 		}  else if (instanceId.equals("2013010520")) {
 			sourcePath = "/grid/0/yroot/var/yroots/fdiserver/tmp/GDMDeploy." + this.suffix.trim() + "/dataset_scripts/ss_search_click_hourly/dataset_24";
+		} else {
+			sourcePath = "/grid/0/yroot/var/yroots/fdiserver/tmp/GDMDeploy." + this.suffix.trim() + "/dataset_scripts/ss_search_click_hourly/dataset_2";
 		}
+		
+		TestSession.logger.info("Source Path = " + sourcePath );
 
 		File tmpFeedDir = new File(tmpFeedPath);
 		FileUtils.deleteDirectory(tmpFeedDir);
