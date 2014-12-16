@@ -601,17 +601,35 @@ public class WorkFlowHelper {
 		}
 	}
 	
-	
+	/**
+	 * Gets the Progress value  from the running workflow details 
+	 * @param dataSetName
+	 * @param datasetActivationTime
+	 * @param workflowType
+	 * @return
+	 */
 	public int getProgressValue(String dataSetName , String datasetActivationTime , String workflowType) {
 		return getWorkFlowProgressOREffectiveDataRate(dataSetName , datasetActivationTime , workflowType , "Progress");
 	}
 	
+	/**
+	 * Get the 'Effective Data Rate' value  from  running workflow details.
+	 * @param dataSetName
+	 * @param datasetActivationTime
+	 * @param workflowType
+	 * @return
+	 */
 	public int getEffectiveDataRateValue(String dataSetName , String datasetActivationTime , String workflowType) {
 		return getWorkFlowProgressOREffectiveDataRate(dataSetName , datasetActivationTime , workflowType , "Effective Data Rate");
 	}
 	
-	/*
-	 * 
+	/**
+	 * Get the progress value or Effective Data Rate value from the running workflow json response
+	 * @param dataSetName
+	 * @param datasetActivationTime
+	 * @param workflowType
+	 * @param checkValueFor
+	 * @return
 	 */
 	public int getWorkFlowProgressOREffectiveDataRate(String dataSetName , String datasetActivationTime , String workflowType , String checkValueFor) {
 		String endTime = GdmUtils.getCalendarAsString();
