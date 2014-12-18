@@ -24,7 +24,7 @@ About Hue
 
 
 
-.. image:: images/hue_about.png
+.. image:: images/hue_about.jpg
    :height: 556px
    :width: 1450px
    :scale: 55%
@@ -34,7 +34,7 @@ About Hue
 Home
 ====
 
-.. image:: images/hue_home.png
+.. image:: images/hue_home.jpg
    :height: 558px
    :width: 1450px
    :scale: 55%
@@ -59,7 +59,7 @@ Hive Editor
 Query Editor
 ************
 
-.. image:: images/hue_hive_query_editor.png
+.. image:: images/hue_hive_query_editor.jpg
    :height: 872px
    :width: 1439px
    :scale: 55%
@@ -69,7 +69,7 @@ Query Editor
 Assist
 ^^^^^^
 
-.. image:: images/hue_hive_query_editory_assist.png
+.. image:: images/hue_hive_query_editory_assist.jpg
    :height: 872px
    :width: 1439px
    :scale: 55%
@@ -79,7 +79,7 @@ Assist
 Settings
 ^^^^^^^^
 
-.. image:: images/hue_hive_editor_setting.png
+.. image:: images/hue_hive_editor_setting.jpg
    :height: 866px
    :width: 1450px
    :scale: 55%
@@ -89,7 +89,7 @@ Settings
 My Queries
 **********
 
-.. image:: images/hue_hive_my_queries.png
+.. image:: images/hue_hive_my_queries.jpg
    :height: 940px
    :width: 1489px
    :scale: 55%
@@ -99,7 +99,7 @@ My Queries
 Recent Saved Queries
 ^^^^^^^^^^^^^^^^^^^^
 
-.. image:: images/hue_jive_my_queries-recent.png
+.. image:: images/hue_jive_my_queries-recent.jpg
    :height: 939px
    :width: 1455px
    :scale: 55%
@@ -110,7 +110,7 @@ Recent Saved Queries
 Recent Run Queries
 ^^^^^^^^^^^^^^^^^^
 
-.. image:: images/hue_hive_query_editor_run_queries.png
+.. image:: images/hue_hive_query_editor_run_queries.jpg
    :height: 939px
    :width: 1455px
    :scale: 55%
@@ -120,7 +120,7 @@ Recent Run Queries
 Saved Queries
 *************
 
-.. image:: images/hue_hive_query_editor_run_queries.png
+.. image:: images/hue_hive_query_editor_run_queries.jpg
    :height: 939px
    :width: 1455px
    :scale: 55%
@@ -130,7 +130,7 @@ Saved Queries
 History
 *******
 
-.. image:: images/hue_hive_history.png
+.. image:: images/hue_hive_history.jpg
    :height: 913px
    :width: 1450px
    :scale: 55%
@@ -143,7 +143,7 @@ Pig
 Pig Editor
 ##########
 
-.. image:: images/hue_pig_editor.png
+.. image:: images/hue_pig_editor.jpg
    :height: 915px
    :width: 1450px
    :scale: 55%
@@ -153,7 +153,7 @@ Pig Editor
 Properties
 **********
 
-.. image:: images/hue_pig_editor_properties.png
+.. image:: images/hue_pig_editor_properties.jpg
    :height: 915px
    :width: 1450px
    :scale: 55%
@@ -163,7 +163,7 @@ Properties
 Save
 ****
 
-.. image:: images/hue_pig_editor_save.png
+.. image:: images/hue_pig_editor_save.jpg
    :height: 870px
    :width: 1450px
    :scale: 55%
@@ -187,7 +187,7 @@ Scripts
 #######
 
 
-.. image:: images/hue_pig_scripts.png
+.. image:: images/hue_pig_scripts.jpg
    :height: 556px
    :width: 1450px
    :scale: 55%
@@ -198,7 +198,7 @@ Scripts
 Dashboard
 #########
 
-.. image:: images/hue_pig_scripts.png
+.. image:: images/hue_pig_scripts.jpg
    :height: 556px
    :width: 1450px
    :scale: 55%
@@ -210,7 +210,7 @@ Dashboard
 Metastore Manager
 =================
 
-.. image:: images/hue_metastore_manager.png
+.. image:: images/hue_metastore_manager.jpg
    :height: 912px
    :width: 1450px
    :scale: 55%
@@ -243,7 +243,7 @@ Dashboard
 Workflows
 #########
 
-.. image:: images/hue_oozie_dashboard_workflows.png
+.. image:: images/hue_oozie_dashboard_workflows.jpg
    :height: 912px
    :width: 1450px
    :scale: 55%
@@ -253,7 +253,7 @@ Workflows
 Coordinators
 ############
 
-.. image:: images/hue_oozie_dashboard_coordinators.png
+.. image:: images/hue_oozie_dashboard_coordinators.jpg
    :height: 912px
    :width: 1450px
    :scale: 55%
@@ -263,7 +263,7 @@ Coordinators
 Bundles
 #######
 
-.. image:: images/hue_oozie_dashboard_bundles.png
+.. image:: images/hue_oozie_dashboard_bundles.jpg
    :height: 914px
    :width: 1450px
    :scale: 55%
@@ -273,7 +273,7 @@ Bundles
 SLA
 ###
 
-.. image:: images/hue_oozie_dashboard_sla.png
+.. image:: images/hue_oozie_dashboard_sla.jpg
    :height: 913px
    :width: 1450px
    :scale: 55%
@@ -283,7 +283,7 @@ SLA
 Oozie
 #####
 
-.. image:: images/picture.png
+.. image:: images/picture.jpg
    :height: 939px
    :width: 1455px
    :scale: 55%
@@ -293,7 +293,7 @@ Oozie
 Instrumentation
 ***************
 
-.. image:: images/hue_oozie_dashboard_instrumentation_counters.png
+.. image:: images/hue_oozie_dashboard_instrumentation_counters.jpg
    :height: 914px
    :width: 1450px
    :scale: 55%
@@ -303,7 +303,7 @@ Instrumentation
 variables
 ^^^^^^^^^
 
-.. image:: images/hue_oozie_dashboard_oozie_variables.png
+.. image:: images/hue_oozie_dashboard_oozie_variables.jpg
    :height: 914px
    :width: 1450px
    :scale: 55%
@@ -313,7 +313,7 @@ variables
 samplers
 ^^^^^^^^
 
-.. image:: images/hue_oozie_dashboard_instrumentation_samplers.png
+.. image:: images/hue_oozie_dashboard_instrumentation_samplers.jpg
    :height: 912px
    :width: 1450px
    :scale: 55%
@@ -324,7 +324,7 @@ timers
 ^^^^^^
 
 
-.. image:: images/hue_oozie_dashboard_oozie_instrumentation_timers.png
+.. image:: images/hue_oozie_dashboard_oozie_instrumentation_timers.jpg
    :height: 912px
    :width: 1450px
    :scale: 55%
@@ -334,7 +334,7 @@ timers
 counters
 ^^^^^^^^
 
-.. image:: images/hue_oozie_dashboard_instrumentation_counters.png
+.. image:: images/hue_oozie_dashboard_instrumentation_counters.jpg
    :height: 914px
    :width: 1450px
    :scale: 55%
@@ -344,7 +344,7 @@ counters
 Configuration
 *************
 
-.. image:: images/hue_oozie_dashboard_oozie_configuration.png
+.. image:: images/hue_oozie_dashboard_oozie_configuration.jpg
    :height: 915px
    :width: 1450px
    :scale: 55%
@@ -357,7 +357,7 @@ Editors
 Workflows
 #########
 
-.. image:: images/hue_oozie_editor_workflow.png
+.. image:: images/hue_oozie_editor_workflow.jpg
    :height: 825px
    :width: 1450px
    :scale: 55%
@@ -367,7 +367,7 @@ Workflows
 Coordinators
 ############
 
-.. image:: images/hue_oozie_editor_coordinators.png
+.. image:: images/hue_oozie_editor_coordinators.jpg
    :height: 826px
    :width: 1450px
    :scale: 55%
@@ -377,7 +377,7 @@ Coordinators
 Bundles
 #######
 
-.. image:: images/hue_oozie_editor_bunders.png
+.. image:: images/hue_oozie_editor_bunders.jpg
    :height: 855px
    :width: 1450px
    :scale: 55%
@@ -388,7 +388,7 @@ Bundles
 File Browser
 ============
 
-.. image:: images/hue_file_browser.png
+.. image:: images/hue_file_browser.jpg
    :height: 914px
    :width: 1450 px
    :scale: 55 %
@@ -398,7 +398,7 @@ File Browser
 Job Browser
 ===========
 
-.. image:: images/hue_job_browser.png
+.. image:: images/hue_job_browser.jpg
    :height: 556px
    :width: 1450 px
    :scale: 55 %
