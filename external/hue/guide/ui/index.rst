@@ -69,7 +69,7 @@ Query Editor
 Assist
 ^^^^^^
 
-.. image:: images/hue_hive_query_editory_assist.jpg
+.. image:: images/hue_hive_query_editor_assist.jpg
    :height: 872px
    :width: 1439px
    :scale: 55%
@@ -99,7 +99,7 @@ My Queries
 Recent Saved Queries
 ^^^^^^^^^^^^^^^^^^^^
 
-.. image:: images/hue_jive_my_queries-recent.jpg
+.. image:: images/hue_hive_my_queries-recent.jpg
    :height: 939px
    :width: 1455px
    :scale: 55%
@@ -377,7 +377,7 @@ Coordinators
 Bundles
 #######
 
-.. image:: images/hue_oozie_editor_bunders.jpg
+.. image:: images/hue_oozie_editor_bundles.jpg
    :height: 855px
    :width: 1450px
    :scale: 55%
