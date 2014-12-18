@@ -13,6 +13,7 @@ Hive
 Before you use the queries in the following sections, you
 will want to do the following:
 
+- Get a Kerberos ticket: ``kinit {user_name}@Y.CORP.YAHOO.COM``
 - Increase the timeout by starting Hive with the following command: ``hive –hiveconf hive.metastore.client.socket.timeout=200``
 - Use a queue that you can access:
   - View the queues that you have access to: ``mapred queue -showacls``
@@ -276,6 +277,9 @@ Oozie Jobs Per Month
 
 **Example Output**
 
+TBD
+
+
 Pig Jobs Per Month
 ##################
 
@@ -392,10 +396,10 @@ How much data is being read local to a rack (from a data node in the same rack) 
            from (
                select
                    grid, dt, job_id,
-                   cast(counters['Job Counters/Launched map tasks'] as bigint)  total,
-                   cast(counters['Job Counters/Data-local map tasks'] as bigint) datalocal,
-                   cast(counters['Job Counters/Rack-local map tasks'] as bigint) rack
-               from job
+                   cast(total_counters['Job Counters/Launched map tasks'] as bigint)  total,
+                   cast(total_counters['Job Counters/Data-local map tasks'] as bigint) datalocal,
+                   cast(total_counters['Job Counters/Rack-local map tasks'] as bigint) rack
+               from starling_job_counters
        ) J 
        where J.total is not null and J.datalocal is not null and J.rack is not null and
          J.total > 0 and J.datalocal > 0 and J.rack > 0
@@ -555,6 +559,9 @@ Find MapReduce Jobs Reading/Writing to /tmp
 
 Pig
 ===
+
+To use Pig with Starling, you need to access the Starling Hive tables through HCatalog.
+Thus, you will need to start Pig with the option ``
 
 Number of Jobs Run by a User
 ----------------------------

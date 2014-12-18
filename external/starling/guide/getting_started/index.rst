@@ -2,7 +2,7 @@
 Getting Started
 ===============
 
-.. 10/16/14 - Copy edited documentation.
+.. 12/09/15 - Copy edited documentation.
 
 Introduction
 ============
@@ -18,9 +18,9 @@ Accessing Starling
 Because Starling uses HCatalog, you can use Hive, Pig, or even the MapReduce Java API 
 to access data.
 
-Note that the HCatalog server on CB is secured: it has the URI 
-``thrift://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513`` 
-and uses the Kerberos principal ``hcat/_HOST@YGRID.YAHOO.COM``.
+.. note:: The HCatalog server on CB is secured: it has the URI 
+          ``thrift://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513`` 
+          and uses the Kerberos principal ``hcat/_HOST@YGRID.YAHOO.COM``.
 
 Prerequisites
 =============
@@ -67,7 +67,7 @@ Using Pig
 
 Pig can be used to work with tables on HCatalog. See the `HCatalog Getting Started <http://twiki.corp.yahoo.com/view/Grid/HCatalogGettingStarted#Pig>`_
 on how to invoke Pig to use HCatalog. You have to specify your MapReduce Job queue 
-using the command-line option ``-Dmapred.job.queue.name=unfunded`` (replace unfunded 
+using the command-line option ``-Dmapred.job.queue.name=unfunded`` (replace ``unfunded``
 with the queue you normally use to execute your MapReduce Jobs on CB). 
 
 You can then query the Starling tables in the following way::

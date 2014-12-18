@@ -2,7 +2,6 @@ Storm With HBase
 ================
 
 This tutorial will show you how to use Storm with HBase.
-We'll be using ...
 
 
 Prerequisites
