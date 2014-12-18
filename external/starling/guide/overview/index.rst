@@ -48,7 +48,7 @@ from these groups might use Starling.
   find the top users, and generate reports.
 - **Service Engineers** - to debug and improve the efficiency of jobs, 
   storage, and compression.
-- **Application Developers**  - to optimize their jobs, monitor counters, time take, utilization, etc. 
+- **Application Developers** - to optimize their jobs, monitor counters, time take, utilization, etc. 
   They could use counters to understand how the data has changed over a period of time, too.
 
 How It Works
@@ -74,7 +74,6 @@ Ways to Access Starling
 - **Pig** - You can access the tables through Pig through HCatalog.  
 - **HCatalog** - 
 - **MapReduce** - You can use the MapReduce Java API to access data through HCatalog as well.
-- **Rumen** - (TBD) ...to gather data from Starling.
 
 
 Starling Uses

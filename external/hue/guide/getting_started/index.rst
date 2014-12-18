@@ -112,6 +112,8 @@ Uses Oozie to execute Pig.
 Properties
 ----------
 
+Sets up Oozie job.
+
 **Need** - need to add (pig_current, hcat_current - if you're going through HCat)
 
 Hadoop properties:
@@ -124,4 +126,54 @@ For Using HCat:
 Under every cluster, you add /sharelib/v1/hive/hive-0.13.0.3.1411171801/libexec/hive/conf/hive-site.xml
 as the resource.
 Use
+
+Execute from Property page by clicking on arrow icon. Notification is shown in Job Browser.
+You'll see your job in the Job Browser.
+
+
+Question icon: shows an "Assist" window that will assist you in writing Pig scripts, operators,
+relational operators, 
+
+
+Pig Dashboard
+-------------
+
+
+
+Oozie Dashboard
+---------------
+
+
+Job Designer
+============
+
+Actions are Oozie actions
+
+
+Metastore Manager
+-----------------
+
+Shows HCat info, Hive, shows actual location of project file
+
+
+
+What Doesn't Work
+-----------------
+
+
+Workflow
+========
+
+Shows the actual running jobs
+
+=> Dashboard is the Oozie Dashboard
+
+
+Can edit new files, but not existing files.
+
+
+Job Browser
+-----------
+
+Can kill jobs with "Kill" button.
 

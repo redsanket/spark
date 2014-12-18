@@ -25,8 +25,8 @@ The goal of this guide is to help Yahoos use Starling, on the Yahoo grid, and th
 On-Boarding
 ===========
 
-Starling can only be accessed from the `Cobalt Blue cluster <>`_. Thus, you
-will need to request access to Cobalt Blue through `Grid Support Shop <http://yo/supportshop>`_. 
+Starling can only be accessed from the `Cobalt Blue cluster <http://twiki.corp.yahoo.com/view/GridDocumentation/CobaltBlueClusterInfo>`_. Thus, you will need to request access to Cobalt Blue through `Grid Support Shop <http://yo/supportshop>`_. 
+
 
 From `Grid Services Request Forms <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_, select
 the **User Account** tab and request access to Cobalt Blue by checking the **cobalt.blue** checkbox from
@@ -35,7 +35,6 @@ the list of clusters under **Research Clusters**.
 Getting Help
 ============
 
-
 General Questions
 -----------------
 
@@ -43,8 +42,6 @@ General Questions
 
 Request Support
 ---------------
-
-
 
 Product/Engineering 
 -------------------
