@@ -14,7 +14,7 @@ TBD: Screenshot of navigation bar w/ annotations
 .. image:: images/hue_ui2.jpg
    :height: 888px
    :width: 1450px
-   :scale: 90%
+   :scale: 50%
    :alt: Hue UI with annotations.
    :align: left
 
