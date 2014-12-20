@@ -601,6 +601,7 @@ Properties
 ^^^^^^^^^^
 
 The **Properties** menu shows a summary of your workflow: name, description, parameters, job properties, SLA configuration, HDFS deployment directory, and Oozie workflow XML file.
+
 .. image:: images/hue_oozie_workflows_editor-properties.jpg
    :height: 950px
    :width: 1450px
@@ -699,7 +700,7 @@ Clicking the **Create new** option will open the **Create a new dataset** panel 
 you to define a dataset.
 
 .. image:: images/hue_oozie_coordinators_editor-create.jpg
-   :height: 84px
+   :height: 864px
    :width: 1450px
    :scale: 55%
    :alt: Oozie Editor: Create a dataset
