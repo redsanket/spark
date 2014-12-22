@@ -209,7 +209,11 @@ elsif ($spark12) {
 	# When Spark is used, its the same as Hadoop but here we specify
 	# the spark version to override the default so we can support
 	# multiple versions at once.
-    $dependencies_opt .= " -Dspark.version=1.2.0.0 -Dspark.version.full=1.2.0.0_2.5.0.1.1408041624_1409171654 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    if ($hadoop26) {
+      $dependencies_opt .= " -Dspark.version=1.2.0.0 -Dspark.version.full=1.2.0.0_2.6.0.1.1411101121_1412171547 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    } else {
+      $dependencies_opt .= " -Dspark.version=1.2.0.0 -Dspark.version.full=1.2.0.0_2.5.0.8.1411070359_1412171833 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    }
 }
 
 elsif ($hadoop26) {
@@ -272,10 +276,17 @@ if ($spark) {
     # Note that once you run this, you have to re-copy files over to switch to use the other version.
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 } elsif ($spark12) {
-    execute("yinst i yspark_yarn -tag yspark_yarn_1_2_latest_hadoop2 -live -downgrade -br quarantine");
-    # hack to support multiple versions of spark. Remove the version(s) that won't compile.
-    # Note that once you run this, you have to re-copy files over to switch to use the other version.
-    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_1");
+    if ($hadoop26) {
+      execute("yinst i yspark_yarn -tag yspark_yarn_1_2_latest_hadoop2 -live -downgrade -br quarantine");
+      # hack to support multiple versions of spark. Remove the version(s) that won't compile.
+      # Note that once you run this, you have to re-copy files over to switch to use the other version.
+      execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_1");
+    } else {
+      execute("yinst i yspark_yarn -tag yspark_yarn_1_2_latest_hadoop2.5 -live -downgrade -br quarantine");
+      # hack to support multiple versions of spark. Remove the version(s) that won't compile.
+      # Note that once you run this, you have to re-copy files over to switch to use the other version.
+      execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_1");
+    }
 } else {
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
@@ -369,7 +380,11 @@ if ($use_mvn) {
     # Call the script that gets a number of required system dependencies
     # through "yinst fetch".
     if ($spark12) {
-      execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark12");
+      if ($hadoop26) {
+        execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark12hadoop26");
+      } else {
+        execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark12");
+      }
     } else {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
     }

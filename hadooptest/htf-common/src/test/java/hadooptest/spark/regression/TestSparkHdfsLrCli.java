@@ -88,66 +88,6 @@ public class TestSparkHdfsLrCli extends TestSession {
         }
     }
 
-    /*
-     * A test for running a SparkHdfsLR in YARN Client Mode.
-     * 
-     */
-    @Test
-    public void runSparkHdfsLRTestYarnClientMode() {
-        try {
-            SparkHdfsLR appUserDefault = new SparkHdfsLR();
-
-            appUserDefault.setMaster(AppMaster.YARN_CLIENT);
-            appUserDefault.setWorkerMemory("2g");
-            appUserDefault.setNumWorkers(3);
-            appUserDefault.setWorkerCores(1);
-            appUserDefault.setNumIterations(100);
-            appUserDefault
-                .setLRDataFile("/user/" + System.getProperty("user.name") + "/" + lrDatafile);
-
-            appUserDefault.start();
-
-            assertTrue("SparkHdfsLR app (default user) was not assigned an ID within 120 seconds.",
-                appUserDefault.waitForID(120));
-            assertTrue("SparkHdfsLR app ID for sleep app (default user) is invalid.",
-                appUserDefault.verifyID());
-            assertEquals("SparkHdfsLR app name for sleep app is invalid.",
-                "SparkHdfsLR", appUserDefault.getAppName());
-
-            int waitTime = 30;
-            assertTrue("Job (default user) did not succeed.",
-                appUserDefault.waitForSuccess(waitTime));
-        } catch (Exception e) {
-            TestSession.logger.error("Exception failure.", e);
-            fail();
-        }
-    }
-
-    /*
-     * A test for running a SparkHdfsLR with a non-existent hdfs file.
-     *
-     */
-    @Test
-    public void runSparkHdfsLRTestNonexistHdfsFile() throws Exception {
-        SparkHdfsLR appUserDefault = new SparkHdfsLR();
-
-        appUserDefault.setMaster(AppMaster.YARN_CLIENT);
-        appUserDefault.setWorkerMemory("2g");
-        appUserDefault.setNumWorkers(3);
-        appUserDefault.setWorkerCores(1);
-        appUserDefault.setNumIterations(100);
-
-        appUserDefault.setLRDataFile("bogusnonexistentfile.txt");
-
-        appUserDefault.start();
-
-        int waitTime = 30;
-        assertTrue("Job (default user) did not error.",
-            appUserDefault.waitForERROR(waitTime));
-    }
-
-
-
     @Test
     public void runSparkHdfsLRTestStandaloneModeSparkSubmit() {
         try {

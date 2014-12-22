@@ -107,34 +107,6 @@ public class TestSparkSaveAsText extends TestSession {
     }
 
     @Test
-    public void runSparkSaveAsTextClientMode() throws Exception {
-        SparkRunClass appUserDefault = new SparkRunClass();
-
-        appUserDefault.setMaster(AppMaster.YARN_CLIENT);
-        appUserDefault.setWorkerMemory("2g");
-        appUserDefault.setNumWorkers(3);
-        appUserDefault.setWorkerCores(1);
-        appUserDefault.setClassName("hadooptest.spark.regression.SparkSaveAsText");
-        appUserDefault.setJarName(localJar);
-        // tests can run in parallel so we need to use different file name
-        String[] argsArray = {lrDatafile, hdfsDir + saveAsFile2};
-        appUserDefault.setArgs(argsArray);
-
-        appUserDefault.start();
-
-        assertTrue("App (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
-        assertTrue("App ID for sleep app (default user) is invalid.",
-            appUserDefault.verifyID());
-        assertEquals("App name for sleep app is invalid.",
-            "SparkSaveAsText", appUserDefault.getAppName());
-
-        int waitTime = 30;
-        assertTrue("Job (default user) did not succeed.",
-            appUserDefault.waitForSuccess(waitTime));
-    }
-
-    @Test
     public void runSparkSaveAsTextSparkSubmit() throws Exception {
         SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 

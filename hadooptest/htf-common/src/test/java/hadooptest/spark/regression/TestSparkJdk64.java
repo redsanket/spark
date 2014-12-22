@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.experimental.categories.Category;
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.AppMaster;
 import hadooptest.workflow.spark.app.SparkRunClass;
@@ -23,7 +24,7 @@ import org.junit.Test;
 
 import hadooptest.Util;
 
-@Category(hadooptest.ParallelClassAndMethodTests.class)
+@Category(SerialTests.class)
 public class TestSparkJdk64 extends TestSession {
 
     /**
@@ -72,7 +73,7 @@ public class TestSparkJdk64 extends TestSession {
         // set memory high enough to require jdk64
         appUserDefault.setWorkerMemory("6g");
         appUserDefault.setMasterMemory("4g");
-        appUserDefault.setNumWorkers(3);
+        appUserDefault.setNumWorkers(1);
         appUserDefault.setWorkerCores(1);
         appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
         appUserDefault.setJarName(localJar);
@@ -134,7 +135,7 @@ public class TestSparkJdk64 extends TestSession {
         // set memory high enough to require jdk64
         appUserDefault.setWorkerMemory("6g");
         appUserDefault.setMasterMemory("4g");
-        appUserDefault.setNumWorkers(3);
+        appUserDefault.setNumWorkers(1);
         appUserDefault.setWorkerCores(1);
         appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
         appUserDefault.setJarName(localJar);
@@ -193,7 +194,7 @@ public class TestSparkJdk64 extends TestSession {
         // set memory high enough to require jdk64
         appUserDefault.setWorkerMemory("6g");
         appUserDefault.setMasterMemory("4g");
-        appUserDefault.setNumWorkers(3);
+        appUserDefault.setNumWorkers(1);
         appUserDefault.setWorkerCores(1);
         appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
         appUserDefault.setJarName(localJar);
