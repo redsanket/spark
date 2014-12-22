@@ -284,8 +284,6 @@ public abstract class App extends Thread {
 
         Process yarnProc = null;
 
-        Util.sleep(5);
-        
         String[] yarnCmd = {
                 TestSession.cluster.getConf().getHadoopProp("YARN_BIN"), 
                 "--config", TestSession.cluster.getConf().getHadoopConfDir(),
@@ -304,7 +302,6 @@ public abstract class App extends Thread {
             yarnProc = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
                yarnCmd, this.USER, environmentVariablesWrappingTheCommand);
 
-            //yarnProc = TestSession.exec.runProcBuilderSecurityGetProc(yarnCmd, this.USER);
             BufferedReader reader=new BufferedReader(new InputStreamReader(yarnProc.getInputStream())); 
             String line=reader.readLine(); 
             while(line!=null) 
