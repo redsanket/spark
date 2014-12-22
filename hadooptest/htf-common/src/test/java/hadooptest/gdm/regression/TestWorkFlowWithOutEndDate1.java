@@ -124,6 +124,9 @@ public class TestWorkFlowWithOutEndDate1  extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("COUNT_PATH", this.getDataSetCountPath(this.dataSetName ));
 		dataSetXml = dataSetXml.replaceAll("SCHEMA_PATH", this.getDataSetSchemaPath(this.dataSetName ));
 		dataSetXml = dataSetXml.replaceAll("HCAT_TYPE", this.HCAT_TYPE);
+		dataSetXml = dataSetXml.replaceAll("hourly", "daily");
+		dataSetXml = dataSetXml.replaceAll("yyyyMMddhh", "yyyyMMdd");
+		
 
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
@@ -170,7 +173,6 @@ public class TestWorkFlowWithOutEndDate1  extends TestSession {
 	private String getDataSetSchemaPath(String dataSetName) {
 		return "/data/daqqe/schema/" + dataSetName  + "/%{date}" ;
 	}	
-
 
 	/**
 	 * Method to deactivate the dataset(s)

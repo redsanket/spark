@@ -26,7 +26,7 @@ import org.junit.Test;
 
 
 /**
- * Test Scenario : Verify whether generating instance for the future date ( today's date plus two days ) and and specifying the current date ( today date) for the start date
+ * Test Scenario : Verify whether generating instance for the future date ( today's date plus two days ) and specifying the current date ( today date) for the start date
  * and end date as blank or not specifying the end date, d't generate the workflow.
  * 
  * Since start date is today date and GDM can't do future discovery so the end date is set to current date i,e in this case both start and end date are same and instance date 
@@ -120,6 +120,8 @@ public class TestWorkFlowWithOutEndDate extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("COUNT_PATH", this.getDataSetCountPath(this.dataSetName ));
 		dataSetXml = dataSetXml.replaceAll("SCHEMA_PATH", this.getDataSetSchemaPath(this.dataSetName ));
 		dataSetXml = dataSetXml.replaceAll("HCAT_TYPE", this.HCAT_TYPE);
+		dataSetXml = dataSetXml.replaceAll("hourly", "daily");
+		dataSetXml = dataSetXml.replaceAll("yyyyMMddhh", "yyyyMMdd");
 
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
@@ -166,7 +168,6 @@ public class TestWorkFlowWithOutEndDate extends TestSession {
 	private String getDataSetSchemaPath(String dataSetName) {
 		return "/data/daqqe/schema/" + dataSetName  + "/%{date}" ;
 	}	
-
 
 	/**
 	 * Method to deactivate the dataset(s)
