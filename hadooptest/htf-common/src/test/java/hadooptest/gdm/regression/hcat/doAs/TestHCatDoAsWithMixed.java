@@ -145,11 +145,15 @@ public class TestHCatDoAsWithMixed extends TestSession {
 				String tableOwner = this.hcatHelperObject.getHCatTableOwner(this.targetGrid1 , this.acqDataSetName , "acquisition");
 				boolean flag =  tableOwner.contains(this.DATA_OWNER);
 				assertTrue("Expected " + this.DATA_OWNER  + "  data owner but got " + tableOwner ,   flag == true);
+				
+				// check that partition is deleted i,e []
+				boolean acqTablePartitionExists = this.hcatHelperObject.isPartitionExist(this.DATABASE_NAME , acquisitionHCatServerName , this.acqDataSetName.toLowerCase());
+				assertTrue(this.acqDataSetName.toLowerCase()  + "  table partition still exiss."  , acqTablePartitionExists == true);
 			}
 
 			// Replication
 			{
-				this.repDataSetName =  "TestDoAsReplicationWorkFlow_Permission_"  + System.currentTimeMillis();
+				this.repDataSetName =  "TestDoAsHCATReplicationWorkFlow_"  + System.currentTimeMillis();
 
 				// create replication dataset
 				createDoAsReplicationDataSet("DoAsReplicationDataSet.xml");
@@ -193,15 +197,19 @@ public class TestHCatDoAsWithMixed extends TestSession {
 				String tableOwner = this.hcatHelperObject.getHCatTableOwner(this.targetGrid2 , this.repDataSetName , "replication");
 				boolean flag = tableOwner.contains(this.DATA_OWNER);
 				assertTrue("Expected " + this.DATA_OWNER  + "  data owner but got " + tableOwner , flag == true );
+				
+				//check that partition is deleted i,e []
+				boolean repTablePartitionExists = this.hcatHelperObject.isPartitionExist(this.DATABASE_NAME , replicationHCatServerName , this.acqDataSetName.toLowerCase());
+				assertTrue(this.repDataSetName.toLowerCase()  + "  table partition still exiss."  , repTablePartitionExists == true);
 			}
-/*
+
 			// Retention
 			{
-				this.retDataSetName = "TestDoAsRetentionWorkFlow_Permission_" + permission + "_" + System.currentTimeMillis();
+				this.retDataSetName = "TestDoAsHATRetentionWorkFlow_" + System.currentTimeMillis();
 
 				// create a datasource for each target
-				String rentionDataSourceForTarget1 = this.targetGrid1 +"_DoAsRetentionDataSource_" + permission + "_" + System.currentTimeMillis();
-				String rentionDataSourceForTarget2 = this.targetGrid2 +"_DoAsRetentionDataSource_" + permission + "_" + System.currentTimeMillis();
+				String rentionDataSourceForTarget1 = this.targetGrid1 +"_DoAsRetentionDataSource_" + System.currentTimeMillis();
+				String rentionDataSourceForTarget2 = this.targetGrid2 +"_DoAsRetentionDataSource_" + System.currentTimeMillis();
 
 				createDataSourceForEachRetentionJob(this.targetGrid1 , rentionDataSourceForTarget1);
 				createDataSourceForEachRetentionJob(this.targetGrid2 , rentionDataSourceForTarget2);
@@ -218,8 +226,33 @@ public class TestHCatDoAsWithMixed extends TestSession {
 
 				// check for replication workflow
 				this.helper.checkWorkFlow(this.retDataSetName, "retention", this.datasetActivationTime);
-			}*/
-		
+				
+				// acq table exists
+				// get Hcat server name for targetGrid1
+				String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName("acquisition", this.targetGrid1);
+				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
+				
+				// check whether hcat table is created for Mixed HCatTargetType on acquisition facet's HCat server
+				boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
+				assertTrue("Failed to HCAT create table for " + this.acqDataSetName , isAcqusitionTableCreated == true);
+				
+				// check that partition is deleted i,e []
+				boolean acqTablePartitionExists = this.hcatHelperObject.isPartitionExist(this.DATABASE_NAME , acquisitionHCatServerName , this.acqDataSetName.toLowerCase());
+				assertTrue(this.acqDataSetName.toLowerCase()  + "  table partition still exiss."  , acqTablePartitionExists == false);
+				
+				// check replication table exists 
+				// get Hcat server name for targetGrid2
+				String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid2);
+				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
+				
+				// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server
+				boolean isReplicationTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
+				assertTrue("Failed to create HCAT table for " + this.repDataSetName , isReplicationTableCreated == true);
+				
+				//check that partition is deleted i,e []
+				boolean repTablePartitionExists = this.hcatHelperObject.isPartitionExist(this.DATABASE_NAME , replicationHCatServerName , this.acqDataSetName.toLowerCase());
+				assertTrue(this.repDataSetName.toLowerCase()  + "  table partition still exiss."  , repTablePartitionExists == false);
+			}
 	}
 
 	/**

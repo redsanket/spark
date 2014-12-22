@@ -196,6 +196,9 @@ public class TestWorkFlowStepProgress extends TestSession {
 								} else {
 									TestSession.logger.info(replicationStepName  + " dn't found , the current step is " + stepName);
 								}
+								if (workflowCompleted == true) {
+									break;
+								}	
 							}
 						}
 					} // exist outter loop
@@ -204,6 +207,9 @@ public class TestWorkFlowStepProgress extends TestSession {
 						break;
 					}
 				}
+				if (workflowCompleted == true) {
+					break;
+				}	
 			}
 			if (workflowCompleted) {
 				break;

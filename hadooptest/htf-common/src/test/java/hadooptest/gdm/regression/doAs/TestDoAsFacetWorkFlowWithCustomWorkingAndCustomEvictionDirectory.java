@@ -32,7 +32,6 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 	private ConsoleHandle consoleHandle;
 	private HTTPHandle httpHandle ;
 	private String acqDataSetName;
-	//private String repDataSetName;
 	private String retDataSetName;
 
 	private String cookie;
@@ -54,6 +53,7 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 	private static final String CUSTOM_EVICTION_PATH  = "/user/daqload/GDM-CUSTOM-Eviction-DIR/";
 	private static final String HCAT_TYPE = "DataOnly";
 	private WorkFlowHelper helper = null;
+	private static final String DATABASE_NAME = "gdm";
 
 	@BeforeClass
 	public static void startTestSession() {
@@ -229,6 +229,7 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", getCustomPath("count", this.acqDataSetName) );
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.acqDataSetName));
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.acqDataSetName);
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME" , this.DATABASE_NAME );
 		
 		Response response = this.consoleHandle.createDataSet(this.acqDataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
@@ -255,20 +256,22 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 		dataSetXml = dataSetXml.replaceAll("TARGET1", newTargetName1 );
 		dataSetXml = dataSetXml.replaceAll("TARGET2", this.targetGrid2 );
 		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", this.GROUP_NAME);
-		dataSetXml = dataSetXml.replaceAll("RUN_AS_OWNER", this.DATA_OWNER);
+		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", this.DATA_OWNER);
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.retDataSetName);
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
-		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );		
+		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.acqDataSetName);
 
-		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", getCustomPath("data" , this.acqDataSetName) );
-		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", getCustomPath("count" , this.acqDataSetName) );
-		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", getCustomPath("schema" , this.acqDataSetName));
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_DATA_PATH", getCustomPath("data" , this.acqDataSetName) );
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_COUNT_PATH", getCustomPath("count" , this.acqDataSetName) );
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_SCHEMA_PATH", getCustomPath("schema" , this.acqDataSetName));
 		
-		dataSetXml = dataSetXml.replaceAll("DATA_PATH", getCustomPath("data", this.acqDataSetName) ); 
-		dataSetXml = dataSetXml.replaceAll("COUNT_PATH", getCustomPath("count", this.acqDataSetName) ); 
-		dataSetXml = dataSetXml.replaceAll("SCHEMA_PATH", getCustomPath("schema", this.acqDataSetName) ); 
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_DATA_PATH", getCustomPath("data", this.acqDataSetName) ); 
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_COUNT_PATH", getCustomPath("count", this.acqDataSetName) ); 
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.acqDataSetName) ); 
+		
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME" , this.DATABASE_NAME );
 
 		Response response = this.consoleHandle.createDataSet(this.retDataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
