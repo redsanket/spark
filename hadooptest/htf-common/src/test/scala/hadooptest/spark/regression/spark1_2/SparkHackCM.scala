@@ -22,6 +22,7 @@ object SparkHackCM extends Logging {
 
     val targetHost = args(0)
     val targetPort = args(1).toInt
+/*
 
     val targetConnectionManagerId = new ConnectionManagerId(targetHost, targetPort)
     val conf = new SparkConf
@@ -64,6 +65,7 @@ object SparkHackCM extends Logging {
       Await.result(f, 35 seconds) 
 
     })
+*/
     System.err.println("done testing")
 
     System.exit(0)
