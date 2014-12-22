@@ -27,6 +27,6 @@ Blogs
 =====
 
 - `Get Hue: Blog <http://gethue.com/blog/>`_
-- `Cloudera: Hue Blog
+- `Cloudera: Hue Blog <http://blog.cloudera.com/blog/category/hue/>`_
 
 

@@ -1,6 +1,6 @@
-===================
+==============
 Hue User Guide 
-===================
+==============
 
 .. toctree::
    :maxdepth: 2
@@ -9,6 +9,7 @@ Hue User Guide
    overview/index
    ui/index
    getting_started/index
+   howtos/index
    reference/index
 
 
@@ -17,8 +18,9 @@ This document is **Yahoo Proprietary/Confidential**. Do not release the contents
 About This Guide
 ================
 
-The goal of this guide is to help Yahoo developers use Hue, but is not intended to
-be a comprehensive guide. See the `Hue User Guide <http://cloudera.github.io/hue/docs-3.7.0/user-guide/index.html>`_ for a comprehensive guide.
+The goal of this guide is to help developers use a custom version of Hue for Yahoo. 
+
+Keep in the mind that Cloudera version of Hue has some different features, and that some similar features described in the `Hue User Guide <http://cloudera.github.io/hue/docs-3.7.0/user-guide/index.html>`_ behave differently in Yahoo's Hue UI.
 
 .. _onboard:
 
@@ -30,17 +32,13 @@ Hue is a service hosted on different clusters. You just need
 the URL to the Hue UI on the cluster of your choice to 
 get started. 
 
-
 Getting Help
 ============
-
 
 General Questions
 -----------------
 
 - yahoo-hue-users@yahoo-inc.com 
-
-
 
 Request Support
 ---------------
@@ -81,5 +79,12 @@ include the following if relevant:
 Environment
 ===========
 
--
+Each Grid cluster has a running Hue instance. You have access to the Hue instance on any cluster,
+but you can only access and modify data that you have access permission.
+
+To access the Hue Web UI of a particular instance, use an URL with the 
+following syntax: ``https://{cluster_name}-hue.{color}.ygrid.yahoo.com:{port}``
+
+For example, to access the Hue UI on Cobalt Blue, you would go to
+``https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/``.
 
