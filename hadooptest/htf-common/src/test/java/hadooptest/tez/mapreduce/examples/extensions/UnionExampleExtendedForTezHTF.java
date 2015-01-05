@@ -1,6 +1,7 @@
 package hadooptest.tez.mapreduce.examples.extensions;
 
 import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 
 import java.io.IOException;
@@ -69,9 +70,17 @@ public class UnionExampleExtendedForTezHTF extends UnionExample {
 
 		// staging dir
 		FileSystem fs = FileSystem.get(tezConf);
-		String stagingDirStr = Path.SEPARATOR + "homes" + Path.SEPARATOR + user
+		String stagingDirStr;
+		if (mode == HadooptestConstants.Execution.TEZ_LOCAL){
+			stagingDirStr = Path.SEPARATOR + "homes" + Path.SEPARATOR + user
+					+ Path.SEPARATOR + ".staging" + Path.SEPARATOR + Path.SEPARATOR
+					+ Long.toString(System.currentTimeMillis());
+			
+		}else{
+		stagingDirStr = Path.SEPARATOR + "user" + Path.SEPARATOR + user
 				+ Path.SEPARATOR + ".staging" + Path.SEPARATOR + Path.SEPARATOR
 				+ Long.toString(System.currentTimeMillis());
+		}
 		Path stagingDir = new Path(stagingDirStr);
 		tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 		stagingDir = fs.makeQualified(stagingDir);
