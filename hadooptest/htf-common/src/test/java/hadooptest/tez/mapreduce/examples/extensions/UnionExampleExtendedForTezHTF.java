@@ -69,7 +69,7 @@ public class UnionExampleExtendedForTezHTF extends UnionExample {
 
 		// staging dir
 		FileSystem fs = FileSystem.get(tezConf);
-		String stagingDirStr = Path.SEPARATOR + "user" + Path.SEPARATOR + user
+		String stagingDirStr = Path.SEPARATOR + "homes" + Path.SEPARATOR + user
 				+ Path.SEPARATOR + ".staging" + Path.SEPARATOR + Path.SEPARATOR
 				+ Long.toString(System.currentTimeMillis());
 		Path stagingDir = new Path(stagingDirStr);
