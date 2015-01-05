@@ -74,8 +74,8 @@ public class HtfPigBaseClass extends TestSession {
 	};
 
 	static {
-		fileNames.add("20130309/");
-		fileNames.add("20130310/");
+		fileNames.add("/20130309/");
+		fileNames.add("/20130310/");
 	}
 	public HtfPigBaseClass(){
 		super();
