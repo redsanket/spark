@@ -74,8 +74,8 @@ public class HtfPigBaseClass extends TestSession {
 	};
 
 	static {
-		fileNames.add("20130309/");
-		fileNames.add("20130310/");
+		fileNames.add("/20130309/");
+		fileNames.add("/20130310/");
 	}
 	public HtfPigBaseClass(){
 		super();
@@ -131,7 +131,7 @@ public class HtfPigBaseClass extends TestSession {
 					dfsCommonCli.put(EMPTY_ENV_HASH_MAP,
 							HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.NONE, aCluster,
-							DATA_DIR_IN_LOCAL_FS + aFileName,
+							DATA_DIR_IN_LOCAL_FS + "/" + aFileName,
 							PIG_DATA_DIR_IN_HDFS);
 
 				}
