@@ -36,7 +36,7 @@ sub getIgorHost {
 # PIG
 $rolename = "grid_re.clusters.$cluster.gateway";
 $host = getIgorHost($rolename);
-$result = `ssh -t $host \"yinst ls -root /home/y/var/yroots/$cluster/home/gs/gridre/yroot.$cluster | grep pig"`;
+$result = `ssh -t $host \"SUDO_USER=hadoopqa sudo yinst ls -root /home/y/var/yroots/$cluster/home/gs/gridre/yroot.$cluster | grep pig"`;
 print $result;
 my ($pig_version) = $result =~ /^pig-(.*)/;
 print "PIG = " . $pig_version . "\n";

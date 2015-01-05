@@ -2,10 +2,12 @@ package hadooptest.cluster.gdm;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,8 +17,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.jayway.restassured.path.json.JsonPath;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -41,8 +41,9 @@ public class HCatHelper {
 	 * @param datasetName
 	 * @return
 	 */
-	public boolean isTableExists(String hcatServerName , String datasetName) {
-		String url = "http://"+  hcatServerName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/gdm/table";
+	public boolean isTableExists(String hcatServerName , String datasetName , String dataBaseName) {
+		String tableName = datasetName.toLowerCase().trim();
+		String url = "http://"+  hcatServerName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/" + dataBaseName.trim()  + "/table";
 		TestSession.logger.info("Check hcat table created url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
@@ -51,8 +52,9 @@ public class HCatHelper {
 		JSONArray array = jsonObject.getJSONArray("tables");
 		boolean isTableExist = false;
 		for ( Object obj : array) {
-			if (obj.toString().equals(datasetName.toLowerCase())) {
+			if (obj.toString().equals(tableName)) {
 				isTableExist = true;
+				TestSession.logger.info("Found table - " + tableName);
 				break;
 			}
 		}
@@ -66,9 +68,9 @@ public class HCatHelper {
 	 * @param instanceID
 	 * @return
 	 */
-	public boolean isPartitionIDExists(String dataSourceName , String tableName , String instanceID ) {
+	public boolean isPartitionIDExists(String databaseName , String dataSourceName , String tableName , String instanceID ) {
 		boolean instanceIdCreated = false;
-		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/gdm/table/" + tableName.toLowerCase() + "/partition";
+		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/"+ databaseName +"/table/" + tableName.toLowerCase() + "/partition";
 		TestSession.logger.info("Check for table partition url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
@@ -100,9 +102,9 @@ public class HCatHelper {
 	 * @param tableName
 	 * @return
 	 */
-	public JSONArray getAllHCatTableParitions(String dataSourceName , String tableName) {
+	public JSONArray getAllHCatTableParitions(String databaseName , String dataSourceName , String tableName) {
 		JSONArray jsonArray = null;
-		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/gdm/table/" + tableName.toLowerCase() + "/partition";
+		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/"+ databaseName +"/table/" + tableName.toLowerCase() + "/partition";
 		TestSession.logger.info("Check for table partition url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
@@ -119,9 +121,11 @@ public class HCatHelper {
 	 * @param tableName
 	 * @return
 	 */
-	public JSONArray getHCatTableColumns(String dataSourceName , String tableName) {
+	public JSONArray getHCatTableColumns(String databaseName , String dataSourceName , String tableName) {
 		List<String> columns = null;
-		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get("http://"+  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") +"/hcatalog/v1/ddl/database/gdm/table/"+ tableName.toLowerCase());
+		String url = "http://"+  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") +"/hcatalog/v1/ddl/database/" + databaseName.trim() + "/table/"+ tableName.toLowerCase();
+		TestSession.logger.info(" Get Hcat Table Column = url = " + url);
+		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		JSONObject jsonObject =  (JSONObject) JSONSerializer.toJSON(response.getBody().asString());
 		JSONArray columnsJsonArray = jsonObject.getJSONArray("columns");
 		TestSession.logger.info("schema columns size = " + columnsJsonArray.size());
@@ -130,8 +134,8 @@ public class HCatHelper {
 	} 
 	
 	
-	public boolean isPartitionExist(String dataSourceName , String tableName) {
-		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/gdm/table/" + tableName.toLowerCase() + "/partition";
+	public boolean isPartitionExist(String databaseName , String dataSourceName , String tableName) {
+		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/"+ databaseName + "/table/" + tableName.toLowerCase() + "/partition";
 		TestSession.logger.info("Check for table partition url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
@@ -150,9 +154,9 @@ public class HCatHelper {
 	 * @param tableName
 	 * @return
 	 */
-	public List<String> getHCatTableParitionAsList(String dataSourceName , String tableName) {
+	public List<String> getHCatTableParitionAsList(String databaseName , String dataSourceName , String tableName) {
 		List<String> partitions =  new ArrayList<String>();
-		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/gdm/table/" + tableName.toLowerCase() + "/partition";
+		String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/"+ databaseName +"/table/" + tableName.toLowerCase() + "/partition";
 		TestSession.logger.info("Check for table partition url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
@@ -208,5 +212,37 @@ public class HCatHelper {
 			e.printStackTrace();
 		}
 		return hcatHostName;
+	}
+	
+	/**
+	 * Get the owner of the table
+	 * @param dataSourceName  - name of the grid or target cluster name
+	 * @param dataSetName - dataset naem
+	 * @param facetName - facet name either acquisition ,  replication , retention
+	 * @return
+	 */
+	public String getHCatTableOwner(String dataSourceName , String  dataSetName , String facetName) {
+		String tableOwner = null;
+		String url = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName.trim())) + "/" + facetName + "/api/admin/hcat/table/list?dataSource=" + dataSourceName + "&dataSet=" + dataSetName;
+		TestSession.logger.info("Test URL - " + url);
+		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
+		String res = response.getBody().asString();
+		TestSession.logger.info("Response - " + res);
+		JSONObject jsonObject =  (JSONObject) JSONSerializer.toJSON(res);
+		JSONArray jsonArray = jsonObject.getJSONArray("Tables");
+		
+		if (jsonArray.size() > 0 ) {
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject tableObject = (JSONObject) iterator.next();
+				if (tableObject.has("Owner")) {
+					tableOwner = tableObject.getString("Owner");
+					break;
+				}
+			}
+		}else {
+			fail("Failed to get the table for dataset - " + dataSetName + " Response - " + res);
+		}
+		return tableOwner;
 	}
 }

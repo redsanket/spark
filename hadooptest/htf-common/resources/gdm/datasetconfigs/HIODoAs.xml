@@ -1,31 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DataSet catalog="gdm-catalog"
-    description="gdm-dataset-GDM-5.7.0-QE-build"
+    description="gdm-hio-dataset-GDM-5.7.0-QE-build"
     name="NEW_DATA_SET_NAME"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
-    <Active>FALSE</Active>
+    <Active>TRUE</Active>
     <RetentionEnabled>TRUE</RetentionEnabled>
     <VerificationInstance/>
     <Priority>HIGHEST</Priority>
     <Contact consumer="gdm-dev@yahoo-inc.com"
         owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
-    <Comments>GDM doAs acquisition automated testcase </Comments>
-    <UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755"/>
-    <RunAsOwner>acquisition</RunAsOwner>
+    <Comments>GDM HIO automated test dataset</Comments>
+    <UGI group="jaggrp" owner="jagpip" permission="755"/> 
+    <RunAsOwner>acquisition,replication</RunAsOwner>
     <Frequency>daily</Frequency>
     <DiscoveryFrequency>180</DiscoveryFrequency>
-    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <DiscoveryInterface>HIO_SOURCE</DiscoveryInterface>
     <Paths>
-        <Path location="/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
-        <Path location="/data/daqdev/count/${DataSetName}/%{date}" type="count"/>
-        <Path location="/data/daqdev/schema/${DataSetName}/%{date}" type="schema"/>
+        <Path location="/data/daqdev/${DataSetName}/%{date}" type="data"/>
+        <Path location="/data/daqdev/${DataSetName}/%{date}" type="count"/>
+        <Path location="/data/daqdev/${DataSetName}/%{date}/invalid" type="invalid"/>
     </Paths>
     <Parameters>
-        <attribute value='FEED_NAME' name='feed'></attribute>
-        <attribute name="frequency" value="daily"/>
-        <attribute name="bucket" value="0-998"/>
-        <attribute name="statsfeed" value='FEED_STATS' />
         <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="loader.strategy" value="identity"/>
         <attribute name="retentionPeriod" value="390"/>
     </Parameters>
     <DataDefinition>
@@ -35,10 +33,10 @@
         <InputFormat>Text</InputFormat>
         <OutputFormat>Sequence</OutputFormat>
         <SkipCommentsInData>false</SkipCommentsInData>
-        <SortKey>mrkt_sid</SortKey>
+        <SortKey/>
         <PartitionKey/>
-        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
-        <AddFields>datestamp=$datestamp</AddFields>
+        <DataPathMask/>
+        <AddFields/>
         <RemoveFields/>
         <SelectRecords/>
     </DataDefinition>
@@ -46,39 +44,42 @@
         <LoadStrategy>Default</LoadStrategy>
         <RetryCount>0</RetryCount>
         <SkipDataCommit>false</SkipDataCommit>
-        <SkipVerify>false</SkipVerify>
+        <SkipVerify>true</SkipVerify>
         <NoOfParts>1</NoOfParts>
         <PartsPerPartition>4</PartsPerPartition>
     </WorkflowStrategy>
     <Sources>
-        <Source latency="720" name="FDI_SERVER_NAME" switchovertype="Standard"/>
+        <Source latency="720" name="gdm-hio-source" switchovertype="Standard"/>
     </Sources>
     <DataFlow/>
     <Targets>
         <Target latency="1440" name="TARGET1" status="active">
-            <DateRange end="20220131" start="20130725"/>
-            <HCatTargetType>HCAT_TYPE</HCatTargetType>
-             <Paths>
-                <Path
-                    location="CUSTOM_COUNT_PATH" type="count"/>
-                <Path
-                    location="CUSTOM_DATA_PATH" type="data"/>
-                <Path
-                    location="CUSTOM_SCHEMA_PATH" type="schema"/>
-            </Paths>
+            <DateRange end="END_DATE" start="START_DATE"/>
+            <HCatTargetType>DataOnly</HCatTargetType>
             <Policies>
                 <Policy
                     condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
             </Policies>
+            <ReplicationExcludePaths>invalid</ReplicationExcludePaths>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1440" name="TARGET2" status="active">
+            <DateRange end="END_DATE" start="START_DATE"/>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <ReplicationExcludePaths>invalid</ReplicationExcludePaths>
             <Resource capacity="10" name="bandwidth"/>
         </Target>
     </Targets>
     <HCat>
-        <HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
+        <HCatDatabaseName>gdm</HCatDatabaseName>
         <HCatInstanceKey>instancedate</HCatInstanceKey>
         <HCatSchemaFile>schema.dat</HCatSchemaFile>
         <HCatSchemaFormat>ULT</HCatSchemaFormat>
         <HCatSchemaLocked>FALSE</HCatSchemaLocked>
-        <HCatTableName>HCAT_TABLE_NAME</HCatTableName>
+        <HCatTableName>TestHIO_WorkFlow1392050981793</HCatTableName>
     </HCat>
 </DataSet>

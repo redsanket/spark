@@ -646,7 +646,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
         if ( !output[0].equals("0") ) {
             throw new IllegalStateException("keydbgetkey failed for user");
         }
-        return output[1];
+        return output[1].trim();
     }
 
     /**
@@ -660,7 +660,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
         if ( !output[0].equals("0") ) {
             throw new IllegalStateException("keydbgetkey failed for password");
         }
-        return output[1];
+        return output[1].trim();
     }
 
     /**

@@ -1,24 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <DataSet catalog="gdm-catalog"
-    description="gdm-dataset-GDM-5.7.0-QE-build"
+    description="gdm-dataset-Table-propagation-for-hierachical-partitions"
     name="NEW_DATA_SET_NAME"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
     <Active>FALSE</Active>
-    <RetentionEnabled>TRUE</RetentionEnabled>
+    <RetentionEnabled>FALSE</RetentionEnabled>
     <VerificationInstance/>
     <Priority>HIGHEST</Priority>
     <Contact consumer="gdm-dev@yahoo-inc.com"
         owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
-    <Comments>GDM doAs acquisition automated testcase </Comments>
+    <Comments>gdm-dataset-Table-propagation-for-hierachical-partitions</Comments>
     <UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755"/>
-    <RunAsOwner>acquisition</RunAsOwner>
+    <RunAsOwner>FACET</RunAsOwner>
     <Frequency>daily</Frequency>
     <DiscoveryFrequency>180</DiscoveryFrequency>
-    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <DiscoveryInterface>HCAT</DiscoveryInterface>  
     <Paths>
-        <Path location="/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
-        <Path location="/data/daqdev/count/${DataSetName}/%{date}" type="count"/>
-        <Path location="/data/daqdev/schema/${DataSetName}/%{date}" type="schema"/>
+        <Path location="CUSTOM_DATA_PATH" type="data"/>
+        <Path location="CUSTOM_SCHEMA_PATH" type="schema"/>
     </Paths>
     <Parameters>
         <attribute value='FEED_NAME' name='feed'></attribute>
@@ -51,34 +49,35 @@
         <PartsPerPartition>4</PartsPerPartition>
     </WorkflowStrategy>
     <Sources>
-        <Source latency="720" name="FDI_SERVER_NAME" switchovertype="Standard"/>
+        <Source latency="720" name="TARGET1" switchovertype="Standard"/>
     </Sources>
     <DataFlow/>
     <Targets>
-        <Target latency="1440" name="TARGET1" status="active">
-            <DateRange end="20220131" start="20130725"/>
-            <HCatTargetType>HCAT_TYPE</HCatTargetType>
-             <Paths>
-                <Path
-                    location="CUSTOM_COUNT_PATH" type="count"/>
-                <Path
-                    location="CUSTOM_DATA_PATH" type="data"/>
-                <Path
-                    location="CUSTOM_SCHEMA_PATH" type="schema"/>
-            </Paths>
+        <Target latency="1440" name="TARGET2" status="active">
+            <DateRange end="20220131" start="20130309"/>
+            <HCatTargetType>HCatOnly</HCatTargetType>
             <Policies>
-                <Policy
-                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+                <Policy condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
             </Policies>
             <Resource capacity="10" name="bandwidth"/>
         </Target>
     </Targets>
     <HCat>
-        <HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
+        <HCatDatabaseName>DATABASE</HCatDatabaseName>
         <HCatInstanceKey>instancedate</HCatInstanceKey>
-        <HCatSchemaFile>schema.dat</HCatSchemaFile>
-        <HCatSchemaFormat>ULT</HCatSchemaFormat>
+        <HCatPartitionDataPathMask>$instancedate/$pagivity/$validity/$property</HCatPartitionDataPathMask>
+        <HCatPartitionKeys>instancedate,pagivity,validity,property</HCatPartitionKeys>
+        <HCatSchemaFile>_abf_v1.jr</HCatSchemaFile>
+        <HCatSchemaFormat>Record</HCatSchemaFormat>
         <HCatSchemaLocked>FALSE</HCatSchemaLocked>
-        <HCatTableName>HCAT_TABLE_NAME</HCatTableName>
+        <HCatTableName>TABLE_NAME</HCatTableName>
+        <HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>
     </HCat>
+    <SelfServe>
+        <RequireGroupAdmin>FALSE</RequireGroupAdmin>
+        <SelfServeEnabled>FALSE</SelfServeEnabled>
+        <UseOpsdbGroup>FALSE</UseOpsdbGroup>
+    </SelfServe>
+    <Project/>
+    <Tags/>
 </DataSet>

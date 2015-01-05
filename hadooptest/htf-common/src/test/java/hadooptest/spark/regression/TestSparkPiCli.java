@@ -53,34 +53,4 @@ public class TestSparkPiCli extends TestSession {
             appUserDefault.waitForSuccess(waitTime));
     }
 
-    /*
-     * A test for running SparkPi in YARN-client mode
-     * 
-     */
-    @Test
-    public void runSparkPiTestYarnClientMode() throws Exception {
-        SparkPi appUserDefault = new SparkPi();
-
-        appUserDefault.setMaster(AppMaster.YARN_CLIENT);
-        appUserDefault.setWorkerMemory("1g");
-        appUserDefault.setNumWorkers(1);
-        appUserDefault.setWorkerCores(1);
-        String appName = "SparkTestPiCli";
-        appUserDefault.setAppName(appName);
-        appUserDefault.setShouldPassName(true);
-        appUserDefault.setQueueName("unfunded");
-
-        appUserDefault.start();
-
-        assertTrue("SparkPi app (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
-        assertTrue("SparkPi app ID for sleep app (default user) is invalid.",
-            appUserDefault.verifyID());
-        assertEquals("SparkPi app name for sleep app is invalid.",
-            appName, appUserDefault.getAppName());
-
-        int waitTime = 30;
-        assertTrue("App (default user) did not succeed.",
-            appUserDefault.waitForSuccess(waitTime));
-    }
 }

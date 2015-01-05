@@ -12,6 +12,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -281,7 +283,7 @@ public abstract class App extends Thread {
     public boolean grepLogsCLI(String patternString) throws Exception {
 
         Process yarnProc = null;
-        
+
         String[] yarnCmd = {
                 TestSession.cluster.getConf().getHadoopProp("YARN_BIN"), 
                 "--config", TestSession.cluster.getConf().getHadoopConfDir(),
@@ -292,7 +294,14 @@ public abstract class App extends Thread {
         Pattern appPattern = Pattern.compile(patternString);
         
         try {
-            yarnProc = TestSession.exec.runProcBuilderSecurityGetProc(yarnCmd, this.USER);
+            HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
+            Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+                EMPTY_ENV_HASH_MAP);
+            environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+            yarnProc = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+               yarnCmd, this.USER, environmentVariablesWrappingTheCommand);
+
             BufferedReader reader=new BufferedReader(new InputStreamReader(yarnProc.getInputStream())); 
             String line=reader.readLine(); 
             while(line!=null) 

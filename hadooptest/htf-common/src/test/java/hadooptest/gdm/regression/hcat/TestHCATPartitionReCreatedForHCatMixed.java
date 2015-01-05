@@ -50,6 +50,7 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 	private HCatHelper hcatHelperObject = null;
 	private static final String ACQ_HCAT_TYPE = "Mixed";
 	private static final String RET_HCAT_TYPE = "Mixed";
+	private static final String DATABASE_NAME = "gdm";
 	private static final int SUCCESS = 200;
 
 	@BeforeClass
@@ -109,13 +110,13 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created
-			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acqDataSetName);
+			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
 			assertTrue("Failed : Expected that HCAT table is created " + this.acqDataSetName , isAcqusitionTableCreated == true);
 
 			String acqtableName = this.acqDataSetName.toLowerCase().replace("-", "_").trim();
 
 			// get paritions for acqusition table 
-			acqTablePartition = this.hcatHelperObject.getHCatTableParitionAsList(acquisitionHCatServerName, acqtableName);
+			acqTablePartition = this.hcatHelperObject.getHCatTableParitionAsList(this.DATABASE_NAME , acquisitionHCatServerName, acqtableName);
 			assertTrue("Failed to create the partition for " + this.acqDataSetName  + "  dataset.",  acqTablePartition.size() != 0);
 		}
 
@@ -150,7 +151,7 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + targetGrid1_HcatServerName);
 
 			String tableName = this.acqDataSetName.toLowerCase().replace("-", "_").trim();
-			boolean partitionExists = this.hcatHelperObject.isPartitionExist(targetGrid1_HcatServerName, tableName);
+			boolean partitionExists = this.hcatHelperObject.isPartitionExist(this.DATABASE_NAME ,targetGrid1_HcatServerName, tableName);
 			TestSession.logger.info("partitionExists  = " + partitionExists);
 			assertTrue("Failed : To delete the partition after retention workflow.  " + tableName, partitionExists == false);
 		}
@@ -173,13 +174,13 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created
-			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acqDataSetName);
+			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
 			assertTrue("Failed : Expected that HCAT table is created " + this.acqDataSetName , isAcqusitionTableCreated == true);
 
 			String acqtableName = this.acqDataSetName.toLowerCase().replace("-", "_").trim();
 
 			// get paritions for acqusition table 
-			acqTablePartition = this.hcatHelperObject.getHCatTableParitionAsList(acquisitionHCatServerName, acqtableName);
+			acqTablePartition = this.hcatHelperObject.getHCatTableParitionAsList(this.DATABASE_NAME ,acquisitionHCatServerName, acqtableName);
 			assertTrue("Failed to create the partition for " + this.acqDataSetName  + "  dataset.",  acqTablePartition.size() != 0);
 		}
 	}
@@ -206,6 +207,7 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", getCustomPath("count", this.acqDataSetName) );
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.acqDataSetName));
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.acqDataSetName);
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 
 		Response response = this.consoleHandle.createDataSet(this.acqDataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
@@ -235,20 +237,26 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.RET_HCAT_TYPE);
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 		dataSetXml = dataSetXml.replace("<RunAsOwner>retention</RunAsOwner>", "");
 
 		String tableName = this.acqDataSetName.toLowerCase().replace("-", "_").trim();
 		dataSetXml = dataSetXml.replace("TABLE_NAME", tableName);
 		dataSetXml = dataSetXml.replace("NUMBER_OF_INSTANCE_VALUES", "0");
 
-		dataSetXml = dataSetXml.replaceAll("ACQUISITION_DATA_PATH",  getCustomPath("data", this.acqDataSetName));
-		dataSetXml = dataSetXml.replaceAll("ACQUISITION_COUNT_PATH", getCustomPath("count", this.acqDataSetName)  );
-		dataSetXml = dataSetXml.replaceAll("ACQUISITION_SCHEMA_PATH", getCustomPath("schema", this.acqDataSetName));
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_DATA_PATH",  getCustomPath("data", this.acqDataSetName));
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_COUNT_PATH", getCustomPath("count", this.acqDataSetName)  );
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.acqDataSetName));
 
-		dataSetXml = dataSetXml.replaceAll("REPLICATION_DATA_PATH", "");
-		dataSetXml = dataSetXml.replaceAll("REPLICATION_COUNT_PATH", "");
-		dataSetXml = dataSetXml.replaceAll("REPLICATION_SCHEMA_PATH", "");
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_DATA_PATH", "");
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_COUNT_PATH", "");
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_SCHEMA_PATH", "");
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.acqDataSetName);
+		
+	
+		dataSetXml = dataSetXml.replaceAll("DATA_PATH", "");
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_COUNT_PATH", "");
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_SCHEMA_PATH", "");
 
 		Response response = this.consoleHandle.createDataSet(this.repDataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {

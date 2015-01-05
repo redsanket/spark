@@ -47,6 +47,7 @@ public class TestHCATWithABFData  extends TestSession {
 	private static final String SOURCE_NAME= "elrond";
 	private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
 	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_DAILY/";
+	private static final String DATABASE_NAME = "gdm";
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -107,13 +108,13 @@ public class TestHCATWithABFData  extends TestSession {
 		TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
 
 		// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server
-		boolean isTableCreated = this.hcatHelperObject.isTableExists(hCatServerName, this.dataSetName);
+		boolean isTableCreated = this.hcatHelperObject.isTableExists(hCatServerName, this.dataSetName , this.DATABASE_NAME);
 		assertTrue("Failed to HCAT create table for " + this.dataSetName , isTableCreated == true);
 
 		// check whether partition is created
 		String tableName = this.dataSetName.toLowerCase().trim();
 		for (String date : dates ) {
-			boolean partitionExists = this.hcatHelperObject.isPartitionIDExists(hCatServerName, tableName, date);
+			boolean partitionExists = this.hcatHelperObject.isPartitionIDExists(this.DATABASE_NAME , hCatServerName, tableName, date);
 			assertTrue(date  + "  partition does not exists in "  + tableName , partitionExists == true);
 		}
 	}
@@ -133,6 +134,7 @@ public class TestHCATWithABFData  extends TestSession {
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
 		dataSetXml = dataSetXml.replace("ABF-DATA-PATH", this.ABF_DATA_PATH + "%{date}");
 		dataSetXml = dataSetXml.replace("HCAT_TABLE_NAME", this.dataSetName);
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
 
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {

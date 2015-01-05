@@ -16,6 +16,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.*;
 
 import backtype.storm.Config;
@@ -34,9 +35,13 @@ import java.util.regex.Pattern;
 @Category(SerialTests.class)
 public class TestHBaseTopology extends TestSessionStorm {
 
+    static ModifiableStormCluster mc = null;
+
     @BeforeClass
     public static void setup() throws Exception {
         cluster.setDrpcAclForFunction("hbase");
+        mc = (ModifiableStormCluster) cluster;
+        assumeTrue(mc != null);
     }
 
     @AfterClass
@@ -47,8 +52,9 @@ public class TestHBaseTopology extends TestSessionStorm {
     public void launchHBaseTopology() throws Exception {
         String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
         String pathToConf = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestHBaseTopology/hbase-site.xml";
+        String byUser = mc.getBouncerUser();
         String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.HBaseTopology",  "run", pathToConf, "test", "-c",
-            "topology.worker.childopts=\"-Dsun.security.krb5.debug=true -Dhadoop.home.dir=/tmp\"", "-c", "ui.users=[\"hadoop_re\"]", "-c", "logs.users=[\"hadoop_re\"]" }, true);
+            "topology.worker.childopts=\"-Dsun.security.krb5.debug=true -Dhadoop.home.dir=/tmp\"", "-c", "ui.users=[\""+byUser+"\"]", "-c", "logs.users=[\""+byUser+"\"]" }, true);
         assertTrue( "Could not launch topology", returnValue[0].equals("0") );
     }
 

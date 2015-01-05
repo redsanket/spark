@@ -35,7 +35,7 @@ public class TestHCatTargetTypeDataOnly extends TestSession {
 	private HCatHelper hcatHelperObject = null;
 	private static final String HCAT_TYPE = "DataOnly";
 	private static final int SUCCESS = 200;
-
+	private static final String DATABASE_NAME = "gdm";
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -58,10 +58,10 @@ public class TestHCatTargetTypeDataOnly extends TestSession {
 		}
 
 		this.targetGrid1 = hcatSupportedGrid.get(0).trim();
-		TestSession.logger.info("Using grids " + this.targetGrid1  );
+		TestSession.logger.info("Using grids " + this.targetGrid1 );
 
 		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
-		TestSession.logger.info("Using grids " + this.targetGrid2  );
+		TestSession.logger.info("Using grids " + this.targetGrid2 );
 
 		// check whether hcat is enabled on target1 cluster
 		boolean targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid1);
@@ -96,7 +96,7 @@ public class TestHCatTargetTypeDataOnly extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is not created for DataOnly HCatTargetType.
-			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.dataSetName);
+			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.dataSetName , this.DATABASE_NAME);
 			assertTrue("Failed : Expected that HCAT table not to created " + this.dataSetName , isAcqusitionTableCreated == false);
 		}
 
@@ -110,7 +110,7 @@ public class TestHCatTargetTypeDataOnly extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 
 			// check whether hcat table is not created for DataOnly HCatTargetType.
-			boolean isReplicationTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.dataSetName);
+			boolean isReplicationTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.dataSetName , this.DATABASE_NAME);
 			assertTrue("Failed : Expected that HCAT table not to created  " + this.dataSetName , isReplicationTableCreated == false);
 		}
 	}
@@ -132,7 +132,12 @@ public class TestHCatTargetTypeDataOnly extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replaceAll("FDI_SERVER_NAME", sourceName );
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
-
+		dataSetXml = dataSetXml.replace("GROUP_NAME", "users");
+		dataSetXml = dataSetXml.replaceAll("owner=\"DATA_OWNER\"", "");
+		dataSetXml = dataSetXml.replace("<RunAsOwner>FACETS</RunAsOwner>", "");
+		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
+		dataSetXml = dataSetXml.replaceAll("TABLE_NAME", this.dataSetName);
+		
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
 			try {
