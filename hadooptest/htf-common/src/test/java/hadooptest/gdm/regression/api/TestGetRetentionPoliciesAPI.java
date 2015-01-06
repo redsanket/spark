@@ -62,15 +62,15 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 
 	@Test
 	public void testGetRetentionPolicies() {
-		/*testInValidDataStore();
+		testInValidDataStore();
 		testInvalidDataset();
 		testInvalidTarget();
 		testGetRetentionPolicyForGivenDataSetAndSource(); 
 		testGetRetentionPolicyForGivenDataSetAndTarget(); 
 		testGetAllSourceAndTargetsRetentionPolicies();
-		testGetRetentionPolicyWhenOnlyDataSetIsSpecified();*/
+		testGetRetentionPolicyWhenOnlyDataSetIsSpecified();
 		testSetAndGetRetentionPolicyIsCorrectForNumberOfInstance();
-		//testMultipleResourceName();
+		testMultipleResourceName();
 	}
 
 	/*
