@@ -167,7 +167,7 @@ public class HadooptestConstants {
 	// Ports
 	public static class Ports {
 		public static String HDFS = "8020";
-		public static int HTTP_ATS_PORT = 8188;
+		public static int HTTP_ATS_PORT = 4080;
 
 	}
 		// Execution
