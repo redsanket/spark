@@ -87,6 +87,7 @@ public class TestWorkflowWithOutStartDate extends TestSession {
 		// generate data
 		generatePerformanceFeeds.generateFeed(this.INSTANCE_DATE);
 		
+		// create a dataset
 		createDataSetForAcqRep( );
 		
 		// check for acquisition workflow
@@ -116,6 +117,8 @@ public class TestWorkflowWithOutStartDate extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("COUNT_PATH", this.getDataSetCountPath(this.dataSetName ));
 		dataSetXml = dataSetXml.replaceAll("SCHEMA_PATH", this.getDataSetSchemaPath(this.dataSetName ));
 		dataSetXml = dataSetXml.replaceAll("HCAT_TYPE", this.HCAT_TYPE);
+		dataSetXml = dataSetXml.replaceAll("hourly", "daily");
+		dataSetXml = dataSetXml.replaceAll("yyyyMMddhh", "yyyyMMdd");
 
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
