@@ -397,7 +397,7 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 				JSONArray policies = jsonObject.getJSONArray("policies");
 
 				int policySize = policies.size() - 1 ;
-				assertTrue("Request target size and response policies target size is not matching, targetName size = " + targetNameList.size()  + " & policy Size  = " + policySize ,  policySize >= targetNameList.size());
+				assertTrue("Request target size and response policies target size do not match, targetName size = " + targetNameList.size()  + " & policy Size  = " + policySize ,  policySize >= targetNameList.size());
 			}
 		}
 	}
