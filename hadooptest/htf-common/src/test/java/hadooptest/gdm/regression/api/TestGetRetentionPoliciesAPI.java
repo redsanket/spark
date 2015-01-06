@@ -76,7 +76,7 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 	/*
 	 * Test Scenario : Verify whether user is shown an error message when a invalid DataStore is specified as source
 	 */
-	public void testInValidDataStore() {
+	public void testInValidDataStore() { 
 
 		if (dataSetList.size() > 0) {
 			String dataSetName = this.dataSetList.get(0);
@@ -397,30 +397,7 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 				JSONArray policies = jsonObject.getJSONArray("policies");
 
 				int policySize = policies.size() - 1 ;
-				assertTrue("Request target size and response policies target size is not matching, targetName size = " + targetNameList.size()  + " & policy Size  = " + policySize ,  policySize > targetNameList.size());				
-/*				
-				Iterator policyIterator = policies.iterator();
-				while ( policyIterator.hasNext()){
-					JSONObject policy = (JSONObject) policyIterator.next();
-
-					boolean isSourceElementExists = policy.has("source");
-					if (isSourceElementExists) {
-						String responseSourceName = policy.getString("source");
-						String requestSourceName = sourceNameList.get(sourceCount).trim();
-						TestSession.logger.info("Request Source Name = " + requestSourceName  + "  Response Source Name = " + responseSourceName);
-						assertTrue(responseSourceName + " in response dn't match with request source name = " + requestSourceName  , responseSourceName.equals(requestSourceName));
-						sourceCount++;
-					}
-
-					boolean hisTargetElementExists = policy.has("target");
-					if (hisTargetElementExists) {
-						String resposeTargetName = policy.getString("target").trim();
-						String requestTargetName = targetNameList.get(targetCount).trim();
-						TestSession.logger.info("resposeTargetName = " + resposeTargetName   + "   requestTargetName = " + requestTargetName);
-						assertTrue("Request target name " + requestTargetName  +  "   dn't match with response name = " + resposeTargetName   , resposeTargetName.equals(requestTargetName));
-						targetCount++;
-					}
-				}*/
+				assertTrue("Request target size and response policies target size do not match, targetName size = " + targetNameList.size()  + " & policy Size  = " + policySize ,  policySize >= targetNameList.size());
 			}
 		}
 	}
