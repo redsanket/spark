@@ -23,6 +23,19 @@ will want to do the following:
         hive> set mapreduce.job.queuename=default;
 
 
+Starling Permissions
+####################
+
+To execute many of the Starling queries in this chapter, you need to be able to access the
+Starling table ``starling_jobs_confs``. Only members of the group ``ygrid_group_gpd`` group, however,
+have access to this table. If you do not have permission to the table, you will get the following error::
+
+   Permission denied: user={your_user_name}, access=EXECUTE,
+
+
+Unfortunately, we currently do not have a way to request membership to 
+``ygrid_group_gpd``, but we are hoping to allow users to request membership
+in the near future. 
 
 Total Number of Jobs And Distribution Within a Month 
 ----------------------------------------------------
@@ -164,14 +177,14 @@ All Oozie Jobs
 
    select count(1) jobs_count from starling_job_confs sjc join starling_jobs sj 
        on (sjc.job_id=sj.job_id and sjc.grid=sj.grid and sjc.dt=sj.dt) where sjc.dt 
-       between '2014_01_01' and '2014_01_31' and sj.dt between '2014_01_01' and '2014_01_31' 
+       between '2014_01_01' and '2014_01_07' and sj.dt between '2014_01_01' and '2014_01_07' 
        and params['oozie.action.id'] is not null;
 
 **Example Output**
 
 ::
 
-    TBD
+    238585
 
 Percentage of Jobs Initiated By Oozie Per Month 
 ###############################################
@@ -187,7 +200,7 @@ Percentage of Jobs Initiated By Oozie Per Month
 
 ::
 
-    3,899,630 
+    3899630 
 
 
 Number of Unique Oozie (Backyard ID / Headless) Users on Grid
@@ -248,7 +261,7 @@ Number of Oozie Applications on the Grid
 
 ::
 
-    TBD
+    N/A
 
 Total Number of Monthly Jobs From Oozie Within a Year
 -----------------------------------------------------
@@ -259,13 +272,14 @@ Hive Jobs Per Month
 .. code-block:: sql
 
    select jobs.dt_month, count(1) from (select substr(dt,1,7) as dt_month from starling.starling_job_confs 
-       where dt between '2013_03_01' and '2014_02_28' and params['hive.query.id'] is not null) jobs group by jobs.dt_month;
+       where dt between '2013_02_01' and '2014_03_31' and params['hive.query.id'] is not null) jobs group by jobs.dt_month;
 
 **Example Output**
 
 ::
 
-    TBD
+    2014_02    485527
+    2014_03    637235 
 
 Oozie Jobs Per Month
 ####################
@@ -273,12 +287,15 @@ Oozie Jobs Per Month
 .. code-block:: sql
 
    select jobs.dt_month, count(1) from (select substr(dt,1,7) as dt_month from starling.starling_job_confs 
-       where dt between '2013_03_01' and '2014_02_28' and params['oozie.action.id'] is not null) jobs group by jobs.dt_month;
+       where dt between '2013_01_01' and '2014_03_31' and params['oozie.action.id'] is not null) jobs group by jobs.dt_month;
 
 **Example Output**
 
-TBD
+::
 
+    2014_01    7150412
+    2014_02    10450893
+    2014_03    12354540
 
 Pig Jobs Per Month
 ##################
@@ -286,14 +303,15 @@ Pig Jobs Per Month
 .. code-block:: sql
 
    select jobs.dt_month, count(1) from (select substr(dt,1,7) as dt_month from starling.starling_job_confs 
-       where dt between '2013_03_01' and '2014_02_28' and params['pig.script.id'] is not null) jobs group by jobs.dt_month;
+       where dt between '2013_01_01' and '2014_03_31' and params['pig.script.id'] is not null) jobs group by jobs.dt_month;
 
 **Example Output**
 
 ::
 
-    TBD
-
+    2014_01    8733348
+    2014_02    10941493
+    2014_03    11998364 
 
 
 Number of Jobs Run by a User
@@ -376,8 +394,6 @@ Total HDFS Bytes Read (in GB) by Non-dfsload Jobs in a Date Range
     219601      2011_07_13
 
 
-
-
 Data Locality
 -------------
 
@@ -410,89 +426,89 @@ How much data is being read local to a rack (from a data node in the same rack) 
 
 ::
 
-    TBD
+    N/A
 
-Instances Read on Dilithium Gold
---------------------------------
-
-For the directories ``/data/SDS/data`` and ``/data/FETL/*``, what were the oldest, newest 
-instances read and how many times were individual pieces read on Dilithium Gold.
-
-If you want to save these results to import into excel or other program, 
-save this query in a file and execute: ``/home/y/bin/hive #f foobar.file >results.csv``. 
-You can then import the results.csv file into excel using tab as the delimiter.
-
-.. note:: ``INSERT OVERWRITE LOCAL DIRECTORY 'test.csv'`` won't do what you think it might do. 
-          The ```test.csv`` directory will contain a single hadoop compressed file that isn't human readable.
-
-.. code-block:: sql
-
-   select F.grid as GRID, F.dt as DT, F.ugi as USER,
-       regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4) as DATASET,
-       min(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as FIRST_INSTANCE,
-       max(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as LAST_INSTANCE,
-       count(1) as COUNT
-   from (
-        select src.grid as grid,
-          src.dt as dt,
-          src.ugi as ugi,
-          src.src_path as src_path
-        from  starling_fs_audit src 
-   where 
-       src.grid-'DG' and src.dt-'2011_11_08'
-       and regexp_extract(src.src_path,'(/data/SDS/data)/([^/]*)/([^/]*)', 1) -- '/data/SDS/data'
-   union all 
-   select dest.grid as grid,
-       dest.dt as dt,
-       dest.ugi as ugi,
-       dest.dest_path as src_path
-   from  starling_fs_audit dest 
-   where 
-       dest.grid-'DG' and dest.dt-'2011_11_08'
-       and regexp_extract(dest.dest_path,'(/data/SDS/data)/([^/]*)', 1) -- '/data/SDS/data'
-       ) F
-   group by F.grid, F.dt, F.ugi, 
-       regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4)
-   order by GRID, DT,
-       DATASET, USER;
-
-Now do the same for ``/data/FETL/{ABF,LL_Web}/``:
-
-.. code-block:: sql
-
-   INSERT OVERWRITE LOCAL DIRECTORY 'DGabfusage20111108.csv'
-      select F.grid as GRID, F.dt as DT, F.ugi as USER,
-      regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4) as DATASET,
-      min(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as FIRST_INSTANCE,
-      max(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as LAST_INSTANCE,
-      count(1) as COUNT
-   from (
-       select src.grid as grid,
-         src.dt as dt,
-         src.ugi as ugi,
-         src.src_path as src_path
-   from starling_fs_audit src 
-   where 
-       src.grid-'DG' and src.dt-'2011_11_08'
-       and regexp_extract(src.src_path,'(/data/FETL/[^/]*)/([^/]*)/([^/]*)', 1) -- '/data/SDS/data'
-   union all 
-       select dest.grid as grid,
-       dest.dt as dt,
-       dest.ugi as ugi,
-       dest.dest_path as src_path
-   from  starling_fs_audit dest 
-   where 
-       dest.grid-'DG' and dest.dt-'2011_11_08'
-       and regexp_extract(dest.dest_path,'(/data/FETL/[^/]*)/([^/]*)', 1) -- '/data/SDS/data'
-       ) F
-   group by F.grid, F.dt, F.ugi, 
-       regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4),
-   order by GRID, DT,
-       DATASET, USER;
-
-**Example Output** 
-
-TBD
+.. Instances Read on Dilithium Gold
+.. --------------------------------
+.. 
+.. For the directories ``/data/SDS/data`` and ``/data/FETL/*``, what were the oldest, newest 
+.. instances read and how many times were individual pieces read on Dilithium Gold.
+.. 
+.. If you want to save these results to import into excel or other program, 
+.. save this query in a file and execute: ``/home/y/bin/hive #f foobar.file >results.csv``. 
+.. You can then import the results.csv file into excel using tab as the delimiter.
+.. 
+.. .. note:: ``INSERT OVERWRITE LOCAL DIRECTORY 'test.csv'`` won't do what you think it might do. 
+..           The ```test.csv`` directory will contain a single hadoop compressed file that isn't human readable.
+.. 
+.. .. code-block:: sql
+.. 
+..    select F.grid as GRID, F.dt as DT, F.ugi as USER,
+..        regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4) as DATASET,
+..        min(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as FIRST_INSTANCE,
+..        max(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as LAST_INSTANCE,
+..        count(1) as COUNT
+..    from (
+..         select src.grid as grid,
+..           src.dt as dt,
+..           src.ugi as ugi,
+..           src.src_path as src_path
+..         from  starling_fs_audit src 
+..    where 
+..        src.grid-'DG' and src.dt-'2011_11_08'
+..        and regexp_extract(src.src_path,'(/data/SDS/data)/([^/]*)/([^/]*)', 1) -- '/data/SDS/data'
+..    union all 
+..    select dest.grid as grid,
+..        dest.dt as dt,
+..        dest.ugi as ugi,
+..        dest.dest_path as src_path
+..    from  starling_fs_audit dest 
+..    where 
+..        dest.grid-'DG' and dest.dt-'2011_11_08'
+..        and regexp_extract(dest.dest_path,'(/data/SDS/data)/([^/]*)', 1) -- '/data/SDS/data'
+..        ) F
+..    group by F.grid, F.dt, F.ugi, 
+..        regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4)
+..    order by GRID, DT,
+..        DATASET, USER;
+.. 
+.. Now do the same for ``/data/FETL/{ABF,LL_Web}/``:
+.. 
+.. .. code-block:: sql
+.. 
+..    INSERT OVERWRITE LOCAL DIRECTORY 'DGabfusage20111108.csv'
+..       select F.grid as GRID, F.dt as DT, F.ugi as USER,
+..       regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4) as DATASET,
+..       min(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as FIRST_INSTANCE,
+..       max(regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 5)) as LAST_INSTANCE,
+..       count(1) as COUNT
+..    from (
+..        select src.grid as grid,
+..          src.dt as dt,
+..          src.ugi as ugi,
+..          src.src_path as src_path
+..    from starling_fs_audit src 
+..    where 
+..        src.grid-'DG' and src.dt-'2011_11_08'
+..        and regexp_extract(src.src_path,'(/data/FETL/[^/]*)/([^/]*)/([^/]*)', 1) -- '/data/SDS/data'
+..    union all 
+..        select dest.grid as grid,
+..        dest.dt as dt,
+..        dest.ugi as ugi,
+..        dest.dest_path as src_path
+..    from  starling_fs_audit dest 
+..    where 
+..        dest.grid-'DG' and dest.dt-'2011_11_08'
+..        and regexp_extract(dest.dest_path,'(/data/FETL/[^/]*)/([^/]*)', 1) -- '/data/SDS/data'
+..        ) F
+..    group by F.grid, F.dt, F.ugi, 
+..        regexp_extract(F.src_path,'/([^/]*)/([^/]*)/([^/]*)/([^/]*)', 4),
+..    order by GRID, DT,
+..        DATASET, USER;
+.. 
+.. **Example Output** 
+.. 
+.. TBD
 
 
 Find the Number of Jobs Using Compressed Output Files
@@ -556,26 +572,29 @@ Find MapReduce Jobs Reading/Writing to /tmp
 **Example Output** 
 
 
+..
 
-Pig
-===
+.. Pig
+.. ===
+.. 
+.. To use Pig with Starling, you need to access the Starling Hive tables through HCatalog.
+.. Thus, you will need to start Pig with the option ``
+.. 
+.. Number of Jobs Run by a User
+.. ----------------------------
+.. 
+.. Pig Statements
+.. ##############
+.. 
+.. TBD
+.. 
+.. 
+.. Sample Result
+.. #############
+.. 
+.. TBD
 
-To use Pig with Starling, you need to access the Starling Hive tables through HCatalog.
-Thus, you will need to start Pig with the option ``
 
-Number of Jobs Run by a User
-----------------------------
-
-Pig Statements
-##############
-
-TBD
-
-
-Sample Result
-#############
-
-TBD
 
 MapReduce
 =========
