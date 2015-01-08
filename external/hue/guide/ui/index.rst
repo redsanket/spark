@@ -75,6 +75,8 @@ Hive Editor
 
 The **Hive Editor** has the following components for writing, executing, and saving queries,
 viewing the results, logs, and even charts. 
+You can create Hive databases, tables and partitions, load data, create, run, and manage queries, and download the results in a Microsoft Office Excel worksheet file or a comma-separated values file.
+
 
 - **Query Editor**
 - **My Queries**
