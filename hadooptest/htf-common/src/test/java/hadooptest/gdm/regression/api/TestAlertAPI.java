@@ -59,8 +59,8 @@ public class TestAlertAPI extends TestSession {
 	}
 	
 	/**
-	 * TestCase : Verify whether alertEvent response contains the Warning serverity and type name is availability for acquisition facet
-	 * Query parameters : serverity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = availability
+	 * TestCase : Verify whether alertEvent response contains the Warning severity and type name is availability for acquisition facet
+	 * Query parameters : severity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = availability
 	 */
 	public void testAlertWithWarningServerityAndTypeAvailabilityForAcquisitionFacet() {
 		
@@ -72,10 +72,10 @@ public class TestAlertAPI extends TestSession {
 	    String startDate = sdf.format(cal.getTime());
 	    TestSession.logger.info("start date = " + startDate  + "   end date = " + endDate);
 	    
-		String serverityType = "Warning";
+		String severityType = "Warning";
 		String facetType = "acquisition";
 		String type = "availability";
-		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + serverityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type;
+		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + severityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type;
 		TestSession.logger.info("testURL  = " + testURL);
 		Response response = given().cookie(this.cookie).get(testURL);
 		String responseString = response.getBody().asString();
@@ -99,7 +99,7 @@ public class TestAlertAPI extends TestSession {
 				
 				// check serverity type
 				String serverity = jsonObject.getString("severity");
-				assertTrue("Expected " + serverityType + " but got " + serverity , serverityType.equals(serverity));
+				assertTrue("Expected " + severityType + " but got " + serverity , severityType.equals(serverity));
 				
 				String name = jsonObject.getString("name");
 				assertTrue("Expected availability, but got " + name  , name.equals("availability"));
@@ -123,8 +123,8 @@ public class TestAlertAPI extends TestSession {
 	}
 	
 	/**
-	 * TestCase : Verify whether alertEvent response contains the Warning serverity and type name is availability for acquisition facet
-	 * Query parameters : serverity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = sla
+	 * TestCase : Verify whether alertEvent response contains the Warning severity verify and type name is availability for acquisition facet
+	 * Query parameters : severity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = sla
 	 */
 	public void testAlertWithWarningServerityAndTypeSlaForAcquisitionFacet() {
 		
@@ -136,10 +136,10 @@ public class TestAlertAPI extends TestSession {
 	    String startDate = sdf.format(cal.getTime());
 	    TestSession.logger.info("start date = " + startDate  + "   end date = " + endDate);
 	    
-		String serverityType = "Warning";
+		String severityType = "Warning";
 		String facetType = "acquisition";
 		String type = "sla";
-		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + serverityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type;
+		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + severityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type;
 		TestSession.logger.info("testURL  = " + testURL);
 		Response response = given().cookie(this.cookie).get(testURL);
 		String responseString = response.getBody().asString();
@@ -163,7 +163,7 @@ public class TestAlertAPI extends TestSession {
 				
 				// check serverity type
 				String serverity = jsonObject.getString("severity");
-				assertTrue("Expected " + serverityType + " but got " + serverity , serverityType.equals(serverity));
+				assertTrue("Expected " + severityType + " but got " + serverity , severityType.equals(serverity));
 				
 				String name = jsonObject.getString("name");
 				assertTrue("Expected availability, but got " + name  , name.equals("sla"));
@@ -177,8 +177,8 @@ public class TestAlertAPI extends TestSession {
 	}
 	
 	/**
-	 * TestCase : Verify whether alertEvent response contains the Warning serverity and type name is availability for acquisition facet
-	 * Query parameters : serverity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = sla
+	 * TestCase : Verify whether alertEvent response contains the Warning severity and type name is availability for acquisition facet
+	 * Query parameters : severity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = sla
 	 */
 	public void testAlertWithWarningServerityAndTypeSystemWarningForAcquisitionFacet() {
 		
@@ -190,10 +190,10 @@ public class TestAlertAPI extends TestSession {
 	    String startDate = sdf.format(cal.getTime());
 	    TestSession.logger.info("start date = " + startDate  + "   end date = " + endDate);
 	    
-		String serverityType = "Warning";
+		String severityType = "Warning";
 		String facetType = "acquisition";
 		String type = "system-warning";
-		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + serverityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type;
+		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + severityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type;
 		TestSession.logger.info("testURL  = " + testURL);
 		Response response = given().cookie(this.cookie).get(testURL);
 		String responseString = response.getBody().asString();
@@ -217,7 +217,7 @@ public class TestAlertAPI extends TestSession {
 				
 				// check serverity type
 				String serverity = jsonObject.getString("severity");
-				assertTrue("Expected " + serverityType + " but got " + serverity , serverityType.equals(serverity));
+				assertTrue("Expected " + severityType + " but got " + serverity , severityType.equals(serverity));
 				
 				String name = jsonObject.getString("name");
 				assertTrue("Expected availability, but got " + name  , name.equals("system-warning"));
@@ -233,8 +233,8 @@ public class TestAlertAPI extends TestSession {
 	
 	
 	/**
-	 * TestCase : Verify whether alertEvent response contains the Warning serverity , type name is availability and by dataset namefor acquisition facet
-	 * Query parameters : serverity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = sla , datasetName
+	 * TestCase : Verify whether alertEvent response contains the Warning severity , type name is availability and by dataset namefor acquisition facet
+	 * Query parameters : severity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = sla , datasetName
 	 */
 	public void testAlertWithWarningServerityByDataSetName() {
 		
@@ -246,14 +246,14 @@ public class TestAlertAPI extends TestSession {
 	    String startDate = sdf.format(cal.getTime());
 	    TestSession.logger.info("start date = " + startDate  + "   end date = " + endDate);
 	    
-		String serverityType = "Warning";
+		String severityType = "Warning";
 		String facetType = "acquisition";
 		String type = "availability";
 		
 		assertTrue("Expected there is atleast one dataset, but got " +  this.dataSetNameList.size() , this.dataSetNameList.size() > 0 );
 		String dataSetName = this.dataSetNameList.get(0);
 		
-		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + serverityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type + "&datasetName=" + dataSetName;
+		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + severityType + "&facet=" + facetType + "&starttime=" + startDate + "&endtime=" + endDate + "&type=" + type + "&datasetName=" + dataSetName;
 		TestSession.logger.info("testURL  = " + testURL);
 		Response response = given().cookie(this.cookie).get(testURL);
 		String responseString = response.getBody().asString();
@@ -277,7 +277,7 @@ public class TestAlertAPI extends TestSession {
 				
 				// check serverity type
 				String serverity = jsonObject.getString("severity");
-				assertTrue("Expected " + serverityType + " but got " + serverity , serverityType.equals(serverity));
+				assertTrue("Expected " + severityType + " but got " + serverity , severityType.equals(serverity));
 				
 				String name = jsonObject.getString("name");
 				assertTrue("Expected availability, but got " + name  , name.equals(type));
