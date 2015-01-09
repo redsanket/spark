@@ -13,6 +13,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.hadoop.yarn.webapp.NotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -46,7 +47,7 @@ public class TestAuthWhenGroupsIntersectInACL extends AclDomainBaseClass {
 	@Test
 	public void testAllowedUsers() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_4;
-		String allowedGroup = HadooptestConstants.UserGroups.HADOOPQA;
+		String allowedGroup = YAHOO_TEAM_MEMBERS + " " + HadooptestConstants.UserGroups.HADOOPQA;
 		String implicitUserBelongingToSpecifiedGroup = HadooptestConstants.UserNames.HITUSR_2;
 		String[] allowedUsers = new String[] { self,
 				implicitUserBelongingToSpecifiedGroup };
@@ -123,13 +124,13 @@ public class TestAuthWhenGroupsIntersectInACL extends AclDomainBaseClass {
 	@Test
 	public void testNotAllowedUsers() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_4;
-		String allowedGroup = HadooptestConstants.UserGroups.HADOOPQA;
+		String acls = YAHOO_TEAM_MEMBERS + " " + HadooptestConstants.UserGroups.HADOOPQA;
 		String notAllowedUser = HadooptestConstants.UserNames.HITUSR_1;
 		String anotherNotAllowedUser = HadooptestConstants.UserNames.HITUSR_3;
 		String[] notAllowedUsers = new String[] { notAllowedUser,
 				anotherNotAllowedUser };
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, allowedGroup);
+				self, acls);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -143,23 +144,18 @@ public class TestAuthWhenGroupsIntersectInACL extends AclDomainBaseClass {
 				currentQueue = dagIdQueue;
 
 				String url = getATSUrl() + entityTypeBeingTested + "/" + entity;
-				TestSession.logger.info("Processing:" + url);
-				makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-						aNotAllowedUser, currentQueue);
-				polled = currentQueue.poll();
-				Assert.assertFalse(atsUtils.isEntityPresentInResponse(polled,
-						entityTypeBeingTested, entity));
+				TestSession.logger.info("Processing:" + url + " as not allowed user:" + aNotAllowedUser);
+				int responseCode = makeHttpRequestAndGetResponseCode(url, aNotAllowedUser);
+				Assert.assertTrue(responseCode == 404);
+					
 				for (Vertex aVertex : aDAG.vertices) {
 					entity = aVertex.id;
 					entityTypeBeingTested = EntityTypes.TEZ_VERTEX_ID;
 					currentQueue = vertexIdQueue;
 					url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 					TestSession.logger.info("Processing:" + url);
-					makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-							aNotAllowedUser, currentQueue);
-					polled = currentQueue.poll();
-					Assert.assertFalse(atsUtils.isEntityPresentInResponse(
-							polled, entityTypeBeingTested, entity));
+					responseCode = makeHttpRequestAndGetResponseCode(url, aNotAllowedUser);
+					Assert.assertTrue(responseCode==404);
 					for (Task aTask : aVertex.tasks) {
 						entity = aTask.id;
 						entityTypeBeingTested = EntityTypes.TEZ_TASK_ID;
@@ -168,11 +164,8 @@ public class TestAuthWhenGroupsIntersectInACL extends AclDomainBaseClass {
 						url = getATSUrl() + entityTypeBeingTested + "/"
 								+ entity;
 						TestSession.logger.info("Processing:" + url);
-						makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-								aNotAllowedUser, currentQueue);
-						polled = currentQueue.poll();
-						Assert.assertFalse(atsUtils.isEntityPresentInResponse(
-								polled, entityTypeBeingTested, entity));
+						responseCode = makeHttpRequestAndGetResponseCode(url, aNotAllowedUser);
+						Assert.assertTrue(responseCode==404);
 						for (Attempt anAttempt : aTask.attempts) {
 							entity = anAttempt.id;
 							entityTypeBeingTested = EntityTypes.TEZ_TASK_ATTEMPT_ID;
@@ -180,13 +173,8 @@ public class TestAuthWhenGroupsIntersectInACL extends AclDomainBaseClass {
 							url = getATSUrl() + entityTypeBeingTested + "/"
 									+ entity;
 							TestSession.logger.info("Processing:" + url);
-							makeHttpRequestAndEnqueue(url,
-									entityTypeBeingTested, aNotAllowedUser,
-									currentQueue);
-							polled = currentQueue.poll();
-							Assert.assertFalse(atsUtils
-									.isEntityPresentInResponse(polled,
-											entityTypeBeingTested, entity));
+							responseCode = makeHttpRequestAndGetResponseCode(url, aNotAllowedUser);
+							Assert.assertTrue(responseCode==404);
 
 						}
 

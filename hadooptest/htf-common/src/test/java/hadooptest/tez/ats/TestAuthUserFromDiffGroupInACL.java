@@ -116,9 +116,10 @@ public class TestAuthUserFromDiffGroupInACL extends AclDomainBaseClass {
 	public void testUsersInSameGroup() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInSameGroup = HadooptestConstants.UserNames.HITUSR_1;
-		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userNotInSameGroup);
 		String otherInSameGroup = HadooptestConstants.UserNames.HITUSR_4;
+		String acl = YAHOO_TEAM_MEMBERS + "," +  userNotInSameGroup +" " + userGroupMapping.get(otherInSameGroup);
+		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
+				self, acl);		
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -186,8 +187,9 @@ public class TestAuthUserFromDiffGroupInACL extends AclDomainBaseClass {
 	public void testUserInMutexGroup() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInTheSameGroupButAllowed = HadooptestConstants.UserNames.HITUSR_1;
+		String acl = YAHOO_TEAM_MEMBERS + "," + userNotInTheSameGroupButAllowed;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, userNotInTheSameGroupButAllowed);
+				self, acl);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;

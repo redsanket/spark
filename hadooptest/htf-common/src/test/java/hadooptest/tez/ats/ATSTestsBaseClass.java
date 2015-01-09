@@ -87,6 +87,8 @@ public class ATSTestsBaseClass extends TestSession {
 	public static SeedData seedDataForAutoLaunchedSimpleSessionExample = null;
 	public static SeedData seedDataForAutoLaunchedOrderedWordCount = null;
 	public static SeedData seedDataForAutoLaunchedPigJob = new SeedData();
+	
+	public static String YAHOO_TEAM_MEMBERS = "tiwari,jeagles,mitdesai";
 
 	public enum EntityTypes {
 		TEZ_APPLICATION_ATTEMPT, TEZ_CONTAINER_ID, TEZ_DAG_ID, TEZ_VERTEX_ID, TEZ_TASK_ID, TEZ_TASK_ATTEMPT_ID,
@@ -125,6 +127,7 @@ public class ATSTestsBaseClass extends TestSession {
 
 	@Before
 	public void cleanupAndPrepareForTestRun() throws Exception {
+
 		TestSession.logger.info("Running cleanupAndPrepareForTestRun");
 		// Fetch cookies
 		HTTPHandle httpHandle = new HTTPHandle();
@@ -166,8 +169,6 @@ public class ATSTestsBaseClass extends TestSession {
 		TestSession.logger.info("RESOURCE MANAGER HOST:::::::::::::::::::::"
 				+ rmHost);
 
-		// restartRMWithTheseArgs(rmHost, new ArrayList<String>());
-
 	}
 
 	public void createUserGroupMapping() {
@@ -205,11 +206,12 @@ public class ATSTestsBaseClass extends TestSession {
 
 		StringBuilder sb = new StringBuilder();
 		for (String anArg : args) {
-			sb.append(" -D" + anArg + " ");
+			sb.append(" " + anArg + " ");
 		}
-		command = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
-				+ "/share/hadoop/sbin/yarn-daemon.sh start timelineserver"
-				+ sb.toString();
+		command = "YARN_ROOT_LOGGER=DEBUG,RFA /home/gs/gridre/yroot."
+				+ System.getProperty("CLUSTER_NAME")
+				+ "/share/hadoop/sbin/yarn-daemon.sh" + sb.toString()
+				+ " start timelineserver";
 		doJavaSSHClientExec(
 				HadooptestConstants.UserNames.MAPREDQA,
 				rmHost,
@@ -233,14 +235,17 @@ public class ATSTestsBaseClass extends TestSession {
 		for (String anArg : args) {
 			sb.append(" -D" + anArg + " ");
 		}
+
 		command = "/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/hadoop/sbin/yarn-daemon.sh start resourcemanager"
 				+ sb.toString();
+		TestSession.logger.info("About to start RM command:" + command);
 		doJavaSSHClientExec(
 				HadooptestConstants.UserNames.MAPREDQA,
 				rmHost,
 				command,
 				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+		TestSession.logger.info("After running the command");
 
 	}
 
@@ -362,7 +367,8 @@ public class ATSTestsBaseClass extends TestSession {
 		List<String> params = new ArrayList<String>();
 		params.add("outdir=/tmp/pigout/script2-mapreduce");
 		String scriptLocation = "/home/y/share/htf-data/script2-local.pig ";
-		HtfPigBaseClass htfPigBaseClass = new HtfPigBaseClass(TIMELINE_SEVICE.ENABLED);
+		HtfPigBaseClass htfPigBaseClass = new HtfPigBaseClass(
+				TIMELINE_SEVICE.ENABLED);
 		int returnCode = htfPigBaseClass.runPigScriptOnCluster(params,
 				scriptLocation);
 		Assert.assertTrue(returnCode == 0);
@@ -449,10 +455,10 @@ public class ATSTestsBaseClass extends TestSession {
 				ResponseComposition.PRIMARYFILTERS.EXPECTED,
 				ResponseComposition.OTHERINFO.NOT_EXPECTED);
 
-		// TODO: Change the user below to seedData.appStartedByUser		
+		// TODO: Change the user below to seedData.appStartedByUser
 		makeHttpCallAndEnqueueConsumedResponse(execService, getATSUrl()
-				+ "TEZ_DAG_ID" + filter, user, EntityTypes.TEZ_DAG_ID, dagIdQueue,
-				expectedEntities);
+				+ "TEZ_DAG_ID" + filter, user, EntityTypes.TEZ_DAG_ID,
+				dagIdQueue, expectedEntities);
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);
@@ -499,8 +505,8 @@ public class ATSTestsBaseClass extends TestSession {
 				execService,
 				// TODO: Change the user below to seedData.appStartedByUser
 				getATSUrl() + "TEZ_VERTEX_ID/" + vertexId,
-				HadooptestConstants.UserNames.HITUSR_1,
-				EntityTypes.TEZ_VERTEX_ID, vertexIdQueue, expectEverythingMap());
+				seedData.appStartedByUser, EntityTypes.TEZ_VERTEX_ID,
+				vertexIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
 			Thread.sleep(1000);
@@ -525,11 +531,8 @@ public class ATSTestsBaseClass extends TestSession {
 			SeedData.DAG.Vertex.Task aSeedTask, String taskId)
 			throws InterruptedException {
 		ExecutorService execService = Executors.newFixedThreadPool(10);
-		makeHttpCallAndEnqueueConsumedResponse(
-				execService,
-				// TODO: Change the user below to seedData.appStartedByUser
-				getATSUrl() + "TEZ_TASK_ID/" + taskId,
-				HadooptestConstants.UserNames.HITUSR_1,
+		makeHttpCallAndEnqueueConsumedResponse(execService, getATSUrl()
+				+ "TEZ_TASK_ID/" + taskId, seedData.appStartedByUser,
 				EntityTypes.TEZ_TASK_ID, taskIdQueue, expectEverythingMap());
 		execService.shutdown();
 		while (!execService.isTerminated()) {
@@ -861,14 +864,16 @@ public class ATSTestsBaseClass extends TestSession {
 			TestSession.logger
 					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 			TestSession.logger.info("Url:" + url);
-			TestSession.logger
-					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
-			TestSession.logger.info(userCookies);
 			TestSession.logger.info("USer:" + user + " Cookie:"
 					+ userCookies.get(user));
+			TestSession.logger
+					.info("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+			TestSession.logger.trace(userCookies);
 			Response response = given().cookie(userCookies.get(user)).get(url);
 
 			String responseAsString = response.getBody().asString();
+			TestSession.logger.info(" R E S P O N S E  C O D E: "
+					+ response.getStatusCode());
 			TestSession.logger.info("R E S P O N S E  B O D Y :"
 					+ responseAsString);
 			HtfATSUtils atsUtils = new HtfATSUtils();
@@ -896,9 +901,6 @@ public class ATSTestsBaseClass extends TestSession {
 			String url, String user, EntityTypes entityType,
 			Queue<GenericATSResponseBO> queue,
 			Map<String, Boolean> expectedEntities) throws InterruptedException {
-		/**
-		 * TODO: REMOVE THIS HITUSR_1 AND PASS THE user FROM ARG
-		 */		
 		RunnableHttpGetAndEnqueue runnableHttpGetAndEnqueue = new RunnableHttpGetAndEnqueue(
 				url, user, entityType, queue, expectedEntities);
 		execService.execute(runnableHttpGetAndEnqueue);
@@ -924,7 +926,7 @@ public class ATSTestsBaseClass extends TestSession {
 				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)) {
 			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_3;
 		} else if (aUser
-				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_3)) {
+				.equalsIgnoreCase(HadooptestConstants.UserNames.HITUSR_4)) {
 			keyTabLocation = HadooptestConstants.Location.Keytab.HITUSR_4;
 		}
 		UserGroupInformation ugi;
@@ -956,6 +958,16 @@ public class ATSTestsBaseClass extends TestSession {
 			throw new RuntimeException(e);
 		}
 		return ugi;
+	}
+
+	public void chmodOutputPath777Tmp() throws Exception {
+		DfsCliCommands dfsCliCommands = new DfsCliCommands();
+		dfsCliCommands.chmod(new HashMap<String, String>(),
+				HadooptestConstants.UserNames.HDFSQA,
+				HadooptestConstants.Schema.HDFS,
+				System.getProperty("CLUSTER_NAME"), "/tmp", "777",
+				Recursive.YES);
+
 	}
 
 	class DoAs {
@@ -1032,6 +1044,7 @@ public class ATSTestsBaseClass extends TestSession {
 			} else if (this.theJobToRun instanceof SimpleSessionExampleExtendedForTezHTF) {
 				TestSimpleSessionExample test = new TestSimpleSessionExample();
 				test.copyTheFileOnHdfs();
+				chmodOutputPath777Tmp();
 				boolean returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
 						.run(TestSimpleSessionExample.inputFilesOnHdfs,
 								TestSimpleSessionExample.outputPathsOnHdfs,

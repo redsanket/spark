@@ -46,8 +46,9 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 	@Test
 	public void testSelf() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
+		String acl = YAHOO_TEAM_MEMBERS + "," + self;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, self);
+				self, acl);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -103,11 +104,8 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 								polled, entityTypeBeingTested, entity));
 
 					}
-
 				}
-
 			}
-
 		}
 	}
 
@@ -115,8 +113,9 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 	public void testUsersInSameGroup() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String otherInSameGroup = HadooptestConstants.UserNames.HITUSR_4;
+		String acl = YAHOO_TEAM_MEMBERS + "," + self + "," + otherInSameGroup;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, self);
+				self, acl);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -172,11 +171,8 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 								polled, entityTypeBeingTested, entity));
 
 					}
-
 				}
-
 			}
-
 		}
 	}
 
@@ -184,8 +180,9 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 	public void testUserInMutexGroup() throws Exception {
 		String self = HadooptestConstants.UserNames.HITUSR_3;
 		String userNotInTheSameGroup = HadooptestConstants.UserNames.HITUSR_1;
+		String acl = YAHOO_TEAM_MEMBERS + "," + self;
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, self);
+				self, acl);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
@@ -199,22 +196,18 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 
 			String url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 			TestSession.logger.info("Processing:" + url);
-			makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-					userNotInTheSameGroup, currentQueue);
-			polled = currentQueue.poll();
-			Assert.assertFalse(atsUtils.isEntityPresentInResponse(polled,
-					entityTypeBeingTested, entity));
+			int responseCode = makeHttpRequestAndGetResponseCode(url,
+					userNotInTheSameGroup);
+			Assert.assertTrue(responseCode == 404);
 			for (Vertex aVertex : aDAG.vertices) {
 				entity = aVertex.id;
 				entityTypeBeingTested = EntityTypes.TEZ_VERTEX_ID;
 				currentQueue = vertexIdQueue;
 				url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 				TestSession.logger.info("Processing:" + url);
-				makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-						userNotInTheSameGroup, currentQueue);
-				polled = currentQueue.poll();
-				Assert.assertFalse(atsUtils.isEntityPresentInResponse(polled,
-						entityTypeBeingTested, entity));
+				responseCode = makeHttpRequestAndGetResponseCode(url,
+						userNotInTheSameGroup);
+				Assert.assertTrue(responseCode == 404);
 				for (Task aTask : aVertex.tasks) {
 					entity = aTask.id;
 					entityTypeBeingTested = EntityTypes.TEZ_TASK_ID;
@@ -222,11 +215,9 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 
 					url = getATSUrl() + entityTypeBeingTested + "/" + entity;
 					TestSession.logger.info("Processing:" + url);
-					makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-							userNotInTheSameGroup, currentQueue);
-					polled = currentQueue.poll();
-					Assert.assertFalse(atsUtils.isEntityPresentInResponse(
-							polled, entityTypeBeingTested, entity));
+					responseCode = makeHttpRequestAndGetResponseCode(url,
+							userNotInTheSameGroup);
+					Assert.assertTrue(responseCode == 404);
 					for (Attempt anAttempt : aTask.attempts) {
 						entity = anAttempt.id;
 						entityTypeBeingTested = EntityTypes.TEZ_TASK_ATTEMPT_ID;
@@ -234,12 +225,9 @@ public class TestAuthWhenUserSpecifiesSelfInACL extends AclDomainBaseClass {
 						url = getATSUrl() + entityTypeBeingTested + "/"
 								+ entity;
 						TestSession.logger.info("Processing:" + url);
-						makeHttpRequestAndEnqueue(url, entityTypeBeingTested,
-								userNotInTheSameGroup, currentQueue);
-						polled = currentQueue.poll();
-						Assert.assertFalse(atsUtils.isEntityPresentInResponse(
-								polled, entityTypeBeingTested, entity));
-
+						responseCode = makeHttpRequestAndGetResponseCode(url,
+								userNotInTheSameGroup);
+						Assert.assertTrue(responseCode == 404);
 					}
 
 				}

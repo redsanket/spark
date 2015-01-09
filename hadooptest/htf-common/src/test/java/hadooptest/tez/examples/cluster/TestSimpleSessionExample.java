@@ -105,6 +105,7 @@ public class TestSimpleSessionExample extends
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 	}
+		
 
 	@Test
 	public void testSimpleSessionExampleOnCluster() throws Exception {

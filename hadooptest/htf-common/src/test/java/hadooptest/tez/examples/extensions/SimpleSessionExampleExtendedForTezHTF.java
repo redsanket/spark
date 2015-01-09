@@ -79,7 +79,8 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 		 */
 		UserGroupInformation.setConfiguration(tezConf);
 		UserGroupInformation.setLoginUser(ugi);
-		tezConf.set("tez.am.dag.view-acls", acls);
+//		tezConf.set("tez.am.dag.view-acls", acls);
+		tezConf.set("tez.am.view-acls", acls);
 		
 
 		// start TezClient in session mode. The same code run in session mode or
