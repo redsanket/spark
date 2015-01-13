@@ -29,7 +29,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     stop();
   }
 
-  public void testCreateAccessDelete(String blobKey, String blobACLs) throws Exception {
+  public void testCreateAccessDelete(String blobKey, String blobACLs, String expectedListAcls) throws Exception {
     String fileName = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestStormDistCacheCli/input.txt";
     String[] returnValue = null;
     if (blobACLs == null) {
@@ -55,6 +55,13 @@ public class TestStormDistCacheCli extends TestSessionStorm {
             "set-acl", "-s", blobACLs == null ? "u:bogus:r-a,o::rwa" : blobACLs + ",o::r-a", blobKey}, true);
     assertTrue( "Could not set-acl the blob", setACLReturnValue[0].equals("0"));
 
+    String[] noOtherACLReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
+            "set-acl", "-s", blobACLs == null ? "o::rwa" : blobACLs, blobKey}, true);
+    assertTrue( "Could not reset-acl the blob with no other permissions", noOtherACLReturnValue[0].equals("0"));
+    // Storm makes sure admin priveleges are there so expected is different from set
+    findAclInFile(blobKey, expectedListAcls);
+
+    // set permissions back to include other to do update below
     String[] resetACLReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
             "set-acl", "-s", blobACLs == null ? "o::rwa" : blobACLs + ",o::rwa", blobKey}, true);
     assertTrue( "Could not reset-acl the blob", resetACLReturnValue[0].equals("0"));
@@ -129,9 +136,6 @@ public class TestStormDistCacheCli extends TestSessionStorm {
             "set-acl", blobKey }, true);
     assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
 
-    // Switch to superuser
-    kinit(conf.getProperty("BLOB_SUPERUSER_KEYTAB"), conf.getProperty("BLOB_SUPERUSER_PRINCIPAL") );
-
     // Make sure the one we want is there.
     findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":--a", superuserAcl);
 
@@ -141,9 +145,6 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
     // Make sure the one we want is there.
     findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
-
-    // switch back
-    kinit();
 
     // Now try to remove superuser acl
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -176,7 +177,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     return returnValue;
   }
 
-  Boolean findAclInFile(String blobKey, String... aclsToMatch) throws Exception {
+  void findAclInFile(String blobKey, String... aclsToMatch) throws Exception {
     int matchCount = 0;
 
     for (String acl : getAclsForFile(blobKey)) {
@@ -188,7 +189,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
         }
     }
     
-    return (matchCount == aclsToMatch.length);
+    assertEquals("Didn't find all the acls", aclsToMatch.length, matchCount);
   }
 
   public void launchBlobStoreTopology(String key, String filename) throws Exception {
@@ -246,8 +247,30 @@ public class TestStormDistCacheCli extends TestSessionStorm {
 
   @Test(timeout=600000)
   public void testDistCacheCli() throws Exception {
-    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":rwa");
-    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":r");
-    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", null);
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           "u:"+conf.getProperty("USER")+":rwa", 
+                           "u:"+conf.getProperty("USER")+":rwa");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           "u:"+conf.getProperty("USER")+":r", 
+                           "u:"+conf.getProperty("USER")+":r-a");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           "u:"+conf.getProperty("USER")+":--a", 
+                           "u:"+conf.getProperty("USER")+":--a");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           "u:"+conf.getProperty("USER")+":r-a", 
+                           "u:"+conf.getProperty("USER")+":r-a");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           "u:"+conf.getProperty("USER")+":-wa", 
+                           "u:"+conf.getProperty("USER")+":-wa");
+    // these are ok because storm should always add admin access for current owner
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           "u:"+conf.getProperty("USER")+":-w-", 
+                           "u:"+conf.getProperty("USER")+":-wa");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           "u:"+conf.getProperty("USER")+":rw-", 
+                           "u:"+conf.getProperty("USER")+":rwa");
+    testCreateAccessDelete(UUID.randomUUID().toString() + ".jar", 
+                           null, 
+                           "u:"+conf.getProperty("USER")+":--a");
   }
 }
