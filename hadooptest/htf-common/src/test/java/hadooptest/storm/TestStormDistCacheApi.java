@@ -191,6 +191,68 @@ public class TestStormDistCacheApi extends TestSessionStorm {
   }
 
   @Test(timeout=240000)
+  // The purpose of this test is to make sure we can list the acl with various permissions
+  public void testDistCacheUserSetAcls() throws Exception {
+    UUID uuid = UUID.randomUUID();
+    String blobKey = uuid.toString() + ".jar";
+    String blobContent = "Testing this blob content.";
+
+    // Create with acl list with user-wa and see what it does
+    ClientBlobStore clientBlobStore = getClientBlobStore();
+    List<AccessControl> acls = new LinkedList<AccessControl>();
+    AccessControl blobACL = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":r--");
+    acls.add(blobACL);
+    SettableBlobMeta settableBlobMeta = new SettableBlobMeta(acls);
+    createBlobWithContent(blobKey, blobContent, clientBlobStore, settableBlobMeta);
+
+    // Now verify hadoopqa (primary user) is in the acl list.
+    ReadableBlobMeta blobMeta = clientBlobStore.getBlobMeta(blobKey);
+    assertNotNull(blobMeta);
+    assertTrue("Hadoopqa was not found in the acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
+
+    //Now set admin only
+    AccessControl updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":--a");
+    List<AccessControl> updateAcls = new LinkedList<AccessControl>();
+    updateAcls.add(updateAcl);
+    SettableBlobMeta modifiedSettableBlobMeta = new SettableBlobMeta(updateAcls);
+    clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
+    assertTrue("Hadoopqa was not found in the modified acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":--a"));
+
+    //Now set write only - storm will add in admin
+    updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":-w-");
+    updateAcls = new LinkedList<AccessControl>();
+    updateAcls.add(updateAcl);
+    modifiedSettableBlobMeta = new SettableBlobMeta(updateAcls);
+    clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
+    assertTrue("Hadoopqa was not found in the modified acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":-wa"));
+
+    //Now set read/admin
+    updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":r-a");
+    updateAcls = new LinkedList<AccessControl>();
+    updateAcls.add(updateAcl);
+    modifiedSettableBlobMeta = new SettableBlobMeta(updateAcls);
+    clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
+    assertTrue("Hadoopqa was not found in the modified acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":r-a"));
+
+    //Now set write/admin
+    updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":-wa");
+    updateAcls = new LinkedList<AccessControl>();
+    updateAcls.add(updateAcl);
+    modifiedSettableBlobMeta = new SettableBlobMeta(updateAcls);
+    clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
+    assertTrue("Hadoopqa was not found in the modified acl list",
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":-wa"));
+
+    // Delete it
+    clientBlobStore.deleteBlob(blobKey);
+
+  }
+
+  @Test(timeout=240000)
   // The purpose of this test is to make sure that we can't create a blob that the owner cannot set acls on
   public void testDistCacheUserWithNoWriteAcl() throws Exception {
     UUID uuid = UUID.randomUUID();
@@ -245,11 +307,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     List<AccessControl> emptyAcls = new LinkedList<AccessControl>();
     modifiedSettableBlobMeta = new SettableBlobMeta(emptyAcls);
     clientBlobStore.setBlobMeta(blobKey, modifiedSettableBlobMeta);
-    // We have to use superuser permissions to read the acl list once we have turned off our own read permissions
-    kinit(conf.getProperty("BLOB_SUPERUSER_KEYTAB"), conf.getProperty("BLOB_SUPERUSER_PRINCIPAL") );
-    ClientBlobStore clientSUBlobStore = getClientBlobStore();
     assertTrue("Hadoopqa was not found in the empty acl list",
-        lookForAcl(clientSUBlobStore, blobKey, "u:"+conf.getProperty("USER")+":--a"));
+        lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":--a"));
 
     // Turn on rw again.
     updateAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":rwa");
@@ -262,9 +321,6 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
     // Delete it
     clientBlobStore.deleteBlob(blobKey);
-
-    // Restore user
-    kinit();
   }
 
   public boolean lookForAcl(ClientBlobStore clientBlobStore, String blobKey, String aclString) throws Exception {
