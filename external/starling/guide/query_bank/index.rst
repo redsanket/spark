@@ -6,27 +6,19 @@ This chapter contains commonly used queries and some advanced use cases for
 your reference. We'll be adding more queries and possibly categorize 
 the queries to help you better use Starling.
 
+Setting Up 
+==========
 
-Hive
-====
+Before you can run the Hive queries or Pig scripts in the sections below,
+you will need to do the 
 
-Before you use the queries in the following sections, you
-will want to do the following:
-
-- Get a Kerberos ticket: ``kinit {user_name}@Y.CORP.YAHOO.COM``
-- Increase the timeout by starting Hive with the following command: ``hive –hiveconf hive.metastore.client.socket.timeout=200``
-- Use a queue that you can access:
-  - View the queues that you have access to: ``mapred queue -showacls``
-  - Set the queue to use for executing queries::
-        
-        $ hive 
-        hive> set mapreduce.job.queuename=default;
-
+- Get a Kerberos ticket: `$ `kinit {user_name}@Y.CORP.YAHOO.COM``
+- Set the job queue to ``default``: ``$ set mapreduce.job.queuename=default``
 
 Starling Permissions
-####################
+--------------------
 
-To execute many of the Starling queries in this chapter, you need to be able to access the
+To execute many of the Starling queries and Pig scripts in this chapter, you need to be able to access the
 Starling table ``starling_jobs_confs``. Only members of the group ``ygrid_group_gpd`` group, however,
 have access to this table. If you do not have permission to the table, you will get the following error::
 
@@ -36,6 +28,13 @@ have access to this table. If you do not have permission to the table, you will 
 Unfortunately, we currently do not have a way to request membership to 
 ``ygrid_group_gpd``, but we are hoping to allow users to request membership
 in the near future. 
+
+Hive
+====
+
+Because some of the Hive queries will require more time to complete execution, we recommend that you
+increase the timeout by following command: ``hive –hiveconf hive.metastore.client.socket.timeout=200``
+
 
 Total Number of Jobs And Distribution Within a Month 
 ----------------------------------------------------
@@ -572,27 +571,144 @@ Find MapReduce Jobs Reading/Writing to /tmp
 **Example Output** 
 
 
-..
 
-.. Pig
-.. ===
-.. 
-.. To use Pig with Starling, you need to access the Starling Hive tables through HCatalog.
-.. Thus, you will need to start Pig with the option ``
-.. 
-.. Number of Jobs Run by a User
-.. ----------------------------
-.. 
-.. Pig Statements
-.. ##############
-.. 
-.. TBD
-.. 
-.. 
-.. Sample Result
-.. #############
-.. 
-.. TBD
+
+Pig
+===
+
+To use Pig with Starling, you need to access the Starling Hive tables through HCatalog.
+Thus, you will need to start Pig with the option `` -useHCatalog``.
+
+All Jobs
+--------
+
+Pig Statement
+#############
+
+::
+
+   A = load 'starling.starling_jobs' using org.apache.hive.hcatalog.pig.HCatLoader();
+   B = filter A by (dt >= '2014_01_01' AND  dt <= '2014_01_31');
+   C = group B all;
+   D = foreach C generate COUNT_STAR(B);
+   dump D;
+
+Sample Result
+#############
+
+::
+
+    19,538,923
+
+ 
+All Pig Jobs
+------------
+
+Pig Statement
+#############
+
+::
+
+   A = load 'starling.starling_job_confs' using org.apache.hive.hcatalog.pig.HCatLoader();
+   B = filter A by dt >= '2014_01_01' AND  dt <= '2014_01_31' AND params#'pig.script.id' is not null ;
+   C = group B all;
+   D = foreach C generate COUNT_STAR(B);
+   dump D;
+
+ 
+
+Sample Result
+#############
+
+::
+
+    10,124,557 (51.8% of all Jobs)
+
+
+All Pig Jobs From Oozie
+-----------------------
+
+Pig Statement
+#############
+
+::
+
+   A = load 'starling.starling_job_confs' using org.apache.hive.hcatalog.pig.HCatLoader();
+   B = filter A by dt >= '2014_01_01' AND  dt <= '2014_01_31' AND params#'pig.script.id' is not null AND params#'oozie.action.id' is not null;
+   C = group B all;
+   D = foreach C generate COUNT_STAR(B);
+   dump D;
+
+**Example Output**
+
+::
+
+   3,446,409
+
+All Hive Jobs From Oozie
+------------------------
+
+Pig Statement
+#############
+
+::
+
+    A = load 'starling.starling_job_confs' using org.apache.hive.hcatalog.pig.HCatLoader();
+    B = filter A by dt >= '2014_01_01' AND  dt <= '2014_01_31' AND params#'hive.query.id' is not null AND params#'oozie.action.id' is not null;
+    C = group B all;
+    D = foreach C generate COUNT(B);
+    dump D;
+
+**Example Output**
+
+
+::
+
+    179,255
+
+Number of Jobs Run by a User
+----------------------------
+
+Pig Statement
+#############
+
+::
+
+    A = load 'starling.starling_jobs' using org.apache.hive.hcatalog.pig.HCatLoader();
+    B = filter A by dt == '2014_12_01' AND  grid  == 'MR' AND user == 'dfsload';
+    C = group B all;
+    D = foreach C generate COUNT_STAR(B.job_id);
+    dump D;
+
+**Example Output**
+
+::
+
+    16003
+
+Number of Jobs Run Each Day
+---------------------------
+
+Pig Statement
+#############
+
+::
+
+    A = load 'starling.starling_jobs' using org.apache.hive.hcatalog.pig.HCatLoader();
+    B = filter A by dt >= '2014_12_11' AND  dt <= '2014_12_13' AND grid  == 'MB';
+    C = group B by dt;
+    D = foreach C generate COUNT_STAR(B), group;
+    dump D;
+
+**Example Output**
+
+::
+
+    12178       2011_12_11
+    8816        2011_12_12
+    8983        2011_12_13
+
+
 
 
 
