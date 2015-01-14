@@ -1565,8 +1565,8 @@ public final class ConsoleHandle
     }
     
     /**
-     * Returns  all the grids name as List<String>
-     * @return
+     * Returns  all the grids name as List
+     * @return List<String>
      */
     public List<String> getAllGridNames() {
     	List<String> gridNames = new ArrayList<String>();
@@ -1578,5 +1578,39 @@ public final class ConsoleHandle
     	assertTrue("There is no any grids installed " + gridNames.size() , gridNames.size() > 0);
     	return gridNames;
     }
+    
+    /**
+     * Returns the NameNode name of the specified cluster.
+     * @param clusterName
+     */
+    public String getClusterNameNodeName(String clusterName) {
+		String nameNodeName = null;
+		
+		String xml = this.getDataSourcetXml(clusterName);
+		TestSession.logger.info("*****************xml = " + xml);
+		XmlPath xmlPath = new XmlPath(xml);
+		if(xmlPath == null)  {
+			try {
+				throw new Exception("Could not able to create an instance of xmlPath");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		TestSession.logger.info("*****" + xmlPath.prettyPrint());
+		xmlPath.setRoot("DataSource");
+		String value = null;
+		List<String>clusterNames = xmlPath.getList("Interface.Command.BaseUrl");
+		assertTrue("Failed to get the name node name, please check whether datasource specification file." , clusterNames.size() > 0);
+		for (String n : clusterNames) {
+			TestSession.logger.info(n);
+		}
+		
+		// remove protocol name like webhdfs, hdfs etc, just return only namenode name.
+		String nn = clusterNames.get(0);
+		int indexOf = nn.indexOf("//") + 2;
+		nameNodeName = nn.substring(indexOf);
+		TestSession.logger.info(nameNodeName  + "  is the NameNode of  " + clusterName);
+		return nameNodeName;
+	}
 
 }
