@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.security.PrivilegedExceptionAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,12 +25,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.security.UserGroupInformation;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import com.jayway.restassured.path.json.JsonPath;
 
+import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.TestSession;
 
 /**
@@ -49,6 +59,16 @@ public class WorkFlowHelper {
 	private static final int PASS = 1;
 	private static final int FAIL = 0;
 	private final static String LOG_FILE = "/grid/0/yroot/var/yroots/FACET_NAME/home/y/libexec/yjava_tomcat/webapps/logs/FACET_NAME-application.log";
+	private String schema;
+	private static String PROTOCOL = "hdfs://";
+	private static String OWNER = "dfsload";
+	private static String GROUP = "users";
+	private static String KEYTAB_DIR = "keytabDir";
+	private static String KEYTAB_USER = "keytabUser";
+	private static String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
+	private static String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
+	private static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
+	
 	private HTTPHandle httpHandle;
 	private String cookie;
 
@@ -291,7 +311,7 @@ public class WorkFlowHelper {
 				if (reportPerformanceValue == true) {
 					collectDataForReporting(runningWorkFlowTestURL, "runningWorkflows" , dataSetName , Double.toString(minSystemLoad) , Double.toString(maxSystemLoad));
 				}
-				fail("Time out : looks like the " + dataSetName +"  dn't come to running state.");
+				fail("Time out : looks like " + dataSetName +"  did not come to running state in "  + facetName  + "  facet.");
 			}
 		} else if (isWorkFlowFailed) { // workflow is in failed state
 			TestSession.logger.info(facetName  + " failed : " + dataSetName + "  dataset \n Reason :  ");
@@ -784,7 +804,145 @@ public class WorkFlowHelper {
 			this.consoleHandle.sleep(15000);
 		}
 		// check whether did dataset was to completed state or not.
-		assertTrue("Failed : " + dataSetName + "  dataSet dn't came to completed state, may be the dataset is still in running state. ", didDataSetIsInCompletedState == true);
+		assertTrue("Failed : " + dataSetName + "  dataSet did n't came to completed state, may be the dataset is still in running state. ", didDataSetIsInCompletedState == true);
 	}
 
+	/**
+	 * set the hadoop user details , this is a helper method in creating the configuration object.
+	 */
+	public void setHadoopUserDetails() {
+		// Populate the details for DFSLOAD
+		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
+		fileOwnerUserDetails = new HashMap<String, String>();
+		fileOwnerUserDetails.put(KEYTAB_DIR, HadooptestConstants.Location.Keytab.DFSLOAD);
+		fileOwnerUserDetails.put(KEYTAB_USER, HadooptestConstants.UserNames.DFSLOAD + "@DEV.YGRID.YAHOO.COM");
+		fileOwnerUserDetails.put(OWNED_FILE_WITH_COMPLETE_PATH, "/tmp/"+ HadooptestConstants.UserNames.DFSLOAD + "Dir/" + HadooptestConstants.UserNames.DFSLOAD + "File");
+		fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS, HadooptestConstants.UserNames.HADOOPQA);
+
+		this.supportingData.put(HadooptestConstants.UserNames.DFSLOAD,fileOwnerUserDetails);
+		TestSession.logger.info("CHECK:" + this.supportingData);
+		this.schema = HadooptestConstants.Schema.HDFS;	
+	}
+
+	/**
+	 * Returns the remote cluster configuration object.
+	 * @param aUser  - user
+	 * @param nameNode - name of the cluster namenode.
+	 * @return
+	 */
+	Configuration getConfForRemoteFS(String nameNode) {
+		Configuration conf = new Configuration(true);
+		String namenodeWithChangedSchema = nameNode.replace(HadooptestConstants.Schema.HTTP,HadooptestConstants.Schema.HDFS);
+		TestSession.logger.info("********************* namenodeWithChangedSchema  = "  + namenodeWithChangedSchema);
+
+		String namenodeWithChangedSchemaAndPort =  this.PROTOCOL + namenodeWithChangedSchema.replace("50070", HadooptestConstants.Ports.HDFS);
+		TestSession.logger.info("For HDFS set the namenode to:[" + namenodeWithChangedSchemaAndPort + "]");
+		conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
+		conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
+		conf.set("hadoop.security.authentication", "true");
+		TestSession.logger.info(conf);
+		return conf;
+	}
+
+	/**
+	 * Returns the UGI of the specified user.
+	 * @param aUser
+	 * @return
+	 */
+	UserGroupInformation getUgiForUser(String aUser) {
+		String keytabUser = this.supportingData.get(aUser).get(KEYTAB_USER);
+		TestSession.logger.info("Set keytab user=" + keytabUser);
+		String keytabDir = this.supportingData.get(aUser).get(KEYTAB_DIR);
+		TestSession.logger.info("Set keytab dir=" + keytabDir);
+		UserGroupInformation ugi = null;
+		try {
+			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(keytabUser, keytabDir);
+			TestSession.logger.info("UGI=" + ugi);
+			TestSession.logger.info("credentials:" + ugi.getCredentials());
+			TestSession.logger.info("group names" + ugi.getGroupNames());
+			TestSession.logger.info("real user:" + ugi.getRealUser());
+			TestSession.logger.info("short user name:" + ugi.getShortUserName());
+			TestSession.logger.info("token identifiers:" + ugi.getTokenIdentifiers());
+			TestSession.logger.info("tokens:" + ugi.getTokens());
+			TestSession.logger.info("username:" + ugi.getUserName());
+			TestSession.logger.info("current user:" + UserGroupInformation.getCurrentUser());
+			TestSession.logger.info("login user:" + UserGroupInformation.getLoginUser());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return ugi;
+	}
+
+	/**
+	 * Invokes PrivilegedExceptionActionImpl class and helps in checking and changing user, group and permission of the file.
+	 * @param nameNodeName
+	 * @param path
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public void checkAndSetPermision(String nameNodeName , String path) throws IOException, InterruptedException {
+		TestSession.logger.info("checkAndSetPermision  ********  nameNodeName =   " + nameNodeName   + "     path = " + path );
+		
+		this.setHadoopUserDetails();
+		for (String aUser : this.supportingData.keySet()) {
+			TestSession.logger.info("aUser = " + aUser);
+			Configuration configuration = this.getConfForRemoteFS(nameNodeName );
+			UserGroupInformation ugi = this.getUgiForUser(aUser);
+
+			PrivilegedExceptionActionImpl privilegedExceptionActioniImplOject = new PrivilegedExceptionActionImpl(path , configuration);
+			String result = ugi.doAs(privilegedExceptionActioniImplOject);
+			TestSession.logger.info("Result = " + result);
+		}
+	}
+	
+	/**
+	 * Class that checks paths exists and change group , user and permission of the given path. 
+	 * 
+	 */
+	class PrivilegedExceptionActionImpl implements PrivilegedExceptionAction<String> {
+		Configuration configuration;
+		String basePath ;
+		String destinationFolder;
+		String srcFilePath;
+		String instanceFileCount;
+		List<String> instanceFolderNames;
+
+		public PrivilegedExceptionActionImpl(String basePath , Configuration configuration ) {
+			this.configuration = configuration;
+			this.basePath = basePath;
+		}
+
+		@Override
+		public String run() throws Exception {
+			String result = "fail";
+			TestSession.logger.info("configuration   =  " + this.configuration.toString());
+
+			FileSystem remoteFS = FileSystem.get(this.configuration);
+			Path path = new Path(this.basePath.trim());
+
+			// check whether remote path exists on the grid
+			if ( remoteFS.exists(path) ) {
+				if (remoteFS.isDirectory(path)) {
+					FileStatus fileStatus = remoteFS.getFileStatus(path);
+					String owner = fileStatus.getOwner();
+					TestSession.logger.info("Group = " + fileStatus.getGroup());
+					TestSession.logger.info("Owner = " + owner);
+					if (! owner.equals(WorkFlowHelper.OWNER)) {
+						remoteFS.setOwner(path, WorkFlowHelper.OWNER, WorkFlowHelper.GROUP);
+						TestSession.logger.info("Successfully changed owner and group for  " + path.toString());
+					}
+					FsPermission fsPermission = fileStatus.getPermission();
+					String pathPermission = fsPermission.getDirDefault().toString();
+					TestSession.logger.info("pathPermission = " + pathPermission );
+					if ( ! pathPermission.equals("drwxrwxrwx") ) {
+						remoteFS.setPermission(path, new  FsPermission(FsAction.ALL,FsAction.ALL,FsAction.ALL ));
+						TestSession.logger.info("Successfully changed permission for  " + path.toString());
+					}
+					result = "success";
+				}
+			}
+			return result;
+		}
+
+	}
 }
