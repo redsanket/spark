@@ -59,7 +59,6 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 		this.url =  this.consoleHandle.getConsoleURL();
 		helper = new WorkFlowHelper(); 	
 		
-		// select the grid be more dynamic
 		this.grids = this.consoleHandle.getAllGridNames();
 		TestSession.logger.info("Grids = " + grids);
 		// check whether secure cluster exists
@@ -68,7 +67,7 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 				this.targetGrid1 = "omegar";
 				this.targetGrid2 = "grima";
 			} else {
-				fail("Can't test doAs, since check whether omegaR and grima target is missing.");
+				fail("Test cannot run because one of the required grids (omegaR and grima) is missing.");
 			}
 		} else {
 			fail("There are only " + grids.size() + " grid and its not sufficient to test.. ");
@@ -78,7 +77,7 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 		this.targetGrid1_NameNode = this.consoleHandle.getClusterNameNodeName(this.targetGrid1);
 		this.targetGrid2_NameNode = this.consoleHandle.getClusterNameNodeName(this.targetGrid2);
 		
-		// check and change the group, owner and permission if they dn't meet the following requirement
+		// check and change the group, owner and permission if they did n't meet the following requirement
 		// Permission should be 777 for the destination path, group = users and owner = dfsload
 		this.helper.checkAndSetPermision(this.targetGrid1_NameNode, this.PATH); 
 		this.helper.checkAndSetPermision(this.targetGrid2_NameNode, this.PATH);

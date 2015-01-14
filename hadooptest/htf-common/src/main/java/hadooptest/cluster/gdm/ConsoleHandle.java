@@ -1600,7 +1600,7 @@ public final class ConsoleHandle
 		xmlPath.setRoot("DataSource");
 		String value = null;
 		List<String>clusterNames = xmlPath.getList("Interface.Command.BaseUrl");
-		assertTrue("Failed to get the name node name, please check whether datasource specification file." , clusterNames.size() > 0);
+		assertTrue("Failed to get the name node name, please check whether "+ clusterName +" datasource specification file exists." , clusterNames.size() > 0);
 		for (String n : clusterNames) {
 			TestSession.logger.info(n);
 		}

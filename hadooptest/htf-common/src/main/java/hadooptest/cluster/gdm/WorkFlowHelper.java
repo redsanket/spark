@@ -39,10 +39,8 @@ import net.sf.json.JSONSerializer;
 
 import com.jayway.restassured.path.json.JsonPath;
 
-import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-
-
+import hadooptest.TestSession;
 
 /**
  * This is the workflow helper class, having methods to check workflow and methods to create dataset files.
@@ -62,7 +60,7 @@ public class WorkFlowHelper {
 	private static final int FAIL = 0;
 	private final static String LOG_FILE = "/grid/0/yroot/var/yroots/FACET_NAME/home/y/libexec/yjava_tomcat/webapps/logs/FACET_NAME-application.log";
 	private String schema;
-	private static String PROCOTOL = "hdfs://";
+	private static String PROTOCOL = "hdfs://";
 	private static String OWNER = "dfsload";
 	private static String GROUP = "users";
 	private static String KEYTAB_DIR = "keytabDir";
@@ -313,7 +311,7 @@ public class WorkFlowHelper {
 				if (reportPerformanceValue == true) {
 					collectDataForReporting(runningWorkFlowTestURL, "runningWorkflows" , dataSetName , Double.toString(minSystemLoad) , Double.toString(maxSystemLoad));
 				}
-				fail("Time out : looks like the " + dataSetName +"  dn't come to running state in "  + facetName  + "  facet.");
+				fail("Time out : looks like " + dataSetName +"  did not come to running state in "  + facetName  + "  facet.");
 			}
 		} else if (isWorkFlowFailed) { // workflow is in failed state
 			TestSession.logger.info(facetName  + " failed : " + dataSetName + "  dataset \n Reason :  ");
@@ -806,7 +804,7 @@ public class WorkFlowHelper {
 			this.consoleHandle.sleep(15000);
 		}
 		// check whether did dataset was to completed state or not.
-		assertTrue("Failed : " + dataSetName + "  dataSet dn't came to completed state, may be the dataset is still in running state. ", didDataSetIsInCompletedState == true);
+		assertTrue("Failed : " + dataSetName + "  dataSet did n't came to completed state, may be the dataset is still in running state. ", didDataSetIsInCompletedState == true);
 	}
 
 	/**
@@ -832,12 +830,12 @@ public class WorkFlowHelper {
 	 * @param nameNode - name of the cluster namenode.
 	 * @return
 	 */
-	Configuration getConfForRemoteFS(String aUser , String nameNode) {
+	Configuration getConfForRemoteFS(String nameNode) {
 		Configuration conf = new Configuration(true);
 		String namenodeWithChangedSchema = nameNode.replace(HadooptestConstants.Schema.HTTP,HadooptestConstants.Schema.HDFS);
 		TestSession.logger.info("********************* namenodeWithChangedSchema  = "  + namenodeWithChangedSchema);
 
-		String namenodeWithChangedSchemaAndPort =  this.PROCOTOL + namenodeWithChangedSchema.replace("50070", HadooptestConstants.Ports.HDFS);
+		String namenodeWithChangedSchemaAndPort =  this.PROTOCOL + namenodeWithChangedSchema.replace("50070", HadooptestConstants.Ports.HDFS);
 		TestSession.logger.info("For HDFS set the namenode to:[" + namenodeWithChangedSchemaAndPort + "]");
 		conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
 		conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
@@ -888,7 +886,7 @@ public class WorkFlowHelper {
 		this.setHadoopUserDetails();
 		for (String aUser : this.supportingData.keySet()) {
 			TestSession.logger.info("aUser = " + aUser);
-			Configuration configuration = this.getConfForRemoteFS(aUser, nameNodeName );
+			Configuration configuration = this.getConfForRemoteFS(nameNodeName );
 			UserGroupInformation ugi = this.getUgiForUser(aUser);
 
 			PrivilegedExceptionActionImpl privilegedExceptionActioniImplOject = new PrivilegedExceptionActionImpl(path , configuration);
@@ -907,7 +905,7 @@ public class WorkFlowHelper {
 		String destinationFolder;
 		String srcFilePath;
 		String instanceFileCount;
-		List<String>instanceFolderNames;
+		List<String> instanceFolderNames;
 
 		public PrivilegedExceptionActionImpl(String basePath , Configuration configuration ) {
 			this.configuration = configuration;
