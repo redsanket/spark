@@ -194,8 +194,6 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 		} else {
 			fail("Failed to get instance files details on " + this.targetGrid1 + " with path = " + dataPath + " got size = " + filesJSONArray.size() );
 		}
-
-		
 	}
 
 	/**
