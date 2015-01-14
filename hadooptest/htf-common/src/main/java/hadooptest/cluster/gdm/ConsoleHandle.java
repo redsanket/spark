@@ -373,7 +373,7 @@ public final class ConsoleHandle
 		postBody.append("operation=1\n");
 
 		TestSession.logger.info("modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
-		TestSession.logger.info("** modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
+		//TestSession.logger.info("** modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
 		this.response = new Response(postMethod, false);
 		return this.response;
@@ -1562,6 +1562,21 @@ public final class ConsoleHandle
                 //List<String> hdfsPath = jsonPath.getList("Files.Path");
                 TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
                 return jsonPath;
+    }
+    
+    /**
+     * Returns  all the grids name as List<String>
+     * @return
+     */
+    public List<String> getAllGridNames() {
+    	List<String> gridNames = new ArrayList<String>();
+    	String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
+    	TestSession.logger.info("Test URL = " + testURL);
+    	com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
+    	JsonPath jsonPath = response.getBody().jsonPath();
+    	gridNames = jsonPath.getList("HadoopClusterVersions.ClusterName");
+    	assertTrue("There is no any grids installed " + gridNames.size() , gridNames.size() > 0);
+    	return gridNames;
     }
 
 }
