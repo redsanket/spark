@@ -88,9 +88,8 @@ public class VerifyAllFacetsWorkFlowAcrossHadoopVersionsTest extends TestSession
 			String dataSetName = "GDMWorkFlowTestBw_" + targetCluster1 + "_" + targetCluster2 + "_" + System.currentTimeMillis();
 			TestSession.logger.info("dataSetName  = "+dataSetName);
 			datasets.add(dataSetName);
-			TestSession.logger.info("dataSetName  = "+dataSetName);
-
-			// Read the base dataset file
+			
+			// Read the base dataset file 
 			String dataSetXml = this.console.getDataSetXml(this.baseDataSetName);
 
 			// get target names
@@ -179,23 +178,17 @@ public class VerifyAllFacetsWorkFlowAcrossHadoopVersionsTest extends TestSession
 	 */
 	public List<String> createTestMatrix() {
 		
-		// Get all the installed grids
-		List<String> tempGrids = this.console.getAllInstalledGridName();
-		List<String> grids = new ArrayList<String>();
+		List<String> grids = this.console.getAllGridNames();
 		List<String> targets = new ArrayList<String>();
-		
-		// remove target that starting with gdm-target
-		for ( String gridName : tempGrids) {
-			if ( !gridName.startsWith("gdm-target") )
-				grids.add(gridName);
-		}
 
 		TestSession.logger.info("Installed grids = " + grids);
 
 		for ( int i=0;i<grids.size() - 1 ; i++) {
 			for ( int j = i + 1; j< grids.size() ; j++) {
 				TestSession.logger.info(grids.get(i) + ":" +grids.get(j));
-				targets.add(grids.get(i) + ":" +grids.get(j));
+				if (! (grids.get(i).trim().equals((grids.get(j))))) {
+					targets.add(grids.get(i) + ":" +grids.get(j));
+				}
 			}
 		}
 		
