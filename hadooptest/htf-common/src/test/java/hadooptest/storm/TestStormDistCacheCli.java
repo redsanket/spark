@@ -195,7 +195,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
   public void launchBlobStoreTopology(String key, String filename) throws Exception {
     String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
     String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology",
-        "blob", "-c", "topology.blobstore.map={\""+key+"\":\""+filename+"\"}" }, true);
+        "blob", "-c", "topology.blobstore.map={\""+key+"\": {\"localname\": \""+filename+"\"}}" }, true);
     assertTrue( "Could not launch topology", returnValue[0].equals("0") );
   }
 
@@ -224,10 +224,8 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     logger.debug("permissions result = " + permsResult);
 
     assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals("This is original content."));
-    // Accepting both rwxrwx and rw-rw- until YSTORM-470 is addressed
     assertTrue("File was not created with proper permissions",
-        permsResult.equals(conf.getProperty("USER")+":rwxrwx---") || 
-        permsResult.equals(conf.getProperty("USER")+":rw-rw----"));
+        permsResult.equals(conf.getProperty("USER")+":r--rw----"));
     killAll();
 
     String[] deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
