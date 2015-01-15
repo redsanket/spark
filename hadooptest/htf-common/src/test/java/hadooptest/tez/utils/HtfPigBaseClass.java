@@ -65,30 +65,31 @@ public class HtfPigBaseClass extends TestSession {
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public static HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	private static boolean dataVerifiedOnce = false;
-	private boolean timeLineServerEnabled=false;
+	private boolean timeLineServerEnabled = false;
 
 	protected static List<String> fileNames = new ArrayList<String>();
-	public enum TIMELINE_SEVICE{
-		ENABLED,
-		DISABLED
+
+	public enum TIMELINE_SEVICE {
+		ENABLED, DISABLED
 	};
 
 	static {
 		fileNames.add("/20130309/");
 		fileNames.add("/20130310/");
 	}
-	public HtfPigBaseClass(){
+
+	public HtfPigBaseClass() {
 		super();
 	}
 
-	public HtfPigBaseClass(TIMELINE_SEVICE timelineServer ){
-		if (timelineServer.equals(TIMELINE_SEVICE.ENABLED)){
-		this.timeLineServerEnabled = true;
-		}else{
+	public HtfPigBaseClass(TIMELINE_SEVICE timelineServer) {
+		if (timelineServer.equals(TIMELINE_SEVICE.ENABLED)) {
+			this.timeLineServerEnabled = true;
+		} else {
 			this.timeLineServerEnabled = false;
 		}
 	}
-	
+
 	/**
 	 * Before a test runs, ensure that it has canned data to work off of.
 	 * 
@@ -150,6 +151,7 @@ public class HtfPigBaseClass extends TestSession {
 		}
 
 	}
+
 	public int printVersion() throws Exception {
 		TestSession.logger.info("Retrieveing PIG version..now:");
 		StringBuilder sb = new StringBuilder();
@@ -191,23 +193,28 @@ public class HtfPigBaseClass extends TestSession {
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");
 		sb.append(" ").append("-x tez").append(" ");
-		//TODO: Remove the following statement after 
-		//http://bug.corp.yahoo.com/show_bug.cgi?id=7205383 is addressed
-		if (timeLineServerEnabled){
-			sb.append("-Dyarn.timeline-service.enabled=true").append(" ");
+		// TODO: Remove the following statement after
+		// http://bug.corp.yahoo.com/show_bug.cgi?id=7205383 is addressed
+		if (timeLineServerEnabled) {
+			sb.append("-Dyarn.timeline-service.enabled=true")
+					.append(" ")
+					.append("-Dtez.history.logging.service.class=org.apache.tez.dag.history.logging.ats.ATSHistoryLoggingService")
+					.append(" ")
+					.append("-Dtez.runtime.convert.user-payload.to.history-text=true")
+					.append(" ");
 		}
-		
+
 		sb.append(" -f " + scriptWithLocation);
-		
-		for (String aParam:params){
+
+		for (String aParam : params) {
 			sb.append(" -param " + aParam);
-		}		
+		}
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>();
-		
+
 		environmentVariablesWrappingTheCommand.put("PIG_HOME",
 				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 						+ "/share/pig");
