@@ -195,7 +195,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
   public void launchBlobStoreTopology(String key, String filename) throws Exception {
     String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
     String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology",
-        "blob", "-c", "topology.blobstore.map={\""+key+"\":\""+filename+"\"}" }, true);
+        "blob", "-c", "topology.blobstore.map={\""+key+"\": {\"localname\": \""+filename+"\"}}" }, true);
     assertTrue( "Could not launch topology", returnValue[0].equals("0") );
   }
 

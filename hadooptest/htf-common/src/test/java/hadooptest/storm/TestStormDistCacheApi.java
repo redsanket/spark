@@ -43,7 +43,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
   public void launchBlobStoreTopology(String key, String filename) throws Exception {
     String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
-    String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology", "blob", "-c", "topology.blobstore.map={\""+key+"\":\""+filename+"\"}" }, true);
+    String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology", "blob", "-c", "topology.blobstore.map={\""+key+"\": { \"localname\" : \""+filename+"\"}}" }, true);
     assertTrue( "Could not launch topology", returnValue[0].equals("0") );
   }
 
@@ -136,10 +136,8 @@ public class TestStormDistCacheApi extends TestSessionStorm {
         } else {
             assertTrue("Did not get expected result back from blobstore topology",
                 drpcResult.equals(blobContent));
-            // Accepting both rwxrwx and rw-rw- until YSTORM-470 is addressed
             assertTrue("Did not get expected result back from permissions check",
-                permsResult.equals(conf.getProperty("USER")+":rwxrwx---") ||
-                permsResult.equals(conf.getProperty("USER")+":rw-rw----"));
+                permsResult.equals(conf.getProperty("USER")+":r--rw----"));
         }
 
         String modifiedBlobContent = "This is modified integration content";
