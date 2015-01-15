@@ -381,6 +381,14 @@ public class YahooStormCluster extends ModifiableStormCluster {
     	ystormConf.unsetConf(key);
     }
 
+    public void unsetConf(String key, StormDaemon daemon) throws Exception {
+    	ystormConf.unsetConf(key, daemon);
+    }
+
+    public void setConf(String key, Object value, StormDaemon daemon) throws Exception {
+        ystormConf.setConf(key, value, daemon);
+    }
+
     public void setConf(String key, Object value) throws Exception {
     	ystormConf.setConf(key, value);
     }
@@ -565,7 +573,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     public void setDrpcInvocationAuthAclForFunction(String function, String user)  
             throws Exception {
         
-        setConf("drpc_auth_acl_" + function + "_invocation_user", user);
+        setConf("drpc_auth_acl_" + function + "_invocation_user", user, StormDaemon.DRPC);
     }
 
     /**
@@ -581,7 +589,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     public void setDrpcClientAuthAclForFunction(String function, String user) 
             throws Exception {
 
-        setConf("drpc_auth_acl_" + function + "_client_users", user);
+        setConf("drpc_auth_acl_" + function + "_client_users", user, StormDaemon.DRPC);
     } 
     
     /**
