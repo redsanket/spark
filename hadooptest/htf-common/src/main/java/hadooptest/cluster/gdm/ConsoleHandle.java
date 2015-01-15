@@ -373,7 +373,7 @@ public final class ConsoleHandle
 		postBody.append("operation=1\n");
 
 		TestSession.logger.info("modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
-		TestSession.logger.info("** modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
+		//TestSession.logger.info("** modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
 		this.response = new Response(postMethod, false);
 		return this.response;
@@ -1563,5 +1563,54 @@ public final class ConsoleHandle
                 TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
                 return jsonPath;
     }
+    
+    /**
+     * Returns  all the grids name as List
+     * @return List<String>
+     */
+    public List<String> getAllGridNames() {
+    	List<String> gridNames = new ArrayList<String>();
+    	String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
+    	TestSession.logger.info("Test URL = " + testURL);
+    	com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
+    	JsonPath jsonPath = response.getBody().jsonPath();
+    	gridNames = jsonPath.getList("HadoopClusterVersions.ClusterName");
+    	assertTrue("There is no any grids installed " + gridNames.size() , gridNames.size() > 0);
+    	return gridNames;
+    }
+    
+    /**
+     * Returns the NameNode name of the specified cluster.
+     * @param clusterName
+     */
+    public String getClusterNameNodeName(String clusterName) {
+		String nameNodeName = null;
+		
+		String xml = this.getDataSourcetXml(clusterName);
+		TestSession.logger.info("*****************xml = " + xml);
+		XmlPath xmlPath = new XmlPath(xml);
+		if(xmlPath == null)  {
+			try {
+				throw new Exception("Could not able to create an instance of xmlPath");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		TestSession.logger.info("*****" + xmlPath.prettyPrint());
+		xmlPath.setRoot("DataSource");
+		String value = null;
+		List<String>clusterNames = xmlPath.getList("Interface.Command.BaseUrl");
+		assertTrue("Failed to get the name node name, please check whether "+ clusterName +" datasource specification file exists." , clusterNames.size() > 0);
+		for (String n : clusterNames) {
+			TestSession.logger.info(n);
+		}
+		
+		// remove protocol name like webhdfs, hdfs etc, just return only namenode name.
+		String nn = clusterNames.get(0);
+		int indexOf = nn.indexOf("//") + 2;
+		nameNodeName = nn.substring(indexOf);
+		TestSession.logger.info(nameNodeName  + "  is the NameNode of  " + clusterName);
+		return nameNodeName;
+	}
 
 }

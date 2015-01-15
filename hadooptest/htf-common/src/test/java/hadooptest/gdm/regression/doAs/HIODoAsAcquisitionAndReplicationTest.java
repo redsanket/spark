@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import hadooptest.TestSession;
@@ -39,6 +40,10 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 	private static final int SUCCESS = 200;
 	private static String startDate = "20110607" ;
 	private static String endDate = "20110610" ;
+	private static final String PATH = "/data/daqdev/";
+	private String targetGrid1_NameNode;
+	private String targetGrid2_NameNode;
+	private List<String> grids = new ArrayList<String>();
 
 	@BeforeClass
 	public static void startTestSession() {
@@ -52,9 +57,30 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 		HTTPHandle httpHandle = new HTTPHandle();
 		this.cookie = httpHandle.getBouncerCookie();
 		this.url =  this.consoleHandle.getConsoleURL();
-		this.targetGrid1 = "grima";
-		this.targetGrid2 = "omegar";
 		helper = new WorkFlowHelper(); 	
+		
+		this.grids = this.consoleHandle.getAllGridNames();
+		TestSession.logger.info("Grids = " + grids);
+		// check whether secure cluster exists
+		if (this.grids.size() > 2 ) {
+			if (this.grids.contains("omegar")  && this.grids.contains("grima")) {
+				this.targetGrid1 = "omegar";
+				this.targetGrid2 = "grima";
+			} else {
+				fail("Test cannot run because one of the required grids (omegaR and grima) is missing.");
+			}
+		} else {
+			fail("There are only " + grids.size() + " grid and its not sufficient to test.. ");
+		}
+		
+		// Get namenode name of target cluster
+		this.targetGrid1_NameNode = this.consoleHandle.getClusterNameNodeName(this.targetGrid1);
+		this.targetGrid2_NameNode = this.consoleHandle.getClusterNameNodeName(this.targetGrid2);
+		
+		// check and change the group, owner and permission if they did n't meet the following requirement
+		// Permission should be 777 for the destination path, group = users and owner = dfsload
+		this.helper.checkAndSetPermision(this.targetGrid1_NameNode, this.PATH); 
+		this.helper.checkAndSetPermision(this.targetGrid2_NameNode, this.PATH);
 	}
 
 	@Test
