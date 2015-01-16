@@ -35,7 +35,6 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      export JAVA_HOME=$GSHOME/java/jdk ; \
      kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
      echo installing Tez into hdfs ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -rm -R /tmp/output/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
      echo after chmoding -R 755 /sharelib ; \
@@ -50,9 +49,6 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 644 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
      echo after -chmod 644 /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez/lib/*.jar ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/conf/tez/tez-site.xml /tmp/ ; \
-     echo Running hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=default /tmp/tez-site.xml /tmp/output/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls /sharelib/v1/tez/ytez-$TEZVERSION/ "
 fanoutOneTez "$cmd"
 fi
