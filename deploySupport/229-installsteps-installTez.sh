@@ -19,9 +19,13 @@ cmd="echo installing Tez on Tez hosts ; \
      echo Tez version as I see it ; \
      readlink /home/gs/tez "
 fanoutTez "$cmd"
-#fanoutOneTez "$cmd"
 st=$?
 [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez <<<<<<<<<<" && exit $st
+
+fanoutTez_UI "$cmd"
+st=$?
+[ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez_UI <<<<<<<<<<" && exit $st
+
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      export TEZ_HOME=/home/gs/tez/ ; \
      export HADOOP_HOME=$GSHOME/hadoop/current ; \

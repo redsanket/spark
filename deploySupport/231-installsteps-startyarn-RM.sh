@@ -44,4 +44,9 @@ echo == starting up yarn JobHistoryServer.
         echo '$YARN_HOME/sbin/mr-jobhistory-daemon.sh start historyserver'
     )  | ssh $jobtrackernode su - $MAPREDUSER
 
+echo == starting up yarn TimelineServer.
+   (
+	cat $tmpfile
+	echo '$YARN_HOME/sbin/yarn-daemon.sh start timelineserver'
+   )   | ssh $jobtrackernode su - $MAPREDUSER
 fi

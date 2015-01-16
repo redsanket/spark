@@ -236,7 +236,7 @@ echo installing onto $1....
 export EXIT_ON_ERROR=true
 
 if [[ "${INSTALL_TEZ}" == only ]]; then
-    f=${base}/258-installsteps-installTez.sh
+    f=${base}/229-installsteps-installTez.sh
     banner running $f
     . "$f"
     st=$?
