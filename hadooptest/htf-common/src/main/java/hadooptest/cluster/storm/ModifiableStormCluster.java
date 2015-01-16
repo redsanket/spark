@@ -21,4 +21,6 @@ public abstract class ModifiableStormCluster extends StormCluster {
     public abstract String getBouncerUser() throws Exception;
     public abstract String getBouncerPassword() throws Exception;
     public abstract String getWorkerPid( String host, String port ) throws Exception;
+    public abstract Boolean turnOffNimbusSupervisor();
+    public abstract void turnOnNimbusSupervisor();
 }
