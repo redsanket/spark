@@ -10,15 +10,24 @@ import backtype.storm.utils.Utils;
 import backtype.storm.blobstore.BlobStoreAclHandler;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import static org.junit.Assume.assumeTrue;
 
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,12 +37,14 @@ import static org.junit.Assert.*;
 
 @Category(SerialTests.class)
 public class TestStormDistCacheApi extends TestSessionStorm {
+  int MAX_RETRIES = 10;
 
   @BeforeClass
   public static void setup() throws Exception {
     start();
     cluster.setDrpcAclForFunction("blobstore");
     cluster.setDrpcAclForFunction("permissions");
+    cluster.setDrpcAclForFunction("md5");
   }
 
   @AfterClass
@@ -335,6 +346,127 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     return foundAcl;
   }
 
+    public String blobFileMD5 (String blobFile) throws Exception {
+        String line = "md5sum " + blobFile;
+        CommandLine cmdline = CommandLine.parse(line);
+        DefaultExecutor executor = new DefaultExecutor();
+        DefaultExecuteResultHandler handler=new DefaultExecuteResultHandler();
+        ByteArrayOutputStream stdout=new ByteArrayOutputStream();
+        executor.setStreamHandler(new PumpStreamHandler(stdout));
+        executor.execute(cmdline, handler);
+        while (!handler.hasResult()) {
+            try {
+                handler.waitFor();
+            }
+            catch (InterruptedException e) {
+                logger.info ("error in executing md5: " + e.getMessage());
+            }
+        }
+        if (handler.getExitValue()!=0) {
+            return ("MD5 return value is not 0, bad execution");
+        } else {
+            String[] split = stdout.toString().split(" ");
+            return split[0];
+        }
+    }
+
+    @Test(timeout = 1000*30*60)
+    // The purpose of this test is to make sure that large blobs do not overwrite each other, and that the whole
+    // system can cope with large file transfers.
+    public void testLargeBlob() throws Exception {
+        String tmpDir = conf.getProperty("STORM_TMP_DIR");
+        assumeTrue(tmpDir != null);
+        String file1 = tmpDir + "/file1";
+        String file2 = tmpDir + "/file2";
+        String topoBlobName = "blobFile";
+        ClientBlobStore clientBlobStore = getClientBlobStore();
+
+        makeRandomTempFile(file1, 4096);
+        makeRandomTempFile(file2, 4096);
+        String md5hash1 = blobFileMD5(file1);
+        String md5hash2 = blobFileMD5(file2);
+
+        UUID uuid = UUID.randomUUID();
+        String blobKey = uuid.toString();
+        String blobACLs = "o::rwa";
+        SettableBlobMeta blobMeta = makeAclBlobMeta(blobACLs);
+        assertNotNull(blobMeta);
+        Boolean nimbusHasSupervisor = false;
+        try {
+            nimbusHasSupervisor = turnOffNimbusSupervisor();
+            logger.info("About to create first blob");
+            createBlobFromFile(blobKey, file1, clientBlobStore, blobMeta);
+            logger.info("First blob created");
+
+            // Launch a topology that will read a local file we give it over drpc
+            logger.info("Launching the topology");
+            launchBlobStoreTopology(blobKey, topoBlobName);
+
+            logger.info("Test phase 1");
+            // Wait a minute for the topology to come up.
+            logger.info("Waiting until the DRPC topology starts.");
+            Util.sleep(150);
+            // Hit it with drpc function
+            // We should wait until the DRPC topology starts before hitting it with a DRPCExecute.
+            //It should finish in about 90~100 seconds, and we add a minute for safety margin
+            logger.info("About to call DRPC");
+            String md5Result = cluster.DRPCExecute("md5", topoBlobName);
+            logger.info("drpc result = " + md5Result);
+
+            //Running MD5 on a 4GB blob should take about 10 seconds
+            assertTrue("1. Did not get the expected MD5 for blob. Expecting md5hash1: " + md5hash1 + " received: " + md5Result,
+                    md5Result.equalsIgnoreCase(md5hash1));
+
+            logger.info("Test phase 2");
+            updateBlobFromFile(blobKey, file2, clientBlobStore);  //This is a blocking call, when it returns Nimbus has the updated blob
+            Util.sleep(10);
+            //Not enough time for the new key to propagate from Nimbus to supervisor. Worker should still return the old MD5
+            md5Result = cluster.DRPCExecute("md5", topoBlobName);
+            assertTrue("2. Did not get the expected MD5 for blob. Expecting md5hash1: " + md5hash1 + " received: " + md5Result,
+                    md5Result.equalsIgnoreCase(md5hash1));
+
+            //This should be enough time for the new key to propagate to supervisor (30 seconds update frequency +
+            // about a minute to upload the new file). The worker should return the new MD5
+            logger.info("Test phase 3");
+            int numTries = MAX_RETRIES;
+            do {
+                Util.sleep(60);
+                md5Result = cluster.DRPCExecute("md5", topoBlobName);
+                numTries--;
+                logger.info("Still waiting for the proper MD5 (step 3, LargeBlob). Will wait for " + numTries + " more minutes");
+            } while (!md5Result.equalsIgnoreCase(md5hash2) && numTries>0);
+            assertTrue("3. Did not get the expected MD5 for blob. Expecting md5hash2: " + md5hash2 + " received: " + md5Result,
+                    md5Result.equalsIgnoreCase(md5hash2));
+
+            logger.info("Test phase 4");
+            updateBlobFromFile(blobKey, file1, clientBlobStore);
+            Util.sleep(10);
+            //Not enough time for the new key to propagate to supervisor. Worker should still return the old MD5
+            md5Result = cluster.DRPCExecute("md5", topoBlobName);
+            assertTrue("4. Did not get the expected MD5 for blob. Expecting md5hash2: " + md5hash2 + " received: " + md5Result,
+                    md5Result.equalsIgnoreCase(md5hash2));
+
+            //This should be enough time for the new key to propagate to supervisor (30 seconds update frequency +
+            // less than a minute to upload the new file). The worker should return the new MD5
+            logger.info("Test phase 5");
+            numTries = MAX_RETRIES;
+            do {
+                Util.sleep(60);
+                md5Result = cluster.DRPCExecute("md5", topoBlobName);
+                numTries--;
+                logger.info("Still waiting for the proper MD5 (step 5, LargeBlob). Will wait for " + numTries + " more minutes");
+            } while (!md5Result.equalsIgnoreCase(md5hash1) && numTries>0);
+            assertTrue("5. Did not get the expected MD5 for blob. Expecting md5hash1: " + md5hash1 + " received: " + md5Result,
+                    md5Result.equalsIgnoreCase(md5hash1));
+        } finally {
+            killAll();
+            clientBlobStore.deleteBlob(blobKey);
+            if (nimbusHasSupervisor) {
+                turnOnNimbusSupervisor();
+            }
+        }
+    }
+
   @Test(timeout=600000)
   public void testDistCacheApi() throws Exception {
     UUID uuid = UUID.randomUUID();
@@ -457,6 +589,41 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     }
     return keyFound;
   }
+
+    private void fillBlobStreamFromFile(AtomicOutputStream blobStream, String fileName) throws AuthorizationException, KeyAlreadyExistsException, IOException,KeyNotFoundException {
+        logger.info("About to fill Blob Stream from File");
+        File inputFile = new File(fileName);
+        byte[] bytes = new byte[1024*1024];
+        BufferedInputStream bs = new BufferedInputStream(new FileInputStream( inputFile ));
+        int pos = 0;
+        int numRead = -1;
+        logger.info ("About to read from the bufferedInputStream for the first time");
+        while ( (numRead = bs.read(bytes, 0, 1024*1024) ) > 0 ) {
+            blobStream.write(bytes, 0, numRead );
+            pos += numRead;
+        }
+        blobStream.close();
+        bs.close();
+    }
+
+    private void updateBlobFromFile(String blobKey, String fileName, ClientBlobStore clientBlobStore) throws AuthorizationException, KeyAlreadyExistsException, IOException,KeyNotFoundException {
+        logger.info("About to update blob. New content from <" + fileName + "> for key " + blobKey);
+        AtomicOutputStream blobStream = clientBlobStore.updateBlob(blobKey);
+        fillBlobStreamFromFile(blobStream, fileName);
+    }
+
+
+    private void createBlobFromFile(String blobKey, String fileName, ClientBlobStore clientBlobStore, SettableBlobMeta settableBlobMeta) throws AuthorizationException, KeyAlreadyExistsException, IOException,KeyNotFoundException {
+        logger.info("About to transfer content from <" + fileName + "> for key " + blobKey);
+        printACLs("  attempting to Create", settableBlobMeta);
+        logger.info("About to create a blob from the given key: " + blobKey + " and bloBmeta: ");
+        AtomicOutputStream blobStream = clientBlobStore.createBlob(blobKey, settableBlobMeta);
+        fillBlobStreamFromFile(blobStream, fileName);
+        logger.info("Finished fill Blob Stream from File");
+
+        ReadableBlobMeta blobMeta = clientBlobStore.getBlobMeta(blobKey);
+        printACLs("  after Create from File", blobMeta.get_settable());
+    }
 
   private void updateBlobWithContent(String blobKey, ClientBlobStore clientBlobStore, String modifiedBlobContent) throws KeyNotFoundException, AuthorizationException, IOException {
     AtomicOutputStream blobOutputStream = clientBlobStore.updateBlob(blobKey);
