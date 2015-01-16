@@ -22,9 +22,9 @@ fanoutTez "$cmd"
 st=$?
 [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez <<<<<<<<<<" && exit $st
 
-fanoutTez_UI "$cmd"
+fanoutTezUI "$cmd"
 st=$?
-[ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez_UI <<<<<<<<<<" && exit $st
+[ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTezUI <<<<<<<<<<" && exit $st
 
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/ ; \
      export TEZ_HOME=/home/gs/tez/ ; \

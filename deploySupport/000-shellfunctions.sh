@@ -170,8 +170,8 @@ fanoutOneTez() {
    return $st
 }
 
-fanoutTez_UI() {
-  echo 'fanoutTez_UI: start on ' `date +%H:%M:%S`
+fanoutTezUI() {
+  echo 'fanoutTezUI: start on ' `date +%H:%M:%S`
   if [ -z $jobtrackernode ]; then
      echo ERROR: Not define grid_re.clusters.$cluster.jobtracker
      return 1
@@ -182,7 +182,6 @@ fanoutTez_UI() {
   echo 'fanoutTez_UI: end on ' `date +%H:%M:%S`
   return $st
 }
-
 
 fanoutGW() {
    # echo fanoutGW: running "$@" 
