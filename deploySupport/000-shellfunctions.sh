@@ -177,7 +177,7 @@ fanoutTezUI() {
      return 1
   fi 
   TEZ_UI_NODE_LIST=`echo $jobtrackernode | tr ' ' ,`
-  pdsh -w "$TEZ_UI_NODE_LIST -u 600 -f 25 -S $*
+  pdsh -w "$TEZ_UI_NODE_LIST" -u 600 -f 25 -S $*
   st=$?
   echo 'fanoutTez_UI: end on ' `date +%H:%M:%S`
   return $st
