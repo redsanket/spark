@@ -67,15 +67,15 @@ public class HtfPigBaseClass extends TestSession {
 	private static boolean dataVerifiedOnce = false;
 	private boolean timeLineServerEnabled = false;
 
-	protected static List<String> fileNames = new ArrayList<String>();
+	protected static List<String> abfDailyDataDirs = new ArrayList<String>();
 
 	public enum TIMELINE_SEVICE {
 		ENABLED, DISABLED
 	};
 
 	static {
-		fileNames.add("/20130309/");
-		fileNames.add("/20130310/");
+		abfDailyDataDirs.add("20130309");
+		abfDailyDataDirs.add("20130310");
 	}
 
 	public HtfPigBaseClass() {
@@ -102,50 +102,39 @@ public class HtfPigBaseClass extends TestSession {
 			DfsCliCommands dfsCommonCli = new DfsCliCommands();
 			logger.info("running ensurePigDataPresenceinClusterBeforeTest");
 			String aCluster = System.getProperty("CLUSTER_NAME");
+			GenericCliResponseBO doesFileExistResponseBO;
 
-			for (String aFileName : fileNames) {
-				GenericCliResponseBO doesFileExistResponseBO;
-				if (aFileName.contains("/")) {
-					// This is a directory
-					doesFileExistResponseBO = dfsCommonCli.test(
-							EMPTY_ENV_HASH_MAP,
-							HadooptestConstants.UserNames.HDFSQA,
-							HadooptestConstants.Schema.NONE, aCluster,
-							PIG_DATA_DIR_IN_HDFS + aFileName,
-							DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
+			doesFileExistResponseBO = dfsCommonCli.test(EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA,
+					HadooptestConstants.Schema.NONE, aCluster,
+					PIG_DATA_DIR_IN_HDFS + abfDailyDataDirs.get(1),
+					DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
 
-				} else {
-					doesFileExistResponseBO = dfsCommonCli.test(
-							EMPTY_ENV_HASH_MAP,
-							HadooptestConstants.UserNames.HDFSQA,
-							HadooptestConstants.Schema.NONE, aCluster,
-							PIG_DATA_DIR_IN_HDFS + aFileName,
-							DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+			if (doesFileExistResponseBO.process.exitValue() != 0) {
+				dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
+						HadooptestConstants.Schema.NONE, aCluster,
+						PIG_DATA_DIR_IN_HDFS);
 
-				}
-
-				if (doesFileExistResponseBO.process.exitValue() != 0) {
-					dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
-							HadooptestConstants.UserNames.HDFSQA,
-							HadooptestConstants.Schema.NONE, aCluster,
-							PIG_DATA_DIR_IN_HDFS);
+				for (String anAbfDailyDir : abfDailyDataDirs) {
 					dfsCommonCli.put(EMPTY_ENV_HASH_MAP,
 							HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.NONE, aCluster,
-							DATA_DIR_IN_LOCAL_FS + "/" + aFileName,
+							DATA_DIR_IN_LOCAL_FS + "/" + anAbfDailyDir,
 							PIG_DATA_DIR_IN_HDFS);
-
 				}
+				/**
+				 * Since hdfsqa 'put's the files over and 'hadoopqa' is
+				 * generally the user, chmod 777 the dirs recursively for
+				 * subsequent access.
+				 */
+				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
+						HadooptestConstants.Schema.NONE,
+						System.getProperty("CLUSTER_NAME"), "/HTF", "777",
+						Recursive.YES);
+
 			}
-			/**
-			 * Since hdfsqa 'put's the files over and 'hadoopqa' is generally
-			 * the user, chmod 777 the dirs recursively for subsequent access.
-			 */
-			dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
-					HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.NONE,
-					System.getProperty("CLUSTER_NAME"), "/HTF", "777",
-					Recursive.YES);
 
 			dataVerifiedOnce = true;
 		}
