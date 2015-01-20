@@ -376,9 +376,46 @@ public class YahooStormCluster extends ModifiableStormCluster {
             		"ssh and yinst returned an error code.");		
 		}
     }
-    
+
+    public Boolean turnOffNimbusSupervisor() {
+        try {
+            ArrayList<String> nimbusRoles = lookupRole(StormDaemon.NIMBUS);
+            String nimbusMachine = nimbusRoles.get(0);
+            ArrayList<String> supervisorRoles = lookupRole(StormDaemon.SUPERVISOR);
+            if (supervisorRoles.contains(nimbusMachine)) {
+                TestSessionStorm.logger.info("Nimbus node has a Supervisor running. Turning it off.");
+                stopDaemonNode(StormDaemon.SUPERVISOR, nimbusMachine);
+                return true;
+            } else {
+                TestSessionStorm.logger.info("Nimbus node did NOT have a Supervisor running. Will not try to turn it off.");
+            }
+        } catch (Exception ignore) {
+
+        }
+        return false;
+    }
+
+    public void turnOnNimbusSupervisor() {
+        try {
+            ArrayList<String> nimbusRoles = lookupRole(StormDaemon.NIMBUS);
+            String nimbusMachine = nimbusRoles.get(0);
+            TestSessionStorm.logger.info("Starting a Supervisor on the Nimbus node.");
+            startDaemonNode(StormDaemon.SUPERVISOR, nimbusMachine);
+        } catch (Exception ignore) {
+
+        }
+    }
+
     public void unsetConf(String key) throws Exception {
     	ystormConf.unsetConf(key);
+    }
+
+    public void unsetConf(String key, StormDaemon daemon) throws Exception {
+    	ystormConf.unsetConf(key, daemon);
+    }
+
+    public void setConf(String key, Object value, StormDaemon daemon) throws Exception {
+        ystormConf.setConf(key, value, daemon);
     }
 
     public void setConf(String key, Object value) throws Exception {
@@ -565,7 +602,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     public void setDrpcInvocationAuthAclForFunction(String function, String user)  
             throws Exception {
         
-        setConf("drpc_auth_acl_" + function + "_invocation_user", user);
+        setConf("drpc_auth_acl_" + function + "_invocation_user", user, StormDaemon.DRPC);
     }
 
     /**
@@ -581,7 +618,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
     public void setDrpcClientAuthAclForFunction(String function, String user) 
             throws Exception {
 
-        setConf("drpc_auth_acl_" + function + "_client_users", user);
+        setConf("drpc_auth_acl_" + function + "_client_users", user, StormDaemon.DRPC);
     } 
     
     /**
