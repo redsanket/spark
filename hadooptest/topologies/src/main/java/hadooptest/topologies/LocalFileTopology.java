@@ -22,6 +22,7 @@ import backtype.storm.tuple.Values;
 
 import hadooptest.workflow.storm.topology.bolt.LocalFileBolt;
 import hadooptest.workflow.storm.topology.bolt.ListFileBolt;
+import hadooptest.workflow.storm.topology.bolt.MD5Bolt;
 
 public class LocalFileTopology {
     private static Logger LOG = Logger.getLogger(LocalFileTopology.class);
@@ -51,6 +52,11 @@ public class LocalFileTopology {
         builder.setSpout("perms", permsSpout, 1);
         builder.setBolt("permsbolt", new ListFileBolt(), 1).shuffleGrouping("perms");
         builder.setBolt("rrperms", new ReturnResults()).globalGrouping("permsbolt");
+
+        DRPCSpout md5Spout = new DRPCSpout("md5");
+        builder.setSpout("md5spout", md5Spout, 1);
+        builder.setBolt("md5bolt", new MD5Bolt(), 1).shuffleGrouping("md5spout");
+        builder.setBolt("rrmd5", new ReturnResults()).globalGrouping("md5bolt");
 
 
         Config storm_conf = new Config();

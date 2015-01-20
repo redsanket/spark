@@ -65,30 +65,31 @@ public class HtfPigBaseClass extends TestSession {
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	public static HashMap<String, Boolean> pathsChmodedSoFar = new HashMap<String, Boolean>();
 	private static boolean dataVerifiedOnce = false;
-	private boolean timeLineServerEnabled=false;
+	private boolean timeLineServerEnabled = false;
 
-	protected static List<String> fileNames = new ArrayList<String>();
-	public enum TIMELINE_SEVICE{
-		ENABLED,
-		DISABLED
+	protected static List<String> abfDailyDataDirs = new ArrayList<String>();
+
+	public enum TIMELINE_SEVICE {
+		ENABLED, DISABLED
 	};
 
 	static {
-		fileNames.add("/20130309/");
-		fileNames.add("/20130310/");
+		abfDailyDataDirs.add("20130309");
+		abfDailyDataDirs.add("20130310");
 	}
-	public HtfPigBaseClass(){
+
+	public HtfPigBaseClass() {
 		super();
 	}
 
-	public HtfPigBaseClass(TIMELINE_SEVICE timelineServer ){
-		if (timelineServer.equals(TIMELINE_SEVICE.ENABLED)){
-		this.timeLineServerEnabled = true;
-		}else{
+	public HtfPigBaseClass(TIMELINE_SEVICE timelineServer) {
+		if (timelineServer.equals(TIMELINE_SEVICE.ENABLED)) {
+			this.timeLineServerEnabled = true;
+		} else {
 			this.timeLineServerEnabled = false;
 		}
 	}
-	
+
 	/**
 	 * Before a test runs, ensure that it has canned data to work off of.
 	 * 
@@ -101,55 +102,45 @@ public class HtfPigBaseClass extends TestSession {
 			DfsCliCommands dfsCommonCli = new DfsCliCommands();
 			logger.info("running ensurePigDataPresenceinClusterBeforeTest");
 			String aCluster = System.getProperty("CLUSTER_NAME");
+			GenericCliResponseBO doesFileExistResponseBO;
 
-			for (String aFileName : fileNames) {
-				GenericCliResponseBO doesFileExistResponseBO;
-				if (aFileName.contains("/")) {
-					// This is a directory
-					doesFileExistResponseBO = dfsCommonCli.test(
-							EMPTY_ENV_HASH_MAP,
-							HadooptestConstants.UserNames.HDFSQA,
-							HadooptestConstants.Schema.NONE, aCluster,
-							PIG_DATA_DIR_IN_HDFS + aFileName,
-							DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
+			doesFileExistResponseBO = dfsCommonCli.test(EMPTY_ENV_HASH_MAP,
+					HadooptestConstants.UserNames.HDFSQA,
+					HadooptestConstants.Schema.NONE, aCluster,
+					PIG_DATA_DIR_IN_HDFS + abfDailyDataDirs.get(1),
+					DfsCliCommands.FILE_SYSTEM_ENTITY_DIRECTORY);
 
-				} else {
-					doesFileExistResponseBO = dfsCommonCli.test(
-							EMPTY_ENV_HASH_MAP,
-							HadooptestConstants.UserNames.HDFSQA,
-							HadooptestConstants.Schema.NONE, aCluster,
-							PIG_DATA_DIR_IN_HDFS + aFileName,
-							DfsCliCommands.FILE_SYSTEM_ENTITY_FILE);
+			if (doesFileExistResponseBO.process.exitValue() != 0) {
+				dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
+						HadooptestConstants.Schema.NONE, aCluster,
+						PIG_DATA_DIR_IN_HDFS);
 
-				}
-
-				if (doesFileExistResponseBO.process.exitValue() != 0) {
-					dfsCommonCli.mkdir(EMPTY_ENV_HASH_MAP,
-							HadooptestConstants.UserNames.HDFSQA,
-							HadooptestConstants.Schema.NONE, aCluster,
-							PIG_DATA_DIR_IN_HDFS);
+				for (String anAbfDailyDir : abfDailyDataDirs) {
 					dfsCommonCli.put(EMPTY_ENV_HASH_MAP,
 							HadooptestConstants.UserNames.HDFSQA,
 							HadooptestConstants.Schema.NONE, aCluster,
-							DATA_DIR_IN_LOCAL_FS + "/" + aFileName,
+							DATA_DIR_IN_LOCAL_FS + "/" + anAbfDailyDir,
 							PIG_DATA_DIR_IN_HDFS);
-
 				}
+				/**
+				 * Since hdfsqa 'put's the files over and 'hadoopqa' is
+				 * generally the user, chmod 777 the dirs recursively for
+				 * subsequent access.
+				 */
+				dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
+						HadooptestConstants.UserNames.HDFSQA,
+						HadooptestConstants.Schema.NONE,
+						System.getProperty("CLUSTER_NAME"), "/HTF", "777",
+						Recursive.YES);
+
 			}
-			/**
-			 * Since hdfsqa 'put's the files over and 'hadoopqa' is generally
-			 * the user, chmod 777 the dirs recursively for subsequent access.
-			 */
-			dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP,
-					HadooptestConstants.UserNames.HDFSQA,
-					HadooptestConstants.Schema.NONE,
-					System.getProperty("CLUSTER_NAME"), "/HTF", "777",
-					Recursive.YES);
 
 			dataVerifiedOnce = true;
 		}
 
 	}
+
 	public int printVersion() throws Exception {
 		TestSession.logger.info("Retrieveing PIG version..now:");
 		StringBuilder sb = new StringBuilder();
@@ -191,23 +182,28 @@ public class HtfPigBaseClass extends TestSession {
 		sb.append("/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 				+ "/share/pig/bin/pig");
 		sb.append(" ").append("-x tez").append(" ");
-		//TODO: Remove the following statement after 
-		//http://bug.corp.yahoo.com/show_bug.cgi?id=7205383 is addressed
-		if (timeLineServerEnabled){
-			sb.append("-Dyarn.timeline-service.enabled=true").append(" ");
+		// TODO: Remove the following statement after
+		// http://bug.corp.yahoo.com/show_bug.cgi?id=7205383 is addressed
+		if (timeLineServerEnabled) {
+			sb.append("-Dyarn.timeline-service.enabled=true")
+					.append(" ")
+					.append("-Dtez.history.logging.service.class=org.apache.tez.dag.history.logging.ats.ATSHistoryLoggingService")
+					.append(" ")
+					.append("-Dtez.runtime.convert.user-payload.to.history-text=true")
+					.append(" ");
 		}
-		
+
 		sb.append(" -f " + scriptWithLocation);
-		
-		for (String aParam:params){
+
+		for (String aParam : params) {
 			sb.append(" -param " + aParam);
-		}		
+		}
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
 		String[] commandFrags = commandString.split("\\s+");
 		Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>();
-		
+
 		environmentVariablesWrappingTheCommand.put("PIG_HOME",
 				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 						+ "/share/pig");
