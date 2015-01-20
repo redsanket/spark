@@ -55,7 +55,7 @@ public class TestAuthWhenUserSpecifiesUserAndGroupComboInACL extends
 				implicitUserBelongingToSpecifiedGroup,
 				implicitUserBelongingToSameGroup };
 		SeedData seedData = launchSimpleSessionExampleExtendedForTezHTFAndGetSeedData(
-				self, explicitUser + "," + otherGroupAllowed);
+				self, explicitUser+","+implicitUserBelongingToSameGroup + " " + otherGroupAllowed);
 
 		EntityTypes entityTypeBeingTested;
 		Queue<GenericATSResponseBO> currentQueue;
