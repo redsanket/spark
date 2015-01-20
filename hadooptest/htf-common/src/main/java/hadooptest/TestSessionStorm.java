@@ -9,7 +9,13 @@ import hadooptest.automation.utils.http.Response;
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
 import hadooptest.cluster.storm.ModifiableStormCluster;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.DataInputStream;
+import java.io.FileOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
@@ -115,6 +121,83 @@ public abstract class TestSessionStorm extends TestSessionCore {
  
     private static void cleanupCluster() throws Exception {
         cluster.cleanup();
+    }
+
+    public static void makeRandomTempFile(String filename, int numMb) throws Exception {
+        makeRandomTempFile(filename, numMb, false);
+    }
+
+    public static void makeRandomTempFile(String filename, int numMb, Boolean forceCreate ) throws Exception {
+        if (!forceCreate) {
+            try {
+                File theFile = new File(filename);
+                if ( theFile != null) {
+                    // See if it is all there or not.
+                    Long sizeInBytes = new Long(numMb) * 1024 * 1024;
+                    logger.info("Testing file size >="+sizeInBytes);
+                    Long fileLength = theFile.length();
+                    logger.info("File is "+ fileLength + " bytes");
+                    if ( fileLength >= sizeInBytes ) {
+                        return;
+                    }
+                }
+            } catch (Exception ignore) {
+                // Ignoring exceptions, will just recreate file
+            }
+        }
+        String[] ddReturnValue = exec.runProcBuilder(new String[] {
+                "dd", "if=/dev/urandom", "of=/tmp/OneMbRand", "bs=1M", "count=1" }, true);
+        if (!ddReturnValue[0].equals("0")) {
+            throw new IOException("Could not create random one megabyte temp file at " +
+                    "/tmp/OneMbRand" + " of size " + "1 Mb" );
+        }
+
+        FileInputStream fin;
+        DataInputStream din;
+        FileOutputStream fout;
+        DataOutputStream dout;
+        byte[] b = new byte [1024*1024];
+        try {
+            fin = new FileInputStream ("/tmp/OneMbRand");
+            din = new DataInputStream(fin);
+            din.read(b, 0, 1024*1024);
+            fin.close();
+            fout = new FileOutputStream (filename);
+            dout = new DataOutputStream(fout);
+            for (int reps=0; reps < numMb; reps++) {
+                dout.write(b);
+            }
+            fout.close();
+            File fileIn = new File("/tmp/OneMbRand");
+            fileIn.delete();
+        } catch (Exception e)
+        {
+            throw (new RuntimeException(e));
+        }
+    }
+
+    //Turn on/off the supervisor running on the same node as Nimbus
+    public static Boolean turnOffNimbusSupervisor() {
+        ModifiableStormCluster mc;
+        if (cluster instanceof ModifiableStormCluster) {
+            mc = (ModifiableStormCluster) cluster;            //Only do this for modifiable cluster
+            if (mc != null) {
+                logger.info("In TestSessionStorm, about to call mc.turnOffNimbusSupervisor()");
+                return mc.turnOffNimbusSupervisor();
+            }
+        }
+        return false;
+    }
+
+    //Turn on/off the supervisor running on the same node as Nimbus
+    public static void turnOnNimbusSupervisor() {
+        ModifiableStormCluster mc;
+        if (cluster instanceof ModifiableStormCluster) {
+            mc = (ModifiableStormCluster) cluster;            //Only do this for modifiable cluster
+            if (mc != null) {
+                mc.turnOnNimbusSupervisor();
+            }
+        }
     }
 
     /**
@@ -242,5 +325,24 @@ public abstract class TestSessionStorm extends TestSessionCore {
 
     protected String getLogForTopology(String topoName) throws Exception {
         return getLogForTopology( topoName, 0 );
+    }
+
+    protected void kinit(String keytab, String principal) throws Exception {
+        logger.debug("About to kinit to " + principal + " with keytab " + keytab );
+        String[] kinitReturnValue = exec.runProcBuilder(new String[] { "kinit", "-kt", keytab, principal }, true);
+        if (!kinitReturnValue[0].equals("0")) {
+            throw new IllegalArgumentException("Could not kinit to " + principal + " from keytab " + keytab );
+        }
+
+        // We need to sleep to make sure that the ticket cache file is written before we use it
+        Util.sleep(10);
+
+        // Debug.  Let's do a klist and see what's there
+        String[] klistReturnValue = exec.runProcBuilder(new String[] { "klist" }, true);
+        logger.info("Principal is now " + klistReturnValue[1]);
+    }
+    
+    protected void kinit() throws Exception {
+        kinit(conf.getProperty("DEFAULT_KEYTAB"), conf.getProperty("DEFAULT_PRINCIPAL") );
     }
 }
