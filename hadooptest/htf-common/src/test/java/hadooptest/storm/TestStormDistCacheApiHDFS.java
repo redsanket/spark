@@ -29,6 +29,7 @@ public class TestStormDistCacheApiHDFS extends TestStormDistCacheApi {
         mc = (ModifiableStormCluster)cluster;
         cluster.setDrpcAclForFunction("blobstore");
         cluster.setDrpcAclForFunction("permissions");
+        cluster.setDrpcAclForFunction("md5");
         if (mc != null) {
             mc.setConf("NIMBUS_EXTRA_CLASSPATHS", conf.getProperty("HADOOP_CLASSPATH"), StormDaemon.NIMBUS);
             mc.setConf("SUPERVISOR_EXTRA_CLASSPATHS", conf.getProperty("HADOOP_CLASSPATH"), StormDaemon.SUPERVISOR);
