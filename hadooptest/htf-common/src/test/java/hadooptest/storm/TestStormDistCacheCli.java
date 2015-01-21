@@ -192,6 +192,25 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertEquals("Didn't find all the acls", aclsToMatch.length, matchCount);
   }
 
+
+  // uncompress flag indicates whether storm should uncompress the blob
+  public void launchBlobStoreTopologyWithUncompressFlag(String key, String filename, boolean uncompress) throws Exception {
+    String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
+    String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, 
+        "hadooptest.topologies.LocalFileTopology",
+        "blob", "-c", 
+        "topology.blobstore.map={\""+key+"\": {\"localname\": \""+filename+"\" , \"uncompress\": "+uncompress+"}}" }, true);
+    assertTrue( "Could not launch topology", returnValue[0].equals("0") );
+  }
+
+  // when blobstore map is empty, it uses the key as the local filename
+  public void launchBlobStoreTopologyEmptyMap(String key) throws Exception {
+    String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
+    String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology",
+        "blob", "-c", "topology.blobstore.map={\""+key+"\": {}}" }, true);
+    assertTrue( "Could not launch topology", returnValue[0].equals("0") );
+  }
+
   public void launchBlobStoreTopology(String key, String filename) throws Exception {
     String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
     String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", pathToJar, "hadooptest.topologies.LocalFileTopology",
@@ -199,48 +218,117 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertTrue( "Could not launch topology", returnValue[0].equals("0") );
   }
 
-  public void testCreateModifyFromTopology(String blobKey, String blobACLs) throws Exception {
-    String fileName = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestStormDistCacheCli/input.txt";
-    String[] returnValue = null;
-    if (blobACLs == null) {
-        returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-                "create", blobKey,
-                "-f", fileName }, true);
-    } else {
-        returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-                "create", blobKey,
-                "-f", fileName, "-a", blobACLs}, true);
+  public void testCreateModifyFromTopology(String blobKey, String blobACLs, boolean useLocalName) throws Exception {
+     String fileName = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestStormDistCacheCli/input.txt";
+     String[] returnValue = null;
+     if (blobACLs == null) {
+         returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
+                 "create", blobKey,
+                 "-f", fileName }, true);
+     } else {
+         returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
+                 "create", blobKey,
+                 "-f", fileName, "-a", blobACLs}, true);
+     }
+     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
+
+    try {
+      String expectedBlobName = "myFile";
+      if (useLocalName) {
+        launchBlobStoreTopology( blobKey, expectedBlobName );
+      } else {
+        expectedBlobName = blobKey;
+        launchBlobStoreTopologyEmptyMap( blobKey);
+      }
+      Util.sleep(30); 
+  
+      // Hit it with drpc function
+      String drpcResult = cluster.DRPCExecute( "blobstore", expectedBlobName );
+      logger.debug("drpc result = " + drpcResult);
+  
+      String permsResult = cluster.DRPCExecute( "permissions", expectedBlobName );
+      logger.debug("permissions result = " + permsResult);
+  
+      assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals("This is original content."));
+      assertTrue("File was not created with proper permissions",
+          permsResult.equals(conf.getProperty("USER")+":r--rw----"));
+    } finally {
+        killAll();
+
+        String[] deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
+                "delete", blobKey}, true);
+        assertTrue( "Could not delete the blob", deleteReturnValue[0].equals("0"));
     }
+  }
+
+  public void testBlobUncompressFlagFromTopology(String blobKey, boolean uncompress) throws Exception {
+    String fileName = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestStormDistCacheCli/test.tgz";
+    String[] returnValue = null;
+      returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
+            "create", blobKey, "-f", fileName }, true);
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
+    
+    try {
+      String expectedBlobName = "myFile.tgz";
+      launchBlobStoreTopologyWithUncompressFlag( blobKey, expectedBlobName, uncompress );
+      Util.sleep(30); 
+   
+      // use permissions check to make sure file was uncompressed 
+      if (uncompress) {
+        String permsResult = cluster.DRPCExecute( "permissions", expectedBlobName );
+        logger.debug("permissions result = " + permsResult);
+        assertTrue("File was not created with proper permissions",
+          permsResult.equals(conf.getProperty("USER")+":r-xrwx---"));
+    
+        permsResult = cluster.DRPCExecute( "permissions", expectedBlobName + "/testxfile.sh" );
+        logger.debug("permissions result = " + permsResult);
+        assertTrue("File was not created with proper permissions",
+          permsResult.equals(conf.getProperty("USER")+":r-xrw----"));
+    
+        permsResult = cluster.DRPCExecute( "permissions", expectedBlobName + "/testdir/foo.txt" );
+        logger.debug("permissions result = " + permsResult);
+        assertTrue("File was not created with proper permissions",
+          permsResult.equals(conf.getProperty("USER")+":r--rw----"));
+    
+      } else {
+        String permsResult = cluster.DRPCExecute( "permissions", expectedBlobName );
+        logger.debug("permissions result = " + permsResult);
+   
+        assertTrue("File was not created with proper permissions",
+          permsResult.equals(conf.getProperty("USER")+":r--rw----"));
+      }
+    } finally {
+        killAll();
 
-    launchBlobStoreTopology( blobKey, "myFile" );
-    Util.sleep(30); 
+        String[] deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
+                "delete", blobKey}, true);
+        assertTrue( "Could not delete the blob", deleteReturnValue[0].equals("0"));
+    }
+  }
 
-    // Hit it with drpc function
-    String drpcResult = cluster.DRPCExecute( "blobstore", "myFile" );
-    logger.debug("drpc result = " + drpcResult);
+  @Test(timeout=240000)
+  public void testTopoWithFullAclCompressedFlagOff() throws Exception {
+    testBlobUncompressFlagFromTopology(UUID.randomUUID().toString() + ".tgz", false);
+  }
 
-    String permsResult = cluster.DRPCExecute( "permissions", "myFile" );
-    logger.debug("permissions result = " + permsResult);
+  @Test(timeout=240000)
+  public void testTopoWithFullAclCompressedFlagOn() throws Exception {
+    testBlobUncompressFlagFromTopology(UUID.randomUUID().toString() + ".tgz", true);
+  }
 
-    assertTrue("Did not get expected result back from blobstore topology", drpcResult.equals("This is original content."));
-    assertTrue("File was not created with proper permissions",
-        permsResult.equals(conf.getProperty("USER")+":r--rw----"));
-    killAll();
-
-    String[] deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-            "delete", blobKey}, true);
-    assertTrue( "Could not delete the blob", deleteReturnValue[0].equals("0"));
+  @Test(timeout=240000)
+  public void testTopoWithFullAclEmptyMap() throws Exception {
+    testCreateModifyFromTopology(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":rwa", false);
   }
 
   @Test(timeout=240000)
   public void testTopoWithFullAcl() throws Exception {
-    testCreateModifyFromTopology(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":rwa");
+    testCreateModifyFromTopology(UUID.randomUUID().toString() + ".jar", "u:"+conf.getProperty("USER")+":rwa", true);
   }
 
   @Test(timeout=240000)
   public void testTopoWithNoAcl() throws Exception {
-    testCreateModifyFromTopology(UUID.randomUUID().toString() + ".jar", null);
+    testCreateModifyFromTopology(UUID.randomUUID().toString() + ".jar", null, true);
   }
 
   @Test(timeout=600000)
