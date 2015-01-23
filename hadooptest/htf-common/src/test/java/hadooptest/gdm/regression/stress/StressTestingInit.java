@@ -3,8 +3,6 @@ package hadooptest.gdm.regression.stress;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-
-import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
@@ -20,7 +18,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.junit.Test;
+
 
 /**
  * Class that creates the instance(s) and instance files on the source cluster.
@@ -28,23 +26,25 @@ import org.junit.Test;
  */
 public class StressTestingInit   {
 
-	private static String PROCOTOL = "hdfs://";
-
-	private static String KEYTAB_DIR = "keytabDir";
-	private static String KEYTAB_USER = "keytabUser";
-	private static String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
-	private static String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
+	private static final String PROCOTOL = "hdfs://";
+	private static final String KEYTAB_DIR = "keytabDir";
+	private static final String KEYTAB_USER = "keytabUser";
+	private static final String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
+	private static final String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
+	private static final String PATH = "/data/daqdev";
 	private static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
-
-	private static String PATH = "/data/daqdev/";
+	private List<String> instance ;
 	private String schema;
 	private String dataSourceFolderName;
 	private String noOfInstance;
 	private String noOfFilesInInstance;
-	private List<String> instance ;
 	private String deploymentSuffixName;
 	private String sourceFilePath;
 	private String nameNodeName;
+	
+	public StressTestingInit() {
+		
+	}
 
 	public StressTestingInit(String deploymentSuffixName , String noOfInstance , String noOfFilesInInstance , String nameNodeName) throws  NumberFormatException, Exception {
 		this.deploymentSuffixName =  deploymentSuffixName;
@@ -107,6 +107,10 @@ public class StressTestingInit   {
 	public List<String> getInstances() {
 		return this.instance;
 	}
+	
+	public HashMap<String, HashMap<String, String>> getSupportingDataMap(){
+		return this.supportingData;
+	}
 
 	public void execute() throws IOException, InterruptedException {
 		for (String aUser : this.supportingData.keySet()) {
@@ -114,8 +118,8 @@ public class StressTestingInit   {
 			Configuration configuration = getConfForRemoteFS();
 			UserGroupInformation ugi = getUgiForUser(aUser);
 
-			PrivilegedExceptionActionImpl privilegedExceptionActioniImplOject = new PrivilegedExceptionActionImpl(this.PATH , configuration , this.dataSourceFolderName , this.instance , this.sourceFilePath , this.noOfFilesInInstance);
-			String result = ugi.doAs(privilegedExceptionActioniImplOject);
+			CreateInstancesAndInstanceFiles createInstances = new CreateInstancesAndInstanceFiles(this.PATH , configuration , this.dataSourceFolderName , this.instance , this.sourceFilePath , this.noOfFilesInInstance);
+			String result = ugi.doAs(createInstances);
 			TestSession.logger.info("Result = " + result);
 		}
 	}
@@ -123,10 +127,10 @@ public class StressTestingInit   {
 	/**
 	 * Returns the remote cluster configuration object.
 	 * @param aUser  - user
-	 * @param nameNode - name of the cluster namenode.
+	 * @param nameNode - name of the cluster namenode. 
 	 * @return
 	 */
-	private Configuration getConfForRemoteFS() {
+	public Configuration getConfForRemoteFS() {
 		Configuration conf = new Configuration(true);
 		String namenodeWithChangedSchemaAndPort = this.PROCOTOL + this.nameNodeName + ":" + HadooptestConstants.Ports.HDFS;
 		TestSession.logger.info("For HDFS set the namenode to:[" + namenodeWithChangedSchemaAndPort + "]");
@@ -141,7 +145,7 @@ public class StressTestingInit   {
 	/**
 	 * set the hadoop user details , this is a helper method in creating the configuration object.
 	 */
-	private UserGroupInformation getUgiForUser(String aUser) {
+	public UserGroupInformation getUgiForUser(String aUser) {
 		String keytabUser = this.supportingData.get(aUser).get(KEYTAB_USER);
 		TestSession.logger.info("Set keytab user=" + keytabUser);
 		String keytabDir = this.supportingData.get(aUser).get(KEYTAB_DIR);
@@ -149,7 +153,7 @@ public class StressTestingInit   {
 		UserGroupInformation ugi = null;
 		try {
 			ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(keytabUser, keytabDir);
-			TestSession.logger.info("UGI=" + ugi);
+			TestSession.logger.info("UGI=" + ugi.toString());
 			TestSession.logger.info("credentials:" + ugi.getCredentials());
 			TestSession.logger.info("group names" + ugi.getGroupNames());
 			TestSession.logger.info("real user:" + ugi.getRealUser());
@@ -166,9 +170,9 @@ public class StressTestingInit   {
 	}
 
 	/**
-	 * PrivilegedExceptionActionImpl class that create a file on the specified cluster.
+	 * CreateInstancesAndInstanceFiles class that create a file on the specified cluster.
 	 */
-	class PrivilegedExceptionActionImpl implements PrivilegedExceptionAction<String> {
+	class CreateInstancesAndInstanceFiles implements PrivilegedExceptionAction<String> {
 		Configuration configuration;
 		String basePath ;
 		String destinationFolder;
@@ -176,7 +180,7 @@ public class StressTestingInit   {
 		String instanceFileCount;
 		List<String>instanceFolderNames;
 
-		public PrivilegedExceptionActionImpl(String basePath , Configuration configuration , String destinationFolder , List<String>instanceDates , String srcFilePath  , String instanceFileCount) {
+		public CreateInstancesAndInstanceFiles(String basePath , Configuration configuration , String destinationFolder , List<String>instanceDates , String srcFilePath  , String instanceFileCount) {
 			this.configuration = configuration;
 			this.basePath = basePath;
 			this.destinationFolder = destinationFolder;
@@ -210,8 +214,7 @@ public class StressTestingInit   {
 					TestSession.logger.info(destFolder + " created Sucessfully.");
 
 					// create an instance file
-					//for ( String instance : instanceFolderNames ) {
-					for(int i = 0 ; i< instanceFolderNames.size() - 1 ; i++) {
+					for (int i = 0 ; i< instanceFolderNames.size() - 1 ; i++) {
 						String instance  = instanceFolderNames.get(i).trim();
 						Path instancePath = new Path( this.basePath +  "/" + this.destinationFolder + "/" + instance );
 						boolean isInstanceCreated =  remoteFS.mkdirs(instancePath);

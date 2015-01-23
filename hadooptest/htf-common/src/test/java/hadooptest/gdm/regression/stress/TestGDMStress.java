@@ -1,11 +1,20 @@
 package hadooptest.gdm.regression.stress;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -16,6 +25,7 @@ import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.HTTPHandle;
+import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
@@ -43,10 +53,9 @@ public class TestGDMStress extends TestSession {
 	private String destinationCluster;
 	private String target1;
 	private String target2;
+	private JSONUtil jsonUtil;
+	private String cookie;
 	private ConsoleHandle consoleHandle;
-	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
-	private static final String HCAT_TYPE = "DataOnly";
-	public static final int SUCCESS = 200;
 	private HTTPHandle httpHandle = null; 
 	private WorkFlowHelper workFlowHelperObj = null;
 	private List<String> grids ;
@@ -56,6 +65,9 @@ public class TestGDMStress extends TestSession {
 	private String nameNodeName;
 	private String startDate;
 	private String endDate;
+	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
+	private static final String HCAT_TYPE = "DataOnly";
+	private static final int SUCCESS = 200;
 
 	@BeforeClass
 	public static void testSessionStart() throws Exception {
@@ -76,7 +88,9 @@ public class TestGDMStress extends TestSession {
 		this.datasetActivation = new HashMap<String, String>();
 		this.consoleHandle = new ConsoleHandle();
 		this.httpHandle = new HTTPHandle();
+		this.cookie = this.httpHandle.getBouncerCookie();
 		this.workFlowHelperObj = new WorkFlowHelper();
+		this.jsonUtil = new JSONUtil();
 		this.grids = this.consoleHandle.getAllGridNames();
 		assertTrue("Insufficient Grids to run the Stress testing " + this.grids + "  Need atleast 2 grids." , this.grids.size() >= 2);
 
@@ -142,6 +156,55 @@ public class TestGDMStress extends TestSession {
 				this.workFlowHelperObj.checkWorkFlow(dsName , "replication", activationTime , instance);
 			}
 		}
+		
+		this.sourceInstanceCleanUp(this.stressTestingInitObj , "/data/daqdev/" + this.stressTestingInitObj.getDataSourcePath());
+		this.setRetentionPolicyToAllDataSets(this.datasetNames);
+	
+	}
+	
+	/**
+	 * Helps in cleaning up the source instance and instance files.
+	 * @param streeTestingInitObject
+	 * @param path  - string representing the path to delete
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public void sourceInstanceCleanUp(StressTestingInit streeTestingInitObject , String path) throws IOException, InterruptedException {
+		HashMap<String, HashMap<String, String>>  supportingDataMap = stressTestingInitObj.getSupportingDataMap();
+		for (String aUser : supportingDataMap.keySet()) {
+			Configuration conf = stressTestingInitObj.getConfForRemoteFS();
+			UserGroupInformation ugi = stressTestingInitObj.getUgiForUser(aUser);
+			CleanSourceClusterDataAction cleanSourceDataActionObject = new CleanSourceClusterDataAction(conf , path);
+			ugi.doAs(cleanSourceDataActionObject);
+		}
+	}
+	
+	// set retention policy the dataset(s) 
+	public void setRetentionPolicyToAllDataSets(List<String> dataSets) {
+		String testURL = this.consoleHandle.getConsoleURL() + "/console/rest/config/dataset/getRetentionPolicies";
+		
+		// navigate all the datasets and set the retention policy to all the targets
+		for ( String dsName : dataSets) {
+			TestSession.logger.info("dsName = " + dsName);
+			List<String> dataTargetList = this.consoleHandle.getDataSource(dsName , "target" ,"name");
+			TestSession.logger.info("dataTargetList  = "  + dataTargetList);
+			String resourceName = this.jsonUtil.constructResourceNamesParameter(Arrays.asList(dsName));
+			List<String> arguments = new ArrayList<String>();
+			for (String target : dataTargetList) {
+				arguments.add("numberOfInstances:0:" + target.trim());
+				TestSession.logger.info("grid = " + target);
+				String args = constructPoliciesArguments(arguments , "updateRetention");
+				TestSession.logger.info("args = "+args);
+				TestSession.logger.info("test url = " + testURL);
+				com.jayway.restassured.response.Response res = given().cookie(this.cookie).param("resourceNames", resourceName).param("command","update").param("args", args)
+						.post(this.consoleHandle.getConsoleURL() + "/console/rest/config/dataset/actions");
+				TestSession.logger.info("Response code = " + res.getStatusCode());
+				assertTrue("Failed to modify or set the retention policy for " + dsName , res.getStatusCode() == SUCCESS);
+				
+				String resString = res.getBody().asString();
+				TestSession.logger.info("resString = " + resString);
+			}
+		}		
 	}
 
 	/**
@@ -168,7 +231,7 @@ public class TestGDMStress extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_COUNT_PATH", "" );
 		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_SCHEMA_PATH", "");
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_PROPAGATION", "false");
-		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", getCustomPath("data" , dsName));
+		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", this.getCustomPath("data" , dsName));
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", "");
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", "");
 		dataSetXml = dataSetXml.replaceAll("20130725", this.startDate);
@@ -208,6 +271,26 @@ public class TestGDMStress extends TestSession {
 		boolean isDataSourceCreated = this.consoleHandle.createDataSource(xml);
 		assertTrue("Failed to create a DataSource specification " + newDataSourceName , isDataSourceCreated == true);
 		this.consoleHandle.sleep(5000);
+	}
+	
+	/**
+	 * Construct a policyType for the given grids or targets
+	 * @param policiesArguments
+	 * @param action
+	 * @return
+	 */
+	private String constructPoliciesArguments(List<String>policiesArguments , String action) {
+		JSONObject actionObject = new JSONObject().element("action", action);
+		String args = null;
+		JSONArray resourceArray = new JSONArray();
+		for ( String policies : policiesArguments) {
+			List<String> values = Arrays.asList(policies.split(":"));
+			JSONObject policy = new JSONObject().element("policyType", values.get(0)).element("days", values.get(1)).element("target", values.get(2));
+			resourceArray.add(policy);
+		}
+		actionObject.put("policies", resourceArray);
+		args = actionObject.toString();
+		return args;
 	}
 
 	/**
