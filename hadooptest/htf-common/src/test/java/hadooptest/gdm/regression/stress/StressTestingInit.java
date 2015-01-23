@@ -3,8 +3,6 @@ package hadooptest.gdm.regression.stress;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
-
-import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
@@ -29,15 +27,14 @@ import org.junit.Test;
  */
 public class StressTestingInit   {
 
-	private static String PROCOTOL = "hdfs://";
-
-	private static String KEYTAB_DIR = "keytabDir";
-	private static String KEYTAB_USER = "keytabUser";
-	private static String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
-	private static String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
+	private static final String PROCOTOL = "hdfs://";
+	private static final String KEYTAB_DIR = "keytabDir";
+	private static final String KEYTAB_USER = "keytabUser";
+	private static final String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
+	private static final String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
+	private static final String PATH = "/data/daqdev";
 	private static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
-
-	private static String PATH = "/data/daqdev/";
+	private List<String> instance ;
 	private String schema;
 	private String dataSourceFolderName;
 	private String noOfInstance;
@@ -133,10 +130,10 @@ public class StressTestingInit   {
 	/**
 	 * Returns the remote cluster configuration object.
 	 * @param aUser  - user
-	 * @param nameNode - name of the cluster namenode.
+	 * @param nameNode - name of the cluster namenode. 
 	 * @return
 	 */
-	private Configuration getConfForRemoteFS() {
+	public Configuration getConfForRemoteFS() {
 		Configuration conf = new Configuration(true);
 		String namenodeWithChangedSchemaAndPort = this.PROCOTOL + this.nameNodeName + ":" + HadooptestConstants.Ports.HDFS;
 		TestSession.logger.info("For HDFS set the namenode to:[" + namenodeWithChangedSchemaAndPort + "]");
@@ -176,9 +173,9 @@ public class StressTestingInit   {
 	}
 
 	/**
-	 * PrivilegedExceptionActionImpl class that create a file on the specified cluster.
+	 * CreateInstancesAndInstanceFiles class that create a file on the specified cluster.
 	 */
-	class PrivilegedExceptionActionImpl implements PrivilegedExceptionAction<String> {
+	class CreateInstancesAndInstanceFiles implements PrivilegedExceptionAction<String> {
 		Configuration configuration;
 		String basePath ;
 		String destinationFolder;
@@ -186,7 +183,7 @@ public class StressTestingInit   {
 		String instanceFileCount;
 		List<String>instanceFolderNames;
 
-		public PrivilegedExceptionActionImpl(String basePath , Configuration configuration , String destinationFolder , List<String>instanceDates , String srcFilePath  , String instanceFileCount) {
+		public CreateInstancesAndInstanceFiles(String basePath , Configuration configuration , String destinationFolder , List<String>instanceDates , String srcFilePath  , String instanceFileCount) {
 			this.configuration = configuration;
 			this.basePath = basePath;
 			this.destinationFolder = destinationFolder;

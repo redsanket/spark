@@ -1,11 +1,20 @@
 package hadooptest.gdm.regression.stress;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,10 +53,9 @@ public class TestGDMStress extends TestSession {
 	private String destinationCluster;
 	private String target1;
 	private String target2;
+	private JSONUtil jsonUtil;
+	private String cookie;
 	private ConsoleHandle consoleHandle;
-	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
-	private static final String HCAT_TYPE = "DataOnly";
-	public static final int SUCCESS = 200;
 	private HTTPHandle httpHandle = null; 
 	private WorkFlowHelper workFlowHelperObj = null;
 	private List<String> grids ;
@@ -80,7 +88,9 @@ public class TestGDMStress extends TestSession {
 		this.datasetActivation = new HashMap<String, String>();
 		this.consoleHandle = new ConsoleHandle();
 		this.httpHandle = new HTTPHandle();
+		this.cookie = this.httpHandle.getBouncerCookie();
 		this.workFlowHelperObj = new WorkFlowHelper();
+		this.jsonUtil = new JSONUtil();
 		this.grids = this.consoleHandle.getAllGridNames();
 		assertTrue("Insufficient Grids to run the Stress testing " + this.grids + "  Need atleast 2 grids." , this.grids.size() >= 2);
 
