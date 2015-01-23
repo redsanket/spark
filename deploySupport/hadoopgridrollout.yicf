@@ -135,12 +135,12 @@ f 0755 - - conf/hadoop/hadoopAutomation/205-installsteps-getClusterid.sh  205-in
 f 0755 - - conf/hadoop/hadoopAutomation/210-installsteps-startNN.sh  210-installsteps-startNN.sh
 f 0755 - - conf/hadoop/hadoopAutomation/219-installsteps-jobtrackerExplanation.sh  219-installsteps-jobtrackerExplanation.sh
 f 0755 - - conf/hadoop/hadoopAutomation/220-installsteps-configureJT.sh  220-installsteps-configureJT.sh
+f 0755 - - conf/hadoop/hadoopAutomation/229-installsteps-installTez.sh  229-installsteps-installTez.sh
 f 0755 - - conf/hadoop/hadoopAutomation/231-installsteps-startyarn-RM.sh  231-installsteps-startyarn-RM.sh
 f 0755 - - conf/hadoop/hadoopAutomation/235-installsteps-jdk-gateway.sh  235-installsteps-jdk-gateway.sh
 f 0755 - - conf/hadoop/hadoopAutomation/240-installsteps-hbasesetup.sh  240-installsteps-hbasesetup.sh
 f 0755 - - conf/hadoop/hadoopAutomation/250-installsteps-testNN.sh  250-installsteps-testNN.sh
 f 0755 - - conf/hadoop/hadoopAutomation/255-installsteps-setstickybit.sh  255-installsteps-setstickybit.sh
-f 0755 - - conf/hadoop/hadoopAutomation/258-installsteps-installTez.sh  258-installsteps-installTez.sh
 f 0755 - - conf/hadoop/hadoopAutomation/261-installsteps-testRM.sh  261-installsteps-testRM.sh
 f 0755 - - conf/hadoop/hadoopAutomation/265-installsteps-HIT-installPig.sh  265-installsteps-HIT-installPig.sh
 f 0755 - - conf/hadoop/hadoopAutomation/267-installsteps-HIT-installHDFSProxy.sh  267-installsteps-HIT-installHDFSProxy.sh
