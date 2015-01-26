@@ -29,6 +29,7 @@ public class TestStormDistCacheApiLocal extends TestStormDistCacheApi {
         mc = (ModifiableStormCluster)cluster;
         cluster.setDrpcAclForFunction("blobstore");
         cluster.setDrpcAclForFunction("permissions");
+        cluster.setDrpcAclForFunction("md5");
         if (mc != null) {
             mc.setConf("client_blobstore_class", "backtype.storm.blobstore.NimbusBlobStore");
             mc.setConf("nimbus_blobstore_class", "backtype.storm.blobstore.LocalFsBlobStore");
