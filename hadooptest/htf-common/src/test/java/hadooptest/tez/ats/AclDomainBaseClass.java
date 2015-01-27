@@ -48,11 +48,11 @@ public class AclDomainBaseClass extends ATSTestsBaseClass {
 			// Edit the yarn-site.xml file inplace, in the newly backed up dir
 			String command = "perl -pi -e 's/gridadmin,hadoop,hadoopqa/gridadmin/' "
 					+ dirWhereRMConfHasBeenCopied + "/yarn-site.xml";
-//			doJavaSSHClientExec(HadooptestConstants.UserNames.HADOOPQA, rmHost,
-//					command, "/homes/hadoopqa/.ssh/id_rsa");
+			doJavaSSHClientExec(HadooptestConstants.UserNames.HADOOPQA, rmHost,
+					command, "/homes/hadoopqa/.ssh/id_rsa");
 			
-			doJavaSSHClientExec(HadooptestConstants.UserNames.MAPREDQA, rmHost,
-					command, HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+//			doJavaSSHClientExec(HadooptestConstants.UserNames.MAPREDQA, rmHost,
+//					command, HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
 			
 			//Now bounce the timelineserver
 			List<String> newConfigLocation = new ArrayList<String>();
