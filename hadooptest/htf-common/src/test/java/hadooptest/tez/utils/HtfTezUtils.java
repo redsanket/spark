@@ -189,7 +189,7 @@ public class HtfTezUtils {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/bin/readlink");
 		sb.append(" ");
-		sb.append("/home/gs/tez/current/tez");
+		sb.append("/home/gs/tez/current");
 
 		String commandString = sb.toString();
 		TestSession.logger.info(commandString);
