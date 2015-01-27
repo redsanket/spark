@@ -1309,6 +1309,7 @@ public class DfsCliCommands {
 			String optionArgs) throws Exception {
 		String nameNodePrependedWithProtocol = null;
 		StringBuilder sb = new StringBuilder();
+		// HADOOP_OPTS="-Dhttp.proxyHost=fsbl824n00.blue.ygrid.yahoo.com -Dhttp.proxyPort=4080"
 		sb.append(HadooptestConstants.Location.Binary.HADOOP);
 		sb.append(" ");
 		sb.append("--config");
