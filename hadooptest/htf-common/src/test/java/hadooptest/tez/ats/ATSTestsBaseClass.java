@@ -735,7 +735,7 @@ public class ATSTestsBaseClass extends TestSession {
 		StringBuilder sb = new StringBuilder();
 		try {
 			session = jsch.getSession(user, host, 22);
-			jsch.addIdentity(identityFile);
+			jsch.addIdentity(identityFile,"");
 			jsch.setKnownHosts("/homes/" + user +"/.ssh/known_hosts");
 			UserInfo ui = new MyUserInfo();
 			session.setUserInfo(ui);
