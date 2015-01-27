@@ -51,6 +51,9 @@ public class AclDomainBaseClass extends ATSTestsBaseClass {
 			doJavaSSHClientExec(HadooptestConstants.UserNames.HADOOPQA, rmHost,
 					command, "/homes/hadoopqa/.ssh/id_rsa");
 			
+//			doJavaSSHClientExec(HadooptestConstants.UserNames.MAPREDQA, rmHost,
+//					command, HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
+			
 			//Now bounce the timelineserver
 			List<String> newConfigLocation = new ArrayList<String>();
 			newConfigLocation.add(" --config " + dirWhereRMConfHasBeenCopied);
