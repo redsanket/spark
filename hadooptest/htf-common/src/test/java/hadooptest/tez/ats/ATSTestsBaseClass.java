@@ -736,6 +736,7 @@ public class ATSTestsBaseClass extends TestSession {
 		try {
 			session = jsch.getSession(user, host, 22);
 			jsch.addIdentity(identityFile);
+			jsch.setKnownHosts("/homes/" + user +"/.ssh/known_hosts");
 			UserInfo ui = new MyUserInfo();
 			session.setUserInfo(ui);
 			session.setConfig("StrictHostKeyChecking", "no");
