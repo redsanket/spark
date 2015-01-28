@@ -207,9 +207,9 @@ public class HtfPigBaseClass extends TestSession {
 		environmentVariablesWrappingTheCommand.put("PIG_HOME",
 				"/home/gs/gridre/yroot." + System.getProperty("CLUSTER_NAME")
 						+ "/share/pig");
-		environmentVariablesWrappingTheCommand.put("TEZ_HOME", "/home/gs/tez/");
+		environmentVariablesWrappingTheCommand.put("TEZ_HOME", "/home/gs/tez/current");
 		environmentVariablesWrappingTheCommand.put("TEZ_CONF_DIR",
-				"/home/gs/conf/tez/");
+				"/home/gs/conf/tez/current/");
 
 		Process process = null;
 		process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
