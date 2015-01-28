@@ -246,6 +246,13 @@ if [[ "${INSTALL_TEZ}" == only ]]; then
     else
        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $f "' <<<<<<<<<<"
     fi
+    ## After successful Tez installation, run wordcount for sanity test
+    f=${base}/258-installsteps-runTezWordCount.sh
+    banner running $f
+    . "$f"
+    st=$?
+    echo "Running $f Status: $st"
+    [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running Tez Wordcount example '" $f "' <<<<<<<<<<"
     exit $st
 fi
 
