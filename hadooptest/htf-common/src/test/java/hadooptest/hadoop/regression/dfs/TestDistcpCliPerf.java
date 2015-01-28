@@ -191,7 +191,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             writer.close();
             // yinst set -root /home/gs/gridre/yroot.densed HadoopConfiggeneric10node12diskblue.TODO_INCLUDE_PROXY_CONFIG='<xi:include href="webhdfs-proxy.xml"><xi:fallback></xi:fallback></xi:include>'
             String[] yinst_cmd = {
-                    "yinst set -root /home/gs/gridre/yroot." + cluster,
+                    "yinst set -root /home/gs/gridre/yroot." +
+                            this.localCluster,
                     "HadoopConfiggeneric10node12diskblue." +
                             "TODO_INCLUDE_PROXY_CONFIG=" +
                             "'<xi:include href=" +
@@ -433,7 +434,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                 !httpProxyHost.equals("default")) {
             // yinst set -root /home/gs/gridre/yroot.densed HadoopConfiggeneric10node12diskblue.TODO_INCLUDE_PROXY_CONFIG='<xi:include href="webhdfs-proxy.xml"><xi:fallback></xi:fallback></xi:include>'
             String[] yinst_cmd = {
-                    "yinst set -root /home/gs/gridre/yroot." + cluster,
+                    "yinst set -root /home/gs/gridre/yroot." +
+                            this.localCluster,
                     "HadoopConfiggeneric10node12diskblue." +
                             "TODO_INCLUDE_PROXY_CONFIG=" +
                             "'<xi:include href=" +
