@@ -1,7 +1,17 @@
 package hadooptest.tez.ats;
 
 import static com.jayway.restassured.RestAssured.given;
+import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.http.HTTPHandle;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
+import hadooptest.node.hadoop.HadoopNode;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,25 +19,15 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 
 import com.jayway.restassured.response.Response;
-
-import hadooptest.TestSession;
-import hadooptest.automation.constants.HadooptestConstants;
-import hadooptest.automation.utils.http.HTTPHandle;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
-import hadooptest.node.hadoop.HadoopNode;
-import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
-import hadooptest.tez.ats.ATSTestsBaseClass.ResponseComposition;
 
 public class AclDomainBaseClass extends ATSTestsBaseClass {
 
 	public void backupConfigDirAndRestartTimelineServer() throws Exception {
 		if (!jobsLaunchedOnceToSeedData) {
-
+			TestSession.logger.info("In backupConfigDirAndRestartTimelineServer");
 			// Backup config and replace file, on Resource Manager
 			FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
 					.getCluster();
@@ -44,23 +44,21 @@ public class AclDomainBaseClass extends ATSTestsBaseClass {
 			HadoopNode hadoopNode = TestSession.cluster
 					.getNode(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 			String rmHost = hadoopNode.getHostname();
-
 			// Edit the yarn-site.xml file inplace, in the newly backed up dir
-			String command = "perl -pi -e 's/gridadmin,hadoop,hadoopqa/gridadmin/' "
-					+ dirWhereRMConfHasBeenCopied + "/yarn-site.xml";
-			doJavaSSHClientExec(HadooptestConstants.UserNames.HADOOPQA, rmHost,
-					command, "/homes/hadoopqa/.ssh/id_rsa");
-			
-//			doJavaSSHClientExec(HadooptestConstants.UserNames.MAPREDQA, rmHost,
-//					command, HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
-			
+			Path path = Paths.get(dirWhereRMConfHasBeenCopied + "/yarn-site.xml");
+			Charset charset = StandardCharsets.UTF_8;
+
+			String content = new String(Files.readAllBytes(path), charset);
+			content = content.replaceAll("<value> gridadmin,hadoop,hadoopqa</value>", "<value> gridadmin</value>");
+			Files.write(path, content.getBytes(charset));
 			//Now bounce the timelineserver
 			List<String> newConfigLocation = new ArrayList<String>();
 			newConfigLocation.add(" --config " + dirWhereRMConfHasBeenCopied);
 			restartATSWithTheseArgs(rmHost, newConfigLocation);
-
+			jobsLaunchedOnceToSeedData = true;
 		}
 	}
+	
 
 	/**
 	 * We don't want to launch seed data for these tests, hence override this
