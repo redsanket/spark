@@ -35,6 +35,15 @@ import org.junit.runners.Parameterized.Parameters;
 
 import hadooptest.SerialTests;
 
+/*
+ * Push file from Blue to Tan:
+ * E.g. hadoop distcp -pbugp webhdfs://gsbl90882.blue.ygrid.yahoo.com/HTF/testdata/dfs/file_16M_{1..64} hdfs://gsta325n38.tan.ygrid.yahoo.com/HTF/testdata/dfs/file_16M/
+ *
+ * Pull file from Tan to Blue:
+ * E.g. hadoop distcp -pbugp webhdfs://gsta325n38.tan.ygrid.yahoo.com/HTF/testdata/dfs/file_16M_{1..64} hdfs://gsbl90882.blue.ygrid.yahoo.com/HTF/testdata/dfs/file_16M/
+ *
+ */
+
 @RunWith(Parameterized.class)
 @Category(SerialTests.class)
 public class TestDistcpCliPerf extends DfsTestsBaseClass {
@@ -206,6 +215,9 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
         }
     }
 
+    /*
+     * Cross Colo Webhdfs to Hdfs tests from both directions: Push and Pull.
+     */
     // @Monitorable
     @Test
     public void testWebhdfsToHdfsPerf() throws Exception {
@@ -243,11 +255,23 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
         for (String justTheFile : fileMetadataPerf.keySet()) {
 
+            /*
+             * Push: Push file from blue (webhdfs) to tan (hdfs)
+             * In this case, since we are going cross colo with rpc based hdfs,
+             * it will not go through the ycrypt proxy but rather the
+             * Jupiner h/w.
+             * If we wanted it to go through the ycrypt proxy, we
+             * would have to push file from blue (hdfs) to tan (webhdfs). But
+             * in this case, webhdfs write is not supported.
+             */
             if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
                     .startsWith("0"))
                     || (this.localHadoopVersion.startsWith("2") && this.remoteHadoopVersion
                             .startsWith("2"))) {
-                // Push
+                logger.info(
+                        "Since this is cross colo with rpc based hdfs write" +
+                        "it will go through the IPSec (Juniper) boxes " +
+                                "intead of going through ycrypt proxy.");
                 // appendString = ".srcWebhdfs." + this.localCluster +
                 // ".dstHdfs." + this.parametrizedCluster;
                 destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
@@ -283,7 +307,9 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                         destinationFile);
             }
 
-            // Pull
+            /*
+             * Pull
+             */
             appendString = ".srcWebhdfs." + this.parametrizedCluster
                     + ".dstHdfs." + this.localCluster;
             // destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
@@ -310,10 +336,20 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     Force.YES,
                     SkipTrash.YES,
                     destinationFile);
+
+            /*
+             * Check the ycrypt proxy server log dir /home/y/logs/trafficserver
+             * extended2.log that the transaction got routed through.
+             * E.G.
+             * PUT https://fsta773n00.tan.ygrid.yahoo.com:4443/webhdfs
+             */
         }
     }
 
-
+    /*
+     * This test will only run for HttpProxy cross cluster tests
+     * (i.e. DfsTestsBaseClass is crossclusterPerf)
+     */
     // @Monitorable
     @Test
     public void testHdfsToHdfs() throws Exception {
