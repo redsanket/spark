@@ -1612,5 +1612,138 @@ public final class ConsoleHandle
 		TestSession.logger.info(nameNodeName  + "  is the NameNode of  " + clusterName);
 		return nameNodeName;
 	}
+    
+    /**
+	 * Verify whether killed dataset is in failed state.
+	 */
+	public JSONArray checkDataSetInFailedWorkFlow(String facetName , String datasetName , String activationTime)  {
+		int failedJob = 0;
+		JSONArray jsonArray = null;
+		String failedWorkFlowURL = this.getConsoleURL() + "/console/api/workflows/failed?starttime=" + activationTime +"&endtime=" + GdmUtils.getCalendarAsString() + "&datasetname=" + datasetName 
+				+ "&instancessince=F&joinType=innerJoin";
+		TestSession.logger.info("Failed workflow testURL" + failedWorkFlowURL);
+		String cookie =  this.httpHandle.getBouncerCookie();
+		com.jayway.restassured.response.Response failedResponse = given().cookie(cookie).get(failedWorkFlowURL);
+		assertTrue("Failed to get the respons  " + failedResponse , (failedResponse != null ) );
+		
+		jsonArray = this.convertResponseToJSONArray(failedResponse , "failedWorkflows");
+		if ( jsonArray.size() > 0 ) {
+			failedJob = jsonArray.size() ;
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject failedJsonObject = (JSONObject) iterator.next();
+				TestSession.logger.info("failedJsonObject  = " + failedJsonObject.toString());
+				String fs = failedJsonObject.getString("FacetName");
+				String workFlowName = failedJsonObject.getString("WorkflowName");
+				String executionStatus = failedJsonObject.getString("ExecutionStatus");
+				String exitStatus = failedJsonObject.getString("ExitStatus");
 
+				assertTrue("Expected facetName is acquisition , but got " + fs , facetName.equalsIgnoreCase(facetName.trim()) ); 
+				assertTrue("Expected executionStatus is STOPPED , but got " + exitStatus , executionStatus.equalsIgnoreCase("STOPPED") );
+				assertTrue("Expected exitStatus is INTERRUPTED , but got " + exitStatus , exitStatus.equalsIgnoreCase("INTERRUPTED") );
+			}
+		} else if ( jsonArray.size()  == 0) {
+			fail("Failed : " + datasetName  +"   dn't exists in failed workflow.");
+		}
+		return jsonArray;
+	}
+
+	/**
+	 * set retention policy for a given dataset
+	 * @param dataSetName - name of the dataset
+	 */
+	public void setRetentionPolicyToAllDataSets(String dataSetName , String retentionValue) {
+		String testURL = this.getConsoleURL() + "/console/rest/config/dataset/getRetentionPolicies";
+		JSONUtil jsonUtil = new JSONUtil();
+		// navigate all the datasets and set the retention policy to all the targets
+
+		TestSession.logger.info("dsName = " + dataSetName);
+		List<String> dataTargetList = this.getDataSource(dataSetName , "target" ,"name");
+		TestSession.logger.info("dataTargetList  = "  + dataTargetList);
+		String resourceName = jsonUtil.constructResourceNamesParameter(Arrays.asList(dataSetName));
+		List<String> arguments = new ArrayList<String>();
+		for (String target : dataTargetList) {
+			arguments.add("numberOfInstances:"+ retentionValue.trim() +":" + target.trim());
+			TestSession.logger.info("grid = " + target);
+			String args = constructPoliciesArguments(arguments , "updateRetention");
+			TestSession.logger.info("args = "+args);
+			TestSession.logger.info("test url = " + testURL);
+			com.jayway.restassured.response.Response res = given().cookie(httpHandle.cookie).param("resourceNames", resourceName).param("command","update").param("args", args)
+					.post(this.getConsoleURL() + "/console/rest/config/dataset/actions");
+			TestSession.logger.info("Response code = " + res.getStatusCode());
+			assertTrue("Failed to modify or set the retention policy for " + dataSetName , res.getStatusCode() == SUCCESS);
+
+			String resString = res.getBody().asString();
+			TestSession.logger.info("resString = " + resString);
+			
+			this.sleep(5000);
+		}
+
+	}
+	
+	/**
+	 * Construct a policyType for the given grids or targets
+	 * @param policiesArguments
+	 * @param action
+	 * @return
+	 */
+	private String constructPoliciesArguments(List<String>policiesArguments , String action) {
+		JSONObject actionObject = new JSONObject().element("action", action);
+		String args = null;
+		JSONArray resourceArray = new JSONArray();
+		for ( String policies : policiesArguments) {
+			List<String> values = Arrays.asList(policies.split(":"));
+			JSONObject policy = new JSONObject().element("policyType", values.get(0)).element("days", values.get(1)).element("target", values.get(2));
+			resourceArray.add(policy);
+		}
+		actionObject.put("policies", resourceArray);
+		args = actionObject.toString();
+		return args;
+	}
+	
+	/**
+	 * Remove the specified datasource
+	 * @param dataSourceName
+	 */
+	public void testRemoveDataSource(String dataSourceName) {
+		JSONUtil jsonUtil = new JSONUtil();
+		String resource = jsonUtil.constructResourceNamesParameter(Arrays.asList(dataSourceName));
+
+		// Deactivate datasource
+		com.jayway.restassured.response.Response res = given().cookie(httpHandle.cookie).param("resourceNames", resource).param("command","terminate")
+				.post(this.getConsoleURL() + "/console/rest/config/datasource/actions");
+
+		String resString = res.asString();
+		TestSession.logger.info("response *****"+ jsonUtil.formatString(resString));
+
+		// Check for Response
+		JsonPath jsonPath = new JsonPath(resString);
+		String actionName = jsonPath.getString("Response.ActionName");
+		String responseId = jsonPath.getString("Response.ResponseId");
+		assertTrue("Expected terminate keyword, but got " + actionName , actionName.equals("terminate"));
+		assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
+		String responseMessage = jsonPath.getString("Response.ResponseMessage");
+		boolean flag = responseMessage.contains(dataSourceName.trim()) && responseMessage.contains("successful");
+		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
+
+		// wait for some time, so that changes are reflected to the datasource specification file i,e active to inactive
+		this.sleep(5000);
+
+		// remove datasource
+		res = given().cookie(httpHandle.cookie).param("resourceNames", resource).param("command","remove")
+				.post(this.getConsoleURL() + "/console/rest/config/datasource/actions");
+
+		resString = res.asString();
+		TestSession.logger.info("response *****"+ jsonUtil.formatString(resString));
+
+		// Check for Response
+		jsonPath = new JsonPath(resString);
+		actionName = jsonPath.getString("Response.ActionName");
+		responseId = jsonPath.getString("Response.ResponseId");
+		assertTrue("Expected terminate keyword, but got " + actionName , actionName.equals("remove"));
+		assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
+		responseMessage = jsonPath.getString("Response.ResponseMessage");
+		flag = responseMessage.contains(dataSourceName.trim()) && responseMessage.contains("successful");
+		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
+	}
 }

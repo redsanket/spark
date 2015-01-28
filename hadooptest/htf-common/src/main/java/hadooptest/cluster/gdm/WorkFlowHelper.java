@@ -68,6 +68,11 @@ public class WorkFlowHelper {
 	private static String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
 	private static String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
 	private static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
+	private static final String COMPLETED  = "completed";
+	private static final String FAILED = "failed";
+	private static final String RUNNING = "running";
+	private static final String COMPLETE_STEPS = "COMPLETE_STEPS";
+	private static final String LAST_STEP = "LAST_STEP";
 	
 	private HTTPHandle httpHandle;
 	private String cookie;
@@ -659,8 +664,6 @@ public class WorkFlowHelper {
 		boolean isDataCompletedInCompletedState = false;
 		TestSession.logger.info("endTime = " + endTime);
 		String url =  this.consoleHandle.getConsoleURL() + "/console/api/workflows/running?datasetname="+ dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + workflowType;
-	/*	String url = this.consoleHandle.getConsoleURL() + "/console/api/workflows/" + workflowType   + "?exclude=false&starttime=" + datasetActivationTime + "&endtime=" + endTime +
-				"&joinType=innerJoin&datasetname=" +  dataSetName ;*/
 		TestSession.logger.info("url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
 		String res = response.getBody().asString();
@@ -723,9 +726,6 @@ public class WorkFlowHelper {
 		return returnValue;
 
 	}
-	
-	
-	
 	
 	/**
 	 * Check whether the given stepName and stepValue exists in jsonArray.
@@ -944,5 +944,71 @@ public class WorkFlowHelper {
 			return result;
 		}
 
+	}
+	
+	/**
+	 * Get last successful executed step as JSONObject
+	 * @param workFlowName - name of the workflow ( completed, failed , running)
+	 * @param dataSetName - name of the dataset.
+	 * @return
+	 */
+	public JSONObject getWorkFlowDetailedSteps(String facetName, String workFlowName , String dataSetName ,String stepType) {
+		JSONObject detailedStepJsonObject = null;
+		JSONArray jsonArray = null;
+		com.jayway.restassured.response.Response response = null;
+
+		// check specified workflow name is correct.
+		boolean isSpecifiedWorkFlowCorrect = (workFlowName.equals(COMPLETED) || workFlowName.equals(RUNNING) || workFlowName.equals(FAILED) );
+		assertTrue(workFlowName + " workflow name is not correct = " , isSpecifiedWorkFlowCorrect == true);
+
+		String testURL = this.consoleHandle.getConsoleURL().replaceAll("9999", this.consoleHandle.getFacetPortNo(facetName)) + "/"+ facetName +"/api/workflows/" + workFlowName + "?exclude=false&joinType=innerJoin&datasetname=" + dataSetName;
+		System.out.println("testURL    - " + testURL);
+		response = given().cookie(this.cookie).get(testURL);
+		assertTrue("Failed to get the respons  " + response , (response != null ) );
+
+		jsonArray = this.consoleHandle.convertResponseToJSONArray(response , workFlowName +"Workflows");
+		if ( jsonArray.size() > 0 ) {
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				TestSession.logger.info("failedJsonObject  = " + jsonObject.toString());
+				String fName = jsonObject.getString("FacetName").trim();
+				String executionId = jsonObject.getString("ExecutionID").trim();
+				TestSession.logger.info("ExecutionID =  " + executionId);
+
+				String detailedWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/"+ executionId + "/view?facet="+ fName +"&colo=gq1";
+				System.out.println("detailedWorkFlowURL  = " + detailedWorkFlowURL);
+				com.jayway.restassured.response.Response workFlowDetailedResponse = given().cookie(this.cookie).get(detailedWorkFlowURL);
+				String workFlowDetailsStr =  workFlowDetailedResponse.getBody().asString();
+				TestSession.logger.info("WorkFlowDetailedResponse   =  " + workFlowDetailsStr);
+				JSONObject obj =  (JSONObject) JSONSerializer.toJSON(workFlowDetailsStr.toString());
+				JSONObject obj1 = obj.getJSONObject("WorkflowExecution");
+				TestSession.logger.info("Exit Status  = " + obj1.getString("Exit Status"));
+
+				JSONArray detailedWorkFlowDetails = obj1.getJSONArray("Step Executions");
+				int length = detailedWorkFlowDetails.size() - 1;
+				TestSession.logger.info("size  = " + length);
+
+				if (length > 0 && stepType.equals(this.LAST_STEP)) {
+					detailedStepJsonObject = new JSONObject(); 
+					JSONObject tempObj = detailedWorkFlowDetails.getJSONObject(length - 1);
+					String stepName = tempObj.getString("Step Name").trim();
+					String startTime = tempObj.getString("Start Time").trim();
+					String endTime = tempObj.getString("EndTime").trim();
+					detailedStepJsonObject.put("Step Name",stepName );
+					detailedStepJsonObject.put("Start Time", startTime);
+					detailedStepJsonObject.put("EndTime",endTime );
+					TestSession.logger.info("Step Name = " + stepName);
+					TestSession.logger.info("start time = " + startTime);
+					TestSession.logger.info("end Time  = " + endTime);
+				} else if  ( stepType.equals(this.COMPLETE_STEPS) ) {
+					detailedStepJsonObject = new JSONObject();
+					detailedStepJsonObject.put("Step Name", "detailedStep");
+					detailedStepJsonObject.put("Step Executions", detailedWorkFlowDetails);
+					TestSession.logger.info("detailedWorkFlowDetails  = " + detailedStepJsonObject.toString(5));
+				}
+			}
+		}
+		return detailedStepJsonObject;
 	}
 }
