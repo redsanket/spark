@@ -191,8 +191,10 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             writer.close();
             // yinst set -root /home/gs/gridre/yroot.densed HadoopConfiggeneric10node12diskblue.TODO_INCLUDE_PROXY_CONFIG='<xi:include href="webhdfs-proxy.xml"><xi:fallback></xi:fallback></xi:include>'
             String[] yinst_cmd = {
-                    "/usr/local/bin/yinst set -root /home/gs/gridre/yroot." +
-                            this.localCluster,
+                    "/usr/local/bin/yinst",
+                    "set",
+                    "-root",
+                    "/home/gs/gridre/yroot." + this.localCluster,
                     "HadoopConfiggeneric10node12diskblue." +
                             "TODO_INCLUDE_PROXY_CONFIG=" +
                             "'<xi:include href=" +
@@ -200,9 +202,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                             "><xi:fallback></xi:fallback></xi:include>'"
             };
             String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
-            logger.info(output[0].toString());
-            logger.info(output[1].toString());
-            logger.info(output[2].toString());
+            TestSession.logger.debug(Arrays.toString(output));
         }
     }
 
@@ -437,7 +437,10 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                 !httpProxyHost.equals("default")) {
             // yinst set -root /home/gs/gridre/yroot.densed HadoopConfiggeneric10node12diskblue.TODO_INCLUDE_PROXY_CONFIG='<xi:include href="webhdfs-proxy.xml"><xi:fallback></xi:fallback></xi:include>'
             String[] yinst_cmd = {
-                    "/usr/local/bin/yinst set -root /home/gs/gridre/yroot." +
+                    "/usr/local/bin/yinst",
+                    "set",
+                    "-root",
+                    "/home/gs/gridre/yroot." +
                             this.localCluster,
                     "HadoopConfiggeneric10node12diskblue." +
                             "TODO_INCLUDE_PROXY_CONFIG=" +
@@ -446,9 +449,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                             "><xi:fallback></xi:fallback></xi:include>'"
             };
             String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
-            logger.info(output[0].toString());
-            logger.info(output[1].toString());
-            logger.info(output[2].toString());
+            TestSession.logger.debug(Arrays.toString(output));
         }
     }
 }
