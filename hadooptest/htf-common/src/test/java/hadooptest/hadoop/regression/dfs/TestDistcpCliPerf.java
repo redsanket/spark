@@ -11,6 +11,7 @@ import hadooptest.monitoring.Monitorable;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,6 +173,39 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     }
 
 
+    @Before
+    public void setupProxyHost() throws Exception {
+        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+                !httpProxyHost.equals("default")) {
+
+            PrintWriter writer = new PrintWriter("/tmp/webhdfs-proxy.xml", "UTF-8");
+            writer.println("<?xml version=\"1.0\"?>");
+            writer.println("<configuration>");
+            writer.println("<property>");
+            writer.println("  <name>dfs.webhdfs.proxy</name>");
+            writer.println("  <value>HTTP " + httpProxyHost + ":4080</value>");
+            writer.println("  <final>true</final>");
+            writer.println("</property>");
+            writer.println("</configuration>");
+            writer.close();
+            // yinst set -root /home/gs/gridre/yroot.densed HadoopConfiggeneric10node12diskblue.TODO_INCLUDE_PROXY_CONFIG='<xi:include href="webhdfs-proxy.xml"><xi:fallback></xi:fallback></xi:include>'
+            String[] yinst_cmd = {
+                    "/usr/local/bin/yinst",
+                    "set",
+                    "-root",
+                    "/home/gs/gridre/yroot." + this.localCluster,
+                    "HadoopConfiggeneric10node12diskblue." +
+                            "TODO_INCLUDE_PROXY_CONFIG=" +
+                            "'<xi:include href=" +
+                            "\"/tmp/webhdfs-proxy.xml\"" +
+                            "><xi:fallback></xi:fallback></xi:include>'"
+            };
+            String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
+            TestSession.logger.debug(Arrays.toString(output));
+        }
+    }
+
     // @Monitorable
     @Test
     public void testWebhdfsToHdfsPerf() throws Exception {
@@ -186,15 +220,18 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
         // Option args for distcp
         String optionArgs = "";
+        /*
         String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
         if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
             optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
             optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
         }
+        */
 
         // Option args for distcp, for remote cluster
         String optionArgsRC = "";
+        /*
         String httpProxyHostRC =
                 System.getProperty("HTTP_PROXY_HOST_REMOTE_CLUSTER", "");
         if (httpProxyHostRC != null && !httpProxyHostRC.isEmpty() &&
@@ -202,6 +239,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             optionArgsRC = "-Dhttp.proxyHost=" + httpProxyHostRC;
             optionArgsRC = optionArgsRC + " -Dhttp.proxyPort=4080";
         }
+        */
 
         for (String justTheFile : fileMetadataPerf.keySet()) {
 
@@ -291,12 +329,14 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
         // Option args for distcp
         String optionArgs = "";
+        /*
         String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
         if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
             optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
             optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
         }
+        */
 
         for (String justTheFile : fileMetadataPerf.keySet()) {
 
@@ -390,4 +430,26 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
     }
 
+    @After
+    public void resetProxyHost() throws Exception {
+        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+                !httpProxyHost.equals("default")) {
+            // yinst set -root /home/gs/gridre/yroot.densed HadoopConfiggeneric10node12diskblue.TODO_INCLUDE_PROXY_CONFIG='<xi:include href="webhdfs-proxy.xml"><xi:fallback></xi:fallback></xi:include>'
+            String[] yinst_cmd = {
+                    "/usr/local/bin/yinst",
+                    "set",
+                    "-root",
+                    "/home/gs/gridre/yroot." +
+                            this.localCluster,
+                    "HadoopConfiggeneric10node12diskblue." +
+                            "TODO_INCLUDE_PROXY_CONFIG=" +
+                            "'<xi:include href=" +
+                            "\"webhdfs-proxy.xml\"" +
+                            "><xi:fallback></xi:fallback></xi:include>'"
+            };
+            String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
+            TestSession.logger.debug(Arrays.toString(output));
+        }
+    }
 }
