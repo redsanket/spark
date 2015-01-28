@@ -26,39 +26,39 @@ import com.jayway.restassured.response.Response;
 public class AclDomainBaseClass extends ATSTestsBaseClass {
 
 	public void backupConfigDirAndRestartTimelineServer() throws Exception {
-		if (!jobsLaunchedOnceToSeedData) {
-			TestSession.logger.info("In backupConfigDirAndRestartTimelineServer");
-			// Backup config and replace file, on Resource Manager
-			FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
-					.getCluster();
+		// if (!jobsLaunchedOnceToSeedData) {
+		TestSession.logger.info("In backupConfigDirAndRestartTimelineServer");
+		// Backup config and replace file, on Resource Manager
+		FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+				.getCluster();
 
-			fullyDistributedCluster.getConf(
-					HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
-					.backupConfDir();
-			String dirWhereRMConfHasBeenCopied = fullyDistributedCluster
-					.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
-					.getHadoopConfDir();
-			TestSession.logger.info("Dir where conf has been copied:"
-					+ dirWhereRMConfHasBeenCopied);
+		fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
+		String dirWhereRMConfHasBeenCopied = fullyDistributedCluster.getConf(
+				HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+				.getHadoopConfDir();
+		TestSession.logger.info("Dir where conf has been copied:"
+				+ dirWhereRMConfHasBeenCopied);
 
-			HadoopNode hadoopNode = TestSession.cluster
-					.getNode(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-			String rmHost = hadoopNode.getHostname();
-			// Edit the yarn-site.xml file inplace, in the newly backed up dir
-			Path path = Paths.get(dirWhereRMConfHasBeenCopied + "/yarn-site.xml");
-			Charset charset = StandardCharsets.UTF_8;
+		HadoopNode hadoopNode = TestSession.cluster
+				.getNode(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		String rmHost = hadoopNode.getHostname();
+		// Edit the yarn-site.xml file inplace, in the newly backed up dir
+		Path path = Paths.get(dirWhereRMConfHasBeenCopied + "/yarn-site.xml");
+		Charset charset = StandardCharsets.UTF_8;
 
-			String content = new String(Files.readAllBytes(path), charset);
-			content = content.replaceAll("<value> gridadmin,hadoop,hadoopqa</value>", "<value> gridadmin</value>");
-			Files.write(path, content.getBytes(charset));
-			//Now bounce the timelineserver
-			List<String> newConfigLocation = new ArrayList<String>();
-			newConfigLocation.add(" --config " + dirWhereRMConfHasBeenCopied);
-			restartATSWithTheseArgs(rmHost, newConfigLocation);
-			jobsLaunchedOnceToSeedData = true;
-		}
+		String content = new String(Files.readAllBytes(path), charset);
+		content = content.replaceAll(
+				"<value> gridadmin,hadoop,hadoopqa</value>",
+				"<value> gridadmin</value>");
+		Files.write(path, content.getBytes(charset));
+		// Now bounce the timelineserver
+		List<String> newConfigLocation = new ArrayList<String>();
+		newConfigLocation.add(" --config " + dirWhereRMConfHasBeenCopied);
+		restartATSWithTheseArgs(rmHost, newConfigLocation);
+//		jobsLaunchedOnceToSeedData = true;
+		// }
 	}
-	
 
 	/**
 	 * We don't want to launch seed data for these tests, hence override this
@@ -67,12 +67,11 @@ public class AclDomainBaseClass extends ATSTestsBaseClass {
 	 */
 	@Override
 	public void cleanupAndPrepareForTestRun() throws Exception {
-			
-		
+
 		TestSession.logger.info("Running cleanupAndPrepareForTestRun");
-		
+
 		backupConfigDirAndRestartTimelineServer();
-		
+
 		// Fetch cookies
 		HTTPHandle httpHandle = new HTTPHandle();
 		String hitusr_1_cookie = null;
@@ -112,7 +111,7 @@ public class AclDomainBaseClass extends ATSTestsBaseClass {
 		TestSession.logger.info("RESOURCE MANAGER HOST:::::::::::::::::::::"
 				+ rmHost);
 
-		createUserGroupMapping();		
+		createUserGroupMapping();
 
 	}
 
@@ -168,19 +167,19 @@ public class AclDomainBaseClass extends ATSTestsBaseClass {
 	 * 
 	 * @throws Exception
 	 */
-	
-//	public void removeUsersHadoopAndHadoopqaAsAdminsInTimelineServer()
-//			throws Exception {
-//		// Get the RM host
-//		HadoopNode hadoopNode = TestSession.cluster
-//				.getNode(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-//		String rmHost = hadoopNode.getHostname();
-//		// Prepare the arg list
-//		List<String> modifyYarnAdminAclList = new ArrayList<String>();
-//		modifyYarnAdminAclList.add("\"yarn.admin.acl= gridadmin\"");
-//		TestSession.logger.info("prepared  list:" + modifyYarnAdminAclList);
-//		restartATSWithTheseArgs(rmHost, modifyYarnAdminAclList);
-//	}
+
+	// public void removeUsersHadoopAndHadoopqaAsAdminsInTimelineServer()
+	// throws Exception {
+	// // Get the RM host
+	// HadoopNode hadoopNode = TestSession.cluster
+	// .getNode(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+	// String rmHost = hadoopNode.getHostname();
+	// // Prepare the arg list
+	// List<String> modifyYarnAdminAclList = new ArrayList<String>();
+	// modifyYarnAdminAclList.add("\"yarn.admin.acl= gridadmin\"");
+	// TestSession.logger.info("prepared  list:" + modifyYarnAdminAclList);
+	// restartATSWithTheseArgs(rmHost, modifyYarnAdminAclList);
+	// }
 
 	@AfterClass
 	public static void restoreTheAdminsAfterATest() throws Exception {
@@ -191,8 +190,8 @@ public class AclDomainBaseClass extends ATSTestsBaseClass {
 		// Prepare the arg list
 		List<String> modifyYarnAdminAclList = new ArrayList<String>();
 		ATSTestsBaseClass atsTestBaseClass = new ATSTestsBaseClass();
-//		atsTestBaseClass.restartATSWithTheseArgs(rmHost, modifyYarnAdminAclList);
-		
+		// atsTestBaseClass.restartATSWithTheseArgs(rmHost,
+		// modifyYarnAdminAclList);
 
 	}
 
