@@ -1420,7 +1420,7 @@
 					<scope>system</scope>
 					<systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
 				</dependency>
-				
+
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>system-htrace-core</artifactId>
@@ -2685,6 +2685,20 @@
 					<groupId>com.jayway.restassured</groupId>
 					<artifactId>rest-assured</artifactId>
 					<version>1.8.1</version>
+					<exclusions>
+						<!-- Exclude Groovy because of classpath issue -->
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>org.codehaus.groovy</groupId>
+					<artifactId>groovy-all</artifactId>
+					<!-- Needs to be the same version that REST Assured depends on -->
+					<version>2.3.7</version>
+					<scope>test</scope>
 				</dependency>
 				<dependency>
 					<groupId>com.jayway.restassured</groupId>
