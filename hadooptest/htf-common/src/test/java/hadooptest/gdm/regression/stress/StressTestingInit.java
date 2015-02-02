@@ -121,8 +121,8 @@ public class StressTestingInit   {
 
 			CreateInstancesAndInstanceFiles createInstances = new CreateInstancesAndInstanceFiles(this.PATH , configuration , this.dataSourceFolderName , this.instance , this.sourceFilePath , this.noOfFilesInInstance);
 			String result = ugi.doAs(createInstances);
-			PrivilegedExceptionActionImpl privilegedExceptionActioniImplOject = new PrivilegedExceptionActionImpl(this.PATH , configuration , this.dataSourceFolderName , this.instance , this.sourceFilePath , this.noOfFilesInInstance);
-			String result = ugi.doAs(privilegedExceptionActioniImplOject);
+			//PrivilegedExceptionActionImpl privilegedExceptionActioniImplOject = new PrivilegedExceptionActionImpl(this.PATH , configuration , this.dataSourceFolderName , this.instance , this.sourceFilePath , this.noOfFilesInInstance);
+			//String result = ugi.doAs(privilegedExceptionActioniImplOject);
 			TestSession.logger.info("Result = " + result);
 		}
 	}

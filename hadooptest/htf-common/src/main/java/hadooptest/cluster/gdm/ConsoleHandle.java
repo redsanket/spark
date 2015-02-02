@@ -1616,7 +1616,7 @@ public final class ConsoleHandle
     /**
 	 * Verify whether killed dataset is in failed state.
 	 */
-	public JSONArray checkDataSetInFailedWorkFlow(String facetName , String datasetName , String activationTime)  {
+	public JSONArray validateDatasetHasFailedWorkflow(String facetName , String datasetName , String activationTime)  {
 		int failedJob = 0;
 		JSONArray jsonArray = null;
 		String failedWorkFlowURL = this.getConsoleURL() + "/console/api/workflows/failed?starttime=" + activationTime +"&endtime=" + GdmUtils.getCalendarAsString() + "&datasetname=" + datasetName 
@@ -1705,7 +1705,7 @@ public final class ConsoleHandle
 	 * Remove the specified datasource
 	 * @param dataSourceName
 	 */
-	public void testRemoveDataSource(String dataSourceName) {
+	public void removeDataSource(String dataSourceName) {
 		JSONUtil jsonUtil = new JSONUtil();
 		String resource = jsonUtil.constructResourceNamesParameter(Arrays.asList(dataSourceName));
 
