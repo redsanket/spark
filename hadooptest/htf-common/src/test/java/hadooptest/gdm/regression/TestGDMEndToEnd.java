@@ -31,7 +31,7 @@ import com.jayway.restassured.path.json.JsonPath;
 /**
  * Test Scenario : Verify whether GDM end to end case is covered.
  * Description :
- * 	1) Get all the installed grids( to use as targets)
+ *  1) Get all the installed grids( to use as targets)
  *  2) Create datasources ( targets) to avoid path collision , if already existing datasource is used.
  *  3) Create a dataset.
  *  4) Activate the dataset
@@ -115,7 +115,7 @@ public class TestGDMEndToEnd extends TestSession {
 		this.getRunningDataSetAndKillWorkFlow("acquisition" , this.dataSetName);
 
 		// check whether killed dataset is in failed state
-		JSONArray failedWorkFlowJson = this.consoleHandle.checkDataSetInFailedWorkFlow("acquisition" , this.dataSetName , this.dsActivationTime);
+		JSONArray failedWorkFlowJson = this.consoleHandle.validateDatasetHasFailedWorkflow("acquisition" , this.dataSetName , this.dsActivationTime);
 
 		// get last successful executed step name, start date and end date.
 		JSONObject lastStepSuccessFulStepDetails =  this.workFlowHelperObj.getWorkFlowDetailedSteps("acquisition" , "failed" , this.dataSetName , this.LAST_STEP);
@@ -141,7 +141,7 @@ public class TestGDMEndToEnd extends TestSession {
 
 		// check whether killed dataset is in failed state
 		failedWorkFlowJson = null;
-		failedWorkFlowJson = this.consoleHandle.checkDataSetInFailedWorkFlow("acquisition" , this.dataSetName , this.dsActivationTime);
+		failedWorkFlowJson = this.consoleHandle.validateDatasetHasFailedWorkflow("acquisition" , this.dataSetName , this.dsActivationTime);
 
 		// restart the workflow
 		resumeORRestartWorkflow("acquisition" , this.dataSetName , "restart", failedWorkFlowJson);
@@ -180,8 +180,8 @@ public class TestGDMEndToEnd extends TestSession {
 		this.consoleHandle.removeDataSet(this.dataSetName);
 
 		// remove datasource
-		this.consoleHandle.testRemoveDataSource(this.target1);
-		this.consoleHandle.testRemoveDataSource(this.target2);
+		this.consoleHandle.removeDataSource(this.target1);
+		this.consoleHandle.removeDataSource(this.target2);
 	}
 
 	/**
