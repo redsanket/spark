@@ -19,6 +19,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 
+import org.junit.Test;
 
 /**
  * Class that creates the instance(s) and instance files on the source cluster.
@@ -120,6 +121,8 @@ public class StressTestingInit   {
 
 			CreateInstancesAndInstanceFiles createInstances = new CreateInstancesAndInstanceFiles(this.PATH , configuration , this.dataSourceFolderName , this.instance , this.sourceFilePath , this.noOfFilesInInstance);
 			String result = ugi.doAs(createInstances);
+			PrivilegedExceptionActionImpl privilegedExceptionActioniImplOject = new PrivilegedExceptionActionImpl(this.PATH , configuration , this.dataSourceFolderName , this.instance , this.sourceFilePath , this.noOfFilesInInstance);
+			String result = ugi.doAs(privilegedExceptionActioniImplOject);
 			TestSession.logger.info("Result = " + result);
 		}
 	}
