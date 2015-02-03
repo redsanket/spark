@@ -307,9 +307,9 @@ my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -
 note($cmd);
 chomp($hadoop_version = `$cmd`);
 
-my $tez_version;
+my $tez_version="";
 if ($tez){
-  my $cmd = "ls -l /home/gs/tez/tez-api-0*.jar | cut -d' ' -f9| cut -d'-' -f3| rev | cut -d. -f2- | rev";
+  my $cmd = "ls -l /home/gs/tez/current/tez-api-0*.jar | tr -s ' ' | cut -d' ' -f9| cut -d'-' -f3| rev | cut -d. -f2- | rev";
   note($cmd);
   chomp($tez_version = `$cmd`);
 }
