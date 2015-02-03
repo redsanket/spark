@@ -1,6 +1,12 @@
 package hadooptest.tez.examples.extensions;
 
+import hadooptest.TestSession;
 import hadooptest.tez.ats.SeedData;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -49,9 +55,9 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	 * @return
 	 * @throws Exception
 	 */
-	public int run(String[]args,
-			TezConfiguration tezConf, TezClient tezClient) throws Exception {
-		return super.run(tezConf, args, tezClient);
+	public boolean run(String[] inputPaths, String[] outputPaths,
+			Configuration conf, int numPartitions) throws Exception {
+		return super.run(inputPaths, outputPaths, conf, numPartitions);
 	}
 
 	/**
@@ -59,8 +65,8 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	 */
 	private static final String enablePrewarmConfig = "simplesessionexample.prewarm";
 
-	public int run(String[] args,
-			Configuration conf, UserGroupInformation ugi, SeedData seedData, String acls)
+	public boolean run(String[] inputPaths, String[] outputPaths,
+			Configuration conf, int numPartitions, UserGroupInformation ugi, SeedData seedData, String acls)
 			throws Exception {
 		TezConfiguration tezConf;
 		if (conf != null) {
@@ -68,14 +74,6 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 		} else {
 			tezConf = new TezConfiguration();
 		}
-	    String[] inputPaths = args[0].split(",");
-	    String[] outputPaths = args[1].split(",");
-	    if (inputPaths.length != outputPaths.length) {
-	      System.err.println("Inputs and outputs must be equal in number");
-	      return 3;
-	    }
-	    int numPartitions = args.length == 3 ? Integer.parseInt(args[2]) : 1;
-
 		/**
 		 * HTF: Set the UGI and acls
 		 */
@@ -137,7 +135,7 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 			for (int i = 0; i < inputPaths.length; ++i) {
 				DAG dag = OrderedWordCount.createDAG(tezConf, inputPaths[i],
 						//The names of DAG must be unique in a session
-						outputPaths[i], numPartitions, false, ("DAG-Iteration-" + i)); 				
+						outputPaths[i], numPartitions, ("DAG-Iteration-" + i)); 				
 				tezClient.waitTillReady();
 				System.out.println("Running dag number " + i);
 				DAGClient dagClient = tezClient.submitDAG(dag);
@@ -148,11 +146,11 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 					System.out.println("Iteration " + i
 							+ " failed with diagnostics: "
 							+ dagStatus.getDiagnostics());
-					return -1;
+					return false;
 				}
 				
 			}
-			return 0;
+			return true;
 		} finally {
 			tezClient.stop();
 		}

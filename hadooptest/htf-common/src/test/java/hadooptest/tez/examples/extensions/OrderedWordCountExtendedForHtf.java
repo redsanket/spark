@@ -76,7 +76,7 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	    tezClient.start();
 
 	    try {
-	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, true, "OrderedWordCount");
+	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "OrderedWordCount");
 
 	        tezClient.waitTillReady();
 	        DAGClient dagClient = tezClient.submitDAG(dag);
@@ -129,7 +129,7 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	    tezClient.start();
 
 	    try {
-	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, false, "DAG-" + testName +"-" + ugi.getUserName());
+	        DAG dag = createDAG(tezConf, inputPath, outputPath, numPartitions, "DAG-" + testName +"-" + ugi.getUserName());
 	        tezClient.waitTillReady();
 	        DAGClient dagClient = tezClient.submitDAG(dag);	        
 	        // monitoring
