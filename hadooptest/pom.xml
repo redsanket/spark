@@ -1538,7 +1538,7 @@
 					<artifactId>ystorm_core</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${yinst.home}/lib64/storm/current/lib/storm-core-${storm.version.community}.jar</systemPath>
+					<systemPath>${yinst.home}/lib64/jars/storm-core.jar</systemPath>
 				</dependency>
 
 				<dependency>
@@ -1554,7 +1554,7 @@
 					<artifactId>ystorm_yahoo</artifactId>
 					<version>0.9.2</version>
 					<scope>system</scope>
-					<systemPath>${yinst.home}/lib64/storm/current/lib/storm_yahoo-${storm.version.community}.jar</systemPath>
+					<systemPath>${yinst.home}/lib64/jars/storm_yahoo.jar</systemPath>
 				</dependency>
 
 				<dependency>
