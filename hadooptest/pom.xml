@@ -52,7 +52,6 @@
 		<thread.count>8</thread.count>
 		<yinst.home>/home/y</yinst.home>
 		<home.gs>/home/gs</home.gs>
-		<tez.version>0.6.0-SNAPSHOT</tez.version>
 	</properties>
 
 	<build>
@@ -1429,60 +1428,61 @@
 					<systemPath>${HADOOP_SHARE}/tools/lib/htrace-core-3.0.4.jar</systemPath>
 				</dependency>
 
-                                <!-- HBase -->
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-client</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-client.jar</systemPath>
-                  <exclusions>
-                    <exclusion>
-                      <groupId>org.slf4j</groupId>
-                      <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                  </exclusions>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>cloudera-htrace-protocol</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/htrace-core-2.04.jar</systemPath>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-protocol</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-protocol.jar</systemPath>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-common</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-common.jar</systemPath>
-                  <exclusions>
-                    <exclusion>
-                      <groupId>org.slf4j</groupId>
-                      <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                  </exclusions>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-hadoop2-compat</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-hadoop2-compat.jar</systemPath>
-                  <exclusions>
-                    <exclusion>
-                      <groupId>org.slf4j</groupId>
-                      <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                  </exclusions>
-                </dependency>
+				<!-- HBase -->
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-client</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-client.jar</systemPath>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-log4j12</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>cloudera-htrace-protocol</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/htrace-core-2.04.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-protocol</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-protocol.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-common</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-common.jar</systemPath>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-log4j12</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-hadoop2-compat</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-hadoop2-compat.jar</systemPath>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-log4j12</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
 			</dependencies>
 		</profile>
 
@@ -1509,7 +1509,7 @@
 
 				<!-- STORM -->
 
-                <dependency>
+				<dependency>
 					<groupId>system</groupId>
 					<artifactId>ystorm_servlet-api</artifactId>
 					<version>0.9.2</version>
@@ -1776,60 +1776,61 @@
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yjava_jetty_fetch/libexec/yjava_jetty/lib/jetty-xml-${jetty.version}.jar</systemPath>
 				</dependency>
-                                <!-- HBase -->
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-client</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-client.jar</systemPath>
-                  <exclusions>
-                    <exclusion>
-                      <groupId>org.slf4j</groupId>
-                      <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                  </exclusions>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>cloudera-htrace-protocol</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/htrace-core-2.04.jar</systemPath>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-protocol</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-protocol.jar</systemPath>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-common</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-common.jar</systemPath>
-                  <exclusions>
-                    <exclusion>
-                      <groupId>org.slf4j</groupId>
-                      <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                  </exclusions>
-                </dependency>
-                <dependency>
-                  <groupId>system</groupId>
-                  <artifactId>hbase-hadoop2-compat</artifactId>
-                  <version>${hbase.version}</version>
-                  <scope>system</scope>
-                  <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-hadoop2-compat.jar</systemPath>
-                  <exclusions>
-                    <exclusion>
-                      <groupId>org.slf4j</groupId>
-                      <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                  </exclusions>
-                </dependency>
+
+				<!-- HBase -->
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-client</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-client.jar</systemPath>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-log4j12</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>cloudera-htrace-protocol</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/htrace-core-2.04.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-protocol</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-protocol.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-common</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-common.jar</systemPath>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-log4j12</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>hbase-hadoop2-compat</artifactId>
+					<version>${hbase.version}</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-hadoop2-compat.jar</systemPath>
+					<exclusions>
+						<exclusion>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-log4j12</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
 
 				<!-- SPARK -->
 
@@ -2171,170 +2172,6 @@
 					<version>1.2.12</version>
 				</dependency>
 
-				<!-- TEZ   -->
-				<!--
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-api</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-api-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-common</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-common-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-dag</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-dag-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-examples</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-examples-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-mapreduce</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-mapreduce-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-runtime-internals</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-runtime-internals-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-runtime-library</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-runtime-library-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-tests</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-tests-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
-
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-yarn-timeline-history</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>/home/gs/tez/tez-yarn-timeline-history-${TEZ_VERSION}.jar</systemPath>
-				</dependency>
--->
-
-				<!-- Tez & /lib dependencies -->
-				<!--
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-cli</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-cli-1.2.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-codec</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-codec-1.4.jar</systemPath>
-				</dependency>
-
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-collections3</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-collections-3.2.1.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-collections4</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-collections4-4.0.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-io</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-io-2.4.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-lang</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-lang-2.6.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-logging</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-logging-1.1.3.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-math3</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/commons-math3-3.1.1.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>guava</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/guava-11.0.2.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>jettisin</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/jettison-1.3.4.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>jsr305</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/jsr305-2.0.3.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>protobuf</artifactId>
-					<version>0.9.2</version>
-					<scope>system</scope>
-					<systemPath>${home.gs}/tez/lib/protobuf-java-2.5.0.jar  </systemPath>
-				</dependency>
--->
 				<!-- STORM -->
 
 				<dependency>
@@ -2607,6 +2444,113 @@
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-assembly-${spark.version}-hadoop${spark.hadoop.version}.jar</systemPath>
 				</dependency>
 
+				<!-- TEZ -->
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-api</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-api.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-common</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-common.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-dag</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-dag.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-examples</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-examples.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-mapreduce</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mapreduce.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-yarn-timeline-history-with-acls</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-yarn-timeline-history-with-acls.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-runtime-internals</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-internals.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-runtime-library</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-library.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>tez-tests</artifactId>
+					<version>0.6.0</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-tests.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-cli</artifactId>
+					<version>1.2</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-cli-1.2.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-codec</artifactId>
+					<version>1.4</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-codec-1.4.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-collections</artifactId>
+					<version>3.2.1</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-collections-3.2.1.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-collections4</artifactId>
+					<version>3.2.1</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-collections4-4.0.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>commons-io</artifactId>
+					<version>2.4</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-io-2.4.jar</systemPath>
+				</dependency>
+				<dependency>
+					<groupId>system</groupId>
+					<artifactId>jersey-client</artifactId>
+					<version>1.9</version>
+					<scope>system</scope>
+					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/jersey-client-1.9.jar</systemPath>
+				</dependency>
+
 			</dependencies>
 
 		</profile>
@@ -2618,12 +2562,12 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<dependencies>
-                <!-- Commons Exec dependency-->
-                <dependency>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-exec</artifactId>
-                    <version>1.3</version>
-                </dependency>
+				<!-- Commons Exec dependency-->
+				<dependency>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-exec</artifactId>
+					<version>1.3</version>
+				</dependency>
 
 				<dependency>
 					<groupId>junit</groupId>
@@ -2823,81 +2767,6 @@
 					<version>${hadoop.version}</version>
 					<scope>provided</scope>
 				</dependency>
-
-				<!-- TEZ Dependencies needed for compilation -->
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-api</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<!--
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-dist</artifactId>
-					<version>0.2.0.SNAPSHOT</version>
-				</dependency>
-				-->
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-common</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-dag</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-examples</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-mapreduce</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<!--<artifactId>tez-plugins</artifactId>-->
-					<artifactId>tez-yarn-timeline-history-with-acls</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-runtime-internals</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-runtime-library</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.tez</groupId>
-					<artifactId>tez-yarn-timeline-history</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-
-				<dependency>
-				<groupId>org.apache.tez</groupId>
-					<artifactId>tez-tests</artifactId>
-					<version>${tez.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-bundle</artifactId>
-					<version>1.10-b01</version>
-				</dependency>
-
 			</dependencies>
 		</profile>
 	</profiles>

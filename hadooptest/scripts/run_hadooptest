@@ -398,7 +398,6 @@ if ($use_mvn) {
         # Just clean the project.
     	execute("CLUSTER=$cluster " .
             "HADOOP_VERSION=$hadoop_version " .
-            "TEZ_VERSION=$tez_version " .
             "HADOOP_INSTALL=$hadoop_install " .
             "HADOOP_SHARE=$hadoop_share " .
             "HTF_WORKSPACE=$workspace " .
@@ -410,7 +409,6 @@ if ($use_mvn) {
     ############################################################################
     execute("CLUSTER=$cluster ".
             "HADOOP_VERSION=$hadoop_version " .
-            "TEZ_VERSION=$tez_version " .
             "HADOOP_INSTALL=$hadoop_install " .
             "HADOOP_SHARE=$hadoop_share " .
             "HTF_WORKSPACE=$workspace " .
