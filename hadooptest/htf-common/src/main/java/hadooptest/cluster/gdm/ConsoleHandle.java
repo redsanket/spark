@@ -677,12 +677,10 @@ public final class ConsoleHandle
 	 * @return console response from submitting dataSet
 	 */
 	public Response createDataSet(String dataSetName, String xmlFileContent) {
-		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource");
+		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource") + "?action=Create&operation=1";
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
 		postBody.append(xmlFileContent);
-		postBody.append("\naction=Create\n");
-		postBody.append("operation=1\n");
 		TestSession.logger.info("createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		TestSession.logger.info("** createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
@@ -1746,6 +1744,4 @@ public final class ConsoleHandle
 		flag = responseMessage.contains(dataSourceName.trim()) && responseMessage.contains("successful");
 		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
 	}
-	
-	
 }
