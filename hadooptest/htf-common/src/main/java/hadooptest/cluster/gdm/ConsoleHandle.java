@@ -290,7 +290,7 @@ public final class ConsoleHandle
 	public Response cloneDataSet(String dataSetName, String configDataFile, String originalDataSetName)
 	{
 		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource")  + "?action=Create&operation=1";
-
+		TestSession.logger.info("cloneDataSet resource - " + resource);
 		String xmlFileContent = GdmUtils.readFile(configDataFile);
 		ArrayList params = new ArrayList();
 		StringBuilder postBody = new StringBuilder();
