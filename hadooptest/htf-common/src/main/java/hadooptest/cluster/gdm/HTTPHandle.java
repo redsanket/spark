@@ -35,32 +35,38 @@ public class HTTPHandle
 	public static Header YBYCookieHeader = null;
 	private String baseURL;
 	private Configuration conf;
-	public String cookie; 
+	public String cookie;
 
-	public HTTPHandle()
-	{
+	public HTTPHandle() {
+		init();
+		this.userName = this.conf.getString("auth.usr");
+		this.passWord = this.conf.getString("auth.pp");
+		this.logonToBouncer(this.userName,this.passWord);	
+	}
+	
+	public HTTPHandle(String userName, String passWord) {
+		init();
+		this.logonToBouncer(userName , passWord);	
+	} 
+	
+	
+	public void init(){
 		this.httpClient = new HttpClient();
 		try {
-			String configPath = Util.getResourceFullPath(
-					"gdm/conf/config.xml");
-			
+			String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
 			this.conf = new XMLConfiguration(configPath);
 			TestSession.logger.debug("Found conf/config.xml configuration file.");
-
 			SSO_SERVER = this.conf.getString("sso_server.resource", "https://gh.bouncer.login.yahoo.com/login/");
 			this.baseURL = this.conf.getString("hostconfig.console.base_url");
-
 			TestSession.logger.debug(new StringBuilder().append("Console Base URL: ").append(this.baseURL).toString());
-			this.userName = this.conf.getString("auth.usr");
-			this.passWord = this.conf.getString("auth.pp");
-			this.logonToBouncer(this.userName,this.passWord);
+		 
 		} catch (ConfigurationException localConfigurationException) {
 			TestSession.logger.error(localConfigurationException.toString());
 		}
 		this.httpClient.getParams().setParameter("User-Agent", "Jakarta Commons-HttpClient/3.1");
 		this.httpClient.getParams().setParameter("http.protocol.content-charset", "ISO-8859-1");
 	}
-
+	
 	/**
 	 * Return the bouncer cookie
 	 * @return - cookie as String
@@ -88,6 +94,8 @@ public class HTTPHandle
 	
 	public void logonToBouncer(String paramString1, String paramString2)
 	{
+		TestSession.logger.info("user name = " + paramString1);
+		
 		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
 		String str = null;
 		try {
@@ -99,7 +107,7 @@ public class HTTPHandle
 		cookie = str; 
 		YBYCookieHeader = new Header("Cookie", str);
 		this.httpClient.getParams().setParameter("Cookie", str);
-		TestSession.logger.debug("SSO auth cookie set");
+		TestSession.logger.debug("SSO auth cookie set  " + str);
 	}
 
 	public HttpMethod makeGET(String paramString1, String paramString2, ArrayList<CustomNameValuePair> paramArrayList) {
