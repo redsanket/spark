@@ -289,8 +289,8 @@ public final class ConsoleHandle
 
 	public Response cloneDataSet(String dataSetName, String configDataFile, String originalDataSetName)
 	{
-		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource");
-
+		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource")  + "?action=Create&operation=1";
+		TestSession.logger.info("cloneDataSet resource - " + resource);
 		String xmlFileContent = GdmUtils.readFile(configDataFile);
 		ArrayList params = new ArrayList();
 		StringBuilder postBody = new StringBuilder();
@@ -301,8 +301,6 @@ public final class ConsoleHandle
 
 		postBody.append("xmlFileContent=");
 		postBody.append(xmlFileContent);
-		postBody.append("\naction=Create\n");
-		postBody.append("operation=1\n");
 
 		TestSession.logger.info("cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		TestSession.logger.info("** cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
@@ -677,12 +675,10 @@ public final class ConsoleHandle
 	 * @return console response from submitting dataSet
 	 */
 	public Response createDataSet(String dataSetName, String xmlFileContent) {
-		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource");
+		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource") + "?action=Create&operation=1";
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
 		postBody.append(xmlFileContent);
-		postBody.append("\naction=Create\n");
-		postBody.append("operation=1\n");
 		TestSession.logger.info("createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		TestSession.logger.info("** createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
@@ -867,12 +863,11 @@ public final class ConsoleHandle
 	 * @return console response from submitting dataSet
 	 */
 	public boolean createDataSource(String xmlFileContent) {
-		String resource = this.conf.getString("hostconfig.console.datasource.clone.resource");
+		String resource = this.conf.getString("hostconfig.console.datasource.clone.resource")  + "?action=Create&operation=1";
+		TestSession.logger.info("CreateDataSource resource = " + resource);
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
 		postBody.append(xmlFileContent);
-		postBody.append("\naction=Create\n");
-		postBody.append("operation=1\n");
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
 		this.response = new Response(postMethod, false);
 		if (response.getStatusCode() == 200) {
@@ -961,7 +956,7 @@ public final class ConsoleHandle
 	 * @return console response from submitting dataSet
 	 */
 	public Response createDataSource(String oldDataSetName, String newDataSetName, String xmlFileContent) {
-		String resource = this.conf.getString("hostconfig.console.datasource.clone.resource");
+		String resource = this.conf.getString("hostconfig.console.datasource.clone.resource") + "?action=Create&operation=1";
 
 		xmlFileContent = xmlFileContent.replaceAll(oldDataSetName, newDataSetName);
 		TestSession.logger.info("xmlFileContent  = "+xmlFileContent);
@@ -969,8 +964,6 @@ public final class ConsoleHandle
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
 		postBody.append(xmlFileContent);
-		postBody.append("\naction=Create\n");
-		postBody.append("operation=1\n");
 		TestSession.logger.info("createDataSet(dataSetName=" + newDataSetName + ", xmlFileContent=" + xmlFileContent);
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
 		this.response = new Response(postMethod, false);
@@ -1746,6 +1739,4 @@ public final class ConsoleHandle
 		flag = responseMessage.contains(dataSourceName.trim()) && responseMessage.contains("successful");
 		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
 	}
-	
-	
 }
