@@ -32,6 +32,7 @@ public class TestTezPerfCountEntityIds extends ATSTestsBaseClass {
 		ATSTestsBaseClass.jobsLaunchedOnceToSeedData = true;
 	}
 	static String outputFile = "/grid/0/tmp/entIdSet.txt";
+	String lastEntId = null;
 	@Test
 	public void countEntityIds() throws InterruptedException {
 		File file = new File(outputFile);
@@ -44,7 +45,7 @@ public class TestTezPerfCountEntityIds extends ATSTestsBaseClass {
 		int LIMIT = 100;
 		boolean returnedCountLessThanLimit = false;
 		Set<String> tempEntitiesSet = null;
-		String lastEntId = null;
+		
 		while (!returnedCountLessThanLimit) {
 			String url;
 			if (lastEntId == null) {
@@ -59,7 +60,7 @@ public class TestTezPerfCountEntityIds extends ATSTestsBaseClass {
 			}
 
 			tempEntitiesSet = run(url, HadooptestConstants.UserNames.HITUSR_1);
-			lastEntId = getLastEntId(tempEntitiesSet);
+//			lastEntId = getLastEntId(tempEntitiesSet);
 			if (tempEntitiesSet.size() < LIMIT) {
 				returnedCountLessThanLimit = true;
 				TestSession.logger.info("!OK! : returnedCountLessThanLimit :"
@@ -77,7 +78,7 @@ public class TestTezPerfCountEntityIds extends ATSTestsBaseClass {
 
 //			Thread.sleep(5000);
 		}
-		lastEntId = getLastEntId(finalEntitiesSet);
+//		lastEntId = getLastEntId(finalEntitiesSet);
 		TestSession.logger.info("Final entity in finalEntitiesSet is: "
 				+ lastEntId + " and count is: " + finalEntitiesSet.size());
 	}
@@ -135,6 +136,7 @@ public class TestTezPerfCountEntityIds extends ATSTestsBaseClass {
 					// ENTITY
 					String entity = (String) aDagEntityJson.get("entity");
 					tempEntitySet.add(entity);
+					lastEntId = entity;
 
 				}
 				int xx = 1;
@@ -145,7 +147,8 @@ public class TestTezPerfCountEntityIds extends ATSTestsBaseClass {
 				TestSession.logger
 						.info("------------------------------------------------------------------------------------------------------------------");
 				TestSession.logger.info("Last entity in this set: "
-						+ getLastEntId(tempEntitySet));
+//						+ getLastEntId(tempEntitySet));
+						+ lastEntId);
 				TestSession.logger.info("Count of entities: "
 						+ tempEntitySet.size());
 				TestSession.logger
