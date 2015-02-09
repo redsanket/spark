@@ -1045,19 +1045,17 @@ public class ATSTestsBaseClass extends TestSession {
 				TestSimpleSessionExample test = new TestSimpleSessionExample();
 				test.copyTheFileOnHdfs();
 				chmodOutputPath777Tmp();
-				int returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
-						.run(new String[]{TestSimpleSessionExample.inputFilesOnHdfs,
-								TestSimpleSessionExample.outputPathsOnHdfs,"2"},
-								HtfTezUtils.setupConfForTez(
-										TestSession.cluster.getConf(),
-										HadooptestConstants.Execution.TEZ_CLUSTER,
-										HtfTezUtils.Session.YES,
-										TimelineServer.ENABLED,
-										"SimpleSessionEx"), ugi, seedData,
-								acls);
+				boolean returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun).run(TestSimpleSessionExample.inputFilesOnHdfs,
+				TestSimpleSessionExample.outputPathsOnHdfs,
+				HtfTezUtils.setupConfForTez(
+				TestSession.cluster.getConf(),
+				HadooptestConstants.Execution.TEZ_CLUSTER,
+				HtfTezUtils.Session.YES,
+				TimelineServer.ENABLED,
+				"SimpleSessionEx"), 2, ugi, seedData,
+				acls);
 				test.deleteTezStagingDirs();
-				Assert.assertTrue(returnCode == 0);
-
+				Assert.assertTrue(returnCode == true);
 			} else if (this.theJobToRun instanceof MRRSleepJobExtendedForTezHTF) {
 
 				/**
