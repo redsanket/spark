@@ -35,7 +35,7 @@ public class TestMapredWordCountOnTez extends TestSession {
 		RandomTextWriter randomTextWriter = new RandomTextWriter();
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.ENABLED, "n/a");
 		conf.setInt("mapreduce.randomtextwriter.totalbytes", 10240);
 		conf.setInt(MRJobConfig.NUM_MAPS, 2);
 
@@ -55,7 +55,7 @@ public class TestMapredWordCountOnTez extends TestSession {
 				RANDOM_TEXT_WRITTEN_TO_HDFS_HERE, OUT_DIR };
 		mapredWordCount.setConf(HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED, "n/a"));
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.ENABLED, "n/a"));
 		int returnCode = mapredWordCount.run(args);
 		Assert.assertEquals(returnCode, 0);
 	}

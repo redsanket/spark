@@ -93,7 +93,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.ENABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -121,7 +121,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED,"n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.ENABLED,"n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -149,7 +149,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.ENABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -177,7 +177,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.ENABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -205,7 +205,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.ENABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}
@@ -233,7 +233,7 @@ public class TestJoinOnTez extends TestSession {
 		printArgs(args);
 		Configuration conf = HtfTezUtils.setupConfForTez(
 				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED, "n/a");
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.ENABLED, "n/a");
 		int res = ToolRunner.run(conf, new Join(), args);
 		Assert.assertEquals(res, 0);
 	}

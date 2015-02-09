@@ -56,7 +56,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 				OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED,
+						HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.ENABLED,
 						testName.getMethodName()));
 		int returnCode = run(tezConf, args, createTezClient(tezConf));
 		Assert.assertTrue(returnCode == 0);
@@ -70,7 +70,7 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 				OUTPUT_DIR, "1" };
 		TezConfiguration tezConf = new TezConfiguration(
 				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.DISABLED,
+						HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.ENABLED,
 						testName.getMethodName()));
 		int returnCode = run(tezConf, args, createTezClient(tezConf));
 		Assert.assertTrue(returnCode == 0);

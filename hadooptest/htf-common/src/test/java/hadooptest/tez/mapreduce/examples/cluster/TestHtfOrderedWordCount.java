@@ -105,7 +105,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-				TimelineServer.DISABLED, testName.getMethodName());
+				TimelineServer.ENABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -115,7 +115,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
-				TimelineServer.DISABLED, testName.getMethodName());
+				TimelineServer.ENABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -125,7 +125,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-				TimelineServer.DISABLED, testName.getMethodName());
+				TimelineServer.ENABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -135,7 +135,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 		String[] sleepJobArgs = new String[] { INPUT_FILE, OUTPUT_LOCATION };
 		int returnCode = run(sleepJobArgs,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
-				TimelineServer.DISABLED, testName.getMethodName());
+				TimelineServer.ENABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

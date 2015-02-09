@@ -53,7 +53,7 @@ public class TestMRRSleepJob extends MRRSleepJobExtendedForTezHTF {
 		 * [-writeSplitsToDfs (false)/true]
 		 */
 		int returnCode = run(sleepJobArgs, HadooptestConstants.Execution.TEZ_CLUSTER,
-				Session.YES, TimelineServer.DISABLED,testName.getMethodName());
+				Session.YES, TimelineServer.ENABLED,testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 

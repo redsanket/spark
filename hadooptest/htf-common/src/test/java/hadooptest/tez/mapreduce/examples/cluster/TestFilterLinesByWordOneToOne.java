@@ -76,7 +76,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.ENABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -93,7 +93,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "true" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.DISABLED,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.ENABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -109,7 +109,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "false" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.ENABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -125,7 +125,7 @@ public class TestFilterLinesByWordOneToOne extends
 				OUTPUT_LOCATION, "lionking", "-generateSplitsInClient", "false" };
 
 		int returnCode = run(filterLinesByWordOneToOneArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.DISABLED,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.ENABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
