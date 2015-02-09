@@ -55,9 +55,9 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean run(String[] inputPaths, String[] outputPaths,
-			Configuration conf, int numPartitions) throws Exception {
-		return super.run(inputPaths, outputPaths, conf, numPartitions);
+	public int runJob(String[] args, TezConfiguration tezConf,
+			TezClient tezClient) throws Exception {
+		return super.runJob(args, tezConf, tezClient);
 	}
 
 	/**
@@ -65,15 +65,22 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 	 */
 	private static final String enablePrewarmConfig = "simplesessionexample.prewarm";
 
-	public boolean run(String[] inputPaths, String[] outputPaths,
-			Configuration conf, int numPartitions, UserGroupInformation ugi,
-			SeedData seedData, String acls) throws Exception {
+	public int runJob(String[] args, TezConfiguration conf,
+			UserGroupInformation ugi, SeedData seedData, String acls)
+			throws Exception {
 		TezConfiguration tezConf;
 		if (conf != null) {
 			tezConf = new TezConfiguration(conf);
 		} else {
 			tezConf = new TezConfiguration();
 		}
+		String[] inputPaths = args[0].split(",");
+		String[] outputPaths = args[1].split(",");
+		if (inputPaths.length != outputPaths.length) {
+			System.err.println("Inputs and outputs must be equal in number");
+			return 3;
+		}
+		int numPartitions = args.length == 3 ? Integer.parseInt(args[2]) : 1;
 		/**
 		 * HTF: Set the UGI and acls
 		 */
@@ -145,11 +152,11 @@ public class SimpleSessionExampleExtendedForTezHTF extends SimpleSessionExample 
 					System.out.println("Iteration " + i
 							+ " failed with diagnostics: "
 							+ dagStatus.getDiagnostics());
-					return false;
+					return -1;
 				}
 
 			}
-			return true;
+			return 0;
 		} finally {
 			tezClient.stop();
 		}

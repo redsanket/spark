@@ -11,6 +11,9 @@ import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.tez.client.TezClient;
+import org.apache.tez.dag.api.TezConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -45,10 +48,10 @@ public class TestSimpleSessionExample extends
 	public static String OUT_PATH_2 = OUTPUT_PATH + "2";
 	public static String OUT_PATH_3 = OUTPUT_PATH + "3";
 
-	String[] inputFilesOnLocalFs = new String[] { INPUT_FILE_1_ON_LOCAL_FS,
-			INPUT_FILE_2_ON_LOCAL_FS, INPUT_FILE_3_ON_LOCAL_FS };
-	String[] outputPathsOnLocalFs = new String[] { OUT_PATH_1, OUT_PATH_2,
-			OUT_PATH_3 };
+	String inputFilesOnLocalFs = INPUT_FILE_1_ON_LOCAL_FS + ","
+			+ INPUT_FILE_2_ON_LOCAL_FS + "," + INPUT_FILE_3_ON_LOCAL_FS;
+	String outputPathsOnLocalFs = OUT_PATH_1 + "," + OUT_PATH_2 + ","
+			+ OUT_PATH_3;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -60,14 +63,20 @@ public class TestSimpleSessionExample extends
 
 	@Test
 	@Ignore("Until TEZ-1406 is fixed")
-	public void testSimpleSessionExampleOnCluster() throws Exception {
+	public void testSimpleSessionExampleOnLocalmode() throws Exception {
+		Configuration conf = HtfTezUtils.setupConfForTez(
+				TestSession.cluster.getConf(),
+				HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
+				TimelineServer.DISABLED, testName.getMethodName());
+		TezConfiguration tezConf = new TezConfiguration(conf);
+		TezClient tezClient = TezClient.create("SimpleSessionExampleOnCLuster",
+				tezConf, true);
+		tezClient.start();
 
-		boolean returnCode = run(inputFilesOnLocalFs, outputPathsOnLocalFs,
-				HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
-						HadooptestConstants.Execution.TEZ_LOCAL, Session.YES,
-						TimelineServer.DISABLED, testName.getMethodName()), 1);
+		int returnCode = runJob(new String[] { inputFilesOnLocalFs,
+				outputPathsOnLocalFs, "1" }, tezConf, tezClient);
 
-		Assert.assertTrue(returnCode);
+		Assert.assertTrue(returnCode == 0);
 	}
 
 	@After
