@@ -73,10 +73,10 @@ public class TestSimpleSessionExample extends
 				tezConf, true);
 		tezClient.start();
 
-		int returnCode = run(new String[] { inputFilesOnLocalFs,
+		int returnCode = runJob(new String[] { inputFilesOnLocalFs,
 				outputPathsOnLocalFs, "1" }, tezConf, tezClient);
 
-		Assert.assertTrue(returnCode==0);
+		Assert.assertTrue(returnCode == 0);
 	}
 
 	@After

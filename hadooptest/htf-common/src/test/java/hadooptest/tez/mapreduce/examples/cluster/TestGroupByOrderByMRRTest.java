@@ -79,7 +79,7 @@ public class TestGroupByOrderByMRRTest extends
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
 		int returnCode = run(groupByOrderByMrrArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.DISABLED,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,TimelineServer.ENABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
@@ -96,7 +96,7 @@ public class TestGroupByOrderByMRRTest extends
 				OUTPUT_FILE_NAME + "/" + timeStamp };
 
 		int returnCode = run(groupByOrderByMrrArgs,
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.DISABLED,
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,TimelineServer.ENABLED,
 				testName.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}

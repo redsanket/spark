@@ -63,10 +63,13 @@ public class TestSimpleSessionExample extends
 	public static String OUT_PATH_2 = OUTPUT_PATH_ON_HDFS + "2";
 	public static String OUT_PATH_3 = OUTPUT_PATH_ON_HDFS + "3";
 
-	public static String[] inputFilesOnLocalFs = new String[] { INPUT_FILE_1_ON_LOCAL_FS,
-			INPUT_FILE_2_ON_LOCAL_FS, INPUT_FILE_3_ON_LOCAL_FS };
-	public static String inputFilesOnHdfs = INPUT_FILE_1_ON_HDFS +","+INPUT_FILE_2_ON_HDFS+"," + INPUT_FILE_3_ON_HDFS;
-	public static String outputPathsOnHdfs = OUT_PATH_1+"," + OUT_PATH_2 + "," + OUT_PATH_3;
+	public static String[] inputFilesOnLocalFs = new String[] {
+			INPUT_FILE_1_ON_LOCAL_FS, INPUT_FILE_2_ON_LOCAL_FS,
+			INPUT_FILE_3_ON_LOCAL_FS };
+	public static String inputFilesOnHdfs = INPUT_FILE_1_ON_HDFS + ","
+			+ INPUT_FILE_2_ON_HDFS + "," + INPUT_FILE_3_ON_HDFS;
+	public static String outputPathsOnHdfs = OUT_PATH_1 + "," + OUT_PATH_2
+			+ "," + OUT_PATH_3;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -105,23 +108,24 @@ public class TestSimpleSessionExample extends
 		Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 	}
-		
 
 	@Test
 	public void testSimpleSessionExampleOnCluster() throws Exception {
-		Configuration  conf = HtfTezUtils.setupConfForTez(TestSession.cluster.getConf(),
+		Configuration conf = HtfTezUtils.setupConfForTez(
+				TestSession.cluster.getConf(),
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
 				TimelineServer.DISABLED, testName.getMethodName());
-		conf.set("mapreduce.job.queuename","a");
-		TezConfiguration tezConf = new TezConfiguration(conf);		
-		tezConf.set("mapreduce.job.queuename","a");
-		TezClient tezClient = TezClient.create(
-				"SimpleSessionExampleOnCLuster", tezConf, true);
+		conf.set("mapreduce.job.queuename", "a");
+		TezConfiguration tezConf = new TezConfiguration(conf);
+		tezConf.set("mapreduce.job.queuename", "a");
+		TezClient tezClient = TezClient.create("SimpleSessionExampleOnCLuster",
+				tezConf, true);
 		tezClient.start();
 
-		int returnCode = run(new String[]{inputFilesOnHdfs, outputPathsOnHdfs, "2"},tezConf, tezClient);
+		int returnCode = runJob(new String[] { inputFilesOnHdfs,
+				outputPathsOnHdfs, "2" }, tezConf, tezClient);
 
-		Assert.assertTrue(returnCode==0);
+		Assert.assertTrue(returnCode == 0);
 	}
 
 	@After

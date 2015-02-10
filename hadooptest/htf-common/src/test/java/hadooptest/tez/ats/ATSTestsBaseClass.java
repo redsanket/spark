@@ -54,6 +54,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.http.client.params.ClientPNames;
+import org.apache.tez.dag.api.TezConfiguration;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
 import org.junit.Assert;
@@ -1045,20 +1046,18 @@ public class ATSTestsBaseClass extends TestSession {
 				TestSimpleSessionExample test = new TestSimpleSessionExample();
 				test.copyTheFileOnHdfs();
 				chmodOutputPath777Tmp();
-				int returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
-						.run(new String[]{TestSimpleSessionExample.inputFilesOnHdfs,
-								TestSimpleSessionExample.outputPathsOnHdfs,"2"},
-								HtfTezUtils.setupConfForTez(
-										TestSession.cluster.getConf(),
-										HadooptestConstants.Execution.TEZ_CLUSTER,
-										HtfTezUtils.Session.YES,
-										TimelineServer.ENABLED,
-										"SimpleSessionEx"), ugi, seedData,
-								acls);
+				int returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun).runJob(new String[]{TestSimpleSessionExample.inputFilesOnHdfs,
+				TestSimpleSessionExample.outputPathsOnHdfs,"2"},
+				(TezConfiguration)HtfTezUtils.setupConfForTez(
+				TestSession.cluster.getConf(),
+				HadooptestConstants.Execution.TEZ_CLUSTER,
+				HtfTezUtils.Session.YES,
+				TimelineServer.ENABLED,
+				"SimpleSessionEx"), ugi, seedData,
+				acls);
 				test.deleteTezStagingDirs();
 				Assert.assertTrue(returnCode == 0);
-
-			} else if (this.theJobToRun instanceof MRRSleepJobExtendedForTezHTF) {
+				} else if (this.theJobToRun instanceof MRRSleepJobExtendedForTezHTF) {
 
 				/**
 				 * [-m numMapper][-r numReducer] [-ir numIntermediateReducer]

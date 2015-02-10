@@ -51,7 +51,7 @@ public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
 //		boolean returnCode = run("/tmp/bigFileForQPreemptionTest.txt", "/tmp/specEx", TestSession.cluster.getConf(), 2,
 		boolean returnCode = run("/tmp/teragen", "/tmp/specEx", TestSession.cluster.getConf(), 2,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
-				TimelineServer.DISABLED, testName.getMethodName());
+				TimelineServer.ENABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == true);
 	}
 

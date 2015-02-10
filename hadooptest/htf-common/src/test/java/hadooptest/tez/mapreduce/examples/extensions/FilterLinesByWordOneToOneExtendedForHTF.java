@@ -6,6 +6,7 @@ import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -150,8 +151,11 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 	    commonLocalResources.put("dag_job.jar", dagJarLocalRsrc);
 
 
+	    Random randomGenerator = new Random();
+	    int randomInt = randomGenerator.nextInt(100000);
+	    String tezClientName= "FilterLinesByWordSession" + randomInt;
 
-	    TezClient tezSession = TezClient.create("FilterLinesByWordSession", tezConf,
+	    TezClient tezSession = TezClient.create(tezClientName, tezConf,
 	        commonLocalResources, null);
 	    tezSession.start(); // Why do I need to start the TezSession.
 

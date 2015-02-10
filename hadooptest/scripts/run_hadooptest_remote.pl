@@ -24,7 +24,7 @@ The options
         [ -u|--user <remote user>          ] : remote user; e.g. hadoopqa
         [ -r|--remote_host <gateway>       ] : remote gateway host
         [ -s|--local_ws <source root dir>  ] : local source root directory
-        [ -w|--remote_ws <workspace>       ] : remote workspace. Default remote workspace is 
+        [ -w|--remote_ws <workspace>       ] : remote workspace. Default remote workspace is
                                                "/grid/0/tmp/hadooptest-<REMOTE USER>-<CLUSTER>"
         [ -o|--resultsdir <results dir>    ] : test output results directory to copy to on calling host
         [ -b|--screwdriver                     ] : if specified, will use ssh and scp options for screwdriver user
@@ -50,7 +50,7 @@ Example:
 \$ run_hadooptest_remote -c theoden -n
 \$ run_hadooptest_remote -c theoden -s /home/hadoopqa/git/hadooptest/hadooptest -i
 \$ run_hadooptest_remote -c theoden -p clover -t TestVersion -u hadoopqa
-        
+
 EOF
     die($err_msg) if ($err_msg);
     exit 0;
@@ -80,7 +80,7 @@ my $screwdriver_scp_opts = "";
 #
 use Getopt::Long;
 &Getopt::Long::Configure( 'pass_through');
-my $result = 
+my $result =
 GetOptions(\%options,
     "install_only"         => \$install_only,
     "cluster|c=s"          => \$cluster,
@@ -107,7 +107,7 @@ my $re_host = "re103.ygrid.corp.gq1.yahoo.com";
 if (!$remote_host) {
     my $rolename="grid_re.clusters.$cluster.gateway";
     note("fetch unspecified gateway host from igor role: '$rolename'");
-    $remote_host = (-e $igor) ? 
+    $remote_host = (-e $igor) ?
         `/home/y/bin/igor fetch -members $rolename` :
         `ssh $screwdriver_ssh_opts $re_host $igor fetch -members $rolename`;
     chomp($remote_host);
@@ -152,8 +152,8 @@ note("install_only='$install_only'");
 my $os=$^O;
 my $mvn = ($os eq 'linux') ? "/home/y/bin/mvn" : "/usr/bin/mvn";
 
-# INSTALL HADOOPTEST FRAMEWORK 
-execute("$mvn clean -f $local_ws_ht/pom.xml") if ($use_mvn);
+# INSTALL HADOOPTEST FRAMEWORK
+execute("HTF_WORKSPACE=/ignore $mvn clean -f $local_ws_ht/pom.xml") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file_ht --exclude='target' -C $local_ws_ht .");
 execute("scp $tgz_dir/$tgz_file_ht $screwdriver_scp_opts$remote_host:$remote_ws_ht");
 execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
@@ -174,7 +174,7 @@ unless ($install_only) {
         # Execute tests via maven
         #########################
         execute("ssh $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
-        
+
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY
         if ($test_results_dir) {
             execute("scp -rp $screwdriver_scp_opts$remote_host:$remote_ws_ht/htf-common/target/surefire-reports/*.xml $test_results_dir");
@@ -197,16 +197,15 @@ unless ($install_only) {
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
         execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
             if ( "clover" ~~ @ARGV );
-        
+
         # COPY THE JACOCO CODE COVERAGE FILE BACK IF APPLICABLE
         execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
             if ( "jacoco" ~~ @ARGV );
     }
     else {
         #########################
-        # Execute tests via java 
+        # Execute tests via java
         #########################
         execute("ssh $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
     }
 }
-

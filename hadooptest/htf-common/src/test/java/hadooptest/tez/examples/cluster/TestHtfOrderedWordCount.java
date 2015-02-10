@@ -105,7 +105,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 	public void testOrderedWordCountWithPartitions() throws Exception {
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION, null, 2,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-				TimelineServer.DISABLED, testName.getMethodName());
+				TimelineServer.ENABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == true);
 	}
 
@@ -113,7 +113,7 @@ public class TestHtfOrderedWordCount extends OrderedWordCountExtendedForHtf {
 	public void testOrderedWordCountWithoutPartitions() throws Exception {
 		boolean returnCode = run(INPUT_FILE, OUTPUT_LOCATION, null, 1,
 				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES,
-				TimelineServer.DISABLED, testName.getMethodName());
+				TimelineServer.ENABLED, testName.getMethodName());
 		Assert.assertTrue(returnCode == true);
 	}
 
