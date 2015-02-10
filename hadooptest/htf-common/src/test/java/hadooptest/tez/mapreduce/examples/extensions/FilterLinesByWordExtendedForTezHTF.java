@@ -157,7 +157,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	    fs.copyFromLocalFile(new Path(jarPath), remoteJarPath);
 	    TestSession.logger.info("Amit: remoteJarPath:" + remoteJarPath.toString());
 	    FileStatus remoteJarStatus = fs.getFileStatus(remoteJarPath);
-	    TokenCache.obtainTokensForNamenodes(credentials, new Path[]{remoteJarPath}, conf);
+//	    TokenCache.obtainTokensForNamenodes(credentials, new Path[]{remoteJarPath}, conf);
 
 	    Map<String, LocalResource> commonLocalResources = new TreeMap<String, LocalResource>();
 	    LocalResource dagJarLocalRsrc = LocalResource.newInstance(
@@ -178,7 +178,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 
 
 	    TezClient tezSession = TezClient.create("FilterLinesByWordSession", tezConf,
-	        commonLocalResources, credentials);
+	        commonLocalResources, null);
 	    tezSession.start(); // Why do I need to start the TezSession.
 
 	    Configuration stage1Conf = new JobConf(conf);
