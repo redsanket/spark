@@ -82,6 +82,12 @@ public class WorkFlowHelper {
 		httpHandle = new HTTPHandle();
 		this.cookie = httpHandle.getBouncerCookie();
 	}
+	
+	public WorkFlowHelper(String userName , String passWord) {
+		this.consoleHandle = new ConsoleHandle(userName, passWord);
+		httpHandle = new HTTPHandle(userName ,passWord);
+		this.cookie = httpHandle.getBouncerCookie();
+	}
 
 	/**
 	 * Method that checks whether workflow is completed and returns PASS else checks whether workflow failed and returns FAIL 
