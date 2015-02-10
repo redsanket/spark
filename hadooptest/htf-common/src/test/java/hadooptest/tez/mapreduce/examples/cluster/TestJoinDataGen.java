@@ -15,6 +15,7 @@ import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 import org.apache.tez.client.TezClient;
 import org.apache.tez.dag.api.TezConfiguration;
@@ -78,7 +79,10 @@ public class TestJoinDataGen extends JoinDataGenExtendedForTezHTF {
 
 	private TezClient createTezClient(TezConfiguration tezConf)
 			throws TezException, IOException {
-		TezClient tezClient = TezClient.create("JoinDataGen", tezConf);
+	    Random randomGenerator = new Random();
+	    int randomInt = randomGenerator.nextInt(100000);
+	    String tezClientName= "JoinDataGen" + randomInt;
+		TezClient tezClient = TezClient.create(tezClientName, tezConf);
 		tezClient.start();
 		return tezClient;
 	}

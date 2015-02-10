@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 import hadooptest.TestSession;
@@ -130,7 +131,11 @@ public class GroupByOrderByMRRTestExtendedForTezHTF extends
 	        tezConf.set(TezConfiguration.TEZ_AM_STAGING_DIR, stagingDirStr);
 	        stagingDir = pathFs.makeQualified(new Path(stagingDirStr));
 
-	        TezClient tezClient = TezClient.create("groupbyorderbymrrtest", tezConf);
+		    Random randomGenerator = new Random();
+		    int randomInt = randomGenerator.nextInt(100000);
+		    String tezClientName= "groupbyorderbymrrtest" + randomInt;
+
+	        TezClient tezClient = TezClient.create(tezClientName, tezConf);
 	        tezClient.start();
 
 	        TestSession.logger.info("Submitting groupbyorderbymrrtest DAG as a new Tez Application");
