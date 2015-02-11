@@ -226,7 +226,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	        .newBuilder(Text.class.getName(), TextLongPair.class.getName())
 	        .setFromConfiguration(tezConf).build();
 
-	    DAG dag = DAG.create("FilterLinesByWord");
+	    DAG dag = DAG.create("FilterLinesByWord"+randomInt);
 	    Edge edge =
 	        Edge.create(stage1Vertex, stage2Vertex, edgeConf.createDefaultBroadcastEdgeProperty());
 	    dag.addVertex(stage1Vertex).addVertex(stage2Vertex).addEdge(edge);

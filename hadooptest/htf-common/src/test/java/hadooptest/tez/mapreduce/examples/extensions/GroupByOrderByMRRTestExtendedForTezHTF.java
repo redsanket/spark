@@ -267,7 +267,10 @@ public class GroupByOrderByMRRTestExtendedForTezHTF extends
 		            .build());
 		    vertices.add(finalReduceVertex);
 
-		    DAG dag = DAG.create("groupbyorderbymrrtest");
+		    Random randomGenerator = new Random();
+		    int randomInt = randomGenerator.nextInt(100000);
+
+		    DAG dag = DAG.create("groupbyorderbymrrtest"+randomInt);
 		    for (Vertex v : vertices) {
 		      dag.addVertex(v);
 		    }
