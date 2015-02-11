@@ -43,7 +43,7 @@ public final class ConsoleHandle
 	private static final String WORKFLOW_FAILED_EXIT_STATUS = "FAILED";
 	private static final int SUCCESS = 200;
 
-	private HTTPHandle httpHandle = new HTTPHandle();
+	public HTTPHandle httpHandle = null;
 	private Response response;
 	private String consoleURL;
 	private String crossColoConsoleURL;
@@ -51,41 +51,17 @@ public final class ConsoleHandle
 	private Configuration conf;
 	private String username;
 	private String passwd;
-	private final int workflowPingIterations;
-	private final long timeInSecToReachRunningState;
+	private final int workflowPingIterations = 20;
+	private final long timeInSecToReachRunningState =300L;
 	private String source1;
 	private String source2;
 	private String target1;
 	private String target2;
 	private String target3;
 
-	public ConsoleHandle()
-	{
-		try
-		{
-			String configPath = Util.getResourceFullPath(
-					"gdm/conf/config.xml");
-
-			this.conf = new XMLConfiguration(configPath);
-			this.consoleURL = this.conf.getString("hostconfig.console.base_url");
-			this.crossColoConsoleURL = this.conf.getString("hostconfig.console.crossColo_url");
-			TestSession.logger.info("crossColoConsoleURL  = " + this.crossColoConsoleURL);
-
-			TestSession.logger.debug("Found conf/config.xml configuration file.");
-			TestSession.logger.debug("Console Base URL: " + this.consoleURL);
-		} catch (ConfigurationException ex) {
-			TestSession.logger.error(ex.toString());
-		}
-		this.workflowPingIterations = 20;
-		this.timeInSecToReachRunningState = 300L;  // should be detected within 5 minutes
-		//this.timeInSecToReachRunningState = 1200L;
-
-		this.source1 = this.conf.getString("sources.source1");
-		this.source2 = this.conf.getString("sources.source2");
-
-		this.target1 = this.conf.getString("targets.target1");
-		this.target2 = this.conf.getString("targets.target2");
-
+	public ConsoleHandle() {
+		init();
+		this.httpHandle = new HTTPHandle();
 		try
 		{
 			this.username = this.conf.getString("auth.usr");
@@ -94,6 +70,47 @@ public final class ConsoleHandle
 			TestSession.logger.info("logon OK");
 		} catch (Exception ex) {
 			TestSession.logger.error("Exception thrown", ex);
+		}
+	}
+	
+	/**
+	 * This constructor is used by non-admin 
+	 * @param userName
+	 * @param passWord
+	 */
+	public ConsoleHandle(String userName , String passWord) {
+		init();
+		this.httpHandle = new HTTPHandle(userName,passWord);
+		this.httpHandle.logonToBouncer(userName,passWord);
+		TestSession.logger.info("logon OK");
+	}
+	
+	public HTTPHandle getHttpHandle() {
+		if (this.httpHandle != null) {
+			return this.httpHandle;	
+		}
+		return null;
+	}
+	
+	private void init(){
+		try
+		{
+			String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
+			this.conf = new XMLConfiguration(configPath);
+			this.consoleURL = this.conf.getString("hostconfig.console.base_url");
+			this.crossColoConsoleURL = this.conf.getString("hostconfig.console.crossColo_url");
+			TestSession.logger.info("crossColoConsoleURL  = " + this.crossColoConsoleURL);
+
+			TestSession.logger.debug("Found conf/config.xml configuration file.");
+			TestSession.logger.debug("Console Base URL: " + this.consoleURL);
+			
+			this.source1 = this.conf.getString("sources.source1");
+			this.source2 = this.conf.getString("sources.source2");
+
+			this.target1 = this.conf.getString("targets.target1");
+			this.target2 = this.conf.getString("targets.target2");
+		} catch (ConfigurationException ex) {
+			TestSession.logger.error(ex.toString());
 		}
 	}
 
@@ -313,7 +330,7 @@ public final class ConsoleHandle
 
 	public Response cloneDataSet(String dataSetName, String configDataFile)
 	{
-		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource");
+		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource") + "?action=Create&operation=1";
 
 		String xmlFileContent = GdmUtils.readFile(configDataFile);
 		ArrayList params = new ArrayList();
@@ -324,12 +341,9 @@ public final class ConsoleHandle
 		xmlFileContent = xmlFileContent.replaceAll("TARGET_1", this.target1);
 
 		TestSession.logger.debug("XML length: " + xmlFileContent.length());
-
 		postBody.append("xmlFileContent=");
 		postBody.append(xmlFileContent);
-		postBody.append("\naction=Create\n");
-		postBody.append("operation=1\n");
-
+		
 		TestSession.logger.info("cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		TestSession.logger.info("** cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
@@ -363,12 +377,10 @@ public final class ConsoleHandle
 	 * @return the console response
 	 */
 	public Response modifyDataSet(String dataSetName, String xmlFileContent) {
-		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource");
+		String resource = this.conf.getString("hostconfig.console.datasets.clone.resource") + "?action=Edit&operation=1";;
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
 		postBody.append(xmlFileContent);
-		postBody.append("\naction=Edit\n");
-		postBody.append("operation=1\n");
 
 		TestSession.logger.info("modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 		//TestSession.logger.info("** modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
@@ -545,7 +557,6 @@ public final class ConsoleHandle
 	}
 
 	private List<String> getTargets(JSONObject workflow) {
-		// "Targets":"omegap1:http://gsbl90338.blue.ygrid.yahoo.com:8088/proxy/application_137353/,grima:http://gsbl90638.blue.ygrid.yahoo.com:8088/proxy/application_13655996_3219/"
 		String targetString = workflow.getString("Targets");
 		List<String> targets = new ArrayList<String>(Arrays.asList(targetString.split(",")));
 		for (int i=0; i<targets.size(); i++) {
@@ -990,11 +1001,9 @@ public final class ConsoleHandle
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
 		postBody.append(xml);
-		postBody.append("\naction=Edit\n");
-		postBody.append("operation=1\n");
 
 		// post the modified datasource file. 
-		HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource", null, postBody.toString());
+		HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource" + "?action=Edit&operation=1", null, postBody.toString());
 		this.response = new Response(postMethod, false);
 		assertTrue("Cloned failed and got  http response " + response.getStatusCode() , response.getStatusCode() == SUCCESS);
 	}
@@ -1254,7 +1263,8 @@ public final class ConsoleHandle
 		// read the specified datasource file & change the HCatSupported tag value
 		String hostName =  this.conf.getString("hostconfig.console.base_url");
 		String cookie = this.httpHandle.cookie;
-		String testURL = hostName + "/console/query/config/datasource/"+dataSourceName;
+		String testURL = this.getConsoleURL().trim() + "/console/query/config/datasource/"+dataSourceName;
+		TestSession.logger.info("Test URL = " + testURL);
 		String xml = given().cookie(cookie).get(testURL).andReturn().asString();
 		assertTrue("failed to get the source value for " + testURL , (xml != null || xml != "") );
 		String oldTag = "<"+tagName+">"+oldValue +"</"+tagName+">";
@@ -1280,11 +1290,9 @@ public final class ConsoleHandle
 		StringBuilder postBody = new StringBuilder();
 		postBody.append("xmlFileContent=");
 		postBody.append(xml);
-		postBody.append("\naction=Edit\n");
-		postBody.append("operation=1\n");
 
 		// post the modified datasource file.
-		HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource", null, postBody.toString());
+		HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource?action=Edit&operation=1", null, postBody.toString());
 		this.response = new Response(postMethod, false);
 		assertTrue("Cloned failed and got http response " + response.getStatusCode() , response.getStatusCode() == 200);
 		this.sleep(30000);
