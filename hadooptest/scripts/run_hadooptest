@@ -36,6 +36,7 @@ The options
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -a|--adm_box                      ] : The admin box to be used by the framework (adm103.blue.ygrid.yahoo.com is the default)
+        [ -nk                               ] : No kinit
         [ -h|--help                         ] : help
 
 Pass Through options
@@ -80,6 +81,7 @@ my $pig = 0;
 my $spark12 = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
+my $nk = 0;
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
 my $test;
@@ -107,6 +109,7 @@ GetOptions(\%options,
     "nopasswd|n"         => \$nopasswd,
     "workspace|w=s"      => \$workspace,
     "adm_box|a=s"        => \$adm_box,
+    "nk"                 => \$nk,
     "test|t=s"           => \$test,
     "help|h|?"
     ) or usage(1);
@@ -159,7 +162,8 @@ note("CLASSPATH=".join(":",@classpath));
 if($storm||$storm090) {
 	my $host = hostname;
 	my $host_prefix = substr($host, 0, index($host, '.'));
-	execute("stty -echo; kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa\@DEV.YGRID.YAHOO.COM; stty echo");
+	if (not $nk) {
+	    execute("stty -echo; kinit -kt /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa\@DEV.YGRID.YAHOO.COM; stty echo");}
 }
 else {
 	execute("stty -echo; kinit $username\@DS.CORP.YAHOO.COM; stty echo")

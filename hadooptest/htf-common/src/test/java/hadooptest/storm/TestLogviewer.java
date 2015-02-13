@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
+import hadooptest.Util;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.automation.utils.http.Response;
 import hadooptest.cluster.storm.ModifiableStormCluster;
@@ -25,6 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -92,7 +94,10 @@ public class TestLogviewer extends TestSessionStorm {
         createAndSubmitLogviewerTopology(topoName);
         try {
             final String topoId = getFirstTopoIdForName(topoName);
-            waitForTopoUptimeSeconds(topoId, 20);
+            waitForTopoUptimeSeconds(topoId, 30);
+
+            // Wait for the sample-log-file.gz to be extracted in the workers
+            //Util.sleep(10);
 
             LogviewerQueryStruct lqs = getLogviewerQueryInformation(topoId);
 
@@ -131,6 +136,34 @@ public class TestLogviewer extends TestSessionStorm {
                     lqs.logviewerPort, lqs.workerPort, startByteNum,
                     byteLength);
             assertEquals("Log page returns correct bytes", expected, actual);
+
+            //Now testing the gzip page viewing
+            String getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
+                    "/log?file=" + topoId + "-worker-" + lqs.workerPort +
+                    ".log.1.gz" + "&start=0&length=51200";
+            logger.info("Firs Page of gzip log, URL = " + getZipURL);
+            String outputPage1 = performHttpRequest(client, getZipURL);
+            logger.info("First Page of gzip log, length = " + outputPage1.length());
+            logger.info("First Page of gzip log, content= ############---- " + outputPage1 + "----################");
+
+            assertTrue("First page of gzip log returned correctly",
+                    outputPage1.contains("Quick brown fox jumped over the lazy dog"));
+
+            getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
+                    "/log?file=" + topoId + "-worker-" + lqs.workerPort +
+                    ".log.1.gz" + "&start=51200&length=51200";
+            String outputPage2 = performHttpRequest(client, getZipURL);
+
+            assertTrue("Second page of gzip log returned correctly",
+                    outputPage2.contains("Take an apple a day keep the doctor away"));
+
+            getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
+                    "/log?file=" + topoId + "-worker-" + lqs.workerPort +
+                    ".log.1.gz" + "&length=51200";
+            String outputPageLast = performHttpRequest(client, getZipURL);
+
+            assertTrue("Last page of gzip log returned correctly",
+                    outputPageLast.contains("Don't cross your beidges until you come to them"));
         } finally {
             cluster.killTopology(topoName);
         }
@@ -194,7 +227,7 @@ public class TestLogviewer extends TestSessionStorm {
 
     private void createAndSubmitLogviewerTopology(String topoName)
         throws Exception {
-      StormTopology topology = TestWordCountTopology.buildTopology();
+      StormTopology topology = TestWordCountTopology.buildTopology("TestLogViewer");
 
       String outputLoc = new File("/tmp", topoName).getCanonicalPath();
 
@@ -209,7 +242,6 @@ public class TestLogviewer extends TestSessionStorm {
       config.put(Config.LOGS_USERS, whiteList);
       cluster.submitTopology(getTopologiesJarFile(), topoName, config, topology);
     }
-
 
     private String getLogviewerPageContent(HTTPHandle client, String topoId,
             String host, int logviewerPort, int workerPort, final int
@@ -274,7 +306,9 @@ public class TestLogviewer extends TestSessionStorm {
         createAndSubmitLogviewerTopology(topoName);
         try {
             final String topoId = getFirstTopoIdForName(topoName);
-            waitForTopoUptimeSeconds(topoId, 20);
+            waitForTopoUptimeSeconds(topoId, 30);
+
+            //Util.sleep(10);
 
             LogviewerQueryStruct lqs = getLogviewerQueryInformation(topoId);
 

@@ -669,7 +669,8 @@ public class YahooStormCluster extends ModifiableStormCluster {
     public void setDrpcAclForFunction(String function) 
         throws Exception 
     {
-         setDrpcAclForFunction(function, "hadoopqa");
+         //setDrpcAclForFunction(function, "hadoopqa");
+        setDrpcAclForFunction(function, TestSessionStorm.conf.getProperty("USER"));
     }
 
     /**
@@ -678,12 +679,16 @@ public class YahooStormCluster extends ModifiableStormCluster {
      * @throws Exception if there is a problem getting user name
      */
     public String getBouncerUser() throws Exception {
-    	String[] output = TestSessionStorm.exec.runProcBuilder(
-    			new String[] {"keydbgetkey", "hadoopqa_re_bouncer.user" } );
-        if ( !output[0].equals("0") ) {
-            throw new IllegalStateException("keydbgetkey failed for user");
+        if (TestSessionStorm.conf.getProperty("DEFAULT_BOUNCER_USER").equals("")) {
+            String[] output = TestSessionStorm.exec.runProcBuilder(
+                    new String[]{"keydbgetkey", "hadoopqa_re_bouncer.user"});
+            if (!output[0].equals("0")) {
+                throw new IllegalStateException("keydbgetkey failed for user");
+            }
+            return output[1].trim();
+        } else {
+            return TestSessionStorm.conf.getProperty("DEFAULT_BOUNCER_USER");
         }
-        return output[1].trim();
     }
 
     /**
@@ -692,12 +697,16 @@ public class YahooStormCluster extends ModifiableStormCluster {
      * @throws Exception if there is a problem getting user name
      */
     public String getBouncerPassword() throws Exception {
-    	String[] output = TestSessionStorm.exec.runProcBuilder(
-    			new String[] {"keydbgetkey", "hadoopqa_re_bouncer.passwd" } );
-        if ( !output[0].equals("0") ) {
-            throw new IllegalStateException("keydbgetkey failed for password");
+        if (TestSessionStorm.conf.getProperty("DEFAULT_BOUNCER_PASSWORD").equals("")) {
+            String[] output = TestSessionStorm.exec.runProcBuilder(
+                    new String[]{"keydbgetkey", "hadoopqa_re_bouncer.passwd"});
+            if (!output[0].equals("0")) {
+                throw new IllegalStateException("keydbgetkey failed for password");
+            }
+            return output[1].trim();
+        } else {
+            return TestSessionStorm.conf.getProperty("DEFAULT_BOUNCER_PASSWORD");
         }
-        return output[1].trim();
     }
 
     /**
