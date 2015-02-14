@@ -10,6 +10,7 @@ Hue User Guide
    ui/index
    getting_started/index
    howtos/index
+   architecture/index
    reference/index
 
 
@@ -24,13 +25,33 @@ Keep in the mind that Cloudera version of Hue has some different features, and t
 
 .. _onboard:
 
-On-Boarding
-===========
 
-You do not need to on-board to use Hue. At Yahoo,
-Hue is a service hosted on different clusters. You just need
-the URL to the Hue UI on the cluster of your choice to 
-get started. 
+Accessing Hue
+=============
+
+Each Grid cluster has a dedicated Hue instance, which do not share information among themselves in any way. You have access to the Hue instance on any cluster, but you can only access and modify data that you have access permission.
+
+Using  SOCKS Proxy
+------------------
+
+To access Hue instances, you are required to use the SOCKS proxy in the browser.
+The SOCKS host is ``socks.yahoo.com`` and the port is ``1080``, which will allow you
+to   for “Job Browser” to get to RM jobs logs
+
+Hue URLs
+--------
+
+To access the Hue Web UI of a particular instance, use an URL with the 
+following syntax: ``https://<cluster_name>-hue.<colo_name>.ygrid.yahoo.com:<port>``
+
+For example, to access the Hue UI on Cobalt Blue, you would go to
+``https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/``.
+
+You can also use ``yo`` links using the following syntax: ``http://yo/hue.<cluster name><color>``
+For example, to access the Hue instance for the Cobalt Blue Hadoop, you would use
+the ``yo`` link ``http://yo/hue.cb``
+
+
 
 Getting Help
 ============
@@ -76,15 +97,8 @@ include the following if relevant:
 - How you observed the issue (Steps to Reproduce)
 
 
-Environment
-===========
 
-Each Grid cluster has a running Hue instance. You have access to the Hue instance on any cluster,
-but you can only access and modify data that you have access permission.
 
-To access the Hue Web UI of a particular instance, use an URL with the 
-following syntax: ``https://{cluster_name}-hue.{color}.ygrid.yahoo.com:{port}``
 
-For example, to access the Hue UI on Cobalt Blue, you would go to
-``https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/``.
+ 
 
