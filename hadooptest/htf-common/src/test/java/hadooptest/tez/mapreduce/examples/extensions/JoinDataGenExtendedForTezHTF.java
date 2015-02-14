@@ -2,6 +2,7 @@ package hadooptest.tez.mapreduce.examples.extensions;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Random;
 
 import hadooptest.TestSession;
 import hadooptest.tez.utils.HtfTezUtils;
@@ -133,8 +134,10 @@ public class JoinDataGenExtendedForTezHTF extends JoinDataGen {
 
 	    long largeOutSizePerTask = largeOutSize / numTasks;
 	    long smallOutSizePerTask = smallOutSize / numTasks;
+	    Random randomGenerator = new Random();
+	    int randomInt = randomGenerator.nextInt(100000);
 
-	    DAG dag = DAG.create("JoinDataGen");
+	    DAG dag = DAG.create("JoinDataGen" + randomInt);
 
 	    Vertex genDataVertex = Vertex.create("datagen", ProcessorDescriptor.create(
 	        GenDataProcessor.class.getName()).setUserPayload(
