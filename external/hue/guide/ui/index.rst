@@ -63,9 +63,10 @@ Query Editors
 The **Query Editors** drop-down menu lets you quickly navigate to one of the following
 available editors:
 
-- Hive
-- Pig
-- Job Designer
+- **Hive:** Also known as Beeswax, lets you write queries, execute them, get logs, query
+  output, chart data, and download results.
+- **Pig:** Lets you write and execute scripts, get lets and script output.
+- **Job Designer:** Create Oozie actions that you can build, execute, and test.
 
 We'll give you a high-level overview of each editor in the following sections
 to help orient you.
@@ -75,13 +76,19 @@ Hive Editor
 
 The **Hive Editor** has the following components for writing, executing, and saving queries,
 viewing the results, logs, and even charts. 
-You can create Hive databases, tables and partitions, load data, create, run, and manage queries, and download the results in a Microsoft Office Excel worksheet file or a comma-separated values file.
-
+You can create Hive databases, tables and partitions, load data, create, run, and 
+manage queries, and download the results in a Microsoft Office Excel worksheet file 
+or a comma-separated values file. Queries are executed asynchronously, and results
+are cached for future reference. You can also re-run saved and archived queries.
 
 - **Query Editor**
 - **My Queries**
 - **Saved Queries**
 - **History**
+
+.. note:: The **Hive Editor** does not have support for emailing results yet. Also,
+          Beeswax, the application behind the **Hive Editor**, is only 
+          available on Hive 0.13 (AR, MR, AB, CB, MB, NB).
 
 We'll look at each component, which is accessed through a tab, in the next
 sections.
@@ -230,6 +237,17 @@ The left-hand navigation menu is used mostly to do tasks like saving, submitting
 scripts. The top navigation components lets you view saved scripts and information about scripts
 that have been run.
 
+In summary, the **Pig Editor** gives you the following:
+
+- **Editor:** lets you create, edit, run (executed through Oozie), save, copy and delete scripts as well as set scripts property.
+- **Scripts Manager:** lets you create, open, run, copy, and delete scripts.
+- **Status Dashboard:** lets you view running and completed scripts.
+
+.. note:: Pig scripts are executed via Oozie server (Hue needs a server).
+          No live logs right now like Hive Beeswax.
+
+
+
 .. image:: images/hue_pig_editor.jpg
    :height: 915px
    :width: 1450px
@@ -328,15 +346,77 @@ The **Dashboard** shown below displays the name, status, and creation date of yo
    :alt: Pig Scripts
    :align: left
 
+Job Designer
+------------
 
+The **Job Designer** allows you to create and submit jobs to Hadoop cluster. The jobs are the same as Oozie actions.
+
+In addition, the **Job Designer** supports the following:
+
+- including variables with jobs to enable you and others to enter values when running the job.
+- MapReduce, Java, Streaming, Hive, Pig, Fs, Ssh, Shell, Email, DistCp.
+- specifying several meta-level properties of a job, including name, description, the executable scripts or classes, and parameters for those scripts or classes.
+- search, filter, create, delete, restore, copy, edit, and submit a job design.
+- using Oozie ShareLib for DistCp, Streaming, Pig, and Hive jobs.
+- importing actions into workflows through the Oozie editor.
+
+.. note:: Pig with HCatalog and Hive actions do not carry credential (should be fixed shortly).
+          Also, logs may not be complete at this point.
+
+Job Designer Fields
+###################
+
+.. csv-table:: Job Designer Fields
+   :header: "Fields", "Description", "Notes"
+   :widths: 15, 30
+
+
+   "Name", "Identifies the job and its collection of properties and parameters.", ""
+   "Description", "A description of the job.", ""
+   "Advanced", "Is shared: indicates whether to share the action with all users. Oozie parameters passed to Oozie.", ""
+   "Prepare", "Specifies paths to create or delete before starting the workflow job.", ""
+   "Params", "Parameters to supply.", ""
+   "Job Properties", "Job properties.", ""
+   "Files", "Files to pass to the job. Equivalent to the Hadoop ``-files`` option.", ""
+   "Archives", "Archives to pass to the job. Equivalent to the Hadoop ``-archives`` option.", ""
+   "MapReduce", "MR functions in Java.", "Jar path to the JAR file containing the Mapper and 
+                Reducer function (can be from existing MR classes without having to write a main Java class)."
+   "Streaming", "MapReduce functions in non-Java that reads/writers standard UNIX.", "Mapper/Reducer path to 
+                the mapper/reducer script or class. Use Files option to pass it as part of job 
+                submission if not on HDFS. Equivalent to the Hadoop ``–mapper`` / ``-reducer`` option."
+   "Java", "Main class written in Java.", "Jar path to a JAR file containing the main class used to invoke the program
+           the arguments to pass to the main class, and options to the JVM."
+   "Pig", "Pig script.", "The script name and path to the Pig script."
+   "Hive, "Hive script.", "The script name and the path to the Hive script."
+   "Shell", "Shell command.", "The shell command and output of the command to capture."
+   "Ssh", "SSH command.", "The **user** to run the command, the **host** where to run the command, the ssh **command**,
+          the **output** to capture."
+   "DistCp", "DistCp command.", ""
+   "Fs", "HDFS commands.", "The **path to delete** (directory gets deleted recursively), **source** and **destination** paths to move, 
+         **path of permissions** to change, and whether to change recursively."
+   "Email", "Email message.", ""
 
 Metastore Manager
 =================
 
-The **Metastore Manager** shown below lets you browse the columns, partitions, sample data, and metadata for tables. 
+The **Metastore Manager** shown below gives you access to HCatalog. You can browse 
+the columns, partitions, sample data, and metadata for tables. 
+
 From the **Database** drop-down menu, select a database to see the available tables in the right panel. 
 You can then browse the data for a table by clicking the table name or checking the checkbox next to a table 
 and then clicking **View**. Clicking **Browse Data** will open the **Query Editor** and show the results.
+
+
+You can also do the following:
+
+- manage the databases, tables, and partitions of the Hive Metastore or HCatalog.
+- select, create, or drop databases.
+- create, browse, import data into, drop, view location of tables
+- create table from wizards or manually
+- list available databases and tables
+- browse table data (limited set) and metadata (can be slow: optimizations on its way)
+
+.. note:: Metastore Manager is only available on clusters with Hive 0.13 (AR, MR, AB, CB, MB, NB).
 
 .. image:: images/hue_metastore_manager.jpg
    :height: 912px
@@ -370,13 +450,38 @@ The **Dashboard** lets you view the status of Oozie Workflow, Coordinator, and B
 The **Dashboard** also displays SLAs for jobs and general information about Oozie, such as the
 version, configuration file, timers, and counters. 
 
+Before we look closer at each component of the dashboard, let's summarize the features of
+the dashboard as a whole:
+
+- Detailed status of running and completed workflow, coordinator, bundle, SLA jobs 
+  and information about Oozie instrumentation and configuration
+- Summary of the running and completed workflow, coordinator, and bundle jobs
+- You can view jobs for a period up to the last 30 days
+- You can filter the list by date (1, 7, 15, or 30 days) or status (Succeeded, Running, or Killed). Note that the date and status buttons are toggles
+
+Notes
+#####
+
+Logs may not be complete
+
+SLA dashboard isn’t working yet
+
+Filters only operates on latest 100 displayed entries
+
+
 
 Workflows
 #########
 
-The **Workflows** tab shown below as you might imagine displays the running and completed `Oozie Workflow jobs <http://oozie.apache.org/docs/4.1.0/WorkflowFunctionalSpec.html>`_.
+The Workflow application is a collection of actions arranged in a directed acyclic 
+graph (DAG).
+
+
+The **Workflows** tab shown below as you might imagine displays the running and completed 
+`Oozie Workflow jobs <http://oozie.apache.org/docs/4.1.0/WorkflowFunctionalSpec.html>`_.
 You can choose how many jobs to display and sort the jobs by status through the **Show only** or the **days
 with status**. 
+
 
 .. image:: images/hue_oozie_dashboard_workflows.jpg
    :height: 912px
@@ -435,6 +540,9 @@ the Oozie Workflow for the **StarlingProcessor** job.
 Coordinators
 ############
 
+The Coordinator application allows you to define and execute recurrent 
+and interdependent workflow jobs. 
+
 The **Coordinators** tab, like the **Workflows** tab, shows the running, completed, and killed `Oozie
 Coordinator jobs <http://oozie.apache.org/docs/4.1.0/CoordinatorFunctionalSpec.html>`_. You can 
 also have the option of seleting how many jobs to show per page, sorting the jobs by status, and 
@@ -450,6 +558,8 @@ clicking a job to get details (see :ref:`Job Details <Doozie_db_wf-details>` abo
 
 Bundles
 #######
+
+The Bundle application allows you to batch a set of coordinator applications.
 
 The **Bundles** tab shows the running, completed, and killed `Oozie
 Bundles jobs <http://oozie.apache.org/docs/4.1.0/BundleFunctionalSpec.html>`_.
@@ -557,6 +667,17 @@ Editors
 
 The **Oozie Editor** has three tabs for creating, importing, scheduling, exporting, copying, deleting, and submitting Oozie
 Workflow, Coordinator, and Bundle jobs.
+
+From the **Oozie Editor**, you can do the following:
+
+- view available workflows, coordinators with worklows and frequencies, and bundles with coordinators and kickoff .
+- create, import, export, schedule and submit workflows, coordinators, and bundles.
+- delete, copy, and restore workflows, coordinators, and bundles
+
+.. note:: Workflows, coordinators, and bundles can only be viewed, submitted, and modified by their owner.
+          The **Workflow Export** function does not work right now.
+
+
 
 Workflows
 #########
@@ -807,9 +928,18 @@ Bundle name.
 File Browser
 ============
 
-The **File Browser** allows you to access the HDFS file system. You can upload files, create new files,
-or modify existing files by selecting files and selecting an action such as **Rename**, **Move**, **Copy**,
-or **Change permissions**.
+The **File Browser** allows you to access the Hadoop Distributed File System (HDFS). 
+
+From the **File Browser**, you can do the following:
+
+- upload  and download files or zipped archives
+- create new files or directories
+- rename, move, delete, or copy files and directories
+- browse files and directories
+- change the owner, group, or permissions for files and directories
+- search for files, directories, owners, and groups   
+- view and edit files as text or binary
+
 
 .. image:: images/hue_file_browser.jpg
    :height: 914px
@@ -821,8 +951,18 @@ or **Change permissions**.
 Job Browser
 ===========
 
-The **Job Browser** displays the completed and running jobs. You can sort the jobs
-by state, such as **Succeeded**, **Running**, **Failed**, and **Killed**. 
+The **Job Browser** lets you monitor MapReduce jobs,
+Tez sessions, and provides links to the ResourceManager logs. 
+
+With the **Job Browser**, you can do the following:
+
+- examine all Hadoop MapReduce jobs running on the cluster.
+- filter based on the state of the jobs (Succeeded, Running, Failed, or Killed), username, or job name.
+- access links to the cluster's ResourceManager page (no direct log support) 
+
+.. note:: Currently, there is no support for direct link to job output directory in the **File Browser**,
+          killing jobs, or views for Tez DAGs, Tez jobs, or the Tez ATS UI.
+
 
 .. image:: images/hue_job_browser.jpg
    :height: 556px
@@ -871,4 +1011,16 @@ Sign Out
 ========
 
 TBD
+
+
+Administrator Features
+======================
+
+Admins only : Hue logs (access.log) all requests against the Hue web server, (supervisor.log) 
+information for the supervisor process, (supervisor.out) stdout and stderr for 
+the supervisor process, (.log) logs for each supervised process, and (.out) stdout 
+and stderr for each supervised process
+
+Admins only : Hue requires a SQL database to store small amounts of data, including 
+user account information as well as history of job submissions and Hive queries
 

@@ -200,4 +200,79 @@ Displaying the History of a Bundle
 ----------------------------------
 
 
+Creating Hue Applications
+=========================
+
+Hue SDK
+-------
+
+Hue provides SDKs for building brand new and/or custom applications.
+The SDK includes Hue libraries for connecting to Hadoop services
+and front-end code consisting of views, models, and templates.
+
+Hue libraries::
+
+    libs/
+	/hadoop
+		/jobtracker
+		/webhdfs
+		/yarn
+	/liboozie
+	/rest
+	/thrift
+	/...
+
+Hue front-end application code::
+
+    apps/
+	/jobbrowser
+	/oozie
+
+
+
+REST API to HDFS
+----------------
+
+You have access to HDFS through the NameNode's RESTful service 
+`WebHDFS <http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html>`_.
+You can also use HttpFS as well.
+
+URL Syntax
+##########
+
+- ``http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CREATE``
+- ``http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=OPEN``
+
+
+Python Client Support
+#####################
+
+The Hue File Browser applications has a `Python API <https://pypi.python.org/pypi/WebHDFS/0.2.0>`_
+that lets you create instances of WebHDFS to access HDFS.
+
+Here is an example of the class API:
+
+.. code-block:: python
+
+   class WebHdfs (Hdfs):
+   
+      def create(self, path, …):
+         ...
+
+      def read(self, path, …):
+         ... 
+
+      def download (request, path):
+   
+         if not request.fs.exists(path) :
+            raise Http404(_(“File not found.”))
+         if not request.fs.isfile(path):
+            raise PopupException(_(“not a file.”))
+
+Middleware
+----------
+
+TBD
+
+
 

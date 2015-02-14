@@ -10,6 +10,7 @@ through a Web UI. The Yahoo implementation of Hue allows you to browse HDFS file
 execute Pig scripts, use Oozie workflows, and submit MapReduce programs. Hue is extensible, so you
 can expect new applications that give you access to other Hadoop components in the future.
 
+.. Apache open source
 
 ..
 .. Hue is a set of web applications that enable you to interact with a Hadoop cluster. Hue applications 
@@ -27,21 +28,37 @@ any Yahoo cluster. This opens the grid to anyone at Yahoo. As long as you have u
 a file browser, you can view and modify data. If you know some SQL, you should be able to
 quickly learn how to run Hive queries. 
 
+In short, Hue lets you do the following:
+
+- get started with Hadoop
+- explore data, platform features, and capabilities
+- set up an analytics workbench and share code among project teams
+- monitor applications and jobs
+- developing proof of concepts and modules
+- running custom Hadoop-based Web applications
+
+
 Who Should Use Hue?
 ===================
 
-Although Hue can be used by anyone, we anticipate that the primary user will
-be **developers**. Hue allows developers to experiment and explore data in
+Although we anticipate that the primary user will
+be **developers**, test and service engineers, product managers,
+analysts, and data scientists can benefit from using Hue. 
+
+Hue allows developers to experiment and explore data in
 a simpler and quicker way. With the Hue UI, developers don't need
 to on-board, log onto a cluster, use command-line tools, or go to
 a dashboard to view job status. They can instead view data with the
 file browser, upload new data, run Pig scripts or Hive queries, and
 the view results, logs, and job statuses from one interface.
 
-Data scientists can also use Hue to explore and analyze data, but they may be
+Data scientists and analysts can use Hue to explore and analyze data, but they may be
 better off using professional tools such as `MicroStrategy <https://www.microstrategy.com/us/>`_ or 
 `Tableau <http://www.tableausoftware.com/>`_.
 
+Test and service engineers can create optimal workflows and TBD
+
+Question: How would test and service engineers use Hue?
 
 Authentication/Authorization for Hue
 ====================================
@@ -51,49 +68,63 @@ What is important to note though is that you can only access data that you
 own or have been given permission to use. You can 
 request access to data sets through `Support Shop <http://yo/supportshop>`_.
 
+The diagram below shows the `SAML <http://en.wikipedia.org/wiki/Security_Assertion_Markup_Language>`_ 
+authentication flow from the browser to Bouncer to Hue. 
 
 
+.. image:: images/saml_auth.jpg
+   :height: 536px
+   :width: 850 px
+   :scale: 90 %
+   :alt: SAML (SS0) Authentication
+   :align: left
 
-What You Can't Do With Hue
-==========================
+
+What You Can't Do With Yahoo's Hue
+==================================
 
 The Yahoo implementation of Hue has a limited set of features, so
-you will not be able to use the following features:
+you will not be able to use the following features that
+are available in the open source version of Hue:
 
-- Impala Query UI
-- Sqoop UI
-- Solr for searches
-- ZooKeeper Browser
-- HBase Browser
-- User Admin Tool
-
+- Impala Query UI - The Impala Query UI allows you to quer data 
+  stored in Hadoop or HBase. 
+- DB Query -  Enables viewing and querying data in MySQL, PostgreSQL, Oracle, 
+  and SQLite databases/views in a table.
+- Sqoop UI -  Enables transferring data from a relational database to Hadoop and vice versa.
+- Solr -  Allows you to perform keyword searches across Hadoop data.
+- ZooKeeper Browser - Used internally by platforms for HBase, Storm, Oozie.
+- HBase Browser - Used to browse tables and access content. You can create new tables, 
+  add data, modify existing cells, and filter data.
+- Security (Sentry, File ACLs) -  Let’s you create, edit, delete roles and privileges 
+  directly from your browser. 
+- Spark Igniter -  Let's you submit Scala and Java Spark jobs directly from your Web browser.
 
 In addition, although you can use the **File Browser**, you won't be able to
 download data. Jira has not been integrated with Yahoo's Hue yet either.
  
 
-How It Works
-============
+User Accounts
+=============
 
-Overview
---------
+Admin User
+----------
 
-The Yahoo implementation of Hue shown below is slightly different than
-that of `Cloudera's Hue <http://cloudera.github.io/hue/docs-3.7.0/user-guide/introducing.html>`_. On the backend, we replace `Spawning <https://pypi.python.org/pypi/Spawning>`_ 
-and `CherryPy <http://cherrypy.org/>`_ with `yApache <http://developer.corp.yahoo.com/product/yApache>`_, 
-and use `ATS <http://developer.corp.yahoo.com/product/ATS>`_ for proxying requests. 
-
-Our Hue frontend is the same, and as of yet, we do not offer the SDK to create your own
-Hue applications.
-
-.. image:: images/hue_arch.png
-   :height: 686 px 
-   :width: 850 px
-   :scale: 95 %
-   :alt: Diagram of the Yahoo Hue Architecture 
-   :align: left
+As an *admin* user, you have the ability to do the following:
+- manage Hue configuration 
+- run applications as a super user 
+- grant/revoke permissions for user or a group of users
+- impersonate as a “super proxy” for and “doAs” user
+- use one Hue ticket/principal (no user ticket) to authenticate against Hadoop
 
 
+General User
+------------
+
+- Backyard user IDs (corp unix account)
+- No user admin support, not needed
+- No support for headless (today)
+- Possible to add group-based mgmt. / permissions later
 
 
 

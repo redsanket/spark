@@ -2,6 +2,33 @@
 References
 ==========
 
+Hue Instances 
+=============
+
+.. csv-table:: Hue Instances 
+   :header: "Cluster", "Colo", "Hue Instance URL", "Yo Link"
+   :widths: 15, 15, 35, 20
+
+   "Cobalt", "Blue (GQ1)", "https://cobaltblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.cb" 
+   "Dilithium", "Blue (GQ1)", "https://dilithiumblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.db" 
+   "Mithril", "Blue (GQ1)", "https://mithrilblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.mb" 
+   "Nitro", "Blue (GQ1)", "https://nitroblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.nb" 
+   "Oxium", "Blue (GQ1)", "https://oxiumblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.ob" 
+   "Uranium", "Blue (GQ1)", "https://uraniumblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.ub" 
+   "Bassnium", "Tan (NE1)", "https://bassniumtan-hue.tan.ygrid.yahoo.com:9999", "http://yo/hue.bt" 
+   "Phazon", "Tan (NE1)", "https://phazontan-hue.tan.ygrid.yahoo.com:9999", "http://yo/hue.pt" 
+   "Phazon", "Tan (NE1)", "https://phazontan-hue.tan.ygrid.yahoo.com:9999", "http://yo/hue.pt" 
+   "Tiberium", "Tan (NE1)", "https://tiberiumtan-hue.tan.ygrid.yahoo.com:9999", "http://yo/hue.tt" 
+   "Uranium", "Tan (NE1)", "https://uraniumtan-hue.tan.ygrid.yahoo.com:9999", "http://yo/hue.ut" 
+   "Zanium", "Tan (NE1)", "https://zaniumtan-hue.tan.ygrid.yahoo.com:9999", "http://yo/hue.zt" 
+   "Axonite", "Red (BF1)", "https://axonitered-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.ar" 
+   "Bassnium", "Red (BF1)", "https://bassniumred-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.br" 
+   "Dilithium", "Red (BF1)", "https://dilithiumred-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.dr" 
+   "Mithril", "Red (BF1)", "https://mithrilred-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.mr" 
+   "Kryptonite", "Red (BF1)", "https://kryptonitered-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.kr" 
+
+
+
 Additional Documentation
 ========================
 
