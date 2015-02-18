@@ -1,7 +1,9 @@
 package hadooptest.gdm.regression.selfserve;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,7 @@ import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -251,5 +254,15 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 	 */
 	private String getCustomPath(String pathType , String dataSetName) {
 		return  "/data/daqdev/"+ pathType +"/" + dataSetName + "/%{date}";
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+		// deactivate the dataset
+		Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
+		assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
+		assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
+		assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
+		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
 	}
 }

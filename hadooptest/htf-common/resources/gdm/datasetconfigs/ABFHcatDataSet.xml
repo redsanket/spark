@@ -48,7 +48,11 @@
     <DataFlow/>
     <Targets>
         <Target latency="1440" name="TARGET1_NAME" status="active">
-            <DateRange end="20220131" start="20120125"/>
+            <!-- <DateRange end="20220131" start="20120125"/> -->
+         <DateRange>
+         	<StartDate type="fixed" value="20120125"/>
+         	<EndDate type="fixed" value="20220131"/>
+         </DateRange>
             <HCatTargetType>HCAT_TYPE</HCatTargetType>
             <Paths>
                 <Path

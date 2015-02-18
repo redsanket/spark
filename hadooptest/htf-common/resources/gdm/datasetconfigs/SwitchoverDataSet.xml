@@ -1,83 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DataSet catalog="gdm-catalog" description="gdm-dataset-patw02"
-    name="NEW_DATA_SET_NAME"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
-    <Active>FALSE</Active>
-    <VerificationInstance/>
-    <Priority>HIGHEST</Priority>
-    <Contact consumer="gdm-qa@yahoo-inc.com"
-        owner="dfsload@yahoo-inc.com" publisher="gdm-qa@yahoo-inc.com"/>
-    <Comments>Switchover test dataSet</Comments>
-    <UGI group="users" permission="755"/>
-    <Frequency>daily</Frequency>
-    <DiscoveryFrequency>10</DiscoveryFrequency>
-    <DiscoveryInterface>HDFS</DiscoveryInterface>
-    <Paths>
-        <Path location="DATA_PATH" type="data"/>
-        <Path location="COUNT_PATH" type="count"/>
-        <Path location="SCHEMA_PATH" type="schema"/>
-    </Paths>
-    <Parameters>
-        <attribute name="feed" value="gdm-dataset-patw02"/>
-        <attribute name="frequency" value="daily"/>
-        <attribute name="bucket" value="0-998"/>
-        <attribute name="statsfeed" value="gdm-dataset-patw02_stats"/>
-        <attribute name="instancepattern" value="yyyyMMdd"/>
-    </Parameters>
-    <DataDefinition>
-        <StaticSchemaPath/>
-        <RecordDelimiter/>
-        <FieldDelimiter/>
-        <InputFormat>Text</InputFormat>
-        <OutputFormat>Sequence</OutputFormat>
-        <SkipCommentsInData>false</SkipCommentsInData>
-        <SortKey>mrkt_sid</SortKey>
-        <PartitionKey/>
-        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
-        <AddFields>datestamp=$datestamp</AddFields>
-        <RemoveFields/>
-        <SelectRecords/>
-    </DataDefinition>
-    <WorkflowStrategy>
-        <LoadStrategy>Default</LoadStrategy>
-        <RetryCount>0</RetryCount>
-        <SkipDataCommit>false</SkipDataCommit>
-        <SkipVerify>false</SkipVerify>
-        <NoOfParts>1</NoOfParts>
-        <PartsPerPartition>4</PartsPerPartition>
-    </WorkflowStrategy>
-    <Sources>
-        <Source latency="720" name="SOURCE1_NAME" switchovertype="Switchover">
-            SOURCE1_DATERANGE
-        </Source>
-        <Source latency="720" name="SOURCE2_NAME" switchovertype="Switchover">
-            SOURCE2_DATERANGE
-        </Source>
-    </Sources>
-    <DataFlow/>
-    <Targets>
-        <Target latency="1440" name="TARGET1" status="active">
-            <DateRange end="20220101" start="20100101"/>
-            <HCatDisabled>FALSE</HCatDisabled>
-            <Policies>
-                <Policy
-                    condition="numberOfInstances(instancelist, instance) > 50" type="retention"/>
-            </Policies>
-            <Resource capacity="10" name="bandwidth"/>
-        </Target>
-        <Target latency="1440" name="TARGET2">
-            <DateRange end="20220101" start="20100101"/>
-            <HCatDisabled>FALSE</HCatDisabled>
-            <Policies>
-                <Policy
-                    condition="numberOfInstances(instancelist, instance) > 50" type="retention"/>
-            </Policies>
-            <Resource capacity="10" name="bandwidth"/>
-        </Target>
-    </Targets>
-    <HCat>
-        <HCatSchemaFile>schema.dat</HCatSchemaFile>
-        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
-        <HCatUsage>FALSE</HCatUsage>
-    </HCat>
+	name="NEW_DATA_SET_NAME" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="dataset.xsd">
+	<Active>FALSE</Active>
+	<VerificationInstance />
+	<Priority>HIGHEST</Priority>
+	<Contact consumer="gdm-qa@yahoo-inc.com" owner="dfsload@yahoo-inc.com"
+		publisher="gdm-qa@yahoo-inc.com" />
+	<Comments>Switchover test dataSet</Comments>
+	<UGI group="users" permission="755" />
+	<Frequency>daily</Frequency>
+	<DiscoveryFrequency>10</DiscoveryFrequency>
+	<DiscoveryInterface>HDFS</DiscoveryInterface>
+	<Paths>
+		<Path location="DATA_PATH" type="data" />
+		<Path location="COUNT_PATH" type="count" />
+		<Path location="SCHEMA_PATH" type="schema" />
+	</Paths>
+	<Parameters>
+		<attribute name="feed" value="gdm-dataset-patw02" />
+		<attribute name="frequency" value="daily" />
+		<attribute name="bucket" value="0-998" />
+		<attribute name="statsfeed" value="gdm-dataset-patw02_stats" />
+		<attribute name="instancepattern" value="yyyyMMdd" />
+	</Parameters>
+	<DataDefinition>
+		<StaticSchemaPath />
+		<RecordDelimiter />
+		<FieldDelimiter />
+		<InputFormat>Text</InputFormat>
+		<OutputFormat>Sequence</OutputFormat>
+		<SkipCommentsInData>false</SkipCommentsInData>
+		<SortKey>mrkt_sid</SortKey>
+		<PartitionKey />
+		<DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+		<AddFields>datestamp=$datestamp</AddFields>
+		<RemoveFields />
+		<SelectRecords />
+	</DataDefinition>
+	<WorkflowStrategy>
+		<LoadStrategy>Default</LoadStrategy>
+		<RetryCount>0</RetryCount>
+		<SkipDataCommit>false</SkipDataCommit>
+		<SkipVerify>false</SkipVerify>
+		<NoOfParts>1</NoOfParts>
+		<PartsPerPartition>4</PartsPerPartition>
+	</WorkflowStrategy>
+	<Sources>
+		<Source latency="720" name="SOURCE1_NAME" switchovertype="Switchover">
+			SOURCE1_DATERANGE
+		</Source>
+		<Source latency="720" name="SOURCE2_NAME" switchovertype="Switchover">
+			SOURCE2_DATERANGE
+		</Source>
+	</Sources>
+	<DataFlow />
+	<Targets>
+		<Target latency="1440" name="TARGET1" status="active">
+			<!-- <DateRange end="20220101" start="20100101"/> -->
+			<DateRange>
+				<StartDate type="fixed" value="20100101" />
+				<EndDate type="fixed" value="20220101" />
+			</DateRange>
+			<HCatDisabled>FALSE</HCatDisabled>
+			<Policies>
+				<Policy condition="numberOfInstances(instancelist, instance) > 50"
+					type="retention" />
+			</Policies>
+			<Resource capacity="10" name="bandwidth" />
+		</Target>
+		<Target latency="1440" name="TARGET2">
+			<DateRange end="20220101" start="20100101" />
+			<HCatDisabled>FALSE</HCatDisabled>
+			<Policies>
+				<Policy condition="numberOfInstances(instancelist, instance) > 50"
+					type="retention" />
+			</Policies>
+			<Resource capacity="10" name="bandwidth" />
+		</Target>
+	</Targets>
+	<HCat>
+		<HCatSchemaFile>schema.dat</HCatSchemaFile>
+		<HCatSchemaLocked>FALSE</HCatSchemaLocked>
+		<HCatUsage>FALSE</HCatUsage>
+	</HCat>
 </DataSet>

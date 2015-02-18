@@ -78,9 +78,11 @@ public class TestDiscoveryMonitorWithDSDDataSet extends TestSession {
 				String dataSet = jsonObject.getString("Dataset");
 				String sourceName = jsonObject.getString("Source");
 				String partition = jsonObject.getString("Partition");
+				String status = jsonObject.getString("Status");
 				assertTrue("Failed to get the  " + dataSet  , jsonObject.getString("Dataset").equals(this.dataSetName));
 				assertTrue("Failed to get the " + sourceName , sourceName.equals(this.sourceName));
 				assertTrue("Failed to get the srcid & partition id " + partition  , partition.equals( this.PARTITION_NAME + "_" + this.PARTITION_ID_1)  || partition.equals( this.PARTITION_NAME + "_" + this.PARTITION_ID_2));
+				assertTrue("Looks like there is some issue while discovery " + status  , status.equals("OK") );
 			}
 		}
 		assertTrue("Failed to get discovery monitoring on acquisition for " + this.dataSetName , jsonArray.size() > 0);

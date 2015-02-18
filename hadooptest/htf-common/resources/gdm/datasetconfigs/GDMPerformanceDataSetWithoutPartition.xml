@@ -57,7 +57,11 @@
     <DataFlow/>
 	<Targets>
 		<Target latency="1440" name='TARGET1' status="active">
-			<DateRange end="END_DATE" start="START_DATE" />
+		<DateRange>
+         	<StartDate type="fixed" value="START_DATE"/>
+         	<EndDate type="fixed" value="END_DATE"/>
+         </DateRange>
+			<!-- <DateRange end="END_DATE" start="START_DATE" /> -->
 			<HCatTargetType>HCAT_TYPE</HCatTargetType>
 			<Policies>
 				<Policy condition="numberOfInstances(instancelist, instance) > 10"
@@ -66,7 +70,11 @@
 			<Resource capacity="1" name="bandwidth" />
 		</Target>
 		<Target latency="1440" name='TARGET2' status="active">
-			<DateRange end="END_DATE" start="START_DATE" />
+		<DateRange>
+         	<StartDate type="fixed" value="START_DATE"/>
+         	<EndDate type="fixed" value="END_DATE"/>
+         </DateRange>
+			<!-- <DateRange end="END_DATE" start="START_DATE" /> -->
 			<HCatTargetType>HCAT_TYPE</HCatTargetType>
 			<Policies>
 				<Policy condition="numberOfInstances(instancelist, instance) > 10"

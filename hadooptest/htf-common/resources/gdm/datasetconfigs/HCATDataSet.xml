@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DataSet catalog="gdm-catalog" description="gdm-test-HCAT"
-	name='NEW_DATA_SET_NAME' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<DataSet catalog="gdm-catalog" description="gdm-test-HCAT" name='NEW_DATA_SET_NAME'
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="dataset.xsd">
 	<Active>FALSE</Active>
 	<VerificationInstance />
@@ -8,20 +8,17 @@
 	<Contact consumer="gdm-dev@yahoo-inc.com" owner="gdm-dev@yahoo-inc.com"
 		publisher="gdm-dev@yahoo-inc.com" />
 	<Comments>GDM automated test for testing DSD dataset</Comments>
-	<!-- <UGI group="users" permission="755" />  -->
-    <UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755"/>
-    <RunAsOwner>FACETS</RunAsOwner>
+	<!-- <UGI group="users" permission="755" /> -->
+	<UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755" />
+	<RunAsOwner>FACETS</RunAsOwner>
 	<Frequency>daily</Frequency>
 	<DiscoveryFrequency>100</DiscoveryFrequency>
 	<DiscoveryInterface>FDI</DiscoveryInterface>
-<Paths>
-        <Path
-            location="/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
-        <Path
-            location="/data/daqdev/count/${DataSetName}/%{date}" type="count"/>
-        <Path
-            location="/data/daqdev/schema/${DataSetName}/%{date}" type="schema"/>
-    </Paths>
+	<Paths>
+		<Path location="/data/daqdev/data/${DataSetName}/%{date}" type="data" />
+		<Path location="/data/daqdev/count/${DataSetName}/%{date}" type="count" />
+		<Path location="/data/daqdev/schema/${DataSetName}/%{date}" type="schema" />
+	</Paths>
 	<Parameters>
 		<attribute value='FEED_NAME' name='feed'></attribute>
 		<attribute name="frequency" value="daily" />
@@ -58,7 +55,11 @@
 	<DataFlow />
 	<Targets>
 		<Target latency="1440" name='TARGET1' status="active">
-			<DateRange end="20220131" start="20120125" />
+			<DateRange>
+				<StartDate type="fixed" value="20120125" />
+				<EndDate type="fixed" value="20220131" />
+			</DateRange>
+			<!-- <DateRange end="20220131" start="20120125" /> -->
 			<HCatTargetType>HCAT_TYPE</HCatTargetType>
 			<Policies>
 				<Policy condition="numberOfInstances(instancelist, instance) > 10"
@@ -67,8 +68,12 @@
 			<Resource capacity="10" name="bandwidth" />
 		</Target>
 		<Target latency="1440" name='TARGET2' status="active">
-			<DateRange end="20220131" start="20120125" />
-			 <HCatTargetType>HCAT_TYPE</HCatTargetType>
+			<DateRange>
+				<StartDate type="fixed" value="20120125" />
+				<EndDate type="fixed" value="20220131" />
+			</DateRange>
+			<!-- <DateRange end="20220131" start="20120125" /> -->
+			<HCatTargetType>HCAT_TYPE</HCatTargetType>
 			<Policies>
 				<Policy condition="numberOfInstances(instancelist, instance) > 10"
 					type="retention" />
@@ -77,7 +82,7 @@
 		</Target>
 	</Targets>
 	<HCat>
-    	<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
+		<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
 		<HCatInstanceKey>instancedate</HCatInstanceKey>
 		<HCatSchemaFile>schema.dat</HCatSchemaFile>
 		<HCatSchemaFormat>ULT</HCatSchemaFormat>

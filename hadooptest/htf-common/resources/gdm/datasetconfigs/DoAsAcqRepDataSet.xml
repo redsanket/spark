@@ -57,7 +57,10 @@
     <DataFlow/>
     <Targets>
          <Target latency="1440" name="TARGET1" status="active">
-            <DateRange end="20220101" start="20100101"/>
+         <DateRange>
+         	<StartDate type="fixed" value="20100101"/>
+         	<EndDate type="fixed" value="20220101"/>
+         </DateRange>
             <Policies>
                 <Policy
                     condition="numberOfInstances(instancelist, instance) > 10" type="retention"/>
@@ -65,7 +68,10 @@
             <Resource capacity="10" name="bandwidth"/>
         </Target>
         <Target latency="1440" name="TARGET2">
-            <DateRange end="20220101" start="20100101"/>
+        <DateRange>
+         	<StartDate type="fixed" value="20100101"/>
+         	<EndDate type="fixed" value="20220101"/>
+         </DateRange>
             <Policies>
                 <Policy
                     condition="numberOfInstances(instancelist, instance) > 10" type="retention"/>

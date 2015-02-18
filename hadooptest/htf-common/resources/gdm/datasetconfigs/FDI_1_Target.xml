@@ -56,7 +56,11 @@
 
     <Targets>
         <Target latency='1440' name='GRID_TARGET' status="active" >
-            <DateRange start='START_DATE' end='END_DATE'></DateRange>
+        <DateRange>
+         	<StartDate type="fixed" value="START_DATE"/>
+         	<EndDate type="fixed" value="END_DATE"/>
+         </DateRange>
+           <!--  <DateRange start='START_DATE' end='END_DATE'></DateRange> -->
                         <Policies>
                             <Policy
                     condition="numberOfInstances(instancelist, instance) > 50" type="retention"/>   

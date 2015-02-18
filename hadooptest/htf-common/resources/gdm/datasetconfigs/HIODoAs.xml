@@ -1,85 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DataSet catalog="gdm-catalog"
-    description="gdm-hio-dataset-GDM-5.7.0-QE-build"
-    name="NEW_DATA_SET_NAME"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
-    <Active>TRUE</Active>
-    <RetentionEnabled>TRUE</RetentionEnabled>
-    <VerificationInstance/>
-    <Priority>HIGHEST</Priority>
-    <Contact consumer="gdm-dev@yahoo-inc.com"
-        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
-    <Comments>GDM HIO automated test dataset</Comments>
-    <UGI group="jaggrp" owner="jagpip" permission="755"/> 
-    <RunAsOwner>acquisition,replication</RunAsOwner>
-    <Frequency>daily</Frequency>
-    <DiscoveryFrequency>180</DiscoveryFrequency>
-    <DiscoveryInterface>HIO_SOURCE</DiscoveryInterface>
-    <Paths>
-        <Path location="/data/daqdev/${DataSetName}/%{date}" type="data"/>
-        <Path location="/data/daqdev/${DataSetName}/%{date}" type="count"/>
-        <Path location="/data/daqdev/${DataSetName}/%{date}/invalid" type="invalid"/>
-    </Paths>
-    <Parameters>
-        <attribute name="instancepattern" value="yyyyMMdd"/>
-        <attribute name="frequency" value="daily"/>
-        <attribute name="loader.strategy" value="identity"/>
-        <attribute name="retentionPeriod" value="390"/>
-    </Parameters>
-    <DataDefinition>
-        <StaticSchemaPath/>
-        <RecordDelimiter/>
-        <FieldDelimiter/>
-        <InputFormat>Text</InputFormat>
-        <OutputFormat>Sequence</OutputFormat>
-        <SkipCommentsInData>false</SkipCommentsInData>
-        <SortKey/>
-        <PartitionKey/>
-        <DataPathMask/>
-        <AddFields/>
-        <RemoveFields/>
-        <SelectRecords/>
-    </DataDefinition>
-    <WorkflowStrategy>
-        <LoadStrategy>Default</LoadStrategy>
-        <RetryCount>0</RetryCount>
-        <SkipDataCommit>false</SkipDataCommit>
-        <SkipVerify>true</SkipVerify>
-        <NoOfParts>1</NoOfParts>
-        <PartsPerPartition>4</PartsPerPartition>
-    </WorkflowStrategy>
-    <Sources>
-        <Source latency="720" name="gdm-hio-source" switchovertype="Standard"/>
-    </Sources>
-    <DataFlow/>
-    <Targets>
-        <Target latency="1440" name="TARGET1" status="active">
-            <DateRange end="END_DATE" start="START_DATE"/>
-            <HCatTargetType>DataOnly</HCatTargetType>
-            <Policies>
-                <Policy
-                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
-            </Policies>
-            <ReplicationExcludePaths>invalid</ReplicationExcludePaths>
-            <Resource capacity="10" name="bandwidth"/>
-        </Target>
-        <Target latency="1440" name="TARGET2" status="active">
-            <DateRange end="END_DATE" start="START_DATE"/>
-            <HCatTargetType>DataOnly</HCatTargetType>
-            <Policies>
-                <Policy
-                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
-            </Policies>
-            <ReplicationExcludePaths>invalid</ReplicationExcludePaths>
-            <Resource capacity="10" name="bandwidth"/>
-        </Target>
-    </Targets>
-    <HCat>
-        <HCatDatabaseName>gdm</HCatDatabaseName>
-        <HCatInstanceKey>instancedate</HCatInstanceKey>
-        <HCatSchemaFile>schema.dat</HCatSchemaFile>
-        <HCatSchemaFormat>ULT</HCatSchemaFormat>
-        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
-        <HCatTableName>TestHIO_WorkFlow1392050981793</HCatTableName>
-    </HCat>
+<DataSet catalog="gdm-catalog" description="gdm-hio-dataset-GDM-5.7.0-QE-build"
+	name="NEW_DATA_SET_NAME" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="dataset.xsd">
+	<Active>TRUE</Active>
+	<RetentionEnabled>TRUE</RetentionEnabled>
+	<VerificationInstance />
+	<Priority>HIGHEST</Priority>
+	<Contact consumer="gdm-dev@yahoo-inc.com" owner="gdm-dev@yahoo-inc.com"
+		publisher="gdm-dev@yahoo-inc.com" />
+	<Comments>GDM HIO automated test dataset</Comments>
+	<UGI group="jaggrp" owner="jagpip" permission="755" />
+	<RunAsOwner>acquisition,replication</RunAsOwner>
+	<Frequency>daily</Frequency>
+	<DiscoveryFrequency>180</DiscoveryFrequency>
+	<DiscoveryInterface>HIO_SOURCE</DiscoveryInterface>
+	<Paths>
+		<Path location="/data/daqdev/${DataSetName}/%{date}" type="data" />
+		<Path location="/data/daqdev/${DataSetName}/%{date}" type="count" />
+		<Path location="/data/daqdev/${DataSetName}/%{date}/invalid"
+			type="invalid" />
+	</Paths>
+	<Parameters>
+		<attribute name="instancepattern" value="yyyyMMdd" />
+		<attribute name="frequency" value="daily" />
+		<attribute name="loader.strategy" value="identity" />
+		<attribute name="retentionPeriod" value="390" />
+	</Parameters>
+	<DataDefinition>
+		<StaticSchemaPath />
+		<RecordDelimiter />
+		<FieldDelimiter />
+		<InputFormat>Text</InputFormat>
+		<OutputFormat>Sequence</OutputFormat>
+		<SkipCommentsInData>false</SkipCommentsInData>
+		<SortKey />
+		<PartitionKey />
+		<DataPathMask />
+		<AddFields />
+		<RemoveFields />
+		<SelectRecords />
+	</DataDefinition>
+	<WorkflowStrategy>
+		<LoadStrategy>Default</LoadStrategy>
+		<RetryCount>0</RetryCount>
+		<SkipDataCommit>false</SkipDataCommit>
+		<SkipVerify>true</SkipVerify>
+		<NoOfParts>1</NoOfParts>
+		<PartsPerPartition>4</PartsPerPartition>
+	</WorkflowStrategy>
+	<Sources>
+		<Source latency="720" name="gdm-hio-source" switchovertype="Standard" />
+	</Sources>
+	<DataFlow />
+	<Targets>
+		<Target latency="1440" name="TARGET1" status="active">
+			<DateRange>
+				<StartDate type="fixed" value="START_DATE" />
+				<EndDate type="fixed" value="END_DATE" />
+			</DateRange>
+			<!-- <DateRange end="END_DATE" start="START_DATE"/> -->
+			<HCatTargetType>DataOnly</HCatTargetType>
+			<Policies>
+				<Policy condition="numberOfInstances(instancelist, instance) > 5"
+					type="retention" />
+			</Policies>
+			<ReplicationExcludePaths>invalid</ReplicationExcludePaths>
+			<Resource capacity="10" name="bandwidth" />
+		</Target>
+		<Target latency="1440" name="TARGET2" status="active">
+			<DateRange>
+				<StartDate type="fixed" value="START_DATE" />
+				<EndDate type="fixed" value="END_DATE" />
+			</DateRange>
+			<!-- <DateRange end="END_DATE" start="START_DATE"/> -->
+			<HCatTargetType>DataOnly</HCatTargetType>
+			<Policies>
+				<Policy condition="numberOfInstances(instancelist, instance) > 5"
+					type="retention" />
+			</Policies>
+			<ReplicationExcludePaths>invalid</ReplicationExcludePaths>
+			<Resource capacity="10" name="bandwidth" />
+		</Target>
+	</Targets>
+	<HCat>
+		<HCatDatabaseName>gdm</HCatDatabaseName>
+		<HCatInstanceKey>instancedate</HCatInstanceKey>
+		<HCatSchemaFile>schema.dat</HCatSchemaFile>
+		<HCatSchemaFormat>ULT</HCatSchemaFormat>
+		<HCatSchemaLocked>FALSE</HCatSchemaLocked>
+		<HCatTableName>TestHIO_WorkFlow1392050981793</HCatTableName>
+	</HCat>
 </DataSet>
