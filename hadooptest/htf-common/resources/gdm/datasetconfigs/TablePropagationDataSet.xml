@@ -54,7 +54,11 @@
     <DataFlow/>
     <Targets>
         <Target latency="1440" name="TARGET2" status="active">
-            <DateRange end="20220131" start="20130309"/>
+        <DateRange>
+         	<StartDate type="fixed" value="20130309"/>
+         	<EndDate type="fixed" value="20220131"/>
+         </DateRange>
+          <!--   <DateRange end="20220131" start="20130309"/> -->
             <HCatTargetType>HCatOnly</HCatTargetType>
             <Policies>
                 <Policy condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>

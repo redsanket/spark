@@ -52,7 +52,11 @@
     <DataFlow/>
     <Targets>
         <Target latency="1440" name="gdm-target-ACQCLUSTER-PREFIXHERE" status="active">
-            <DateRange start="20130725" end="20130726"/>
+           <!--  <DateRange start="20130725" end="20130726"/> -->
+            <DateRange>
+				<StartDate type="fixed" value="20130725" />
+				<EndDate type="fixed" value="20130726" />
+			</DateRange>
 <!-- REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME
             <Paths>
                 <Path location="/ACQ_CLUSTER_NAME/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
@@ -67,7 +71,11 @@ REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME -->
             <Resource capacity="10" name="bandwidth"/>
         </Target>
         <Target latency="1440" name="gdm-target-REPLCLUSTER-PREFIXHERE" status="active">
-            <DateRange start="20130725" end="20130726"/>
+            <!-- <DateRange start="20130725" end="20130726"/> -->
+             <DateRange>
+				<StartDate type="fixed" value="20130725" />
+				<EndDate type="fixed" value="20130726" />
+			</DateRange>
 <!-- REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME
             <Paths>
                 <Path location="/REP_CLUSTER_NAME/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
@@ -82,7 +90,11 @@ REMOVE ME IF ACQ AND REP CLUSTERS ARE THE SAME -->
             <Resource capacity="10" name="bandwidth"/>
         </Target>
         <Target latency="1440" name="gdm-archival-target" status="inactive">
-            <DateRange end="20130726" start="20130725"/>
+            <!-- <DateRange end="20130726" start="20130725"/> -->
+             <DateRange>
+				<StartDate type="fixed" value="20130725" />
+				<EndDate type="fixed" value="20130726" />
+			</DateRange>
             <Policies>
                 <Policy
                     condition="instanceDate(instancelist, instance) > 1" type="retention"/>
