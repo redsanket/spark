@@ -15,6 +15,7 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,13 +26,12 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 
 	private String target1;
 	private String target2;
-	private String dataSetName;
 	private List<String> grids = new ArrayList<String>();
-	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
-	public static final int FAILED = 500;
 	private HTTPHandle httpHandle = null; 
 	private WorkFlowHelper workFlowHelperObj = null;
-
+	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
+	public static final int FAILED = 500;
+	
 	@BeforeClass
 	public static void startTestSession() {
 		TestSession.start();
@@ -208,12 +208,13 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 
 	/**
 	 * Verify whether non-admin user is able to create a dataset, when doAs (replication and retention) and self serve is enabled. 
+	 * @throws Exception 
 	 */
 	@Test
-	public void testCreatingRetentionOnlyDataSuccessfully() {
-		this.dataSetName = "CreateRetentionOnlyDataSet_NonAdmin_" + System.currentTimeMillis();
+	public void testCreatingRetentionOnlyDataSuccessfully() throws Exception {
+		String dataSetName = "CreateRetentionOnlyDataSet_NonAdmin_" + System.currentTimeMillis();
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/DoAsRetentionDataSet.xml");
-		StringBuffer buffer  = new StringBuffer(this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile));
+		StringBuffer buffer  = new StringBuffer(this.consoleHandle.createDataSetXmlFromConfig(dataSetName, dataSetConfigFile));
 		int index = buffer.indexOf("</HCat>") + "</HCat>".length();
 		buffer.insert(index, "<SelfServe><RequireGroupAdmin>FALSE</RequireGroupAdmin><SelfServeEnabled>TRUE</SelfServeEnabled><UseOpsdbGroup>FALSE</UseOpsdbGroup></SelfServe>");
 		String dataSetXml = buffer.toString();
@@ -222,30 +223,31 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("TARGET2", this.target2 );
 		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", "jaggrp");
 		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", "jagpip");
-		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.dataSetName);
+		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", dataSetName);
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", "Mixed");
+		dataSetXml = dataSetXml.replace("<Active>TRUE</Active>", "<Active>FALSE</Active>");
 		dataSetXml = dataSetXml.replace("<RunAsOwner>retention</RunAsOwner>", "<RunAsOwner>retention,replication</RunAsOwner>");
-		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.dataSetName);
-		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_DATA_PATH", getCustomPath("data" , this.dataSetName) );
-		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_COUNT_PATH", getCustomPath("count" , this.dataSetName) );
-		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.dataSetName) );
-		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_DATA_PATH", getCustomPath("data", this.dataSetName) ); 
-		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_COUNT_PATH", getCustomPath("count", this.dataSetName) ); 
-		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.dataSetName) );
+		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", dataSetName);
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_DATA_PATH", getCustomPath("data" , dataSetName) );
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_COUNT_PATH", getCustomPath("count" , dataSetName) );
+		dataSetXml = dataSetXml.replaceAll("ACQ_CUSTOM_SCHEMA_PATH", getCustomPath("schema", dataSetName) );
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_DATA_PATH", getCustomPath("data", dataSetName) ); 
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_COUNT_PATH", getCustomPath("count", dataSetName) ); 
+		dataSetXml = dataSetXml.replaceAll("REP_CUSTOM_SCHEMA_PATH", getCustomPath("schema", dataSetName) );
 		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME" , "gdm" );
-		Response res = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
+		Response res = this.consoleHandle.createDataSet(dataSetName, dataSetXml);
 		if (res.getStatusCode() == 200) {
 			TestSession.logger.info("********");
 			TestSession.logger.info("code = " + res.getStatusCode() );
 			TestSession.logger.info("response = " + res.getStatus() );
-			TestSession.logger.info("Body = " + res.getResponseBodyAsString()); 
+			TestSession.logger.info("Body = " + res.getResponseBodyAsString());
 		} else {
 			TestSession.logger.info("********  - " + res.getStatusCode()  );
 		}
 	}
-	
+
 	/**
 	 * Method to create a custom path for the dataset.
 	 * @param pathType - its a string type which represents either data/count/schema
@@ -254,15 +256,5 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 	 */
 	private String getCustomPath(String pathType , String dataSetName) {
 		return  "/data/daqdev/"+ pathType +"/" + dataSetName + "/%{date}";
-	}
-	
-	@After
-	public void tearDown() throws Exception {
-		// deactivate the dataset
-		Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
-		assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
-		assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
-		assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
-	}
+	}	
 }
