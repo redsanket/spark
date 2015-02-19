@@ -1628,6 +1628,14 @@
 					<scope>system</scope>
 					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mapreduce.jar</systemPath>
 				</dependency>
+                                <!--
+                                This system dependency is specified here because of a signature difference that exists in SimpleSessionExample. 
+                                The internal Yahoo version is built off of Tez branch 0.6 (and not not 0.6.0 or the master) and has this method 
+                                signature runJob(String[] args, TezConfiguration tezConf,TezClient tezClient), while the one that gets pulled 
+                                from the world, on specifying 0.6.0, carries the signature run(String[] inputPaths, String[] outputPaths, 
+                                Configuration conf, int numPartitions).  Storing and specifying this jar as a system dependency allows local compile
+                                to succeed with the different method signature. 
+                                --> 
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-yarn-timeline-history-with-acls</artifactId>
