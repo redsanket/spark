@@ -118,7 +118,7 @@ public class TestFeedFrequencyBasedRetentionDiscovery extends TestSession {
 		this.consoleHandle.sleep(60000);
 
 		//  Monitor for dataset discovery
-		JSONArray jsonArray = this.workFlowHelper.isDiscoveryMonitoringStarted("replication", this.dataSetName);
+		JSONArray jsonArray = this.workFlowHelper.isDiscoveryMonitoringStarted("retention", this.dataSetName);
 		if (jsonArray.size() > 0) {
 			Iterator iterator = jsonArray.iterator();
 			while (iterator.hasNext()) {
