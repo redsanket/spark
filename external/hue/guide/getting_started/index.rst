@@ -116,7 +116,7 @@ you copied to your home directory.
 
    .. code-block:: sql
 
-      create external table flickr_{your_user_name}_100m_table (
+      create external table flickr_{your_user_name}_100m_db.flickr_{your_user_name}_100m_table (
          photoid bigint, 
          usernsid string, 
          userhandle string, 
@@ -145,6 +145,7 @@ you copied to your home directory.
       fields terminated by '\t'
       lines terminated by '\n'
       location '/user/{your_user_name}/hue_tutorial/';
+
 #. The **Log** pane will show you progress, and when the query has been executed, the **Results**
    pane will automatically open. The message will only say, however, that "The operation has no results."
 #. To confirm the table has been created, click the **Refresh** icon next to **Database** in the left **Assist** pane.
@@ -208,6 +209,7 @@ Creating the Table
 #. Click **Next**.
 #. In another tab, use the **File Browser** to navigate to ``/user/sumeetsi/HueTalk/superbowl2014/header.csv``.
 #. You should see the column names for our table:
+
    - ``username``
    - ``timestamp``
    - ``tweet``
@@ -219,6 +221,7 @@ Creating the Table
    - ``address``
    - ``type``
    - ``placeURL``
+
 #. Going back to the **Metastore Manager**, in the **Define your columns**, enter the column names
    listed in the previous step to replace the column names from ``col_0`` to ``col_10``. 
 #. Click **Create Table**.
@@ -242,7 +245,31 @@ you created one.
 #. From the **Assist** panel on the left-hand side, find your Flickr database from the **Database** drop-down menu.
    You should see the one table we created on the **Assist** panel.
 #. Click the **flickr_{your_user_name}_100mb_table** to see the available fields.
-#. 
+#. Double-click the table name to have the name automatically added to the **Query Editor**.
+#. Enter the following query to **Query Editor** window to see the location of different cameras:
+
+   ``select camera, longitude, latitude from flickr_jcatera_100m_table;``
+#. From the **Results** tab, you'll see the list of cameras and their location.
+#. Click the **Chart** to see a graphic representation of the results.
+#. The default **Chart type** is **Bars** with the **X-Axis** containing the
+   cameras, and the **Y-Axis** containing the longitude.
+#. Click the **Map** icon and select **latitude** from the **Latitude** drop-down menu,
+   **longitude** from the **Longitude** drop-down menu, and **camera** for the **Label**
+   drop-down menu.
+#. You should see a map with map markers. If you click on the map markers, you'll
+   see the camera used at the marked location.
+#. In the top-right corner of the bottom pane, you'll see four icons. Click the
+   the third icon to save the results to HDFS. 
+#. In the **Save Query Results** dialog window, enter the path **/user/jcatera/hue_tutorial/flickr_camera_location.csv**
+   in the **In an HDFS file** text field and click **Save**. (We're going to use this file later
+   when we look at the **Pig Editor**.)
+
+#. Click **Explain** to see an analysis of the stages, operators, stages of execution,
+   the output columns, which you can use to troubleshoot or optimize your queries.
+   TBD: Ask whether this needs to be in tutorial or ask for more of an explanation.
+#. Click **Explain** to see an analysis of the stages, operators, stages of execution,
+   the output columns, which you can use to troubleshoot or optimize your queries.
+#. Let's save our query by clickng **Save as...**, entering **Flickr Camera Location Query**, and clicking **Save**.
 
 
 ..  Hive Editor: query log, results, fullscreen result, save results to HDFS, download to Excel (csv,xls). 
@@ -253,16 +280,114 @@ you created one.
 Using Pig
 ---------
 
+#. From the top-navigation bar, click  **Query Editors** and select **Pig**.
+#. In the **Pig Editor** window, enter the following code, replacing ``{your_user_name}`` with
+   your own user name.
+   
+   .. code-block:: pig
+  
+      -- Load the CSV you downloaded from the Query Editor.
+      raw = LOAD '/user/{your_user_name}/hue_tutorial/flickr_camera_location.csv' USING PigStorage(',') AS (camera, longitude, latitude);
+
+      -- Filter out the rows that do not have values for camera or null values for the longitude/latitude.
+      has_camera = FILTER raw BY camera is not null;
+      has_long = FILTER has_camera BY not longitude matches 'NULL';
+      has_lat = FILTER has_long BY not latitude matches 'NULL';
+
+      -- Store the results to a file.
+      STORE has_lat into 'flickr_camera_location' USING PigStorage (',');
+      
+#. Click **Save** in the right-hand **Editor** panel, enter the text **Flickr Camera Location Script**
+   in the text field and click **Save**.
+#. Click **Properties** from the left-hand **Editor** pane.
+#. From **Hadoop properties** on the right-hand panel, click **+ Add**.
+#. For the **Name** field, enter the value **oozie.action.sharelib.for.pig**.
+#. For the **Value** field, enter the value **pig_current, hcat_current**.
+#. From **Resources**, click **+ Add**.
+#. With the value **File** in the **Type** drop-down menu, enter **/user/sumeetsi/HueTalk/hive-site.xml**
+   for the **Value** text field.
+#. Click the arrowhead icon in the top-right corner to run your script.
+
+   The script should save only rows that have a camera name, longitude, and latitude, 
+   and write results to the directory ``flickr_camera_location``. 
+#. After your script has finished running, use **File Browser** to view the results
+   in the HDFS path ``/user/{your_user_name}/flickr_camera_location/part-m-00000``.
+
+
+Tips
+----
+
+The **Assist** panel helps you write Pig scripts. To see completed jobs, click **Dashboard**. 
+The **Scripts** tab lists your past scripts for your reference.
+
 .. Uses Oozie to execute Pig.
 
+8. Creating Workflows
+=====================
 
-8. Viewing Jobs
+Hue lets you create workflows in two ways: as an
+action or through Oozie workflows, coordinators,
+and bundles.
+
+Hue allows you to create actions to execute a job for
+MapReduce, streaming, Hive, Pig, HDFS commands, SSH,
+Shell, email, and DistCp. 
+
+We're going to use the **Job Designer** and the **Workflows Editor**
+to create Oozie workflows.
+
+Using the Job Designer
+----------------------
+
+The **Job Designer** makes it create a simple Oozie workflow to execute
+one action without worrying about the configuration
+
+#. From top navigation bar, click the **Query Editors** and select **Job Designer**.
+#. From the **Designs** panel, click **New action** and select **Fs** as your action.
+#. Enter **delete_pig_output** in the **Name** text field and **Removing results from Pig script
+   Flickr Camera Location Script** for the **Description** text field.
+#. Click **Add path** next to **Delete path** and enter the path ``/user/{your_user_name}/flickr_camera_location/``.
+   We're deleting the path so we can run our Pig script again in an Oozie job that we 
+   create through the **Workflows Editor** in the next section.
+#. Click **Save**.
+#. From the **Designs** pane, select the action that you just saved and click **Submit**.
+
+#. Once your job has completed, you'll be taken to the **Workflow** pane has tabs 
+   to view the action progress, details (time, application path),
+   configuration (jobTracker,nameNode, Oozie path, etc.), log, and definition (workflow XML).
+
+
+Using the Workflows Editor
+--------------------------
+
+With the **Workflows Editor**, you're configuring Oozie to
+run tasks in a job. This lets you create Oozie workflows,
+coordinators (set of workflows), and bundles (set of coordinators).
+We're just going to create an Oozie job to do the work we have
+been doing with Hue up until now.
+
+#. From the top-navigation bar, click **Workflows** and select **Editors->Workflows**.
+#. Click **+ Create** to start creating a new workflow.
+#. Enter **hue_tutorial_workflow** in the **Name** field and click **Save**.
+
+
+
+
+
+
+.. _viewing_jobs:
+
+9. Viewing Jobs
 ===============
 
 From the **Job Browser**, you can view  your jobs and
 other jobs. You can sort jobs by status, search for jobs 
 by a user or key term, also look at the cluster and ResourceManager logs.
 
+#. Let's first look for our jobs by clicking **Job Browser**.
+#. By default, the **Job Browser** shows Oozie jobs sorted by your username, so 
+   you should see the job that executed your Pig script as Pig scripts are run by Oozie.
+#. 
 #. You many not see any jobs at first because the **Job Browser** by default
    looks for jobs you own. Delete your user name from the **Username** text
    field. You should see all the jobs owned by others.
