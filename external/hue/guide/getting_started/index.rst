@@ -101,6 +101,12 @@ Other Ways
 #. Finally, check the checkbox next to the file you renamed and click **Actions->Change Permissions**.
 #. Uncheck **Group->Write** and **Other->Write**, and then click **Submit**.
 
+Note
+----
+
+TBD: MIME type detection and pagination
+
+
 5. Creating Database/Tables
 ===========================
 
@@ -160,7 +166,6 @@ you copied to your home directory.
 
    **Error:** Your query has the following error(s):
 
-   Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.tez.TezTask
 #. Before we look at data, click **Save as...**, enter **Count Flickr Licenses** in the **Name** and **Description** fields, and click **Save**.
 
 6. Viewing Metadata and Data from Metastore Manager
@@ -276,6 +281,7 @@ you created one.
 .. Setting panel:  Key-Value, File Resources - JAR, UDFS - name/class
 .. Question icon: shows an "Assist" window that will assist you in writing Pig scripts, operators,
 .. relational operators, 
+.. Easy Query Settings: configs, parameters, etc.
 
 Using Pig
 ---------
@@ -322,25 +328,18 @@ The **Scripts** tab lists your past scripts for your reference.
 
 .. Uses Oozie to execute Pig.
 
-8. Creating Workflows
-=====================
+8. Creating Actions With the Job Designer
+=========================================
 
 Hue lets you create workflows in two ways: as an
 action or through Oozie workflows, coordinators,
-and bundles.
+and bundles. The **Job Designer** makes it create a simple Oozie workflow to execute
+one action without worrying about the configuration.
 
-Hue allows you to create actions to execute a job for
-MapReduce, streaming, Hive, Pig, HDFS commands, SSH,
-Shell, email, and DistCp. 
+We're going to use the **Job Designer** to create an action in this
+section and then use the **Oozie Workflows Editor** to create an Oozie workflow
+in the next section.
 
-We're going to use the **Job Designer** and the **Workflows Editor**
-to create Oozie workflows.
-
-Using the Job Designer
-----------------------
-
-The **Job Designer** makes it create a simple Oozie workflow to execute
-one action without worrying about the configuration
 
 #. From top navigation bar, click the **Query Editors** and select **Job Designer**.
 #. From the **Designs** panel, click **New action** and select **Fs** as your action.
@@ -357,8 +356,8 @@ one action without worrying about the configuration
    configuration (jobTracker,nameNode, Oozie path, etc.), log, and definition (workflow XML).
 
 
-Using the Workflows Editor
---------------------------
+9. Creating Workflows With the Oozie Editor
+===========================================
 
 With the **Workflows Editor**, you're configuring Oozie to
 run tasks in a job. This lets you create Oozie workflows,
@@ -370,15 +369,27 @@ been doing with Hue up until now.
 #. Click **+ Create** to start creating a new workflow.
 #. Enter **hue_tutorial_workflow** in the **Name** field and click **Save**.
 
+#. Delete Pig results
+#. Create a new directory for results.
+#. DistCp file to directory
+#. Create new Hive table.
+#. Run Hive query and save results to file.
+#. Run Pig script to clean up results.
+
+TBD: 
 
 
+Notes
+-----
+
+TBD: Kill or supend jobs.
 
 
 
 .. _viewing_jobs:
 
-9. Viewing Jobs
-===============
+10. Viewing and Managing Jobs
+=============================
 
 From the **Job Browser**, you can view  your jobs and
 other jobs. You can sort jobs by status, search for jobs 
@@ -416,8 +427,6 @@ Let's start a job now and take a look at the job in the **Job Browser**.
 
 
 
-9. Submitting Jobs
-==================
 
 
 *Home page* - shows your project and your history, queries, could share possibly.
@@ -430,10 +439,6 @@ Let's start a job now and take a look at the job in the **Job Browser**.
 .. Execute from Property page by clicking on arrow icon. Notification is shown in Job Browser.
 .. You'll see your job in the Job Browser.
 .. Can kill jobs with "Kill" button.
-
-
-10. Creating Oozie Jobs 
-=======================
 
 
 .. Name: oozie.actions.sharelib.for.pig
