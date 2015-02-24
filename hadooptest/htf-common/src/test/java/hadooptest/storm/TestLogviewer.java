@@ -95,12 +95,7 @@ public class TestLogviewer extends TestSessionStorm {
         try {
             final String topoId = getFirstTopoIdForName(topoName);
             waitForTopoUptimeSeconds(topoId, 30);
-
-            // Wait for the sample-log-file.gz to be extracted in the workers
-            //Util.sleep(10);
-
             LogviewerQueryStruct lqs = getLogviewerQueryInformation(topoId);
-
             HTTPHandle client = createAndPrepHttpClient();
 
             String getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
@@ -141,10 +136,7 @@ public class TestLogviewer extends TestSessionStorm {
             String getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
                     "/log?file=" + topoId + "-worker-" + lqs.workerPort +
                     ".log.1.gz" + "&start=0&length=51200";
-            logger.info("Firs Page of gzip log, URL = " + getZipURL);
             String outputPage1 = performHttpRequest(client, getZipURL);
-            logger.info("First Page of gzip log, length = " + outputPage1.length());
-            logger.info("First Page of gzip log, content= ############---- " + outputPage1 + "----################");
 
             assertTrue("First page of gzip log returned correctly",
                     outputPage1.contains("Quick brown fox jumped over the lazy dog"));
@@ -307,11 +299,7 @@ public class TestLogviewer extends TestSessionStorm {
         try {
             final String topoId = getFirstTopoIdForName(topoName);
             waitForTopoUptimeSeconds(topoId, 30);
-
-            //Util.sleep(10);
-
             LogviewerQueryStruct lqs = getLogviewerQueryInformation(topoId);
-
             HTTPHandle client = createAndPrepHttpClient();
 
             // Download the entire log

@@ -52,21 +52,14 @@ public class HTTPHandle {
 		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
 		YBYCookie = null;
 		try {
-            if (!TestSessionStorm.conf.getProperty("BOUNCER_URL").equals("")) {
-                YBYCookie = localHttpClientBouncerAuth.authenticate(
-                        TestSessionStorm.conf.getProperty("BOUNCER_URL"), paramString1,
-                        paramString2.toCharArray());
-            } else {
-                YBYCookie = localHttpClientBouncerAuth.authenticate(
-                        HadooptestConstants.Location.Bouncer.SSO_SERVER, paramString1,
-                        paramString2.toCharArray());
-            }
+            YBYCookie = localHttpClientBouncerAuth.authenticate(
+                TestSessionStorm.conf.getProperty("BOUNCER_URL", HadooptestConstants.Location.Bouncer.SSO_SERVER), paramString1,
+                paramString2.toCharArray());
 		} catch (Exception localException) {
 			logger.error(new StringBuilder()
-					.append("SSO authentication failed. ")
-					.append(localException.toString()).toString(), localException);
+				.append("SSO authentication failed. ")
+				.append(localException.toString()).toString(), localException);
 		}
-		
 		YBYCookieHeader = new Header("Cookie", YBYCookie);
 		this.httpClient.getParams().setParameter("Cookie", YBYCookie);
 		logger.info("SSO auth cookie set");
@@ -74,12 +67,7 @@ public class HTTPHandle {
 
 	public String loginAndReturnCookie(String username) throws Exception{
 		String cookie = null;
-//        String[] retrievePasswordCommand = 
-//            {"/home/y/bin/keydbgetkey", "hit_bouncer.passwd"};
-//
-//            String[] output = TestSession.exec.runProcBuilder(
-//            		retrievePasswordCommand, null, false, false);
-//            String password = output[1];
+
 		String gdmConfigPath = Util.getResourceFullPath(
 				"gdm/conf/config.xml");
 		 	Configuration gdmConf = new XMLConfiguration(gdmConfigPath);

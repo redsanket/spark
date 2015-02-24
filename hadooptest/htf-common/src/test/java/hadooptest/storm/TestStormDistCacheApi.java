@@ -156,14 +156,18 @@ public class TestStormDistCacheApi extends TestSessionStorm {
         String actualModfiedContent = getBlobContent(blobKey, clientBlobStore);
 
         // Wait for content to get pushed
-        Util.sleep(30);
+        // Let's check this a few times, and exit early if we have "success".
 
-        // Hit it with drpc function
-        drpcResult = cluster.DRPCExecute( "blobstore", fileName );
-        logger.debug("drpc result = " + drpcResult);
+        Boolean updatedIt = false;
+        int tryCount = 8;
 
-        // Make sure the value returned is correct.
-        // Skipping until feature fix is ready.
+        while (!updatedIt && --tryCount > 0) {
+            Util.sleep(15);
+            drpcResult = cluster.DRPCExecute( "blobstore", fileName );
+            logger.debug("drpc result = " + drpcResult);
+            updatedIt = drpcResult.equals(modifiedBlobContent) || drpcResult.equals("Got IO exception");
+        }
+
         if (expectFailure) {
             assertTrue("Did not get expected failure",
                 drpcResult.equals("Got IO exception"));
