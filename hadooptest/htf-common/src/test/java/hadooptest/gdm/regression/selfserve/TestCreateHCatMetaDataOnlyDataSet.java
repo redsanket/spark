@@ -6,6 +6,7 @@ import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.Response;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class TestCreateHCatMetaDataOnlyDataSet extends TestSession {
 	private List<String> hcatSupportedGrid;
 	private String targetGrid1;
 	private String targetGrid2;
+	private FullyDistributedExecutor executor = new FullyDistributedExecutor();
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private static final int SUCCESS = 200;
 	public static final int FAILED = 500;
@@ -37,7 +39,7 @@ public class TestCreateHCatMetaDataOnlyDataSet extends TestSession {
 	public void setUp() throws NumberFormatException, Exception {
 
 		this.consoleHandle = new ConsoleHandle("hitusr_2"  , "New2@password");
-		
+
 		// get all the hcat supported clusters
 		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
 
@@ -49,6 +51,29 @@ public class TestCreateHCatMetaDataOnlyDataSet extends TestSession {
 		this.targetGrid1 = hcatSupportedGrid.get(0).trim();
 		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
 		TestSession.logger.info("Using grids " + this.targetGrid1  + "  & " +  this.targetGrid2);
+
+		// set the yinst setting 
+		String []yinst  = executor.runProcBuilder(new String [] {"./resources/gdm/restart/gdm_yinst_set.sh" , "console" , "ygrid_gdm_console_server.bouncer_selfserve_create_hcatMetaDataOnly_role" , "B"});
+		for ( String  s : yinst ) {
+			TestSession.logger.info(s);
+		}
+
+		// stop the retention facet
+		String stop[] =  executor.runProcBuilder(new String [] {"./resources/gdm/restart/StopStartFacet.sh" , "console" , "stop" });
+		for ( String  s : stop ) {
+			TestSession.logger.info(s);
+		}
+
+		// start the retention facet
+		String start[] =  executor.runProcBuilder(new String [] {"./resources/gdm/restart/StopStartFacet.sh" , "console" , "start" });
+		for ( String  s : start ) {
+			TestSession.logger.info(s);
+		}
+
+		// wait for some time, so that classes gets loaded successfully
+		TestSession.logger.info("Please wait for a minutes, so that discovery can start...! ");
+		this.consoleHandle.sleep(60000);
+
 	}
 
 	/**
@@ -72,7 +97,7 @@ public class TestCreateHCatMetaDataOnlyDataSet extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("TARGET2", this.targetGrid2);
 		dataSetXml = dataSetXml.replaceAll("TABLE_NAME", dataSetName);
 		dataSetXml = dataSetXml.replaceAll("DATABASE", DATABASE_NAME);
-		
+
 		TestSession.logger.info("**************   dataSetXml  ******************* " + dataSetXml);
 		Response res = this.consoleHandle.createDataSet(dataSetName, dataSetXml); 
 		if (res.getStatusCode() != SUCCESS) {
@@ -259,7 +284,7 @@ public class TestCreateHCatMetaDataOnlyDataSet extends TestSession {
 			TestSession.logger.info("message  = " + res.getResponseBodyAsString() );
 			fail("Failed to create the dataset, when all the requirement are available");
 		}
-		
+
 	}
 
 }
