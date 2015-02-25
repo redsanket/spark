@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
+
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.Util;
@@ -97,6 +98,8 @@ public class TestWordCountTopology extends TestSessionStorm {
         HTTPHandle client = new HTTPHandle();
         client.logonToBouncer(user,pw);
         logger.info("Cookie = " + client.YBYCookie);
+        String myCookie = client.YBYCookie;
+
         logger.info("URL to get is: " + url);
         HttpMethod getMethod = client.makeGET(url, new String(""), null);
         Response response = new Response(getMethod, false);
@@ -115,7 +118,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         logger.info("Is ui.filter enabled? "+config.get("ui.filter"));
         assumeTrue(config.get("ui.filter") != null);
         logger.info("Running Groups Test...");
-        StormTopology topology = buildTopology();
+        StormTopology topology = buildTopology("UILogviewerGroupsTest");
 
         String topoName = "logviewer-ui-groups-test";
         String outputLoc = new File("/tmp", topoName).getCanonicalPath();
@@ -165,13 +168,21 @@ public class TestWordCountTopology extends TestSessionStorm {
                 "/download/" + topoId + "-worker-" + workerPort + ".log";
             String uiURL = "http://" + uiHost + ":" + uiPort + "/api/v1/topology/"+topoId;
 
+            logger.info("Test default bouncer user works on log");
             getWithBouncer(mc.getBouncerUser(), mc.getBouncerPassword(), getURL, 200);
+            logger.info("Test default bouncer user works on ui");
             getWithBouncer(mc.getBouncerUser(), mc.getBouncerPassword(), uiURL, 200);
+            logger.info("Test hitusr_1 user works on log");
             getWithBouncer("hitusr_1", "New2@password", getURL, 200);
+            logger.info("Test hitusr_1 user works on ui");
             getWithBouncer("hitusr_1", "New2@password", uiURL, 200);
+            logger.info("Test hitusr_2 user works on log");
             getWithBouncer("hitusr_2", "New2@password", getURL, 500);
+            logger.info("Test hitusr_2 user works on ui");
             getWithBouncer("hitusr_2", "New2@password", uiURL, 500);
+            logger.info("Test hitusr_3 user works on log");
             getWithBouncer("hitusr_3", "New2@password", getURL, 500);
+            logger.info("Test hitusr_3 user works on ui");
             getWithBouncer("hitusr_3", "New2@password", uiURL, 500);
         } finally {
             cluster.killTopology(topoName);
@@ -181,7 +192,7 @@ public class TestWordCountTopology extends TestSessionStorm {
 
     @Test(timeout=300000)
     public void WordCountTopologyTest() throws Exception{
-        StormTopology topology = buildTopology();
+        StormTopology topology = buildTopology("WordCountTopologyTest");
 
         String topoName = "wc-topology-test";
         String outputLoc = "/tmp/wordcount"; //TODO change this to use a shared directory or soemthing, so we can get to it simply
@@ -229,14 +240,26 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
     }
         
-    public static StormTopology buildTopology() {
+    public static StormTopology buildTopology(String testName) {
+        logger.info ("About to start a spout. testName string: " + testName);
         @SuppressWarnings("unchecked")
-        FixedBatchSpout spout = new FixedBatchSpout(new Fields("sentence"), 3,
-                new Values ("the cow jumped over the moon"),
-                new Values ("an apple a day keeps the doctor away"),
-                new Values ("four score and seven years ago"),
-                new Values ("snow white and the seven dwarfs"),
-                new Values ("i am at two"));
+        FixedBatchSpout spout = null;
+        if (testName.equals("TestLogViewer")) {
+            spout = new FixedBatchSpout(new Fields("sentence"), 3,
+                    new Values("the cow jumped over the moon"),
+                    new Values("an apple a day keeps the doctor away"),
+                    new Values("four score and seven years ago"),
+                    new Values("snow white and the seven dwarfs"),
+                    new Values("i am at two"),
+                    new Values("TestLogViewer"));
+        }  else {
+            spout = new FixedBatchSpout(new Fields("sentence"), 3,
+                    new Values("the cow jumped over the moon"),
+                    new Values("an apple a day keeps the doctor away"),
+                    new Values("four score and seven years ago"),
+                    new Values("snow white and the seven dwarfs"),
+                    new Values("i am at two"));
+        }
 
         spout.setCycle(numSpouts);
 
