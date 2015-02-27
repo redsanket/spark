@@ -308,7 +308,7 @@ Using Pig
 #. Click **Properties** from the left-hand **Editor** pane.
 #. From **Hadoop properties** on the right-hand panel, click **+ Add**.
 #. For the **Name** field, enter the value **oozie.action.sharelib.for.pig**.
-#. For the **Value** field, enter the value **pig_current, hcat_current**.
+#. For the **Value** field, enter the value **pig_current,hcat_current**.
 #. From **Resources**, click **+ Add**.
 #. With the value **File** in the **Type** drop-down menu, enter **/user/sumeetsi/HueTalk/hive-site.xml**
    for the **Value** text field.
@@ -325,6 +325,76 @@ Tips
 
 The **Assist** panel helps you write Pig scripts. To see completed jobs, click **Dashboard**. 
 The **Scripts** tab lists your past scripts for your reference.
+
+8. Saving Scripts to Files
+==========================
+
+In this section, we're going to be creating a directory 
+and saving the HQL and Pig scripts to files, so that we
+can automate everything we've done through actions
+and Oozie workflows later.
+
+#. Use the **File Browser** to go to your home directory.
+#. Click **New->Directory**.
+#. In the **Create Directory**, dialog enter **hue_scripts** in the **Directory Name** text field for the directory name
+   and click **Create**.
+  
+   We're creating a new directory to include scripts because our Oozie Workflow will be removing and recreating 
+   the directory **hue_tutorial**.
+#. Navigate to the new directory **hue_scripts** and click **New->File**.
+#. In the **Create File** dialog box, enter **del_create_db_tables.sql**.
+#. Double-click **del_create_db_tables.sql**.
+#. From the **Actions** panel, double-click **Edit file** to open an editing pane.
+#. Enter the following text in the editing field and click **Save**. (Be sure to replace ``{your_user_name}`` with your user name.)
+
+   .. code-block:: sql
+
+      drop table flickr_{your_user_name}_100m_db.flickr_{your_user_name}__100m_table;
+      drop database flickr_{your_user_name}__100m_db;
+
+      create database flickr_{your_user_name}__100m_db comment 'Flickr Creative Commons 100M data dump' location '/user/{your_user_name}/hue_tutorial/';
+
+      create external table flickr_{your_user_name}__100m_table (
+         photoid bigint, 
+         usernsid string, 
+         userhandle string, 
+         date_taken string, 
+         date_imported bigint,
+         camera string, 
+         name string, 
+         description string, 
+         tags string, 
+         machinetags string,
+         longitude double, 
+         latitude double, 
+         accuracy int,
+         photopage string, 
+         photopixels string, 
+         licensename string, 
+         licenseurl string, 
+         server int, 
+         farm int, 
+         secret string, 
+         secreto string, 
+         extension string,
+         isvideo int
+      )
+      row format delimited
+      fields terminated by '\t'
+      lines terminated by '\n'
+      location '/user/jcatera/hue_tutorial/';
+ 
+#. In the same directory, create the file **camera_location_query.sql** with the following: 
+   
+   .. code-block:: sql
+
+      use flickr_jcatera_100m_db;
+      set hive.io.output.fileformat=CSVTextFile;
+
+      INSERT OVERWRITE DIRECTORY 'flickr_camera_locations' ROW FORMAT '\n' STORED AS 'csv'
+          select camera, longitude, latitude from flickr_jcatera_100m_table;
+
+
 
 .. Uses Oozie to execute Pig.
 
@@ -343,18 +413,24 @@ in the next section.
 
 #. From top navigation bar, click the **Query Editors** and select **Job Designer**.
 #. From the **Designs** panel, click **New action** and select **Fs** as your action.
-#. Enter **delete_pig_output** in the **Name** text field and **Removing results from Pig script
-   Flickr Camera Location Script** for the **Description** text field.
-#. Click **Add path** next to **Delete path** and enter the path ``/user/{your_user_name}/flickr_camera_location/``.
+#. Enter **hue_tutorial_refresh** in the **Name** text field and **Cleaning up HDFS for Hue
+   tutorial.** for the **Description** text field.
+#. Click **Add path** next to **Delete path** and enter the path ``/user/{your_user_name}/hue_tutorial/``.
+#. Click **Add path** again, and enter the path ``/user/{your_user_name}/flickr_camera_location/``.
+
    We're deleting the path so we can run our Pig script again in an Oozie job that we 
    create through the **Workflows Editor** in the next section.
 #. Click **Save**.
-#. From the **Designs** pane, select the action that you just saved and click **Submit**.
-
-#. Once your job has completed, you'll be taken to the **Workflow** pane has tabs 
-   to view the action progress, details (time, application path),
-   configuration (jobTracker,nameNode, Oozie path, etc.), log, and definition (workflow XML).
-
+#. From the **Designs** panel, click **New action** and select **Email** as your action.
+#. Enter **hue_tutorial_notification** in the **Name** text field and **Email Notification for the Hue Tutorial.**
+   for the **Description** text field.
+#. In the **TO addresses**, enter your email address. In the **Subject** field, enter **Hue Tutorial is Running**.
+   Finally, in the **Body** text area, enter the following: **The Hue Tutorial Oozie Workflow has completed.**
+#. Click **Save**.
+#. From the **Designs** pane, check the **hue_tutorial_notification** checkbox and click **Submit**.
+#. You'll be taken to the **Workflow** pane and quickly see that the **Status** indicate **Succeeded** and
+   the **Progress** bar reach **100%**. You should receive the notification email in a few minutes, too.
+#. We're going to create an Oozie Workflow next, which will use one of the actions that we just created.
 
 9. Creating Workflows With the Oozie Editor
 ===========================================
@@ -368,6 +444,36 @@ been doing with Hue up until now.
 #. From the top-navigation bar, click **Workflows** and select **Editors->Workflows**.
 #. Click **+ Create** to start creating a new workflow.
 #. Enter **hue_tutorial_workflow** in the **Name** field and click **Save**.
+#. Click **Import action** to display the **Job Designer** tab, where you'll see the actions you created.
+#. Click **hue_tutorial_refresh** to import it into your Oozie Workflow.
+#. Drag the **DistCp** object to the dotted box below **hue_tutorial_refresh**.
+#. In the **Edit Node** pane, enter **hue_copy_data** in the **Name** field. 
+#. Click **Advanced** and check the **hcat** checkbox.
+#. From the **Params** field, click **Add argument** and enter **/user/sumeetsi/HueTalk/Flickr100cc/flickr100m_dataset.bz2**.
+#. Click **Add argument** again, enter **/user/{your_user_name}/hue_tutorial/** and click **Done**.
+#. Drag the **Hive** object to the next available dotted box.
+#. In the **Edit Node** window, enter **del_create_db_tables** in the **Name** text field and
+   enter **Delete old tables and create new ones.** in the **Description** text field.
+#. Click **Advanced** and check the **hcat** checkbox.
+#. From the **Script name** field, click the **..** navigation box and navigate to 
+   **/user/jcatera/hue_scripts/create_db_tables.sql**. 
+#. Click **Add property** and enter **oozie.action.sharelib.for.hive** for the **Property name** and
+   **hcat_current,hive_current_tez** for the **Value**. (Make sure there are no spaces in the values.)
+#. Click **Add property** again and enter **hive.querylog.location** for the **Property name** and **hivelogs**
+   for the **Value**.
+#. For the **Job XML** text field, enter the following and click **Done**: **/user/sumeetsi/HueTalk/hive-site.xml**
+#. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next empty dotted box.
+#. In the **Edit Node** window, enter **pig_camera_location** in the **Name** field.
+#. Click **Advanced** and check the **hcat** checkbox.
+#. Click **Add property** and enter **oozie.action.sharelib.for.pig** for the **Property name**
+   ad **pig_current,hcat_current** for the **Value** text field.
+#. For the **Job XML** text field, enter **/user/sumeetsi/HueTalk/hive-site.xml** and click **Done**.
+#. Create a **Hive** 
+ Drag the **Hive** object to the next empty dotted box.
+#. Enter **camera_photos** in the **Name** field.
+#. Click **Advanced** and check the **hcat** checkbox.
+#. 
+
 
 #. Delete Pig results
 #. Create a new directory for results.
@@ -377,6 +483,10 @@ been doing with Hue up until now.
 #. Run Pig script to clean up results.
 
 TBD: 
+
+#. Once your job has completed, you'll be taken to the **Workflow** pane has tabs 
+   to view the action progress, details (time, application path),
+   configuration (jobTracker,nameNode, Oozie path, etc.), log, and definition (workflow XML).
 
 
 Notes
@@ -426,6 +536,16 @@ Let's start a job now and take a look at the job in the **Job Browser**.
 
 
 
+
+Troubleshooting
+===============
+
+Oozie Workflows
+---------------
+
+If a Hive job is killed quickly, there is a good chance that you have
+not checked the **hcat** checkbox, so your application is killed because
+of an authorization issue.
 
 
 
