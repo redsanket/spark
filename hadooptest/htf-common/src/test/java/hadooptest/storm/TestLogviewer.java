@@ -292,6 +292,54 @@ public class TestLogviewer extends TestSessionStorm {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test(timeout=300000)
+    public void LogviewerDeepSearchTest() throws Exception {
+        assumeTrue(cluster instanceof ModifiableStormCluster);
+        final String topoName = "logviewer-deep-search-test";
+        createAndSubmitLogviewerTopology(topoName);
+        final String topoId = getFirstTopoIdForName(topoName);
+        waitForTopoUptimeSeconds(topoId, 30);
+
+        LogviewerQueryStruct lqs = getLogviewerQueryInformation(topoId);
+        HTTPHandle client = createAndPrepHttpClient();
+
+        String getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
+                "/download/" + topoId + "-worker-" + lqs.workerPort +
+                ".log";
+        String output = performHttpRequest(client, getURL);
+
+        String searchSubstring = "an apple a day keep";
+        final String expectedRegex =
+                ".*TRANSFERR?ING.*" + searchSubstring + "*";
+        Pattern p = Pattern.compile(expectedRegex, Pattern.DOTALL);
+        Matcher regexMatcher = p.matcher(output);
+
+        assertTrue("Topology appears to be up-and-running.",
+                regexMatcher.find());
+
+        String encodedSearchSubstring =
+                URLEncoder.encode(searchSubstring, "UTF-8");
+        final int numMatches = 25;
+        logger.info("Will be connecting to the deep search page on UI at " + lqs.host + ":" + lqs.logviewerPort);
+
+        getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
+                "/deepSearch/" + topoId +
+                "?search-string="+encodedSearchSubstring+
+                "&num-matches="+numMatches+
+                "&port=" + lqs.workerPort +
+                "&search-archived=on" +
+                "&start-file-offset=0";
+        String searchOutput = performHttpRequest(client, getURL);
+
+        assertTrue("Response returns at least a match", searchOutput.contains(searchSubstring));
+        assertTrue("One of the matches is from the rolled log file",
+                searchOutput.contains( topoId + "-worker-" + lqs.workerPort + ".log.1.gz&"));
+        assertTrue("One of the matches is from the regular log file",
+                searchOutput.contains( topoId + "-worker-" + lqs.workerPort + ".log&"));
+    }
+
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test(timeout=300000)
     public void LogviewerGrepTest() throws Exception {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         final String topoName = "logviewer-search-test";
