@@ -25,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,12 +38,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import hadooptest.cluster.storm.StormDaemon;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.thrift7.TException;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -67,13 +64,11 @@ public class TestLogviewer extends TestSessionStorm {
     public HttpCookie theCookie = null;
     public CookieManager manager = null;
     public CookieStore cookieJar = null;
-    static ModifiableStormCluster mc;
 
     @BeforeClass
     public static void setup() throws Exception {
         cluster.setDrpcInvocationAuthAclForFunction("words", "hadoopqa");
         cluster.setDrpcClientAuthAclForFunction("words", "hadoopqa");
-        mc = (ModifiableStormCluster)cluster;
     }
 
     @AfterClass
@@ -245,7 +240,7 @@ public class TestLogviewer extends TestSessionStorm {
             startByteNum, final int byteLength) throws MalformedURLException,
             IOException, FileNotFoundException, XPathExpressionException,
             URISyntaxException {
-        URL logPageUrl = new URL("http",  host, logviewerPort, "/log?file="
+        URL logPageUrl = new URL("http", host, logviewerPort, "/log?file="
                 + topoId + "-worker-" + workerPort + ".log&" + "start="
                 + startByteNum + "&length=" + byteLength);
         return getLogviewerPageContent(client, logPageUrl);
@@ -293,12 +288,6 @@ public class TestLogviewer extends TestSessionStorm {
             logPageFile.close();
         }
         return new String(buf);
-    }
-
-    private String getUIPort() throws Exception {
-        backtype.storm.Config stormConf = new backtype.storm.Config();
-        stormConf.putAll(Utils.readStormConfig());
-        return stormConf.get(backtype.storm.Config.UI_PORT).toString();
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
