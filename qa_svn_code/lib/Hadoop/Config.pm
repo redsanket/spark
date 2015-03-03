@@ -122,8 +122,10 @@ sub new {
         }
     }
 
+#    $self->{ADMIN_HOST} =
+#        [ ( 'qeadm.qegrid.corp.gq1.y-cloud.net' ) ];
     $self->{ADMIN_HOST} =
-        [ ( 'qeadm.qegrid.corp.gq1.y-cloud.net' ) ];
+        [ ( 'adm201.ygridvm.corp.ne1.yahoo.com' ) ];
 
 
     $self->{RESOURCEMANAGER_NAME} =
