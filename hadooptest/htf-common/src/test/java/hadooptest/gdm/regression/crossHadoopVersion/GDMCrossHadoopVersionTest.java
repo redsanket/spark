@@ -79,7 +79,6 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	public void setUp() throws NumberFormatException, Exception {
 		String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
 		this.conf = new XMLConfiguration(configPath);
-		this.gdmVersion = this.conf.getString("hostconfig.console.gdm-version").trim();
 		HTTPHandle httpHandle = new HTTPHandle();
 		this.consoleHandle = new ConsoleHandle();
 		this.jsonUtil = new JSONUtil();
@@ -198,7 +197,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		TestSession.logger.info("Activating " + dataSetName);
 		response = this.consoleHandle.activateDataSet(dataSetName);
 		assertTrue("Failed to activate dataset " + dataSetName , response.getStatusCode() == SUCCESS);
-		this.consoleHandle.sleep(SLEEP);
+		
 		String datasetActivationTime = GdmUtils.getCalendarAsString().trim();
 		this.dataSetActivationTimeMap.put(dataSetName.trim() , datasetActivationTime);
 	}
@@ -217,7 +216,6 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		TestSession.logger.info("New DataSource Name = " + xml);;
 		boolean isDataSourceCreated = this.consoleHandle.createDataSource(xml);
 		assertTrue("Failed to create a DataSource specification " + newDataSourceName , isDataSourceCreated == true);
-		this.consoleHandle.sleep(30000);
 		this.dataSourceMap.put(existingDataSourceName, newDataSourceName);
 	}
 
