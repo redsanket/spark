@@ -55,15 +55,12 @@
 	<Targets>
 		<Target latency="1440" name="TARGET_NAME" status="active">
 			<DateRange>
-				<StartDate type="TARGET_ONE_TYPE_START" value="TARGET_ONE_START_DATE" />
-				<EndDate type="TARGET_ONE_TYPE_END" value="TARGET_ONE_END_DATE" />
+				<StartDate type="TARGET_ONE_START_TYPE" value="TARGET_ONE_START_DATE" />
+				<EndDate type="TARGET_ONE_END_TYPE" value="TARGET_ONE_END_DATE" />
 			</DateRange>
 			<HCatTargetType>HCAT_TYPE</HCatTargetType>
 			<Paths>
 				<Path location="CUSTOM_DATA_PATH" type="data" />
-				<!-- <Path location="CUSTOM_COUNT_PATH" type="count" /> 
-				<Path location="CUSTOM_SCHEMA_PATH" 
-					type="schema" /> -->
 			</Paths>
 			<Policies>
 				<Policy condition="numberOfInstances(instancelist, instance) > 5"

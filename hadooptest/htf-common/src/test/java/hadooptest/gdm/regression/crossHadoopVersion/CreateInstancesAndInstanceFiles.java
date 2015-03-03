@@ -37,6 +37,7 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 	private static final String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
 	private static final String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
 	private static final int NO_OF_INSTANCE = 5;
+	private static final int DAYS = 20;
 	private static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 
 	public CreateInstancesAndInstanceFiles(String clusterName , String basePath , String dataPath ) {
@@ -64,7 +65,7 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		System.out.println(sdf.format(cal.getTime()));
 
-		cal.add(Calendar.DAY_OF_MONTH, -20);
+		cal.add(Calendar.DAY_OF_MONTH, -DAYS);
 		String instance = sdf.format(cal.getTime());
 		this.instanceList.add(instance);
 
