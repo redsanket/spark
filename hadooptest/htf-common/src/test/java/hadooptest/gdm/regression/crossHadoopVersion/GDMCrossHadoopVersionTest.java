@@ -168,11 +168,12 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", dataSetName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", dataSetName + "_stats" );
 		String targetName = this.dataSourceMap.get(target2);
+		
 		dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", target1 );
 		dataSetXml = dataSetXml.replaceAll("TARGET_NAME", targetName );
-		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_TYPE_START", "offset" );
+		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_START_TYPE", "offset" );
 		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_START_DATE", "30" );
-		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_TYPE_END", "Offset" );
+		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_END_TYPE", "Offset" );
 		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_END_DATE", "0" );
 		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_DATA_AVAILABLE_PATH", SOURCE_DATA_PATH);
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", "/data/daqqe/data/" + dataSetName  + "/%{date}");
