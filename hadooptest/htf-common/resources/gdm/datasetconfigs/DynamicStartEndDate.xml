@@ -56,8 +56,8 @@
 	<Targets>
 		<Target latency="1440" name="TARGET1" status="active">
 			<DateRange>
-				<StartDate type="TARGET_ONE_START_DATE_TYPE" value="TARGET_ONE_START_DATE" />
-				<EndDate type="TARGET_ONE_END_DATE_TYPE" value="TARGET_ONE_END_DATE" />
+				<StartDate type="TARGET_ONE_TYPE_START" value="TARGET_ONE_START_DATE" />
+				<EndDate type="TARGET_ONE_TYPE_END" value="TARGET_ONE_END_DATE" />
 			</DateRange>
 			<HCatTargetType>HCAT_TYPE</HCatTargetType>
 			<Policies>
@@ -69,8 +69,8 @@
 		</Target>
 		<Target latency="1440" name="TARGET2" status="active">
 			<DateRange>
-				<StartDate type="TARGET_TWO_START_DATE_TYPE" value="TARGET_TWO_START_DATE" />
-				<EndDate type="TARGET_TWO_END_DATE_TYPE" value="TARGET_TWO_END_DATE" />
+				<StartDate type="TARGET_TWO_TYPE_START" value="TARGET_TWO_START_DATE" />
+				<EndDate type="TARGET_TWO_TYPE_END" value="TARGET_TWO_END_DATE" />
 			</DateRange>
 			<HCatTargetType>HCAT_TYPE</HCatTargetType>
 			<Policies>

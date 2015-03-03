@@ -13,6 +13,7 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
+import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -29,6 +30,7 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 	private List<String> grids = new ArrayList<String>();
 	private HTTPHandle httpHandle = null; 
 	private WorkFlowHelper workFlowHelperObj = null;
+	private FullyDistributedExecutor executor = new FullyDistributedExecutor();
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	public static final int FAILED = 500;
 	
@@ -46,6 +48,30 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 
 		this.target1 = this.grids.get(0);
 		this.target2 = this.grids.get(1);
+		TestSession.logger.info("Using grids " + this.target1  + "  & " +  this.target2);
+		
+		// set the yinst setting 
+		String []yinst  = executor.runProcBuilder(new String [] {"./resources/gdm/restart/gdm_yinst_set.sh" , "console" , "ygrid_gdm_console_server.bouncer_selfserve_create_retentionOnly_role" , "B"});
+		for ( String  s : yinst ) {
+			TestSession.logger.info(s);
+		}
+
+		// stop the retention facet
+		String stop[] =  executor.runProcBuilder(new String [] {"./resources/gdm/restart/StopStartFacet.sh" , "console" , "stop" });
+		for ( String  s : stop ) {
+			TestSession.logger.info(s);
+		}
+
+		// start the retention facet
+		String start[] =  executor.runProcBuilder(new String [] {"./resources/gdm/restart/StopStartFacet.sh" , "console" , "start" });
+		for ( String  s : start ) {
+			TestSession.logger.info(s);
+		}
+
+		// wait for some time, so that classes gets loaded successfully
+		TestSession.logger.info("Please wait for a minutes, so that discovery can start...! ");
+		this.consoleHandle.sleep(60000);
+
 	}
 
 	/**
