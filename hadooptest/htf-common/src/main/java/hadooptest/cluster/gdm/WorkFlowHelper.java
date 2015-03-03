@@ -374,7 +374,7 @@ public class WorkFlowHelper {
 		}
 	}
 
-	private String checkWorkFlowStatus(com.jayway.restassured.response.Response workFlowResponse , String... args) {
+	public String checkWorkFlowStatus(com.jayway.restassured.response.Response workFlowResponse , String... args) {
 		JSONArray jsonArray = null;
 		String currentWorkFlowStatus = null;
 		String workFlowStatus = args[0];

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog" description="gdm-dataset-to-test-hadoop"
+	name="NEW_DATA_SET_NAME" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="dataset.xsd">
+	<Active>FALSE</Active>
+	<RetentionEnabled>TRUE</RetentionEnabled>
+	<VerificationInstance />
+	<Priority>HIGHEST</Priority>
+	<Contact consumer="gdm-dev@yahoo-inc.com" owner="gdm-dev@yahoo-inc.com"
+		publisher="gdm-dev@yahoo-inc.com" />
+	<Comments>GDM doAs replication automated testcase </Comments>
+	<UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755" />
+	<!-- <RunAsOwner>replication</RunAsOwner> -->
+	<Frequency>daily</Frequency>
+	<DiscoveryFrequency>60</DiscoveryFrequency>
+	<DiscoveryInterface>HDFS</DiscoveryInterface>
+	<Paths>
+		<Path location="REPLICATION_SOURCE_DATA_AVAILABLE_PATH" type="data" />
+	</Paths>
+	<Parameters>
+		<attribute value='FEED_NAME' name='feed'></attribute>
+		<attribute name="frequency" value="daily" />
+		<attribute name="bucket" value="0-998" />
+		<attribute name="statsfeed" value='FEED_STATS' />
+		<attribute name="instancepattern" value="yyyyMMdd" />
+		<attribute name="retentionPeriod" value="390" />
+	</Parameters>
+	<DataDefinition>
+		<StaticSchemaPath />
+		<RecordDelimiter />
+		<FieldDelimiter />
+		<InputFormat>Text</InputFormat>
+		<OutputFormat>Sequence</OutputFormat>
+		<SkipCommentsInData>false</SkipCommentsInData>
+		<SortKey>mrkt_sid</SortKey>
+		<PartitionKey />
+		<DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+		<AddFields>datestamp=$datestamp</AddFields>
+		<RemoveFields />
+		<SelectRecords />
+	</DataDefinition>
+	<WorkflowStrategy>
+		<LoadStrategy>Default</LoadStrategy>
+		<RetryCount>0</RetryCount>
+		<SkipDataCommit>false</SkipDataCommit>
+		<SkipVerify>false</SkipVerify>
+		<NoOfParts>1</NoOfParts>
+		<PartsPerPartition>4</PartsPerPartition>
+	</WorkflowStrategy>
+	<Sources>
+		<Source latency="720" name="SOURCE_NAME"
+			switchovertype="Standard" />
+	</Sources>
+	<DataFlow />
+	<Targets>
+		<Target latency="1440" name="TARGET_NAME" status="active">
+			<DateRange>
+				<StartDate type="TARGET_ONE_START_TYPE" value="TARGET_ONE_START_DATE" />
+				<EndDate type="TARGET_ONE_END_TYPE" value="TARGET_ONE_END_DATE" />
+			</DateRange>
+			<HCatTargetType>HCAT_TYPE</HCatTargetType>
+			<Paths>
+				<Path location="CUSTOM_DATA_PATH" type="data" />
+			</Paths>
+			<Policies>
+				<Policy condition="numberOfInstances(instancelist, instance) > 5"
+					type="retention" />
+			</Policies>
+			<Resource capacity="10" name="bandwidth" />
+		</Target>
+	</Targets>
+	<HCat>
+		<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
+		<HCatInstanceKey>instancedate</HCatInstanceKey>
+		<HCatSchemaFile>schema.dat</HCatSchemaFile>
+		<HCatSchemaFormat>ULT</HCatSchemaFormat>
+		<HCatSchemaLocked>FALSE</HCatSchemaLocked>
+		<HCatTableName>HCAT_TABLE_NAME</HCatTableName>
+	</HCat>
+</DataSet>
