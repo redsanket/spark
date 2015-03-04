@@ -107,6 +107,10 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo $yinst set \$rootdirparam  $confpkg.TODO_NAMENODE_EXTRAPROPS=\"\$namenodeXML\"
     echo cp  /tmp/${cluster}.namenodeconfigs.xml  ${yroothome}/conf/hadoop/
 
+    # create the symlink for the bouncer public key
+    echo 'rm -f /home/gs/conf/bycookieauthkey'
+    echo 'ln -s /home/gs/gridre/yroot.$cluster/conf/bycookieauthkey /home/gs/conf/bycookieauthkey'
+
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
 	echo "echo ======= running yinst-set to set Herriot config properties."
