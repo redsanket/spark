@@ -81,7 +81,7 @@ public class HtfTezUtils {
 		// Dump the env settings.
 		Map<String, String> env = System.getenv();
 		for (String envName : env.keySet()) {
-//			System.out.format("%s=%s%n", envName, env.get(envName));
+			System.out.format("%s=%s%n", envName, env.get(envName));
 		}
 
 		// Local mode settings
@@ -129,25 +129,7 @@ public class HtfTezUtils {
 			// Cluster mode
 			conf.setBoolean("tez.local.mode", false);
 			conf.setBoolean("tez.use.cluster.hadoop-libs", true);
-			try {
-				File file = new File(TEZ_SITE_XML);
-				FileInputStream fileInput = new FileInputStream(file);
-				Properties properties = new Properties();
-				properties.loadFromXML(fileInput);
-				fileInput.close();
-
-				Enumeration enuKeys = properties.keys();
-				while (enuKeys.hasMoreElements()) {
-					String key = (String) enuKeys.nextElement();
-					String value = properties.getProperty(key);
-					conf.set(key, value);
-//					System.out.println(key + ": " + value);
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			
 		}
 
 		// Consider using a session
@@ -190,7 +172,11 @@ public class HtfTezUtils {
 				+ "/libexec/tez,${fs.defaultFS}/sharelib/v1/tez/ytez-"
 				+ tezVersion + "/libexec/tez/lib");
 
-		return new TezConfiguration(conf);
+		TezConfiguration tezConf = new TezConfiguration(conf);
+		if (mode.equals(HadooptestConstants.Execution.TEZ_CLUSTER)) {
+			tezConf.addResource(TEZ_SITE_XML);
+		}
+		return tezConf;
 	}
 
 
