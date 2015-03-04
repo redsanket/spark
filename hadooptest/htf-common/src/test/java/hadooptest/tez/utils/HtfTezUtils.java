@@ -18,12 +18,16 @@ import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.SetSpaceQuota;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +47,7 @@ import org.junit.Assert;
  */
 public class HtfTezUtils {
 
-	public static String TEZ_SITE_XML = "/home/gs/conf/tez/tez-site.xml";
+	public static String TEZ_SITE_XML = " /home/gs/conf/tez/current/tez-site.xml";
 
 	public static enum Session {
 		YES, NO
@@ -125,6 +129,25 @@ public class HtfTezUtils {
 			// Cluster mode
 			conf.setBoolean("tez.local.mode", false);
 			conf.setBoolean("tez.use.cluster.hadoop-libs", true);
+			try {
+				File file = new File(TEZ_SITE_XML);
+				FileInputStream fileInput = new FileInputStream(file);
+				Properties properties = new Properties();
+				properties.loadFromXML(fileInput);
+				fileInput.close();
+
+				Enumeration enuKeys = properties.keys();
+				while (enuKeys.hasMoreElements()) {
+					String key = (String) enuKeys.nextElement();
+					String value = properties.getProperty(key);
+					conf.set(key, value);
+//					System.out.println(key + ": " + value);
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		// Consider using a session

@@ -1,9 +1,10 @@
-package hadooptest.tez.ats;
+package hadooptest.tez.ats.performance;
 
 import static com.jayway.restassured.RestAssured.given;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.node.hadoop.HadoopNode;
+import hadooptest.tez.ats.ATSTestsBaseClass;
 import hadooptest.tez.ats.ATSTestsBaseClass.EntityTypes;
 import hadooptest.tez.utils.HtfATSUtils;
 
@@ -134,7 +135,7 @@ public class TestTezPerfCountEntityIds extends ATSTestsBaseClass {
 					JSONObject aDagEntityJson = (JSONObject) entities
 							.get(entityIdx);
 					// ENTITY
-					String entity = (String) aDagEntityJson.get("entity");
+					String entity = (String) aDagEntityJson.get("entity");					
 					tempEntitySet.add(entity);
 					lastEntId = entity;
 
