@@ -47,7 +47,7 @@ import org.junit.Assert;
  */
 public class HtfTezUtils {
 
-	public static String TEZ_SITE_XML = " /home/gs/conf/tez/current/tez-site.xml";
+	public static String TEZ_SITE_XML = "/home/gs/conf/tez/current/tez-site.xml";
 
 	public static enum Session {
 		YES, NO
