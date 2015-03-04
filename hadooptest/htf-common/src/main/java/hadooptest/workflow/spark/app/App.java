@@ -4,6 +4,7 @@
 
 package hadooptest.workflow.spark.app;
 
+import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.TestSession;
 
 import java.io.BufferedReader;
@@ -218,7 +219,7 @@ public abstract class App extends Thread {
     public void setAppInitSetID(boolean setID) {
         this.appInitSetID = setID;
     }
-    
+
     /**
      * Kills the app.  Uses yarn CLI to kill the app.
      * 
@@ -227,9 +228,20 @@ public abstract class App extends Thread {
      * @throws Exception if there is a fatal error killing the app.
      */
     public boolean killCLI() throws Exception {
+       return killCLI(this.USER);
+    }
 
+    /**
+     * Kills the app as the user specified.  Uses yarn CLI to kill the app.
+     * 
+     * @param user name of the user to run the command as.
+     * @return boolean Whether the app was successfully killed.
+     * 
+     * @throws Exception if there is a fatal error killing the app.
+     */
+    public boolean killCLI(String user) throws Exception {
         Process yarnProc = null;
-        
+
         String[] yarnCmd = {
                 TestSession.cluster.getConf().getHadoopProp("YARN_BIN"), 
                 "--config", TestSession.cluster.getConf().getHadoopConfDir(),
@@ -237,11 +249,19 @@ public abstract class App extends Thread {
 
         TestSession.logger.debug(yarnCmd);
 
-        String yarnPatternStr = "(.*)(Killed app " + this.ID + ")(.*)";
+        String yarnPatternStr = "(.*)(Killed application " + this.ID + ")(.*)";
         Pattern yarnPattern = Pattern.compile(yarnPatternStr);
         
         try {
-            yarnProc = TestSession.exec.runProcBuilderSecurityGetProc(yarnCmd, this.USER);
+            HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
+            Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+                EMPTY_ENV_HASH_MAP);
+            environmentVariablesWrappingTheCommand.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
+            environmentVariablesWrappingTheCommand.put("HADOOP_CONF_DIR", TestSession.cluster.getConf().getHadoopConfDir());
+
+            yarnProc = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+               yarnCmd, user, environmentVariablesWrappingTheCommand);
+
             BufferedReader reader=new BufferedReader(new InputStreamReader(yarnProc.getInputStream())); 
             String line=reader.readLine(); 
             while(line!=null) 
@@ -297,6 +317,7 @@ public abstract class App extends Thread {
             HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
             Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
                 EMPTY_ENV_HASH_MAP);
+            environmentVariablesWrappingTheCommand.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
             environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
             yarnProc = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(

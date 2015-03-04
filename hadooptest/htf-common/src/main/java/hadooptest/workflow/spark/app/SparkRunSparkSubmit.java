@@ -73,6 +73,9 @@ public class SparkRunSparkSubmit extends App {
     /** distributed cache archives */
     private String distCacheArchives = "";
 
+    /** confs */
+    private ArrayList<String> confsArray = new ArrayList<String>();
+
     /** args */
     private String[] argsArray;
 
@@ -275,6 +278,10 @@ public class SparkRunSparkSubmit extends App {
         executorClassPath = val;
     }
 
+    public void setConf(String val) {
+        confsArray.add(val);
+    }
+
     /**
      * Submit the app.  This should be done only by the Job.start() as Job should
      * remain threaded.
@@ -465,6 +472,11 @@ public class SparkRunSparkSubmit extends App {
         if (!this.executorLibraryPath.isEmpty()) {
             cmd.add("--conf");
             cmd.add("spark.executor.extraLibraryPath=" + this.executorLibraryPath);
+        }
+
+        for (String confString: confsArray) {
+            cmd.add("--conf");
+            cmd.add(confString);
         }
 
         if (this.shouldUseJdk64) {
