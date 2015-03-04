@@ -88,7 +88,7 @@ public class ATSTestsBaseClass extends TestSession {
 	public static SeedData seedDataForAutoLaunchedSimpleSessionExample = null;
 	public static SeedData seedDataForAutoLaunchedOrderedWordCount = null;
 	public static SeedData seedDataForAutoLaunchedPigJob = new SeedData();
-	
+
 	public static String YAHOO_TEAM_MEMBERS = "tiwari,jeagles,mitdesai";
 
 	public enum EntityTypes {
@@ -736,7 +736,7 @@ public class ATSTestsBaseClass extends TestSession {
 		StringBuilder sb = new StringBuilder();
 		try {
 			session = jsch.getSession(user, host, 22);
-			jsch.addIdentity(identityFile,"");
+			jsch.addIdentity(identityFile, "");
 			UserInfo ui = new MyUserInfo();
 			session.setUserInfo(ui);
 			session.setConfig("StrictHostKeyChecking", "no");
@@ -987,8 +987,7 @@ public class ATSTestsBaseClass extends TestSession {
 			this.acls = acls;
 		}
 
-		public void doAction() throws AccessControlException, IOException,
-				InterruptedException {
+		public void doAction() throws IOException, InterruptedException {
 			TestSession.logger.info("In DoAs as user:" + ugi.getShortUserName()
 					+ " the same will be passed downstream");
 			PrivilegedExceptionActionImpl privilegedExceptionActor = new PrivilegedExceptionActionImpl(
@@ -1046,18 +1045,19 @@ public class ATSTestsBaseClass extends TestSession {
 				TestSimpleSessionExample test = new TestSimpleSessionExample();
 				test.copyTheFileOnHdfs();
 				chmodOutputPath777Tmp();
-				int returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun).runJob(new String[]{TestSimpleSessionExample.inputFilesOnHdfs,
-				TestSimpleSessionExample.outputPathsOnHdfs,"2"},
-				(TezConfiguration)HtfTezUtils.setupConfForTez(
-				TestSession.cluster.getConf(),
-				HadooptestConstants.Execution.TEZ_CLUSTER,
-				HtfTezUtils.Session.YES,
-				TimelineServer.ENABLED,
-				"SimpleSessionEx"), ugi, seedData,
-				acls);
+				int returnCode = ((SimpleSessionExampleExtendedForTezHTF) theJobToRun)
+						.runJob(new String[] {
+								TestSimpleSessionExample.inputFilesOnHdfs,
+								TestSimpleSessionExample.outputPathsOnHdfs, "2" },
+								(TezConfiguration) HtfTezUtils.setupConfForTez(
+										TestSession.cluster.getConf(),
+										HadooptestConstants.Execution.TEZ_CLUSTER,
+										HtfTezUtils.Session.YES,
+										TimelineServer.ENABLED,
+										"SimpleSessionEx"), ugi, seedData, acls);
 				test.deleteTezStagingDirs();
 				Assert.assertTrue(returnCode == 0);
-				} else if (this.theJobToRun instanceof MRRSleepJobExtendedForTezHTF) {
+			} else if (this.theJobToRun instanceof MRRSleepJobExtendedForTezHTF) {
 
 				/**
 				 * [-m numMapper][-r numReducer] [-ir numIntermediateReducer]

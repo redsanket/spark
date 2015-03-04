@@ -71,6 +71,14 @@ public class TestGroupByOrderByMRRTest extends
 	public void testGroupByOrderByMRRTestRunOnClusterWithSession()
 			throws Exception {
 		/**
+		 * This sleep is there because of TEZ-160. I've noticed that
+		 * by not having this sleep the subsequent tests would start
+		 * and hit the AM in the sleeping state and cause delegation
+		 * tokens to error and thus fail the test.
+		 */
+		Thread.sleep(6000);
+
+		/**
 		 * Usage: groupbyorderbymrrtest <in> <out>
 		 */
 		copyDataIntoHdfs();
@@ -90,6 +98,14 @@ public class TestGroupByOrderByMRRTest extends
 		/**
 		 * Usage: groupbyorderbymrrtest <in> <out>
 		 */
+		/**
+		 * This sleep is there because of TEZ-160. I've noticed that
+		 * by not having this sleep the subsequent tests would start
+		 * and hit the AM in the sleeping state and cause delegation
+		 * tokens to error and thus fail the test.
+		 */
+		Thread.sleep(6000);
+
 		copyDataIntoHdfs();
 		long timeStamp = System.currentTimeMillis();
 		String[] groupByOrderByMrrArgs = new String[] { INPUT_FILE_NAME,
