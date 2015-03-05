@@ -101,8 +101,7 @@ public class TestSparkPython extends TestSession {
         // wait a few seconds for yarn to aggregate logs
         Util.sleep(10);
 
-        // confirm DEBUG was actually on
+        // confirm no Exceptions exist in the log
         assertFalse("Exception found in log file", appUserDefault.grepLogsCLI("(.*)Exception(.*)"));
-
     }
 }
