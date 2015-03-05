@@ -41,7 +41,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnClusterWithSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED, name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.ENABLED, name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -49,7 +49,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleNoLocalityCheckRunOnClusterWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] { skipLocalityCheck },
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED,name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.ENABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -57,7 +57,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnClusterWithSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.DISABLED,name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.YES, TimelineServer.ENABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 
@@ -65,7 +65,7 @@ public class TestBroadcastAndOneToOneExample extends
 	public void testTestBroadcastAndOneToOneExampleWithLocalityCheckRunOnClusterWithoutSession()
 			throws Exception {
 		int returnCode = run(new String[] {},
-				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.DISABLED,name.getMethodName());
+				HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO, TimelineServer.ENABLED,name.getMethodName());
 		Assert.assertTrue(returnCode == 0);
 	}
 	
