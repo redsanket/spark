@@ -61,6 +61,7 @@ public class TestSparkUI extends TestSession {
     private static String lrDatafile = "lr_data.txt";
     private static String hdfsDir = "/user/" + System.getProperty("user.name") + "/";
     private static SparkRunSparkSubmit appUserDefault; 
+    private static String hitusr_1_password = "New2@password";
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -94,7 +95,6 @@ public class TestSparkUI extends TestSession {
     }
 
     public static void setupTestDir() throws Exception {
-
         TestSession.cluster.getFS();
         String localFile = Util.getResourceFullPath("resources/spark/data/" + lrDatafile);
         System.out.println("LR data File is: " + localFile);
@@ -102,13 +102,12 @@ public class TestSparkUI extends TestSession {
     }
 
     public static void removeTestDir() throws Exception {
-
         // Delete the file
         TestSession.cluster.getFS().delete(new Path(hdfsDir + lrDatafile), true);
     }
 
     public static void copyResMgrConfigAndRestartNodes() throws Exception {
-        String CAPACITY_SCHEDULER_XML = "capacity-scheduler.xml";
+        String capacity_scheduler_xml = "capacity-scheduler.xml";
         String replacementConfigFile = TestSession.conf .getProperty("WORKSPACE")
                         + "/htf-common/resources/spark/data/capacity-scheduler.xml";
         TestSession.logger.info("Copying over canned cap sched file localted @:"
@@ -122,7 +121,7 @@ public class TestSparkUI extends TestSession {
         fullyDistributedCluster.getConf(
                         HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
                         .copyFileToConfDir(replacementConfigFile,
-                                        CAPACITY_SCHEDULER_XML);
+                                        capacity_scheduler_xml);
 
         // Bounce node
         fullyDistributedCluster.hadoopDaemon(Action.STOP,
@@ -166,7 +165,7 @@ public class TestSparkUI extends TestSession {
      */
     public String getBouncerUser() throws Exception {
         String user = TestSession.conf.getProperty("DEFAULT_BOUNCER_USER");
-        if ( user == null) {
+        if (user == null) {
             String[] output = TestSession.exec.runProcBuilder(
                     new String[]{"keydbgetkey", "hadoopqa_re_bouncer.user"});
             if (!output[0].equals("0")) {
@@ -216,7 +215,6 @@ public class TestSparkUI extends TestSession {
         return rmUtils.getResourceManagerURL(CLUSTER_NAME) + "/proxy/" + appUserDefault.getID();
     }
 
-
     private void startAndCheckUI(SparkRunSparkSubmit appUserDefault) throws Exception {
         appUserDefault.start();
 
@@ -262,7 +260,7 @@ public class TestSparkUI extends TestSession {
             String uiURL = getAppClusterURL(appUserDefault);
             String stagesUIURL = uiURL + "/proxy/" + appUserDefault.getID() + "/stages/";
             logger.info("Test default bouncer user doesn't work on ui: " + stagesUIURL);
-            getWithBouncer("hitusr_1", "New2@password", stagesUIURL, 401);
+            getWithBouncer(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_password, stagesUIURL, 401);
    
             int waitTime = 180;
             assertTrue("Job (default user) did not succeed.",
@@ -290,7 +288,7 @@ public class TestSparkUI extends TestSession {
             appUserDefault.setNumWorkers(3);
             appUserDefault.setWorkerCores(1);
             appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
-            appUserDefault.setConf("spark.ui.view.acls=hitusr_1");
+            appUserDefault.setConf("spark.ui.view.acls=" + HadooptestConstants.UserNames.HITUSR_1);
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
@@ -298,7 +296,7 @@ public class TestSparkUI extends TestSession {
    
             String stagesUIURL = getAppClusterURL(appUserDefault) + "/stages/";
             logger.info("Test hitusr_1 user doesn't work on ui");
-            getWithBouncer("hitusr_1", "New2@password", stagesUIURL, 200);
+            getWithBouncer(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_password, stagesUIURL, 200);
 
             int waitTime = 180;
             assertTrue("Job (default user) did not succeed.",
@@ -320,7 +318,7 @@ public class TestSparkUI extends TestSession {
             appUserDefault.setNumWorkers(3);
             appUserDefault.setWorkerCores(1);
             appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
-            appUserDefault.setConf("spark.admin.acls=hitusr_1");
+            appUserDefault.setConf("spark.admin.acls=" + HadooptestConstants.UserNames.HITUSR_1);
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
@@ -330,7 +328,7 @@ public class TestSparkUI extends TestSession {
             logger.info("Test default bouncer user works on ui: " + stagesUIURL);
 
             logger.info("Test hitusr_1 user doesn't work on ui");
-            getWithBouncer("hitusr_1", "New2@password", stagesUIURL, 200);
+            getWithBouncer(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_password, stagesUIURL, 200);
 
             int waitTime = 180;
             assertTrue("Job (default user) did not succeed.",
@@ -352,7 +350,7 @@ public class TestSparkUI extends TestSession {
             appUserDefault.setNumWorkers(3);
             appUserDefault.setWorkerCores(1);
             appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
-            appUserDefault.setConf("spark.modify.acls=hitusr_1");
+            appUserDefault.setConf("spark.modify.acls=" + HadooptestConstants.UserNames.HITUSR_1);
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
@@ -360,7 +358,7 @@ public class TestSparkUI extends TestSession {
 
             String stagesUIURL = getAppClusterURL(appUserDefault)  + "/stages/";
             logger.info("Test hitusr_1 user doesn't work on ui");
-            getWithBouncer("hitusr_1", "New2@password", stagesUIURL, 401);
+            getWithBouncer(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_password, stagesUIURL, 401);
 
             // should fail since user doesn't have modify permissions
             boolean ret = appUserDefault.killCLI(HadooptestConstants.UserNames.DFSLOAD);
@@ -386,7 +384,7 @@ public class TestSparkUI extends TestSession {
             appUserDefault.setNumWorkers(3);
             appUserDefault.setWorkerCores(1);
             appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
-            appUserDefault.setConf("spark.modify.acls=hitusr_1," + HadooptestConstants.UserNames.DFSLOAD);
+            appUserDefault.setConf("spark.modify.acls=" + HadooptestConstants.UserNames.HITUSR_1 + "," + HadooptestConstants.UserNames.DFSLOAD);
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
@@ -412,7 +410,7 @@ public class TestSparkUI extends TestSession {
             appUserDefault.setNumWorkers(3);
             appUserDefault.setWorkerCores(1);
             appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
-            appUserDefault.setConf("spark.admin.acls=hitusr_1," + HadooptestConstants.UserNames.DFSLOAD);
+            appUserDefault.setConf("spark.admin.acls=" + HadooptestConstants.UserNames.HITUSR_1 + "," + HadooptestConstants.UserNames.DFSLOAD);
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
@@ -427,6 +425,4 @@ public class TestSparkUI extends TestSession {
             fail();
         }
     }
-
 }
-
