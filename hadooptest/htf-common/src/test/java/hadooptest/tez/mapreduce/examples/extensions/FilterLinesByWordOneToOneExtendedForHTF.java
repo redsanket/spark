@@ -6,7 +6,6 @@ import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -151,9 +150,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 	    commonLocalResources.put("dag_job.jar", dagJarLocalRsrc);
 
 
-	    Random randomGenerator = new Random();
-	    int randomInt = randomGenerator.nextInt(100000);
-	    String tezClientName= "FilterLinesByWordSession" + randomInt;
+	    String tezClientName= "FilterLinesByWordSession";
 
 	    TezClient tezSession = TezClient.create(tezClientName, tezConf,
 	        commonLocalResources, null);
@@ -202,7 +199,7 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 	        .newBuilder(Text.class.getName(), TextLongPair.class.getName())
 	        .setFromConfiguration(tezConf).build();
 
-	    DAG dag = DAG.create("FilterLinesByWord"+randomInt);
+	    DAG dag = DAG.create("FilterLinesByWord");
 	    Edge edge =
 	        Edge.create(stage1Vertex, stage2Vertex, edgeConf.createDefaultOneToOneEdgeProperty());
 	    dag.addVertex(stage1Vertex).addVertex(stage2Vertex).addEdge(edge);
