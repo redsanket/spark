@@ -107,7 +107,7 @@ public class TestSparkUI extends TestSession {
     }
 
     public static void copyResMgrConfigAndRestartNodes() throws Exception {
-        String capacity_scheduler_xml = "capacity-scheduler.xml";
+        String capacitySchedulerXml = "capacity-scheduler.xml";
         String replacementConfigFile = TestSession.conf .getProperty("WORKSPACE")
                         + "/htf-common/resources/spark/data/capacity-scheduler.xml";
         TestSession.logger.info("Copying over canned cap sched file localted @:"
@@ -121,7 +121,7 @@ public class TestSparkUI extends TestSession {
         fullyDistributedCluster.getConf(
                         HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
                         .copyFileToConfDir(replacementConfigFile,
-                                        capacity_scheduler_xml);
+                                        capacitySchedulerXml);
 
         // Bounce node
         fullyDistributedCluster.hadoopDaemon(Action.STOP,
