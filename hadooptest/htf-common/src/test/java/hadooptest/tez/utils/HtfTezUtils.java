@@ -129,6 +129,7 @@ public class HtfTezUtils {
 			// Cluster mode
 			conf.setBoolean("tez.local.mode", false);
 			conf.setBoolean("tez.use.cluster.hadoop-libs", true);
+			conf.setBoolean("tez.ignore.lib.uris", false);
 			
 		}
 
