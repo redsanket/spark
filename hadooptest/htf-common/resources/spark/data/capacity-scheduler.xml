@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<!-- This is the configuration file for the resource manager in Hadoop. -->
+<!-- You can configure various scheduling parameters related to queues. -->
+<!-- The properties for a queue follow a naming convention,such as, -->
+<!-- mapred.scheduler.capacity.queue.<queue-name>.property-name. -->
+
+<configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="/home/gs/conf/local/local-capacity-scheduler.xml"/>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.acl_administer_queue</name>
+    <value>gridadmin</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.acl_submit_applications</name>
+    <value> users</value>
+  </property>
+
+
+  <property>
+    <name>yarn.scheduler.capacity.node-locality-delay</name>
+    <value>5000</value>
+    <description>
+      Number of missed scheduling opportunities after which the CapacityScheduler
+      attempts to schedule rack-local containers.
+      We set this to the # nodes in the largest cluster as the code will min
+      it with # nodes in the cluster.  To disable set to -1.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.user-metrics.enable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.resource-calculator</name>
+    <value>org.apache.hadoop.yarn.util.resource.DominantResourceCalculator</value>
+    <description>
+      The ResourceCalculator implementation to be used to compare
+      Resources in the scheduler.
+      The default i.e. DefaultResourceCalculator only uses Memory while
+      DominantResourceCalculator uses dominant-resource to compare
+      multi-dimensional resources such as Memory, CPU etc.
+    </description>
+  </property>
+
+</configuration>
