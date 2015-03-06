@@ -74,7 +74,7 @@ public class TestFilterLinesByWordOneToOne extends
 
 	@Ignore("until TEZ-1406 is fixed")
 	@Test
-	public void testFilterLinesByWordWithClientSplitsRunOnClusterWithSession()
+	public void testFilterLinesByWordOtoOWithClientSplitsRunOnClusterWithSession()
 			throws Exception {
 		/**
 		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
@@ -91,7 +91,7 @@ public class TestFilterLinesByWordOneToOne extends
 
 	@Ignore("until TEZ-1406 is fixed")
 	@Test
-	public void testFilterLinesByWordWithClientSplitsRunOnClusterWithoutSession()
+	public void testFilterLinesByWordOtoOWithClientSplitsRunOnClusterWithoutSession()
 			throws Exception {
 		/**
 		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
@@ -107,7 +107,7 @@ public class TestFilterLinesByWordOneToOne extends
 	}
 
 	@Test
-	public void testFilterLinesByWordNoClientSplitsRunOnClusterWithSession()
+	public void testFilterLinesByWordOtoONoClientSplitsRunOnClusterWithSession()
 			throws Exception {
 		/**
 		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
@@ -123,7 +123,7 @@ public class TestFilterLinesByWordOneToOne extends
 	}
 
 	@Test
-	public void testFilterLinesByWordNoClientSplitsRunOnClusterWithoutSession()
+	public void testFilterLinesByWordOtoONoClientSplitsRunOnClusterWithoutSession()
 			throws Exception {
 		/**
 		 * Usage: filterLinesByWordOneToOne <in> <out> <filter_word>" + "
