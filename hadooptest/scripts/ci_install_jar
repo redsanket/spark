@@ -81,8 +81,11 @@ fi
 # ytez
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ytez_fetch" ]
 then
-   ytez_version=$( /usr/local/bin/yinst packages ytez -br test  | awk '{print $1}' )
-   just_tez_version_num=$( echo "$ytez_version"|cut -d'-' -f2 )
+   yinst i dist_tools
+   just_tez_version_num=$( dist_tag list TEZ_0_6_LATEST | grep ytez_full | cut -c11-28 )
+   ytez_version="ytez-"$just_tez_version_num
+   #ytez_version=$( /usr/local/bin/yinst packages ytez -br test  | awk '{print $1}' )
+   #just_tez_version_num=$( echo "$ytez_version"|cut -d'-' -f2 )
    /usr/local/bin/yinst fetch ${ytez_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tgz -br quarantine -br nightly -br test
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tar -C $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/
