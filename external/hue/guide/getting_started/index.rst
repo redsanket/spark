@@ -6,17 +6,30 @@ Getting Started
 Introduction
 ============
 
-In this getting started, you will be using a Flickr data set
-to explore the different features of Hue. 
+In this getting started, you will be getting familiar with the Hue
+interface and learn how to use Hue to use Hadoop 
+technology such as HDFS, Hive, Pig, Oozie, and Job Browser.
 
-We'll use the **Data Discovery** tool to find the location on the grid,
-then use the **File Browser** to look at the data, the **Hive Query Editor**
-to create a database and table. We'll look at the table data with the
-**Metastore Manager** and then run Pig scripts and Hive queries on the data
-through the **Pig Editor** and **Hive Query Editor**, respectively. 
-While our queries are running, we'll take a look at the Hadoop jobs
-in the **Job Browser**, and finally, we'll create a simple Oozie workflow
-through the **Workflows** tool.
+Hue makes it easier to use Hadoop, but you be able to 
+take advantage of Hue's features with a better understanding
+of Hadoop. So, if you're a newbie to Hadoop, we suggest
+you at the minimum read `What is Hadoop? <http://hadoop.apache.org/#What+Is+Apache+Hadoop%3F>`_, 
+the `Hive Wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_, 
+the `Pig introduction <http://pig.apache.org/>`_, and the `Oozie Overview <http://oozie.apache.org/>`_
+before starting the tutorial.
+
+We'll be using a Flickr data to cover the following in this tutorial:
+
+- Use the **Data Discovery** tool to find the location of data on the grid.
+- Look at data with the **File Browser**. 
+- Create a database and table with the **Hive Query Editor**.
+- View data with the **Metastore Manager**.
+- Run Hive queries on data with the **Hive Query Editor**.
+- Process Hive data with Pig through the **Pig Editor**.
+- Create a simple Oozie Workflow through the **Oozie Editor** to 
+  execute a Hadoop job with several tasks. 
+- View and control Hadoop jobs in the **Job Browser**.
+
 
 About the Tutorial
 ------------------
@@ -29,6 +42,10 @@ Once you are done with the tutorial and experimenting with the data,
 we would appreciate it if you dropped the databases and tables you created
 during the tutorial.
 
+Also, we'll be using the ``default`` queue for running jobs, but we suggest
+that you use your team's queue because for faster job processing. We'll
+show you how to set the queue in the tutorial.
+
 .. 0. Home? My Queries - saved queries, results, edits, copy, usage, trash
 
 
@@ -40,26 +57,106 @@ tool that allows you to search for databases and tables in Hive
 and then view the results in Hue.
 
 #. Go to https://supportshop.cloud.corp.yahoo.com:4443/data-discovery/ to get to the **Data Discovery** tool.
-#. Enter **Flickr** in the **Search** text field and click **Search**.
+#. The first time going to the tool, you'll need to click **Add Exception..** abd then **Confirm Security Exception** as shown below:
+
+   .. image:: images/certificate.jpg
+      :height: 389px
+      :width: 950 px
+      :scale: 90%
+      :alt: Getting Certificates for the Data Discovery Tool  
+      :align: left      
+
+#. From the **Data Discovery** tool, enter **Flickr** in the **Search** text field and click **Search**.
+
+   .. image:: images/dd_search_flickr.jpg
+      :height: 508px
+      :width: 950 px
+      :scale: 90%
+      :alt: Data Discovery Tool
+      :align: left      
+
 #. You'll see the database ``flickr_cc_100m_db`` in the Cobalt Blue cluster.
+
+   .. image:: images/dd_flickr_database.jpg
+      :height: 603px
+      :width: 950 px
+      :scale: 90%
+      :alt: Flickr Database in Data Discovery Tool 
+      :align: left    
+
 #. Click on the database and you'll be taken to a page giving general information and the schema.
-#. This is the database we're going to be creating and using in Hue. Let's get going 
-.. TBD: Once you find a database or table you can access, click **View in Hue**
-..        to view the results in Hue.
+   Click **View in Hue**.
+
+   .. image:: images/general_info_flickr_db.jpg
+      :height: 603px
+      :width: 950 px
+      :scale: 90%
+      :alt: Flickr Database Info
+      :align: left 
+    
+#. Add the exception and accept the certificate for Hue as you did for the **Data Discovery**.
+   You should see the **flickr_cc_100m_db** database in **Hue** as shown below:
+   
+   .. image:: images/hue_flickr_db.jpg
+      :height: 490px
+      :width: 950 px
+      :scale: 90%
+      :alt: Flickr Database Info in Hue
+      :align: left 
+
+#. Next, we'll use Hue to browse the data in **Hue**.
+
+Tips: Browsing Data 
+-------------------
+
+From the `Data Discovery <https://supportshop.cloud.corp.yahoo.com:4443/data-discovery/>`_ tool, you can
+also click **Browse** to select a cluster, database, and table. From the **General Info** page,
+you can view the table in **Hue**.
 
 
+   
 2. Navigating HDFS With File Browser
 ====================================
 
-#. Go to the Hue instance for Cobalt Blue: https://yo/hue.cb
-#. Click the **File Browser** tab. You should see your home directory on Cobalt Blue that gives a long format listing of files.
-#. Click ``/user`` and enter  
-#. From the **File Browser**, navigate to the directory ``/user/sumeetsi/HueTalk/Flickr100cc``.
-#. Double-click the file ``yfcc100m_dataset_copy_1.bz2``. This is the data we'll be using throughout this tutorial.
-#. You'll see the data in hex. As of now, Hue doesn't allow you to view bz2 files as text. 
+#. From the **Metastore Manager**, click the **File Browser** tab. You should see your home directory on Cobalt 
+   Blue that gives a long format listing of files.
 
-   .. note:: You can view gzipped files as text. As an example, see one of the gzipped files 
-             in ``/user/sumeetsi/HueTalk/superbowl2014_tweets/``.
+   .. image:: images/home_directory.jpg
+      :height: 355px
+      :width: 950 px
+      :scale: 90%
+      :alt: Hue Home Directory
+      :align: left 
+
+
+#. Click the ``/user`` path. 
+#. Click the **pen** symbol next to the **/user** path, enter **/sumeetsi**, and then the press enter.
+
+   .. image:: images/sumeet_dir.jpg
+      :height: 285px
+      :width: 950 px
+      :scale: 90%
+      :alt: Hue Sumeet Directory
+      :align: left 
+
+#. From the **File Browser**, navigate to the directory ``/user/sumeetsi/HueTalk/Flickr100cc``.
+
+   .. image:: images/hue_talk_dataset.jpg
+      :height: 190px
+      :width: 950 px
+      :scale: 90%
+      :alt: Hue Talk Dataset 
+      :align: left 
+
+#. Double-click the file ``yfcc100m_dataset_copy_1.bz2``. This is the data we'll be using throughout this tutorial.
+#. You'll see the data in hex. As of now, Hue doesn't allow you to view bz2 files as text. (It may take a minute to load.)
+
+
+Tips: Viewing Gzipped Files
+---------------------------
+
+You can view gzipped files as text. As an example, see one of the gzipped files 
+in ``/user/sumeetsi/HueTalk/superbowl2014_tweets/``.
 
 3. Getting Data
 ===============
@@ -70,31 +167,72 @@ your home directory.
 
 #. Using **File Browser**, navigate to ``/user/sumeetsi/HueTalk/Flickr100cc`` if you are not there.
 #. Check the checkbox next to the file ``yfcc100m_dataset_copy_1.bz2``.
-#. From the **Actions** drop-down menu, select **Copy**.
+#. From the **Actions** drop-down menu, select **Copy**. We're going to copy this data to your home directory.
+
+   .. image:: images/copy_flickr.jpg
+      :height: 190px
+      :width: 950 px
+      :scale: 90%
+      :alt: Hue Copy 
+      :align: left 
+
+
 #. A **Copy to** dialogue window will appear. From it, choose your home directory. 
-#. Go to home directory by clicking the **Home** icon shown to the left of the directory path you're in. 
+
+   .. image:: images/flickr_copy_to.jpg
+      :height: 190px
+      :width: 950 px
+      :scale: 90%
+      :alt: Hue Copy 
+      :align: left 
+
+  It may take a few minutes to finish copying as the file is 11.9 GB.
+
+#. Open Hue in a new tab and go to home directory by clicking the **Home** 
+   icon shown to the left of the directory path you're in. 
 
 
-.. note:: You can also download files. If we were able to download files, we'd
-          have used the upload feature to demonstrate. 
+Tips: Other Ways to Get Data
+----------------------------
 
-Other Ways
-----------
-
-- Upload data through **File Browser**
 - Use the command line: ``$ hadoop fs -text {file_name}``
 - Create an Oozie job in **Job Designer** that uses `DistCP <http://oozie.apache.org/docs/4.1.0/DG_DistCpActionExtension.html>`_.
- 
+  We're going to use DistCp for our Oozie Workflow later.
 
 4. Manipulating Files
 =====================
 
 #. From your home directory in **File Browser**, click **+ New->Directory** and enter the
    directory name ``hue_tutorial`` in the **Directory Name** text field and click **Create**.
+
+   .. image:: images/create_tutorial_dir.jpg
+      :height: 171px
+      :width: 950 px
+      :scale: 90%
+      :alt: Hue Tutorial Directory 
+      :align: left 
+   
 #. Select the file ``yfcc100m_dataset_copy_1.bz2`` that 
    you just copied from ``/user/sumeetsi/HueTalk/Flickr100cc``.
 #. From the **Actions** drop-down menu, select **Move**.
+
+   .. image:: images/move_flickr_dataset.jpg
+      :height: 582px
+      :width: 741 px
+      :scale: 90%
+      :alt: Moving Flickr Dataset
+      :align: left 
+   
 #. From the **Move to** dialogue window, enter the path ``/user/{your_user_name}/hue_tutorial/``.
+
+   .. image:: images/move_to_tutorial_dir.jpg
+      :height: 369 px
+      :width: 477 px
+      :scale: 90%
+      :alt: Moving Flickr Dataset to Tutorial Directory
+      :align: left 
+
+
 #. Click the directory ``hue_tutorial``.
 #. Check the checkbox next to the file ``yfcc100m_dataset_copy_1.bz2`` and select **Actions->Rename**.
 #. Enter a simpler name like **flickr100m_dataset.bz2** and click **Rename**.
@@ -547,6 +685,13 @@ If a Hive job is killed quickly, there is a good chance that you have
 not checked the **hcat** checkbox, so your application is killed because
 of an authorization issue.
 
+Hive/Pig Jobs
+~~~~~~~~~~~~~
+
+- Make sure that ``hcat`` is checked.
+- The **Job XML** points to a ``hive-site.xml`` file.
+- For Hive jobs, the job property ``oozie.sharelib.for.hive`` has ``hcat_current,hive_current_tez`` (no spaces between the values).
+  For Pig jobs, the job property ``oozie.sharelib.for.pig`` has the values ``.
 
 
 *Home page* - shows your project and your history, queries, could share possibly.
