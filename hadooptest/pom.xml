@@ -1070,114 +1070,7 @@
                     </exclusion>
                   </exclusions>
                 </dependency>
-                
-                <!-- TEZ -->
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-api</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-api.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-common</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-common.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-dag</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-dag.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-examples</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-examples.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-mapreduce</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mapreduce.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-yarn-timeline-history-with-acls</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-yarn-timeline-history-with-acls.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-runtime-internals</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-internals.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-runtime-library</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-library.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>tez-tests</artifactId>
-					<version>0.6.0</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-tests.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-cli</artifactId>
-					<version>1.2</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-cli-1.2.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-codec</artifactId>
-					<version>1.4</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-codec-1.4.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-collections</artifactId>
-					<version>3.2.1</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-collections-3.2.1.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-collections4</artifactId>
-					<version>3.2.1</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-collections4-4.0.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>commons-io</artifactId>
-					<version>2.4</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-io-2.4.jar</systemPath>
-				</dependency>
-				<dependency>
-					<groupId>system</groupId>
-					<artifactId>jersey-client</artifactId>
-					<version>1.9</version>
-					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/jersey-client-1.9.jar</systemPath>
-				</dependency>
-                
+
 			</dependencies>
 		</profile>
 
@@ -1591,124 +1484,123 @@
 						</exclusion>
 					</exclusions>
 				</dependency>
-				
-				<!-- TEZ -->
+			</dependencies>
+		</profile>
+
+		<!-- TEZ RUNTIME DEPENDENCIES, CONSUMED ONLY BY TEZ HTF TESTS-->
+    <profile>
+			<id>profile-tez</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-api</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-api.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-api-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-common</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-common.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-common-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-dag</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-dag.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-dag-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-examples</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-examples.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-examples-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-mapreduce</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mapreduce.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-mapreduce-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
-                                <!--
-                                This system dependency is specified here because of a signature difference that exists in SimpleSessionExample. 
-                                The internal Yahoo version is built off of Tez branch 0.6 (and not not 0.6.0 or the master) and has this method 
-                                signature runJob(String[] args, TezConfiguration tezConf,TezClient tezClient), while the one that gets pulled 
-                                from the world, on specifying 0.6.0, carries the signature run(String[] inputPaths, String[] outputPaths, 
-                                Configuration conf, int numPartitions).  Storing and specifying this jar as a system dependency allows local compile
-                                to succeed with the different method signature. 
-                                --> 
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-yarn-timeline-history-with-acls</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-yarn-timeline-history-with-acls.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-yarn-timeline-history-with-acls-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-runtime-internals</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-internals.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-runtime-internals-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-runtime-library</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-library.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-runtime-library-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>tez-tests</artifactId>
 					<version>0.6.0</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-tests.jar</systemPath>
+					<systemPath>/home/gs/tez/current/tez-tests-${TEZ_VERSION}.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>commons-cli</artifactId>
 					<version>1.2</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-cli-1.2.jar</systemPath>
+					<systemPath>/home/gs/tez/current/lib/commons-cli-1.2.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>commons-codec</artifactId>
 					<version>1.4</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-codec-1.4.jar</systemPath>
+					<systemPath>/home/gs/tez/current/lib/commons-codec-1.4.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>commons-collections</artifactId>
 					<version>3.2.1</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-collections-3.2.1.jar</systemPath>
+					<systemPath>/home/gs/tez/current/lib/commons-collections-3.2.1.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>commons-collections4</artifactId>
 					<version>3.2.1</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-collections4-4.0.jar</systemPath>
+					<systemPath>/home/gs/tez/current/lib/commons-collections4-4.0.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>commons-io</artifactId>
 					<version>2.4</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/commons-io-2.4.jar</systemPath>
+					<systemPath>/home/gs/tez/current/lib/commons-io-2.4.jar</systemPath>
 				</dependency>
 				<dependency>
 					<groupId>system</groupId>
 					<artifactId>jersey-client</artifactId>
 					<version>1.9</version>
 					<scope>system</scope>
-					<systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/ytez_fetch/libexec/tez/lib/jersey-client-1.9.jar</systemPath>
+					<systemPath>/home/gs/tez/current/lib/jersey-client-1.9.jar</systemPath>
 				</dependency>
-				
-			</dependencies>
-		</profile>
+		</dependencies>
+	</profile>
 
 		<!-- BASE PROFILE FOR STORM -->
 		<!-- When Storm is used, this profile must be called before profile-ci
@@ -2883,7 +2775,7 @@
 					<version>${hadoop.version}</version>
 					<scope>provided</scope>
 				</dependency>
-				
+
 				<!-- TEZ -->
 				<dependency>
 					<groupId>org.apache.tez</groupId>
@@ -2906,6 +2798,14 @@
 					<version>0.9.2</version>
 					<scope>system</scope>
 					<systemPath>${basedir}/resources/tez-jars/tez-examples-0.6.0.1.1502131917.jar</systemPath>
+					<!--
+					This system dependency is specified here because of a signature difference that exists in SimpleSessionExample.
+					The internal Yahoo version is built off of Tez branch 0.6 (and not not 0.6.0 or the master) and has this method
+					signature runJob(String[] args, TezConfiguration tezConf,TezClient tezClient), while the one that gets pulled
+					from the world, on specifying 0.6.0, carries the signature run(String[] inputPaths, String[] outputPaths,
+					Configuration conf, int numPartitions).  Storing and specifying this jar as a system dependency allows local compile
+					to succeed with the different method signature.
+					-->
 				</dependency>
 				<dependency>
 					<groupId>org.apache.tez</groupId>
@@ -2929,7 +2829,7 @@
 					<artifactId>tez-tests</artifactId>
 					<version>0.6.0</version>
 				</dependency>
-				
+
 			</dependencies>
 		</profile>
 	</profiles>
