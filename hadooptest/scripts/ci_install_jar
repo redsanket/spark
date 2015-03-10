@@ -77,25 +77,3 @@ then
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/
 fi
-
-# ytez
-if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ytez_fetch" ]
-then
-   ytez_version=$( /usr/local/bin/yinst packages ytez -br test  | awk '{print $1}' )
-   just_tez_version_num=$( echo "$ytez_version"|cut -d'-' -f2 )
-   /usr/local/bin/yinst fetch ${ytez_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tgz -br quarantine -br nightly -br test
-   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tgz
-   tar -xf $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/ytez.tar -C $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/
-   #Create links so that we do not need to specify versions in the pom
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-api-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-api.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-common-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-common.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-dag-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-dag.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-examples-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-examples.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mapreduce-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mapreduce.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-yarn-timeline-history-with-acls-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-yarn-timeline-history-with-acls.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-internals-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-internals.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-library-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-runtime-library.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-tests-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-tests.jar
-   ln -s $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mbeans-resource-calculator-${just_tez_version_num}.jar $WORKSPACE/yinst_fetch_dependencies/ytez_fetch/libexec/tez/tez-mbeans-resource-calculator.jar
-
-fi
