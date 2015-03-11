@@ -28,7 +28,7 @@ do
         yrootimage=5.6-20110328
         ;;
     *)
-        yrootimage=6.4-20130325
+        yrootimage=6.5-20140110
         ;;
     esac
 
