@@ -307,10 +307,13 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 				}
 			}
 			if( workFlowResult.equals("failed")) {
-				fail(dataSetName + "  failed : Reason");
+				TestSession.logger.info(dataSetName + "  failed , Reason : ");
+				this.consoleHandle.getFailureInformation(dataSetName, activationTime, this.cookie);
+				fail(dataSetName + "  failed : Reason ");
+			} else if (workFlowResult.equals("completed")) {
+				TestSession.logger.info(" ************ " + dataSetName + " completed successfully ************ ");
+				assertTrue(" ************ " + dataSetName + " completed successfully ************ " ,  workFlowResult.equals("completed"));	
 			}
-			TestSession.logger.info(" ************ " + dataSetName + " completed successfully ************ ");
-			assertTrue(" ************ " + dataSetName + " completed successfully ************ " ,  workFlowResult.equals("completed"));
 		}
 	}
 
