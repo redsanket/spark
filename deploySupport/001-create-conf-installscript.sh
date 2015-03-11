@@ -1,9 +1,7 @@
 t=/grid/0/tmp/deploy.$cluster.hdfsinfo
 [ -e $t ] && rm -rf  $t
 mkdir -p $t
-echo "Hadoop version is $HADOOPVERSION"
-echo "and I'm on `hostname`"
-echo "and I am `whoami`"
+
 cp namenodes.$cluster.txt /grid/0/tmp/
 cp secondarynamenodes.$cluster.txt /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
@@ -74,12 +72,13 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name,file:///homes/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name2\" \\
         echo "  " -set $confpkg.TODO_DFS_HA_EDITS_DIR_ANN=\"file:///grid/2/hadoop/var/hdfs/name\" \\
         echo "  " -set $confpkg.TODO_DFS_HA_EDITS_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name\" \\
-        echo "  " -set $confpkg.TODO_FISRT_HANN_HOSTNAME=\$nn \\
+        echo "  " -set $confpkg.TODO_FIRST_HANN_HOSTNAME=\$nn \\
         echo "  " -set $confpkg.TODO_SECOND_HANN_HOSTNAME=\$nn2 \\
-        echo "  " -set $confpkg.TODO_FISRT_HANN_SHORTNAME=\$shortname \\
+        echo "  " -set $confpkg.TODO_FIRST_HANN_SHORTNAME=\$shortname \\
         echo "  " -set $confpkg.TODO_SECOND_HANN_SHORTNAME=\$shortnamenn2 \\
         #echo "    -set $confpkg.TODO_ENABLE_DFS_HA='<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\"/>' \\"
     fi
+
     # The following is kept here to make old config work
 
     case "$HADOOPVERSION" in
@@ -108,8 +107,8 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo cp  /tmp/${cluster}.namenodeconfigs.xml  ${yroothome}/conf/hadoop/
 
     # create the symlink for the bouncer public key
-    echo 'rm -f /home/gs/conf/bycookieauthkey'
-    echo 'ln -s /home/gs/gridre/yroot.$cluster/conf/bycookieauthkey /home/gs/conf/bycookieauthkey'
+    echo "rm -f /home/gs/conf/bycookieauth"
+    echo "ln -s /home/gs/gridre/yroot.${cluster}/conf/bycookieauth /home/gs/conf/bycookieauth"
 
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
