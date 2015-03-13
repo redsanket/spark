@@ -40,13 +40,6 @@ you at the minimum read the following:
 About the Tutorial
 ------------------
 
-Hadoop Queues
-~~~~~~~~~~~~~
-
-Also, we'll be using the ``default`` queue for running jobs, but we suggest
-that you use your team's queue because for faster job processing. We'll
-show you how to set the queue in the tutorial.
-
 Organization
 ~~~~~~~~~~~~
 
@@ -63,6 +56,14 @@ avoid name collisions and for the convenience of referencing later.
 Once you are done with the tutorial and experimenting with the data,
 we would appreciate it if you dropped the databases and tables you created
 during the tutorial.
+
+
+Hadoop Queues
+~~~~~~~~~~~~~
+
+Also, we'll be using the ``default`` queue for running jobs, but we suggest
+that you use your team's queue because for faster job processing. We'll
+show you how to set the queue in the tutorial.
 
 
 .. 0. Home? My Queries - saved queries, results, edits, copy, usage, trash
@@ -221,7 +222,7 @@ Tips: Other Ways to Get Data
 =====================
 
 #. From your home directory in **File Browser**, click **+ New->Directory** and enter the
-   directory name ``hue_tutorial`` in the **Directory Name** text field and click **Create**.
+   directory name **hue_tutorial** in the **Directory Name** text field and click **Create**.
 
    .. image:: images/create_tutorial_dir.jpg
       :height: 171px
@@ -230,7 +231,7 @@ Tips: Other Ways to Get Data
       :alt: Hue Tutorial Directory 
       :align: left 
    
-#. Select the file ``flickr100m_dataset.bz2`` that 
+#. Select the file **flickr100m_dataset.bz2** that 
    you just copied from ``/user/sumeetsi/HueTalk/Flickr100cc``.
 #. From the **Actions** drop-down menu, select **Move**.
 
@@ -249,7 +250,6 @@ Tips: Other Ways to Get Data
       :scale: 90%
       :alt: Moving Flickr Dataset to Tutorial Directory
       :align: left 
-
 
 #. Click the directory ``hue_tutorial`` to verify that the file was moved.
 
@@ -305,7 +305,8 @@ you copied to your home directory.
       :alt: Database Created
       :align: left 
 
-#. Select the database you just created and run the following query to create an external table with the data you copied earlier to your home directory.
+#. Select the database you just created and run the following query to create an external 
+   table with the data you copied earlier to your home directory.
    (Be sure to replace the string ``{your_user_name}`` with your user name.)
 
    .. code-block:: sql
@@ -625,7 +626,7 @@ Using Pig
      has_lat = FILTER has_long BY latitude is not null;
 
      -- Store the results to a file.
-    STORE has_lat into '/user/jcatera/hue_tutorial/flickr_camera_locations_sanitized' USING PigStorage(',');      
+    STORE has_lat into '/user/jcatera/hue_tutorial/flickr_camera_locations_sanitized';   
 
 #. Click **Save** in the right-hand **Editor** panel, enter the text **Flickr Camera Location Script**
    in the text field and click **Save**.
@@ -648,7 +649,7 @@ Using Pig
 
 #. From **Hadoop properties** on the right-hand panel, click **+ Add**.
 #. For the **Name** field, enter the value **oozie.action.sharelib.for.pig** and for the 
-   **Value** field, enter the value **pig_current,hcat_current**.
+   **Value** field, enter the value **pig_current**.
 
    .. image:: images/pig_hadoop_properties.jpg
       :height: 349 px
@@ -656,18 +657,6 @@ Using Pig
       :scale: 90%
       :alt: Hadoop Properties for Pig 
       :align: left 
-
-#. From **Resources**, click **+ Add**. With the value **File** in the **Type** drop-down menu,
-   enter **/user/sumeetsi/HueTalk/hive-site.xml** for the **Value** text field. (Feel free to
-   copy this file to your home directory and reference it.)
-
-   .. image:: images/hadoop_properties_resources.jpg
-      :height: 232 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Hadoop Resources for Pig 
-      :align: left 
-
 
 #. Click the **Arrowhead** icon in the top-right corner to run your script.
 
@@ -738,7 +727,7 @@ and Oozie workflows later.
    We're going to create a script that deletes the Flickr database and tables
    and then recreates them. This is so we can run an Oozie Workflow that
    automates everything we've done thus far. 
-#. Double-click **del_create_db_tables.sql**.
+#. Double-click **del_db_tables.hql**.
 #. From the **Actions** panel, double-click **Edit file** to open an editing pane.
 
    .. image:: images/edit_file.jpg
@@ -756,6 +745,9 @@ and Oozie workflows later.
       drop table if exists flickr_{your_user_name}_db.flickr_camera_location;
       drop database flickr_{your_user_name}_db;
  
+
+#. Create the file **create_db_tables.hql** in the same directory to create the database and 
+   tables for the Flickr data with the following code:
 
       create database flickr_{your_user_name}_db comment 'Flickr Creative Commons 100M data dump' location '/user/{your_user_name}/hue_tutorial/';
 
@@ -789,7 +781,7 @@ and Oozie workflows later.
       lines terminated by '\n'
       location '/user/{your_user_name}/hue_tutorial/';
  
-#. In the same directory, create the file **camera_location_query.hql** with the following: 
+#. Create another file **camera_location_query.hql** with the following: 
    
    .. code-block:: sql
 
@@ -808,10 +800,7 @@ and Oozie workflows later.
 
       #!/bin/bash
 
-      hadoop fs -cat /user/{your_user_name}/hue_tutorial/flickr_camera_location/* >./flickr_camera_locations.csv
-      hadoof fs -copyToLocal ./flickr_camera_locations.csv /homes/{your_user_name}/
-      hadoop fs -rm ./flickr_camera_locations.csv
-      hadoop fs -mv ./flickr_camera_locations.csv /user/{your_user_name}/
+      hdfs dfs -cat /user/jcatera/hue_tutorial/flickr_camera_location/\* | hdfs dfs -put - /user/jcatera/hue_tutorial/flickr_camera_locations.csv
 
 #. Finally, we want to create the Pig script **remove_null_locations.pig** in the **hue_scripts** directory with the
    code below:
@@ -876,17 +865,17 @@ in the next section.
       :align: left 	
 
 
-#. Specify the paths to delete by doing the following:
+#. Specify the paths to delete and create by doing the following:
    
    #. Click **Add path** next to **Delete path** and enter the path **/user/{your_user_name}/hue_tutorial/**.
-   #. Click **Add path** again, and enter the path **/user/{your_user_name}/flickr_camera_location/**.
+   #. To recreate the directory for the latest results, in the **Create directory** field, enter the directory **/user/{your_user_name}/hue_tutorial/**.
    #. Click **Save**.
 
 
    .. image:: images/hue_tutorial_delete_paths.jpg
-      :height: 260 px
-      :width: 950 px
-      :scale: 90%
+      :height: 429 px
+      :width: 789 px
+      :scale: 92%
       :alt: Specify Delete Paths
       :align: left 	
 
@@ -912,15 +901,15 @@ in the next section.
       :alt: Add Description for Notification Mail
       :align: left 	
     
-#. In the **TO addresses**, enter your email address. In the **Subject** field, enter **Hue Tutorial is Running**.
-   Finally, in the **Body** text area, enter the following: **TThe Hue Tutorial Oozie Workflow has completed. See the sanitized 
+#. In the **TO addresses**, enter your email address. In the **Subject** field, enter **Hue Tutorial Oozie Workflow Has Completed**.
+   Finally, in the **Body** text area, enter the following: **See the sanitized 
    CSV file with the Flickr camera locations at the following URL: 
-   https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations.cs**
+   https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized/**
 
    .. image:: images/workflow_email_notification.jpg
-      :height: 410 px
-      :width: 533 px
-      :scale: 95%
+      :height: 253 px
+      :width: 950 px
+      :scale: 90%
       :alt: Email Address and Body for Notification
       :align: left 	
    
@@ -1040,40 +1029,40 @@ been doing with Hue up until now.
 
 
 #. Drag the **Hive** object to the next available dotted box.
-#. In the **Edit Node** window, enter **del_create_db_tables** in the **Name** text field and
-   enter **Delete old tables and create new tables.** in the **Description** text field.
+#. In the **Edit Node** window, enter **del_db_tables** in the **Name** text field and
+   enter **Delete old tables.** in the **Description** text field.
 
-   .. image:: images/del_create_db_tb.jpg
-      :height: 190 px
-      :width: 536 px
+   .. image:: images/del_db_tables.jpg
+      :height: 198 px
+      :width: 556 px
       :scale: 95%
-      :alt: Hive task that deletes and creates Database/Table.
+      :alt: Hive task deletes the Database/Tables.
       :align: left 	
    
 #. Click **Advanced** and check the **hcat** checkbox.
 #. From the **Script name** field, click the **..** navigation box and navigate to 
-   **/user/{your_user_name}/hue_scripts/create_db_tables.hql**. 
+   **/user/{your_user_name}/hue_scripts/del_db_tables.hql**. 
 
    .. image:: images/enter_hive_script.jpg
-      :height: 51 px
-      :width: 662 px
-      :scale: 95%
+      :height: 369 px
+      :width: 823 px
+      :scale: 92%
       :alt: Enter Hive Script
       :align: left 	
 
 #. For the **Job properties**, do the following:
 
    #. Click **Add property** and enter **oozie.action.sharelib.for.hive** for the **Property name** and
-   **hcat_current,hive_current_tez** for the **Value**. (Make sure there are no spaces in the values.)
-   #. Click **Add property** again and enter **hive.querylog.location** for the **Property name** and **hivelogs**
-   for the **Value**.
+      **hcat_current,hive_current** for the **Value**. (Make sure there are no spaces in the values.)
+   #. Click **Add property again** and enter **hive.querylog.location** for the **Property name** field and **hivelogs** 
+      for the **Value** field.
 
-   .. image:: images/enter_hive_script.jpg
-      :height: 51 px
-      :width: 662 px
-      :scale: 95%
-      :alt: Enter Hive Script
-      :align: left   
+   .. image:: images/job_properties_hive.jpg
+      :height: 145 px
+      :width: 709 px
+      :scale: 92%
+      :alt: Job properties for Hive
+      :align: left  
 
 #. For the **Job XML** text field, enter the following and click **Done**: **/user/sumeetsi/HueTalk/hive-site.xml**
 
@@ -1087,11 +1076,18 @@ been doing with Hue up until now.
    To run Hive queries in Oozie, you need to provide a ``hive-site.xml``. 
 
 #. Create another **Hive** task for your Oozie Workflow that points
-   to the script ``/user/{your_user_name}/hue_scripts/camera_location_query.hql``. Remember
-   to check **hcat** and add the ``/user/sumeetsi/HueTalk/hive-site.xml`` for the **Job XML** field.
+   to the script that created the tables: **/user/{your_user_name}/hue_scripts/create_db_tables.hql**
+
+   .. important:: Remember to check **hcat**, add the job properties **hive.action.sharelib.for.hive**, **hive.querylog.location**, 
+                  and add the ``/user/sumeetsi/HueTalk/hive-site.xml`` for the **Job XML** field.
+
+#. We still need to create the Hive table with just the camera and location data, so
+   create the last Hive task with the script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
 #. We'll need to create a **Shell** task that creates a CSV file from the Hive table the last
    task creates. For this, you'll need to do the following:
 
+   #. Enter **write_table_to_csv** in the **Name** field and **Write data from the Hive table to a CSV file.** in the
+      **Description** field.
    #. From the **Edit node** pane, enter **create_camera_location_csv.sh** in the **Shell command** field.
    #. Check the **hcat** checkbox as the credential.
    #. In the **Files** field, enter the path to the script: **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**
@@ -1107,16 +1103,20 @@ been doing with Hue up until now.
 #. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next empty dotted box.
 #. Creating a Pig task is similar to a Hive task, except for the Job properties:
 
-   #. In the **Edit Node** window, enter **pig_camera_location** in the **Name** field.
+   #. In the **Edit Node** window, enter **remove_null_camera_locations** in the **Name** field
+      and **Remove rows that have null values for the camera, longitude, or latitude.** in the **Description** field.
    #. Click **Advanced** and check the **hcat** checkbox.
    #. Click **Add property** and enter **oozie.action.sharelib.for.pig** for the **Property name**
-      ad **pig_current,hcat_current** for the **Value** text field.
-   #. For the **Job XML** text field, enter **/user/sumeetsi/HueTalk/hive-site.xml**. 
+      ad **pig_current** for the **Value** text field.
    #. Click **Done**.
+
+   .. note:: Notice that we don't specify **hcat_current** or a Job XML file. Our Pig script
+             is loading a CSV file, so it doesn't not need access to HCatalog. The Job XML
+             ``hive-site.xml`` file is as you might have guessed: only needed for Hive.
 
 #. Finally, we want the job to notify us when we're done. So, go ahead and import the
    **Email** action we created earlier.
-#. From the **Oozie Editor**, click **Submit** to start your Oozie Workflow.
+#. From the **Oozie Editor**, click **Save** and then **Submit** to start your Oozie Workflow.
 
 
    .. image:: images/submit_job.jpg
@@ -1126,18 +1126,21 @@ been doing with Hue up until now.
       :alt: Submit Oozie Workflow:w
       :align: left   
 
-TBD: 
 
-#. Once your job has completed, you'll be taken to the **Workflow** pane has tabs 
+#. While your Oozie Workflow is running, let's move to the next section to learn about the
+   **Job Browser**. 
+
+you'll be taken to the **Workflow** pane has tabs 
    to view the action progress, details (time, application path),
    configuration (jobTracker,nameNode, Oozie path, etc.), log, and definition (workflow XML).
 
 
-Notes
------
+Tips: Oozie Editor Features
+---------------------------
 
-TBD: Kill or supend jobs.
-
+We've already looked at importing actions, creating tasks, and submitting the Oozie Workflow from the **Oozie Editor**, but
+there are a lot more features. You can copy your Oozie Workflow, look at the list of past Oozie Workflows that
+were submitted, and schedule Oozie Workflows (with Oozie Coordinators, which we cover later).
 
 
 .. _viewing_jobs:
@@ -1149,59 +1152,159 @@ From the **Job Browser**, you can view  your jobs and
 other jobs. You can sort jobs by status, search for jobs 
 by a user or key term, also look at the cluster and ResourceManager logs.
 
-#. Let's first look for our jobs by clicking **Job Browser**.
+#. Let's first look for our jobs by clicking **Job Browser** from the top navigation bar.
+
+   .. image:: images/open_job_browser.jpg
+      :height: 165 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Open Job Browser
+      :align: left   
+
+
 #. By default, the **Job Browser** shows Oozie jobs sorted by your username, so 
-   you should see the job that executed your Pig script as Pig scripts are run by Oozie.
-#. 
-#. You many not see any jobs at first because the **Job Browser** by default
-   looks for jobs you own. Delete your user name from the **Username** text
-   field. You should see all the jobs owned by others.
-#. Sort by failed jobs by clicking **Failed**. 
+   you should two jobs: the parent (or launcher) **hue_tutorial_workflow** and the 
+   child job that is still running. (The parent will stay at 5% until its
+   children have been completed.)
+
+   .. image:: images/parent_child_job.jpg
+      :height: 141 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Parent/Child Jobs
+      :align: left   
+
+#. Sort your jobs by clicking the green **Succeeed**. (Depending how far 
+   your job has progressed, you may only see one or two successful jobs.)
+
+   .. image:: images/successful_jobs.jpg
+      :height: 216 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Successful Jobs
+      :align: left   
+
 #. You can view the cluster log by clicking the log ID of a job. Try clicking the 
    job ID of the first job in the list.
-#. The cluster log gives you the user, application type, state, start time, tracking URL,
-   and a diagnotic message. Click on the **Tracking URL** in another tab to
-   see **Job** log.
-#. The **Job** log gives you more detailed information such as the total
-   number of successful, completed, and failed Map and Reduce tasks.
-#. From the **Application Master** table, click the **Node** link to
-   view the **NodeManager** to see detailed information about the
+
+   .. image:: images/log_id.jpg
+      :height: 216 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Link to Job.
+      :align: left   
+
+#. The **Hadoop Cluster** page gives you the user, application type, state, start time, tracking URL,
+   and a link to the log. 
+
+   .. image:: images/application_logs.jpg
+      :height: 351 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Hadoop Application Log Page
+      :align: left 
+
+#. Click on the **Tracking URL** in another tab to
+   see **Job** log that gives detailed information about
+   the Map and Reduce jobs.
+
+   .. image:: images/map_reduce_jobs.jpg
+      :height: 364 px
+      :width: 950 px
+      :scale: 90%
+      :alt: MapReduce Logs
+      :align: left 
+  
+#. From the **MapReduce Job** page, click **logs** to open the **Hadoop Logs** page
+   that contains logs for *stderr*, *stdout*, and *syslog*.
+   You can also click the **here** link for any of those log types to see the full log.
+
+   .. image:: images/map_reduce_jobs.jpg
+      :height: 364 px
+      :width: 950 px
+      :scale: 90%
+      :alt: MapReduce Logs
+      :align: left 
+
+
+   If you have an error in one of the jobs of your Oozie Workflow, the logs are the
+   best place to find out what went wrong. 
+#. Go back to the **Hadoop Cluster** page and click on the **Scheduler** link. This
+   shows you the cluster metrics and the free and used capacity for each queue, which
+   will sometimes explain why it's taking a long time to run your Oozie Workflow. 
+
+   .. image:: images/cluster_metrics_queues.jpg
+      :height: 348 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Scheduler Showing Cluster Metrics and Queue Capacity
+      :align: left 
+ 
+
+
+#. From the **Application Queues** section, click **default** to see the available capacity for the
+   *default* queue. This is the queue your jobs use if you do not specify one. We recommend
+   using the queue alloted to your team for your production Oozie Workflows. Your jobs will generally finish faster.
+
+   .. image:: images/default_queue.jpg
+      :height: 309 px
+      :width: 950 px
+      :scale: 90%
+      :alt: The Capacity for the Default Queue
+      :align: left 
+   
+#. Another userful metric is the **Nodes of the cluster** page, which you
+   can get to by clicking the **Node** link. The page has detailed information about the
    container, such as the virtual memory allocated, Pmem enforced, virtual cores, etc.
 
+   .. image:: images/nodes_of_cluster.jpg
+      :height: 517 px
+      :width: 950 px
+      :scale: 90%
+      :alt: The Node Manager
+      :align: left 
 
-Let's start a job now and take a look at the job in the **Job Browser**.
 
-#. Open up the **Hive Query Editor** in another tab. 
-#. From your **Recent Queries** tab, double-click your last Hive query.
-#. With the query in the **Query Editor** window, click **Execute**.
-#. Now go back to the **Job Browser** and enter your username  in the **Username** text field.
-   You should see your job with the **Running** status.
-#. Take a look at the cluster, **Job**, and **NodeManager** logs.  
+#. Okay, our Oozie Workflow should be about done. Go back to the **Oozie Editor** to see the progress of your Oozie Workflow.
+   Hopefully, you see green **OK** icons for all the jobs in the OOzie Workflow as seen below.
+
+   .. image:: images/successful_workflow.jpg
+      :height: 517 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Oozie Dashboard: Successful Workflow
+      :align: left 
+
+#. Congratulations if your Oozie Workflow successfully completed. See the :ref:`How Tos <>` chapter to 
+   learn more. If one of your jobs failed, see :ref:`Troubleshooting <>`. CongratulationsLet's 
+   start a job now and take a look at the job in the **Job Browser**.
+
   
-
-
-
-
 Troubleshooting
 ===============
 
 Oozie Workflows
 ---------------
 
-If a Hive job is killed quickly, there is a good chance that you have
-not checked the **hcat** checkbox, so your application is killed because
-of an authorization issue.
 
 Hive/Pig Jobs
-~~~~~~~~~~~~~
+-------------
+
+Confirm that you have down the following:
 
 - Make sure that ``hcat`` is checked.
 - The **Job XML** points to a ``hive-site.xml`` file.
-- For Hive jobs, the job property ``oozie.sharelib.for.hive`` has ``hcat_current,hive_current_tez`` (no spaces between the values).
+- For Hive jobs, the job property ``oozie.sharelib.for.hive`` has ``hcat_current,hive_current`` (no spaces between the values).
   For Pig jobs, the job property ``oozie.sharelib.for.pig`` has the values ``.
+- If you are running queries on large datasets, you should specify filters and partitions 
+  as much as possible because Hive will by default run queries on the largest set of data
+  unless filters or partitions are specified.
+- If your job is just taking a long time to complete, check the **Scheduler** page to
+  see what is the available capacity is for your queue. You may want to use 
+  a different queue.
 
 
-*Home page* - shows your project and your history, queries, could share possibly.
+.. *Home page* - shows your project and your history, queries, could share possibly.
 
 .. Hive
 .. Pig
@@ -1216,10 +1319,6 @@ Hive/Pig Jobs
 .. Name: oozie.actions.sharelib.for.pig
 .. Value:  (pig_current, hcat_current - if you're going through HCat)
 
-.. For Using HCat:
-
-.. Under every cluster, you add /sharelib/v1/hive/hive-0.13.0.3.1411171801/libexec/hive/conf/hive-site.xml
-.. as the resource.
 
 
 
