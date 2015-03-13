@@ -13,8 +13,8 @@
     <logger name="org.apache.zookeeper" level="INFO"> <appender-ref ref="STDOUT" /></logger>
     <logger name="org.eclipse.jetty" level="INFO"> <appender-ref ref="STDOUT" /></logger>
     <logger name="org.apache.thrift7" level="INFO"> <appender-ref ref="STDOUT" /></logger>
-    <!-- By default, the level of the root level is set to DEBUG -->
-    <root level="DEBUG">
+    <!-- By default, the level of the root level is set to INFO-->
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
