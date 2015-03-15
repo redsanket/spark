@@ -17,11 +17,17 @@ The URL to each Hue instance has the following syntax: ``https://{cluster_name}-
 For example, to access the Hue UI on Cobalut Blue, you would go to
 ``https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/``.
 
+We also have ``yo`` links to each cluster instance. The syntax is
+``http://yo/hue.{cluster_initials}``. Thus, the ``yo`` link to
+the Cobalt Blue cluster would be ``http://yo/hue.cb``. See 
+:ref:`Hue Instances <reference-hue_instances>` for the list
+of clusters, URLs, and ``yo`` links.
+
 Navigation Overview
 ===================
 
 The screenshot of the **Hue Web UI** below explains the purpose of the components
-of the top navigation bar. You can click the figure to enlarge it.
+of the top navigation bar. Click the figure to enlarge it.
 
 .. image:: images/hue_ui2.jpg
    :height: 888px
@@ -145,20 +151,81 @@ a named function from a class such as the function ``myFunction`` in the class `
 Recent Queries
 **************
 
+The **Recent queries** tab lists your past queries. You can click on the queries
+to add them to the **Query Editor** text field.
+
+.. image:: images/recent_queries_tab.jpg
+   :height: 447px
+   :width: 950px
+   :scale: 90%
+   :alt: Recent Queries Tab
+   :align: left
+
+
 Query
 *****
+
+The **Query** tab simply shows the HQL query that has been executed.
+
+.. image:: images/query_tab.jpg
+   :height: 123px
+   :width: 822px
+   :scale: 90%
+   :alt: Query Tab
+   :align: left
+
+
 
 Log
 ***
 
+The **Log** table shows the log messages for the execution of the latest Hive query.
+
+.. image:: images/log_tab.jpg
+   :height: 660px
+   :width: 950px
+   :scale: 90%
+   :alt: Log Tab
+   :align: left
+
 Columns
 *******
+
+The **Columns** tab shows the columns of the results for a query.
+
+.. image:: images/cols_tab.jpg
+   :height: 121px
+   :width: 842px
+   :scale: 92%
+   :alt: Log Tab
+   :align: left
+
+
 
 Results
 *******
 
+The **Results** table shows the row IDs and the data for each column.
+
+.. image:: images/results_tab.jpg
+   :height: 455px
+   :width: 950px
+   :scale: 90%
+   :alt: Results Tab
+   :align: left
+
 Chart
 *****
+
+The **Chart** tab allows you to see a graphical representation of the data
+as a bar chart, line graph, pie chart, or map.
+
+.. image:: images/chart_tab.jpg
+   :height: 253px
+   :width: 950px
+   :scale: 90%
+   :alt: Chart Tab
+   :align: left
 
 
 
@@ -319,7 +386,7 @@ From **Logs**, you can view the Oozie workflow information by clicking on the st
 Help
 ####
 
-TBD
+The **Help** icon just gives you tips for writing Pig scripts.
 
 Scripts
 #######
@@ -987,31 +1054,19 @@ to logs.
 Documentation
 =============
 
-TBD:
+The **Documentation** navigation links to this document. 
 
-.. image:: images/picture.jpeg
-   :height: 939px
-   :width: 1455px
-   :scale: 55%
-   :alt: alternate text
-   :align: left
 
 Demo Tutorials
 ==============
 
-.. image:: images/picture.jpeg
-   :height: 939px
-   :width: 1455px
-   :scale: 55%
-   :alt: alternate text
-   :align: left
-
+The **Demo** navigation provides links to external information about Hue and Hadoop.
 
 Sign Out
 ========
 
-TBD
-
+When you sign out, Hue just reuses your Backyard credentials to sign you back in or
+redirects you to Bouncer.
 
 Administrator Features
 ======================
