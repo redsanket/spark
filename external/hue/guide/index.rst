@@ -7,9 +7,8 @@ Hue User Guide
    :hidden:
 
    overview/index
-   ui/index
    getting_started/index
-   howtos/index
+   ui/index
    architecture/index
    reference/index
 

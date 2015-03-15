@@ -42,8 +42,8 @@ Who Should Use Hue?
 ===================
 
 Although we anticipate that the primary user will
-be **developers**, test and service engineers, product managers,
-analysts, and data scientists can benefit from using Hue. 
+be developers, test and service engineers, product managers,
+analysts, and data scientists can also benefit from using Hue. 
 
 Hue allows developers to experiment and explore data in
 a simpler and quicker way. With the Hue UI, developers don't need
@@ -56,9 +56,8 @@ Data scientists and analysts can use Hue to explore and analyze data, but they m
 better off using professional tools such as `MicroStrategy <https://www.microstrategy.com/us/>`_ or 
 `Tableau <http://www.tableausoftware.com/>`_.
 
-Test and service engineers can create optimal workflows and TBD
-
-Question: How would test and service engineers use Hue?
+Test and service engineers can create optimal workflows and debug issues. 
+They can use Hue to monitor node metrics and queue capacity.
 
 Authentication/Authorization for Hue
 ====================================
@@ -87,18 +86,18 @@ The Yahoo implementation of Hue has a limited set of features, so
 you will not be able to use the following features that
 are available in the open source version of Hue:
 
-- Impala Query UI - The Impala Query UI allows you to quer data 
+- **Impala Query UI** - The Impala Query UI allows you to quer data 
   stored in Hadoop or HBase. 
-- DB Query -  Enables viewing and querying data in MySQL, PostgreSQL, Oracle, 
+- **DB Query** -  Enables viewing and querying data in MySQL, PostgreSQL, Oracle, 
   and SQLite databases/views in a table.
-- Sqoop UI -  Enables transferring data from a relational database to Hadoop and vice versa.
-- Solr -  Allows you to perform keyword searches across Hadoop data.
-- ZooKeeper Browser - Used internally by platforms for HBase, Storm, Oozie.
-- HBase Browser - Used to browse tables and access content. You can create new tables, 
+- **Sqoop UI** -  Enables transferring data from a relational database to Hadoop and vice versa.
+- **Solr** -  Allows you to perform keyword searches across Hadoop data.
+- **ZooKeeper Browser** - Used internally by platforms for HBase, Storm, Oozie.
+- **HBase Browser** - Used to browse tables and access content. You can create new tables, 
   add data, modify existing cells, and filter data.
-- Security (Sentry, File ACLs) -  Let’s you create, edit, delete roles and privileges 
+- **Security (Sentry, File ACLs)** -  Let’s you create, edit, delete roles and privileges 
   directly from your browser. 
-- Spark Igniter -  Let's you submit Scala and Java Spark jobs directly from your Web browser.
+- **Spark Igniter** -  Let's you submit Scala and Java Spark jobs directly from your Web browser.
 
 In addition, although you can use the **File Browser**, you won't be able to
 download data. Jira has not been integrated with Yahoo's Hue yet either.
@@ -111,6 +110,7 @@ Admin User
 ----------
 
 As an *admin* user, you have the ability to do the following:
+
 - manage Hue configuration 
 - run applications as a super user 
 - grant/revoke permissions for user or a group of users
@@ -121,10 +121,14 @@ As an *admin* user, you have the ability to do the following:
 General User
 ------------
 
-- Backyard user IDs (corp unix account)
-- No user admin support, not needed
-- No support for headless (today)
-- Possible to add group-based mgmt. / permissions later
+General uses are authorized and authenticated to use Hue with their Backyard credentials.
+
+Other
+-----
+
+We currently do not support headless users or the ability to add group-based
+management or permissions. 
+
 
 
 

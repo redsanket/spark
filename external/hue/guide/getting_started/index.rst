@@ -1275,16 +1275,19 @@ by a user or key term, also look at the cluster and ResourceManager logs.
       :alt: Oozie Dashboard: Successful Workflow
       :align: left 
 
-#. Congratulations if your Oozie Workflow successfully completed. See the :ref:`How Tos <>` chapter to 
-   learn more. If one of your jobs failed, see :ref:`Troubleshooting <>`. CongratulationsLet's 
-   start a job now and take a look at the job in the **Job Browser**.
+#. Congratulations if your Oozie Workflow successfully completed. 
+   Use the **File Browser** to navigate to 
+   ``/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized``
+   to see your sanitized Flickr data in CSV.  If one of your jobs failed, see 
+   :ref:`Troubleshooting <>`. 
 
+.. See the :ref:`How Tos <gs-troubleshooting>` chapter to learn more.
   
+
+.. _gs-troubleshooting:
+
 Troubleshooting
 ===============
-
-Oozie Workflows
----------------
 
 
 Hive/Pig Jobs
@@ -1302,6 +1305,13 @@ Confirm that you have down the following:
 - If your job is just taking a long time to complete, check the **Scheduler** page to
   see what is the available capacity is for your queue. You may want to use 
   a different queue.
+
+Shell Scripts
+-------------
+
+- Make sure you have specified the path with the script (i.e., ``/user/{your_user_name}/script.sh``)
+  in the **Files** field.
+
 
 
 .. *Home page* - shows your project and your history, queries, could share possibly.

@@ -2,6 +2,8 @@
 References
 ==========
 
+.. _reference-hue_instances:
+
 Hue Instances 
 =============
 
