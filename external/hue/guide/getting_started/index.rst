@@ -26,36 +26,46 @@ We'll be using a Flickr data to cover the following in this tutorial:
 Prerequisites
 -------------
 
-Hue makes it easier to use Hadoop, but you be able to 
-take advantage of Hue's features with a better understanding
-of Hadoop. So, if you're a newbie to Hadoop, we suggest
-you at the minimum read the following:
+Hue makes it easier for those who are not Hadoop 
+specialists to access grid data. If you're a newbie 
+to Hadoop, however, we still recommend you read the 
+following so you are better able to take advantage 
+of Hue's features:
 
-- `What is Hadoop? <http://hadoop.apache.org/#What+Is+Apache+Hadoop%3F>`_, 
-- `Hive Wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_, 
+- `What is Hadoop? <http://hadoop.apache.org/#What+Is+Apache+Hadoop%3F>`_
+- `Hive Wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_
 - `Pig introduction <http://pig.apache.org/>`_
 - `Oozie Overview <http://oozie.apache.org/>`_
 
-
-About the Tutorial
+About the Tutorial 
 ------------------
 
 Organization
 ~~~~~~~~~~~~
 
-The tutorial is divided into 10 sections, starting from the very simplest
-uses and progressively becoming more complex. For each section,
-we also offer additional tips for using Hue.
+The tutorial is divided into 10 sections, starting 
+from the simplest uses such as navigating HDFS and 
+then graduallly becoming more complex until you're 
+creating an Oozie Workflow to automate several
+jobs. For each section, we also offer additional 
+tips for using Hue.
+
 
 Conventions
 ~~~~~~~~~~~
-You'll notice throughout the tutorial that we are asking you to
-use your user name as part of database and table names 
-such as ``flickr_cc_100mb_{your_user_name}_db``. This is to
+
+You'll notice throughout the tutorial that we are 
+asking you to use your user name as part of database 
+and table names as well as file names. For example,
+the database you'll be creating will have the naming syntax ``flickr_{your_user_name}_db``. This is to
 avoid name collisions and for the convenience of referencing later.
-Once you are done with the tutorial and experimenting with the data,
-we would appreciate it if you dropped the databases and tables you created
-during the tutorial.
+
+Hue UI components and text you are to enter in dialog windows will be indicated in bold. Code, however, for scripts that you'll be using will be in monospace text.
+
+For icons, we will refer to them by name rather than 
+use an inline image. For example, to run Pig scripts,
+you be told to click the **arrowhead** icon rather
+than shown a shrunken image of the icon.
 
 
 Hadoop Queues
@@ -64,9 +74,6 @@ Hadoop Queues
 Also, we'll be using the ``default`` queue for running jobs, but we suggest
 that you use your team's queue because for faster job processing. We'll
 show you how to set the queue in the tutorial.
-
-
-.. 0. Home? My Queries - saved queries, results, edits, copy, usage, trash
 
 
 1. Discovering Data
@@ -148,7 +155,7 @@ you can view the table in **Hue**.
       :align: left 
 
 
-#. Click the ``/user`` path. 
+#. Click the **/user** path. 
 #. Click the **pen** symbol next to the **/user** path, enter **/sumeetsi**, and then the press enter.
 
    .. image:: images/sumeet_dir.jpg
@@ -167,25 +174,25 @@ you can view the table in **Hue**.
       :alt: Hue Talk Dataset 
       :align: left 
 
-#. Double-click the file ``flickr100m_dataset.bz2``. This is the data we'll be using throughout this tutorial.
-#. You'll see the data in hex. As of now, Hue doesn't allow you to view ``bz2`` files as text. (It may take a minute to load.)
-
+#. Double-click the file **flickr100m_dataset.bz2**. This is the data we'll be using throughout this tutorial.  #. You'll see the data in hex. As of now, Hue doesn't allow you to view ``bz2`` files as text. (It may take a minute to load.) 
 
 Tips: Viewing Gzipped Files
 ---------------------------
 
-You can view gzipped files as text. As an example, see one of the gzipped files 
+You can view gzipped files as text. As an example, 
+see one of the gzipped files 
 in ``/user/sumeetsi/HueTalk/superbowl2014_tweets/``.
 
 3. Getting Data
 ===============
 
-We're going to be using the Flickr data we just looked at. Because you
-can't download files right now, we're going to copy the data into
+We're going to be using the Flickr data we just 
+looked at. Because you can't download files right 
+now, we're going to copy the data into
 your home directory. 
 
 #. Using **File Browser**, navigate to ``/user/sumeetsi/HueTalk/Flickr100cc`` if you are not there.
-#. Check the checkbox next to the file ``flickr100m_dataset.bz2``.
+#. Check the checkbox next to the file **flickr100m_dataset.bz2**.
 #. From the **Actions** drop-down menu, select **Copy**. We're going to copy this data to your home directory.
 
    .. image:: images/copy_flickr.jpg
@@ -199,9 +206,9 @@ your home directory.
 #. A **Copy to** dialogue window will appear. From it, choose your home directory. 
 
    .. image:: images/flickr_copy_to.jpg
-      :height: 190px
-      :width: 950 px
-      :scale: 90%
+      :height: 484px
+      :width: 500 px
+      :scale: 95%
       :alt: Hue Copy 
       :align: left 
 
@@ -214,9 +221,15 @@ your home directory.
 Tips: Other Ways to Get Data
 ----------------------------
 
-- Use the command line: ``$ hadoop fs -text {file_name}``
-- Create an Oozie job in **Job Designer** that uses `DistCP <http://oozie.apache.org/docs/4.1.0/DG_DistCpActionExtension.html>`_.
-  We're going to use DistCp for our Oozie Workflow later.
+You can also use the following methods to get
+the data on HDFS:
+
+- Use the command line: 
+  ``$ hdfs dfs -cp /user/sumeetsi/HueTalk/Flickr100cc/flickr100m_dataset.bz2 /user/{your_user_name}/``
+- Create an Oozie job in **Job Designer** that 
+  uses `DistCP <http://oozie.apache.org/docs/4.1.0/DG_DistCpActionExtension.html>`_.
+  We're going to use DistCp for our Oozie Workflow 
+  later.
 
 4. Manipulating Files
 =====================
@@ -226,8 +239,8 @@ Tips: Other Ways to Get Data
 
    .. image:: images/create_tutorial_dir.jpg
       :height: 171px
-      :width: 950 px
-      :scale: 90%
+      :width  831 px
+      :scale: 93%
       :alt: Hue Tutorial Directory 
       :align: left 
    
@@ -242,7 +255,7 @@ Tips: Other Ways to Get Data
       :alt: Moving Flickr Dataset
       :align: left 
    
-#. From the **Move to** dialogue window, enter the path ``/user/{your_user_name}/hue_tutorial/``.
+#. From the **Move to** dialogue window, enter the path **/user/{your_user_name}/hue_tutorial/**.
 
    .. image:: images/move_to_tutorial_dir.jpg
       :height: 369 px
@@ -264,9 +277,6 @@ The **File Browser** also lets you do the following with files and directories:
 - upload 
 
 
-TBD: MIME type detection and pagination
-
-
 5. Creating Database/Tables
 ===========================
 
@@ -282,8 +292,14 @@ you copied to your home directory.
       :alt: Starting Hive Editor
       :align: left 
    
-#. To create a database, in the **Query Editor** text area, enter the following query, replacing ``{user_name}`` with your own, and
-   clicking **Execute**: ``create database flickr_{user_name}_100m_db comment 'Flickr Creative Commons 100M data dump' location '/user/{user_name}/hue_tutorial/'``;
+#. To create a database, in the **Query Editor** 
+   text area, enter the query below, replacing 
+   ``{user_name}`` with your own, and
+   clicking **Execute**::
+
+       create database flickr_{user_name}_100m_db 
+       comment 'Flickr Creative Commons 100M data dump'
+       location '/user/{user_name}/hue_tutorial/'``;
 
    .. image:: images/hive_editor.jpg
       :height: 183 px
@@ -292,17 +308,29 @@ you copied to your home directory.
       :alt: Creating a Database With the Hive Editor
       :align: left 
 
-   The **Log** pane will show you progress, and when the query has been executed, the **Results**
-   pane will automatically open. The message will only say, however, that "The operation has no results."
+   The **Log** pane will show you progress, and when 
+   the query has been executed, the **Results**
+   pane will automatically open. The message will only 
+   say, however, that "The operation has no results."
 
-#. Confirm that your database was created by clicking the **Database** drop-down menu and scrolling down or entering the name in the text.
-   (You may need to click the **Refresh** icon next to the **Database** label to see your new database.)
-   
    .. image:: images/db_log_no_results.jpg
       :height: 266 px
       :width: 950 px
       :scale: 90%
       :alt: Database Created
+      :align: left 
+
+#. Confirm that your database was created by clicking 
+   the **Database** drop-down menu and scrolling down 
+   or entering the name in the text.
+   (You may need to click the **Refresh** icon next to 
+   the **Database** label to see your new database.)
+   
+   .. image:: images/refresh_database.jpg
+      :height: 316 px
+      :width: 202 px
+      :scale: 100%
+      :alt: Refresh Databases
       :align: left 
 
 #. Select the database you just created and run the following query to create an external 
@@ -421,7 +449,8 @@ of the Tez DAG as well as the operations for maps and reducers.
       :align: left 
 
 #. From the **Metastore Manager**, select your database from the **DATABASE** drop-down menu.
-#. Check checkbox next to the table ``flickr_{your_user_name}_100m_table`` and click **View**.
+#. Check the checkbox next to the table 
+   **flickr_{your_user_name}_table** and click **View**.
 
    .. image:: images/metastore_view_data.jpg
       :height: 229 px
@@ -502,13 +531,13 @@ Creating the Table
    - ``on``
    - ``at``
    - ``country``
-   - ``name``
-   - ``address``
-   - ``type``
+   - ``name`` - ``address`` - ``type``
    - ``placeURL``
 
-#. Going back to the **Metastore Manager**, in the **Define your columns**, enter the column names
-   listed in the previous step to replace the column names from ``col_0`` to ``col_10``. 
+#. Going back to the **Metastore Manager**, in the 
+   **Define your columns**, enter the column names
+   listed in the previous step to replace the column 
+   names from **col_0** to **col_10**. 
 #. Click **Create Table**.
 #. You'll see the **Log** file until the results are available, at which time, you'll be taken
    to the **Databases > sb2014_{your_user_name} > sb2014_{your_user_name}_tb** panel, where you
@@ -717,7 +746,7 @@ and Oozie workflows later.
 #. Navigate to the new directory **hue_scripts** and click **New->File**.
 #. In the **Create File** dialog box, enter **del_create_db_tables.hql**.
 
-   .. image:: images/create_del_tables.jpg
+   .. image:: images/create_del_create_tables.jpg
       :height: 344 px
       :width: 950 px
       :scale: 90%
@@ -746,12 +775,15 @@ and Oozie workflows later.
       drop database flickr_{your_user_name}_db;
  
 
-#. Create the file **create_db_tables.hql** in the same directory to create the database and 
-   tables for the Flickr data with the following code:
+#. Create the file **create_db_tables.hql** in the same 
+   directory to create the database and 
+   tables for the Flickr data with the following code::
 
-      create database flickr_{your_user_name}_db comment 'Flickr Creative Commons 100M data dump' location '/user/{your_user_name}/hue_tutorial/';
+       create database flickr_{your_user_name}_db 
+       comment 'Flickr Creative Commons 100M data dump' 
+       location '/user/{your_user_name}/hue_tutorial/';
 
-      create external table flickr_{your_user_name}_table (
+       create external table flickr_{your_user_name}_table (
          photoid bigint, 
          usernsid string, 
          userhandle string, 
@@ -775,11 +807,11 @@ and Oozie workflows later.
          secreto string, 
          extension string,
          isvideo int
-      )
-      row format delimited
-      fields terminated by '\t'
-      lines terminated by '\n'
-      location '/user/{your_user_name}/hue_tutorial/';
+       )
+       row format delimited
+       fields terminated by '\t'
+       lines terminated by '\n'
+       location '/user/{your_user_name}/hue_tutorial/';
  
 #. Create another file **camera_location_query.hql** with the following: 
    
@@ -819,6 +851,9 @@ and Oozie workflows later.
       -- Store the results to a file.
       STORE has_lat into '/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized' USING PigStorage(',');
 
+   This Pig script will remove rows that do not have
+   a value for the camera, longitude, or latitude.
+
 #. Great, we have our scripts. We're still going to need to do a few more things for our Oozie Workflow,
    but we're going to use the **Job Designer** next to complete the job 
 
@@ -827,14 +862,15 @@ and Oozie workflows later.
 =========================================
 
 Hue lets you create workflows in two ways: as an
-action or through Oozie workflows, coordinators,
-and bundles. The **Job Designer** makes it create a simple Oozie workflow to 
-execute one action without worrying about the configuration.
+action or through Oozie workflows
+The **Job Designer** makes it create a simple Oozie 
+workflow to execute one action without worrying 
+about the configuration.
 
-
-We're going to use the **Job Designer** to create a couple of actions in this
-section and then use the **Oozie Workflows Editor** to create an Oozie workflow
-in the next section.
+We're going to use the **Job Designer** to create 
+a couple of actions in this section and then use 
+the **Oozie Workflows Editor** to create an Oozie 
+workflow in the next section.
 
 #. From top navigation bar, click the **Query Editors** and select **Job Designer**.
 
@@ -872,15 +908,17 @@ in the next section.
    #. Click **Save**.
 
 
-   .. image:: images/hue_tutorial_delete_paths.jpg
-      :height: 429 px
-      :width: 789 px
-      :scale: 92%
-      :alt: Specify Delete Paths
-      :align: left 	
+      .. image:: images/hue_tutorial_delete_paths.jpg
+         :height: 429 px
+         :width: 789 px
+         :scale: 92%
+         :alt: Specify Delete Paths
+         :align: left 	
 
-   We're deleting the path so we can run our Pig script again in an Oozie job that we 
-   create through the **Workflows Editor** in the next section.
+   We're deleting the path so we can run our scripts 
+   again in an Oozie job that we 
+   create through the **Workflows Editor** in the 
+   next section.
 
 #. From the **Designs** panel, click **New action** and select **Email** as your action.
 
@@ -902,9 +940,13 @@ in the next section.
       :align: left 	
     
 #. In the **TO addresses**, enter your email address. In the **Subject** field, enter **Hue Tutorial Oozie Workflow Has Completed**.
-   Finally, in the **Body** text area, enter the following: **See the sanitized 
-   CSV file with the Flickr camera locations at the following URL: 
-   https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized/**
+   Finally, in the **Body** text area, enter the 
+   following:: 
+
+       See the sanitized 
+       CSV file with the Flickr camera locations at the 
+       following URL: 
+       https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized
 
    .. image:: images/workflow_email_notification.jpg
       :height: 253 px
@@ -1029,8 +1071,10 @@ been doing with Hue up until now.
 
 
 #. Drag the **Hive** object to the next available dotted box.
-#. In the **Edit Node** window, enter **del_db_tables** in the **Name** text field and
-   enter **Delete old tables.** in the **Description** text field.
+#. In the **Edit Node** window, enter **del_db_tables** 
+   in the **Name** text field and
+   enter **Delete old tables.** in the **Description** 
+   text field.
 
    .. image:: images/del_db_tables.jpg
       :height: 198 px
@@ -1040,12 +1084,13 @@ been doing with Hue up until now.
       :align: left 	
    
 #. Click **Advanced** and check the **hcat** checkbox.
-#. From the **Script name** field, click the **..** navigation box and navigate to 
+#. From the **Script name** field, click the **..** 
+   navigation box and navigate to 
    **/user/{your_user_name}/hue_scripts/del_db_tables.hql**. 
 
    .. image:: images/enter_hive_script.jpg
-      :height: 369 px
-      :width: 823 px
+      :height: 51 px
+      :width: 662 px
       :scale: 92%
       :alt: Enter Hive Script
       :align: left 	
@@ -1079,7 +1124,7 @@ been doing with Hue up until now.
    to the script that created the tables: **/user/{your_user_name}/hue_scripts/create_db_tables.hql**
 
    .. important:: Remember to check **hcat**, add the job properties **hive.action.sharelib.for.hive**, **hive.querylog.location**, 
-                  and add the ``/user/sumeetsi/HueTalk/hive-site.xml`` for the **Job XML** field.
+                  and enter **/user/sumeetsi/HueTalk/hive-site.xml** in the **Job XML** field.
 
 #. We still need to create the Hive table with just the camera and location data, so
    create the last Hive task with the script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
@@ -1127,12 +1172,9 @@ been doing with Hue up until now.
       :align: left   
 
 
-#. While your Oozie Workflow is running, let's move to the next section to learn about the
+#. While your Oozie Workflow is running, let's move 
+   to the next section to learn about the
    **Job Browser**. 
-
-you'll be taken to the **Workflow** pane has tabs 
-   to view the action progress, details (time, application path),
-   configuration (jobTracker,nameNode, Oozie path, etc.), log, and definition (workflow XML).
 
 
 Tips: Oozie Editor Features
@@ -1281,16 +1323,22 @@ by a user or key term, also look at the cluster and ResourceManager logs.
    to see your sanitized Flickr data in CSV.  If one of your jobs failed, see 
    :ref:`Troubleshooting <>`. 
 
+
+    .. note:: Once you are done with the tutorial and 
+              experimenting with the data,
+              please drop the databases and tables you created
+              during the tutorial to free up grid resources
+              for others.
+
 .. See the :ref:`How Tos <gs-troubleshooting>` chapter to learn more.
   
 
 .. _gs-troubleshooting:
 
 Troubleshooting
-===============
+=============== 
 
-
-Hive/Pig Jobs
+Hive/Pig Jobs 
 -------------
 
 Confirm that you have down the following:
