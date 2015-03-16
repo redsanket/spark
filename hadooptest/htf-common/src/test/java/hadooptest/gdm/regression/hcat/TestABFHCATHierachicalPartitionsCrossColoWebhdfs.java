@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,11 +26,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 /**
- * Test Scenario  : To test ABF data with  Hierachical Partitions 
+ * TestCase : Verify whether cross colo HCAT metadata replication uses webhdfs  
+ * Bug id : webhdfs https://jira.corp.yahoo.com/browse/GDM-333
+ * 
  */
-public class TestABFHCATHierachicalPartitions extends TestSession {
+public class TestABFHCATHierachicalPartitionsCrossColoWebhdfs  extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private List<String> hcatSupportedGrid;
@@ -39,13 +39,14 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 	private String dataSetName2;
 	private String targetGrid1;
 	private String targetGrid2;
+	private String newTarget;
 	private String cookie;
 	private String datasetActivationTime;
 	private String CUSTOM_DATA_PATH;
 	private String CUSTOM_SCHEMA_PATH;
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private WorkFlowHelper workFlowHelper;
-	private HCatHelper hcatHelperObject = null;
+	private HCatHelper hcatHelperObject ;
 	private static final String HCAT_TYPE = "Mixed";
 	private static final int SUCCESS = 200;
 	private static final String SOURCE_NAME = "elrond";
@@ -67,7 +68,7 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 		this.cookie = httpHandle.getBouncerCookie();
 		this.dataSetName1 = "Test_ABF_HCat_Propagation_BaseDataSet_" + System.currentTimeMillis();
 		this.dataSetName2 = "Test_ABF_HCat_Propagation_DataSet_" + System.currentTimeMillis();
-
+		
 		// get all the hcat supported clusters
 		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
 
@@ -81,26 +82,45 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 
 		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
 		TestSession.logger.info("Using grids " + this.targetGrid2  );
+		this.newTarget = this.targetGrid2 + "_" + System.currentTimeMillis();
 
-		// check whether hcat is enabled on target1 cluster
+		// check whether hcat is enabled on target1 cluster, if not enabled , enable it
 		boolean targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid1);
 		if (targetHCatSupported == false) {
 			this.consoleHandle.modifyDataSource(this.targetGrid1, "HCatSupported", "FALSE", "TRUE");
 		}
 
-		// check whether hcat is enabled on target2 cluster
+		// check whether hcat is enabled on target2 cluster, if not enabled , enable it
 		targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid2);
 		if (targetHCatSupported == false) {
 			this.consoleHandle.modifyDataSource(this.targetGrid2, "HCatSupported", "FALSE", "TRUE");
 		}
+		// create a new datasource and use it as metadata hcat target grid
+		createDataSource(this.targetGrid2 , this.newTarget);
+	}
+	
+	/**
+	 * Create a datasource and change the colo from gq1 to ne1 to test cross colo HCat metadata only replication
+	 * @param existingDataSourceName
+	 * @param newDataSourceName
+	 */
+	private void createDataSource(String existingDataSourceName , String newDataSourceName) {
+		String xml = this.consoleHandle.getDataSourcetXml(existingDataSourceName);
+		xml = xml.replaceFirst(existingDataSourceName,newDataSourceName);
+
+		// change the colo name, so that GDM can consider this as cross colo and use WEBHDFS protocol to copy data and metadata
+		xml = xml.replaceAll("gq1", "ne1");
+		TestSession.logger.info("New DataSource Name = " + xml);;
+		boolean isDataSourceCreated = this.consoleHandle.createDataSource(xml);
+		assertTrue("Failed to create a DataSource specification " + newDataSourceName , isDataSourceCreated == true);
 	}
 
 	@Test
 	public void testTablePropagation() throws Exception {
+		
 		// check whether ABF data is available on the specified source
 		List<String>instanceDates = getInstanceFiles();
 		assertTrue("ABF data is missing so testing can't be done, make sure whether the ABF data path is correct...!" , instanceDates != null);
-
 
 		// Base dataset that replicates the data on the target1 and creates the hcat table and partition (hierachical-partitions)
 		{
@@ -157,20 +177,16 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
 
 			boolean isTableCreated = this.hcatHelperObject.isTableExists(hCatServerName, this.dataSetName1 , this.DATABASE_NAME);
-			assertTrue("Failed to HCAT create table for " + this.dataSetName1 , isTableCreated == true);
+			assertTrue("Failed to HCAT create table for " + this.dataSetName2 , isTableCreated == true);
 
 			// get the partition details of the dataset
-			JSONArray jsonArray = getPartitionDetails(this.targetGrid2 , this.dataSetName2);
-
-			// check whether instance is part of the files on the HDFS
-			for (String instanceDate : instanceDates ) {
-				checkInstanceExistsInLocationPath(jsonArray , instanceDate);
-			}
+			JSONArray jsonArray = getPartitionDetails(this.newTarget , this.dataSetName2);
 
 			// check whether location matches with the partition keys
 			// changed to hdfs after webhdfs https://jira.corp.yahoo.com/browse/GDM-333
-			checkLocationMatchesWithPartitionKeys(jsonArray , "hdfs");
+			checkLocationMatchesWithPartitionKeys(jsonArray , "webhdfs");
 		}
+
 	}
 
 	/**
@@ -248,7 +264,7 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 		String sourceName = this.consoleHandle.getDataSetTagsAttributeValue(this.baseDataSetName , "Sources" , "name");
 
 		dataSetXml = dataSetXml.replaceAll("TARGET1", this.targetGrid1 );
-		dataSetXml = dataSetXml.replaceAll("TARGET2", this.targetGrid2 );
+		dataSetXml = dataSetXml.replaceAll("TARGET2", this.newTarget );
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.dataSetName2 );
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
@@ -270,7 +286,7 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 				e.printStackTrace();
 			}
 		}
-		this.consoleHandle.sleep(5000);
+		this.consoleHandle.sleep(50000);
 	}
 
 	/**
