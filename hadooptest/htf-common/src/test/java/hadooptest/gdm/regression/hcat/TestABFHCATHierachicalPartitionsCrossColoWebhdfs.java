@@ -299,7 +299,7 @@ public class TestABFHCATHierachicalPartitionsCrossColoWebhdfs  extends TestSessi
 		String testURL = this.consoleHandle.getConsoleURL() + this.HADOOP_LS_PATH + this.SOURCE_NAME + "&path=" + ABF_DATA_PATH + "&format=json";
 		TestSession.logger.info("Test url = " + testURL);
 		com.jayway.restassured.response.Response res = given().cookie(this.cookie).get(testURL);
-		assertTrue("Failed to get the respons  " + res , (res != null ) );
+		assertTrue("Failed to get the response  " + res , (res != null ) );
 
 		jsonArray = this.consoleHandle.convertResponseToJSONArray(res , "Files");
 		TestSession.logger.info("********size = " + jsonArray.size());
