@@ -27,7 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * TestCase : Verify whether cross colo HCAT metadata replication used webhdfs 
+ * TestCase : Verify whether cross colo HCAT metadata replication uses webhdfs  
  * Bug id : webhdfs https://jira.corp.yahoo.com/browse/GDM-333
  * 
  */
@@ -46,7 +46,7 @@ public class TestABFHCATHierachicalPartitionsCrossColoWebhdfs  extends TestSessi
 	private String CUSTOM_SCHEMA_PATH;
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private WorkFlowHelper workFlowHelper;
-	private HCatHelper hcatHelperObject = null;
+	private HCatHelper hcatHelperObject ;
 	private static final String HCAT_TYPE = "Mixed";
 	private static final int SUCCESS = 200;
 	private static final String SOURCE_NAME = "elrond";
@@ -84,13 +84,13 @@ public class TestABFHCATHierachicalPartitionsCrossColoWebhdfs  extends TestSessi
 		TestSession.logger.info("Using grids " + this.targetGrid2  );
 		this.newTarget = this.targetGrid2 + "_" + System.currentTimeMillis();
 
-		// check whether hcat is enabled on target1 cluster
+		// check whether hcat is enabled on target1 cluster, if not enabled , enable it
 		boolean targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid1);
 		if (targetHCatSupported == false) {
 			this.consoleHandle.modifyDataSource(this.targetGrid1, "HCatSupported", "FALSE", "TRUE");
 		}
 
-		// check whether hcat is enabled on target2 cluster
+		// check whether hcat is enabled on target2 cluster, if not enabled , enable it
 		targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid2);
 		if (targetHCatSupported == false) {
 			this.consoleHandle.modifyDataSource(this.targetGrid2, "HCatSupported", "FALSE", "TRUE");
@@ -108,7 +108,7 @@ public class TestABFHCATHierachicalPartitionsCrossColoWebhdfs  extends TestSessi
 		String xml = this.consoleHandle.getDataSourcetXml(existingDataSourceName);
 		xml = xml.replaceFirst(existingDataSourceName,newDataSourceName);
 
-		// change the colo name, so that GDM can consider this as cross colo and use WEBHDFS.
+		// change the colo name, so that GDM can consider this as cross colo and use WEBHDFS protocol to copy data and metadata
 		xml = xml.replaceAll("gq1", "ne1");
 		TestSession.logger.info("New DataSource Name = " + xml);;
 		boolean isDataSourceCreated = this.consoleHandle.createDataSource(xml);
