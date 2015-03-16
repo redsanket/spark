@@ -111,6 +111,27 @@ public class TestWordCountTopology extends TestSessionStorm {
 
     @Test(timeout=300000)
     public void UILogviewerGroupsTest() throws Exception {
+        UILogviewerGroupsTestCommon(false);
+    }
+
+    @Test(timeout=600000)
+    public void UILogviewerGroupsTestClusterConfig() throws Exception {
+        assumeTrue(cluster instanceof ModifiableStormCluster);
+        ModifiableStormCluster mc = (ModifiableStormCluster)cluster;
+        mc.setConf(Config.UI_GROUPS, "hadoop");
+        mc.setConf(Config.LOGS_GROUPS, "hadoop");
+        mc.restartCluster();
+        Exception ex = null;
+        try {
+            UILogviewerGroupsTestCommon(true);
+        } finally {
+            mc.unsetConf(Config.UI_GROUPS);
+            mc.unsetConf(Config.LOGS_GROUPS);
+            mc.restartCluster();
+        }
+    }
+
+    public void UILogviewerGroupsTestCommon(Boolean skipConfig) throws Exception {
         logger.info("Starting Groups Test");
         assumeTrue(cluster instanceof ModifiableStormCluster);
         Config config = new Config();
@@ -131,9 +152,11 @@ public class TestWordCountTopology extends TestSessionStorm {
         List<String> whiteList = Arrays.asList("hadoop_re");
         config.put(Config.UI_USERS, whiteList);
         config.put(Config.LOGS_USERS, whiteList);
-        List<String> groupWhiteList = Arrays.asList("hadoop"); //Only hitusr_1 is in this group of the three we have
-        config.put(Config.UI_GROUPS, groupWhiteList);
-        config.put(Config.LOGS_GROUPS, groupWhiteList);
+        if (!skipConfig) {
+            List<String> groupWhiteList = Arrays.asList("hadoop"); //Only hitusr_1 is in this group of the three we have
+            config.put(Config.UI_GROUPS, groupWhiteList);
+            config.put(Config.LOGS_GROUPS, groupWhiteList);
+        }
 
         cluster.submitTopology(getTopologiesJarFile(), topoName, config, topology);
         try {
@@ -184,8 +207,11 @@ public class TestWordCountTopology extends TestSessionStorm {
             getWithBouncer("hitusr_3", "New2@password", getURL, 500);
             logger.info("Test hitusr_3 user works on ui");
             getWithBouncer("hitusr_3", "New2@password", uiURL, 500);
+            logger.info("All tests passed!");
         } finally {
+            logger.info("About to kill topology");
             cluster.killTopology(topoName);
+            Util.sleep(30);
         }
     }
 
