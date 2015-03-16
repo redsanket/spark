@@ -11,31 +11,30 @@ interface and learn how to use Hue to use Hadoop
 technology such as HDFS, Hive, Pig, Oozie, and Job Browser.
 
 
-We'll be using a Flickr data to cover the following in this tutorial:
+We'll be using Flickr data to do the following in this tutorial:
 
 - Use the **Data Discovery** tool to find the location of data on the grid.
-- Look at data with the **File Browser**. 
+- View data and work with files/directories with the **File Browser**. 
 - Create a database and table with the **Hive Query Editor**.
 - View data with the **Metastore Manager**.
 - Run Hive queries on data with the **Hive Query Editor**.
-- Process Hive data with Pig through the **Pig Editor**.
+- Process data with Pig through the **Pig Editor**.
 - Create a simple Oozie Workflow through the **Oozie Editor** to 
   execute a Hadoop job with several tasks. 
-- View and control Hadoop jobs in the **Job Browser**.
+- Monitor Hadoop jobs in the **Job Browser**.
 
 Prerequisites
 -------------
 
-Hue makes it easier for those who are not Hadoop 
-specialists to access grid data. If you're a newbie 
-to Hadoop, however, we still recommend you read the 
-following so you are better able to take advantage 
-of Hue's features:
+- `Use the SOCKS proxy <#using-socks-proxy>`_.
+  (We recommend using Mozilla's Firefox browser.)
+- If you're a newbie to Hadoop, read the
+  following:
 
-- `What is Hadoop? <http://hadoop.apache.org/#What+Is+Apache+Hadoop%3F>`_
-- `Hive Wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_
-- `Pig introduction <http://pig.apache.org/>`_
-- `Oozie Overview <http://oozie.apache.org/>`_
+  - `What is Hadoop? <http://hadoop.apache.org/#What+Is+Apache+Hadoop%3F>`_
+  - `Hive Wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_
+  - `Pig introduction <http://pig.apache.org/>`_
+  - `Oozie Overview <http://oozie.apache.org/>`_
 
 About the Tutorial 
 ------------------
@@ -1376,19 +1375,5 @@ Shell Scripts
 
 .. Name: oozie.actions.sharelib.for.pig
 .. Value:  (pig_current, hcat_current - if you're going through HCat)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
