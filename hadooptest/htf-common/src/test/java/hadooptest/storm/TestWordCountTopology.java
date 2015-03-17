@@ -14,6 +14,7 @@ import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.cluster.storm.StormDaemon;
 import hadooptest.workflow.storm.topology.bolt.Split;
 import hadooptest.workflow.storm.topology.spout.FixedBatchSpout;
+import java.lang.AssertionError;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -94,7 +95,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         }
     }
 
-    private static String getWithBouncer(String user, String pw, String url, int expectedCode) {
+    private static String getWithBouncer(String user, String pw, String url, int expectedCode) throws Exception {
         HTTPHandle client = new HTTPHandle();
         client.logonToBouncer(user,pw);
         logger.info("Cookie = " + client.YBYCookie);
@@ -111,6 +112,63 @@ public class TestWordCountTopology extends TestSessionStorm {
 
     @Test(timeout=300000)
     public void UILogviewerGroupsTest() throws Exception {
+        Config addToConf = new Config();
+        List<String> groupWhiteList = Arrays.asList("hadoop"); //Only hitusr_1 is in this group of the three we have
+        addToConf.put(Config.UI_GROUPS, groupWhiteList);
+        addToConf.put(Config.LOGS_GROUPS, groupWhiteList);
+        UILogviewerGroupsTestCommon(addToConf);
+    }
+
+    @Test(timeout=300000)
+    public void UILogviewerTopologyGroupsTest() throws Exception {
+        Config addToConf = new Config();
+        List<String> groupWhiteList = Arrays.asList("hadoop"); //Only hitusr_1 is in this group of the three we have
+        addToConf.put(Config.TOPOLOGY_GROUPS, groupWhiteList);
+        UILogviewerGroupsTestCommon(addToConf);
+    }
+
+    @Test(timeout=600000)
+    public void UILogviewerGroupsTestClusterConfig() throws Exception {
+        assumeTrue(cluster instanceof ModifiableStormCluster);
+        ModifiableStormCluster mc = (ModifiableStormCluster)cluster;
+        mc.setConf(Config.UI_GROUPS, "hadoop");
+        mc.setConf(Config.LOGS_GROUPS, "hadoop");
+        mc.restartCluster();
+        try {
+            UILogviewerGroupsTestCommon(null);
+        } finally {
+            mc.unsetConf(Config.UI_GROUPS);
+            mc.unsetConf(Config.LOGS_GROUPS);
+            mc.restartCluster();
+        }
+    }
+
+    @Test(timeout=600000)
+    public void UILogviewerTopologyGroupsNegativeTestCase() throws Exception {
+        Boolean caughtException = false;
+        try {
+            UILogviewerGroupsTestCommon(null);
+        } catch (AssertionError e) {
+            caughtException = true;
+        }
+        assertEquals("Did not receive expected failure", caughtException, true);
+    }
+
+    @Test(timeout=600000)
+    public void UILogviewerTopologyGroupsTestClusterConfig() throws Exception {
+        assumeTrue(cluster instanceof ModifiableStormCluster);
+        ModifiableStormCluster mc = (ModifiableStormCluster)cluster;
+        mc.setConf(Config.TOPOLOGY_GROUPS, "hadoop");
+        mc.restartCluster();
+        try {
+            UILogviewerGroupsTestCommon(null);
+        } finally {
+            mc.unsetConf(Config.TOPOLOGY_GROUPS);
+            mc.restartCluster();
+        }
+    }
+
+    public void UILogviewerGroupsTestCommon(Config addToConfig) throws Exception {
         logger.info("Starting Groups Test");
         assumeTrue(cluster instanceof ModifiableStormCluster);
         Config config = new Config();
@@ -131,9 +189,13 @@ public class TestWordCountTopology extends TestSessionStorm {
         List<String> whiteList = Arrays.asList("hadoop_re");
         config.put(Config.UI_USERS, whiteList);
         config.put(Config.LOGS_USERS, whiteList);
-        List<String> groupWhiteList = Arrays.asList("hadoop"); //Only hitusr_1 is in this group of the three we have
-        config.put(Config.UI_GROUPS, groupWhiteList);
-        config.put(Config.LOGS_GROUPS, groupWhiteList);
+        if (addToConfig != null) {
+            for (Map.Entry<String, Object> entry : addToConfig.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                config.put(key, value);
+            }
+        }
 
         cluster.submitTopology(getTopologiesJarFile(), topoName, config, topology);
         try {
@@ -184,8 +246,11 @@ public class TestWordCountTopology extends TestSessionStorm {
             getWithBouncer("hitusr_3", "New2@password", getURL, 500);
             logger.info("Test hitusr_3 user works on ui");
             getWithBouncer("hitusr_3", "New2@password", uiURL, 500);
+            logger.info("All tests passed!");
         } finally {
+            logger.info("About to kill topology");
             cluster.killTopology(topoName);
+            Util.sleep(30);
         }
     }
 
