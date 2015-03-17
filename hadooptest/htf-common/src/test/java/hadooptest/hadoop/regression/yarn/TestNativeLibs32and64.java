@@ -39,7 +39,8 @@ import org.junit.Test;
 
 public class TestNativeLibs32and64 extends TestSession {
 
-	private static final String[] PARAMS_JVM32_NATIVELIB32 = {
+    // job config for the native library tests
+    private static final String[] PARAMS_JVM32_NATIVELIB32 = {
        "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk32/current",
        "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk32/current",
        "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk32/current",
@@ -60,7 +61,7 @@ public class TestNativeLibs32and64 extends TestSession {
        "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-i386-32",
        "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-i386-32"
     };
-	private static final String[] PARAMS_JVM64_NATIVELIB64 = {
+    private static final String[] PARAMS_JVM64_NATIVELIB64 = {
 		"-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk64/current",
 		"-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk64/current",
 		"-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk64/current",
@@ -71,11 +72,30 @@ public class TestNativeLibs32and64 extends TestSession {
         ""
      };
     
-	private static final String[] PARAMS_FAILMODE = {
+    // job configs for java7 and java8 64bit jobs, 64bit support does have a 'current' 64bit
+    // symlink but explicit use of java7 or java8 requires setting this in the user job
+    private static final String[] PARAMS_JAVA7_JVM64_NATIVELIB64 = {
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java7/jdk64",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java7/jdk64",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java7/jdk64",
+                "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
+                "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
+        };
+
+    private static final String[] PARAMS_JAVA8_JVM64_NATIVELIB64 = {
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java8/jdk64",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java8/jdk64",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java8/jdk64",
+                "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
+                "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
+        };
+
+    // utility settings
+    private static final String[] PARAMS_FAILMODE = {
 		"-Dyarn.app.mapreduce.am.job.node-blacklisting.enable=false"
 	};
 	
-	private static final String[] PARAMS_DEBUG_ENABLE = {
+    private static final String[] PARAMS_DEBUG_ENABLE = {
 		"-Dyarn.app.mapreduce.am.log.level=DEBUG",
 		"-Dmapreduce.map.log.level=DEBUG",
 		"-Dmapreduce.reduce.log.level=DEBUG"
@@ -135,6 +155,11 @@ public class TestNativeLibs32and64 extends TestSession {
 	@Test public void testNativeLibsJVM64Libs32() throws Exception{ testNativeLibsNeg("testNativeLibsVM64Libs32", PARAMS_JVM64_NATIVELIB32, PARAMS_DEBUG_ENABLE); }
 	@Test public void testNativeLibsJVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsVM64Libs64", PARAMS_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
 	@Test public void testNativeLibsDefault()    throws Exception{ testNativeLibsDefault("testNativeLibsDefault", PARAMS_JVMDEFAULT_NATIVELIBDEFAULT, PARAMS_DEBUG_ENABLE); }
+
+	// individual test cases, explicit use of java7/8 64bit
+        @Test public void testNativeLibsJAVA7JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava7VM64Libs64", PARAMS_JAVA7_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+        @Test public void testNativeLibsJAVA8JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava8VM64Libs64", PARAMS_JAVA8_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+
 	
 	// test definition for positive cases, where JDK and Libs align, 32 bit or 64 bit
 	protected void testNativeLibsPos(String testname, String[] PARAMS_JVM_NATIVELIB, 
