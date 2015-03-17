@@ -24,7 +24,6 @@ Keep in the mind that Cloudera version of Hue has some different features, and t
 
 .. _onboard:
 
-
 Accessing Hue
 =============
 
@@ -50,37 +49,27 @@ You can also use ``yo`` links using the following syntax: ``http://yo/hue.<clust
 For example, to access the Hue instance for the Cobalt Blue Hadoop, you would use
 the ``yo`` link ``http://yo/hue.cb``.
 
-
 Getting Help
 ============
 
-General Questions
------------------
+General Questions / Support
+---------------------------
 
 - yahoo-hue-users@yahoo-inc.com 
-
-Request Support
----------------
-
-TBD
-
-Product/Engineering 
--------------------
-
-TBD
-
 
 Filing Tickets
 --------------
 
+.. TBD: Need to add Jira links
+
 Bugzilla Links
-##############
+~~~~~~~~~~~~~~
 
 - Dev: http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency
 - Grid Ops: http://bug.corp.yahoo.com/enter_bug.cgi?product=kryptonite
 
 Ticket Filing Process
-#####################
+~~~~~~~~~~~~~~~~~~~~~
 
 If you have identified an issue with Hue withn your environment or 
 while testing, you may file a Bugzilla Ticket. When filing the ticket, 
