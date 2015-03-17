@@ -86,7 +86,7 @@ The Yahoo implementation of Hue has a limited set of features, so
 you will not be able to use the following features that
 are available in the open source version of Hue:
 
-- **Impala Query UI** - The Impala Query UI allows you to quer data 
+- **Impala Query UI** - The Impala Query UI allows you to query data 
   stored in Hadoop or HBase. 
 - **DB Query** -  Enables viewing and querying data in MySQL, PostgreSQL, Oracle, 
   and SQLite databases/views in a table.
