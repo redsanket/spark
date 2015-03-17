@@ -2,6 +2,19 @@
 Hue User Guide 
 ==============
 
+-----------------
+Developer Preview
+-----------------
+
+.. important:: This is a preliminary document intended for developers and 
+               programmers working at Yahoo. If you plan to use the contents of 
+               this document to implement applications on the grid, please note 
+               that the API may be subject to change and modification. 
+               Check Yahoo release notes for changes and updates to Hue that may 
+               be relevant to your engineering efforts. Once the final 
+               documentation for the API is released, Yahoo will be notified 
+               of all changes and updates through yahoo-hue-users@yahoo-inc.com.
+
 .. toctree::
    :maxdepth: 2
    :hidden:
