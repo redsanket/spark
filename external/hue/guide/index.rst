@@ -48,8 +48,7 @@ For example, to access the Hue UI on Cobalt Blue, you would go to
 
 You can also use ``yo`` links using the following syntax: ``http://yo/hue.<cluster name><color>``
 For example, to access the Hue instance for the Cobalt Blue Hadoop, you would use
-the ``yo`` link ``http://yo/hue.cb``
-
+the ``yo`` link ``http://yo/hue.cb``.
 
 
 Getting Help
@@ -83,7 +82,7 @@ Bugzilla Links
 Ticket Filing Process
 #####################
 
-If you have identified an issue with Starling withn your environment or 
+If you have identified an issue with Hue withn your environment or 
 while testing, you may file a Bugzilla Ticket. When filing the ticket, 
 include the following if relevant:
 
@@ -94,10 +93,4 @@ include the following if relevant:
 - If possible, save the output of around 5 complete stack traces (via jstack) of a JVM with the issue.
 - If possible, save the heap dump (via jmap) of a JVM with the issue.
 - How you observed the issue (Steps to Reproduce)
-
-
-
-
-
- 
 
