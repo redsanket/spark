@@ -6,7 +6,7 @@ This chapter will give you an overview of the components of the Yahoo Hue Web in
 We'll first look at the organization and function of the components on the landing page
 before covering each component from left to right in more detail.
 
-.. note:: We recommend using Firefox for reliablity and optimal performance.
+.. note:: We recommend using Firefox for reliability and optimal performance.
 
 Location of Hue UI
 ==================
@@ -14,7 +14,7 @@ Location of Hue UI
 To use the Hue Web UI, you will need to know which cluster you are using. 
 The URL to each Hue instance has the following syntax: ``https://{cluster_name}-hue.{color}.ygrid.yahoo.com:{port}``
 
-For example, to access the Hue UI on Cobalut Blue, you would go to
+For example, to access the Hue UI on Cobalt Blue, you would go to
 ``https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/``.
 
 We also have ``yo`` links to each cluster instance. The syntax is
@@ -138,7 +138,7 @@ Settings
 
 From the **Settings** tab, you can add key-value pairs by clicking **Add** under **Settings** and
 entering a key such as ``mapred.reduce.tasks`` with a value. You can also point
-to a JAR or other files by adding file resources, or defining a UDSF by providing
+to a JAR or other files by adding file resources, or defining a UDF by providing
 a named function from a class such as the function ``myFunction`` in the class ``com.acme.example``.
 
 .. image:: images/hue_hive_editor_setting.jpg
@@ -326,7 +326,7 @@ In summary, the **Pig Editor** gives you the following:
 
 - **Editor**
 - **Scripts**
-- **Dasbhoard**
+- **Dashboard**
 
 **Left-Hand Navigation Components**
 
@@ -481,7 +481,7 @@ You can also do the following:
 - create, browse, import data into, drop, view location of tables
 - create table from wizards or manually
 - list available databases and tables
-- browse table data (limited set) and metadata (can be slow: optimizations on its way)
+- browse table data (limited set) and metadata (can be slow: optimization on its way)
 
 .. note:: Metastore Manager is only available on clusters with Hive 0.13 (AR, MR, AB, CB, MB, NB).
 
@@ -505,7 +505,7 @@ Workflows
 
 .. Oozie Workflow jobs are Directed Acyclical Graphs (DAGs), specifying a sequence of actions to execute. The Workflow job has to wait
 .. Oozie Coordinator jobs are recurrent Oozie Workflow jobs that are triggered by time and data availability.
-.. Oozie Bundle provides a way to package multiple coordinator and workflow jobs and to manage the lifecycle of those jobs.
+.. Oozie Bundle provides a way to package multiple coordinator and workflow jobs and to manage the life cycle of those jobs.
 
 The **Workflows** drop-down menu lets you schedule and view Oozie jobs.
 
@@ -558,7 +558,7 @@ with status**.
    :align: left
 
 If you click on a job, you can view the execution details in the **Actions** tab, the application path and start/creation time
-in the **Details** tab, the Oozie configuratons used in the **Configuration** tab, the Oozie logs in the **Log** tab,
+in the **Details** tab, the Oozie configurations used in the **Configuration** tab, the Oozie logs in the **Log** tab,
 and the Oozie job configuration file in the **Definition** tab.
 
 .. _oozie_db_wf-details:
@@ -612,7 +612,7 @@ and interdependent workflow jobs.
 
 The **Coordinators** tab, like the **Workflows** tab, shows the running, completed, and killed `Oozie
 Coordinator jobs <http://oozie.apache.org/docs/4.1.0/CoordinatorFunctionalSpec.html>`_. You can 
-also have the option of seleting how many jobs to show per page, sorting the jobs by status, and 
+also have the option of selecting how many jobs to show per page, sorting the jobs by status, and 
 clicking a job to get details (see :ref:`Job Details <Doozie_db_wf-details>` above).
 
 .. image:: images/hue_oozie_dashboard_coordinators.jpg
@@ -630,7 +630,7 @@ The Bundle application allows you to batch a set of coordinator applications.
 
 The **Bundles** tab shows the running, completed, and killed `Oozie
 Bundles jobs <http://oozie.apache.org/docs/4.1.0/BundleFunctionalSpec.html>`_.
- You can also have the option of seleting how many jobs to show per page,
+ You can also have the option of selecting how many jobs to show per page,
 sorting the jobs by status, and clicking a job to get details 
 (see :ref:`Job Details <Doozie_db_wf-details>` above).
 
@@ -706,7 +706,7 @@ The **timers** tab shown below displays how much time is spent in different oper
 counters
 ^^^^^^^^
 
-The **counters** tab shown below displays statistics about the number of times an event has occured.
+The **counters** tab shown below displays statistics about the number of times an event has occurred.
 
 .. image:: images/hue_oozie_dashboard_instrumentation_counters.jpg
    :height: 914px
@@ -737,7 +737,7 @@ Workflow, Coordinator, and Bundle jobs.
 
 From the **Oozie Editor**, you can do the following:
 
-- view available workflows, coordinators with worklows and frequencies, and bundles with coordinators and kickoff .
+- view available workflows, coordinators with workflows and frequencies, and bundles with coordinators and kickoff .
 - create, import, export, schedule and submit workflows, coordinators, and bundles.
 - delete, copy, and restore workflows, coordinators, and bundles
 
@@ -845,7 +845,7 @@ Schedule
 
 The **Schedule** menu option will open the :ref:`Coordinator Editor <>`, where you
 can enter basic information, specify a frequency to run the workflow, define outputs,
-and make any advanced settings such as Oozie paramters, timeouts, concurrency, etc.
+and make any advanced settings such as Oozie parameters, timeouts, concurrency, etc.
 
 
 Coordinators

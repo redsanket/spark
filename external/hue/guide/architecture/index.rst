@@ -5,11 +5,11 @@ Overview
 --------
 
 The Yahoo implementation of Hue shown below is slightly different than
-that of `Cloudera's Hue <http://cloudera.github.io/hue/docs-3.7.0/user-guide/introducing.html>`_. On the backend, we replace `Spawning <https://pypi.python.org/pypi/Spawning>`_ 
+that of `Cloudera's Hue <http://cloudera.github.io/hue/docs-3.7.0/user-guide/introducing.html>`_. On the back end, we replace `Spawning <https://pypi.python.org/pypi/Spawning>`_ 
 and `CherryPy <http://cherrypy.org/>`_ with `yApache <http://developer.corp.yahoo.com/product/yApache>`_, 
 and use `ATS <http://developer.corp.yahoo.com/product/ATS>`_ for proxying requests. 
 
-Our Hue frontend is the same, and as of yet, we do not offer the SDK to create your own
+Our Hue front end is the same, and as of yet, we do not offer the SDK to create your own
 Hue applications.
 
 .. image:: images/hue_arch.png
@@ -25,13 +25,13 @@ Tiers of Hue
 
 HTTP based and stateless (uses async queries)
 
-Frontend and backend separation (e.g. different servers, pagination)
+Front end and back end separation (e.g. different servers, pagination)
 
 Resources (e.g. img, js, callbacks, css, json)
 
 Support multiple browsers and technologies
 
-Supports multiple DB backend (SQLite, MySQL)
+Supports multiple DB back end (SQLite, MySQL)
 
 Supports i18n
 

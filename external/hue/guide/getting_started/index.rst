@@ -2,6 +2,7 @@
 Getting Started
 ===============
 
+**Time Required:** 30-40 minutes
 
 Introduction
 ============
@@ -44,7 +45,7 @@ Organization
 
 The tutorial is divided into 10 sections, starting 
 from the simplest uses such as navigating HDFS and 
-then graduallly becoming more complex until you're 
+then gradually becoming more complex until you're 
 creating an Oozie Workflow to automate several
 jobs. For each section, we also offer additional 
 tips for using Hue.
@@ -59,7 +60,7 @@ and table names as well as file names. For example,
 the database you'll be creating will have the naming syntax ``flickr_{your_user_name}_db``. This is to
 avoid name collisions and for the convenience of referencing later.
 
-Hue UI components and text you are to enter in dialog windows will be indicated in bold. Code, however, for scripts that you'll be using will be in monospace text.
+Hue UI components and text you are to enter in dialog windows will be indicated in bold. Code, however, for scripts that you'll be using will be in monospaced font.
 
 For icons, we will refer to them by name rather than 
 use an inline image. For example, to run Pig scripts,
@@ -83,7 +84,7 @@ tool that allows you to search for databases and tables in Hive
 and then view the results in Hue.
 
 #. Go to https://supportshop.cloud.corp.yahoo.com:4443/data-discovery/ to get to the **Data Discovery** tool.
-#. The first time going to the tool, you'll need to click **Add Exception..** abd then **Confirm Security Exception** as shown below:
+#. The first time going to the tool, you'll need to click **Add Exception..** and then **Confirm Security Exception** as shown below:
 
    .. image:: images/certificate.jpg
       :height: 389px
@@ -424,7 +425,7 @@ you copied to your home directory.
             or run a partial statement.
           - You can also save a query by clicking **Save as...**, 
             entering a name, and clicking **Save**. 
-          - Click **Explanation** to see the dependences, the edges and
+          - Click **Explanation** to see the dependencies, the edges and
             vertices of the Tez DAG as well as the operations for the
             maps and reducers.
 
@@ -621,7 +622,7 @@ you created one.
       :align: left 
 
 #. As we did earlier, let's save our query by clicking **Save as...**, 
-   entering **/user/{your_user_name}/hue_tutorial/flickr_camera_locatons.csv**,
+   entering **/user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv**,
    and clicking **Save**. We're going to be using this file in :ref:`Using Pig <using_pig>`.
 #. Use the **File Browser** to verify the file has been saved.
 
@@ -728,7 +729,7 @@ Using Pig
 In this section, we're going to be creating a directory 
 and saving the HQL and Pig scripts to files, so that we
 can automate everything we've done through actions
-and Oozie workflows later.
+and Oozie Workflows later.
 
 #. Use the **File Browser** to go to your home directory.
 #. Click **New->Directory**.
@@ -864,7 +865,7 @@ and Oozie workflows later.
       STORE has_lat into '/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized' USING PigStorage(',');
       
    This is the Pig script we used before: it removes rows that 
-   do not havea value for the camera, longitude, or latitude.  
+   do not have a value for the camera, longitude, or latitude.  
 
 #. Great, we have our scripts. We're still going to need to 
    do a few more things for our Oozie Workflow,
@@ -1240,7 +1241,7 @@ by a user or key term, also look at the cluster and ResourceManager logs.
       :alt: Parent/Child Jobs
       :align: left   
 
-#. Sort your jobs by clicking the green **Succeeed**. (Depending how far 
+#. Sort your jobs by clicking the green **Succeed**. (Depending how far 
    your job has progressed, you may only see one or two successful jobs.)
 
    .. image:: images/successful_jobs.jpg
@@ -1310,7 +1311,7 @@ by a user or key term, also look at the cluster and ResourceManager logs.
 
 #. From the **Application Queues** section, click **default** to see the available capacity for the
    *default* queue. This is the queue your jobs use if you do not specify one. We recommend
-   using the queue alloted to your team for your production Oozie Workflows. Your jobs will generally finish faster.
+   using the queue allotted to your team for your production Oozie Workflows. Your jobs will generally finish faster.
 
    .. image:: images/default_queue.jpg
       :height: 309 px
@@ -1319,7 +1320,7 @@ by a user or key term, also look at the cluster and ResourceManager logs.
       :alt: The Capacity for the Default Queue
       :align: left 
    
-#. Another userful metric is the **Nodes of the cluster** page, which you
+#. Another useful metric is the **Nodes of the cluster** page, which you
    can get to by clicking the **Node** link. The page has detailed information about the
    container, such as the virtual memory allocated, Pmem enforced, virtual cores, etc.
 
@@ -1332,7 +1333,7 @@ by a user or key term, also look at the cluster and ResourceManager logs.
 
 
 #. Okay, our Oozie Workflow should be about done. Go back to the **Oozie Editor** to see the progress of your Oozie Workflow.
-   Hopefully, you see green **OK** icons for all the jobs in the OOzie Workflow as seen below.
+   Hopefully, you see green **OK** icons for all the jobs in the Oozie Workflow as seen below.
 
    .. image:: images/successful_workflow.jpg
       :height: 517 px
