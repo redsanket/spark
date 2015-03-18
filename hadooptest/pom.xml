@@ -1074,7 +1074,7 @@
 			</dependencies>
 		</profile>
 
-		<!-- BASE PROFILE FOR HADDOP 2.6 and greater versions -->
+		<!-- BASE PROFILE FOR HADDOP 2.6 -->
 		<!-- When Hadoop is used, this profile must be called before profile-ci
 			or any other profile. If another profile is used first, the dependency jars
 			from that profile might have Hadoop configuration or classes that will upset
@@ -1487,7 +1487,7 @@
 			</dependencies>
 		</profile>
 
-		<!-- BASE PROFILE FOR HADDOP 2.6 and greater versions -->
+		<!-- BASE PROFILE FOR HADDOP 2.7 -->
 		<!-- When Hadoop is used, this profile must be called before profile-ci
 			or any other profile. If another profile is used first, the dependency jars
 			from that profile might have Hadoop configuration or classes that will upset
