@@ -15,20 +15,13 @@ Hue applications.
 .. image:: images/hue_arch.png
    :height: 686 px 
    :width: 850 px
-   :scale: 95 %
+   :scale: 90 %
    :alt: Diagram of the Yahoo Hue Architecture 
    :align: left
 
 
 Tiers of Hue
 ------------
-
-- HTTP based and stateless (uses async queries)
-- Front end and back end separation (e.g. different servers, pagination)
-- Resources (e.g. img, js, callbacks, css, json)
-- Support multiple browsers and technologies
-- Supports multiple DB back end (SQLite, MySQL)
-- Supports i18n
 
 It's perhaps easier to understand Hue if you think
 of Hue as tiers (abstraction layers), application
@@ -39,7 +32,7 @@ uses as shown in the diagram below.
 .. image:: images/hue_arch_levels.jpg
    :height: 686 px 
    :width: 850 px
-   :scale: 95 %
+   :scale: 90 %
    :alt: Diagram of the different tiers for the Yahoo Hue Architecture 
    :align: left
 
@@ -55,7 +48,7 @@ and store user information in a MySQL database.
 .. image:: images/deployment_arch.jpg   
    :height: 462 px 
    :width: 850 px
-   :scale: 95 %
+   :scale: 90 %
    :alt: Diagram of the Hue deployment architecture
    :align: left
 
