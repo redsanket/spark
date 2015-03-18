@@ -74,14 +74,24 @@ public class TestNativeLibs32and64 extends TestSession {
     
     // job configs for java7 and java8 64bit jobs, 64bit support does have a 'current' 64bit
     // symlink but explicit use of java7 or java8 requires setting this in the user job
+    //
+    // java7, note that the QE Flubber path and symlinks differ from production, production added
+    // a new set of paths for 'java7 64' while Flubber still uses the existing 64bit paths
+    //private static final String[] PARAMS_JAVA7_JVM64_NATIVELIB64 = {
+    //            "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java7/jdk64",
+    //            "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java7/jdk64",
+    //            "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java7/jdk64",
+    //            "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
+    //            "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
+    //    };
     private static final String[] PARAMS_JAVA7_JVM64_NATIVELIB64 = {
-                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java7/jdk64",
-                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java7/jdk64",
-                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java7/jdk64",
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk64",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk64",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk64",
                 "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
                 "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
         };
-
+    // java8, QE Flubber and Production match for java8 64
     private static final String[] PARAMS_JAVA8_JVM64_NATIVELIB64 = {
                 "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java8/jdk64",
                 "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java8/jdk64",
