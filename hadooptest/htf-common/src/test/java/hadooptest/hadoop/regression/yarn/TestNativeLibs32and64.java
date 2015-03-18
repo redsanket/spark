@@ -85,17 +85,18 @@ public class TestNativeLibs32and64 extends TestSession {
     //            "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
     //    };
     private static final String[] PARAMS_JAVA7_JVM64_NATIVELIB64 = {
-                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk64",
-                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk64",
-                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk64",
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk64/current",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk64/current",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk64/current",
                 "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
                 "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
         };
-    // java8, QE Flubber and Production match for java8 64
+    // java8, QE Flubber and Production almost match for java8 64, Flubber uses an additional 'current' symlink
+    // where prod does not, ie the prod path is '/home/gs/java8/jdk64'
     private static final String[] PARAMS_JAVA8_JVM64_NATIVELIB64 = {
-                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java8/jdk64",
-                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java8/jdk64",
-                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java8/jdk64",
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java8/jdk64/current",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java8/jdk64/current",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java8/jdk64/current",
                 "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
                 "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
         };
