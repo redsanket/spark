@@ -40,8 +40,10 @@ Accessing Hue
 
 Each Grid cluster has a dedicated Hue instance, which do not share information among themselves in any way. You have access to the Hue instance on any cluster, but you can only access and modify data that you have access permission.
 
-Using  SOCKS Proxy
-------------------
+.. _using_socks_proxy:
+
+Using SOCKS Proxy
+-----------------
 
 To access Hue instances, you are required to use the SOCKS proxy in the browser.
 The SOCKS host is ``socks.yahoo.com`` and the port is ``1080``, which will allow
@@ -68,29 +70,12 @@ General Questions / Support
 
 - yahoo-hue-users@yahoo-inc.com 
 
-Filing Tickets
---------------
+Filing Jira Tickets
+-------------------
 
-.. TBD: Need to add Jira links
-
-Bugzilla Links
-~~~~~~~~~~~~~~
-
-- Dev: http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency
-- Grid Ops: http://bug.corp.yahoo.com/enter_bug.cgi?product=kryptonite
-
-Ticket Filing Process
-~~~~~~~~~~~~~~~~~~~~~
-
-If you have identified an issue with Hue withn your environment or 
-while testing, you may file a Bugzilla Ticket. When filing the ticket, 
-include the following if relevant:
-
-- Grid on which the issue was seen. For example, append [ebony-red] to the description of the ticket.
-- The topology name, and component names if specific components have problems.
-- Gateway used to launch the topology, if applicable.
-- Relevant log messages with the error (Please include the entire stack trace).
-- If possible, save the output of around 5 complete stack traces (via jstack) of a JVM with the issue.
-- If possible, save the heap dump (via jmap) of a JVM with the issue.
-- How you observed the issue (Steps to Reproduce)
+#. View `existing Hue issues <https://jira.corp.yahoo.com/browse/GRIDUI-696?jql=component%20%3D%20Hue%20AND%20project%20%3D%20GRIDUI>`_ 
+   to confirm that the issue you want to report has not been filed.
+#. If your issue has already been filed, watch the issue to track its progress.
+#. To report new issues, fill out the `Hue Defect <https://jira.corp.yahoo.com/servicedesk/customer/portal/112/create/1913>>`_ form. 
+#. For new features, fill out the `Hue Feature Request <https://jira.corp.yahoo.com/servicedesk/customer/portal/112/create/1914>`_ form.
 
