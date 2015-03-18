@@ -37,6 +37,15 @@ In short, Hue lets you do the following:
 - developing proof of concepts and modules
 - running custom Hadoop-based Web applications
 
+Hue Supported Features
+----------------------
+
+- HTTP based and stateless (uses async queries)
+- Front end and back end separation (e.g. different servers, pagination)
+- Resources (e.g., img, js, callbacks, css, json)
+- Support multiple browsers and technologies
+- Supports multiple DB back end (SQLite, MySQL)
+- Supports i18n
 
 Who Should Use Hue?
 ===================

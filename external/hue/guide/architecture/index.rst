@@ -23,17 +23,17 @@ Hue applications.
 Tiers of Hue
 ------------
 
-HTTP based and stateless (uses async queries)
+- HTTP based and stateless (uses async queries)
+- Front end and back end separation (e.g. different servers, pagination)
+- Resources (e.g. img, js, callbacks, css, json)
+- Support multiple browsers and technologies
+- Supports multiple DB back end (SQLite, MySQL)
+- Supports i18n
 
-Front end and back end separation (e.g. different servers, pagination)
-
-Resources (e.g. img, js, callbacks, css, json)
-
-Support multiple browsers and technologies
-
-Supports multiple DB back end (SQLite, MySQL)
-
-Supports i18n
+It's perhaps easier to understand Hue if you think
+of Hue as tiers (abstraction layers), application
+components, and the technology that the application
+uses as shown in the diagram below.
 
 
 .. image:: images/hue_arch_levels.jpg
@@ -47,6 +47,11 @@ Supports i18n
 Deployment
 ----------
 
+The diagram below shows how Hue acts as a mediary between
+users from the browser to the grid on the back end.
+Yahoo's Hue instances use Bouncer for authorization
+and store user information in a MySQL database.
+
 .. image:: images/deployment_arch.jpg   
    :height: 462 px 
    :width: 850 px
@@ -58,9 +63,12 @@ Deployment
 Hue Applications and Their Dependencies
 #######################################
 
-.. csv-table:: Frozen Delights!
+The table below shows the technology that each component 
+relies upon.
+
+.. csv-table:: Hue Applications and Dependencies
    :header: "Applications", "Dependencies"
-   :widths: 15, 10, 30
+   :widths: 15, 30
 
    "Query Editor->Pig", "Oozie server to submit Pig scripts"
    "Query Editor->Hive", "HiveServer2 to submit Hive queries"
