@@ -43,7 +43,7 @@ About the Tutorial
 Organization
 ~~~~~~~~~~~~
 
-The tutorial is divided into 10 sections, starting 
+The tutorial is divided into nine sections, starting 
 from the simplest uses such as navigating HDFS and 
 then gradually becoming more complex until you're 
 creating an Oozie Workflow to automate several
@@ -1161,8 +1161,8 @@ were submitted, and schedule Oozie Workflows (with Oozie Coordinators, which we 
 
 .. _viewing_jobs:
 
-10. Viewing and Managing Jobs
-=============================
+9. Viewing and Managing Jobs
+============================
 
 From the **Job Browser**, you can view  your jobs and
 other jobs. You can sort jobs by status, search for jobs 
