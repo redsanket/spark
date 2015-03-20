@@ -689,7 +689,7 @@ and Oozie Workflows later.
 #. Navigate to the new directory **hue_scripts** and click **New->File**.
 #. In the **Create File** dialog box, enter **del_db_tables.hql**.
 
-   .. image:: images/del_db_tables.jpg
+   .. image:: images/del_db_tables_file.jpg
       :height: 180 px
       :width: 480 px
       :scale: 100%
