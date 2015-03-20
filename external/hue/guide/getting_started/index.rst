@@ -689,11 +689,11 @@ and Oozie Workflows later.
 #. Navigate to the new directory **hue_scripts** and click **New->File**.
 #. In the **Create File** dialog box, enter **del_db_tables.hql**.
 
-   .. image:: images/create_del_create_tables.jpg
-      :height: 344 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Creating the Script to Delete/Create Tables
+   .. image:: images/del_db_tables.jpg
+      :height: 180 px
+      :width: 480 px
+      :scale: 100%
+      :alt: Creating the Script to Delete Database Tables
       :align: left 	
 
    We're creating a script that deletes the Flickr database 
