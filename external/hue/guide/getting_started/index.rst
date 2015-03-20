@@ -1151,12 +1151,9 @@ what we've done thus far.
    **Job Browser**. 
 
 
-Tips: Oozie Editor Features
----------------------------
-
-We've already looked at importing actions, creating tasks, and submitting the Oozie Workflow from the **Oozie Editor**, but
-there are a lot more features. You can copy your Oozie Workflow, look at the list of past Oozie Workflows that
-were submitted, and schedule Oozie Workflows (with Oozie Coordinators, which we cover later).
+.. tip:: We've already looked at importing actions, creating tasks, and submitting the Oozie Workflow from the **Oozie Editor**, but
+         there are a lot more features. You can copy your Oozie Workflow, look at the list of past Oozie Workflows that
+         were submitted, and schedule Oozie Workflows (with Oozie Coordinators, which we cover later).
 
 
 .. _viewing_jobs:
