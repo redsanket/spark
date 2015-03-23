@@ -39,7 +39,8 @@ import org.junit.Test;
 
 public class TestNativeLibs32and64 extends TestSession {
 
-	private static final String[] PARAMS_JVM32_NATIVELIB32 = {
+    // job config for the native library tests
+    private static final String[] PARAMS_JVM32_NATIVELIB32 = {
        "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk32/current",
        "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk32/current",
        "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk32/current",
@@ -60,7 +61,7 @@ public class TestNativeLibs32and64 extends TestSession {
        "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-i386-32",
        "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-i386-32"
     };
-	private static final String[] PARAMS_JVM64_NATIVELIB64 = {
+    private static final String[] PARAMS_JVM64_NATIVELIB64 = {
 		"-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk64/current",
 		"-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk64/current",
 		"-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk64/current",
@@ -71,11 +72,41 @@ public class TestNativeLibs32and64 extends TestSession {
         ""
      };
     
-	private static final String[] PARAMS_FAILMODE = {
+    // job configs for java7 and java8 64bit jobs, 64bit support does have a 'current' 64bit
+    // symlink but explicit use of java7 or java8 requires setting this in the user job
+    //
+    // java7, note that the QE Flubber path and symlinks differ from production, production added
+    // a new set of paths for 'java7 64' while Flubber still uses the existing 64bit paths
+    //private static final String[] PARAMS_JAVA7_JVM64_NATIVELIB64 = {
+    //            "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java7/jdk64",
+    //            "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java7/jdk64",
+    //            "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java7/jdk64",
+    //            "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
+    //            "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
+    //    };
+    private static final String[] PARAMS_JAVA7_JVM64_NATIVELIB64 = {
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk64/current",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk64/current",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk64/current",
+                "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
+                "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
+        };
+    // java8, QE Flubber and Production almost match for java8 64, Flubber uses an additional 'current' symlink
+    // where prod does not, ie the prod path is '/home/gs/java8/jdk64'
+    private static final String[] PARAMS_JAVA8_JVM64_NATIVELIB64 = {
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java8/jdk64/current",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java8/jdk64/current",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java8/jdk64/current",
+                "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
+                "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
+        };
+
+    // utility settings
+    private static final String[] PARAMS_FAILMODE = {
 		"-Dyarn.app.mapreduce.am.job.node-blacklisting.enable=false"
 	};
 	
-	private static final String[] PARAMS_DEBUG_ENABLE = {
+    private static final String[] PARAMS_DEBUG_ENABLE = {
 		"-Dyarn.app.mapreduce.am.log.level=DEBUG",
 		"-Dmapreduce.map.log.level=DEBUG",
 		"-Dmapreduce.reduce.log.level=DEBUG"
@@ -135,6 +166,11 @@ public class TestNativeLibs32and64 extends TestSession {
 	@Test public void testNativeLibsJVM64Libs32() throws Exception{ testNativeLibsNeg("testNativeLibsVM64Libs32", PARAMS_JVM64_NATIVELIB32, PARAMS_DEBUG_ENABLE); }
 	@Test public void testNativeLibsJVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsVM64Libs64", PARAMS_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
 	@Test public void testNativeLibsDefault()    throws Exception{ testNativeLibsDefault("testNativeLibsDefault", PARAMS_JVMDEFAULT_NATIVELIBDEFAULT, PARAMS_DEBUG_ENABLE); }
+
+	// individual test cases, explicit use of java7/8 64bit
+        @Test public void testNativeLibsJAVA7JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava7VM64Libs64", PARAMS_JAVA7_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+        @Test public void testNativeLibsJAVA8JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava8VM64Libs64", PARAMS_JAVA8_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+
 	
 	// test definition for positive cases, where JDK and Libs align, 32 bit or 64 bit
 	protected void testNativeLibsPos(String testname, String[] PARAMS_JVM_NATIVELIB, 
@@ -296,7 +332,8 @@ public class TestNativeLibs32and64 extends TestSession {
             
             // build up our task log path from the taskid we were given
             String appid = taskid.substring(5,23);
-            String logfiles = "/grid/*/tmp/yarn-logs/application_"+appid+"/container_"+appid+"_01_000001/*";
+            // 2.6 added the possiblity of an epoch field in container name, need to account for it
+            String logfiles = "/grid/*/tmp/yarn-logs/application_"+appid+"/container*_"+appid+"_01_000001/*";
             TestSession.logger.info("NM log path is: " + logfiles);
             
             // Load up the patterns we want to look for in the task's logs
