@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.File;
 
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x, this test is 2.x only
 import org.apache.hadoop.mapred.TaskReport;
@@ -169,6 +170,11 @@ public class TestNativeLibs32and64 extends TestSession {
 
 	// individual test cases, explicit use of java7/8 64bit
         @Test public void testNativeLibsJAVA7JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava7VM64Libs64", PARAMS_JAVA7_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+        // only run java8 test if the cluster environment supports JDK8
+        @Before public void assumeJava8AvailableElseIgnore() { 
+                  File f = new File ("/home/gs/java8/jdk64");
+                  org.junit.Assume.assumeTrue( f.exists() && f.isDirectory() );
+                }
         @Test public void testNativeLibsJAVA8JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava8VM64Libs64", PARAMS_JAVA8_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
 
 	
