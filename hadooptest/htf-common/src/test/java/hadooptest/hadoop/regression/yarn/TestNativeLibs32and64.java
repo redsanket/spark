@@ -177,12 +177,12 @@ public class TestNativeLibs32and64 extends TestSession {
         //
         @Test public void testNativeLibsJAVA7JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava7VM64Libs64", PARAMS_JAVA7_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
 
-        // only run java8 test if the cluster environment supports JDK8
-        @Before public void assumeJava8AvailableElseIgnore() { 
-                  File f = new File ("/home/gs/java8/jdk64");
-                  org.junit.Assume.assumeTrue( f.exists() && f.isDirectory() );
-                }
-        @Test public void testNativeLibsJAVA8JVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsJava8VM64Libs64", PARAMS_JAVA8_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+        @Test public void testNativeLibsJAVA8JVM64Libs64() throws Exception{ 
+                // only run java8 test if the cluster environment supports JDK8
+                File f = new File ("/home/gs/java8/jdk64");
+                org.junit.Assume.assumeTrue( f.exists() && f.isDirectory() );
+                testNativeLibsPos("testNativeLibsJava8VM64Libs64", PARAMS_JAVA8_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); 
+              }
 
 	
 	// test definition for positive cases, where JDK and Libs align, 32 bit or 64 bit
