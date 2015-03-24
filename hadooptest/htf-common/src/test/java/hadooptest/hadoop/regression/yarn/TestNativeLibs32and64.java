@@ -35,6 +35,8 @@ import java.io.File;
 import org.apache.hadoop.yarn.client.api.impl.YarnClientImpl; // H2.x, this test is 2.x only
 import org.apache.hadoop.mapred.TaskReport;
 import org.junit.Assert;
+import org.junit.Assume.assumeTrue; 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
