@@ -162,8 +162,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	 */
 	private void createDataSet(String dataSetName, String target1 , String target2) {
 
-		//String SOURCE_DATA_PATH = this.BASE_PATH + "/"  +  this.dataPath + "/%{date}" ;
-		String SOURCE_DATA_PATH = this.BASE_PATH + "/"  +  this.dataPath + "/" + this.dateValue ;
+		String SOURCE_DATA_PATH = this.BASE_PATH + "/"  +  this.dataPath + "/%{date}" ;
 		
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/" + "GDMValidatingHadoopDataSet.xml");
 		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(dataSetName, dataSetConfigFile);
