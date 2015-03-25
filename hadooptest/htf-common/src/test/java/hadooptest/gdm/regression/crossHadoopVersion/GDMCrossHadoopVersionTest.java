@@ -59,6 +59,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	private Response response;
 	private String dataPath;
 	private JSONUtil jsonUtil;
+	private String dateValue;
 	private List<String> instanceDateList ;
 	private List<String> datasets = new ArrayList<String>();
 	private List<String> datasetActivationTimeList = new ArrayList<String>();
@@ -84,26 +85,17 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		this.jsonUtil = new JSONUtil();
 		this.cookie = httpHandle.getBouncerCookie();
 		this.workFlowHelperObj = new WorkFlowHelper();
-		this.dataPath = "Cross-Hadoop-Version-Testing-" +  System.currentTimeMillis();
+		this.dateValue = String.valueOf(System.currentTimeMillis());
+		this.dataPath = "Cross-Hadoop-Version-Testing-" +  this.dateValue;
 
 		List<String> gridNames = this.consoleHandle.getAllGridNames();
 
 		// copy data to the grid
 		for (String gridName : gridNames ) {
-			this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
-			String newDataSourceName = gridName + "_" + System.currentTimeMillis();
-			this.createDataSource(gridName , newDataSourceName);
+			if (gridName.equals("grima")) {
+				this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
+			}
 		}
-
-		// create test matrix
-		testMatrixList = createTestMatrix( gridNames);
-		if (testMatrixList == null) {
-			fail("Unable to create the test matrix");
-		}
-		TestSession.logger.info(testMatrixList);
-
-		// create a datasets
-		this.createDataSets();
 	}
 
 	/**
@@ -125,9 +117,11 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 
 	// check whether path exists and has permission
 	private void checkPathExistAndHasPermission(String clusterName , String basePath , String dataPath) throws IOException, InterruptedException {
-		CreateInstancesAndInstanceFiles createInstanceObject = new CreateInstancesAndInstanceFiles(clusterName , basePath , dataPath);
-		createInstanceObject.execute();
-		this.instanceDateList = createInstanceObject.getInstanceList();
+		if(clusterName.equals("grima")) {
+			CreateInstancesAndInstanceFiles createInstanceObject = new CreateInstancesAndInstanceFiles(clusterName , basePath , dataPath);
+			createInstanceObject.execute();
+			this.instanceDateList = createInstanceObject.getInstanceList();	
+		}
 	}
 
 	/**
@@ -161,7 +155,9 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	 */
 	private void createDataSet(String dataSetName, String target1 , String target2) {
 
-		String SOURCE_DATA_PATH = this.BASE_PATH + "/"  +  this.dataPath + "/%{date}" ;
+		//String SOURCE_DATA_PATH = this.BASE_PATH + "/"  +  this.dataPath + "/%{date}" ;
+		String SOURCE_DATA_PATH = this.BASE_PATH + "/"  +  this.dataPath + "/" + this.dateValue ;
+		
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/" + "GDMValidatingHadoopDataSet.xml");
 		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(dataSetName, dataSetConfigFile);
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", dataSetName );
@@ -380,9 +376,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 			String responseId = jsonPath.getString("Response.ResponseId");
 			assertTrue("Expected terminate keyword, but got " + actionName , actionName.equals("remove"));
 			assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
-
 		}
 	}
-
 }
 

@@ -52,12 +52,21 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 		this.workFlowHelper = new WorkFlowHelper();
 		this.acqDataSetName = "TestHCatTargetTypeHCat_Acq_" + System.currentTimeMillis();
 		this.repDataSetName = "TestHCatTargetTypeHCat_Rep_" + System.currentTimeMillis();
+		
+		// get all the hcat supported clusters
+		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
 
-		this.targetGrid1 = "densea";
-		TestSession.logger.info("Using grids " + this.targetGrid1  );
+		// check whether we have two hcat cluster one for acquisition and
+		// replication
+		if (hcatSupportedGrid.size() < 2) {
+			throw new Exception("Unable to run " + this.acqDataSetName + " 2 grid datasources are required.");
+		}
 
-		this.targetGrid2 = "omegap1";
-		TestSession.logger.info("Using grids " + this.targetGrid2  );
+		this.targetGrid1 = hcatSupportedGrid.get(0).trim();
+		TestSession.logger.info("Using grids " + this.targetGrid1);
+
+		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
+		TestSession.logger.info("Using grids " + this.targetGrid2);
 
 		// check whether hcat is enabled on target1 cluster
 		boolean targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid1);
