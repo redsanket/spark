@@ -93,7 +93,15 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		// copy data to the grid
 		for (String gridName : gridNames ) {
 			this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
+			String newDataSourceName = gridName + "_" + System.currentTimeMillis();
+			this.createDataSource(gridName , newDataSourceName);
 		}
+		// create test matrix
+		testMatrixList = createTestMatrix( gridNames);
+		if (testMatrixList == null)  {
+			fail("Unable to create the test matrix");
+		}
+		TestSession.logger.info(testMatrixList);
 		
 		// create dataset
 		this.createDataSets();
