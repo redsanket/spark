@@ -92,9 +92,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 
 		// copy data to the grid
 		for (String gridName : gridNames ) {
-			if (gridName.equals("grima")) {
-				this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
-			}
+			this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
 		}
 	}
 
@@ -117,11 +115,9 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 
 	// check whether path exists and has permission
 	private void checkPathExistAndHasPermission(String clusterName , String basePath , String dataPath) throws IOException, InterruptedException {
-		if(clusterName.equals("grima")) {
-			CreateInstancesAndInstanceFiles createInstanceObject = new CreateInstancesAndInstanceFiles(clusterName , basePath , dataPath);
-			createInstanceObject.execute();
-			this.instanceDateList = createInstanceObject.getInstanceList();	
-		}
+		CreateInstancesAndInstanceFiles createInstanceObject = new CreateInstancesAndInstanceFiles(clusterName , basePath , dataPath);
+		createInstanceObject.execute();
+		this.instanceDateList = createInstanceObject.getInstanceList();	
 	}
 
 	/**
