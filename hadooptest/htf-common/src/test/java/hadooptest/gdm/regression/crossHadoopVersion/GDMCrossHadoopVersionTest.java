@@ -94,6 +94,9 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		for (String gridName : gridNames ) {
 			this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
 		}
+		
+		// create dataset
+		this.createDataSets();
 	}
 
 	/**
