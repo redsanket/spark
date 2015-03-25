@@ -179,7 +179,9 @@ public class TestNativeLibs32and64 extends TestSession {
 
         @Test public void testNativeLibsJAVA8JVM64Libs64() throws Exception{ 
                 // only run java8 test if the cluster environment supports JDK8
-                File f = new File ("/home/gs/java8/jdk64");
+                String JAVA8_PATH = "/home/gs/gridre/yroot." + TestSession.cluster.getClusterName() + "/share/yjava_jdk/java";
+                TestSession.logger.info("check if exist: " + JAVA8_PATH); 
+                File f = new File (JAVA8_PATH);
                 org.junit.Assume.assumeTrue( f.exists() && f.isDirectory() );
                 testNativeLibsPos("testNativeLibsJava8VM64Libs64", PARAMS_JAVA8_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); 
               }
