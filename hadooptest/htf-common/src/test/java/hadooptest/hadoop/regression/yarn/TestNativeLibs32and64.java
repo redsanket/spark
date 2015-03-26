@@ -48,21 +48,17 @@ public class TestNativeLibs32and64 extends TestSession {
     // and bounce the RM
     //
     public class CapacitySchedulerCopier extends CapacitySchedulerBaseClass {
-        protected void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
-                        throws Exception {
-                TestSession.logger
-                                .info("Copying over canned cap sched file localted @:"
+        void copyResMgrConfigAndRestartNodes(String replacementConfigFile) throws Exception {
+                TestSession.logger.info("Copying over canned cap sched file localted @:"
                                                 + replacementConfigFile);
-                FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
-                                .getCluster();
+                FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession.getCluster();
 
                 // Backup config and replace file, for Resource Manager
                 fullyDistributedCluster.getConf(
                                 HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
                 fullyDistributedCluster.getConf(
-                                HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
-                                .copyFileToConfDir(replacementConfigFile,
-                                                CAPACITY_SCHEDULER_XML);
+                                HadooptestConstants.NodeTypes.RESOURCE_MANAGER).copyFileToConfDir(replacementConfigFile,
+                                       CAPACITY_SCHEDULER_XML);
 
                 // Bounce node
                 fullyDistributedCluster.hadoopDaemon(Action.STOP,
@@ -70,7 +66,7 @@ public class TestNativeLibs32and64 extends TestSession {
                 fullyDistributedCluster.hadoopDaemon(Action.START,
                                 HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
-                Thread.sleep(20000);
+                Thread.sleep(10000);
         }
     }
 
@@ -197,10 +193,9 @@ public class TestNativeLibs32and64 extends TestSession {
 	
 
         // copy cap sched conf
-        CapacitySchedulerCopier CopyCapacitySchedulerConfig = new CapacitySchedulerCopier() {
-            copyResMgrConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources/hadooptest/" +
+        CapacitySchedulerCopier CopyCapacitySchedulerConfig = new CapacitySchedulerCopier();
+        CopyCapacitySchedulerConfig.copyResMgrConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources/hadooptest/" +
               "hadoop/regression/yarn/capacityScheduler/capacity-scheduler_UserLimitFactor.xml");
-        }
     
         //
 	// individual test cases, mix of 32/64 JVM and Libs, plus the default case
