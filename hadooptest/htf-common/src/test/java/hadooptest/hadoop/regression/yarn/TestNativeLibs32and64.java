@@ -21,6 +21,7 @@ import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobState;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.hadoop.regression.yarn.capacityScheduler.CapacitySchedulerBaseClass;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,6 +42,38 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestNativeLibs32and64 extends TestSession {
+
+    // 
+    // override the cap scheduler copy method to just copy over the new conf
+    // and bounce the RM
+    //
+    public class CapacitySchedulerCopier extends CapacitySchedulerBaseClass {
+        protected void copyResMgrConfigAndRestartNodes(String replacementConfigFile)
+                        throws Exception {
+                TestSession.logger
+                                .info("Copying over canned cap sched file localted @:"
+                                                + replacementConfigFile);
+                FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession
+                                .getCluster();
+
+                // Backup config and replace file, for Resource Manager
+                fullyDistributedCluster.getConf(
+                                HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
+                fullyDistributedCluster.getConf(
+                                HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+                                .copyFileToConfDir(replacementConfigFile,
+                                                CAPACITY_SCHEDULER_XML);
+
+                // Bounce node
+                fullyDistributedCluster.hadoopDaemon(Action.STOP,
+                                HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+                fullyDistributedCluster.hadoopDaemon(Action.START,
+                                HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+                Thread.sleep(20000);
+        }
+    }
+
 
     // job config for the native library tests
     private static final String[] PARAMS_JVM32_NATIVELIB32 = {
@@ -162,6 +195,12 @@ public class TestNativeLibs32and64 extends TestSession {
 		yarnClient.start();
 	}
 	
+
+        // copy cap sched conf
+        CapacitySchedulerCopier CopyCapacitySchedulerConfig = new CapacitySchedulerCopier() {
+            copyResMgrConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources/hadooptest/" +
+              "hadoop/regression/yarn/capacityScheduler/capacity-scheduler_UserLimitFactor.xml");
+        }
     
         //
 	// individual test cases, mix of 32/64 JVM and Libs, plus the default case
