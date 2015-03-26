@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<!-- local-capacity-scheduler.xml -->
+<configuration>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.capacity</name>
+      <value>100</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.queues</name>
+      <value>default,grideng</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.capacity</name>
+      <value>90</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.capacity</name>
+      <value>10</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.minimum-user-limit-percent</name>
+      <value>0</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.minimum-user-limit-percent</name>
+      <value>50</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.default.user-limit-factor</name>
+      <value>10</value>
+   </property>
+
+   <property>
+      <name>yarn.scheduler.capacity.root.grideng.user-limit-factor</name>
+      <value>10</value>
+   </property>
+
+
+</configuration>
