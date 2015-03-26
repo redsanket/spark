@@ -170,7 +170,7 @@ public class TestNativeLibs32and64 extends TestSession {
                 TestSession.logger.info("Copying over canned cap sched file localted @:" + replacementConfigFile);
                 // Backup config and replace file, for Resource Manager
                 cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
-                cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).copyFileToConfDir(replacementConfigFile, CAPACITY_SCHEDULER_XML);
+                cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).copyFileToConfDir(replacementConfigFile, "capacity-scheduler.xml");
                 // Bounce node
                 cluster.hadoopDaemon(Action.STOP, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
                 cluster.hadoopDaemon(Action.START, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
