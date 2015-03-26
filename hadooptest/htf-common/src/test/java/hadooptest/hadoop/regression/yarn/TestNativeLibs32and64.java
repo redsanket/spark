@@ -175,7 +175,7 @@ public class TestNativeLibs32and64 extends TestSession {
                 cluster.hadoopDaemon(Action.STOP, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
                 cluster.hadoopDaemon(Action.START, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
-                sleep(10000);
+                Thread.sleep(10000);
       }
 
     
