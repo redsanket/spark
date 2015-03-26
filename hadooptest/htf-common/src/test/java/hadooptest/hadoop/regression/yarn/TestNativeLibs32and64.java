@@ -170,17 +170,15 @@ public class TestNativeLibs32and64 extends TestSession {
         String replacementConfigFile = TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources/hadooptest/" +
               "hadoop/regression/yarn/capacityScheduler/capacity-scheduler_UserLimitFactor.xml";
 
-        TestSession.logger.info("Copying over canned cap sched file localted @:"
-                                   + replacementConfigFile);
+        TestSession.logger.info("Copying over canned cap sched file localted @:" + replacementConfigFile);
         // Backup config and replace file, for Resource Manager
         cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
-        cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).copyFileToConfDir(replacementConfigFile,
-                          CAPACITY_SCHEDULER_XML);
+        cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).copyFileToConfDir(replacementConfigFile, CAPACITY_SCHEDULER_XML);
         // Bounce node
         cluster.hadoopDaemon(Action.STOP, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
         cluster.hadoopDaemon(Action.START, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
-        Thread.sleep(10000);
+        sleep(10000);
 
 
     
