@@ -194,7 +194,8 @@ public class TestNativeLibs32and64 extends TestSession {
 
         // copy cap sched conf
         CapacitySchedulerCopier CopyCapacitySchedulerConfig = new CapacitySchedulerCopier();
-        CopyCapacitySchedulerConfig.copyResMgrConfigAndRestartNodes(TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources/hadooptest/" +
+        String workspace = TestSession.conf.getProperty("WORKSPACE");
+        CopyCapacitySchedulerConfig.copyResMgrConfigAndRestartNodes(workspace + "/htf-common/resources/hadooptest/" +
               "hadoop/regression/yarn/capacityScheduler/capacity-scheduler_UserLimitFactor.xml");
     
         //
