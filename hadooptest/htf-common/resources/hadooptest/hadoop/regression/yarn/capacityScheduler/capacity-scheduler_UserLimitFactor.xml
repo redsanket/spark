@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+
+<!-- local-capacity-scheduler.xml -->
+<configuration>
+
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.capacity</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.gridops.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.capacity</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.grideng.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.capacity</name>
+    <value>50</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.minimum-user-limit-percent</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.maximum-initialized-jobs-per-user</name>
+    <value>25</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.init-worker-threads</name>
+    <value>10</value>
+    <description>Number of worker threads which would be used by
+    Initialization poller to initialize jobs in a set of queue.
+    If number mentioned in property is equal to number of job queues
+    then a single thread would initialize jobs in a queue. If lesser
+    then a thread would get a set of queues assigned. If the number
+    is greater then number of threads would be equal to number of
+    job queues.
+    </description>
+  </property>
+
+
+<!-- YARN CAPACITY SCHEDULER PROPERTIES BEGINS HERE -->
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.queues</name>
+                 <value>gridops,grideng,default</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.capacity</name>
+                 <value>100</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.gridops.capacity</name>
+                 <value>40</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.gridops.minimum-user-limit-percent</name>
+                 <value>25</value>
+         </property>
+         <property>
+                 <name>yarn.scheduler.capacity.root.default.user-limit-factor</name>
+                 <value>10</value>
+         </property>
+         <property>
+                 <name>yarn.scheduler.capacity.root.grideng.user-limit-factor</name>
+                 <value>10</value>
+         </property>
+         <property>
+                 <name>yarn.scheduler.capacity.root.gridops.user-limit-factor</name>
+                 <value>10</value>
+         </property>
+         <property>
+                 <name>yarn.scheduler.capacity.root.default.minimum-user-limit-percent</name>
+                 <value>15</value>
+         </property>
+         <property>
+                 <name>yarn.scheduler.capacity.root.grideng.minimum-user-limit-percent</name>
+                 <value>15</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.grideng.capacity</name>
+                 <value>15</value>
+         </property>
+
+         <property>
+                 <name>yarn.scheduler.capacity.root.default.capacity</name>
+                 <value>45</value>
+         </property>
+
+
+</configuration>
+

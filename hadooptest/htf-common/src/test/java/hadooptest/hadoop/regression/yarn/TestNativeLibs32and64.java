@@ -21,6 +21,7 @@ import hadooptest.workflow.hadoop.job.GenericJob;
 import hadooptest.workflow.hadoop.job.JobState;
 import hadooptest.node.hadoop.HadoopNode;
 import hadooptest.automation.constants.HadooptestConstants;
+//import hadooptest.hadoop.regression.yarn.capacityScheduler.CapacitySchedulerBaseClass;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -160,8 +161,23 @@ public class TestNativeLibs32and64 extends TestSession {
 		YarnClientImpl yarnClient = new YarnClientImpl();
 		yarnClient.init(TestSession.getCluster().getConf());
 		yarnClient.start();
-	}
-	
+
+                //
+                // copy cap sched conf
+                //
+                String replacementConfigFile = TestSession.conf.getProperty("WORKSPACE") + "/htf-common/resources/hadooptest/" +
+                      "hadoop/regression/yarn/capacityScheduler/capacity-scheduler_UserLimitFactor.xml";
+                TestSession.logger.info("Copying over canned cap sched file localted @:" + replacementConfigFile);
+                // Backup config and replace file, for Resource Manager
+                cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
+                cluster.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER).copyFileToConfDir(replacementConfigFile, "capacity-scheduler.xml");
+                // Bounce node
+                cluster.hadoopDaemon(Action.STOP, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+                cluster.hadoopDaemon(Action.START, HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+
+                Thread.sleep(10000);
+      }
+
     
         //
 	// individual test cases, mix of 32/64 JVM and Libs, plus the default case
@@ -179,7 +195,9 @@ public class TestNativeLibs32and64 extends TestSession {
 
         @Test public void testNativeLibsJAVA8JVM64Libs64() throws Exception{ 
                 // only run java8 test if the cluster environment supports JDK8
-                File f = new File ("/home/gs/java8/jdk64");
+                String JAVA8_PATH = "/home/gs/gridre/yroot." + TestSession.cluster.getClusterName() + "/share/yjava_jdk/java";
+                TestSession.logger.info("check if exist: " + JAVA8_PATH); 
+                File f = new File (JAVA8_PATH);
                 org.junit.Assume.assumeTrue( f.exists() && f.isDirectory() );
                 testNativeLibsPos("testNativeLibsJava8VM64Libs64", PARAMS_JAVA8_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); 
               }
