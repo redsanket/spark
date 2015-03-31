@@ -312,7 +312,7 @@ public abstract class TestSession extends TestSessionCore {
                                 TestSession.logger.error("Cluster is NOT fully up after '" +
                                         maxRetries + "'.");
                             } else {
-                                TestSession.logger.error("Cluster is fully up and ready.");                
+                                TestSession.logger.info("Cluster is fully up and ready.");                
                             }
                         }
                         catch (Exception e) {
