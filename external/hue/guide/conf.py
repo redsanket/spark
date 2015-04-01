@@ -29,7 +29,7 @@ extensions = ['sphinx.ext.doctest', 'sphinx.ext.ifconfig']
 # Add any paths that contain templates here, relative to this directory.
 
 # Templates path for docs on YDN.
-templates_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
+# templates_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
 
 # Templates path for docs on developer.corp.yahoo.com
 templates_path = ['_templates']
