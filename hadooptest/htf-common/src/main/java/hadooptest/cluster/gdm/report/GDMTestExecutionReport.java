@@ -48,9 +48,9 @@ public class GDMTestExecutionReport extends RunListener {
 
 	@Override
 	public void testRunFinished(Result result) throws Exception {
-		if (this.slNo >=  result.getRunCount() ) {
+		/*if (this.slNo >=  result.getRunCount() ) {
 			stopGDMTestReport();
-		}
+		}*/
 	}
 
 	@Override
@@ -65,25 +65,17 @@ public class GDMTestExecutionReport extends RunListener {
 		StringBuilder rowTag = new StringBuilder();
 		String className = description.getClassName();
 		String mName = description.getMethodName();
-		if ((this.slNo % 2) == 1) {
-			rowTag.append("<tr class=\"pure-table-odd\">");
-		} else {
-			rowTag.append("<tr>");
-		}
-
 		// used static count since  testStarted and testFinished is invoked multiple times and getMethodName() is also invoked so many times. 
 		if (count == 0) {
 			this.methodName = mName;
+			rowTag.append("<br>TestCase Name : \t").append(className);
+			rowTag.append("<br>TestCase Method Name : \t").append(this.methodName);
+			rowTag.append("<br>Result : \t").append(this.testResult);
 			if (this.testResult.equals("failed")) {
-				rowTag.append("<td> <font size=\"2\">").append(className).append("</font> </td>").append("<td> <font size=\"2\">").append(this.methodName).append("</font> </td>").
-				append("<td> <font color=\"red\" size=\"2\">").append("Failed").append(" </font> </td>").append("<td>  <font size=\"2\">").append(this.failureExeceptionString).append("</font> </td>").append("<td>  <font size=\"2\">").append(this.stackTrace).append("</font> </td>").append("</tr> \n");
-			} else if (this.testResult.equals("igorned")) {
-				rowTag.append("<td> <font size=\"2\">").append(className).append("</font> </td>").append("<td> <font size=\"2\">").append(this.methodName).append("</font> </td>").
-				append("<td> <font color=\"red\">  size=\"2\">").append("Igorned").append(" </font> </td>").append("<td>  <font size=\"2\">").append("igorned").append(" </font> </td>").append("<td>").append("</td>").append("</tr> \n");
-			} else if (this.testResult.equals("passed")) {
-				rowTag.append("<td> <font size=\"2\">").append(className).append("</font> </td>").append("<td> <font size=\"2\">").append(this.methodName).append("</font> </td>").
-				append("<td> <font color=\"green\" size=\"2\" >").append("Passed").append(" </font> </td>").append("<td>").append("</td>").append("<td>").append("</td>").append("</tr> \n");
+				rowTag.append("<br><font color=\"red\" > Failed Reason : \t").append(this.failureExeceptionString);
+				rowTag.append("<br>StackTrace : \t").append(this.stackTrace).append("</font>");
 			}
+			rowTag.append("<br><hr>");
 			FileUtils.writeStringToFile(new File(this.reportFilePath), rowTag.toString() , "UTF8" ,  true);
 			this.slNo ++;
 			rowTag = null;
@@ -104,7 +96,6 @@ public class GDMTestExecutionReport extends RunListener {
 
 	@Override
 	public void testAssumptionFailure(Failure failure) {
-		this.testResult = "fail";
 		System.out.println("Failed: " + failure.getDescription().getMethodName());
 	}
 
@@ -142,7 +133,7 @@ public class GDMTestExecutionReport extends RunListener {
 				String htmlTag = "<html><head> <link rel=\"stylesheet\" href=\"http://yui.yahooapis.com/pure/0.6.0/pure-min.css\"> <meta http-equiv=\"refresh\" content=\"10\" > </head> " +
 						"<body><center><h2> GDM Test Result </h2>" + "<table class=\"pure-table pure-table-bordered\">" +
 						"<tr>  <th>TestCase Name </th> <th>Method Name </th> <th>Test Result </th> <th>Failure reason </th> <th> Comments </th> </tr> </thead> <tbody> \n" ;
-				FileUtils.writeStringToFile(new File(this.reportFilePath), htmlTag , "UTF8" );
+				FileUtils.writeStringToFile(new File(this.reportFilePath), htmlTag , "UTF8" , true );
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

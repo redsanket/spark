@@ -149,9 +149,20 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 		Path path = new Path(this.basePath.trim());
 
 		// check whether remote path exists on the grid
-		boolean flag = remoteFS.exists(path);
-		if (flag == true) {
-			FileStatus fileStatus = remoteFS.getFileStatus(path);
+	//	boolean flag = remoteFS.exists(path);
+		boolean basePathExists = remoteFS.exists(path);
+		if(basePathExists == false) {
+			TestSession.logger.info( this.basePath + "  does not exists, creating one.");
+			boolean basePathCreated = remoteFS.mkdirs(path,  FsPermission.createImmutable((short) 0777));
+			if (basePathCreated == true) {
+				TestSession.logger.info(this.basePath + " successfully created.");
+				createTestDirectory(remoteFS , path);
+			} else {
+				TestSession.logger.info("Failed to create " + this.basePath + " directories.");
+			}
+		}  if (basePathExists == true) {
+		/*	
+		 	FileStatus fileStatus = remoteFS.getFileStatus(path);
 			FsPermission fsPermission = fileStatus.getPermission();
 			TestSession.logger.info(this.clusterName + " " + this.basePath +  " is " + fsPermission.toString());
 			String permission = fsPermission.toString();
@@ -166,7 +177,9 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 			boolean dirFlag = remoteFS.mkdirs(path1);
 			assertTrue("Failed to create " +  destFolder  , dirFlag == true);
 			TestSession.logger.info(destFolder + " created Sucessfully.");
-
+		 */
+			createTestDirectory(remoteFS , path);
+			
 			TestSession.logger.info("Following are the instances");
 			for ( String instance : this.instanceList ) {
 				TestSession.logger.info(instance);
@@ -195,6 +208,24 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 			}
 		}
 		return returnValue;
+	}
+	
+	public void createTestDirectory(FileSystem remoteFS , Path path) throws IOException {
+		FileStatus fileStatus = remoteFS.getFileStatus(path);
+		FsPermission fsPermission = fileStatus.getPermission();
+		TestSession.logger.info(this.clusterName + " " + this.basePath +  " is " + fsPermission.toString());
+		String permission = fsPermission.toString();
+
+		// check and change permission if permission is not equal to 777 
+		if (! permission.equals("rwxrwxrwx")) {
+			remoteFS.setPermission(path, FsPermission.createImmutable((short) 0777));
+			TestSession.logger.info(path.toString() + " changed to permission  0777 on " + this.clusterName);	 
+		}
+		String destFolder = this.basePath.trim() + "/" + this.dataPath;
+		Path path1 = new Path(destFolder);
+		boolean dirFlag = remoteFS.mkdirs(path1);
+		assertTrue("Failed to create " +  destFolder  , dirFlag == true);
+		TestSession.logger.info(destFolder + " created Sucessfully.");
 	}
 
 
