@@ -9,7 +9,6 @@ import org.junit.runners.model.InitializationError;
 
 /**
  * Used for annotation for each testcase that needs to be in report.
- * @author lawkp
  *
  */
 public class GDMGenerateReport extends BlockJUnit4ClassRunner {
