@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 
 import com.jayway.restassured.path.json.JsonPath;
 
@@ -17,6 +18,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
+import hadooptest.cluster.gdm.report.GDMGenerateReport;
 import hadooptest.SerialTests;
 
 /**
@@ -28,6 +30,7 @@ import hadooptest.SerialTests;
  */
 
 @Category(SerialTests.class)
+@RunWith(GDMGenerateReport.class)
 public class SearchDataSetByPathRestAPITest extends TestSession {
 
 	public static final String dataSetPath = "/console/query/config/dataset/getDatasets";

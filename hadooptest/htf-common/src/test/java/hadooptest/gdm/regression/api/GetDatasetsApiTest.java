@@ -5,6 +5,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
+import hadooptest.cluster.gdm.report.GDMGenerateReport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
@@ -26,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(SerialTests.class)
+@RunWith(GDMGenerateReport.class)
 public class GetDatasetsApiTest extends TestSession {
 	
 	private String cookie;
