@@ -158,12 +158,13 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 			if (basePathCreated == true) {
 				TestSession.logger.info(this.basePath + " successfully created.");
 				createTestDirectory(remoteFS , path);
+				basePathExists = true;
 			} else {
 				TestSession.logger.info("Failed to create " + this.basePath + " directories.");
 			}
 		}  if (basePathExists == true) {
 			createTestDirectory(remoteFS , path);
-			
+
 			TestSession.logger.info("Following are the instances");
 			for ( String instance : this.instanceList ) {
 				TestSession.logger.info(instance);
@@ -175,7 +176,7 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 
 				String destFile = this.basePath +  "/" + this.dataPath + "/" + instance + "/" + "instanceFile" + ".gz";
 				TestSession.logger.info("destFile  = " + destFile);
-				
+
 				Path destFilePath = new Path(destFile);
 				FSDataOutputStream fsDataOutPutStream = remoteFS.create(destFilePath, false);
 
@@ -193,7 +194,7 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 		}
 		return returnValue;
 	}
-	
+
 	public void createTestDirectory(FileSystem remoteFS , Path path) throws IOException {
 		FileStatus fileStatus = remoteFS.getFileStatus(path);
 		FsPermission fsPermission = fileStatus.getPermission();
