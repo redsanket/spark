@@ -18,6 +18,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
 
@@ -153,7 +154,9 @@ public class CreateInstancesAndInstanceFiles implements PrivilegedExceptionActio
 		boolean basePathExists = remoteFS.exists(path);
 		if(basePathExists == false) {
 			TestSession.logger.info( this.basePath + "  does not exists, creating one.");
-			boolean basePathCreated = remoteFS.mkdirs(path,  FsPermission.createImmutable((short) 0777));
+			FsPermission fsPermission = new FsPermission(FsAction.ALL , FsAction.ALL , FsAction.ALL);
+			//boolean basePathCreated = remoteFS.mkdirs(path,  FsPermission.createImmutable((short) 0777));
+			boolean basePathCreated = remoteFS.mkdirs(path,  fsPermission);
 			if (basePathCreated == true) {
 				TestSession.logger.info(this.basePath + " successfully created.");
 				createTestDirectory(remoteFS , path);
