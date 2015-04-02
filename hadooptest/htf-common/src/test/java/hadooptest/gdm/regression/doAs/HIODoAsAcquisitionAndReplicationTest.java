@@ -63,12 +63,8 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 		TestSession.logger.info("Grids = " + grids);
 		// check whether secure cluster exists
 		if (this.grids.size() > 2 ) {
-			if (this.grids.contains("omegar")  && this.grids.contains("grima")) {
-				this.targetGrid1 = "omegar";
-				this.targetGrid2 = "grima";
-			} else {
-				fail("Test cannot run because one of the required grids (omegaR and grima) is missing.");
-			}
+			this.targetGrid1 = this.grids.get(0);
+			this.targetGrid2 = this.grids.get(1);
 		} else {
 			fail("There are only " + grids.size() + " grid and its not sufficient to test.. ");
 		}
@@ -101,12 +97,18 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 
 	@After
 	public void tearDown() throws Exception {
-		// make dataset inactive
-		Response response = consoleHandle.deactivateDataSet(this.dataSetName);
-		assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
-		assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
-		assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+		List<String> datasetList =  consoleHandle.getAllDataSetName();
+		if (datasetList.contains(this.dataSetName)) {
+			
+			// make dataset inactive
+			Response response = consoleHandle.deactivateDataSet(this.dataSetName);
+			assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
+			assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
+			assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
+			assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());			 
+		} else {
+			TestSession.logger.info(this.dataSetName + " does not exists.");
+		}
 	}
 
 	/**
