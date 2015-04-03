@@ -74,12 +74,8 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 
 		// check whether secure cluster exists
 		if (grids.size() >= 2 ) {
-			if (this.grids.contains("omegar")  && this.grids.contains("grima")) {
-				this.targetGrid1 = "omegar";
-				this.targetGrid2 = "grima";
-			} else {
-				fail("Test cannot run because one of the required grids (omegaR and grima) is missing.");
-			}
+			this.targetGrid1 = grids.get(0);
+			this.targetGrid2 = grids.get(1);
 		} else {
 			fail("There are only " + grids.size() + " grid and its not sufficient to test.. ");
 		}

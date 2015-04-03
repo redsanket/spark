@@ -47,19 +47,22 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 		this.acqDataSetName = "TestHCatTargetTypeHCat_Acq_" + System.currentTimeMillis();
 		this.repDataSetName = "TestHCatTargetTypeHCat_Rep_" + System.currentTimeMillis();
 
-		this.targetGrid1 = "densea";
-		TestSession.logger.info("Using grids " + this.targetGrid1  );
+		// get all the hcat supported clusters
+				hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
 
-		this.targetGrid2 = "omegap1";
-		TestSession.logger.info("Using grids " + this.targetGrid2  );
+		// check whether we have two hcat cluster one for acquisition and replication
+		if (hcatSupportedGrid.size() < 2) {
+			throw new Exception("Unable to run test since it requires two grid hcat enabled datasource.");
+		}
+		this.targetGrid1 = hcatSupportedGrid.get(0).trim();
+		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
+		TestSession.logger.info("Using grids " + this.targetGrid1 + " , " + this.targetGrid2 );
 
-		// check whether hcat is enabled on target1 cluster
+		// check whether hcat is enabled on target cluster
 		boolean targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid1);
 		if (!targetHCatSupported) {
 			this.consoleHandle.modifyDataSource(this.targetGrid1, "HCatSupported", "FALSE", "TRUE");
 		}
-
-		// check whether hcat is enabled on target2 cluster
 		targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid2);
 		if (!targetHCatSupported) {
 			this.consoleHandle.modifyDataSource(this.targetGrid2, "HCatSupported", "FALSE", "TRUE");
