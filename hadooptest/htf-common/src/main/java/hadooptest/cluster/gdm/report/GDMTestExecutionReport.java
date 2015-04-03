@@ -35,17 +35,18 @@ public class GDMTestExecutionReport extends RunListener {
 	private static String methodName;
 	private static int count;
 
-	GDMTestExecutionReport() throws IOException {
+	public GDMTestExecutionReport() throws IOException {
 		this.filePath = new File("").getAbsoluteFile() + File.separator;
 		this.resultFolderPath = filePath + "resources" + File.separator + "gdm" + File.separator + "results";
 		this.reportFilePath = resultFolderPath + File.separator + "Result.html";
+		if (this.slNo == 1) {
+			startGDMTestReport();
+		}
 	}
 
 	@Override
 	public void testRunStarted(Description description) throws Exception {
-		if (this.slNo == 1) {
-			startGDMTestReport();
-		}
+
 	}
 
 	@Override
@@ -123,8 +124,11 @@ public class GDMTestExecutionReport extends RunListener {
 	 * Create a result folder , Result.html file and add the html tag when test execution starts 
 	 */
 	private void startGDMTestReport() {
+		TestSession.logger.info("**********************************************************************************");
+		TestSession.logger.info("Result folder - " + this.resultFolderPath);
 		File resultFolder = new File(this.resultFolderPath);
 		boolean isResultFolderExist = resultFolder.exists(); 
+		TestSession.logger.info("Result folder - " + isResultFolderExist);
 		if ( isResultFolderExist == false ) {
 			TestSession.logger.info("**********************************************************************************");
 			TestSession.logger.info(this.resultFolderPath +"  path does not exist, creating a new one");
@@ -142,6 +146,10 @@ public class GDMTestExecutionReport extends RunListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		} else if (isResultFolderExist == true) {
+			TestSession.logger.info("**********************************************************************************");
+			TestSession.logger.info(this.resultFolderPath + " already created.");
+			TestSession.logger.info("**********************************************************************************");
 		}
 	}
 }
