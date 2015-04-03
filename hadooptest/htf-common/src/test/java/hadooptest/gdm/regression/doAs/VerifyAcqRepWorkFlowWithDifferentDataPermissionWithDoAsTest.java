@@ -77,7 +77,7 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 			this.targetGrid1 = grids.get(0);
 			this.targetGrid2 = grids.get(1);
 		} else {
-			fail("There are only " + grids.size() + " grid and its not sufficient to test.. ");
+			fail("There are only " + grids.size() + " grids; need at least two to run tests. ");
 		}
 		dataSetNames = new ArrayList<String>();
 		helper = new WorkFlowHelper();
@@ -338,14 +338,18 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 	@After
 	public void tearDown() throws Exception {
 
+		List<String> datasetList =  consoleHandle.getAllDataSetName();
+
 		// Deactivate all three facet datasets
 		for ( String dataset : dataSetNames)  {
-			Response response = consoleHandle.deactivateDataSet(dataset);
-			assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
-			assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
-			assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-			assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
-		}
+			if (datasetList.contains(dataset)) {
+				Response response = consoleHandle.deactivateDataSet(dataset);
+				assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
+				assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
+				assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
+				assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());		
+			}
+		}		
 	}
 
 	/**

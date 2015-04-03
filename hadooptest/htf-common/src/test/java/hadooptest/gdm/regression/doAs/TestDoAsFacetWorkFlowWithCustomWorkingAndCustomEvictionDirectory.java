@@ -81,7 +81,7 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 			this.targetGrid1 = this.grids.get(0);
 			this.targetGrid2 = this.grids.get(1);
 		} else {
-			fail("There are only " + grids.size() + " grid and its not sufficient to test.. ");
+			fail("There are only " + grids.size() + " grids; need at least two to run tests.");
 		}
 
 		// Get namenode name of target cluster
@@ -333,7 +333,7 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 				assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
 				assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());	
 			} else {
-				TestSession.logger.info(dataset + " does not exists.");
+				TestSession.logger.info(dataset + " does not exist.");
 			}
 		}
 	}

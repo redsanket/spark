@@ -30,7 +30,7 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private WorkFlowHelper workFlowHelper;
 	private HCatHelper hcatHelperObject = null;
-	private List<String> dataSetLists ;
+	private List<String> dataSetList ;
 	private static final String ACQ_HCAT_TYPE = "Mixed";
 	private static final String REP_HCAT_TYPE = "HCatOnly";
 	private static final int SUCCESS = 200;
@@ -51,7 +51,7 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 		this.acqDataSetName = "TestHCatTargetTypeHCat_Acq_" + System.currentTimeMillis();
 		this.repDataSetName = "TestHCatTargetTypeHCat_Rep_" + System.currentTimeMillis();
 		
-		this.dataSetLists = new ArrayList<String> ();
+		this.dataSetList = new ArrayList<String> ();
 
 		// get all the hcat supported clusters
 		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
@@ -86,7 +86,7 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 			this.consoleHandle.checkAndActivateDataSet(this.acqDataSetName);
 			this.datasetActivationTime = GdmUtils.getCalendarAsString();
 			
-			this.dataSetLists.add(this.acqDataSetName);
+			this.dataSetList.add(this.acqDataSetName);
 
 			// check for workflow
 			this.workFlowHelper.checkWorkFlow(this.acqDataSetName , "acquisition" , this.datasetActivationTime  );
@@ -114,7 +114,7 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 			this.consoleHandle.checkAndActivateDataSet(this.repDataSetName);
 			this.datasetActivationTime = GdmUtils.getCalendarAsString();
 			
-			this.dataSetLists.add(this.repDataSetName);
+			this.dataSetList.add(this.repDataSetName);
 
 			// check for replication workflow
 			this.workFlowHelper.checkWorkFlow(this.repDataSetName , "replication" , this.datasetActivationTime  );
@@ -239,7 +239,7 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 		List<String> allDatasetList =  consoleHandle.getAllDataSetName();
 
 		// Deactivate all three facet datasets
-		for ( String dataset : this.dataSetLists)  {
+		for ( String dataset : this.dataSetList)  {
 			if (allDatasetList.contains(dataset)) {
 				Response response = consoleHandle.deactivateDataSet(dataset);
 				assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
