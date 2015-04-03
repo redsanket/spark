@@ -78,14 +78,10 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 		
 		// check whether secure cluster exists
 		if (this.grids.size() > 2 ) {
-			if (this.grids.contains("omegar")  && this.grids.contains("grima")) {
-				this.targetGrid1 = "omegar";
-				this.targetGrid2 = "grima";
-			} else {
-				fail("Test cannot run because one of the required grids (omegaR and grima) is missing.");
-			}
+			this.targetGrid1 = this.grids.get(0);
+			this.targetGrid2 = this.grids.get(1);
 		} else {
-			fail("There are only " + grids.size() + " grid and its not sufficient to test.. ");
+			fail("There are only " + grids.size() + " grids; need at least two to run tests.");
 		}
 
 		// Get namenode name of target cluster
@@ -326,16 +322,19 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 	 */
 	@After
 	public void tearDown() throws Exception {
+		List<String> datasetList =  consoleHandle.getAllDataSetName();
 
 		// Deactivate all three facet datasets
 		for ( String dataset : dataSetNames)  {
-			Response response = consoleHandle.deactivateDataSet(dataset);
-			assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
-			assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
-			assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-			assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+			if (datasetList.contains(dataset)) {
+				Response response = consoleHandle.deactivateDataSet(dataset);
+				assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
+				assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
+				assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
+				assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());	
+			} else {
+				TestSession.logger.info(dataset + " does not exist.");
+			}
 		}
 	}
-
-
 }

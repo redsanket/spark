@@ -1,5 +1,6 @@
 package hadooptest.gdm.regression.hcat.doAs;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.Util;
@@ -9,8 +10,10 @@ import hadooptest.cluster.gdm.HCatHelper;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,6 +30,7 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private WorkFlowHelper workFlowHelper;
 	private HCatHelper hcatHelperObject = null;
+	private List<String> dataSetList ;
 	private static final String ACQ_HCAT_TYPE = "Mixed";
 	private static final String REP_HCAT_TYPE = "HCatOnly";
 	private static final int SUCCESS = 200;
@@ -46,20 +50,25 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 		this.workFlowHelper = new WorkFlowHelper();
 		this.acqDataSetName = "TestHCatTargetTypeHCat_Acq_" + System.currentTimeMillis();
 		this.repDataSetName = "TestHCatTargetTypeHCat_Rep_" + System.currentTimeMillis();
+		
+		this.dataSetList = new ArrayList<String> ();
 
-		this.targetGrid1 = "densea";
-		TestSession.logger.info("Using grids " + this.targetGrid1  );
+		// get all the hcat supported clusters
+		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
 
-		this.targetGrid2 = "omegap1";
-		TestSession.logger.info("Using grids " + this.targetGrid2  );
+		// check whether we have two hcat cluster one for acquisition and replication
+		if (hcatSupportedGrid.size() < 2) {
+			throw new Exception("Unable to run test since it requires two grid hcat enabled datasource.");
+		}
+		this.targetGrid1 = hcatSupportedGrid.get(0).trim();
+		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
+		TestSession.logger.info("Using grids " + this.targetGrid1 + " , " + this.targetGrid2 );
 
-		// check whether hcat is enabled on target1 cluster
+		// check whether hcat is enabled on target cluster
 		boolean targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid1);
 		if (!targetHCatSupported) {
 			this.consoleHandle.modifyDataSource(this.targetGrid1, "HCatSupported", "FALSE", "TRUE");
 		}
-
-		// check whether hcat is enabled on target2 cluster
 		targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.targetGrid2);
 		if (!targetHCatSupported) {
 			this.consoleHandle.modifyDataSource(this.targetGrid2, "HCatSupported", "FALSE", "TRUE");
@@ -76,6 +85,8 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 			// activate the dataset
 			this.consoleHandle.checkAndActivateDataSet(this.acqDataSetName);
 			this.datasetActivationTime = GdmUtils.getCalendarAsString();
+			
+			this.dataSetList.add(this.acqDataSetName);
 
 			// check for workflow
 			this.workFlowHelper.checkWorkFlow(this.acqDataSetName , "acquisition" , this.datasetActivationTime  );
@@ -102,6 +113,8 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 			// activate the dataset
 			this.consoleHandle.checkAndActivateDataSet(this.repDataSetName);
 			this.datasetActivationTime = GdmUtils.getCalendarAsString();
+			
+			this.dataSetList.add(this.repDataSetName);
 
 			// check for replication workflow
 			this.workFlowHelper.checkWorkFlow(this.repDataSetName , "replication" , this.datasetActivationTime  );
@@ -215,6 +228,26 @@ public class TestDoAsHCatTargetTypeHCatOnly extends TestSession {
 	 */
 	private String getCustomPath(String pathType , String dataSet) {
 		return  "/data/daqdev/"+ pathType +"/"+ dataSet + "/%{date}";
+	}
+	
+	/**
+	 * Method to deactivate the dataset(s)
+	 */
+	@After
+	public void tearDown() throws Exception {
+
+		List<String> allDatasetList =  consoleHandle.getAllDataSetName();
+
+		// Deactivate all three facet datasets
+		for ( String dataset : this.dataSetList)  {
+			if (allDatasetList.contains(dataset)) {
+				Response response = consoleHandle.deactivateDataSet(dataset);
+				assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
+				assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
+				assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
+				assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());		
+			}
+		}		
 	}
 
 }

@@ -1,5 +1,7 @@
 package hadooptest.cluster.gdm.report;
 
+import hadooptest.TestSession;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -122,7 +124,10 @@ public class GDMTestExecutionReport extends RunListener {
 	 */
 	private void startGDMTestReport() {
 		File resultFolder = new File(this.resultFolderPath);
-		if ( !resultFolder.exists() ) {
+		boolean isResultFolderExist = resultFolder.exists(); 
+		if ( isResultFolderExist == false ) {
+			TestSession.logger.info("**********************************************************************************");
+			TestSession.logger.info(this.resultFolderPath +"  path does not exist, creating a new one");
 			boolean isDirCreated = resultFolder.mkdir();
 			assertTrue("Failed : To create " + resultFolderPath  , isDirCreated == true);
 			System.out.println("isDirCreated = "  + isDirCreated  +  "  path = " + resultFolderPath);
