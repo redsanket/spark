@@ -98,7 +98,70 @@ Create an HiveQL script with the following::
       :scale: 90%
       :alt: Create a Coordinator.
       :align: left   
-#. 
+#. From **Coordinator Editor->Step 1: General**, enter a name for your coordinator,  
+   select the Oozie Workflow that you created for **Workflow** drop-down menu,
+   and click **Next**.
+
+   .. image:: images/step1_coord.jpg
+      :height: 442px
+      :width: 601 px
+      :scale: 95%
+      :alt: Step 1: Adding details for your Coordinator.
+      :align: left  
+
+#. From **Coordinator Editor->Step 2: Frequency**, leave the default value for the 
+   start date but change the end date to tomorrow's date. 
+
+   .. note:: Generally, for Coordinators that
+             you create on your own, you will use an end date that is in the distant future. Unfortunately,
+             you are required to select an end date.
+
+#.  From **Coordinator Editor->Step 3: Frequency**, click **here** to create a dataset.
+    We're going to need to create one for the parameters **input_dataset** and **output_dataset**
+    that we defined in the Workflow.
+
+   .. image:: images/step3_create_dataset.jpg
+      :height: 404 px
+      :width: 717 px
+      :scale: 95%
+      :alt: Step 3: Create dataset.
+      :align: left  
+
+
+#. From the **Create a new dataset**, enter the following values for the fields listed below:
+
+   - **Name** - **benzene_daily_input**
+   - **Frequency number** - **1**
+   - **Frequency unit** - **Days**
+   - **URI** - **hcat://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513/benzene/daily_data/dt=${YEAR}${MONTH}${DAY}**
+
+   .. image:: images/create_dataset.jpg
+      :height: 453 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Create the dataset for the input_dataset parameter.
+      :align: left  
+
+#. For the **Instance** field, select **Single**, check the **(advanced** checkbox, and enter **${coord:current(-1)}**
+   in the **(advanced)** field. The **-1** indicates the Coordinator will go back one unit (day) in the past
+   and execute the Workflow.
+
+   .. image:: images/customize_instance.jpg
+      :height: 222 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Customize the instance by defining a range of dates using EL functions.
+      :align: left  
+
+#. Click **Create dataset**.
+#. From the **Existing datasets** pane, click **Save coordinator**.
+
+   .. image:: images/save_coordinator.jpg
+      :height: 167 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Save the Coordinator.
+      :align: left  
 
 
 Creating a Bundle

@@ -37,9 +37,14 @@ About This Guide
 
 The goal of this guide is to help developers use Oozie for Yahoo. 
 
+.. _onboard:
+
 On-Boarding
 ===========
 
+#. `Request a grid account <http://yo/supportshop>`_ with HDFS and JobTracker queue access.
+#. Select the authentication mechanism for your workflows: Kerberos (common for headless users) or YCA
+#. Complete one of the quick starts in the :ref:`Getting Started <getting_started>` chapter.
 
 Getting Help
 ============
