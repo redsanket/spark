@@ -364,15 +364,20 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
         String appendString;
 
         // Option args for distcp
+        HashMap<String, String> proxyEnv = new HashMap<String, String>();
         String optionArgs = "";
-        /*
         String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
         if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
+            /*
             optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
             optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
+            */
+            proxyEnv.put(
+                    "HADOOP_OPTS",
+                    "\"-Dhttp.proxyHost=" + httpProxyHost +
+                    " -Dhttp.proxyPort=4080\"");
         }
-        */
 
         for (String justTheFile : fileMetadataPerf.keySet()) {
 
@@ -385,7 +390,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                         + this.parametrizedCluster;
                 destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
                 genericCliResponse = dfsCommonCliCommands.distcp(
-                        EMPTY_ENV_HASH_MAP,
+                        proxyEnv,
                         HadooptestConstants.UserNames.HDFSQA,
                         this.localCluster,
                         this.parametrizedCluster,
@@ -413,7 +418,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                         + ".dstHdfs." + this.localCluster;
                 destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
                 genericCliResponse = dfsCommonCliCommands.distcp(
-                        EMPTY_ENV_HASH_MAP,
+                        proxyEnv,
                         HadooptestConstants.UserNames.HDFSQA,
                         this.parametrizedCluster,
                         this.localCluster,
