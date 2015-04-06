@@ -1313,9 +1313,8 @@ public class DfsCliCommands {
         String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
         if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
-            sb.append("export");
-            sb.append(" HADOOP_OPTS=");
-            sb.append(" '-Dhttp.proxyHost=" + httpProxyHost);
+            sb.append("export HADOOP_OPTS=");
+            sb.append("'-Dhttp.proxyHost=" + httpProxyHost);
             sb.append(" -Dhttp.proxyPort=4080'");
             sb.append("; ");
         }
