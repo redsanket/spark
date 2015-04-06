@@ -1314,8 +1314,9 @@ public class DfsCliCommands {
         if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
             sb.append("export");
-            sb.append("-Dhttp.proxyHost=" + httpProxyHost);
-            sb.append("-Dhttp.proxyPort=4080;");
+            sb.append("HADOOP_OPTS=");
+            sb.append("'-Dhttp.proxyHost=" + httpProxyHost);
+            sb.append("-Dhttp.proxyPort=4080';");
         }
 
 		// HADOOP_OPTS="-Dhttp.proxyHost=fsbl824n00.blue.ygrid.yahoo.com -Dhttp.proxyPort=4080"
