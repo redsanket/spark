@@ -1308,7 +1308,16 @@ public class DfsCliCommands {
 			String dstFile, String srcProtocol, String dstProtocol,
 			String optionArgs) throws Exception {
 		String nameNodePrependedWithProtocol = null;
-		StringBuilder sb = new StringBuilder();
+
+        StringBuilder sb = new StringBuilder();
+        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+                !httpProxyHost.equals("default")) {
+            sb.append("export");
+            sb.append("-Dhttp.proxyHost=" + httpProxyHost);
+            sb.append("-Dhttp.proxyPort=4080;");
+        }
+
 		// HADOOP_OPTS="-Dhttp.proxyHost=fsbl824n00.blue.ygrid.yahoo.com -Dhttp.proxyPort=4080"
 		sb.append(HadooptestConstants.Location.Binary.HADOOP);
 		sb.append(" ");
