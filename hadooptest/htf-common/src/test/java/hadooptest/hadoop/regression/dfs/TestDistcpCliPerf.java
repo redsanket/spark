@@ -375,8 +375,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             */
             proxyEnv.put(
                     "HADOOP_OPTS",
-                    "\"-Dhttp.proxyHost=" + httpProxyHost +
-                    " -Dhttp.proxyPort=4080\"");
+                    "-Dhttp.proxyHost=" + httpProxyHost +
+                    " -Dhttp.proxyPort=4080");
         }
 
         for (String justTheFile : fileMetadataPerf.keySet()) {
