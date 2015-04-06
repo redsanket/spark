@@ -223,7 +223,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public void testWebhdfsToHdfsPerf() throws Exception {
 
         // @Ignore("Only valid for cross colo distcp")
-        Assume.assumeTrue(DfsTestsBaseClass.webhdfsToHdfs);
+        Assume.assumeTrue(DfsTestsBaseClass.crosscoloPerf);
 
         DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
         GenericCliResponseBO genericCliResponse;
@@ -368,7 +368,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public void testHdfsToHdfs() throws Exception {
 
         // @Ignore("Only valid for cross colo distcp")
-        Assume.assumeTrue(DfsTestsBaseClass.hdfsToHdfs);
+        Assume.assumeTrue(DfsTestsBaseClass.crossclusterPerf);
 
         DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
         GenericCliResponseBO genericCliResponse;

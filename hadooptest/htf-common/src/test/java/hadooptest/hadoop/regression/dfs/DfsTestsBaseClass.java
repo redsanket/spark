@@ -57,10 +57,6 @@ public class DfsTestsBaseClass extends TestSession {
 	public static final String ONE_BYTE_FILE = "file_1B";
 
 	// For ycrypt proxy performance testing
-    public static boolean webhdfsToHdfs =
-            Boolean.parseBoolean(System.getProperty("WEBHDFS_TO_HDFS", "false"));
-    public static boolean hdfsToHdfs =
-            Boolean.parseBoolean(System.getProperty("HDFS_TO_HDFS", "false"));
 	public static boolean crosscoloPerf =
 	        Boolean.parseBoolean(System.getProperty("CROSS_COLO_PERF", "false"));
 	// For http proxy performance testing
