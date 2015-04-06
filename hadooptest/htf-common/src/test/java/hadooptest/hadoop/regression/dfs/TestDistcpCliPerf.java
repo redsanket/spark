@@ -223,7 +223,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public void testWebhdfsToHdfsPerf() throws Exception {
 
         // @Ignore("Only valid for cross colo distcp")
-        Assume.assumeTrue(DfsTestsBaseClass.crosscoloPerf);
+        Assume.assumeTrue(DfsTestsBaseClass.webhdfsToHdfs);
 
         DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
         GenericCliResponseBO genericCliResponse;
@@ -232,14 +232,6 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
         // Option args for distcp
         String optionArgs = "";
-        /*
-        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
-        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
-                !httpProxyHost.equals("default")) {
-            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
-            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
-        }
-        */
 
         // Option args for distcp, for remote cluster
         String optionArgsRC = "";
@@ -253,8 +245,29 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
         }
         */
 
-        for (String justTheFile : fileMetadataPerf.keySet()) {
+        HashMap<String, String> proxyEnv = new HashMap<String, String>();
+        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+                !httpProxyHost.equals("default")) {
+            /*
+            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
+            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
+            */
+            String proxyStr = "-Dhttp.proxyHost=" + httpProxyHost +
+                    " -Dhttp.proxyPort=4080";
+            proxyEnv.put("HADOOP_OPTS", proxyStr);
+        }
 
+        /*
+        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+                !httpProxyHost.equals("default")) {
+            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
+            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
+        }
+        */
+
+        for (String justTheFile : fileMetadataPerf.keySet()) {
             /*
              * Push: Push file from blue (webhdfs) to tan (hdfs)
              * In this case, since we are going cross colo with rpc based hdfs,
@@ -264,10 +277,10 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
              * would have to push file from blue (hdfs) to tan (webhdfs). But
              * in this case, webhdfs write is not supported.
              */
-            if ((this.localHadoopVersion.startsWith("0") && this.remoteHadoopVersion
-                    .startsWith("0"))
-                    || (this.localHadoopVersion.startsWith("2") && this.remoteHadoopVersion
-                            .startsWith("2"))) {
+            if ((this.localHadoopVersion.startsWith("0") &&
+                    this.remoteHadoopVersion.startsWith("0")) ||
+                    (this.localHadoopVersion.startsWith("2") &&
+                            this.remoteHadoopVersion.startsWith("2"))) {
                 logger.info(
                         "Since this is cross colo with rpc based hdfs write" +
                         "it will go through the IPSec (Juniper) boxes " +
@@ -355,28 +368,15 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public void testHdfsToHdfs() throws Exception {
 
         // @Ignore("Only valid for cross colo distcp")
-        Assume.assumeTrue(DfsTestsBaseClass.crossclusterPerf);
+        Assume.assumeTrue(DfsTestsBaseClass.hdfsToHdfs);
 
-        // @Ignore("Not valid for cross colo distcp")
         DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
         GenericCliResponseBO genericCliResponse;
         String destinationFile;
         String appendString;
 
         // Option args for distcp
-        HashMap<String, String> proxyEnv = new HashMap<String, String>();
         String optionArgs = "";
-        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
-        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
-                !httpProxyHost.equals("default")) {
-            /*
-            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
-            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
-            */
-            String proxyStr = "-Dhttp.proxyHost=" + httpProxyHost +
-                    " -Dhttp.proxyPort=4080";
-            proxyEnv.put("HADOOP_OPTS", proxyStr);
-        }
 
         for (String justTheFile : fileMetadataPerf.keySet()) {
 
@@ -389,7 +389,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                         + this.parametrizedCluster;
                 destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
                 genericCliResponse = dfsCommonCliCommands.distcp(
-                        proxyEnv,
+                        EMPTY_ENV_HASH_MAP,
                         HadooptestConstants.UserNames.HDFSQA,
                         this.localCluster,
                         this.parametrizedCluster,
@@ -417,7 +417,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                         + ".dstHdfs." + this.localCluster;
                 destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
                 genericCliResponse = dfsCommonCliCommands.distcp(
-                        proxyEnv,
+                        EMPTY_ENV_HASH_MAP,
                         HadooptestConstants.UserNames.HDFSQA,
                         this.parametrizedCluster,
                         this.localCluster,
