@@ -105,7 +105,10 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 			assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
 			assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
 			assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-			assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());			 
+			assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());	
+			
+			// remove dataset
+			this.consoleHandle.removeDataSet(this.dataSetName);
 		} else {
 			TestSession.logger.info(this.dataSetName + " does not exists.");
 		}

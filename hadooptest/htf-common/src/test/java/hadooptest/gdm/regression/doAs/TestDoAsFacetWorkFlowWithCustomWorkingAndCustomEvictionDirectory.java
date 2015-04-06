@@ -41,7 +41,8 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 
 	private String targetGrid1;
 	private String targetGrid2;
-	private List<String>dataSetNames;
+	private List<String> dataSetNames;
+	private List<String> dataSourceNames;
 	private String acqDataSourceName;
 
 	private static final int SUCCESS = 200;
@@ -70,6 +71,7 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 		this.httpHandle = new HTTPHandle();
 		this.url = this.consoleHandle.getConsoleURL();
 		dataSetNames = new ArrayList<String>();
+		dataSourceNames = new ArrayList<String>();
 		helper = new WorkFlowHelper();
 		this.cookie = httpHandle.getBouncerCookie();
 		
@@ -104,7 +106,8 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 				this.acqDataSourceName = this.targetGrid1 + "_AcqCustomWorkingDir_" + System.currentTimeMillis();
 				this.acqDataSetName = "TestDoAsAcquisition_CustomWorkingDir_" + System.currentTimeMillis();
 				
-				createDataSource(this.targetGrid1 , this.acqDataSourceName);
+				this.createDataSource(this.targetGrid1 , this.acqDataSourceName);
+				this.dataSourceNames.add(this.acqDataSourceName);
 
 				// create doAsAcquisition dataset.
 				createDoAsAquisitionDataSet("DoAsAcquisitionDataSet.xml");
@@ -132,6 +135,7 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 				TestSession.logger.info("*****************  rentionDataSourceForTarget1  = " + rentionDataSourceForTarget1);
 				
 				createDataSourceForEachRetentionJob(this.targetGrid1 , rentionDataSourceForTarget1);
+				this.dataSourceNames.add(rentionDataSourceForTarget1);
 				
 				this.consoleHandle.sleep(50000);
 				createDoAsRetentionDataSet("DoAsRetentionDataSet.xml" , rentionDataSourceForTarget1 );
@@ -325,16 +329,23 @@ public class TestDoAsFacetWorkFlowWithCustomWorkingAndCustomEvictionDirectory ex
 		List<String> datasetList =  consoleHandle.getAllDataSetName();
 
 		// Deactivate all three facet datasets
-		for ( String dataset : dataSetNames)  {
-			if (datasetList.contains(dataset)) {
-				Response response = consoleHandle.deactivateDataSet(dataset);
+		for ( String datasetName : dataSetNames)  {
+			if (datasetList.contains(datasetName)) {
+				Response response = consoleHandle.deactivateDataSet(datasetName);
 				assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
 				assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
 				assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-				assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());	
+				assertEquals("ResponseMessage.", "Operation on " + datasetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+				
+				// remove dataset
+				this.consoleHandle.removeDataSet(datasetName);
 			} else {
-				TestSession.logger.info(dataset + " does not exist.");
+				TestSession.logger.info(datasetName + " does not exist.");
 			}
+		}
+		
+		for( String dataSourceName : this.dataSourceNames) {
+			this.consoleHandle.removeDataSource(dataSourceName);
 		}
 	}
 }
