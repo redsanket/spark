@@ -41,8 +41,9 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 	private String targetGrid1;
 	private String targetGrid2;
 	private WorkFlowHelper helper = null;
-	private List<String>permissionList;
-	private List<String>dataSetNames;
+	private List<String> permissionList;
+	private List<String> dataSetNames;
+	private List<String> dataSourceNames;
 	private List<String> grids = new ArrayList<String>();
 	private String targetGrid1_NameNode;
 	private String targetGrid2_NameNode;
@@ -81,6 +82,7 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 		}
 		dataSetNames = new ArrayList<String>();
 		helper = new WorkFlowHelper();
+		dataSourceNames = new ArrayList<String>();
 
 		permissionList = new ArrayList<String>();
 		permissionList.add("755");
@@ -155,6 +157,9 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 
 				createDataSourceForEachRetentionJob(this.targetGrid1 , rentionDataSourceForTarget1);
 				createDataSourceForEachRetentionJob(this.targetGrid2 , rentionDataSourceForTarget2);
+				
+				this.dataSourceNames.add(rentionDataSourceForTarget1);
+				this.dataSourceNames.add(rentionDataSourceForTarget2);
 				this.consoleHandle.sleep(50000);
 
 				createDoAsRetentionDataSet("DoAsRetentionDataSet.xml" ,rentionDataSourceForTarget1 , rentionDataSourceForTarget2 );
@@ -337,19 +342,27 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 	 */
 	@After
 	public void tearDown() throws Exception {
-
 		List<String> datasetList =  consoleHandle.getAllDataSetName();
 
 		// Deactivate all three facet datasets
-		for ( String dataset : dataSetNames)  {
-			if (datasetList.contains(dataset)) {
-				Response response = consoleHandle.deactivateDataSet(dataset);
+		for ( String datasetName : dataSetNames)  {
+			if (datasetList.contains(datasetName)) {
+				Response response = consoleHandle.deactivateDataSet(datasetName);
 				assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
 				assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
 				assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-				assertEquals("ResponseMessage.", "Operation on " + dataset + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());		
+				assertEquals("ResponseMessage.", "Operation on " + datasetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+			
+				// remove dataset
+				this.consoleHandle.removeDataSet(datasetName);
+			} else {
+				TestSession.logger.info(datasetName + " does not exist.");
 			}
-		}		
+		}
+		
+		for( String dataSourceName : this.dataSourceNames) {
+			this.consoleHandle.removeDataSource(dataSourceName);
+		}
 	}
 
 	/**
