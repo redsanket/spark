@@ -56,9 +56,11 @@ public class DfsTestsBaseClass extends TestSession {
 	public static final String THREE_GB_FILE_NAME = "3GbFile.txt";
 	public static final String ONE_BYTE_FILE = "file_1B";
 
+    // TODO: rename to webhdfs_to_hdfs
 	// For ycrypt proxy performance testing
 	public static boolean crosscoloPerf =
 	        Boolean.parseBoolean(System.getProperty("CROSS_COLO_PERF", "false"));
+    // TODO: rename to hdfs_to_hdfs
 	// For http proxy performance testing
 	public static boolean crossclusterPerf =
             Boolean.parseBoolean(System.getProperty("CROSS_CLUSTER_PERF", "false"));

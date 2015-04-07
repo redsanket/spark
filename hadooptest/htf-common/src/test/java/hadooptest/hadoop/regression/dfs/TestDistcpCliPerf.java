@@ -210,8 +210,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                             "\"/tmp/webhdfs-proxy.xml\"" +
                             "><xi:fallback></xi:fallback></xi:include>'"
             };
-            String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
-            TestSession.logger.debug(Arrays.toString(output));
+            // String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
+            // TestSession.logger.debug(Arrays.toString(output));
         }
     }
 
@@ -488,8 +488,8 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                             "\"webhdfs-proxy.xml\"" +
                             "><xi:fallback></xi:fallback></xi:include>'"
             };
-            String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
-            TestSession.logger.debug(Arrays.toString(output));
+            //String output[] = TestSession.exec.runProcBuilder(yinst_cmd);
+            //TestSession.logger.debug(Arrays.toString(output));
         }
     }
 }
