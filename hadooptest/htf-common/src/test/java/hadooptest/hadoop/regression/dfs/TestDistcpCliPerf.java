@@ -59,7 +59,6 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
     @BeforeClass
     public static void startTestSession() throws Exception {
-
         TestSession.start();
         TestSession.cluster.setupSingleQueueCapacity();
         crossClusterProperties = new Properties();
@@ -70,6 +69,18 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             throw new RuntimeException(ex);
         }
         versionStore = new HashMap<String, String>();
+
+        // Baseline the proxy log file or files
+        TestSession.logger.info("Validate the proxy log(s):");
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(TestSession.conf.getProperty("WORKSPACE")
+                + "/scripts/baseline_proxy_logs");
+        cmd.add(System.getProperty("HTTP_PROXY_HOST", ""));
+        cmd.add(System.getProperty("HTTP_PROXY_HOST_REMOTE_CLUSTER", ""));
+        String[] command = cmd.toArray(new String[0]);
+        String[] output = TestSession.exec.runProcBuilderSecurity(command);
+        TestSession.logger.info(Arrays.toString(output));
+        Assert.assertTrue("Baseline proxy logs failed!!!", output[0].equals("0"));
     }
 
     /*
