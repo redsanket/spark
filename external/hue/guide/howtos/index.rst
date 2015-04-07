@@ -35,7 +35,7 @@ Prerequisites
 1. Create a Hive Query With Parameterized Inputs
 ------------------------------------------------
 
-Create an HiveQL script with the following:: 
+Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with the following:: 
 
     set hive.exec.compress.output=false;
 
@@ -78,8 +78,8 @@ Create an HiveQL script with the following::
 #. Click **Done**.
 
 
-3. Creating a Coordinator
-------------------------- 
+3. Create a Coordinator
+----------------------- 
 
 #. From the top navigation bar, click **Workflows->Editors->Coordinators**.
 
@@ -162,6 +162,125 @@ Create an HiveQL script with the following::
       :scale: 90%
       :alt: Save the Coordinator.
       :align: left  
+
+#. Click **Step 4: Outputs**.
+
+   .. image:: images/step4_outputs.jpg
+      :height: 407 px
+      :width: 582 px
+      :scale: 95%
+      :alt: Step 4: Creating Outputs
+      :align: left  
+
+#. Again, create another dataset and enter the values below for the listed fields:
+
+   - **Name** - **benzene_daily_output**
+   - **Frequency number** - **1**
+   - **Frequency unit** - **Days**
+   - **URI** - **/user/{your_user_name}/benzeneoutput/${YEAR}${MONTH}${DAY}**
+   - **Instance->Single** - Check the **(advanced)** checkbox and enter **${coord:coord(-1)}** as the 
+     value for **(advanced)** field.
+
+   .. image:: images/create_output_dataset.jpg
+      :height: 722 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Creating Output Dataset
+      :align: left  
+
+#. Click **Create dataset** and then **Save coordinator**.
+
+   
+4. Create a Directory to Store Output
+------------------------------------- 
+
+#. In a new tab, open the **File Browser**.
+#. From your **home** directory, create the directory **benzeneoutput**. 
+   Your Coordinator is going to write output files to this directory.
+
+5. Submit Your Coordinator
+--------------------------
+
+#. From the **Coordinator Editor**, click **Submit** in the left-hand panel.
+
+   .. image:: images/submit_coord.jpg
+      :height: 441 px
+      :width: 872 px
+      :scale: 92%
+      :alt: Submitting the Coordinator
+      :align: left  
+
+#. From the **Submit this job?** dialog prompt, click **Submit**.
+
+   .. image:: images/submit_job.jpg
+      :height: 125 px
+      :width: 483 px
+      :scale: 98%
+      :alt: Click Submit in the Submit this job? dialog.
+      :align: left  
+
+#. From the **Coordinator Editor** page, you should see **Running** as the **Status** in the left-hand pane.
+
+   .. image:: images/status_running.jpg
+      :height: 182 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Viewing the Status of the Job.
+      :align: left  
+
+
+6. View Coordinator Jobs and Results
+------------------------------------
+
+
+#. Open the **Job Browser** in a new tab.
+#. You should see that the launcher job (stays at 5% until the others are done) and the child that is doing the querying.
+
+   .. image:: images/job_browser_coord.jpg
+      :height: 177 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Monitoring Jobs in Job Browser.
+      :align: left  
+   
+   It may take a few minutes before the job is accepted before it can start. So, if you don't see your jobs, just wait a few minutes.
+
+#. Once your jobs have completed, the **Job Browser** will mark your jobs with the green status **Succeeded**.
+
+   .. image:: images/jobs_succeeded.jpg
+      :height: 138 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Coordinator Jobs Have Succeeded.
+      :align: left  
+   
+#. At this point, using the **File Browser**, go to the directory **/user/{your_user_name}/benzeneoutput/**.
+#. You should see directories containing the output from your Hive query.
+
+   .. image:: images/coord_output.jpg
+      :height: 265 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Output from Coordinator.
+      :align: left  
+
+#. If you open the output file, you should see something similar to that below.
+
+   .. image:: images/coord_file_output.jpg
+      :height: 270 px
+      :width: 950 px
+      :scale: 90%
+      :alt: File Output from Coordinator.
+      :align: left  
+   
+
+
+
+
+
+
+
+
 
 
 Creating a Bundle
