@@ -30,7 +30,7 @@ import hadooptest.SerialTests;
  */
 
 @Category(SerialTests.class)
-@RunWith(GDMGenerateReport.class)
+//@RunWith(GDMGenerateReport.class)
 public class SearchDataSetByPathRestAPITest extends TestSession {
 
 	public static final String dataSetPath = "/console/query/config/dataset/getDatasets";
