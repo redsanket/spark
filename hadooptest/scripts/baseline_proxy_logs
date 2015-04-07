@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# $ baseline_proxy_logs <local proxy> [remote proxy]
+# $ baseline_proxy_logs gsbl90225.blue.ygrid.yahoo.com 
+# $ baseline_proxy_logs fsbl824n00.blue.ygrid.yahoo.com fsta773n00.tan.ygrid.yahoo.com
+
+LOCAL_PROXY=$1
+REMOTE_PROXY=$2
+
+if [ "$#" -lt 1 ]; then
+    echo "USAGE: At least 1 parameter is required:"
+    echo "$ baseline_proxy_logs <local proxy> [remote proxy]"
+    exit 1;
+fi
+
+LOG="/home/y/logs/trafficserver/extended2.log"
+
+EC=0
+
+TIME=`date +%s`
+for PROXY in $LOCAL_PROXY $REMOTE_PROXY; do 
+  echo "----> Baseline proxy log for PROXY $PROXY:"
+  set -x
+  ssh $PROXY "yinst stop ats"
+  ssh $PROXY "if [[ -d $LOG ]]; then mv $LOG $LOG.$TIME; gzip $LOG.$TIME; fi"
+  ssh $PROXY "yinst start ats"
+  RC=$?
+  EC=$((EC+$RC))
+  set +x
+done
+
+echo "EC=$EC"
+exit $EC
