@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# $ validate_proxy <source cluster> <target cluster> <local proxy> [remote proxy]
+# $ validate_proxy densed densec gsbl90225.blue.ygrid.yahoo.com 
+# $ validate_proxy densed hbasetan1 fsbl824n00.blue.ygrid.yahoo.com fsta773n00.tan.ygrid.yahoo.com
+
+SOURCE_CLUSTER=$1
+TARGET_CLUSTER=$2
+LOCAL_PROXY=$3
+REMOTE_PROXY=$4
+
+if [ "$#" -lt 3 ]; then
+    echo "USAGE: At least 3 parameters are required:"
+    echo "$ validate_proxy <source cluster> <target cluster> <local proxy> [remote proxy]"
+    exit 1;
+fi
+
+SOURCE_NN=`yinst range -igor_range "@grid_re.clusters.$SOURCE_CLUSTER.namenode"`
+TARGET_NN=`yinst range -igor_range "@grid_re.clusters.$TARGET_CLUSTER.namenode"`
+echo "SOURCE_NN=$SOURCE_NN"
+echo "TARGET_NN=$TARGET_NN"
+
+LOG="/home/y/logs/trafficserver/extended2.log"
+
+EC=0
+if [ "$#" -eq 3 ]; then
+  PROXY=$LOCAL_PROXY
+  echo "----> Validate intra-colo cross-cluster distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
+  echo "      went through the proxy host '$PROXY':"
+  for NN in $SOURCE_NN $TARGET_NN; do
+    echo "--> Check for references to cluster NN '$NN' in proxy log:"
+    set -x
+    ssh $PROXY "grep -q \"GET http://$NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\" $LOG"
+    RC=$?
+    EC=$((EC+$RC))
+    set +x
+  done
+else
+  echo "----> Validate cross-colo distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
+  echo "      went through the proxy hosts '$LOCAL_PROXY'/'$REMOTE_PROXY':"
+  echo "--> Check for references to the REMOTE PROXY $REMOTE_PROXY in the LOCAL PROXY log:"
+  set -x
+  ssh $LOCAL_PROXY "grep -q \"GET https://$REMOTE_PROXY:4443/webhdfs/v1/HTF/testdata/dfs/file_\" $LOG"
+  RC=$?
+  EC=$((EC+$RC))
+  set +x
+
+  echo "--> Check for references to the TARGET CLUSTER NN '$TARGET_NN' in the REMOTE PROXY log:"
+  set -x
+  ssh $REMOTE_PROXY "grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\" $LOG"
+  RC=$?
+  EC=$((EC+$RC))
+  set +x
+fi
+
+echo "EC=$EC"
+exit $EC
