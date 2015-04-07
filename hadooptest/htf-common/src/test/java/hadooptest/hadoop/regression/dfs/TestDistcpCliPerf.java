@@ -225,77 +225,64 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public void testWebhdfsToHdfsPerf() throws Exception {
 
         // @Ignore("Only valid for cross colo distcp")
-        Assume.assumeTrue(DfsTestsBaseClass.crosscoloPerf);
+        Assume.assumeTrue((DfsTestsBaseClass.crosscoloPerf ||
+                DfsTestsBaseClass.crossclusterPerf));
 
         DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
         GenericCliResponseBO genericCliResponse;
         String destinationFile;
-        String appendString;
 
-        // Option args for distcp
+        // Option args for distcp, for local and remote cluster
         String optionArgs = "";
-
-        // Option args for distcp, for remote cluster
         String optionArgsRC = "";
-        /*
-        String httpProxyHostRC =
-                System.getProperty("HTTP_PROXY_HOST_REMOTE_CLUSTER", "");
-        if (httpProxyHostRC != null && !httpProxyHostRC.isEmpty() &&
-                !httpProxyHost.equals("default")) {
-            optionArgsRC = "-Dhttp.proxyHost=" + httpProxyHostRC;
-            optionArgsRC = optionArgsRC + " -Dhttp.proxyPort=4080";
-        }
-        */
 
         HashMap<String, String> proxyEnv = new HashMap<String, String>();
         String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
         if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
-            /*
-            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
-            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
-            */
             String proxyStr = "-Dhttp.proxyHost=" + httpProxyHost +
                     " -Dhttp.proxyPort=4080";
             proxyEnv.put("HADOOP_OPTS", proxyStr);
         }
 
-        /*
-        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
-        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
-                !httpProxyHost.equals("default")) {
-            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
-            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
-        }
-        */
-
         for (String justTheFile : fileMetadataPerf.keySet()) {
             /*
-             * Push: Push file from blue (webhdfs) to tan (hdfs)
-             * In this case, since we are going cross colo with rpc based hdfs,
-             * it will not go through the ycrypt proxy but rather the
-             * Jupiner h/w.
+             * 1) Push: Push file(s) via webhdfs local cluster (e.g. blue) to
+             * hdfs remote cluster (e.g. tan).
+             *
+             * If it's cross colo with rpc based hdfs, it will not go through
+             * the ycrypt proxy but rather the Jupiner h/w.
              * If we wanted it to go through the ycrypt proxy, we
-             * would have to push file from blue (hdfs) to tan (webhdfs). But
-             * in this case, webhdfs write is not supported.
+             * would have to push file via hdfs (from blue cluster) to
+             * webhdfs (to tan cluster). But for this case, webhdfs write is not
+             * supported.
              */
             if ((this.localHadoopVersion.startsWith("0") &&
                     this.remoteHadoopVersion.startsWith("0")) ||
-                    (this.localHadoopVersion.startsWith("2") &&
-                            this.remoteHadoopVersion.startsWith("2"))) {
-                logger.info(
+                (this.localHadoopVersion.startsWith("2") &&
+                    this.remoteHadoopVersion.startsWith("2"))) {
+                if (DfsTestsBaseClass.crosscoloPerf) {
+                    logger.info(
                         "Since this is cross colo with rpc based hdfs write" +
                         "it will go through the IPSec (Juniper) boxes " +
-                                "intead of going through ycrypt proxy.");
-                // appendString = ".srcWebhdfs." + this.localCluster +
-                // ".dstHdfs." + this.parametrizedCluster;
+                        "intead of going through ycrypt proxy.");
+                }
+                /* appendString = ".srcWebhdfs." + this.localCluster +
+                 * ".dstHdfs." + this.parametrizedCluster;
+                 */
                 destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
-                dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
-                        HadooptestConstants.UserNames.HDFSQA, "",
-                        this.localCluster, destinationFile);
-                dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
-                        HadooptestConstants.UserNames.HDFSQA, "",
-                        this.parametrizedCluster, destinationFile);
+                dfsCommonCliCommands.mkdir(
+                        EMPTY_ENV_HASH_MAP,
+                        HadooptestConstants.UserNames.HDFSQA,
+                        "",
+                        this.localCluster,
+                        destinationFile);
+                dfsCommonCliCommands.mkdir(
+                        EMPTY_ENV_HASH_MAP,
+                        HadooptestConstants.UserNames.HDFSQA,
+                        "",
+                        this.parametrizedCluster,
+                        destinationFile);
 
                 // + justTheFile + appendString;
                 genericCliResponse = dfsCommonCliCommands.distcp(
@@ -323,155 +310,14 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             }
 
             /*
-             * Pull
+             * 2) Pull: Pull file(s) via webhdfs remote cluster (e.g. tan) to
+             * hdfs local cluster (e.g. blue)
              */
-            appendString = ".srcWebhdfs." + this.parametrizedCluster
+            /*
+            String appendString = ".srcWebhdfs." + this.parametrizedCluster
                     + ".dstHdfs." + this.localCluster;
-            // destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
-            destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
-            genericCliResponse = dfsCommonCliCommands.distcp(
-                    EMPTY_ENV_HASH_MAP,
-                    HadooptestConstants.UserNames.HDFSQA,
-                    this.parametrizedCluster,
-                    this.localCluster,
-                    DATA_DIR_IN_HDFS + justTheFile + "_{1.."
-                            + fileMetadataPerf.get(justTheFile) + "}",
-                    destinationFile,
-                    HadooptestConstants.Schema.WEBHDFS,
-                    HadooptestConstants.Schema.HDFS,
-                    optionArgsRC);
-            Assert.assertTrue("distcp exited with non-zero exit code",
-                    genericCliResponse.process.exitValue() == 0);
-            dfsCommonCliCommands.rm(
-                    EMPTY_ENV_HASH_MAP,
-                    HadooptestConstants.UserNames.HDFSQA,
-                    HadooptestConstants.Schema.WEBHDFS,
-                    this.localCluster,
-                    Recursive.YES,
-                    Force.YES,
-                    SkipTrash.YES,
-                    destinationFile);
-
-            /*
-             * Check the ycrypt proxy server log dir /home/y/logs/trafficserver
-             * extended2.log that the transaction got routed through.
-             * E.G.
-             * PUT https://fsta773n00.tan.ygrid.yahoo.com:4443/webhdfs
-             */
-        }
-    }
-
-    /*
-     * Cross Colo Webhdfs to Hdfs tests from both directions: Push and Pull.
-     */
-    // @Monitorable
-    @Test
-    public void testWebhdfsToHdfsPerfCC() throws Exception {
-
-        // @Ignore("Only valid for cross colo distcp")
-        Assume.assumeTrue(DfsTestsBaseClass.crossclusterPerf);
-
-        DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
-        GenericCliResponseBO genericCliResponse;
-        String destinationFile;
-        String appendString;
-
-        // Option args for distcp
-        String optionArgs = "";
-
-        // Option args for distcp, for remote cluster
-        String optionArgsRC = "";
-        /*
-        String httpProxyHostRC =
-                System.getProperty("HTTP_PROXY_HOST_REMOTE_CLUSTER", "");
-        if (httpProxyHostRC != null && !httpProxyHostRC.isEmpty() &&
-                !httpProxyHost.equals("default")) {
-            optionArgsRC = "-Dhttp.proxyHost=" + httpProxyHostRC;
-            optionArgsRC = optionArgsRC + " -Dhttp.proxyPort=4080";
-        }
-        */
-
-        HashMap<String, String> proxyEnv = new HashMap<String, String>();
-        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
-        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
-                !httpProxyHost.equals("default")) {
-            /*
-            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
-            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
+            destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
             */
-            String proxyStr = "-Dhttp.proxyHost=" + httpProxyHost +
-                    " -Dhttp.proxyPort=4080";
-            proxyEnv.put("HADOOP_OPTS", proxyStr);
-        }
-
-        /*
-        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
-        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
-                !httpProxyHost.equals("default")) {
-            optionArgs = "-Dhttp.proxyHost=" + httpProxyHost;
-            optionArgs = optionArgs + " -Dhttp.proxyPort=4080";
-        }
-        */
-
-        for (String justTheFile : fileMetadataPerf.keySet()) {
-            /*
-             * Push: Push file from blue (webhdfs) to tan (hdfs)
-             * In this case, since we are going cross colo with rpc based hdfs,
-             * it will not go through the ycrypt proxy but rather the
-             * Jupiner h/w.
-             * If we wanted it to go through the ycrypt proxy, we
-             * would have to push file from blue (hdfs) to tan (webhdfs). But
-             * in this case, webhdfs write is not supported.
-             */
-            if ((this.localHadoopVersion.startsWith("0") &&
-                    this.remoteHadoopVersion.startsWith("0")) ||
-                    (this.localHadoopVersion.startsWith("2") &&
-                            this.remoteHadoopVersion.startsWith("2"))) {
-                logger.info(
-                        "Since this is cross colo with rpc based hdfs write" +
-                        "it will go through the IPSec (Juniper) boxes " +
-                                "intead of going through ycrypt proxy.");
-                // appendString = ".srcWebhdfs." + this.localCluster +
-                // ".dstHdfs." + this.parametrizedCluster;
-                destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
-                dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
-                        HadooptestConstants.UserNames.HDFSQA, "",
-                        this.localCluster, destinationFile);
-                dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
-                        HadooptestConstants.UserNames.HDFSQA, "",
-                        this.parametrizedCluster, destinationFile);
-
-                // + justTheFile + appendString;
-                genericCliResponse = dfsCommonCliCommands.distcp(
-                        EMPTY_ENV_HASH_MAP,
-                        HadooptestConstants.UserNames.HDFSQA,
-                        this.localCluster,
-                        this.parametrizedCluster,
-                        DATA_DIR_IN_HDFS + justTheFile + "_{1.."
-                                + fileMetadataPerf.get(justTheFile) + "}",
-                        destinationFile,
-                        HadooptestConstants.Schema.WEBHDFS,
-                        HadooptestConstants.Schema.HDFS,
-                        optionArgs);
-                Assert.assertTrue("distcp exited with non-zero exit code",
-                        genericCliResponse.process.exitValue() == 0);
-                dfsCommonCliCommands.rm(
-                        EMPTY_ENV_HASH_MAP,
-                        HadooptestConstants.UserNames.HDFSQA,
-                        HadooptestConstants.Schema.WEBHDFS,
-                        this.parametrizedCluster,
-                        Recursive.YES,
-                        Force.YES,
-                        SkipTrash.YES,
-                        destinationFile);
-            }
-
-            /*
-             * Pull
-             */
-            appendString = ".srcWebhdfs." + this.parametrizedCluster
-                    + ".dstHdfs." + this.localCluster;
-            // destinationFile = DATA_DIR_IN_HDFS + justTheFile + appendString;
             destinationFile = DATA_DIR_IN_HDFS + justTheFile + "/";
             genericCliResponse = dfsCommonCliCommands.distcp(
                     EMPTY_ENV_HASH_MAP,
@@ -497,14 +343,13 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     destinationFile);
 
             /*
-             * Check the ycrypt proxy server log dir /home/y/logs/trafficserver
-             * extended2.log that the transaction got routed through.
-             * E.G.
+             * TODO: Check the ycrypt proxy server log dir
+             * /home/y/logs/trafficserver/extended2.log that the transaction got
+             * routed through. E.G.
              * PUT https://fsta773n00.tan.ygrid.yahoo.com:4443/webhdfs
              */
         }
     }
-
 
     /*
      * This test will only run for HttpProxy cross cluster tests
@@ -513,7 +358,6 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     // @Monitorable
     // @Test
     public void testHdfsToHdfs() throws Exception {
-
         // @Ignore("Only valid for cross colo distcp")
         // Assume.assumeTrue(DfsTestsBaseClass.crossclusterPerf);
 
