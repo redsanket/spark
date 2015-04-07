@@ -5,8 +5,7 @@ Getting Started
 
 In the quick starts in this chapter, you will 
 learn how to create Oozie Workflows, Coordinators, and
-Bundles. Each quick start will have you 
-do the following:
+Bundles. 
 
 #. Create a simple grid applications with Oozie configuration
 files (``workflow.xml``, ``coordinator.xml``, and ``bundle.xml``). 
@@ -18,16 +17,18 @@ Prerequisites
 
 - Complete the :ref:`On-boarding <onboard>`.
 
-
-Upload workflow application directory to HDFS
-workflow.xml / coordinator.xml / bundle.xml
-‘lib’ directory for custom JARs and/or native code
-Compose a job.properties file to pass values to parameterized workflow and submit different workflows easily
-Submit Oozie job from gateway or launcher boxes
-Check job status via Oozie client (CLI/Java) or GUI
-
 Creating a Workflow
 -------------------
+
+In this quick start, we'll be doing the following:
+
+#. Create a simple grid application.
+#. Create a ``workflow.xml`` file.
+#. Store a custom JAR in a ``lib`` directory.
+#. Create a ``job.properties`` file to pass values to the
+   parameterized Worklow.
+#. Submit the Oozie job from a gateway.
+#. Check the job status with the Oozie client (CLI/Java) and the Web Console.
 
 Creating a Coordinator
 ----------------------
