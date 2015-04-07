@@ -1310,13 +1310,18 @@ public class DfsCliCommands {
 		String nameNodePrependedWithProtocol = null;
 
         StringBuilder sb = new StringBuilder();
-        String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
-        if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
+
+        if (DfsTestsBaseClass.crossclusterPerf) {
+            String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+            if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
-            sb.append("export HADOOP_OPTS=");
-            sb.append("'-Dhttp.proxyHost=" + httpProxyHost);
-            sb.append(" -Dhttp.proxyPort=4080'");
-            sb.append("; ");
+                sb.append("export HADOOP_OPTS=");
+                sb.append("'-Dhttp.proxyHost=" + httpProxyHost);
+                sb.append(" -Dhttp.proxyPort=4080'");
+                sb.append("; ");
+            }
+        } else {
+            sb.append("unset HADOOP_OPTS;");
         }
 
 		// HADOOP_OPTS="-Dhttp.proxyHost=fsbl824n00.blue.ygrid.yahoo.com -Dhttp.proxyPort=4080"
