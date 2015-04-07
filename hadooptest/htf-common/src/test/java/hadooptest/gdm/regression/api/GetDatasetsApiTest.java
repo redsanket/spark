@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(SerialTests.class)
-@RunWith(GDMGenerateReport.class)
+//@RunWith(GDMGenerateReport.class)
 public class GetDatasetsApiTest extends TestSession {
 	
 	private String cookie;
