@@ -343,11 +343,32 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     destinationFile);
 
             /*
-             * TODO: Check the ycrypt proxy server log dir
-             * /home/y/logs/trafficserver/extended2.log that the transaction got
-             * routed through. E.G.
-             * PUT https://fsta773n00.tan.ygrid.yahoo.com:4443/webhdfs
+             * Validate the proxy log(s):
              */
+            TestSession.logger.info("Validate the proxy log(s):");
+            ArrayList<String> cmd = new ArrayList<String>();
+            cmd.add(TestSession.conf.getProperty("WORKSPACE")
+                    + "/scripts/validate_proxy");
+            cmd.add(this.localCluster);
+            cmd.add(this.parametrizedCluster);
+            cmd.add(httpProxyHost);
+            if (DfsTestsBaseClass.crosscoloPerf == true) {
+                String remoteHttpProxyHost =
+                        System.getProperty("HTTP_PROXY_HOST_REMOTE_CLUSTER", "");
+                if (remoteHttpProxyHost != null &&
+                        !remoteHttpProxyHost.isEmpty() &&
+                        !remoteHttpProxyHost.equals("default")) {
+                    cmd.add(remoteHttpProxyHost);
+                } else {
+                    TestSession.logger.error(
+                            "Unable to identiy the remote proxy host!!!");
+                }
+            }
+            String[] command = cmd.toArray(new String[0]);
+            String[] output = TestSession.exec.runProcBuilderSecurity(command);
+            TestSession.logger.info(Arrays.toString(output));
+            Assert.assertTrue("Valdiate proxy" + httpProxyHost + " failed!!! " +
+                    "Return value was not 0!!!",output[0].equals("0"));
         }
     }
 
