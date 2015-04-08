@@ -86,8 +86,8 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 
 		permissionList = new ArrayList<String>();
 		permissionList.add("755");
-		//permissionList.add("750");
-		//permissionList.add("700");
+		permissionList.add("750");
+		permissionList.add("700");
 		
 		// Get namenode name of target cluster 
 		this.targetGrid1_NameNode = this.consoleHandle.getClusterNameNodeName(this.targetGrid1);
