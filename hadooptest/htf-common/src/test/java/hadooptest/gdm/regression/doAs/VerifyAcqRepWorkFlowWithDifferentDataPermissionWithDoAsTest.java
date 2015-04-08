@@ -148,31 +148,17 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 			}
 
 			// Retention
-			{
-				this.retDataSetName = "TestDoAsRetentionWorkFlow_Permission_" + permission + "_" + System.currentTimeMillis();
-
-				// create a datasource for each target
-				String rentionDataSourceForTarget1 = this.targetGrid1 +"_DoAsRetentionDataSource_" + permission + "_" + System.currentTimeMillis();
-				String rentionDataSourceForTarget2 = this.targetGrid2 +"_DoAsRetentionDataSource_" + permission + "_" + System.currentTimeMillis();
-
-				createDataSourceForEachRetentionJob(this.targetGrid1 , rentionDataSourceForTarget1);
-				createDataSourceForEachRetentionJob(this.targetGrid2 , rentionDataSourceForTarget2);
-				
-				this.dataSourceNames.add(rentionDataSourceForTarget1);
-				this.dataSourceNames.add(rentionDataSourceForTarget2);
-				this.consoleHandle.sleep(50000);
-
-				createDoAsRetentionDataSet("DoAsRetentionDataSet.xml" ,rentionDataSourceForTarget1 , rentionDataSourceForTarget2 );
-
-				// activate the dataset
-				this.consoleHandle.checkAndActivateDataSet(this.retDataSetName);
+			{				
+				this.consoleHandle.setRetentionPolicyToAllDataSets(this.acqDataSetName, "0");
+				this.consoleHandle.setRetentionPolicyToAllDataSets(this.repDataSetName, "0");
+				this.consoleHandle.checkAndActivateDataSet(this.acqDataSetName);
+				this.consoleHandle.checkAndActivateDataSet(this.repDataSetName);
 				this.datasetActivationTime = GdmUtils.getCalendarAsString();
-
-				// add retention dataset name to list
-				dataSetNames.add(this.retDataSetName);
-
+				
 				// check for replication workflow
-				this.helper.checkWorkFlow(this.retDataSetName, "retention", this.datasetActivationTime);
+				this.helper.checkWorkFlow(this.acqDataSetName, "retention", this.datasetActivationTime);
+				this.helper.checkWorkFlow(this.repDataSetName, "retention", this.datasetActivationTime);
+				
 			}
 		}
 	}
