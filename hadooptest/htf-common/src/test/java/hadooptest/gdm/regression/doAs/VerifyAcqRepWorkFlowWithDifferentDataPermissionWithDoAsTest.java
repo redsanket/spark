@@ -148,16 +148,17 @@ public class VerifyAcqRepWorkFlowWithDifferentDataPermissionWithDoAsTest extends
 			}
 
 			// Retention
-			{
-				// invoke retention policy on the specified dataset
+			{				
 				this.consoleHandle.setRetentionPolicyToAllDataSets(this.acqDataSetName, "0");
 				this.consoleHandle.setRetentionPolicyToAllDataSets(this.repDataSetName, "0");
-	
+				this.consoleHandle.checkAndActivateDataSet(this.acqDataSetName);
+				this.consoleHandle.checkAndActivateDataSet(this.repDataSetName);
 				this.datasetActivationTime = GdmUtils.getCalendarAsString();
 				
 				// check for replication workflow
 				this.helper.checkWorkFlow(this.acqDataSetName, "retention", this.datasetActivationTime);
 				this.helper.checkWorkFlow(this.repDataSetName, "retention", this.datasetActivationTime);
+				
 			}
 		}
 	}
