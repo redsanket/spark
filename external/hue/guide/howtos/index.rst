@@ -272,9 +272,62 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
       :scale: 90%
       :alt: File Output from Coordinator.
       :align: left  
-   
+  
+#. Congratulations, you've successfully run a Coordinator. 
+   Before you go, see :ref:`7. Kill Your Coordinator <kill_coord>` 
+   so you can free grid resources for others.
 
 
+.. _kill_coord:
+
+7. Kill Your Coordinator
+------------------------
+
+#. From the top-level navigation bar, click **Workflows->Dashboards->Coordinators**.
+
+   .. image:: images/dashboard_coord.jpg
+      :height: 135 px
+      :width: 663 px
+      :scale: 95%
+      :alt: Coordinator Dashboard
+      :align: left  
+
+#. In the search text field, enter your user name to find your jobs.
+
+   .. image:: images/find_job.jpg
+      :height: 141 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Find Coordinator Jobs.
+      :align: left  
+
+#. Check the checkbox next to your job and click **Kill**.
+
+   .. image:: images/kill_job.jpg
+      :height: 197 px
+      :width: 591 px
+      :scale: 95%
+      :alt: Kill Coordinator Job.
+      :align: left  
+
+#. From the **Completed** pane, click on your killed job. This opens up the **Calendar** 
+
+   .. image:: images/click_killed_job.jpg
+      :height: 95 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Click Killed Job.
+      :align: left  
+
+#. Select any job that has completed or has been killed and the click **Suspend**. 
+
+
+   .. image:: images/suspend_jobs.jpg
+      :height: 648 px
+      :width: 726px
+      :scale: 90%
+      :alt: Suspend Jobs.
+      :align: left  
 
 
 

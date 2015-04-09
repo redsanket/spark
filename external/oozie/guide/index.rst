@@ -49,10 +49,15 @@ On-Boarding
 Getting Help
 ============
 
-General Questions / Support
----------------------------
+General Questions
+-----------------
 
 - yahoo-oozie-users@yahoo-inc.com 
+
+Support
+-------
+
+- oozie-request@yahoo-inc.com
 
 Filing Jira Tickets
 -------------------
