@@ -65,7 +65,7 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 		testInValidDataStore();
 		testInvalidDataset();
 		testInvalidTarget();
-		testGetRetentionPolicyForGivenDataSetAndSource(); 
+		//testGetRetentionPolicyForGivenDataSetAndSource(); 
 		testGetRetentionPolicyForGivenDataSetAndTarget(); 
 		testGetAllSourceAndTargetsRetentionPolicies();
 		testGetRetentionPolicyWhenOnlyDataSetIsSpecified();
@@ -188,52 +188,60 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 	public void testGetRetentionPolicyForGivenDataSetAndSource() {
 		if (dataSetList.size() > 0) {
 			String dataSetName = this.dataSetList.get(0);
+			TestSession.logger.info("dataSetName = " + dataSetName);
+			
 			String resourceName = this.jsonUtil.constructResourceNamesParameter(Arrays.asList(dataSetName));
 			TestSession.logger.info("resourceName  = "  + resourceName);
 
 			List<String> dataSourceNameList = this.consoleHandle.getDataSource(dataSetName, "source", "name");
-			String dataSourceName = dataSourceNameList.get(0);
-			TestSession.logger.info("dataSourceName =  " + dataSourceName);
+			
+			
 
-			String source = constructDataStoreNamesParameter("source" ,Arrays.asList(dataSourceName));
-			com.jayway.restassured.response.Response response = given().cookie(this.cookie).param("resourceNames", resourceName)
-					.param("dataStores", source)
-					.post(this.testURL);
-			String responseString = response.getBody().asString();
-			TestSession.logger.info("response = " + responseString);
+			//if (dataSourceNameList.size() > 0 ) {
+				String dataSourceName = dataSourceNameList.get(0);
+				TestSession.logger.info("dataSourceName =  " + dataSourceName);
 
-			// convert string to jsonObject
-			JSONArray jsonArray =  (JSONArray) JSONSerializer.toJSON(responseString);
-			if ( jsonArray.size() > 0 ) {
-				Iterator iterator = jsonArray.iterator();	
-				while (iterator.hasNext()) {
-					JSONObject jsonObject = (JSONObject) iterator.next();
-					String message = jsonObject.getString("message");
-					TestSession.logger.info("message = " + message);
-					assertTrue(message + " is wrong" , message.contains("Successful"));
-					
-					// invoke policies 
-					JSONArray policies = jsonObject.getJSONArray("policies");
-					for ( int i=0 ; i< policies.size() ; i++) {
-						JSONObject policy = policies.getJSONObject(i);
-						
-						// check for source value
-						String sourceName = policy.getString("source").trim();
-						TestSession.logger.info("sourceName = " + sourceName);
-						assertTrue(sourceName + " that got from response is not matching with request parameter source name = " + dataSourceName , sourceName.equals(dataSourceName));
+				String source = constructDataStoreNamesParameter("source" ,Arrays.asList(dataSourceName));
+				com.jayway.restassured.response.Response response = given().cookie(this.cookie).param("resourceNames", resourceName)
+						.param("dataStores", source)
+						.post(this.testURL);
+				String responseString = response.getBody().asString();
+				TestSession.logger.info("response = " + responseString);
 
-						// check for policyType
-						String policyType = policy.getString("policyType");
-						TestSession.logger.info("policyType = " + policyType);
-						assertTrue("Expected there should not be any policy definded (No retention policy defined.) but got " + policyType , policyType.contains("No retention policy defined"));
+				// convert string to jsonObject
+				JSONArray jsonArray =  (JSONArray) JSONSerializer.toJSON(responseString);
+				if ( jsonArray.size() > 0 ) {
+					Iterator iterator = jsonArray.iterator();	
+					while (iterator.hasNext()) {
+						JSONObject jsonObject = (JSONObject) iterator.next();
+						String message = jsonObject.getString("message");
+						TestSession.logger.info("message = " + message);
+						assertTrue(message + " is wrong" , message.contains("Successful"));
+
+						// invoke policies 
+						JSONArray policies = jsonObject.getJSONArray("policies");
+						for ( int i=0 ; i< policies.size() ; i++) {
+							JSONObject policy = policies.getJSONObject(i);
+
+							// check for source value
+							String sourceName = policy.getString("source").trim();
+							TestSession.logger.info("sourceName = " + sourceName);
+							assertTrue(sourceName + " that got from response is not matching with request parameter source name = " + dataSourceName , sourceName.equals(dataSourceName));
+
+							// check for policyType
+							String policyType = policy.getString("policyType");
+							TestSession.logger.info("policyType = " + policyType);
+							assertTrue("Expected there should not be any policy definded (No retention policy defined.) but got " + policyType , policyType.contains("No retention policy defined"));
+						}
+
 					}
-
 				}
+			} else {
+				TestSession.logger.info("There is no dataset(s) in the current deployment, create a dataset and retry executing the testcase");
+				assertTrue("There is no dataset in the current deployment " , dataSetList.size() == 0);
 			}
-		} else {
-			TestSession.logger.info("There is no dataset(s) in the current deployment, create a dataset and retry executing the testcase");
-			assertTrue("There is no dataset in the current deployment " , dataSetList.size() == 0);
-		}
+		//}	
+			
 	}
 
 	/*

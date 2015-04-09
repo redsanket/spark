@@ -927,7 +927,8 @@ public final class ConsoleHandle
 	public List<String> getUniqueGrids() throws Exception {
 		List<String> grids = new ArrayList<String>();
 		String url = this.consoleURL + "/console/api/datasources/view";
-		com.jayway.restassured.response.Response response = RestAssured.given().cookie(httpHandle.cookie).get(url);
+		String cookie = this.httpHandle.getBouncerCookie();
+		com.jayway.restassured.response.Response response = RestAssured.given().cookie(cookie).get(url);
 		if (response.getStatusCode() == 200) {
 			String dataSourceListing = response.andReturn().asString();
 			TestSession.logger.info("Received datasources listing: " + dataSourceListing);
@@ -1446,7 +1447,7 @@ public final class ConsoleHandle
 		String url = this.getConsoleURL() + "/console/api/datasets/view";
 		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
 		JsonPath jsonPath = response.getBody().jsonPath();
-		TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
+		TestSession.logger.info("response = " + jsonPath.prettyPrint());
 
 		List<String> datasetNames = jsonPath.getList("DatasetsResult.DatasetName");
 		assertTrue("Failed to get the dataset name = "  , datasetNames != null && datasetNames.size() > 0);
