@@ -36,10 +36,37 @@ go to http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie.
 
 The syntax for the Web Console is ``http://{cluster}{color}-oozie.{color}.ygrid.yahoo.com:4080/oozie``.
 
+Coordinator Actions
++++++++++++++++++++
+
+In the current releases, logs are shown for coordinator 'actions' only (and not for the parent job).
+
+Click on the tab **Coord Job Log** once you've clicked on the job from the list
+Action logs can be viewed by entering the action numbers in the text box below the 
+log area either as a comma-separated list or a range e.g. 1-5,6,9,10. 
+
+Screenshot
+
+Due to large size of logs (for coordinator with large number of actions), loading 
+the logs might take upto a few minutes.
+
+In the next release, after opening the tab, the default log displayed will be of 
+the parent coordinator job. Accessing actions' logs will be same as current behavior. 
+Performance improvements are underway to improve the streaming speed.
+
 TBD: Add screenshot.
 
 For more information about the Web Console, see https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook.
 
+3. View Oozie Logs
+~~~~~~~~~~~~~~~~~~
+
+Logs are located on the Tomcat host at ``/home/y/libexec/yjava_tomcat/logs/{host_name}``.
+Logs are available for privileged users only.
+
+You can also use the ``oozie`` client to view the log::
+
+    $ oozie job -log <jobid> -oozie <OOZIE_URL>
 
   
 Errors

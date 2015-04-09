@@ -36,3 +36,8 @@ Creating a Coordinator
 Creating a Bundle
 -----------------
 
+Next Steps
+----------
+
+See the `Oozie Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Cookbooks>`_ for
+Java, MapReduce, and Pig examples.
