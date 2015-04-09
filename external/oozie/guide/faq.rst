@@ -511,3 +511,57 @@ Answers
        Would run /grid/0/gs/java/jdk/bin/java -Xmx2048m -cp /grid/0/gs/pig/0.7/lib/pig.jar:/grid/0/gs/pig/0.7/conf/:/grid/0/gs/conf/current:/grid/0/gs/pig/0.7/lib/myna.jar:/grid/0/gs/pig/0.7/lib/piggybank.jar:/grid/0/gs/pig/0.7/lib/sds.jar:/grid/0/gs/pig/0.7/lib/zebra.jar:/grid/0/gs/conf/current:/grid/0/gs/java/jdk/lib/tools.jar:/grid/0/gs/hadoop/current/bin/..:/grid/0/gs/hadoop/current/bin/../hadoop-mapreduce-client-jobclient-0.23.9.3.1310251519.jar:/grid/0/gs/hadoop/current/bin/../lib/aspectjrt-1.6.5.jar:/grid/0/gs/hadoop/current/bin/../lib/aspectjtools-1.6.5.jar:/grid/0/gs/hadoop/current/bin/../lib/axis-ant.jar:/grid/0/gs/hadoop/current/bin/../lib/axis.jar:/grid/0/gs/hadoop/current/bin/../lib/bouncer_auth_java-0.5.12.jar:/grid/0/gs/hadoop/current/bin/../lib/BouncerFilterAuth-1.1.4.jar:/grid/0/gs/hadoop/current/bin/../lib/chukwa-hadoop-0.1.1-client.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-cli-1.2.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-codec-1.4.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-daemon-1.0.1.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-discovery-0.2.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-el-1.0.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-httpclient-3.0.1.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-logging-1.0.4.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-logging-api-1.0.4.jar:/grid/0/gs/hadoop/current/bin/../lib/commons-net-1.4.1.jar:/grid/0/gs/hadoop/current/bin/../lib/core-3.1.1.jar:/grid/0/gs/hadoop/current/bin/../lib/hadoop-gpl-compression-0.1.0-1007030707.jar:/grid/0/gs/hadoop/current/bin/../lib/hsqldb-1.8.0.10.jar:/grid/0/gs/hadoop/current/bin/../lib/jackson-core-asl-1.0.1.jar:/grid/0/gs/hadoop/current/bin/../lib/jackson-mapper-asl-1.0.1.jar:/grid/0/gs/hadoop/current/bin/../lib/jasper-compiler-5.5.12.jar:/grid/0/gs/hadoop/current/bin/../lib/jasper-runtime-5.5.12.jar:/grid/0/gs/hadoop/current/bin/../lib/jaxrpc.jar:/grid/0/gs/hadoop/current/bin/../lib/jets3t-0.6.1.jar:/grid/0/gs/hadoop/current/bin/../lib/jetty-6.1.14.jar:/grid/0/gs/hadoop/current/bin/../lib/jetty-util-6.1.14.jar:/grid/0/gs/hadoop/current/bin/../lib/json.jar:/grid/0/gs/hadoop/current/bin/../lib/junit-4.5.jar:/grid/0/gs/hadoop/current/bin/../lib/kfs-0.2.2.jar:/grid/0/gs/hadoop/current/bin/../lib/log4j-1.2.15.jar:/grid/0/gs/hadoop/current/bin/../lib/mockito-all-1.8.0.jar:/grid/0/gs/hadoop/current/bin/../lib/oro-2.0.8.jar:/grid/0/gs/hadoop/current/bin/../lib/saaj.jar:/grid/0/gs/hadoop/current/bin/../lib/servlet-api-2.5-6.1.14.jar:/grid/0/gs/hadoop/current/bin/../lib/SimonPlugin.jar:/grid/0/gs/hadoop/current/bin/../lib/slf4j-api-1.4.3.jar:/grid/0/gs/hadoop/current/bin/../lib/slf4j-log4j12-1.4.3.jar:/grid/0/gs/hadoop/current/bin/../lib/wsdl4j-1.5.1.jar:/grid/0/gs/hadoop/current/bin/../lib/xmlenc-0.52.jar:/grid/0/gs/hadoop/current/bin/../lib/yjava_byauth-0.5.6.jar:/grid/0/gs/hadoop/current/bin/../lib/yjava_servlet_filters-0.4.2-0.4.2.jar:/grid/0/gs/hadoop/current/bin/../lib/yjava_ysecure-1.3.2.jar:/grid/0/gs/hadoop/current/bin/../lib/yjava_ysecure_native-1.3.0.jar:/grid/0/gs/hadoop/current/bin/../lib/ymonmetricscontext-0.1.0.jar:/grid/0/gs/hadoop/current/bin/../lib/jsp-2.1/jsp-2.1.jar:/grid/0/gs/hadoop/current/bin/../lib/jsp-2.1/jsp-api-2.1.jar:/grid/0/gs/hadoop/current/bin/../hadoop-capacity-scheduler-0.20.104.3.1007030707.jar -Djava.io.tmpdir=/grid/0/tmp -Dmetadata.impl=org.apache.hadoop.owl.pig.metainterface.OwlPigMetaTables -Dudf.import.list=org.apache.pig.builtin:org.apache.pig.impl.builtin:com.yahoo.pig.yst.sds.ULT:myna:org.apache.pig.piggybank.evaluation:org.apache.pig.piggybank.evaluation.datetime:org.apache.pig.piggybank.evaluation.decode:org.apache.pig.piggybank.evaluation.math:org.apache.pig.piggybank.evaluation.stats:org.apache.pig.piggybank.evaluation.string:org.apache.pig.piggybank.evaluation.util:org.apache.pig.piggybank.evaluation.util.apachelogparser:string:util:math:datetime:sequence:util:org.apache.hadoop.zebra.pig -Djava.library.path=/grid/0/gs/hadoop/current/lib/native/Linux-i386-32 org.apache.pig.Main
 
 
+.. _pig_job_memory:
+
+.. topic:: **How can I increase the memory for the Pig launcher job?**
+
+   You can define a property (oozie.launcher.*) in your action:
+
+    .. code-block:: xml
+
+       <property>
+           <name>oozie.launcher.mapred.child.java.opts</name>
+           <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
+           <description>setting memory usage to 1024MB</description>
+       </property>
+
+   **Example**
+
+   .. code-block:: xml
+
+      <workflow-app xmlns='uri:oozie:workflow:0.5' name='pig-wf'>
+          <start to='pig1' />
+          <action name='pig1'>
+              <pig>
+                  <job-tracker>${jobTracker}</job-tracker>
+                  <name-node>${nameNode}</name-node>
+                  <configuration>
+                      <property>
+                          <name>mapred.job.queue.name</name>
+                          <value>${queueName}</value>
+                      </property>
+                      <property>
+                          <name>mapred.compress.map.output</name>
+                          <value>true</value>
+                      </property>
+      
+                      <property>
+                          <name>oozie.launcher.mapred.child.java.opts</name>
+                          <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
+                      </property>
+      
+                  </configuration>
+                  <script>org/apache/oozie/examples/pig/script.pig</script>
+              </pig>
+              <ok to="end" />
+              <error to="fail" />
+          </action>
+      
+      
+          <kill name="fail">
+              <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+          </kill>
+          <end name='end' />
+      </workflow-app>
+
+
