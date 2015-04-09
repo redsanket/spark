@@ -321,7 +321,6 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
 
 #. Select any job that has completed or has been killed and the click **Suspend**. 
 
-
    .. image:: images/suspend_jobs.jpg
       :height: 648 px
       :width: 726px
@@ -330,14 +329,8 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
       :align: left  
 
 
-
-
-
-
-
-
-Creating a Bundle
-=================
+Creating a Bundle (TBD)
+=======================
 
 Overview
 --------
