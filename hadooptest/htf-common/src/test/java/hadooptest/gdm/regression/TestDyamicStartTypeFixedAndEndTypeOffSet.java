@@ -124,18 +124,17 @@ public class TestDyamicStartTypeFixedAndEndTypeOffSet extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", sourceName );
 		dataSetXml = dataSetXml.replaceAll("TARGET1", this.targetGrid1 );
 		dataSetXml = dataSetXml.replaceAll("TARGET2", this.targetGrid2 );
-		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_START_DATE_TYPE", "fixed" );
+		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_TYPE_START", "fixed" );
 		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_START_DATE", this.START_DATE );
-		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_END_DATE_TYPE", "offset" );
+		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_TYPE_END", "offset" );
 		dataSetXml = dataSetXml.replaceAll("TARGET_ONE_END_DATE", "10" );
-		dataSetXml = dataSetXml.replaceAll("TARGET_TWO_START_DATE_TYPE", "fixed" );
+		dataSetXml = dataSetXml.replaceAll("TARGET_TWO_TYPE_START", "fixed" );
 		dataSetXml = dataSetXml.replaceAll("TARGET_TWO_START_DATE", this.START_DATE );
-		dataSetXml = dataSetXml.replaceAll("TARGET_TWO_END_DATE_TYPE", "offset" );
+		dataSetXml = dataSetXml.replaceAll("TARGET_TWO_TYPE_END", "offset" );
 		dataSetXml = dataSetXml.replaceAll("TARGET_TWO_END_DATE", "10");
 		dataSetXml = dataSetXml.replaceAll("TABLE_NAME", this.dataSetName);
 		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", "users");
 		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", "");
-
 
 		TestSession.logger.info("**** DataSet Name = " + dataSetXml   + " ********** ");
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
