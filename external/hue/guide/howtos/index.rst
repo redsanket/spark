@@ -1,6 +1,6 @@
-=======
-How Tos
-=======
+===============
+How Tos (Draft)
+===============
 
 
 This chapter is for users who have completed the  `Getting Started <../getting_started/>`_

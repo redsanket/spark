@@ -347,13 +347,6 @@ Introduced in Oozie 1.x
 
 
 
------------------
-
-
-
-
-
-
-limitations/Restrictions
+Limitations/Restrictions
 ------------------------
 
