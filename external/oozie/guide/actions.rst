@@ -1,5 +1,5 @@
-Oozie Actions
-=============
+Actions
+=======
 
 Overview
 --------

@@ -18,8 +18,8 @@ Developer Preview
    :hidden:
 
    overview
-   actions
    getting_started
+   actions
    workflows
    coords
    bundles
