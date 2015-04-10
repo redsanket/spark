@@ -197,3 +197,102 @@ Workflow
    </workflow-app>
 
 
+
+Submitting a Workflow With a YCAv2(gYCA) Certificate
+----------------------------------------------------
+
+User has to specify the gYCA credential explicitly in the workflow beginning and 
+asks Oozie to retrieve certificate whenever an actions needs to call YCA protected
+web service. In each credential element, attribute "name" is key and attribute 
+"type" indicates which credential to use.
+
+- The credential "type" is defined in oozie server. For example, on axoniteblue-oozie.blue.ygrid.yahoo.com, 
+  the YCA credential type is defined as "yca", as in yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials
+- User can give multiple "credential" elements under "credentials" and specify a list of credentials with comma separated to use under each action "cred" attribute.
+- There is only parameter required for the credential "type".
+  yca-role : the role name contains the user names for yca v2 certificates.
+- There are three optional parameters for the credential type "yca".
+  yca-webserver-url : the yca server url. Default is http://ca.yca.platform.yahoo.com:4080
+  yca-cert-expiry: Expiry time of the yca certificate in seconds. Default is 1 day (86400). Available from Oozie 3.3.1
+
+- ``yca-http-proxy-role``: The roles DB role name which contains the hostnames of 
+  the machines in the http proxy vip. Default value is grid.httpproxy which contains 
+  all http proxy hosts. Depending on the http proxy vip you will be using to send 
+  the obtained YCA v2 certificate to the web service outside the grid, you can 
+  limit the corresponding role name that contains the hosts of the http proxy vip. 
+  The role names containing members of production http proxy vips are grid.blue.prod.httpproxy, 
+  grid.red.prod.httpproxy and grid.tan.prod.httpproxy. For eg: http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxycontains 
+  the hosts of production httpproxy. http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy 
+  is a uber role which contains staging, research and production httpproxy hosts.http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList 
+  gives the role name and VIP name of the deployed http proxies for staging, research and sandbox grids.
+
+Example Workflow
+~~~~~~~~~~~~~~~~
+
+.. code-block:: xml
+
+   <workflow-app>
+     <credentials>
+        <credential name='myyca' type='yca'>
+           <property>
+              <name>yca-role</name>
+              <value>griduser.actualuser</value>
+           </property>
+         /credential> 
+     </credentials>
+     <action cred='myyca'>
+        <map-reduce>
+        --IGNORED--
+        </map-reduce>
+     </action>
+   <workflow-app>
+
+Proxy
+~~~~~
+
+When Oozie action executor sees a "cred" attribute in current action, depending 
+on credential name given, it finds the appropriate credential class to retrieve 
+the token or certificate and insert to action conf for further use. In above example, 
+Oozie gets the certificate of gYCA and passed to action conf. Mapper can then use 
+this certificate by getting it from action conf, and add to http request header 
+when connect to YCA protected web service through HTTPProxy. A certificate or token 
+which retrieved in credential class would set in action conf as the name of 
+credential defined in workflow.xml. The following examples shows sample code to 
+use in mapper or reducer class for talking to YCAV2 protected web service from grid.
+
+.. code-block:: java
+
+
+   //**proxy setup**
+
+   //blue proxy
+   //InetSocketAddress inet = new InetSocketAddress("flubberblue-httpproxy.blue.ygrid.yahoo.com", 4080);
+   //gold proxy
+   InetSocketAddress inet = new InetSocketAddress("httpproxystg-rr.gold.ygrid.yahoo.com", 4080);
+   Proxy proxy = new Proxy(Type.HTTP, inet);
+   URL server = new URL(fileURL);
+
+   //**web service call**
+   String ycaCertificate = conf.get("myyca");
+   HttpURLConnection con = (HttpURLConnection) server.openConnection(proxy);
+   con.setRequestMethod("GET");
+   con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
+
+Passing Parameters to Coordinator EL Functions
+----------------------------------------------
+
+One can pass parameterize parameter to EL function, which is defined as job property.
+Example.
+
+.. code-block:: xml
+
+   <input-events>
+       <data-in name="zas_daily_datain" dataset="zas_daily_dataset">
+           <start-instance>${coord:latest(coord.end.instance)}</start-instance>
+           <end-instance>${coord:latest(coord.start.instance)}</end-instance>
+       </data-in>
+   </input-events>
+
+
+Where coord.start.instance and coord.end.instance are parameters defined in job.properties used during submission.
+

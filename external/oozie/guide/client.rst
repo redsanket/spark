@@ -24,6 +24,92 @@ Set up keydb
 If keydb is not set up, and -keydb is not specified in command line, BackYard password is required for the Bouncer authentication.
 Example, $ oozie jobs -len 1 -keydb
 
+Using -keydb on Gateway
+***********************
+
+Put your keydb file in your home, in a dir structure similar to
+``/home/myself/oozie/root/conf/keydb/myself.keydb``. 
+
+In this file, the keyname (keyname name=) *must* be your username,
+otherwise it will not be found.  Most other ``keydb`` uses can use any
+name, but for Oozie it must be the user name.  (The actual filename doesn't
+matter as long as it is ``*.keydb``.)
+
+Set either ``$ROOT`` or ``$YINST_ROOT`` to the path containing ``conf``.  In
+the example script below, the line ``export ROOT=/home/myself/oozie/root/`` is important.
+
+**Example Script**
+
+:: 
+
+    export ROOT=/home/user/oozie/root
+    oozie=/home/y/var/yoozieclient/bin/oozie
+    server=http://axoniteblue-oozie.blue.ygrid.yahoo.com:4080/oozie
+    user=user
+    bouncer=gh
+    optsd="-Doozie.bouncer=$bouncer -Doozie.save.cookie=false -Duser.name=$user"
+    opts="-keydb -oozie $server"
+    oozie jobs $optsd -filter user=$user $opts
+
+**Example keydb File**
+
+.. code-block:: xml
+
+   <keydb>
+       <keygroup name="oozie" id="0">
+           <keyname name="USERNAME" usage="all" type="transient">
+               <key version="0"
+                    value = "ACTUALPASSWORDHERE" current = "true"
+                    timestamp = "20100704074611"
+                    expiry = "20130703074611">
+               </key>
+           </keyname>
+       </keygroup>
+   </keydb>
+
+
+
+
+
+
+
+
+Using keydb on Client
+*********************
+
+First, these packages must be installed::
+
+    $ yinst install bouncer_auth_java
+    $ yinst install yjava_byauth
+
+After installation, create a ``keydb`` file with your account and password.
+
+::
+
+    $ vim /home/y/conf/keydb/oozie.keydb (you can call it any name you like.)
+
+.. code-block:: xml
+
+   <keydb>
+       <keygroup name="oozie_key" id="0">   
+           <keyname name="USER" usage="all" type="permanent">
+               <key version="0"
+               value = "PASSWORD" current = "true"
+               timestamp = "20100409011532"
+               expiry = "20130408011532">
+           </key>
+       </keyname>
+   </keygroup>
+
+
+Now, you can use -keydb in Oozie client: ``$ oozie job -run -config xxx.properties -keydb``
+
+
+
+
+
+
+
 -oozie
 ~~~~~~
 
@@ -243,3 +329,5 @@ NOT supported pig options: -4 (-log4jconf), -e (-execute), -f (-file), -l (-logf
     oozie.libpath=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020/tmp/user/workflows/lib
     mapreduce.jobtracker.kerberos.principal=mapred/gsbl91029.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
     dfs.namenode.kerberos.principal=hdfs/gsbl91027.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+
+

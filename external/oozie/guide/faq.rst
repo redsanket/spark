@@ -23,7 +23,12 @@ Questions
 * :ref:`Where do I view the pig client log of the pig script execution? <view_pig_log>`
 * :ref:`Why does my job run fine as standalone Pig but not through Oozie? <standalone_oozie>`
 * :ref:`How can I increase the memory for the Pig launcher job? <pig_job_memory>`
-
+* :ref:`How do you pass parameters to Pig actions? <pig_params_pass>`
+* :ref:`How to submit a Pig job through HTTP? <submit_pig_http>`
+* :ref:`How do you check whether the gYCA Web server is serving certificates? <yca_serve_certs>`
+* :ref:`How do you change the timeout for Coordinator actions? <timeout_coord_actions>`
+* :ref:`How do you reprocess Coordinator actions? <reprocess_coord_actions>`
+* :ref:`How do you update a Coordinator definition on the fly? <update_coord>`
 
 Answers
 =======
@@ -564,4 +569,201 @@ Answers
           <end name='end' />
       </workflow-app>
 
+   If you need more than 1.5 G memory for the Pig launcher, 
+   increase following property (for 2GB) in addition to ``oozie.launcher.mapred.child.java.opts``:
 
+   .. code-block:: xml
+
+      <property>
+          <name>oozie.launcher.mapred.child.java.opts</name>
+          <value>-server -Xmx2G -Djava.net.preferIPv4Stack=true</value>
+      </property>
+      <property>
+          <name>oozie.launcher.mapred.job.map.memory.mb</name>
+          <value>2560</value>
+      </property>
+
+   .. note:: The default value for most grid is 1.5G (corresponding to 1 slot). 
+             Increasing this value allows a launcher map task to be assigned multiple slots 
+             as high-RAM job and able to use more than 1.5G. (It could take a bit longer time 
+             for the launcher map task to be scheduled and launched, but that should be minimal.)
+
+
+      
+
+
+   
+   
+
+
+.. _pig_params_pass:
+
+.. topic:: **How do you pass parameters to Pig actions?**
+
+   If you want to pass 'mapred.*' properties to your Pig action, simply define them 
+   in the ``<configuration>`` element of your Pig action.
+
+   .. code-block:: xml
+
+      <property>
+          <name>mapred.min.split.size</name>
+          <value>536870912</value>
+      </property> 
+
+   **Passing Parameters Through a Parameter File**
+
+   Pig has an option to pass all the parameters through a file. The same functionality 
+   could be achieved through Oozie. Follow these three steps: 
+
+   #. Upload the parameter file into HDFS.
+   #. Create a symbolic link using tag of Pig action.
+   #. Pass the file name as an argument of Pig action.
+
+
+   - Parameter file ('paramfile') is HDFS.
+   - Here is the ``workflow.xml``:
+
+     .. code-block:: xml
+
+        <workflow-app xmlns='uri:oozie:workflow:0.2' name='pig-paramfile-wf'>
+            <start to='pig2' />
+            <action name='pig2'>
+                <pig>
+                    <job-tracker>${jobTracker}</job-tracker>
+                    <name-node>${nameNode}</name-node>
+                    <prepare>
+                       <delete path="${nameNode}${outputDir}" />
+                    </prepare>
+                    <configuration>
+                        <property>
+                            <name>mapred.job.queue.name</name>
+                            <value>${queueName}</value>
+                        </property>
+                        <property>
+                            <name>mapred.compress.map.output</name>
+                            <value>true</value>
+                        </property>
+                    </configuration>
+                    <script>script.pig</script>
+                    <!----- Pass the param file as argument. ----->
+                    <argument>-param_file</argument>
+                    <argument>paramfile</argument>
+                    <file>lib/tutorial-udf.jar#udf.jar</file> 
+                    <!----- Create a symbolic link   ----->
+                    <file>paramfile#paramfile</file> 
+                </pig>
+                <ok to="decision1" />
+                <error to="fail" />
+            </action>
+            <decision name="decision1">
+                <switch>
+                    <case to="end">${fs:exists(wf:conf('outputFile'))}</case>
+                    <default to="fail" />
+                </switch>
+            </decision>
+            <kill name="fail">
+                <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+            </kill>
+            <end name='end' />
+        </workflow-app>
+   
+.. _submit_pig_http:
+
+.. topic:: **How to submit a Pig job through HTTP?**
+
+   **Command-line syntax:** ``oozie pig -oozie <OOZIE_URL> -file <pig script> -config job.properties -X <all pig options>``
+
+   **Example command:** ``$ oozie pig -file multiquery1.pig -config job.properties -X -Dmapred.job.queue.name=grideng -Dmapred.compress.map.output=true -Ddfs.umask=18 -param_file paramfile -p INPUT=/tmp/workflows/input-data``
+ 
+   .. note::  The option ``-X`` is the last argument in the command line.
+
+
+   **Example job.properties**
+
+   .. code-block:: bash
+
+      fs.default.name=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020
+      mapred.job.tracker=gsbl91029.blue.ygrid.yahoo.com:8032
+      oozie.libpath=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020/tmp/user/workflows/lib
+      mapreduce.jobtracker.kerberos.principal=mapred/gsbl91029.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+      dfs.namenode.kerberos.principal=hdfs/gsbl91027.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+
+   **Example for cross-namenodes operation:**
+
+   #. Add ``-Doozie.launcher.mapreduce.job.hdfs-servers`` in command line::
+
+          $ oozie pig -file multiquery1.pig -config job.properties -X -Doozie.launcher.mapreduce.job.hdfs-servers="hdfs://sourcenamenode.blue.ygrid.yahoo.com:8020" ... ...
+
+   #. Use ``_HOST`` for the Kerberos principal.
+   
+   #. Create a ``job.properties`` file, making sure you specify the paramters ``mapreduce.jobtracker.kerberos.principal`` and
+      ``dfs.namenode.kerberos.principal``::
+
+          ...
+          mapreduce.jobtracker.kerberos.principal=mapred/_HOST@DEV.YGRID.YAHOO.COM 
+          dfs.namenode.kerberos.principal=hdfs/_HOST@DEV.YGRID.YAHOO.COM
+
+
+.. _yca_serve_certs:
+
+.. topic:: **How do you check whether the gYCA Web server is serving certificates?**
+
+
+   Use kerberos authentication::
+
+       $ /usr/bin/curl --negotiate -u : {yca-webserver-url}/wsca/v2/certificates/kerberos/{yca-role}?http_proxy_role={yca-http-proxy-role}
+
+   For example::
+
+       $ curl --negotiate -u : http://gyca1-vm3.gamma.yosws.ac4.yahoo.com:4080/wsca/v2/certificates/kerberos/yca.example.gyca.test1?http_proxy_role=grid.blue.flubber.httpproxy\&do_as=strat_ci
+
+
+
+   Or::
+ 
+       $ (kinit)
+       $ curl -v --negotiate -u : "http://stage-ca.yca.platform.yahoo.com:4080/wsca/v2/vertificated/kerberos/yca.example.gyca.test1?http_proxy_role=grid.blue.flubber.httpproxy&do_as=strat_ci"
+  
+.. _timeout_coord_actions:
+
+.. topic:: **How do you change the timeout for Coordinator actions?** 
+
+   Each coordinator action wait for timeout duration before timing out. 
+   For normal running job, default timeout is 2 hours. 
+   For catchup jobs, the value is infinite. 
+
+   However, we strongly suggest the user to choose a realistic timeout value(in minutes) when defining coordinator job. 
+   Timeout of 5 hours could be defined in coordinator.xml as follows:
+
+   .. code-block:: xml
+
+      <controls>
+          <timeout>300</timeout>
+      </controls>
+
+
+.. _reprocess_coord_actions:
+
+.. topic:: **How do you reprocess Coordinator actions?**
+
+   See http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#Rerunning_a_Coordinator_Action_or_Multiple_Actions.
+   See also http://twiki.corp.yahoo.com/view/CCDI/OozieClientCommands1#2_8_Rerun_coordinator_action_s_O.
+
+
+.. _update_coord:
+
+.. topic:: **How do you update a Coordinator definition on the fly?**
+
+   To change the coord definition user can update coord definition in hdfs and issue a 
+   update command. Existing coordinator definition will be replaced by new definition. 
+   The refreshed coordinator would keep the same coordinator ID, state, and coordinator 
+   actions.
+
+   User can also provide -dryrun to validate changes. All created coord action(including 
+   in waiting) will use old configuration. User can rerun actions with -refresh option, 
+   ``-refresh`` option will use new configuration to rerun coord action.
+
+   For example, the following will update the Coordinator definition and action:: 
+
+       $ oozie job -update -config examples/apps/aggregator/job.properties 
+2. $ oozie job -update Will fetch coord definition path from bundle(if any) and update coord definition
