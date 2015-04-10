@@ -23,6 +23,8 @@ Developer Preview
    workflows
    coords
    bundles
+   cookbook
+   auth
    client
    api
    bp
