@@ -12,6 +12,16 @@ automatically added to the ``PATH`` global variable through the grid gateway use
 are installing ``yoozie_client`` on your launcher box, ensure you add ``/home/y/var/yoozieclient/bin``
 to the ``PATH`` variable or invoke the full path ``/home/y/var/yoozieclient/bin/oozie``.
 
+Installing Oozie Client
+-----------------------
+
+If you run the Oozie client from a gateway, you do not need to install it.
+The steps below are for those wanting to run the Oozie client from an OpenStack instance.
+
+#. Create a `OpenStack <http://yo/openhouse>`_ instance with YLinux 6.2+ and a medium disk or higher. 
+#. Install the Oozie client: ``$ yinst i yoozie_client -br test``
+#. Run the Oozie command with the ``-keydb`` option: ``$ oozie jobs -len 1 -keydb``
+
 General
 -------
 
@@ -329,5 +339,78 @@ NOT supported pig options: -4 (-log4jconf), -e (-execute), -f (-file), -l (-logf
     oozie.libpath=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020/tmp/user/workflows/lib
     mapreduce.jobtracker.kerberos.principal=mapred/gsbl91029.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
     dfs.namenode.kerberos.principal=hdfs/gsbl91027.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+
+
+
+Using Oozie Maven Artifacts
+---------------------------
+
+If you have a Java maven project which uses Oozie client or core library, you can 
+simply use Oozie maven artifacts. Given below is the maven repository and dependency 
+settings for your POM file.
+
+Version numbers: If using oozie.version 4.4.1.3 (production Jan 2015) --> 4.4.1.3.1411122125 . 
+Check the version of current version of Oozie deployed in http://twiki.corp.yahoo.com/view/Grid/GridVersions.
+
+POM XML
+~~~~~~~
+
+.. code-block:: xml
+
+   <repositories>
+     <repository>
+       <id>yahoo</id>
+         <url>http://ymaven.corp.yahoo.com:9999/proximity/repository/public</url>
+         <snapshots>
+         <enabled>false</enabled>
+         </snapshots>
+     </repository>
+   </repositories>
+   <dependencies>
+     <dependency>      
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>yoozie-client</artifactId>
+       <version>${oozie.version}</version>
+       <scope>compile</scope>
+       </dependency>
+     </dependency>
+     <dependency>
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>oozie-core</artifactId>
+       <version>${oozie.version}</version>
+       <classifier>tests</classifier>   
+       <scope>compile</scope>
+     </dependency>
+     <dependency>
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>oozie-core</artifactId>
+       <version>${oozie.version}</version>
+       <scope>compile</scope>
+     </dependency>
+   <dependency>      
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>yoozie-auth</artifactId>
+       <version>${oozie.version}</version>
+       <scope>compile</scope>
+       </dependency>
+     </dependency>
+   </dependencies>         
+
+Getting the Required Yinst Packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternately, you can also install following ``yoozie`` yinst packages to get the Oozie Jars and POM files.
+
+``yinst i yoozie_maven -br stable`` 
+
+.. note:: The ``current`` branch might also contain the version deployed on a research cluster. 
+          Package is promoted to stable only when it is deployed on production.
+
+
+yinst i yoozie_hadooplibs_maven -br stable
+yinst i yoozie_hbaselibs_maven -br stable
+yinst i yoozie_hcataloglibs_maven -br stable
+
+
 
 

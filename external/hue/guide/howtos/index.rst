@@ -35,7 +35,7 @@ Prerequisites
 1. Create a Hive Query With Parameterized Inputs
 ------------------------------------------------
 
-Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with the following:: 
+Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with the following:: 
 
     set hive.exec.compress.output=false;
 
@@ -47,7 +47,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
     by mobile_app_name order by views desc;
 
 .. note:: The parameterized inputs ``${OUTPUT}`` and ``${DATE}`` will be 
-          replaced with values by the coordinator.
+          replaced with values by the Coordinator.
 
 2. Create an Oozie Workflow for the Hive Script
 -----------------------------------------------
@@ -117,7 +117,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
              you are required to select an end date.
 
 #.  From **Coordinator Editor->Step 3: Frequency**, click **here** to create a dataset.
-    We're going to need to create one for the parameters **input_dataset** and **output_dataset**
+    We're going to need to create ones for the parameters **input_dataset** and **output_dataset**
     that we defined in the Workflow.
 
    .. image:: images/step3_create_dataset.jpg
@@ -128,12 +128,12 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
       :align: left  
 
 
-#. From the **Create a new dataset**, enter the following values for the fields listed below:
+#. From the **Create a new dataset** pane, enter the following values for the fields listed below:
 
-   - **Name** - **benzene_daily_input**
-   - **Frequency number** - **1**
-   - **Frequency unit** - **Days**
-   - **URI** - **hcat://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513/benzene/daily_data/dt=${YEAR}${MONTH}${DAY}**
+   - **Name:** **benzene_daily_input**
+   - **Frequency number:** **1**
+   - **Frequency unit:** **Days**
+   - **URI:** **hcat://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513/benzene/daily_data/dt=${YEAR}${MONTH}${DAY}**
 
    .. image:: images/create_dataset.jpg
       :height: 453 px
@@ -174,12 +174,12 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
 
 #. Again, create another dataset and enter the values below for the listed fields:
 
-   - **Name** - **benzene_daily_output**
-   - **Frequency number** - **1**
-   - **Frequency unit** - **Days**
-   - **URI** - **/user/{your_user_name}/benzeneoutput/${YEAR}${MONTH}${DAY}**
-   - **Instance->Single** - Check the **(advanced)** checkbox and enter **${coord:coord(-1)}** as the 
-     value for **(advanced)** field.
+   - **Name:** **benzene_daily_output**
+   - **Frequency number:** **1**
+   - **Frequency unit:** **Days**
+   - **URI:** **/user/{your_user_name}/benzeneoutput/${YEAR}${MONTH}${DAY}**
+   - **Instance->Single:** Check the **(advanced)** checkbox and enter **${coord:coord(-1)}** as the 
+     value for the **(advanced)** field.
 
    .. image:: images/create_output_dataset.jpg
       :height: 722 px
@@ -275,7 +275,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
   
 #. Congratulations, you've successfully run a Coordinator. 
    Before you go, see :ref:`7. Kill Your Coordinator <kill_coord>` 
-   so you can free grid resources for others.
+   so you can free up grid resources for others.
 
 
 .. _kill_coord:
@@ -286,9 +286,9 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`, create an HiveQL script with 
 #. From the top-level navigation bar, click **Workflows->Dashboards->Coordinators**.
 
    .. image:: images/dashboard_coord.jpg
-      :height: 135 px
-      :width: 663 px
-      :scale: 95%
+      :height: 130 px
+      :width: 717 px
+      :scale: 93%
       :alt: Coordinator Dashboard
       :align: left  
 

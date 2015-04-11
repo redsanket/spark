@@ -296,3 +296,123 @@ Example.
 
 Where coord.start.instance and coord.end.instance are parameters defined in job.properties used during submission.
 
+Using Headless Users
+--------------------
+
+Oozie uses Backyard authentication.
+If you want to use a headless user, you need to do the following:
+
+- Request a `Headless Bouncer account <http://twiki.corp.yahoo.com/view/SSO/HeadlessAccountSetup>`_. These accounts need a underscore "_" in their name. 
+- Request a headless UNIX account, that matches the name of your headless Backyard account.
+
+Use the following steps to setup your Headless User with Oozie:
+
+#. Setup your ``keydb`` file in the path ``/home/y/conf/keydb/``::
+
+       $ sudo keydbkeygen oozie headlessuer.pw
+
+#. Confirm that your ``keydb`` file looks similar to that below:
+
+   .. code-block:: xml
+
+      <keydb>
+         <keygroup name="oozie" id="0">
+            <keyname name="headless_user.pw" usage="all" type="a">
+               <key version="0"
+                   value = "mYsecreTpassworD" current = "true"
+                   timestamp = "20040916001312"
+                   expiry = "20070916001312">
+               </key>
+            </keyname>
+         </keygroup>
+      </keydb>
+
+
+Configuring Oozie Jobs to Use Two NameNodes (Oozie Striping)
+------------------------------------------------------------
+
+1. Identify the JobTracker and its native NameNode
+**************************************************
+
+For example, the jobtracker to be used is JT1, and JT1's native (or default) namenode is NN1.
+then the second namenode is NN2.
+
+2. Configure the Oozie job application path
+*******************************************
+
+oozie job's application path, including coordinator.xml, workflow.xml, lib/, needs to be on jobtracker's default namenode, i.e., NN1.
+default namenode should be set to NN1.
+
+For example:
+
+Coordinator: **job.properties**
+
+.. code-block:: bash
+
+   oozie.coord.application.path=hdfs://NN1:8020/projects/test_sla2-4
+   nameNode=hdfs://NN1:8020
+   wf_app_path=hdfs://NN1:8020/projects/test_sla2-4/demo
+   jobTracker=JT1:50300
+
+Workflow: **job.properties**
+
+.. code-block:: bash
+
+   oozie.wf.application.path=hdfs://NN1:8020/yoozie_test/workflows/pigtest
+   nameNode=hdfs://NN1:8020
+   jobTracker=JT1:50300
+
+3. Creating the Pig action
+**************************
+
+the pig script should be on NN1.
+for pig 0.8, use 0.8.0..1011230042 patch to use correct hadoop queue.
+
+For example:
+
+**job.properties**
+
+.. code-block:: bash
+
+   inputDir=hdfs://NN2:8020/projects/input-data
+   outputDir=hdfs://NN2:8020/projects/output-demo
+
+
+4. Add a new property to configuration
+**************************************
+
+For every oozie action that needs to refer to input/output on the second namenode, 
+add this property to the action's configuration in workflow.xml
+
+.. code-block:: xml
+
+   <property>
+    <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+    <value>hdfs://NN2:8020</value>
+   </property>
+
+
+5. Confirm that Oozie properties and XML tags are on the default namenode
+*************************************************************************
+
+- oozie.coord.application.path
+- oozie.wf.application.path
+- <name-node>
+- <file>
+- <archive>
+- <sub-workflow><app-path>
+- <job-xml>
+- pipes action's <program>
+- fs action <move source target>
+- pig action's <script>
+
+
+**************************************
+**************************************
+
+
+
+
+More info here.
+Your KEYDB file will look something like this:
+   #. 
