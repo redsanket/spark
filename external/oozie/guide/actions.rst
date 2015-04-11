@@ -32,6 +32,7 @@ We also have an example below for using MapReduce API (version 0.23+).
 
 New MapReduce API
 ~~~~~~~~~~~~~~~~~
+
 To run MR jobs using new API in Oozie, you have to do the following:
 
 - change ``mapred.mapper.class to mapreduce.map.class``
@@ -288,6 +289,8 @@ Pig Action
 ----------
 
 TBD: Note 2: NOT supported pig options: -4 (-log4jconf), -e (-execute), -f (-file), -l (-logfile), -r (-dryrun), -x (-exectype), -P (-propertyFile)
+
+https://cwiki.apache.org/confluence/display/OOZIE/Pig+Cookbook has very good documentation on Pig action
 
 
 Using UDFs (User Defined Functions)

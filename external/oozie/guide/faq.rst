@@ -29,6 +29,9 @@ Questions
 * :ref:`How do you change the timeout for Coordinator actions? <timeout_coord_actions>`
 * :ref:`How do you reprocess Coordinator actions? <reprocess_coord_actions>`
 * :ref:`How do you update a Coordinator definition on the fly? <update_coord>`
+* :ref:`How to reprocess Coordinator actions? <reprocess_cord>`
+* :ref:`Why does Oozie take a long time to update after finishing the corresponding Hadoop job? <long_time_finish>`
+
 
 Answers
 =======
@@ -766,4 +769,40 @@ Answers
    For example, the following will update the Coordinator definition and action:: 
 
        $ oozie job -update -config examples/apps/aggregator/job.properties 
-2. $ oozie job -update Will fetch coord definition path from bundle(if any) and update coord definition
+
+       $ oozie job -update Will fetch coord definition path from bundle(if any) and update coord definition
+
+
+.. _reprocess_cord:
+
+.. topic:: **How to reprocess Coordinator actions?**
+
+   http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#Rerunning_a_Coordinator_Action_or_Multiple_Actions
+   http://twiki.corp.yahoo.com/view/CCDI/OozieClientCommands1#2_8_Rerun_coordinator_action_s_O
+
+
+.. _long_time_finish:
+
+.. topic:: **Why does Oozie take a long time to update after finishing the corresponding Hadoop job?**
+
+
+   Oozie receives the external status in two ways:
+
+   - When Hadoop job finishes, Hadoop make a notification call to Oozie.
+   - If Oozie don't get the callback in 10 minutes, it pro-actively queries the hadoop about the job status. 
+     The later is used as a fall-back step. However, this step will cause delay of nearly 10 minutes.
+
+   Reasons why hadoop callback could not be received on-time:
+
+   - Hadoop took long time to callback Oozie.
+   - Hadoop made the callback and Oozie missed that or rejected the callback due to internal queue overflow.
+
+   How could we find whether Oozie received the Hadoop callback very late:
+   
+   - By looking into Oozie log, we can determine whether there are a lot of late callback received by oozie.
+   - The example command is - grep "E0800: Action it is not running its in \[OK\] state" 
+     oozie.log.2010-04-05-* |wc -l. If there are lot of lines, that means, Oozie is getting a lot of late callbacks.
+
+
+
+
