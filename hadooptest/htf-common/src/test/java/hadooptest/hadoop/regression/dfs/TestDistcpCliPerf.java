@@ -378,7 +378,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
             String[] command = cmd.toArray(new String[0]);
             String[] output = TestSession.exec.runProcBuilderSecurity(command);
             TestSession.logger.info(Arrays.toString(output));
-            Assert.assertTrue("Valdiate proxy" + httpProxyHost + " failed!!! " +
+            Assert.assertTrue("Validate proxy " + httpProxyHost + " failed!!! " +
                     "Return value was not 0!!!",output[0].equals("0"));
         }
     }
