@@ -15,8 +15,23 @@ if [ "$#" -lt 3 ]; then
     exit 1;
 fi
 
-SOURCE_NN=`yinst range -igor_range "@grid_re.clusters.$SOURCE_CLUSTER.namenode"`
-TARGET_NN=`yinst range -igor_range "@grid_re.clusters.$TARGET_CLUSTER.namenode"`
+# Determine the source and target NN.
+# First determine if HA / NN Alias is being used:
+function set_NN() {
+  CLUSTER=$1
+  NN=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode_alias)"`
+  set -x
+  curl -m 3 -s "http://$NN:50070/jmx?get=Hadoop:service=NameNode,name=NameNodeStatus::State" 2>&1 > /dev/null
+  RC=$?
+  set +x
+  if [[ "$RC" != 0 ]]; then
+      NN=`yinst range -igor_range "@grid_re.clusters.$CLUSTER.namenode"`
+  fi
+  echo $NN
+}
+
+SOURCE_NN=`set_NN $SOURCE_CLUSTER`
+TARGET_NN=`set_NN $TARGET_CLUSTER`
 echo "SOURCE_NN=$SOURCE_NN"
 echo "TARGET_NN=$TARGET_NN"
 
