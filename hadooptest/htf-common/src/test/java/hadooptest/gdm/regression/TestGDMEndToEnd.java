@@ -13,6 +13,7 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class TestGDMEndToEnd extends TestSession {
 	private WorkFlowHelper workFlowHelperObj = null;
 	private List<String>dataSetList;
 	private List<String> workFlowNames = new ArrayList<String>();
-	private List<String>dataSourceList= new ArrayList<String>();
+	private List<String> dataSourceList= new ArrayList<String>();
 	private static String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	public static final String dataSetPath = "/console/query/config/dataset/getDatasets";
 	public static final String dataSourcePath = "/console/query/config/datasource";
@@ -126,13 +127,6 @@ public class TestGDMEndToEnd extends TestSession {
 		// check for workflow
 		this.workFlowHelperObj.checkWorkFlow(this.dataSetName , "acquisition", this.dsActivationTime);
 
-		// get the complete step details for completed workflow.
-		JSONObject resumedCompletedWorkFlowDetailedStepsJsonObject = this.workFlowHelperObj.getWorkFlowDetailedSteps("acquisition" , "completed", this.dataSetName, this.COMPLETE_STEPS);
-
-		// check whether step is not override after resuming the workflow
-		boolean isStepOverrideInResumeWorkFlow = checkWhetherStepMatchesInWorkFlowDetails(lastStepSuccessFulStepDetails , resumedCompletedWorkFlowDetailedStepsJsonObject);
-		assertTrue("Failed : " + lastStepSuccessFulStepDetails.toString(5) + " should not have override in RESUME workflow, but it got override " + resumedCompletedWorkFlowDetailedStepsJsonObject.toString(5) , isStepOverrideInResumeWorkFlow == false );
-
 		// restart the completed workflow
 		this.consoleHandle.restartCompletedWorkFlow(this.dataSetName, "acquisition");
 
@@ -148,12 +142,6 @@ public class TestGDMEndToEnd extends TestSession {
 
 		// check for workflow
 		this.workFlowHelperObj.checkWorkFlow(this.dataSetName , "acquisition", this.dsActivationTime);
-
-		// get the complete step details for completed workflow.
-		JSONObject restartCompletedWorkFlowDetailedStepsJsonObject = this.getWorkFlowDetailedSteps("acquisition" , "completed", this.dataSetName, this.COMPLETE_STEPS);
-
-		// compare resumed workflow and restarted workflow that start and end time for each step they should not match.
-		checkCompletedWorkFlows(resumedCompletedWorkFlowDetailedStepsJsonObject , restartCompletedWorkFlowDetailedStepsJsonObject);
 
 		// check for replication workflow 
 		this.workFlowHelperObj.checkWorkFlow(this.dataSetName , "replication", this.dsActivationTime);
@@ -184,43 +172,7 @@ public class TestGDMEndToEnd extends TestSession {
 		this.consoleHandle.removeDataSource(this.target2);
 	}
 
-	/**
-	 * Check whether the given step exists in detailed workflow steps.
-	 * @param lastStepJsonObject
-	 * @param detailedStep
-	 * @return
-	 */
-	public boolean checkWhetherStepMatchesInWorkFlowDetails(JSONObject lastStepJsonObject , JSONObject detailedStep) {
-		boolean isStepOverrideInResumeWorkFlow = true;
-		String stepName  = lastStepJsonObject.getString("Step Name").trim();
-		if (stepName.equals("working.dir")) {
-			TestSession.logger.info("Since working.dir is the first execution step, obviously its value will be override, when workflow is resume or restarted.");
-			isStepOverrideInResumeWorkFlow = false;
-		} else  {
-			JSONArray jsonArray = detailedStep.getJSONArray("Step Executions");
-
-			// navigate the detailed step and find whether step is not override in case of resume workflow
-			Iterator iterator = jsonArray.iterator();
-			while (iterator.hasNext()) {
-				JSONObject stepJsonObject = (JSONObject) iterator.next();
-				String sName = stepJsonObject.getString("Step Name").trim();
-				String startTime = stepJsonObject.getString("Start Time").trim();
-				String endTime = stepJsonObject.getString("EndTime").trim();
-				if (sName.equals(stepName)) {
-					TestSession.logger.info("*********************************************************************************************************************");
-					String sTime = lastStepJsonObject.getString("Start Time").trim();
-					String eTime = lastStepJsonObject.getString("EndTime").trim();
-					assertTrue("Expected startTime was " + sTime  +  "  but got " + startTime , sTime.equals(startTime));
-					assertTrue("Expected startTime was " + eTime  +  "  but got " + startTime , eTime.equals(endTime));
-					isStepOverrideInResumeWorkFlow = false;
-					TestSession.logger.info("Record dn't override = " + isStepOverrideInResumeWorkFlow);
-					TestSession.logger.info("*********************************************************************************************************************");
-					break;
-				}
-			}
-		}
-		return isStepOverrideInResumeWorkFlow;
-	}
+	
 
 	/**
 	 * Compare resumeCompleted workflow steps with restartedCompleted workflow steps.
@@ -500,5 +452,5 @@ public class TestGDMEndToEnd extends TestSession {
 		assertTrue(this.dataSetName + " dn't arrived to running state." , runningCount > 0 );
 		assertTrue("Failed to kill one of the instance of " + this.dataSetName  + " running job =  " + runningCount   + " killed job =  " + killedCount  ,  runningCount == killedCount );
 	}
-
+	
 }
