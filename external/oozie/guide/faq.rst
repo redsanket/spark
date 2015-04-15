@@ -3,7 +3,7 @@ FAQ
 ===
 
 This page answers some of the most common questions we get about Oozie  at Yahoo. For 
-troubleshooting issues, see `Troubleshooting <../troubleshooting/>`_.
+troubleshooting issues, see `Troubleshooting <ts.html>`_.
 
 Questions
 =========
