@@ -38,7 +38,13 @@ import org.junit.rules.TestName;
  * 
  */
 
+/**
+ * https://issues.apache.org/jira/browse/TEZ-2320
+ * @author tiwari
+ *
+ */
 @Category(SerialTests.class)
+@Deprecated() 
 public class TestGroupByOrderByMRRTest extends
 		GroupByOrderByMRRTestExtendedForTezHTF {
 
