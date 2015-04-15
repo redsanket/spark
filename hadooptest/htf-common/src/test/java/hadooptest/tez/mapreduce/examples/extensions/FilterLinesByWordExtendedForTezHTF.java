@@ -176,7 +176,7 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	    
 	    String tezClientName= "FilterLinesByWordSession";
 	    TezClient tezSession = TezClient.create(tezClientName, tezConf,
-	        commonLocalResources, null);
+	        commonLocalResources, credentials);
 	    tezSession.start(); // Why do I need to start the TezSession.
 
 	    Configuration stage1Conf = new JobConf(conf);
