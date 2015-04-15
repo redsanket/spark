@@ -1,6 +1,6 @@
-===============
-How Tos (Draft)
-===============
+=======
+How Tos 
+=======
 
 
 This chapter is for users who have completed the  `Getting Started <../getting_started/>`_
@@ -11,7 +11,7 @@ Creating a Coordinator
 ======================
 
 Coordinators allow you to schedule Oozie Workflows to run. You can think of
-Coordinators as Cron jobs on the grid. Coordinators also allow you
+Coordinators as cron jobs on the grid. Coordinators also allow you
 set inputs and outputs, so you can dynamically run queries with new
 parameters. 
 
@@ -63,6 +63,9 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :alt: Editing Hive action for Benzene Hive query.
       :align: left   
 
+
+   .. note:: Be sure to check **hcat** checkbox for **Advanced->Credentials**.
+
 #. For the **Job Properties**, in addition to ``oozie.action.sharelib.for.hive`` and
    ``hive.querylog.location``, add the properties **input** and **output** that
    should have the values **${input_dataset}** and **${output_dataset}** respectively.
@@ -75,7 +78,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :align: left   
 
 #. for the **Job XML** field, add the path **/user/sumeetsi/hive-site.xml**.
-#. Click **Done**.
+#. Click **Done** and then **Save**.
 
 
 3. Create a Coordinator
@@ -99,7 +102,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :alt: Create a Coordinator.
       :align: left   
 #. From **Coordinator Editor->Step 1: General**, enter a name for your coordinator,  
-   select the Oozie Workflow that you created for **Workflow** drop-down menu,
+   select the Oozie Workflow that you created from the **Workflow** drop-down menu,
    and click **Next**.
 
    .. image:: images/step1_coord.jpg
@@ -110,15 +113,16 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :align: left  
 
 #. From **Coordinator Editor->Step 2: Frequency**, leave the default value for the 
-   start date but change the end date to tomorrow's date. 
+   start date but change the end date to tomorrow's date, and then click **Next**.  
 
    .. note:: Generally, for Coordinators that
-             you create on your own, you will use an end date that is in the distant future. Unfortunately,
+             you create for, you will use an end date in the distant future. Unfortunately,
              you are required to select an end date.
 
 #.  From **Coordinator Editor->Step 3: Frequency**, click **here** to create a dataset.
-    We're going to need to create ones for the parameters **input_dataset** and **output_dataset**
-    that we defined in the Workflow.
+    We're going to need to create two datasets, one for the parameter **input_dataset** and 
+    and one for parameter **output_dataset**. We defined both in the Workflow.
+    
 
    .. image:: images/step3_create_dataset.jpg
       :height: 404 px
@@ -198,6 +202,31 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
 #. From your **home** directory, create the directory **benzeneoutput**. 
    Your Coordinator is going to write output files to this directory.
 
+5. Select Datasets for Input/Output
+-----------------------------------
+
+#. From the **Coordinator Editor**, click **Step 3: Inputs**.
+#. Select **input_dataset** from the **Name** drop-down menu and **benzene_daily_input** from the **Dataset** drop-down menu. 
+
+   .. image:: images/select_input.jpg
+      :height: 360 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Selecting Input Dataset
+      :align: left  
+
+#. Click **Next**.
+#. From **Step 4: Outputs**, select **output_dataset** from the **Name** drop-down menu and **benzene_daily_output** from the **Dataset** drop-down menu.
+
+   .. image:: images/select_output.jpg
+      :height: 364 px
+      :width: 950 px
+      :scale: 90%
+      :alt: Selecting Output Dataset
+      :align: left  
+
+#. Click **Save coordinator**.
+
 5. Submit Your Coordinator
 --------------------------
 
@@ -243,7 +272,8 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :alt: Monitoring Jobs in Job Browser.
       :align: left  
    
-   It may take a few minutes before the job is accepted before it can start. So, if you don't see your jobs, just wait a few minutes.
+   It may take a few minutes before the job is accepted before it can start. So, if you don't see your jobs, just wait a few minutes
+   and refresh the **Job Browser**.
 
 #. Once your jobs have completed, the **Job Browser** will mark your jobs with the green status **Succeeded**.
 
@@ -275,7 +305,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
   
 #. Congratulations, you've successfully run a Coordinator. 
    Before you go, see :ref:`7. Kill Your Coordinator <kill_coord>` 
-   so you can free up grid resources for others.
+   to learn how to kill and suspend a Coordinator. 
 
 
 .. _kill_coord:
@@ -283,7 +313,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
 7. Kill Your Coordinator
 ------------------------
 
-#. From the top-level navigation bar, click **Workflows->Dashboards->Coordinators**.
+#. From the top-level navigation bar, click **Workflows->Dashboards->Coordinator**.
 
    .. image:: images/dashboard_coord.jpg
       :height: 130 px
@@ -301,7 +331,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :alt: Find Coordinator Jobs.
       :align: left  
 
-#. Check the checkbox next to your job and click **Kill**.
+#. If you have jobs running, check the checkbox next to your job and click **Kill**.
 
    .. image:: images/kill_job.jpg
       :height: 197 px
@@ -310,7 +340,7 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :alt: Kill Coordinator Job.
       :align: left  
 
-#. From the **Completed** pane, click on your killed job. This opens up the **Calendar** 
+#. From the **Completed** pane, click on your killed job. This opens up the **Calendar**.
 
    .. image:: images/click_killed_job.jpg
       :height: 95 px
@@ -328,14 +358,34 @@ Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with
       :alt: Suspend Jobs.
       :align: left  
 
+#. Before we delete our Coordinator, we're going to make a copy as a reference. 
+   From **Workflows->Editor->Coordinator**, click the checkbox next to your Coordinator and click **Copy**.
+   
+   .. image:: images/copy_coordinator.jpg
+      :height: 133 px
+      :width: 950px
+      :scale: 90%
+      :alt: Copy Coordinator.
+      :align: left 
 
-Creating a Bundle (TBD)
-=======================
+#. From **Step 5: Advanced settings**, click **Save coordinator**.
+#. From **Workflows->Editor->Coordinator** again, select your original Coordinator and click **Move to trash**.
 
-Overview
---------
+   .. image:: images/delete_coord.jpg
+      :height: 153 px
+      :width: 950px
+      :scale: 90%
+      :alt: Delete the Coordinator.
+      :align: left 
 
-Prerequisites
--------------
+
+.. Creating a Bundle (TBD)
+.. =======================
+
+.. Overview
+.. --------
+
+.. Prerequisites
+.. -------------
 
 

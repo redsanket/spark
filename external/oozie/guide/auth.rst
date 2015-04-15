@@ -114,8 +114,7 @@ To create role in Oozie allowed namespace:
       the ``yca`` certificates of the machine.
 
 
-To invoke Oozie by YCA authentication as the ``<username>`` 
-at one of the registered hosts::
+To invoke Oozie by YCA authentication as the ``<username>`` at one of the registered hosts::
 
     $ oozie job -oozie http://localhost:8080/oozie -run -config job.properties -auth YCA
 
@@ -142,4 +141,108 @@ YCA Authentication With YCA Proxy Server
 ::
 
     $ oozie -Dhttp.proxyHost=yca-proxy.corp.yahoo.com -Dhttp.proxyPort=3128 jobs -oozie http://{oozieurl} -auth YCA
+
+Adding YCA to a Workflow
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creating a Namespace and a Role
+*******************************
+
+This role ``oozie.httpproxy`` is creating for this purpose. You can create your 
+namespace in the roles ``db`` and add a role under the namespace. In our case, namespace 
+is ``oozie`` and role name is ``httpproxy``. Under the role, you can add the user who 
+wants to submit the job with gYCA credential. For example, we use the user ``strat_ci``
+to submit the workflow with gYCA credential, so we add ``strat_ci.wsca.user.yahoo.com``
+to the role ``oozie.httpproxy``. See the example http://roles.corp.yahoo.com:9999/ui/role?action=view&id=217516.
+
+
+Submit a Workflow With the YCAv2(gYCA) Certificate
+**************************************************
+
+User has to specify the gYCA credential explicitly in the workflow beginning and 
+asks Oozie to retrieve certificate whenever an actions needs to call YCA protected 
+Web service. In each credential element, the attribute ``name`` is the key and the attribute ``type``
+indicates which credential to use.
+
+The credential ``type`` is defined in oozie server. For example, on ``axoniteblue-oozie.blue.ygrid.yahoo.com``, 
+the YCA credential type is defined as ``yca``, as in the following::
+
+    yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials
+
+User can give multiple ``credential`` elements under ``credentials`` and specify a 
+list of credentials with comma separated to use under each action ``cred`` attribute.
+There is only one parameter required for the credential ``type``.
+
+- ``yca-role``: the role name contains the user names for YCA v2 certificates.
+
+There are three optional parameters for the credential type ``yca``.
+
+- ``yca-webserver-url``: the YCA server URL. Default is http://ca.yca.platform.yahoo.com:4080
+- ``yca-cert-expiry``: The expiry time of the YCA certificate in seconds. Default is one day (86400). Available from Oozie 3.3.1
+- ``yca-http-proxy-role``: The roles DB role name which contains the hostnames of 
+  the machines in the HTTP proxy vip. Default value is ``grid.httpproxy`` which contains 
+  all http proxy hosts. Depending on the http proxy vip you will be using to send 
+  the obtained YCA v2 certificate to the Web service outside the grid, you can limit 
+  the corresponding role name that contains the hosts of the http proxy vip. The 
+  role names containing members of production http proxy vips are ``grid.blue.prod.httpproxy``, 
+  ``grid.red.prod.httpproxy`` and ``grid.tan.prod.httpproxy``. 
+  For example: http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxycontains the 
+  hosts of production httpproxy. http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy 
+  is a uber role which contains staging, research and production httpproxy hosts.http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList 
+  gives the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
+
+Example Workflow
+****************
+
+.. code-block:: xml
+
+   <workflow-app>
+      <credentials>
+         <credential name='myyca' type='yca'>
+            <property>
+               <name>yca-role</name>
+                  <value>griduser.actualuser</value>
+            </property>
+         </credential> 
+      </credentials>
+      <action cred='myyca'>
+         <map-reduce>
+            ...
+         </map-reduce>
+      </action>
+   <workflow-app>
+
+Java Code Example
+*****************
+
+When Oozie action executor sees a ``cred`` attribute in current action, depending 
+on credential name given, it finds the appropriate credential class to retrieve 
+the token or certificate and insert to action conf for further use. In above example, 
+Oozie gets the certificate of gYCA and passed to action conf. Mapper can then use 
+this certificate by getting it from action conf, and add to http request header 
+when connect to YCA protected web service through HTTPProxy. A certificate or token 
+which retrieved in credential class would set in action conf as the name of credential 
+defined in workflow.xml. The following examples shows sample code to use in mapper 
+or reducer class for talking to YCAV2 protected web service from grid.
+
+.. code-block:: java
+
+
+   //**proxy setup**
+
+   //blue proxy
+   //InetSocketAddress inet = new InetSocketAddress("flubberblue-httpproxy.blue.ygrid.yahoo.com", 4080);
+   //gold proxy
+   InetSocketAddress inet = new InetSocketAddress("httpproxystg-rr.gold.ygrid.yahoo.com", 4080);
+   Proxy proxy = new Proxy(Type.HTTP, inet);
+   URL server = new URL(fileURL);
+
+   //**web service call**
+   String ycaCertificate = conf.get("myyca");
+   HttpURLConnection con = (HttpURLConnection) server.openConnection(proxy);
+   con.setRequestMethod("GET");
+   con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
+
+
+
 

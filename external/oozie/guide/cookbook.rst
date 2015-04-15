@@ -407,12 +407,247 @@ add this property to the action's configuration in workflow.xml
 - pig action's <script>
 
 
-**************************************
-**************************************
+Java Action Copying a Local File to HDFS
+----------------------------------------
+
+Assume a local file ``${filename}`` can be accessed by all cluster nodes. 
+
+For example, the file is located in the home directory, which is globally mounted in blue colo. 
+All cluster nodes can read the local file by the same path, ``${filename}``.
+
+#. Define a java action in your ``workflow.xml``:
+
+.. code-block:: xml
+
+   <action name='java5'>
+       <java>
+           <job-tracker>${jobTracker}</job-tracker>
+           <name-node>${nameNode}</name-node>
+           <configuration>
+               <property>
+                   <name>mapred.job.queue.name</name>
+                   <value>${queueName}</value>
+               </property>
+           </configuration>
+           <main-class>qa.test.tests.testCopyFromLocal</main-class>
+           <arg>${filename}</arg>
+           <arg>${nameNode}${testDir}</arg>
+           <capture-output/>
+       </java>
+       <ok to="decision1" />
+       <error to="fail" />
+   </action>
+
+#. Create your Java main class with the following:
+
+.. code-block:: java
+
+   package qa.test.tests;
+   
+   import org.apache.hadoop.fs.FileSystem;
+   import org.apache.hadoop.fs.FSDataInputStream;
+   import org.apache.hadoop.fs.FSDataOutputStream;
+   import org.apache.hadoop.fs.Path;
+   import org.apache.hadoop.conf.Configuration;
+   
+   import java.io.File;
+   import java.io.FileNotFoundException;
+   import java.io.FileOutputStream;
+   import java.io.IOException;
+   import java.io.OutputStream;
+   import java.util.Calendar;
+   import java.util.Properties;
+   import java.util.Vector;
+   
+   public class testCopyFromLocal {
+           public static void main (String[] args) throws IOException {
+                   String src = args[0];
+                   String dst = args[1];
+                   System.out.println("testCopyFromLocal, source= " + src);
+                   System.out.println("testCopyFromLocal, target= " + dst);
+   
+                   Configuration conf = new Configuration();
+   
+                   Path src1 = new Path(src);
+                   Path dst1 = new Path(dst);
+   
+                   FileSystem fs = FileSystem.get(conf);
+   
+                   try{
+                      //delete local file after copy
+                      fs.copyFromLocalFile(true, true, src1, dst1);
+                   }
+                      catch(IOException ex) {
+                      System.err.println("IOException during copy operation " + ex.toString());
+                      ex.printStackTrace();
+                      System.exit(1);
+                    }
+              }
+   }
 
 
 
+Java Action Printing a List of Dates
+------------------------------------
 
-More info here.
-Your KEYDB file will look something like this:
-   #. 
+The example below prints a list of dates, based on the given start date, end date, and frequency. The *end date* is not included.
+
+#. Define a java action in your ``workflow.xml``.
+
+.. code-block:: xml
+
+   <action name='java_1'>
+       <java>
+           <job-tracker>${jobTracker}</job-tracker>
+           <name-node>${nameNode}</name-node>
+           <configuration>
+               <property>
+                   <name>mapred.job.queue.name</name>
+                   <value>${queueName}</value>
+               </property>
+           </configuration>
+           <main-class>org.apache.oozie.example.DateList</main-class>
+           <!-- Usage: java DateList <start_time>  <end_time> <frequency> <timeunit> <timezone> -->
+           <arg>${START}</arg>
+           <arg>${END}</arg>
+           <arg>${FREQUENCY}</arg>
+           <arg>${TIMEUNIT}</arg>
+           <arg>${TIMEZONE}</arg>
+           <capture-output/>
+       </java>
+       <ok to="decision1" />
+       <error to="fail" />
+   </action>
+
+#. Specify a ``wf:actionData`` function to refer to the output of the java action in the workflow. For example:o
+
+   .. code-block:: xml
+
+      <decision name="decision1">
+          <switch>
+              <case to="end">${(wf:actionData('java_1')['datelist'] == EXPECTED_DATE_RANGE)}</case>
+              <default to="fail" />
+          </switch>
+      </decision>
+
+#. Create an example of the ``job.property`` file:
+
+   .. code-block:: bash
+
+      oozie.wf.application.path=hdfs://gsbl90359.blue.ygrid.yahoo.com:8020/user/strat_ci/yoozie_test/workflows/test_w43-1
+      nameNode=hdfs://gsbl90359.blue.ygrid.yahoo.com:8020
+      jobTracker=gsbl90358.blue.ygrid.yahoo.com:50300
+      queueName=grideng
+
+      START=2011-03-07T01:00Z
+      END=2011-03-07T02:00Z
+      FREQUENCY=15
+      TIMEUNIT=MINUTES
+      TIMEZONE=UTC
+      EXPECTED_DATE_RANGE=2011-03-07T01:00Z,2011-03-07T01:15Z,2011-03-07T01:30Z,2011-03-07T01:45Z
+
+      mapreduce.jobtracker.kerberos.principal=mapred/_HOST@DEV.YGRID.YAHOO.COM
+      dfs.namenode.kerberos.principal=hdfs/_HOST@DEV.YGRID.YAHOO.COM 
+
+#. Create a Java main class:
+
+   .. code-block:: java
+
+      /**
+       * Copyright (c) 2010 Yahoo! Inc. All rights reserved.
+       * Licensed under the Apache License, Version 2.0 (the "License");
+       * you may not use this file except in compliance with the License.
+       * You may obtain a copy of the License at
+       *
+       *   http://www.apache.org/licenses/LICENSE-2.0
+       *
+       *  Unless required by applicable law or agreed to in writing, software
+       *  distributed under the License is distributed on an "AS IS" BASIS,
+       *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       *  See the License for the specific language governing permissions and
+       *  limitations under the License. See accompanying LICENSE file.
+       */
+      package org.apache.oozie.example;
+      
+      import java.io.File;
+      import java.io.FileOutputStream;
+      import java.io.OutputStream;
+      import java.text.DateFormat;
+      import java.text.SimpleDateFormat;
+      import java.util.Calendar;
+      import java.util.Date;
+      import java.util.Properties;
+      import java.util.TimeZone;
+      
+      public class DateList {
+              private static final TimeZone UTC = getTimeZone("UTC");
+              private static String DATE_LIST_SEPARATOR = ",";
+      
+              public static void main(String[] args) throws Exception {
+                      if (args.length < 5) {
+                              System.out
+                                              .println("Usage: java DateList <start_time>  <end_time> <frequency> <timeunit> <timezone>");
+                              System.out
+                                              .println("Example: java DateList 2009-02-01T01:00Z 2009-02-01T02:00Z 15 MINUTES UTC");
+                              System.exit(1);
+                      }
+                      Date startTime = parseDateUTC(args[0]);
+                      Date endTime = parseDateUTC(args[1]);
+                      Repeatable rep = new Repeatable();
+                      rep.setBaseline(startTime);
+                      rep.setFrequency(Integer.parseInt(args[2]));
+                      rep.setTimeUnit(TimeUnit.valueOf(args[3]));
+                      rep.setTimeZone(getTimeZone(args[4]));
+                      Date date = null;
+                      int occurrence = 0;
+                      StringBuilder dateList = new StringBuilder();
+                      do {
+                              date = rep.getOccurrenceTime(startTime, occurrence++, null);
+                              if (!date.before(endTime)) {
+                                      break;
+                              }
+                              if (occurrence > 1) {
+                                      dateList.append(DATE_LIST_SEPARATOR);
+                              }
+                              dateList.append(formatDateUTC(date));
+                      } while (date != null);
+      
+                      System.out.println("datelist :" + dateList+ ":");
+                      //Passing the variable to WF that could be referred by subsequent actions
+                      File file = new File(System.getProperty("oozie.action.output.properties"));
+                      Properties props = new Properties();
+                      props.setProperty("datelist", dateList.toString());
+                      OutputStream os = new FileOutputStream(file);
+                      props.store(os, "");
+                      os.close();
+              }
+      
+              //Utility methods
+              private static DateFormat getISO8601DateFormat() {
+                      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                      dateFormat.setTimeZone(UTC);
+                      return dateFormat;
+              }
+      
+              private static TimeZone getTimeZone(String tzId) {
+                      TimeZone tz = TimeZone.getTimeZone(tzId);
+                      if (!tz.getID().equals(tzId)) {
+                              throw new IllegalArgumentException("Invalid TimeZone: " + tzId);
+                      }
+                      return tz;
+              }
+      
+              private static Date parseDateUTC(String s) throws Exception {
+                      return getISO8601DateFormat().parse(s);
+              }
+              private static String formatDateUTC(Date d) throws Exception {
+                      return (d != null) ? getISO8601DateFormat().format(d) : "NULL";
+              }
+      
+              private static String formatDateUTC(Calendar c) throws Exception {
+                      return (c != null) ? formatDateUTC(c.getTime()) : "NULL";
+              }
+      
+      }
+
+
