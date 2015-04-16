@@ -665,13 +665,15 @@ public class ATSTestsBaseClass extends TestSession {
 				TestSession.logger.info("Response code:"
 						+ response.getStatusCode() + " received.");
 
-				if (response.getStatusCode() == 202) {
+				if (response.getStatusCode() == 200) {
 					break;
 				}
 			} catch (Exception e) {
 				TestSession.logger
 						.error("Exception:"
 								+ e.getClass()
+								+e.getMessage()
+								+e.getStackTrace()
 								+ " Received and the timeline server has not started yet. Loop count ["
 								+ count + "/" + MAX_COUNT + "]");
 				TestSession.logger.error(e.getCause());
@@ -691,6 +693,10 @@ public class ATSTestsBaseClass extends TestSession {
 				command,
 				HadooptestConstants.Location.Identity.HADOOPQA_AS_MAPREDQA_IDENTITY_FILE);
 		timelineserverStarted = true;
+		/*
+		 * Sleep 5 secs before pinging the RM
+		 */
+		Thread.sleep(5000);
 		ensureTimelineserverStarted(rmHost);
 		TestSession.logger.info("Timelineserver started");
 	}

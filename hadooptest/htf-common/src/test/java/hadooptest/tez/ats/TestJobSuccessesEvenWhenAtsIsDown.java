@@ -4,6 +4,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.TestSessionCore;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
 import hadooptest.hadoop.regression.dfs.DfsTestsBaseClass.Force;
@@ -50,6 +51,15 @@ public class TestJobSuccessesEvenWhenAtsIsDown extends ATSTestsBaseClass {
 	@Before
 	public void cleanupAndPrepareForTestRun() throws Exception {
 		//Do not launch seed jobs
+		// Fetch cookies, as these are used later to check if ATS is back up.
+		HTTPHandle httpHandle = new HTTPHandle();
+		String hitusr_1_cookie = null;
+
+		hitusr_1_cookie = httpHandle
+				.loginAndReturnCookie(HadooptestConstants.UserNames.HITUSR_1);
+		TestSession.logger.info("Got cookie hitusr_1:" + hitusr_1_cookie);
+		userCookies
+				.put(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_cookie);
 		
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
 		TestSession.logger.info("copying " + inpFile +" to HDFS!");
