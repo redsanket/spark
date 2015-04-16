@@ -60,8 +60,8 @@ public class OrderedWordCountExtendedForHtf extends OrderedWordCount {
 	 */
 
 	public boolean run(String inputPath, String outputPath, Configuration conf,
-		      int numPartitions, String mode, Session session, TimelineServer timelineServer, String testName)
-			throws Exception {
+		      int numPartitions, String mode, Session session, TimelineServer timelineServer, 
+		      String testName) throws Exception {
 	    TestSession.logger.info("Running OrderedWordCount");
 	    TezConfiguration tezConf;
 	    if (conf != null) {
