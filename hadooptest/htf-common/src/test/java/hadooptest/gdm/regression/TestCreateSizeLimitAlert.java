@@ -17,12 +17,18 @@ import java.util.TimeZone;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
+/**
+ * Test Case : Verify whether size-limit alert is created, when max and min size is specified in the dataset. 
+ *
+ */
 public class TestCreateSizeLimitAlert extends TestSession {
 
 	private ConsoleHandle consoleHandle;
@@ -114,20 +120,33 @@ public class TestCreateSizeLimitAlert extends TestSession {
 		TestSession.logger.info("queueAbortURL  = " + testURL);
 		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(testURL);
 		
-		// navigate the all the alert events and check for the test created alert ( dataset name).
-		JSONArray sizeLimitAlertArray = this.consoleHandle.convertResponseToJSONArray(response, "AlertEvents");
-		Iterator iterator = sizeLimitAlertArray.iterator();
-		while (iterator.hasNext()) {
-			JSONObject jsonObject = (JSONObject) iterator.next();
-			String shortDescription = jsonObject.getString("shortDescription").trim();
-			boolean flag = shortDescription.contains(dataSetName);
-			if(flag == true) {
-				assertTrue("" , flag == true);
-				String alterTypeName = jsonObject.getString("name").trim();	
-				assertTrue("Expected alter name to be size-limit, but got  " + alterTypeName , alterTypeName.equals("size-limit"));
-				String longDescription = jsonObject.getString("longDescription").trim();
-				assertTrue("Expected longDescription to contain " + this.dataSetName + "  but got  " +longDescription   , longDescription.contains(dataSetName));
-			}			
+		String res = response.getBody().asString();
+		TestSession.logger.info("response = " + res);
+		JSONObject alertObj =  (JSONObject) JSONSerializer.toJSON(res.toString());
+		Object obj = alertObj.get("AlertEvents");
+		if (obj instanceof JSONArray) {
+			System.out.println("its an array");
+			JSONArray sizeLimitAlertArray = alertObj.getJSONArray("AlertEvents");
+			Iterator iterator = sizeLimitAlertArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				String shortDescription = jsonObject.getString("shortDescription").trim();
+				boolean flag = shortDescription.contains(dataSetName);
+				if(flag == true) {
+					assertTrue("" , flag == true);
+					String alterTypeName = jsonObject.getString("name").trim();	
+					assertTrue("Expected alter name to be size-limit, but got  " + alterTypeName , alterTypeName.equals("size-limit"));
+					String longDescription = jsonObject.getString("longDescription").trim();
+					assertTrue("Expected longDescription to contain " + this.dataSetName + "  but got  " +longDescription   , longDescription.contains(dataSetName));
+				}			
+			}
+		} else if ( obj instanceof JSONObject ) { // observed that if there is only one alert, then array is not created & testcase fails.
+			System.out.println("its an object");
+			JSONObject AlertEventsObj = alertObj.getJSONObject("AlertEvents");
+			String alterTypeName = AlertEventsObj.getString("name").trim();	
+			assertTrue("Expected alter name to be size-limit, but got  " + alterTypeName , alterTypeName.equals("size-limit"));
+			String longDescription = AlertEventsObj.getString("longDescription").trim();
+			assertTrue("Expected longDescription to contain " + this.dataSetName + "  but got  " +longDescription   , longDescription.contains(dataSetName));
 		}
 	}
 	
