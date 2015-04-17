@@ -78,12 +78,6 @@ the example script below, the line ``export ROOT=/home/myself/oozie/root/`` is i
    </keydb>
 
 
-
-
-
-
-
-
 Using keydb on Client
 *********************
 
@@ -410,7 +404,6 @@ Alternately, you can also install following ``yoozie`` yinst packages to get the
 yinst i yoozie_hadooplibs_maven -br stable
 yinst i yoozie_hbaselibs_maven -br stable
 yinst i yoozie_hcataloglibs_maven -br stable
-
 
 
 

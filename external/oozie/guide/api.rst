@@ -1,13 +1,8 @@
 Oozie REST API
 ==============
 
-Overview
---------
+.. 04/16/15: Copy edited.
 
-
-Coordinator API
----------------
-
-http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a13._Web_Services_API
-
+See the `Web Service API documentation <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/WebServicesAPI.html>`_
+on the Mithril Blue cluster.
 
