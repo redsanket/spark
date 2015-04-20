@@ -5,9 +5,12 @@ import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -24,6 +27,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
@@ -40,6 +44,7 @@ import org.apache.tez.dag.api.TezConfiguration;
 import org.apache.tez.dag.api.Vertex;
 import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
+import org.apache.tez.dag.api.client.StatusGetOpts;
 import org.apache.tez.mapreduce.input.MRInput;
 import org.apache.tez.mapreduce.output.MROutput;
 import org.apache.tez.mapreduce.processor.SimpleMRProcessor;
@@ -72,6 +77,7 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 	static String OUTPUT = "Output";
 	static String TOKENIZER = "Tokenizer";
 	static String SUMMATION = "Summation";
+	protected static ApplicationId appId;
 
 	/*
 	 * Example code to write a processor in Tez. Processors typically apply the
@@ -115,9 +121,9 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 					// Count 1 every time a word is observed. Word is the key a
 					// 1 is the value
 //					System.out.println("Processing taskId " + myContext.getTaskIndex() +" now......");
-					if (myContext.getTaskIndex() == 13) {						
+					if (myContext.getTaskIndex() == 5) {						
 						if (myContext.getTaskAttemptNumber() == 0) {
-//							System.out.println("Processing taskAttempt 0 now.......going slow");
+							System.out.println("Processing taskAttempt 0 now.......going slow for " + myContext.getTaskIndex());
 							Thread.sleep(1000);
 							kvWriter.write(word, one);
 						} else {
@@ -249,7 +255,7 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 
 		// Create DAG and add the vertices. Connect the producer and consumer
 		// vertices via the edge
-		DAG dag = DAG.create("WordCount");
+		DAG dag = DAG.create("TezSpecExecWordCount");
 		dag.addVertex(tokenizerVertex)
 				.addVertex(summationVertex)
 				.addEdge(
@@ -317,8 +323,11 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		baseConf.setBoolean("tez.am.speculation.enabled", true);
 		baseConf.setBoolean("tez.am.speculation.enabled.default", true);
 		baseConf.set("tez.am.legacy.speculative.slowtask.threshold", "1");
-		baseConf.set("tez.queue.name", "a");
+		baseConf.set("tez.queue.name", "default");
 		
+//		baseConf.set("tez.am.resource.memory.mb", "2048");		
+//		baseConf.set("tez.am.java.opts", "-Xmx4096m");
+//		baseConf.set("tez.task.resource.memory.mb","4096");
 
 		/**
 		 * 	Int value. Time (in seconds) for which the Tez AM should wait for a
@@ -326,11 +335,13 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		 * mode.
 		 */
 
-		baseConf.setInt(TezConfiguration.TEZ_SESSION_AM_DAG_SUBMIT_TIMEOUT_SECS, 30);
-		baseConf.set("tez.lib.uris", "${fs.defaultFS}/sharelib/v1/tez/TezSpecExec,${fs.defaultFS}/sharelib/v1/tez/TezSpecExec/lib");		
+		baseConf.setInt(TezConfiguration.TEZ_SESSION_AM_DAG_SUBMIT_TIMEOUT_SECS, 30);		
 		
 		TezConfiguration tezConf;
 		tezConf = new TezConfiguration(baseConf);
+		tezConf.addResource(new FileInputStream("/home/gs/conf/tez/current/tez-site.xml"));
+		System.out.println("tez.task.resource.memory.mb==" + tezConf.get("tez.task.resource.memory.mb"));
+
 
 		UserGroupInformation.setConfiguration(tezConf);
 
@@ -348,7 +359,8 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 			tezClient.waitTillReady();
 			// submit the dag and receive a dag client to monitor the progress
 			DAGClient dagClient = tezClient.submitDAG(dag);
-
+			
+			appId = tezClient.getAppMasterApplicationId();
 			// monitor the progress and wait for completion. This method blocks
 			// until the dag is done.
 			DAGStatus dagStatus = dagClient
