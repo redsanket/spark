@@ -1,11 +1,15 @@
 Actions
 =======
 
+.. 04/15/15: Copy edited section.
+.. TBD: Need to act links for each action to the public Oozie docs.
+
 Overview
 --------
 
-Action nodes are the mechanism by which a workflow triggers the execution of a 
-computation/processing task. Oozie provides support for different types of actions: 
+Actions are the mechanism by which a Workflow triggers the execution of a 
+computation or processing task. Oozie provides support for the following 
+types of actions: 
 
 - MapReduce
 - Java
@@ -19,27 +23,27 @@ computation/processing task. Oozie provides support for different types of actio
 - Streaming
 - DistCp
 
-Oozie can be extended to support additional type of actions. 
-`Map Reduce <https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook>`_, and 
-`Pig <https://cwiki.apache.org/confluence/display/OOZIE/Pig+Cookbook>`_ examples, we'll focus
-on the other actions.  
+Oozie can also be extended to support additional type of actions. 
+We're going to take a look at each type of action in the sections below. 
 
 MapReduce
 ---------
 
-See the external Oozie `MapReduce Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook>`_.
-We also have an example below for using MapReduce API (version 0.23+).
+For a basic MapReduce example, we recommend that you 
+see the external Oozie `MapReduce Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook>`_.
+
+The example below using the new MapReduce API (version 0.23+).
 
 New MapReduce API
 ~~~~~~~~~~~~~~~~~
 
-To run MR jobs using new API in Oozie, you have to do the following:
+To run MapReduce jobs using new API in Oozie, you need to do the following:
 
 - change ``mapred.mapper.class to mapreduce.map.class``
 - change ``mapred.reducer.class to mapreduce.reduce.class``
 - add ``mapred.output.key.class``
 - add ``mapred.output.value.class``
-- include the following property into MR action configuration:
+- include the following property in the configuration for the MapReduce action:
 
   .. code-block:: xml
 
@@ -55,6 +59,8 @@ To run MR jobs using new API in Oozie, you have to do the following:
 Workflow for New MapReduce API
 ******************************
 
+The example Workflow XML below shows you how you
+would configure your Workflow to use the new MapReduce API.
 
 .. code-block:: xml
 
@@ -116,12 +122,10 @@ Workflow for New MapReduce API
      </configuration>
    </map-reduce>
 
-
-
 Java Action
 -----------
 
-In addition to the example given below, we suggest you also see the external Oozie
+In addition to the below example, we suggest you also see the external Oozie
 `Java Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Java%20Cookbook>`_.
 
 Workflow
@@ -160,9 +164,9 @@ Java main Class
 ~~~~~~~~~~~~~~~
 
 The sample class ``org.apache.oozie.test.MyTest`` should be packaged in a JAR file 
-and put in your workflow lib/ directory.
+and put in your Workflow ``lib`` directory.
 
-Here's a sample Java main class.
+Here's the sample Java ``main`` class.
 
 .. code-block:: java
 
@@ -197,7 +201,7 @@ Here's a sample Java main class.
 Create Java Action Using Perl Script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Define a java action in your workflow.xml
+Define a Java action in your ``workflow.xml``:
 
 .. code-block:: xml
 
@@ -226,12 +230,12 @@ Define a java action in your workflow.xml
 Write Java Wrapper for Perl Script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Upload the Perl script (test.pl) and Perl module (DatetimeHlp.pm) to the ``oozie.wf.application.path`` 
-directory on HDFS. The ``main`` class should be packaged in a JAR file and uploaded to 
-``oozie.wf.application.path/lib directory``.
+Upload the Perl script (``test.pl``) and Perl module (``DatetimeHlp.pm``) 
+to the ``oozie.wf.application.path`` directory on HDFS. The ``main`` 
+class should be packaged in a JAR file and uploaded to  
+``oozie.wf.application.path/lib`` directory.
 
 Here's the sample Java ``main`` class:
-
 
 .. code-block:: java
 
@@ -278,19 +282,25 @@ Here's the sample Java ``main`` class:
 Hive Action
 -----------
 
-http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_HiveActionExtension.html
-Example for using Hive Action in oozie workflow with HCatalog
-kryptonitered-oozie.red.ygrid.yahoo.com%3A4080%2Foozie%2Fdocs%2FDG_HiveActionExtension.html&sa=D&sntz=1&usg=AFQjCNEpSSun_h-SAGH7zQfOX_aDl5TC2Q
-
-
-
+See the `Hive Action <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_HiveActionExtension.html>`_
+documentation on the Kryptonite Red cluster, which also includes the Hive schema for v0.2 to v0.5.
+ 
 
 Pig Action
 ----------
 
-TBD: Note 2: NOT supported pig options: -4 (-log4jconf), -e (-execute), -f (-file), -l (-logfile), -r (-dryrun), -x (-exectype), -P (-propertyFile)
 
-https://cwiki.apache.org/confluence/display/OOZIE/Pig+Cookbook has very good documentation on Pig action
+See the `Pig Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Pig+Cookbook>`_ in the Apache documentation. 
+
+.. note:: The following options for Pig actions are not supported:
+
+          - ``-4 (-log4jconf)``
+          - ``-e (-execute)`` 
+          - ``-f (-file)``
+          - ``-l (-logfile)``
+          - ``-r (-dryrun)``
+          - ``-x (-exectype)``
+          - ``-P (-propertyFile)``
 
 
 Using UDFs (User Defined Functions)
@@ -299,19 +309,25 @@ Using UDFs (User Defined Functions)
 **Summary Table for Cases**
  
 .. csv-table:: Use Cases for UDFs in Pig Actions
-   :header: "", "``udf.jar in Worklow ``/lib`` Directory?", "Register in Pig Script?", "``udf.jar`` in File?", "``udf.jar`` in Archive?"
+   :header: "", "``udf.jar`` in Worklow ``lib`` Directory?", "Register in Pig Script?", "``udf.jar`` in File?", "``udf.jar`` in Archive?"
    :widths: 15, 10, 30
 
    "Case 1", "Yes", "No", "No", "No"
-   "Case 2", "No (must use a different directory other than ``/lib``)", "Yes", "Yes", "No"
-   "Case 3", "No (must use a different directory other than ``/lib``)", "Yes", "No", "Yes"
+   "Case 2", "No (must use a different directory other than ``lib``)", "Yes", "Yes", "No"
+   "Case 3", "No (must use a different directory other than ``lib``)", "Yes", "No", "Yes"
 
 
-Use Case 1: TBD
-***************
+Use Case One: Basic Pig Script
+******************************
+
+The first use case simply reads input, processes that input, and then writes
+the date to an output directory. We're also defining to
+variables in the Workflow XML that are used in the Pig script.
 
 Example Pig Script
 ++++++++++++++++++
+
+``script.pig``
 
 .. code-block:: bash
 
@@ -347,14 +363,17 @@ Example Workflow
        <error to="fail" />
    </action>
 
-Use Case 2: TBD
-***************
+Use Case 2: Using a Custom JAR
+******************************
 
-put a customized jar in the HDFS directory other than workflow lib/ directory. then 
-this jar file needs to be in <file> and needs to be "Register" in pig script. also 
-please make sure that symlink (e.g, #udf.jar) is specified in <file> otherwise 
-error out. Symlink option ensures tasktracker to create symlink in current working 
-directory of pig client(on launcher mapper), and without it, pig client cannot find the udf jar file.
+In this example use case, we're putting a custom JAR in the HDFS directory 
+in addition to the Workflow ``lib`` directory. The location of the JAR needs to
+be specified in the ``<file>`` element in ``workflow.xml`` and registered in the Pig script.
+
+Also, the specified path in ``workflow.xml`` must include the symlink (e.g., ``#udf.jar``),
+otherwise an error will occur. The symlink ensures that the TaskTracker creates 
+a symlink in the current working directory of the Pig client (on the launcher mapper);
+without the symlink, the Pig client cannot find the UDF JAR file.
 
 Pig Script
 ++++++++++
@@ -389,134 +408,144 @@ Workflow
            <script>org/apache/oozie/examples/pig/script.pig</script>
            <param>INPUT=${inputDir}</param>
            <param>OUTPUT=${outputDir}/pig-output2</param>
-           <archive>/tmp/tutorial-udf.jar#udf.jar</archive>
+           <file>/tmp/tutorial-udf.jar#udf.jar</file>
        </pig>
        <ok to="decision1" />
        <error to="fail" />
    </action>
 
 
-Case 3: TBD
-***********
-
-(NOT recommended, NOT work with Hadoop 23 and after): put a customized jar in the 
-HDFS directory other than workflow lib/ directory, then jar file in <archive> 
-instead of <file> . This case has been working with hadoop version up to 0.20.*** , 
-since <archive> has undocumented behavior of copying the original jar file under 
-top directory after being expanded. Note this is NOT supported in Hadoop 23 
-
-.. note:: (http://twiki.corp.yahoo.com/view/Grid/HadoopNextUserImpact#Application_Compatibility), 
-          and this case will break. It is strongly recommended to start using <file> Please 
-          refer to CASE 2 above orhttp://bug.corp.yahoo.com/show_bug.cgi?id=5729898 about 
-          how to change <archive> to <file>.
-
-Pig Script
-++++++++++
+.. Case Three: TBD
+.. ***********
 
 
-.. code-block:: bash
+.. (NOT recommended, NOT work with Hadoop 23 and after): put a customized jar in the 
+.. HDFS directory other than workflow lib/ directory, then jar file in <archive> 
+.. instead of <file> . This case has been working with hadoop version up to 0.20.*** , 
+.. since <archive> has undocumented behavior of copying the original jar file under 
+.. top directory after being expanded. Note this is NOT supported in Hadoop 23 
 
-   REGISTER udfjar/tutorial-udf.jar
-   A = load '$INPUT/student_data' using PigStorage('\t') as (name: chararray, age: int, gpa: float);
-   B = foreach A generate org.apache.pig.tutorial.UPPER(name);
-   store B into '$OUTPUT' USING PigStorage();
+.. .. note:: 
+          It is strongly recommended to start using ``<file>``
+          Refer to Case Two above or http://bug.corp.yahoo.com/show_bug.cgi?id=5729898 about 
+          how to change ``<archive>`` to ``<file>``. (http://twiki.corp.yahoo.com/view/Grid/HadoopNextUserImpact#Application_Compatibility), 
+          and this case will break. 
 
-
-Workflow
-++++++++
-
-
-.. code-block:: xml
-
-   ... ...
-       <action name='pig2'>
-           <pig>
-               <job-tracker>${jobTracker}</job-tracker>
-               <name-node>${nameNode}</name-node>
-               <configuration>
-                   <property>
-                       <name>mapred.job.queue.name</name>
-                       <value>${queueName}</value>
-                   </property>
-                   <property>
-                       <name>mapred.compress.map.output</name>
-                       <value>true</value>
-                   </property>
-               </configuration>
-               <script>org/apache/oozie/examples/pig/script.pig</script>
-               <param>INPUT=${inputDir}</param>
-               <param>OUTPUT=${outputDir}/pig-output2</param>
-               <archive>/tmp/tutorial-udf.jar#udfjar</archive>
-           </pig>
-           <ok to="decision1" />
-           <error to="fail" />
-       </action>
-   ... ...
-
-.. note:: You cannot put ``udf.jar` in the Workflow ``lib/`` when file is already in 
-          ``<file>`` or ``<archive>`` otherwise oozie will error out::
-
-              Error starting action [pig2]. ErrorType [TRANSIENT], ErrorCode [JA009], Message [JA009: 
-              The core URI, "hdfs://gsbl90390.blue.ygrid.yahoo.com/user/mchiang/yoozie_test/workflows/pig-2/lib/tutorial-udf.jar" 
-              is listed both in mapred.cache.files and in mapred.cache.archives .]
-
-Use Case 4: TBD
-***************
-
-Pig Script
-++++++++++
-
-.. code-block:: bash
-
-   REGISTER udfjar/tutorial-udf.jar
-   A = load '$INPUT/student_data' using PigStorage('\t') as (name: chararray, age: int, gpa: float);
-   B = foreach A generate org.apache.pig.tutorial.UPPER(name);
-   store B into '$OUTPUT' USING PigStorage();
-
-Workflow
-++++++++
-
-.. code-block:: xml
-
-   ... ...
-       <action name='pig2'>
-           <pig>
-               <job-tracker>${jobTracker}</job-tracker>
-               <name-node>${nameNode}</name-node>
-               <configuration>
-                   <property>
-                       <name>mapred.job.queue.name</name>
-                       <value>${queueName}</value>
-                   </property>
-                   <property>
-                       <name>mapred.compress.map.output</name>
-                       <value>true</value>
-                   </property>
-               </configuration>
-               <script>org/apache/oozie/examples/pig/script.pig</script>
-               <param>INPUT=${inputDir}</param>
-               <param>OUTPUT=${outputDir}/pig-output2</param>
-               <!-- error: lib/*jar cannot be in archive -->
-               <archive>lib/tutorial-udf.jar#udfjar</archive>
-           </pig>
-           <ok to="decision1" />
-           <error to="fail" />
-        </action>
-   ... ...
-
-
+.. Pig Script
+.. ++++++++++
+.. 
+.. 
+.. .. code-block:: bash
+.. 
+..    REGISTER udfjar/tutorial-udf.jar
+..    A = load '$INPUT/student_data' using PigStorage('\t') as (name: chararray, age: int, gpa: float);
+..    B = foreach A generate org.apache.pig.tutorial.UPPER(name);
+..    store B into '$OUTPUT' USING PigStorage();
+.. 
+.. 
+.. Workflow
+.. ++++++++
+.. 
+.. 
+.. .. code-block:: xml
+.. 
+..    ... ...
+..        <action name='pig2'>
+..            <pig>
+..                <job-tracker>${jobTracker}</job-tracker>
+..                <name-node>${nameNode}</name-node>
+..                <configuration>
+..                    <property>
+..                        <name>mapred.job.queue.name</name>
+..                        <value>${queueName}</value>
+..                    </property>
+..                    <property>
+..                        <name>mapred.compress.map.output</name>
+..                        <value>true</value>
+..                    </property>
+..                </configuration>
+..                <script>org/apache/oozie/examples/pig/script.pig</script>
+..                <param>INPUT=${inputDir}</param>
+..                <param>OUTPUT=${outputDir}/pig-output2</param>
+..                <archive>/tmp/tutorial-udf.jar#udfjar</archive>
+..            </pig>
+..            <ok to="decision1" />
+..            <error to="fail" />
+..        </action>
+..    ... ...
+.. 
+.. .. note:: You cannot put ``udf.jar` in the Workflow ``lib/`` when file is already in 
+..           ``<file>`` or ``<archive>`` otherwise oozie will error out::
+.. 
+..               Error starting action [pig2]. ErrorType [TRANSIENT], ErrorCode [JA009], Message [JA009: 
+..               The core URI, "hdfs://gsbl90390.blue.ygrid.yahoo.com/user/mchiang/yoozie_test/workflows/pig-2/lib/tutorial-udf.jar" 
+..               is listed both in mapred.cache.files and in mapred.cache.archives .]
+.. 
+.. Use Case 4: TBD
+.. ***************
+.. 
+.. Pig Script
+.. ++++++++++
+.. 
+.. .. code-block:: bash
+.. 
+..    REGISTER udfjar/tutorial-udf.jar
+..    A = load '$INPUT/student_data' using PigStorage('\t') as (name: chararray, age: int, gpa: float);
+..    B = foreach A generate org.apache.pig.tutorial.UPPER(name);
+..    store B into '$OUTPUT' USING PigStorage();
+.. 
+.. Workflow
+.. ++++++++
+.. 
+.. .. code-block:: xml
+.. 
+..    ... ...
+..        <action name='pig2'>
+..            <pig>
+..                <job-tracker>${jobTracker}</job-tracker>
+..                <name-node>${nameNode}</name-node>
+..                <configuration>
+..                    <property>
+..                        <name>mapred.job.queue.name</name>
+..                        <value>${queueName}</value>
+..                    </property>
+..                    <property>
+..                        <name>mapred.compress.map.output</name>
+..                        <value>true</value>
+..                    </property>
+..                </configuration>
+..                <script>org/apache/oozie/examples/pig/script.pig</script>
+..                <param>INPUT=${inputDir}</param>
+..                <param>OUTPUT=${outputDir}/pig-output2</param>
+..                <!-- error: lib/*jar cannot be in archive -->
+..                <archive>lib/tutorial-udf.jar#udfjar</archive>
+..            </pig>
+..            <ok to="decision1" />
+..            <error to="fail" />
+..         </action>
+..    ... ...
+.. 
+.. 
+.. 
 
 
 Streaming Action
 ----------------
 
-Overview
-~~~~~~~~
+The following example of a Streaming action simply 
+takes output from ``cat`` and then counts the lines, 
+words, and bytes. The count is then written to an
+output directory. 
+
 
 Example
 ~~~~~~~
 
-.. code-block::
+The Streaming action simply pipes output from a
+mapper to a reducer with ``org.apache.hadoop.streaming.PipeMapRunner``
+as shown below.
+
+.. code-block:: xml
 
    <action>
    ...
@@ -530,10 +559,11 @@ Example
    ...
    </action>
 
+
 Sample Output
 ~~~~~~~~~~~~~
 
-Output will be written to ``${outputDir}/streaming-output``.
+The output from the reducer ``wc`` will be written to ``${outputDir}/streaming-output``.
 
 .. code-block:: xml
 
@@ -578,19 +608,39 @@ Output will be written to ``${outputDir}/streaming-output``.
        <end name='end' />
    </workflow-app>
 
-
 Fs Action
 ---------
 
-How to chmod recursively
+If you wanted to recursively change the permissions of a directory and its contents,
+you would run the following HDFS command: ``hdfs dfs -chmod -R 766 <dir>;``
 
-Oozie can perform the ‘chmod’ in a directory. Please see the following spec.
-http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a3.2.4_Fs_HDFS_action
-You can chmod recursively in a PIG script
+The following ``workflow.xml``, like the command above, recursively changes the permissions
+of a directory:
 
-$ cat script.pig
+.. code-block:: xml
 
-fs -chmod -R 777 <dir>;
+   <workflow-app name="sample-wf" xmlns="uri:oozie:workflow:0.5">
+      ...
+      <action name="hdfscommands">
+         <fs>
+            <delete path='hdfs://foo:8020/usr/tucu/temp-data'/>
+            <mkdir path='archives/${wf:id()}'/>
+            <move source='${jobInput}' target='archives/${wf:id()}/processed-input'/>
+            <chmod path='${jobOutput}' permissions='-rwxrw-rw-' dir-files='true'><recursive/></chmod>
+            <chgrp path='${jobOutput}' group='testgroup' dir-files='true'><recursive/></chgrp>
+         </fs>
+         <ok to="myotherjob"/>
+         <error to="errorcleanup"/>
+     </action>
+     ...
+   </workflow-app>
+
+
+See `Fs HDFS Action <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a3.2.4_Fs_HDFS_action>`_
+on the Mithril Blue cluster for more detailed information and an additional examples.
+
+.. note:: You can also recursively change permissions in a Pig script. For example,
+          the Pig script ``script.pig`` could have the command ``hdfs dfs -chmod -R 766 <dir>;``.
 
 
 Shell Action
@@ -599,9 +649,9 @@ Shell Action
 Using Global Section
 ~~~~~~~~~~~~~~~~~~~~
 
-To be able to use the global section in your Oozie workflow for defining configuration 
-parameters applicable to all actions, specifically shell action here, make sure 
-you are using the latest shell xml namespace 0.3
+To use the global section in your Oozie workflow for defining configuration 
+parameters applicable to all actions, specifically shell actions, use
+the latest shell XML namespace 0.3 as shown below.
 
 .. code-block:: xml
 
@@ -628,31 +678,74 @@ you are using the latest shell xml namespace 0.3
    </workflow>
 
 
-
-
 Ssh Action
 ----------
 
-
+See `Oozie Ssh Action Extension <https://oozie.apache.org/docs/3.2.0-incubating/DG_SshActionExtension.html>`_ 
+for the syntax, an example, and the schema for the Ssh action.
 
 Email Action
 ------------
 
-To send email to ilist, ilist setting needs to be changed such that it allows post 
-from non-members. no config change needed when sending to individual account.
-"List admin" > "Edit List Config" > "Sending/Reception" > "Who can send messages" 
-should probably be set to 'public list (open)'
+The example Email action below sends a message with a subject,
+body, and the sender's address. 
+
+.. code-block:: xml
+
+   <action name="email_notification" cred="">
+        <email xmlns="uri:oozie:email-action:0.1">
+            <to>someyahoo@yahoo-inc.com</to>
+            <subject>Oozie Workflow Example</subject>
+            <body>This is a sample email</body>
+        </email>
+        <ok to="end"/>
+        <error to="kill"/>
+    </action>
+
+See `Oozie Email Action Extension <http://oozie.apache.org/docs/3.2.0-incubating/DG_EmailActionExtension.html>`_ 
+for the syntax, an example, and the schema for the Email action.
+
+.. note:: To send email to an iList, the iList setting needs to allow posts 
+          from non-members. no config change needed when sending to individual account.
+          "List admin" > "Edit List Config" > "Sending/Reception" > "Who can send messages" 
+          should probably be set to 'public list (open)'
 
 
 Sub-workflow Action
 -------------------
 
+See `Oozie Sub-Workflow Action Extension <https://oozie.apache.org/docs/3.2.0-incubating/WorkflowFunctionalSpec.html#a3.2.6_Sub-workflow_Action
+>`_ for the syntax, an example, and the schema for the Sub-workflow action.
+
 DistCp Action
 -------------
 
+`DistCp <https://hadoop.apache.org/docs/r1.2.1/distcp.html>`_ is a tool used for large inter/intra-cluster copying.
 
-Distcp V2 action support
-http://twiki.corp.yahoo.com/view/CCDI/DistcpV2Action
+The following ``workflow.xml`` copies a bzipped file 
+to a user's home directory. 
+
+.. code-block:: xml
+
+   <workflow-app name="hue_tutorial_workflow" xmlns="uri:oozie:workflow:0.4">
+      <start to="copy_dataset"/>
+
+         <action name="copy_data" cred="hcat">
+            <distcp xmlns="uri:oozie:distcp-action:0.1">
+               <job-tracker>${jobTracker}</job-tracker>
+               <name-node>${nameNode}</name-node>
+                  <arg>/tmp/dataset.bz2</arg>
+                  <arg>/user/yhoo_star/</arg>
+            </distcp>
+            <ok to="del_db_tables"/>
+            <error to="kill"/>
+         </action>
+         <kill name="kill">
+            <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+         </kill>
+         <end name="end"/>
+   </workflow-app>
+
 
 
 -

@@ -2,28 +2,22 @@
 Coordinators
 ============
 
+.. 04/20/15: Rewrote
+
 Overview
 --------
 
-Oozie is the workflow management solution for the Grid. It is provided as a service on the Yahoo! Grids.
+Oozie is the workflow management solution for the Grid. It is provided as a service on the Yahoo Grids.
 Oozie is comprised of two components:
 
-**Workflow Engine**
+- **Workflow Engine** - Executes the Workflow actions that are arranged in a control dependency acyclic graph (DAG)
+  The Workflow Engine supports the following actions: Map-Reduce, Pig, Streaming, Pipes, Java, File system operations:w
 
-Executes workflow actions that are arranged in a control dependency acyclic graph (DAG)
-Supports the following actions: Map-Reduce, Pig, Streaming, Pipes, Java, File system operations
+- **Coordinator Engine** - Triggers the Workflow execution based on time (like cron)
+  or on the input data availability.
 
-**Coordinator Engine**
-
-Triggers workflow execution based on time (like cron)
-Triggers workflow execution based on input data availability
-
-The following document will describe common use cases for both Oozie components. 
-You will learn when you should use the Oozie Workflow Engine, and when you should 
-use the Oozie Coordinator.
-
-Architecture Overview
----------------------
+The diagram below shows how the Oozie client uses the Oozie Web Service to create
+Coordinators that run on the Oozie server based on frequency or data availability.
 
 .. image:: images/coord_overview.jpg
    :height: 316px
@@ -32,10 +26,15 @@ Architecture Overview
    :alt: Oozie Technology Stack
    :align: right
 
+This chapter will describe common use cases for both Oozie components. 
+You will learn when you should use the Oozie Workflow Engine and when you should 
+use the Oozie Coordinator. See also Apache's `Oozie Coordinator Specification <http://oozie.apache.org/docs/3.2.0-incubating/CoordinatorFunctionalSpec.html>`_.
+
+
 Coordinator Schema
 ------------------
 
-http://www.google.com/url?q=http%3A%2F%2Fkryptonitered-oozie.red.ygrid.yahoo.com%3A4080%2Foozie%2Fdocs%2FCoordinatorFunctionalSpec.html%23Oozie_Coordinator_Schema_0.4&sa=D&sntz=1&usg=AFQjCNFJPfF_GnDDApd_K3Lpj-6Y4z3LFg
+See `Appendix A, Oozie Coordinator XML-Schema <http://kryptonitered-oozie.red.ygrid.yahoo.com%3A4080%2Foozie%2Fdocs%2FCoordinatorFunctionalSpec.html%23Oozie_Coordinator_Schema_0.4&sa=D&sntz=1&usg=AFQjCNFJPfF_GnDDApd_K3Lpj-6Y4z3LFg>`_ for the schemas for the Oozie Coordinator schemas for v0.1, v0.2, and v0.4.
 
 Use Cases
 ---------
@@ -43,45 +42,48 @@ Use Cases
 Overview
 ~~~~~~~~
 
-Here is a typical use case for the Oozie Workflow Engine:
+The typical use case for the Oozie Workflow Engine meets the following conditions:
 
-- You have a workflow (that may consist of several actions), and you want to run the workflow in an adhoc manner.
-  These actions can be: map-reduce, PIG, streaming, pipes, etc...
-- The input data to your workflow is already available on the Grid, before you start your workflow.
+- You have a Workflow (that may consist of several actions), and you want to run the workflow in an ad hoc manner.
+  These actions can be: Map-Reduce, Pig, Streaming, Pipes, etc.
+- The input data to your workflow is already available on the Grid.
 
-Here are some typical use cases for the Oozie Coordinator Engine.
+You would use the Oozie Coordinator Engine if you want to run your Workflow:
 
-- You want to run your workflow once a day at 2PM (similar to a CRON).
-- You want to run your workflow every hour and you also want to wait for specific data feeds to be available on HDFS
-- You want to run a workflow that depends on other workflows.
+- once per day at 2 p.m. (similar to a cron).
+- every hour and you also want to wait for specific data feeds to be available on HDFS.
+- that depends on other workflows.
 
 Benefits
 ********
 
-Easily define all your requirements for triggering your workflow in an XML file.
-Avoid running multiple crontabs to trigger your workflows.
-Avoid writing custom scripts that poll HDFS to check for input data and trigger workflows.
-Oozie is provided as a service by the Grid Operations Team. You do not need to install software to start using Oozie on the Grid.
+Coordinators allow you to do the following:
 
-Coordinator
-~~~~~~~~~~~
+- easily define all your requirements for triggering your Workflow in an XML file.
+- avoid running multiple crontabs to trigger your workflows.
+- trigger Workflows based on changes to input data, so you don't need to write custom scripts that poll HDFS. 
+
+
+Coordinators
+~~~~~~~~~~~~
 
 Basic Coordinator Job
 *********************
 
 If you want to trigger workflows based on time or availability of data, then you should use the Oozie Coordinator Engine.
-The input to the Oozie Coordinator Engine is a Coordinator App.
+The input to the Oozie Coordinator Engine is a Coordinator application.
 
-A Coordinator App consists of 2 files.
+A Coordinator application consists of the following two files.
 
-- coordinator.xml: Contains the definition for your Coordinator Job
-- coordinator.properties: Contains properties that you want to pass to your Coordinator Job
+- ``coordinator.xml``: Contains the definition for your Coordinator job.
+- ``coordinator.properties``: Contains properties that you want to pass to your Coordinator job.
 
-These files are used to create a Coordinator Job. A Coordinator Job is an instance 
-of your Coordinator App. The Coordinator App is a template that is used to create 
-Coordinator Jobs.
+These files are used to create a Coordinator job. A Coordinator job is an instance 
+of your Coordinator application. The Coordinator application, in turn, is a template that is 
+used to create Coordinator jobs.
 
-#. The coordinator app definition is defined in a file named coordinator.xml.
+
+#. The coordinator application definition is defined in a file named ``coordinator.xml``.
 
    .. code-block:: xml
 
@@ -95,14 +97,17 @@ Coordinator Jobs.
       </coordinator-app>
 
 
-   This Coordinator Job is assigned the name MY_APP.
-   It will run every 60 minutes.
-   It will start at 2009-01-01T05:00Z and end at 2009-01-01T06:00Z. (Refer here for more info on Data/Time Formatting).
-   Since the start and end times are 60 minutes apart, this job will run only once.
-   When this job is triggered, it will run this workflow: hdfs://localhost:9000/tmp/workflows/workflow.xml
+   From the ``coordinatory.xml``, we can derive the following information about the Coordinator job:
+
+   - It is assigned the name MY_APP.
+   - It will run every 60 minutes.
+   - It will start at 2009-01-01T05:00Z and end at 2009-01-01T06:00Z. 
+   - Because the start and end times are 60 minutes apart, this job will run only once.
+   - When this job is triggered, it will run this Workflow: hdfs://localhost:9000/tmp/workflows/workflow.xml
+
    Refer to the Oozie Workflow Spec for details on how to create an Oozie workflow.
 
-#. The ``coordinator.properties`` file must contain a property that specifies the location of your coordinator.xml:
+#. The ``coordinator.properties`` file must contain a property that specifies the location of your ``coordinator.xml``.
    In this example, the file is located in this HDFS location: ``/tmp/coord/coordinator.xml``::
 
        oozie.coord.application.path=hdfs://localhost:9000/tmp/coord
@@ -110,7 +115,13 @@ Coordinator Jobs.
 Triggering Coordinator Jobs Based on Time
 *****************************************
 
-An example of a Coordinator Job that uses variable parameters.
+This example demonstrates how a Coordinator job can use variable parameters.
+
+Coordinator
++++++++++++
+
+From the ``coordinator.xml`` file below, you can see the variable parameters ``${freq}``,
+``${startTime}``, and ``${endTime}``. 
 
 .. code-block:: xml
 
@@ -130,9 +141,13 @@ An example of a Coordinator Job that uses variable parameters.
       </action>     
    </coordinator-app>
 
-You may want to use variable parameters in your Coordinator Job. A variable parameter is defined as follows: ``${variable_name}``
+.. note:: Variable parameters in Coordinator jobs are defined in the following way: ``${variable_name}``
 
-You can define the variable values in the coordinator.properties file. For example:
+Coordinator Properties
+++++++++++++++++++++++
+
+The variable values are given in the ``coordinator.properties`` file as shown in the
+example below.
 
 .. code-block:: bash
 
@@ -145,8 +160,9 @@ You can define the variable values in the coordinator.properties file. For examp
 Triggering Coordinator Jobs When Data Directory is Available
 ************************************************************
 
-You can define input data dependencies for your Coordinator Job. Your Job will not run until the input directory is created.
-For example: ``hdfs://localhost:9000/tmp/revenue_feed/2010/06/01/03/``
+You can define input data dependencies for your Coordinator job. Your job will not run until the input directory is created.
+For example, a Coordinator job might wait for the input directory ``hdfs://localhost:9000/tmp/revenue_feed/2010/06/01/03/``
+before running.
 
 Coordinator
 +++++++++++
@@ -176,40 +192,57 @@ Coordinator
       </action>     
    </coordinator-app>
 
-Explanation of Coordinator
-++++++++++++++++++++++++++
+Notes About the Coordinator
++++++++++++++++++++++++++++
 
-This Coordinator Job runs every 1440 minutes (24 hours).
-It will start on 2009-02-01T00:00Z and end on 2009-02-07T00:00Z (7 days). The Coordinator jobs will be materialized at these times:
-2009-02-01T00:00Z
-2009-02-02T00:00Z
-2009-02-03T00:00Z
-2009-02-04T00:00Z
-2009-02-05T00:00Z
-2009-02-06T00:00Z
-However, these jobs may not run at the specified times because we added input data dependencies for each job. When each job is materialized, Oozie will check if the specified input data is available.
-If the data is available, the job will run.
-If the data is not available, the job will wait in the Oozie queue until the input data is created.
-Each of these daily jobs is dependent on the last 24 hours of hourly data from the input1 feed. Within the input-events section, you will notice that the data-in block specifies the start and end instances for the input data dependencies.
-*${coord:current(0)} is a function that returns the current instance of the input1 dataset
-*${coord:current(-23)} is a function that returns the 23rd oldest instance of the input1 dataset
-For the Coordinator Job that is materialized on 2009-02-01T00:00Z, the start-instance will be 2009-01-31T01:00Z (23 hours earlier) and the end-instance will be 2009-02-01T00:00Z
+This Coordinator job runs every 1440 minutes (24 hours).
+It will start on 2009-02-01T00:00Z and end on 2009-02-07T00:00Z (seven days). The Coordinator jobs 
+will be executed at these times:
+
+- 2009-02-01T00:00Z
+- 2009-02-02T00:00Z
+- 2009-02-03T00:00Z
+- 2009-02-04T00:00Z
+- 2009-02-05T00:00Z
+- 2009-02-06T00:00Z
+
+These jobs, however, may not run at the specified times because we added input data 
+dependencies for each job. When each job is ready, Oozie will check if the 
+specified input data is available. If the data is available, the job will run.
+If the data is not available, the job will wait in the Oozie queue until the 
+input data is created.
+
+Each of these daily jobs is dependent on the last 24 hours of hourly data from the 
+``input1`` feed. Within the ``input-events`` element, you will notice that the ``data-in`` 
+block specifies the start and end instances for the input data dependencies.
+The EL function ``${coord:current(0)}`` returns the current instance of the ``input1`` dataset
+and ``${coord:current(-23)}`` returns the 23rd oldest instance of the ``input1`` dataset.
+
+For the Coordinator job that is materialized on 2009-02-01T00:00Z, the start-instance will be 2009-01-31T01:00Z (23 hours earlier) 
+and the end-instance will be 2009-02-01T00:00Z.
+
    <input-events>
       <data-in name="coordInput1" dataset="input1">
           <start-instance>${coord:current(-23)}</start-instance>
           <end-instance>${coord:current(0)}</end-instance>
       </data-in>
    </input-events>
-The datasets section defines metadata for all of the input datasets
-name = logical name for the dataset
-frequency = how often data is written to this dataset
-initial-instance = timestamp for the first instance of this dataset. Older instances will be ignored.
-uri-template = HDFS directory structure for the dataset
-In this example, the HDFS directory structure for the input1 dataset is as follows:
-/tmp/revenue_feed/2009/01/01/00/
-/tmp/revenue_feed/2009/01/01/01/
-/tmp/revenue_feed/2009/01/01/02/
-etc...
+
+The ``datasets`` element defines the metadata for all of the input datasets:
+
+- ``name`` - the logical name for the dataset.
+- ``frequency`` - how often the data is written to this dataset.
+- ``initial-instance`` - the timestamp for the first instance of this dataset. Older instances will be ignored.
+- ``uri-template`` - the HDFS directory structure for the dataset.
+
+In this example, the HDFS directory structure for the ``input1`` dataset is as follows:
+
+- /tmp/revenue_feed/2009/01/01/01/
+- /tmp/revenue_feed/2009/01/01/02/
+- ...
+
+.. code-block:: xml
+
    <datasets>
       <dataset name="input1" frequency="60" initial-instance="2009-01-01T00:00Z" timezone="UTC">
          <uri-template>hdfs://localhost:9000/tmp/revenue_feed/${YEAR}/${MONTH}/${DAY}/${HOUR}</uri-template>
@@ -220,12 +253,15 @@ etc...
 Triggering Coordinator Jobs When Data File is Available      
 *******************************************************
 
-You can define input data dependencies for your Coordinator Job. Your Job will not run until the input file is created.
-For example: ``hdfs://localhost:9000/tmp/revenue_feed/2010/06/01/03/trigger.dat``
+You can define input data dependencies for your Coordinator job. Your job will not run until the input file is created.
+For example, the Coordinator job could wait for the input file ``hdfs://localhost:9000/tmp/revenue_feed/2010/06/01/03/trigger.dat``
+to be created before running.
 
 
 Coordinator XML File
 ++++++++++++++++++++
+
+TBD: need a short description of file.
 
 .. code-block:: xml
 
@@ -253,14 +289,24 @@ Coordinator XML File
       </action>     
    </coordinator-app>
 
+.. Left off here on 04/20/15.
+
 Coordinator Jobs That Use Rollups
 *********************************
 
-You may have a Coordinator Job that will run once a day, and will 
-trigger a workflow that aggregates 24 instances of hourly data.
+In this use case, the Coordinator is invoked over a lengthy interval while data is aggregated 
+over multiple previous instances from the last time the Coordinator was invoked. 
+For example, you may have a Coordinator job that runs once per day, but it triggers
+a Workflow that aggregates 24 instances of hourly data.
+
 
 Coordinator XML File
 ++++++++++++++++++++
+
+The key distinction of Coordinator XML files that use rollups is that the Coordinator runs more frequently 
+than the dataset is aggregated. In the example below, the ``frequency`` 
+attribute for the ``coordinator-app`` is ``1440``, and the ``frequency`` attribute for the ``dataset``
+is ``60``. 
 
 .. code-block:: xml
 
@@ -299,14 +345,21 @@ Coordinator XML File
 Coordinator Jobs That Use Sliding Windows
 *****************************************
 
-You may have a Coordinator Job that will run every 5 minutes, and will trigger a 
-workflow that does a lookup on the last 60mins of data.
-
-Since the Job frequency is less than the Input frequency, the data seems to slide 
-with the job (i.e., input files are used across multiple runs).
+This is a specific use case where the Coordinator is invoked frequently 
+and data is aggregated over multiple overlapping previous instances.
+For example, you may have a Coordinator job that runs every five minutes and triggers a 
+Workflow that looks up the last 60 minutes of data. 
+Because the job frequency is less than the input frequency, the window
+of time for taking input file overlaps (i.e., input files are
+used across multiple instances).
 
 Coordinator XML File
 ++++++++++++++++++++
+
+The key distinction of Coordinator XML files that use sliding windows is that the frequency of the
+Coordinator is less than the frequency of the dataset. In the example below, the ``frequency`` 
+attribute for the ``coordinator-app`` is ``5``, and the ``frequency`` attribute for the ``dataset``
+is ``15``. 
 
 .. code-block:: xml
 
@@ -341,14 +394,16 @@ Coordinator XML File
       </action>     
    </coordinator-app>
 
-Coordinator Job to Create SLA events
+Coordinator Job to Create SLA Events
 ************************************
 
-A coordinator action could be configured to record the events required to evaluate SLA compliance.
+You can configure Coordinator actions to record the events required to evaluate SLA compliance.
 
 Coordinator XML File
 ++++++++++++++++++++
 
+For SLA compliance, your Coordinator XML should have specify the attribute ``xmlns:sla`` to define the ``sla`` namespace and then
+include the ``<sla:info>`` element to record events and information as shown below.
 
 .. code-block:: xml
 
@@ -388,20 +443,23 @@ Coordinator XML File
 Explanation of Coordinator
 ++++++++++++++++++++++++++
 
-Each coordinator action will create at least three events for normal processing.
+Each Coordinator action will create at least three events for normal processing.
 
-- The event CREATED specifies that the coordinator action is registered for SLA tracking.
-- When the action starts executing, an event record of type STARTED is inserted into sla_event table..
-- Finally when an action finishes, event of type either SUCCEEDED/KILLED/FAILED is generated.
+- The event ``CREATED`` specifies that the Coordinator action is registered for SLA tracking.
+- When the action starts executing, an event record of type ``STARTED`` is inserted into ``sla_event`` table..
+- Finally when an action finishes, event of type either ``SUCCEEDED/KILLED/FAILED`` is generated.
 
 Coordinator Job With Timeouts
 *****************************
 
-A coordinator job will timeout if it has not run within the specified amount of time.
-Refer to the timeout tag.
+A Coordinator job will timeout if it has not run within the specified amount of time.
+Refer to the ``timeout tag.
 
 Coordinator XML File
 ++++++++++++++++++++
+
+The ``timeout`` element is used to specify how many minutes to wait until the
+the Coordinator times out.
 
 .. code-block:: xml
 
@@ -409,75 +467,75 @@ Coordinator XML File
                  start="${start}" end="${end}" timezone="${timezone}" 
                  xmlns="uri:oozie:coordinator:0.1">
       <controls>
-        <timeout>10</timeout>    <!-- timeout if job is not run after 10 minutes -->
-        <concurrency>4</concurrency>
+         <timeout>10</timeout>    <!-- timeout if job is not run after 10 minutes -->
+         <concurrency>4</concurrency>
       </controls>  
-
       <datasets>
-       <dataset name="din" frequency="${coord:hours(10)}"
+         <dataset name="din" frequency="${coord:hours(10)}"
                 initial-instance="${ds_start}" timezone="${timezone}">
-         <uri-template>${baseFsURI}/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
-          <done-flag>HELLO</done-flag>
-        </dataset>
-       <dataset name="dout" frequency="${coord:minutes(300)}"
+            <uri-template>${baseFsURI}/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
+            <done-flag>HELLO</done-flag>
+         </dataset>
+         <dataset name="dout" frequency="${coord:minutes(300)}"
                 initial-instance="${ds_start}" timezone="${timezone}">
-         <uri-template>${baseFsURI}/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
-        </dataset>
+            <uri-template>${baseFsURI}/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
+         </dataset>
       </datasets>
-
       <input-events>
          <data-in name="IN1" dataset="din">
       <instance>${coord:current(-1)}</instance>
          </data-in> 
       </input-events>
-
       <output-events>
          <data-out name="OUT" dataset="dout">
-           <instance>${coord:current(1)}</instance>
+            <instance>${coord:current(1)}</instance>
          </data-out> 
       </output-events>
-
       <action>
-        <workflow>
-          <app-path>${wf_app_path}</app-path>
-          <configuration>
-            <property>
-                <name>jobTracker</name>
-                <value>${jobTracker}</value>
-            </property>
-            <property>
-                <name>nameNode</name>
-                <value>${nameNode}</value>
-            </property>
-            <property>
-              <name>queueName</name>
-              <value>${queueName}</value>
-            </property>
-            <property>
-                <name>inputDir</name>
-                <value>${coord:dataIn('IN1')}</value>
-            </property>
-            <property>
-              <name>outputDir</name>
-              <value>${coord:dataOut('OUT')}</value>
-            </property>
-
-         </configuration>
-       </workflow>
+         <workflow>
+            <app-path>${wf_app_path}</app-path>
+            <configuration>
+               <property>
+                  <name>jobTracker</name>
+                  <value>${jobTracker}</value>
+               </property>
+               <property>
+                  <name>nameNode</name>
+                  <value>${nameNode}</value>
+               </property>
+               <property>
+                  <name>queueName</name>
+                  <value>${queueName}</value>
+               </property>
+               <property>
+                  <name>inputDir</name>
+                  <value>${coord:dataIn('IN1')}</value>
+               </property>
+               <property>
+                  <name>outputDir</name>
+                  <value>${coord:dataOut('OUT')}</value>
+               </property>
+            </configuration>
+         </workflow>
       </action>     
    </coordinator-app>
 
 Coordinator Job With Specific Input File Dependency
 ***************************************************
 
-A coordinator action can be triggered when a specific file exists in HDFS.
-Refer to the done-flag tag.
+A Coordinator action can be triggered when a specific file exists in HDFS.
+The file dependency is specified by the ``done-flag`` element.
 
-If the done-flag tag is not specified, then Oozie configures Hadoop to create a 
-_SUCCESS file in the output directory.
+If the ``done-flag`` element is not used or has an empty value, then Oozie configures 
+Hadoop to create a  ``_SUCCESS`` file in the output directory.
+
 
 Coordinator XML File
 ++++++++++++++++++++
+
+Based on the Coordinator XML below, the Coordinator executes the application 
+``END2END-20`` when the directory specified by ``<uri-template>``
+has the file ``HELLO`` (value given for ``<done-flag>``).
 
 .. code-block:: xml
 
@@ -537,13 +595,13 @@ Coordinator XML File
 Coordinator Job With EL Functions
 *********************************
 
-A complex example with many EL functions:
+The following example uses the following expressional language (EL) functions:
 
-- latest function
-- current function
-- coord:days function
-- coord:hours function
-- coord:hoursInDay function
+- `coord:latest <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.6._coord:latestint_n_EL_Function_for_Synchronous_Datasets>`_
+- `coord:current <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.1._coord:currentint_n_EL_Function_for_Synchronous_Datasets>`_
+- `coord:days <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a4.4.1._The_coord:daysint_n_and_coord:endOfDaysint_n_EL_functions>`_
+- `coord:hours <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`
+- `coord:hoursInDay <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`_
 
 Coordinator XML File
 ++++++++++++++++++++
@@ -632,49 +690,50 @@ Coordinator XML File
                </property>
    
             </configuration>
-          </workflow>
-         </action>
+         </workflow>
+      </action>
    </coordinator-app>
 
 Use Sync Mode to Simulate Async Datasets
 ****************************************
 
-Users can use sync mode to simulate async datasets. Those actions whose input data 
-are available will run. In contrast, those actions whose input data are not available 
-will be waiting till time out (Note catch up mode has infinity time out). To use 
-this approach, users have to specify the minimum frequency of data instance generation. 
-The following example shows how to simulate an async dataset where data instances 
-are generated for every at minimum 5 minutes. Actions will time out after 10 minutes 
-under current mode if they do not have data instances to run on.
+Users can use sync mode to simulate async datasets: actions run when input data 
+is available. In contrast, actions wait until they time out if the input data is not available. 
+(Note, in catch-up mode, actions never time out). 
 
-Obviously, a downside of this approach is that there will be too many actions created 
-doing nothing but waiting. This is particularly true when there exist big time gaps 
-between any two consecutive data instances.
+To use this approach, users must specify the minimum frequency of generating data instances. 
+The following example shows how to simulate an async dataset where data instances 
+are generated every five minutes at the minimum. Actions time out after 10 minutes 
+under the current mode if they do not have data instances to run on.
+
+.. note:: The downside is there will be too many actions created 
+          doing nothing but waiting. This is particularly true when large time gaps exist 
+          between any two consecutive data instances.
 
 Coordinator XML File
 ++++++++++++++++++++
+
+The sync mode is configured by setting ``${min_frequency}`` for the ``frequency`` attribute of
+the dataset. 
 
 .. code-block:: xml
 
    <coordinator-app name="MY_APP" frequency="${frequency}" start="${start}" end="${end}" timezone="${timezone}"
                     xmlns="uri:oozie:coordinator:0.1">
-   
-     <controls>
-       <timeout>10</timeout>
-     </controls> 
+      <controls>
+         <timeout>10</timeout>
+      </controls> 
      
       <datasets>
          <dataset name="din1" frequency="${min_frequency}" initial-instance="${start}" timezone="${timezone}">
             <uri-template>hdfs://localhost:9000/tmp/oozie/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
          </dataset>
       </datasets>
-   
       <input-events>
-              <data-in name="din1" dataset="din1">
-                 <instance>${coord:current(0)}</instance>
-              </data-in> 
-            </input-events>
-   
+         <data-in name="din1" dataset="din1">
+            <instance>${coord:current(0)}</instance>
+         </data-in> 
+      </input-events>
       <action>
          <workflow>
             <app-path>hdfs://localhost:9000/user/oozie/examples/workflows/map-reduce</app-path>
@@ -684,6 +743,8 @@ Coordinator XML File
 
 Coordinator Job Properties
 ++++++++++++++++++++++++++
+
+You define the parameterized variables in ``coodinator.properties`` that can be referenced from ``coordinator.xml``.
 
 .. code-block:: bash
 
@@ -697,13 +758,15 @@ Coordinator Job Properties
 Coordinator Commands
 --------------------
 
+The following sections describe the basic Oozie client commands for running Coordinators.
+See also :ref:`Oozie Client <oozie_client>` and the  
+`Command Line Interface Utilities documentation <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html>`_.
+
 Submit a Job
 ~~~~~~~~~~~~
 
-Use the following command to submit this Coordinator Job on the Axonite Blue Grid.
-On success, a Oozie ID will be returned to you.
-
-In this example, the Oozie ID is: ``0000004-091209145813488-oozie-dani-C``   
+The Oozie command below submits a Coordinator job on the Axonite Blue Grid.
+On success, an Oozie ID is returned. In this example, the Oozie ID is ``0000004-091209145813488-oozie-dani-C``.
 
 .. code-block:: bash
 
@@ -714,7 +777,8 @@ In this example, the Oozie ID is: ``0000004-091209145813488-oozie-dani-C``
 Check Status of a Job
 ~~~~~~~~~~~~~~~~~~~~~
 
-You can check the status of your Job by using the Oozie ID (which is returned at submission time).
+To check the status of your job, use the Oozie ID (which is returned at submission time)
+as shown below.
 
 .. code-block:: bash
 
@@ -732,7 +796,8 @@ You can check the status of your Job by using the Oozie ID (which is returned at
 List All Jobs
 ~~~~~~~~~~~~~
 
-You can check the status of all your Coordinator Jobs.
+You can check the status of all your Coordinator jobs
+with the following command.
 
 .. code-block:: bash
 
@@ -748,23 +813,9 @@ You can check the status of all your Coordinator Jobs.
 Stop/Kill A Job
 ~~~~~~~~~~~~~~~
 
-.. code-block:: bash
+Killing a Coordinator job is the same as killing any Oozie job::
 
    $ oozie job -kill <oozie ID>
-~~~~~~~~~~~~~~~
-
-
-
-State Transitions
------------------
-
-
-.. image:: images/coord_transitions.jpg
-   :height: 484px
-   :width: 637 px
-   :scale: 95 %
-   :alt: Coordinator State Transitions
-   :align: right
 
 
 

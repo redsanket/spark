@@ -1,13 +1,19 @@
+.. _oozie_client:
+
 Oozie Client
 ============
+
+.. 04/17/15: Rewrote.
 
 Overview
 --------
 
-TBD: What, why
+The Oozie client is the Oozie program that allows you to execute Workflows, Coordinators,
+and Bundles. You can invoke the Oozie client from the command line or through 
+`Hue <http://devel.corp.yahoo.com/hue/>`_.
 
-The Oozie client (``yoozie_client`` package) is installed on all Grid Gateway machines, 
-and Oozie can be invoked without any setup. the path ``/home/y/var/yoozieclient/bin`` is 
+The Oozie client (``yoozie_client`` package) is installed on all grid gateway machines, 
+and Oozie can be invoked without any setup. The path ``/home/y/var/yoozieclient/bin`` is 
 automatically added to the ``PATH`` global variable through the grid gateway user profile script. If you 
 are installing ``yoozie_client`` on your launcher box, ensure you add ``/home/y/var/yoozieclient/bin``
 to the ``PATH`` variable or invoke the full path ``/home/y/var/yoozieclient/bin/oozie``.
@@ -25,28 +31,33 @@ The steps below are for those wanting to run the Oozie client from an OpenStack 
 General
 -------
 
-See http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html
+We have listed the more widely used Oozie commands and those that are
+specific to Yahoos. For a complete reference, see
+the `Command Line Interface Utilities documentation <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html>`_.
+
 
 -keydb
 ~~~~~~
 
-Set up keydb
-If keydb is not set up, and -keydb is not specified in command line, BackYard password is required for the Bouncer authentication.
-Example, $ oozie jobs -len 1 -keydb
+If ``keydb`` is not set up and ``-keydb`` is specified, the Backyard password is required for the Bouncer authentication.
+Because Backyard authentication is no longer used, you should specify ``-auth kerberos`` to use Kerberos authentication::
 
-Using -keydb on Gateway
-***********************
+    $ oozie jobs -len 1 -keydb -auth kerberos
 
-Put your keydb file in your home, in a dir structure similar to
+Using -keydb on a Gateway
+*************************
+
+Put your ``keydb`` file in your home, in a directory structure similar to
 ``/home/myself/oozie/root/conf/keydb/myself.keydb``. 
 
-In this file, the keyname (keyname name=) *must* be your username,
-otherwise it will not be found.  Most other ``keydb`` uses can use any
-name, but for Oozie it must be the user name.  (The actual filename doesn't
-matter as long as it is ``*.keydb``.)
+In this file, the key name (key name ``name=``) *must* be your user name,
+otherwise, it will not be found.  Most other ``keydb`` uses can use any
+name, but for Oozie it must be the user name. (The actual file name doesn't
+matter as long as it has the file extension ``keydb``. For example: ``somefile.keydb``
 
 Set either ``$ROOT`` or ``$YINST_ROOT`` to the path containing ``conf``.  In
-the example script below, the line ``export ROOT=/home/myself/oozie/root/`` is important.
+the example script below, the line ``export ROOT=/home/myself/oozie/root/`` 
+is important.
 
 **Example Script**
 
@@ -55,11 +66,8 @@ the example script below, the line ``export ROOT=/home/myself/oozie/root/`` is i
     export ROOT=/home/user/oozie/root
     oozie=/home/y/var/yoozieclient/bin/oozie
     server=http://axoniteblue-oozie.blue.ygrid.yahoo.com:4080/oozie
-    user=user
-    bouncer=gh
-    optsd="-Doozie.bouncer=$bouncer -Doozie.save.cookie=false -Duser.name=$user"
-    opts="-keydb -oozie $server"
-    oozie jobs $optsd -filter user=$user $opts
+    opts="-keydb -oozie $server -auth kerberos"
+    oozie jobs $opts
 
 **Example keydb File**
 
@@ -76,12 +84,6 @@ the example script below, the line ``export ROOT=/home/myself/oozie/root/`` is i
            </keyname>
        </keygroup>
    </keydb>
-
-
-
-
-
-
 
 
 Using keydb on Client
@@ -115,82 +117,96 @@ After installation, create a ``keydb`` file with your account and password.
 Now, you can use -keydb in Oozie client: ``$ oozie job -run -config xxx.properties -keydb``
 
 
-
-
-
-
-
 -oozie
 ~~~~~~
 
-Specify the oozie URL. If -oozie is not specified in command line, environment variable OOZIE_URL will be the default oozie URL.
--oozie overwrite OOZIE_URL.
-Example, $ oozie jobs -len 1 -keydb -oozie http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie
+The ``-oozie`` option is used to ppecify the Oozie URL. If ``-oozie`` is not specified in command line, 
+the environment variable ``OOZIE_URL`` will be the default Oozie URL. If you have not set ``OOZIE_URL``
+or specified the Oozie URL with the option ``-oozie``, you will get the following error::
+
+    java.lang.IllegalArgumentException: Oozie URL is not available neither in command option or in the environment
+    	at org.apache.oozie.cli.OozieCLI.getOozieUrl(OozieCLI.java:677)
+    	at com.yahoo.oozie.cli.YOozieCLI.createXOozieClient(YOozieCLI.java:348)
+    	at org.apache.oozie.cli.OozieCLI.jobsCommand(OozieCLI.java:1491)
+    	at org.apache.oozie.cli.OozieCLI.processCommand(OozieCLI.java:642)
+    	at org.apache.oozie.cli.OozieCLI.run(OozieCLI.java:592)
+    	at com.yahoo.oozie.cli.YOozieCLI.main(YOozieCLI.java:170)
+    Oozie URL is not available neither in command option or in the environment
+
+
+The ``-oozie`` option also allows you to overwrite the environment variable ``OOZIE_URL``.
+
+For example: ``$ oozie jobs -len 1 -keydb -oozie http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
 
 -auth (Oozie 2.2+)
 ~~~~~~~~~~~~~~~~~~
 
-Set up client authentication
-Valid authentication types: YCA, KERBEROS. BOUNCER. Authentication type is case insensitive. If -auth is not specified in command line, default is BOUNCER authentication.
-Example, $ oozie jobs -len 1 -auth Kerberos
+The ``-auth`` option allows you to specify the authentication type. The default is Backyard, but it is **no longer** supported, so
+you should use the ``-auth`` option with the two other valid types: ``YCA`` and ``Kerberos``. (The authentication type
+is case insensitive.) 
+
+For example: ``$ oozie jobs -len 1 -auth kerberos``
 
 Job Operations
 --------------
 
-Submit a workflow job
+Submit a Workflow Job
 ~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Oozie job will be created, returned with a job ID, but it will not run until a "-start" command.
-Not supported for coordinator job. (as of oozie 2.2)
-Example, $ oozie job -submit -config job.properties
+The ``-submit`` option creates an Oozie job and returns a job ID, but does not actually run
+the job until you use the ``-start`` option.
+
+.. note:: The ``-submit`` option is not supported for Coordinator job as of Oozie 2.2.
+
+For example: ``$ oozie job -submit -config job.properties``
 
 
-Start a workflow job
+Start a Workflow Job
 ~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Oozie job, previously submitted (-submit) with the given job ID, will be executed.
-Not supported for coordinator job. (as of oozie 2.2)
-Example, $ oozie job -start oozie-wf-jobID
+After you have submitted your job, you will receive a job ID. You
+can start the job with the ``-start`` option and the job ID.
 
-Run a workflow or coordinator job
+.. note:: Again, the ``-start`` option is not supported for Coordinator jobs as of Oozie 2.2.
+
+For example: ``$ oozie job -start oozie-wf-jobID``
+
+Run a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Oozie job will be created and executed.
-Example, $ oozie job -run -config job.properties
+Use the ``-run`` option to create and execute an Oozie job.
 
-Suspend a workflow or coordinator job
+For example: ``$ oozie job -run -config job.properties``
+
+Suspend a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Oozie job, and the actions, will be suspended.
-Example, $ oozie job -suspend oozie-jobID
+The ``-suspend`` option suspends Oozie jobs and their actions.
 
-Resume a workflow or coordinator job
+For example: ``$ oozie job -suspend oozie-jobID``
+
+Resume a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Resume the previously suspended oozie job, and the actions.
-Example, $ oozie job -resume oozie-jobID
+To resume a suspended job and actions, you use the ``-resume`` option. 
+
+For example: ``$ oozie job -resume oozie-jobID``
 
 
-Kill a workflow or coordinator job
+Kill a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Oozie job, and the actions, will be killed.
-Example, $ oozie job -kill oozie-jobID
+To kill an Oozie job and its actions, you use the ``-kill`` option.
 
-Rerun a workflow job
+For example: ``$ oozie job -kill oozie-jobID``
+
+Rerun a Workflow Job
 ~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Workflow jobs in terminal states, SUCCEEDED, FAILED, KILLED, can be rerun.
-Specify skipped nodes in job.properties file.
+You can rerun Workflow jobs with terminal states ``SUCCEEDED``, ``FAILED``, ``KILLED``.
 
-::
+In the ``job.properties`` file, you specify the actions
+you want to skip as shown below::
 
      # workflow nodes map_reduce_1, java_1, and hdfs_1 will be skipped, i.e., not rerun.
      oozie.wf.rerun.skip.nodes=map_reduce_1,java_1,hdfs_1
@@ -198,142 +214,238 @@ Specify skipped nodes in job.properties file.
      # all workflow will be rerun, i.e., no skipped nodes.
      oozie.wf.rerun.skip.nodes=,
 
-Example, $ oozie job -config job.properties -rerun oozie-wf-jobID
+For example: ``$ oozie job -config job.properties -rerun oozie-wf-jobID``
 
 
-Rerun coordinator action[s] (Oozie 2.1+)
+Rerun Coordinator Action[s] (Oozie 2.1+)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Coordinator actions in terminal states, TIMEDOUT, SUCCEEDED, KILLED, FAILED.
-Example, $ oozie job -rerun oozie-coord-jobID -action 1
-Example, $ oozie job -rerun oozie-coord-jobID -date 2010-09-10T01:00Z. The date needs to be in UTC format.
-By default, coordinator action rerun will delete all output events before re-run the actions. If the output events need not delete before rerun, apply -nocleanup, e.g.,
-$ oozie job -rerun oozie-coord-jobID -action 1 -nocleanup
-By default, coordinator action rerun will re-use the previous input events for coord:latest() and/or coord:future().
-if there are new input events available, apply -refresh for rerun to re-evaluate input events for coord:latest() and/or coord:future(). e.g, 
-$ oozie job -rerun oozie-coord-jobID -action 1 -refresh.
-Not supported for coordinator job. (as of oozie 2.2)
+You can also rerun Coordinator actions that are in the 
+terminal states ``TIMEDOUT``, ``SUCCEEDED``, ``KILLED``, and ``FAILED``.
+
+For example, to rerun the first action in a Coordinator::
+
+    $ oozie job -rerun oozie-coord-jobID -action 1
+
+You can also schedule to rerun a Coordinator at a specified time with the ``-date`` option::
+
+    $ oozie job -rerun oozie-coord-jobID -date 2010-09-10T01:00Z. The date needs to be in UTC format.
+
+By default, whe Coordinator actions are rerun, they delete all output events before rerunning 
+the actions. If you do not want to delete output events, add the option ``-nocleanup``::
+
+    $ oozie job -rerun oozie-coord-jobID -action 1 -nocleanup
+
+In addition, when Coordinator action are rerun, they will by default reuse the 
+previous input events for ``coord:latest()`` and/or ``coord:future()``.
+If there are new input events available, rerun the job and specify the ``-refresh`` option 
+to re-evaluate input events for ``coord:latest()`` and/or ``coord:future()``::
+
+    $ oozie job -rerun oozie-coord-jobID -action 1 -refresh.
+
+.. note:: The ``-refresh`` option is not supported for the Coordinator job as of Oozie 2.2.
 
 
-Change a coordinator job (Oozie 2.1+)
+Change a Coordinator Job (Oozie 2.1+)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-To change end time, $ oozie job -change oozie-coord-jobID -value endtime=2010-09-10T01:00Z
-the new endtime needs to be later than the nominal time of the last materialized action.
-if the coordinator job already completes, changing endtime to a later date will trigger the coordinator job to create and run new actions.
-To change concurrency, $ oozie job -change oozie-coord-jobID -value concurrency=10
-if change concurrency to -1 or other negative integer, it means no limit in concurrency.
-To change pause time, $ oozie job -change oozie-coord-jobID -value pausetime=2010-09-10T01:00Z
-the pausetime needs to be later than the nominal time of the last materialized action.
-setting pausetime to blank is to remove the previous pausetime, $ oozie job -change oozie-coord-jobID -value pausetime=''
+Use the ``-change`` option to change a Coordinator job.
 
-To change multiple values,
+To change the end time, you use the option ``-change`` with the ``-value`` option
+and specify the key-value parameter for the end time::
 
-$ oozie job -change oozie-coord-jobID -value endtime=2010-09-10T01:00Z\;concurrency=10
-$ oozie job -change oozie-coord-jobID -value "endtime=2010-09-10T01:00Z;concurrency=10"
+    $ oozie job -change oozie-coord-jobID -value endtime=2010-09-10T01:00Z
 
+.. note:: The new ``endtime`` needs to be later than the time of the last executed action.
+          If the Coordinator job completes, changing the ``endtime`` to a later date will trigger 
+          the Coordinator job to create and run new actions.
 
+To change the concurrency, you use the ``-change`` option and the ``-value`` option
+with the parameter ``concurrency``::
 
-Check job status for workflow or coordinator job
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    $ oozie job -change oozie-coord-jobID -value concurrency=10
 
-Oozie docs
-Example, job status, $ oozie job -info oozie-jobID
-Example, detailed job status, $ oozie job -info oozie-jobID -verbose
-Example, detailed job status for specified actions, $ oozie job -info oozie-jobID -len 10 -offset 60 -verbose
-Example, detailed coordinator action status, $ oozie job -info oozie-coord-jobID@2 -verbose
-Example, detailed workflow action status, $ oozie job -info oozie-wf-jobID@hadoop1 -verbose
+.. note:: If you change ``concurrency`` to ``-1`` or another negative integer, it signifies no limit to the concurrency.
 
-Check job status for workflow or coordinator job
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In the same way, you can change the pause time::
 
-Check job definition for workflow or coordinator job
-Oozie docs
-Example, $ oozie job -definition oozie-jobID
+    $ oozie job -change oozie-coord-jobID -value pausetime=2010-09-10T01:00Z
+
+.. note:: The ``pausetime`` needs to be later than the time of the last executed action.
+          Assigning an empty value to``pausetime`` removes the previous ``pausetime``.
+          For example: ``$ oozie job -change oozie-coord-jobID -value pausetime=''``
+
+To change multiple values::
+
+    $ oozie job -change oozie-coord-jobID -value endtime=2010-09-10T01:00Z\;concurrency=10
+    $ oozie job -change oozie-coord-jobID -value "endtime=2010-09-10T01:00Z;concurrency=10"
 
 
+.. Left off here on 04/18/15. 
 
-Check job logs for workflow or coordinator job
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Check the Job Status for Workflow or Coordinator Jobs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Oozie docs
-Example, $ oozie job -log oozie-jobID
+The ``-info`` option allows you to view the status of Oozie jobs.
 
-Dryrun of a coordinator job
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To view the basic job status::
 
-Oozie docs
-Coordinator dry run will print the job definition, and all action instances. All parameters, except run time parameters such as ${YEAR}, ${MONTH}, ${DAY}, ${HOUR}, ${MINUTE}, will be resolved.
-Example, $ oozie job -dryrun -config job.properties
+    $ oozie job -info oozie-jobID
+
+For the detailed job status, you use the ``-info`` option with the ``-verbose`` option::
+
+    $ oozie job -info oozie-jobID -verbose
+
+You can also get a detailed job status for specified actions::
+
+    $ oozie job -info oozie-jobID -len 10 -offset 60 -verbose
+
+For a detailed Coordinator status:: 
+
+    $ oozie job -info oozie-coord-jobID@2 -verbose
+
+For a detailed status of a Workflow, you use the ``@`` symbol to 
+specify the Workflow ID::
+
+    $ oozie job -info oozie-wf-jobID@hadoop1 -verbose
+
+Check the Job Definition for Workflow or Coordinator Jobs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the ``-definition`` option to view a job definition for a Workflow or Coordinator.
+
+For example: ``$ oozie job -definition oozie-jobID``
 
 
-Jobs Operations
----------------
 
-Check status of workflow jobs
-Oozie docs
-Example, list 5 workflow jobs from the second job (jobs ordered by Started Time), $ oozie jobs -len 5 -offset 2
-Example, list 5 workflow jobs with KILLED status and submitted by strat_ci, $ oozie jobs -len 5 -filter "status=KILLED;user=start_ci"
-Workflow job status
+Check the Job Logs for Workflow or Coordinator Jobs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Check status of coordinator jobs
---------------------------------
+Use the ``-lob`` option to view job logs.
 
-Oozie docs
-Example, list 5 coordinator jobs from the second job (jobs ordered by Created Time), $ oozie jobs -len 5 -offset 2 -jobtype coord
-Example, list 5 coordinator jobs with KILLED status and application name coord-test, $ oozie jobs -len 5 -filter "status=KILLED;name=coord-test" -jobtype coord
-Coordinator job status, Coordinator job status (oozie 3.0+, working in progress)
-Coordinator action status
+For example: ``$ oozie job -log oozie-jobID``
+
+
+Dry Run of a Coordinator Job
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the ``-dryrun`` option to do a dry run of a Coordinator. This will print the job definition and all action instances. 
+All parameters, except run time parameters such as ``${YEAR}``, ``${MONTH}``, ``${DAY}``, ``${HOUR}``, ``${MINUTE}`` will be resolved.
+
+For example: ``$ oozie job -dryrun -config job.properties``
+
+
+Filter Jobs
+~~~~~~~~~~~
+
+You can view a subset of jobs or filter jobs based on certain parameters.
+
+For example, to view the five Workflow jobs starting from the second job (jobs ordered by start time),
+you use the ``-len`` and ``-offset`` options together::
+
+    $ oozie jobs -len 5 -offset 2
+
+To filter jobs based on parameters, use the ``-filter`` option followed by the parameter::
+
+    $ oozie jobs -len 5 -filter "status=KILLED;user=start_ci"
+
+See also `Checking the Status of multiple Workflow Jobs <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Checking_the_Status_of_multiple_Workflow_Jobs>`_.
+
+
+
+Check the Status of Coordinator Jobs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the ``-jobtype`` option to view job information for Coordinators.
+
+For example, to list five Coordinator jobs from the second job (jobs ordered by created time):: 
+
+    $ oozie jobs -len 5 -offset 2 -jobtype coord
+
+To list five Coordinator jobs with ``KILLED`` status and the application name ``coord-test``:: 
+
+    $ oozie jobs -len 5 -filter "status=KILLED;name=coord-test" -jobtype coord
+
+See also `Coordinator Job <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.2._Coordinator_Job>`_
+and `Coordinator Action Status <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.3.2._Coordinator_Action_Status>`_.
 
 
 Admin Operations
 ----------------
 
-Assign admin users (Oozie 2.2+)
+Assign Admin Users (Oozie 2.2+)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-$ yinst set yoozie_conf_<instance>.adminusers='username1,username2'. Then restart yoozie conf package, and restart yjava_tomcat.
+Use ``yinst`` with the ``set`` command to assign administrators for an Oozie instance.
 
-Check oozie build version
+#. Assign the users as administrators::
+
+       $ yinst set yoozie_conf_<instance>.adminusers='username1,username2'. 
+
+#. Restart the ``yoozie`` configuration package. 
+#. Restart ``yjava_tomcat``.
+
+Check Oozie Build Version
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-$ oozie admin -version
+To check the Oozie build version::
 
-Change and check system mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    $ oozie admin -version
 
-Valid system modes: NORMAL, NOWEBSERVICE, SAFEMODE
-Example, $ oozie admin -systemmode SAFEMODE
-Example, $ oozie admin -status
+Change and Check the System Mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The valid system modes are ``NORMAL``, ``NOWEBSERVICE``, and ``SAFEMODE``.
+You can check the the system mode with the ``-status`` option and change
+the status with the ``-systemmode`` option.
+
+For example, to check the system mode::
+
+    $ oozie admin -status
+
+To change to ``SAFEMODE``, you would use the following::
+
+    $ oozie admin -systemmode SAFEMODE
+
 
 Validate Operations
 -------------------
 
-Oozie docs
-It supports workflow xml check only.
+The ``validate`` command allows you to validate your Workflow XML. See `Validating a Workflow 
+XML <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Validating_a_Workflow_XML>`_.
+
+.. note:: The ``validate`` command currently only supports validating ``workflow.xml``.
 
 SLA Operations
 --------------
 
-Oozie docs
-Example, list 2 SLA records, sequence-id 101 and sequence-id 102, $ oozie sla -offset 100 -len 2
+The ``sla`` command allows you to get a list of SLA events and information about those events.
 
+For example, to list two SLA records with the sequence ID 101 and sequence ID 102:: 
+
+    $ oozie sla -offset 100 -len 2
+
+See `SLA Operations <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#SLA_Operations>`_ for
+more examples.
 
 Pig Operations (Oozie 2.2+)
 ---------------------------
 
-Oozie docs
-Example, $ oozie pig -file multiquery1.pig -config job.properties -X -Dmapred.job.queue.name=grideng -Dmapred.compress.map.output=true -Ddfs.umask=18 -param_file paramfile -p INPUT=/tmp/workflows/input-data
-All jar files, including pig.jar and customized udf, need to upload to <oozie.libpath> in advance.
-When -param_file option is used, the <parameter file> need to upload to <oozie.libpath> in advance.
--X is the last argument in the command line.
-NOT supported pig options: -4 (-log4jconf), -e (-execute), -f (-file), -l (-logfile), -r (-dryrun), -x (-exectype), -P (-propertyFile)
+The Oozie client has a ``pig`` command that provides you with options for Pig operations.
 
-::
+In the following example, all JAR files, including ``pig.jar`` and any customized UDF, need to be uploaded to the Oozie library path in advance. 
+The parameter ``paramfile`` is a file that also needs to be uploaded to the Oozie library path before
+the command can be executed::
 
-    $ cat job.properties
+    $ oozie pig -file multiquery1.pig -config job.properties -X -Dmapred.job.queue.name=grideng -Dmapred.compress.map.output=true -Ddfs.umask=18 -param_file paramfile -p INPUT=/tmp/workflows/input-data
+
+
+.. note:: The following Pig options are not supported: ``-4 (-log4jconf)``, ``-e (-execute)``, ``-f (-file)``, 
+          ``-l (-logfile)``, ``-r (-dryrun)``, ``-x (-exectype)``, ``-P (-propertyFile)``.
+
+The ``job.properties`` file specified in the command above might look similar to the
+following::
+
     fs.default.name=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020
     mapred.job.tracker=gsbl91029.blue.ygrid.yahoo.com:50300
     oozie.libpath=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020/tmp/user/workflows/lib
@@ -341,75 +453,9 @@ NOT supported pig options: -4 (-log4jconf), -e (-execute), -f (-file), -l (-logf
     dfs.namenode.kerberos.principal=hdfs/gsbl91027.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
 
 
+See `Submitting a pig job through HTTP <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Submitting_a_pig_job_through_HTTP>`_
+for another example.
 
-Using Oozie Maven Artifacts
----------------------------
-
-If you have a Java maven project which uses Oozie client or core library, you can 
-simply use Oozie maven artifacts. Given below is the maven repository and dependency 
-settings for your POM file.
-
-Version numbers: If using oozie.version 4.4.1.3 (production Jan 2015) --> 4.4.1.3.1411122125 . 
-Check the version of current version of Oozie deployed in http://twiki.corp.yahoo.com/view/Grid/GridVersions.
-
-POM XML
-~~~~~~~
-
-.. code-block:: xml
-
-   <repositories>
-     <repository>
-       <id>yahoo</id>
-         <url>http://ymaven.corp.yahoo.com:9999/proximity/repository/public</url>
-         <snapshots>
-         <enabled>false</enabled>
-         </snapshots>
-     </repository>
-   </repositories>
-   <dependencies>
-     <dependency>      
-       <groupId>org.apache.oozie</groupId>
-       <artifactId>yoozie-client</artifactId>
-       <version>${oozie.version}</version>
-       <scope>compile</scope>
-       </dependency>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.oozie</groupId>
-       <artifactId>oozie-core</artifactId>
-       <version>${oozie.version}</version>
-       <classifier>tests</classifier>   
-       <scope>compile</scope>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.oozie</groupId>
-       <artifactId>oozie-core</artifactId>
-       <version>${oozie.version}</version>
-       <scope>compile</scope>
-     </dependency>
-   <dependency>      
-       <groupId>org.apache.oozie</groupId>
-       <artifactId>yoozie-auth</artifactId>
-       <version>${oozie.version}</version>
-       <scope>compile</scope>
-       </dependency>
-     </dependency>
-   </dependencies>         
-
-Getting the Required Yinst Packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Alternately, you can also install following ``yoozie`` yinst packages to get the Oozie Jars and POM files.
-
-``yinst i yoozie_maven -br stable`` 
-
-.. note:: The ``current`` branch might also contain the version deployed on a research cluster. 
-          Package is promoted to stable only when it is deployed on production.
-
-
-yinst i yoozie_hadooplibs_maven -br stable
-yinst i yoozie_hbaselibs_maven -br stable
-yinst i yoozie_hcataloglibs_maven -br stable
 
 
 

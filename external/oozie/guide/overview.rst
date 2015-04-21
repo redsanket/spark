@@ -287,6 +287,13 @@ Example
 Architecture Overview
 ---------------------
 
+- Oozie stores most of its state in a database (submitted jobs, workflow definitions, etc.)
+- Instead of a failover model, we want to run many Oozie servers against the
+  same database
+  
+  - Active-Active HA
+  - Also provides horizontal scalability
+- ZooKeeper for Coordination.
 
 .. image:: images/architecture_overview.jpg
    :height: 462px
