@@ -3,10 +3,11 @@
 Oozie Cookbook
 ==============
 
+.. 04/20/15: Rewrote
+
 In this chapter, we will offer you examples
 of how to complete common tasks for 
 Workflows, Coordinators, and Bundles. 
-
 
 
 Prerequisites
@@ -17,12 +18,12 @@ Prerequisites
 Accessing Hadoop Counters in Previous Actions
 ---------------------------------------------
 
+In this example, we access a user-defined Hadoop counter in a subsequent action.
+This is a simple way to pass data between different Oozie actions.
 
-In this example, we access a user-defined hadoop counter in a subsequent action
-This is a simple way to pass data between different oozie actions
-The 'mr1' action generates a user-defined hadoop counter named ['COMMON']['COMMON.ERROR_ACCESS_DH_FILES'].
-The value of this counter is accessed in the subsequent 'java1' action.
-
+In the ``workflow.xml`` below, the ``'mr1'`` action generates a user-defined 
+Hadoop counter named ``['COMMON']['COMMON.ERROR_ACCESS_DH_FILES']``.
+The value of this counter is accessed in the subsequent ``'java1'`` action.
 
 Workflow
 ~~~~~~~~
@@ -95,8 +96,22 @@ Workflow
 Increasing Memory for Hadoop Job
 --------------------------------
 
+You can define a property in your action that uses ``mapred.child.java.opts``
+that allows you to specify the memory usage.
 
-You can define a property in your action:
+Here's an example of the defined property that specifies
+memory usage:
+
+.. code-block:: xml
+
+   <property>
+       <name>mapred.child.java.opts</name>
+       <value>-Xmx1024M</value>
+       <description>Setting memory usage to 1024MB</description>
+   </property>
+
+Below is the ``workflow.xml`` that includes the defined property for
+expanding memory usage:
 
 .. code-block:: xml
 
@@ -123,12 +138,10 @@ You can define a property in your action:
                      <name>mapred.job.queue.name</name>
                      <value>${queueName}</value>
                    </property>
-   
                   <property>
                      <name>mapred.child.java.opts</name>
                      <value>-Xmx1024M</value>
                   </property>
-   
                </configuration>
            </map-reduce>
            <ok to="end" />
@@ -144,7 +157,8 @@ You can define a property in your action:
 Using Custom Input Format
 -------------------------
 
-You can define a property in your action:
+After you create your class that accepts a custom input format, you can 
+define a property in your action that uses that class as shown below.
 
 .. code-block:: xml
 
@@ -155,6 +169,9 @@ You can define a property in your action:
 
 Workflow
 ~~~~~~~~
+
+The Workflow XML file below uses the custom input class for
+handling spam.
 
 .. code-block:: xml
 
@@ -201,30 +218,36 @@ Workflow
 Submitting a Workflow With a YCAv2(gYCA) Certificate
 ----------------------------------------------------
 
-User has to specify the gYCA credential explicitly in the workflow beginning and 
-asks Oozie to retrieve certificate whenever an actions needs to call YCA protected
-web service. In each credential element, attribute "name" is key and attribute 
-"type" indicates which credential to use.
+For an Oozie action to call a YCA-protected Web service, users have to specify the gYCA credential 
+explicitly in the Workflow beginning and ask Oozie to retrieve the appropriate certificates.
+In each ``credential`` element, the attribute ``name`` is the key and the attribute 
+``type`` indicates which credential to use.
 
-- The credential "type" is defined in oozie server. For example, on axoniteblue-oozie.blue.ygrid.yahoo.com, 
-  the YCA credential type is defined as "yca", as in yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials
-- User can give multiple "credential" elements under "credentials" and specify a list of credentials with comma separated to use under each action "cred" attribute.
-- There is only parameter required for the credential "type".
-  yca-role : the role name contains the user names for yca v2 certificates.
-- There are three optional parameters for the credential type "yca".
-  yca-webserver-url : the yca server url. Default is http://ca.yca.platform.yahoo.com:4080
-  yca-cert-expiry: Expiry time of the yca certificate in seconds. Default is 1 day (86400). Available from Oozie 3.3.1
+To use YCAv2 certificates, ensure that the following is true:
 
-- ``yca-http-proxy-role``: The roles DB role name which contains the hostnames of 
-  the machines in the http proxy vip. Default value is grid.httpproxy which contains 
-  all http proxy hosts. Depending on the http proxy vip you will be using to send 
-  the obtained YCA v2 certificate to the web service outside the grid, you can 
-  limit the corresponding role name that contains the hosts of the http proxy vip. 
-  The role names containing members of production http proxy vips are grid.blue.prod.httpproxy, 
-  grid.red.prod.httpproxy and grid.tan.prod.httpproxy. For eg: http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxycontains 
-  the hosts of production httpproxy. http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy 
-  is a uber role which contains staging, research and production httpproxy hosts.http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList 
-  gives the role name and VIP name of the deployed http proxies for staging, research and sandbox grids.
+- The credential ``type`` is defined in Oozie server. For example, on ``axoniteblue-oozie.blue.ygrid.yahoo.com``, 
+  the YCA credential type is defined as ``yca``, as in ``yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials``.
+- User give multiple ``credential`` elements under ``credentials`` and specify a comma-separated list of credentials under each action's 
+  ``cred`` attribute.
+- There is only parameter required for the credential ``type``.
+
+  - ``yca-role``: The role name contains the user names for YCA v2 certificates.
+- There are three optional parameters for the credential type ``yca``.
+
+  - ``yca-webserver-url``: The YCA server URL. The default is http://ca.yca.platform.yahoo.com:4080.
+  - ``yca-cert-expiry``: The expiry time of the YCA certificate in seconds. The default is one day (86400) and available from Oozie 3.3.1.
+  - ``yca-http-proxy-role``: The roles DB role name which contains the hostnames of 
+    the machines in the HTTP proxy VIP. The default value is ``grid.httpproxy`` which contains 
+    all HTTP proxy hosts. Depending on the HTTP proxy VIP you will be using to send 
+    the obtained YCA v2 certificate to the Web service outside the grid, you can 
+    limit the corresponding role name that contains the hosts of the HTTP proxy VIP. 
+    The role names containing members of production http proxy VIPs are ``grid.blue.prod.httpproxy``, 
+    ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. For example: http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy
+    contains the hosts of production ``httpproxy``: The role ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
+    is a uber role which contains staging, research, and production ``httpproxy`` hosts. 
+
+    See http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList 
+    for the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
 
 Example Workflow
 ~~~~~~~~~~~~~~~~
@@ -250,15 +273,18 @@ Example Workflow
 Proxy
 ~~~~~
 
-When Oozie action executor sees a "cred" attribute in current action, depending 
+When Oozie action executor sees a ``cred`` attribute in the current action, depending 
 on credential name given, it finds the appropriate credential class to retrieve 
-the token or certificate and insert to action conf for further use. In above example, 
-Oozie gets the certificate of gYCA and passed to action conf. Mapper can then use 
-this certificate by getting it from action conf, and add to http request header 
-when connect to YCA protected web service through HTTPProxy. A certificate or token 
-which retrieved in credential class would set in action conf as the name of 
-credential defined in workflow.xml. The following examples shows sample code to 
-use in mapper or reducer class for talking to YCAV2 protected web service from grid.
+the token or certificate and inserts it into action configuration for further use. 
+In the example Workflow above, 
+Oozie gets the certificate of gYCA and passed to action configuration. The mapper can then use 
+this certificate by getting it from action configuration, and then add it to the HTTP request header 
+when connecting to the YCA-protected Web service through HTTPProxy. A certificate or token 
+retrieved by the credential class would set an action configuration as the name of 
+credential defined in ``workflow.xml``. (In this example, it is ``'myyca'``.) 
+
+The following examples shows sample code to 
+use in mapper or reducer class for talking to YCAv2-protected Web service from grid.
 
 .. code-block:: java
 
@@ -281,31 +307,33 @@ use in mapper or reducer class for talking to YCAV2 protected web service from g
 Passing Parameters to Coordinator EL Functions
 ----------------------------------------------
 
-One can pass parameterize parameter to EL function, which is defined as job property.
-Example.
+One can pass parameters that are defined as a job property to EL functions.
+
+For example, the parameters ``coord.start.instance`` and ``coord.end.instance``
+are defined ``job.properties`` before the Oozie job is submitted.
 
 .. code-block:: xml
 
    <input-events>
        <data-in name="zas_daily_datain" dataset="zas_daily_dataset">
-           <start-instance>${coord:latest(coord.end.instance)}</start-instance>
-           <end-instance>${coord:latest(coord.start.instance)}</end-instance>
+           <start-instance>${coord:latest(coord.start.instance)}</start-instance>
+           <end-instance>${coord:latest(coord.end.instance)}</end-instance>
        </data-in>
    </input-events>
 
 
-Where coord.start.instance and coord.end.instance are parameters defined in job.properties used during submission.
-
 Using Headless Users
 --------------------
 
-Oozie uses Backyard authentication.
-If you want to use a headless user, you need to do the following:
+TBD: This needs to be updated to use Kerberos.
+
+Oozie uses Backyard authentication. If you want to use a headless user, you need to 
+do the following:
 
 - Request a `Headless Bouncer account <http://twiki.corp.yahoo.com/view/SSO/HeadlessAccountSetup>`_. These accounts need a underscore "_" in their name. 
 - Request a headless UNIX account, that matches the name of your headless Backyard account.
 
-Use the following steps to setup your Headless User with Oozie:
+Follow the steps below to set up your headless user for Oozie:
 
 #. Setup your ``keydb`` file in the path ``/home/y/conf/keydb/``::
 
@@ -334,14 +362,14 @@ Configuring Oozie Jobs to Use Two NameNodes (Oozie Striping)
 1. Identify the JobTracker and its native NameNode
 **************************************************
 
-For example, the jobtracker to be used is JT1, and JT1's native (or default) namenode is NN1.
-then the second namenode is NN2.
+For example, if the JobTracker is JT1, then the native (or default) NameNode is NN1,
+If the JobTracker is JT2, then the second namenode is NN2.
 
 2. Configure the Oozie job application path
 *******************************************
 
-oozie job's application path, including coordinator.xml, workflow.xml, lib/, needs to be on jobtracker's default namenode, i.e., NN1.
-default namenode should be set to NN1.
+The Oozie job application path, including ``coordinator.xml``, ``workflow.xml``, and ``lib``, needs to be on JobTracker's default namenode (i.e., NN1).
+The default NameNode should be set to NN1.
 
 For example:
 
@@ -349,24 +377,24 @@ Coordinator: **job.properties**
 
 .. code-block:: bash
 
-   oozie.coord.application.path=hdfs://NN1:8020/projects/test_sla2-4
-   nameNode=hdfs://NN1:8020
-   wf_app_path=hdfs://NN1:8020/projects/test_sla2-4/demo
-   jobTracker=JT1:50300
+   oozie.coord.application.path=hdfs://{NN1}:8020/projects/test_sla2-4
+   nameNode=hdfs://{NN1}:8020
+   wf_app_path=hdfs://{NN1}:8020/projects/test_sla2-4/demo
+   jobTracker={JT1}:50300
 
 Workflow: **job.properties**
 
 .. code-block:: bash
 
-   oozie.wf.application.path=hdfs://NN1:8020/yoozie_test/workflows/pigtest
-   nameNode=hdfs://NN1:8020
-   jobTracker=JT1:50300
+   oozie.wf.application.path=hdfs://{NN1}:8020/yoozie_test/workflows/pigtest
+   nameNode=hdfs://{NN1}:8020
+   jobTracker={JT1}:50300
 
 3. Creating the Pig action
 **************************
 
-the pig script should be on NN1.
-for pig 0.8, use 0.8.0..1011230042 patch to use correct hadoop queue.
+The pig script should be on NN1.
+For pig 0.8, use the 0.8.0..1011230042 patch to use correct the Hadoop queue.
 
 For example:
 
@@ -374,48 +402,49 @@ For example:
 
 .. code-block:: bash
 
-   inputDir=hdfs://NN2:8020/projects/input-data
-   outputDir=hdfs://NN2:8020/projects/output-demo
+   inputDir=hdfs://{NN2}:8020/projects/input-data
+   outputDir=hdfs://{NN2}:8020/projects/output-demo
 
 
 4. Add a new property to configuration
 **************************************
 
-For every oozie action that needs to refer to input/output on the second namenode, 
-add this property to the action's configuration in workflow.xml
+For every Oozie action that needs to refer to input/output on the second NameNode, 
+add this property to the action's configuration in ``workflow.xml``.
 
 .. code-block:: xml
 
    <property>
     <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
-    <value>hdfs://NN2:8020</value>
+    <value>hdfs://{NN2}:8020</value>
    </property>
 
 
-5. Confirm that Oozie properties and XML tags are on the default namenode
+5. Confirm that Oozie properties and XML tags are on the default NameNode
 *************************************************************************
 
-- oozie.coord.application.path
-- oozie.wf.application.path
-- <name-node>
-- <file>
-- <archive>
-- <sub-workflow><app-path>
-- <job-xml>
-- pipes action's <program>
-- fs action <move source target>
-- pig action's <script>
+- ``oozie.coord.application.path``
+- ``oozie.wf.application.path``
+- ``<name-node>``
+- ``<file>``
+- ``<archive>``
+- ``<sub-workflow><app-path>``
+- ``<job-xml>``
+- pipes action's ``<program>``
+- Fs action <move source target>
+- Pig action's ``<script>``
 
 
 Java Action Copying a Local File to HDFS
 ----------------------------------------
 
-Assume a local file ``${filename}`` can be accessed by all cluster nodes. 
+To copy a local file to HDFS, the local file ``${filename}`` 
+must be accessible by all cluster nodes. 
 
 For example, the file is located in the home directory, which is globally mounted in blue colo. 
-All cluster nodes can read the local file by the same path, ``${filename}``.
+All cluster nodes can read the local file by the same path ``${filename}``.
 
-#. Define a java action in your ``workflow.xml``:
+#. Define a Java action in your ``workflow.xml``:
 
 .. code-block:: xml
 
@@ -490,9 +519,10 @@ All cluster nodes can read the local file by the same path, ``${filename}``.
 Java Action Printing a List of Dates
 ------------------------------------
 
-The example below prints a list of dates, based on the given start date, end date, and frequency. The *end date* is not included.
+The example below prints a list of dates, based on the given start date, end date, 
+and frequency. The *end date* is not included.
 
-#. Define a java action in your ``workflow.xml``.
+#. Define a Java action in your ``workflow.xml``.
 
 .. code-block:: xml
 
@@ -519,7 +549,7 @@ The example below prints a list of dates, based on the given start date, end dat
        <error to="fail" />
    </action>
 
-#. Specify a ``wf:actionData`` function to refer to the output of the java action in the workflow. For example:o
+#. Specify a ``wf:actionData`` function to refer to the output of the Java action in the Workflow XML. For example:
 
    .. code-block:: xml
 
@@ -530,7 +560,7 @@ The example below prints a list of dates, based on the given start date, end dat
           </switch>
       </decision>
 
-#. Create an example of the ``job.property`` file:
+#. Create a ``job.property`` file defining the parameters shown below.
 
    .. code-block:: bash
 
@@ -554,19 +584,19 @@ The example below prints a list of dates, based on the given start date, end dat
    .. code-block:: java
 
       /**
-       * Copyright (c) 2010 Yahoo! Inc. All rights reserved.
-       * Licensed under the Apache License, Version 2.0 (the "License");
-       * you may not use this file except in compliance with the License.
-       * You may obtain a copy of the License at
-       *
-       *   http://www.apache.org/licenses/LICENSE-2.0
-       *
-       *  Unless required by applicable law or agreed to in writing, software
-       *  distributed under the License is distributed on an "AS IS" BASIS,
-       *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-       *  See the License for the specific language governing permissions and
-       *  limitations under the License. See accompanying LICENSE file.
-       */
+      * Copyright (c) 2010 Yahoo! Inc. All rights reserved.
+      * Licensed under the Apache License, Version 2.0 (the "License");
+      * you may not use this file except in compliance with the License.
+      * You may obtain a copy of the License at
+      *
+      *   http://www.apache.org/licenses/LICENSE-2.0
+      *
+      *  Unless required by applicable law or agreed to in writing, software
+      *  distributed under the License is distributed on an "AS IS" BASIS,
+      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      *  See the License for the specific language governing permissions and
+      *  limitations under the License. See accompanying LICENSE file.
+      */
       package org.apache.oozie.example;
       
       import java.io.File;
@@ -650,4 +680,68 @@ The example below prints a list of dates, based on the given start date, end dat
       
       }
 
+Using Oozie Maven Artifacts
+---------------------------
 
+If you have a Java Maven project which uses an Oozie client or core library, you can 
+use Oozie Maven artifacts. Given below is the Maven repository and dependency 
+settings for your POM file.
+
+POM XML
+~~~~~~~
+
+.. code-block:: xml
+
+   <repositories>
+     <repository>
+       <id>yahoo</id>
+         <url>http://ymaven.corp.yahoo.com:9999/proximity/repository/public</url>
+         <snapshots>
+         <enabled>false</enabled>
+         </snapshots>
+     </repository>
+   </repositories>
+   <dependencies>
+     <dependency>      
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>yoozie-client</artifactId>
+       <version>${oozie.version}</version>
+       <scope>compile</scope>
+       </dependency>
+     </dependency>
+     <dependency>
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>oozie-core</artifactId>
+       <version>${oozie.version}</version>
+       <classifier>tests</classifier>   
+       <scope>compile</scope>
+     </dependency>
+     <dependency>
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>oozie-core</artifactId>
+       <version>${oozie.version}</version>
+       <scope>compile</scope>
+     </dependency>
+   <dependency>      
+       <groupId>org.apache.oozie</groupId>
+       <artifactId>yoozie-auth</artifactId>
+       <version>${oozie.version}</version>
+       <scope>compile</scope>
+       </dependency>
+     </dependency>
+   </dependencies>         
+
+Getting the Required Yinst Packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternately, you can also install following ``yoozie`` yinst packages to get the Oozie Jars and POM files.
+
+::
+
+    yinst i yoozie_maven -br stable
+    yinst i yoozie_hadooplibs_maven -br stable
+    yinst i yoozie_hbaselibs_maven -br stable
+    yinst i yoozie_hcataloglibs_maven -br stable
+
+.. note:: The ``current`` branch might also contain the version deployed on a research cluster. 
+          Package is promoted to stable only when it is deployed on production.
