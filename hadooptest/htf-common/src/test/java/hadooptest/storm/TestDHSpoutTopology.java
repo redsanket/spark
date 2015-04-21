@@ -38,7 +38,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
     //static String configURI="http://0.0.0.0:8090/registry/v1/";
     //static String serverURI=configURI;
     static String serverURI=null;
-    static String vhURI="http://myvh-stormtest.corp.yahoo.com:9153/";
+    static String vhURI="http://myvh-stormtest.corp.yahoo.com/";
     private backtype.storm.Config _conf;
     private String _ycaV1Role;
     private TestEventCountBolt theBolt = null;
@@ -106,6 +106,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
         _conf.setNumWorkers(3);
         _conf.put(backtype.storm.Config.NIMBUS_TASK_TIMEOUT_SECS, 200);
         _conf.put(Config.REGISTRY_URI, serverURI);
+        _conf.put("topology.http_spout.port.range","10000-10100");
 
         _conf.registerSerialization(AvroEventRecord.class, KryoEventRecord.class);
 
