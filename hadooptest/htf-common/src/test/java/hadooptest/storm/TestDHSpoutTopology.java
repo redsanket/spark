@@ -39,7 +39,7 @@ public class TestDHSpoutTopology extends TestSessionStorm {
     //static String serverURI=configURI;
     static String serverURI=null;
     static String vhURI="http://myvh-stormtest.corp.yahoo.com:9153/";
-    static String vhEphemeralURI="http://myvh-stormtest.corp.yahoo.com/";
+    static String vhEphemeralURI="http://myvh-stormtest-eph.corp.yahoo.com/";
     private backtype.storm.Config _conf;
     private String _ycaV1Role;
     private TestEventCountBolt theBolt = null;
@@ -195,10 +195,10 @@ public class TestDHSpoutTopology extends TestSessionStorm {
 
     @Test(timeout=600000)
     public void TestDHSpoutTopologyHTTPEphemeral() throws Exception{
-        logger.info("Starting TestDHSpoutTopology");
+        logger.info("Starting TestDHSpoutTopologyEphemeral");
         StormTopology topology = buildTopology(vhEphemeralURI);
 
-        String topoName = "dhspout-topology-test";
+        String topoName = "dhspout-ephemeral-topology-test";
 
         _conf = new backtype.storm.Config();
         _conf.putAll(backtype.storm.utils.Utils.readStormConfig());
