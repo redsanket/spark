@@ -51,7 +51,8 @@ import com.jayway.restassured.response.Response;
 
 @Category(SerialTests.class)
 public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
-	private static String source = "/grid/0/HTF/testdata/speculativeExec";
+	private static String fileName = "bigFileForSpecExecTest.txt";
+	private static String sourceFolder = "/grid/0/HTF/testdata/speculativeExec/";
 	private static String destination = "/tmp/";
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
 	@BeforeClass
@@ -62,11 +63,11 @@ public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
 	@Before
 	public void copyData() throws Exception {
 		DfsCliCommands dfsCommonCli = new DfsCliCommands();
-		TestSession.logger.info("copying " + source +" to HDFS!");
+		TestSession.logger.info("copying " + sourceFolder + fileName +" to HDFS!");
 		String aCluster = System.getProperty("CLUSTER_NAME");
 		GenericCliResponseBO copyFileBO;
 		copyFileBO = dfsCommonCli.copyFromLocal(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, HadooptestConstants.Schema.NONE, aCluster,
-				source, destination);
+				sourceFolder + fileName, destination);
 		TestSession.logger.info(copyFileBO.response);
 		GenericCliResponseBO chmodBO;
 		chmodBO = dfsCommonCli.chmod(EMPTY_ENV_HASH_MAP, HadooptestConstants.UserNames.HDFSQA, HadooptestConstants.Schema.NONE,
@@ -193,7 +194,7 @@ public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
 
 		public Boolean call() {
 			try {
-				return testClass.run("/tmp/teragen", "/tmp/specEx",
+				return testClass.run(destination + fileName, "/tmp/specEx",
 						TestSession.cluster.getConf(), 2,
 						HadooptestConstants.Execution.TEZ_CLUSTER, Session.NO,
 						TimelineServer.ENABLED, testName.getMethodName());
