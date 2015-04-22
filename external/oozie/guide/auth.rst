@@ -1,5 +1,5 @@
-Oozie Authorization
-===================
+Authentication/Authorization
+============================
 
 .. 04/15/15: Rewrite
 

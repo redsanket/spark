@@ -1,7 +1,7 @@
 .. _cookbook:
 
-Oozie Cookbook
-==============
+Cookbook Examples
+=================
 
 .. 04/20/15: Rewrote
 

@@ -302,7 +302,6 @@ Architecture Overview
    :alt: Oozie Architectural Diagram
    :align: left
 
-
 Technology Stack
 ~~~~~~~~~~~~~~~~
 
@@ -331,6 +330,31 @@ Abstraction Layer
    :align: left
 
 
+Accessing Oozie
+~~~~~~~~~~~~~~~
+
+- Users and client programs need a single address to
+  connect to the following:
+
+  - Web UI,
+  - REST/Java API
+  - JobTracker/ResourceManager callbacks
+  - etc.
+
+- Load balancer, VIP/DNS round-robin can be used
+  to provide one entry point to the Oozie servers
+  - Technically also needs to be HA
+
+Log Streaming
+~~~~~~~~~~~~~
+
+- Oozie log files are not in the database: each Oozie server only has access 
+  to its own logs
+- Jobs are not assigned to a specific Oozie server
+- If a user asks an Oozie server for the logs of another Server, the asked server
+  can ask the second server for the user.
+- Caveat: if an Oozie server goes down, any logs from it will be unavailable
+
 State Transitions
 ~~~~~~~~~~~~~~~~~
 
@@ -349,8 +373,6 @@ Introduced in Oozie 1.x
    :scale: 90 %
    :alt: Workflow Engine
    :align: right
-
-
 
 
 
