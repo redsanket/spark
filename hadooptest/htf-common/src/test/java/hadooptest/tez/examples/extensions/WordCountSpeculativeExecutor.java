@@ -1,16 +1,12 @@
 package hadooptest.tez.examples.extensions;
 
-import hadooptest.TestSession;
-import hadooptest.tez.utils.HtfTezUtils;
 import hadooptest.tez.utils.HtfTezUtils.Session;
 import hadooptest.tez.utils.HtfTezUtils.TimelineServer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -44,7 +40,6 @@ import org.apache.tez.dag.api.TezConfiguration;
 import org.apache.tez.dag.api.Vertex;
 import org.apache.tez.dag.api.client.DAGClient;
 import org.apache.tez.dag.api.client.DAGStatus;
-import org.apache.tez.dag.api.client.StatusGetOpts;
 import org.apache.tez.mapreduce.input.MRInput;
 import org.apache.tez.mapreduce.output.MROutput;
 import org.apache.tez.mapreduce.processor.SimpleMRProcessor;
@@ -53,11 +48,10 @@ import org.apache.tez.runtime.library.api.KeyValueReader;
 import org.apache.tez.runtime.library.api.KeyValueWriter;
 import org.apache.tez.runtime.library.api.KeyValuesReader;
 import org.apache.tez.runtime.library.conf.OrderedPartitionedKVEdgeConfig;
-
-import com.google.common.base.Preconditions;
-
 import org.apache.tez.runtime.library.partitioner.HashPartitioner;
 import org.apache.tez.runtime.library.processor.SimpleProcessor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Simple example to perform WordCount using Tez API's. WordCount is the
@@ -72,7 +66,6 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		Configuration.addDefaultResource("mapred-default.xml");
 		Configuration.addDefaultResource("mapred-site.xml");
 	}
-
 	static String INPUT = "Input";
 	static String OUTPUT = "Output";
 	static String TOKENIZER = "Tokenizer";
@@ -123,7 +116,8 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 //					System.out.println("Processing taskId " + myContext.getTaskIndex() +" now......");
 					if (myContext.getTaskIndex() == 5) {						
 						if (myContext.getTaskAttemptNumber() == 0) {
-							System.out.println("Processing taskAttempt 0 now.......going slow for " + myContext.getTaskIndex());
+							System.out.println("Processing taskAttempt 0 now......."
+									+ "going slow for " + myContext.getTaskIndex());
 							Thread.sleep(1000);
 							kvWriter.write(word, one);
 						} else {
@@ -327,7 +321,7 @@ public class WordCountSpeculativeExecutor extends Configured implements Tool {
 		
 //		baseConf.set("tez.am.resource.memory.mb", "2048");		
 //		baseConf.set("tez.am.java.opts", "-Xmx4096m");
-//		baseConf.set("tez.task.resource.memory.mb","4096");
+//		baseConf.set("tez.task.resource.memory.mb","3072");
 
 		/**
 		 * 	Int value. Time (in seconds) for which the Tez AM should wait for a

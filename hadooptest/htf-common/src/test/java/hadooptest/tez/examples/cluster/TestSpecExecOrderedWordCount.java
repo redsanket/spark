@@ -55,6 +55,8 @@ public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
 	private static String sourceFolder = "/grid/0/HTF/testdata/speculativeExec/";
 	private static String destination = "/tmp/";
 	public static final HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
+	int LET_THE_TASK_RUN_FOR_SECS = 120;
+	int taskIdToSlowDown = 5;
 	@BeforeClass
 	public static void beforeClass() {
 		TestSession.start();
@@ -81,7 +83,7 @@ public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
 
 	@Test
 	public void testOrderedWordCountWithPartitions() throws Exception {
-		String taskIdToSpeculate = "000005";
+		String taskIdToSpeculate = "00000" + taskIdToSlowDown;
 		String vertexId = "00";
 		String taskAttemptId = "0";
 		HadoopNode hadoopNode = TestSession.cluster
@@ -100,10 +102,10 @@ public class TestSpecExecOrderedWordCount extends WordCountSpeculativeExecutor {
 		TezSpecExCallable callableTask = new TezSpecExCallable(this);
 		executor.submit(callableTask);
 		executor.shutdown();
-		int TIMEOUT = 60;
+		
 		TestSession.logger
-				.info("Letting the job run for :" + TIMEOUT + " secs");
-		executor.awaitTermination(TIMEOUT, TimeUnit.SECONDS);
+				.info("Letting the job run for :" + LET_THE_TASK_RUN_FOR_SECS + " secs");
+		executor.awaitTermination(LET_THE_TASK_RUN_FOR_SECS, TimeUnit.SECONDS);
 		TestSession.logger.info("Here...., the appId is "
 				+ WordCountSpeculativeExecutor.appId);
 
