@@ -17,8 +17,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -45,6 +49,8 @@ public class IntegrationTest  extends TestSession {
 	private String destinationCluster;
 	private int duration;
 	private int noOfFeeds;
+	private int frequency;
+	private String freq;
 	private List<String> feedList;
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private WorkFlowHelper workFlowHelper;
@@ -68,20 +74,20 @@ public class IntegrationTest  extends TestSession {
 		this.consoleHandle = new ConsoleHandle();
 		HTTPHandle httpHandle = new HTTPHandle();
 
-		// get all the cluster that is currently GDM deployed
+		// Get all the clusters that GDM knows about
 		this.installedGrids = this.consoleHandle.getAllInstalledGridName();
 
 		// get the source cluster
 		this.sourceCluster = GdmUtils.getConfiguration("testconfig.IntegrationTest.sourceCluster");
 		TestSession.logger.info("sourceCluster  = " + sourceCluster);
-		if ( ! (this.sourceCluster != null) && (this.installedGrids.contains(this.sourceCluster)) )  {
+		if ( (this.sourceCluster != null) && ( ! this.installedGrids.contains(this.sourceCluster)) )  {
 			fail("Source cluster is null or Specified a wrong source cluster that is not configured.");
 		}
 
 		// get the destination cluster
 		this.destinationCluster = GdmUtils.getConfiguration("testconfig.IntegrationTest.destinationCluster");
 		TestSession.logger.info("destinationCluster = " + destinationCluster);
-		if ( ! (this.destinationCluster != null) && (this.installedGrids.contains(this.destinationCluster)) )  {
+		if ( (this.destinationCluster != null) && ( ! this.installedGrids.contains(this.destinationCluster)) )  {
 			fail("Destination cluster is null or Specified a wrong destination cluster that is not configured.");
 		}
 
@@ -111,7 +117,7 @@ public class IntegrationTest  extends TestSession {
 			this.hcatHelperObject = new HCatHelper();
 		} else if (this.enableHCAT != null && this.enableHCAT.toUpperCase() == "FALSE") {
 
-			// since hcat is enabled, TARGET TYPE is DataOnly
+			// since hcat is disabled, will do data-only replication
 			this.HCAT_TYPE = this.TARGET_START_TYPE_DATAONLY;
 		}
 		TestSession.logger.info("HCAT_TYPE = " + HCAT_TYPE);
@@ -120,20 +126,29 @@ public class IntegrationTest  extends TestSession {
 		if ( dur != null ) {
 			this.duration = Integer.parseInt(dur);
 		}
-
+		
+		this.freq  =  GdmUtils.getConfiguration("testconfig.IntegrationTest.frequency");
+		if (this.freq != null) {
+			if (this.freq.equals("hourly")) {
+				this.frequency = 60;
+			} else if (this.freq.equals("mins")) {
+				this.frequency = 15;
+			}
+		} 
+		
 		// get cookie for the headless user.
 		this.cookie = httpHandle.getBouncerCookie();
 		this.workFlowHelper = new WorkFlowHelper();
 	}
-
+	
 	@Test
 	public void integrationTest() throws Exception {
 
-		// check whether ABF data is available on the specified source
-		List<String>dates = getInstanceFiles();
-		assertTrue("ABF data is missing so testing can't be done, make sure whether the ABF data path is correct...!" , dates != null);
+		// check whether instance files are available on the specified source
+		List<String> dates = getInstanceFileDates();
+		assertTrue("Instance files dn't exists at " + ABF_DATA_PATH  +  "  on  " + this.sourceCluster , dates != null);
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 		Calendar todayCal = Calendar.getInstance();
 		Calendar LastdayCal = Calendar.getInstance();
 		Calendar currentCal = Calendar.getInstance();
@@ -145,30 +160,51 @@ public class IntegrationTest  extends TestSession {
 		long lastDay = Long.parseLong(sdf.format(LastdayCal.getTime()));
 		System.out.println(" Current date - "+ sdf.format(todayCal.getTime()));
 		System.out.println(" Next date - "+ sdf.format(LastdayCal.getTime()));
-		long currentDay;
-		while(toDay <= lastDay) {
 
-			this.dataSetName = "Integration_Testing_DS_" + System.currentTimeMillis();
+		Calendar initialCal = Calendar.getInstance();
+		Calendar futureCal = Calendar.getInstance();
 
-			// create  a dataset
-			this.createDataSet();
+		long intialMin = Long.parseLong(sdf.format(initialCal.getTime()));
+		initialCal.add(Calendar.MINUTE, 1);
+		long futureMin =  Long.parseLong(sdf.format(initialCal.getTime()));
+		System.out.println(" intialMin   = " +  intialMin   + "  futureMin  =  "  + futureMin);
+		while (toDay <= lastDay) {
+			Date d = new Date();
+			long initTime = Long.parseLong(sdf.format(d));
+			
+			if (initTime >= futureMin ) {
+				initialCal = Calendar.getInstance();
+				intialMin = Long.parseLong(sdf.format(initialCal.getTime()));
+				initialCal.add(Calendar.MINUTE, this.frequency);
+				futureMin =  Long.parseLong(sdf.format(initialCal.getTime()));
+				initialCal = null;
+				this.dataSetName = "Integration_Testing_DS_" + System.currentTimeMillis();
 
-			// activate the dataset
-			this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
-			this.consoleHandle.sleep(40000);
-			String datasetActivationTime = GdmUtils.getCalendarAsString();
+				// create  a dataset
+				this.createDataSet();
 
-			// check whether each instance date workflow
-			for (String date : dates ) {
-				this.workFlowHelper.checkWorkFlow(this.dataSetName , "replication" , datasetActivationTime , date);
+				// activate the dataset
+				this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
+				this.consoleHandle.sleep(40000);
+				String datasetActivationTime = GdmUtils.getCalendarAsString();
+
+				// check for replication workflow is success for each instance
+				for (String date : dates ) {
+					this.workFlowHelper.checkWorkFlow(this.dataSetName , "replication" , datasetActivationTime , date);
+				}
+				// TODO : Need to find the API to query HIVE and HCat for table creation and partition. We can use GDM REST API or Data discovery REST API
+
+				// deactivate the dataset
+				this.tearDown();
 			}
-
+			
+			this.consoleHandle.sleep(60000);
+			d = new Date();
+			initTime = Long.parseLong(sdf.format(d));
+			d = null;
 			toDay = Long.parseLong(sdf.format(currentCal.getTime()));
-
-			// TODO : Need to find the API to query HIVE and HCat for table creation and partition. We can use GDM REST API or Data discovery REST API
-
-			// deactivate the dataset
-			this.tearDown();
+			TestSession.logger.info("This is " + this.freq  + "  feed. Feed will be started " + this.freq);
+			TestSession.logger.info("Next workflow will start @ " + futureMin   + "  Current  time = " + initTime);
 		}
 	}
 
@@ -200,18 +236,17 @@ public class IntegrationTest  extends TestSession {
 		this.consoleHandle.sleep(5000);
 	}
 
-
 	/**
 	 * First checks whether ABF data exists on the grid for a given path, if exists returns instance date(s) 
 	 * @return
 	 */
-	public List<String>getInstanceFiles() {
+	public List<String> getInstanceFileDates() {
 		JSONArray jsonArray = null;
-		List<String>instanceDate = new ArrayList<String>();
+		List<String> instanceDates = new ArrayList<String>();
 		String testURL = this.consoleHandle.getConsoleURL() + this.HADOOP_LS_PATH + this.SOURCE_NAME + "&path=" + ABF_DATA_PATH + "&format=json";
 		TestSession.logger.info("Test url = " + testURL);
 		com.jayway.restassured.response.Response res = given().cookie(this.cookie).get(testURL);
-		assertTrue("Failed to get the respons  " + res , (res != null ) );
+		assertTrue("Failed to get the response  " + res , (res != null ) );
 
 		jsonArray = this.consoleHandle.convertResponseToJSONArray(res , "Files");
 		TestSession.logger.info("********size = " + jsonArray.size());
@@ -227,11 +262,11 @@ public class IntegrationTest  extends TestSession {
 					if (instanceFile != null ) {
 						String dt = instanceFile.get(instanceFile.size() - 1);
 						TestSession.logger.info("^^^^^^ date = " + dt);
-						instanceDate.add(dt);
+						instanceDates.add(dt);
 					}	
 				}
 			}
-			return instanceDate;
+			return instanceDates;
 		}
 		return null;
 	}
