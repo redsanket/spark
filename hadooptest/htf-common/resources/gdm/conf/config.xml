@@ -13,8 +13,7 @@
 <config>
   <hostconfig>
     <console>
-  <!--   <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url> -->
-  <base_url>http://dense31.blue.ygrid.yahoo.com:9999</base_url>
+ 	 <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
     <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
    <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
    <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
