@@ -126,12 +126,8 @@ public class IntegrationTest  extends TestSession {
 		this.workFlowHelper = new WorkFlowHelper();
 	}
 
-	public void iamSleepgin() {
-		this.consoleHandle.sleep(60);
-	}
-
 	@Test
-	public void testHCATWithABFData() throws Exception {
+	public void integrationTest() throws Exception {
 
 		// check whether ABF data is available on the specified source
 		List<String>dates = getInstanceFiles();
