@@ -93,7 +93,7 @@
     	<sourceCluster>$(SOURCE_CLUSTER)</sourceCluster>
     	<destinationCluster>$(DESTINATION_CLUSTER)</destinationCluster>
     	<duration>1</duration>	 <!-- duration in days -->
-    	<enable-hcat>FALSE</enable-hcat>	-->
+    	<enable-hcat>FALSE</enable-hcat>
     </IntegrationTest>
   </testconfig>
   <auth>
