@@ -39,24 +39,26 @@ The syntax for the Web Console is ``http://{cluster}{color}-oozie.{color}.ygrid.
 Coordinator Actions
 +++++++++++++++++++
 
-In the current releases, logs are shown for coordinator 'actions' only (and not for the parent job).
+In the current releases, logs are shown for Coordinator *actions* only (and not 
+for the parent job).
 
-Click on the tab **Coord Job Log** once you've clicked on the job from the list
+Click the tab **Coord Job Log** once you've clicked on the job from the list.
 Action logs can be viewed by entering the action numbers in the text box below the 
-log area either as a comma-separated list or a range e.g. 1-5,6,9,10. 
+log area either as a comma-separated list or a range (e.g., 1-5,6,9,10). 
 
 Screenshot
 
-Due to large size of logs (for coordinator with large number of actions), loading 
-the logs might take upto a few minutes.
+Due to large size of logs (for Coordinators with large number of actions), loading 
+the logs might take a few minutes.
 
 In the next release, after opening the tab, the default log displayed will be of 
-the parent coordinator job. Accessing actions' logs will be same as current behavior. 
+the parent Coordinator job. Accessing action logs will be same as current behavior. 
 Performance improvements are underway to improve the streaming speed.
 
 TBD: Add screenshot.
 
-For more information about the Web Console, see https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook.
+For more information about the Web Console, 
+see https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook.
 
 3. View Oozie Logs
 ~~~~~~~~~~~~~~~~~~
@@ -84,20 +86,22 @@ Internal Server Error (1)
 
     Error: OTHER : Internal Server Error
 
+Possible Solutions
+++++++++++++++++++
 
-Solution: Do you have access to a Hadoop queue?
+- Do you have access to a Hadoop queue?
 
-Check out the queues for Axonite Blue here: http://ucdev4.yst.corp.yahoo.com/jtqueues/?cluster=axonite-blue
+  Check out the queues for Axonite Blue here: http://ucdev4.yst.corp.yahoo.com/jtqueues/?cluster=axonite-blue
 
-- You do not have access to the Hadoop queue!
+- Can you access the Hadoop queue?
 
   ::
 
      $ hadoop queue -showacls
 
 
-If you don't have access to the queue you are using, submit a request to Grid-Ops; 
-You should have access to a Hadoop queue and will be able to submit workflows to Oozie.
+If you don't have access to the queue you are using, `submit a request to Grid-Ops <http://yo/supportshop>`_. 
+You need access to a Hadoop queue to submit Workflows to Oozie. 
 
 
 Internal Server Error (2)
@@ -137,8 +141,11 @@ E0701: XML Schema Error
 E0701: XML schema error, cvc-complex-type.2.4.a: Invalid content was found starting 
 with element ``some-element-a``. One of ``{"uri:oozie:workflow:0.5":other-element-b}`` is expected.
 
-If you encounter above error, you should check that your xml tags are in the correct 
-sequence as specified in the Workflow XSD. Order of the tags matters here.
+Possible Solution
++++++++++++++++++
+
+If you encounter above error, you should check that your XML elements are in the correct 
+sequence as specified in the `Workflow XSD <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. Order of the tags matters here.
 
 
 Error: AUTHENTICATION : Forbidden
@@ -147,8 +154,9 @@ Error: AUTHENTICATION : Forbidden
 Wrong Version of Oozie Client
 *****************************
 
-You are using the wrong version of the oozie client. You are probably using the Apache oozie client instead of the Yahoo oozie client.
-Download the yahoo oozie client from dist.corp.yahoo.com
+You are using the wrong version of the oozie client. You are probably using the Apache oozie client instead of the Yahoo oozie client. Download the Yahoo Oozie client from 
+``dist.corp.ahoo.com``.
+
 
 ::
 
@@ -195,18 +203,17 @@ the ``E1001`` error means one of two things:
 1. The HDFS path to your Workflow application is incorrect.
 
 - Verify that the HDFS path is correct
-- Are you using the correct port number?
-- If you are using a local installation, you may have to use 'localhost' instead 
-  of the hostname in the WF path
+- Verify that you're using the correct port number.
+- If you are using a local installation, you may have to use ``localhost`` instead 
+  of the hostname in the Workflow path.
 
 2. You don't have user/group read access to the Workflow application path.
 
-- Is the path correct?
-- In the properties file, there should not be any space after the path.
-- Make sure you define absolute paths to your HDFS paths.
-
-  - Correct path syntax: ``oozie.wf.application.path=hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com:8020/user/myuserid/workflows/pig``
-  - Incorrect path syntax: ``oozie.wf.application.path=hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com:8020/workflows/pig``
+   - Is the path correct?
+   - In the properties file, there should not be any space after the path.
+   - Make sure you define absolute paths to your HDFS paths:
+      - Correct path syntax: ``oozie.wf.application.path=hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com:8020/user/myuserid/workflows/pig``
+      - Incorrect path syntax: ``oozie.wf.application.path=hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com:8020/workflows/pig``
 
 Oozie Local Installation Problems
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,15 +260,20 @@ My Hadoop Job Failed. Where are the Logs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Go to the Oozie Web UI.
-#. Click on your job. A new window will pop up.
-#. Select the action from the bottom of new window. It will also pop-up another new window.
+#. Click on your job. A new window will open.
+#. Select the action from the bottom of new window. Another new window will open.
 #. Click on the right of **Console URL**. This will load the Hadoop Web UI. It will 
    take you to a url like http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/job/job_1416815736267_5393163/
 #. Select the link of the completed map task from the “Maps” line. It will take you 
-   to a URL such as http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/attempts/job_1416815736267_5393163/m/SUCCESSFUL
+   to a URL such as ``http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/attempts/job_1416815736267_5393163/m/SUCCESSFUL``.
 
 
-Click on the logs link in the map attempt shown. It will take you to a url like http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/logs/gsta31332.tan.ygrid.yahoo.com:8041/container_1416815736267_5393163_01_000001/attempt_1416815736267_5393163_m_000000_0/headlessusername. That page should list three logs - stderr, stdout, syslog. stderr should contain the stacktraces in case of failure. stdout usually contains the execution of the action (pig client log, hive client log, shell output, etc). stdout also might contain error messages or stacktraces. So be sure to always check that.
+Click the logs link in the map attempt shown. It will take you to a URL similar to ``http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/logs/gsta31332.tan.ygrid.yahoo.com:8041/container_1416815736267_5393163_01_000001/attempt_1416815736267_5393163_m_000000_0/headlessusername``. 
+That page should list three logs: **stderr**, **stdout**, **syslog**. The **stderr** log 
+should contain the stacktraces in case of failure. The **stdout** log usually contains 
+the execution of the action (Pig client log, Hive client log, shell output, etc.). 
+The **stdout** log also might contain error messages or stacktraces, so be sure to 
+always check it.
 
 
 

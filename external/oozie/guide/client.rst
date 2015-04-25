@@ -216,6 +216,7 @@ you want to skip as shown below::
 
 For example: ``$ oozie job -config job.properties -rerun oozie-wf-jobID``
 
+.. _rerun_coords:
 
 Rerun Coordinator Action[s] (Oozie 2.1+)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

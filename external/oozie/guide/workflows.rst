@@ -5,13 +5,15 @@ Overview
 --------
 
 
-Oozie workflows can be parameterized (using variables like ${inputDir} within the 
+Oozie Workflows can be parameterized (using variables like ${inputDir} within the 
 workflow definition). When submitting a workflow job values for the parameters must 
 be provided. If properly parameterized (i.e. using different output directories) 
 several identical workflow jobs can concurrently.
 
 Transitions
 -----------
+
+TBD
 
 Use Cases Examples
 ------------------
@@ -670,8 +672,8 @@ Workflow
        <end name='end' />
    </workflow-app>
 
-Explanation of Workflow
-***********************
+Explanation of the Workflow
+***************************
 
 Each workflow job will create at least three events for normal processing.
 The event CREATED specifies that the Workflow action is registered for SLA tracking.

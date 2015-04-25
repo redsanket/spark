@@ -45,7 +45,7 @@ On-Boarding
 ===========
 
 #. `Request a grid account <http://yo/supportshop>`_ with HDFS and JobTracker queue access.
-#. Select the authentication mechanism for your workflows: Kerberos (common for headless users) or YCA
+#. Select the authentication mechanism for your Workflows: Kerberos (common for headless users) or YCA
 #. Complete one of the quick starts in the :ref:`Getting Started <getting_started>` chapter.
 
 Getting Help
@@ -63,4 +63,8 @@ Support
 
 Filing Jira Tickets
 -------------------
+
+#. Go to the `Jira Oozie Summary Panel <https://jira.corp.yahoo.com/browse/YOOZIE/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel>`_.
+#. From the top navigation bar, click **Create**.
+#. Fill out the **Create Issue** form and click **Create**.
 

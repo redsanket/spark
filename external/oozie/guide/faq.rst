@@ -2,26 +2,28 @@
 FAQ
 ===
 
-This page answers some of the most common questions we get about Oozie  at Yahoo. For 
+.. 04/22/15: Rewrote
+
+This page answers some of the most common questions we get about Oozie at Yahoo. For 
 troubleshooting issues, see `Troubleshooting <ts.html>`_.
 
 Questions
 =========
 
 * :ref:`Where are the log files created? <log_files>`  
-* :ref:`How to turn off uber AM for launcher jobs? <turn_off>`
-* :ref:`How to run a workflow action accessing namenode of a different cluster? <run_different_cluster>`
-* :ref:`How to allow other user(s) to view the hadoop logs? <allow_users_view_logs>`
+* :ref:`How do you turn off the uber Application (AM) for launcher jobs? <turn_off>`
+* :ref:`How do you run a Workflow action accessing the NameNode of a different cluster? <run_different_cluster>`
+* :ref:`How do you allow other user(s) to view the Hadoop logs? <allow_users_view_logs>`
 * :ref:`How do you pass variables to Oozie? <pass_variables>`
 * :ref:`How do you pass variables between actions? <pass_vars_actions>`
 * :ref:`How do you use common libraries? <common_libs>`
-* :ref:`How do you delete directories only when you re-run a job? <del_dir_rerun>`
+* :ref:`How do you delete directories only when you rerun a job? <del_dir_rerun>`
 * :ref:`How do you pass environment variables to actions? <pass_env_vars_actions>`
 * :ref:`How do you programmatically access action configuration? <access_action_config>`
-* :ref:`How to run oozie query with -filter option? <filter>`
+* :ref:`How to run an Oozie query with -filter option? <filter>`
 * :ref:`How to submit a MapReduce job through HTTP? <mr_http>`
-* :ref:`Where do I view the pig client log of the pig script execution? <view_pig_log>`
-* :ref:`Why does my job run fine as standalone Pig but not through Oozie? <standalone_oozie>`
+* :ref:`Where do I view the Pig client log for executed Pig scripts? <view_pig_log>`
+* :ref:`Why does my job run fine as a standalone Pig script but not through Oozie? <standalone_oozie>`
 * :ref:`How can I increase the memory for the Pig launcher job? <pig_job_memory>`
 * :ref:`How do you pass parameters to Pig actions? <pig_params_pass>`
 * :ref:`How to submit a Pig job through HTTP? <submit_pig_http>`
@@ -45,26 +47,28 @@ Answers
 
 .. _turn_off:
 
-.. topic:: **How to turn off uber AM for launcher jobs?**
+.. topic:: **How do you turn off the uber ApplicationMaster (AM) for launcher jobs?**
 
-   In Hadoop 2.x, the launcher job is run in uberized mode. i.e the launcher map task 
-   is run as part of the launcher AM itself to save launching of an additional container. 
-   For some reason if that is not desired, it can be turned of per workflow action 
-   by configuring oozie.launcher.mapreduce.job.ubertask.enable to false in the action configuration.
+   In Hadoop 2.x, the launcher job is run in uberized mode. For example, the launcher map task 
+   is run as part of the launcher AM to avert launching an additional container. 
+   If that is not desired, it can be turned off per workflow action 
+   by configuring ``oozie.launcher.mapreduce.job.ubertask.enable`` to 
+   ``false`` in the action configuration.
 
 
 
 .. _run_different_cluster:
 
-.. topic:: **How to run a workflow action accessing namenode of a different cluster?**
+.. topic:: **How do you run a Workflow action accessing the NameNode of a different cluster?**
 
-   Set the value of oozie.launcher.mapreduce.job.hdfs-servers configuration to 
-   hdfs://sourcenamenode.colo.ygrid.yahoo.com (same colo different cluster) or 
-   webhdfs://sourcenamenode.colo.ygrid.yahoo.com (cross-colo cluster). You will have 
-   to use the same protocol while referring the other namenode in your workflow or 
-   pig scripts. A comma separated list can be specified.
+   You set the value of ``oozie.launcher.mapreduce.job.hdfs-servers`` configuration to 
+   ``hdfs://sourcenamenode.colo.ygrid.yahoo.com`` (the same colo, different cluster) or 
+   ``webhdfs://sourcenamenode.colo.ygrid.yahoo.com`` (cross-colo cluster). You will have 
+   to use the same protocol while referring the other NameNode in your Workflow or 
+   Pig scripts. A comma-separated list can be specified.
 
-   For example: For a workflow running in DilithiumBlue trying to access data in UraniumbBlue(Same Colo) and PhazonTan(Cross Colo).
+   For example, the Workflow XML below allows an action running in Dilithium Blue trying 
+   to access data in Uraniumb Blue(same colo) and Phazon Tan(cross-colo).
 
    .. code-block:: xml
 
@@ -77,81 +81,81 @@ Answers
     
 .. _allow_users_view_logs:
 
-.. topic:: **How to allow other user(s) to view the hadoop logs?**
+.. topic:: **How do you allow other user(s) to view the Hadoop logs?**
 
-   In Hadoop 20S+, any user other than the submitter of the job can not view the generated hadoop logs. 
+   In Hadoop 20S+, any user other than the submitter of the job can not view the generated Hadoop logs. 
    However, the job submitter could allow specific user(s) to see its log by defining 
    few parameters during job submission. The same thing could be achieved through Oozie.
 
-   More information: http://twiki.corp.yahoo.com/view/Grid/GridSecurityUserImpact
+   More information, see the 
+   `Grid Security User Impact <http://twiki.corp.yahoo.com/view/Grid/GridSecurityUserImpact>`_
    The following example shows how to configure that in ``workflow.xml``.
 
-   ::
+   .. code-block:: xml
 
-       $ cat streaming/workflow.xml
-       <workflow-app xmlns='uri:oozie:workflow:0.5' name='streaming-wf'>
-           <start to='streaming1' />
-           <action name='streaming1'>
-               <map-reduce>
-                   <job-tracker>${jobTracker}</job-tracker>
-                   <name-node>${nameNode}</name-node>
-                   <prepare>
-                       <delete path="${outputDir}"/>
-                   </prepare>
-                   <streaming>
-                       <mapper>/bin/cat</mapper>
-                       <reducer>/usr/bin/wc</reducer>
-                   </streaming>
-                   <configuration>
-                       <property>
-                           <name>mapred.input.dir</name>
-                           <value>${inputDir}</value>
-                       </property>
-                       <property>
-                           <name>mapred.output.dir</name>
-                           <value>${outputDir}</value>
-                       </property>
-                       <property>
-                         <name>mapred.job.queue.name</name>
-                         <value>${queueName}</value>
-                       </property>
-                       <property>
-                          <name>mapred.input.format.class</name>
-                          <value>org.apache.hadoop.mapred.TextInputFormat</value>
-                       </property>
-                       <property>
-                          <name>dfs.umask</name>
-                          <value>18</value>
-                       </property>
-       <!------ Start of configuration to allow other user to view the hadoop log ------>                
-                       <property>
-                          <name>mapreduce.job.acl-modify-job</name>
-                          <value>users</value>
-                       </property>
-                       <property>
-                          <name>mapreduce.job.acl-view-job</name>
-                          <value>kamrul,marchen</value>
-                       </property>
-                       <property>
-                          <name>oozie.launcher.mapreduce.job.acl-modify-job</name>
-                          <value>users</value>
-                       </property>
-                       <property>
-                          <name>oozie.launcher.mapreduce.job.acl-view-job</name>
-                          <value>kamrul,marchen</value>
-                       </property>
-       <!------ End of configuration ------>
-                   </configuration>
-               </map-reduce>
-               <ok to="end" />
-               <error to="fail" />
-           </action>
-           <kill name="fail">
-               <message>Streaming Map/Reduce failed, error
+      <workflow-app xmlns='uri:oozie:workflow:0.5' name='streaming-wf'>
+         <start to='streaming1' />
+         <action name='streaming1'>
+            <map-reduce>
+               <job-tracker>${jobTracker}</job-tracker>
+               <name-node>${nameNode}</name-node>
+               <prepare>
+                  <delete path="${outputDir}"/>
+               </prepare>
+               <streaming>
+                  <mapper>/bin/cat</mapper>
+                  <reducer>/usr/bin/wc</reducer>
+               </streaming>
+               <configuration>
+                  <property>
+                     <name>mapred.input.dir</name>
+                     <value>${inputDir}</value>
+                  </property>
+                  <property>
+                     <name>mapred.output.dir</name>
+                     <value>${outputDir}</value>
+                  </property>
+                  <property>
+                     <name>mapred.job.queue.name</name>
+                     <value>${queueName}</value>
+                  </property>
+                  <property>
+                     <name>mapred.input.format.class</name>
+                     <value>org.apache.hadoop.mapred.TextInputFormat</value>
+                  </property>
+                  <property>
+                     <name>dfs.umask</name>
+                     <value>18</value>
+                  </property>
+                  <!------ Start of configuration to allow other user to view the hadoop log ------>                
+                  <property>
+                     <name>mapreduce.job.acl-modify-job</name>
+                     <value>users</value>
+                  </property>
+                  <property>
+                     <name>mapreduce.job.acl-view-job</name>
+                     <value>kamrul,marchen</value>
+                  </property>
+                  <property>
+                     <name>oozie.launcher.mapreduce.job.acl-modify-job</name>
+                     <value>users</value>
+                  </property>
+                  <property>
+                     <name>oozie.launcher.mapreduce.job.acl-view-job</name>
+                     <value>kamrul,marchen</value>
+                  </property>
+                  <!------ End of configuration ------>
+               </configuration>
+            </map-reduce>
+            <ok to="end" />
+            <error to="fail" />
+         </action>
+         <kill name="fail">
+            <message>Streaming Map/Reduce failed, error
        message[${wf:errorMessage(wf:lastErrorNode())}]</message>
-           </kill>
-           <end name='end' />
-       </workflow-app>
+         </kill>
+         <end name='end' />
+      </workflow-app>
 
 
  
@@ -165,9 +169,7 @@ Answers
        $ oozie job -run -config map-reduce-job.properties
 
 
-   The properties file would look something like this::
-
-       $ cat map-reduce-job.properties 
+   The properties file would look something like the following::
 
        oozie.wf.application.path=hdfs://localhost:9000/user/danielwo/workflows/map-reduce
        inputDir=hdfs://gsbl91034.blue.ygrid.yahoo.com:9000/user/danielwo/input-data
@@ -178,18 +180,18 @@ Answers
        group.name=users
 
 
-   .. note:: From Hadoop .23, you pass the ResourceManager hostname:port to Oozie <job-tracker> tag
-             Parameterization of Oozie jobs Parameterize Oozie Jobs (work in progress)
+   .. note:: From Hadoop 0.23, you pass the ResourceManager ``hostname:port`` to 
+             the Oozie ``<job-tracker>`` element. 
 
 
 .. _pass_vars_actions:
 
 .. topic:: **How do you pass variables between actions?**
 
-
-   In this example, we pass a the PASS_ME variable between the java action and the pig1 action.
-   The PASS_ME variable is given the value 123456 in the java-main action named java1.
-   The pig1 action subsequently reads the value of the PASS_ME variable and passes it to the PIG script.
+   In this example, we pass the ``PASS_ME`` variable between the Java action and the ``pig1`` action.
+   The ``PASS_ME`` variable is given the value ``123456`` in the ``java-main`` action named ``java1``.
+   The ``pig1`` action subsequently reads the value of the ``PASS_ME`` variable and passes it to the 
+   Pig script.
 
    .. code-block:: xml
 
@@ -212,8 +214,6 @@ Answers
               <ok to="pig1" />
               <error to="fail" />
           </action>
-      
-      
           <action name='pig1'>
               <pig>
                   <job-tracker>${jobTracker}</job-tracker>
@@ -236,18 +236,16 @@ Answers
               <ok to="end" />
               <error to="fail" />
           </action>
-      
-      
           <kill name="fail">
               <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
           </kill>
           <end name='end' />
       </workflow-app>
 
-   In the Java Main class, the sample class org.apache.oozie.test.MyTest should be 
-   packaged in a JAR file and put in your workflow lib/ directory. The ``main()`` 
+   In the Java ``Main`` class, the sample class ``org.apache.oozie.test.MyTest`` should be 
+   packaged in a JAR file and put in your Workflow ``lib`` directory. The ``main()`` 
    method writes a Property file to the path specified in the 
-   oozie.action.output.properties ENVIRONMENT variable.
+   ``oozie.action.output.properties`` environment variable.
 
    .. code-block:: java
 
@@ -281,26 +279,26 @@ Answers
       }
 
       
-
 .. _common_libs:
 
 .. topic:: **How do you use common libraries?** 
 
-   1. save all common library jars in the "lib" directory, which is in the same level as workflow.xml.
-   or, 2. store common library jars in a shared location in HDFS, and refer to them in each of your workflows.
+   You can save all common library JARs in the ``lib`` directory, which is at the same level as ``workflow.xml``.
+   Or, you can store common library JARs in a shared location in HDFS and 
+   refer to them in each of your Workflows.
 
-   Examples of common JARS are: hadoop-streaming.jar, pig.jar, etc..
-   Use the <file> XML tag to refer to the absolute path to these JARs in HDFS. You do not need to include them in your workflow "lib" directory.
-   Refer Oozie docs for details on how to use the "<file>" tag.
-   or, 3. in next oozie 5.0 release, store command library jars is a shared location in HDFS, e.g, hdfs://nn:8020/tmp/commonlib
-   in the job.properties file, specify "oozie.libpath=hdfs://nn:8020/tmp/commonlib".
-
+   Examples of common JARS are: ``hadoop-streaming.jar``, ``pig.jar``, etc..
+   Use the ``<file>`` XML element to refer to the absolute path to these JARs in HDFS. 
+   You do not need to include them in your workflow ``lib`` directory.
+   Refer to the `Oozie documentation <http://oozie.apache.org/docs/3.3.2/WorkflowFunctionalSpec.html#a3.2.2.1_Adding_Files_and_Archives_for_the_Job>`_for details on how to use the ``<file>`` element.
+   In Oozie 5.0, you store common library JARs in a shared location in HDFS. For example, 
+   in the ``job.properties`` file, you would specify ``oozie.libpath=hdfs://nn:8020/tmp/commonlib``.
 
 .. _del_dir_rerun:
 
-.. topic:: **How do you delete directories only when you re-run a job?** 
+.. topic:: **How do you delete directories only when you rerun a job?** 
 
-   The 'myOutputDir' will only be deleted when the job is "re-run". Otherwise, some dummy (non-existing) 
+   The ``myOutputDir`` will only be deleted when the job is rerun. Otherwise, some dummy (non-existing) 
    directory will be removed.
 
    .. code-block:: xml
@@ -313,7 +311,7 @@ Answers
 
 .. topic:: **How do you pass environment variables to actions?**
 
-   To set an Environment variable for a MapReduce action:
+   To set an environment variable for a MapReduce action:
 
    .. code-block:: xml
 
@@ -323,7 +321,7 @@ Answers
       </property> 
 
 
-   To set an Environment variable for a Pig action:
+   To set an environment variable for a Pig action:
 
    .. code-block:: xml
 
@@ -333,7 +331,7 @@ Answers
       </property> 
 
 
-   To set an Environment variable for the MapReduce jobs started by a Pig action:
+   To set an environment variable for the MapReduce jobs started by a Pig action:
 
    .. code-block:: xml
 
@@ -347,11 +345,11 @@ Answers
 .. topic:: **How do you programmatically access action configuration?**
 
 
-   For each Oozie action, the configuration is stored locally where the job runs 
-   and its location is passed by system variable ``oozie.action.conf.xml``.
+   For each Oozie action, the configuration is stored locally where the job runs, 
+   and its location is passed by the system variable ``oozie.action.conf.xml``.
 
-   If you are accessing some configuration properties in your java-action main 
-   class or custom map-reduce action mapper/reducer class, do the following::
+   If you are accessing some configuration properties in your ``java-action`` main 
+   class or custom ``map-reduce`` action mapper/reducer class, do the following::
 
        String confLocation = System.getProperty("oozie.action.conf.xml");
        Path localConfPath = new Path(confLocation);
@@ -363,7 +361,7 @@ Answers
 
 .. _filter:
 
-.. topic:: **How to run oozie query with -filter option?**
+.. topic:: **How to run an Oozie query with -filter option?**
 
    You can run the query with multiple filter options by escaping ";" as \; or quoting the whole filter::
 
@@ -490,27 +488,29 @@ Answers
       Workflow id[3-091009212100197-oozie-danielwo] status[SUCCEEDED]
 
 
+.. Left off here on 04/21/15
+
 .. _view_pig_log:
 
-.. topic:: **Where do I view the pig client log of the pig script execution?** 
+.. topic:: **Where do I view the Pig client log for executed Pig scripts?** 
 
    Click the **Console URL** of the Pig action in the Oozie UI. It will take you to 
-   the pig launcher hadoop job in Resource Manager or the Job History UI. The Hadoop 
-   job should have one single map task. Click on the map task logs which will list 
-   three separate logs: ``stdout``, ``stderr``, and ``syslog``. The stdout logs will 
+   the Pig launcher Hadoop job in the ResourceManager or the Job History UI. The Hadoop 
+   job should have one map task. Click the map task logs to view 
+   three separate logs: ``stdout``, ``stderr``, and ``syslog``. The ``stdout`` logs will 
    give the Pig client log. If there are any failures, look at ``stderr`` as well for 
    exception stacktraces.
 
 .. _standalone_oozie:
 
-.. topic:: **Why does my job run fine as standalone Pig but not through Oozie?** 
+.. topic:: **Why does my job run fine as a standalone Pig script but not through Oozie?** 
 
-   When pig runs from gateway boxes, it uses a pre-configured command with cluster 
-   specific settings. If the same configure is given through worklfolow.xml, Oozie 
+   When Pig runs from gateways, it uses a pre-configured command with cluster 
+   specific settings. If the same configuration is given in ``worklflow.xml``, Oozie 
    should be able to use those configurations. 
 
-   Most frequent issue is related to memory used by command line pig. This and other 
-   information could be found by using this command:
+   The most frequent issue is related to memory used by ``pig`` command. You can view the memory used 
+   and other information with the following command:
 
    :: 
 
@@ -523,7 +523,7 @@ Answers
 
 .. topic:: **How can I increase the memory for the Pig launcher job?**
 
-   You can define a property (oozie.launcher.*) in your action:
+   You can define the property (``oozie.launcher.mapred.child.java.opts``) in your action:
 
     .. code-block:: xml
 
@@ -564,8 +564,6 @@ Answers
               <ok to="end" />
               <error to="fail" />
           </action>
-      
-      
           <kill name="fail">
               <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
           </kill>
@@ -573,7 +571,8 @@ Answers
       </workflow-app>
 
    If you need more than 1.5 G memory for the Pig launcher, 
-   increase following property (for 2GB) in addition to ``oozie.launcher.mapred.child.java.opts``:
+   increase the property ``oozie.launcher.mapred.job.map.memory.mb`` (to 2GB) in addition to 
+   ``oozie.launcher.mapred.child.java.opts``:
 
    .. code-block:: xml
 
@@ -586,25 +585,17 @@ Answers
           <value>2560</value>
       </property>
 
-   .. note:: The default value for most grid is 1.5G (corresponding to 1 slot). 
+   .. note:: The default value for most tasks on the grid is 1.5G (corresponding to 1 slot). 
              Increasing this value allows a launcher map task to be assigned multiple slots 
              as high-RAM job and able to use more than 1.5G. (It could take a bit longer time 
              for the launcher map task to be scheduled and launched, but that should be minimal.)
-
-
-      
-
-
-   
-   
-
 
 .. _pig_params_pass:
 
 .. topic:: **How do you pass parameters to Pig actions?**
 
-   If you want to pass 'mapred.*' properties to your Pig action, simply define them 
-   in the ``<configuration>`` element of your Pig action.
+   If you want to pass ``mapred.*`` properties to your Pig action, simply define them 
+   in the ``<property>`` element of your Pig action.
 
    .. code-block:: xml
 
@@ -619,8 +610,8 @@ Answers
    could be achieved through Oozie. Follow these three steps: 
 
    #. Upload the parameter file into HDFS.
-   #. Create a symbolic link using tag of Pig action.
-   #. Pass the file name as an argument of Pig action.
+   #. Create a symbolic link with the ``file`` element within the Pig action.xml``.
+   #. Pass the file name through the ``argument`` element of the Pig action.
 
 
    - Parameter file ('paramfile') is HDFS.
@@ -691,15 +682,15 @@ Answers
       mapreduce.jobtracker.kerberos.principal=mapred/gsbl91029.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
       dfs.namenode.kerberos.principal=hdfs/gsbl91027.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
 
-   **Example for cross-namenodes operation:**
+   **Example for Cross-NameNodes Operation:**
 
-   #. Add ``-Doozie.launcher.mapreduce.job.hdfs-servers`` in command line::
+   #. Add ``-Doozie.launcher.mapreduce.job.hdfs-servers`` to the command line::
 
           $ oozie pig -file multiquery1.pig -config job.properties -X -Doozie.launcher.mapreduce.job.hdfs-servers="hdfs://sourcenamenode.blue.ygrid.yahoo.com:8020" ... ...
 
    #. Use ``_HOST`` for the Kerberos principal.
    
-   #. Create a ``job.properties`` file, making sure you specify the paramters ``mapreduce.jobtracker.kerberos.principal`` and
+   #. Create a ``job.properties`` file, making sure you specify the parameters ``mapreduce.jobtracker.kerberos.principal`` and
       ``dfs.namenode.kerberos.principal``::
 
           ...
@@ -731,12 +722,12 @@ Answers
 
 .. topic:: **How do you change the timeout for Coordinator actions?** 
 
-   Each coordinator action wait for timeout duration before timing out. 
-   For normal running job, default timeout is 2 hours. 
+   Each Coordinator action waits for timeout duration before timing out. 
+   For normal running job, the default timeout is two hours. 
    For catchup jobs, the value is infinite. 
 
-   However, we strongly suggest the user to choose a realistic timeout value(in minutes) when defining coordinator job. 
-   Timeout of 5 hours could be defined in coordinator.xml as follows:
+   We strongly suggest, however, that users choose a realistic timeout value (in minutes) when defining Coordinator jobs. 
+   A timeout of five hours could be defined in ``coordinator.xml`` as follows:
 
    .. code-block:: xml
 
@@ -749,36 +740,24 @@ Answers
 
 .. topic:: **How do you reprocess Coordinator actions?**
 
-   See http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#Rerunning_a_Coordinator_Action_or_Multiple_Actions.
-   See also http://twiki.corp.yahoo.com/view/CCDI/OozieClientCommands1#2_8_Rerun_coordinator_action_s_O.
-
+   See `Rerunning a Coordinator Action or Multiple Actions <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#Rerunning_a_Coordinator_Action_or_Multiple_Actions>`_ and :ref:`Rerun Coordinator Action[s] (Oozie 2.1+) <rerun_coords>`.
 
 .. _update_coord:
 
 .. topic:: **How do you update a Coordinator definition on the fly?**
 
-   To change the coord definition user can update coord definition in hdfs and issue a 
-   update command. Existing coordinator definition will be replaced by new definition. 
-   The refreshed coordinator would keep the same coordinator ID, state, and coordinator 
+   To change a Coordinator definition, users can update Coordinator definition in HDFS and issue an 
+   ``update`` command. The existing Coordinator definition will be replaced by a new definition. 
+   The refreshed Coordinator would keep the same Coordinator ID, state, and Coordinator 
    actions.
 
-   User can also provide -dryrun to validate changes. All created coord action(including 
-   in waiting) will use old configuration. User can rerun actions with -refresh option, 
-   ``-refresh`` option will use new configuration to rerun coord action.
+   Users can also use the option ``-dryrun`` to validate changes. All created Coordinator actions (including 
+   in waiting) will use the old configuration. Users can rerun actions with the ``-refresh`` option, 
+   which will use the new configuration to rerun Coordinator actions.
 
    For example, the following will update the Coordinator definition and action:: 
 
        $ oozie job -update -config examples/apps/aggregator/job.properties 
-
-       $ oozie job -update Will fetch coord definition path from bundle(if any) and update coord definition
-
-
-.. _reprocess_cord:
-
-.. topic:: **How to reprocess Coordinator actions?**
-
-   http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#Rerunning_a_Coordinator_Action_or_Multiple_Actions
-   http://twiki.corp.yahoo.com/view/CCDI/OozieClientCommands1#2_8_Rerun_coordinator_action_s_O
 
 
 .. _long_time_finish:
@@ -788,21 +767,19 @@ Answers
 
    Oozie receives the external status in two ways:
 
-   - When Hadoop job finishes, Hadoop make a notification call to Oozie.
-   - If Oozie don't get the callback in 10 minutes, it pro-actively queries the hadoop about the job status. 
-     The later is used as a fall-back step. However, this step will cause delay of nearly 10 minutes.
+   - When a Hadoop job finishes, Hadoop makes notifies Oozie.
+   - If Oozie don't get the callback in 10 minutes, it proactively queries Hadoop about the job status. 
+     The later is used as a fall-back step; however, this step will cause a delay of nearly 10 minutes.
 
-   Reasons why hadoop callback could not be received on-time:
+   Reasons why a Hadoop callbacks are not received on-time:
 
-   - Hadoop took long time to callback Oozie.
-   - Hadoop made the callback and Oozie missed that or rejected the callback due to internal queue overflow.
+   - Hadoop took a long time to call back Oozie.
+   - Hadoop made the callback, but Oozie either missed it or rejected it due to an internal queue overflow.
 
-   How could we find whether Oozie received the Hadoop callback very late:
+   How could we discern whether Oozie received the Hadoop callback very late:
    
-   - By looking into Oozie log, we can determine whether there are a lot of late callback received by oozie.
-   - The example command is - grep "E0800: Action it is not running its in \[OK\] state" 
-     oozie.log.2010-04-05-* |wc -l. If there are lot of lines, that means, Oozie is getting a lot of late callbacks.
-
-
+   - By looking at the Oozie log, we can determine whether there were a lot of late callback received by Oozie.
+   - Use the following command: ``grep "E0800: Action it is not running its in \[OK\] state" oozie.log.2010-04-05-* | wc -l``
+     If there are lot of lines, that means, Oozie is getting a lot of late callbacks.
 
 

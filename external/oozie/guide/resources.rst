@@ -1,10 +1,21 @@
 Resources
 =========
 
-External Documentation
-----------------------
+
+Other Documentation
+-------------------
+
+Internal
+~~~~~~~~
+
+- `Developer Central: Oozie <http://developer.corp.yahoo.com/product/Oozie>`_ 
+- `Jive: Oozie Community <https://yahoo.jiveon.com/community/science-technology/hadoop-and-big-data-platform/oozie/oozie-community>`_
+
+External
+~~~~~~~~
 
 - `Apache Oozie documentation <https://oozie.apache.org/docs/4.1.0/>`_
+- `Hortonworks Documentation for Oozie <http://hortonworks.com/hadoop/oozie/>`_
 
 Videos
 ------
@@ -17,4 +28,13 @@ Videos
 - `Introduction to Oozie, CPG/Services: Part 1 <http://video.corp.yahoo.com/video_detail.php?vid=6608>`_
 - `Introduction to Oozie, CPG/Services: Part 2 <http://video.corp.yahoo.com/video_detail.php?vid=7024>`_
 - `Introduction to Oozie, CPG/Services: Part 3 <http://video.corp.yahoo.com/video_detail.php?vid=7037>`_
-- 
+
+
+
+Oozie Git Repository
+--------------------
+
+- `apache/oozie <https://github.com/apache/oozie>`_ (external)
+- `yahoo/oozie <https://github.com/yahoo/oozie>`_ (external)
+- `hadoop/yahoo-oozie <https://git.corp.yahoo.com/hadoop/yahoo-oozie>`_ (internal)
+
