@@ -1,5 +1,6 @@
 References
 ==========
+.. 04/24/15: Rewrote.
 
 Yahoo Configurations for Oozie
 ------------------------------
@@ -8,7 +9,9 @@ Yahoo Configurations for Oozie
    :header: "Actions", "Shared Library", "Credential"
    :widths: 15, 10, 30
 
-   "Hive", "``oozie.action.for.hive``, "``hcat``"
+   "Hive", "``oozie.action.for.hive``, "``hcat_current, hive_current``"
+   "Pig", "``oozie.action.for.pig``, "``hcat_current, pig_current``"
+   "HBase", "``oozie.action.for.hbase``, "``pig_current, hbase_current``"
 
 
 .. http://twiki.corp.yahoo.com/view/CCDI/OozieShareLib
@@ -19,8 +22,11 @@ Yahoo Configurations for Oozie
 .. http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs
 
 
-EL Functions
-------------
+Expression Language (EL) Functions
+----------------------------------
+
+TBD 
+
 
 
 

@@ -1,64 +1,103 @@
 Oozie Monitoring
 ================
 
+.. 04/23/15: Rewrote
+
+The following sections discuss how to monitor Oozie jobs, get notifications,
+connecting to the `Cloud Messaging Service <http://developer.corp.yahoo.com/product/Cloud%20Messaging%20Service>`_, 
+and writing a listener for getting notifications.
 
 SLA Monitoring
 --------------
-Refer to Oozie SLA monitoring
-http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_SLAMonitoring.html
+
+Critical jobs often have to meet SLA requirements. The SLAs can 
+be a time requirement, such as a maximum allowed time limit associated with when the 
+job should start, by when should it end, and its duration of run. You can
+define SLA limits for Oozie Workflows in the application ``definition.xml``.
+
+Oozie can now actively monitor the state of these 
+SLA-sensitive jobs and send out notifications for SLA mets and misses.
+
+To learn how to use SLA monitoring, see `Oozie SLA monitoring <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_SLAMonitoring.html>`_.
+
 
 JMS Notifications for Job and SLA
 ---------------------------------
-Refer to Oozie Notifications
-http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_JMSNotifications.html
 
-At Yahoo, we publish job status messages to Cloud Messaging Service (CMS) which is 
-a hosted service that internally uses ActiveMQ and is YCA protected access.
+JMS is the Java Messaging Service, which has an API 
+for sending messages between two or more clients. You can use JMS
+to fetch job status messages from the Yahoo Cloud Messaging Service (CMS).
+CMS is a hosted service that internally `ActiveMQ <http://activemq.apache.org/>`_ 
+and is YCA-protected access.
+
+In the following sections, we will take a look at how to use JMS to connect to CMS, 
+what code changes you need to make, and how to write a listener to fetch messages from CMS. 
+
+We also recommend that you see `JMS Notifications <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_JMSNotifications.html>`_.
 
 Connecting to CMS
 ~~~~~~~~~~~~~~~~~
 
-http://twiki.corp.yahoo.com/view/Messaging/CloudMessagingService is the homepage of the Yahoo! Cloud Messaging Service.
+CMS is a centralized multi-tenant cloud service that provides low latency, 
+world-wide delivery, deliver-at-least-once, publish and subscribe semantics at Yahoo 
+scale. It is 100% JMS compliant, and Yahoo plans for CMS to support post-JMS features 
+such as different protocols, various language bindings as well as a new simplified 
+high-performance asynchronous API.
 
-ACLs:
+See also the `Cloud Messaging Service - Client API Usage - Tutorial <http://twiki.corp.yahoo.com/view/Messaging/MessagingServiceTutorial#ACLs_AN1>`_ 
+for more information.
+
+ACLs
 ****
 
-- Ensure you have ACLs open to CMS - broker.messaging.gq1.yahoo.com, broker.messaging.ne1.yahoo.com or broker.messaging.bf1.yahoo.com 
-  based on the colo you are in. Ports: 4080, 61616 and 61617. The Macro to open ACL 
-  to is CLOUDMESSAGING::PROD_BROKER. Refer to http://twiki.corp.yahoo.com/view/Messaging/MessagingServiceTutorial#ACLs_AN1 for more information.
-- If you are in SZ50 PROD_MAIN, you do not need ACLs to talk to CMS in the same colo.
-  You do currently need to open ACLs to connect to CMS cross-colo. The new change to ACLs planned Yahoo! wide would mostly eliminate that.
+Based on the colo you are using, ensure you have ACLs open to 
+CMS on ports 4080, 61616, and 61617 on the following:: ``broker.messaging.gq1.yahoo.com``, 
+``broker.messaging.ne1.yahoo.com``, or ``broker.messaging.bf1.yahoo.com`` 
+The macro ``CLOUDMESSAGING::PROD_BROKER`` opens the ACL. 
 
-Cross-colo Access and SSL:
-**************************
+If you are in SZ50 ``PROD_MAIN``, you do not need ACLs to talk to CMS in the same colo.
+You do currently need to open ACLs to connect to CMS cross-colo. The new change to ACLs planned 
+Yahoo-wide would mostly eliminate that.
 
-- If you are connecting to CMS cross-colo please do enable SSL (See the [[http://twiki.corp.yahoo.com/view/Messaging/FAQs#How_can_I_use_SSL_to_connect_to_CMS_63][CMS FAQ]) 
-  in your client, as CMS team will get ycrypt exemption on that port (61617) but not the regular port (61616).
+Cross-Colo Access and SSL
+*************************
 
-YCA:
-****
+If are connecting to CMS across colos, you should enable 
+SSL. See `How can I use SSL to connect to CMS <http://twiki.corp.yahoo.com/view/Messaging/FAQs#How_can_I_use_SSL_to_connect_to_CMS_63>`_
+CMS team will get the `ycrypt <http://dist.corp.yahoo.com/by-package/ycrypt/>`_ 
+exemption on that port (61617) but not the regular port (61616).
 
-- The messages published by grid services like Oozie to ygrid namespace in CMS can 
-  only by consumed from hosts in the role yahoo.griduser.ALL which is a super role 
-  including all the yahoo.griduser.<headlessusername> roles configured. By chance, 
-  if your headless user role is not included in the griduser.ALL role file a ticket with Grid SE and get it included.
-- Most of the grid users will already have their launcher boxes configured in a role 
-  of the format yahoo.griduser.<headlessusername>. For eg: yahoo.griduser.apollog. 
-  If you do not have your launcher box added there, please do add it. (Note that this is the same when using v2 name space)
+
+YCA
+***
+
+The messages published by grid services such as Oozie to the ``ygrid`` namespace in CMS can 
+only by consumed from hosts in the role ``yahoo.griduser.ALL``, which is a super role 
+including all the ``yahoo.griduser.<headlessusername>`` roles configured. 
+If your headless user role is not included in the ``yahoo.griduser.ALL`` role, 
+file a ticket with Grid SE and get it included.
+
+Most of the grid users will already have their launcher boxes configured in a role 
+of the format ``yahoo.griduser.<headlessusername>``. For example: ``yahoo.griduser.apollog``. 
+
+If you do not have your launcher box there, add it. (Note that this is the same when using the ``v2`` namespace.)
 
 .. note:: You cannot listen to CMS messages from gateways as long running processes are 
-          not allowed to run on gateways. Also ACLs to CMS is not open from a Grid Gateway 
-          and they are not part of the YCA roles which have permissions to consume messages. 
-          So to listen to CMS you need to have your own host.
+          not allowed to run on gateways. Also ACLs to CMS are not open from a grid gateway, 
+          and they are not part of the YCA roles, which have permissions to consume messages. 
+          So, to listen to CMS, you need to have your own host.
 
-Name Space and Topic Name:
-**************************
+Namespace and Topic Name
+************************
 
-- Oozie migrates to v2 name space after v.4.3.1 and 4.4.1 releases.
-- Topic name using v2 name space is topic://grid/#{COLO}/oozie.#{CLUSTER}-#{COLOR}/user.user_name
-  for exmaple, "topic://grid/gq1/oozie.mithril-blue/user.apollog" when using headless, apollog in mithril blue cluster.
-  (in v1 name space, topic name was ygrid:oozie.${CLUSTER}-${COLOR}.user.user_name)
-- topic name prefix can be programmatically obtained using oozie API (find complete example in "Writing a listener to consume messages")
+Oozie migrated to the ``v2`` namespace after the v4.3.1 and v4.4.1 releases.
+The topic name using the ``v2`` namespace is ``topic://grid/#{COLO}/oozie.#{CLUSTER}-#{COLOR}/user.user_name``.
+For example, when using headless use ``apollog`` in Mithril Blue cluster: ``topic://grid/gq1/oozie.mithril-blue/user.apollog`` 
+
+.. note:: In the ``v1`` namespace, the topic name was ``ygrid:oozie.${CLUSTER}-${COLOR}.user.user_name``.
+
+The topic name prefix can be programmatically obtained using Oozie API. See the example 
+:ref:`Writing a Listener to Consume Messages <write_listener>`.
   
   .. code-block:: java 
 
@@ -70,25 +109,30 @@ Name Space and Topic Name:
 Code Changes to Work With CMS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Few additional steps required to connect to CMS from the sample code provided in Apache documentation are
+To connect to CMS at Yahoo, you will need to make a few additional steps to the sample code provided in Apache documentation. 
 
-- Have cloud_messaging_client.jar in the classpath - by downloading as maven artifact or installing yinst package.
+#. Place the ``cloud_messaging_client.jar`` in the classpath by downloading it as a Maven artifact or 
+   installing yinst package.
 
-  .. code-block:: xml
+#. Add the following dependency to your ``pom.xml``:
 
-     <dependency>
+   .. code-block:: xml
+
+      <dependency>
          <groupId>yahoo.yinst.cloud_messaging_client</groupId>
          <artifactId>cloud-messaging-client</artifactId>
          <version>0.3</version>
          <scope>provided</scope>
-     </dependency>
+      </dependency>
 
 
-Configure for YCA authentication. Hosts configured in griduser namespace role in rolesdb can consume the Oozie JMS messages.
+#. To configure for YCA authentication, the hosts configured in the ``griduser`` namespace 
+   role in RolesDB can consume the Oozie JMS messages.
 
-- Install ``yjava_yca`` (0.20.x or higher) and ``yca_client_certs`` on your client.
-- Add -Djava.library.path=/home/y/lib or /home/y/lib64 (if 64-bit jdk) as argument while launching your java program and have /home/y/lib/yjava_yca.jar in the classpath.
-- Set the java.naming.security.principal JNDI property to the yca role name - yahoo.griduser.ALL.
+   - Install ``yjava_yca`` (0.20.x or higher) and ``yca_client_certs`` on your client.
+   - Add ``-Djava.library.path=/home/y/lib or /home/y/lib64`` (if 64-bit JDK) as argument 
+     while launching your Java program and have ``/home/y/lib/yjava_yca.jar`` in the ``CLASSPATH``.
+   - Set the ``java.naming.security.principal`` ``JNDI`` property to the YCA role name ``yahoo.griduser.ALL``.
 
   .. code-block:: java 
 
@@ -96,16 +140,18 @@ Configure for YCA authentication. Hosts configured in griduser namespace role in
 
      jndiProperties.put("java.naming.security.principal", "yahoo.griduser.ALL");
 
+.. _write_listener:
 
 Writing a Listener to Consume Messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Twiki - Consuming Oozie JMS Notifications gives a guideline into writing Java code 
-to listen on the JMS message broken (CMS in this case) and consume messages about 
-your Oozie jobs.
+`Consuming Notifications <http://oozie.apache.org/docs/4.0.0/DG_JMSNotifications.html#Consuming_Notifications>`_ 
+offers a guideline for writing Java code to listen for the JMS message ``broken`` (CMS in this case) and 
+consume messages about your Oozie jobs.
 
-Here's a working code snippet to connect via Oozie client using Kerberos authentication, 
-and use a JMS message listener.
+
+Below is a working code snippet to connect through the Oozie client 
+using Kerberos authentication and a JMS message listener.
 
 .. code-block:: java
 
@@ -225,8 +271,13 @@ and use a JMS message listener.
       }
    }
 
+Troubleshooting
+~~~~~~~~~~~~~~~
 
-Troubleshooting: Connection timed out to message broker e.g. prod1-broker10.messaging.bf1.yahoo.com:61616 
-Make sure you have the necessary ACL open as mentioned above, or your box might be 
-occluded behind a NAT and you should use a gateway-like machine or launcher box.
+Connection Timed Out to Message Broker
+++++++++++++++++++++++++++++++++++++++
+
+For example, the connection to ``prod1-broker10.messaging.bf1.yahoo.com:61616`` has timed out.
+Make sure you have the necessary ACL open as mentioned above. Also, your box might be 
+occluded behind a NAT, so you should use a gateway-like machine or launcher box.
 
