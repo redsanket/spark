@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -130,9 +131,7 @@ public class IntegrationTest  extends TestSession {
 		this.freq  =  GdmUtils.getConfiguration("testconfig.IntegrationTest.frequency");
 		if (this.freq != null) {
 			if (this.freq.equals("hourly")) {
-				this.frequency = 60;
-			} else if (this.freq.equals("mins")) {
-				this.frequency = 15;
+				this.frequency = 1;
 			}
 		} 
 		
@@ -148,7 +147,8 @@ public class IntegrationTest  extends TestSession {
 		List<String> dates = getInstanceFileDates();
 		assertTrue("Instance files dn't exists at " + ABF_DATA_PATH  +  "  on  " + this.sourceCluster , dates != null);
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Calendar todayCal = Calendar.getInstance();
 		Calendar LastdayCal = Calendar.getInstance();
 		Calendar currentCal = Calendar.getInstance();
@@ -156,7 +156,8 @@ public class IntegrationTest  extends TestSession {
 		long toDay = Long.parseLong(sdf.format(todayCal.getTime()));
 
 		// set the duration for how long the data has to generate.
-		LastdayCal.add(Calendar.DAY_OF_MONTH , this.duration);
+		LastdayCal.add(Calendar.DAY_OF_WEEK_IN_MONTH , this.duration);
+		
 		long lastDay = Long.parseLong(sdf.format(LastdayCal.getTime()));
 		System.out.println(" Current date - "+ sdf.format(todayCal.getTime()));
 		System.out.println(" Next date - "+ sdf.format(LastdayCal.getTime()));
@@ -168,18 +169,25 @@ public class IntegrationTest  extends TestSession {
 		initialCal.add(Calendar.MINUTE, 1);
 		long futureMin =  Long.parseLong(sdf.format(initialCal.getTime()));
 		System.out.println(" intialMin   = " +  intialMin   + "  futureMin  =  "  + futureMin);
+		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
+		feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		while (toDay <= lastDay) {
 			Date d = new Date();
 			long initTime = Long.parseLong(sdf.format(d));
 			
 			if (initTime >= futureMin ) {
 				initialCal = Calendar.getInstance();
-				intialMin = Long.parseLong(sdf.format(initialCal.getTime()));
-				initialCal.add(Calendar.MINUTE, this.frequency);
-				futureMin =  Long.parseLong(sdf.format(initialCal.getTime()));
+				intialMin = Long.parseLong(feed_sdf.format(initialCal.getTime()));
+				initialCal.add(Calendar.HOUR, this.frequency);
+				futureMin =  Long.parseLong(feed_sdf.format(initialCal.getTime()));
+				
+				Calendar dataSetCal = Calendar.getInstance();
+				long dataSetHourlyTimeStamp =  Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
+				this.dataSetName = "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
+				System.out.println("dataSetName  = " + this.dataSetName);
+				
 				initialCal = null;
-				this.dataSetName = "Integration_Testing_DS_" + System.currentTimeMillis();
-
+				
 				// create  a dataset
 				this.createDataSet();
 
@@ -194,15 +202,20 @@ public class IntegrationTest  extends TestSession {
 				}
 				// TODO : Need to find the API to query HIVE and HCat for table creation and partition. We can use GDM REST API or Data discovery REST API
 
+				// create a done file
+				String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName ;
+				CreateDoneFile createDoneFile = new CreateDoneFile( this.destinationCluster , finalDataPath);
+				createDoneFile.execute();
+				
 				// deactivate the dataset
 				this.tearDown();
 			}
 			
 			this.consoleHandle.sleep(60000);
 			d = new Date();
-			initTime = Long.parseLong(sdf.format(d));
+			initTime = Long.parseLong(feed_sdf.format(d));
 			d = null;
-			toDay = Long.parseLong(sdf.format(currentCal.getTime()));
+			toDay = Long.parseLong(feed_sdf.format(currentCal.getTime()));
 			TestSession.logger.info("This is " + this.freq  + "  feed. Feed will be started " + this.freq);
 			TestSession.logger.info("Next workflow will start @ " + futureMin   + "  Current  time = " + initTime);
 		}
