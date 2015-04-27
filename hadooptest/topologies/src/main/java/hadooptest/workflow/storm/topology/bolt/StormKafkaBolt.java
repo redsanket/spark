@@ -31,10 +31,11 @@ public class StormKafkaBolt extends BaseRichBolt{
         String line = tuple.getString(0);
         String[] split = line.split(" ");
 
-        for(int i=0; i < split.length; i++) {
-            _collector.emit(tuple, new Values(split[i]));
-            _collector.ack(tuple);
+        for(String word : split) {
+            _collector.emit(tuple, new Values(word));
+
         }
+        _collector.ack(tuple);
     }
 
     @Override

@@ -38,7 +38,7 @@ public class StormKafkaAggregator extends BaseRichBolt {
             returnValue = 0;
         }
         LOG.info("returnValue =" + returnValue);
-        _collector.emit( tuple, new Values( Integer.toString(returnValue), returnInfo ) );
+        _collector.emit( tuple, new Values(Integer.toString(returnValue), returnInfo ));
     }
 
     public void handleStormKafkaTuple(Tuple tuple) {
