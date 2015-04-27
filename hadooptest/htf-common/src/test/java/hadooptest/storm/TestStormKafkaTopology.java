@@ -54,8 +54,9 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         String brokerHost = "gsbl90786.blue.ygrid.yahoo.com";
         String zookeeperHost = "gsbl90782.blue.ygrid.yahoo.com";
         String brokerPort = "9092";
+        String topic = "test"+(new Random()).nextInt(100);
         String[] returnTopicValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
-                zookeeperHost+":2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", "test"}, true);
+                zookeeperHost+":2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", topic}, true);
         assertTrue( "Could not create topic for consuming", returnTopicValue[0].equals("0") );
 
 //        String[] returnProducerValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-console-producer.sh", "--broker-list",
@@ -63,8 +64,10 @@ public class TestStormKafkaTopology extends TestSessionStorm {
 //        assertTrue("Could not write to the producer", returnProducerValue[0].equals("0"));
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", (new ArrayList()).add(brokerHost+":9092"));
+        props.put("bootstrap.servers", brokerHost+":9092");
         //props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("key.serializer", "kafka.serializer.StringEncoder");
+        props.put("value.serializer","kafka.serializer.StringEncoder");
         //props.put("request.required.acks", "1");
 
 //        ProducerConfig config = new ProducerConfig(props);
