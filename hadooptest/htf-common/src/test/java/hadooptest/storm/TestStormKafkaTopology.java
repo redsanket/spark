@@ -41,13 +41,14 @@ public class TestStormKafkaTopology extends TestSessionStorm {
     public void initiateKafkaProducer() throws Exception
     {
         String pathToFile = conf.getProperty("WORKSPACE") + "/htf-common/resources/storm/testinputoutput/TestStormKafkaTopology/producer";
+        String pathToScripts = conf.getProperty("KAFKA_HOME");
         String hostAddress = "gsbl90782.blue.ygrid.yahoo.com";
         String brokerPort = "9092";
-        String[] returnTopicValue = exec.runProcBuilder(new String[]{ "kafka-topics.sh", "--create", "--zookeeper",
+        String[] returnTopicValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
                 "gsbl90782.blue.ygrid.yahoo.com:2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", "test"}, true);
         assertTrue( "Could not create topic for consuming", returnTopicValue[0].equals("0") );
 
-        String[] returnProducerValue = exec.runProcBuilder(new String[]{ "kafka-console-producer.sh", "--broker-list",
+        String[] returnProducerValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-console-producer.sh", "--broker-list",
                  hostAddress + ":" + brokerPort,  "--topic", "test", "<", pathToFile }, true);
         assertTrue("Could not write to the producer", returnProducerValue[0].equals("0"));
     }
