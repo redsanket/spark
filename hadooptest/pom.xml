@@ -431,6 +431,15 @@
 			         	</exclusions>
 					<scope>provided</scope>
 				</dependency>
+
+            <!-- STORM-KAFKA DEPENDENCY-->
+				<dependency>
+					<groupId>org.apache.storm</groupId>
+					<artifactId>storm-kafka</artifactId>
+					<version>${storm.version.yinst}.${storm.version.release}</version>
+				</dependency>
+
+
 				<dependency>
 					<groupId>org.apache.storm</groupId>
 					<artifactId>storm-core</artifactId>
