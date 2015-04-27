@@ -13,7 +13,7 @@
 <config>
   <hostconfig>
     <console>
-    <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
+ 	 <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
     <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
    <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
    <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
@@ -89,6 +89,13 @@
     <HCatSchemaUpdateTest>
         <grid1>omegap1</grid1>
     </HCatSchemaUpdateTest>
+    <IntegrationTest>
+    	<sourceCluster>elrond</sourceCluster>
+    	<destinationCluster>denseb</destinationCluster>
+    	<duration>1</duration>	 <!-- duration in days -->
+    	<enable-hcat>FALSE</enable-hcat>
+    	<frequency>hourly</frequency>
+    </IntegrationTest>
   </testconfig>
   <auth>
     <usr>hitusr_1</usr>
