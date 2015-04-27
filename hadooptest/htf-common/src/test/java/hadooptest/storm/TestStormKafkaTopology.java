@@ -19,6 +19,11 @@ import org.junit.experimental.categories.Category;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.Assert.*;
 import java.util.Map;
+import java.util.*;
+
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.ProducerConfig;
 
 @Category(SerialTests.class)
 public class TestStormKafkaTopology extends TestSessionStorm {
@@ -45,12 +50,31 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         String hostAddress = "gsbl90782.blue.ygrid.yahoo.com";
         String brokerPort = "9092";
         String[] returnTopicValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
-                "gsbl90782.blue.ygrid.yahoo.com:2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", "test"}, true);
+                hostAddress+":2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", "test"}, true);
         assertTrue( "Could not create topic for consuming", returnTopicValue[0].equals("0") );
 
-        String[] returnProducerValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-console-producer.sh", "--broker-list",
-                 hostAddress + ":" + brokerPort,  "--topic", "test", "<", pathToFile }, true);
-        assertTrue("Could not write to the producer", returnProducerValue[0].equals("0"));
+//        String[] returnProducerValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-console-producer.sh", "--broker-list",
+//                 hostAddress + ":" + brokerPort,  "--topic", "test", "<", pathToFile }, true);
+//        assertTrue("Could not write to the producer", returnProducerValue[0].equals("0"));
+
+        
+        Map<String, Object> config = new HashMap<String, Object>();
+        config.put("metadata.broker.list", hostAddress + ":9092");
+        config.put("serializer.class", "kafka.serializer.StringEncoder");
+        config.put("request.required.acks", "1");
+
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(config);
+
+        ProducerRecord<String, String> line1 = new ProducerRecord<String, String>("test", "1","hello Yahoo");
+        ProducerRecord<String, String> line2 = new ProducerRecord<String, String>("test", "2","hello Champaign");
+
+        producer.send(line1);
+        producer.send(line2);
+
+        producer.close();
+
+
+
     }
 
     public void launchKafkaTopology() throws Exception
