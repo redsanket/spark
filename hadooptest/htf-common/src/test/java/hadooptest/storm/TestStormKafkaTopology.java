@@ -54,7 +54,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         String pathToScripts = conf.getProperty("KAFKA_HOME");
         String brokerHost = "gsbl90786.blue.ygrid.yahoo.com";
         String zookeeperHost = "gsbl90782.blue.ygrid.yahoo.com";
-        String brokerPort = "9092";
+        //String brokerPort = "9092";
         String topic = "test25";//"test"+(new Random()).nextInt(10000);
         String[] returnTopicValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
                 zookeeperHost+":2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", topic}, true);
@@ -65,7 +65,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
 //        assertTrue("Could not write to the producer", returnProducerValue[0].equals("0"));
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", brokerHost+":9092");
+        props.put("bootstrap.servers", brokerHost+":4443");
         //props.put("serializer.class", "kafka.serializer.StringEncoder");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
