@@ -2103,6 +2103,20 @@
 				</dependency>
 
 				<dependency>
+					<groupId>system</groupId>
+					<artifactId>metrics-core</artifactId>
+					<version>2.2.0</version>
+					<scope>system</scope>
+					<systemPath>/home/y/share/kafka-0.8.2.1.7/libs/metrics-core-2.2.0.jar</systemPath>
+				</dependency>
+
+				<dependency>
+					<groupId>org.scala-lang</groupId>
+					<artifactId>scala-library</artifactId>
+					<version>${scala.version}</version>
+				</dependency>
+
+				<dependency>
 				    <groupId>system</groupId>
 				    <artifactId>kafka_2.10-0.8.2.1</artifactId>
 				    <version>0.8.2.1</version>
@@ -3135,6 +3149,8 @@
 					<version>${hadoop.version}</version>
 					<scope>provided</scope>
 				</dependency>
+
+
 				<dependency>
 					<groupId>org.apache.hadoop</groupId>
 					<artifactId>hadoop-common</artifactId>
@@ -3142,11 +3158,13 @@
 					<type>test-jar</type>
 					<scope>provided</scope>
 				</dependency>
+
 				<dependency>
 					<groupId>org.apache.hadoop</groupId>
 					<artifactId>hadoop-streaming</artifactId>
 					<version>${hadoop.version}</version>
 				</dependency>
+
 				<dependency>
 					<groupId>org.apache.hadoop</groupId>
 					<artifactId>hadoop-hdfs</artifactId>

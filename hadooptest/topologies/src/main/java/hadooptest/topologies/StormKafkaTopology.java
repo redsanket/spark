@@ -30,22 +30,26 @@ import backtype.storm.task.ShellBolt;
 import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.topology.IRichBolt;
 import backtype.storm.StormSubmitter;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+
 
 public class StormKafkaTopology {
 
-    //private final static Logger LOG = Logger.getLogger("StormKafkaTopology.class");
+    private final static Logger LOG = LoggerFactory.getLogger(StormKafkaTopology.class);
 
-    public void stormkafkaSetup(String topology_name) throws Exception
+    public void stormkafkaSetup(String topology_name, String topic, String function) throws Exception
     {
         Config storm_conf = new Config();
         storm_conf.setDebug(true);
-        DRPCSpout drpcSpout = new DRPCSpout("storm-kafka");
+
+        LOG.info("Launching Topology ...");
+        DRPCSpout drpcSpout = new DRPCSpout(function);
         BrokerHosts hosts = new ZkHosts("gsbl90782.blue.ygrid.yahoo.com:4080");
-        SpoutConfig spoutConfig = new SpoutConfig(hosts, "test28", "/test", "id1");
+        SpoutConfig spoutConfig = new SpoutConfig(hosts, topic, "/"+topic, "KafkaSpout");
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
         TopologyBuilder builder = new TopologyBuilder();
@@ -78,14 +82,17 @@ public class StormKafkaTopology {
     {
        try
        {
+           LOG.info("Triggering StormKafkaTopology with name " + args[0] + "topic " + args[1] + " and drpcfunction" + args[2]);
            String topology_name = args[0];
+           String topic = args[1];
+           String function = args[2];
            StormKafkaTopology skt = new StormKafkaTopology();
-           skt.stormkafkaSetup(topology_name);
+           skt.stormkafkaSetup(topology_name, topic, function);
        }
        catch(Exception e)
        {
            e.printStackTrace();
-           //LOG(e.getMessage());
+           LOG.error(e.getMessage());
        }
 
     }

@@ -3,6 +3,8 @@ package hadooptest.storm;
 import static org.junit.Assert.assertEquals;
 import hadooptest.SerialTests;
 import hadooptest.Util;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.Response;
 import hadooptest.cluster.storm.ModifiableStormCluster;
@@ -12,6 +14,7 @@ import hadooptest.TestSessionStorm;
 import hadooptest.Util;
 import static org.junit.Assume.assumeTrue;
 import org.json.simple.JSONValue;
+import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -34,10 +37,13 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 public class TestStormKafkaTopology extends TestSessionStorm {
 
     static ModifiableStormCluster mc = null;
+    private String topic;
+    private static String function = "stormkafka";
+    private final static Logger LOG = LoggerFactory.getLogger(TestStormKafkaTopology.class);
 
     @BeforeClass
     public static void setup() throws Exception {
-        cluster.setDrpcAclForFunction("stormkafka");
+        cluster.setDrpcAclForFunction(function);
         mc = (ModifiableStormCluster) cluster;
         assumeTrue(mc != null);
     }
@@ -54,43 +60,35 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         String pathToScripts = conf.getProperty("KAFKA_HOME");
         String brokerHost = "gsbl90786.blue.ygrid.yahoo.com";
         String zookeeperHost = "gsbl90782.blue.ygrid.yahoo.com";
-        //String brokerPort = "9092";
-        String topic = "test28";//"test"+(new Random()).nextInt(10000);
+        UUID uuid = UUID.randomUUID();
+        topic = uuid.toString();
+        LOG.info("topic: " + topic);
         String[] returnTopicValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
                 zookeeperHost+":4080", "--replication-factor", "1", "--partitions", "1" ,"--topic", topic}, true);
         assertTrue( "Could not create topic for consuming", returnTopicValue[0].equals("0") );
 
-//        String[] returnProducerValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-console-producer.sh", "--broker-list",
-//                 hostAddress + ":" + brokerPort,  "--topic", "test", "<", pathToFile }, true);
-//        assertTrue("Could not write to the producer", returnProducerValue[0].equals("0"));
+
+        LOG.info("topic details " + topic);
 
         Properties props = new Properties();
         props.put("bootstrap.servers", brokerHost+":4443");
-        //props.put("serializer.class", "kafka.serializer.StringEncoder");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
-        //props.put("request.required.acks", "1");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-//        ProducerConfig config = new ProducerConfig(props);
-//        Producer<String, String> producer = new Producer<String, String>(config);
-//        KeyedMessage<String, String> line1 = new KeyedMessage<String, String>("test", "1", "hello Yahoo");
-//        KeyedMessage<String, String> line2 = new KeyedMessage<String, String>("test", "2", "hello Champaign");
-//
-//        producer.send(line1);
-//        producer.send(line2);
-//
-//        producer.close();
 
-// For New JAVA KAFKA CLIENT API
-        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
-
-            ProducerRecord<String, String> line1 = new ProducerRecord<String, String>("test", "1", "hello Yahoo");
-            ProducerRecord<String, String> line2 = new ProducerRecord<String, String>("test", "2", "hello Champaign");
-
+        // New JAVA KAFKA CLIENT API
+            KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
+            LOG.info("KafkaProducer Created ");
+            ProducerRecord<String, String> line1 = new ProducerRecord<String, String>(topic, "1", "hello Yahoo");
+            ProducerRecord<String, String> line2 = new ProducerRecord<String, String>(topic, "2", "hello Champaign");
+            LOG.info("creating line1 " + line1);
+            LOG.info("creating line2 " + line1);
             producer.send(line1);
             producer.send(line2);
+            LOG.info("sent line1 and line2 ");
 
             producer.close();
+            LOG.info("producer closed");
 
     }
 
@@ -98,7 +96,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
     {
         String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
         String byUser = mc.getBouncerUser();
-        String[] returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, "hadooptest.topologies.StormKafkaTopology", "test", "-c",
+        String[] returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, "hadooptest.topologies.StormKafkaTopology", "test", topic, function, "-c",
                "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]"}, true);
         assertTrue("Problem running Storm jar command", returnValue[0].equals("0"));
     }
@@ -106,10 +104,11 @@ public class TestStormKafkaTopology extends TestSessionStorm {
     @Test(timeout=600000)
     public void StormKafkaTest() throws Exception {
         initiateKafkaProducer();
+        LOG.info("Intiated kafka topic:" + topic + " and entered data");
         launchKafkaTopology();
-
+        LOG.info("Topology Launched");
         Util.sleep(50);
-        String drpcResult = cluster.DRPCExecute("stormkafka", "hello");
+        String drpcResult = cluster.DRPCExecute(function, "hello");
         logger.debug("drpc result = " + drpcResult);
         assertTrue("Did not get expected result back from stormkafka topology", drpcResult.equals("2"));
 

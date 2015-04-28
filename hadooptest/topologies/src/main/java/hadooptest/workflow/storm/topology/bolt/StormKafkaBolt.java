@@ -27,15 +27,18 @@ public class StormKafkaBolt extends BaseRichBolt{
     // Split the incoming strings
     @Override
     public void execute(Tuple tuple) {
-        LOG.info("Tuple:" + tuple.getString(0));
+        LOG.info("Tuple: " + tuple.getString(0));
         String line = tuple.getString(0);
         String[] split = line.split(" ");
 
         for(String word : split) {
+            LOG.info("Tuple information for "+ word +" processed");
             _collector.emit(tuple, new Values(word));
 
         }
+
         _collector.ack(tuple);
+
     }
 
     @Override
