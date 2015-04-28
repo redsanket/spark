@@ -3,6 +3,7 @@ package hadooptest.storm;
 import static org.junit.Assert.assertEquals;
 import hadooptest.SerialTests;
 import hadooptest.Util;
+import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.automation.utils.http.Response;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.automation.utils.http.HTTPHandle;
@@ -54,7 +55,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         String brokerHost = "gsbl90786.blue.ygrid.yahoo.com";
         String zookeeperHost = "gsbl90782.blue.ygrid.yahoo.com";
         String brokerPort = "9092";
-        String topic = "test"+(new Random()).nextInt(100);
+        String topic = "test25";//"test"+(new Random()).nextInt(10000);
         String[] returnTopicValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
                 zookeeperHost+":2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", topic}, true);
         assertTrue( "Could not create topic for consuming", returnTopicValue[0].equals("0") );
@@ -66,8 +67,8 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         Properties props = new Properties();
         props.put("bootstrap.servers", brokerHost+":9092");
         //props.put("serializer.class", "kafka.serializer.StringEncoder");
-        props.put("key.serializer", "kafka.serializer.StringEncoder");
-        props.put("value.serializer","kafka.serializer.StringEncoder");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
         //props.put("request.required.acks", "1");
 
 //        ProducerConfig config = new ProducerConfig(props);
@@ -83,15 +84,13 @@ public class TestStormKafkaTopology extends TestSessionStorm {
 // For New JAVA KAFKA CLIENT API
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
 
-        ProducerRecord<String, String> line1 = new ProducerRecord<String, String>("test", "1","hello Yahoo");
-        ProducerRecord<String, String> line2 = new ProducerRecord<String, String>("test", "2","hello Champaign");
+            ProducerRecord<String, String> line1 = new ProducerRecord<String, String>("test", "1", "hello Yahoo");
+            ProducerRecord<String, String> line2 = new ProducerRecord<String, String>("test", "2", "hello Champaign");
 
-        producer.send(line1);
-        producer.send(line2);
+            producer.send(line1);
+            producer.send(line2);
 
-        producer.close();
-
-
+            producer.close();
 
     }
 
