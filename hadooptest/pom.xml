@@ -2091,6 +2091,7 @@
 					<groupId>system</groupId>
 					<artifactId>kafka-clients</artifactId>
 					<version>0.8.2.1</version>
+                                        <scope>system</scope>
 					<systemPath>${yinst.home}/share/kafka-0.8.2.1.7/libs/kafka-clients.jar</systemPath>
 				</dependency>
 
