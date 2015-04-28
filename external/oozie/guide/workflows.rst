@@ -534,8 +534,8 @@ Workflow Job to Create SLA events
 
 A Workflow job could be configured to record the events required to evaluate SLA compliance.
 
-Worflow
-*******
+Workflow
+***#****
 
 .. code-block:: xml
 
