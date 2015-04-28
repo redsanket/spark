@@ -636,7 +636,7 @@ of a directory:
    </workflow-app>
 
 
-See `Fs HDFS Action <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a3.2.4_Fs_HDFS_action>`_
+See `Fs HDFS Action <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a3.2.4_Fs_HDFS_action>`_
 on the Mithril Blue cluster for more detailed information and an additional examples.
 
 .. note:: You can also recursively change permissions in a Pig script. For example,

@@ -30,6 +30,7 @@ Developer Preview
    faq
    ts  
    references
+   resources
 
 This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
 

@@ -760,7 +760,7 @@ Coordinator Commands
 
 The following sections describe the basic Oozie client commands for running Coordinators.
 See also :ref:`Oozie Client <oozie_client>` and the  
-`Command Line Interface Utilities documentation <http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html>`_.
+`Command Line Interface Utilities documentation <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html>`_.
 
 Submit a Job
 ~~~~~~~~~~~~
