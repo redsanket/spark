@@ -45,7 +45,7 @@ public class StormKafkaTopology {
         storm_conf.setDebug(true);
         DRPCSpout drpcSpout = new DRPCSpout("storm-kafka");
         BrokerHosts hosts = new ZkHosts("gsbl90782.blue.ygrid.yahoo.com:2181");
-        SpoutConfig spoutConfig = new SpoutConfig(hosts, "test25", "/test", "id1");
+        SpoutConfig spoutConfig = new SpoutConfig(hosts, "test27", "/test", "id1");
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
         TopologyBuilder builder = new TopologyBuilder();

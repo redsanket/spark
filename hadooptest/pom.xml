@@ -449,6 +449,13 @@
 				</dependency>
 
 				<dependency>
+					<groupId>yahoo.yinst.ykafka</groupId>
+					<artifactId>kafka_2.10-0.8.2.1</artifactId>
+					<version>0.8.2.1</version>
+					<scope>provided</scope>
+				</dependency>
+
+				<dependency>
 					<groupId>org.apache.storm</groupId>
 					<artifactId>storm-core</artifactId>
 					<version>${storm.version.yinst}.${storm.version.release}</version>
@@ -2094,6 +2101,14 @@
                                         <scope>system</scope>
 					<systemPath>${yinst.home}/share/kafka-0.8.2.1.7/libs/kafka-clients.jar</systemPath>
 				</dependency>
+
+				<dependency>
+				    <groupId>system</groupId>
+				    <artifactId>kafka_2.10-0.8.2.1</artifactId>
+				    <version>0.8.2.1</version>
+				    <scope>system</scope>
+				    <systemPath>${yinst.home}/share/kafka-0.8.2.1.7/libs/kafka_2.10-0.8.2.1.jar</systemPath>
+			    </dependency>
 
 				<dependency>
 					<groupId>system</groupId>

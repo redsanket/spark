@@ -55,7 +55,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         String brokerHost = "gsbl90786.blue.ygrid.yahoo.com";
         String zookeeperHost = "gsbl90782.blue.ygrid.yahoo.com";
         //String brokerPort = "9092";
-        String topic = "test25";//"test"+(new Random()).nextInt(10000);
+        String topic = "test27";//"test"+(new Random()).nextInt(10000);
         String[] returnTopicValue = exec.runProcBuilder(new String[]{ pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
                 zookeeperHost+":2181", "--replication-factor", "1", "--partitions", "1" ,"--topic", topic}, true);
         assertTrue( "Could not create topic for consuming", returnTopicValue[0].equals("0") );
