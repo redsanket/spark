@@ -27,7 +27,6 @@ Developer Preview
    auth
    client
    api
-   bp
    faq
    ts  
    references
