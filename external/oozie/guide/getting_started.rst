@@ -9,23 +9,50 @@ In the quick starts in this chapter, you will
 learn how to create Oozie Workflows, Coordinators, and
 Bundles. 
 
-Prerequisites
--------------
+Setting Up
+----------
 
-- Complete the :ref:`On-boarding <onboard>`.
+#. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-boarding <onboard>` steps.
+#. SSH to Kryptonite Red.
+#. Create the directory ``$HOME/proj/oozie/`` for the quick starts: ``$ mkdir -p $HOME/proj/oozie``
+#. Get the Oozie examples:
+  
+   #. Clone the Git ``oozie`` repository: ``$ git clone git@git.corp.yahoo.com:hadoop/oozie.git``
+   #. Move the Oozie examples: ``$ mv oozie/examples proj/oozie``
+   #. Delete the directory ``oozie``: ``$ rm -rf oozie``
+#. Confirm that the global variables are set to the values below:
 
-Creating a Workflow
--------------------
+   - ``JAVA_HOME=/home/gs/java/jdk``
+   - ``HADOOP_HOME=/grid/0/gs/hadoop/current``
+   - ``HADOOP_CONF_DIR=/grid/0/gs/conf/current``
+   - ``PATH=$HADOOP_HOME/bin/:$PATH``
+   - ``OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie``
 
-In this quick start, we'll be doing the following:
+   To set the global variables, use the ``export`` command: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
 
-#. Create a simple grid application.
-#. Create a ``workflow.xml`` file.
-#. Store a custom JAR in a ``lib`` directory.
-#. Create a ``job.properties`` file to pass values to the
-   parameterized Worklow.
-#. Submit the Oozie job from a gateway.
-#. Check the job status with the Oozie client (CLI/Java) and the Web Console.
+   .. note:: If you plan on completing the quick starts below on a cluster other than Kryptonite Red,
+             be sure to modify the URIs used the tutorials. The following is the URI syntax: ``{scheme}://{cluster}{color}-{server}.{color}.ygrid.yahoo.com:{port}/{path}`` 
+             For example, the ``OOZIE_URL`` for Cobalt Blue would be ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
+
+
+Workflow Quick Start
+--------------------
+
+#. Sign on to Kryptonite Red (or the cluster that you requested access).
+#. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
+#. Move ``examples`` directory to HDFS: ``hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
+#. Make the following edits to ``$HOME/proj/oozie/examples/src/main/apps/map-reduce/job.properties``:
+
+   - ``nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020``
+   - ``jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032``
+   - ``queueName=default``
+
+#. Change to ``$HOME/proj/oozie``.
+#. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run -auth kerberos``
+   Oozie will return a job ID.
+#. With the returned job ID, request information about the job: ``$ oozie job --info {job_id} -auth kerberos`` 
+#. To view the generated output: ``hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-0000``
+
 
 Creating a Coordinator
 ----------------------

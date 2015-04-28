@@ -10,10 +10,6 @@ workflow definition). When submitting a workflow job values for the parameters m
 be provided. If properly parameterized (i.e. using different output directories) 
 several identical workflow jobs can concurrently.
 
-Transitions
------------
-
-TBD
 
 Use Cases Examples
 ------------------
