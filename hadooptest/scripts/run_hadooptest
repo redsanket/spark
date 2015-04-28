@@ -228,7 +228,7 @@ elsif ($spark12) {
     }
 }
 elsif ($spark13) {
-    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.6.1502061521 -Dspark.version=1.3.0.0 -Dspark.version.full=1.3.0.0_2.6.0.6.1502061521_1503111900 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.6.1502061521 -Dspark.version=1.3.1.0 -Dspark.version.full=1.3.1.0_2.6.0.6.1502061521_1504272233 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 elsif ($tez){
     $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
