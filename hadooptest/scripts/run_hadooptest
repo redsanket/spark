@@ -382,42 +382,40 @@ if ($use_mvn) {
 
         # Get the individual directory version names
         my @basedirs;
-        my @newBaseDirs;
-        foreach my $dirname (@sub_dirs) {
-            push @basedirs, basename($dirname);
-        };
-        
+		
+		# select only grid folder where GDM hadoop config exists        
         foreach my $dirname (@sub_dirs) {
         	if ( rindex($dirname,"bin") == -1 && rindex($dirname,"local") == -1 && rindex($dirname,"hive-site") == -1 )  {
-        		push @newBaseDirs , $dirname;
+        	    push @basedirs , $dirname;
         	}
         }
         
-        print "\n ------- Display the all the grids installed by one node deployment ----------------:\n";
-        print join("\n",@newBaseDirs);
+        print "\n ------- Display all the grids installed by one node deployment ----------------:\n";
+        print join("\n",@basedirs);
         print "\n\n";
         
         # Get the last directory which is representing the grid name
-        my $last_element = $newBaseDirs[@newBaseDirs -1];
-        print "last element = $last_element   \n";
+        my $last_element = $basedirs[@basedirs -1];
+        print "last element = $last_element\n";
         
         my $finalFolder = "$last_element/hadoopcoretree/share/";
-        print "finalFolder =  $finalFolder \n" ;
+        print "finalFolder =  $finalFolder\n" ;
         
-        # Navigate the final directory and get the hadoop version and hadoop share folder
+        # Get all the directories under hadoopcoretree/share/
         $find_rule->maxdepth(1);
         my @subDirs = $find_rule->in($finalFolder);
         print join("\n",@subDirs);
         print "\n\n";
         
+        # Navigate hadoopcoretree/share/ directory and get the hadoop version and hadoop shared directory 
         foreach my $subDir (@subDirs) {
         	my $indexOf = rindex($subDir,"hadoop-");
         	if ( $indexOf > 0) {
-        		my $result = substr( $subDir ,$indexOf + length("hadoop-"), length($subDir));
-        		 $hadoop_version = $result;
-        		 $hadoop_share = "$subDir/share/hadoop/";
-        		 print "hadoop version = $hadoop_version \n";
-        		 print "\n hadoop_share = $hadoop_share   \n";
+        	    my $result = substr( $subDir ,$indexOf + length("hadoop-"), length($subDir));
+        		$hadoop_version = $result;
+        		$hadoop_share = "$subDir/share/hadoop/";
+        		print "hadoop version = $hadoop_version \n";
+        		print "\n hadoop_share = $hadoop_share \n";
         	}
         }
     }
