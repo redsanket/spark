@@ -89,6 +89,8 @@ my $nk = 0;
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;
 my $test;
+my $gridName;
+my $timeStamp;
 
 #
 # Command line options processing
@@ -360,11 +362,11 @@ if ($use_mvn) {
         $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
 
         # Set up a rule to use to search the GDM Hadoop jars base dir
-        my $base_dir = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/";
+        my $base_dir = "/grid/0/yroot/var/yroots/console/home/y/libexec/gdm_hadoop_configs/";
         my $find_rule = File::Find::Rule->new;
 
         # Do not descend past the first level
-        $find_rule->maxdepth(1);
+        $find_rule->maxdepth(2);
 
         # Only return directories
         $find_rule->directory;
@@ -380,21 +382,43 @@ if ($use_mvn) {
 
         # Get the individual directory version names
         my @basedirs;
+        my @newBaseDirs;
         foreach my $dirname (@sub_dirs) {
             push @basedirs, basename($dirname);
         };
-
-        # inverse alphabetical sort the names so most recent version comes first
-        @basedirs = reverse(sort @basedirs);
-
-        # pick the most recent 2.0 version to use for Hadoop dependencies
-        foreach my $basedir (@basedirs) {
-            if ($basedir =~ m/^2\.(.*)/) {
-                print "\n\nSetting GDM Hadoop dependencies to Hadoop version $basedir\n\n";
-                $hadoop_version = $basedir;
-                $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
-                last;
-            }
+        
+        foreach my $dirname (@sub_dirs) {
+        	if ( rindex($dirname,"bin") == -1 && rindex($dirname,"local") == -1 && rindex($dirname,"hive-site") == -1 )  {
+        		push @newBaseDirs , $dirname;
+        	}
+        }
+        
+        print "\n ------- Display the all the grids installed by one node deployment ----------------:\n";
+        print join("\n",@newBaseDirs);
+        print "\n\n";
+        
+        # Get the last directory which is representing the grid name
+        my $last_element = $newBaseDirs[@newBaseDirs -1];
+        print "last element = $last_element   \n";
+        
+        my $finalFolder = "$last_element/hadoopcoretree/share/";
+        print "finalFolder =  $finalFolder \n" ;
+        
+        # Navigate the final directory and get the hadoop version and hadoop share folder
+        $find_rule->maxdepth(1);
+        my @subDirs = $find_rule->in($finalFolder);
+        print join("\n",@subDirs);
+        print "\n\n";
+        
+        foreach my $subDir (@subDirs) {
+        	my $indexOf = rindex($subDir,"hadoop-");
+        	if ( $indexOf > 0) {
+        		my $result = substr( $subDir ,$indexOf + length("hadoop-"), length($subDir));
+        		 $hadoop_version = $result;
+        		 $hadoop_share = "$subDir/share/hadoop/";
+        		 print "hadoop version = $hadoop_version \n";
+        		 print "\n hadoop_share = $hadoop_share   \n";
+        	}
         }
     }
 
