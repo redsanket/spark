@@ -51,6 +51,7 @@ public class StormKafkaTopology {
         DRPCSpout drpcSpout = new DRPCSpout(function);
         BrokerHosts hosts = new ZkHosts("gsbl90782.blue.ygrid.yahoo.com:4080");
         SpoutConfig spoutConfig = new SpoutConfig(hosts, topic, "/"+topic, "KafkaSpout");
+        spoutConfig.forceFromStart =true;
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
         TopologyBuilder builder = new TopologyBuilder();

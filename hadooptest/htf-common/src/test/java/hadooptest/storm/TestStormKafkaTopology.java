@@ -103,14 +103,21 @@ public class TestStormKafkaTopology extends TestSessionStorm {
 
     @Test(timeout=600000)
     public void StormKafkaTest() throws Exception {
-        initiateKafkaProducer();
-        LOG.info("Intiated kafka topic:" + topic + " and entered data");
-        launchKafkaTopology();
-        LOG.info("Topology Launched");
-        Util.sleep(50);
-        String drpcResult = cluster.DRPCExecute(function, "hello");
-        logger.debug("drpc result = " + drpcResult);
-        assertTrue("Did not get expected result back from stormkafka topology", drpcResult.equals("2"));
+        try {
+            initiateKafkaProducer();
+            LOG.info("Intiated kafka topic:" + topic + " and entered data");
+            launchKafkaTopology();
+            LOG.info("Topology Launched");
+            Util.sleep(30);
+            String drpcResult = cluster.DRPCExecute(function, "hello");
+            logger.debug("drpc result = " + drpcResult);
+            assertTrue("Did not get expected result back from stormkafka topology", drpcResult.equals("2"));
+        }
+        finally {
+            cluster.killTopology("test");
+        }
+
+
 
 
     }
