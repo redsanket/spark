@@ -15,6 +15,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import org.apache.commons.math.linear.FieldDecompositionSolver;
 import storm.kafka.KafkaSpout;
 import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
@@ -57,7 +58,7 @@ public class StormKafkaTopology {
         builder.setSpout("line-reader-spout", new KafkaSpout(spoutConfig));
 
         builder.setBolt("line-splitter", new StormKafkaBolt()).shuffleGrouping("line-reader-spout");
-        builder.setBolt("word-count", new WordCount()).shuffleGrouping("line-splitter");
+        builder.setBolt("word-count", new WordCount()).fieldsGrouping("line-splitter", new Fields("word"));
 
         builder.setSpout("drpc", drpcSpout, 1);
         builder.setBolt("check-count", new StormKafkaAggregator())
