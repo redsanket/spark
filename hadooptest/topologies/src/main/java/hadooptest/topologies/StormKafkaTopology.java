@@ -55,7 +55,7 @@ public class StormKafkaTopology {
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("line-reader-spout", new KafkaSpout(spoutConfig));
+        builder.setSpout("line-reader-spout", new KafkaSpout(spoutConfig), 2);
 
         builder.setBolt("line-splitter", new StormKafkaBolt()).shuffleGrouping("line-reader-spout");
         builder.setBolt("word-count", new WordCount()).fieldsGrouping("line-splitter", new Fields("word"));
