@@ -24,7 +24,7 @@ import storm.kafka.SpoutConfig;
 import storm.kafka.BrokerHosts;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import storm.kafka.KafkaConfig;
-import hadooptest.workflow.storm.topology.bolt.StormKafkaBolt;
+import hadooptest.workflow.storm.topology.bolt.LineSplit;
 import hadooptest.workflow.storm.topology.bolt.StormKafkaAggregator;
 import hadooptest.workflow.storm.topology.bolt.WordCount;
 import backtype.storm.task.ShellBolt;
@@ -42,14 +42,14 @@ public class StormKafkaTopology {
 
     private final static Logger LOG = LoggerFactory.getLogger(StormKafkaTopology.class);
 
-    public void stormkafkaSetup(String topology_name, String topic, String function) throws Exception
+    public void stormkafkaSetup(String topology_name, String topic, String function, String zookeeperHostPortInfo) throws Exception
     {
         Config storm_conf = new Config();
         storm_conf.setDebug(true);
 
         LOG.info("Launching Topology ...");
         DRPCSpout drpcSpout = new DRPCSpout(function);
-        BrokerHosts hosts = new ZkHosts("gsbl90782.blue.ygrid.yahoo.com:4080");
+        BrokerHosts hosts = new ZkHosts(zookeeperHostPortInfo);
         SpoutConfig spoutConfig = new SpoutConfig(hosts, topic, "/"+topic, "KafkaSpout");
         spoutConfig.forceFromStart =true;
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
@@ -58,7 +58,7 @@ public class StormKafkaTopology {
 
         builder.setSpout("line-reader-spout", new KafkaSpout(spoutConfig), 2);
 
-        builder.setBolt("line-splitter", new StormKafkaBolt()).shuffleGrouping("line-reader-spout");
+        builder.setBolt("line-splitter", new LineSplit()).shuffleGrouping("line-reader-spout");
         builder.setBolt("word-count", new WordCount()).fieldsGrouping("line-splitter", new Fields("word"));
 
         builder.setSpout("drpc", drpcSpout, 1);
@@ -88,8 +88,9 @@ public class StormKafkaTopology {
            String topology_name = args[0];
            String topic = args[1];
            String function = args[2];
+           String zookeeperHostPortInfo = args[3];
            StormKafkaTopology skt = new StormKafkaTopology();
-           skt.stormkafkaSetup(topology_name, topic, function);
+           skt.stormkafkaSetup(topology_name, topic, function,zookeeperHostPortInfo);
        }
        catch(Exception e)
        {
