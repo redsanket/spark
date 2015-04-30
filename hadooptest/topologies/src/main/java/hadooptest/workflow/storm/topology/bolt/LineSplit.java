@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class LineSplit extends BaseRichBolt {
 
-    private final static Logger LOG = LoggerFactory.getLogger(StormKafkaAggregator.class);
+    private final static Logger LOG = LoggerFactory.getLogger(LineSplit.class);
     OutputCollector _collector;
 
     @Override
