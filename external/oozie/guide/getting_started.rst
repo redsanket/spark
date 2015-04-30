@@ -41,125 +41,91 @@ Workflow Quick Start
 #. Sign on to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Move ``examples`` directory to HDFS: ``hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
-#. Make the following edits to ``$HOME/proj/oozie/examples/src/main/apps/map-reduce/job.properties``:
+#. Make the following edits to ``$HOME/proj/oozie/examples/src/main/apps/map-reduce/job.properties``::
 
-   - ``nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020``
-   - ``jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032``
-   - ``queueName=default``
+       nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
+       jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
+       queueName=default
 
 #. Change to ``$HOME/proj/oozie``.
 #. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run -auth kerberos``
    Oozie will return a job ID.
 #. With the returned job ID, request information about the job: ``$ oozie job --info {job_id} -auth kerberos`` 
+
 #. To view the generated output: ``hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-0000``
 
 
-Creating a Coordinator
-----------------------
+Coordinator Quick Start
+-----------------------
 
-#. Copy the `oozie_examples.tar <http://twiki.corp.yahoo.com/pub/CCDI/OozieCoordinator/oozie-examples-4.1.0-SNAPSHOT-examples.tar.gz>`_ 
-   file to your home directory.
-#. Untar the file to your home directory. The directory structure should be as follows::
+In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Coordinator example ``aggregator``.
+We're going to configure and run this Coordinator in the following steps.
 
-       $ cd
-       $ tar xvf oozie_examples.tar
-       $ ls -al examples
-       total 8
-       drwxr-xr-x  5 angeloh  users  170 Jan 19 15:51 .
-       drwxr-xr-x  3 angeloh  users  102 Jan 19 15:51 ..
-       -r-xr-xr-x  1 angeloh  users  402 Jan 13 20:29 apps
-       drwxr-xr-x  5 angeloh  users  170 Jan 19 15:51 input-data
-       drwxr-xr-x  3 angeloh  users  102 Jan 13 20:29 src
+#. Change to ``$HOME/proj/oozie/examples/src/main/apps/aggregator``
+#. As with the Workflow example, edit the file ``job.properties`` so
+   that the configurations have the values shown below::
 
-#. There is one Coordinator example called aggregator under ``examples/apps``. Edit the file ``job.properties``.
+       nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
+       jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
+       queueName=default
 
-   .. code-block:: bash
-
-      # replace the key to oozie.coord.application.path
-      # replace the value to the coordinator app you want to run
-      oozie.coord.application.path=hdfs://localhost:9000/tmp/examples/apps/aggregator
-
-#. Copy the ``examples`` directory to your home directory in HDFS::
-
-   .. code-block:: bash
-
-      $ cd ..
-      $ hadoop fs -put examples /tmp/examples
-      $ hadoop fs -ls /tmp/examples
-
-#. Submit an Oozie Coordinator job::
-
-   .. code-block:: bash
-
-      #Set OOZIE_URL environment property
-      $ export OOZIE_URL=http://SERVERNAME:PORT/oozie
+#. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties -auth kerberos``
+   An Oozie job ID will be returned to you.
     
-      #Submit workflow
-      $ cd
-      $ cd examples
-      $ oozie job -run -config job.properties
-      Backyard Password:  <enter your Backyard password>
-      job: 0000000-100129181121546-oozie-ange-C
+#. With the Oozie job ID, check the status of your job: ``$ oozie job -info <oozie_job_id> -auth kerberos``
 
-#. Check the status of your job::
-
-   .. code-block:: bash
-
-      $ oozie job -info 0000000-100129181121546-oozie-ange-C
+#. The returned output should look similar to that below::
        
-      --------------------------------------------------------------------------------------------------------
-      Job Name      :  MY_APP                                                                  
-      App Path      :  hdfs://localhost:9000/tmp/examples/apps/aggregator            
-      Status        :  SUCCEEDED                                                               
-      --------------------------------------------------------------------------------------------------------
-      Action Number           external statusStatus     Tracker URI  Ext. Id               Ext. Status     Error Code    created                 Last Check             
-      actions list check null 
-      actions list size is 1
-      1                       null        SUCCEEDED  -            0000000-100129181121546-oozie-ange-C-               -             2010-01-30 02:17 +0000  -                  
-      --------------------------------------------------------------------------------------------------------
+       ------------------------------------------------------------------------------------------------------------------------------------
+       Job Name    : aggregator-coord
+       App Path    : hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/examples/apps/aggregator/coordinator.xml
+       Status      : SUCCEEDED
+       Start Time  : 2010-01-01 01:00 GMT
+       End Time    : 2010-01-01 03:00 GMT
+       Pause Time  : -
+       Concurrency : 1
+       ------------------------------------------------------------------------------------------------------------------------------------
+       ID                                         Status    Ext ID                               Err Code  Created              Nominal Time         
+       0079707-150302104108145-oozie_KR-C@1       SUCCEEDED 0079708-150302104108145-oozie_KR-W   -         2015-04-29 23:06 GMT 2010-01-01 01:00 GMT 
+       ------------------------------------------------------------------------------------------------------------------------------------
+       0079707-150302104108145-oozie_KR-C@2       SUCCEEDED 0079709-150302104108145-oozie_KR-W   -         2015-04-29 23:06 GMT 2010-01-01 02:00 GMT 
+       ------------------------------------------------------------------------------------------------------------------------------------
        
-       
-      #The "Status" will change from RUNNING to SUCCEEDED when the job has completed successfully.
+   .. note:: The *status* will change from ``RUNNING`` to ``SUCCEEDED`` when the job has completed successfully.
 
 
 Creating a Bundle
 -----------------
 
-#. Copy the `oozie_examples.tar <http://twiki.corp.yahoo.com/pub/CCDI/OozieFAQ/oozie_examples.tar>`_ 
-   file to your home directory.
-#. Untar the file to your home directory. The directory structure should be as follows::
+In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Bundle example ``bundle``.
+We're going to configure and run this Bundle in the following steps.
 
-       $ ls -al examples
-       total 8
-       drwxr-xr-x  5 angeloh users 4096 Apr  7 15:23 .
-       drwxr-xr-x  4 angeloh users 4096 Apr  7 15:23 ..
-       drwxr-xr-x 16 angeloh users 4096 Apr  7 15:01 apps
-       drwxr-xr-x  4 angeloh users 4096 Apr  7 15:23 input-data
-       drwxr-xr-x  3 angeloh users 4096 Feb  2 13:59 src
+#. Change to ``$HOME/proj/oozie/examples/src/main/apps/bundle``
+#. Again, edit the file ``job.properties`` so that the configurations are
+   given the values below::
 
-#. The bundle example is under ``apps/bundle/*``.
-
-#. Copy the ``examples`` directory to your home directory in HDFS: ``$ hadoop fs -put examples .``
-#. Submit an Oozie Bundle Job:
-
-   #. $ Export the variable ``OOZIE_URL``: ``$ export OOZIE_URL=http://SERVERNAME:PORT/oozie``
-   #. Submit the Oozie Bundle: ``$ oozie job -run -config job.properties -auth kerberos``
-#. Check the status of your job: ``$ oozie job -info 0000000-110407152927173-oozie-ange-B``
+       nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
+       jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
+       queueName=default
+    
+#. Submit an Oozie Bundle job: ``$ oozie job -run -config job.properties -auth kerberos``
+#. Check the status of your job with your job ID: ``$ oozie job -info <oozie_job_id> -auth kerberos``
 #. You should see output similar to that below::
 
-       Job ID : 0000000-110407152927173-oozie-ange-B
+       Job ID : 0079753-150302104108145-oozie_KR-B
        ------------------------------------------------------------------------------------------------------------------------------------
-       Job Name : bundle-test
-       App Path : hdfs://localhost:9000/user/angeloh/examples/apps/bundle/bundle.xml
+       Job Name : bundle-app
+       App Path : hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/examples/apps/bundle
        Status   : RUNNING
        Kickoff time   : null
        ------------------------------------------------------------------------------------------------------------------------------------
-       Job ID                                   Status    Freq Unit         Started                 Next Materialized       
+       Job ID                                   Status         Freq Unit         Started                 Next Materialized       
        ------------------------------------------------------------------------------------------------------------------------------------
-       0000001-110407152927173-oozie-ange-C     RUNNING   60   MINUTE       2010-01-01 01:00        2010-01-01 03:00        
-       ------------------------------------------------------------------------------------------------------------------------------
+       0079754-150302104108145-oozie_KR-C       RUNNING        60   MINUTE       2010-01-01 01:00 GMT    2010-01-01 03:00 GMT    
+       ------------------------------------------------------------------------------------------------------------------------------------
+
        
-       #The "Status" will change from RUNNING to SUCCEEDED when the job has completed successfully.
+   .. note:: The *status* will change from ``RUNNING`` to ``SUCCEEDED`` when the job has completed successfully.
 
 
 Next Steps
