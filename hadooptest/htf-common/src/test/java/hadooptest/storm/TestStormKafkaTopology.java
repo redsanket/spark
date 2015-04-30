@@ -27,6 +27,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
     private static String function = "stormkafka";
     private String zookeeperHostPort;
     private String brokerHostPortInfo;
+    private String pathToScripts;
     private final static Logger LOG = LoggerFactory.getLogger(TestStormKafkaTopology.class);
 
     @BeforeClass
@@ -42,7 +43,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
     }
 
     public void initiateKafkaProducer() throws Exception {
-        String pathToScripts = conf.getProperty("KAFKA_HOME");
+        pathToScripts = conf.getProperty("KAFKA_HOME");
         brokerHostPortInfo = conf.getProperty("KAFKA_BROKER_HOST_PORT_LIST");
         zookeeperHostPort = conf.getProperty("ZOOKEEPER_HOST_PORT");
         UUID uuid = UUID.randomUUID();
@@ -92,6 +93,9 @@ public class TestStormKafkaTopology extends TestSessionStorm {
             assertTrue("Did not get expected result back from stormkafka topology", drpcResult.equals("2"));
         } finally {
             cluster.killTopology("test");
+            String[] returnTopicValue = exec.runProcBuilder(new String[]{pathToScripts + "kafka-topics.sh", "--zookeeper",
+                    zookeeperHostPort, "--delete", "--topic", topic}, true);
+            assertTrue("Could not delete topic", returnTopicValue[0].equals("0"));
         }
     }
 }
