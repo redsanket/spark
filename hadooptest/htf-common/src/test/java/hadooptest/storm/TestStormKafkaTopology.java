@@ -45,7 +45,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
     public void initiateKafkaProducer() throws Exception {
         pathToScripts = conf.getProperty("KAFKA_HOME");
         brokerHostPortInfo = conf.getProperty("KAFKA_BROKER_HOST_PORT_LIST");
-        zookeeperHostPort = conf.getProperty("ZOOKEEPER_HOST_PORT");
+        zookeeperHostPort = conf.getProperty("KAFKA_ZOOKEEPER_HOST_PORT");
         UUID uuid = UUID.randomUUID();
         topic = uuid.toString();
         LOG.info("Topic: " + topic);
