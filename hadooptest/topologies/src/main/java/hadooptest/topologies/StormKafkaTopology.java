@@ -1,41 +1,18 @@
 package hadooptest.topologies;
 
 import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.LocalDRPC;
+import backtype.storm.StormSubmitter;
 import backtype.storm.drpc.DRPCSpout;
 import backtype.storm.drpc.ReturnResults;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.topology.base.BaseBasicBolt;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-import org.apache.commons.math.linear.FieldDecompositionSolver;
-import storm.kafka.KafkaSpout;
-import storm.kafka.StringScheme;
-import storm.kafka.ZkHosts;
-import storm.kafka.ZkState;
-import storm.kafka.SpoutConfig;
-import storm.kafka.BrokerHosts;
 import backtype.storm.spout.SchemeAsMultiScheme;
-import storm.kafka.KafkaConfig;
+import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
 import hadooptest.workflow.storm.topology.bolt.LineSplit;
-import hadooptest.workflow.storm.topology.bolt.StormKafkaAggregator;
+import hadooptest.workflow.storm.topology.bolt.StormKafkaWordCountAggregator;
 import hadooptest.workflow.storm.topology.bolt.WordCount;
-import backtype.storm.task.ShellBolt;
-import backtype.storm.topology.base.BaseBasicBolt;
-import backtype.storm.topology.IRichBolt;
-import backtype.storm.StormSubmitter;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.slf4j.LoggerFactory;
+import storm.kafka.*;
 
 
 public class StormKafkaTopology {
@@ -51,7 +28,7 @@ public class StormKafkaTopology {
         DRPCSpout drpcSpout = new DRPCSpout(function);
         BrokerHosts hosts = new ZkHosts(zookeeperHostPortInfo);
         SpoutConfig spoutConfig = new SpoutConfig(hosts, topic, "/"+topic, "KafkaSpout");
-        spoutConfig.forceFromStart =true;
+        spoutConfig.forceFromStart = true;
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
         TopologyBuilder builder = new TopologyBuilder();
@@ -62,7 +39,7 @@ public class StormKafkaTopology {
         builder.setBolt("word-count", new WordCount()).fieldsGrouping("line-splitter", new Fields("word"));
 
         builder.setSpout("drpc", drpcSpout, 1);
-        builder.setBolt("check-count", new StormKafkaAggregator())
+        builder.setBolt("check-count", new StormKafkaWordCountAggregator())
                        .globalGrouping("word-count")
                        .globalGrouping("drpc");
 

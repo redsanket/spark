@@ -1,24 +1,24 @@
 package hadooptest.workflow.storm.topology.bolt;
 
-import org.slf4j.LoggerFactory;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-import backtype.storm.tuple.Fields;
 
-public class StormKafkaAggregator extends BaseRichBolt {
+public class StormKafkaWordCountAggregator extends BaseRichBolt {
     private PrintWriter out = null;
     private HashMap<String, Integer> wordCountMap = new HashMap<String, Integer>();
     String outputFileName;
-    private final static Logger LOG = LoggerFactory.getLogger(StormKafkaAggregator.class);
+    private final static Logger LOG = LoggerFactory.getLogger(StormKafkaWordCountAggregator.class);
     OutputCollector _collector;
 
     public void handleDrpcTuple(Tuple tuple) {
