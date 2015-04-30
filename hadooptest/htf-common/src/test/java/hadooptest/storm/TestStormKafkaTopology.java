@@ -2,21 +2,25 @@ package hadooptest.storm;
 
 import hadooptest.SerialTests;
 import hadooptest.Util;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import hadooptest.cluster.storm.ModifiableStormCluster;
 import hadooptest.TestSessionStorm;
-import static org.junit.Assume.assumeTrue;
+
 import java.util.UUID;
+import java.util.*;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import static org.junit.Assert.*;
-import java.util.*;
+import static org.junit.Assume.assumeTrue;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 @Category(SerialTests.class)
 public class TestStormKafkaTopology extends TestSessionStorm {
