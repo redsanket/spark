@@ -23,7 +23,6 @@ public class TestPigMethodsScript1 extends HtfPigBaseClass {
 
 	}
 	
-	@Ignore("There is an error in the PIG script that is executing")
 	@Test
 	public void testWithTez() throws Exception {
 		int returnCode = runPigScriptLocally(SCRIPT_NAME, OUTPUT_NAME);

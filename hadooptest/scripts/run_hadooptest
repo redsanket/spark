@@ -322,7 +322,7 @@ if ($spark) {
 if ($pig) {
     execute("yinst i fetl_base_feed_jar");
     execute("yinst i fetl_projector");
-    execute("yinst i htf_pig_data -br current");
+    execute("yinst i htf_pig_QE_data -br current");
 }
 
 my $hadoop_version;
