@@ -94,4 +94,4 @@ that's based on the Apache Oozie documentation. See also the `EL Expression Lang
   - `coord:dataInPartitions(String name, String type) EL function <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.8.8_coord:dataInPartitionsString_name_String_type_EL_function>`_
   - `coord:dateOffset(String baseDate, int instance, String timeUnit) EL Function <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.9.1._coord:dateOffsetString_baseDate_int_instance_String_timeUnit_EL_Function>`_
   - `coord:formatTime(String ts, String format) EL Function (since Oozie 2.3.2) <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.9.2._coord:formatTimeString_ts_String_format_EL_Function_since_Oozie_2.3.2>`_
-- 
+ 
