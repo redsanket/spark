@@ -3048,6 +3048,37 @@
                     </systemPath>
                 </dependency>
 
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>fetched_ystorm_kafka</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/ystorm_fetch/lib64/jars/storm-kafka.jar
+                    </systemPath>
+                </dependency>
+
+                <!-- KAFKA CLIENT DEPENDENCY -->
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>fetched_ykafka_clients</artifactId>
+                    <version>0.8.2.1</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/ykafka_fetch/share/kafka/libs/kafka-clients.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>fetched_ykafka</artifactId>
+                    <version>0.8.2.1</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/ykafka_fetch/share/kafka/libs/kafka.jar
+                    </systemPath>
+                </dependency>
+
                 <!-- COMMONS-CODEC -->
 
                 <dependency>
