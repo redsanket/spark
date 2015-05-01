@@ -12,6 +12,8 @@ Bundles.
 Setting Up
 ----------
 
+.. 04/30/15: Tested.
+
 #. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-boarding <onboard>` steps.
 #. SSH to Kryptonite Red.
 #. Create the directory ``$HOME/proj/oozie/`` for the quick starts: ``$ mkdir -p $HOME/proj/oozie``
@@ -34,13 +36,20 @@ Setting Up
              be sure to modify the URIs used the tutorials. The following is the URI syntax: ``{scheme}://{cluster}{color}-{server}.{color}.ygrid.yahoo.com:{port}/{path}`` 
              For example, the ``OOZIE_URL`` for Cobalt Blue would be ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
 
+#. Move ``examples`` directory to HDFS: ``hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
+
+
 
 Workflow Quick Start
 --------------------
 
+.. 04/30/15: Tested.
+
+In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Workflow example ``map-reduce``.
+We're going to configure and run this Workflow in the following steps.
+
 #. Sign on to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Move ``examples`` directory to HDFS: ``hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
 #. Make the following edits to ``$HOME/proj/oozie/examples/src/main/apps/map-reduce/job.properties``::
 
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
@@ -58,9 +67,13 @@ Workflow Quick Start
 Coordinator Quick Start
 -----------------------
 
+.. 04/30/15: Tested.
+
 In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Coordinator example ``aggregator``.
 We're going to configure and run this Coordinator in the following steps.
 
+#. Sign on to Kryptonite Red (or the cluster that you requested access).
+#. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Change to ``$HOME/proj/oozie/examples/src/main/apps/aggregator``
 #. As with the Workflow example, edit the file ``job.properties`` so
    that the configurations have the values shown below::
@@ -97,9 +110,13 @@ We're going to configure and run this Coordinator in the following steps.
 Creating a Bundle
 -----------------
 
+.. 04/30/15: Tested.
+
 In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Bundle example ``bundle``.
 We're going to configure and run this Bundle in the following steps.
 
+#. Sign on to Kryptonite Red (or the cluster that you requested access).
+#. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Change to ``$HOME/proj/oozie/examples/src/main/apps/bundle``
 #. Again, edit the file ``job.properties`` so that the configurations are
    given the values below::
