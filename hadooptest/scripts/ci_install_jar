@@ -85,3 +85,12 @@ then
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/
 fi
+
+# ykafka
+if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ykafka" ]
+then
+   ykafka_version=$( /usr/local/bin/yinst packages -br quarantine ykafka | awk '{print $1}' )
+   /usr/local/bin/yinst fetch ${ykafka_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tgz -br quarantine -br nightly -br test
+   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tgz
+   tar -xf $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tar -C $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/
+fi
