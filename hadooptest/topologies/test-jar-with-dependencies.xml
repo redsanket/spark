@@ -25,7 +25,6 @@
 				<exclude>system:system3</exclude>
 				<exclude>net.alchim31.maven:scala-maven-plugin</exclude>
 				<exclude>org.scala-lang:scala-compiler</exclude>
-				<exclude>org.scala-lang:scala-library</exclude>
 				<exclude>org.scala-lang:scalap</exclude>
 				<exclude>system:yspark_yarn</exclude>
 				<exclude>system:ystorm_servlet-api</exclude>
