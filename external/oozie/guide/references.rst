@@ -54,20 +54,22 @@ Expression Language (EL) Functions
 The list below contains links to the `Yahoo Oozie documentation <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/index.html>`_ 
 that's based on the Apache Oozie documentation. See also the `EL Expression Language Quick Reference <http://docs.oracle.com/javaee/6/tutorial/doc/gjddd.html>`_.
 
-- `Expression Language (EL) Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2_Expression_Language_Functions>`_
+- Expression Language (EL) Constants
 
   - `Basic EL Constants <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.1_Basic_EL_Constants>`_
-  - `Basic EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.2_Basic_EL_Functions>`_
-
-- `Workflow EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.3_Workflow_EL_Functions>`_
-
   - `Hadoop EL Constants <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.4_Hadoop_EL_Constants>`_
+
+- `Expression Language (EL) Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2_Expression_Language_Functions>`_
+
+  - `Basic EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.2_Basic_EL_Functions>`_
   - `Hadoop EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.5_Hadoop_EL_Functions>`_
   - `Hadoop Jobs EL Function <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.6_Hadoop_Jobs_EL_Function>`_
   - `HDFS EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.7_HDFS_EL_Functions>`_
+  - `Workflow EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.3_Workflow_EL_Functions>`_
   - `HCatalog EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a4.2.8_HCatalog_EL_Functions>`_
 
 - `Coordinator EL Functions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.6._Parameterization_of_Dataset_Instances_in_Input_and_Output_Events>`_
+
   - `coord:current(int n) EL Function for Synchronous Datasets <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.6.1._coord:currentint_n_EL_Function_for_Synchronous_Datasets>`_
   - `coord:current(int n) EL Function for Synchronous Datasets <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.6.1._coord:currentint_n_EL_Function_for_Synchronous_Datasets>`_
   - `coord:offset(int n, String timeUnit) EL Function for Synchronous Datasets <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.6.2._coord:offsetint_n_String_timeUnit_EL_Function_for_Synchronous_Datasets>`_
