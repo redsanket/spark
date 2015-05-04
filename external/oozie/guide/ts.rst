@@ -82,7 +82,7 @@ Internal Server Error (1)
 
 :: 
 
-    $ yoozie job -run -config map-reduce-job.properties
+    $ oozie job -run -config map-reduce-job.properties
 
     Error: OTHER : Internal Server Error
 

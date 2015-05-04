@@ -33,7 +33,7 @@ and you don't have the operations, development, and hardware support.
 Oozie Features
 --------------
 
-Oozie provides the following  the following:
+Oozie provides the following:
 
 - An XML-based declarative framework to specify a job or a complex workflow of dependent jobs.
 - Support for different types of jobs such as Hadoop Map-Reduce, Pipe, Streaming, Pig, Hive and custom java applications.
@@ -48,7 +48,8 @@ Oozie provides the following  the following:
 - Shell action (run any script, e.g., Perl, Python, Hadoop CLI)
 - Workflow dry-run & fork-Join validation
 - Bulk monitoring (REST API)
-- Coordinator Expression Language (EL) functions for parameterized Workflows
+- Workflow Expression Language (EL) functions and Coordinator EL functions
+  for parameterized Workflows
 - Job DAG
 
 .. Left off here on 04/23/15.
@@ -60,8 +61,8 @@ Time Triggers
 ~~~~~~~~~~~~~
 
 One of the most common uses for Oozie is to execute a Workflow 
-at certain intervals. For example, the Workflow XML (``workflow.xml``)
-below gives a start time, an end time, and the frequecy to
+at certain intervals. For example, the Coordinator XML (``coordinator.xml``)
+below gives a start time, an end time, and the frequency to
 run the applications.
 
 .. code-block:: xml
@@ -87,21 +88,21 @@ Sometimes you may only want to run Workflows when input data is available.
 Oozie lets you *materialize* (create but not run) a Workflow at a specified
 interval, but only run the Workflow when input data is ready.
 
-The ``workflow.xml`` below defines input events and then uses
+The ``coordinator.xml`` below defines input events and then uses
 the built-in expression language (EL) function ``dataIn`` to
 check if the input data (``inputLogs``) is available.
 
 .. code-block:: xml
 
-   <coordinator-app name=“coord1” frequency=“${1*HOURS}”…> 
+   <coordinator-app name=“coord1” frequency=“${coord:hours(1)}”…> 
      <datasets>
-       <dataset name="logs" frequency=“${1*HOURS}” initial-instance="2009-01-01T23:59Z">
+       <dataset name="logs" frequency=“${coord:hours(1)}” initial-instance="2009-01-01T23:59Z">
          <uri-template>hdfs://bar:9000/app/logs/${YEAR}/${MONTH}/${DAY}/${HOUR}</uri-template>
        </dataset>
      </datasets>
      <input-events>
        <data-in name=“inputLogs” dataset="logs">
-         <instance>${current(0)}</instance>
+         <instance>${coord:current(0)}</instance>
        </data-in>
      </input-events>
      <action>
@@ -122,14 +123,14 @@ Rolling Window
 You can also access datasets at a smaller interval and then roll them
 up at a larger frequency. 
 
-For example, in the ``workflow.xml`` below, but the Coordinator itself runs
+For example, in the ``coordinator.xml`` below, but the Coordinator itself runs
 every hour, so you can roll the 15-minute datasets into hourly datasets.
 
 .. code-block:: xml
 
-   <coordinator-app name=“coord1” frequency=“${1*HOURS}”…> 
+   <coordinator-app name=“coord1” frequency=“${coord:hours(1)}”…> 
      <datasets>
-       <dataset name="logs" frequency=“15” initial-instance="2009-01-01T00:00Z">
+       <dataset name="logs" frequency=“${coord:minutes(15)}” initial-instance="2009-01-01T00:00Z">
          <uri-template>hdfs://bar:9000/app/logs/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
        </dataset>
      </datasets>
@@ -155,15 +156,15 @@ Sliding Window
 Another less common use case is when you need to frequently access past data and
 then roll it up. 
 
-For example, the ``workflow.xml`` below every hour accesses the past 24 hours of data and rolls 
+For example, the ``coordinator.xml`` below every hour accesses the past 24 hours of data and rolls 
 that data up. You can see that the frequecy for the Coordinator is every hour but that the input 
 event is for 24 hours (``${current(0)} to ``${current(-23)}``).
 
 .. code-block:: xml
 
-   <coordinator-app name=“coord1” frequency=“${1*HOURS}”…> 
+   <coordinator-app name=“coord1” frequency=“${coord:hours(1)}”…> 
      <datasets>
-       <dataset name="logs" frequency=“${1*HOURS}” initial-instance="2009-01-01T00:00Z">
+       <dataset name="logs" frequency=“${coord:hours(1)}” initial-instance="2009-01-01T00:00Z">
          <uri-template>hdfs://bar:9000/app/logs/${YEAR}/${MONTH}/${DAY}/${HOUR}</uri-template>
        </dataset>
      </datasets>
@@ -268,8 +269,8 @@ Complete Data Pipeline
 The data pipeline is a complex set of actions and interdependencies. As you
 know, in Oozie, Bundles are also known as data pipelines. In other words,
 your data pipeline will generally involve a set of Coordinators, each
-Coordinator with a set of Workflows. Often data dependencies
-will exist between Coordinators and at the Workflow level. 
+Coordinator with one Workflow job that may contain multiple actions.
+Often data dependencies will exist between Coordinators and at the Workflow level. 
 Thus, you might need use a complete data pipeline for
 the following:
 
@@ -401,9 +402,4 @@ to its own logs
   can ask the second server for the user.
 - Caveat: if an Oozie server goes down, any logs from it will be unavailable
 
-
-Limitations/Restrictions
-------------------------
-
-TBD
 
