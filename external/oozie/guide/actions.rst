@@ -122,6 +122,8 @@ would configure your Workflow to use the new MapReduce API.
      </configuration>
    </map-reduce>
 
+
+
 Java Action
 -----------
 
@@ -244,39 +246,39 @@ Here's the sample Java ``main`` class:
    import java.io.*;
    import java.util.*;
    public class testShell {
-           public static void main (String[] args)
-           {
-                   String cmdfile = args[0];
-                   String text = args[1];
-                   try{
-                           String runCmd1;
-                           runCmd1       = cmdfile +" "+text;
-                           System.out.println("Command: "+runCmd1);
-                           CmdRunner cr1 = new CmdRunner(runCmd1);
-                           Vector    v1  = cr1.run();
-                           String    l1  = ((String) v1.elementAt(0));
-                           System.out.println("Output: "+l1);
-               String s2 = "HELLO WORLD Time:";
-               File file = new File(System.getProperty("oozie.action.output.properties"));
-               Properties props = new Properties();
-               if (l1.contains(s2)) {
-                  props.setProperty("key1", "value1");
-                  props.setProperty("key2", "value2");
-               } else {
-                  props.setProperty("key1", "novalue");
-                  props.setProperty("key2", "novalue");
-               }
-               OutputStream os = new FileOutputStream(file);
-               props.store(os, "");
-               os.close();
-               System.out.println(file.getAbsolutePath());
-                   }
-                    catch (Exception e) {
-                           e.printStackTrace();
-                   } finally {
-                           System.out.println("Done.");
-                   }
-           }
+
+      public static void main (String[] args) {
+         
+         String cmdfile = args[0];
+         String text = args[1];
+         try {
+            String runCmd1;
+            runCmd1 = cmdfile +" "+text;
+            System.out.println("Command: "+runCmd1);
+            CmdRunner cr1 = new CmdRunner(runCmd1);
+            Vector v1  = cr1.run();
+            String l1  = ((String) v1.elementAt(0));
+            System.out.println("Output: "+l1);
+            String s2 = "HELLO WORLD Time:";
+            File file = new File(System.getProperty("oozie.action.output.properties"));
+            Properties props = new Properties();
+            if (l1.contains(s2)) {
+               props.setProperty("key1", "value1");
+               props.setProperty("key2", "value2");
+            } else {
+               props.setProperty("key1", "novalue");
+               props.setProperty("key2", "novalue");
+            }
+            OutputStream os = new FileOutputStream(file);
+            props.store(os, "");
+            os.close();
+            System.out.println(file.getAbsolutePath());
+         } catch (Exception e) {
+            e.printStackTrace();
+         } finally {
+            System.out.println("Done.");
+         }
+      }
    }
 
 Hive Action

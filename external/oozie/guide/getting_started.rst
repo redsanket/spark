@@ -15,7 +15,7 @@ Setting Up
 .. 04/30/15: Tested.
 
 #. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-boarding <onboard>` steps.
-#. SSH to Kryptonite Red.
+#. SSH to the Kryptonite Red gateway (i.e., ``kryptonite-gw.red.ygrid.yahoo.com``).
 #. Create the directory ``$HOME/proj/oozie/`` for the quick starts: ``$ mkdir -p $HOME/proj/oozie``
 #. Get the Oozie examples:
   
@@ -25,9 +25,9 @@ Setting Up
 #. Confirm that the global variables are set to the values below:
 
    - ``JAVA_HOME=/home/gs/java/jdk``
-   - ``HADOOP_HOME=/grid/0/gs/hadoop/current``
-   - ``HADOOP_CONF_DIR=/grid/0/gs/conf/current``
-   - ``PATH=$HADOOP_HOME/bin/:$PATH``
+   - ``HADOOP_HOME=/home/gs/hadoop/current``
+   - ``HADOOP_CONF_DIR=/home/gs/conf/current``
+   - ``PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH``
    - ``OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie``
 
    To set the global variables, use the ``export`` command: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
@@ -59,7 +59,7 @@ We're going to configure and run this Workflow in the following steps.
 #. Change to ``$HOME/proj/oozie``.
 #. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run -auth kerberos``
    Oozie will return a job ID.
-#. With the returned job ID, request information about the job: ``$ oozie job --info {job_id} -auth kerberos`` 
+#. With the returned job ID, request information about the job: ``$ oozie job -info {job_id} -auth kerberos`` 
 
 #. To view the generated output: ``hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-0000``
 
