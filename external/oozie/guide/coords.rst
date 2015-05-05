@@ -398,6 +398,7 @@ Coordinator Job to Create SLA Events
 ************************************
 
 You can configure Coordinator actions to record the events required to evaluate SLA compliance.
+See `SLA Definition in Coordinator Action <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#SLA_Definition_in_Coordinator_Action>`_ for more information.
 
 Coordinator XML File
 ++++++++++++++++++++
@@ -407,7 +408,7 @@ include the ``<sla:info>`` element to record events and information as shown bel
 
 .. code-block:: xml
 
-   <coordinator-app xmlns="uri:oozie:coordinator:0.1" xmlns:sla="uri:oozie:sla:0.1" name="sla_coord" frequency="60" start="2009-03-06T010:00Z" end="2009-03-06T11:00Z" timezone="America/Los_Angeles">
+   <coordinator-app xmlns="uri:oozie:coordinator:0.4" xmlns:sla="uri:oozie:sla:0.2" name="sla_coord" frequency="60" start="2009-03-06T010:00Z" end="2009-03-06T11:00Z" timezone="America/Los_Angeles">
      <controls>
        <timeout>10</timeout>
        <concurrency>2</concurrency>
@@ -440,6 +441,8 @@ include the ``<sla:info>`` element to record events and information as shown bel
      </action>
    </coordinator-app>
 
+.. _coord_explanation:
+
 Explanation of Coordinator
 ++++++++++++++++++++++++++
 
@@ -449,11 +452,13 @@ Each Coordinator action will create at least three events for normal processing.
 - When the action starts executing, an event record of type ``STARTED`` is inserted into ``sla_event`` table..
 - Finally when an action finishes, event of type either ``SUCCEEDED/KILLED/FAILED`` is generated.
 
+See also `SLA Tracking:Event Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#Event_Status>`_ and `SLA Tracking: SLA Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#SLA_Status>`_ for details.
+
 Coordinator Job With Timeouts
 *****************************
 
 A Coordinator job will timeout if it has not run within the specified amount of time.
-Refer to the ``timeout tag.
+Refer to the ``timeout`` element.
 
 Coordinator XML File
 ++++++++++++++++++++
@@ -467,7 +472,7 @@ the Coordinator times out.
                  start="${start}" end="${end}" timezone="${timezone}" 
                  xmlns="uri:oozie:coordinator:0.1">
       <controls>
-         <timeout>10</timeout>    <!-- timeout if job is not run after 10 minutes -->
+         <timeout>10</timeout> <!-- timeout if Coordinator action is not run after 10 minutes --!>
          <concurrency>4</concurrency>
       </controls>  
       <datasets>
@@ -600,7 +605,7 @@ The following example uses the following expressional language (EL) functions:
 - `coord:latest <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.6._coord:latestint_n_EL_Function_for_Synchronous_Datasets>`_
 - `coord:current <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.1._coord:currentint_n_EL_Function_for_Synchronous_Datasets>`_
 - `coord:days <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a4.4.1._The_coord:daysint_n_and_coord:endOfDaysint_n_EL_functions>`_
-- `coord:hours <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`
+- `coord:hours <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`_
 - `coord:hoursInDay <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`_
 
 Coordinator XML File
@@ -608,7 +613,7 @@ Coordinator XML File
 
 .. code-block:: xml
 
-   <coordinator-app xmlns="uri:oozie:coordinator:0.1" xmlns:sla="uri:oozie:sla:0.1" 
+   <coordinator-app xmlns="uri:oozie:coordinator:0.4" xmlns:sla="uri:oozie:sla:0.2" 
                     name="ABF1_region_session_base_coord" frequency="${coord:days(1)}" 
                     start="${start}" end="${end}" timezone="America/New_York">
    
