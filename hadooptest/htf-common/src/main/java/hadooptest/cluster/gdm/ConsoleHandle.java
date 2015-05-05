@@ -1218,20 +1218,36 @@ public final class ConsoleHandle
 	 * @return - returns List<String> having all the hcat enabled cluster or return null if no cluster is hcat is enabled
 	 */
 	public List<String> getHCatEnabledGrid( ) {
-		List<String> hcatEnabledGrid = new ArrayList<String>();
+		List<String> hcatEnabledGridList = new ArrayList<String>();
 		String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
-		TestSession.logger.info("testURL = " + testURL);
-		JsonPath jsonPath = given().cookie(httpHandle.cookie).get(testURL).jsonPath();
-		TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
-		hcatEnabledGrid = jsonPath.getList("HadoopClusterVersions.findAll { it.HCatVersion.startsWith('hcat_common') }.ClusterName ");
-		if (hcatEnabledGrid == null) {
-			try {
-				throw new Exception("Failed to get hcatEnabled");
-			} catch (Exception e) {
-				e.printStackTrace();
+		TestSession.logger.info("testURL = " + testURL);		
+		com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
+		String responseString = response.getBody().asString();
+		String gridName="";
+		JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
+		Object obj = versionObj.get("HadoopClusterVersions");
+		if (obj instanceof JSONArray) {
+			JSONArray sizeLimitAlertArray = versionObj.getJSONArray("HadoopClusterVersions");
+			Iterator iterator = sizeLimitAlertArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				Iterator<String> keys  = jsonObject.keys();
+				while( keys.hasNext() ) {
+				    String key = (String)keys.next();
+					if (key.equals("DataStoreName") ) {
+						gridName = jsonObject.getString(key);
+					}
+					String value = jsonObject.getString(key);
+					if (value.startsWith("hcat_common")) {
+						if (! gridName.startsWith("gdm")) {
+							hcatEnabledGridList.add(gridName);	
+						}
+					}
+				}
 			}
+			TestSession.logger.info(hcatEnabledGridList);
 		}
-		return hcatEnabledGrid;
+		return hcatEnabledGridList;
 	}
 
 	/**
@@ -1465,7 +1481,13 @@ public final class ConsoleHandle
 		String cookie = this.httpHandle.getBouncerCookie();
 		JsonPath jsonPath = given().cookie(cookie).get(testURL).jsonPath();
 		TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
-		grids = jsonPath.getList("DataSourceResult.findAll { it.Type.equals('grid') }.DataSourceName ");
+		grids = jsonPath.getList("DataSourceResult.findAll { (it.Type.equals('grid')) && (!it.DataSourceName.equals('gdm')) }.DataSourceName ");
+		
+	/*	List<String> gridList = new ArrayList<String>();
+		for ( String grid : grids ) {
+			
+		}*/
+		
 		return grids;
 	}
 	
@@ -1573,11 +1595,24 @@ public final class ConsoleHandle
     public List<String> getAllGridNames() {
     	List<String> gridNames = new ArrayList<String>();
     	String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
-    	TestSession.logger.info("Test URL = " + testURL);
-    	com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
-    	JsonPath jsonPath = response.getBody().jsonPath();
-    	gridNames = jsonPath.getList("HadoopClusterVersions.ClusterName");
-    	assertTrue("There is no any grids installed " + gridNames.size() , gridNames.size() > 0);
+    	TestSession.logger.info("testURL = " + testURL);		
+		com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
+		String responseString = response.getBody().asString();
+		System.out.println("Response  : " + responseString);
+		JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
+		Object obj = versionObj.get("HadoopClusterVersions");
+		if (obj instanceof JSONArray) {
+			JSONArray sizeLimitAlertArray = versionObj.getJSONArray("HadoopClusterVersions");
+			Iterator iterator = sizeLimitAlertArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				String dataSourceName = jsonObject.getString("DataStoreName").trim();
+				if (! dataSourceName.startsWith("gdm")) {
+					System.out.println("dataSourceName  =  " + dataSourceName);
+					gridNames.add(dataSourceName);
+				}
+			}
+		}
     	return gridNames;
     }
     
