@@ -66,7 +66,6 @@ public final class ConsoleHandle
 		{
 			this.username = this.conf.getString("auth.usr");
 			this.passwd = this.conf.getString("auth.pp");
-			TestSession.logger.info("Password ----------------  " + this.passwd);
 			this.httpHandle.logonToBouncer(this.username, this.passwd);
 			TestSession.logger.info("logon OK");
 		} catch (Exception ex) {
@@ -1475,13 +1474,7 @@ public final class ConsoleHandle
 		String cookie = this.httpHandle.getBouncerCookie();
 		JsonPath jsonPath = given().cookie(cookie).get(testURL).jsonPath();
 		TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
-		grids = jsonPath.getList("DataSourceResult.findAll { (it.Type.equals('grid')) && (!it.DataSourceName.equals('gdm')) }.DataSourceName ");
-		
-	/*	List<String> gridList = new ArrayList<String>();
-		for ( String grid : grids ) {
-			
-		}*/
-		
+		grids = jsonPath.getList("DataSourceResult.findAll { it.Type.equals('grid') }.DataSourceName ");	
 		return grids;
 	}
 	
