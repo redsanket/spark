@@ -683,7 +683,9 @@ Using Oozie Maven Artifacts
 
 If you have a Java Maven project which uses an Oozie client or core library, you can 
 use Oozie Maven artifacts. Given below is the Maven repository and dependency 
-settings for your POM file.
+settings for your POM file. The ``oozie.version`` used in this 
+example is ``4.4.1.3.1411122125``. See `Grid Versions <http://twiki.corp.yahoo.com/view/Grid/GridVersions>`_
+to determine the Oozie version for a particular cluster.
 
 POM XML
 ~~~~~~~
@@ -699,47 +701,33 @@ POM XML
          </snapshots>
      </repository>
    </repositories>
+   <oozie.version>4.4.1.3.1411122125</oozie.version>
+   ...
    <dependencies>
-     <dependency>      
-       <groupId>org.apache.oozie</groupId>
-       <artifactId>yoozie-client</artifactId>
-       <version>${oozie.version}</version>
-       <scope>compile</scope>
-       </dependency>
-     </dependency>
+   ...
      <dependency>
        <groupId>org.apache.oozie</groupId>
-       <artifactId>oozie-core</artifactId>
-       <version>${oozie.version}</version>
-       <classifier>tests</classifier>   
-       <scope>compile</scope>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.oozie</groupId>
-       <artifactId>oozie-core</artifactId>
+       <artifactId>oozie-client</artifactId>
        <version>${oozie.version}</version>
        <scope>compile</scope>
      </dependency>
-   <dependency>      
-       <groupId>org.apache.oozie</groupId>
-       <artifactId>yoozie-auth</artifactId>
-       <version>${oozie.version}</version>
-       <scope>compile</scope>
-       </dependency>
-     </dependency>
-   </dependencies>         
-
+   ...
+   </dependencies>
+      
 Getting the Required Yinst Packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Alternately, you can also install following ``yoozie`` yinst packages to get the Oozie Jars and POM files.
+Alternately, you can also install following ``yoozie`` yinst packages to get the 
+Oozie Jars and POM files.
 
 ::
 
-    yinst i yoozie_maven -br stable
+    yinst i yoozie_maven -br stable 
     yinst i yoozie_hadooplibs_maven -br stable
     yinst i yoozie_hbaselibs_maven -br stable
     yinst i yoozie_hcataloglibs_maven -br stable
 
-.. note:: The ``current`` branch might also contain the version deployed on a research cluster. 
-          Package is promoted to stable only when it is deployed on production.
+.. note:: The ``current`` branch for ``yoozie_maven`` might also contain the 
+          version deployed on a research cluster. Package is promoted to 
+          stable only when it is deployed on production.
+          
