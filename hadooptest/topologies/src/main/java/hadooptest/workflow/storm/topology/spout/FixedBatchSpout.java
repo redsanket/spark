@@ -61,7 +61,10 @@ public class FixedBatchSpout implements IBatchSpout {
 
     private void extractSampleLog () {
         String stormJarPath = pathToStromJar();
-        String dstDummyLog = System.getProperty("storm.home") + "/logs/" + System.getProperty("logfile.name") + ".1.gz";
+        String dstDummyLog = System.getProperty("workers.artifacts") + "/" +
+                System.getProperty("storm.id") + "/" +
+                System.getProperty("worker.port") + "/" +
+                System.getProperty("logfile.name") + ".1.gz";
         String line = "jar xf " + stormJarPath + " sample-log-file.log.gz";
         try {
             CommandLine cmdline = CommandLine.parse(line);
