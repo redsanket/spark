@@ -162,10 +162,8 @@ To create a role in Oozie for a YCA allowed namespace:
    role under it. Refer to `Support YCAProtected Grid Servic <http://twiki.corp.yahoo.com/view/Grid/SupportGYCA>`_ 
    for details.
          
-   #. File a Bugzilla ticket to create a role using the following
-      as a template: http://bug.corp.yahoo.com/show_bug.cgi?id=3899711
-        
-      Your role name should use the syntax ``<namespace>.<username>``.
+   #. File a `Jira issue with OpsDB <https://jira.corp.yahoo.com/servicedesk/customer/portal/89/create/554>`_
+      to create a role. Your role name should use the syntax ``<namespace>.<username>``.
    #. Register the list of hosts as members in this role.
    #. Install the ``yca`` and ``yca_client_certs`` packages. 
       The ``yca_client_certs`` package will only install successfully when
