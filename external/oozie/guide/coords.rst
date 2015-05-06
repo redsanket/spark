@@ -249,6 +249,7 @@ In this example, the HDFS directory structure for the ``input1`` dataset is as f
       </dataset>
    </datasets>
 
+.. _trigger_coord-data_available:
 
 Triggering Coordinator Jobs When Data File is Available      
 *******************************************************
@@ -261,7 +262,11 @@ to be created before running.
 Coordinator XML File
 ++++++++++++++++++++
 
-TBD: need a short description of file.
+The ``done-flag`` element specifies the data dependency that triggers the Oozie job to run. The default value
+for ``done-flag`` is ``_SUCCESS``, so if ``done-flag`` is not specified, the Oozie job will wait for the
+a file such as ``/tmp/revenue_feed/2010/06/01/03/_SUCCESS`` before starting. You can also specify the
+``done-flag`` element without a value, meaning that the existence of the directory defined
+in ``uri-template`` indicates that the dataset is ready. See `Synchronous Datasets <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/CoordinatorFunctionalSpec.html#a5.1._Synchronous_Datasets>`_ for further explanation.
 
 .. code-block:: xml
 
@@ -398,6 +403,7 @@ Coordinator Job to Create SLA Events
 ************************************
 
 You can configure Coordinator actions to record the events required to evaluate SLA compliance.
+See `SLA Definition in Coordinator Action <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#SLA_Definition_in_Coordinator_Action>`_ for more information.
 
 Coordinator XML File
 ++++++++++++++++++++
@@ -407,7 +413,7 @@ include the ``<sla:info>`` element to record events and information as shown bel
 
 .. code-block:: xml
 
-   <coordinator-app xmlns="uri:oozie:coordinator:0.1" xmlns:sla="uri:oozie:sla:0.1" name="sla_coord" frequency="60" start="2009-03-06T010:00Z" end="2009-03-06T11:00Z" timezone="America/Los_Angeles">
+   <coordinator-app xmlns="uri:oozie:coordinator:0.4" xmlns:sla="uri:oozie:sla:0.2" name="sla_coord" frequency="60" start="2009-03-06T010:00Z" end="2009-03-06T11:00Z" timezone="America/Los_Angeles">
      <controls>
        <timeout>10</timeout>
        <concurrency>2</concurrency>
@@ -440,6 +446,8 @@ include the ``<sla:info>`` element to record events and information as shown bel
      </action>
    </coordinator-app>
 
+.. _coord_explanation:
+
 Explanation of Coordinator
 ++++++++++++++++++++++++++
 
@@ -449,11 +457,13 @@ Each Coordinator action will create at least three events for normal processing.
 - When the action starts executing, an event record of type ``STARTED`` is inserted into ``sla_event`` table..
 - Finally when an action finishes, event of type either ``SUCCEEDED/KILLED/FAILED`` is generated.
 
+See also `SLA Tracking:Event Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#Event_Status>`_ and `SLA Tracking: SLA Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#SLA_Status>`_ for details.
+
 Coordinator Job With Timeouts
 *****************************
 
 A Coordinator job will timeout if it has not run within the specified amount of time.
-Refer to the ``timeout tag.
+Refer to the ``timeout`` element.
 
 Coordinator XML File
 ++++++++++++++++++++
@@ -467,7 +477,7 @@ the Coordinator times out.
                  start="${start}" end="${end}" timezone="${timezone}" 
                  xmlns="uri:oozie:coordinator:0.1">
       <controls>
-         <timeout>10</timeout>    <!-- timeout if job is not run after 10 minutes -->
+         <timeout>10</timeout> <!-- timeout if Coordinator action is not run after 10 minutes --!>
          <concurrency>4</concurrency>
       </controls>  
       <datasets>
@@ -600,7 +610,7 @@ The following example uses the following expressional language (EL) functions:
 - `coord:latest <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.6._coord:latestint_n_EL_Function_for_Synchronous_Datasets>`_
 - `coord:current <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.1._coord:currentint_n_EL_Function_for_Synchronous_Datasets>`_
 - `coord:days <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a4.4.1._The_coord:daysint_n_and_coord:endOfDaysint_n_EL_functions>`_
-- `coord:hours <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`
+- `coord:hours <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`_
 - `coord:hoursInDay <http://oozie.apache.org/docs/3.3.2/CoordinatorFunctionalSpec.html#a6.6.3._coord:hoursInDayint_n_EL_Function_for_Synchronous_Datasets>`_
 
 Coordinator XML File
@@ -608,7 +618,7 @@ Coordinator XML File
 
 .. code-block:: xml
 
-   <coordinator-app xmlns="uri:oozie:coordinator:0.1" xmlns:sla="uri:oozie:sla:0.1" 
+   <coordinator-app xmlns="uri:oozie:coordinator:0.4" xmlns:sla="uri:oozie:sla:0.2" 
                     name="ABF1_region_session_base_coord" frequency="${coord:days(1)}" 
                     start="${start}" end="${end}" timezone="America/New_York">
    
@@ -770,7 +780,7 @@ On success, an Oozie ID is returned. In this example, the Oozie ID is ``0000004-
 
 .. code-block:: bash
 
-   $ export OOZIE_URL=http://axoniteblue-wf.blue.ygrid.yahoo.com:9999/oozie/
+   $ export OOZIE_URL=https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/
    $ oozie job -run -config coordinator.properties
    job: 0000004-091209145813488-oozie-dani-C
 
@@ -801,14 +811,31 @@ with the following command.
 
 .. code-block:: bash
 
-   $ oozie jobs
-   Job Id                               Name     Status     Run  User      Group     Created                 
-   --------------------------------------------------------------------------------------------------------------
-   0000006-091209145813488-oozie-dani-W MY_APP1  KILLED     0    danielwo  users     2009-12-09 22:58 +0000  
-   0000002-091209145813488-oozie-dani-W MY_APP2  SUCCEEDED  0    danielwo  users     2009-12-09 22:58 +0000 
-   0000003-091209145813488-oozie-dani-W MY_APP3  SUCCEEDED  0    danielwo  users     2009-12-09 22:58 +0000 
-   0000001-091209115438814-oozie-dani-W MY_APP4  FAILED     0    kamrul    other     2009-12-09 19:54 +0000
-   --------------------------------------------------------------------------------------------------------------
+   $ oozie jobs -jobtype coord -auth kerberos
+
+   Job ID                                   App Name       Status    Freq Unit         Started                 Next Materialized
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0081769-150302094004234-oozie_KR-C       URSDemoToProfileServer-1.0.1.94-daily-dev-coordSUCCEEDED    1 DAY  2015-04-01 00:00 GMT    2015-04-02 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0081766-150302094004234-oozie_KR-C       URSDemoToProfileServer-1.0.1.94-daily-dev-coordSUCCEEDED    1 DAY  2015-04-01 00:00 GMT    2015-04-02 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0081741-150302094004234-oozie_KR-C       upstats_15-1.0.1.83-daily-dev-coordSUCCEEDED                1 DAY  2015-01-01 00:00 GMT    2015-01-02 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0081691-150302104108145-oozie_KR-C       URSDemoToProfileServer-1.0.1.92-daily-dev-coordSUCCEEDED    1 DAY  2015-04-01 00:00 GMT    2015-04-02 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0081686-150302094004234-oozie_KR-C       URSDemoToProfileServer-1.0.1.92-daily-dev-coordSUCCEEDED    1 DAY  2015-04-01 00:00 GMT    2015-04-02 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0080497-150302104108145-oozie_KR-C       upstats_15-1.0.1.82-daily-dev-coordSUCCEEDED                1 DAY  2015-01-01 00:00 GMT    2015-01-02 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0080237-150302104108145-oozie_KR-C       urs_user_metadata_extractor_daily-dev-coordSUCCEEDED        1 DAY  2015-03-08 00:00 GMT    2015-03-10 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0080223-150302094004234-oozie_KR-C       urs_user_metadata_extractor_daily-dev-coordSUCCEEDED        1 DAY  2015-03-08 00:00 GMT    2015-03-10 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0080212-150302094004234-oozie_KR-C       urs_user_metadata_extractor_daily-dev-coordSUCCEEDED        1 DAY  2015-03-08 00:00 GMT    2015-03-10 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+   0080208-150302104108145-oozie_KR-C       upstats_15-1.0.1.81-daily-dev-coordSUCCEEDED                1 DAY  2015-01-01 00:00 GMT    2015-01-02 00:00 GMT
+   ------------------------------------------------------------------------------------------------------------------------------------
+
 
 Stop/Kill A Job
 ~~~~~~~~~~~~~~~

@@ -15,7 +15,7 @@ More specifically, the Oozie Bundle system allows the user to define and execute
 a bunch of Coordinator applications often called a data pipeline. No explicit 
 dependency exists among the Coordinator applications in a Bundle. A user, however, could 
 use the data dependency of Coordinator applications to create an implicit data 
-application pipeline.
+application pipeline. See also the `Bundle Bundle Specification <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html>`_ for more details.
 
 TBD: Need to annotate diagram below.
 
@@ -26,17 +26,17 @@ TBD: Need to annotate diagram below.
    :alt: Oozie Coordinator Pipeline
    :align: left
 
-State Transitions
------------------
+Bundle Example
+--------------
 
-TBD: Need to annotate the diagram below.
+As we do not have any Bundle example, see the
+following sections:
 
-.. image:: images/bundle_state_transitions.jpg
-   :height: 432px
-   :width: 687 px
-   :scale: 95 %
-   :alt: Oozie Bundle State Transitions
-   :align: left
+- `Bundle Definitions <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html#a2._Definitions>`_
+- `Expression Language for Parameterization <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html#a3._Expression_Language_for_Parameterization>`_
+- `Bundle Job <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html#a4._Bundle_Job>`_ 
+- `Oozie Bundle XML-Schema <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html#Appendix_A_Oozie_Bundle_XML-Schema>`_
+
 
 
 

@@ -2,7 +2,6 @@ Actions
 =======
 
 .. 04/15/15: Copy edited section.
-.. TBD: Need to act links for each action to the public Oozie docs.
 
 Overview
 --------
@@ -17,7 +16,6 @@ types of actions:
 - Pig
 - Fs 
 - Shell
-- Ssh
 - Email
 - Sub-workflow
 - Streaming
@@ -680,12 +678,6 @@ the latest shell XML namespace 0.3 as shown below.
    </workflow>
 
 
-Ssh Action
-----------
-
-See `Oozie Ssh Action Extension <https://oozie.apache.org/docs/3.2.0-incubating/DG_SshActionExtension.html>`_ 
-for the syntax, an example, and the schema for the Ssh action.
-
 Email Action
 ------------
 
@@ -704,7 +696,7 @@ body, and the sender's address.
         <error to="kill"/>
     </action>
 
-See `Oozie Email Action Extension <http://oozie.apache.org/docs/3.2.0-incubating/DG_EmailActionExtension.html>`_ 
+See `Oozie Email Action Extension <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_EmailActionExtension.html>`_ 
 for the syntax, an example, and the schema for the Email action.
 
 .. note:: To send email to an iList, the iList setting needs to allow posts 
@@ -716,28 +708,32 @@ for the syntax, an example, and the schema for the Email action.
 Sub-workflow Action
 -------------------
 
-See `Oozie Sub-Workflow Action Extension <https://oozie.apache.org/docs/3.2.0-incubating/WorkflowFunctionalSpec.html#a3.2.6_Sub-workflow_Action
->`_ for the syntax, an example, and the schema for the Sub-workflow action.
+
+See `Oozie Sub-Workflow Action Extension <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a3.2.6_Sub-workflow_Action>`_
+for the syntax, an example, and the schema for the Sub-workflow action.
 
 DistCp Action
 -------------
 
 `DistCp <https://hadoop.apache.org/docs/r1.2.1/distcp.html>`_ is a tool used for large inter/intra-cluster copying.
-
-The following ``workflow.xml`` copies a bzipped file 
-to a user's home directory. 
+The following ``workflow.xml`` copies a bzipped file to a user's home directory. 
 
 .. code-block:: xml
 
    <workflow-app name="hue_tutorial_workflow" xmlns="uri:oozie:workflow:0.4">
       <start to="copy_dataset"/>
-
          <action name="copy_data" cred="hcat">
             <distcp xmlns="uri:oozie:distcp-action:0.1">
                <job-tracker>${jobTracker}</job-tracker>
                <name-node>${nameNode}</name-node>
-                  <arg>/tmp/dataset.bz2</arg>
-                  <arg>/user/yhoo_star/</arg>
+               <configuration>
+                  <property>
+                     <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+                     <value>${sourceNameNode}</value>
+                  </property>
+               </configuration>
+               <arg>/tmp/dataset.bz2</arg>
+               <arg>/user/yhoo_star/</arg>
             </distcp>
             <ok to="del_db_tables"/>
             <error to="kill"/>

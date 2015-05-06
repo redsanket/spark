@@ -533,13 +533,12 @@ Workflow Job to Create SLA events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A Workflow job could be configured to record the events required to evaluate SLA compliance.
-
-Workflow
- by_screwdriver to the group that owns the dist package.***#****
+See `Configuring SLA in Applications <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html>`_
+for more information.
 
 .. code-block:: xml
 
-   <workflow-app xmlns='uri:oozie:workflow:0.2'  xmlns:sla="uri:oozie:sla:0.1" name='map-reduce-wf'>
+   <workflow-app xmlns='uri:oozie:workflow:0.4'  xmlns:sla="uri:oozie:sla:0.2" name='map-reduce-wf'>
        <start to='hadoop1' />
        <action name='hadoop1'>
            <map-reduce>
@@ -580,17 +579,12 @@ Workflow
        </kill>
        <end name='end' />
        <sla:info> 
-       <sla:app-name>test-app</sla:app-name> 
-       <sla:nominal-time>2009-03-06T10:00Z</sla:nominal-time> 
-       <sla:should-start>5</sla:should-start> 
-       <sla:should-end>120</sla:should-end> 
-       <sla:notification-msg>Notifying User for nominal time : 2009-03-06T10:00Z </sla:notification-msg> 
-       <sla:alert-contact>abc@yahoo.com</sla:alert-contact> 
-       <sla:dev-contact>abc@yahoo.com</sla:dev-contact> 
-       <sla:qa-contact>abc@yahoo.com</sla:qa-contact> 
-       <sla:se-contact>abc@yahoo.com</sla:se-contact>
-            <sla:alert-frequency>LAST_HOUR</sla:alert-frequency>
-            <sla:alert-percentage>80</sla:alert-percentage>
+          <sla:nominal-time>2009-03-06T10:00Z</sla:nominal-time> 
+          <sla:should-start>5</sla:should-start> 
+          <sla:should-end>120</sla:should-end> 
+          <sla:alert-contact>abc@yahoo.com</sla:alert-contact> 
+          <sla:alert-events>start_miss,end_miss,duration_miss</sla:alert-events>
+          <sla:max-duration>${2 * HOURS}</sla:max-duration>
        </sla:info>
    </workflow-app>
 
@@ -613,7 +607,7 @@ Workflow
 
 .. code-block:: xml
 
-   <workflow-app xmlns='uri:oozie:workflow:0.2'  xmlns:sla="uri:oozie:sla:0.1" name='map-reduce-wf'>
+   <workflow-app xmlns='uri:oozie:workflow:0.4'  xmlns:sla="uri:oozie:sla:0.2" name='map-reduce-wf'>
        <start to='hadoop1' />
        <action name='hadoop1'>
            <map-reduce>
@@ -649,17 +643,12 @@ Workflow
            <ok to="end" />
            <error to="fail" />
           <sla:info> 
-            <sla:app-name>test-app</sla:app-name> 
             <sla:nominal-time>2009-03-06T10:00Z</sla:nominal-time> 
             <sla:should-start>${10 * MINUTES}</sla:should-start> 
-            <sla:should-end>${2 * HOURS}</sla:should-end> 
-            <sla:notification-msg>TEST ACTION : 2009-03-06T10:00Z </sla:notification-msg> 
+            <sla:should-end>${1 * HOURS}</sla:should-end> 
             <sla:alert-contact>abc@yahoo.com</sla:alert-contact> 
-            <sla:dev-contact>abc@yahoo.com</sla:dev-contact> 
-            <sla:qa-contact>abc@yahoo.com</sla:qa-contact> 
-            <sla:se-contact>abc@yahoo.com</sla:se-contact>
-            <sla:alert-frequency>LAST_HOUR</sla:alert-frequency>
-            <sla:alert-percentage>80</sla:alert-percentage>
+            <sla:alert-events>start_miss, end_miss</sla:alert-events>
+            <sla:max-duration>${2 * HOURS}</sla:max-duration>
            </sla:info>
        </action>
        <kill name="fail">
