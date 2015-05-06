@@ -99,8 +99,7 @@ public class TestLogviewer extends TestSessionStorm {
             HTTPHandle client = createAndPrepHttpClient();
 
             String getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/download/" + topoId + "-worker-" + lqs.workerPort +
-                    ".log";
+                    "/download/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker.log", "UTF-8");
             String output = performHttpRequest(client, getURL);
 
             final String expectedRegex =
@@ -134,15 +133,16 @@ public class TestLogviewer extends TestSessionStorm {
 
             //Now testing the gzip page viewing
             String getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/log?file=" + topoId + "-worker-" + lqs.workerPort +
+			        "/log?file=" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log.1.gz" + "&start=0&length=51200";
+
             String outputPage1 = performHttpRequest(client, getZipURL);
 
             assertTrue("First page of gzip log returned correctly",
                     outputPage1.contains("Quick brown fox jumped over the lazy dog"));
 
             getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/log?file=" + topoId + "-worker-" + lqs.workerPort +
+			        "/log?file=" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log.1.gz" + "&start=51200&length=51200";
             String outputPage2 = performHttpRequest(client, getZipURL);
 
@@ -150,7 +150,7 @@ public class TestLogviewer extends TestSessionStorm {
                     outputPage2.contains("Take an apple a day keep the doctor away"));
 
             getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/log?file=" + topoId + "-worker-" + lqs.workerPort +
+			        "/log?file=" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log.1.gz" + "&length=51200";
             String outputPageLast = performHttpRequest(client, getZipURL);
 
@@ -240,9 +240,9 @@ public class TestLogviewer extends TestSessionStorm {
             startByteNum, final int byteLength) throws MalformedURLException,
             IOException, FileNotFoundException, XPathExpressionException,
             URISyntaxException {
-        URL logPageUrl = new URL("http", host, logviewerPort, "/log?file="
-                + topoId + "-worker-" + workerPort + ".log&" + "start="
-                + startByteNum + "&length=" + byteLength);
+        URL logPageUrl = new URL("http", host, logviewerPort, "/log?file=" +
+                URLEncoder.encode(topoId + "/" + workerPort + "/worker.log", "UTF-8") +
+                "&start=" + startByteNum + "&length=" + byteLength);
         return getLogviewerPageContent(client, logPageUrl);
     }
 
@@ -303,8 +303,7 @@ public class TestLogviewer extends TestSessionStorm {
         HTTPHandle client = createAndPrepHttpClient();
 
         String getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                "/download/" + topoId + "-worker-" + lqs.workerPort +
-                ".log";
+                "/download/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker.log", "UTF-8");
         String output = performHttpRequest(client, getURL);
 
         String searchSubstring = "an apple a day keep";
@@ -332,9 +331,10 @@ public class TestLogviewer extends TestSessionStorm {
 
         assertTrue("Response returns at least a match", searchOutput.contains(searchSubstring));
         assertTrue("One of the matches is from the rolled log file",
-                searchOutput.contains( topoId + "-worker-" + lqs.workerPort + ".log.1.gz&"));
+                searchOutput.contains( topoId + "") && searchOutput.contains( lqs.workerPort + "") &&
+				searchOutput.contains( "worker.log.1.gz&"));
         assertTrue("One of the matches is from the regular log file",
-                searchOutput.contains( topoId + "-worker-" + lqs.workerPort + ".log&"));
+                searchOutput.contains( "worker.log&"));
     }
 
 
@@ -352,8 +352,7 @@ public class TestLogviewer extends TestSessionStorm {
 
             // Download the entire log
             String getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/download/" + topoId + "-worker-" + lqs.workerPort +
-                    ".log";
+                    "/download/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker.log", "UTF-8");
             String logFileText = performHttpRequest(client, getURL);
 
             final String searchSubstring =
@@ -370,7 +369,7 @@ public class TestLogviewer extends TestSessionStorm {
                     URLEncoder.encode(searchSubstring, "UTF-8");
             final int numMatches = 3;
             getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/search/" + topoId + "-worker-" + lqs.workerPort +
+			        "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log?search-string="+encodedSearchSubstring+
                     "&num-matches="+numMatches;
             String output = performHttpRequest(client, getURL);
@@ -429,7 +428,7 @@ public class TestLogviewer extends TestSessionStorm {
 
             // Advance one page.
             getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/search/" + topoId + "-worker-" + lqs.workerPort +
+			        "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log?search-string=" +
                     URLEncoder.encode(searchSubstring, "UTF-8")+
                     "&start-byte-offset="+nextOffset;
@@ -442,7 +441,7 @@ public class TestLogviewer extends TestSessionStorm {
 
             String unexpectedPattern = UUID.randomUUID().toString();
             getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                    "/search/" + topoId + "-worker-" + lqs.workerPort +
+			        "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log?search-string=" + unexpectedPattern;
             output = performHttpRequest(client, getURL);
             respMap = (Map) JSONValue.parseWithException(output);

@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.net.URLEncoder;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -227,7 +228,7 @@ public class TestWordCountTopology extends TestSessionStorm {
             theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
 
             String getURL = "http://" + host + ":" + logviewerPort + 
-                "/download/" + topoId + "-worker-" + workerPort + ".log";
+                "/download/" + URLEncoder.encode(topoId + "/" + workerPort + "/worker.log", "UTF-8");
             String uiURL = "http://" + uiHost + ":" + uiPort + "/api/v1/topology/"+topoId;
 
             logger.info("Test default bouncer user works on log");
