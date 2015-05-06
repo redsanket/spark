@@ -10,7 +10,8 @@ Debugging
 
 ::
     
-    $ oozie job -oozie http://localhost:11000/oozie -info 14-20090525161321-oozie-joe ----------------------------------------------------------------------------------------------------------------
+    $ oozie job -oozie http://localhost:11000/oozie -info 14-20090525161321-oozie-joe
+    ---------------------------------------------------------------------------------    
     Workflow Name : map-reduce-wf
     App Path : hdfs://localhost:8020/user/joe/workflows/map-reduce
     Status : SUCCEEDED
@@ -46,7 +47,12 @@ Click the tab **Coord Job Log** once you've clicked on the job from the list.
 Action logs can be viewed by entering the action numbers in the text box below the 
 log area either as a comma-separated list or a range (e.g., 1-5,6,9,10). 
 
-Screenshot
+.. image:: images/coord_job_log.jpg
+   :height: 404px
+   :width: 950 px
+   :scale: 90 %
+   :alt: Oozie Coordinator Job Log Console/UI
+   :align: left 
 
 Due to large size of logs (for Coordinators with large number of actions), loading 
 the logs might take a few minutes.
@@ -54,8 +60,6 @@ the logs might take a few minutes.
 In the next release, after opening the tab, the default log displayed will be of 
 the parent Coordinator job. Accessing action logs will be same as current behavior. 
 Performance improvements are underway to improve the streaming speed.
-
-TBD: Add screenshot.
 
 For more information about the Web Console, 
 see https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook.
@@ -90,14 +94,13 @@ Possible Solutions
 ++++++++++++++++++
 
 - Do you have access to a Hadoop queue?
-
   Check out the queues for Axonite Blue here: http://ucdev4.yst.corp.yahoo.com/jtqueues/?cluster=axonite-blue
 
 - Can you access the Hadoop queue?
 
   ::
 
-     $ hadoop queue -showacls
+     $ mapred queue -showacls
 
 
 If you don't have access to the queue you are using, `submit a request to Grid-Ops <http://yo/supportshop>`_. 

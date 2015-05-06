@@ -325,9 +325,7 @@ are defined ``job.properties`` before the Oozie job is submitted.
 Using Headless Users
 --------------------
 
-TBD: This needs to be updated to use Kerberos.
-
-Oozie uses Backyard authentication. If you want to use a headless user, you need to 
+Oozie uses Kerberos authentication. If you want to use a headless user, you need to 
 do the following:
 
 - Request a `Headless Bouncer account <http://twiki.corp.yahoo.com/view/SSO/HeadlessAccountSetup>`_. These accounts need a underscore "_" in their name. 
