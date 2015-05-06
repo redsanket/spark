@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
+import java.net.URLEncoder;
 import org.apache.commons.httpclient.HttpMethod;
 import org.junit.BeforeClass;
 
@@ -316,7 +317,7 @@ public abstract class TestSessionStorm extends TestSessionCore {
         logger.info("Cookie = " + client.YBYCookie);
 
         String getURL = "http://" + host + ":" + logviewerPort +
-                "/download/" + topoId + "-worker-" + workerPort + ".log";
+                "/download/" + URLEncoder.encode(topoId + "/" + workerPort + "/worker.log", "UTF-8");
         logger.info("URL to get is: " + getURL);
         HttpMethod getMethod = client.makeGET(getURL, new String(""), null);
         Response response = new Response(getMethod, false);
