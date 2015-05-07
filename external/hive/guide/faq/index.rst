@@ -32,6 +32,7 @@ Questions
 * :ref:`What is a scratch directory? <scratch>`
 * :ref:`Can scratch directories be configured? <config_scratch>`
 * :ref:`Can I control the Hive logging level? (I don't like too many hive log files under $HOME/hivelogs.) <log_levels>`
+* :ref:`My Hive program fails because tasks run out of memory. How do I adjust memory settings for Hive jobs? <memory_tuning>`
 
 
 Answers
@@ -210,7 +211,7 @@ Answers
 .. _scratch:
 .. topics:: **What is a scratch directory?**
 
-   Th ``scratch`` directory is configured by a SE and will be used as a temporary space for all the Hive jobs.
+   The ``scratch`` directory is configured by a SE and will be used as a temporary space for all the Hive jobs.
 
 .. _config_scratch:
 .. topics:: **Can scratch directories be configured?**
@@ -229,7 +230,29 @@ Answers
 
        # hive -hiveconf hive.root.logger=WARN,DRFA
 
-.. |DDL| replace:: Hive Langage Manual
+.. _memory_tuning:
+.. topics:: **My Hive program fails because tasks run out of memory. How do I adjust memory settings for Hive jobs?**
+
+   You may tune the memory allocation for your Hive tasks in MapReduce/Tez using/adjusting the following settings::
+        -- Container sizes.
+        set mapreduce.map.memory.mb=2048;
+        set mapreduce.reduce.memory.mb=2048;
+
+        -- Heap sizes.
+        set hive.tez.java.opts=-Xmx1536m;
+        set mapred.child.java.opts=-Xmx1536m;
+
+        -- Tez Application master settings:
+        set tez.am.resource.memory.mb=3072;
+        set tez.am.launch.cmd-opts=-Xmx2560m;
+
+   Please note the following:
+   1. Container parameters should be tuned with ``mapreduce.*.memory.mb``, instead of ``hive.tez.container.size``, because this allows control over map/reduce tasks separately.
+   2. Ensure that the container sizes exceed the Xmx settings by 512MB. This is the JVM tax.
+   3. Please be careful about how much you bump the container sizes. These resources are shared by others on your queue/cluster.
+
+
+.. |DDL| replace:: Hive Language Manual
 .. _DDL: https://cwiki.apache.org/confluence/display/Hive/LanguageManual 
 .. |BT| replace:: LanguageManual DDL Bucketed Tables
 .. _BT: https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL+BucketedTables
