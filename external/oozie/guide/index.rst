@@ -19,7 +19,6 @@ Developer Preview
 
    overview
    getting_started
-   actions
    workflows
    coords
    bundles
