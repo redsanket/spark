@@ -200,7 +200,7 @@ Answers
 
 
 .. _gateways:
-.. topics:: **What precautions should be taken when working on the gateways?** 
+.. topic:: **What precautions should be taken when working on the gateways?** 
 
    Gateways are shared user resources. Large queries with lots of files can consume 
    memory at the client end (MR split calculation) which can impact other users ability 
@@ -209,19 +209,19 @@ Answers
    Be a good gateway citizen.
 
 .. _scratch:
-.. topics:: **What is a scratch directory?**
+.. topic:: **What is a scratch directory?**
 
    The ``scratch`` directory is configured by a SE and will be used as a temporary space for all the Hive jobs.
 
 .. _config_scratch:
-.. topics:: **Can scratch directories be configured?**
+.. topic:: **Can scratch directories be configured?**
 
    Yes. The property ``'hive.exec.scratchdir'`` can be overridden. As long as the user has permission 
    and quota in that directory, it will be used.
 
 
 .. _log_levels:
-.. topics:: **Can I control the Hive logging level? (I don't like too many hive log files under $HOME/hivelogs.)** 
+.. topic:: **Can I control the Hive logging level? (I don't like too many hive log files under $HOME/hivelogs.)** 
 
    Yes. By default the logging level is ``INFO``. You can change it to WARN by using 
    the option ``-hiveconf`` from the command line. 
@@ -231,7 +231,7 @@ Answers
        # hive -hiveconf hive.root.logger=WARN,DRFA
 
 .. _memory_tuning:
-.. topics:: **My Hive program fails because tasks run out of memory. How do I adjust memory settings for Hive jobs?**
+.. topic:: **My Hive program fails because tasks run out of memory. How do I adjust memory settings for Hive jobs?**
 
    You may tune the memory allocation for your Hive tasks in MapReduce/Tez using/adjusting the following settings::
         -- Container sizes.
