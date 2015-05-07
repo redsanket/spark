@@ -22,6 +22,8 @@ Yahoo Configurations for Oozie
 .. Document what to specify in sharelib for each action (mapreduce, streaming, distcp, etc)
 .. http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs
 
+.. _references-oozie_servers:
+
 Oozie Servers on Clusters
 -------------------------
 
@@ -29,23 +31,22 @@ Oozie Servers on Clusters
    :header: "Grid Cluster", "Oozie Server URL"
    :widths: 15, 30
 
-   "Axonite Red", "``http://axonitered-oozie.red.ygrid.yahoo.com:4080/oozie/``"
-   "Bassnium Red", "``http://bassniumred-oozie.red.ygrid.yahoo.com:4080/oozie/``"
-   "Bassnium Tan", "``http://bassniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``"
-   "Cobalt Blue", "``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``"
-   "Dilithium Blue", "``http://dilithiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``"
-   "Dilithium Red", "``http://dilithiumred-oozie.red.ygrid.yahoo.com:4080/oozie/``"
-   "Kryptonite Red", "``http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/``"
-   "Mithril Blue", "``http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``"
-   "Mithril Red", "``http://mithrilred-oozie.red.ygrid.yahoo.com:4080/oozie/``"
-   "Nitro Blue", "``http://nitroblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``"
-   "Oxium Blue", "``http://oxiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``"
-   "Phazon Tan", "``http://phazontan-oozie.tan.ygrid.yahoo.com:4080/oozie/``"
-   "Tiberium Tan", "``http://tiberiumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``"
-   "Uranium Blue", "``http://uraniumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``"
-   "Uranium Tan", "``http://uraniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``"
-   "Zanium Tan", "``http://zaniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``"
-
+   "Axonite Red", "``http://axonitered-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://axonitered-oozie.red.ygrid.yahoo.com:4443/oozie/``"
+   "Bassnium Red", "``http://bassniumred-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://bassniumred-oozie.red.ygrid.yahoo.com:4443/oozie/``"
+   "Bassnium Tan", "``http://bassniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://bassniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
+   "Cobalt Blue", "``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://cobaltblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
+   "Dilithium Blue", "``http://dilithiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://dilithiumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
+   "Dilithium Red", "``http://dilithiumred-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://dilithiumred-oozie.red.ygrid.yahoo.com:4443/oozie/``"
+   "Kryptonite Red", "``http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/``"
+   "Mithril Blue", "``http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``http://mithrilblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
+   "Mithril Red", "``http://mithrilred-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://mithrilred-oozie.red.ygrid.yahoo.com:4443/oozie/``"
+   "Nitro Blue", "``http://nitroblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://nitroblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
+   "Oxium Blue", "``http://oxiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://oxiumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
+   "Phazon Tan", "``http://phazontan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://phazontan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
+   "Tiberium Tan", "``http://tiberiumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://tiberiumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
+   "Uranium Blue", "``http://uraniumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``/ ``https://uraniumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
+   "Uranium Tan", "``http://uraniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://uraniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
+   "Zanium Tan", "``http://zaniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://zaniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
 
 
 Expression Language (EL) Functions

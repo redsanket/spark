@@ -33,8 +33,10 @@ Setting Up
    To set the global variables, use the ``export`` command: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
 
    .. note:: If you plan on completing the quick starts below on a cluster other than Kryptonite Red,
-             be sure to modify the URIs used the tutorials. The following is the URI syntax: ``{scheme}://{cluster}{color}-{server}.{color}.ygrid.yahoo.com:{port}/{path}`` 
+             be sure to modify the URIs used in the tutorials. The following is the URI syntax: 
+             ``{scheme}://{cluster}{color}-{server}.{color}.ygrid.yahoo.com:{port}/{path}`` 
              For example, the ``OOZIE_URL`` for Cobalt Blue would be ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
+             See :ref:`Oozie Servers on Clusters <references-oozie_servers>` as a reference.
 
 #. Move ``examples`` directory to HDFS: ``hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
 

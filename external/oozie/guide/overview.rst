@@ -191,6 +191,12 @@ Basic Concepts
 Before you get started, you should be familiar with some basic concepts
 that will help you understand the documentation and better use Oozie.
 
+Oozie Actions
+~~~~~~~~~~~~~
+
+Oozie actions are execution or computation tasks such as a Map-Reduce job, a Pig job, or a shell command. Actions
+are also referred to as tasks or 'action nodes'.
+
 Oozie Workflows
 ~~~~~~~~~~~~~~~
 

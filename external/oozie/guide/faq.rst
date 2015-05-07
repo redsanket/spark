@@ -33,6 +33,11 @@ Questions
 * :ref:`How do you update a Coordinator definition on the fly? <update_coord>`
 * :ref:`How to reprocess Coordinator actions? <reprocess_cord>`
 * :ref:`Why does Oozie take a long time to update after finishing the corresponding Hadoop job? <long_time_finish>`
+* :ref:`How do you submit a Workflow with a YCAv2(gYCA) certificate? <submit_wf_ycav2>`
+* :ref:`How do you use Oozie Maven artifacts? <oozie_maven_artifacts>`
+* :ref:`How to use headless users with Oozie? <oozie_headless_users>`
+* :ref:`How do you configure Oozie jobs to use two NameNodes (Oozie Striping)? <oozie_striping>`
+* :ref:`How do you increase memory for Hadoop jobs? <oozie_increase_memory>`
 
 
 Answers
@@ -783,3 +788,316 @@ Answers
      If there are lot of lines, that means, Oozie is getting a lot of late callbacks.
 
 
+.. _submit_wf_ycav2:
+
+.. topic:: **How do you submit a Workflow with a YCAv2(gYCA) certificate?**
+
+   For an Oozie action to call a YCA-protected Web service, users have to specify the gYCA credential 
+   explicitly in the Workflow beginning and ask Oozie to retrieve the appropriate certificates.
+   In each ``credential`` element, the attribute ``name`` is the key and the attribute 
+   ``type`` indicates which credential to use.
+   
+   To use YCAv2 certificates, ensure that the following is true:
+   
+   - The credential ``type`` is defined in Oozie server. For example, on ``axoniteblue-oozie.blue.ygrid.yahoo.com``, 
+     the YCA credential type is defined as ``yca``, as in ``yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials``.
+   - User give multiple ``credential`` elements under ``credentials`` and specify a comma-separated list of credentials under each action's 
+     ``cred`` attribute.
+   - There is only parameter required for the credential ``type``.
+   
+     - ``yca-role``: The role name contains the user names for YCA v2 certificates.
+   - There are three optional parameters for the credential type ``yca``.
+   
+     - ``yca-webserver-url``: The YCA server URL. The default is http://ca.yca.platform.yahoo.com:4080.
+     - ``yca-cert-expiry``: The expiry time of the YCA certificate in seconds. The default is one day (86400) and available from Oozie 3.3.1.
+     - ``yca-http-proxy-role``: The roles DB role name which contains the hostnames of 
+       the machines in the HTTP proxy VIP. The default value is ``grid.httpproxy`` which contains 
+       all HTTP proxy hosts. Depending on the HTTP proxy VIP you will be using to send 
+       the obtained YCA v2 certificate to the Web service outside the grid, you can 
+       limit the corresponding role name that contains the hosts of the HTTP proxy VIP. 
+       The role names containing members of production http proxy VIPs are ``grid.blue.prod.httpproxy``, 
+       ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. For example: http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy
+       contains the hosts of production ``httpproxy``: The role ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
+       is a uber role which contains staging, research, and production ``httpproxy`` hosts. 
+   
+       See http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList 
+       for the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
+   
+   **Example Workflow**
+   
+   .. code-block:: xml
+   
+      <workflow-app>
+        <credentials>
+           <credential name='myyca' type='yca'>
+              <property>
+                 <name>yca-role</name>
+                 <value>griduser.actualuser</value>
+              </property>
+            /credential> 
+        </credentials>
+        <action cred='myyca'>
+           <map-reduce>
+           --IGNORED--
+           </map-reduce>
+        </action>
+      <workflow-app>
+   
+   **Proxy**
+   
+   When Oozie action executor sees a ``cred`` attribute in the current action, depending 
+   on credential name given, it finds the appropriate credential class to retrieve 
+   the token or certificate and inserts it into action configuration for further use. 
+   In the example Workflow above, 
+   Oozie gets the certificate of gYCA and passed to action configuration. The mapper can then use 
+   this certificate by getting it from action configuration, and then add it to the HTTP request header 
+   when connecting to the YCA-protected Web service through HTTPProxy. A certificate or token 
+   retrieved by the credential class would set an action configuration as the name of 
+   credential defined in ``workflow.xml``. (In this example, it is ``'myyca'``.) 
+   
+   The following examples shows sample code to 
+   use in mapper or reducer class for talking to YCAv2-protected Web service from grid.
+   
+   .. code-block:: java
+   
+   
+      //**proxy setup**
+   
+      //blue proxy
+      //InetSocketAddress inet = new InetSocketAddress("flubberblue-httpproxy.blue.ygrid.yahoo.com", 4080);
+      //gold proxy
+      InetSocketAddress inet = new InetSocketAddress("httpproxystg-rr.gold.ygrid.yahoo.com", 4080);
+      Proxy proxy = new Proxy(Type.HTTP, inet);
+      URL server = new URL(fileURL);
+   
+      //**web service call**
+      String ycaCertificate = conf.get("myyca");
+      HttpURLConnection con = (HttpURLConnection) server.openConnection(proxy);
+      con.setRequestMethod("GET");
+      con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
+   
+.. _oozie_maven_artifacts:
+
+.. topic:: **How do you use Oozie Maven artifacts?** 
+
+   If you have a Java Maven project which uses an Oozie client or core library, you can 
+   use Oozie Maven artifacts. Given below is the Maven repository and dependency 
+   settings for your POM file. The ``oozie.version`` used in this 
+   example is ``4.4.1.3.1411122125``. See `Grid Versions <http://twiki.corp.yahoo.com/view/Grid/GridVersions>`_
+   to determine the Oozie version for a particular cluster.
+   
+   **POM XML**
+   
+   .. code-block:: xml
+   
+      <repositories>
+        <repository>
+          <id>yahoo</id>
+            <url>http://ymaven.corp.yahoo.com:9999/proximity/repository/public</url>
+            <snapshots>
+            <enabled>false</enabled>
+            </snapshots>
+        </repository>
+      </repositories>
+      <oozie.version>4.4.1.3.1411122125</oozie.version>
+      ...
+      <dependencies>
+      ...
+        <dependency>
+          <groupId>org.apache.oozie</groupId>
+          <artifactId>oozie-client</artifactId>
+          <version>${oozie.version}</version>
+          <scope>compile</scope>
+        </dependency>
+      ...
+      </dependencies>
+         
+   **Getting the Required Yinst Packages**
+   
+   Alternately, you can also install following ``yoozie`` yinst packages to get the 
+   Oozie Jars and POM files.
+   
+   ::
+   
+       yinst i yoozie_maven -br stable 
+       yinst i yoozie_hadooplibs_maven -br stable
+       yinst i yoozie_hbaselibs_maven -br stable
+       yinst i yoozie_hcataloglibs_maven -br stable
+   
+   .. note:: The ``current`` branch for ``yoozie_maven`` might also contain the 
+             version deployed on a research cluster. Package is promoted to 
+             stable only when it is deployed on production.
+              
+.. _oozie_headless_users:
+
+.. topic:: **How to use headless users with Oozie?**
+
+   Oozie uses Kerberos authentication. If you want to use a headless user, you need to 
+   do the following:
+   
+   - Request a `Headless Bouncer account <http://twiki.corp.yahoo.com/view/SSO/HeadlessAccountSetup>`_. These accounts need a underscore "_" in their name. 
+   - Request a headless UNIX account, that matches the name of your headless Backyard account.
+   
+   Follow the steps below to set up your headless user for Oozie:
+   
+   #. Setup your ``keydb`` file in the path ``/home/y/conf/keydb/``::
+   
+          $ sudo keydbkeygen oozie headlessuer.pw
+   
+   #. Confirm that your ``keydb`` file looks similar to that below:
+   
+      .. code-block:: xml
+   
+         <keydb>
+            <keygroup name="oozie" id="0">
+               <keyname name="headless_user.pw" usage="all" type="a">
+                  <key version="0"
+                      value = "mYsecreTpassworD" current = "true"
+                      timestamp = "20040916001312"
+                      expiry = "20070916001312">
+                  </key>
+               </keyname>
+            </keygroup>
+         </keydb>
+
+
+.. _oozie_striping:
+
+.. topic:: **How do you configure Oozie jobs to use two NameNodes (Oozie Striping)?**
+
+   1. Identify the JobTracker and its native NameNode
+   **************************************************
+   
+   For example, if the JobTracker is JT1, then the native (or default) NameNode is NN1,
+   If the JobTracker is JT2, then the second namenode is NN2.
+   
+   2. Configure the Oozie job application path
+   *******************************************
+   
+   The Oozie job application path, including ``coordinator.xml``, ``workflow.xml``, and ``lib``, needs to be on JobTracker's default namenode (i.e., NN1).
+   The default NameNode should be set to NN1.
+   
+   For example:
+   
+   Coordinator: **job.properties**
+   
+   .. code-block:: bash
+   
+      oozie.coord.application.path=hdfs://{NN1}:8020/projects/test_sla2-4
+      nameNode=hdfs://{NN1}:8020
+      wf_app_path=hdfs://{NN1}:8020/projects/test_sla2-4/demo
+      jobTracker={JT1}:50300
+   
+   Workflow: **job.properties**
+   
+   .. code-block:: bash
+   
+      oozie.wf.application.path=hdfs://{NN1}:8020/yoozie_test/workflows/pigtest
+      nameNode=hdfs://{NN1}:8020
+      jobTracker={JT1}:50300
+   
+   3. Creating the Pig action
+   **************************
+   
+   The pig script should be on NN1.
+   For pig 0.8, use the 0.8.0..1011230042 patch to use correct the Hadoop queue.
+   
+   For example:
+   
+   **job.properties**
+   
+   .. code-block:: bash
+   
+      inputDir=hdfs://{NN2}:8020/projects/input-data
+      outputDir=hdfs://{NN2}:8020/projects/output-demo
+   
+   
+   4. Add a new property to configuration
+   **************************************
+   
+   For every Oozie action that needs to refer to input/output on the second NameNode, 
+   add this property to the action's configuration in ``workflow.xml``.
+   
+   .. code-block:: xml
+   
+      <property>
+       <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+       <value>hdfs://{NN2}:8020</value>
+      </property>
+   
+   
+   5. Confirm that Oozie properties and XML tags are on the default NameNode
+   *************************************************************************
+   
+   - ``oozie.coord.application.path``
+   - ``oozie.wf.application.path``
+   - ``<name-node>``
+   - ``<file>``
+   - ``<archive>``
+   - ``<sub-workflow><app-path>``
+   - ``<job-xml>``
+   - pipes action's ``<program>``
+   - Fs action <move source target>
+   - Pig action's ``<script>``
+   
+
+.. _oozie_increase_memory:
+
+.. topic:: **How do you increase memory for Hadoop jobs?**
+
+   You can define a property in your action that uses ``mapred.child.java.opts``
+   that allows you to specify the memory usage.
+   
+   Here's an example of the defined property that specifies
+   memory usage:
+   
+   .. code-block:: xml
+   
+      <property>
+          <name>mapred.child.java.opts</name>
+          <value>-Xmx1024M</value>
+          <description>Setting memory usage to 1024MB</description>
+      </property>
+   
+   Below is the ``workflow.xml`` that includes the defined property for
+   expanding memory usage:
+   
+   .. code-block:: xml
+   
+      <workflow-app xmlns='uri:oozie:workflow:0.5' name='streaming-wf'>
+          <start to='streaming1' />
+          <action name='streaming1'>
+              <map-reduce>
+                  <job-tracker>${jobTracker}</job-tracker>
+                  <name-node>${nameNode}</name-node>
+                  <streaming>
+                      <mapper>/bin/cat</mapper>
+                      <reducer>/usr/bin/wc</reducer>
+                  </streaming>
+                  <configuration>
+                      <property>
+                          <name>mapred.input.dir</name>
+                          <value>${inputDir}</value>
+                      </property>
+                      <property>
+                          <name>mapred.output.dir</name>
+                          <value>${outputDir}/streaming-output</value>
+                      </property>
+                      <property>
+                        <name>mapred.job.queue.name</name>
+                        <value>${queueName}</value>
+                      </property>
+                     <property>
+                        <name>mapred.child.java.opts</name>
+                        <value>-Xmx1024M</value>
+                     </property>
+                  </configuration>
+              </map-reduce>
+              <ok to="end" />
+              <error to="fail" />
+          </action>
+          <kill name="fail">
+              <message>Streaming Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+          </kill>
+          <end name='end' />
+      </workflow-app>
