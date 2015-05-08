@@ -234,6 +234,7 @@ Answers
 .. topic:: **My Hive program fails because tasks run out of memory. How do I adjust memory settings for Hive jobs?**
 
    You may tune the memory allocation for your Hive tasks in MapReduce/Tez using/adjusting the following settings::
+
         -- Container sizes.
         set mapreduce.map.memory.mb=2048;
         set mapreduce.reduce.memory.mb=2048;
@@ -246,10 +247,11 @@ Answers
         set tez.am.resource.memory.mb=3072;
         set tez.am.launch.cmd-opts=-Xmx2560m;
 
-   Please note the following:
-   1. Container parameters should be tuned with ``mapreduce.*.memory.mb``, instead of ``hive.tez.container.size``, because this allows control over map/reduce tasks separately.
-   2. Ensure that the container sizes exceed the Xmx settings by 512MB. This is the JVM tax.
-   3. Please be careful about how much you bump the container sizes. These resources are shared by others on your queue/cluster.
+   Please note the following::
+
+      1. Container parameters should be tuned with ``mapreduce.*.memory.mb``, instead of ``hive.tez.container.size``, because this allows control over map/reduce tasks separately.
+      2. Ensure that the container sizes exceed the Xmx settings by 512MB. This is the JVM tax.
+      3. Please be careful about how much you bump the container sizes. These resources are shared by others on your queue/cluster.
 
 
 .. |DDL| replace:: Hive Language Manual
