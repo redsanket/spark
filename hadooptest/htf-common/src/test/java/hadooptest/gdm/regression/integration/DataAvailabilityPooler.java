@@ -98,7 +98,8 @@ public class DataAvailabilityPooler {
 		
 		this.isOozieJobCompleted = false;
 		boolean isScratchPathCreated = false;
-		this.searchDataAvailablity.setState("polling");
+		int count = 0;
+		this.searchDataAvailablity.setState("POLLING");
 		while (durationPollStart <= durationPollEnd) {
 
 			Date d = new Date();
@@ -113,17 +114,17 @@ public class DataAvailabilityPooler {
 				pollCalendar.add(Calendar.MINUTE, POLL_FREQUENCY);
 				perPollEndTime =  Long.parseLong(perPollSDF.format(pollCalendar.getTime()));
 				
-				// if data is not available for the current frequency 
-				if (isDataAvailable == false ) {
+				if (this.searchDataAvailablity.getState().toUpperCase().equals("POLLING")) {
 					this.createJobPropertiesFile("/tmp/integration_test_files/");
 					this.searchDataAvailablity.setPipeLineInstance(this.getPipeLineInstance() + "/" + this.getFeedResult());
 					this.searchDataAvailablity.setScratchPath(this.getScratchPath());
 					this.modifyWorkFlowFile("/tmp/integration_test_files");
-					this.searchDataAvailablity.execute();
+					this.searchDataAvailablity.execute();	
 				}
-								
+				
 				isDataAvailable = this.searchDataAvailablity.isDataAvailableOnGrid();
 				System.out.println("--- isDataAvailable  = " + isDataAvailable);
+				
 				if (isDataAvailable == true && this.isOozieJobCompleted == false) {
 					TestSession.logger.info("--- Data for the current hour is found..!");
 					
@@ -143,8 +144,8 @@ public class DataAvailabilityPooler {
 							this.oozieJobID = this.executeCommand(oozieCommand);
 							TestSession.logger.info("-- oozieJobID = " + this.oozieJobID );
 							assertTrue("" , this.oozieJobID.startsWith("job:"));
-							
-							this.isOozieJobCompleted = pollOozieJob(this.oozieJobID);
+							String oozieWorkFlowName = "stackint_oozie_RawInput_" + this.getCurrentFrequencyValue();
+							this.isOozieJobCompleted = pollOozieJob(this.oozieJobID , oozieWorkFlowName);
 							if (this.isOozieJobCompleted == false) {
 								this.searchDataAvailablity.setState("DONE");
 								this.isOozieJobCompleted = true;
@@ -165,11 +166,13 @@ public class DataAvailabilityPooler {
 					initialCal.add(Calendar.HOUR, 1);
 					futureMin =  Long.parseLong(durationPollSDF.format(initialCal.getTime()));
 					initialCal = null;
+					
+					System.out.println("intialMin - " + intialMin   + " futureMin =   " + futureMin);
 
 					// reset data availability flag
 					isDataAvailable = false;
 					this.isOozieJobCompleted = false;
-					this.searchDataAvailablity.setState("polling");
+					this.searchDataAvailablity.setState("POLLING");
 
 					// set sla value for specified frequency
 					slaCalendar = Calendar.getInstance();
@@ -310,7 +313,7 @@ public class DataAvailabilityPooler {
 	/*
 	 * polls for oozie status of the oozie job by executing the oozie command line argument.
 	 */
-	public boolean pollOozieJob(String jobId) throws InterruptedException {
+	public boolean pollOozieJob(String jobId , String oozieWorkFlowName) throws InterruptedException {
 		boolean flag = false;
 		long durationPollStart=0 ,durationPollEnd=0 , perPollStartTime=0, perPollEndTime=0 , slaPollStart=0 , slaPollEnd=0;
 		Calendar pollCalendar = Calendar.getInstance();
@@ -330,7 +333,10 @@ public class DataAvailabilityPooler {
 			int end = result.indexOf("dfsload");
 			String jobStatus = result.substring(start + jobId.length() , end).trim();
 			TestSession.logger.info("jobStatus - " + jobStatus);
-			if (jobStatus.equals("KILLED")) {
+			start = oozieWorkFlowName.length();
+			String jobResult = jobStatus.substring(oozieWorkFlowName.length(), jobStatus.length());
+			TestSession.logger.info("Job Result = " + jobResult);
+			if (jobResult.equals("KILLED")) {
 				TestSession.logger.info("oozie for " + jobId  + "  killed, please check the reason for job killed using http://dense37.blue.ygrid.yahoo.com:4080/oozie ");
 				break;
 			} else if (jobStatus.equals("SUCCEEDED")) {
