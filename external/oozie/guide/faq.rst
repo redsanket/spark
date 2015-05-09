@@ -20,22 +20,21 @@ Questions
 * :ref:`How do you delete directories only when you rerun a job? <del_dir_rerun>`
 * :ref:`How do you pass environment variables to actions? <pass_env_vars_actions>`
 * :ref:`How do you programmatically access action configuration? <access_action_config>`
-* :ref:`How to run an Oozie query with -filter option? <filter>`
-* :ref:`How to submit a MapReduce job through HTTP? <mr_http>`
+* :ref:`How do you run an Oozie query with -filter option? <filter>`
+* :ref:`How do you submit a MapReduce job through HTTP? <mr_http>`
 * :ref:`Where do I view the Pig client log for executed Pig scripts? <view_pig_log>`
 * :ref:`Why does my job run fine as a standalone Pig script but not through Oozie? <standalone_oozie>`
 * :ref:`How can I increase the memory for the Pig launcher job? <pig_job_memory>`
 * :ref:`How do you pass parameters to Pig actions? <pig_params_pass>`
-* :ref:`How to submit a Pig job through HTTP? <submit_pig_http>`
+* :ref:`How do you submit a Pig job through HTTP? <submit_pig_http>`
 * :ref:`How do you check whether the gYCA Web server is serving certificates? <yca_serve_certs>`
 * :ref:`How do you change the timeout for Coordinator actions? <timeout_coord_actions>`
 * :ref:`How do you reprocess Coordinator actions? <reprocess_coord_actions>`
 * :ref:`How do you update a Coordinator definition on the fly? <update_coord>`
-* :ref:`How to reprocess Coordinator actions? <reprocess_cord>`
 * :ref:`Why does Oozie take a long time to update after finishing the corresponding Hadoop job? <long_time_finish>`
 * :ref:`How do you submit a Workflow with a YCAv2(gYCA) certificate? <submit_wf_ycav2>`
 * :ref:`How do you use Oozie Maven artifacts? <oozie_maven_artifacts>`
-* :ref:`How to use headless users with Oozie? <oozie_headless_users>`
+* :ref:`How do you use headless users with Oozie? <oozie_headless_users>`
 * :ref:`How do you configure Oozie jobs to use two NameNodes (Oozie Striping)? <oozie_striping>`
 * :ref:`How do you increase memory for Hadoop jobs? <oozie_increase_memory>`
 
@@ -366,7 +365,7 @@ Answers
 
 .. _filter:
 
-.. topic:: **How to run an Oozie query with -filter option?**
+.. topic:: **How do you run an Oozie query with -filter option?**
 
    You can run the query with multiple filter options by escaping ";" as \; or quoting the whole filter::
 
@@ -378,7 +377,7 @@ Answers
 
 .. _mr_http:
 
-.. topic:: **How to submit a MapReduce job through HTTP?** 
+.. topic:: **How do you submit a MapReduce job through HTTP?** 
 
    You use the XOozieClient API to submit a MapReduce job through HTTP.
   
@@ -668,7 +667,7 @@ Answers
    
 .. _submit_pig_http:
 
-.. topic:: **How to submit a Pig job through HTTP?**
+.. topic:: **How do you submit a Pig job through HTTP?**
 
    **Command-line syntax:** ``oozie pig -oozie <OOZIE_URL> -file <pig script> -config job.properties -X <all pig options>``
 
@@ -930,7 +929,7 @@ Answers
               
 .. _oozie_headless_users:
 
-.. topic:: **How to use headless users with Oozie?**
+.. topic:: **How do you use headless users with Oozie?**
 
    Oozie uses Kerberos authentication. If you want to use a headless user, you need to 
    do the following:
