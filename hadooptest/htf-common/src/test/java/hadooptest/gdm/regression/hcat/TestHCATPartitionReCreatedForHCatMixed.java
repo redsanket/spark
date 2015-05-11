@@ -106,7 +106,7 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 			this.workFlowHelper.checkStepExistsInWorkFlowExecutionSteps(this.acqDataSetName, this.datasetActivationTime , "completed", "Step Name" , "data.publish");
 
 			// get Hcat server name for acquisition facet (targetGrid1)
-			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName("acquisition", this.targetGrid1);
+			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created
@@ -147,7 +147,7 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 			this.workFlowHelper.checkStepExistsInWorkFlowExecutionSteps(this.repDataSetName, this.datasetActivationTime , "completed", "Step Name" , "retention." + this.targetGrid1.trim()  + ".unpublish");
 
 			// get Hcat server name for targetGrid1
-			String targetGrid1_HcatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid1);
+			String targetGrid1_HcatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + targetGrid1_HcatServerName);
 
 			String tableName = this.acqDataSetName.toLowerCase().replace("-", "_").trim();
@@ -170,7 +170,7 @@ public class TestHCATPartitionReCreatedForHCatMixed  extends TestSession {
 			this.workFlowHelper.checkStepExistsInWorkFlowExecutionSteps(this.acqDataSetName, this.datasetActivationTime , "completed", "Step Name" , "data.publish");
 
 			// get Hcat server name for acquisition facet (targetGrid1)
-			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName("acquisition", this.targetGrid1);
+			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created

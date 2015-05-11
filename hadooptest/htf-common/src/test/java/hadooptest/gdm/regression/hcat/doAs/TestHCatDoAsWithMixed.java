@@ -134,7 +134,7 @@ public class TestHCatDoAsWithMixed extends TestSession {
 					}
 				}
 				// get Hcat server name for targetGrid1
-				String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName("acquisition", this.targetGrid1);
+				String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 				
 				// check whether hcat table is created for Mixed HCatTargetType on acquisition facet's HCat server
@@ -186,7 +186,7 @@ public class TestHCatDoAsWithMixed extends TestSession {
 				}
 				
 				// get Hcat server name for targetGrid2
-				String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid2);
+				String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 				
 				// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server
@@ -229,7 +229,7 @@ public class TestHCatDoAsWithMixed extends TestSession {
 				
 				// acq table exists
 				// get Hcat server name for targetGrid1
-				String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName("acquisition", this.targetGrid1);
+				String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 				
 				// check whether hcat table is created for Mixed HCatTargetType on acquisition facet's HCat server
@@ -242,7 +242,7 @@ public class TestHCatDoAsWithMixed extends TestSession {
 				
 				// check replication table exists 
 				// get Hcat server name for targetGrid2
-				String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid2);
+				String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 				
 				// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server

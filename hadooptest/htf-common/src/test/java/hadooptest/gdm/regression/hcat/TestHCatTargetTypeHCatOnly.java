@@ -81,6 +81,12 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 		}
 	}
 
+	//@Test
+	public void test1() {
+		String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
+		System.out.println("acquisitionHCatServerName  = "  + acquisitionHCatServerName);
+	}
+	
 	@Test
 	public void testHCatTargetTypeHCatOnly() throws Exception {
 		// acquisition
@@ -96,7 +102,7 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 			this.workFlowHelper.checkWorkFlow(this.acqDataSetName , "acquisition" , this.datasetActivationTime  );
 
 			// get Hcat server name for targetGrid1
-			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName("acquisition", this.targetGrid1);
+			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType.
@@ -116,7 +122,7 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 			this.workFlowHelper.checkWorkFlow(this.repDataSetName , "replication" , this.datasetActivationTime  );
 
 			// get Hcat server name for targetGrid2
-			String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid2);
+			String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 
 			// check whether hcat table is created for HCatOnly HCatTargetType.

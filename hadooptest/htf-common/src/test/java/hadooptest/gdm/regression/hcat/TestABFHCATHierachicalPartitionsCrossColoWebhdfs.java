@@ -138,7 +138,7 @@ public class TestABFHCATHierachicalPartitionsCrossColoWebhdfs  extends TestSessi
 			}
 
 			// get Hcat server name for targetGrid
-			String hCatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid1);
+			String hCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server
@@ -173,7 +173,7 @@ public class TestABFHCATHierachicalPartitionsCrossColoWebhdfs  extends TestSessi
 			}
 
 			// get Hcat server name for targetGrid
-			String hCatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid2);
+			String hCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
 
 			boolean isTableCreated = this.hcatHelperObject.isTableExists(hCatServerName, this.dataSetName1 , this.DATABASE_NAME);

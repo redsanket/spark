@@ -112,7 +112,7 @@ public class TestDiscoveryHCat extends TestSession {
 			workFlowHelper.checkWorkFlow(this.acquisitionDataSetName , "acquisition" , this.datasetActivationTime);		
 
 			// Get target1 hcat sever name
-			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName("acquisition", this.targetGrid1);
+			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on acquisition facet's HCat server
@@ -134,7 +134,7 @@ public class TestDiscoveryHCat extends TestSession {
 			this.workFlowHelper.checkWorkFlow(this.replicationDataSetName , "replication" , this.datasetActivationTime  );
 
 			// get Hcat server name for targetGrid2
-			String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName("replication", this.targetGrid2);
+			String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server.
