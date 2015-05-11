@@ -80,12 +80,6 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 			this.consoleHandle.modifyDataSource(this.targetGrid2, "HCatSupported", "FALSE", "TRUE");
 		}
 	}
-
-	//@Test
-	public void test1() {
-		String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
-		System.out.println("acquisitionHCatServerName  = "  + acquisitionHCatServerName);
-	}
 	
 	@Test
 	public void testHCatTargetTypeHCatOnly() throws Exception {
