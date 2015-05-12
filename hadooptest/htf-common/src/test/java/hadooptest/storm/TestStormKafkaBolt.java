@@ -111,7 +111,7 @@ public class TestStormKafkaBolt extends TestSessionStorm {
             LOG.info("Created kafka topic:" + topic);
             launchKafkaBoltTopology();
             LOG.info("Topology Launched");
-            Util.sleep(150);
+            Util.sleep(30);
             cluster.killTopology(topologyName);
             LOG.info("Topology Killed");
             LOG.info("Starting simple consumer to consume the messages");
