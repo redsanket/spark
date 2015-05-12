@@ -141,7 +141,7 @@ public class TestHCatDynamicSchema  extends TestSession {
 				
 				// get the hcat server name
 				this.replicationHCatServerName = this.hcatHelperObj.getHCatServerHostName(this.targetGrid2);
-				assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , replicationHCatServerName != null);
+				assertTrue("Failed to get the HCatServer Name for " + this.targetGrid2 , replicationHCatServerName != null);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid2  + "  is " + this.replicationHCatServerName);
 				
 				boolean isReplicationTableCreated = this.hcatHelperObj.isTableExists(this.replicationHCatServerName, this.dataSetName , this.DATABASE_NAME);

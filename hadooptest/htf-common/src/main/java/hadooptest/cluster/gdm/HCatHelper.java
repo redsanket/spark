@@ -45,7 +45,6 @@ public class HCatHelper {
 		String tableName = datasetName.toLowerCase().trim();
 		
 		String url = "http://"+  hcatServerName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/" + dataBaseName.trim()  + "/table";
-		//String url =   hcatServerName  + "/hcatalog/v1/ddl/database/" + dataBaseName.trim()  + "/table";
 		TestSession.logger.info("Check hcat table created url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
@@ -182,7 +181,7 @@ public class HCatHelper {
 	}
 
 	/**
-	 * Get HCat server name.
+	 * Get HCat server name, if hcat server name is not found in hive-site.xml file then a null is return
 	 * @param facetName
 	 * @param clusterName
 	 * @return
