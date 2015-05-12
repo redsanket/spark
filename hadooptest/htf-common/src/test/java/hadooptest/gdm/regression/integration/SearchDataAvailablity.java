@@ -37,8 +37,10 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	private String result;
 	private String feedResultPath;
 	private String scratchPath;
+	private String oozieWFPath;
 	private boolean scratchPathCreated;
 	private boolean pipeLineInstanceCreated;
+	private boolean oozieWFPathCopied;
 	private String pipeLineInstance;
 	private String state;
 	private ConsoleHandle consoleHandle;
@@ -123,6 +125,10 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 
 	public void setPipeLineInstance(String pipeLineInstance) {
 		this.pipeLineInstance = pipeLineInstance;
+	}
+	
+	public void setOozieWorkFlowPath(String oozieWFPath) {
+		this.oozieWFPath = oozieWFPath;
 	}
 
 	/*
@@ -264,6 +270,8 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			this.copySupportingFiles("/tmp/integration_test_files", this.scratchPath);
 			this.pipeLineInstanceCreated = this.copySupportingFilesToScrach("/tmp/integration_test_files" , this.pipeLineInstance);
 			this.copyHiveXmlFile(this.pipeLineInstance + "/integration_test_files" );
+			
+			this.oozieWFPathCopied = this.copySupportingFilesToScrach("/tmp/integration_test_files" , this.oozieWFPath);
 
 			// once scratchPath and pipelineInstance folders are created and files are completed operation is changed to startOozieJob state. 
 			if (this.scratchPathCreated ==  true && this.pipeLineInstanceCreated == true) {
