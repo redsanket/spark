@@ -118,7 +118,9 @@ public class TestHCatDynamicSchema  extends TestSession {
 		
 				this.workFlowHelper.checkWorkFlow(this.dataSetName , "acquisition" , this.datasetActivationTime , FIRST_INSTANCE );
 				this.acquisitionHCatServerName = this.hcatHelperObj.getHCatServerHostName(this.targetGrid1);
+				assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , acquisitionHCatServerName != null);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + this.acquisitionHCatServerName);
+				
 				boolean isAcqusitionTableCreated = this.hcatHelperObj.isTableExists(this.acquisitionHCatServerName, this.dataSetName , this.DATABASE_NAME);
 				assertTrue("Failed to create table for " + this.dataSetName , isAcqusitionTableCreated == true);
 				
@@ -139,7 +141,9 @@ public class TestHCatDynamicSchema  extends TestSession {
 				
 				// get the hcat server name
 				this.replicationHCatServerName = this.hcatHelperObj.getHCatServerHostName(this.targetGrid2);
+				assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , replicationHCatServerName != null);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid2  + "  is " + this.replicationHCatServerName);
+				
 				boolean isReplicationTableCreated = this.hcatHelperObj.isTableExists(this.replicationHCatServerName, this.dataSetName , this.DATABASE_NAME);
 				assertTrue("Failed to create table for " + this.dataSetName , isReplicationTableCreated == true);
 				

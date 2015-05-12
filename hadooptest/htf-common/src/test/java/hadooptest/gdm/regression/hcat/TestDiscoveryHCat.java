@@ -113,6 +113,7 @@ public class TestDiscoveryHCat extends TestSession {
 
 			// Get target1 hcat sever name
 			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
+			assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , acquisitionHCatServerName != null);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on acquisition facet's HCat server
@@ -135,6 +136,7 @@ public class TestDiscoveryHCat extends TestSession {
 
 			// get Hcat server name for targetGrid2
 			String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
+			assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , replicationHCatServerName != null);
 			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
 
 			// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server.

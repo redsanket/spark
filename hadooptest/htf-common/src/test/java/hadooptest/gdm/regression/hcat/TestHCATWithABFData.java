@@ -105,6 +105,7 @@ public class TestHCATWithABFData  extends TestSession {
 
 		// get Hcat server name for targetGrid
 		String hCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
+		assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , hCatServerName != null);
 		TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
 
 		// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server
