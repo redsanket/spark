@@ -43,6 +43,7 @@ public class HCatHelper {
 	 */
 	public boolean isTableExists(String hcatServerName , String datasetName , String dataBaseName) {
 		String tableName = datasetName.toLowerCase().trim();
+		
 		String url = "http://"+  hcatServerName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/" + dataBaseName.trim()  + "/table";
 		TestSession.logger.info("Check hcat table created url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
@@ -180,38 +181,89 @@ public class HCatHelper {
 	}
 
 	/**
-	 * Get HCat server name.
+	 * Get HCat server name, if hcat server name is not found in hive-site.xml file then a null is return
 	 * @param facetName
 	 * @param clusterName
 	 * @return
 	 */
-	public String getHCatServerHostName(String facetName , String clusterName) {
+	public String getHCatServerHostName(String clusterName) {
 		String hcatHostName = null;
 		try {
-			File file = new File("/grid/0/yroot/var/yroots/"+ facetName +"/home/y/libexec/prod_hadoop_configs/"+ clusterName + "/conf/hadoop/hive-site.xml");
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(file);
-			doc.getDocumentElement().normalize();
-			NodeList nodeLst = doc.getElementsByTagName("property");
-			
-			for (int index = 0; index < nodeLst.getLength(); index++) {
-				Node fstNode = nodeLst.item(index);
-				if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) fstNode;
-					String value = eElement.getElementsByTagName("value").item(0).getTextContent();
-					if (value.startsWith("thrift://")) {
-						String temp = value.substring("thrift://".length()  , value.length() );
-						hcatHostName = temp.substring(0, temp.indexOf(":"));
-						TestSession.logger.info("hostname = " + hcatHostName);
-						break;
+			String location = this.getHiveSiteXmlFileLocation(clusterName);
+			StringBuffer hiveSiteXmlFileLocation = new StringBuffer("/grid/0/yroot/var/yroots/console");
+			if ( location != null) {
+				hiveSiteXmlFileLocation.append(location).append("hadoopconfig/conf/hadoop/hive-site.xml");
+			}
+			System.out.println("hiveSiteXmlFileLocation  = " + hiveSiteXmlFileLocation);
+			File file = new File(hiveSiteXmlFileLocation.toString());
+			if (file.exists() == true) {
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				Document doc = db.parse(file);
+				doc.getDocumentElement().normalize();
+				NodeList nodeLst = doc.getElementsByTagName("property");
+				
+				for (int index = 0; index < nodeLst.getLength(); index++) {
+					Node fstNode = nodeLst.item(index);
+					if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
+						Element eElement = (Element) fstNode;
+						String value = eElement.getElementsByTagName("value").item(0).getTextContent();
+						if (value.startsWith("thrift://")) {
+							String temp = value.substring("thrift://".length()  , value.length() );
+							hcatHostName = temp.substring(0, temp.indexOf(":"));
+							TestSession.logger.info("hostname = " + hcatHostName);
+							break;
+						}
 					}
 				}
+			}  else {
+				TestSession.logger.info("Failed to hive.xml file location for " + clusterName);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return hcatHostName;
+	}
+	
+	/**
+	 * Get the location of hive-site.xml file to get the hcat server hostname
+	 * @return
+	 */
+	public String getHiveSiteXmlFileLocation(String clusterName) {
+
+		String testURL = this.consoleHandle.getConsoleURL() + "/console/query/hadoop/versions";
+		TestSession.logger.info("testURL = " + testURL);		
+		com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
+		String responseString = response.getBody().asString();
+		String gridName="", location="";
+		boolean found = false;
+		JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
+		Object obj = versionObj.get("HadoopClusterVersions");
+		if (obj instanceof JSONArray) {
+			JSONArray sizeLimitAlertArray = versionObj.getJSONArray("HadoopClusterVersions");
+			Iterator iterator = sizeLimitAlertArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				Iterator<String> keys  = jsonObject.keys();
+				while( keys.hasNext() ) {
+					String key = (String)keys.next();
+					if (key.equals("DataStoreName") ) {
+						gridName = jsonObject.getString(key);
+					}
+					String value = jsonObject.getString(key);
+					if (value.startsWith("hcat_common") && (clusterName.equals(gridName)) &&   (! gridName.startsWith("gdm")) ) {
+						location = jsonObject.getString("ConfigDirectory");
+						System.out.println("location - " + location);
+						found = true;
+						break;
+					}
+				}
+				if (found == true) {
+					break;
+				}
+			}
+		} 
+		return location;
 	}
 	
 	/**

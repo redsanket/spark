@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
 @Category(SerialTests.class)
@@ -72,10 +73,10 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         LOG.info("producer closed");
     }
 
-    public void launchKafkaTopology() throws Exception {
+    public void launchKafkaTopology(String className, String topoName) throws Exception {
         String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
         String byUser = mc.getBouncerUser();
-        String[] returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, "hadooptest.topologies.StormKafkaTopology", "test", topic, function, zookeeperHostPort, "-c",
+        String[] returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, className, topoName, topic, function, zookeeperHostPort, "-c",
                 "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]"}, true);
         assertTrue("Problem running Storm jar command", returnValue[0].equals("0"));
     }
@@ -85,7 +86,7 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         try {
             initiateKafkaProducer();
             LOG.info("Intiated kafka topic:" + topic + " and entered data");
-            launchKafkaTopology();
+            launchKafkaTopology("hadooptest.topologies.StormKafkaTopology", "test");
             LOG.info("Topology Launched");
             Util.sleep(30);
             String drpcResult = cluster.DRPCExecute(function, "hello");
@@ -93,6 +94,25 @@ public class TestStormKafkaTopology extends TestSessionStorm {
             assertTrue("Did not get expected result back from stormkafka topology", drpcResult.equals("2"));
         } finally {
             cluster.killTopology("test");
+            String[] returnTopicValue = exec.runProcBuilder(new String[]{pathToScripts + "kafka-topics.sh", "--zookeeper",
+                    zookeeperHostPort, "--delete", "--topic", topic}, true);
+            assertTrue("Could not delete topic", returnTopicValue[0].equals("0"));
+        }
+    }
+
+    @Test(timeout = 600000)
+    public void StormKafkaOpaqueTridentTest() throws Exception {
+        try {
+            initiateKafkaProducer();
+            LOG.info("Intiated kafka topic:" + topic + " and entered data");
+            launchKafkaTopology("hadooptest.topologies.StormKafkaOpaqueTridentTopology", "testTrident");
+            LOG.info("Topology Launched");
+            Util.sleep(30);
+            String drpcResult = cluster.DRPCExecute(function, "hello");
+            logger.debug("drpc result = " + drpcResult);
+            assertEquals("Did not get expected result back from stormkafka topology", 2, Integer.parseInt(drpcResult));
+        } finally {
+            cluster.killTopology("testTrident");
             String[] returnTopicValue = exec.runProcBuilder(new String[]{pathToScripts + "kafka-topics.sh", "--zookeeper",
                     zookeeperHostPort, "--delete", "--topic", topic}, true);
             assertTrue("Could not delete topic", returnTopicValue[0].equals("0"));
