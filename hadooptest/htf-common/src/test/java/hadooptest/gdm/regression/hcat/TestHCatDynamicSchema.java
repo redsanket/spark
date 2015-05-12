@@ -79,8 +79,8 @@ public class TestHCatDynamicSchema  extends TestSession {
 		this.feedName = this.dataSetName;
 
 		// get all the hcat supported clusters
-		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
-
+		this.hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
+		
 		// check whether we have two hcat cluster one for acquisition and replication
 		if (hcatSupportedGrid.size() < 2) {
 			throw new Exception("Unable to run " + this.dataSetName  +" 2 grid datasources are required.");
@@ -117,8 +117,10 @@ public class TestHCatDynamicSchema  extends TestSession {
 			{
 		
 				this.workFlowHelper.checkWorkFlow(this.dataSetName , "acquisition" , this.datasetActivationTime , FIRST_INSTANCE );
-				this.acquisitionHCatServerName = this.hcatHelperObj.getHCatServerHostName("acquisition", this.targetGrid1);
+				this.acquisitionHCatServerName = this.hcatHelperObj.getHCatServerHostName(this.targetGrid1);
+				assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , acquisitionHCatServerName != null);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + this.acquisitionHCatServerName);
+				
 				boolean isAcqusitionTableCreated = this.hcatHelperObj.isTableExists(this.acquisitionHCatServerName, this.dataSetName , this.DATABASE_NAME);
 				assertTrue("Failed to create table for " + this.dataSetName , isAcqusitionTableCreated == true);
 				
@@ -138,8 +140,10 @@ public class TestHCatDynamicSchema  extends TestSession {
 				this.workFlowHelper.checkWorkFlow(this.dataSetName , "replication" , this.datasetActivationTime , FIRST_INSTANCE );
 				
 				// get the hcat server name
-				this.replicationHCatServerName = this.hcatHelperObj.getHCatServerHostName("replication", this.targetGrid2);
+				this.replicationHCatServerName = this.hcatHelperObj.getHCatServerHostName(this.targetGrid2);
+				assertTrue("Failed to get the HCatServer Name for " + this.targetGrid2 , replicationHCatServerName != null);
 				TestSession.logger.info("Hcat Server for " + this.targetGrid2  + "  is " + this.replicationHCatServerName);
+				
 				boolean isReplicationTableCreated = this.hcatHelperObj.isTableExists(this.replicationHCatServerName, this.dataSetName , this.DATABASE_NAME);
 				assertTrue("Failed to create table for " + this.dataSetName , isReplicationTableCreated == true);
 				

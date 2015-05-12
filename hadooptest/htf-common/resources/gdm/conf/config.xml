@@ -13,7 +13,7 @@
 <config>
   <hostconfig>
     <console>
- 	 <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
+ 	<base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
     <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
    <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
    <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
@@ -90,12 +90,23 @@
         <grid1>omegap1</grid1>
     </HCatSchemaUpdateTest>
     <IntegrationTest>
-    	<sourceCluster>$(SOURCE_CLUSTER)</sourceCluster>
+    	<!-- <sourceCluster>$(SOURCE_CLUSTER)</sourceCluster>
     	<destinationCluster>$(DEST_CLUSTER)</destinationCluster>
-    	<duration>$(DURATION)</duration>	 <!-- duration in days -->
+    	<duration>$(DURATION)</duration>	 duration in days
     	<enable-hcat>$(ENABLE_HCAT)</enable-hcat>
-    	<frequency>$(HOURLY)</frequency>
+    	<frequency>$(HOURLY)</frequency> -->
+    	<sourceCluster>elrond</sourceCluster>
+    	<destinationCluster>denseb</destinationCluster>
+    	<duration>1</duration>	<!--  duration in days -->
+    	<enable-hcat>FALSE</enable-hcat>
+    	<frequency>hourly</frequency>
     </IntegrationTest>
+    <TestWatchForDataDrop>
+    	<clusterName>$(CLUSTER_NAME)</clusterName>
+    	<duration>$(DURATION)</duration>	<!--  duration in days -->
+    	<frequency>$(FREQUENCY)</frequency>
+    	<dataSetPattern>$(PATTERN)</dataSetPattern> <!-- hourly -->
+    </TestWatchForDataDrop>
   </testconfig>
   <auth>
     <usr>hitusr_1</usr>
