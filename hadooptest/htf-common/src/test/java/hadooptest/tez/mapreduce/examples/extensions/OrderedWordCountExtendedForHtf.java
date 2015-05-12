@@ -189,6 +189,7 @@ public class OrderedWordCountExtendedForHtf extends TestOrderedWordCount {
 
 		Set<StatusGetOpts> statusGetOpts = EnumSet
 				.of(StatusGetOpts.GET_COUNTERS);
+		boolean exitedCleanly=true;
 		try {
 			for (int dagIndex = 1; dagIndex <= inputPaths.size(); ++dagIndex) {
 				if (dagIndex != 1 && interJobSleepTimeout > 0) {
@@ -316,12 +317,15 @@ public class OrderedWordCountExtendedForHtf extends TestOrderedWordCount {
 			if (!retainStagingDir) {
 				pathFs.delete(stagingDir, true);
 			}
+            if (exitedCleanly){
+            	ExampleDriver.printDAGStatus(dagClient, vNames);
+            }
+
 			TestSession.logger.info("Shutting down session");
 			tezSession.stop();
 		}
 
-		if (!useTezSession) {
-			ExampleDriver.printDAGStatus(dagClient, vNames);
+		if (!useTezSession) {			
 			TestSession.logger.info("Application completed. " + "FinalState="
 					+ dagStatus.getState());
 		}
