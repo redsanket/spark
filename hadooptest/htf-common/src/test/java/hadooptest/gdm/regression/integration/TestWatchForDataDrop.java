@@ -27,7 +27,7 @@ public class TestWatchForDataDrop extends TestSession {
 	private int frequency;
 	private String pathPattern;
 	private static final String BASEPATH = "/data/daqdev/abf/data/";
-	public DataAvailabilityPooler watcher;
+	public DataAvailabilityPoller watcher;
 	
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -76,13 +76,14 @@ public class TestWatchForDataDrop extends TestSession {
 				this.pathPattern = "yyyyMM";
 			} 
 		}
-		this.watcher = new DataAvailabilityPooler(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling");
+		//this.watcher = new DataAvailabilityPoolerTemp(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling");
+		this.watcher = new DataAvailabilityPoller(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling");
 	}
 	
 	@Test
 	public void test() throws Exception {
 		TestSession.logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-		this.watcher.poll();
+		this.watcher.dataPoller();
 		TestSession.logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 	}
 }
