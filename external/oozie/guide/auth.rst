@@ -2,83 +2,47 @@ Authentication/Authorization
 ============================
 
 .. 04/15/15: Rewrite
+.. 05/11/15: Second edit.
 
 Oozie provides two different ways of authentication: Kerberos and YCA.
 You need to do some setting up for Kerberos and YCA.
-
-..
-    Bouncer Authentication (default)
-    --------------------------------
-    
-    The Yahoo! Oozie is bundled with a custom Oozie command-line tool that adds 
-    Backyard authentication. Backyard authentication is default authentication type.
-    The ``-auth`` option can be specified with ``BOUNCER`` to activate Backyard 
-    authentication.
-    
-    Bouncer authentication related behavior of the Oozie command-line tool can be 
-    modified via the following shell environment variables:
-    
-    - ``OOZIE_SAVE_COOKIE=[true|false*]``: If set to ``true``, the Oozie command line will cache the 
-      ``BY`` cookie in the ``~/.oozie-cookie`` file. If not set or set to false the Oozie command 
-      line will ask for the password every time and the cache filed will be deleted if 
-      it exists. The default is false.
-    
-    - ``OOZIE_BOUNCER=[gh*|by]``: It indicates which Yahoo Bouncer to use, Backyard or 
-      Guesthouse. The default is Guesthouse.
-    
-    - ``OOZIE_CLI_AUTH_DISABLED=[true|false*]``: If set to true the Oozie command line 
-      will not do Backyard authentication. If set to true it has to be disabled on the 
-      server as well.
-    
-    The above environment variables can be overridden for a single Oozie invocation 
-    using the following Java System properties when invoking oozie:
-    
-    - oozie.save.cookie
-    - oozie.bouncer
-    - oozie.cli.auth.disabled
-    
-    Invoking oozie by Bouncer authentication.
-          $ oozie job -oozie http://localhost:8080/oozie -run -config job.properties -auth BOUNCER
-    or
-           $ oozie job -oozie http://localhost:8080/oozie -run -config job.properties
-
 
 Kerberos Authentication
 -----------------------
 
 Yahoo Oozie is bundled with a custom Oozie command-line tool that adds Kerberos 
-authentication. The ``-auth`` option can takes the argument ``kerberos`` to authenticate 
+authentication. The ``-auth`` option can take the argument ``kerberos`` to authenticate 
 by Kerberos. When submitting a job or any other tasks, the user can only specify 
 Kerberos as authentication type if the Oozie server is configured to accept this 
 authentication.
 
-To support new authentication (Kerberos) in the Oozie client, The Java Cryptography Extension (JCE) JARs 
+To support new authentication (Kerberos) in the Oozie client, the Java Cryptography Extension (JCE) JARs 
 have to  be replaced in ``JAVA_HOME`` to support stronger encryption. The passphrase required 
 for installation can be found in `yjava_jce package <http://dist.corp.yahoo.com/by-package/yjava_jce>`_: ``$ yinst install yjava_jce``
 
 
 #. Before invoking Oozie, obtain and cache the Kerberos ticket-granting ticket::
 
-       $ kinit username@Y.CORP.YAHOO.COM
+       $ kinit $USER@Y.CORP.YAHOO.COM
 
    You can also use the following::
 
        $ kinit -k -t ~/Headless_USER.keytab Headless_USER/localhost@LOCALHOST
 
-#. Invoking Oozie using Kerberos authentication::
+#. To invoke Oozie using Kerberos authentication::
 
-       $ oozie job -oozie http://localhost:8080/oozie -run -config job.properties -auth KERBEROS
+       $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -run -config job.properties -auth KERBEROS
 
 
 #. To test Kerberos using cURL:
 
    - Create a cookie file::
 
-         $ curl -v -c cookie.txt --negotiate -u : -k http://localhost:8080/oozie/v1/admin/build-version
+         $ curl -v -c cookie.txt --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
 
    - Reuse the existing cookie::
 
-         $ curl -b cookie.txt --negotiate -u : -k http://localhost:8080/oozie/v1/admin/build-version
+         $ curl -b cookie.txt --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
 
 #. (Optional) You can also use ``kinit`` to create the Kerberos ticket::
 
@@ -86,8 +50,11 @@ for installation can be found in `yjava_jce package <http://dist.corp.yahoo.com/
 
 #. Use the default Kerberos ticket::
 
-       $ curl --negotiate -u : -k http://localhost:8080/oozie/v1/admin/build-version
+       $ curl --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
 
+
+.. note:: The examples above use the Oozie server on Kryptonite Red. To use Oozie servers on other clusters,
+          see :ref:`Oozie Serves on Clusters <references-oozie_servers>`.
 
 Client API Example of Kerberos Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,40 +74,37 @@ Client API Example of Kerberos Authentication
       import java.util.HashMap;
       import java.util.Map;
       
-      
       public class KerbAPIExample {
       
           public static void main(String args[]) {
-          String oozieurl="http://oozie-server:4080/oozie";
-          String jobId = args[0];
-          KerbOozieClient koc = new KerbOozieClient(oozieurl);
-          try {
-              System.out.println(koc.getJobInfo(jobId,0,10));
-          } catch (OozieClientException e) {
-              e.printStackTrace();
+              String oozieurl="http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie";
+              String jobId = args[0];
+              KerbOozieClient koc = new KerbOozieClient(oozieurl);
+              try {
+                  System.out.println(koc.getJobInfo(jobId,0,10));
+              } catch (OozieClientException e) {
+                  e.printStackTrace();
+              }
           }
-      }
+          static class KerbOozieClient extends AuthOozieClient {
       
+              String kerbAuth = "KERBEROS";
+              public KerbOozieClient(String oozieUrl) {
+                  super(oozieUrl, "KERBEROS");
+              }
       
-      static class KerbOozieClient extends AuthOozieClient {
+              @Override
+              protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
+                  Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
+                  authClasses.put(kerbAuth, KerberosAuthenticator.class);
+                  return authClasses;
+              }
       
-          String kerbAuth = "KERBEROS";
-          public KerbOozieClient(String oozieUrl) {
-              super(oozieUrl, "KERBEROS");
           }
-      
-          @Override
-          protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
-              Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
-              authClasses.put(kerbAuth, KerberosAuthenticator.class);
-              return authClasses;
-          }
-      
       }
 
 #. Compile the code: ``$ javac -cp $CLASSPATH KerbAPIExample.java``
-#. Run your example: ``$ java -cp $CLASSPATH:. KerbAPIExample 00001-1234-W``
-
+#. Run your example: ``$ java -cp $CLASSPATH KerbAPIExample 00001-1234-W``
 
 
 YCA Authentication
@@ -150,8 +114,7 @@ Yahoo Oozie is also bundled with a custom command-line tool that adds YCA
 authentication. The ``-auth`` option can take the argument ``yca`` to 
 authenticate by YCA. When using Oozie to submit job or any other tasks, you 
 can only specify YCA as the authentication type if Oozie server is configured to accept 
-this authentication. Also, the allowed YCA namespaces have to be configured in Oozie server.
-
+this authentication. Also, the allowed YCA namespaces have to be configured in the Oozie server.
 
 Creating an Oozie Role
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -183,7 +146,7 @@ To invoke Oozie by YCA authentication as the ``<username>`` at one of the regist
 Verifying YCA Certificates 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To list the yca certificates of the machine and their expiration date::
+To list the YCA certificates of the machine and their expiration date::
 
     $ /home/y/bin/yca-cert-util --show --detail
 
@@ -240,7 +203,7 @@ There is only one parameter required for the credential ``type``.
 
 There are three optional parameters for the credential type ``yca``:
 
-- ``yca-webserver-url``: the YCA server URL. The default URL is http://ca.yca.platform.yahoo.com:4080
+- ``yca-webserver-url``: the YCA server URL. The default URL is http://ca.yca.platform.yahoo.com:4080.
 - ``yca-cert-expiry``: The expiry time of the YCA certificate in seconds. The default is one day (86400). This is available from Oozie 3.3.1.
 - ``yca-http-proxy-role``: The role name in the Roles DB that contains the hostnames of 
   the machines in the HTTP proxy VIP. The default value is ``grid.httpproxy`` which contains 

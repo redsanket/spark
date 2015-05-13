@@ -252,6 +252,9 @@ To use YCAv2 certificates, ensure that the following is true:
 Example Workflow
 ~~~~~~~~~~~~~~~~
 
+In the  ``workflow.xml`` snippet below, note that the propert ``yca-role``
+is mapped to ``griduser.{user_name}``, where ``{user_name}`` is a Yahoo grid user name.
+
 .. code-block:: xml
 
    <workflow-app>
@@ -259,7 +262,7 @@ Example Workflow
         <credential name='myyca' type='yca'>
            <property>
               <name>yca-role</name>
-              <value>griduser.actualuser</value>
+              <value>griduser.{user_name}</value>
            </property>
          /credential> 
      </credentials>
@@ -681,6 +684,11 @@ and frequency. The *end date* is not included.
 Using HBase Credentials in Oozie Workflows
 ------------------------------------------
 
+The following sections provide different use cases for using HBase credentials
+in Oozie workflows. We provide steps for setting up, example ``workflow.xml`` files,
+and Java sample code. In addition, see `Set Up Oozie Server with HBase Creditial <http://devel.corp.yahoo.com/hbase/guide/programming/index.html#set-up-oozie-server-with-hbase-credential>`_
+in the `HBase User Guide <http://devel.corp.yahoo.com/hbase/guide/>`_.
+
 
 .. _java_action_hbase_cred:         
  
@@ -689,13 +697,6 @@ Using a Java Action With an HBase Credential
 
 Follow the steps below and refer to the example ``workflow.xml`` to 
 use a Java action with an HBase credential.
-
-#. Place the following in the ``lib`` directory that is in your Oozie application path:
- 
-   - ``guava-*.jar``
-   - ``zookeeper-*.jar``
-   - ``hbase-*.jar``
-   - ``protobuf-java-*.jar``
 
 #. In the ``workflow.xml``, do the following: 
 
@@ -706,7 +707,7 @@ use a Java action with an HBase credential.
  
         <workflow-app name="foo-wf" xmlns="uri:oozie:workflow:0.3">
      
-   - Add a ``<credentials>`` element that has a sub-element ``<credentia>l`` with the attribute ``type``. Assign
+   - Add a ``<credentials>`` element that has a sub-element ``<credential>`` with the attribute ``type``. Assign
      the value ``"hbase"`` to ``type`` as shown below:
 
      .. code-block:: xml
@@ -738,58 +739,71 @@ use a Java action with an HBase credential.
 
         <file>hbase-site.xml#hbase-site.xml</file>
 
+     .. note:: If you do not have access to the ``hbase-site.xml`` on a region server, 
+               you can copy the ``hbase-site.xml`` found on one of the gateways:
+               ``{gatewayhost}:/home/gs/conf/hbase/hbase-site.xml``.
+
 
 Example Workflow XML
 ********************
 
 You can use the example ``workflow.xml`` below as a reference for
 having a Workflow with a Java action that uses an HBase credential. 
+Note the use of the ``hbase`` credential and the use of
+the shared library for Java (``oozie.action.sharelib.for.java``).
 
-   .. code-block:: xml
+.. code-block:: xml
 
-      <workflow-app name="foo-wf" xmlns="uri:oozie:workflow:0.3">
-          <credentials>
-              <credential name="hbase.cert" type="hbase">
-              </credential>
-          </credentials>
-      
-        <start to="java_1" />
-          <action name='java_1' cred="hbase.cert">
-              <java>
-                  <job-tracker>${jobTracker}</job-tracker>
-                  <name-node>${nameNode}</name-node>
-                  <configuration>
-                      <property>
-                          <name>dummy_key</name>
-                          <value>dummy_value</value>
-                      </property>        
-                      <property>
-                          <name>mapred.job.queue.name</name>
-                          <value>${queueName}</value>
-                      </property>
-                  </configuration>
-                  <main-class>HelloHBase</main-class>
-                  <arg>my_table</arg>
-                  <arg>1</arg>
-                  <file>hbase-site.xml#hbase-site.xml</file>
-                  <capture-output/>
-              </java>
-              <ok to="decision1" />
-              <error to="fail_1" />
-          </action>
-          <decision name="decision1">
-                 <switch>
-                 <case to="end_1">${(wf:actionData('java_1')['RES'] == "2")}</case>
-                 <default to="fail_1" />
-                 </switch>
-          </decision>
-      ...
-      </workflow-app>
+   <workflow-app name="foo-wf" xmlns="uri:oozie:workflow:0.3">
+       <credentials>
+           <credential name="hbase.cert" type="hbase">
+           </credential>
+       </credentials>
+   
+     <start to="java_1" />
+       <action name='java_1' cred="hbase.cert">
+           <java>
+               <job-tracker>${jobTracker}</job-tracker>
+               <name-node>${nameNode}</name-node>
+               <configuration>
+                   <property>
+                       <name>oozie.action.sharelib.for.java</name>
+                       <value>hbase_current</value>
+                   </property>
+                   <property>
+                       <name>dummy_key</name>
+                       <value>dummy_value</value>
+                   </property>        
+                   <property>
+                       <name>mapred.job.queue.name</name>
+                       <value>${queueName}</value>
+                   </property>
+               </configuration>
+               <main-class>HelloHBase</main-class>
+               <arg>my_table</arg>
+               <arg>1</arg>
+               <file>hbase-site.xml#hbase-site.xml</file>
+               <capture-output/>
+           </java>
+           <ok to="decision1" />
+           <error to="fail_1" />
+       </action>
+       <decision name="decision1">
+              <switch>
+              <case to="end_1">${(wf:actionData('java_1')['RES'] == "2")}</case>
+              <default to="fail_1" />
+              </switch>
+       </decision>
+   ...
+   </workflow-app>
 
 .. _java_action_hbase_cred-hellohbase:
 
 HelloHBase.java     
 ***************
+
+The ``HelloHBase.java`` program scans the HBase table ``my_table`` (specified in ``workflow.xml``)
+and prints out the result.
 
 .. code-block:: java
 
@@ -873,21 +887,21 @@ you need to do the following additional steps:
        </credential>
    </credentials>
 
-#. The ``hbase-site.xml`` on the cluster ("cluster1") where the ``workflow.xml`` resides should be
-   located at ``/home/y/libexec/yjava_tomcat/lib/hbase-site.xml``.
 #. The ``workflow.xml`` on "cluster1" must use the ``hbase-site.xml`` on the
    cluster ("cluster2") where the HBase tables reside.  
 #. In addition, the Oozie server needs to be on the ``hadoop.proxyuser.*.hosts`` list in
    the ``local-superuser-conf.xml`` of both "cluster1" and "cluster2".
 
-TBD: Need to explain why you need to add ``zookeeper.znode.parent`` and 
-TBD: ``hbase.zookeeper.quorum``. We also need to explain how "cluster2" is accessed because of this config. 
-TBD: replicate (quorum) servers and parent server addresses  the ZooKeeper of the target cluster . the target hbase cluster is cluster2. 
-
-
-
 Example Workflow XML
 ********************
+
+In the ``workflow.xml`` below, you'll notice that the Java action
+uses the HBase properties of "cluster2". If certain properties of 
+the ``hbase-site.xml`` on "cluster" are not specified, the
+Oozie Workflow will use the default configurations defined
+in the ``hbase-site.xml`` on "cluster".
+
+ if not specified, oozie will get the properties from default configuration, which is cluster1 hbase-site.xml.
 
 .. code-block:: xml
 
@@ -911,6 +925,10 @@ Example Workflow XML
                <job-tracker>${jobTracker}</job-tracker>
                <name-node>${nameNode}</name-node>
                <configuration>
+                   <property>
+                       <name>oozie.action.sharelib.for.java</name>
+                       <value>hbase_current</value> 
+                   </property>
                    <property>
                        <name>dummy_key</name>
                        <value>dummy_value</value>
@@ -953,13 +971,6 @@ Using a MapReduce Action With an HBase Credential
 Follow the steps below and refer to the example ``workflow.xml`` to 
 use a MapReduce action with an HBase credential.
 
-#. Place the following in the ``lib`` directory that is in your Oozie application path:
- 
-   - ``guava-*.jar``
-   - ``zookeeper-*.jar``
-   - ``hbase-*.jar``
-   - ``protobuf-java-*.jar``
-
 #. In the ``workflow.xml``, do the following: 
 
    - Ensure that you are using the Oozie XSD version 0.3 by assigning the
@@ -993,7 +1004,7 @@ use a MapReduce action with an HBase credential.
         </action>
 
    - To use a MapReduce action, use the element ``<map-reduce>`` and provide
-     the MapReduce settings in ``<property>``subelements as shown below:
+     the MapReduce settings in ``<property>`` subelements as shown below:
 
      .. code-block:: xml
 
@@ -1015,7 +1026,7 @@ use a MapReduce action with an HBase credential.
    - Place the file ``hbase-site.xml`` in the Oozie application path.
    - In the ``workflow.xml``, use the ``<file>`` element to specify the
      ``hbase-site.xml`` file so that it's in the distributed cache (a copy of the 
-     ``hbase-site.xml`` can be found in ``hbase-region-server:/home/y/libexec/hbase/conf/hbase-site.xml``).
+     ``hbase-site.xml`` can be found in ``{gatewayhost}:/home/gs/conf/hbase/hbase-site.xml.``).
 
      .. code-block:: xml
 
@@ -1024,6 +1035,13 @@ use a MapReduce action with an HBase credential.
 
 Example Workflow XML
 ********************
+
+For Workflows that have Java actions, you would use the
+shared Java library by specifying the ``<property>`` with the
+name ``oozie.action.sharelib.for.java`` and the value ``hbase_current``.
+For MapReduce actions, you once again use a shared library by
+specifying the ``<property>`` with the name ``oozie.action.sharelib.for.map-reduce``
+and the value ``hbase_current``.
 
 .. code-block:: xml
 
@@ -1044,6 +1062,10 @@ Example Workflow XML
            <property>
              <name>mapred.mapper.class</name>
              <value>SampleMapperHBase</value>
+           </property>
+           <property>
+             <name>oozie.action.sharelib.for.map-reduce</name>
+             <value>hbase_current</value> 
            </property>
            <property>
              <name>mapred.reducer.class</name>
@@ -1157,8 +1179,6 @@ you need to do the following additional steps:
           </credential>
       </credentials>
 
-#. The ``hbase-site.xml`` on the cluster ("cluster1") where the ``workflow.xml`` resides should be
-   located at ``/home/y/libexec/yjava_tomcat/lib/hbase-site.xml``.
 #. The ``workflow.xml`` on "cluster1" must use the ``hbase-site.xml`` on the
    cluster ("cluster2") where the HBase tables reside.  
 #. In addition, the Oozie server needs to be on the ``hadoop.proxyuser.*.hosts`` list in
@@ -1167,6 +1187,12 @@ you need to do the following additional steps:
 
 Example Workflow XML
 ********************
+
+In the ``<file>`` element in the ``workflow.xml`` below, be sure
+to replace ``{gatewayhost}`` with the URL and port of the gateway for
+"cluster2". Also, note that the configuration values for properties
+``zookeeper.znode.parent`` and ``hbase.zookeeper.quorum`` allow the Oozie server 
+to use the ``hbase-site.xml`` on "cluster1".
 
 .. code-block:: xml
 
@@ -1195,6 +1221,10 @@ Example Workflow XML
          </prepare>
          <configuration>
            <property>
+             <name>oozie.action.sharelib.for.map-reduce</name>
+             <value>hbase_current</value> 
+           </property>
+           <property>
              <name>mapred.mapper.class</name>
              <value>SampleMapperHBase</value>
            </property>
@@ -1220,7 +1250,7 @@ Example Workflow XML
            </property>
          </configuration>
          <!-- hbase-site.xml of cluster2 -->
-         <file>hbase-site.xml</file>
+         <file>{gatewayhost}:/home/gs/conf/hbase/hbase-site.xml.</file>
        </map-reduce>
        <ok to="end_1" />
        <error to="fail_1" />
@@ -1246,7 +1276,11 @@ next sections.
 Example Workflow XML
 ********************
 
-TBD: Need an explanation of the workflow.xml
+The ``workflow.xml`` in this example have to specify the
+input table (``locdrop:userloc_history``), the HBase scanner, the
+output directory, and the Java classes for the table input format, mapper,
+partioner, and reducer. 
+
 
 .. code-block:: xml
 
@@ -1261,6 +1295,10 @@ TBD: Need an explanation of the workflow.xml
                    <job-tracker>${jobTracker}</job-tracker>
                    <name-node>${nameNode}</name-node>
                    <configuration>
+                       <property>
+                           <name>oozie.action.sharelib.for.java</name>
+                           <value>hbase_current</value> 
+                       </property>
                        <property>
                            <name>dummy_property</name>
                            <value>dummy_value</value>
@@ -1350,7 +1388,9 @@ TBD: Need an explanation of the workflow.xml
 Scanner: LHistoryHTableScanStringGenerator 
 ******************************************
 
-In the code snippet below, you can see that the scanner is ... TBD.
+In the code snippet below, the the string used for scanning an HBase
+table is generated.
+
 For the full code example, see `LHistoryHTableScanStringGenerator.java <https://git.corp.yahoo.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableScanStringGenerator.java>`_.
 
 .. code-block:: java
@@ -1398,8 +1438,11 @@ For the full code example, see `LHistoryHTableScanStringGenerator.java <https://
 Mapper: LHistoryHTableInputMapper
 *********************************
 
-In the code snippet below, you can see that the input mapper is ... TBD.
-For the full code example, see `LHistoryHTableScanStringGenerator.java <https://git.corp.yahoo.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableInputMapper.java>`_.
+In the code snippet below, you can see that the input mapper processes
+records for each row. In full `code example 
+<https://git.corp.yahoo.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableInputMapper.java>`_,
+you can see that the mapper scans each result, stores a count based on result attributes, and then
+writes the statistics if a latitude and longitude exist.
 
 .. code-block:: java
 
@@ -1417,6 +1460,5 @@ For the full code example, see `LHistoryHTableScanStringGenerator.java <https://
        }
    }
    ...
-
 
 
