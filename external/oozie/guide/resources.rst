@@ -1,6 +1,7 @@
 Resources
 =========
 
+.. 05/12/15: Edited.
 
 Other Documentation
 -------------------
