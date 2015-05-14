@@ -210,7 +210,6 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 
 	    DAGStatus dagStatus = null;
 	    String[] vNames = { "stage1", "stage2" };
-	    boolean exitedCleanly = true;
 	    try {
 	      while (true) {
 	        dagStatus = dagClient.getDAGStatus(null);
@@ -244,9 +243,6 @@ public class FilterLinesByWordOneToOneExtendedForHTF extends
 	      }
 	    } finally {
 	      fs.delete(stagingDir, true);
-	      if(exitedCleanly){
-	          ExampleDriver.printDAGStatus(dagClient, vNames);
-	        }	      
 	      tezSession.stop();
 	    }
 

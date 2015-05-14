@@ -232,7 +232,6 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 
 	    DAGStatus dagStatus = null;
 	    String[] vNames = { "stage1", "stage2" };
-	    boolean exitedCleanly = true;
 	    try {
 	      while (true) {
 	        dagStatus = dagClient.getDAGStatus(null);
@@ -269,14 +268,10 @@ public class FilterLinesByWordExtendedForTezHTF extends FilterLinesByWord {
 	      
 	    } finally {
 	      fs.delete(stagingDir, true);
-	      if (exitedCleanly){
-	      	ExampleDriver.printDAGStatus(dagClient, vNames, true, true);
-	        }	      
-		   ExampleDriver.printDAGStatus(dagClient, vNames, true, true);
 	      tezSession.stop();
 	    }
 
-
+	    ExampleDriver.printDAGStatus(dagClient, vNames, true, true);
 	    TestSession.logger.info("Application completed. " + "FinalState=" + dagStatus.getState());
 	    return dagStatus.getState() == DAGStatus.State.SUCCEEDED ? 0 : 1;
 	}
