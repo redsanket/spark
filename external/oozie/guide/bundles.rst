@@ -40,4 +40,3 @@ following topics:
 - `Bundle Job <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html#a4._Bundle_Job>`_ 
 - `Oozie Bundle XML-Schema <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html#Appendix_A_Oozie_Bundle_XML-Schema>`_
 
-
