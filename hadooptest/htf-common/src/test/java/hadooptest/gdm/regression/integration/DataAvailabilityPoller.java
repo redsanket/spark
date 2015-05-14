@@ -32,6 +32,9 @@ public class DataAvailabilityPoller {
 	private String pipeLineInstance;
 	private String oozieJobID;
 	private boolean isOozieJobCompleted;
+	private String oozieHostName;
+	private String hcatHostName;
+	private int pullOozieJobLength;
 	private String oozieJobResult;
 	private String currentFrequencyHourlyTimeStamp;
 	public SearchDataAvailablity searchDataAvailablity;
@@ -43,13 +46,17 @@ public class DataAvailabilityPoller {
 	private final static String PIPE_LINE_INSTANCE = "/tmp/test_stackint/Pipeline";
 	private final static String SCRATCH_PATH = "/tmp/test_stackint/pipeline_scratch";
 	private final static String FEED_BASE = "/data/daqdev/abf/data/Integration_Testing_DS_";
+	private final static String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
 
-	public DataAvailabilityPoller(int maxPollTime , String clusterName , String basePath  , String filePattern , String operationType) {
+	public DataAvailabilityPoller(int maxPollTime , String clusterName , String basePath  , String filePattern , String operationType , String oozieHostName , String hcatHostName , String pullOozieJobLength) {
 		this.maxPollTime = maxPollTime;
 		this.clusterName = clusterName;
 		this.directoryPath = basePath;
 		this.filePattern  = filePattern;
 		this.operationType = operationType;
+		this.oozieHostName = oozieHostName;
+		this.hcatHostName = hcatHostName;
+		this.pullOozieJobLength = Integer.parseInt(pullOozieJobLength);
 		this.searchDataAvailablity = new SearchDataAvailablity(this.clusterName , this.directoryPath , this.filePattern , this.operationType);
 	}
 
@@ -72,10 +79,10 @@ public class DataAvailabilityPoller {
 		Calendar initialCal = Calendar.getInstance();
 		Calendar futureCal = Calendar.getInstance();
 
-		long intialMin = Long.parseLong(sdf.format(initialCal.getTime()));
+		long initialMin = Long.parseLong(sdf.format(initialCal.getTime()));
 		initialCal.add(Calendar.MINUTE, 1);
 		long futureMin =  Long.parseLong(sdf.format(initialCal.getTime()));
-		System.out.println(" intialMin   = " +  intialMin   + "  futureMin  =  "  + futureMin);
+		System.out.println(" intialMin   = " +  initialMin   + "  futureMin  =  "  + futureMin);
 		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
 		feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		SimpleDateFormat slaSDF = new SimpleDateFormat("yyyyMMddHHmm");
@@ -99,7 +106,7 @@ public class DataAvailabilityPoller {
 
 			if (initTime >= futureMin ) {
 				initialCal = Calendar.getInstance();
-				intialMin = Long.parseLong(feed_sdf.format(initialCal.getTime()));
+				initialMin = Long.parseLong(feed_sdf.format(initialCal.getTime()));
 				initialCal.add(Calendar.HOUR, 1);
 				futureMin =  Long.parseLong(feed_sdf.format(initialCal.getTime()));
 
@@ -169,7 +176,7 @@ public class DataAvailabilityPoller {
 					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
 						this.executeCommand(this.kINIT_COMMAND);
 
-						String oozieCommand = "/home/y/var/yoozieclient/bin/oozie job -run -config " +  this.getScratchPath() + "/integration_test_files/job.properties" + " -oozie http://dense37.blue.ygrid.yahoo.com:4080/oozie -auth kerberos";
+						String oozieCommand = OOZIE_COMMAND + " job -run -config " +  this.getScratchPath() + "/integration_test_files/job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos";
 						this.oozieJobID = this.executeCommand(oozieCommand);
 						TestSession.logger.info("-- oozieJobID = " + this.oozieJobID );
 						assertTrue("" , this.oozieJobID.startsWith("job:"));
@@ -276,7 +283,7 @@ public class DataAvailabilityPoller {
 		String id = Arrays.asList(jobId.split(" ")).get(1).toLowerCase();
 		String subId = Arrays.asList(id.split("-")).get(0).toLowerCase();
 		while (perPollStartTime <= perPollEndTime) {
-			String oozieCommand = "/home/y/var/yoozieclient/bin/oozie jobs -len 10 -oozie http://dense37.blue.ygrid.yahoo.com:4080/oozie -auth kerberos | grep " + "\"" + subId.trim() + "\"" ;
+			String oozieCommand = this.OOZIE_COMMAND + " jobs -len " + this.pullOozieJobLength + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos | grep " + "\"" + subId.trim() + "\"" ;
 			String result = this.executeCommand(oozieCommand);
 			TestSession.logger.info("result - " + result);
 			int start = result.indexOf(jobId);
@@ -287,7 +294,7 @@ public class DataAvailabilityPoller {
 			String jobResult = jobStatus.substring(oozieWorkFlowName.length(), jobStatus.length());
 			TestSession.logger.info("Job Result = " + jobResult);
 			if (jobResult.equals("KILLED")) {
-				TestSession.logger.info("oozie for " + jobId  + "  killed, please check the reason for job killed using http://dense37.blue.ygrid.yahoo.com:4080/oozie ");
+				TestSession.logger.info("oozie for " + jobId  + "  killed, please check the reason for job killed using" + this.oozieHostName + ":4080/oozie ");
 				oozieJobresult = "KILLED";
 				this.isOozieJobCompleted = true;
 				break;
@@ -306,6 +313,8 @@ public class DataAvailabilityPoller {
 		}
 		return oozieJobresult;
 	}
+	
+	
 
 	/**
 	 * return the value of current feed input path

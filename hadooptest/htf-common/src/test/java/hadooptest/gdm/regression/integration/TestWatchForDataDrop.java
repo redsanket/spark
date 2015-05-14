@@ -22,8 +22,11 @@ public class TestWatchForDataDrop extends TestSession {
 	private String clusterName;
 	private ConsoleHandle consoleHandle;
 	private String cookie;
+	private String oozieHostName;
+	private String hcatHostName;
 	private int duration;
 	private String freq;
+	private String pullOozieJobLength;
 	private int frequency;
 	private String pathPattern;
 	private static final String BASEPATH = "/data/daqdev/abf/data/";
@@ -76,8 +79,27 @@ public class TestWatchForDataDrop extends TestSession {
 				this.pathPattern = "yyyyMM";
 			} 
 		}
-		//this.watcher = new DataAvailabilityPoolerTemp(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling");
-		this.watcher = new DataAvailabilityPoller(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling");
+		
+		String oozieServerName =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.oozieHostName");
+		if (oozieServerName != null) {
+			this.oozieHostName = oozieServerName;
+			TestSession.logger.info("oozie Host Name - " + oozieHostName);
+		}
+		
+		String hcatServerName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hcatHostName");
+		if (hcatServerName != null ) {
+			this.hcatHostName = hcatServerName;
+			TestSession.logger.info("Hcat Host Name - " + hcatHostName);
+		}
+		
+		String jobPullLength = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pullOozieJobLength");
+		if (jobPullLength != null) {
+			TestSession.logger.info("jobPullLength  = " + jobPullLength);
+			this.pullOozieJobLength = jobPullLength;
+		}
+				
+		
+		this.watcher = new DataAvailabilityPoller(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling" , this.oozieHostName , this.hcatHostName , this.pullOozieJobLength);
 	}
 	
 	@Test

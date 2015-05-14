@@ -164,8 +164,6 @@ public class TestGDMHealthCheckup extends TestSession {
 		Map<String , String> applicationSummary = this.getHealthCheckDetails(facetName);
 		assertTrue("Expected ApplicationStatus to be running but got " + applicationSummary.get("ApplicationStatus") , applicationSummary.get("ApplicationStatus").equals("Running") );
 		assertTrue("Expected Current State to be Active but got " + applicationSummary.get("Current State") ,  applicationSummary.get("Current State").endsWith("Active"));
-		assertTrue("Expected DB connectione to be valid but got " + applicationSummary.get("DB connection") ,  applicationSummary.get("DB connection").endsWith("valid"));
-
 	}
 
 	/**
