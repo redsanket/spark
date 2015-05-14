@@ -73,6 +73,7 @@ public class TestDyamicStartTypeOffSetAndEndTypeFixedWithInstaceAfterStartDate e
 		String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
 		this.conf = new XMLConfiguration(configPath);
 		this.deploymentSuffixName = this.conf.getString("hostconfig.console.deployment-suffix-name");
+		TestSession.logger.info("Suffix name = " + this.deploymentSuffixName);
 		this.consoleHandle = new ConsoleHandle();
 		HTTPHandle httpHandle = new HTTPHandle(); 
 		this.cookie = httpHandle.getBouncerCookie();
