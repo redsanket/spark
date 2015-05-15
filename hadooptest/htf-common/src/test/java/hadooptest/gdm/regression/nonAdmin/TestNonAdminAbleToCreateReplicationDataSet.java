@@ -12,16 +12,12 @@ import hadooptest.cluster.gdm.WorkFlowHelper;
 
 import java.util.List;
 
- 
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
  
-
-
 /**
  * Test Scenario  : Verify whether non admin user is able to create replication dataset using REST API
  * 
@@ -90,7 +86,7 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 	@Test
 	public void test() {		
 		this.repDataSetName = "Test_NonAdmin_Replication_DataSet_Creation_" + System.currentTimeMillis();
-	//	this.createDoAsReplicationDataSet("SelfServeReplicationOnlyDataSet.xml");
+		this.createDoAsReplicationDataSet("SelfServeReplicationOnlyDataSet.xml");
 		this.createReplicationDataSetWithDiscoveryTypeFDI("SelfServeReplicationOnlyDataSet.xml");
 	}
 	
