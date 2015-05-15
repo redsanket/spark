@@ -12,16 +12,14 @@ import hadooptest.cluster.gdm.WorkFlowHelper;
 
 import java.util.List;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+ 
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.jayway.restassured.RestAssured;
+ 
 
 
 /**
@@ -40,6 +38,7 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 	private List<String> gridList;
 	private static final String HCAT_TYPE = "Mixed";
 	private static final int SUCCESS = 200;
+	private static final int FAILURE = 500;
 	private static final String SOURCE_NAME = "elrond";
 	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_DAILY/";
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
@@ -76,6 +75,8 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 			fail("Atleast one target should exists.");
 		}
 
+		
+		// check target is not equal to source
 		for (String grid : this.gridList)  {
 			
 			if (! grid.contains(SOURCE_NAME)) {
@@ -89,8 +90,8 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 	@Test
 	public void test() {		
 		this.repDataSetName = "Test_NonAdmin_Replication_DataSet_Creation_" + System.currentTimeMillis();
-		this.createDoAsReplicationDataSet("SelfServeReplicationOnlyDataSet.xml");
-		this.createReplicationDataSetWithDiscoveryTypeFDI("SelfServeReplicationOnlyDataSet");
+	//	this.createDoAsReplicationDataSet("SelfServeReplicationOnlyDataSet.xml");
+		this.createReplicationDataSetWithDiscoveryTypeFDI("SelfServeReplicationOnlyDataSet.xml");
 	}
 	
 	/**
@@ -156,7 +157,7 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.repDataSetName));
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.repDataSetName);
 		Response response = this.consoleHandle.createDataSet(this.repDataSetName, dataSetXml);
-		assertTrue("Non-Admin user should not be able to create replication only dataset when discovery type is not equal to HDFS and HCAT." , response.getStatusCode() == SUCCESS);
+		assertTrue("Non-Admin user should not be able to create replication only dataset when discovery type is not equal to HDFS and HCAT." , response.getStatusCode() == FAILURE);
 	}
 	
 	/**
