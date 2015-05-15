@@ -11,9 +11,9 @@ Yahoo Configurations for Oozie
    :header: "Actions", "Shared Library", "Credential"
    :widths: 15, 10, 30
 
-   "Hive", "``oozie.action.sharelib.for.hive``, "``hcat_current\, hive_current``"
-   "Pig", "``oozie.action.sharelib.for.pig``, "``hcat_current\, pig_current``"
-   "HBase", "``oozie.action.sharelib.for.hbase``, "``pig_current\, hbase_current``"
+   "Hive", "``oozie.action.sharelib.for.hive``, "``hcat_current``, ``hive_current``"
+   "Pig", "``oozie.action.sharelib.for.pig``, "``hcat_current``, ``pig_current``"
+   "HBase", "``oozie.action.sharelib.for.hbase``, "``pig_current``, ``hbase_current``"
 
 
 .. http://twiki.corp.yahoo.com/view/CCDI/OozieShareLib
