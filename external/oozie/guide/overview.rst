@@ -1,16 +1,21 @@
 Overview
 ========
 
-.. 04/23/15: Rewrote
+.. 04/23/15: Rewrote.
+.. 05/15/15: Edited.
+
+.. _overview-what:
 
 What is Oozie?
 --------------
 
 Oozie is a Java Web application running in a Java servlet-container
-that executes workflow jobs consisting of one or more actions. 
+that executes Workflow jobs consisting of one or more actions. 
 It is an extensible, scalable, and reliable system that allows you to 
 define, manage, schedule, and execute complex Hadoop workloads 
 through Web services. 
+
+.. _overview-why:
 
 Why Use Oozie?
 --------------
@@ -24,14 +29,15 @@ execute the following actions in the given order:
 - Streaming
 - HDFS operation such as ``mkdir``, ``chmod``
 
-With a workflow system such as Oozie, you would have to use
+Without a workflow system such as Oozie, you would have to use
 your own custom system based on shell scripts and cron jobs.
 Building and running custom systems is expensive, 
-and you don't have the operations, development, and hardware support.
+and you may not have the operations, development, and hardware support.
 
+.. _overview-features:
 
 Oozie Features
---------------
+**************
 
 Oozie provides the following:
 
@@ -43,27 +49,83 @@ Oozie provides the following:
 - Authentication, authorization, and capacity-aware load throttling to allow multi-tenant software as a service.
 - HBase access through Oozie with credentials
 - HCatalog access through Oozie with credentials
-- Email action
-- DistCP action (intra as well as inter-cluster copy)
-- Shell action (run any script, e.g., Perl, Python, Hadoop CLI)
+- Email actions
+- DistCP actions (intra as well as inter-cluster copy)
+- Shell actions (run any script, e.g., Perl, Python, Hadoop CLI)
 - Workflow dry-run & fork-Join validation
 - Bulk monitoring (REST API)
 - Workflow Expression Language (EL) functions and Coordinator EL functions
   for parameterized Workflows
-- Job DAG
+- Job DAGs
 
 .. Left off here on 04/23/15.
 
+.. _overview-concepts:
+
+Basic Concepts
+--------------
+
+Before you get started, you should be familiar with some basic concepts
+that will help you understand the documentation and better use Oozie.
+
+.. _concepts-actions:
+
+Actions
+~~~~~~~
+
+Oozie actions are execution or computation tasks such as a Map-Reduce job, a Pig 
+job, or a shell command. Actions are also referred to as tasks or 'action nodes'.
+
+.. _concepts-workflows:
+
+Workflows
+~~~~~~~~~
+
+Oozie Workflows are blueprints for executing jobs. More specifically, these
+blueprints are `directed acyclic graphs <http://en.wikipedia.org/wiki/Directed_acyclic_graph>`_
+that structure execution of Hadoop actions such as MapReduce, Pig, Hive, shell script, 
+custom Java code, etc.
+
+.. _concepts-coordinators:
+
+Coordinators
+~~~~~~~~~~~~
+
+Oozie Coordinator jobs are recurring Oozie Workflow jobs 
+triggered by time (frequency) and data availabilty.
+
+.. _concepts-bundles:
+
+Bundles
+~~~~~~~
+
+Bundles are a set of Coordinator applications and often known has data pipelines. 
+Users can start, stop, suspend, resume, and rerun Bundles.
+Although there is no explicit dependency among Coordinators of a Bundle, one of 
+the primary reasons for using Bundles is to execute Coordinator applications that 
+have share a data dependency. For example, one Coordinator may need to wait for 
+data created by another Coordinator before running, and Bundles allow users to 
+define and control this data dependency between the Coordinators.
+
+.. _overview-use_cases:
+
 Use Cases 
 ---------
+
+To help you understand how you might use Oozie, we will
+describe the most common use cases in the following sectons.
+
+.. _use_cases-time:
 
 Time Triggers
 ~~~~~~~~~~~~~
 
 One of the most common uses for Oozie is to execute a Workflow 
-at certain intervals. For example, the Coordinator XML (``coordinator.xml``)
-below gives a start time, an end time, and the frequency to
-run the applications.
+at certain intervals. To do this, you would define a :ref:`Coordinator <concepts-coordinators>` 
+through a Coordinator XML file. In the  
+Coordinator XML (``coordinator.xml``) below, the start time, end time, 
+and the frequency to run the applications is defined as attributes
+in the ``<coordinator-app>`` element.
 
 .. code-block:: xml
 
@@ -80,6 +142,8 @@ run the applications.
      </action>      
    </coordinator-app>
 
+
+.. _use_cases-time_data:
 
 Time and Data Triggers
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -117,6 +181,8 @@ check if the input data (``inputLogs``) is available.
    ...
 
 
+.. _use_cases-rolling:
+
 Rolling Window
 ~~~~~~~~~~~~~~
 
@@ -149,6 +215,8 @@ every hour, so you can roll the 15-minute datasets into hourly datasets.
        </workflow>
      </action>      
    </coordinator-app>
+
+.. _use_cases-sliding:
 
 Sliding Window
 ~~~~~~~~~~~~~~
@@ -184,41 +252,7 @@ event is for 24 hours (``${current(0)} to ``${current(-23)}``).
      </action>      
    </coordinator-app>
 
-
-Basic Concepts
---------------
-
-Before you get started, you should be familiar with some basic concepts
-that will help you understand the documentation and better use Oozie.
-
-Oozie Actions
-~~~~~~~~~~~~~
-
-Oozie actions are execution or computation tasks such as a Map-Reduce job, a Pig job, or a shell command. Actions
-are also referred to as tasks or 'action nodes'.
-
-Oozie Workflows
-~~~~~~~~~~~~~~~
-
-Oozie Workflows are blueprints for executing jobs. More specifically, these
-blueprints are `directed acyclic graphs <http://en.wikipedia.org/wiki/Directed_acyclic_graph>`_
-that structure execution of Hadoop actions such as MapReduce, Pig, Hive, shell script, 
-custom Java code, etc.
-
-
-Coordinators
-~~~~~~~~~~~~
-
-Oozie Coordinator jobs are recurring Oozie Workflow jobs 
-triggered by time (frequency) and data availabilty.
-
-Bundles
-~~~~~~~
-
-Bundles are a set of Coordinator applications and often known has data pipelines. Users can start, stop, suspend, resume, and rerun Bundles.
-Although there is no explicit dependency among Coordinators of a Bundle, one of the primary reasons for using Bundles is
-to execute Coordinator applications that have share a data dependency. For example, one Coordinator may need to wait for data created by
-another Coordinator before running, and Bundles allow users to define and control this data dependency between the Coordinators.
+.. _overview-use_patterns:
 
 Use Patterns 
 ------------
@@ -227,6 +261,7 @@ We discussed the common use cases, which typically deal with time and data depen
 In this section, we'll look at Workflows from the perspective of data: management, modeling, and
 flow. 
 
+.. _use_patterns-data_management:
 
 Simple Data Management
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -234,18 +269,20 @@ Simple Data Management
 The following are some of the basic data management tasks
 that you might use Oozie for:
 
-- Data transformation/filtering/Ybeacon
-- Data metrics
-- Directory management
-- Copying input data 
-- Data replication
-- Clean up feed/data cleanup
-- Generate data
+- data transformation/filtering/Ybeacon
+- data metrics
+- directory management
+- copying input data 
+- data replication
+- clean up feed/data cleanup
+- generate data
 
 For example, you might have a Oozie workflow that
 copies an input feed, transforms the data, writes
 the resulting data to HDFS, and then deletes
 the copied input feed.
+
+.. _use_patterns-data_modeling:
 
 Data Modeling
 ~~~~~~~~~~~~~
@@ -254,12 +291,12 @@ You can also use Oozie to process and analyze multiple
 streams of data. The following are examples
 of how you might perform data modeling with Oozie:
 
-- Process logs in parallel
-- Parse ad events and train data (Moneyball)
-- Consolidate Tweets
-- Moneyball bid processor
-- Process user engagement
-- Check retention rate
+- process logs in parallel
+- parse ad events and train data (Moneyball)
+- consolidate Tweets
+- process Moneyball bids
+- process user engagement
+- check retention rate
 
 As you can see from the list above, many uses
 of Oozie for data modeling are useful for user
@@ -268,24 +305,22 @@ a Workflow/Coordinator to extract ad events, join
 them, compute derived features, and then send
 out email notifications containing these features. 
 
+.. _use_patterns-data_pipeline:
 
 Complete Data Pipeline 
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The data pipeline is a complex set of actions and interdependencies. As you
-know, in Oozie, Bundles are also known as data pipelines. In other words,
+The data pipeline is a complex set of actions and interdependencies. As we
+said earlier, in Oozie, Bundles are also known as data pipelines. Thus,
 your data pipeline will generally involve a set of Coordinators, each
 Coordinator with one Workflow job that may contain multiple actions.
 Often data dependencies will exist between Coordinators and at the Workflow level. 
 Thus, you might need use a complete data pipeline for
 the following:
 
-- Stream video pipeline
-- Complete data transformation pipeline
-- Data ingestion
-
-Example
-+++++++
+- stream video pipeline
+- complete data transformation pipeline
+- data ingestion
 
 The following diagram shows a simplified 
 flow of streamed data. Keep in mind that
@@ -299,6 +334,8 @@ could involve multiple Coordinators and Workflows.
    :alt: Data Pipeline Work Flow
    :align: left
 
+.. _use_patterns-end_data_processing:
+
 End-to-End Data Processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -310,8 +347,8 @@ writing or storing results.
 For example, you may need end-to-end data
 processing for the following:
 
-- Data Ingestion
-- Slingstone Processing links
+- ingesting data
+- processing links with Slingstone 
 
 The diagram below shows how data is analyzed
 based on conditions and later joined before 
@@ -324,14 +361,15 @@ being ultimately written, in this case, to HBase.
    :alt: End-to-end processing.
    :align: left
 
-Architecture Overview
----------------------
+.. _overview-architecture:
 
-As you can see from the diagram below, Oozie is a Java Web application
-that has a Web service and internally uses a DAG engine to process
+Architecture 
+------------
+
+From the diagram below, you can see that Oozie is a Java Web application
+that provides a Web service and internally uses a DAG engine to process
 Workflows, Coordinators, and Bundles.  Oozie also stores
 state in an Oracle database (submitted jobs, workflow definitions, etc.)
-  
 
 .. image:: images/architecture_overview.jpg
    :height: 462px
@@ -342,9 +380,12 @@ state in an Oracle database (submitted jobs, workflow definitions, etc.)
 
 The diagram does fail to show two important aspects of the architecture:
 
-- instead of a failover model, many Oozie servers access the same database
-- ZooKeeper handles the coordination of Hadoop jobs
+- Instead of a failover model, many Oozie servers access the same database.
+- ZooKeeper handles the coordination of Hadoop jobs, thus to access
+  HBase tables on different clusteres, you need to provide information
+  about the ZooKeeper znodes and quorums.
 
+.. _architecture-stack:
 
 Technology Stack
 ~~~~~~~~~~~~~~~~
@@ -365,6 +406,7 @@ Oozie relies on the following technologies:
    :alt: Oozie Technology Stack
    :align: left
 
+.. _architecture-abstraction_layer:
 
 Abstraction Layer
 ~~~~~~~~~~~~~~~~~
@@ -379,9 +421,10 @@ are organized and the execution flow.
    :alt: Oozie Abstraction Layer
    :align: left
 
+.. _overview-accessing:
 
 Accessing Oozie
-~~~~~~~~~~~~~~~
+---------------
 
 To access Oozie, users and client programs need one URL to
 connect to the following:
@@ -392,20 +435,22 @@ connect to the following:
 
 You can also use the load balancer, VIP/DNS round-robin 
 to provide one entry point to the Oozie servers
+See :ref:`Oozie Servers on Clusters <references-oozie_servers>` table
+for the URLs to the Oozie UIs on the different clusters.
 
-See the **oozie-server** column in the `Grid Versions <http://twiki.corp.yahoo.com/view/Grid/GridVersions>`_ table
-for the Oozie UIs for the different clusters.
+.. _overview-logging:
 
+Oozie Logs
+----------
 
-Log Streaming
-~~~~~~~~~~~~~
+Oozie log files are not stored in a database, and jobs are not specified
+to a specific Oozie server. Although each Oozie server only has access 
+to its own logs, you can request an Oozie server to retrieve the logs
+of another Oozie server. If an Oozier server goes down, however, you cannot
+retrieve logs from that server.
 
-Oozie log files are not stored in a database. Each Oozie server only has access 
-to its own logs
-
-- Jobs are not assigned to a specific Oozie server
-- If a user asks an Oozie server for the logs of another Server, the asked server
-  can ask the second server for the user.
-- Caveat: if an Oozie server goes down, any logs from it will be unavailable
+To view logs, you can either go to one of the :ref:`Oozie UIs <references-oozie_servers>` 
+and click a job ID or run the following Oozie command with your job ID: 
+``$ oozie job -log <oozie-jobID> -auth kerberos``
 
 

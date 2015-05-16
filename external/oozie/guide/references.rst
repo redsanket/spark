@@ -7,14 +7,23 @@ References
 Yahoo Configurations for Oozie
 ------------------------------
 
-.. csv-table:: Oozie Configurations
-   :header: "Actions", "Shared Library", "Credential"
+.. list-table:: Oozie Configurations
    :widths: 15, 10, 30
+   :header-rows: 1 
 
-   "Hive", "``oozie.action.sharelib.for.hive``, "``hcat_current, hive_current``"
-   "Pig", "``oozie.action.sharelib.for.pig``, "``hcat_current, pig_current``"
-   "HBase", "``oozie.action.sharelib.for.hbase``, "``pig_current, hbase_current``"
-
+   * - Actions
+     - Shared Library
+     - Credential
+   * - Hive
+     - ``oozie.action.sharelib.for.hive`` 
+     - ``hcat_current, hive_current``
+   * - Pig 
+     -  ``oozie.action.sharelib.for.pig``
+     - ``hcat_current, pig_current``
+   * - HBase
+     - ``oozie.action.sharelib.for.hbase``
+     - ``pig_current, hbase_current``
+   
 
 .. http://twiki.corp.yahoo.com/view/CCDI/OozieShareLib
 .. For pig: pig_current . For pig with hcat: pig_current,hcat_current For piig with 
@@ -28,26 +37,45 @@ Yahoo Configurations for Oozie
 Oozie Servers on Clusters
 -------------------------
 
-.. csv-table:: Oozie Servers on Clusters
-   :header: "Grid Cluster", "Oozie Server URL"
+.. list-table:: Oozie Servers on Clusters
    :widths: 15, 30
+   :header-rows: 1 
 
-   "Axonite Red", "``http://axonitered-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://axonitered-oozie.red.ygrid.yahoo.com:4443/oozie/``"
-   "Bassnium Red", "``http://bassniumred-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://bassniumred-oozie.red.ygrid.yahoo.com:4443/oozie/``"
-   "Bassnium Tan", "``http://bassniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://bassniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
-   "Cobalt Blue", "``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://cobaltblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
-   "Dilithium Blue", "``http://dilithiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://dilithiumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
-   "Dilithium Red", "``http://dilithiumred-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://dilithiumred-oozie.red.ygrid.yahoo.com:4443/oozie/``"
-   "Kryptonite Red", "``http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/``"
-   "Mithril Blue", "``http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``http://mithrilblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
-   "Mithril Red", "``http://mithrilred-oozie.red.ygrid.yahoo.com:4080/oozie/`` / ``https://mithrilred-oozie.red.ygrid.yahoo.com:4443/oozie/``"
-   "Nitro Blue", "``http://nitroblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://nitroblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
-   "Oxium Blue", "``http://oxiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/`` / ``https://oxiumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
-   "Phazon Tan", "``http://phazontan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://phazontan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
-   "Tiberium Tan", "``http://tiberiumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://tiberiumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
-   "Uranium Blue", "``http://uraniumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``/ ``https://uraniumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``"
-   "Uranium Tan", "``http://uraniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://uraniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
-   "Zanium Tan", "``http://zaniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/`` / ``https://zaniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``"
+   
+   * - Grid Cluster 
+     - Oozie Server URL
+   * - Axonite Red
+     - ``http://axonitered-oozie.red.ygrid.yahoo.com:4080/oozie/``, ``https://axonitered-oozie.red.ygrid.yahoo.com:4443/oozie/``
+   * - Bassnium Red
+     - ``http://bassniumred-oozie.red.ygrid.yahoo.com:4080/oozie/``, ``https://bassniumred-oozie.red.ygrid.yahoo.com:4443/oozie/``
+   * - Bassnium Tan
+     - ``http://bassniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``,  ``https://bassniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``
+   * - Cobalt Blue
+     - ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``,  ``https://cobaltblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``
+   * - Dilithium Blue
+     - ``http://dilithiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``, ``https://dilithiumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``  
+   * - Dilithium Red
+     - ``http://dilithiumred-oozie.red.ygrid.yahoo.com:4080/oozie/``, ``https://dilithiumred-oozie.red.ygrid.yahoo.com:4443/oozie/``
+   * - Kryptonite Red  
+     - ``http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/``, ``https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/`` 
+   * - Mithril Blue
+     - ``http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``,  ``http://mithrilblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``
+   * - Mithril Red
+     - ``http://mithrilred-oozie.red.ygrid.yahoo.com:4080/oozie/``,  ``https://mithrilred-oozie.red.ygrid.yahoo.com:4443/oozie/``
+   * - Nitro Blue
+     - ``http://nitroblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``, ``https://nitroblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``
+   * - Oxium Blue
+     - ``http://oxiumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``, ``https://oxiumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``
+   * - Phazon Tan
+     - ``http://phazontan-oozie.tan.ygrid.yahoo.com:4080/oozie/``, ``https://phazontan-oozie.tan.ygrid.yahoo.com:4443/oozie/``
+   * - Tiberium Tan
+     - ``http://tiberiumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``, ``https://tiberiumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``
+   * - Uranium Blue 
+     - ``http://uraniumblue-oozie.blue.ygrid.yahoo.com:4080/oozie/``, ``https://uraniumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``
+   * - Uranium Tan 
+     - ``http://uraniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``, ``https://uraniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``
+   * - Zanium Tan
+     - ``http://zaniumtan-oozie.tan.ygrid.yahoo.com:4080/oozie/``,  ``https://zaniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``
 
 
 Expression Language (EL) Functions
