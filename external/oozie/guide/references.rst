@@ -24,7 +24,6 @@ Yahoo Configurations for Oozie
      - ``oozie.action.sharelib.for.hbase``
      - ``pig_current, hbase_current``
    
-
 .. http://twiki.corp.yahoo.com/view/CCDI/OozieShareLib
 .. For pig: pig_current . For pig with hcat: pig_current,hcat_current For piig with 
 .. hbase: pig_current,hbase_current
