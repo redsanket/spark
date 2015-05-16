@@ -4,6 +4,7 @@ Getting Started
 ===============
 
 .. 04/22/15: Rewrote.
+.. 05/15/15: Edited.
 
 In the quick starts in this chapter, you will 
 learn how to create Oozie Workflows, Coordinators, and
@@ -14,7 +15,7 @@ Setting Up
 
 .. 04/30/15: Tested.
 
-#. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-boarding <onboard>` steps.
+#. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-Boarding <onboard>` steps.
 #. SSH to the Kryptonite Red gateway (i.e., ``kryptonite-gw.red.ygrid.yahoo.com``).
 #. Create the directory ``$HOME/proj/oozie/`` for the quick starts: ``$ mkdir -p $HOME/proj/oozie``
 #. Get the Oozie examples:
@@ -50,7 +51,7 @@ Workflow Quick Start
 In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Workflow example ``map-reduce``.
 We're going to configure and run this Workflow in the following steps.
 
-#. Sign on to Kryptonite Red (or the cluster that you requested access).
+#. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Make the following edits to ``$HOME/proj/oozie/examples/src/main/apps/map-reduce/job.properties``::
 
@@ -74,7 +75,7 @@ Coordinator Quick Start
 In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Coordinator example ``aggregator``.
 We're going to configure and run this Coordinator in the following steps.
 
-#. Sign on to Kryptonite Red (or the cluster that you requested access).
+#. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Change to ``$HOME/proj/oozie/examples/src/main/apps/aggregator``
 #. As with the Workflow example, edit the file ``job.properties`` so
@@ -117,7 +118,7 @@ Creating a Bundle
 In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Bundle example ``bundle``.
 We're going to configure and run this Bundle in the following steps.
 
-#. Sign on to Kryptonite Red (or the cluster that you requested access).
+#. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Change to ``$HOME/proj/oozie/examples/src/main/apps/bundle``
 #. Again, edit the file ``job.properties`` so that the configurations are

@@ -2,13 +2,15 @@
 Oozie User Guide 
 ==============
 
+.. 05/13/15: Edited.
+
 -----------------
 Developer Preview
 -----------------
 
 .. important:: This is a preliminary document intended for developers 
                working at Yahoo. If you plan to use the contents of 
-               this document to implement applications on the grid, please note 
+               this document to implement applications on the grid, note 
                that the Oozie UI may be subject to change and modification. 
                When the final documentation is released, you will be notified 
                of all changes and updates via yahoo-oozie-users@yahoo-inc.com.
@@ -36,12 +38,16 @@ This document is **Yahoo Proprietary/Confidential**. Do not release the contents
 About This Guide
 ================
 
-The goal of this guide is to help developers use Oozie for Yahoo. 
+The goal of this guide is to help developers use Oozie for Yahoo. For general Oozie documentation,
+see the `Apache Oozie documentation <http://oozie.apache.org/>`_.
 
 .. _onboard:
 
 On-Boarding
 ===========
+
+Before you can use Oozie at Yahoo, you need to on-board by completing the following
+steps:
 
 #. `Request a grid account <http://yo/supportshop>`_ with HDFS and JobTracker queue access.
 #. Select the authentication mechanism for your Workflows: Kerberos (common for headless users) or YCA

@@ -1,6 +1,7 @@
 Troubleshooting
 ===============
 
+.. 05/14/15: Edited.
 
 Debugging
 ---------
@@ -62,7 +63,7 @@ the parent Coordinator job. Accessing action logs will be same as current behavi
 Performance improvements are underway to improve the streaming speed.
 
 For more information about the Web Console, 
-see https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook.
+`Map Reduce Cookbook: HOW TO USE THE OOZIE WEB-CONSOLE <https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook#MapReduceCookbook-CASE-8:HOWTOUSETHEOOZIEWEB-CONSOLE>`_.
 
 3. View Oozie Logs
 ~~~~~~~~~~~~~~~~~~
@@ -72,7 +73,7 @@ Logs are available for privileged users only.
 
 You can also use the ``oozie`` client to view the log::
 
-    $ oozie job -log <jobid> -oozie <OOZIE_URL>
+    $ oozie job -log <jobid> -oozie <OOZIE_URL> -auth kerberos
 
   
 Errors
@@ -86,7 +87,7 @@ Internal Server Error (1)
 
 :: 
 
-    $ oozie job -run -config map-reduce-job.properties
+    $ oozie job -run -config map-reduce-job.properties -auth kerberos
 
     Error: OTHER : Internal Server Error
 
@@ -94,7 +95,8 @@ Possible Solutions
 ++++++++++++++++++
 
 - Do you have access to a Hadoop queue?
-  Check out the queues for Axonite Blue here: http://ucdev4.yst.corp.yahoo.com/jtqueues/?cluster=axonite-blue
+  Check out the queues for the cluster you're using: ``http://ucdev4.yst.corp.yahoo.com/jtqueues/?cluster={cluster_name}``
+  For example, if you're using Axonite Blue, you would go to ``http://ucdev4.yst.corp.yahoo.com/jtqueues/?cluster=axonite-blue``.
 
 - Can you access the Hadoop queue?
 
@@ -103,8 +105,10 @@ Possible Solutions
      $ mapred queue -showacls
 
 
-If you don't have access to the queue you are using, `submit a request to Grid-Ops <http://yo/supportshop>`_. 
-You need access to a Hadoop queue to submit Workflows to Oozie. 
+You should see a list of queues. If you don't see ``SUBMIT_APPLICATION`` 
+next to the queue that you're using, you don't have access.
+To request access to the queue, `submit a request to Grid-Ops <http://yo/supportshop>`_. 
+(You need access to a Hadoop queue to submit Workflows to Oozie.)
 
 
 Internal Server Error (2)
@@ -118,19 +122,21 @@ Correct Example
 
 ::
 
-    $ oozie job -oozie http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie -config mb-wf.properties -run
+    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run -auth kerberos
+
+**kr-wf.properties**
 
 ::
 
-    $ cat mb-wf.properties
+    oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/{userid}/workflow/mb
 
 Incorrect Example
 +++++++++++++++++
 
 ::
 
-    $ oozie job -oozie http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie -config mb-wf.properties -run
-    oozie.wf.application.path=hdfs://mithrilblue-nn1.blue.ygrid.yahoo.com:8020/user/userid/workflow/mb
+    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run
+    oozie.wf.application.path=hdfs://mithrilblue-nn1.blue.ygrid.yahoo.com:8020/user/userid/workflow/mb -auth kerberos
 
 **mb-wf.properties**
 
@@ -148,7 +154,8 @@ Possible Solution
 +++++++++++++++++
 
 If you encounter above error, you should check that your XML elements are in the correct 
-sequence as specified in the `Workflow XSD <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. Order of the tags matters here.
+sequence as specified in the `Workflow XSD <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. 
+(The order of the tags matters here.)
 
 
 Error: AUTHENTICATION : Forbidden
@@ -157,9 +164,9 @@ Error: AUTHENTICATION : Forbidden
 Wrong Version of Oozie Client
 *****************************
 
-You are using the wrong version of the oozie client. You are probably using the Apache oozie client instead of the Yahoo oozie client. Download the Yahoo Oozie client from 
-``dist.corp.ahoo.com``.
-
+You are using the wrong version of the Oozie client. You are probably using the 
+Apache Oozie client instead of the Yahoo Oozie client. Install the Yahoo Oozie client from 
+``http://dist.corp.yahoo.com/by-package/yoozie_client/``.
 
 ::
 
@@ -169,54 +176,55 @@ Incorrect Workflow Path
 ***********************
 
 Your ``OOZIE_URL`` environment variable and ``oozie.wf.application.path`` specified 
-in your properties file must point to the same grid.
+in your properties file must point to the same cluster.
 
 Correct Example
 +++++++++++++++
 
 ::
 
-    $ oozie job -oozie http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie -config mb-wf.properties -run
+    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run -auth kerberos
 
 
-``mb-wf.properties``
+**kr-wf.properties**
 
 ::
 
-    oozie.wf.application.path=hdfs://mithrilblue-nn1.blue.ygrid.yahoo.com:8020/user/userid/workflow/mb
+    oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/userid/workflow/kr
 
 Incorrect Example
 +++++++++++++++++
 
 ::
 
-    $ oozie job -oozie http://mithrilblue-oozie.blue.ygrid.yahoo.com:4080/oozie -config mb-wf.properties -run
+    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run -auth kerberos
 
-``mb-wf.properties``
+**kr-wf.properties**
 
 ::
 
-    oozie.wf.application.path=hdfs://dilithiumblue-nn1.blue.ygrid.yahoo.com:8020/user/userid/workflow/mb
+    oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/userid/workflow/kr
 
 E1001 : unauthorized request user [userid]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-the ``E1001`` error means one of two things:
+The ``E1001`` error means one of two things:
 
-1. The HDFS path to your Workflow application is incorrect.
+#. The HDFS path to your Workflow application is incorrect.
 
-- Verify that the HDFS path is correct
-- Verify that you're using the correct port number.
-- If you are using a local installation, you may have to use ``localhost`` instead 
-  of the hostname in the Workflow path.
+   - Verify that the HDFS path is correct.
+   - Verify that you're using the correct port number.
+   - If you are using a local installation, you may have to use ``localhost`` instead 
+     of the hostname in the Workflow path.
 
-2. You don't have user/group read access to the Workflow application path.
+#. You don't have user/group read access to the Workflow application path.
 
    - Is the path correct?
    - In the properties file, there should not be any space after the path.
    - Make sure you define absolute paths to your HDFS paths:
-      - Correct path syntax: ``oozie.wf.application.path=hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com:8020/user/myuserid/workflows/pig``
-      - Incorrect path syntax: ``oozie.wf.application.path=hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com:8020/workflows/pig``
+
+     - Correct path syntax: ``oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/myuserid/workflows/pig``
+     - Incorrect path syntax: ``oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/workflows/pig``
 
 Oozie Local Installation Problems
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -266,7 +274,7 @@ My Hadoop Job Failed. Where are the Logs?
 #. Click on your job. A new window will open.
 #. Select the action from the bottom of new window. Another new window will open.
 #. Click on the right of **Console URL**. This will load the Hadoop Web UI. It will 
-   take you to a url like http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/job/job_1416815736267_5393163/
+   take you to a URL similar to http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/job/job_1416815736267_5393163/
 #. Select the link of the completed map task from the “Maps” line. It will take you 
    to a URL such as ``http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/attempts/job_1416815736267_5393163/m/SUCCESSFUL``.
 
@@ -277,6 +285,4 @@ should contain the stacktraces in case of failure. The **stdout** log usually co
 the execution of the action (Pig client log, Hive client log, shell output, etc.). 
 The **stdout** log also might contain error messages or stacktraces, so be sure to 
 always check it.
-
-
 

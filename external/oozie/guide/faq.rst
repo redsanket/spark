@@ -3,6 +3,7 @@ FAQ
 ===
 
 .. 04/22/15: Rewrote
+.. 05/15/15: Edited.
 
 This page answers some of the most common questions we get about Oozie at Yahoo. For 
 troubleshooting issues, see `Troubleshooting <ts.html>`_.
@@ -11,7 +12,7 @@ Questions
 =========
 
 * :ref:`Where are the log files created? <log_files>`  
-* :ref:`How do you turn off the uber Application (AM) for launcher jobs? <turn_off>`
+* :ref:`How do you turn off the uber ApplicationMaster (AM) for launcher jobs? <turn_off>`
 * :ref:`How do you run a Workflow action accessing the NameNode of a different cluster? <run_different_cluster>`
 * :ref:`How do you allow other user(s) to view the Hadoop logs? <allow_users_view_logs>`
 * :ref:`How do you pass variables to Oozie? <pass_variables>`
@@ -53,9 +54,9 @@ Answers
 
 .. topic:: **How do you turn off the uber ApplicationMaster (AM) for launcher jobs?**
 
-   In Hadoop 2.x, the launcher job is run in uberized mode. For example, the launcher map task 
+   In Hadoop 2.x, the launcher job is run in *uberized* mode. For example, the launcher map task 
    is run as part of the launcher AM to avert launching an additional container. 
-   If that is not desired, it can be turned off per workflow action 
+   If that is not desired, it can be turned off per Workflow action 
    by configuring ``oozie.launcher.mapreduce.job.ubertask.enable`` to 
    ``false`` in the action configuration.
 
@@ -72,24 +73,22 @@ Answers
    Pig scripts. A comma-separated list can be specified.
 
    For example, the Workflow XML below allows an action running in Dilithium Blue trying 
-   to access data in Uraniumb Blue(same colo) and Phazon Tan(cross-colo).
+   to access data in Uranium Blue (same colo) and Phazon Tan (cross-colo).
 
    .. code-block:: xml
 
       <property>
-         <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
-         <value>hdfs://uraniumblue-nn1.blue.ygrid.yahoo.com,webhdfs://phazontan-nn1.tan.ygrid.yahoo.com</value>
+        <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+        <value>hdfs://uraniumblue-nn1.blue.ygrid.yahoo.com,webhdfs://phazontan-nn1.tan.ygrid.yahoo.com</value>
       </property>
 
-
-    
 .. _allow_users_view_logs:
 
 .. topic:: **How do you allow other user(s) to view the Hadoop logs?**
 
    In Hadoop 20S+, any user other than the submitter of the job can not view the generated Hadoop logs. 
-   However, the job submitter could allow specific user(s) to see its log by defining 
-   few parameters during job submission. The same thing could be achieved through Oozie.
+   The job submitter, howeer, could allow specific user(s) to see its log by defining 
+   a few parameters during job submission. The same thing could be achieved through Oozie.
 
    More information, see the 
    `Grid Security User Impact <http://twiki.corp.yahoo.com/view/Grid/GridSecurityUserImpact>`_
@@ -98,71 +97,69 @@ Answers
    .. code-block:: xml
 
       <workflow-app xmlns='uri:oozie:workflow:0.5' name='streaming-wf'>
-         <start to='streaming1' />
-         <action name='streaming1'>
-            <map-reduce>
-               <job-tracker>${jobTracker}</job-tracker>
-               <name-node>${nameNode}</name-node>
-               <prepare>
-                  <delete path="${outputDir}"/>
-               </prepare>
-               <streaming>
-                  <mapper>/bin/cat</mapper>
-                  <reducer>/usr/bin/wc</reducer>
-               </streaming>
-               <configuration>
-                  <property>
-                     <name>mapred.input.dir</name>
-                     <value>${inputDir}</value>
-                  </property>
-                  <property>
-                     <name>mapred.output.dir</name>
-                     <value>${outputDir}</value>
-                  </property>
-                  <property>
-                     <name>mapred.job.queue.name</name>
-                     <value>${queueName}</value>
-                  </property>
-                  <property>
-                     <name>mapred.input.format.class</name>
-                     <value>org.apache.hadoop.mapred.TextInputFormat</value>
-                  </property>
-                  <property>
-                     <name>dfs.umask</name>
-                     <value>18</value>
-                  </property>
-                  <!------ Start of configuration to allow other user to view the hadoop log ------>                
-                  <property>
-                     <name>mapreduce.job.acl-modify-job</name>
-                     <value>users</value>
-                  </property>
-                  <property>
-                     <name>mapreduce.job.acl-view-job</name>
-                     <value>kamrul,marchen</value>
-                  </property>
-                  <property>
-                     <name>oozie.launcher.mapreduce.job.acl-modify-job</name>
-                     <value>users</value>
-                  </property>
-                  <property>
-                     <name>oozie.launcher.mapreduce.job.acl-view-job</name>
-                     <value>kamrul,marchen</value>
-                  </property>
-                  <!------ End of configuration ------>
-               </configuration>
-            </map-reduce>
-            <ok to="end" />
-            <error to="fail" />
-         </action>
-         <kill name="fail">
-            <message>Streaming Map/Reduce failed, error
-       message[${wf:errorMessage(wf:lastErrorNode())}]</message>
-         </kill>
-         <end name='end' />
+        <start to='streaming1' />
+        <action name='streaming1'>
+          <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+              <delete path="${outputDir}"/>
+            </prepare>
+            <streaming>
+              <mapper>/bin/cat</mapper>
+              <reducer>/usr/bin/wc</reducer>
+            </streaming>
+            <configuration>
+              <property>
+                <name>mapred.input.dir</name>
+                <value>${inputDir}</value>
+              </property>
+              <property>
+                <name>mapred.output.dir</name>
+                <value>${outputDir}</value>
+              </property>
+              <property>
+                <name>mapred.job.queue.name</name>
+                <value>${queueName}</value>
+              </property>
+              <property>
+                <name>mapred.input.format.class</name>
+                <value>org.apache.hadoop.mapred.TextInputFormat</value>
+              </property>
+              <property>
+                <name>dfs.umask</name>
+                <value>18</value>
+              </property>
+              <!------ Start of configuration to allow other user to view the hadoop log ------>                
+              <property>
+                <name>mapreduce.job.acl-modify-job</name>
+                <value>users</value>
+              </property>
+              <property>
+                <name>mapreduce.job.acl-view-job</name>
+                <value>kamrul,marchen</value>
+              </property>
+              <property>
+                <name>oozie.launcher.mapreduce.job.acl-modify-job</name>
+                <value>users</value>
+              </property>
+              <property>
+                <name>oozie.launcher.mapreduce.job.acl-view-job</name>
+                <value>kamrul,marchen</value>
+              </property>
+              <!------ End of configuration ------>
+            </configuration>
+          </map-reduce>
+          <ok to="end" />
+          <error to="fail" />
+        </action>
+        <kill name="fail">
+          <message>Streaming Map/Reduce failed, error
+          message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+        </kill>
+        <end name='end' />
       </workflow-app>
 
-
- 
 .. _pass_variables:
 
 .. topic:: **How do you pass variables to Oozie?**
@@ -170,7 +167,7 @@ Answers
 
    You pass configuration parameters to Oozie CLI using the ``-config`` option::
 
-       $ oozie job -run -config map-reduce-job.properties
+       $ oozie job -run -config map-reduce-job.properties -auth kerberos
 
 
    The properties file would look something like the following::
@@ -200,50 +197,48 @@ Answers
    .. code-block:: xml
 
       <workflow-app xmlns='uri:oozie:workflow:0.5' name='java-wf'>
-          <start to='java1' />
-      
-          <action name='java1'>
-              <java>
-                  <job-tracker>${jobTracker}</job-tracker>
-                  <name-node>${nameNode}</name-node>
-                  <configuration>
-                     <property>
-                          <name>mapred.job.queue.name</name>
-                          <value>${queueName}</value>
-                      </property>
-                  </configuration>
-                  <main-class>org.apache.oozie.test.MyTest</main-class>
-                  <capture-output/>
-              </java>
-              <ok to="pig1" />
-              <error to="fail" />
-          </action>
-          <action name='pig1'>
-              <pig>
-                  <job-tracker>${jobTracker}</job-tracker>
-                  <name-node>${nameNode}</name-node>
-                  <configuration>
-                      <property>
-                          <name>mapred.job.queue.name</name>
-                          <value>${queueName}</value>
-                      </property>
-                      <property>
-                          <name>mapred.compress.map.output</name>
-                          <value>true</value>
-                      </property>
-                  </configuration>
-                  <script>org/apache/oozie/examples/pig/script.pig</script>
-                  <param>MY_VAR=${wf:actionData("java1")["PASS_ME"]}</param>
-      
-                  <file>/tmp/${wf:user()}/tutorial-udf.jar#tutorial-udf.jar</file>
-              </pig>
-              <ok to="end" />
-              <error to="fail" />
-          </action>
-          <kill name="fail">
-              <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
-          </kill>
-          <end name='end' />
+        <start to='java1' />
+        <action name='java1'>
+          <java>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+              <property>
+                <name>mapred.job.queue.name</name>
+                <value>${queueName}</value>
+              </property>
+            </configuration>
+            <main-class>org.apache.oozie.test.MyTest</main-class>
+            <capture-output/>
+          </java>
+          <ok to="pig1" />
+          <error to="fail" />
+        </action>
+        <action name='pig1'>
+          <pig>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+              <property>
+                <name>mapred.job.queue.name</name>
+                <value>${queueName}</value>
+              </property>
+              <property>
+                <name>mapred.compress.map.output</name>
+                <value>true</value>
+              </property>
+            </configuration>
+            <script>org/apache/oozie/examples/pig/script.pig</script>
+            <param>MY_VAR=${wf:actionData("java1")["PASS_ME"]}</param>
+            <file>/tmp/${wf:user()}/tutorial-udf.jar#tutorial-udf.jar</file>
+          </pig>
+          <ok to="end" />
+          <error to="fail" />
+        </action>
+        <kill name="fail">
+          <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+        </kill>
+        <end name='end' />
       </workflow-app>
 
    In the Java ``Main`` class, the sample class ``org.apache.oozie.test.MyTest`` should be 
@@ -260,27 +255,27 @@ Answers
       
       public class MyTest {
          
-         ////////////////////////////////
-         // Do whatever you want in here
-         ////////////////////////////////
-         public static void main (String[] args)
-         {
-            String fileName = args[0];
-            try{
-               File file = new File(System.getProperty("oozie.action.output.properties"));
-               Properties props = new Properties();
-               props.setProperty("PASS_ME", "123456"); 
-      
-               OutputStream os = new FileOutputStream(file);
-               props.store(os, "");
-               os.close();
-               System.out.println(file.getAbsolutePath()); 
-            }
-            catch (Exception e) {
-               e.printStackTrace();
-            }
-         }
-      }
+        ////////////////////////////////
+        // Do whatever you want in here
+        ////////////////////////////////
+        public static void main (String[] args)
+        {
+           String fileName = args[0];
+           try{
+              File file = new File(System.getProperty("oozie.action.output.properties"));
+              Properties props = new Properties();
+              props.setProperty("PASS_ME", "123456"); 
+     
+              OutputStream os = new FileOutputStream(file);
+              props.store(os, "");
+              os.close();
+              System.out.println(file.getAbsolutePath()); 
+           }
+           catch (Exception e) {
+              e.printStackTrace();
+           }
+        }
+     }
 
       
 .. _common_libs:
@@ -294,7 +289,8 @@ Answers
    Examples of common JARS are: ``hadoop-streaming.jar``, ``pig.jar``, etc..
    Use the ``<file>`` XML element to refer to the absolute path to these JARs in HDFS. 
    You do not need to include them in your workflow ``lib`` directory.
-   Refer to the `Oozie documentation <http://oozie.apache.org/docs/3.3.2/WorkflowFunctionalSpec.html#a3.2.2.1_Adding_Files_and_Archives_for_the_Job>`_for details on how to use the ``<file>`` element.
+   Refer to the `Oozie documentation <http://oozie.apache.org/docs/3.3.2/WorkflowFunctionalSpec.html#a3.2.2.1_Adding_Files_and_Archives_for_the_Job>`_
+   for details on how to use the ``<file>`` element.
    In Oozie 5.0, you store common library JARs in a shared location in HDFS. For example, 
    in the ``job.properties`` file, you would specify ``oozie.libpath=hdfs://nn:8020/tmp/commonlib``.
 
@@ -308,7 +304,7 @@ Answers
    .. code-block:: xml
 
       <prepare>
-          <delete path="${ (wf:run() != 0) ? myOutpuDir : '/tmp/dummy'  }"/>
+         <delete path="${ (wf:run() != 0) ? myOutpuDir : '/tmp/dummy'  }"/>
       </prepare>
 
 .. _pass_env_vars_actions:
@@ -320,8 +316,8 @@ Answers
    .. code-block:: xml
 
       <property>
-          <name>mapred.child.env</name>
-          <value>A=foo</value>
+         <name>mapred.child.env</name>
+         <value>A=foo</value>
       </property> 
 
 
@@ -330,8 +326,8 @@ Answers
    .. code-block:: xml
 
       <property>
-          <name>oozie.launcher.mapred.child.env</name>
-          <value>A=foo</value>
+         <name>oozie.launcher.mapred.child.env</name>
+         <value>A=foo</value>
       </property> 
 
 
@@ -340,8 +336,8 @@ Answers
    .. code-block:: xml
 
       <property>
-          <name>mapred.child.env</name>
-          <value>A=foo</value>
+        <name>mapred.child.env</name>
+        <value>A=foo</value>
       </property> 
 
 .. _access_action_config:
@@ -353,14 +349,16 @@ Answers
    and its location is passed by the system variable ``oozie.action.conf.xml``.
 
    If you are accessing some configuration properties in your ``java-action`` main 
-   class or custom ``map-reduce`` action mapper/reducer class, do the following::
+   class or custom ``map-reduce`` action mapper/reducer class, do the following:
 
-       String confLocation = System.getProperty("oozie.action.conf.xml");
-       Path localConfPath = new Path(confLocation);
-       Configuration conf = new Configuration();
-       conf.addResource(localConfPath);
+   .. code-block:: java
 
-       // .. continue here
+      String confLocation = System.getProperty("oozie.action.conf.xml");
+      Path localConfPath = new Path(confLocation);
+      Configuration conf = new Configuration();
+      conf.addResource(localConfPath);
+
+      // .. continue here
 
 
 .. _filter:
@@ -369,11 +367,12 @@ Answers
 
    You can run the query with multiple filter options by escaping ";" as \; or quoting the whole filter::
 
-       $ oozie jobs -filter "user=user123;status=KILLED"
+       $ oozie jobs -filter "user=user123;status=KILLED" -auth kerberos
 
    or::
    
-       $ oozie jobs -filter user=user123\;status=KILLED
+       $ oozie jobs -filter user=user123\;status=KILLED -auth kerberos
+
 
 .. _mr_http:
 
@@ -396,7 +395,7 @@ Answers
      
        $ export CLASSPATH=".:/home/y/var/yoozieclient/lib/yoozie-client-4.0.0.4.jar:/home/y/var/yoozieclient/lib/oozie-client-4.0.0.4.jar:/home/y/var/yoozieclient/lib/json-simple-1.1.jar:/home/y/var/yoozieclient/lib/commons-cli-1.2.jar:/home/y/lib/jars/yjava_byauth.jar:/home/y/lib/jars/bouncer_auth_java.jar:/home/y/lib/jars/log4j.jar"
       
-   **3. Create Java Oozie Client**
+   **3. Create a Java Oozie Client**
 
    .. code-block:: java
 
@@ -420,53 +419,52 @@ Answers
       
       public class MyOozieClient {
       
-          public static void main(String[] args) throws InterruptedException, WorkflowClientException,IOException,java.security.NoSuchAlgorithmException,java.security.spec.InvalidKeySpecException,java.security.InvalidKeyException {
-              // get a WorkflowClient for local Oozie
-              WorkflowClient wc = new WorkflowClient("http://gsbl91034.blue.ygrid.yahoo.com:8080/oozie");
-      
-              // create a workflow job configuration and set the workflow application path
-              Properties conf = wc.createConfiguration();
-              conf.setProperty(WorkflowClient.APP_PATH, "hdfs://localhost:9000/user/danielwo/workflows/map-reduce");
-      
-              // setting workflow parameters
-              conf.setProperty("jobTracker", "localhost:9001");
-              conf.setProperty("inputDir", "/user/danielwo/input-data");
-              conf.setProperty("outputDir", "/user/danielwo/output-map-reduce");
-      
-         //set your group
-              conf.setProperty("group.name", "users");
-      
-         //Bouncer authentication
-         System.out.print("Username: ");
-         System.out.flush();
-         String username = new BufferedReader(new InputStreamReader(System.in)).readLine();
-         char[] password = System.console().readPassword("%s", "Password: ");
-      
-         HttpClientBouncerAuth auth = new  HttpClientBouncerAuth();
-         String YBYCOOKIE = auth.authenticate("https://bouncer.gh.corp.yahoo.com/login/",  username, password);
-         wc.setHeader("cookie",  YBYCOOKIE);
-      
-              // verify cookie
-         CookieValidator validator = new CookieValidator();
-         validator.initialize();
-         CookieInfo info = validator.authSig(YBYCOOKIE);
-         System.out.println("Valid cookie: " + info.isValid());
-      
-              // submit and start the workflow job
-              String jobId = wc.run(conf);
-              System.out.println("Workflow job submitted");
-      
-              // wait until the workflow job finishes printing the status every 10 secs
-              while (wc.getJobInfo(jobId).getStatus() == Workflow.Status.RUNNING) {
-                  System.out.println("Workflow job running ...");
-                  Thread.sleep(10 * 1000);
-              }
-      
-              // print the final status o the workflow job
-              System.out.println("Workflow job completed ...");
-              System.out.println(wc.getJobInfo(jobId));
+        public static void main(String[] args) throws InterruptedException, WorkflowClientException,IOException,java.security.NoSuchAlgorithmException,java.security.spec.InvalidKeySpecException,java.security.InvalidKeyException { 
+          // get a WorkflowClient for local Oozie
+          WorkflowClient wc = new WorkflowClient("http://gsbl91034.blue.ygrid.yahoo.com:8080/oozie");
+        
+          // create a workflow job configuration and set the workflow application path
+          Properties conf = wc.createConfiguration();
+          conf.setProperty(WorkflowClient.APP_PATH, "hdfs://localhost:9000/user/danielwo/workflows/map-reduce");
+        
+          // setting workflow parameters
+          conf.setProperty("jobTracker", "localhost:9001");
+          conf.setProperty("inputDir", "/user/danielwo/input-data");
+          conf.setProperty("outputDir", "/user/danielwo/output-map-reduce");
+        
+          //set your group
+          conf.setProperty("group.name", "users");
+        
+          //Bouncer authentication
+          System.out.print("Username: ");
+          System.out.flush();
+          String username = new BufferedReader(new InputStreamReader(System.in)).readLine();
+          char[] password = System.console().readPassword("%s", "Password: ");
+        
+          HttpClientBouncerAuth auth = new  HttpClientBouncerAuth();
+          String YBYCOOKIE = auth.authenticate("https://bouncer.gh.corp.yahoo.com/login/",  username, password);
+          wc.setHeader("cookie",  YBYCOOKIE);
+        
+          // verify cookie
+          CookieValidator validator = new CookieValidator();
+          validator.initialize();
+          CookieInfo info = validator.authSig(YBYCOOKIE);
+          System.out.println("Valid cookie: " + info.isValid());
+        
+          // submit and start the workflow job
+          String jobId = wc.run(conf);
+          System.out.println("Workflow job submitted");
+        
+          // wait until the workflow job finishes printing the status every 10 secs
+          while (wc.getJobInfo(jobId).getStatus() == Workflow.Status.RUNNING) {
+            System.out.println("Workflow job running ...");
+            Thread.sleep(10 * 1000);
           }
-      
+        
+          // print the final status o the workflow job
+          System.out.println("Workflow job completed ...");
+          System.out.println(wc.getJobInfo(jobId));
+        }
       }
    
    **4. Compile Code**
@@ -532,9 +530,9 @@ Answers
     .. code-block:: xml
 
        <property>
-           <name>oozie.launcher.mapred.child.java.opts</name>
-           <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
-           <description>setting memory usage to 1024MB</description>
+         <name>oozie.launcher.mapred.child.java.opts</name>
+         <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
+         <description>setting memory usage to 1024MB</description>
        </property>
 
    **Example**
@@ -542,36 +540,34 @@ Answers
    .. code-block:: xml
 
       <workflow-app xmlns='uri:oozie:workflow:0.5' name='pig-wf'>
-          <start to='pig1' />
-          <action name='pig1'>
-              <pig>
-                  <job-tracker>${jobTracker}</job-tracker>
-                  <name-node>${nameNode}</name-node>
-                  <configuration>
-                      <property>
-                          <name>mapred.job.queue.name</name>
-                          <value>${queueName}</value>
-                      </property>
-                      <property>
-                          <name>mapred.compress.map.output</name>
-                          <value>true</value>
-                      </property>
-      
-                      <property>
-                          <name>oozie.launcher.mapred.child.java.opts</name>
-                          <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
-                      </property>
-      
-                  </configuration>
-                  <script>org/apache/oozie/examples/pig/script.pig</script>
-              </pig>
-              <ok to="end" />
-              <error to="fail" />
-          </action>
-          <kill name="fail">
-              <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
-          </kill>
-          <end name='end' />
+        <start to='pig1' />
+        <action name='pig1'>
+          <pig>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+              <property>
+                <name>mapred.job.queue.name</name>
+                <value>${queueName}</value>
+              </property>
+              <property>
+                <name>mapred.compress.map.output</name>
+                <value>true</value>
+              </property>
+              <property>
+                <name>oozie.launcher.mapred.child.java.opts</name>
+                <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
+              </property>
+            </configuration>
+            <script>org/apache/oozie/examples/pig/script.pig</script>
+          </pig>
+          <ok to="end" />
+          <error to="fail" />
+        </action>
+        <kill name="fail">
+          <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+        </kill>
+        <end name='end' />
       </workflow-app>
 
    If you need more than 1.5 G memory for the Pig launcher, 
@@ -581,12 +577,12 @@ Answers
    .. code-block:: xml
 
       <property>
-          <name>oozie.launcher.mapred.child.java.opts</name>
-          <value>-server -Xmx2G -Djava.net.preferIPv4Stack=true</value>
+        <name>oozie.launcher.mapred.child.java.opts</name>
+        <value>-server -Xmx2G -Djava.net.preferIPv4Stack=true</value>
       </property>
       <property>
-          <name>oozie.launcher.mapred.job.map.memory.mb</name>
-          <value>2560</value>
+        <name>oozie.launcher.mapred.job.map.memory.mb</name>
+        <value>2560</value>
       </property>
 
    .. note:: The default value for most tasks on the grid is 1.5G (corresponding to 1 slot). 
@@ -604,8 +600,8 @@ Answers
    .. code-block:: xml
 
       <property>
-          <name>mapred.min.split.size</name>
-          <value>536870912</value>
+        <name>mapred.min.split.size</name>
+        <value>536870912</value>
       </property> 
 
    **Passing Parameters Through a Parameter File**
@@ -614,71 +610,70 @@ Answers
    could be achieved through Oozie. Follow these three steps: 
 
    #. Upload the parameter file into HDFS.
-   #. Create a symbolic link with the ``file`` element within the Pig action.xml``.
+   #. Create a symbolic link with the ``file`` element within the Pig ``action.xml``.
    #. Pass the file name through the ``argument`` element of the Pig action.
 
+      - Parameter file ('paramfile') is HDFS.
+      - Here is the ``workflow.xml``:
 
-   - Parameter file ('paramfile') is HDFS.
-   - Here is the ``workflow.xml``:
+        .. code-block:: xml
 
-     .. code-block:: xml
-
-        <workflow-app xmlns='uri:oozie:workflow:0.2' name='pig-paramfile-wf'>
-            <start to='pig2' />
-            <action name='pig2'>
-                <pig>
-                    <job-tracker>${jobTracker}</job-tracker>
-                    <name-node>${nameNode}</name-node>
-                    <prepare>
-                       <delete path="${nameNode}${outputDir}" />
-                    </prepare>
-                    <configuration>
-                        <property>
-                            <name>mapred.job.queue.name</name>
-                            <value>${queueName}</value>
-                        </property>
-                        <property>
-                            <name>mapred.compress.map.output</name>
-                            <value>true</value>
-                        </property>
-                    </configuration>
-                    <script>script.pig</script>
-                    <!----- Pass the param file as argument. ----->
-                    <argument>-param_file</argument>
-                    <argument>paramfile</argument>
-                    <file>lib/tutorial-udf.jar#udf.jar</file> 
-                    <!----- Create a symbolic link   ----->
-                    <file>paramfile#paramfile</file> 
-                </pig>
-                <ok to="decision1" />
-                <error to="fail" />
-            </action>
-            <decision name="decision1">
-                <switch>
-                    <case to="end">${fs:exists(wf:conf('outputFile'))}</case>
-                    <default to="fail" />
-                </switch>
-            </decision>
-            <kill name="fail">
-                <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
-            </kill>
-            <end name='end' />
-        </workflow-app>
+           <workflow-app xmlns='uri:oozie:workflow:0.2' name='pig-paramfile-wf'>
+             <start to='pig2' />
+             <action name='pig2'>
+               <pig>
+                 <job-tracker>${jobTracker}</job-tracker>
+                 <name-node>${nameNode}</name-node>
+                 <prepare>
+                   <delete path="${nameNode}${outputDir}" />
+                 </prepare>
+                 <configuration>
+                   <property>
+                     <name>mapred.job.queue.name</name>
+                     <value>${queueName}</value>
+                   </property>
+                   <property>
+                     <name>mapred.compress.map.output</name>
+                     <value>true</value>
+                   </property>
+                 </configuration>
+                 <script>script.pig</script>
+                 <!----- Pass the param file as argument. ----->
+                 <argument>-param_file</argument>
+                 <argument>paramfile</argument>
+                 <file>lib/tutorial-udf.jar#udf.jar</file> 
+                 <!----- Create a symbolic link   ----->
+                 <file>paramfile#paramfile</file> 
+               </pig>
+               <ok to="decision1" />
+               <error to="fail" />
+             </action>
+             <decision name="decision1">
+               <switch>
+                 <case to="end">${fs:exists(wf:conf('outputFile'))}</case>
+                 <default to="fail" />
+               </switch>
+             </decision>
+             <kill name="fail">
+               <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+             </kill>
+             <end name='end' />
+           </workflow-app>
    
 .. _submit_pig_http:
 
 .. topic:: **How do you submit a Pig job through HTTP?**
 
-   **Command-line syntax:** ``oozie pig -oozie <OOZIE_URL> -file <pig script> -config job.properties -X <all pig options>``
+   **Command-line syntax:** ``oozie pig -oozie <OOZIE_URL> -file <pig script> -config job.properties -X <all pig options> -auth kerberos``
 
-   **Example command:** ``$ oozie pig -file multiquery1.pig -config job.properties -X -Dmapred.job.queue.name=grideng -Dmapred.compress.map.output=true -Ddfs.umask=18 -param_file paramfile -p INPUT=/tmp/workflows/input-data``
+   **Example command:** ``$ oozie pig -file multiquery1.pig -config job.properties -X -Dmapred.job.queue.name=grideng -Dmapred.compress.map.output=true -Ddfs.umask=18 -param_file paramfile -p INPUT=/tmp/workflows/input-data -auth kerberos``
  
    .. note::  The option ``-X`` is the last argument in the command line.
 
 
    **Example job.properties**
 
-   .. code-block:: bash
+   .. code-block:: properties
 
       fs.default.name=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020
       mapred.job.tracker=gsbl91029.blue.ygrid.yahoo.com:8032
@@ -690,7 +685,7 @@ Answers
 
    #. Add ``-Doozie.launcher.mapreduce.job.hdfs-servers`` to the command line::
 
-          $ oozie pig -file multiquery1.pig -config job.properties -X -Doozie.launcher.mapreduce.job.hdfs-servers="hdfs://sourcenamenode.blue.ygrid.yahoo.com:8020" ... ...
+          $ oozie pig -file multiquery1.pig -config job.properties -X -Doozie.launcher.mapreduce.job.hdfs-servers="hdfs://sourcenamenode.blue.ygrid.yahoo.com:8020" -auth kerberos ... ...
 
    #. Use ``_HOST`` for the Kerberos principal.
    
@@ -700,7 +695,6 @@ Answers
           ...
           mapreduce.jobtracker.kerberos.principal=mapred/_HOST@DEV.YGRID.YAHOO.COM 
           dfs.namenode.kerberos.principal=hdfs/_HOST@DEV.YGRID.YAHOO.COM
-
 
 .. _yca_serve_certs:
 
@@ -736,7 +730,7 @@ Answers
    .. code-block:: xml
 
       <controls>
-          <timeout>300</timeout>
+        <timeout>300</timeout>
       </controls>
 
 
@@ -761,7 +755,7 @@ Answers
 
    For example, the following will update the Coordinator definition and action:: 
 
-       $ oozie job -update -config examples/apps/aggregator/job.properties 
+       $ oozie job -update -config examples/apps/aggregator/job.properties -auth kerberos
 
 
 .. _long_time_finish:
@@ -785,7 +779,6 @@ Answers
    - By looking at the Oozie log, we can determine whether there were a lot of late callback received by Oozie.
    - Use the following command: ``grep "E0800: Action it is not running its in \[OK\] state" oozie.log.2010-04-05-* | wc -l``
      If there are lot of lines, that means, Oozie is getting a lot of late callbacks.
-
 
 .. _submit_wf_ycav2:
 
@@ -828,19 +821,19 @@ Answers
    
       <workflow-app>
         <credentials>
-           <credential name='myyca' type='yca'>
-              <property>
-                 <name>yca-role</name>
-                 <value>griduser.actualuser</value>
-              </property>
-            /credential> 
+          <credential name='myyca' type='yca'>
+            <property>
+              <name>yca-role</name>
+              <value>griduser.actualuser</value>
+            </property>
+          </credential> 
         </credentials>
         <action cred='myyca'>
-           <map-reduce>
+          <map-reduce>
            --IGNORED--
-           </map-reduce>
+          </map-reduce>
         </action>
-      <workflow-app>
+      </workflow-app>
    
    **Proxy**
    
@@ -858,7 +851,6 @@ Answers
    use in mapper or reducer class for talking to YCAv2-protected Web service from grid.
    
    .. code-block:: java
-   
    
       //**proxy setup**
    
@@ -892,10 +884,10 @@ Answers
       <repositories>
         <repository>
           <id>yahoo</id>
-            <url>http://ymaven.corp.yahoo.com:9999/proximity/repository/public</url>
-            <snapshots>
+          <url>http://ymaven.corp.yahoo.com:9999/proximity/repository/public</url>
+          <snapshots>
             <enabled>false</enabled>
-            </snapshots>
+          </snapshots>
         </repository>
       </repositories>
       <oozie.version>4.4.1.3.1411122125</oozie.version>
@@ -948,15 +940,15 @@ Answers
       .. code-block:: xml
    
          <keydb>
-            <keygroup name="oozie" id="0">
-               <keyname name="headless_user.pw" usage="all" type="a">
-                  <key version="0"
-                      value = "mYsecreTpassworD" current = "true"
-                      timestamp = "20040916001312"
-                      expiry = "20070916001312">
-                  </key>
-               </keyname>
-            </keygroup>
+           <keygroup name="oozie" id="0">
+             <keyname name="headless_user.pw" usage="all" type="a">
+               <key version="0"
+                 value = "mYsecreTpassworD" current = "true"
+                 timestamp = "20040916001312"
+                 expiry = "20070916001312">
+               </key>
+             </keyname>
+           </keygroup>
          </keydb>
 
 
@@ -964,23 +956,23 @@ Answers
 
 .. topic:: **How do you configure Oozie jobs to use two NameNodes (Oozie Striping)?**
 
-   1. Identify the JobTracker and its native NameNode
-   **************************************************
+   1. Identify the JobTracker and its native NameNode.
+   ***************************************************
    
-   For example, if the JobTracker is JT1, then the native (or default) NameNode is NN1,
-   If the JobTracker is JT2, then the second namenode is NN2.
+   For example, if the JobTracker is ``JT1``, then the native (or default) NameNode is ``NN1``,
+   If the JobTracker is ``JT2``, then the second namenode is ``NN2``.
    
-   2. Configure the Oozie job application path
-   *******************************************
+   2. Configure the Oozie job application path.
+   ********************************************
    
-   The Oozie job application path, including ``coordinator.xml``, ``workflow.xml``, and ``lib``, needs to be on JobTracker's default namenode (i.e., NN1).
-   The default NameNode should be set to NN1.
+   The Oozie job application path, including ``coordinator.xml``, ``workflow.xml``, and ``lib``, needs to be on JobTracker's default namenode (i.e., ``NN1``).
+   The default NameNode should be set to ``NN1``.
    
    For example:
    
    Coordinator: **job.properties**
    
-   .. code-block:: bash
+   .. code-block:: properties
    
       oozie.coord.application.path=hdfs://{NN1}:8020/projects/test_sla2-4
       nameNode=hdfs://{NN1}:8020
@@ -989,30 +981,30 @@ Answers
    
    Workflow: **job.properties**
    
-   .. code-block:: bash
+   .. code-block:: properties
    
       oozie.wf.application.path=hdfs://{NN1}:8020/yoozie_test/workflows/pigtest
       nameNode=hdfs://{NN1}:8020
       jobTracker={JT1}:50300
    
-   3. Creating the Pig action
-   **************************
+   3. Create the Pig action.
+   *************************
    
-   The pig script should be on NN1.
-   For pig 0.8, use the 0.8.0..1011230042 patch to use correct the Hadoop queue.
+   The Pig script should be on ``NN1``.
+   For Pig 0.8, use the 0.8.0..1011230042 patch to use correct the Hadoop queue.
    
    For example:
    
    **job.properties**
    
-   .. code-block:: bash
+   .. code-block:: properties
    
       inputDir=hdfs://{NN2}:8020/projects/input-data
       outputDir=hdfs://{NN2}:8020/projects/output-demo
    
    
-   4. Add a new property to configuration
-   **************************************
+   4. Add a new property to configuration.
+   ***************************************
    
    For every Oozie action that needs to refer to input/output on the second NameNode, 
    add this property to the action's configuration in ``workflow.xml``.
@@ -1020,13 +1012,13 @@ Answers
    .. code-block:: xml
    
       <property>
-       <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
-       <value>hdfs://{NN2}:8020</value>
+        <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+        <value>hdfs://{NN2}:8020</value>
       </property>
    
    
-   5. Confirm that Oozie properties and XML tags are on the default NameNode
-   *************************************************************************
+   5. Confirm that Oozie properties and XML tags are on the default NameNode.
+   **************************************************************************
    
    - ``oozie.coord.application.path``
    - ``oozie.wf.application.path``
@@ -1036,7 +1028,7 @@ Answers
    - ``<sub-workflow><app-path>``
    - ``<job-xml>``
    - pipes action's ``<program>``
-   - Fs action <move source target>
+   - Fs action ``<move source target>``
    - Pig action's ``<script>``
    
 
@@ -1053,9 +1045,9 @@ Answers
    .. code-block:: xml
    
       <property>
-          <name>mapred.child.java.opts</name>
-          <value>-Xmx1024M</value>
-          <description>Setting memory usage to 1024MB</description>
+        <name>mapred.child.java.opts</name>
+        <value>-Xmx1024M</value>
+        <description>Setting memory usage to 1024MB</description>
       </property>
    
    Below is the ``workflow.xml`` that includes the defined property for
@@ -1064,39 +1056,39 @@ Answers
    .. code-block:: xml
    
       <workflow-app xmlns='uri:oozie:workflow:0.5' name='streaming-wf'>
-          <start to='streaming1' />
-          <action name='streaming1'>
-              <map-reduce>
-                  <job-tracker>${jobTracker}</job-tracker>
-                  <name-node>${nameNode}</name-node>
-                  <streaming>
-                      <mapper>/bin/cat</mapper>
-                      <reducer>/usr/bin/wc</reducer>
-                  </streaming>
-                  <configuration>
-                      <property>
-                          <name>mapred.input.dir</name>
-                          <value>${inputDir}</value>
-                      </property>
-                      <property>
-                          <name>mapred.output.dir</name>
-                          <value>${outputDir}/streaming-output</value>
-                      </property>
-                      <property>
-                        <name>mapred.job.queue.name</name>
-                        <value>${queueName}</value>
-                      </property>
-                     <property>
-                        <name>mapred.child.java.opts</name>
-                        <value>-Xmx1024M</value>
-                     </property>
-                  </configuration>
-              </map-reduce>
-              <ok to="end" />
-              <error to="fail" />
-          </action>
-          <kill name="fail">
-              <message>Streaming Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
-          </kill>
-          <end name='end' />
+        <start to='streaming1' />
+        <action name='streaming1'>
+          <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <streaming>
+              <mapper>/bin/cat</mapper>
+              <reducer>/usr/bin/wc</reducer>
+            </streaming>
+            <configuration>
+              <property>
+                <name>mapred.input.dir</name>
+                <value>${inputDir}</value>
+              </property>
+              <property>
+                <name>mapred.output.dir</name>
+                <value>${outputDir}/streaming-output</value>
+              </property>
+              <property>
+                <name>mapred.job.queue.name</name>
+                <value>${queueName}</value>
+              </property>
+              <property>
+                <name>mapred.child.java.opts</name>
+                <value>-Xmx1024M</value>
+              </property>
+            </configuration>
+          </map-reduce>
+          <ok to="end" />
+          <error to="fail" />
+        </action>
+        <kill name="fail">
+          <message>Streaming Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+         </kill>
+        <end name='end' />
       </workflow-app>

@@ -1,7 +1,8 @@
 Oozie Monitoring
 ================
 
-.. 04/23/15: Rewrote
+.. 04/23/15: Rewrote.
+.. 05/15/15: Edited.
 
 The following sections discuss how to monitor Oozie jobs, get notifications,
 connecting to the `Cloud Messaging Service <http://developer.corp.yahoo.com/product/Cloud%20Messaging%20Service>`_, 
@@ -27,13 +28,13 @@ JMS Notifications for Job and SLA
 JMS is the Java Messaging Service, which has an API 
 for sending messages between two or more clients. You can use JMS
 to fetch job status messages from the Yahoo Cloud Messaging Service (CMS).
-CMS is a hosted service that internally `ActiveMQ <http://activemq.apache.org/>`_ 
+CMS is a hosted service that internally uses `ActiveMQ <http://activemq.apache.org/>`_ 
 and is YCA-protected access.
 
 In the following sections, we will take a look at how to use JMS to connect to CMS, 
 what code changes you need to make, and how to write a listener to fetch messages from CMS. 
 
-We also recommend that you see `JMS Notifications <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_JMSNotifications.html>`_.
+We also recommend reading `JMS Notifications <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_JMSNotifications.html>`_.
 
 Connecting to CMS
 ~~~~~~~~~~~~~~~~~
@@ -46,6 +47,8 @@ high-performance asynchronous API.
 
 See also the `Cloud Messaging Service - Client API Usage - Tutorial <http://twiki.corp.yahoo.com/view/Messaging/MessagingServiceTutorial#ACLs_AN1>`_ 
 for more information.
+
+.. _connect_cms-acls:
 
 ACLs
 ****
@@ -63,24 +66,23 @@ Cross-Colo Access and SSL
 *************************
 
 If are connecting to CMS across colos, you should enable 
-SSL. See `How can I use SSL to connect to CMS <http://twiki.corp.yahoo.com/view/Messaging/FAQs#How_can_I_use_SSL_to_connect_to_CMS_63>`_
+SSL. See `How can I use SSL to connect to CMS <http://twiki.corp.yahoo.com/view/Messaging/FAQs#How_can_I_use_SSL_to_connect_to_CMS_63>`_.
 CMS team will get the `ycrypt <http://dist.corp.yahoo.com/by-package/ycrypt/>`_ 
 exemption on that port (61617) but not the regular port (61616).
-
 
 YCA
 ***
 
 The messages published by grid services such as Oozie to the ``ygrid`` namespace in CMS can 
 only by consumed from hosts in the role ``yahoo.griduser.ALL``, which is a super role 
-including all the ``yahoo.griduser.<headlessusername>`` roles configured. 
+including all the ``yahoo.griduser.<headlessusername>`` roles. 
 If your headless user role is not included in the ``yahoo.griduser.ALL`` role, 
-file a ticket with Grid SE and get it included.
+file a ticket with Grid SE and have it included.
 
 Most of the grid users will already have their launcher boxes configured in a role 
 of the format ``yahoo.griduser.<headlessusername>``. For example: ``yahoo.griduser.apollog``. 
 
-If you do not have your launcher box there, add it. (Note that this is the same when using the ``v2`` namespace.)
+If you do not have your launcher box there, add it. This is the same when using the ``v2`` namespace.
 
 .. note:: You cannot listen to CMS messages from gateways as long running processes are 
           not allowed to run on gateways. Also ACLs to CMS are not open from a grid gateway, 
@@ -92,7 +94,7 @@ Namespace and Topic Name
 
 Oozie migrated to the ``v2`` namespace after the v4.3.1 and v4.4.1 releases.
 The topic name using the ``v2`` namespace is ``topic://grid/#{COLO}/oozie.#{CLUSTER}-#{COLOR}/user.user_name``.
-For example, when using headless use ``apollog`` in Mithril Blue cluster: ``topic://grid/gq1/oozie.mithril-blue/user.apollog`` 
+For example, the headless user ``apollog`` in Mithril Blue cluster would use the following: ``topic://grid/gq1/oozie.mithril-blue/user.apollog`` 
 
 .. note:: In the ``v1`` namespace, the topic name was ``ygrid:oozie.${CLUSTER}-${COLOR}.user.user_name``.
 
@@ -109,7 +111,10 @@ The topic name prefix can be programmatically obtained using Oozie API. See the 
 Code Changes to Work With CMS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To connect to CMS at Yahoo, you will need to make a few additional steps to the sample code provided in Apache documentation. 
+To connect to CMS at Yahoo, you will need to make a few additional steps to the 
+`sample code <http://oozie.apache.org/docs/4.0.0/DG_JMSNotifications.html#Example>`_ 
+provided in  the Apache documentation. 
+
 
 #. Place the ``cloud_messaging_client.jar`` in the classpath by downloading it as a Maven artifact or 
    installing yinst package.
@@ -119,10 +124,10 @@ To connect to CMS at Yahoo, you will need to make a few additional steps to the 
    .. code-block:: xml
 
       <dependency>
-         <groupId>yahoo.yinst.cloud_messaging_client</groupId>
-         <artifactId>cloud-messaging-client</artifactId>
-         <version>0.3</version>
-         <scope>provided</scope>
+        <groupId>yahoo.yinst.cloud_messaging_client</groupId>
+        <artifactId>cloud-messaging-client</artifactId>
+        <version>0.3</version>
+        <scope>provided</scope>
       </dependency>
 
 
@@ -137,7 +142,6 @@ To connect to CMS at Yahoo, you will need to make a few additional steps to the 
   .. code-block:: java 
 
      Properties jndiProperties = jmsInfo.getJNDIProperties();
-
      jndiProperties.put("java.naming.security.principal", "yahoo.griduser.ALL");
 
 .. _write_listener:
@@ -148,7 +152,6 @@ Writing a Listener to Consume Messages
 `Consuming Notifications <http://oozie.apache.org/docs/4.0.0/DG_JMSNotifications.html#Consuming_Notifications>`_ 
 offers a guideline for writing Java code to listen for the JMS message ``broken`` (CMS in this case) and 
 consume messages about your Oozie jobs.
-
 
 Below is a working code snippet to connect through the Oozie client 
 using Kerberos authentication and a JMS message listener.
@@ -178,106 +181,104 @@ using Kerberos authentication and a JMS message listener.
    import java.util.HashMap;
    import java.util.Map;
 
-
    public class OozieMessages implements MessageListener {
 
-      String url, topicStr;
-      public static void main(String args[]) {
-         try {
-            OozieMessages m = new OozieMessages();
-            m.url = args[0];
-            m.topicStr = args[1];
-            m.consumeMessages();
-         }
-         catch (Exception e) {
-            e.printStackTrace(); //TODO handle
-         }
-      }
+     String url, topicStr;
+     public static void main(String args[]) {
+       try {
+         OozieMessages m = new OozieMessages();
+         m.url = args[0];
+         m.topicStr = args[1];
+         m.consumeMessages();
+       }
+       catch (Exception e) {
+         e.printStackTrace(); //TODO handle
+       }
+     }
+     public void consumeMessages() throws OozieClientException, JMSException, NamingException, InterruptedException {
 
-      public void consumeMessages() throws OozieClientException, JMSException, NamingException, InterruptedException {
+       KerbOozieClient oc = new KerbOozieClient(url);
+       JMSConnectionInfo jmsInfo = oc.getJMSConnectionInfo();
+       Properties jndiProperties = jmsInfo.getJNDIProperties();
+       jndiProperties.setProperty("java.naming.security.principal", "yahoo.griduser.ALL");
+       Context jndiContext = new InitialContext(jndiProperties);
+       System.out.println("*** [DEBUG] jndiContext properties: " + jndiContext.getEnvironment().toString());
+       String connectionFactoryName = (String) jndiContext.getEnvironment().get("connectionFactoryNames");
+       ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(connectionFactoryName);
+       Connection connection = connectionFactory.createConnection();
+       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+       String topicPrefix = jmsInfo.getTopicPrefix();
+       String topicPattern = jmsInfo.getTopicPattern(AppType.WORKFLOW_JOB);
+       // Following code checks if the topic pattern is
+       // 'username', then the topic name is set to the actual user submitting
+       // the job
+       String topicName = null;
+       if (topicPattern.equals("${username}")) {
+         topicName = topicStr;
+       }
+       // The topics naming convention is - ygrid:oozie.<cluster>.user.<username> where 
+       // ygrid is the CMS namespace and the rest is the topic name.
+       // For eg: ygrid:oozie.phazon-tan.user.gmon 
+       Destination topic = session.createTopic(topicPrefix + topicName);
+       MessageConsumer consumer = session.createConsumer(topic);
+       consumer.setMessageListener(this);
+       connection.start();
+       System.out.println("*** Listener started......");
+       // keep enough time to establish connection
+       Thread.sleep(60 * 1000);
+       System.out.println("*** Submit job now.....");
+       Thread.sleep(120 * 1000);
+       Scanner sc = new Scanner(System.in);
+       System.out.println("*** Type 'exit' to stop listener....");
+       while(true) {
+         if (sc.nextLine().equalsIgnoreCase("exit")) {
+           System.exit(0);
+          }
+       }
+     }
 
-         KerbOozieClient oc = new KerbOozieClient(url);
-         JMSConnectionInfo jmsInfo = oc.getJMSConnectionInfo();
-         Properties jndiProperties = jmsInfo.getJNDIProperties();
-         jndiProperties.setProperty("java.naming.security.principal", "yahoo.griduser.ALL");
-         Context jndiContext = new InitialContext(jndiProperties);
-         System.out.println("*** [DEBUG] jndiContext properties: " + jndiContext.getEnvironment().toString());
-         String connectionFactoryName = (String) jndiContext.getEnvironment().get("connectionFactoryNames");
-         ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(connectionFactoryName);
-         Connection connection = connectionFactory.createConnection();
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         String topicPrefix = jmsInfo.getTopicPrefix();
-         String topicPattern = jmsInfo.getTopicPattern(AppType.WORKFLOW_JOB);
-         // Following code checks if the topic pattern is
-         // 'username', then the topic name is set to the actual user submitting
-         // the job
-         String topicName = null;
-         if (topicPattern.equals("${username}")) {
-            topicName = topicStr;
+     @Override
+     public void onMessage(Message message) {
+       try {
+         if (message.getStringProperty(JMSHeaderConstants.MESSAGE_TYPE).equals(MessageType.SLA.name())) {
+           SLAMessage slaMessage = JMSMessagingUtils.getEventMessage(message);
+           System.out.println("*** [Message]: " + slaMessage.getSLAStatus());
          }
-         // The topics naming convention is - ygrid:oozie.<cluster>.user.<username> where 
-         // ygrid is the CMS namespace and the rest is the topic name.
-         // For eg: ygrid:oozie.phazon-tan.user.gmon 
-         Destination topic = session.createTopic(topicPrefix + topicName);
-         MessageConsumer consumer = session.createConsumer(topic);
-         consumer.setMessageListener(this);
-         connection.start();
-         System.out.println("*** Listener started......");
-         // keep enough time to establish connection
-         Thread.sleep(60 * 1000);
-         System.out.println("*** Submit job now.....");
-         Thread.sleep(120 * 1000);
-         Scanner sc = new Scanner(System.in);
-         System.out.println("*** Type 'exit' to stop listener....");
-         while(true) {
-            if (sc.nextLine().equalsIgnoreCase("exit")) {
-               System.exit(0);
-            }
+         else if (message.getStringProperty(JMSHeaderConstants.APP_TYPE).equals(AppType.WORKFLOW_JOB.name())) {
+           WorkflowJobMessage wfJobMessage = JMSMessagingUtils.getEventMessage(message);
+           System.out.println("*** [Message]: " + wfJobMessage.getEventStatus());
          }
-      }
+       }
+       catch (JMSException jmse) {
+         jmse.printStackTrace(); //TODO handle
+       }
+       catch (IOException ioe) {
+         ioe.printStackTrace(); //TODO handle
+       }
+     }
 
-      @Override
-      public void onMessage(Message message) {
-         try {
-            if (message.getStringProperty(JMSHeaderConstants.MESSAGE_TYPE).equals(MessageType.SLA.name())) {
-               SLAMessage slaMessage = JMSMessagingUtils.getEventMessage(message);
-               System.out.println("*** [Message]: " + slaMessage.getSLAStatus());
-            }
-            else if (message.getStringProperty(JMSHeaderConstants.APP_TYPE).equals(AppType.WORKFLOW_JOB.name())) {
-               WorkflowJobMessage wfJobMessage = JMSMessagingUtils.getEventMessage(message);
-               System.out.println("*** [Message]: " + wfJobMessage.getEventStatus());
-            }
-         }
-         catch (JMSException jmse) {
-            jmse.printStackTrace(); //TODO handle
-         }
-         catch (IOException ioe) {
-            ioe.printStackTrace(); //TODO handle
-         }
-      }
+     static class KerbOozieClient extends AuthOozieClient {
 
-      static class KerbOozieClient extends AuthOozieClient {
+       public KerbOozieClient(String oozieUrl) {
+         super(oozieUrl, "KERBEROS");
+       }
 
-         public KerbOozieClient(String oozieUrl) {
-            super(oozieUrl, "KERBEROS");
-         }
-
-         @Override
-         protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
-            Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
-            authClasses.put("KERBEROS", KerberosAuthenticator.class);
-            return authClasses;
-         }
-      }
+       @Override
+       protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
+         Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
+         authClasses.put("KERBEROS", KerberosAuthenticator.class);
+         return authClasses;
+       }
+     }
    }
 
 Troubleshooting
 ~~~~~~~~~~~~~~~
 
 Connection Timed Out to Message Broker
-++++++++++++++++++++++++++++++++++++++
+**************************************
 
 For example, the connection to ``prod1-broker10.messaging.bf1.yahoo.com:61616`` has timed out.
-Make sure you have the necessary ACL open as mentioned above. Also, your box might be 
+Make sure you have the necessary :ref:`ACL open as mentioned above <connect_cms-acls>`. Also, your box might be 
 occluded behind a NAT, so you should use a gateway-like machine or launcher box.
 
