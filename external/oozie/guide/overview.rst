@@ -92,7 +92,7 @@ Coordinators
 ~~~~~~~~~~~~
 
 Oozie Coordinator jobs are recurring Oozie Workflow jobs 
-triggered by time (frequency) and data availabilty.
+triggered by time (frequency) and data availability.
 
 .. _concepts-bundles:
 
@@ -113,7 +113,7 @@ Use Cases
 ---------
 
 To help you understand how you might use Oozie, we will
-describe the most common use cases in the following sectons.
+describe the most common use cases in the following sections.
 
 .. _use_cases-time:
 
@@ -225,7 +225,7 @@ Another less common use case is when you need to frequently access past data and
 then roll it up. 
 
 For example, the ``coordinator.xml`` below every hour accesses the past 24 hours of data and rolls 
-that data up. You can see that the frequecy for the Coordinator is every hour but that the input 
+that data up. You can see that the frequency for the Coordinator is every hour but that the input 
 event is for 24 hours (``${current(0)} to ``${current(-23)}``).
 
 .. code-block:: xml
@@ -380,9 +380,9 @@ state in an Oracle database (submitted jobs, workflow definitions, etc.)
 
 The diagram does fail to show two important aspects of the architecture:
 
-- Instead of a failover model, many Oozie servers access the same database.
+- Instead of a fail-over model, many Oozie servers access the same database.
 - ZooKeeper handles the coordination of Hadoop jobs, thus to access
-  HBase tables on different clusteres, you need to provide information
+  HBase tables on different clusters, you need to provide information
   about the ZooKeeper znodes and quorums.
 
 .. _architecture-stack:

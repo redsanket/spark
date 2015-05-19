@@ -92,7 +92,7 @@ used to create Coordinator jobs.
         </action>     
       </coordinator-app>
 
-   From the ``coordinatory.xml``, we can derive the following information about the Coordinator job:
+   From the ``coordinator.xml``, we can derive the following information about the Coordinator job:
 
    - It is assigned the name MY_APP.
    - It will run every 60 minutes.
@@ -726,7 +726,7 @@ the dataset.
 Coordinator Job Properties
 **************************
 
-You define the parameterized variables in ``coodinator.properties`` that can be referenced from ``coordinator.xml``.
+You define the parameterized variables in ``coordinator.properties`` that can be referenced from ``coordinator.xml``.
 
 .. code-block:: properties
 

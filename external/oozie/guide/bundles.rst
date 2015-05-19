@@ -19,7 +19,7 @@ use the data dependency of Coordinator applications to create an implicit data
 application pipeline. See also the `Bundle Bundle Specification <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/BundleFunctionalSpec.html>`_ 
 for more details.
 
-The diagram below shows how the Oozie Client submits Bundles throught the Web service to the Oozie
+The diagram below shows how the Oozie Client submits Bundles through the Web service to the Oozie
 Server, which then executes Coordinators either based on an interval or data availability. 
 
 .. image:: images/coord_pipeline.jpg

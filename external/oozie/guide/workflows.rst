@@ -350,7 +350,7 @@ Using UDFs (User Defined Functions)
 **Summary Table for Cases**
  
 .. csv-table:: Use Cases for UDFs in Pig Actions
-   :header: "", "``udf.jar`` in Worklow ``lib`` Directory?", "Registered in the Pig Script?", "``udf.jar`` in File?", "``udf.jar`` in Archive?"
+   :header: "", "``udf.jar`` in Workflow ``lib`` Directory?", "Registered in the Pig Script?", "``udf.jar`` in File?", "``udf.jar`` in Archive?"
    :widths: 20, 30, 15, 15, 15 
 
    "Case 1", "Yes", "No", "No", "No"
