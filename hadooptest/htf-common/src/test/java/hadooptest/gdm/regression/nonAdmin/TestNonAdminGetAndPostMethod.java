@@ -116,7 +116,7 @@ public class TestNonAdminGetAndPostMethod extends TestSession {
 
 		Response response = this.consoleHandle.createDataSet(dataSetName, dataSetXml);
 		TestSession.logger.info("Response code = " + response.getStatusCode());
-		assertTrue("Non-Admin should not able to create a dataset " + dataSetName , response.getStatusCode() == 401);
+		assertTrue("Non-Admin should not able to create a dataset " + dataSetName , response.getStatusCode() != 200);
 	}
 	
 	/**
