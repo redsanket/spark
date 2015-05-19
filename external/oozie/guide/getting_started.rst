@@ -151,5 +151,5 @@ We're going to configure and run this Bundle in the following steps.
 Next Steps
 ----------
 
-See the `Oozie Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Cookbooks>`_ for
-Java, MapReduce, and Pig examples.
+See Apache's `Oozie Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Cookbooks>`_ for
+Java, MapReduce, and Pig examples. Also, see the :ref:`Cookbook Examples <cookbook>` chapter.
