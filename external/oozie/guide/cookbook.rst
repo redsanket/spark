@@ -359,13 +359,13 @@ Configuring Oozie Jobs to Use Two NameNodes (Oozie Striping)
 ------------------------------------------------------------
 
 1. Identify the JobTracker and its native NameNode.
-***************************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For example, if the JobTracker is ``JT1``, then the native (or default) NameNode is ``NN1``.
 If the JobTracker is ``JT2``, then the second namenode is ``NN2``.
 
 2. Configure the Oozie job application path.
-********************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Oozie job application path, including ``coordinator.xml``, ``workflow.xml``, 
 and ``lib``, needs to be on JobTracker's default namenode (i.e., ``NN1``).
@@ -391,7 +391,7 @@ Workflow: **job.properties**
    jobTracker={JT1}:50300
 
 3. Create the Pig action.
-*************************
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Pig script should be on ``NN1``.
 For Pig 0.8, use the ``0.8.0.1011230042`` patch to use correct the Hadoop queue.
@@ -407,7 +407,7 @@ For example:
 
 
 4. Add a new property to configuration.
-***************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For every Oozie action that needs to refer to input/output on the second NameNode, 
 add this property to the action's configuration in ``workflow.xml``.
@@ -421,7 +421,7 @@ add this property to the action's configuration in ``workflow.xml``.
 
 
 5. Confirm that Oozie properties and XML tags are on the default NameNode.
-**************************************************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``oozie.coord.application.path``
 - ``oozie.wf.application.path``
