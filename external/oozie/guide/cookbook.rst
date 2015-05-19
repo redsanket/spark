@@ -6,10 +6,6 @@ Cookbook Examples
 .. 04/20/15: Rewrote
 .. 05/14/15: Edited.
 
-In this chapter, we will offer you examples
-of how to complete common tasks for 
-Workflows, Coordinators, and Bundles. 
-
 .. contents:: In this section, we'll look at the following sections (you should have completed the :ref:`Getting Started <getting_started>`):
    :depth: 1 
    :local:
