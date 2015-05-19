@@ -37,7 +37,7 @@ and you may not have the operations, development, and hardware support.
 .. _overview-features:
 
 Oozie Features
-**************
+~~~~~~~~~~~~~~
 
 Oozie provides the following:
 
