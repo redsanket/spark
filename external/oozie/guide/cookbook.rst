@@ -6,10 +6,6 @@ Cookbook Examples
 .. 04/20/15: Rewrote
 .. 05/14/15: Edited.
 
-In this chapter, we will offer you examples
-of how to complete common tasks for 
-Workflows, Coordinators, and Bundles. 
-
 .. contents:: In this section, we'll look at the following sections (you should have completed the :ref:`Getting Started <getting_started>`):
    :depth: 1 
    :local:
@@ -107,7 +103,7 @@ memory usage:
    </property>
 
 Below is the ``workflow.xml`` included the property ``mapred.child.java.opts``
-that exapnds memory usage:
+that expands memory usage:
 
 .. code-block:: xml
 
@@ -247,7 +243,7 @@ To use YCAv2 certificates, ensure that the following is true:
 Example Workflow
 ~~~~~~~~~~~~~~~~
 
-In the  ``workflow.xml`` snippet below, note that the propert ``yca-role``
+In the  ``workflow.xml`` snippet below, note that the property ``yca-role``
 is mapped to ``griduser.{user_name}``, where ``{user_name}`` is a Yahoo grid user name.
 
 .. code-block:: xml
@@ -311,7 +307,7 @@ One can pass parameters that are defined as a job property to EL functions.
 
 For example, the parameters ``coord.start.instance`` and ``coord.end.instance``
 are defined in ``job.properties`` so the EL functions ``coord:latest`` and
-``coord:latest`` recieve the values before the Oozie job is submitted.
+``coord:latest`` receive the values before the Oozie job is submitted.
 
 .. code-block:: xml
 
@@ -337,7 +333,7 @@ Follow the steps below to set up your headless user for Oozie:
 
 #. Setup your ``keydb`` file in the path ``/home/y/conf/keydb/``::
 
-       $ sudo keydbkeygen oozie headlessuer.pw
+       $ sudo keydbkeygen oozie headlessuser.pw
 
 #. Confirm that your ``keydb`` file looks similar to that below:
 
@@ -684,7 +680,7 @@ Using HBase Credentials in Oozie Workflows
 The following sections provide different use cases for using HBase credentials
 in Oozie workflows. We provide steps for setting up, creating example ``workflow.xml`` files,
 and writing Java sample code. In addition to our examples, 
-see `Set Up Oozie Server with HBase Creditial <http://devel.corp.yahoo.com/hbase/guide/programming/index.html#set-up-oozie-server-with-hbase-credential>`_ in the `HBase User Guide <http://devel.corp.yahoo.com/hbase/guide/>`_.
+see `Set Up Oozie Server with HBase Credential <http://devel.corp.yahoo.com/hbase/guide/programming/index.html#set-up-oozie-server-with-hbase-credential>`_ in the `HBase User Guide <http://devel.corp.yahoo.com/hbase/guide/>`_.
 
 
 
@@ -974,7 +970,7 @@ use a MapReduce action with an HBase credential.
  
         <workflow-app name="foo-wf" xmlns="uri:oozie:workflow:0.3">
      
-   - Add a ``<credentials>`` element that has a sub-element ``<credentia>l`` with the attribute ``type``. Assign
+   - Add a ``<credentials>`` element that has a sub-element ``<credential>`` with the attribute ``type``. Assign
      the value ``"hbase"`` to ``type`` as shown below:
 
      .. code-block:: xml
@@ -1273,7 +1269,7 @@ Example Workflow XML
 The ``workflow.xml`` in this example have to specify the
 input table (``locdrop:userloc_history``), the HBase scanner, the
 output directory, and the Java classes for the table input format, mapper,
-partioner, and reducer. 
+partitioner, and reducer. 
 
 
 .. code-block:: xml
@@ -1353,7 +1349,7 @@ partioner, and reducer.
            <!-- ############## MAPPER ############## -->
                      
            <!-- ############## PARTITIONER ############## -->
-           <!-- Paritioner settings -->
+           <!-- Partitioner settings -->
            <property>
              <name>mapreduce.job.partitioner.class</name>
              <value>com.yahoo.coregeo.lh.homebusiness.grid.SimplePartitioner</value>

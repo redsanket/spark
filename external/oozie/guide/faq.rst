@@ -86,7 +86,7 @@ Answers
 .. topic:: **How do you allow other user(s) to view the Hadoop logs?**
 
    In Hadoop 20S+, any user other than the submitter of the job can not view the generated Hadoop logs. 
-   The job submitter, howeer, could allow specific user(s) to see its log by defining 
+   The job submitter, however, could allow specific user(s) to see its log by defining 
    a few parameters during job submission. The same thing could be achieved through Oozie.
 
    More information, see the 
@@ -129,7 +129,7 @@ Answers
                 <name>dfs.umask</name>
                 <value>18</value>
               </property>
-              <!------ Start of configuration to allow other user to view the hadoop log ------>                
+              <!------ Start of configuration to allow other user to view the Hadoop log ------>                
               <property>
                 <name>mapreduce.job.acl-modify-job</name>
                 <value>users</value>
@@ -507,7 +507,7 @@ Answers
 .. topic:: **Why does my job run fine as a standalone Pig script but not through Oozie?** 
 
    When Pig runs from gateways, it uses a pre-configured command with cluster 
-   specific settings. If the same configuration is given in ``worklflow.xml``, Oozie 
+   specific settings. If the same configuration is given in ``workflow.xml``, Oozie 
    should be able to use those configurations. 
 
    The most frequent issue is related to memory used by ``pig`` command. You can view the memory used 
@@ -721,7 +721,7 @@ Answers
 
    Each Coordinator action waits for timeout duration before timing out. 
    For normal running job, the default timeout is two hours. 
-   For catchup jobs, the value is infinite. 
+   For catch-up jobs, the value is infinite. 
 
    We strongly suggest, however, that users choose a realistic timeout value (in minutes) when defining Coordinator jobs. 
    A timeout of five hours could be defined in ``coordinator.xml`` as follows:
@@ -932,7 +932,7 @@ Answers
    
    #. Setup your ``keydb`` file in the path ``/home/y/conf/keydb/``::
    
-          $ sudo keydbkeygen oozie headlessuer.pw
+          $ sudo keydbkeygen oozie headlessuser.pw
    
    #. Confirm that your ``keydb`` file looks similar to that below:
    

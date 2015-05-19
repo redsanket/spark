@@ -25,7 +25,7 @@ Yahoo Configurations for Oozie
      - ``pig_current, hbase_current``
    
 .. http://twiki.corp.yahoo.com/view/CCDI/OozieShareLib
-.. For pig: pig_current . For pig with hcat: pig_current,hcat_current For piig with 
+.. For pig: pig_current . For pig with hcat: pig_current,hcat_current For Pig with 
 .. hbase: pig_current,hbase_current
 .. Mention sharelib and how to setup credentials
 .. Document what to specify in sharelib for each action (mapreduce, streaming, distcp, etc)

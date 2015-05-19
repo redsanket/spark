@@ -17,7 +17,7 @@ job should start, by when should it end, and its duration of run. You can
 define SLA limits for Oozie Workflows in the application ``definition.xml``.
 
 Oozie can now actively monitor the state of these 
-SLA-sensitive jobs and send out notifications for SLA mets and misses.
+SLA-sensitive jobs and send out notifications for SLA meets and misses.
 
 To learn how to use SLA monitoring, see `Oozie SLA monitoring <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_SLAMonitoring.html>`_.
 

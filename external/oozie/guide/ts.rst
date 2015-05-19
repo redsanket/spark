@@ -48,7 +48,7 @@ Click the tab **Coord Job Log** once you've clicked on the job from the list.
 Action logs can be viewed by entering the action numbers in the text box below the 
 log area either as a comma-separated list or a range (e.g., 1-5,6,9,10). 
 
-.. image:: images/coord_job_log.jpg
+.. image:: images/coord_job_log.png
    :height: 404px
    :width: 950 px
    :scale: 90 %

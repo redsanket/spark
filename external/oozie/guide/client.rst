@@ -120,7 +120,7 @@ Now, you can use -keydb in Oozie client: ``$ oozie job -run -config xxx.properti
 -oozie
 ~~~~~~
 
-The ``-oozie`` option is used to ppecify the Oozie URL. If ``-oozie`` is not specified on the command line, 
+The ``-oozie`` option is used to specify the Oozie URL. If ``-oozie`` is not specified on the command line, 
 the environment variable ``OOZIE_URL`` will be the default Oozie URL. If you have not set ``OOZIE_URL``
 or specified the Oozie URL with the option ``-oozie``, you will get the following error::
 

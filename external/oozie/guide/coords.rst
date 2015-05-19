@@ -92,7 +92,7 @@ used to create Coordinator jobs.
         </action>     
       </coordinator-app>
 
-   From the ``coordinatory.xml``, we can derive the following information about the Coordinator job:
+   From the ``coordinator.xml``, we can derive the following information about the Coordinator job:
 
    - It is assigned the name MY_APP.
    - It will run every 60 minutes.
@@ -214,11 +214,13 @@ and ``${coord:current(-23)}`` returns the 23rd oldest instance of the ``input1``
 For the Coordinator job that is materialized on 2009-02-01T00:00Z, the start-instance will be 2009-01-31T01:00Z (23 hours earlier) 
 and the end-instance will be 2009-02-01T00:00Z.
 
+.. code-block:: xml
+
    <input-events>
-      <data-in name="coordInput1" dataset="input1">
-          <start-instance>${coord:current(-23)}</start-instance>
-          <end-instance>${coord:current(0)}</end-instance>
-      </data-in>
+     <data-in name="coordInput1" dataset="input1">
+       <start-instance>${coord:current(-23)}</start-instance>
+       <end-instance>${coord:current(0)}</end-instance>
+     </data-in>
    </input-events>
 
 The ``datasets`` element defines the metadata for all of the input datasets:
@@ -724,7 +726,7 @@ the dataset.
 Coordinator Job Properties
 **************************
 
-You define the parameterized variables in ``coodinator.properties`` that can be referenced from ``coordinator.xml``.
+You define the parameterized variables in ``coordinator.properties`` that can be referenced from ``coordinator.xml``.
 
 .. code-block:: properties
 
