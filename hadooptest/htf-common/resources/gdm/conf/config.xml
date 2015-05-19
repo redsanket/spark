@@ -13,12 +13,12 @@
 <config>
   <hostconfig>
     <console>
-   <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
-   <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
-   <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
-   <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
-   <stress-noOfinstances>$(NUMBER_OF_INSTANCES_PER_DATASET)</stress-noOfinstances>
-   <stress-filesInInstance>$(NUMBER_OF_INSTANCE_FILES_INSTANCE)</stress-filesInInstance>
+	   <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
+	   <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
+	   <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
+	   <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
+	   <stress-noOfinstances>$(NUMBER_OF_INSTANCES_PER_DATASET)</stress-noOfinstances>
+	   <stress-filesInInstance>$(NUMBER_OF_INSTANCE_FILES_INSTANCE)</stress-filesInInstance>
       <actions>/console/rest/config/dataset/actions</actions>
       <datasets>
         <view>
@@ -90,26 +90,25 @@
         <grid1>omegap1</grid1>
     </HCatSchemaUpdateTest>
     <IntegrationTest>
-    	<!-- <sourceCluster>$(SOURCE_CLUSTER)</sourceCluster>
+    	<sourceCluster>$(SOURCE_CLUSTER)</sourceCluster>
     	<destinationCluster>$(DEST_CLUSTER)</destinationCluster>
-    	<duration>$(DURATION)</duration>	 duration in days
+    	<duration>$(DURATION)</duration>	 <!-- duration in days -->
     	<enable-hcat>$(ENABLE_HCAT)</enable-hcat>
-    	<frequency>$(HOURLY)</frequency> -->
+    	<frequency>$(HOURLY)</frequency> <!-- hourly -->
     </IntegrationTest>
     <TestWatchForDataDrop>
-<clusterName>$(CLUSTER_NAME)</clusterName>
-<duration>$(DURATION)</duration> <!-- duration in days -->
-<frequency>$(FREQUENCY)</frequency>
-<dataSetPattern>$(PATTERN)</dataSetPattern> <!-- hourly -->
-<oozieHostName>$(OOZIE_HOST_NAME)</oozieHostName>
-<hcatHostName>$(HCAT_HOST_NAME)</hcatHostName>
-<pullOozieJobLength>$(PULL_OOZIE_JOB_LENGTH)</pullOozieJobLength> <!--  10 -->
+		<clusterName>$(CLUSTER_NAME)</clusterName>
+		<duration>$(DURATION)</duration> duration in days
+		<frequency>$(FREQUENCY)</frequency>
+		<dataSetPattern>$(PATTERN)</dataSetPattern> hourly
+		<oozieHostName>$(OOZIE_HOST_NAME)</oozieHostName>
+		<hcatHostName>$(HCAT_HOST_NAME)</hcatHostName>
+		<pullOozieJobLength>$(PULL_OOZIE_JOB_LENGTH)</pullOozieJobLength>
     </TestWatchForDataDrop>
   </testconfig>
   <auth>
     <usr>hitusr_1</usr>
     <pp>New2@password</pp>
-  <!--    <nonAdminUser>lawkp_test</nonAdminUser>  -->
     <nonAdminUser>hitusr_2</nonAdminUser>
     <nonAdminPassWord>New2@password</nonAdminPassWord>
   </auth>

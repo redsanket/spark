@@ -87,6 +87,8 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 	public void test() {		
 		this.repDataSetName = "Test_NonAdmin_Replication_DataSet_Creation_" + System.currentTimeMillis();
 		this.createDoAsReplicationDataSet("SelfServeReplicationOnlyDataSet.xml");
+		
+		this.repDataSetName = "Test_NonAdmin_Replication_DataSet_Creation_FDI_" + System.currentTimeMillis();
 		this.createReplicationDataSetWithDiscoveryTypeFDI("SelfServeReplicationOnlyDataSet.xml");
 	}
 	
@@ -103,6 +105,7 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("DISCOVERY_TYPE", "HDFS" );
 		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", this.OPS_DB_GROUP);
 		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", this.DATA_OWNER);
+		dataSetXml = dataSetXml.replaceAll("OPS_DB_GROUP", this.OPS_DB_GROUP);
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.repDataSetName);
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
@@ -139,6 +142,7 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("DISCOVERY_TYPE", "FDI" );
 		dataSetXml = dataSetXml.replaceAll("GROUP_NAME", this.OPS_DB_GROUP);
 		dataSetXml = dataSetXml.replaceAll("DATA_OWNER", this.DATA_OWNER);
+		dataSetXml = dataSetXml.replaceAll("OPS_DB_GROUP", this.OPS_DB_GROUP);
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.repDataSetName);
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
@@ -153,7 +157,8 @@ public class TestNonAdminAbleToCreateReplicationDataSet extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", getCustomPath("schema", this.repDataSetName));
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.repDataSetName);
 		Response response = this.consoleHandle.createDataSet(this.repDataSetName, dataSetXml);
-		assertTrue("Non-Admin user should not be able to create replication only dataset when discovery type is not equal to HDFS and HCAT." , response.getStatusCode() == FAILURE);
+		TestSession.logger.info("response code = " + response.getStatusCode());
+		assertTrue("Non-Admin user should not be able to create replication only dataset when discovery type is not equal to HDFS and HCAT." , response.getStatusCode() != SUCCESS );
 	}
 	
 	/**
