@@ -122,7 +122,7 @@ Creating an Oozie Role
 To create a role in Oozie for a YCA allowed namespace:
 
 #. If Oozie server accepts namespace ``"griduser"``, the user should create a 
-   role under it. Refer to `Support YCAProtected Grid Servic <http://twiki.corp.yahoo.com/view/Grid/SupportGYCA>`_ 
+   role under it. Refer to `Support YCAProtected Grid Service <http://twiki.corp.yahoo.com/view/Grid/SupportGYCA>`_ 
    for details.
          
    #. File a `Jira issue with OpsDB <https://jira.corp.yahoo.com/servicedesk/customer/portal/89/create/554>`_
@@ -177,7 +177,7 @@ The role ``oozie.httpproxy`` is created for this purpose. You can create your
 namespace in the roles ``db`` and add a role under the namespace. In our case, the namespace 
 is ``oozie``, and the role name is ``httpproxy``. Under the role, you can add the user who 
 wants to submit the job with gYCA credential. For example, the user ``strat_ci``
-can submit the workflow with gYCA credential, so we add ``strat_ci.wsca.user.yahoo.com``
+can submit the Workflow with gYCA credential, so we add ``strat_ci.wsca.user.yahoo.com``
 to the role ``oozie.httpproxy``. See the example http://roles.corp.yahoo.com:9999/ui/role?action=view&id=217516.
 
 
