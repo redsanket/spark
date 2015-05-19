@@ -4,17 +4,6 @@ Oozie User Guide
 
 .. 05/13/15: Edited.
 
------------------
-Developer Preview
------------------
-
-.. important:: This is a preliminary document intended for developers 
-               working at Yahoo. If you plan to use the contents of 
-               this document to implement applications on the grid, note 
-               that the Oozie UI may be subject to change and modification. 
-               When the final documentation is released, you will be notified 
-               of all changes and updates via yahoo-oozie-users@yahoo-inc.com.
-
 .. toctree::
    :maxdepth: 2
    :hidden:
@@ -72,4 +61,3 @@ Filing Jira Tickets
 #. Go to the `Jira Oozie Summary Panel <https://jira.corp.yahoo.com/browse/YOOZIE/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel>`_.
 #. From the top navigation bar, click **Create**.
 #. Fill out the **Create Issue** form and click **Create**.
-
