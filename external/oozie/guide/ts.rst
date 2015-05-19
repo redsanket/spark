@@ -39,7 +39,7 @@ go to http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie.
 The syntax for the Web Console is ``http://{cluster}{color}-oozie.{color}.ygrid.yahoo.com:4080/oozie``.
 
 Coordinator Actions
-+++++++++++++++++++
+*******************
 
 In the current releases, logs are shown for Coordinator *actions* only (and not 
 for the parent job).
@@ -151,7 +151,7 @@ E0701: XML schema error, cvc-complex-type.2.4.a: Invalid content was found start
 with element ``some-element-a``. One of ``{"uri:oozie:workflow:0.5":other-element-b}`` is expected.
 
 Possible Solution
-+++++++++++++++++
+*****************
 
 If you encounter above error, you should check that your XML elements are in the correct 
 sequence as specified in the `Workflow XSD <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. 

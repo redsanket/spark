@@ -870,7 +870,7 @@ Streaming Action
 .. _workflow-subworkflow:
 
 Sub-workflow Action
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. _subworkflow-config:
 

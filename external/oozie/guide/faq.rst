@@ -1,4 +1,3 @@
-===
 FAQ
 ===
 
@@ -9,7 +8,7 @@ This page answers some of the most common questions we get about Oozie at Yahoo.
 troubleshooting issues, see `Troubleshooting <ts.html>`_.
 
 Questions
-=========
+---------
 
 * :ref:`Where are the log files created? <log_files>`  
 * :ref:`How do you turn off the uber ApplicationMaster (AM) for launcher jobs? <turn_off>`
@@ -41,7 +40,7 @@ Questions
 
 
 Answers
-=======
+-------
 
 .. _log_files:
 .. topic::  **Where are the log files created?**
@@ -956,14 +955,12 @@ Answers
 
 .. topic:: **How do you configure Oozie jobs to use two NameNodes (Oozie Striping)?**
 
-   1. Identify the JobTracker and its native NameNode.
-   ***************************************************
+   **1. Identify the JobTracker and its native NameNode.**
    
    For example, if the JobTracker is ``JT1``, then the native (or default) NameNode is ``NN1``,
    If the JobTracker is ``JT2``, then the second namenode is ``NN2``.
    
-   2. Configure the Oozie job application path.
-   ********************************************
+   **2. Configure the Oozie job application path.**
    
    The Oozie job application path, including ``coordinator.xml``, ``workflow.xml``, and ``lib``, needs to be on JobTracker's default namenode (i.e., ``NN1``).
    The default NameNode should be set to ``NN1``.
@@ -987,8 +984,7 @@ Answers
       nameNode=hdfs://{NN1}:8020
       jobTracker={JT1}:50300
    
-   3. Create the Pig action.
-   *************************
+   **3. Create the Pig action.**
    
    The Pig script should be on ``NN1``.
    For Pig 0.8, use the 0.8.0..1011230042 patch to use correct the Hadoop queue.
@@ -1003,8 +999,7 @@ Answers
       outputDir=hdfs://{NN2}:8020/projects/output-demo
    
    
-   4. Add a new property to configuration.
-   ***************************************
+   **4. Add a new property to configuration.**
    
    For every Oozie action that needs to refer to input/output on the second NameNode, 
    add this property to the action's configuration in ``workflow.xml``.
@@ -1017,8 +1012,7 @@ Answers
       </property>
    
    
-   5. Confirm that Oozie properties and XML tags are on the default NameNode.
-   **************************************************************************
+   **5. Confirm that Oozie properties and XML tags are on the default NameNode.**
    
    - ``oozie.coord.application.path``
    - ``oozie.wf.application.path``
