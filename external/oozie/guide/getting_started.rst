@@ -23,23 +23,24 @@ Setting Up
    #. Clone the Git ``oozie`` repository: ``$ git clone git@git.corp.yahoo.com:hadoop/oozie.git``
    #. Move the Oozie examples: ``$ mv oozie/examples proj/oozie``
    #. Delete the directory ``oozie``: ``$ rm -rf oozie``
-#. Confirm that the global variables are set to the values below:
+#. Confirm that the global variables are set to the values below::
 
-   - ``JAVA_HOME=/home/gs/java/jdk``
-   - ``HADOOP_HOME=/home/gs/hadoop/current``
-   - ``HADOOP_CONF_DIR=/home/gs/conf/current``
-   - ``PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH``
-   - ``OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie``
+       JAVA_HOME=/home/gs/java/jdk
+       HADOOP_HOME=/home/gs/hadoop/current
+       HADOOP_CONF_DIR=/home/gs/conf/current
+       PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH
+       OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie``
 
    To set the global variables, use the ``export`` command: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
 
-   .. note:: If you plan on completing the quick starts below on a cluster other than Kryptonite Red,
+   .. note:: To complete the quick starts below on a cluster other than Kryptonite Red,
              be sure to modify the URIs used in the tutorials. The following is the URI syntax: 
              ``{scheme}://{cluster}{color}-{server}.{color}.ygrid.yahoo.com:{port}/{path}`` 
+
              For example, the ``OOZIE_URL`` for Cobalt Blue would be ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
              See :ref:`Oozie Servers on Clusters <references-oozie_servers>` as a reference.
 
-#. Move ``examples`` directory to HDFS: ``hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
+#. Move ``examples`` directory to HDFS: ``$ hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
 
 
 
@@ -86,6 +87,7 @@ We're going to configure and run this Coordinator in the following steps.
        queueName=default
 
 #. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties -auth kerberos``
+
    An Oozie job ID will be returned to you.
     
 #. With the Oozie job ID, check the status of your job: ``$ oozie job -info <oozie_job_id> -auth kerberos``

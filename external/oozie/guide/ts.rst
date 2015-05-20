@@ -279,10 +279,13 @@ My Hadoop Job Failed. Where are the Logs?
    to a URL such as ``http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/attempts/job_1416815736267_5393163/m/SUCCESSFUL``.
 
 
-Click the logs link in the map attempt shown. It will take you to a URL similar to ``http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/logs/gsta31332.tan.ygrid.yahoo.com:8041/container_1416815736267_5393163_01_000001/attempt_1416815736267_5393163_m_000000_0/headlessusername``. 
+Click the logs link in the map attempt shown. It will take you to a URL similar to the 
+following:: 
+
+    http://tiberiumtan-jt1.tan.ygrid.yahoo.com:19888/jobhistory/logs/gsta31332.tan.ygrid.yahoo.com:8041/container_1416815736267_5393163_01_000001/attempt_1416815736267_5393163_m_000000_0/headlessusername
+
 That page should list three logs: **stderr**, **stdout**, **syslog**. The **stderr** log 
 should contain the stacktraces in case of failure. The **stdout** log usually contains 
 the execution of the action (Pig client log, Hive client log, shell output, etc.). 
 The **stdout** log also might contain error messages or stacktraces, so be sure to 
 always check it.
-
