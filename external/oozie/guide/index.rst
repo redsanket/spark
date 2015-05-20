@@ -9,11 +9,13 @@ Oozie User Guide
    :hidden:
 
    overview
+   use_cases
    getting_started
    workflows
    coords
    bundles
    cookbook
+   architecture
    auth
    client
    api

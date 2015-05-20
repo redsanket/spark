@@ -233,9 +233,10 @@ To use YCAv2 certificates, ensure that the following is true:
     the obtained YCA v2 certificate to the Web service outside the grid, you can 
     limit the corresponding role name that contains the hosts of the HTTP proxy VIP. 
     The role names containing members of production HTTP proxy VIPs are ``grid.blue.prod.httpproxy``, 
-    ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. For example, ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy``
-    contains the hosts of production ``httpproxy``. The role ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
-    is an uber role which contains the staging, research, and production ``httpproxy`` hosts. 
+    ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. For example, the following is 
+    an uber role that contains the staging, research, and production ``httpproxy`` hosts::
+
+        http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy
 
     See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_
     for the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
@@ -273,7 +274,7 @@ the token or certificate and inserts it into action configuration for further us
 
 In the example Workflow XML above, Oozie gets the certificate of gYCA and passes it to 
 the action configuration. The mapper can then use this certificate by getting it from 
-action configuration and then add it to the HTTP request header 
+action configuration and then adding it to the HTTP request header 
 when connecting to the YCA-protected Web service through HTTPProxy. A certificate 
 or token retrieved by the credential class would set an action configuration as 
 the name of credential defined in ``workflow.xml``. (In this example, it is ``'myyca'``.) 
@@ -442,74 +443,73 @@ all cluster nodes must be able to read the local file through the same path ``${
 
 #. Define a Java action in your ``workflow.xml``:
 
-.. code-block:: xml
+   .. code-block:: xml
 
-   <action name='java5'>
-     <java>
-       <job-tracker>${jobTracker}</job-tracker>
-       <name-node>${nameNode}</name-node>
-       <configuration>
-         <property>
-           <name>mapred.job.queue.name</name>
-           <value>${queueName}</value>
-         </property>
-       </configuration>
-       <main-class>qa.test.tests.testCopyFromLocal</main-class>
-       <arg>${filename}</arg>
-       <arg>${nameNode}${testDir}</arg>
-       <capture-output/>
-     </java>
-     <ok to="decision1" />
-     <error to="fail" />
-   </action>
+      <action name='java5'>
+        <java>
+          <job-tracker>${jobTracker}</job-tracker>
+          <name-node>${nameNode}</name-node>
+          <configuration>
+            <property>
+              <name>mapred.job.queue.name</name>
+              <value>${queueName}</value>
+            </property>
+          </configuration>
+          <main-class>qa.test.tests.testCopyFromLocal</main-class>
+          <arg>${filename}</arg>
+          <arg>${nameNode}${testDir}</arg>
+          <capture-output/>
+        </java>
+        <ok to="decision1" />
+        <error to="fail" />
+      </action>
 
 #. Create your Java main class with the following:
 
-.. code-block:: java
+   .. code-block:: java
 
-   package qa.test.tests;
-   
-   import org.apache.hadoop.fs.FileSystem;
-   import org.apache.hadoop.fs.FSDataInputStream;
-   import org.apache.hadoop.fs.FSDataOutputStream;
-   import org.apache.hadoop.fs.Path;
-   import org.apache.hadoop.conf.Configuration;
-   
-   import java.io.File;
-   import java.io.FileNotFoundException;
-   import java.io.FileOutputStream;
-   import java.io.IOException;
-   import java.io.OutputStream;
-   import java.util.Calendar;
-   import java.util.Properties;
-   import java.util.Vector;
-   
-   public class testCopyFromLocal {
-     public static void main (String[] args) throws IOException {
-       String src = args[0];
-       String dst = args[1];
-       System.out.println("testCopyFromLocal, source= " + src);
-       System.out.println("testCopyFromLocal, target= " + dst);
-   
-       Configuration conf = new Configuration();
-   
-       Path src1 = new Path(src);
-       Path dst1 = new Path(dst);
-   
-       FileSystem fs = FileSystem.get(conf);
-   
-       try {
-         //delete local file after copy
-         fs.copyFromLocalFile(true, true, src1, dst1);
-       }
-       catch(IOException ex) {
-         System.err.println("IOException during copy operation " + ex.toString());
-         ex.printStackTrace();
-         System.exit(1);
-       }
-     }
-   }
-
+      package qa.test.tests;
+      
+      import org.apache.hadoop.fs.FileSystem;
+      import org.apache.hadoop.fs.FSDataInputStream;
+      import org.apache.hadoop.fs.FSDataOutputStream;
+      import org.apache.hadoop.fs.Path;
+      import org.apache.hadoop.conf.Configuration;
+      
+      import java.io.File;
+      import java.io.FileNotFoundException;
+      import java.io.FileOutputStream;
+      import java.io.IOException;
+      import java.io.OutputStream;
+      import java.util.Calendar;
+      import java.util.Properties;
+      import java.util.Vector;
+      
+      public class testCopyFromLocal {
+        public static void main (String[] args) throws IOException {
+          String src = args[0];
+          String dst = args[1];
+          System.out.println("testCopyFromLocal, source= " + src);
+          System.out.println("testCopyFromLocal, target= " + dst);
+      
+          Configuration conf = new Configuration();
+      
+          Path src1 = new Path(src);
+          Path dst1 = new Path(dst);
+      
+          FileSystem fs = FileSystem.get(conf);
+      
+          try {
+            //delete local file after copy
+            fs.copyFromLocalFile(true, true, src1, dst1);
+          }
+          catch(IOException ex) {
+            System.err.println("IOException during copy operation " + ex.toString());
+            ex.printStackTrace();
+            System.exit(1);
+          }
+        }
+      }
 
 
 Java Action Printing a List of Dates
@@ -520,30 +520,30 @@ and frequency. The *end date* is not included.
 
 #. Define a Java action in your ``workflow.xml``.
 
-.. code-block:: xml
+   .. code-block:: xml
 
-   <action name='java_1'>
-     <java>
-       <job-tracker>${jobTracker}</job-tracker>
-       <name-node>${nameNode}</name-node>
-       <configuration>
-         <property>
-           <name>mapred.job.queue.name</name>
-           <value>${queueName}</value>
-         </property>
-       </configuration>
-       <main-class>org.apache.oozie.example.DateList</main-class>
-       <!-- Usage: java DateList <start_time>  <end_time> <frequency> <timeunit> <timezone> -->
-       <arg>${START}</arg>
-       <arg>${END}</arg>
-       <arg>${FREQUENCY}</arg>
-       <arg>${TIMEUNIT}</arg>
-       <arg>${TIMEZONE}</arg>
-       <capture-output/>
-     </java>
-     <ok to="decision1" />
-     <error to="fail" />
-   </action>
+      <action name='java_1'>
+        <java>
+          <job-tracker>${jobTracker}</job-tracker>
+          <name-node>${nameNode}</name-node>
+          <configuration>
+            <property>
+              <name>mapred.job.queue.name</name>
+              <value>${queueName}</value>
+            </property>
+          </configuration>
+          <main-class>org.apache.oozie.example.DateList</main-class>
+          <!-- Usage: java DateList <start_time>  <end_time> <frequency> <timeunit> <timezone> -->
+          <arg>${START}</arg>
+          <arg>${END}</arg>
+          <arg>${FREQUENCY}</arg>
+          <arg>${TIMEUNIT}</arg>
+          <arg>${TIMEZONE}</arg>
+          <capture-output/>
+        </java>
+        <ok to="decision1" />
+        <error to="fail" />
+      </action>
 
 #. Have the ``wf:actionData`` function refer to the output of the Java 
    action in the Workflow XML. For example:
@@ -868,7 +868,7 @@ you need to take the following additional steps:
 
       <credentials>
         <credential name="hbase.cert" type="hbase">
-        <!-- cluster2 hbase properties-->
+          <!-- cluster2 hbase properties -->
           <property>
             <name>zookeeper.znode.parent</name>
             <value>${hbase_znode_parent}</value>
@@ -890,7 +890,7 @@ Example Workflow XML
 
 In the ``workflow.xml`` below, you'll notice that the Java action
 uses the HBase properties of "cluster2". If certain properties of 
-the ``hbase-site.xml`` on "cluster" are not specified, the
+the ``hbase-site.xml`` on "cluster2" are not specified, the
 Oozie Workflow will use the default configurations defined
 in the ``hbase-site.xml`` on "cluster1".
 
@@ -1192,7 +1192,7 @@ to use the ``hbase-site.xml`` on "cluster1".
      <!-- oozie server is configured with cluster1 hbase-site.xml -->
      <credentials>
        <credential name="hbase.cert" type="hbase">
-          <!-- cluster2 hbase properties-->
+         <!-- cluster2 hbase properties-->
          <property>
            <name>zookeeper.znode.parent</name>
            <value>${hbase_znode_parent}</value>
@@ -1277,7 +1277,7 @@ partitioner, and reducer.
    <workflow-app name="foo-wf" xmlns="uri:oozie:workflow:0.3">
      <credentials>
        <credential name="hbase.cert" type="hbase">
-        </credential>
+       </credential>
      </credentials>
      <start to= "get-scanner" />
      <action name='get-scanner'>
@@ -1324,7 +1324,6 @@ partitioner, and reducer.
              <value>${hbaseZookeeperQuorum}</value>
            </property>
            <!-- ############## HBASE ############## -->
-     
            <!-- ############## INPUT/OUTPUT ############## -->
            <property>
              <name>mapreduce.inputformat.class</name>
@@ -1335,7 +1334,6 @@ partitioner, and reducer.
              <value>${output}/work/data</value>
            </property>
            <!-- ############## INPUT/OUTPUT ############## -->
-     
            <!-- ############## MAPPER ############## -->
            <!-- Mapper: class -->
            <property>
@@ -1347,21 +1345,18 @@ partitioner, and reducer.
              <value>${minSplitSize}</value> <!-- min limit to 1 GB -->
            </property>
            <!-- ############## MAPPER ############## -->
-                     
            <!-- ############## PARTITIONER ############## -->
            <!-- Partitioner settings -->
            <property>
              <name>mapreduce.job.partitioner.class</name>
              <value>com.yahoo.coregeo.lh.homebusiness.grid.SimplePartitioner</value>
            </property>
-     
            <!-- ############## REDUCER ############## -->
            <!-- Reducer: settings -->
            <property>
              <name>mapreduce.job.reduces</name>
              <value>${inputReducers}</value>
            </property>
-     
            <!-- Reducer: class -->
            <property>
              <name>mapreduce.job.reduce.class</name>
@@ -1429,7 +1424,7 @@ Mapper: LHistoryHTableInputMapper
 *********************************
 
 In the code snippet below, you can see that the input mapper processes
-records for each row. In full `code example 
+records for each row. In the full `code example 
 <https://git.corp.yahoo.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableInputMapper.java>`_,
 you can see that the mapper scans each result, stores a count based on result attributes, and then
 writes the statistics if a latitude and longitude exist.

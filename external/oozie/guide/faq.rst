@@ -242,7 +242,7 @@ Answers
 
    In the Java ``Main`` class, the sample class ``org.apache.oozie.test.MyTest`` should be 
    packaged in a JAR file and put in your Workflow ``lib`` directory. The ``main()`` 
-   method writes a Property file to the path specified in the 
+   method writes a property file to the path specified in the 
    ``oozie.action.output.properties`` environment variable.
 
    .. code-block:: java
@@ -285,9 +285,9 @@ Answers
    Or, you can store common library JARs in a shared location in HDFS and 
    refer to them in each of your Workflows.
 
-   Examples of common JARS are: ``hadoop-streaming.jar``, ``pig.jar``, etc..
+   Examples of common JARS are ``hadoop-streaming.jar``, ``pig.jar``, etc.
    Use the ``<file>`` XML element to refer to the absolute path to these JARs in HDFS. 
-   You do not need to include them in your workflow ``lib`` directory.
+   You do not need to include them in your Workflow ``lib`` directory.
    Refer to the `Oozie documentation <http://oozie.apache.org/docs/3.3.2/WorkflowFunctionalSpec.html#a3.2.2.1_Adding_Files_and_Archives_for_the_Job>`_
    for details on how to use the ``<file>`` element.
    In Oozie 5.0, you store common library JARs in a shared location in HDFS. For example, 
@@ -297,8 +297,8 @@ Answers
 
 .. topic:: **How do you delete directories only when you rerun a job?** 
 
-   The ``myOutputDir`` will only be deleted when the job is rerun. Otherwise, some dummy (non-existing) 
-   directory will be removed.
+   The directory ``myOutputDir`` will only be deleted when the job is rerun. 
+   Otherwise, some dummy (non-existing) directory will be removed.
 
    .. code-block:: xml
 
@@ -526,13 +526,13 @@ Answers
 
    You can define the property (``oozie.launcher.mapred.child.java.opts``) in your action:
 
-    .. code-block:: xml
+   .. code-block:: xml
 
-       <property>
-         <name>oozie.launcher.mapred.child.java.opts</name>
-         <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
-         <description>setting memory usage to 1024MB</description>
-       </property>
+      <property>
+        <name>oozie.launcher.mapred.child.java.opts</name>
+        <value>-server -Xmx1G -Djava.net.preferIPv4Stack=true</value>
+        <description>setting memory usage to 1024MB</description>
+      </property>
 
    **Example**
 
@@ -700,7 +700,7 @@ Answers
 .. topic:: **How do you check whether the gYCA Web server is serving certificates?**
 
 
-   Use kerberos authentication::
+   Use Kerberos authentication::
 
        $ /usr/bin/curl --negotiate -u : {yca-webserver-url}/wsca/v2/certificates/kerberos/{yca-role}?http_proxy_role={yca-http-proxy-role}
 
@@ -841,10 +841,11 @@ Answers
    the token or certificate and inserts it into action configuration for further use. 
    In the example Workflow above, 
    Oozie gets the certificate of gYCA and passed to action configuration. The mapper can then use 
-   this certificate by getting it from action configuration, and then add it to the HTTP request header 
-   when connecting to the YCA-protected Web service through HTTPProxy. A certificate or token 
-   retrieved by the credential class would set an action configuration as the name of 
-   credential defined in ``workflow.xml``. (In this example, it is ``'myyca'``.) 
+   this certificate by getting it from action configuration, and then add it to the 
+   HTTP request header when connecting to the YCA-protected Web service through HTTPProxy.
+   A certificate or token retrieved by the credential class would set an action 
+   configuration as the name of credential defined in ``workflow.xml``. (In this example, 
+   it is ``'myyca'``.) 
    
    The following examples shows sample code to 
    use in mapper or reducer class for talking to YCAv2-protected Web service from grid.

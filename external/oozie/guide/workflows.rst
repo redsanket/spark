@@ -20,8 +20,7 @@ be provided. If properly parameterized (i.e., using different output directories
 several identical workflow jobs can run concurrently.
 
 We're going to look at the available actions and then 
-examine use case examples of Workflows that execute
-a series of actions.
+examine Workflows examples.
 
 .. _workflows-actions:
 
@@ -331,7 +330,7 @@ Pig Action
 
 See the `Pig Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Pig+Cookbook>`_ in the Apache documentation. 
 
-.. note:: The following options for Pig actions are not supported:
+.. note:: The following options for Pig actions are not supported at Yahoo:
 
           - ``-4 (-log4jconf)``
           - ``-e (-execute)`` 
@@ -372,10 +371,8 @@ variables in the Workflow XML that are used in the Pig script.
 Example Pig Script
 ++++++++++++++++++
 
-The simple Pig script loads a text file, capitalizes the ``name`` string, and
+The simple Pig script below loads a text file, capitalizes the ``name`` string, and
 writes the data to file.
-
-``script.pig``
 
 .. code-block:: bash
 
@@ -544,7 +541,7 @@ Fs Action
 ~~~~~~~~~
 
 If you wanted to recursively change the permissions of a directory and its contents,
-you would run the following HDFS command: ``hdfs dfs -chmod -R 766 <dir>;``
+you would run the following HDFS command: ``$ hdfs dfs -chmod -R 766 <dir>;``
 
 The following ``workflow.xml``, like the command above, recursively changes the permissions
 of a directory:
@@ -572,7 +569,7 @@ See `Fs HDFS Action <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/d
 for more detailed information and an additional examples.
 
 .. note:: You can also recursively change permissions in a Pig script. For example,
-          the Pig script ``script.pig`` could have the command ``hdfs dfs -chmod -R 766 <dir>;``.
+          a Pig script could have the command ``hdfs dfs -chmod -R 766 <dir>;``.
 
 
 .. _action-shell:
@@ -602,7 +599,8 @@ the latest shell XML namespace 0.3 as shown below.
      </global>    
      <start to="action1"/>
      <action name="action1>
-       <shell xmlns="uri:oozie:shell-action:0.3"> <!-- Action xmlns version GOES HERE -->
+       <shell xmlns="uri:oozie:shell-action:0.3"> 
+         <!-- Action xmlns version GOES HERE -->
          <exec>python</exec>
          <argument>...</argument>
          ...
@@ -884,11 +882,12 @@ Add ``oozie_url`` of the ``sub-workflow`` to the job configuration XML:
    <configuration>
       <property>
          <name>oozie</name>
-         <value>http://localhost:4080/oozie</value> <!-- OOZIE_URL -->
+         <!-- OOZIE_URL -->
+         <value>http://localhost:4080/oozie</value> 
       </property>
    </configuration>
 
-You can also use a ``job.properties`` file::
+You can also use the following in the ``job.properties`` file::
 
     oozie=http://localhost:4080/oozie
 
@@ -1284,7 +1283,7 @@ Finally, when a job finishes, event of type either ``SUCCEEDED``, ``KILLED``, ``
 Workflow Action to Create SLA Events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A workflow action could be configured to record the events required to evaluate 
+A Workflow action could be configured to record the events required to evaluate 
 SLA compliance.
 
 .. code-block:: xml

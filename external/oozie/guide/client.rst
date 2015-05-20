@@ -5,6 +5,8 @@ Oozie Client
 
 .. 04/17/15: Rewrote.
 
+.. _oozie_client-overview:
+
 Overview
 --------
 
@@ -15,8 +17,10 @@ and Bundles. You can invoke the Oozie client from the command line or through
 The Oozie client (``yoozie_client`` package) is installed on all grid gateway machines, 
 and Oozie can be invoked without any setup. The path ``/home/y/var/yoozieclient/bin`` is 
 automatically added to the ``PATH`` global variable through the grid gateway user profile script. If you 
-are installing ``yoozie_client`` on your launcher box, ensure you add ``/home/y/var/yoozieclient/bin``
+are installing ``yoozie_client`` on your launcher box, ensure that you add ``/home/y/var/yoozieclient/bin``
 to the ``PATH`` variable or invoke the full path ``/home/y/var/yoozieclient/bin/oozie``.
+
+.. _oozie_client-installing:
 
 Installing Oozie Client
 -----------------------
@@ -28,6 +32,8 @@ The steps below are for those wanting to run the Oozie client from an OpenStack 
 #. Install the Oozie client: ``$ yinst i yoozie_client -br test``
 #. Run the Oozie command with the ``-keydb`` option: ``$ oozie jobs -len 1 -keydb -auth kerberos``
 
+.. _oozie_client-general:
+
 General
 -------
 
@@ -36,6 +42,8 @@ specific to Yahoos. For a complete reference, see
 the `Command-Line Interface Utilities documentation <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html>`_.
 
 
+.. _general-keydb:
+
 -keydb
 ~~~~~~
 
@@ -43,6 +51,8 @@ If ``keydb`` is not set up and ``-keydb`` is specified, the Backyard password is
 Because Backyard authentication is no longer used, you should specify ``-auth kerberos`` to use Kerberos authentication::
 
     $ oozie jobs -len 1 -keydb -auth kerberos
+
+.. _keydb-gatway:
 
 Using -keydb on a Gateway
 *************************
@@ -74,17 +84,18 @@ is important.
 .. code-block:: xml
 
    <keydb>
-       <keygroup name="oozie" id="0">
-           <keyname name="USERNAME" usage="all" type="transient">
-               <key version="0"
-                    value = "ACTUALPASSWORDHERE" current = "true"
-                    timestamp = "20100704074611"
-                    expiry = "20130703074611">
-               </key>
-           </keyname>
-       </keygroup>
+     <keygroup name="oozie" id="0">
+       <keyname name="USERNAME" usage="all" type="transient">
+         <key version="0"
+           value = "ACTUALPASSWORDHERE" current = "true"
+           timestamp = "20100704074611"
+           expiry = "20130703074611">
+         </key>
+       </keyname>
+     </keygroup>
    </keydb>
 
+.. _keydb-client:
 
 Using keydb on Client
 *********************
@@ -103,26 +114,32 @@ After installation, create a ``keydb`` file with your account and password.
 .. code-block:: xml
 
    <keydb>
-       <keygroup name="oozie_key" id="0">   
-           <keyname name="USER" usage="all" type="permanent">
-               <key version="0"
-               value = "PASSWORD" current = "true"
-               timestamp = "20100409011532"
-               expiry = "20130408011532">
-           </key>
+     <keygroup name="oozie_key" id="0">   
+       <keyname name="USER" usage="all" type="permanent">
+         <key version="0"
+           value = "PASSWORD" current = "true"
+           timestamp = "20100409011532"
+           expiry = "20130408011532">
+         </key>
        </keyname>
-   </keygroup>
+     </keygroup>
+   </keydb>
 
 
-Now, you can use -keydb in Oozie client: ``$ oozie job -run -config xxx.properties -keydb -auth kerberos``
+Now, you can use ``-keydb`` in Oozie client:: 
 
+    $ oozie job -run -config xxx.properties -keydb -auth kerberos
+
+
+.. _general-oozie:
 
 -oozie
 ~~~~~~
 
-The ``-oozie`` option is used to specify the Oozie URL. If ``-oozie`` is not specified on the command line, 
-the environment variable ``OOZIE_URL`` will be the default Oozie URL. If you have not set ``OOZIE_URL``
-or specified the Oozie URL with the option ``-oozie``, you will get the following error::
+The ``-oozie`` option is used to specify the Oozie URL. If ``-oozie`` is not 
+specified on the command line, the environment variable ``OOZIE_URL`` will be the 
+default Oozie URL. If you have not set ``OOZIE_URL`` or specified the Oozie URL 
+with the option ``-oozie``, you will get the following error::
 
     java.lang.IllegalArgumentException: Oozie URL is not available neither in command option or in the environment
     	at org.apache.oozie.cli.OozieCLI.getOozieUrl(OozieCLI.java:677)
@@ -134,9 +151,14 @@ or specified the Oozie URL with the option ``-oozie``, you will get the followin
     Oozie URL is not available neither in command option or in the environment
 
 
-The ``-oozie`` option also allows you to overwrite the environment variable ``OOZIE_URL``.
+The ``-oozie`` option also allows you to overwrite the environment variable 
+``OOZIE_URL``.
 
-For example: ``$ oozie jobs -len 1 -keydb -oozie http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie -auth kerberos``
+For example:: 
+
+    $ oozie jobs -len 1 -keydb -oozie http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie -auth kerberos
+
+.. _keydb-auth2:
 
 -auth (Oozie 2.2+)
 ~~~~~~~~~~~~~~~~~~
@@ -147,19 +169,25 @@ is case insensitive.)
 
 For example: ``$ oozie jobs -len 1 -auth kerberos``
 
+.. _client-job:
+
 Job Operations
 --------------
+
+.. _job-submit:
 
 Submit a Workflow Job
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ``-submit`` option creates an Oozie job and returns a job ID, but does not actually run
-the job until you use the ``-start`` option.
+The ``-submit`` option creates an Oozie job and returns a job ID, but does not 
+actually run the job until you use the ``-start`` option.
 
 .. note:: The ``-submit`` option is not supported for Coordinator job as of Oozie 2.2.
 
 For example: ``$ oozie job -submit -config job.properties -auth kerberos``
 
+
+.. _job-start:
 
 Start a Workflow Job
 ~~~~~~~~~~~~~~~~~~~~
@@ -167,9 +195,11 @@ Start a Workflow Job
 After you have submitted your job, you will receive a job ID. You
 can start the job with the ``-start`` option and the job ID.
 
+For example: ``$ oozie job -start oozie-wf-jobID -auth kerberos``
+
 .. note:: Again, the ``-start`` option is not supported for Coordinator jobs as of Oozie 2.2.
 
-For example: ``$ oozie job -start oozie-wf-jobID -auth kerberos``
+.. _job-run:
 
 Run a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,12 +208,16 @@ Use the ``-run`` option to create and execute an Oozie job.
 
 For example: ``$ oozie job -run -config job.properties -auth kerberos``
 
+.. _job-suspend:
+
 Suspend a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``-suspend`` option suspends Oozie jobs and their actions.
 
 For example: ``$ oozie job -suspend oozie-jobID -auth kerberos``
+
+.. _job-resume:
 
 Resume a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,6 +226,7 @@ To resume a suspended job and actions, you use the ``-resume`` option.
 
 For example: ``$ oozie job -resume oozie-jobID -auth kerberos``
 
+.. _job-kill:
 
 Kill a Workflow or Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,6 +234,8 @@ Kill a Workflow or Coordinator Job
 To kill an Oozie job and its actions, you use the ``-kill`` option.
 
 For example: ``$ oozie job -kill oozie-jobID -auth kerberos``
+
+.. _job-rerun:
 
 Rerun a Workflow Job
 ~~~~~~~~~~~~~~~~~~~~
@@ -234,8 +271,9 @@ option (the date needs to be in UTC format)::
     $ oozie job -rerun oozie-coord-jobID -date 2010-09-10T01:00Z -auth kerberos
 
 
-By default, when Coordinator actions are rerun, they delete all output events before rerunning 
-the actions. If you do not want to delete output events, add the option ``-nocleanup``::
+By default, when Coordinator actions are rerun, they delete all output events 
+before rerunning the actions. If you do not want to delete output events, add 
+the option ``-nocleanup``::
 
     $ oozie job -rerun oozie-coord-jobID -action 1 -nocleanup -auth kerberos
 
@@ -248,6 +286,7 @@ to re-evaluate input events for ``coord:latest()`` and/or ``coord:future()``::
 
 .. note:: The ``-refresh`` option is not supported for the Coordinator job as of Oozie 2.2.
 
+.. _job-change:
 
 Change a Coordinator Job (Oozie 2.1+)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -260,15 +299,16 @@ and specify the key-value parameter for the end time::
     $ oozie job -change oozie-coord-jobID -value endtime=2010-09-10T01:00Z -auth kerberos
 
 .. note:: The new ``endtime`` needs to be later than the time of the last executed action.
-          If the Coordinator job completes, changing the ``endtime`` to a later date will trigger 
-          the Coordinator job to create and run new actions.
-
+          If the Coordinator job completes, changing the ``endtime`` to a later date will 
+          trigger the Coordinator job to create and run new actions.
+          
 To change the concurrency, you use the ``-change`` option and the ``-value`` option
 with the parameter ``concurrency``::
 
     $ oozie job -change oozie-coord-jobID -value concurrency=10 -auth kerberos
 
-.. note:: If you change ``concurrency`` to ``-1`` or another negative integer, it signifies no limit to the concurrency.
+.. note:: If you change ``concurrency`` to ``-1`` or another negative integer, it 
+          signifies no limit to the concurrency.
 
 In the same way, you can change the pause time::
 
@@ -276,7 +316,8 @@ In the same way, you can change the pause time::
 
 .. note:: The ``pausetime`` needs to be later than the time of the last executed action.
           Assigning an empty value to``pausetime`` removes the previous ``pausetime``.
-          For example: ``$ oozie job -change oozie-coord-jobID -value pausetime='' -auth kerberos``
+          For example: ``$ oozie job -change oozie-coord-jobID -value pausetime='' 
+          -auth kerberos``
 
 To change multiple values::
 
@@ -285,6 +326,8 @@ To change multiple values::
 
 
 .. Left off here on 04/18/15. 
+
+.. _job-check_status:
 
 Check the Job Status for Workflow or Coordinator Jobs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -312,6 +355,8 @@ specify the Workflow ID::
 
     $ oozie job -info oozie-wf-jobID@hadoop1 -verbose -auth kerberos
 
+.. _job-check_job_def:
+
 Check the Job Definition for Workflow or Coordinator Jobs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -319,7 +364,7 @@ Use the ``-definition`` option to view a job definition for a Workflow or Coordi
 
 For example: ``$ oozie job -definition oozie-jobID -auth kerberos``
 
-
+.. _job-check_job_logs:
 
 Check the Job Logs for Workflow or Coordinator Jobs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -328,25 +373,28 @@ Use the ``-lob`` option to view job logs.
 
 For example: ``$ oozie job -log oozie-jobID -auth kerberos``
 
+.. _job-dry_run:
 
 Dry Run of a Coordinator Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use the ``-dryrun`` option to do a dry run of a Coordinator. This will print the 
 job definition and all action instances. 
+
 All parameters, except run time parameters such as ``${YEAR}``, ``${MONTH}``, 
 ``${DAY}``, ``${HOUR}``, ``${MINUTE}`` will be resolved.
 
 For example: ``$ oozie job -dryrun -config job.properties -auth kerberos``
 
+.. _job-filter_jobs:
 
 Filter Jobs
 ~~~~~~~~~~~
 
 You can view a subset of jobs or filter jobs based on certain parameters.
 
-For example, to view the five Workflow jobs starting from the second job (jobs ordered by start time),
-you use the ``-len`` and ``-offset`` options together::
+For example, to view the five Workflow jobs starting from the second job (jobs 
+ordered by start time), you use the ``-len`` and ``-offset`` options together::
 
     $ oozie jobs -len 5 -offset 2 -auth kerberos
 
@@ -356,14 +404,15 @@ To filter jobs based on parameters, use the ``-filter`` option followed by the p
 
 See also `Checking the Status of multiple Workflow Jobs <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Checking_the_Status_of_multiple_Workflow_Jobs>`_.
 
-
+.. _job-coord_status:
 
 Check the Status of Coordinator Jobs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use the ``-jobtype`` option to view job information for Coordinators.
 
-For example, to list five Coordinator jobs from the second job (jobs ordered by created time):: 
+For example, to list five Coordinator jobs from the second job (jobs ordered by 
+created time):: 
 
     $ oozie jobs -len 5 -offset 2 -jobtype coord -auth kerberos
 
@@ -374,9 +423,12 @@ To list five Coordinator jobs with ``KILLED`` status and the application name ``
 See also `Coordinator Job <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.2._Coordinator_Job>`_
 and `Coordinator Action Status <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.3.2._Coordinator_Action_Status>`_.
 
+.. _client-admin:
 
 Admin Operations
 ----------------
+
+.. _admin-assign:
 
 Assign Admin Users (Oozie 2.2+)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -390,12 +442,16 @@ Use ``yinst`` with the ``set`` command to assign administrators for an Oozie ins
 #. Restart the ``yoozie`` configuration package. 
 #. Restart ``yjava_tomcat``.
 
+.. _admin-check_build:
+
 Check Oozie Build Version
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To check the Oozie build version::
 
     $ oozie admin -version -auth kerberos
+
+.. _admin-check_sys:
 
 Change and Check the System Mode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -413,6 +469,8 @@ To change to ``SAFEMODE``, you would use the following::
     $ oozie admin -systemmode SAFEMODE -auth kerberos
 
 
+.. _client-validate:
+
 Validate Operations
 -------------------
 
@@ -420,6 +478,8 @@ The ``validate`` command allows you to validate your Workflow XML. See `Validati
 XML <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Validating_a_Workflow_XML>`_.
 
 .. note:: The ``validate`` command currently only supports validating ``workflow.xml``.
+
+.. _client-sla:
 
 SLA Operations
 --------------
@@ -433,6 +493,7 @@ For example, to list two SLA records with the sequence ID 101 and sequence ID 10
 See `SLA Operations <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#SLA_Operations>`_ 
 for more examples.
 
+.. _client-pig:
 
 Pig Operations (Oozie 2.2+)
 ---------------------------
@@ -446,10 +507,10 @@ library path before the command can be executed::
 
     $ oozie pig -file multiquery1.pig -config job.properties -X -Dmapred.job.queue.name=grideng -Dmapred.compress.map.output=true -Ddfs.umask=18 -param_file paramfile -p INPUT=/tmp/workflows/input-data -auth kerberos
 
-
-.. note:: The following Pig options are not supported: ``-4 (-log4jconf)``, ``-e (-execute)``, ``-f (-file)``, 
-          ``-l (-logfile)``, ``-r (-dryrun)``, ``-x (-exectype)``, ``-P (-propertyFile)``.
-
+.. note:: The following Pig options are not supported: ``-4 (-log4jconf)``, 
+          ``-e (-execute)``, ``-f (-file)``, ``-l (-logfile)``, ``-r (-dryrun)``, 
+          ``-x (-exectype)``, ``-P (-propertyFile)``.
+          
 The ``job.properties`` file specified in the command above might look similar to the
 following::
 

@@ -58,7 +58,7 @@ The typical use case for the Oozie Workflow Engine meets the following condition
   These actions can be: Map-Reduce, Pig, Streaming, Pipes, etc.
 - The input data to your Workflow is already available on the Grid.
 
-You would use the Oozie Coordinator Engine if you want to run your Workflow:
+You would use the Oozie Coordinator Engine if you want to run a Workflow:
 
 - once per day at 2 p.m. (similar to a cron).
 - every hour and you also want to wait for specific data feeds to be available on HDFS.
@@ -99,8 +99,6 @@ used to create Coordinator jobs.
    - It will start at 2009-01-01T05:00Z and end at 2009-01-01T06:00Z. 
    - Because the start and end times are 60 minutes apart, this job will run only once.
    - When this job is triggered, it will run this Workflow: ``hdfs://localhost:9000/tmp/workflows/workflow.xml``
-
-   Refer to the Oozie Workflow Spec for details on how to create an Oozie workflow.
 
 #. The ``coordinator.properties`` file must contain a property that specifies the location of your ``coordinator.xml``.
    In this example, the file is located in this HDFS location: ``/tmp/coord/coordinator.xml``::
@@ -446,7 +444,7 @@ Each Coordinator action will create at least three events for normal processing.
 - When the action starts executing, an event record of type ``STARTED`` is inserted into ``sla_event`` table..
 - Finally when an action finishes, event of type either ``SUCCEEDED/KILLED/FAILED`` is generated.
 
-See SLA Tracking:Event Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#Event_Status>`_ 
+See `SLA Tracking:Event Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#Event_Status>`_ 
 and `SLA Tracking: SLA Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html#SLA_Status>`_ 
 for more details.
 
@@ -468,7 +466,8 @@ the Coordinator times out.
      start="${start}" end="${end}" timezone="${timezone}" 
      xmlns="uri:oozie:coordinator:0.1">
      <controls>
-       <timeout>10</timeout> <!-- timeout if Coordinator action is not run after 10 minutes --!>
+       <timeout>10</timeout> 
+       <!-- timeout if Coordinator action is not run after 10 minutes --!>
        <concurrency>4</concurrency>
      </controls>  
      <datasets>
