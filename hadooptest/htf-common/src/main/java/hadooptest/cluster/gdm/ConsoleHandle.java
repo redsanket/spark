@@ -1475,19 +1475,30 @@ public final class ConsoleHandle
 	 * @return grid names as List
 	 */
 	public List<String> getAllInstalledGridName() {
-		List<String> grids = null;
+		List<String> grids = new ArrayList<String>();
 		String testURL = this.getConsoleURL() + "/console/api/datasources/view";
 		TestSession.logger.info("testURL = " + testURL);
 		String cookie = this.httpHandle.getBouncerCookie();
-		JsonPath jsonPath = given().cookie(cookie).get(testURL).jsonPath();
-		TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
-		grids = jsonPath.getList("DataSourceResult.findAll { (it.Type.equals('grid')) && (!it.DataSourceName.equals('gdm')) }.DataSourceName ");
-		
-	/*	List<String> gridList = new ArrayList<String>();
-		for ( String grid : grids ) {
-			
-		}*/
-		
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(testURL);
+		String responseString = response.getBody().asString();
+		System.out.println("Response  : " + responseString);
+		JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
+		Object obj = versionObj.get("DataSourceResult");
+		if (obj instanceof JSONArray) {
+			JSONArray sizeLimitAlertArray = versionObj.getJSONArray("DataSourceResult");
+			Iterator iterator = sizeLimitAlertArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				String dataSourceName = jsonObject.getString("DataSourceName").trim();
+				String gridType = jsonObject.getString("Type");
+				if (gridType.equals("grid")) {
+					if (! dataSourceName.startsWith("gdm") ) {
+						System.out.println("dataSourceName  =  " + dataSourceName);
+						grids.add(dataSourceName);
+					}	
+				}
+			}
+		}
 		return grids;
 	}
 	
