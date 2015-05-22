@@ -51,14 +51,12 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		this.dataSetName = "TestNonAdminChangingRetentionByRestAPI_"  + System.currentTimeMillis();
 		createDataSet();
 		
-		
-		
 		testDisableRetentionForNonAdminWithUserNotInGroup();
 		testDisableRetentionForNonAdminWithUserInGroup();
 	}
 
 	/**
-	 * Test Scenario  : Verify whether non-admin user is not able to disable the  Retention for a given dataset
+	 * Test Scenario  : Verify whether non-admin user is able to disable the  Retention for a given dataset
 	 * Expected Result : Non-admin user  should not be possible to disable the pause retention.
 	 */
 	public void testDisableRetentionForNonAdminWithUserNotInGroup() {
@@ -78,8 +76,8 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		JsonPath jsonPath = response.jsonPath();
 		TestSession.logger.info("DataSet = " + jsonPath.prettyPrint());
 		String message =  jsonPath.getString("Response.ResponseMessage");
-		boolean flag = message.contains("failed") && message.contains("Error") && message.contains("not allowed");
-		assertTrue("Non-Admin should not be able to disable pause retention the dataset, Http Response code = " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("-1"));
+		boolean flag = message.contains("successful");
+		assertTrue("Non-Admin should not be able to disable pause retention the dataset, Http Response code = " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("0"));
 		assertTrue("Expected the message to contain words like failed , Error & not allowed, but got " + message , flag == true);
 	}
 
