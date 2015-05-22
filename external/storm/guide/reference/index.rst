@@ -556,7 +556,7 @@ For example::
 Worker Log
 ----------
 
-**File:**  ``/home/y/var/storm/workers-artifacts/${YOUR-TOPOLOGY-NAME}/${PORT-NUMBER}/worker.log``
+**File:**  ``/home/y/var/storm/workers-artifacts/${YOUR-TOPOLOGY-ID}/${PORT-NUMBER}/worker.log``
     
 Startup/Shutdown
 ################
