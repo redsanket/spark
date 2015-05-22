@@ -556,7 +556,7 @@ For example::
 Worker Log
 ----------
 
-**File:**  ``/home/y/lib64/storm/current/logs/worker.log``
+**File:**  ``/home/y/var/storm/workers-artifacts/your-topology-name/port-no/worker.log``
     
 Startup/Shutdown
 ################
@@ -571,6 +571,11 @@ For example::
 Normally, a worker is not shut down. When it is, the current storm implementation 
 kills the process (``kill -9``), so we do not expect the logs to show anything as the 
 worker does not know what is happening.
+
+Cleanup configuration
+################
+
+For limiting the disk usage of workers' logs and dump files, two parameters are defined to restrict all workers' total usage and each worker's usage: logviewer.max.sum.worker.logs.size.mb, logviewer.max.per.worker.logs.size.mb. Cluster admins may customize their thresholds as needed.
 
 Other Resources
 ===============
