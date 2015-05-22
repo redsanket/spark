@@ -65,6 +65,8 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "  " -set $confpkg.TODO_NAMENODE_EXTRAPROPS=\"\$namenodeXML\" \\
     echo "  " -set $confpkg.TODO_KERBEROS_ZONE=dev \\
     echo "  " -set $confpkg.TODO_YARN_LOG_DIR=/home/gs/var/log/mapredqa \\
+    echo "  " -set $confpkg.TODO_COLOR=open \\
+    echo "  " -set $confpkg.TODO_YGRID_CLUSTER=$cluster \\
     if [ "$ENABLE_HA" = true ]; then
         echo "  " -set $confpkg.TODO_DFS_HA_LOGICAL_NAME=${cluster}-\$shortname \\
         echo "  " -set $confpkg.TODO_DFS_HA_SHARED_EDITS_DIR=file:///homes/$HDFSUSER/ha_namedir/${cluster}_\$shortname/edits \\
