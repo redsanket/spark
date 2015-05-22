@@ -16,6 +16,10 @@ import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 
+/**
+ * TestCase : Verify whether Non-Admin user is a able to change the retention value.
+ *
+ */
 public class TestNonAdminChangeRetentionValues extends TestSession {
 
 	private ConsoleHandle consoleHandle;
@@ -24,9 +28,9 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	private HTTPHandle httpHandle = null;
 	private JSONUtil jsonUtil;
 	private String dataSetName;
-	private  String nonAdminUserName = "hitusr_2"; 
-	private  String nonAdminPassWord = "New2@password";
-	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
+	private static final String nonAdminUserName = "hitusr_2"; 
+	private static final String nonAdminPassWord = "New2@password";
+	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
 	private static final int SUCCESS = 200;
 
@@ -51,14 +55,12 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		this.dataSetName = "TestNonAdminChangingRetentionByRestAPI_"  + System.currentTimeMillis();
 		createDataSet();
 		
-		
-		
 		testDisableRetentionForNonAdminWithUserNotInGroup();
 		testDisableRetentionForNonAdminWithUserInGroup();
 	}
 
 	/**
-	 * Test Scenario  : Verify whether non-admin user is not able to disable the  Retention for a given dataset
+	 * Test Scenario  : Verify whether non-admin user is able to disable the  Retention for a given dataset
 	 * Expected Result : Non-admin user  should not be possible to disable the pause retention.
 	 */
 	public void testDisableRetentionForNonAdminWithUserNotInGroup() {
@@ -78,8 +80,8 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		JsonPath jsonPath = response.jsonPath();
 		TestSession.logger.info("DataSet = " + jsonPath.prettyPrint());
 		String message =  jsonPath.getString("Response.ResponseMessage");
-		boolean flag = message.contains("failed") && message.contains("Error") && message.contains("not allowed");
-		assertTrue("Non-Admin should not be able to disable pause retention the dataset, Http Response code = " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("-1"));
+		boolean flag = message.contains("successful");
+		assertTrue("Non-admin user should be able to pause (disable) retention of the dataset, Http Response code = " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("0"));
 		assertTrue("Expected the message to contain words like failed , Error & not allowed, but got " + message , flag == true);
 	}
 
@@ -106,7 +108,6 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		assertTrue("Expected successful message, but got  " + message , message.contains("successful"));
 	}
 
-
 	/**
 	 * Create a dataset and activate it as GDM Admin.
 	 */
@@ -127,6 +128,5 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		assertTrue("Failed to create a dataset " +this.dataSetName , response.getStatusCode() == 200);
 		
 		this.consoleHandle.sleep(5000);
-	}
-	
+	}	
 }
