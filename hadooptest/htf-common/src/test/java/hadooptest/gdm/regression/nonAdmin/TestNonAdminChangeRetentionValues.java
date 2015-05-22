@@ -81,7 +81,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		TestSession.logger.info("DataSet = " + jsonPath.prettyPrint());
 		String message =  jsonPath.getString("Response.ResponseMessage");
 		boolean flag = message.contains("successful");
-		assertTrue("Non-Admin user  is not be able to disable pause retention the dataset, Http Response code = " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("0"));
+		assertTrue("Non-admin user should be able to pause (disable) retention of the dataset, Http Response code = " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("0"));
 		assertTrue("Expected the message to contain words like failed , Error & not allowed, but got " + message , flag == true);
 	}
 
