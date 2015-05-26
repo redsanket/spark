@@ -5,6 +5,7 @@ public abstract class ModifiableStormCluster extends StormCluster {
     public abstract void resetConfigs() throws Exception;
     public abstract void restartCluster() throws Exception;
     public abstract void restartDaemon(StormDaemon daemon) throws Exception;
+    public abstract Object getConf(String key, StormDaemon daemon) throws Exception;
     public abstract void setConf(String key, Object value) throws Exception;
     public abstract void unsetConf(String key) throws Exception;
     public abstract void setConf(String key, Object value, StormDaemon daemon) throws Exception;
