@@ -26,27 +26,25 @@ public class DataAvailabilityPoller {
 
 	public String directoryPath;
 	public int maxPollTime;
+	private boolean isOozieJobCompleted;
+	private int pullOozieJobLength;
 	public String filePattern;
 	public String clusterName;
 	public String operationType;
-	private String pipeLineInstance;
 	private String oozieJobID;
-	private boolean isOozieJobCompleted;
 	private String oozieHostName;
 	private String hcatHostName;
-	private int pullOozieJobLength;
 	private String oozieJobResult;
 	private String currentFrequencyHourlyTimeStamp;
 	public SearchDataAvailablity searchDataAvailablity;
-	private final static int SLA_FREQUENCY=30;
-	private final static int POLL_FREQUENCY=1;
 	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	private final static String FEED_INSTANCE = "20130309";
 	private final static String FEED_NAME = "bidded_clicks";
 	private final static String PIPE_LINE_INSTANCE = "/tmp/test_stackint/Pipeline";
-	private final static String SCRATCH_PATH = "/tmp/test_stackint/pipeline_scratch";
+	private final static String SCRATCH_PATH = "/tmp/test_stackint-htf/pipeline_scratch";
 	private final static String FEED_BASE = "/data/daqdev/abf/data/Integration_Testing_DS_";
 	private final static String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
+	private final static String HIVE_SITE_FILE_LOCATION = "/home/y/libexec/hive/conf/hive-site.xml";
 
 	public DataAvailabilityPoller(int maxPollTime , String clusterName , String basePath  , String filePattern , String operationType , String oozieHostName , String hcatHostName , String pullOozieJobLength) {
 		this.maxPollTime = maxPollTime;
@@ -130,13 +128,16 @@ public class DataAvailabilityPoller {
 				this.searchDataAvailablity.setState("WORKING_DIR");
 				if (this.searchDataAvailablity.getState().toUpperCase().equals("WORKING_DIR") && this.isOozieJobCompleted == false) {
 
+					// copy hive-site.xml file from hcat server to the local host where HTF is running
+					this.copyHiveSiteXML( );
 					this.createJobPropertiesFile("/tmp/integration_test_files/");
 					this.searchDataAvailablity.setPipeLineInstance(this.getPipeLineInstance() + "/" + this.getFeedResult());
 					this.searchDataAvailablity.setScratchPath(this.getScratchPath());
 					this.modifyWorkFlowFile("/tmp/integration_test_files");
 					this.searchDataAvailablity.setOozieWorkFlowPath(this.getOozieWfApplicationPath());
+					this.searchDataAvailablity.setCurrentFrequencyValue(this.currentFrequencyHourlyTimeStamp);
 					this.searchDataAvailablity.execute();
-
+					
 					// once working directory is created successfully for the given hr, set state to polling for data availability 
 					this.searchDataAvailablity.setState("POLLING");
 				}
@@ -147,6 +148,8 @@ public class DataAvailabilityPoller {
 				System.out.println(" \t MISSED SLA for " + this.getCurrentFrequencyValue() );
 				System.out.println("*************************************************************************** ");
 			}
+			System.out.println("Current state = " + this.searchDataAvailablity.getState());
+			System.out.println("pollStart = " + pollStart  + " pollEnd =   " + pollEnd);
 			if (pollStart >= pollEnd) {
 				pollCalendar = Calendar.getInstance();
 				pollStart = Long.parseLong(slaSDF.format(pollCalendar.getTime()));
@@ -167,16 +170,28 @@ public class DataAvailabilityPoller {
 						TestSession.logger.info("Data Available on the grid for  "+  this.getCurrentFrequencyValue()  + "  and oozie got processed & " + this.oozieJobResult);
 					}
 				} 
-
-				if (isDataAvailable == true  && this.searchDataAvailablity.isScratchPathCreated() == true && this.searchDataAvailablity.isPipeLineInstanceCreated() == true && this.isOozieJobCompleted == false) {
+				System.out.println("currents state - " + this.searchDataAvailablity.getState());
+				System.out.println("isPipeLineInstanceCreated = " + this.searchDataAvailablity.isPipeLineInstanceCreated());
+				System.out.println("isOozieJobCompleted - " + this.isOozieJobCompleted);
+				if (this.searchDataAvailablity.getState().equals("AVAILABLE") == true  && this.searchDataAvailablity.isPipeLineInstanceCreated() == true && this.isOozieJobCompleted == false) {
+					
 					TestSession.logger.info("*** Data for the current hour is found..!  ***");
-
+					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
+					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + hcatHostName + ":/tmp/";
+					String outputResult = this.executeCommand(command);
+					if (outputResult.contains(this.currentFrequencyHourlyTimeStamp + "-job.properties")) {
+						TestSession.logger.info(this.currentFrequencyHourlyTimeStamp + "-job.properties" + "  file copied successfully.");
+					} else {
+						TestSession.logger.info("failed to copy " + this.currentFrequencyHourlyTimeStamp + "-job.properties  to " + hcatHostName );
+					}
+					
 					// set state to START_OOZIE_JOB
 					this.searchDataAvailablity.setState("START_OOZIE_JOB");
 					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
-						this.executeCommand(this.kINIT_COMMAND);
-
-						String oozieCommand = OOZIE_COMMAND + " job -run -config " +  this.getScratchPath() + "/integration_test_files/job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos";
+						
+						String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
+						TestSession.logger.info("oozieCommand  = " + oozieCommand);
+												
 						this.oozieJobID = this.executeCommand(oozieCommand);
 						TestSession.logger.info("-- oozieJobID = " + this.oozieJobID );
 						assertTrue("" , this.oozieJobID.startsWith("job:"));
@@ -197,7 +212,6 @@ public class DataAvailabilityPoller {
 			initTime = Long.parseLong(feed_sdf.format(d));
 			d = null;
 			toDay = Long.parseLong(feed_sdf.format(currentCal.getTime()));
-
 			TestSession.logger.info("Next data polling will start @ " + futureMin   + "  and  current  time = " + initTime);
 		}
 	}
@@ -212,7 +226,8 @@ public class DataAvailabilityPoller {
 		TestSession.logger.info("command - " + command);
 		ImmutablePair<Integer, String> result = SystemCommand.runCommand(command);
 		if ((result == null) || (result.getLeft() != 0)) {
-			if (result != null) { // save script output to log
+			if (result != null) { 
+				// save script output to log
 				TestSession.logger.info("Command exit value: " + result.getLeft());
 				TestSession.logger.info(result.getRight());
 			}
@@ -230,22 +245,46 @@ public class DataAvailabilityPoller {
 	 * @throws IOException
 	 */
 	private void createJobPropertiesFile(String propertyFilePath) throws IOException {
-		File file = new File(propertyFilePath);
-		if (file.exists() == true) {
+		
+		String absolutePath = new File("").getAbsolutePath();
+		System.out.println("Absolute Path =  " + absolutePath);
+		File integrationFilesPath = new File(absolutePath + "/resources/stack_integration/");
+		if (integrationFilesPath.exists()) {
+			
+			TestSession.logger.info(integrationFilesPath.toString() + " path exists.");
+			String tempJobPropertiesFilePath = integrationFilesPath + "/job.properties.tmp";
+			File file = new File(tempJobPropertiesFilePath);
+			if (file.exists()) {
+				String fileContent = new String(readAllBytes(get(tempJobPropertiesFilePath)));
+				fileContent = fileContent.replaceAll("ADD_INSTANCE_INPUT_PATH", this.getCurrentFeedBasePath() + "/20130309/PAGE/Valid/News/part*");
+				fileContent = fileContent.replaceAll("ADD_INSTANCE_DATE_TIME", this.getCurrentFrequencyValue());
+				fileContent = fileContent.replaceAll("ADD_INSTANCE_PATH", this.getOozieWfApplicationPath() );
+				fileContent = fileContent.replaceAll("ADD_INSTANCE_OUTPUT_PATH", this.getPipeLineInstance() + "/" + this.getFeedResult() + "/"  );
+				System.out.println("fileContent  = " + fileContent);
 
-			// read the content of the file as string.
-			String fileContent = new String(readAllBytes(get(propertyFilePath + "/job.properties.tmp")));
-			fileContent = fileContent.replaceAll("ADD_INSTANCE_INPUT_PATH", this.getCurrentFeedBasePath() + "/20130309/PAGE/Valid/News/part*");
-			fileContent = fileContent.replaceAll("ADD_INSTANCE_DATE_TIME", this.getCurrentFrequencyValue());
-			//fileContent = fileContent.replaceAll("ADD_INSTANCE_PATH",getPipeLineInstance() + "/" + getFeedResult()  + "/integration_test_files/");
-			fileContent = fileContent.replaceAll("ADD_INSTANCE_PATH", this.getOozieWfApplicationPath() +  "/integration_test_files/");
-			fileContent = fileContent.replaceAll("ADD_INSTANCE_OUTPUT_PATH", this.getPipeLineInstance() + "/" + this.getFeedResult() + "/"  );
-			System.out.println("fileContent  = " + fileContent);
-
-			// write the string into the file.
-			java.nio.file.Files.write(java.nio.file.Paths.get(propertyFilePath + "/job.properties"), fileContent.getBytes());
+				// write the string into the file.
+				String jobPropertiesFilePath = integrationFilesPath + "/job.properties";
+				
+				// check if already job.properties file exists
+				File jobPropertyFile = new File(jobPropertiesFilePath);
+				if (jobPropertyFile.exists() == true) {
+					TestSession.logger.info(jobPropertiesFilePath + "  file exists  ********** " );
+					if (jobPropertyFile.delete() == true ) {
+						TestSession.logger.info(jobPropertiesFilePath + "  file deleted successfully  **************** ");
+						java.nio.file.Files.write(java.nio.file.Paths.get(jobPropertiesFilePath), fileContent.getBytes());
+						TestSession.logger.info("Successfully " + jobPropertiesFilePath + " created.   ****************** ");		
+					} else {
+						TestSession.logger.info("Failed to delete " + jobPropertiesFilePath);
+					}
+				} else {
+					TestSession.logger.info(jobPropertiesFilePath + " does not exists");
+					java.nio.file.Files.write(java.nio.file.Paths.get(jobPropertiesFilePath), fileContent.getBytes());
+				}
+			} else {
+				TestSession.logger.info(tempJobPropertiesFilePath + " file does not exist.");
+			}
 		} else {
-			TestSession.logger.info(propertyFilePath + " file does not exists.");
+			TestSession.logger.info(integrationFilesPath + " file does not exists.");
 		}
 	}
 
@@ -253,12 +292,30 @@ public class DataAvailabilityPoller {
 	 *   Set oozie workflow name with current frequency value. 
 	 */
 	private void modifyWorkFlowFile(String workflowFilePath ) throws IOException {
-		File f = new File(workflowFilePath);
-		if (f.exists()) {
-			String fileContent = new String(readAllBytes(get(workflowFilePath + "/workflow.xml.tmp")));
+		String absolutePath = new File("").getAbsolutePath();
+		System.out.println("Absolute Path =  " + absolutePath);
+		File integrationFilesPath = new File(absolutePath + "/resources/stack_integration/");
+		if (integrationFilesPath.exists()) {
+			TestSession.logger.info(integrationFilesPath.toString() + " path exists.");
+			String fileContent = new String(readAllBytes(get(integrationFilesPath + "/workflow.xml.tmp")));
 			fileContent = fileContent.replaceAll("stackint_oozie_RawInputETL", "stackint_oozie_RawInput_" + this.getCurrentFrequencyValue() );
-			java.nio.file.Files.write(java.nio.file.Paths.get(workflowFilePath + "/workflow.xml"), fileContent.getBytes());
-		} else {
+			
+			String workFlowFilePath = integrationFilesPath + "/workflow.xml";
+			File workFlowFile = new File(workFlowFilePath);
+			if (workFlowFile.exists() == true) {
+				TestSession.logger.info(workFlowFilePath + "  file exists************** ");
+				if (workFlowFile.delete() == true) {
+					TestSession.logger.info(workFlowFilePath + "  file deleted successfully *********** ");
+					java.nio.file.Files.write(java.nio.file.Paths.get(workFlowFilePath), fileContent.getBytes());
+					TestSession.logger.info("Successfully " + workFlowFilePath + " created. *************");
+				} else {
+					TestSession.logger.info("Failed to delete " + workFlowFilePath);	
+				}
+			} else {
+				TestSession.logger.info(workFlowFilePath + " does not exists");
+				java.nio.file.Files.write(java.nio.file.Paths.get(workFlowFilePath), fileContent.getBytes());
+			}
+		}else {
 			TestSession.logger.info(workflowFilePath + " file does not exists.");
 		}
 	}
@@ -272,18 +329,22 @@ public class DataAvailabilityPoller {
 	 */
 	public String pollOozieJob(String jobId , String oozieWorkFlowName) throws InterruptedException {
 		String oozieJobresult = "FAILED";
+		Date d ;
 		long durationPollStart=0 ,durationPollEnd=0 , perPollStartTime=0, perPollEndTime=0 , slaPollStart=0 , slaPollEnd=0;
 		Calendar pollCalendar = Calendar.getInstance();
 		SimpleDateFormat perPollSDF = new SimpleDateFormat("yyyyMMddHHmm");
 		pollCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		perPollStartTime = Long.parseLong(perPollSDF.format(pollCalendar.getTime()));
-		pollCalendar.add(Calendar.MINUTE, 1);
+		
+		// set the poll timing for max 5 mins 
+		pollCalendar.add(Calendar.MINUTE, 5);
 		perPollEndTime = Long.parseLong(perPollSDF.format(pollCalendar.getTime()));
 
 		String id = Arrays.asList(jobId.split(" ")).get(1).toLowerCase();
 		String subId = Arrays.asList(id.split("-")).get(0).toLowerCase();
 		while (perPollStartTime <= perPollEndTime) {
-			String oozieCommand = this.OOZIE_COMMAND + " jobs -len " + this.pullOozieJobLength + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos | grep " + "\"" + subId.trim() + "\"" ;
+			String oozieCommand = "ssh " + this.oozieHostName +  " \"" + this.OOZIE_COMMAND + " jobs -len " + this.pullOozieJobLength + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos | grep " + "\"" + subId.trim() + "\"" + "\"" ;
+			TestSession.logger.info("oozieCommand poll status command - " + oozieCommand);
 			String result = this.executeCommand(oozieCommand);
 			TestSession.logger.info("result - " + result);
 			int start = result.indexOf(jobId);
@@ -303,18 +364,24 @@ public class DataAvailabilityPoller {
 				this.isOozieJobCompleted = true;
 				oozieJobresult = "SUCCEEDED";
 				break;
-			}  else {
-				Thread.sleep(20000);
-				Date d = new Date();
-				perPollStartTime = Long.parseLong(perPollSDF.format(d));
-				d = null;
-				TestSession.logger.info("please wait for next polling of oozie job");
+			} else if (jobStatus.equals("SUSPENDED")) { 
+				TestSession.logger.info("oozie for " + jobId  + " is SUSPENDED");
+				this.isOozieJobCompleted = true;
+				oozieJobresult = "SUSPENDED";
+				break;
+			} else if (jobStatus.equals("RUNNING")) {
+				TestSession.logger.info("oozie for " + jobId  + " is RUNNING");
+				this.isOozieJobCompleted = false;
+				oozieJobresult = "RUNNING";
 			}
+			Thread.sleep(5000);
+			d = new Date();
+			perPollStartTime = Long.parseLong(perPollSDF.format(d));
+			d = null;
+			TestSession.logger.info("please wait for next polling of oozie job");
 		}
 		return oozieJobresult;
 	}
-	
-	
 
 	/**
 	 * return the value of current feed input path
@@ -373,4 +440,46 @@ public class DataAvailabilityPoller {
 		return this.FEED_BASE + this.getCurrentFrequencyValue() ;
 	}
 
+	/**
+	 * Copy hive-site.xml file from hcat server to the local host where HTF is running
+	 * @return true if hive-site.xml file is copied
+	 */
+	public boolean copyHiveSiteXML( ) {
+		System.out.println("************************************************************************************");
+
+		boolean flag = false;
+		String hiveSiteXMLFileLocation = "/tmp/" + this.getCurrentFrequencyValue(); 
+		File hiveSiteFile = new File(hiveSiteXMLFileLocation);
+		if (!hiveSiteFile.exists() ) {
+			if (hiveSiteFile.mkdirs()) {
+				TestSession.logger.info(hiveSiteXMLFileLocation + "  created successfully");
+				String command = "scp  " + this.oozieHostName + ":" + this.HIVE_SITE_FILE_LOCATION + "   "  + hiveSiteXMLFileLocation ;
+				this.executeCommand(command);
+				
+				String hiveFilePath = hiveSiteXMLFileLocation + "/hive-site.xml";
+				File hiveFile = new File(hiveFilePath);
+				if (hiveFile.exists()) {
+					TestSession.logger.info(hiveFilePath  + "  is copied successfully.");
+					flag = true;
+				} else {
+					TestSession.logger.info("Failed to  copy " + hiveFilePath);
+				}
+			}
+		} else {
+			TestSession.logger.info(hiveSiteXMLFileLocation + " already exists ");
+			String command = "scp  " + this.oozieHostName + ":" + this.HIVE_SITE_FILE_LOCATION + "   "  + hiveSiteXMLFileLocation   ;
+			this.executeCommand(command);
+			
+			String hiveFilePath = hiveSiteXMLFileLocation + "/hive-site.xml";
+			File hiveFile = new File(hiveFilePath);
+			if (hiveFile.exists()) {
+				TestSession.logger.info(hiveFilePath  + "  is copied successfully.");
+				flag = true;
+			} else {
+				TestSession.logger.info("Failed to  copy " + hiveFilePath);
+			}
+		}
+		return flag;
+	}
+	
 }
