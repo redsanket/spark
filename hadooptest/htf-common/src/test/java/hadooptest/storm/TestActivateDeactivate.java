@@ -186,11 +186,8 @@ public class TestActivateDeactivate extends TestSessionStorm {
             String host = ti.get_executors().get(0).get_host();
 
             mc.stopDaemonNode( StormDaemon.SUPERVISOR, host );
-            Util.sleep(30);
             mc.deactivateDaemonNode( StormDaemon.SUPERVISOR, host );
-            Util.sleep(30);
             mc.activateDaemonNode( StormDaemon.SUPERVISOR, host );
-            Util.sleep(30);
             mc.startDaemonNode( StormDaemon.SUPERVISOR, host );
             Util.sleep(30);
             
