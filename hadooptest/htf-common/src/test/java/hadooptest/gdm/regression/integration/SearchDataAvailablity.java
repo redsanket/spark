@@ -6,6 +6,7 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	private boolean pipeLineInstanceCreated;
 	private boolean oozieWFPathCopied;
 	private String pipeLineInstance;
+	private String currentFrequencyValue;
 	private String state;
 	private ConsoleHandle consoleHandle;
 	private Configuration configuration;
@@ -102,6 +104,10 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		}
 	}
 
+	public String getClusterNameNode() {
+		return this.nameNodeName;
+	}
+
 	public void setState(String operationType) {
 		this.state = operationType;
 		System.out.println("setOperationType   - " + this.state);
@@ -119,6 +125,14 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		}
 	}
 
+	public void setCurrentFrequencyValue(String currentFrequencyValue) {
+		this.currentFrequencyValue = currentFrequencyValue;
+	}
+
+	public String getCurrentFrequencyValue() {
+		return this.currentFrequencyValue;
+	}
+
 	public void setScratchPath(String scratchPath) {
 		this.scratchPath =  scratchPath;
 	}
@@ -126,7 +140,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	public void setPipeLineInstance(String pipeLineInstance) {
 		this.pipeLineInstance = pipeLineInstance;
 	}
-	
+
 	public void setOozieWorkFlowPath(String oozieWFPath) {
 		this.oozieWFPath = oozieWFPath;
 	}
@@ -234,30 +248,33 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	public String run() throws Exception {
 		String returnValue = "";
 		TestSession.logger.info("---------------- OperationType = " + this.getState() );
-		if (this.getState().toUpperCase().equals("POLLING")) {
+		if (this.getState().toUpperCase().equals("POLLING") || this.getState().toUpperCase().equals("INCOMPLETE")) {
 			TestSession.logger.info("configuration   =  " + this.configuration.toString());
 			FileSystem remoteFS = FileSystem.get(this.configuration);
 			Path path = new Path(this.fullPath.trim());
 
 			// check whether path exists on the grid
 			boolean basePathExists = remoteFS.exists(path);
+			TestSession.logger.info(this.fullPath.trim() + " "  + basePathExists);
 			if (basePathExists == true) {
 				TestSession.logger.info("Path exists - " + this.fullPath);
 				String doneFile  =  this.fullPath + "/" + "DONE";
 				Path doneFilePath = new Path(doneFile);
 				boolean doneFileExists = remoteFS.exists(doneFilePath);
 				if (doneFileExists == true) {
+					this.setState("AVAILABLE");
 					returnValue = "AVAILABLE";
 					TestSession.logger.info(doneFile + " exists, data is transfered.");
 				} else if (doneFileExists == false) {
 					TestSession.logger.info("------- "+ path.toString() + " Data is available, but not yet completed. Still loading.");
-					returnValue = "INCOMPLETED";
+					this.setState("INCOMPLETE");
+					returnValue = "INCOMPLETE";
 				}
-			} else {
-				returnValue = "UNAVAILABLE";
+			} else if (basePathExists == false) {
+				this.setState("POLLING");
+				returnValue = "POLLING";
+				TestSession.logger.info("Data is still UNAVAILABLE and state is " + returnValue);
 			}
-		} if (this.getState().toUpperCase().equals("DONE")) {
-			returnValue = "AVAILABLE";
 		}
 		if (this.getState().equals("WORKING_DIR")) {
 			TestSession.logger.info("Pipeline instance path - " + this.pipeLineInstance);
@@ -265,13 +282,10 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 
 			TestSession.logger.info("scratchPad path - " + this.scratchPath);
 			this.createScratchPath(this.scratchPath);
-
-			this.scratchPathCreated = this.copySupportingFilesToScrach("/tmp/integration_test_files" , this.scratchPath);
-			this.copySupportingFiles("/tmp/integration_test_files", this.scratchPath);
 			this.pipeLineInstanceCreated = this.copySupportingFilesToScrach("/tmp/integration_test_files" , this.pipeLineInstance);
-			this.copyHiveXmlFile(this.pipeLineInstance + "/integration_test_files" );
-			
+			this.copyHiveFileToScratch(this.oozieWFPath);
 			this.oozieWFPathCopied = this.copySupportingFilesToScrach("/tmp/integration_test_files" , this.oozieWFPath);
+			this.copyJobPropertiesFile(this.oozieWFPath);
 
 			// once scratchPath and pipelineInstance folders are created and files are completed operation is changed to startOozieJob state. 
 			if (this.scratchPathCreated ==  true && this.pipeLineInstanceCreated == true) {
@@ -304,7 +318,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	 * @param path
 	 * @throws IOException
 	 */
-	public void navigate(String path) throws IOException{
+	public void navigate(String path) throws IOException {
 		File f = new File(path);
 		if (f.exists() == true) {
 			FileSystem remoteFS = FileSystem.get(this.configuration);
@@ -313,10 +327,12 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			if (fileStatus != null) {
 				for ( FileStatus file : fileStatus) {
 					if (file.isDirectory()) {
-						navigate(file.getPath().toString());
+						String fileName = file.getPath().toString();
+						System.out.println("fileName - " + fileName);
+						navigate(fileName);
 					} else if (file.isFile()) {
 						TestSession.logger.info("deleting " + file.getPath().toString() );
-						remoteFS.delete(file.getPath());
+						remoteFS.delete(file.getPath() , true);
 					}
 				}				
 			}
@@ -350,30 +366,6 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	}
 
 	/**
-	 * Copy hive-site.xml file to the destination path.
-	 * @throws IOException
-	 */
-	public void copyHiveXmlFile(String path) throws IOException {
-		boolean isFileCopied = false;
-		String hiveXmlFileSrcPath  = "/home/y/libexec/hive/conf/hive-site.xml";
-		String hiveXmlFileDesPath = path;
-		FileSystem remoteFS = FileSystem.get(this.configuration);
-		Path srcPath = new Path(hiveXmlFileSrcPath.trim());
-		boolean hiveXmlFileExist = remoteFS.exists(srcPath);
-		File file = new File(hiveXmlFileSrcPath);
-		if (file.exists() == true) {
-			FileSystem destFileSystem = FileSystem.get(this.configuration);
-			Path destPath = new Path(hiveXmlFileDesPath);
-			remoteFS.copyFromLocalFile( srcPath, destPath);
-			isFileCopied = true;
-			System.out.println("hive-site.xml  file copied sucessfully.");
-		} else {
-			TestSession.logger.info(hiveXmlFileSrcPath  + "  file does not exits.");
-			isFileCopied = false;
-		}
-	}
-
-	/**
 	 * Copies the pig script and other supporting files required to start the oozie job from specified source to destination file.
 	 * @param src
 	 * @param des
@@ -382,17 +374,62 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	 */
 	public boolean copySupportingFilesToScrach(String src , String des) throws IOException {
 		boolean flag = false;
-		File f = new File(src);
-		if ( f.exists() == true) {
-			FileSystem remoteFS = FileSystem.get(this.configuration);
+		FileSystem remoteFS = FileSystem.get(this.configuration);
+		String absolutePath = new File("").getAbsolutePath();
+		System.out.println("Absolute Path =  " + absolutePath);
+		File integrationFilesPath = new File(absolutePath + "/resources/stack_integration");
+		if (integrationFilesPath.exists()) {
 			Path destPath = new Path(des);
-			Path srcPath = new Path(src);
-			remoteFS.copyFromLocalFile(false , true, srcPath , destPath);
-			System.out.println( src + "  files copied sucessfully.");
-			flag = true;
+			File fileList[] = integrationFilesPath.listFiles();
+			for ( File f : fileList) {
+				Path scrFilePath = new Path(f.toString());
+				remoteFS.copyFromLocalFile(false , true, scrFilePath , destPath);
+				System.out.println( scrFilePath + "  files copied sucessfully to " + des);
+				flag = true;
+			}
 		} else {
-			TestSession.logger.info(src + " does not exists.");
-		} 
+			System.out.println(integrationFilesPath.toString() + " does not exists...");
+		}		
 		return flag;
+	}
+
+	public void copyJobPropertiesFile(String jobPropertiesFilePath) throws IOException {
+
+		FileSystem remoteFS = FileSystem.get(this.configuration);
+		String jobPropertyFileFullPath = jobPropertiesFilePath + "/job.properties";
+		TestSession.logger.info("job.properties file location - " + jobPropertyFileFullPath);
+		String dest = "/tmp/" + this.getCurrentFrequencyValue() + "-job.properties";
+		TestSession.logger.info("JobProperties destination path - " + dest);
+		Path sourcePath = new Path(jobPropertyFileFullPath);
+		boolean flag = remoteFS.exists(sourcePath);
+		TestSession.logger.info("jobPropertyFileFullPath  exist = " + flag);
+		if (flag == true) {
+			Path destPath = new Path(dest);
+			remoteFS.copyToLocalFile(sourcePath, destPath);
+			TestSession.logger.info("");
+		} else {
+			TestSession.logger.info("Failed to copy " + jobPropertyFileFullPath   + "  to  " + dest);
+		}
+	}
+
+	public void copyHiveFileToScratch(String dest ) throws IOException {
+		System.out.println("************************************************************************************");
+		System.out.println("*** copying hive-site.xml file  to " + dest);
+		System.out.println("************************************************************************************");
+		String hiveFileLocation = "/tmp/"+ this.currentFrequencyValue + "/hive-site.xml"; 
+		File f = new File(hiveFileLocation);
+		FileSystem remoteFS = FileSystem.get(this.configuration);
+		Path destPath = new Path(dest);
+		Path srcPath = new Path(hiveFileLocation);
+		boolean flag  = f.exists();
+		System.out.println("flag = " + flag);
+		if (flag == true) {
+
+			TestSession.logger.info(hiveFileLocation + "  file exits.");
+
+			// assuming that hive.xml file exists
+			remoteFS.copyFromLocalFile(srcPath, destPath);
+			System.out.println("*************************** Copied " + hiveFileLocation + "  to  " + dest);
+		}
 	}
 }
