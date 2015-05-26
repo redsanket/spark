@@ -18,7 +18,7 @@ import org.junit.Test;
  * Class that initiates polling for data at the specified target cluster.
  */
 public class TestWatchForDataDrop extends TestSession {
-	
+
 	private String clusterName;
 	private ConsoleHandle consoleHandle;
 	private String cookie;
@@ -31,7 +31,7 @@ public class TestWatchForDataDrop extends TestSession {
 	private String pathPattern;
 	private static final String BASEPATH = "/data/daqdev/abf/data/";
 	public DataAvailabilityPoller watcher;
-	
+
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
@@ -39,32 +39,32 @@ public class TestWatchForDataDrop extends TestSession {
 
 	@Before
 	public void setUp() throws NumberFormatException, Exception {
-		
+
 		this.consoleHandle = new ConsoleHandle();
 		this.clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
-		
+
 		// Get all the clusters that GDM knows about
 		List<String> gridList  = this.consoleHandle.getAllInstalledGridName();
-		
+
 		// verify whether specified cluster name matches with the data dropped cluster.
 		if ( (this.clusterName != null) && (gridList.contains(this.clusterName) == true) ) {
 			TestSession.logger.info(this.clusterName + " exists in current one node deployment list.");
 		} else {
 			fail(this.clusterName  + " is either null or specified a wrong cluster.");
 		}
-		
+
 		String dur = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.duration");
 		if ( dur != null ) {
 			this.duration = Integer.parseInt(dur);
 		}
-		
+
 		this.freq  =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.frequency");
 		if (this.freq != null) {
 			if (this.freq.equals("hourly")) {
 				this.frequency = 1;
 			}
 		}
-		
+
 		String pattern =   GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.dataSetPattern");
 		if (pattern != null ) {
 			List<String> tempList = Arrays.asList(pattern.split("_"));
@@ -79,29 +79,27 @@ public class TestWatchForDataDrop extends TestSession {
 				this.pathPattern = "yyyyMM";
 			} 
 		}
-		
+
 		String oozieServerName =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.oozieHostName");
 		if (oozieServerName != null) {
 			this.oozieHostName = oozieServerName;
 			TestSession.logger.info("oozie Host Name - " + oozieHostName);
 		}
-		
+
 		String hcatServerName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hcatHostName");
 		if (hcatServerName != null ) {
 			this.hcatHostName = hcatServerName;
 			TestSession.logger.info("Hcat Host Name - " + hcatHostName);
 		}
-		
+
 		String jobPullLength = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pullOozieJobLength");
 		if (jobPullLength != null) {
 			TestSession.logger.info("jobPullLength  = " + jobPullLength);
 			this.pullOozieJobLength = jobPullLength;
 		}
-				
-		
 		this.watcher = new DataAvailabilityPoller(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling" , this.oozieHostName , this.hcatHostName , this.pullOozieJobLength);
 	}
-	
+
 	@Test
 	public void test() throws Exception {
 		TestSession.logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
