@@ -46,6 +46,9 @@ public class TestHBaseTopology extends TestSessionStorm {
 
     @AfterClass
     public static void cleanup() throws Exception {
+        if (mc != null) {
+            mc.resetConfigs();
+        }
         stop();
     }
 
