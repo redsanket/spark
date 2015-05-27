@@ -65,7 +65,7 @@ For our example, we will launch our sample topology with 2 machines and 2 spout 
 #. Change to ``storm-contrib/rainbow_spout_example/target/classes``.
 #. Launch storm with the two spouts below. Replace ``{your_topology_name}`` with the topology name you requested during on-boarding::
 
-       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{your_topology_name}-ebonyred.ygrid.local:{port-specified-with-registry_client} -c topology.isolate.machines=2 -n {your_topology_name} -p 2  http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
+       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{your_topology_name}-ebonyred.ygrid.local:{port-specified-with-registry_client} -c topology.isolate.machines=2 -n {your_topology_name} -p 2 -c http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
 
    The main difference between the topology name in this tutorial from that in the 
    quick start is that the topology here represents an instance on the Storm
