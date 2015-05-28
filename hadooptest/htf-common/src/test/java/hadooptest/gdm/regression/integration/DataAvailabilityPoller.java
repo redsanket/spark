@@ -137,7 +137,7 @@ public class DataAvailabilityPoller {
 					this.searchDataAvailablity.setOozieWorkFlowPath(this.getOozieWfApplicationPath());
 					this.searchDataAvailablity.setCurrentFrequencyValue(this.currentFrequencyHourlyTimeStamp);
 					this.searchDataAvailablity.execute();
-					
+
 					// once working directory is created successfully for the given hr, set state to polling for data availability 
 					this.searchDataAvailablity.setState("POLLING");
 				}
@@ -174,7 +174,7 @@ public class DataAvailabilityPoller {
 				System.out.println("isPipeLineInstanceCreated = " + this.searchDataAvailablity.isPipeLineInstanceCreated());
 				System.out.println("isOozieJobCompleted - " + this.isOozieJobCompleted);
 				if (this.searchDataAvailablity.getState().equals("AVAILABLE") == true  && this.searchDataAvailablity.isPipeLineInstanceCreated() == true && this.isOozieJobCompleted == false) {
-					
+
 					TestSession.logger.info("*** Data for the current hour is found..!  ***");
 					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
 					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + hcatHostName + ":/tmp/";
@@ -184,14 +184,14 @@ public class DataAvailabilityPoller {
 					} else {
 						TestSession.logger.info("failed to copy " + this.currentFrequencyHourlyTimeStamp + "-job.properties  to " + hcatHostName );
 					}
-					
+
 					// set state to START_OOZIE_JOB
 					this.searchDataAvailablity.setState("START_OOZIE_JOB");
 					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
-						
+
 						String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
 						TestSession.logger.info("oozieCommand  = " + oozieCommand);
-												
+
 						this.oozieJobID = this.executeCommand(oozieCommand);
 						TestSession.logger.info("-- oozieJobID = " + this.oozieJobID );
 						assertTrue("" , this.oozieJobID.startsWith("job:"));
@@ -245,12 +245,12 @@ public class DataAvailabilityPoller {
 	 * @throws IOException
 	 */
 	private void createJobPropertiesFile(String propertyFilePath) throws IOException {
-		
+
 		String absolutePath = new File("").getAbsolutePath();
 		System.out.println("Absolute Path =  " + absolutePath);
 		File integrationFilesPath = new File(absolutePath + "/resources/stack_integration/");
 		if (integrationFilesPath.exists()) {
-			
+
 			TestSession.logger.info(integrationFilesPath.toString() + " path exists.");
 			String tempJobPropertiesFilePath = integrationFilesPath + "/job.properties.tmp";
 			File file = new File(tempJobPropertiesFilePath);
@@ -264,7 +264,7 @@ public class DataAvailabilityPoller {
 
 				// write the string into the file.
 				String jobPropertiesFilePath = integrationFilesPath + "/job.properties";
-				
+
 				// check if already job.properties file exists
 				File jobPropertyFile = new File(jobPropertiesFilePath);
 				if (jobPropertyFile.exists() == true) {
@@ -299,7 +299,7 @@ public class DataAvailabilityPoller {
 			TestSession.logger.info(integrationFilesPath.toString() + " path exists.");
 			String fileContent = new String(readAllBytes(get(integrationFilesPath + "/workflow.xml.tmp")));
 			fileContent = fileContent.replaceAll("stackint_oozie_RawInputETL", "stackint_oozie_RawInput_" + this.getCurrentFrequencyValue() );
-			
+
 			String workFlowFilePath = integrationFilesPath + "/workflow.xml";
 			File workFlowFile = new File(workFlowFilePath);
 			if (workFlowFile.exists() == true) {
@@ -335,7 +335,7 @@ public class DataAvailabilityPoller {
 		SimpleDateFormat perPollSDF = new SimpleDateFormat("yyyyMMddHHmm");
 		pollCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		perPollStartTime = Long.parseLong(perPollSDF.format(pollCalendar.getTime()));
-		
+
 		// set the poll timing for max 5 mins 
 		pollCalendar.add(Calendar.MINUTE, 5);
 		perPollEndTime = Long.parseLong(perPollSDF.format(pollCalendar.getTime()));
@@ -374,6 +374,7 @@ public class DataAvailabilityPoller {
 				this.isOozieJobCompleted = false;
 				oozieJobresult = "RUNNING";
 			}
+			this.getOoozieJobDetails(jobId);
 			Thread.sleep(5000);
 			d = new Date();
 			perPollStartTime = Long.parseLong(perPollSDF.format(d));
@@ -381,6 +382,17 @@ public class DataAvailabilityPoller {
 			TestSession.logger.info("please wait for next polling of oozie job");
 		}
 		return oozieJobresult;
+	}
+	
+	/**
+	 * Print complete oozie job info, this will be useful to debug in case failure to know which workflow caused the failure.
+	 * @param jobId
+	 */
+	public void getOoozieJobDetails(String jobId) {
+		String jobIdValue =  Arrays.asList(jobId.split(" ")).get(1).trim();
+		String command = "ssh " + this.oozieHostName +  " \"" + this.OOZIE_COMMAND + "  job -oozie  " +  "http://" + this.oozieHostName + ":4080/oozie -auth kerberos -info  " + jobIdValue  + "\"";
+		TestSession.logger.info("command - " + command);
+		String oozieResult = this.executeCommand(command);
 	}
 
 	/**
@@ -414,7 +426,7 @@ public class DataAvailabilityPoller {
 	public String getScratchPath() {
 		return  this.SCRATCH_PATH + File.separator + this.FEED_NAME + File.separator + this.getCurrentFrequencyValue() ; 
 	}
-	
+
 	public String getOozieWfApplicationPath() {
 		return  this.PIPE_LINE_INSTANCE + File.separator + this.FEED_NAME + File.separator + this.getCurrentFrequencyValue();
 	}
@@ -455,7 +467,7 @@ public class DataAvailabilityPoller {
 				TestSession.logger.info(hiveSiteXMLFileLocation + "  created successfully");
 				String command = "scp  " + this.oozieHostName + ":" + this.HIVE_SITE_FILE_LOCATION + "   "  + hiveSiteXMLFileLocation ;
 				this.executeCommand(command);
-				
+
 				String hiveFilePath = hiveSiteXMLFileLocation + "/hive-site.xml";
 				File hiveFile = new File(hiveFilePath);
 				if (hiveFile.exists()) {
@@ -469,7 +481,7 @@ public class DataAvailabilityPoller {
 			TestSession.logger.info(hiveSiteXMLFileLocation + " already exists ");
 			String command = "scp  " + this.oozieHostName + ":" + this.HIVE_SITE_FILE_LOCATION + "   "  + hiveSiteXMLFileLocation   ;
 			this.executeCommand(command);
-			
+
 			String hiveFilePath = hiveSiteXMLFileLocation + "/hive-site.xml";
 			File hiveFile = new File(hiveFilePath);
 			if (hiveFile.exists()) {
@@ -480,6 +492,5 @@ public class DataAvailabilityPoller {
 			}
 		}
 		return flag;
-	}
-	
+	}	
 }
