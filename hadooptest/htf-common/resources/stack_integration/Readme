@@ -1,0 +1,23 @@
+Prototype feed processing for a feed/instance, a jenkins job (StackIntTesting-Prototype) fires
+a script 'start-mgr.sh', this script copies 'mgr.sh' and supporting files to OOZIE_HOST and
+fires 'mgr.sh' which is a driver/manager that populates an oozie workflow spec and job properties 
+file, and submits the oozie job to OOZIE_HOST which uses java, pig and hive actions to process 
+and store input data replicated from GDM into the stackint test cluster (for now, DenseB). 
+
+Usage:
+Prototype/start-mgr.sh is used directly by Jenkins to invoke mgr.sh
+
+Standalone usage:
+Prototype/mgr.sh <feed> <datestamp> <timestamp>
+Example:
+./mgr.sh bidded_clicks 20150401 0000
+
+Jenkins job:
+http://re101.ygrid.corp.gq1.yahoo.com:9999/yhudson/view/H2-IntTests/job/StackIntTesting-Prototype/
+
+This currently runs on cluster DenseB, with oozie, hive and pig installed
+on dense37. The oozie workflows are on this server:
+
+http://dense37.blue.ygrid.yahoo.com:4080/oozie/
+
+

@@ -279,6 +279,10 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		if (this.getState().equals("WORKING_DIR")) {
 			TestSession.logger.info("Pipeline instance path - " + this.pipeLineInstance);
 			this.createWorkFlowFolder(this.pipeLineInstance);
+			
+			// create lib folder
+			this.createWorkFlowFolder(this.pipeLineInstance + "/lib");
+			this.copyLibFiles("/tmp/integration_test_files/lib/" , this.pipeLineInstance + "/lib/");
 
 			TestSession.logger.info("scratchPad path - " + this.scratchPath);
 			this.createScratchPath(this.scratchPath);
@@ -286,6 +290,10 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			this.copyHiveFileToScratch(this.oozieWFPath);
 			this.oozieWFPathCopied = this.copySupportingFilesToScrach("/tmp/integration_test_files" , this.oozieWFPath);
 			this.copyJobPropertiesFile(this.oozieWFPath);
+			
+			// create lib folder
+			this.createWorkFlowFolder(this.oozieWFPath + "/lib");
+			this.copyLibFiles("/tmp/integration_test_files/lib/" , this.oozieWFPath + "/lib/");
 
 			// once scratchPath and pipelineInstance folders are created and files are completed operation is changed to startOozieJob state. 
 			if (this.scratchPathCreated ==  true && this.pipeLineInstanceCreated == true) {
@@ -382,10 +390,12 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			Path destPath = new Path(des);
 			File fileList[] = integrationFilesPath.listFiles();
 			for ( File f : fileList) {
-				Path scrFilePath = new Path(f.toString());
-				remoteFS.copyFromLocalFile(false , true, scrFilePath , destPath);
-				System.out.println( scrFilePath + "  files copied sucessfully to " + des);
-				flag = true;
+				if (f.isFile()) {
+					Path scrFilePath = new Path(f.toString());
+					remoteFS.copyFromLocalFile(false , true, scrFilePath , destPath);
+					System.out.println( scrFilePath + "  files copied sucessfully to " + des);
+					flag = true;
+				}
 			}
 		} else {
 			System.out.println(integrationFilesPath.toString() + " does not exists...");
@@ -431,5 +441,38 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			remoteFS.copyFromLocalFile(srcPath, destPath);
 			System.out.println("*************************** Copied " + hiveFileLocation + "  to  " + dest);
 		}
+	}
+
+
+	public boolean copyLibFiles(String src , String dest) throws IOException {
+		boolean flag = false;
+		FileSystem remoteFS = FileSystem.get(this.configuration);
+		File srcFile = new File(src);
+		boolean srcFileExists = srcFile.exists();
+
+		// if source path exist, get the file lists
+		if (srcFileExists == true) {
+			TestSession.logger.info(srcFileExists + " folder exists.");
+			File []fileList = srcFile.listFiles();
+
+			// check whether destination folder exists
+			Path destPath = new Path(dest);
+			boolean destFolderExists = remoteFS.exists(destPath);
+			if (destFolderExists == true) {
+				for ( File f : fileList) {
+					String fileName = f.toString();
+					Path p = new Path(fileName);
+					remoteFS.copyFromLocalFile(p, destPath);
+					TestSession.logger.info(fileName + "  copied.");
+				}	
+			} else if (destFolderExists == false)  {
+				TestSession.logger.error(dest + " does not exists.");
+				flag = false;
+			}
+		} else if (srcFileExists == false) {
+			TestSession.logger.info(src + "");
+			flag = false;
+		}
+		return flag;
 	}
 }
