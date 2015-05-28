@@ -260,12 +260,12 @@ public class YahooStormCluster extends ModifiableStormCluster {
     /**
      * Deactivate yinst package for a daemon on a given node.
      *
-     * @param daemon      The daemon to restart.
-     * @param nodeDNSName The DNS name of the node to restart the daemon on.
+     * @param daemon      The daemon to deactivate.
+     * @param nodeDNSName The DNS name of the node to deactivate the daemon on.
      * @throws IOException
      * @throws InterruptedException
      */
-    public void deactivateDaemonNode(StormDaemon daemon, String nodeDNSName)
+    public void deactivateYinstPackageOnNode(StormDaemon daemon, String nodeDNSName)
             throws Exception {
 
         TestSessionStorm.logger.info("*** DEACTIVATING DAEMON:  " + daemon +
@@ -288,12 +288,12 @@ public class YahooStormCluster extends ModifiableStormCluster {
     /**
      * Activate yinst package for a daemon on a given node.
      *
-     * @param daemon      The daemon to restart.
-     * @param nodeDNSName The DNS name of the node to restart the daemon on.
+     * @param daemon      The daemon to activate.
+     * @param nodeDNSName The DNS name of the node to activate the daemon on.
      * @throws IOException
      * @throws InterruptedException
      */
-    public void activateDaemonNode(StormDaemon daemon, String nodeDNSName)
+    public void activateYinstPackageOnNode(StormDaemon daemon, String nodeDNSName)
             throws Exception {
 
         TestSessionStorm.logger.info("*** ACTIVATING DAEMON:  " + daemon +
