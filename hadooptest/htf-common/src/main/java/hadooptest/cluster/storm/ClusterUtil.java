@@ -17,6 +17,7 @@ public class ClusterUtil {
     private String namespace = "ystorm";
 
     private Map<String, Map<String, String>> origConf;
+    private Map<String, Map<String, String>> currentConf;
     private boolean confChanged;
 
     public ClusterUtil(String confNS) {
@@ -33,13 +34,38 @@ public class ClusterUtil {
         return confChanged;
     }
 
+    // Do a 1 level deep copy of the conf map
+    public Map<String, Map<String, String>> copyConf( Map<String, Map<String, String>> theConf ) {
+        HashMap<String, Map<String, String>> returnValue = new HashMap<String, Map<String, String>>();
+        for (Map.Entry<String, 
+        		Map<String, String>> elem: 
+        			theConf.entrySet()) {
+            returnValue.put( elem.getKey(), new HashMap<String,String>(elem.getValue()) );
+        }
+
+        return returnValue;
+    }
     public void init(String confNS) 
     		throws Exception {
     	
     	TestSessionStorm.logger.info("INIT CLUSTER UTIL");
         namespace = confNS;
         origConf = getYinstConf();
+        currentConf =  copyConf(origConf);
         confChanged = false;
+    }
+
+    public ArrayList<String> getDnsNames( StormDaemon daemon ) throws Exception {
+    	ArrayList<String> dnsNames = null;
+        if (clusterRoleConfExists()) {
+            dnsNames = StormDaemon.lookupClusterRoles(daemon);
+        }
+        else {
+            dnsNames = StormDaemon.lookupIgorRoles(daemon, 
+                    TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
+        }
+
+        return dnsNames;
     }
 
     /**
@@ -59,23 +85,10 @@ public class ClusterUtil {
         
     	ArrayList<String> dnsNames = null;
     	if (namespace.equals("ystorm_registry")) {
-    	    if (clusterRoleConfExists()) {
-    	        dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.REGISTRY);
-    	    }
-    	    else {
-    	        dnsNames = StormDaemon.lookupIgorRoles(StormDaemon.REGISTRY, 
-    	                TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
-    	    }
+            dnsNames = getDnsNames(StormDaemon.REGISTRY);
     	}
     	else {
-    	    if (clusterRoleConfExists()) {
-    	        dnsNames = StormDaemon.lookupClusterRoles(StormDaemon.ALL);
-    	    }
-    	    else {
-    	        dnsNames = 
-    	                StormDaemon.lookupIgorRoles(StormDaemon.ALL, 
-    	                        TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
-    	    }
+            dnsNames = getDnsNames(StormDaemon.ALL);
     	}
 
     	TestSessionStorm.logger.info(
@@ -242,6 +255,17 @@ public class ClusterUtil {
         }
         
         confChanged = false;
+        currentConf =  copyConf(origConf);
+    }
+
+    public Object getConf(String key, String dnsName) throws Exception {
+        return currentConf.get(dnsName).get(key);
+    }
+
+    public Object getConf(String key, StormDaemon daemon) throws Exception {
+        ArrayList<String> dnsNames = getDnsNames(daemon);
+
+        return getConf(key, dnsNames.get(0));
     }
 
     /**
@@ -257,15 +281,7 @@ public class ClusterUtil {
     
     public void unsetConf(String key, StormDaemon daemon) throws Exception {
     	
-        ArrayList<String> dnsNames = null;
-        if (clusterRoleConfExists()) {
-            dnsNames = StormDaemon.lookupClusterRoles(daemon);
-        }
-        else {
-            dnsNames = 
-                    StormDaemon.lookupIgorRoles(daemon, 
-                            TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
-        }
+        ArrayList<String> dnsNames = getDnsNames(daemon);
     	
     	TestSessionStorm.logger.info("Unsetting " + key);
     	TestSessionStorm.logger.info(
@@ -291,7 +307,9 @@ public class ClusterUtil {
     			TestSessionStorm.logger.info("stderr" + output[2]);	
                 throw new RuntimeException(
                 		"ssh and yinst returned an error code.");		
-    		}
+    		} else {
+                currentConf.get(nodeDNSName).remove(strKey);
+            }
     	}
     }
 
@@ -347,15 +365,7 @@ public class ClusterUtil {
 
         String strKey = namespace+"."+key.replace('.','_');
 
-        ArrayList<String> dnsNames = null;
-        if (clusterRoleConfExists()) {
-            dnsNames = StormDaemon.lookupClusterRoles(daemon);
-        }
-        else {
-            dnsNames = 
-                    StormDaemon.lookupIgorRoles(daemon, 
-                            TestSessionStorm.conf.getProperty("CLUSTER_NAME"));
-        }
+        ArrayList<String> dnsNames = getDnsNames(daemon);
 
     	for (String nodeDNSName: dnsNames) {   
         	TestSessionStorm.logger.info(
@@ -371,7 +381,9 @@ public class ClusterUtil {
     					"Got unexpected non-zero exit code: " + output[0]);
     			TestSessionStorm.logger.info("stdout" + output[1]);
     			TestSessionStorm.logger.info("stderr" + output[2]);	
-    		}
+    		} else {
+                currentConf.get(nodeDNSName).put(strKey, strVal);
+            }
     	}
     }
     

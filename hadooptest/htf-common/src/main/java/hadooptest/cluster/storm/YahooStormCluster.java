@@ -258,6 +258,62 @@ public class YahooStormCluster extends ModifiableStormCluster {
     }
 
     /**
+     * Deactivate yinst package for a daemon on a given node.
+     *
+     * @param daemon      The daemon to deactivate.
+     * @param nodeDNSName The DNS name of the node to deactivate the daemon on.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void deactivateYinstPackageOnNode(StormDaemon daemon, String nodeDNSName)
+            throws Exception {
+
+        TestSessionStorm.logger.info("*** DEACTIVATING DAEMON:  " + daemon +
+                " ON NODE:  " + nodeDNSName + " ***");
+
+        String[] output = TestSessionStorm.exec.runProcBuilder(
+                new String[]{"ssh", nodeDNSName, "yinst", "deactivate",
+                        StormDaemon.getDaemonYinstString(daemon)});
+
+        if (!output[0].equals("0")) {
+            TestSessionStorm.logger.info("Got unexpected non-zero exit code: " +
+                    output[0]);
+            TestSessionStorm.logger.info("stdout" + output[1]);
+            TestSessionStorm.logger.info("stderr" + output[2]);
+            throw new RuntimeException(
+                    "ssh and yinst returned an error code.");
+        }
+    }
+
+    /**
+     * Activate yinst package for a daemon on a given node.
+     *
+     * @param daemon      The daemon to activate.
+     * @param nodeDNSName The DNS name of the node to activate the daemon on.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void activateYinstPackageOnNode(StormDaemon daemon, String nodeDNSName)
+            throws Exception {
+
+        TestSessionStorm.logger.info("*** ACTIVATING DAEMON:  " + daemon +
+                " ON NODE:  " + nodeDNSName + " ***");
+
+        String[] output = TestSessionStorm.exec.runProcBuilder(
+                new String[]{"ssh", nodeDNSName, "yinst", "activate",
+                        StormDaemon.getDaemonYinstString(daemon)});
+
+        if (!output[0].equals("0")) {
+            TestSessionStorm.logger.info("Got unexpected non-zero exit code: " +
+                    output[0]);
+            TestSessionStorm.logger.info("stdout" + output[1]);
+            TestSessionStorm.logger.info("stderr" + output[2]);
+            throw new RuntimeException(
+                    "ssh and yinst returned an error code.");
+        }
+    }
+
+    /**
      * Restart a daemon on a given node.
      *
      * @param daemon      The daemon to restart.
@@ -410,6 +466,10 @@ public class YahooStormCluster extends ModifiableStormCluster {
 
     public void unsetConf(String key, StormDaemon daemon) throws Exception {
         ystormConf.unsetConf(key, daemon);
+    }
+
+    public Object getConf(String key, StormDaemon daemon) throws Exception {
+        return ystormConf.getConf(key, daemon);
     }
 
     public void setConf(String key, Object value, StormDaemon daemon) throws Exception {
