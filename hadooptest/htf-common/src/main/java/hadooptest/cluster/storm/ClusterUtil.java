@@ -259,7 +259,13 @@ public class ClusterUtil {
     }
 
     public Object getConf(String key, String dnsName) throws Exception {
-        return currentConf.get(dnsName).get(key);
+        Map <String, String> nodeConf = currentConf.get(dnsName);
+
+        if ( nodeConf != null ) {
+            return nodeConf.get(key);
+        }
+
+        return null;
     }
 
     public Object getConf(String key, StormDaemon daemon) throws Exception {
@@ -308,7 +314,10 @@ public class ClusterUtil {
                 throw new RuntimeException(
                 		"ssh and yinst returned an error code.");		
     		} else {
-                currentConf.get(nodeDNSName).remove(strKey);
+                Map <String, String> nodeConf = currentConf.get(nodeDNSName);
+                if ( nodeConf != null ) {
+                    nodeConf.remove(strKey);
+                }
             }
     	}
     }
@@ -382,7 +391,10 @@ public class ClusterUtil {
     			TestSessionStorm.logger.info("stdout" + output[1]);
     			TestSessionStorm.logger.info("stderr" + output[2]);	
     		} else {
-                currentConf.get(nodeDNSName).put(strKey, strVal);
+                Map<String, String> nodeConf = currentConf.get(nodeDNSName);
+                if (nodeConf != null) {
+                    nodeConf.put(strKey, strVal);
+                }
             }
     	}
     }
