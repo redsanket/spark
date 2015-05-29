@@ -262,7 +262,7 @@ public class ClusterUtil {
         Map <String, String> nodeConf = currentConf.get(dnsName);
 
         if ( nodeConf != null ) {
-            return currentConf.get(dnsName).get(key);
+            return nodeConf.get(key);
         }
 
         return null;
