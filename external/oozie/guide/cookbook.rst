@@ -9,7 +9,8 @@ Cookbook Examples
 .. contents:: In this section, we'll look at the following sections (you should have completed the :ref:`Getting Started <getting_started>`):
    :depth: 1 
    :local:
-  
+
+.. _cookbook-accessing_hadoop_counters:  
 
 Accessing Hadoop Counters in Previous Actions
 ---------------------------------------------
@@ -21,8 +22,10 @@ In the ``workflow.xml`` below, the ``'mr1'`` action generates a user-defined
 Hadoop counter named ``['COMMON']['COMMON.ERROR_ACCESS_DH_FILES']``.
 The value of this counter is accessed in the subsequent ``'java1'`` action.
 
-Workflow
-~~~~~~~~
+.. _accessing_hadoop_counters-workflow:  
+
+Example Workflow XML
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -85,6 +88,8 @@ Workflow
      <end name='end' />
    </workflow-app>
 
+.. _cookbook-increasing_memory:
+
 Increasing Memory for Hadoop Job
 --------------------------------
 
@@ -146,6 +151,25 @@ that expands memory usage:
    </workflow-app>
 
 
+In addition to using ``mapred.child.java.opts``, you can also set ``mapreduce.map.memory.mb`` 
+as shown in the snippet below:
+
+.. code-block:: xml 
+
+   <property>
+       <name>mapreduce.map.memory.mb</name>
+       <value>1024</value>
+       <description>upper memory limit to be allocated to a mapper, in MB </description>
+   </property>
+   <property>
+       <name>mapred.child.java.opts</name>
+       <value>-Xmx1024M</value>
+       <description>Setting memory usage to 1024MB</description>
+   </property>
+
+
+.. _cookbook-using_custom_input:
+
 Using Custom Input Format
 -------------------------
 
@@ -159,8 +183,10 @@ define a property in your action that uses that class as shown below.
      <value>com.yahoo.mycustominputformat.TextInputFormat</value>
    </property>
 
-Workflow
-~~~~~~~~
+.. _using_custom_input-workflow:
+
+Example Workflow XML
+~~~~~~~~~~~~~~~~~~~~
 
 The Workflow XML file below uses the custom input class for
 handling spam.
@@ -206,6 +232,8 @@ handling spam.
    </workflow-app>
 
 
+.. _cookbook-submit_workflow_ycav2:
+
 Submitting a Workflow With a YCAv2(gYCA) Certificate
 ----------------------------------------------------
 
@@ -217,7 +245,11 @@ In each ``credential`` element, the attribute ``name`` is the key and the attrib
 To use YCAv2 certificates, ensure that the following is true:
 
 - The credential ``type`` is defined in Oozie server. For example, on ``axoniteblue-oozie.blue.ygrid.yahoo.com``, 
-  the YCA credential type is defined as ``yca``, as in ``yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials``.
+  the YCA credential type is defined as ``yca``, as in the following::
+
+      "oozie.credentials.credentialclasses": yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,
+      hcat=org.apache.oozie.action.hadoop.HCatCredentials,hbase=org.apache.oozie.action.hadoop.HbaseCredentials
+      
 - Users give multiple ``credential`` elements under ``credentials`` and specify a comma-separated list of credentials under each action's 
   ``cred`` attribute.
 - Only one parameter is required for the credential ``type``:
@@ -233,16 +265,20 @@ To use YCAv2 certificates, ensure that the following is true:
     the obtained YCA v2 certificate to the Web service outside the grid, you can 
     limit the corresponding role name that contains the hosts of the HTTP proxy VIP. 
     The role names containing members of production HTTP proxy VIPs are ``grid.blue.prod.httpproxy``, 
-    ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. For example, the following is 
-    an uber role that contains the staging, research, and production ``httpproxy`` hosts::
+    ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. 
 
+    For example, the following is an uber role that contains the staging, research, and production 
+    ``httpproxy`` hosts::
+    
         http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy
 
     See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_
     for the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
 
-Example Workflow
-~~~~~~~~~~~~~~~~
+.. _submit_workflow_ycav2-workflow:
+
+Example Workflow XML
+~~~~~~~~~~~~~~~~~~~~
 
 In the  ``workflow.xml`` snippet below, note that the property ``yca-role``
 is mapped to ``griduser.{user_name}``, where ``{user_name}`` is a Yahoo grid user name.
@@ -264,6 +300,9 @@ is mapped to ``griduser.{user_name}``, where ``{user_name}`` is a Yahoo grid use
        </map-reduce>
      </action>
    </workflow-app>
+
+
+.. _submit_workflow_ycav2-proxy:
 
 Proxy
 ~~~~~
@@ -301,6 +340,8 @@ YCAv2-protected Web service from grid.
    con.setRequestMethod("GET");
    con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
 
+.. _cookbook-passing_params:
+
 Passing Parameters to Coordinator Expression Language (EL) Functions
 --------------------------------------------------------------------
 
@@ -319,6 +360,8 @@ are defined in ``job.properties`` so the EL functions ``coord:latest`` and
      </data-in>
    </input-events>
 
+
+.. _cookbook-using_headless_users:
 
 Using Headless Users
 --------------------
@@ -352,14 +395,20 @@ Follow the steps below to set up your headless user for Oozie:
         </keygroup>
       </keydb>
 
+.. _cookbook-configure_jobs_two_namenodes:
+
 Configuring Oozie Jobs to Use Two NameNodes (Oozie Striping)
 ------------------------------------------------------------
+
+.. _configure_jobs_two_namenodes-identify_jt:
 
 1. Identify the JobTracker and its native NameNode.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For example, if the JobTracker is ``JT1``, then the native (or default) NameNode is ``NN1``.
 If the JobTracker is ``JT2``, then the second namenode is ``NN2``.
+
+.. _configure_jobs_two_namenodes-app_path:
 
 2. Configure the Oozie job application path.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -387,11 +436,12 @@ Workflow: **job.properties**
    nameNode=hdfs://{NN1}:8020
    jobTracker={JT1}:50300
 
+.. _configure_jobs_two_namenodes-pig_action:
+
 3. Create the Pig action.
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Pig script should be on ``NN1``.
-For Pig 0.8, use the ``0.8.0.1011230042`` patch to use correct the Hadoop queue.
 
 For example:
 
@@ -403,19 +453,24 @@ For example:
    outputDir=hdfs://{NN2}:8020/projects/output-demo
 
 
+.. _configure_jobs_two_namenodes-new_prop:
+
 4. Add a new property to configuration.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For every Oozie action that needs to refer to input/output on the second NameNode, 
-add this property to the action's configuration in ``workflow.xml``.
+add the following property to the action configuration in ``workflow.xml``.
 
 .. code-block:: xml
 
    <property>
     <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
-    <value>hdfs://{NN2}:8020</value>
+    <value>hdfs://{NN2}:8020,webhdfs://{NN2}</value>
    </property>
 
+.. note:: You can use HDFS or WebHDFS to access NameNodes.
+
+.. _configure_jobs_two_namenodes-xml_tags:
 
 5. Confirm that Oozie properties and XML tags are on the default NameNode.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -431,6 +486,8 @@ add this property to the action's configuration in ``workflow.xml``.
 - Fs action <move source target>
 - Pig action's ``<script>``
 
+
+.. _cookbook-java_action:
 
 Java Action Copying a Local File to HDFS
 ----------------------------------------
@@ -511,6 +568,8 @@ all cluster nodes must be able to read the local file through the same path ``${
         }
       }
 
+
+.. _cookbook-java_action_print_list:
 
 Java Action Printing a List of Dates
 ------------------------------------
@@ -674,6 +733,8 @@ and frequency. The *end date* is not included.
         }
       }
 
+.. _cookbook-using_hbase_creds:
+
 Using HBase Credentials in Oozie Workflows
 ------------------------------------------
 
@@ -737,6 +798,8 @@ use a Java action with an HBase credential.
                you can copy the ``hbase-site.xml`` found on one of the gateways:
                ``{gatewayhost}:/home/gs/conf/hbase/hbase-site.xml``.
 
+
+.. _using_hbase_creds-workflow:
 
 Example Workflow XML
 ********************
@@ -846,6 +909,8 @@ and prints out the result.
    } 
 
 
+.. _using_hbase_creds-hbase_tables_diff_clusters:
+
 Using a Java Action to Access HBase Tables on Different HBase Clusters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -884,6 +949,8 @@ you need to take the following additional steps:
    cluster ("cluster2") where the HBase tables reside.  
 #. In addition, the Oozie server needs to be on the ``hadoop.proxyuser.*.hosts`` list in
    the ``local-superuser-conf.xml`` of both "cluster1" and "cluster2".
+
+.. _hbase_tables_diff_clusters-workflow:
 
 Example Workflow XML
 ********************
@@ -946,6 +1013,8 @@ in the ``hbase-site.xml`` on "cluster1".
        </switch>
      </decision>
    </workflow-app>
+
+.. _hbase_tables_diff_clusters-hellohbase:
 
 HelloHBase.java
 ***************
@@ -1023,6 +1092,8 @@ use a MapReduce action with an HBase credential.
         <file>hbase-site.xml#hbase-site.xml</file>
 
 
+.. _mapreduce_action_hbase_cred-workflow:
+
 Example Workflow XML
 ********************
 
@@ -1078,7 +1149,7 @@ and the value ``hbase_current``.
              <value>${queueName}</value>
            </property>
          </configuration>
-         <file>hbase-site.xml</file>
+         <file>hbase-site.xml#hbase-site.xml</file>
        </map-reduce>
        <ok to="end_1" />
        <error to="fail_1" />
@@ -1138,6 +1209,8 @@ of the table data.
      }
    }
 
+.. _hbase_creds-using_mr_action:
+
 Using a MapReduce Action to Access HBase Tables on Different HBase Clusters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1176,6 +1249,8 @@ do the following additional steps:
    cluster ("cluster2") where the HBase tables reside.  
 #. In addition, the Oozie server needs to be on the ``hadoop.proxyuser.*.hosts`` list in
    the ``local-superuser-conf.xml`` of both "cluster1" and "cluster2".
+
+.. _hbase_creds_using_mr_action-workflow:
 
 Example Workflow XML
 ********************
@@ -1249,11 +1324,15 @@ to use the ``hbase-site.xml`` on "cluster1".
      </action>
    </workflow> 
 
+.. _hbase_creds_using_mr_action-samplemapper:
+
 SampleMapperHBase.java
 **********************
 
 See the :ref:`SampleMapperHBase.java <sample_mapper_hbase>` example
 given in :ref:`Using a MapReduce Action With an HBase Credential <mapreduce_action_hbase_cred>`.
+
+.. _hbase_creds-scanning_table_mr:
 
 Scanning an HBase Table With an MapReduce Action
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1262,6 +1341,8 @@ You can scan an HBase table with MapReduce without using an HBase utility to cre
 MapReduce job. Instead, you can do this through a MapReduce action in an Oozie Workflow. 
 We're going to look at the ``workflow.xml`` and snippets from the the scanner and the mapper.
 
+
+.. _scanning_table_mr-workflow:
 
 Example Workflow XML
 ********************
@@ -1370,6 +1451,8 @@ partitioner, and reducer.
      </action>
    </workflow>
 
+.. _scanning_table_mr-scanstring:
+
 Scanner: LHistoryHTableScanStringGenerator 
 ******************************************
 
@@ -1419,6 +1502,8 @@ For the full code example, see `LHistoryHTableScanStringGenerator.java <https://
      }
    }
    ...
+
+.. _scanning_table_mr-inputmapper:
 
 Mapper: LHistoryHTableInputMapper
 *********************************

@@ -22,17 +22,37 @@ to the ``PATH`` variable or invoke the full path ``/home/y/var/yoozieclient/bin/
 
 .. _oozie_client-installing:
 
-Installing Oozie Client
------------------------
+Installing the Oozie Client
+---------------------------
 
 If you run the Oozie client from a gateway, you do not need to install it.
 The steps below are for those wanting to run the Oozie client from an OpenStack instance.
 
 #. Create a `OpenStack <http://yo/openhouse>`_ instance with YLinux 6.2+ and a medium disk or higher. 
 #. Install the Oozie client: ``$ yinst i yoozie_client -br test``
-#. Run the Oozie command with the ``-keydb`` option: ``$ oozie jobs -len 1 -keydb -auth kerberos``
+#. Run the Oozie command: ``$ oozie jobs -len 1 -auth kerberos``
 
 .. _oozie_client-general:
+
+
+Global Variables
+----------------
+
+When you use the Oozie command, you need to either specify the Oozie URL with
+the option ``-oozie`` or by setting the global variable ``OOZIE_URL``:
+
+    $ export OOZIE_URL=http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie
+
+Another important global variable is ``OOZIE_AUTH`` that allows you to set
+the default authentication method. If you set ``OOZIE_AUTH``, you do not
+need to specify the authentication on the command line with the option ``-auth``.
+
+For example, instead of running a command with ``-auth kerberos``, you could
+set ``OOZIE_AUTH`` to ``kerberos`` with the following so that Oozie
+commands will use Kerberos as the default::
+
+    $ export OOZIE_AUTH=kerberos
+
 
 General
 -------
@@ -48,9 +68,10 @@ the `Command-Line Interface Utilities documentation <http://kryptonitered-oozie.
 ~~~~~~
 
 If ``keydb`` is not set up and ``-keydb`` is specified, the Backyard password is required for the Bouncer authentication.
-Because Backyard authentication is no longer used, you should specify ``-auth kerberos`` to use Kerberos authentication::
+Because Backyard authentication is no longer used, you should specify ``-auth kerberos`` to use Kerberos authentication
+and not specify ``-keydb`` on the command line::
 
-    $ oozie jobs -len 1 -keydb -auth kerberos
+    $ oozie jobs -len 1 -auth kerberos
 
 .. _keydb-gatway:
 
@@ -76,7 +97,7 @@ is important.
     export ROOT=/home/user/oozie/root
     oozie=/home/y/var/yoozieclient/bin/oozie
     server=http://axoniteblue-oozie.blue.ygrid.yahoo.com:4080/oozie
-    opts="-keydb -oozie $server -auth kerberos"
+    opts="-keydb -oozie $server"
     oozie jobs $opts
 
 **Example keydb File**
@@ -97,13 +118,16 @@ is important.
 
 .. _keydb-client:
 
-Using keydb on Client
-*********************
+Using keydb on the Client
+*************************
 
-First, these packages must be installed::
+Install Yahoo's Oozie client::
 
-    $ yinst install bouncer_auth_java
-    $ yinst install yjava_byauth
+    $ yinst install yoozie_client -br test
+
+.. note:: When you install the Oozie client,
+          the prerequisites packages ``bouncer_auth_java`` 
+          and ``yjava_byauth`` will be installed as well.
 
 After installation, create a ``keydb`` file with your account and password.
 
@@ -128,7 +152,7 @@ After installation, create a ``keydb`` file with your account and password.
 
 Now, you can use ``-keydb`` in Oozie client:: 
 
-    $ oozie job -run -config xxx.properties -keydb -auth kerberos
+    $ oozie job -run -config xxx.properties -keydb 
 
 
 .. _general-oozie:
@@ -156,18 +180,8 @@ The ``-oozie`` option also allows you to overwrite the environment variable
 
 For example:: 
 
-    $ oozie jobs -len 1 -keydb -oozie http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie -auth kerberos
+    $ oozie jobs -len 1 -oozie http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie -auth kerberos
 
-.. _keydb-auth2:
-
--auth (Oozie 2.2+)
-~~~~~~~~~~~~~~~~~~
-
-The ``-auth`` option allows you to specify the authentication type. The default is Backyard, but it is **no longer** supported, so
-you should use the ``-auth`` option with the two other valid types: ``YCA`` and ``Kerberos``. (The authentication type
-is case insensitive.) 
-
-For example: ``$ oozie jobs -len 1 -auth kerberos``
 
 .. _client-job:
 
@@ -265,11 +279,13 @@ For example, to rerun the first action in a Coordinator::
 
     $ oozie job -rerun oozie-coord-jobID -action 1 -auth kerberos
 
-You can also schedule to rerun a Coordinator at a specified time with the ``-date`` 
+You can also rerun a Coordinator at a specified time or within a time range with the ``-date`` 
 option (the date needs to be in UTC format)::
 
     $ oozie job -rerun oozie-coord-jobID -date 2010-09-10T01:00Z -auth kerberos
 
+.. note:: To learn how to rerun a Coordinator within a date range,
+          see `Coordinator Rerun <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_CoordinatorRerun.html>`_.
 
 By default, when Coordinator actions are rerun, they delete all output events 
 before rerunning the actions. If you do not want to delete output events, add 
@@ -346,7 +362,8 @@ You can also get a detailed job status for specified actions::
 
     $ oozie job -info oozie-jobID -len 10 -offset 60 -verbose -auth kerberos
 
-For a detailed Coordinator status:: 
+For a detailed status of the second action of Coordinator (``@2`` indicates the second action
+of the Coordinator with the ID ``oozie-coord-jobID``):: 
 
     $ oozie job -info oozie-coord-jobID@2 -verbose -auth kerberos
 
@@ -427,6 +444,10 @@ and `Coordinator Action Status <http://kryptonitered-oozie.red.ygrid.yahoo.com:4
 
 Admin Operations
 ----------------
+
+Only administrators can perform the operations covered in this section. 
+If you're running the Oozie client on one of the grid clusters,
+you will not be able to use the ``admin`` command.
 
 .. _admin-assign:
 
@@ -517,9 +538,6 @@ following::
     fs.default.name=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020
     mapred.job.tracker=gsbl91029.blue.ygrid.yahoo.com:50300
     oozie.libpath=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020/tmp/user/workflows/lib
-    mapreduce.jobtracker.kerberos.principal=mapred/gsbl91029.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
-    dfs.namenode.kerberos.principal=hdfs/gsbl91027.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
-
 
 See `Submitting a pig job through HTTP <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Submitting_a_pig_job_through_HTTP>`_
 for another example.

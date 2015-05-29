@@ -1,10 +1,17 @@
+.. _ts:
+
 Troubleshooting
 ===============
 
 .. 05/14/15: Edited.
 
+
+.. _ts-debugging:
+
 Debugging
 ---------
+
+.. _debug-check_oozie_job:
 
 1. Checking Oozie Job
 ~~~~~~~~~~~~~~~~~~~~~
@@ -29,6 +36,8 @@ Debugging
     ----------------------------------------------------------------------------------------------------
     hadoop1  map-reduce  OK  end  job_200904281535_0254  SUCCEEDED  -  2009-05-26 05:01 2009-05-26 05:01 
     ----------------------------------------------------------------------------------------------------
+
+.. _debug-debug_oozie_job:
    
 2. Checking/Debugging Oozie Jobs 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,49 +47,53 @@ go to http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie.
 
 The syntax for the Web Console is ``http://{cluster}{color}-oozie.{color}.ygrid.yahoo.com:4080/oozie``.
 
+.. _-debug_oozie_job-coord_actions:
+
 Coordinator Actions
 *******************
 
-In the current releases, logs are shown for Coordinator *actions* only (and not 
-for the parent job).
+To view logs for a Coordinator action(s):
 
-Click the tab **Coord Job Log** once you've clicked on the job from the list.
-Action logs can be viewed by entering the action numbers in the text box below the 
-log area either as a comma-separated list or a range (e.g., 1-5,6,9,10). 
+#. From the Oozie Web Console, click the **Coordinator Jobs** tab.
+#. Click the job ID for your Coordinator to open the **Coord Job Info** tab of the **Job** window.
+#. From the **Job** window, click the **Coord Job Log** tab.
+#. In the **Enter action list** text field, enter the action number(s) or a range of actions that 
+   you'd like to view logs of. For example, you would enter **1,2,4-6** to see the
+   logs for the Coordinator actions 1, 2, 4, 5, and 6.
+#. Click **Get Logs** to see the raw logs of the job running your Coordinator action(s).
+   (Due to large size of logs (for Coordinators with large number of actions), loading
+    the logs may take a few minutes.)
 
-.. image:: images/coord_job_log.png
-   :height: 404px
-   :width: 950 px
-   :scale: 90 %
-   :alt: Oozie Coordinator Job Log Console/UI
-   :align: left 
-
-Due to large size of logs (for Coordinators with large number of actions), loading 
-the logs might take a few minutes.
-
-In the next release, after opening the tab, the default log displayed will be of 
-the parent Coordinator job. Accessing action logs will be same as current behavior. 
-Performance improvements are underway to improve the streaming speed.
+.. note::  In the current releases, logs are shown for Coordinator *actions* only (and not 
+           for the parent job). Future releases, the default log will show the parent
+           Coordinator job.
 
 For more information about the Web Console, 
 `Map Reduce Cookbook: HOW TO USE THE OOZIE WEB-CONSOLE <https://cwiki.apache.org/confluence/display/OOZIE/Map+Reduce+Cookbook#MapReduceCookbook-CASE-8:HOWTOUSETHEOOZIEWEB-CONSOLE>`_.
 
+.. _debug-view_oozie_logs:
+
 3. View Oozie Logs
 ~~~~~~~~~~~~~~~~~~
 
-Logs are located on the Tomcat host at ``/home/y/libexec/yjava_tomcat/logs/{host_name}``.
-Logs are available for privileged users only.
+Logs are located on the Tomcat host at ``/home/y/libexec/yjava_tomcat/logs/oozie/oozie.log``.
+Logs are available for **privileged** users only.
 
-You can also use the ``oozie`` client to view the log::
+Besides the Oozie Web Console, you can also use the ``oozie`` client to view the log::
 
     $ oozie job -log <jobid> -oozie <OOZIE_URL> -auth kerberos
 
-  
+.. _ts-errors: 
+
 Errors
 ------
 
+.. _errors-submit_oozie_wf: 
+
 Can't Submit Oozie Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _submit_oozie_wf-internal_server_error: 
 
 Internal Server Error (1)
 *************************
@@ -90,6 +103,8 @@ Internal Server Error (1)
     $ oozie job -run -config map-reduce-job.properties -auth kerberos
 
     Error: OTHER : Internal Server Error
+
+.. _internal_server_error-solution: 
 
 Possible Solutions
 ++++++++++++++++++
@@ -111,11 +126,15 @@ To request access to the queue, `submit a request to Grid-Ops <http://yo/support
 (You need access to a Hadoop queue to submit Workflows to Oozie.)
 
 
+.. _submit_oozie_wf-internal_server_error2: 
+
 Internal Server Error (2)
 *************************
 
 Your ``OOZIE_URL`` environment variable and ``oozie.wf.application.path`` specified in 
 your properties file must point to the **same** grid.
+
+.. _internal_server_error2-correct: 
 
 Correct Example
 +++++++++++++++
@@ -130,19 +149,24 @@ Correct Example
 
     oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/{userid}/workflow/mb
 
+.. _internal_server_error2-incorrect: 
+
 Incorrect Example
 +++++++++++++++++
 
 ::
 
-    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run
-    oozie.wf.application.path=hdfs://mithrilblue-nn1.blue.ygrid.yahoo.com:8020/user/userid/workflow/mb -auth kerberos
+    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config db-wf.properties -run
+    -auth kerberos
 
-**mb-wf.properties**
+**db-wf.properties**
 
 ::
 
     oozie.wf.application.path=hdfs://dilithiumblue-nn1.blue.ygrid.yahoo.com:8020/user/userid/workflow/mb
+
+
+.. _errors-xml_schema: 
 
 E0701: XML Schema Error
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,16 +174,21 @@ E0701: XML Schema Error
 E0701: XML schema error, cvc-complex-type.2.4.a: Invalid content was found starting 
 with element ``some-element-a``. One of ``{"uri:oozie:workflow:0.5":other-element-b}`` is expected.
 
+.. _xml_schema-solution: 
+
 Possible Solution
 *****************
 
 If you encounter above error, you should check that your XML elements are in the correct 
-sequence as specified in the `Workflow XSD <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. 
-(The order of the tags matters here.)
+sequence as specified in the `Workflow XSD <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. (The order of the tags matters here.)
 
+
+.. _errors-auth: 
 
 Error: AUTHENTICATION : Forbidden
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _auth-wrong_version: 
 
 Wrong Version of Oozie Client
 *****************************
@@ -172,11 +201,15 @@ Apache Oozie client instead of the Yahoo Oozie client. Install the Yahoo Oozie c
 
     $ yinst install yoozie_client
 
+.. _auth-incorrect_path: 
+
 Incorrect Workflow Path
 ***********************
 
-Your ``OOZIE_URL`` environment variable and ``oozie.wf.application.path`` specified 
-in your properties file must point to the same cluster.
+Your ``OOZIE_URL`` environment variable and ``oozie.wf.application.path`` specified in 
+your properties file must point to the **same** grid.
+
+.. _incorrect_path-correct:
 
 Correct Example
 +++++++++++++++
@@ -190,20 +223,24 @@ Correct Example
 
 ::
 
-    oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/userid/workflow/kr
+    oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/{userid}/workflow/kr
+
+.. _incorrect_path-incorrect:
 
 Incorrect Example
 +++++++++++++++++
 
 ::
 
-    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run -auth kerberos
+    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config db-wf.properties -run -auth kerberos
 
-**kr-wf.properties**
+**db-wf.properties**
 
 ::
 
-    oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/userid/workflow/kr
+    oozie.wf.application.path=hdfs://dilithiumblue-nn1.blue.ygrid.yahoo.com:8020/user/{userid}/workflow/db
+
+.. _errors-unauthorized:
 
 E1001 : unauthorized request user [userid]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,8 +263,12 @@ The ``E1001`` error means one of two things:
      - Correct path syntax: ``oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/myuserid/workflows/pig``
      - Incorrect path syntax: ``oozie.wf.application.path=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/workflows/pig``
 
+.. _errors-local_install: 
+
 Oozie Local Installation Problems
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _local_install-not_read_wf_def: 
 
 Error: WF:E1310 : could not read the workflow definition
 ********************************************************
@@ -266,6 +307,9 @@ If you use the Yahoo build, you may see this error::
              at java.lang.Thread.run(Thread.java:637)
      2009-09-23 22:24:15,060  INFO Services:538 - Shutdown{E}
      2009-09-23 22:24:53,630  INFO XLogService:538 -
+
+
+.. _errors-job_failed: 
 
 My Hadoop Job Failed. Where are the Logs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

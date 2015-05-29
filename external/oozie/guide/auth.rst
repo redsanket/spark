@@ -1,3 +1,5 @@
+.. _auth:
+
 Authentication/Authorization
 ============================
 
@@ -6,6 +8,8 @@ Authentication/Authorization
 
 Oozie provides two different ways of authentication: Kerberos and YCA.
 You need to do some setting up for Kerberos and YCA.
+
+.. _auth-kerberos:
 
 Kerberos Authentication
 -----------------------
@@ -16,18 +20,13 @@ by Kerberos. When submitting a job or any other tasks, the user can only specify
 Kerberos as authentication type if the Oozie server is configured to accept this 
 authentication.
 
-To support new authentication (Kerberos) in the Oozie client, the Java Cryptography Extension (JCE) JARs 
-have to  be replaced in ``JAVA_HOME`` to support stronger encryption. The passphrase required 
-for installation can be found in `yjava_jce package <http://dist.corp.yahoo.com/by-package/yjava_jce>`_: ``$ yinst install yjava_jce``
-
-
 #. Before invoking Oozie, obtain and cache the Kerberos ticket-granting ticket::
 
        $ kinit $USER@Y.CORP.YAHOO.COM
 
-   You can also use the following::
+   You can also use the following if you have a keytab file::
 
-       $ kinit -k -t ~/Headless_USER.keytab Headless_USER/localhost@LOCALHOST
+       $ kinit -kt ~/`whoami`.dev.headless.keytab `whoami`@DEV.YGRID.YAHOO.COM
 
 #. To invoke Oozie using Kerberos authentication::
 
@@ -44,10 +43,6 @@ for installation can be found in `yjava_jce package <http://dist.corp.yahoo.com/
 
          $ curl -b cookie.txt --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
 
-#. (Optional) You can also use ``kinit`` to create the Kerberos ticket::
-
-      $ kinit -kt ~/`whoami`.dev.headless.keytab `whoami`@DEV.YGRID.YAHOO.COM
-
 #. Use the default Kerberos ticket::
 
        $ curl --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
@@ -55,6 +50,8 @@ for installation can be found in `yjava_jce package <http://dist.corp.yahoo.com/
 
 .. note:: The examples above use the Oozie server on Kryptonite Red. To use Oozie servers on other clusters,
           see :ref:`Oozie Serves on Clusters <references-oozie_servers>`.
+
+.. _kerberos-client_API:
 
 Client API Example of Kerberos Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,6 +104,8 @@ Client API Example of Kerberos Authentication
 #. Run your example: ``$ java -cp $CLASSPATH KerbAPIExample 00001-1234-W``
 
 
+.. _kerberos-yca_auth:
+
 YCA Authentication
 ------------------
 
@@ -115,6 +114,8 @@ authentication. The ``-auth`` option can take the argument ``yca`` to
 authenticate by YCA. When using Oozie to submit job or any other tasks, you 
 can only specify YCA as the authentication type if Oozie server is configured to accept 
 this authentication. Also, the allowed YCA namespaces have to be configured in the Oozie server.
+
+.. _yca_auth-creating_role:
 
 Creating an Oozie Role
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -135,6 +136,8 @@ To create a role in Oozie for a YCA allowed namespace:
       the ``yca`` certificates of the machine.
 
 
+.. _yca_auth-invoke_oozie:
+
 Invoking Oozie With YCA Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -142,6 +145,9 @@ To invoke Oozie by YCA authentication as the ``<username>`` at one of the regist
 
     $ oozie job -oozie http://localhost:8080/oozie -run -config job.properties -auth YCA
 
+
+
+.. _yca_auth-yca_certs:
 
 Verifying YCA Certificates 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,6 +165,8 @@ To verify the certificate::
     $ curl -H "Yahoo-App-Auth: {the yca certificate from command yca-cer-util --show; starting from v1=1;a=yahoo.griduser.......}" -k http://{oozie server hostname}:4080/oozie/v1/admin/build-version
 
 
+.. _yca_auth-yca_proxy:
+
 YCA Authentication With YCA Proxy Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -167,8 +175,12 @@ To use the YCA proxy server for YCA authentication::
     $ oozie -Dhttp.proxyHost=yca-proxy.corp.yahoo.com -Dhttp.proxyPort=3128 jobs -oozie http://{oozieurl} -auth YCA
 
 
+.. _yca_auth-yca_workflow:
+
 Adding YCA to a Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _yca_workflow-namespace:
 
 Creating a Namespace and a Role
 *******************************
@@ -180,6 +192,8 @@ wants to submit the job with gYCA credential. For example, the user ``strat_ci``
 can submit the Workflow with gYCA credential, so we add ``strat_ci.wsca.user.yahoo.com``
 to the role ``oozie.httpproxy``. See the example http://roles.corp.yahoo.com:9999/ui/role?action=view&id=217516.
 
+
+.. _yca_workflow-submit_ycav2:
 
 Submit a Workflow With the YCAv2(gYCA) Certificate
 **************************************************
@@ -193,7 +207,7 @@ The credential ``type`` is defined in the Oozie server. For example, on
 ``axoniteblue-oozie.blue.ygrid.yahoo.com``,  the YCA credential type is defined as ``yca``, 
 with the following::
 
-    yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials
+    "oozie.credentials.credentialclasses": yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,hcat=com.yahoo.oozie.action.hadoop.HCatCredentials,hbase=org.apache.oozie.action.hadoop.HBaseCredentials
 
 Users can give multiple ``credential`` elements under ``credentials`` and specify a 
 comma-separated list of credentials to use under each action ``cred`` attribute.
@@ -219,8 +233,10 @@ There are three optional parameters for the credential type ``yca``:
   the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
 
 
-Example Workflow
-****************
+.. _yca_workflow-submit_ycav2:
+
+Example Workflow XML
+********************
 
 The following ``workflow.xml`` snippet shows how to configure your Workflow to use YCA authentication and set the role:
 
@@ -241,6 +257,8 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
          </map-reduce>
       </action>
    <workflow-app>
+
+.. _submit_ycav2-java_code_ex:
 
 Java Code Example
 *****************
