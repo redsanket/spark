@@ -53,7 +53,7 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 	private WorkFlowHelper workFlowHelperObj = null;
 	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange";
 	private static final int SUCCESS = 200;
-	private final static String LOG_FILE = "/home/y/libexec/yjava_tomcat/webapps/logs/FACET_NAME-application.log";
+	private final static String LOG_FILE = "/home/y/logs/ygrid_gdm_FACET_NAME_server/FACET_NAME-application.log";
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -194,7 +194,7 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 			Pattern pattern = Pattern.compile(value);
 
 			// read the log file.
-			String facetApplicationLogFile = "/grid/0/yroot/var/yroots/"+ facetName.trim() +"/"+LOG_FILE.replace("FACET_NAME", facetName);
+			String facetApplicationLogFile = "/grid/0/yroot/var/yroots/"+ facetName.trim() +"/"+LOG_FILE.replaceAll("FACET_NAME", facetName);
 			
 			// Read the facet application log file.
 			FileInputStream input = new FileInputStream(facetApplicationLogFile);
