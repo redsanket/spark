@@ -105,15 +105,15 @@ every hour, so you can roll the 15-minute datasets into hourly datasets.
      </datasets>
      <input-events>
        <data-in name=“inputLogs” dataset="logs">
-         <start-instance>${current(-3)}</start-instance>
-         <end-instance>${current(0)}</end-instance>
+         <start-instance>${coord:current(-3)}</start-instance>
+         <end-instance>${coord:current(0)}</end-instance>
        </data-in>
      </input-events>
      <action>
        <workflow>
          <app-path>hdfs://bar:9000/usr/abc/logsprocessor-wf</app-path>
          <configuration>
-           <property> <name>inputData</name><value>${dataIn(‘inputLogs’)}</value> </property>
+           <property><name>inputData</name><value>${coord:dataIn(‘inputLogs’)}</value>/property>
          </configuration>
        </workflow>
      </action>      
@@ -129,7 +129,7 @@ then roll it up.
 
 For example, the ``coordinator.xml`` below every hour accesses the past 24 hours of data and rolls 
 that data up. You can see that the frequency for the Coordinator is every hour but that the input 
-event is for 24 hours (``${current(0)}`` to ``${current(-23)}``).
+event is for 24 hours (``${coord:current(0)}`` to ``${coord:current(-23)}``).
 
 .. code-block:: xml
 
@@ -141,8 +141,8 @@ event is for 24 hours (``${current(0)}`` to ``${current(-23)}``).
      </datasets>
      <input-events>
        <data-in name=“inputLogs” dataset="logs">
-         <start-instance>${current(-23)}</start-instance>
-         <end-instance>${current(0)}</end-instance>
+         <start-instance>${coord:current(-23)}</start-instance>
+         <end-instance>${coord:current(0)}</end-instance>
        </data-in>
      </input-events>
      <action>

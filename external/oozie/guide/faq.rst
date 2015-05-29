@@ -45,8 +45,9 @@ Answers
 .. _log_files:
 .. topic::  **Where are the log files created?**
 
-   The Hive server log is located at ``/home/y/libexec/hive_server/logs/hive_server.log``. 
-   The Hive CLI log is in ``$HADOOP_TOOLS_HOME/var/logs/hive_cli/${userid}/hive.log``.
+   The Oozie server log is in ``/home/y/libexec/yjava_tomcat/logs/oozie/oozie.log``, but
+   users do not have permission to log on to Oozie servers to view logs. Instead, users
+   must use the Web Console to view Oozie job logs.
 
 
 .. _turn_off:
@@ -58,7 +59,6 @@ Answers
    If that is not desired, it can be turned off per Workflow action 
    by configuring ``oozie.launcher.mapreduce.job.ubertask.enable`` to 
    ``false`` in the action configuration.
-
 
 
 .. _run_different_cluster:
@@ -379,20 +379,17 @@ Answers
 
    You use the XOozieClient API to submit a MapReduce job through HTTP.
   
-   **1. Install yinst Dependencies** 
+   **1. Install the Yahoo Oozie Client**
 
    ::   
 
-       $ yinst install bouncer_auth_java
-       $ yinst install yjava_byauth
-       $ yinst install java_log4j
        $ yinst install yoozie_client
   
    **2. Set CLASSPATH**
  
    ::
      
-       $ export CLASSPATH=".:/home/y/var/yoozieclient/lib/yoozie-client-4.0.0.4.jar:/home/y/var/yoozieclient/lib/oozie-client-4.0.0.4.jar:/home/y/var/yoozieclient/lib/json-simple-1.1.jar:/home/y/var/yoozieclient/lib/commons-cli-1.2.jar:/home/y/lib/jars/yjava_byauth.jar:/home/y/lib/jars/bouncer_auth_java.jar:/home/y/lib/jars/log4j.jar"
+       $ export CLASSPATH=".:/home/y/var/yoozieclient/lib/yoozie-client-*.jar:/home/y/var/yoozieclient/lib/oozie-client-*.jar:/home/y/var/yoozieclient/lib/json-simple-*.jar:/home/y/var/yoozieclient/lib/commons-cli-*.jar:/home/y/lib/jars/yjava_byauth.jar:/home/y/lib/jars/bouncer_auth_java.jar"
       
    **3. Create a Java Oozie Client**
 
@@ -677,8 +674,6 @@ Answers
       fs.default.name=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020
       mapred.job.tracker=gsbl91029.blue.ygrid.yahoo.com:8032
       oozie.libpath=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020/tmp/user/workflows/lib
-      mapreduce.jobtracker.kerberos.principal=mapred/gsbl91029.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
-      dfs.namenode.kerberos.principal=hdfs/gsbl91027.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
 
    **Example for Cross-NameNodes Operation:**
 
@@ -686,14 +681,7 @@ Answers
 
           $ oozie pig -file multiquery1.pig -config job.properties -X -Doozie.launcher.mapreduce.job.hdfs-servers="hdfs://sourcenamenode.blue.ygrid.yahoo.com:8020" -auth kerberos ... ...
 
-   #. Use ``_HOST`` for the Kerberos principal.
    
-   #. Create a ``job.properties`` file, making sure you specify the parameters ``mapreduce.jobtracker.kerberos.principal`` and
-      ``dfs.namenode.kerberos.principal``::
-
-          ...
-          mapreduce.jobtracker.kerberos.principal=mapred/_HOST@DEV.YGRID.YAHOO.COM 
-          dfs.namenode.kerberos.principal=hdfs/_HOST@DEV.YGRID.YAHOO.COM
 
 .. _yca_serve_certs:
 
@@ -783,90 +771,9 @@ Answers
 
 .. topic:: **How do you submit a Workflow with a YCAv2(gYCA) certificate?**
 
-   For an Oozie action to call a YCA-protected Web service, users have to specify the gYCA credential 
-   explicitly in the Workflow beginning and ask Oozie to retrieve the appropriate certificates.
-   In each ``credential`` element, the attribute ``name`` is the key and the attribute 
-   ``type`` indicates which credential to use.
-   
-   To use YCAv2 certificates, ensure that the following is true:
-   
-   - The credential ``type`` is defined in Oozie server. For example, on ``axoniteblue-oozie.blue.ygrid.yahoo.com``, 
-     the YCA credential type is defined as ``yca``, as in ``yoozie_conf_axoniteblue.axoniteblue_conf_oozie_credentials_credentialclasses: yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,howl=com.yahoo.oozie.action.hadoop.HowlCredentials,hcat=com.yahoo.oozie.action.hadoop.HowlCredentials``.
-   - User give multiple ``credential`` elements under ``credentials`` and specify a comma-separated list of credentials under each action's 
-     ``cred`` attribute.
-   - There is only parameter required for the credential ``type``.
-   
-     - ``yca-role``: The role name contains the user names for YCA v2 certificates.
-   - There are three optional parameters for the credential type ``yca``.
-   
-     - ``yca-webserver-url``: The YCA server URL. The default is http://ca.yca.platform.yahoo.com:4080.
-     - ``yca-cert-expiry``: The expiry time of the YCA certificate in seconds. The default is one day (86400) and available from Oozie 3.3.1.
-     - ``yca-http-proxy-role``: The roles DB role name which contains the hostnames of 
-       the machines in the HTTP proxy VIP. The default value is ``grid.httpproxy`` which contains 
-       all HTTP proxy hosts. Depending on the HTTP proxy VIP you will be using to send 
-       the obtained YCA v2 certificate to the Web service outside the grid, you can 
-       limit the corresponding role name that contains the hosts of the HTTP proxy VIP. 
-       The role names containing members of production http proxy VIPs are ``grid.blue.prod.httpproxy``, 
-       ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. For example: http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy
-       contains the hosts of production ``httpproxy``: The role ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
-       is a uber role which contains staging, research, and production ``httpproxy`` hosts. 
-   
-       See http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList 
-       for the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
-   
-   **Example Workflow**
-   
-   .. code-block:: xml
-   
-      <workflow-app>
-        <credentials>
-          <credential name='myyca' type='yca'>
-            <property>
-              <name>yca-role</name>
-              <value>griduser.actualuser</value>
-            </property>
-          </credential> 
-        </credentials>
-        <action cred='myyca'>
-          <map-reduce>
-           --IGNORED--
-          </map-reduce>
-        </action>
-      </workflow-app>
-   
-   **Proxy**
-   
-   When Oozie action executor sees a ``cred`` attribute in the current action, depending 
-   on credential name given, it finds the appropriate credential class to retrieve 
-   the token or certificate and inserts it into action configuration for further use. 
-   In the example Workflow above, 
-   Oozie gets the certificate of gYCA and passed to action configuration. The mapper can then use 
-   this certificate by getting it from action configuration, and then add it to the 
-   HTTP request header when connecting to the YCA-protected Web service through HTTPProxy.
-   A certificate or token retrieved by the credential class would set an action 
-   configuration as the name of credential defined in ``workflow.xml``. (In this example, 
-   it is ``'myyca'``.) 
-   
-   The following examples shows sample code to 
-   use in mapper or reducer class for talking to YCAv2-protected Web service from grid.
-   
-   .. code-block:: java
-   
-      //**proxy setup**
-   
-      //blue proxy
-      //InetSocketAddress inet = new InetSocketAddress("flubberblue-httpproxy.blue.ygrid.yahoo.com", 4080);
-      //gold proxy
-      InetSocketAddress inet = new InetSocketAddress("httpproxystg-rr.gold.ygrid.yahoo.com", 4080);
-      Proxy proxy = new Proxy(Type.HTTP, inet);
-      URL server = new URL(fileURL);
-   
-      //**web service call**
-      String ycaCertificate = conf.get("myyca");
-      HttpURLConnection con = (HttpURLConnection) server.openConnection(proxy);
-      con.setRequestMethod("GET");
-      con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
-   
+   See :ref:`Submitting a Workflow With a YCAv2(gYCA) Certificate <cookbook-submit_workflow_ycav2>` in 
+   the :ref:`Cookbook Examples <cookbook>`.   
+
 .. _oozie_maven_artifacts:
 
 .. topic:: **How do you use Oozie Maven artifacts?** 
@@ -903,17 +810,14 @@ Answers
       ...
       </dependencies>
          
-   **Getting the Required Yinst Packages**
+   **Getting the Oozie Maven Package**
    
-   Alternately, you can also install following ``yoozie`` yinst packages to get the 
-   Oozie Jars and POM files.
+   You can install ``yoozie_maven`` package to get the 
+   needed Oozie JARs and POM files.
    
    ::
    
        yinst i yoozie_maven -br stable 
-       yinst i yoozie_hadooplibs_maven -br stable
-       yinst i yoozie_hbaselibs_maven -br stable
-       yinst i yoozie_hcataloglibs_maven -br stable
    
    .. note:: The ``current`` branch for ``yoozie_maven`` might also contain the 
              version deployed on a research cluster. Package is promoted to 
@@ -1031,59 +935,5 @@ Answers
 
 .. topic:: **How do you increase memory for Hadoop jobs?**
 
-   You can define a property in your action that uses ``mapred.child.java.opts``
-   that allows you to specify the memory usage.
-   
-   Here's an example of the defined property that specifies
-   memory usage:
-   
-   .. code-block:: xml
-   
-      <property>
-        <name>mapred.child.java.opts</name>
-        <value>-Xmx1024M</value>
-        <description>Setting memory usage to 1024MB</description>
-      </property>
-   
-   Below is the ``workflow.xml`` that includes the defined property for
-   expanding memory usage:
-   
-   .. code-block:: xml
-   
-      <workflow-app xmlns='uri:oozie:workflow:0.5' name='streaming-wf'>
-        <start to='streaming1' />
-        <action name='streaming1'>
-          <map-reduce>
-            <job-tracker>${jobTracker}</job-tracker>
-            <name-node>${nameNode}</name-node>
-            <streaming>
-              <mapper>/bin/cat</mapper>
-              <reducer>/usr/bin/wc</reducer>
-            </streaming>
-            <configuration>
-              <property>
-                <name>mapred.input.dir</name>
-                <value>${inputDir}</value>
-              </property>
-              <property>
-                <name>mapred.output.dir</name>
-                <value>${outputDir}/streaming-output</value>
-              </property>
-              <property>
-                <name>mapred.job.queue.name</name>
-                <value>${queueName}</value>
-              </property>
-              <property>
-                <name>mapred.child.java.opts</name>
-                <value>-Xmx1024M</value>
-              </property>
-            </configuration>
-          </map-reduce>
-          <ok to="end" />
-          <error to="fail" />
-        </action>
-        <kill name="fail">
-          <message>Streaming Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
-         </kill>
-        <end name='end' />
-      </workflow-app>
+   See :ref:`Increasing Memory for Hadoop Job <cookbook-increasing_memory>` in the
+   :ref:`Cookbook Examples <cookbook>`.

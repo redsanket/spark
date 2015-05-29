@@ -467,7 +467,7 @@ the Coordinator times out.
      xmlns="uri:oozie:coordinator:0.1">
      <controls>
        <timeout>10</timeout> 
-       <!-- timeout if Coordinator action is not run after 10 minutes --!>
+       <!-- timeout if Coordinator action is not run after 10 minutes -->
        <concurrency>4</concurrency>
      </controls>  
      <datasets>
