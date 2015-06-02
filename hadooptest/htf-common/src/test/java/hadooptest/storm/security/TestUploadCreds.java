@@ -162,7 +162,7 @@ public class TestUploadCreds extends TestSessionStorm {
             try {
                 if (secureMode()) {
                     String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-                    String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
+                    String ycaCert = getYcaV1Cert(v1Role);
                     req = httpClient.newRequest(DRPCURI).header("Yahoo-App-Auth", ycaCert);
                 } else {
                     req = httpClient.newRequest(DRPCURI);

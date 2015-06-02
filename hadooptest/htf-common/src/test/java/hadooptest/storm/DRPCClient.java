@@ -411,7 +411,7 @@ public class DRPCClient extends Thread {
         for ( int i = 0 ; i < ycaV1Roles.length ; i++ ) {
             LOG.info("Attempting to connect to drpc server with " + drpcURIs[i]);
             try {
-                v1Certs[i] = Util.getYcaV1Cert(ycaV1Roles[i]);
+                v1Certs[i] = hadooptest.TestSessionStorm.getYcaV1Cert(ycaV1Roles[i]);
             } catch (Exception e) {
                 LOG.warn("Could not get v1 cert for " + ycaV1Roles[i], e);
                 return;

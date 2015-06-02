@@ -418,13 +418,13 @@
                 <dependency>
                     <groupId>yahoo.yinst.ystorm_contrib</groupId>
                     <artifactId>http_spout</artifactId>
-                    <version>0.3.0.62</version>
+                    <version>0.4.0.16</version>
                     <scope>provided</scope>
                 </dependency>
                 <dependency>
                     <groupId>yahoo.yinst.ystorm_contrib</groupId>
                     <artifactId>rainbow_spout_example</artifactId>
-                    <version>0.3.0.62</version>
+                    <version>0.4.0.16</version>
                     <scope>provided</scope>
                 </dependency>
                 <dependency>

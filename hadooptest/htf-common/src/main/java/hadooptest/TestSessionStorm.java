@@ -23,6 +23,9 @@ import java.net.URLEncoder;
 import org.apache.commons.httpclient.HttpMethod;
 import org.junit.BeforeClass;
 
+import yjava.security.yca.CertDatabase;
+import yjava.security.yca.YCAException;
+
 /**
  * TestSession is the main driver for the automation framework.  It
  * maintains a central logging framework, and central configuration
@@ -274,6 +277,19 @@ public abstract class TestSessionStorm extends TestSessionCore {
                 < waitSeconds) {
             Util.sleep(waitSeconds - uptime);
         }
+    }
+
+    private static CertDatabase cdb;
+
+    public static synchronized String getYcaV1Cert(String appId) throws YCAException {
+        String cert = null;
+        if (appId != null) {
+            if (cdb == null) {
+                cdb = new CertDatabase();
+            }
+            cert = cdb.getCert(appId);
+        }
+        return cert;
     }
 
     protected String getLogForTopology(String topoName, Integer executor) throws Exception {
