@@ -227,7 +227,7 @@ public class TestSmileTopology extends TestSessionStorm {
             sslContextFactory.setIncludeProtocols("TLSv1.2", "TLSv1.1", "TLSv1");
             sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA");
             String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-            ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
+            ycaCert = getYcaV1Cert(v1Role);
             InjectionURI = "https://" + hostname + ":" + Integer.toString(port) ;
         } else {
             InjectionURI = "http://" + hostname + ":" + Integer.toString(port) ;

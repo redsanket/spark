@@ -143,7 +143,7 @@ public class TestBasicDRPC extends TestSessionStorm {
                 req = _http_client.newRequest(uri);
                 if (secureMode()) {
                     String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
-                    String ycaCert = com.yahoo.spout.http.Util.getYcaV1Cert(v1Role);
+                    String ycaCert = getYcaV1Cert(v1Role);
                     req = req.header("Yahoo-App-Auth", ycaCert);
                 }
                 if (method != null) {
