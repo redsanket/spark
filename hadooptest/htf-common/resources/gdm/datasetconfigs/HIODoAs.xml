@@ -88,6 +88,6 @@
 		<HCatSchemaFile>schema.dat</HCatSchemaFile>
 		<HCatSchemaFormat>ULT</HCatSchemaFormat>
 		<HCatSchemaLocked>FALSE</HCatSchemaLocked>
-		<HCatTableName>TestHIO_WorkFlow1392050981793</HCatTableName>
+		<HCatTableName>HCAT_TABLE_NAME</HCatTableName>
 	</HCat>
 </DataSet>

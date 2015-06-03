@@ -13,8 +13,10 @@
 <config>
   <hostconfig>
     <console>
-	   <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
-	   <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
+	  <!--  <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url> -->
+	   <base_url>http://dense12.blue.ygrid.yahoo.com:9999</base_url>
+	   <!-- <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name> -->
+	   	<deployment-suffix-name>test-gdm64</deployment-suffix-name>
 	   <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
 	   <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
 	   <stress-noOfinstances>$(NUMBER_OF_INSTANCES_PER_DATASET)</stress-noOfinstances>
@@ -90,20 +92,32 @@
         <grid1>omegap1</grid1>
     </HCatSchemaUpdateTest>
     <IntegrationTest>
-    	<sourceCluster>$(SOURCE_CLUSTER)</sourceCluster>
+    	<!-- <sourceCluster>$(SOURCE_CLUSTER)</sourceCluster>
     	<destinationCluster>$(DEST_CLUSTER)</destinationCluster>
-    	<duration>$(DURATION)</duration>	 <!-- duration in days -->
+    	<duration>$(DURATION)</duration> duration in days
     	<enable-hcat>$(ENABLE_HCAT)</enable-hcat>
-    	<frequency>$(HOURLY)</frequency> <!-- hourly -->
+    	<frequency>$(HOURLY)</frequency> hourly -->
+    	<sourceCluster>elrond</sourceCluster>
+    	<destinationCluster>denseb</destinationCluster>
+    	<duration>1</duration>	<!--  duration in days -->
+    	<enable-hcat>FALSE</enable-hcat>
+    	<frequency>hourly</frequency> <!-- hourly --> 
     </IntegrationTest>
     <TestWatchForDataDrop>
-		<clusterName>$(CLUSTER_NAME)</clusterName>
+		<!-- <clusterName>$(CLUSTER_NAME)</clusterName>
 		<duration>$(DURATION)</duration> duration in days
 		<frequency>$(FREQUENCY)</frequency>
 		<dataSetPattern>$(PATTERN)</dataSetPattern> hourly
 		<oozieHostName>$(OOZIE_HOST_NAME)</oozieHostName>
 		<hcatHostName>$(HCAT_HOST_NAME)</hcatHostName>
-		<pullOozieJobLength>$(PULL_OOZIE_JOB_LENGTH)</pullOozieJobLength>
+		<pullOozieJobLength>$(PULL_OOZIE_JOB_LENGTH)</pullOozieJobLength> -->
+		 <clusterName>denseb</clusterName>
+		<duration>1</duration> <!-- duration in days -->
+		<frequency>hourly</frequency>
+		<dataSetPattern>hourly</dataSetPattern> hourly
+		<oozieHostName>dense34.blue.ygrid.yahoo.com</oozieHostName>
+		<hcatHostName>dense34.blue.ygrid.yahoo.com</hcatHostName>
+		<pullOozieJobLength>10</pullOozieJobLength>
     </TestWatchForDataDrop>
   </testconfig>
   <auth>

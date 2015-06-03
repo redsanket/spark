@@ -150,6 +150,14 @@ public class GDMTestExecutionReport extends RunListener {
 			TestSession.logger.info("**********************************************************************************");
 			TestSession.logger.info(this.resultFolderPath + " already created.");
 			TestSession.logger.info("**********************************************************************************");
+			try {
+				String htmlTag = "<html><head> <link rel=\"stylesheet\" href=\"http://yui.yahooapis.com/pure/0.6.0/pure-min.css\"> <meta http-equiv=\"refresh\" content=\"10\" > </head> " +
+						"<body><center><h2> GDM Test Result </h2>" + "<table class=\"pure-table pure-table-bordered\">" +
+						"<tr>  <th>TestCase Name </th> <th>Method Name </th> <th>Test Result </th> <th>Failure reason </th> <th> Comments </th> </tr> </thead> <tbody> \n" ;
+				FileUtils.writeStringToFile(new File(this.reportFilePath), htmlTag , "UTF8" , true );
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package hadooptest.cluster.gdm;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1016,5 +1017,38 @@ public class WorkFlowHelper {
 			}
 		}
 		return detailedStepJsonObject;
+	}
+
+	/**
+	 * Remove testcase created dataset(s) and datasource(s)
+	 * @param dataSetNames
+	 */
+	public void testCleanUp(List<String> dataSetNames) {
+		List<String> datasetList =  consoleHandle.getAllDataSetName();
+		for ( String datasetName : dataSetNames)  {
+			if (datasetList.contains(datasetName)) {
+
+				// deactivate the dataset
+				Response response = consoleHandle.deactivateDataSet(datasetName);
+				assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
+				assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
+				assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
+			}
+
+			// get all target names of the dataset
+			List<String> dataSetSourceList = this.consoleHandle.getDataSource(datasetName, "target", "name");
+
+			// deactivate targets in dataset.
+			this.consoleHandle.deactivateTargetsInDataSet(datasetName);
+
+			// remove dataset
+			this.consoleHandle.removeDataSet(datasetName);
+
+			for ( String dataSourceName : dataSetSourceList) {
+
+				// deactivate and remove datasource
+				this.consoleHandle.removeDataSource(dataSourceName);
+			}
+		}
 	}
 }

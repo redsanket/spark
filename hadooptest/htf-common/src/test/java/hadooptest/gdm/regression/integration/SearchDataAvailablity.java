@@ -4,16 +4,19 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -39,12 +42,17 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	private String feedResultPath;
 	private String scratchPath;
 	private String oozieWFPath;
+	private String currentStatusFolderName;
+	private String currentStatusFileName;
 	private boolean scratchPathCreated;
 	private boolean pipeLineInstanceCreated;
 	private boolean oozieWFPathCopied;
 	private String pipeLineInstance;
 	private String currentFrequencyValue;
+	private String currentFeedName;
+	private DataBaseOperations dbOperations; 
 	private String state;
+	private StringBuffer currentWorkingState;
 	private ConsoleHandle consoleHandle;
 	private Configuration configuration;
 	private List<String> instanceList;
@@ -54,18 +62,11 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	private static final String KEYTAB_USER = "keytabUser";
 	private static final String OWNED_FILE_WITH_COMPLETE_PATH = "ownedFile";
 	private static final String USER_WHO_DOESNT_HAVE_PERMISSIONS = "userWhoDoesntHavePermissions";
+	private static final String BASE_STATUS_FOLDER = "/data/integration_status/";
 	private static final int NO_OF_INSTANCE = 5;
 	private static final int DAYS = 20;
 	private static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
-
-	public boolean isScratchPathCreated() {
-		return this.scratchPathCreated;
-	}
-
-	public boolean isPipeLineInstanceCreated() {
-		return this.pipeLineInstanceCreated;
-	}
-
+	
 	public SearchDataAvailablity(String clusterName , String basePath , String dataPattern , String state) {
 
 		this.clusterName = clusterName;
@@ -73,6 +74,8 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		this.dataPath = dataPath;
 		this.dataPattern = dataPattern;
 		this.state = state;
+		
+		this.dbOperations = new DataBaseOperations();
 
 		// Populate the details for DFSLOAD
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
@@ -102,15 +105,48 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			instance = sdf.format(cal.getTime());
 			this.instanceList.add(instance);
 		}
+		
+		this.currentWorkingState = new StringBuffer();
+	}
+	
+	public void setCurrentWorkingState(String currentWorkingState) throws IOException {
+		this.currentWorkingState.append(currentWorkingState + "-");
+		TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  currentWorkingState  = " +  currentWorkingState);
+		writeJobStatus();
+		
+	}
+	
+	public StringBuffer getCurrentWorkingState() {
+		return this.currentWorkingState;
+	}
+	
+	public void setCurrentFeedName(String feedName) {
+		this.currentFeedName = feedName; 
+		TestSession.logger.info("Current feed Name - " + this.currentFeedName);
+	}
+	
+	public String getCurrentFeedName() {
+		return this.currentFeedName;
+	}
+	
+	public boolean isScratchPathCreated() {
+		return this.scratchPathCreated;
+	}
+
+	public boolean isPipeLineInstanceCreated() {
+		return this.pipeLineInstanceCreated;
 	}
 
 	public String getClusterNameNode() {
 		return this.nameNodeName;
 	}
 
-	public void setState(String operationType) {
+	public void setState(String operationType) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		this.state = operationType;
 		System.out.println("setOperationType   - " + this.state);
+		// insert record into db
+		//this.dbOperations.insertRecord(this.currentFeedName, "hourly", String.valueOf(initTime), String.valueOf(initTime), "steps", this.searchDataAvailablity.getState().toUpperCase().trim(), "UNKNOWN");
+		this.dbOperations.updateRecord("currentStep", this.state, this.currentFeedName);
 	}
 
 	public String  getState() {
@@ -249,6 +285,8 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		String returnValue = "";
 		TestSession.logger.info("---------------- OperationType = " + this.getState() );
 		if (this.getState().toUpperCase().equals("POLLING") || this.getState().toUpperCase().equals("INCOMPLETE")) {
+			this.setCurrentWorkingState("Data:POLLING");
+			
 			TestSession.logger.info("configuration   =  " + this.configuration.toString());
 			FileSystem remoteFS = FileSystem.get(this.configuration);
 			Path path = new Path(this.fullPath.trim());
@@ -264,19 +302,28 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 				if (doneFileExists == true) {
 					this.setState("AVAILABLE");
 					returnValue = "AVAILABLE";
+					this.setCurrentWorkingState("Data:AVAILABLE");
 					TestSession.logger.info(doneFile + " exists, data is transfered.");
 				} else if (doneFileExists == false) {
 					TestSession.logger.info("------- "+ path.toString() + " Data is available, but not yet completed. Still loading.");
 					this.setState("INCOMPLETE");
 					returnValue = "INCOMPLETE";
+					this.setCurrentWorkingState("Data:INCOMPLETE");
 				}
 			} else if (basePathExists == false) {
 				this.setState("POLLING");
 				returnValue = "POLLING";
+				this.setCurrentWorkingState("Data:POLLING");
 				TestSession.logger.info("Data is still UNAVAILABLE and state is " + returnValue);
 			}
 		}
 		if (this.getState().equals("WORKING_DIR")) {
+			this.setCurrentWorkingState("WORKING_DIR:CREATING");
+			
+			// create status folder and status file
+			this.createStatusFolder();
+			this.createCurrentStatusFile();
+			
 			TestSession.logger.info("Pipeline instance path - " + this.pipeLineInstance);
 			this.createWorkFlowFolder(this.pipeLineInstance);
 			
@@ -295,9 +342,12 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			this.createWorkFlowFolder(this.oozieWFPath + "/lib");
 			this.copyLibFiles("/tmp/integration_test_files/lib/" , this.oozieWFPath + "/lib/");
 
+			this.setCurrentWorkingState("WORKING_DIR:CREATED");
+			this.setCurrentWorkingState("SETUP:COMPLETED");
 			// once scratchPath and pipelineInstance folders are created and files are completed operation is changed to startOozieJob state. 
 			if (this.scratchPathCreated ==  true && this.pipeLineInstanceCreated == true) {
 				this.result = "START_OOZIE_JOB";
+				this.setCurrentWorkingState("OOZIE:START_JOB");
 			}
 		}
 		this.result = returnValue;
@@ -474,5 +524,72 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			flag = false;
 		}
 		return flag;
+	}
+	
+	private void createStatusFolder() throws IOException {
+		Calendar todayCal = Calendar.getInstance();
+		todayCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		String toDayStatusFolder = "IntegrationStatus_"+ sdf.format(todayCal.getTime());
+		this.setCurrentStatusFolderName(BASE_STATUS_FOLDER + toDayStatusFolder);
+		TestSession.logger.info("Current Status Folder - " + this.getCurrentStatusFolderName());
+		this.createWorkFlowFolder(this.getCurrentStatusFolderName());
+	}
+	
+	private void createCurrentStatusFile() throws IOException {
+		FileSystem remoteFS = FileSystem.get(this.configuration);
+		Path currentStatusFolderPath = new Path(this.getCurrentStatusFolderName());
+		
+		// check whether current status folder exists, if not create one.
+		if (this.getCurrentStatusFolderName().length() == 0 && remoteFS.exists(currentStatusFolderPath) == false) {
+				this.createStatusFolder();
+		} else if (this.getCurrentStatusFolderName().length() > 0 && remoteFS.exists(currentStatusFolderPath) == true) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
+			Calendar todayCal = Calendar.getInstance();
+			todayCal.setTimeZone(TimeZone.getTimeZone("UTC"));
+			String statusFileName = "IntegrationStatus_"+ sdf.format(todayCal.getTime());
+			this.setCurrentStatusFileName(this.getCurrentStatusFolderName() + "/" +  statusFileName);
+			TestSession.logger.info("current Status FileName   = " + this.getCurrentStatusFileName());
+			Path currentStatusFilePath = new Path(this.getCurrentStatusFileName());
+			boolean isStatusFileCreated = remoteFS.createNewFile(currentStatusFilePath);
+			if (isStatusFileCreated == true) {
+				TestSession.logger.info(this.getCurrentStatusFileName() + " is successfully created");
+			} else {
+				TestSession.logger.info("Failed to create status file " + this.getCurrentStatusFileName());
+			}
+		}
+	}
+	
+	public void setCurrentStatusFolderName(String currentStatusFolderName) {
+		this.currentStatusFolderName = currentStatusFolderName;
+	}
+	
+	public String getCurrentStatusFolderName() {
+		return this.currentStatusFolderName;
+	}
+	
+	public void setCurrentStatusFileName(String currentStatusFile) {
+		this.currentStatusFileName = currentStatusFile;
+	}
+	
+	public String getCurrentStatusFileName() {
+		return this.currentStatusFileName;
+	}
+	
+	/**
+	 * Write current job status to file
+	 * @throws IOException 
+	 */
+	public void writeJobStatus() throws IOException {
+		String reportFilePath = "/tmp/integrationTestResult.txt"; 
+		File f = new File(reportFilePath);
+		if (f.exists() == false) {
+			if (f.createNewFile() == true) {
+				TestSession.logger.info(f.toString() + " successfully created................................................................");
+			} else {
+				TestSession.logger.info(f.toString() + " faile to created................................................................");
+			}
+		}
+		java.nio.file.Files.write(java.nio.file.Paths.get(reportFilePath), this.getCurrentWorkingState().toString().getBytes());
 	}
 }

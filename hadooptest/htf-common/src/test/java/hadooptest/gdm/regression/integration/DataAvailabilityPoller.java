@@ -7,13 +7,18 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import com.google.common.base.Splitter;
 
 import hadooptest.TestSession;
 
@@ -36,7 +41,9 @@ public class DataAvailabilityPoller {
 	private String hcatHostName;
 	private String oozieJobResult;
 	private String currentFrequencyHourlyTimeStamp;
+	private String currentFeedName;
 	public SearchDataAvailablity searchDataAvailablity;
+	private DataBaseOperations dbOperations;
 	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	private final static String FEED_INSTANCE = "20130309";
 	private final static String FEED_NAME = "bidded_clicks";
@@ -45,7 +52,11 @@ public class DataAvailabilityPoller {
 	private final static String FEED_BASE = "/data/daqdev/abf/data/Integration_Testing_DS_";
 	private final static String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
 	private final static String HIVE_SITE_FILE_LOCATION = "/home/y/libexec/hive/conf/hive-site.xml";
-
+	
+	private void setCurrentFeedName(String feedName) {
+		this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue() ; 
+	}
+	
 	public DataAvailabilityPoller(int maxPollTime , String clusterName , String basePath  , String filePattern , String operationType , String oozieHostName , String hcatHostName , String pullOozieJobLength) {
 		this.maxPollTime = maxPollTime;
 		this.clusterName = clusterName;
@@ -58,7 +69,7 @@ public class DataAvailabilityPoller {
 		this.searchDataAvailablity = new SearchDataAvailablity(this.clusterName , this.directoryPath , this.filePattern , this.operationType);
 	}
 
-	public void dataPoller() throws InterruptedException, IOException{
+	public void dataPoller() throws InterruptedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -95,6 +106,7 @@ public class DataAvailabilityPoller {
 
 		boolean isDataAvailable = false;
 		this.isOozieJobCompleted = false;
+		this.dbOperations = new DataBaseOperations();
 
 		while (toDay <= lastDay) {
 			Date d = new Date();
@@ -120,6 +132,15 @@ public class DataAvailabilityPoller {
 				salStartCal.add(Calendar.MINUTE, 20);
 				slaEnd = Long.parseLong(slaSDF.format(salStartCal.getTime()));
 				System.out.println("SLA will start at - " + slaEnd  + " now  - " + slaStartTime);
+				
+				this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue();
+				
+				// set the current feed name
+				this.searchDataAvailablity.setCurrentFeedName(this.currentFeedName);
+				
+				this.dbOperations.createDB();
+				this.dbOperations.createTable();
+				
 
 				initialCal = null;
 				salStartCal = null;
@@ -127,7 +148,14 @@ public class DataAvailabilityPoller {
 				// create the working directories
 				this.searchDataAvailablity.setState("WORKING_DIR");
 				if (this.searchDataAvailablity.getState().toUpperCase().equals("WORKING_DIR") && this.isOozieJobCompleted == false) {
+					
+					// insert record into db
+					this.dbOperations.insertRecord(this.currentFeedName, "hourly", String.valueOf(initTime), String.valueOf(initTime), "steps", this.searchDataAvailablity.getState().toUpperCase().trim(), "UNKNOWN");
+					
 
+					// forcing the system to create the status folder for every hour.
+					this.searchDataAvailablity.setCurrentStatusFolderName("");
+					
 					// copy hive-site.xml file from hcat server to the local host where HTF is running
 					this.copyHiveSiteXML( );
 					this.createJobPropertiesFile("/tmp/integration_test_files/");
@@ -196,7 +224,7 @@ public class DataAvailabilityPoller {
 						TestSession.logger.info("-- oozieJobID = " + this.oozieJobID );
 						assertTrue("" , this.oozieJobID.startsWith("job:"));
 						String oozieWorkFlowName = "stackint_oozie_RawInput_" + this.getCurrentFrequencyValue();
-						this.oozieJobResult = pollOozieJob(this.oozieJobID , oozieWorkFlowName);
+						this.oozieJobResult = this.pollOozieJob(this.oozieJobID , oozieWorkFlowName);
 						if (this.isOozieJobCompleted == false) {
 							this.searchDataAvailablity.setState("DONE");
 							this.isOozieJobCompleted = true;
@@ -326,8 +354,13 @@ public class DataAvailabilityPoller {
 	 * @param oozieWorkFlowName
 	 * @return
 	 * @throws InterruptedException
+	 * @throws IOException 
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public String pollOozieJob(String jobId , String oozieWorkFlowName) throws InterruptedException {
+	public String pollOozieJob(String jobId , String oozieWorkFlowName) throws InterruptedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		String oozieJobresult = "FAILED";
 		Date d ;
 		long durationPollStart=0 ,durationPollEnd=0 , perPollStartTime=0, perPollEndTime=0 , slaPollStart=0 , slaPollEnd=0;
@@ -357,20 +390,24 @@ public class DataAvailabilityPoller {
 			if (jobResult.equals("KILLED")) {
 				TestSession.logger.info("oozie for " + jobId  + "  killed, please check the reason for job killed using" + this.oozieHostName + ":4080/oozie ");
 				oozieJobresult = "KILLED";
+				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_KILLED");
 				this.isOozieJobCompleted = true;
 				break;
 			} else if (jobStatus.equals("SUCCEEDED")) {
 				TestSession.logger.info("oozie for " + jobId  + " is SUCCEDED");
+				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_SUCCEDED");
 				this.isOozieJobCompleted = true;
 				oozieJobresult = "SUCCEEDED";
 				break;
 			} else if (jobStatus.equals("SUSPENDED")) { 
 				TestSession.logger.info("oozie for " + jobId  + " is SUSPENDED");
+				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_SUSPENDED");
 				this.isOozieJobCompleted = true;
 				oozieJobresult = "SUSPENDED";
 				break;
 			} else if (jobStatus.equals("RUNNING")) {
 				TestSession.logger.info("oozie for " + jobId  + " is RUNNING");
+				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_RUNNING");
 				this.isOozieJobCompleted = false;
 				oozieJobresult = "RUNNING";
 			}
@@ -387,12 +424,47 @@ public class DataAvailabilityPoller {
 	/**
 	 * Print complete oozie job info, this will be useful to debug in case failure to know which workflow caused the failure.
 	 * @param jobId
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public void getOoozieJobDetails(String jobId) {
+	public void getOoozieJobDetails(String jobId) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		String jobIdValue =  Arrays.asList(jobId.split(" ")).get(1).trim();
 		String command = "ssh " + this.oozieHostName +  " \"" + this.OOZIE_COMMAND + "  job -oozie  " +  "http://" + this.oozieHostName + ":4080/oozie -auth kerberos -info  " + jobIdValue  + "\"";
 		TestSession.logger.info("command - " + command);
 		String oozieResult = this.executeCommand(command);
+		
+		boolean jobDetailStarted = false;
+		List<String> oozieJobDetails = Arrays.asList(oozieResult.split("\n"));
+		for ( String jobDetails : oozieJobDetails) {
+			if (jobDetails.startsWith("ID")) {
+				jobDetailStarted = true;
+			}
+			if (jobDetailStarted == true) {
+				if ( jobDetails.startsWith("00")) {
+					List<String> tempList = Arrays.asList(jobDetails.split(" "));
+
+					String temp = tempList.toString();
+					Iterable iterable = Splitter.on(',').omitEmptyStrings().split(temp);
+					List<String> sss =  com.google.common.collect.Lists.newArrayList(iterable);
+					List<String> values = new ArrayList<String>();
+					for ( String s : sss) {
+						String x = s.trim();
+						if (x.length() > 0) {
+							int indexOf = x.indexOf("@");
+							String workFlowName = x.substring(indexOf + 1, x.length()).trim();
+							System.out.println("workFlowName - " + workFlowName);
+							values.add(workFlowName.trim());
+						}
+					}
+					System.out.println("---------------------");
+					String oozieWorkFlowStep = values.get(0);
+					String status = values.get(3);
+					this.dbOperations.updateRecord("currentStep", oozieWorkFlowStep, "result" , status , this.currentFeedName);
+				}
+			}
+		}
 	}
 
 	/**

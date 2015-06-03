@@ -92,7 +92,7 @@ public final class ConsoleHandle
 		return null;
 	}
 	
-	private void init(){
+	private void init() {
 		try
 		{
 			String configPath = Util.getResourceFullPath("gdm/conf/config.xml");

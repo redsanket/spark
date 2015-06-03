@@ -95,7 +95,7 @@ public class TestGDMEndToEnd extends TestSession {
 	@Test
 	public void testEnd2End() throws Exception {
 		this.dataSourceList = this.consoleHandle.getAllGridNames();
-		assertTrue("Need atleast two cluster and" , this.dataSourceList.size() > 2);
+		assertTrue("Need atleast two cluster and" , this.dataSourceList.size() >= 2);
 		this.target1 = this.dataSourceList.get(0) + "_GDMEnd2End_dataStore_" + System.currentTimeMillis();
 		this.target2 = this.dataSourceList.get(1) + "_GDMEnd2End_dataStore_" + System.currentTimeMillis();
 
@@ -329,6 +329,9 @@ public class TestGDMEndToEnd extends TestSession {
 	}
 
 	public void activateDataSet() throws Exception {
+		
+		this.consoleHandle.sleep(5000);
+		
 		// activate the dataset
 		this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
 		this.dsActivationTime = GdmUtils.getCalendarAsString();
@@ -434,7 +437,7 @@ public class TestGDMEndToEnd extends TestSession {
 						//  kill the running workflow
 						resourceArray.add(new JSONObject().element("ExecutionID",executionId).element("FacetName", fName).element("FacetColo", facetColo));
 						String killTestURL = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName.trim())) + "/" + facetName.trim() + "/api/admin/workflows";
-						TestSession.logger.info("url  = " + killTestURL);
+						TestSession.logger.info("url  = " + killTestURL  + "   resource - " + resourceArray.toString() );
 						com.jayway.restassured.response.Response jobKilledResponse = given().cookie(this.cookie).param("command", "kill").param("workflowIds" , resourceArray.toString()).post(killTestURL);
 						JsonPath jsonPath = jobKilledResponse.getBody().jsonPath();
 						TestSession.logger.info("response = " + jsonPath.prettyPrint());
