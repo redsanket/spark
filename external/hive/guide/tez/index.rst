@@ -84,7 +84,7 @@ process complex Hive queries that at a large scale and require a high throughput
 Trying Out Tez
 ==============
 
-You can try Tez wit Hive on Axonite Red sandbox by specifying it as the Hive execution engine
+You can try Tez with Hive on Axonite Red sandbox by specifying it as the Hive execution engine
 
 Turn on hive.execution.engine = tez. (You can always switch it back to MapReduce by setting
 ``hive.execution.engine = mr``.)
