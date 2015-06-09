@@ -62,6 +62,7 @@ We're going to configure and run this Workflow in the following steps.
 
 #. Change to ``$HOME/proj/oozie``.
 #. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run -auth kerberos``
+   
    Oozie will return a job ID.
 #. With the returned job ID, request information about the job: ``$ oozie job -info {job_id} -auth kerberos`` 
 
