@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	private String currentFeedName;
 	private DataBaseOperations dbOperations; 
 	private String state;
+	private Connection con;
 	private StringBuffer currentWorkingState;
 	private ConsoleHandle consoleHandle;
 	private Configuration configuration;
@@ -67,7 +69,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 	private static final int DAYS = 20;
 	private static HashMap<String, HashMap<String, String>> supportingData = new HashMap<String, HashMap<String, String>>();
 	
-	public SearchDataAvailablity(String clusterName , String basePath , String dataPattern , String state) {
+	public SearchDataAvailablity(String clusterName , String basePath , String dataPattern , String state) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 
 		this.clusterName = clusterName;
 		this.basePath = basePath;
@@ -76,6 +78,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		this.state = state;
 		
 		this.dbOperations = new DataBaseOperations();
+		this.con  = this.dbOperations.getConnection();
 
 		// Populate the details for DFSLOAD
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
@@ -141,12 +144,16 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		return this.nameNodeName;
 	}
 
-	public void setState(String operationType) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+	public void setState(String operationType) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
 		this.state = operationType;
 		System.out.println("setOperationType   - " + this.state);
+		writeJobStatus();
+		
 		// insert record into db
-		//this.dbOperations.insertRecord(this.currentFeedName, "hourly", String.valueOf(initTime), String.valueOf(initTime), "steps", this.searchDataAvailablity.getState().toUpperCase().trim(), "UNKNOWN");
+		/*Connection con = this.dbOperations.getConnection();
+		this.dbOperations.getRecord(con ,"steps" , this.currentFeedName);
 		this.dbOperations.updateRecord("currentStep", this.state, this.currentFeedName);
+		con.close();*/
 	}
 
 	public String  getState() {
@@ -285,7 +292,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		String returnValue = "";
 		TestSession.logger.info("---------------- OperationType = " + this.getState() );
 		if (this.getState().toUpperCase().equals("POLLING") || this.getState().toUpperCase().equals("INCOMPLETE")) {
-			this.setCurrentWorkingState("Data:POLLING");
+			this.setCurrentWorkingState("POLLING");
 			
 			TestSession.logger.info("configuration   =  " + this.configuration.toString());
 			FileSystem remoteFS = FileSystem.get(this.configuration);
@@ -302,18 +309,21 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 				if (doneFileExists == true) {
 					this.setState("AVAILABLE");
 					returnValue = "AVAILABLE";
-					this.setCurrentWorkingState("Data:AVAILABLE");
+					this.setCurrentWorkingState("AVAILABLE");
+					this.setState("AVAILABLE");
 					TestSession.logger.info(doneFile + " exists, data is transfered.");
 				} else if (doneFileExists == false) {
 					TestSession.logger.info("------- "+ path.toString() + " Data is available, but not yet completed. Still loading.");
 					this.setState("INCOMPLETE");
 					returnValue = "INCOMPLETE";
-					this.setCurrentWorkingState("Data:INCOMPLETE");
+					this.setCurrentWorkingState("INCOMPLETE");
+					this.setState("INCOMPLETE");
 				}
 			} else if (basePathExists == false) {
 				this.setState("POLLING");
 				returnValue = "POLLING";
-				this.setCurrentWorkingState("Data:POLLING");
+				this.setCurrentWorkingState("POLLING");
+				this.setState("POLLING");
 				TestSession.logger.info("Data is still UNAVAILABLE and state is " + returnValue);
 			}
 		}
@@ -344,10 +354,12 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 
 			this.setCurrentWorkingState("WORKING_DIR:CREATED");
 			this.setCurrentWorkingState("SETUP:COMPLETED");
+			
 			// once scratchPath and pipelineInstance folders are created and files are completed operation is changed to startOozieJob state. 
 			if (this.scratchPathCreated ==  true && this.pipeLineInstanceCreated == true) {
 				this.result = "START_OOZIE_JOB";
 				this.setCurrentWorkingState("OOZIE:START_JOB");
+				
 			}
 		}
 		this.result = returnValue;
