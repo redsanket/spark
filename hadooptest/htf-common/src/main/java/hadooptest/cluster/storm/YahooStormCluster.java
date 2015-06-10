@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.thrift7.TException;
 import org.eclipse.jetty.client.HttpClient;
@@ -265,7 +267,7 @@ public class YahooStormCluster extends ModifiableStormCluster {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void deactivateYinstPackageOnNode(StormDaemon daemon, String nodeDNSName)
+    public String deactivateYinstPackageOnNode(StormDaemon daemon, String nodeDNSName)
             throws Exception {
 
         TestSessionStorm.logger.info("*** DEACTIVATING DAEMON:  " + daemon +
@@ -283,6 +285,18 @@ public class YahooStormCluster extends ModifiableStormCluster {
             throw new RuntimeException(
                     "ssh and yinst returned an error code.");
         }
+
+        // Parse the stdout for the full package name, with version and return it.
+        Pattern p = Pattern.compile("(ystorm_.*-.*):.deact");
+        Matcher regexMatcher = p.matcher(output[1]);
+
+        String returnValue = null;
+        if (regexMatcher.find()) {
+            returnValue = regexMatcher.group(1);
+            TestSessionStorm.logger.info("Package deactivated was " + returnValue);
+        }
+
+        return returnValue;
     }
 
     /**
@@ -293,15 +307,14 @@ public class YahooStormCluster extends ModifiableStormCluster {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void activateYinstPackageOnNode(StormDaemon daemon, String nodeDNSName)
+    public void activateYinstPackageOnNode(String myPackage, String nodeDNSName)
             throws Exception {
 
-        TestSessionStorm.logger.info("*** ACTIVATING DAEMON:  " + daemon +
+        TestSessionStorm.logger.info("*** ACTIVATING DAEMON:  " + myPackage  +
                 " ON NODE:  " + nodeDNSName + " ***");
 
         String[] output = TestSessionStorm.exec.runProcBuilder(
-                new String[]{"ssh", nodeDNSName, "yinst", "activate",
-                        StormDaemon.getDaemonYinstString(daemon)});
+                new String[]{"ssh", nodeDNSName, "yinst", "activate", myPackage});
 
         if (!output[0].equals("0")) {
             TestSessionStorm.logger.info("Got unexpected non-zero exit code: " +
