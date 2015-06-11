@@ -24,17 +24,12 @@ Setting Up
    #. Clone the Git ``oozie`` repository: ``$ git clone git@git.corp.yahoo.com:hadoop/oozie.git``
    #. Move the Oozie examples: ``$ mv oozie/examples proj/oozie``
    #. Delete the directory ``oozie``: ``$ rm -rf oozie``
-#. Confirm that the global variables are set to the values below::
+#. Se the global variables to the values below::
 
-       JAVA_HOME=/home/gs/java/jdk
-       HADOOP_HOME=/home/gs/hadoop/current
-       HADOOP_CONF_DIR=/home/gs/conf/current
-       PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH
-       OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie
-       OOZIE_AUTH=kerberos
+       export HADOOP_HOME=/home/gs/hadoop/current; PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH;
+       OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie;OOZIE_AUTH=kerberos
 
-   To set the global variables, use the ``export`` command from the command line or
-   add to the configuration file ``.profile``: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
+   You can also add the export statements to the configuration file ``.bashrc``. 
 
    .. note:: To complete the quick starts below on a cluster other than Kryptonite Red,
              be sure to modify the URIs used in the tutorials. The following is the URI syntax: 
@@ -61,6 +56,7 @@ We're going to configure and run this Workflow in the following steps.
 
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
+       oozie.wf.application.path=${nameNode}/user/${user.name}/${examplesRoot}/src/main/apps/map-reduce/workflow.xml
 
 #. Change to ``$HOME/proj/oozie``.
 #. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run``
@@ -87,7 +83,7 @@ We're going to configure and run this Coordinator in the following steps.
 
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-       oozie.wf.application.path=${nameNode}/user/${user.name}/${examplesRoot}/src/main/apps/map-reduce/workflow.xml
+       oozie.wf.application.path=${nameNode}/user/${user.name}/${examplesRoot}/src/main/apps/aggregator/workflow.xml
 
 
 #. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties``
