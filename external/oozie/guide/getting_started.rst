@@ -113,7 +113,7 @@ We're going to configure and run this Coordinator in the following steps.
        
    .. note:: The *status* will change from ``RUNNING`` to ``SUCCEEDED`` when the job has completed successfully.
 
-#. After the job has finished, once again, you can view the written output: ``$ dfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
+#. After the job is ``SUCCEEDED``, once again, you can view the written output: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
 
 Creating a Bundle
 -----------------
@@ -125,7 +125,7 @@ We're going to configure and run this Bundle in the following steps.
 
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Change to ``$HOME/proj/oozie/examples/src/main/apps/bundle``
+#. Change to the following directory: ``$HOME/proj/oozie/examples/src/main/apps/bundle``
 #. Again, edit the file ``job.properties`` so that the configurations are
    given the values below::
 
@@ -151,7 +151,12 @@ We're going to configure and run this Bundle in the following steps.
        
    .. note:: The *status* will change from ``RUNNING`` to ``SUCCEEDED`` when the job has completed successfully.
 
+#. This particular bundle just runs the Coordinator you looked at in the last section, so you can view the output written
+   to the same directory: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
 
+   .. note:: Generally, you would use a Bundle to run more than one Coordinator, and those Coordinators will have some type 
+             of dependency (time/data). 
+             
 Next Steps
 ----------
 
