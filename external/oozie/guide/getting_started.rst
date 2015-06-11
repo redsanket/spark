@@ -87,7 +87,6 @@ We're going to configure and run this Coordinator in the following steps.
 
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-       queueName=default
 
 #. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties``
 
@@ -131,7 +130,6 @@ We're going to configure and run this Bundle in the following steps.
 
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-       queueName=default
     
 #. Submit an Oozie Bundle job: ``$ oozie job -run -config job.properties``
 #. Check the status of your job with your job ID: ``$ oozie job -info <oozie_job_id>``
