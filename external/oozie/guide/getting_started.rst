@@ -81,7 +81,7 @@ We're going to configure and run this Coordinator in the following steps.
 
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Change to ``$HOME/proj/oozie/examples/src/main/apps/aggregator``
+#. Change to the following directory: ``$HOME/proj/oozie/examples/src/main/apps/aggregator``
 #. As with the Workflow example, edit the file ``job.properties`` so
    that the configurations have the values shown below::
 
