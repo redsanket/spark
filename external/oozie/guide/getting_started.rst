@@ -68,7 +68,7 @@ We're going to configure and run this Workflow in the following steps.
    Oozie will return a job ID.
 #. With the returned job ID, request information about the job: ``$ oozie job -info {job_id}`` 
 
-#. To view the generated output: ``hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-0000``
+#. To view the generated output: ``hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-00000``
 
 
 Coordinator Quick Start
