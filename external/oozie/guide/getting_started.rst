@@ -43,7 +43,7 @@ Setting Up
              For example, the ``OOZIE_URL`` for Cobalt Blue would be ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
              See :ref:`Oozie Servers on Clusters <references-oozie_servers>` as a reference.
 
-#. Move ``examples`` directory to HDFS: ``$ hdfs dfs -put $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
+#. Move ``examples`` directory to HDFS: ``$ hdfs dfs -copyFromLocal $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
 
 
 
