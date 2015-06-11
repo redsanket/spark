@@ -87,6 +87,8 @@ We're going to configure and run this Coordinator in the following steps.
 
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
+       oozie.wf.application.path=${nameNode}/user/${user.name}/${examplesRoot}/src/main/apps/map-reduce/workflow.xml
+
 
 #. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties``
 
