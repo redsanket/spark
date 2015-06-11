@@ -68,7 +68,7 @@ We're going to configure and run this Workflow in the following steps.
    Oozie will return a job ID.
 #. With the returned job ID, request information about the job: ``$ oozie job -info {job_id}`` 
 
-#. To view the generated output: ``hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-00000``
+#. To view the generated output: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-00000``
 
 
 Coordinator Quick Start
@@ -113,6 +113,7 @@ We're going to configure and run this Coordinator in the following steps.
        
    .. note:: The *status* will change from ``RUNNING`` to ``SUCCEEDED`` when the job has completed successfully.
 
+#. After the job has finished, once again, you can view the written output: ``$ dfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
 
 Creating a Bundle
 -----------------
