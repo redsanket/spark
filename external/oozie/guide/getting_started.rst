@@ -17,6 +17,7 @@ Setting Up
 
 #. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-Boarding <onboard>` steps.
 #. SSH to the Kryptonite Red gateway (i.e., ``kryptonite-gw.red.ygrid.yahoo.com``).
+#. Obtain and cache a Kerberos ticket for the purpose of authentication: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Create the directory ``$HOME/proj/oozie/`` for the quick starts: ``$ mkdir -p $HOME/proj/oozie``
 #. Get the Oozie examples:
   
