@@ -31,8 +31,10 @@ Setting Up
        HADOOP_CONF_DIR=/home/gs/conf/current
        PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH
        OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie
+       OOZIE_AUTH=kerberos
 
-   To set the global variables, use the ``export`` command: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
+   To set the global variables, use the ``export`` command from the command line or
+   add to the configuration file ``.profile``: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
 
    .. note:: To complete the quick starts below on a cluster other than Kryptonite Red,
              be sure to modify the URIs used in the tutorials. The following is the URI syntax: 
@@ -59,13 +61,12 @@ We're going to configure and run this Workflow in the following steps.
 
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-       queueName=default
 
 #. Change to ``$HOME/proj/oozie``.
-#. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run -auth kerberos``
+#. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run``
    
    Oozie will return a job ID.
-#. With the returned job ID, request information about the job: ``$ oozie job -info {job_id} -auth kerberos`` 
+#. With the returned job ID, request information about the job: ``$ oozie job -info {job_id}`` 
 
 #. To view the generated output: ``hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-0000``
 
@@ -88,11 +89,11 @@ We're going to configure and run this Coordinator in the following steps.
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
        queueName=default
 
-#. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties -auth kerberos``
+#. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties``
 
    An Oozie job ID will be returned to you.
     
-#. With the Oozie job ID, check the status of your job: ``$ oozie job -info <oozie_job_id> -auth kerberos``
+#. With the Oozie job ID, check the status of your job: ``$ oozie job -info <oozie_job_id>``
 
 #. The returned output should look similar to that below::
        
@@ -132,8 +133,8 @@ We're going to configure and run this Bundle in the following steps.
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
        queueName=default
     
-#. Submit an Oozie Bundle job: ``$ oozie job -run -config job.properties -auth kerberos``
-#. Check the status of your job with your job ID: ``$ oozie job -info <oozie_job_id> -auth kerberos``
+#. Submit an Oozie Bundle job: ``$ oozie job -run -config job.properties``
+#. Check the status of your job with your job ID: ``$ oozie job -info <oozie_job_id>``
 #. You should see output similar to that below::
 
        Job ID : 0079753-150302104108145-oozie_KR-B
