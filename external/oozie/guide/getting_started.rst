@@ -29,7 +29,7 @@ Setting Up
        HADOOP_HOME=/home/gs/hadoop/current
        HADOOP_CONF_DIR=/home/gs/conf/current
        PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH
-       OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie``
+       OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie
 
    To set the global variables, use the ``export`` command: ``export HADOOP_HOME=/grid/0/gs/hadoop/current``
 
