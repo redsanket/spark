@@ -20,6 +20,7 @@ public class CreateDoneFile implements PrivilegedExceptionAction<String> {
 	private String clusterName;
 	private String dataPath;
 	private String nameNodeName;
+	private String result;
 	private ConsoleHandle consoleHandle;
 	private Configuration configuration;
 	private static final String schema = HadooptestConstants.Schema.HDFS;
@@ -52,6 +53,14 @@ public class CreateDoneFile implements PrivilegedExceptionAction<String> {
 		this.nameNodeName = this.consoleHandle.getClusterNameNodeName(this.clusterName);
 	}
 
+	public boolean isDoneFileCreated() {
+		if(this.result == "success") {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/*
 	 * Invoke run method and create the instance files on the specified cluster.
 	 */
@@ -60,10 +69,10 @@ public class CreateDoneFile implements PrivilegedExceptionAction<String> {
 			TestSession.logger.info("aUser = " + aUser);
 			this.configuration = getConfForRemoteFS();
 			UserGroupInformation ugi = getUgiForUser(aUser);
-			String result = ugi.doAs(this);
-			TestSession.logger.info("Result = " + result);
-			if (! result.equals("success")) {
-				fail("");
+			this.result = ugi.doAs(this);
+			TestSession.logger.info("Result = " + this.result);
+			if (! this.result.equals("success")) {
+				fail("Failed to create DONE file under " + this.dataPath);
 			}
 		}
 	}

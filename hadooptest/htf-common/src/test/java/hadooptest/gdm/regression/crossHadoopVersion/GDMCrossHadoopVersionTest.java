@@ -88,7 +88,9 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		this.dateValue = String.valueOf(System.currentTimeMillis());
 		this.dataPath = "Cross-Hadoop-Version-Testing-" +  this.dateValue;
 
-		List<String> gridNames = this.consoleHandle.getAllGridNames();
+		//List<String> gridNames = this.consoleHandle.getAllGridNames();
+		List<String> gridNames = this.consoleHandle.getAllInstalledGridName();
+		TestSession.logger.info("________________________________Grids - " + gridNames);
 
 		// copy data to the grid
 		for (String gridName : gridNames ) {

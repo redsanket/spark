@@ -39,7 +39,7 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 	private WorkFlowHelper helper = null;
 	private static final int SUCCESS = 200;
 	private static String startDate = "20110607" ;
-	private static String endDate = "20110610" ;
+	private static String endDate = "20220131" ;
 	private static final String PATH = "/data/daqdev/";
 	private String targetGrid1_NameNode;
 	private String targetGrid2_NameNode;
@@ -95,7 +95,7 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 		
 	}
 
-	@After
+	//@After
 	public void tearDown() throws Exception {
 		List<String> datasetList =  consoleHandle.getAllDataSetName();
 		if (datasetList.contains(this.dataSetName)) {
@@ -139,6 +139,7 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("TARGET1", this.targetGrid1 );
 		dataSetXml = dataSetXml.replaceAll("TARGET2", this.targetGrid2 );
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.dataSetName);
+		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.dataSetName);
 
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {

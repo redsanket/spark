@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
@@ -21,9 +22,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -31,7 +29,6 @@ import net.sf.json.JSONObject;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 
 /**
  * TestCase : To create a set of dataset for a given duration like a day(s).
@@ -64,6 +61,7 @@ public class IntegrationTest  extends TestSession {
 	private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
 	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_DAILY/";
 	private static final String DATABASE_NAME = "gdm";
+	private static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -207,6 +205,9 @@ public class IntegrationTest  extends TestSession {
 				CreateDoneFile createDoneFile = new CreateDoneFile( this.destinationCluster , finalDataPath);
 				createDoneFile.execute();
 				
+				// check whether DONE file is created.
+				assertTrue("Failed  to create done for " + finalDataPath , createDoneFile.isDoneFileCreated() == true );
+				
 				// deactivate the dataset
 				this.tearDown();
 			}
@@ -219,6 +220,13 @@ public class IntegrationTest  extends TestSession {
 			TestSession.logger.info("This is " + this.freq  + "  feed. Feed will be started " + this.freq);
 			TestSession.logger.info("Next workflow will start @ " + futureMin   + "  Current  time = " + initTime);
 		}
+	}
+	
+	private void prepareJobFile(String propertyFileName) {
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
+		long pipeLineInstance = Long.parseLong(sdf.format(cal.getTime()));
+		
 	}
 
 	/**

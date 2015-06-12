@@ -9,7 +9,6 @@
     <Contact consumer="gdm-dev@yahoo-inc.com"
         owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
     <Comments>GDM automated test dataset built by deploy scripts.</Comments>
-    <!-- <UGI group="users" owner="hitusr_2" permission="755"/> -->
     <UGI group="GROUP_NAME" owner="DATA_OWNER" permission="755"/>
     <RunAsOwner>replication,retention</RunAsOwner>
     <Frequency>daily</Frequency>

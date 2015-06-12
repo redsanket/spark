@@ -1,0 +1,17 @@
+package hadooptest.gdm.regression.integration;
+
+public interface IntegrationJobSteps {
+	String JOB_STARTED = "JOB_STARTED";
+	String POLLING = "POLLING";
+	String DATA_AVAILIABLE = "DATA_AVAILABLE";
+	String DATA_INCOMPLETE = "DATA_INCOMPLETE";
+	String MISSED_SLA = "MISSED_SLA";
+	String OOZIE_JOB_STARTED = "OOZIE_JOB_STARTED";
+	String CLEANUP_OUTPUT = "CLEANUP_OUTPUT";
+	String CHECK_INPUT = "CHECK_INPUT";
+	String PIG_RAW_PROCESSOR = "PIG_RAW_PROCESSOR";
+	String HIVE_STORAGE = "HIVE_STORAGE";
+	String HIVE_VERIFY = "HIVE_VERIFY";
+	String OOZIE_JOB_COMPLETED = "OOZIE_JOB_COMPLETED";
+	String JOB_END = "JOB_END";
+}
