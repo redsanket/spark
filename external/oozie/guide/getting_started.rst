@@ -141,5 +141,9 @@ We're going to configure and run this Bundle in the following steps.
 Next Steps
 ----------
 
-See Apache's `Oozie Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Cookbooks>`_ for
-Java, MapReduce, and Pig examples. Also, see the :ref:`Cookbook Examples <cookbook>` chapter.
+- Try running the other examples in ``oozie_examples/apps``, look at the configuration files ``job.properties``,
+  ``workflow.xml``, and ``coordinator.xml`` and then the Java code in ``oozie_examples/src/org/apache/oozie/example``.
+- Go through the examples in the Apache's `Oozie Cookbook <https://cwiki.apache.org/confluence/display/OOZIE/Cookbooks>`_. 
+- See the :ref:`Cookbook Examples <cookbook>` chapter in this guide.
+
+ 
