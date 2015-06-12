@@ -18,12 +18,8 @@ Setting Up
 #. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-Boarding <onboard>` steps.
 #. SSH to the Kryptonite Red gateway (i.e., ``kryptonite-gw.red.ygrid.yahoo.com``).
 #. Obtain and cache a Kerberos ticket for the purpose of authentication: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Create the directory ``$HOME/proj/oozie/`` for the quick starts: ``$ mkdir -p $HOME/proj/oozie``
-#. Get the Oozie examples:
+#. Get the Oozie examples: ``$ hdfs dfs -copyToLocal hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/examples $HOME/oozie_examples``
   
-   #. Clone the Git ``oozie`` repository: ``$ git clone git@git.corp.yahoo.com:hadoop/oozie.git``
-   #. Move the Oozie examples: ``$ mv oozie/examples proj/oozie``
-   #. Delete the directory ``oozie``: ``$ rm -rf oozie``
 #. Se the global variables to the values below::
 
        export HADOOP_HOME=/home/gs/hadoop/current; PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH;
@@ -38,8 +34,6 @@ Setting Up
              For example, the ``OOZIE_URL`` for Cobalt Blue would be ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
              See :ref:`Oozie Servers on Clusters <references-oozie_servers>` as a reference.
 
-#. Move ``examples`` directory to HDFS: ``$ hdfs dfs -copyFromLocal $HOME/proj/oozie/examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples``
-
 
 
 Workflow Quick Start
@@ -52,19 +46,20 @@ We're going to configure and run this Workflow in the following steps.
 
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Make the following edits to ``$HOME/proj/oozie/examples/src/main/apps/map-reduce/job.properties``::
+#. Make the following edits to ``$HOME/oozie_examples/apps/map-reduceob.properties``::
 
+       examplesRoot=oozie_examples
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-       oozie.wf.application.path=${nameNode}/user/${user.name}/${examplesRoot}/src/main/apps/map-reduce/workflow.xml
 
-#. Change to ``$HOME/proj/oozie``.
-#. Submit your Oozie job: ``$ oozie job -config examples/src/main/apps/map-reduce/job.properties -run``
+#. Move ``oozie_examples`` directory to HDFS: ``$ hdfs dfs -copyFromLocal $HOME/oozie_examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/oozie_examples``
+#. Change to ``$HOME/oozie_examples``.
+#. Submit your Oozie job: ``$ oozie job -config examples/apps/map-reduce/job.properties -run``
    
    Oozie will return a job ID.
 #. With the returned job ID, request information about the job: ``$ oozie job -info {job_id}`` 
 
-#. To view the generated output: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/map-reduce/part-00000``
+#. To view the generated output: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/oozie_examples/output-data/map-reduce/part-00000``
 
 
 Coordinator Quick Start
@@ -77,15 +72,14 @@ We're going to configure and run this Coordinator in the following steps.
 
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Change to the following directory: ``$HOME/proj/oozie/examples/src/main/apps/aggregator``
+#. Change to the following directory: ``$HOME/oozie_examples/apps/aggregator``
 #. As with the Workflow example, edit the file ``job.properties`` so
    that the configurations have the values shown below::
 
+       examplesRoot=oozie_examples
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-       oozie.wf.application.path=${nameNode}/user/${user.name}/${examplesRoot}/src/main/apps/aggregator/workflow.xml
-
-
+       
 #. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties``
 
    An Oozie job ID will be returned to you.
@@ -96,7 +90,7 @@ We're going to configure and run this Coordinator in the following steps.
        
        ------------------------------------------------------------------------------------------------------------------------------------
        Job Name    : aggregator-coord
-       App Path    : hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/examples/apps/aggregator/coordinator.xml
+       App Path    : hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/oozie_examples/apps/aggregator/coordinator.xml
        Status      : SUCCEEDED
        Start Time  : 2010-01-01 01:00 GMT
        End Time    : 2010-01-01 03:00 GMT
@@ -111,22 +105,23 @@ We're going to configure and run this Coordinator in the following steps.
        
    .. note:: The *status* will change from ``RUNNING`` to ``SUCCEEDED`` when the job has completed successfully.
 
-#. After the job is ``SUCCEEDED``, once again, you can view the written output: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
+#. After the job is ``SUCCEEDED``, once again, you can view the written output: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/oozie_examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
 
 Creating a Bundle
 -----------------
 
 .. 04/30/15: Tested.
 
-In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Bundle example ``bundle``.
+In the ``$HOME/oozie_examples/apps/``, you'll find the Bundle example ``bundle``.
 We're going to configure and run this Bundle in the following steps.
 
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Change to the following directory: ``$HOME/proj/oozie/examples/src/main/apps/bundle``
+#. Change to the following directory: ``$HOME/oozie_examples/apps/bundle``
 #. Again, edit the file ``job.properties`` so that the configurations are
    given the values below::
 
+       examplesRoot=oozie_examples
        nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
        jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
     
@@ -150,7 +145,7 @@ We're going to configure and run this Bundle in the following steps.
    .. note:: The *status* will change from ``RUNNING`` to ``SUCCEEDED`` when the job has completed successfully.
 
 #. This particular bundle just runs the Coordinator you looked at in the last section, so you can view the output written
-   to the same directory: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
+   to the same directory: ``$ hdfs dfs -cat hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/oozie_examples/output-data/aggregator/aggregatedLogs/2010/01/01/01/part-00000``
 
    .. note:: Generally, you would use a Bundle to run more than one Coordinator, and those Coordinators will have some type 
              of dependency (time/data). 
