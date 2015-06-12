@@ -21,8 +21,8 @@ Setting Up
 #. Get the Oozie examples: ``$ hdfs dfs -copyToLocal hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/oozie_examples $HOME/oozie_examples``
 #. Set the global variables to the values below::
 
-       export HADOOP_HOME=/home/gs/hadoop/current; PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH;
-       OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie;OOZIE_AUTH=kerberos
+       export HADOOP_HOME=/home/gs/hadoop/current PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie OOZIE_AUTH=kerberos
+       
 
    We recommend adding the above export statements to the configuration file ``.bashrc``. 
 
@@ -56,7 +56,7 @@ We're going to configure and run this Workflow in the following steps.
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Move ``oozie_examples`` directory to HDFS: ``$ hdfs dfs -copyFromLocal $HOME/oozie_examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/oozie_examples``
 #. Change to ``$HOME/oozie_examples``.
-#. Submit your Oozie job: ``$ oozie job -config examples/apps/map-reduce/job.properties -run``
+#. Submit your Oozie job: ``$ oozie job -config apps/map-reduce/job.properties -run``
    
    Oozie will return a job ID.
 #. With the returned job ID, request information about the job: ``$ oozie job -info {job_id}`` 
