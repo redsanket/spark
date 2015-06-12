@@ -18,22 +18,30 @@ Setting Up
 #. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-Boarding <onboard>` steps.
 #. SSH to the Kryptonite Red gateway (i.e., ``kryptonite-gw.red.ygrid.yahoo.com``).
 #. Obtain and cache a Kerberos ticket for the purpose of authentication: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Get the Oozie examples: ``$ hdfs dfs -copyToLocal hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/examples $HOME/oozie_examples``
-  
-#. Se the global variables to the values below::
+#. Get the Oozie examples: ``$ hdfs dfs -copyToLocal hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/oozie_examples $HOME/oozie_examples``
+#. Set the global variables to the values below::
 
        export HADOOP_HOME=/home/gs/hadoop/current; PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH;
        OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie;OOZIE_AUTH=kerberos
 
-   You can also add the export statements to the configuration file ``.bashrc``. 
+   We recommend adding the above export statements to the configuration file ``.bashrc``. 
 
-   .. note:: To complete the quick starts below on a cluster other than Kryptonite Red,
-             be sure to modify the URIs used in the tutorials. The following is the URI syntax: 
-             ``{scheme}://{cluster}{color}-{server}.{color}.ygrid.yahoo.com:{port}/{path}`` 
 
-             For example, the ``OOZIE_URL`` for Cobalt Blue would be ``http://cobaltblue-oozie.blue.ygrid.yahoo.com:4080/oozie``
-             See :ref:`Oozie Servers on Clusters <references-oozie_servers>` as a reference.
+Working on Different Clusters
+*****************************
 
+To complete the quick starts below on a cluster other than Kryptonite Red,
+be sure to modify some configuration for the example to successfully run.
+
+In ``oozie_examples/apps``, you'll find different example applications, each with
+its own ``job.properties`` file. You'll need to modify the the following configurations,
+replacing ``{cluster}`` and ``{color}`` with the appropriate values::
+
+    nameNode=hdfs://{cluster}{color}-nn1.{color}.ygrid.yahoo.com:8020
+    jobTracker={cluster}{color}-jt1.{color}.ygrid.yahoo.com:8032
+
+For example, the ``nameNode`` for Cobalt Blue would be 
+``hdfs://cobaltblue-nn1.blue.ygrid.yahoo.com:8020``. 
 
 
 Workflow Quick Start
@@ -41,17 +49,11 @@ Workflow Quick Start
 
 .. 04/30/15: Tested.
 
-In the ``$HOME/proj/oozie/examples/src/main/apps/``, you'll find the Workflow example ``map-reduce``.
+In the ``$HOME/oozie_examples/apps/``, you'll find the Workflow example ``map-reduce``.
 We're going to configure and run this Workflow in the following steps.
 
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Make the following edits to ``$HOME/oozie_examples/apps/map-reduceob.properties``::
-
-       examplesRoot=oozie_examples
-       nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
-       jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-
 #. Move ``oozie_examples`` directory to HDFS: ``$ hdfs dfs -copyFromLocal $HOME/oozie_examples hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/$USER/oozie_examples``
 #. Change to ``$HOME/oozie_examples``.
 #. Submit your Oozie job: ``$ oozie job -config examples/apps/map-reduce/job.properties -run``
@@ -73,13 +75,6 @@ We're going to configure and run this Coordinator in the following steps.
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Change to the following directory: ``$HOME/oozie_examples/apps/aggregator``
-#. As with the Workflow example, edit the file ``job.properties`` so
-   that the configurations have the values shown below::
-
-       examplesRoot=oozie_examples
-       nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
-       jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-       
 #. Submit the Oozie Coordinator job: ``$ oozie job -run -config job.properties``
 
    An Oozie job ID will be returned to you.
@@ -118,13 +113,6 @@ We're going to configure and run this Bundle in the following steps.
 #. SSH to Kryptonite Red (or the cluster that you requested access).
 #. Request a Kerberos ticket: ``$ kinit $USER@Y.CORP.YAHOO.COM``
 #. Change to the following directory: ``$HOME/oozie_examples/apps/bundle``
-#. Again, edit the file ``job.properties`` so that the configurations are
-   given the values below::
-
-       examplesRoot=oozie_examples
-       nameNode=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
-       jobTracker=kryptonitered-jt1.red.ygrid.yahoo.com:8032
-    
 #. Submit an Oozie Bundle job: ``$ oozie job -run -config job.properties``
 #. Check the status of your job with your job ID: ``$ oozie job -info <oozie_job_id>``
 #. You should see output similar to that below::
