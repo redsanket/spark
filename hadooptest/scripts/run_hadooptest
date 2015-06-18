@@ -183,6 +183,14 @@ else {
     	unless ($nopasswd);
 }
 
+if ($hadoop27) {
+    # Copy a hadoop 2.7+ specific capacity-scheduler.xml over the existing one to support a change
+    # in yarn.scheduler.capacity.maximum-am-resource-percent from 0.1 to 0.3 in hadoop 2.7 
+    note("copy updated capacity-scheduler.xml for hadoop 2.7 over existing single-queue capacity-scheduler.xml:");
+    copy("$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml.hadoop27plus","$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml");
+}
+
+
 # Temporarily removing help:active-profiles as the maven-help-plugin is not
 # resolving from an offline local repository.  It keeps trying to download
 # the metadata from a versionless instance of the plugin.
