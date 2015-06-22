@@ -49,7 +49,10 @@ public class DfsTestsBaseClass extends TestSession {
 	protected static Set<String> setOfTestDataFilesInHdfs;
 	protected static Set<String> setOfTestDataFilesInLocalFs;
 	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count.txt";
-	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
+
+        public static final String DATA_DIR_IN_HDFS =
+            System.getProperty("HDFS_TEST_DATA_DIR", "/HTF/testdata/dfs/");
+
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
 			+ "tmp/HTF/testdata/dfs/";
