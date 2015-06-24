@@ -19,6 +19,7 @@ fi
 # First determine if HA / NN Alias is being used:
 function set_NN() {
   CLUSTER=$1
+  echo "Determine the source and target NN"
   NN=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode_alias)"`
   set -x
   curl -m 3 -s "http://$NN:50070/jmx?get=Hadoop:service=NameNode,name=NameNodeStatus::State" 2>&1 > /dev/null
@@ -35,7 +36,8 @@ TARGET_NN=`set_NN $TARGET_CLUSTER`
 echo "SOURCE_NN=$SOURCE_NN"
 echo "TARGET_NN=$TARGET_NN"
 
-LOG="/home/y/logs/trafficserver/extended2.log"
+LOG_DIR="/home/y/logs/trafficserver"
+LOG="$LOG_DIR/extended2.log"
 
 EC=0
 if [ "$#" -eq 3 ]; then
@@ -45,7 +47,7 @@ if [ "$#" -eq 3 ]; then
   for NN in $SOURCE_NN $TARGET_NN; do
     echo "--> Check for references to cluster NN '$NN' in proxy log:"
     set -x
-    ssh $PROXY "grep -q \"GET http://$NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\" $LOG"
+    ssh $PROXY "find $LOG_DIR -mtime -0.125 | xargs grep -q \"GET http://$NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\""
     RC=$?
     EC=$((EC+$RC))
     set +x
@@ -55,14 +57,14 @@ else
   echo "      went through the proxy hosts '$LOCAL_PROXY'/'$REMOTE_PROXY':"
   echo "--> Check for references to the REMOTE PROXY $REMOTE_PROXY in the LOCAL PROXY log:"
   set -x
-  ssh $LOCAL_PROXY "grep -q \"GET https://$REMOTE_PROXY:4443/webhdfs/v1/HTF/testdata/dfs/file_\" $LOG"
+  ssh $LOCAL_PROXY "find $LOG_DIR -mtime -0.125 | xargs grep -q \"GET https://$REMOTE_PROXY:4443/webhdfs/v1/HTF/testdata/dfs/file_\""
   RC=$?
   EC=$((EC+$RC))
   set +x
 
   echo "--> Check for references to the TARGET CLUSTER NN '$TARGET_NN' in the REMOTE PROXY log:"
   set -x
-  ssh $REMOTE_PROXY "grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\" $LOG"
+  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 | xargs grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\""
   RC=$?
   EC=$((EC+$RC))
   set +x
