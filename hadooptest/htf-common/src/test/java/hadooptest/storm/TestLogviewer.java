@@ -198,14 +198,10 @@ public class TestLogviewer extends TestSessionStorm {
 
       String pw = null;
       String user = null;
-      String filter =
-              (String) backtype.storm.utils.Utils.readStormConfig()
-              .get("ui.filter");
-
       HTTPHandle client = new HTTPHandle();
 
       // Only get bouncer auth on secure storm cluster.
-      if (filter != null && mc != null) {
+      if ( isUISecure() && mc != null) {
           user = mc.getBouncerUser();
           pw = mc.getBouncerPassword();
           client.logonToBouncer(user,pw);

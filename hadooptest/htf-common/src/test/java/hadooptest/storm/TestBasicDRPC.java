@@ -83,7 +83,8 @@ public class TestBasicDRPC extends TestSessionStorm {
         if(servers == null || servers.isEmpty()) {
             throw new RuntimeException("No DRPC servers configured");   
         }
-        _drpc_base = "http://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTP_PORT) + "/drpc/";
+        String httpPort = (String)mc.getConf("ystorm.drpc_http_port", hadooptest.cluster.storm.StormDaemon.DRPC);
+        _drpc_base = "http://" + servers.get(0) + ":" + httpPort + "/drpc/";
     }
 
     @After
@@ -108,16 +109,6 @@ public class TestBasicDRPC extends TestSessionStorm {
     }
 
 
-    public boolean secureMode() throws Exception {
-        String filter = null;
-        filter = (String)_conf.get("drpc.http.filter");
-                
-        if ( filter != null && filter.equals("yjava.servlet.filter.YCAFilter")) {
-            return true;
-        }
-        return false;
-    }
-
     public void submitTopology(StormTopology topology, String topoName, backtype.storm.Config topoConf) throws Exception{
         File jar = new File(conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar");
         try {
@@ -141,7 +132,7 @@ public class TestBasicDRPC extends TestSessionStorm {
             Request req;
             try {
                 req = _http_client.newRequest(uri);
-                if (secureMode()) {
+                if (isDrpcSecure()) {
                     String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
                     String ycaCert = getYcaV1Cert(v1Role);
                     req = req.header("Yahoo-App-Auth", ycaCert);
