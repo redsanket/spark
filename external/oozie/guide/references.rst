@@ -16,10 +16,10 @@ Yahoo Configurations for Oozie
      - Shared Library Tags 
    * - Hive
      - ``oozie.action.sharelib.for.hive`` 
-     - ``hcat_current, hive_current``
+     - ``hcat_current``,``hive_current``
    * - Pig 
      -  ``oozie.action.sharelib.for.pig``
-     - ``hcat_current, pig_current``
+     - ``hcat_current``,``pig_current``
    * - HBase/Java
      - ``oozie.action.sharelib.for.java``
      - ``hbase_current``
