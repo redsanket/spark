@@ -142,7 +142,7 @@ Q: Does Storm support dependency isolation?
 
 Storm does not currently support dependency isolation, and Storm's class path takes 
 precedence over the topology jar. This means that for the time being you are limited 
-in what you can have as a dependency. See the `full list of storms dependencies <https://git.corp.yahoo.com/storm/storm/blob/master-security/storm-core-mvn/pom.xml>`_. 
+in what you can have as a dependency. See the `full list of Storm's dependencies <https://git.corp.yahoo.com/storm/storm/blob/master-security/storm-core/pom.xml>`_.
 
 One common dependencies that may cause you problems is ``Guava``.
 
