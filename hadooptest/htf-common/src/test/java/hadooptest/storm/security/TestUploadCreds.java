@@ -79,16 +79,6 @@ public class TestUploadCreds extends TestSessionStorm {
         _conf2 = new backtype.storm.Config();
     }
 
-    public boolean secureMode() throws Exception {
-        String filter = null;
-        filter = (String) _conf.get("drpc.http.filter");
-
-        if (filter != null && filter.equals("yjava.servlet.filter.YCAFilter")) {
-            return true;
-        }
-        return false;
-    }
-
     @Test(timeout = 700000)
     public void TestUploadCredsUsingDRPC() throws Exception {
         logger.info("Starting TestUploadCreds");
@@ -160,7 +150,7 @@ public class TestUploadCreds extends TestSessionStorm {
             Thread.sleep(1000);
             Request req;
             try {
-                if (secureMode()) {
+                if (isDrpcSecure()) {
                     String v1Role = "yahoo.grid_re.storm." + conf.getProperty("CLUSTER_NAME");
                     String ycaCert = getYcaV1Cert(v1Role);
                     req = httpClient.newRequest(DRPCURI).header("Yahoo-App-Auth", ycaCert);

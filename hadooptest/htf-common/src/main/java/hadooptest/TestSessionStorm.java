@@ -9,6 +9,7 @@ import hadooptest.automation.utils.http.Response;
 import hadooptest.cluster.storm.StormCluster;
 import hadooptest.cluster.storm.StormExecutor;
 import hadooptest.cluster.storm.ModifiableStormCluster;
+import hadooptest.cluster.storm.StormDaemon;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -292,6 +293,28 @@ public abstract class TestSessionStorm extends TestSessionCore {
         return cert;
     }
 
+    public boolean isDrpcSecure() throws Exception {
+        ModifiableStormCluster mc;
+        mc = (ModifiableStormCluster)cluster;
+        if (mc == null) {
+            return false;
+        }
+        
+        String confValue = (String) mc.getConf("ystorm.drpc_http_filter", StormDaemon.DRPC);
+        return confValue != null && confValue.contains("yjava.servlet.filter.YCAFilter");
+    }
+
+    public boolean isUISecure() throws Exception {
+        ModifiableStormCluster mc;
+        mc = (ModifiableStormCluster)cluster;
+        if (mc == null) {
+            return false;
+        }
+        
+        String confValue = (String) mc.getConf("ystorm.ui_filter", StormDaemon.UI);
+        return confValue != null && confValue.contains("yjava.servlet.filter.BouncerFilter");
+    }
+
     protected String getLogForTopology(String topoName, Integer executor) throws Exception {
         final String topoId = getFirstTopoIdForName(topoName);
 
@@ -314,12 +337,12 @@ public abstract class TestSessionStorm extends TestSessionCore {
         backtype.storm.Config theconf = new backtype.storm.Config();
         theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
 
-        String filter = (String)theconf.get("ui.filter");
+        Boolean secure = isUISecure();
         String pw = null;
         String user = null;
 
         // Only get bouncer auth on secure cluster.
-        if ( filter != null ) {
+        if ( secure ) {
             if (mc != null) {
                 user = mc.getBouncerUser();
                 pw = mc.getBouncerPassword();
@@ -327,7 +350,7 @@ public abstract class TestSessionStorm extends TestSessionCore {
         }
 
         HTTPHandle client = new HTTPHandle();
-        if (filter != null) {
+        if ( secure ) {
             client.logonToBouncer(user,pw);
         }
         logger.info("Cookie = " + client.YBYCookie);

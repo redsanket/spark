@@ -174,8 +174,7 @@ public class TestWordCountTopology extends TestSessionStorm {
         assumeTrue(cluster instanceof ModifiableStormCluster);
         Config config = new Config();
         config.putAll(Utils.readStormConfig());
-        logger.info("Is ui.filter enabled? "+config.get("ui.filter"));
-        assumeTrue(config.get("ui.filter") != null);
+        assumeTrue(isUISecure());
         logger.info("Running Groups Test...");
         StormTopology topology = buildTopology("UILogviewerGroupsTest");
 
