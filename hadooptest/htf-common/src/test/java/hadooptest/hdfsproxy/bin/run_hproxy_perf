@@ -45,12 +45,8 @@ sub usage {
 # PARAM
 my %options=();
 my $cluster='sam';
-# trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
-trim(my $hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
-# $hproxy="gsbl90600.blue.ygrid.yahoo.com";
 
-trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
-
+my $hproxy;
 my $payload_size = "500";
 my $payload_unit = "G";
 my $threads_per_host=16;
@@ -61,9 +57,6 @@ my $username = getpwuid( $< );
 my $tmpdir = "/tmp/hdfsproxy_perf_$username";
 execute("rm -rf $tmpdir");
 execute("mkdir -p $tmpdir");
-
-# execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
-execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 
 #
 # Command line options processing
@@ -84,6 +77,15 @@ GetOptions(\%options,
 usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
+
+# trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
+trim(my $hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
+# $hproxy="gsbl90600.blue.ygrid.yahoo.com";
+
+trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
+
+# execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
+execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 
 my $cmd;
 my $hproxy_url="https://$hproxy:4443";
