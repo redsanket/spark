@@ -19,7 +19,6 @@ fi
 # First determine if HA / NN Alias is being used:
 function set_NN() {
   CLUSTER=$1
-  echo "Determine the source and target NN"
   NN=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode_alias)"`
   set -x
   curl -m 3 -s "http://$NN:50070/jmx?get=Hadoop:service=NameNode,name=NameNodeStatus::State" 2>&1 > /dev/null
