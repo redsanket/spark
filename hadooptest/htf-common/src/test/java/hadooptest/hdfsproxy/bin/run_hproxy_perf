@@ -62,7 +62,8 @@ my $tmpdir = "/tmp/hdfsproxy_perf_$username";
 execute("rm -rf $tmpdir");
 execute("mkdir -p $tmpdir");
 
-execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
+# execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
+execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 
 #
 # Command line options processing
