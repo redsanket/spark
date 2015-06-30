@@ -1,4 +1,3 @@
-#!/home/y/bin64/perl
 #!/usr/bin/env perl 
 
 # HDFS Proxy Performance Test
@@ -361,8 +360,8 @@ sub run_threads_on_single_host {
     $cmd="scp $Bin/$remote_test_script $Bin/$remote_test_script2 $tmpdir/ca.crt $host:$tmpdir";
     execute($cmd);
 
-    # $cmd = "ssh -t $host yinst i ypan/perl-XML-XML2JSON";
-    # execute($cmd);
+    $cmd = "ssh -t $host yinst i ypan/perl-JSON ypan/perl-XML-XML2JSON ypan/perl-Text-Trim";
+    execute($cmd);
 
     # $cmd = "ssh $host \"kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM\"";
     $cmd = "ssh $host \"kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa\"";
