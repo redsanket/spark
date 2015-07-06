@@ -24,6 +24,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import com.google.common.base.Splitter;
 
 import hadooptest.TestSession;
+import hadooptest.gdm.regression.integration.metrics.NameNodeDFSMemoryDemon;
+import hadooptest.gdm.regression.integration.metrics.NameNodeTheadDemon;
 
 
 /**
@@ -47,6 +49,8 @@ public class DataAvailabilityPoller {
 	private String currentFeedName;
 	private Connection con;
 	public SearchDataAvailablity searchDataAvailablity;
+	private NameNodeTheadDemon nameNodeTheadDemonObject;
+	private NameNodeDFSMemoryDemon nameNodeDFSMemoryDemonObject;
 	private DataBaseOperations dbOperations;
 	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	private final static String FEED_INSTANCE = "20130309";
@@ -60,7 +64,7 @@ public class DataAvailabilityPoller {
 	
 	
 	private void setCurrentFeedName(String feedName) {
-		this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue() ; 
+		this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue() ;
 	}
 	
 	public DataAvailabilityPoller(int maxPollTime , String clusterName , String basePath  , String filePattern , String operationType , String oozieHostName , String hcatHostName , String pullOozieJobLength) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
@@ -119,7 +123,20 @@ public class DataAvailabilityPoller {
 
 		boolean isDataAvailable = false;
 		this.isOozieJobCompleted = false;
+		
 		this.dbOperations = new DataBaseOperations();
+		this.dbOperations.createDB();
+		this.dbOperations.createTable();
+		this.dbOperations.createNameNodeThreadInfoTable();
+		this.dbOperations.createNameNodeMemoryInfoTable();
+		
+		// start namenode thread demon
+		this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
+		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();
+		
+		// start namenode dfs memory demon
+		this.nameNodeDFSMemoryDemonObject = new NameNodeDFSMemoryDemon();
+		this.nameNodeDFSMemoryDemonObject.startNameNodeDFSMemoryDemon();
 
 		while (toDay <= lastDay) {
 			Date d = new Date();
@@ -161,12 +178,13 @@ public class DataAvailabilityPoller {
 				
 				this.dbOperations.createDB();
 				this.dbOperations.createTable();
+				this.dbOperations.createNameNodeThreadInfoTable();
+				this.dbOperations.createNameNodeMemoryInfoTable();
 				
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
 				
 				// add start state to the user stating that job has started for the current frequency.
-				//this.dbOperations.insertRecord(this.currentFeedName, "hourly", String.valueOf(initTime), String.valueOf(initTime), "jobStarted", this.searchDataAvailablity.getState().toUpperCase().trim(), JobState.SUCCESS);
 				this.dbOperations.insertRecord(this.currentFeedName, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim());
 
 				initialCal = null;
@@ -198,7 +216,7 @@ public class DataAvailabilityPoller {
 			if (slaStartTime >= slaEnd  && isDataAvailable == false) {
 				System.out.println("*************************************************************************** ");
 				System.out.println(" \t MISSED SLA for " + this.getCurrentFrequencyValue() );
-				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , this.currentFeedName);
+				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , "result" , "FAILED" ,this.currentFeedName);
 				System.out.println("*************************************************************************** ");
 			}
 			System.out.println("Current state = " + this.searchDataAvailablity.getState());
@@ -221,8 +239,10 @@ public class DataAvailabilityPoller {
 				if (isDataAvailable == true &&  this.searchDataAvailablity.getState().toUpperCase().equals("DONE")) {
 					if (this.oozieJobResult.toUpperCase().equals("KILLED")) {
 						TestSession.logger.info("Data Available on the grid for  "+  this.getCurrentFrequencyValue()  + "  and oozie got processed, but " + this.oozieJobResult);
+						this.dbOperations.updateRecord(this.con , "result" , "FAIL"  , this.currentFeedName);
 					} else if (this.oozieJobResult.toUpperCase().equals("SUCCEEDED")) {
 						TestSession.logger.info("Data Available on the grid for  "+  this.getCurrentFrequencyValue()  + "  and oozie got processed & " + this.oozieJobResult);
+						this.dbOperations.updateRecord(this.con , "result" , "PASS"  , this.currentFeedName);
 					}
 				}
 				System.out.println("currents state - " + this.searchDataAvailablity.getState());
@@ -268,6 +288,12 @@ public class DataAvailabilityPoller {
 							this.isOozieJobCompleted = true;
 						}
 					}
+				}
+			}
+			
+			if (this.searchDataAvailablity.getState().equals("AVAILABLE") == true  && this.searchDataAvailablity.isPipeLineInstanceCreated() == true && this.isOozieJobCompleted == true) {
+				if ( this.searchDataAvailablity.getState().toUpperCase().equals("END") ) {
+					this.dbOperations.updateRecord(this.con ,   "result" , "PASS"  , this.currentFeedName);
 				}
 			}
 			Thread.sleep(60000);
@@ -427,14 +453,14 @@ public class DataAvailabilityPoller {
 				oozieJobresult = "KILLED";
 				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_KILLED");
 				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "KILLED" , this.columnName.get(state) , "KILLED" , this.currentFeedName);
+				this.dbOperations.updateRecord(this.con ,  "status" , "KILLED" , this.columnName.get(state) , "KILLED" , "result" , "FAIL"  , this.currentFeedName);
 				this.isOozieJobCompleted = true;
 				break;
 			} else if (jobStatus.equals("SUCCEEDED")) {
 				TestSession.logger.info("oozie for " + jobId  + " is SUCCEDED");
 				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_SUCCEDED");
 				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "SUCCEEDED" , this.columnName.get(state) , "KILLED" , this.currentFeedName);
+				this.dbOperations.updateRecord(this.con ,  "status" , "SUCCEEDED" , this.columnName.get(state) , "SUCCEEDED" , "result" , "PASS"  , this.currentFeedName);
 				this.isOozieJobCompleted = true;
 				oozieJobresult = "SUCCEEDED";
 				break;
@@ -442,7 +468,7 @@ public class DataAvailabilityPoller {
 				TestSession.logger.info("oozie for " + jobId  + " is SUSPENDED");
 				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_SUSPENDED");
 				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "SUSPENDED" , this.columnName.get(state) , "KILLED" , this.currentFeedName);
+				this.dbOperations.updateRecord(this.con ,  "status" , "SUSPENDED" , this.columnName.get(state) , "SUSPENDED" , "result" , "FAIL",  this.currentFeedName);
 				this.isOozieJobCompleted = true;
 				oozieJobresult = "SUSPENDED";
 				break;
@@ -450,7 +476,7 @@ public class DataAvailabilityPoller {
 				TestSession.logger.info("oozie for " + jobId  + " is RUNNING");
 				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_RUNNING");
 				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "RUNNING" , this.columnName.get(state) , "KILLED" , this.currentFeedName);
+				this.dbOperations.updateRecord(this.con ,  "status" , "RUNNING" , this.columnName.get(state) , "RUNNING" , "result" , "UNKNOWN", this.currentFeedName);
 				this.isOozieJobCompleted = false;
 				oozieJobresult = "RUNNING";
 			}
@@ -517,9 +543,11 @@ public class DataAvailabilityPoller {
 						}
 					}
 					System.out.println("---------------------");
-					System.out.println("step = " + values.get(0)  + "     status = " + values.get(1) );
+					
+					System.out.println(values);
 					String currentExecutionStep = values.get(0);
 					String status = values.get(1);
+					System.out.println("currentExecutionStep = " + currentExecutionStep  + "     status " + status   );
 					if (currentExecutionStep.equals("cleanup_output")) {
 						this.searchDataAvailablity.setState(currentExecutionStep);
 						this.dbOperations.updateRecord(this.con , "currentStep", currentExecutionStep , "status" , status , "cleanUpOutput" , status , this.currentFeedName);
@@ -538,7 +566,7 @@ public class DataAvailabilityPoller {
 					}  else if (currentExecutionStep.equals("end")) {
 						this.searchDataAvailablity.setState(currentExecutionStep);
 						this.dbOperations.updateRecord(this.con , "currentStep", currentExecutionStep , "status" , status , "oozieJobCompleted" , status , this.currentFeedName);	
-					} 
+					}
 					
 					System.out.println("---------------------");
 				}

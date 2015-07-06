@@ -52,6 +52,7 @@ public class DataBaseOperations {
 	public Connection getConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Class.forName(DRIVER).newInstance();
 		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + DBCommands.TABLE_NAME  ,"root","");
+		//Connection con = DriverManager.getConnection("jdbc:mysql://dense34.blue.ygrid.yahoo.com/" + DBCommands.TABLE_NAME  ,"root","");
 		if (con != null ) {
 			return con;
 		} else {
@@ -80,6 +81,36 @@ public class DataBaseOperations {
 			System.out.println("Failed to connect database..!");
 		}
 	}
+	
+	public void createNameNodeThreadInfoTable() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+		Connection con = this.getConnection();
+		if (con != null) {
+			System.out.println("Connected to database con = " + con.toString());
+			Statement stmt = con.createStatement();
+			stmt.execute(DBCommands.CREATE_NAME_NODE_THREAD_INFO_TABLE);
+			System.out.println("Table created successfully...");
+			stmt.close();	
+			con.close();
+		} else {
+			System.out.println("Failed to connect database..!");
+		}
+	}
+	
+	
+	public void createNameNodeMemoryInfoTable() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+		Connection con = this.getConnection();
+		if (con != null) {
+			System.out.println("Connected to database con = " + con.toString());
+			Statement stmt = con.createStatement();
+			stmt.execute(DBCommands.CREATE_NAME_NODE_MEMORY_INFO_TABLE);
+			System.out.println("Table created successfully...");
+			stmt.close();	
+			con.close();
+		} else {
+			System.out.println("Failed to connect database..!");
+		}
+	}
+	
 
 	/**
 	 * Insert the record into the table
@@ -94,28 +125,7 @@ public class DataBaseOperations {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
-	 */
-	public void insertRecord(String dataSetName, String  currentFrequency, String  startTime, String  endTime, String  steps, String  currentStep, String result) throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		Connection con = this.getConnection();
-		if (con != null) {
-			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_ROW);
-			preparedStatement.setString(1, dataSetName);
-			preparedStatement.setString(2, currentFrequency);
-			preparedStatement.setString(3, startTime);
-			preparedStatement.setString(4, endTime);
-			preparedStatement.setString(5, steps);
-			preparedStatement.setString(6, currentStep);
-			preparedStatement.setString(7, result);
-			boolean isRecordInserted = preparedStatement.execute();
-			assertTrue("Failed to insert record for " + dataSetName , isRecordInserted != true);
-
-			con.close();
-		} else {
-			System.out.println("Failed to connect database.");
-		}
-	}
-	
-	
+	 */	
 	public void insertRecord(String dataSetName, String  currentFrequency, String jobStarted ,  String  startTime, String currentStep) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Connection con = this.getConnection();
 		if (con != null) {
@@ -133,6 +143,73 @@ public class DataBaseOperations {
 			System.out.println("Failed to connect database.");
 		}
 	}
+	
+	/**
+	 * Insert record into CREATE_NAME_NODE_THREAD_INFO_TABLE 
+	 * @param con
+	 * @param NameNode_Name
+	 * @param HadoopVersion
+	 * @param TimeStamp
+	 * @param ThreadsNew
+	 * @param ThreadsRunnable
+	 * @param ThreadsBlocked
+	 * @param ThreadsWaiting
+	 * @param ThreadsTimedWaiting
+	 * @param ThreadsTerminated
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public void insertNameNodeThreadInfoRecord(Connection con, String NameNode_Name ,String  HadoopVersion ,String  TimeStamp , String ThreadsNew , String ThreadsRunnable , String ThreadsBlocked ,  String ThreadsWaiting , String ThreadsTimedWaiting , String ThreadsTerminated) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+		if (con != null) {
+			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_NAME_NODE_THREAD_INFO_ROW);
+			preparedStatement.setString(1, NameNode_Name);
+			preparedStatement.setString(2, HadoopVersion);
+			preparedStatement.setString(3, TimeStamp);
+			preparedStatement.setString(4, ThreadsNew);
+			preparedStatement.setString(5, ThreadsRunnable);
+			preparedStatement.setString(6, ThreadsBlocked);
+			preparedStatement.setString(7, ThreadsWaiting);
+			preparedStatement.setString(8, ThreadsTimedWaiting);
+			preparedStatement.setString(9, ThreadsTerminated);
+			boolean isRecordInserted = preparedStatement.execute();
+			assertTrue("Failed to insert record " + DBCommands.INSERT_NAME_NODE_THREAD_INFO_ROW  + "   for " + TimeStamp + "  time stamp." , isRecordInserted != true);
+		} else {
+			System.out.println("Failed to connect database.");
+		}
+	}
+	
+	/**
+	 * Insert record into NAME_NODE_MEMORY_INFO_TABLE
+	 * @param con
+	 * @param nameNode_Name
+	 * @param hadoopVersion
+	 * @param timeStamp
+	 * @param totalMemoryCapacity
+	 * @param usedMemoryCapacity
+	 * @param remainingMemoryCapacity
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public void insertNameNodeDFSMemoryInfoRecord(Connection con, String nameNodeName ,String  hadoopVersion ,String  timeStamp , String totalMemoryCapacity , String usedMemoryCapacity , String remainingMemoryCapacity , String missingBlocks) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+		if (con != null) {
+			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_NAME_NODE_DFS_MEMORY_ROW);
+			preparedStatement.setString(1, nameNodeName);
+			preparedStatement.setString(2, hadoopVersion);
+			preparedStatement.setString(3, timeStamp);
+			preparedStatement.setString(4, totalMemoryCapacity);
+			preparedStatement.setString(5, usedMemoryCapacity);
+			preparedStatement.setString(6, remainingMemoryCapacity);
+			preparedStatement.setString(7, missingBlocks);
+			boolean isRecordInserted = preparedStatement.execute();
+			assertTrue("Failed to insert record " + DBCommands.NAME_NODE_DFS_MEMORY_INFO_TABLE  + "   for " + timeStamp + "  time stamp." , isRecordInserted != true);
+		} else {
+			System.out.println("Failed to connect database.");
+		}
+	}
 
 	/**
 	 * update the specified column value.
@@ -144,21 +221,8 @@ public class DataBaseOperations {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	/*public void updateRecord(String columnName , String columnValue , String dataSetName) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		Connection con = this.getConnection();
-		String UPDATE_RECORD = "UPDATE " + DBCommands.TABLE_NAME + "  SET " + columnName + " = \"" + columnValue  + "\" where dataSetName = \"" + dataSetName + "\"";
-		if (con != null) {
-			Statement stmt = con.createStatement();
-			stmt.execute(UPDATE_RECORD);
-			System.out.println("Record updated successfully..!");
-			stmt.close();
-			con.close();
-		}
-	}*/
-
 	public void updateRecord(Connection con , String... args) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		System.out.println("******************************************************************************************************************");
-		//Connection con = this.getConnection();
 		String dataSetName = args[args.length - 1];
 		System.out.println("dataSetName = " + dataSetName);
 		List<String> list = Arrays.asList(args);
@@ -180,13 +244,11 @@ public class DataBaseOperations {
 		String updateStr = temp.substring(0, temp.length() - 2 );
 		String UPDATE_RECORD = "UPDATE " + DBCommands.TABLE_NAME + "  SET  " +  updateStr.toString() +  "  where dataSetName = \"" + dataSetName + "\"";
 		System.out.println("UPDATE_RECORD  = " + UPDATE_RECORD);
-		//Connection con1  = this.getConnection();
 		if (con != null) {
 			Statement stmt = con.createStatement();
 			stmt.execute(UPDATE_RECORD);
 			System.out.println("Record updated successfully..!");
 			stmt.close();
-			//con.close();
 		}
 	}
 
