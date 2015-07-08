@@ -87,7 +87,7 @@ trim($hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
 trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
 
 # ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy "chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt"
-ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy "chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt"
+ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy "chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt";
 
 # execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
