@@ -1,17 +1,26 @@
 #!/usr/bin/env perl 
 
 # HDFS Proxy Performance Test
-# Get the hosts for the cluster under test
-# Run load / performance tests on each hosts
+# Takes parameters of 1) cluster, 2) hdfsproxy host, 3) total data payload, and 4) number of threads per host
+# The test will run:
+# 1. Get the cluster hosts from the specified clusters
+# 2. Run load / performance tests on each hosts as forked processes and wait for them to finish.
+#    A) The top level script run_hproxy_perf will call the script
+#       run_hproxy_perf_single_host for each host in the cluster
+#    B) The run_hproxy_perf_single_host script will then call the script
+#       run_hproxy_perf_single_thread for each of the specified number of threads
+#    C) Each thread will then issue a curl command with op=create
+#       E.g. curl -s \
+#            -b /tmp/hdfsproxy_perf_hadoopqa/cookies.txt \
+#            --negotiate -u: -k -T "/grid/0/tmp/file-64M" \
+#            "https://gsbl90063.blue.ygrid.yahoo.com:4443/fs/tmp/file-64M-gsbl90321-thread-14-1?op=create"
+# 3. When all the forked threads are finished, fetch and grapch the
+#    kbps in and out from ysar after the payload transfer has completed.
 #
-# 1. run_hproxy_perf --> 
-# 2. run_hproxy_perf_single_host --> 
-# 3. run_hproxy_perf_single_thread
-# 
+# Example Usage:
 # run_hproxy_perf -cluster <cluster> -payload_size <payload size> -payload_unit=<payload unit> -threads_per_host=<num threads>
 # run_hproxy_perf -cluster sam -payload_size=500 -payload_unit=G -threads_per_host=16
 #
-
 # Requires:
 # yinst i ypan/perl-Data-Dumper-2.139_05
 # yinst i ypan/perl-JSON-2.90_148
@@ -140,6 +149,9 @@ note("(Payload per host='$payload_per_host$payload_unit')/(Number of threads per
 my $num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_unit));
 #note("Number of iterations per thread='$num_iterate'");
 note("(Payload per host thread='$payload_per_thread$payload_unit')/(File size='$file_size$file_unit')=(Number of iterations per thread='$num_iterate')");
+if ($num_iterate < 1) {
+    die("Number of iteration for file create cannot be less than 1!!!");
+}
 
 # debug
 # exit;
