@@ -77,17 +77,18 @@ usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
-my $hostname=`hostname`;
-note("Running on host '$hostname'");
+chomp(my $hostname=`hostname`);
 
 # trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
 trim($hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
 # $hproxy="gsbl90600.blue.ygrid.yahoo.com";
 
+note("Running on host '$hostname', using hdfsproxy '$hproxy' ");
+
 trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
 
-# ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy "chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt"
-ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy "chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt";
+execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
+execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy ls -l /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
 
 # execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
