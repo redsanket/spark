@@ -1,0 +1,23 @@
+# User-specific files
+*.suo
+*.user
+
+# Build results
+
+_build/
+
+*.tmp
+*.tmp_proj
+*.log
+
+# vim
+*.txt~
+*.swp
+*.swo
+ 
+# svn
+.svn
+
+
+# Mac desktop service store files
+.DS_Store
