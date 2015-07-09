@@ -171,6 +171,12 @@ if [ $CMD == "start" ]; then
 	echo "=========== Creating symlink ${linkpath} -> ${mapredhdfsbasename}..."
 	mkhdfslink "${yroothome}" "${linkpath}" "${mapredhdfsbasename}"
     fi
+
+    # Directories for ATS
+    $HADOOP_HDFS_HOME/bin/hadoop fs -mkdir /mapred/timeline
+    $HADOOP_HDFS_HOME/bin/hadoop fs -chmod 755 /mapred/timeline
+    $HADOOP_HDFS_HOME/bin/hadoop fs -chown mapredqa:hadoop /mapred/timeline
+
 elif [ $CMD == "stop" ]; then 
     echo "Part 3: the stop is part of part 2; there is no part 3 for stop.."
 else
