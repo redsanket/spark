@@ -142,7 +142,7 @@ Q: Does Storm support dependency isolation?
 
 Storm does not currently support dependency isolation, and Storm's class path takes 
 precedence over the topology jar. This means that for the time being you are limited 
-in what you can have as a dependency. See the `full list of storms dependencies <https://git.corp.yahoo.com/storm/storm/blob/master-security/storm-core-mvn/pom.xml>`_. 
+in what you can have as a dependency. See the `full list of Storm's dependencies <https://git.corp.yahoo.com/storm/storm/blob/master-security/storm-core/pom.xml>`_.
 
 One common dependencies that may cause you problems is ``Guava``.
 
@@ -155,3 +155,6 @@ After the 0.8.2 release, Storm switched to ``logback`` for it's logging framewor
 with a shim layer that supports some of the ``log4j`` APIs. If you include ``log4j`` 
 in your class path it has been known to cause issue.
 
+Q: Do I need special network access for my topology?
+####################################################
+See `this FAQ <https://yahoo.jiveon.com/message/30927>`_.
