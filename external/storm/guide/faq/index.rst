@@ -155,3 +155,6 @@ After the 0.8.2 release, Storm switched to ``logback`` for it's logging framewor
 with a shim layer that supports some of the ``log4j`` APIs. If you include ``log4j`` 
 in your class path it has been known to cause issue.
 
+Q: Do I need special network access for my topology?
+####################################################
+See `this FAQ <https://yahoo.jiveon.com/message/30927>`_.
