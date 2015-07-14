@@ -1,6 +1,7 @@
 package hadooptest.gdm.regression.integration;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 import static org.junit.Assert.assertTrue;
@@ -220,7 +221,7 @@ public class DataAvailabilityPoller {
 			if (slaStartTime >= slaEnd  && isDataAvailable == false) {
 				System.out.println("*************************************************************************** ");
 				System.out.println(" \t MISSED SLA for " + this.getCurrentFrequencyValue() );
-				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , "result" , "FAILED" ,this.currentFeedName);
+				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , "result" , "FAIL" ,this.currentFeedName);
 				System.out.println("*************************************************************************** ");
 			}
 			System.out.println("Current state = " + this.searchDataAvailablity.getState());
@@ -459,6 +460,10 @@ public class DataAvailabilityPoller {
 				String state = this.searchDataAvailablity.getState();
 				String mrValue = this.executeOozieCurlCommand(jobId);
 				this.dbOperations.updateRecord(this.con ,  "status" , "KILLED" , this.columnName.get(state) , "KILLED" + "~" + mrValue , "result" , "FAIL"  , this.currentFeedName);
+				
+				// mark the testcase as failed
+				fail( this.currentFeedName + " failed in " + this.columnName.get(state)  + "  step for more debugging informatin " + mrValue);
+				
 				this.isOozieJobCompleted = true;
 				break;
 			} else if (jobStatus.equals("SUCCEEDED")) {
@@ -476,6 +481,10 @@ public class DataAvailabilityPoller {
 				String mrValue = this.executeOozieCurlCommand(jobId);
 				this.dbOperations.updateRecord(this.con ,  "status" , "SUSPENDED" , this.columnName.get(state) , "SUSPENDED" + "~" + mrValue , "result" , "FAIL",  this.currentFeedName);
 				this.isOozieJobCompleted = true;
+				
+				// mark the testcase as failed
+				fail( this.currentFeedName + " suspended in " + this.columnName.get(state)  + "  step for more debugging informatin " + mrValue);
+				
 				oozieJobresult = "SUSPENDED";
 				this.executeOozieCurlCommand(jobId);
 				break;
