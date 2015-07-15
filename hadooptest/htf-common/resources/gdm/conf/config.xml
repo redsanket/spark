@@ -15,7 +15,7 @@
     <console>
       <test_environment_type>TEST_EXECUTION_ENV</test_environment_type> <!-- value "oneNode" for qe or dev environment and value "staging" for staging environment -->
 	  <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
-	  <staging_console_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</staging_console_url>
+	  <staging_console_url>http://$(STAGING_CONSOLE_HOST):$(STAGING_CONSOLE_PORT)</staging_console_url>
 	  <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
 	  <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
 	  <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
