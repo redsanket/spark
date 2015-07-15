@@ -1,6 +1,7 @@
 package hadooptest.gdm.regression.integration;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 import static org.junit.Assert.assertTrue;
@@ -15,9 +16,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -26,7 +32,6 @@ import com.google.common.base.Splitter;
 import hadooptest.TestSession;
 import hadooptest.gdm.regression.integration.metrics.NameNodeDFSMemoryDemon;
 import hadooptest.gdm.regression.integration.metrics.NameNodeTheadDemon;
-
 
 /**
  * Class that polls for the data on the grid and starts the oozie job and checks for the status of the oozie job.
@@ -216,7 +221,7 @@ public class DataAvailabilityPoller {
 			if (slaStartTime >= slaEnd  && isDataAvailable == false) {
 				System.out.println("*************************************************************************** ");
 				System.out.println(" \t MISSED SLA for " + this.getCurrentFrequencyValue() );
-				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , "result" , "FAILED" ,this.currentFeedName);
+				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , "result" , "FAIL" ,this.currentFeedName);
 				System.out.println("*************************************************************************** ");
 			}
 			System.out.println("Current state = " + this.searchDataAvailablity.getState());
@@ -453,7 +458,12 @@ public class DataAvailabilityPoller {
 				oozieJobresult = "KILLED";
 				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_KILLED");
 				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "KILLED" , this.columnName.get(state) , "KILLED" , "result" , "FAIL"  , this.currentFeedName);
+				String mrValue = this.executeOozieCurlCommand(jobId);
+				this.dbOperations.updateRecord(this.con ,  "status" , "KILLED" , this.columnName.get(state) , "KILLED" + "~" + mrValue , "result" , "FAIL"  , this.currentFeedName);
+				
+				// mark the testcase as failed
+				fail( this.currentFeedName + " failed in " + this.columnName.get(state)  + "  step for more debugging informatin " + mrValue);
+				
 				this.isOozieJobCompleted = true;
 				break;
 			} else if (jobStatus.equals("SUCCEEDED")) {
@@ -468,9 +478,15 @@ public class DataAvailabilityPoller {
 				TestSession.logger.info("oozie for " + jobId  + " is SUSPENDED");
 				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_SUSPENDED");
 				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "SUSPENDED" , this.columnName.get(state) , "SUSPENDED" , "result" , "FAIL",  this.currentFeedName);
+				String mrValue = this.executeOozieCurlCommand(jobId);
+				this.dbOperations.updateRecord(this.con ,  "status" , "SUSPENDED" , this.columnName.get(state) , "SUSPENDED" + "~" + mrValue , "result" , "FAIL",  this.currentFeedName);
 				this.isOozieJobCompleted = true;
+				
+				// mark the testcase as failed
+				fail( this.currentFeedName + " suspended in " + this.columnName.get(state)  + "  step for more debugging informatin " + mrValue);
+				
 				oozieJobresult = "SUSPENDED";
+				this.executeOozieCurlCommand(jobId);
 				break;
 			} else if (jobStatus.equals("RUNNING")) {
 				TestSession.logger.info("oozie for " + jobId  + " is RUNNING");
@@ -480,6 +496,7 @@ public class DataAvailabilityPoller {
 				this.isOozieJobCompleted = false;
 				oozieJobresult = "RUNNING";
 			}
+			
 			String currentOozieStep = this.getOoozieJobDetails(jobId);
 			Thread.sleep(1000);
 			d = new Date();
@@ -490,6 +507,43 @@ public class DataAvailabilityPoller {
 		return oozieJobresult;
 	}
 	
+	/**
+	 * Execute oozie curl command to get the consoleURL ( MP job url ) to know the reason of failure.
+	 * @param jobId
+	 * @return
+	 */
+	public String  executeOozieCurlCommand(String jobId) {
+		String jobIdValue =  Arrays.asList(jobId.split(" ")).get(1).trim();
+		String mrJobValue = null;
+		JSONObject finalFailedJSONObject = null;
+		boolean flag = false;
+		String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +  "curl  -s --negotiate -u :  -H \\\"Content-Type: application/xml;charset=UTF-8\\\"  " 
+				+ "http://" + this.oozieHostName + ":4080/oozie/v2/job/" + jobIdValue   + "?timezone=GMT" + "\"";
+		TestSession.logger.info("command - " + oozieCommand);
+		String oozieResult = this.executeCommand(oozieCommand);
+		TestSession.logger.info("oozieResult = " + oozieResult); 
+		JSONObject obj =  (JSONObject) JSONSerializer.toJSON(oozieResult.toString());
+		TestSession.logger.info("\n \n \n JSONObject jsonResponse   =  "  + obj.toString() );
+		
+		JSONArray jsonArray = obj.getJSONArray("actions");
+		if ( jsonArray.size() > 0 ) {
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				String status = jsonObject.getString("status");
+				if (status.equals("ERROR")) {
+					String stepName = jsonObject.getString("name");
+					String externalStatus = jsonObject.getString("externalStatus");
+					String consoleUrl = jsonObject.getString("consoleUrl");
+					mrJobValue = consoleUrl;
+					TestSession.logger.info("stepName = " + stepName  + " externalStatus = " + externalStatus   + " consoleUrl =  " + consoleUrl);
+					break;
+				}
+			}
+		}
+		return mrJobValue;
+	}
+
 	public void addNewStatusToDB(String currentStep , String currentStatus) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Connection con = this.dbOperations.getConnection();
 		String oldSteps = this.dbOperations.getRecord(con , "steps" , this.currentFeedName);
@@ -515,6 +569,7 @@ public class DataAvailabilityPoller {
 	public String getOoozieJobDetails(String jobId) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
 		String jobIdValue =  Arrays.asList(jobId.split(" ")).get(1).trim();
 		String command = "ssh " + this.oozieHostName +  " \"" + this.OOZIE_COMMAND + "  job -oozie  " +  "http://" + this.oozieHostName + ":4080/oozie -auth kerberos -info  " + jobIdValue  + "\"";
+		
 		TestSession.logger.info("command - " + command);
 		String oozieResult = this.executeCommand(command);
 		
@@ -565,7 +620,7 @@ public class DataAvailabilityPoller {
 						this.dbOperations.updateRecord(this.con ,"currentStep", currentExecutionStep , "status" , status , "hiveVerify" , status , this.currentFeedName);	
 					}  else if (currentExecutionStep.equals("end")) {
 						this.searchDataAvailablity.setState(currentExecutionStep);
-						this.dbOperations.updateRecord(this.con , "currentStep", currentExecutionStep , "status" , status , "oozieJobCompleted" , status , this.currentFeedName);	
+						this.dbOperations.updateRecord(this.con , "currentStep", currentExecutionStep , "status" , status , "oozieJobCompleted" , status ,  "result" , "PASS" , this.currentFeedName);
 					}
 					
 					System.out.println("---------------------");

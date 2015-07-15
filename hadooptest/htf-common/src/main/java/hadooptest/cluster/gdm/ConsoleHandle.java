@@ -97,7 +97,17 @@ public final class ConsoleHandle
 		{
 			String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
 			this.conf = new XMLConfiguration(configPath);
-			this.consoleURL = this.conf.getString("hostconfig.console.base_url");
+			String environmentType = this.conf.getString("hostconfig.console.test_environment_type");
+			if (environmentType.equals("oneNode")) {
+				TestSession.logger.info("****** QE or Dev test Environment ******** ");
+				this.consoleURL = this.conf.getString("hostconfig.console.base_url");
+			} else if (environmentType.equals("staging")) {
+				TestSession.logger.info("****** Staging test Environment ******** ");
+				this.consoleURL = this.conf.getString("hostconfig.console.staging_console_url");
+			} else  {
+				TestSession.logger.info("****** Specified invalid test environment ******** ");
+				System.exit(1);
+			}
 			this.crossColoConsoleURL = this.conf.getString("hostconfig.console.crossColo_url");
 			TestSession.logger.info("crossColoConsoleURL  = " + this.crossColoConsoleURL);
 
