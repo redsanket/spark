@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -41,6 +42,7 @@ import net.sf.json.JSONSerializer;
 import com.jayway.restassured.path.json.JsonPath;
 
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.gdm.SystemCommand;
 import hadooptest.TestSession;
 
 /**
@@ -919,7 +921,6 @@ public class WorkFlowHelper {
 			this.basePath = basePath;
 		}
 
-		@Override
 		public String run() throws Exception {
 			String result = "fail";
 			TestSession.logger.info("configuration   =  " + this.configuration.toString());
@@ -1050,5 +1051,28 @@ public class WorkFlowHelper {
 				this.consoleHandle.removeDataSource(dataSourceName);
 			}
 		}
+	}
+	
+	/**
+	 * Execute a given command and return the output of the command.
+	 * @param command
+	 * @return
+	 */
+	public String executeCommand(String command) {
+		String output = null;
+		TestSession.logger.info("command - " + command);
+		ImmutablePair<Integer, String> result = SystemCommand.runCommand(command);
+		if ((result == null) || (result.getLeft() != 0)) {
+			if (result != null) { 
+				// save script output to log
+				TestSession.logger.info("Command exit value: " + result.getLeft());
+				TestSession.logger.info(result.getRight());
+			}
+			throw new RuntimeException("Exception" );
+		} else {
+			output = result.getRight();
+			TestSession.logger.info("log = " + output);
+		}
+		return output;
 	}
 }
