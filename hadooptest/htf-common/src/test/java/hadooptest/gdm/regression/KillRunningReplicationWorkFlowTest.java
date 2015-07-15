@@ -104,7 +104,7 @@ public class KillRunningReplicationWorkFlowTest  extends TestSession {
 	}
 	
 	@Test
-	public void testHCATWithABFData() throws Exception {
+	public void test() throws Exception {
 		
 		// check whether ABF data is available on the specified source
 		List<String>dates = getInstanceFiles();
