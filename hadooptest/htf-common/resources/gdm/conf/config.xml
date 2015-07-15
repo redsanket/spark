@@ -13,12 +13,14 @@
 <config>
   <hostconfig>
     <console>
+      <test_environment_type>oneNode</test_environment_type> <!-- value "oneNode" for qe or dev environment and value "staging" for staging environment -->
 	  <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
-	   <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
-	   <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
-	   <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
-	   <stress-noOfinstances>$(NUMBER_OF_INSTANCES_PER_DATASET)</stress-noOfinstances>
-	   <stress-filesInInstance>$(NUMBER_OF_INSTANCE_FILES_INSTANCE)</stress-filesInInstance>
+	  <staging_console_url>http://gsbl90201.blue.ygrid.yahoo.com:9999</staging_console_url>
+	  <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
+	  <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
+	  <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
+	  <stress-noOfinstances>$(NUMBER_OF_INSTANCES_PER_DATASET)</stress-noOfinstances>
+	  <stress-filesInInstance>$(NUMBER_OF_INSTANCE_FILES_INSTANCE)</stress-filesInInstance>
       <actions>/console/rest/config/dataset/actions</actions>
       <datasets>
         <view>

@@ -1,11 +1,11 @@
 package hadooptest.cluster.gdm;
 
 import java.io.UnsupportedEncodingException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -41,7 +41,6 @@ public class HTTPHandle
 		init();
 		this.userName = this.conf.getString("auth.usr");
 		this.passWord = this.conf.getString("auth.pp");
-		TestSession.logger.info("Password ----------------  " + this.passWord);
 		this.logonToBouncer(this.userName,this.passWord);	
 	}
 	
@@ -58,7 +57,17 @@ public class HTTPHandle
 			this.conf = new XMLConfiguration(configPath);
 			TestSession.logger.debug("Found conf/config.xml configuration file.");
 			SSO_SERVER = this.conf.getString("sso_server.resource", "https://gh.bouncer.login.yahoo.com/login/");
-			this.baseURL = this.conf.getString("hostconfig.console.base_url");
+			String environmentType = this.conf.getString("hostconfig.console.test_environment_type");
+			if (environmentType.equals("oneNode")) {
+				TestSession.logger.info("****** QE or Dev test Environment ******** ");
+				this.baseURL = this.conf.getString("hostconfig.console.base_url");
+			} else if (environmentType.equals("staging")) {
+				TestSession.logger.info("****** Staging test Environment ******** ");
+				this.baseURL = this.conf.getString("hostconfig.console.staging_console_url");
+			} else  {
+				TestSession.logger.info("****** Specified invalid test environment ******** ");
+				System.exit(1);
+			}
 			TestSession.logger.debug(new StringBuilder().append("Console Base URL: ").append(this.baseURL).toString());
 		 
 		} catch (ConfigurationException localConfigurationException) {
@@ -95,7 +104,7 @@ public class HTTPHandle
 	
 	public void logonToBouncer(String paramString1, String paramString2)
 	{
-		TestSession.logger.info("*****************  user name = " + paramString1);
+		//TestSession.logger.info("*****************  user name = " + paramString1);
 		
 		HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
 		String str = null;
@@ -107,8 +116,7 @@ public class HTTPHandle
 
 		cookie = str; 
 		YBYCookieHeader = new Header("Cookie", str);
-		this.httpClient.getParams().setParameter("Cookie", str);
-		TestSession.logger.debug("SSO auth cookie set  " + str);
+		//this.httpClient.getParams().setParameter("Cookie", str);
 	}
 
 	public HttpMethod makeGET(String paramString1, String paramString2, ArrayList<CustomNameValuePair> paramArrayList) {
