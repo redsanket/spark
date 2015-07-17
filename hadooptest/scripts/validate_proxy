@@ -1,37 +1,42 @@
 #!/bin/bash
 
-# $ validate_proxy <source cluster> <target cluster> <local proxy> [remote proxy]
-# $ validate_proxy densed densec gsbl90225.blue.ygrid.yahoo.com 
-# $ validate_proxy densed hbasetan1 fsbl824n00.blue.ygrid.yahoo.com fsta773n00.tan.ygrid.yahoo.com
+# $ validate_proxy <source cluster> <target cluster> <hdfs test dir> <local proxy> [remote proxy]
+# $ validate_proxy densed densec /HTF/testdata/dfs/ gsbl90225.blue.ygrid.yahoo.com
+# $ validate_proxy densed hbasetan1 /HTF/testdata/dfs/ fsbl824n00.blue.ygrid.yahoo.com fsta773n00.tan.ygrid.yahoo.com
 
 SOURCE_CLUSTER=$1
 TARGET_CLUSTER=$2
-LOCAL_PROXY=$3
-REMOTE_PROXY=$4
+HDFS_TEST_DIR=$3
+LOCAL_PROXY=$4
+REMOTE_PROXY=$5
 
-if [ "$#" -lt 3 ]; then
+HDFS_TEST_DIR=${HDFS_TEST_DIR:="/HTF/testdata/dfs/"}
+PROXY_PORT=4443
+
+if [ "$#" -lt 4 ]; then
     echo "USAGE: At least 3 parameters are required:"
-    echo "$ validate_proxy <source cluster> <target cluster> <local proxy> [remote proxy]"
+    echo "$ validate_proxy <source cluster> <target cluster> <hdfs test dir> <local proxy> [remote proxy]"
     exit 1;
 fi
 
 # Determine the source and target NN.
 # First determine if HA / NN Alias is being used:
-function set_NN() {
+function fetch_NN() {
   CLUSTER=$1
-  NN=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode_alias)"`
-  set -x
-  curl -m 3 -s "http://$NN:50070/jmx?get=Hadoop:service=NameNode,name=NameNodeStatus::State" 2>&1 > /dev/null
+  NN=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode_alias)" 2>/dev/null`
   RC=$?
-  set +x
+  if [[ "$RC" == "0" ]]; then
+    curl -m 3 -s "http://$NN:50070/jmx?get=Hadoop:service=NameNode,name=NameNodeStatus::State" 2>&1 > /dev/null
+    RC=$?
+  fi
   if [[ "$RC" != 0 ]]; then
       NN=`yinst range -igor_range "@grid_re.clusters.$CLUSTER.namenode"`
   fi
   echo $NN
 }
 
-SOURCE_NN=`set_NN $SOURCE_CLUSTER`
-TARGET_NN=`set_NN $TARGET_CLUSTER`
+SOURCE_NN=`fetch_NN $SOURCE_CLUSTER`
+TARGET_NN=`fetch_NN $TARGET_CLUSTER`
 echo "SOURCE_NN=$SOURCE_NN"
 echo "TARGET_NN=$TARGET_NN"
 
@@ -39,6 +44,7 @@ LOG_DIR="/home/y/logs/trafficserver"
 LOG="$LOG_DIR/extended2.log"
 
 EC=0
+
 if [ "$#" -eq 3 ]; then
   PROXY=$LOCAL_PROXY
   echo "----> Validate intra-colo cross-cluster distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
@@ -46,7 +52,7 @@ if [ "$#" -eq 3 ]; then
   for NN in $SOURCE_NN $TARGET_NN; do
     echo "--> Check for references to cluster NN '$NN' in proxy log:"
     set -x
-    ssh $PROXY "find $LOG_DIR -mtime -0.125 | xargs grep -q \"GET http://$NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\""
+    ssh $PROXY "find $LOG_DIR -mtime -0.125 -name \*.log | xargs grep -q \"GET http://$NN:50070/webhdfs/v1"$HDFS_TEST_DIR"file_\""
     RC=$?
     EC=$((EC+$RC))
     set +x
@@ -56,14 +62,14 @@ else
   echo "      went through the proxy hosts '$LOCAL_PROXY'/'$REMOTE_PROXY':"
   echo "--> Check for references to the REMOTE PROXY $REMOTE_PROXY in the LOCAL PROXY log:"
   set -x
-  ssh $LOCAL_PROXY "find $LOG_DIR -mtime -0.125 | xargs grep -q \"GET https://$REMOTE_PROXY:4443/webhdfs/v1/HTF/testdata/dfs/file_\""
+  ssh $LOCAL_PROXY "find $LOG_DIR -mtime -0.125 -name \*.log | xargs grep -q \"GET https://$REMOTE_PROXY:$PROXY_PORT/webhdfs/v1"$HDFS_TEST_DIR"file_\""
   RC=$?
   EC=$((EC+$RC))
   set +x
 
   echo "--> Check for references to the TARGET CLUSTER NN '$TARGET_NN' in the REMOTE PROXY log:"
   set -x
-  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 | xargs grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1/HTF/testdata/dfs/file_\""
+  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 -name \*.log | xargs grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1"$HDFS_TEST_DIR"file_\""
   RC=$?
   EC=$((EC+$RC))
   set +x
