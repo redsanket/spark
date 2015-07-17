@@ -530,7 +530,7 @@ public abstract class HadoopCluster {
         if (nnHosts == null || nnHosts.length == 0) {
             String defaultFS = this.getConf().get("fs.defaultFS");
             String namenode = defaultFS.replaceFirst("hdfs://","");
-            namenode = namenode_addr.split(":")[0];
+            namenode = namenode.split(":")[0];
             nnHosts = new String[] {namenode};
         }
         initComponentNodes(HadoopCluster.NAMENODE, nnHosts);
