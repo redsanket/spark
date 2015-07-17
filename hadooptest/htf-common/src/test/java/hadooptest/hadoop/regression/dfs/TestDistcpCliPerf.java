@@ -366,6 +366,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     + "/scripts/validate_proxy");
             cmd.add(this.localCluster);
             cmd.add(this.parametrizedCluster);
+            cmd.add(DATA_DIR_IN_HDFS);
             cmd.add(httpProxyHost);
             if (DfsTestsBaseClass.crosscoloPerf == true) {
                 String remoteHttpProxyHost =
