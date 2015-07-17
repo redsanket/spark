@@ -17,13 +17,15 @@ public interface DBCommands {
 			+ "endTime VARCHAR(50) DEFAULT 'END_TIME' , " 
 			+ "dataAvailable VARCHAR(50) DEFAULT 'UNKNOWN' , "  // this will cover DATA_AVAILABE , DATA_INCOMPLETE, MISSED_SLA
 			+ "oozieJobStarted VARCHAR(50) DEFAULT 'UNKNOWN' , " 
-			+ "cleanUpOutput VARCHAR(50) DEFAULT 'UNKNOWN' , " 
-			+ "checkInput VARCHAR(50) DEFAULT 'UNKNOWN' , " 
-			+ "pigRawProcessor VARCHAR(50) DEFAULT 'UNKNOWN' , " 
-			+ "hiveStorage VARCHAR(50) DEFAULT 'UNKNOWN' , " 
-			+ "hiveVerify VARCHAR(50) DEFAULT 'UNKNOWN' , " 
+			+ "cleanUpOutput VARCHAR(250) DEFAULT 'UNKNOWN' , " 
+			+ "checkInput VARCHAR(250) DEFAULT 'UNKNOWN' , " 
+			+ "pigRawProcessor VARCHAR(250) DEFAULT 'UNKNOWN' , " 
+			+ "hiveStorage VARCHAR(250) DEFAULT 'UNKNOWN' , " 
+			+ "hiveVerify VARCHAR(250) DEFAULT 'UNKNOWN' , " 
 			+ "oozieJobCompleted VARCHAR(50) DEFAULT 'UNKNOWN' , "
 			+ "jobEnded VARCHAR(50)  DEFAULT 'UNKNOWN' , "
+			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )"; 
 
 	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep)  " 
