@@ -45,10 +45,10 @@ LOG="$LOG_DIR/extended2.log"
 
 EC=0
 
-if [ "$#" -eq 3 ]; then
+if [ "$#" -eq 4 ]; then
   PROXY=$LOCAL_PROXY
-  echo "----> Validate intra-colo cross-cluster distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
-  echo "      went through the proxy host '$PROXY':"
+  echo -n "----> Validate intra-colo cross-cluster distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
+  echo " pass through the proxy host '$PROXY':"
   for NN in $SOURCE_NN $TARGET_NN; do
     echo "--> Check for references to cluster NN '$NN' in proxy log:"
     set -x
@@ -58,8 +58,8 @@ if [ "$#" -eq 3 ]; then
     set +x
   done
 else
-  echo "----> Validate cross-colo distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
-  echo "      went through the proxy hosts '$LOCAL_PROXY'/'$REMOTE_PROXY':"
+  echo -n "----> Validate cross-colo distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
+  echo " pass through the proxy hosts '$LOCAL_PROXY'/'$REMOTE_PROXY':"
   echo "--> Check for references to the REMOTE PROXY $REMOTE_PROXY in the LOCAL PROXY log:"
   set -x
   ssh $LOCAL_PROXY "find $LOG_DIR -mtime -0.125 -name \*.log | xargs grep -q \"GET https://$REMOTE_PROXY:$PROXY_PORT/webhdfs/v1"$HDFS_TEST_DIR"file_\""
