@@ -126,7 +126,7 @@ public class DataBaseOperations {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 */	
-	public void insertRecord(String dataSetName, String  currentFrequency, String jobStarted ,  String  startTime, String currentStep , String hadoopVersion , String pigVersion) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+	public void insertRecord(String dataSetName, String  currentFrequency, String jobStarted ,  String  startTime, String currentStep , String hadoopVersion , String pigVersion , String oozieVersion) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Connection con = this.getConnection();
 		if (con != null) {
 			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_ROW);
@@ -137,6 +137,7 @@ public class DataBaseOperations {
 			preparedStatement.setString(5, currentStep);
 			preparedStatement.setString(6, hadoopVersion);
 			preparedStatement.setString(7, pigVersion);
+			preparedStatement.setString(8, oozieVersion);
 			boolean isRecordInserted = preparedStatement.execute();
 			assertTrue("Failed to insert record for " + dataSetName , isRecordInserted != true);
 
