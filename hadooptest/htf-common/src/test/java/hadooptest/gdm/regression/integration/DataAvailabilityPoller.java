@@ -193,15 +193,16 @@ public class DataAvailabilityPoller {
 				
 				
 				// get installed stack components versions
-				String hadoopVersion = getHadoopVersion();
-				String pigVersion = getPigVersion();
+				String hadoopVersion = this.getHadoopVersion();
+				String pigVersion = this.getPigVersion();
+				String oozieVersion = this.getOozieVersion();
 				
 				
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
 				
 				// add start state to the user stating that job has started for the current frequency.
-				this.dbOperations.insertRecord(this.currentFeedName, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigVersion);
+				this.dbOperations.insertRecord(this.currentFeedName, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigVersion , oozieVersion);
 
 				initialCal = null;
 				salStartCal = null;
@@ -773,8 +774,27 @@ public class DataAvailabilityPoller {
 			TestSession.logger.info(str);
 		}
 		List<String> tempList = Arrays.asList(outputList.get(1).substring(0, outputList.get(1).indexOf("(")).trim());
-		String pigVersion = tempList.get(tempList.size() - 1);
+		String temp = tempList.get(tempList.size() - 1);
+		TestSession.logger.info("temp  = "  + temp);
+		
+		List<String>tempList1 = Arrays.asList(temp.split(" "));
+		String pigVersion = tempList1.get(tempList1.size() - 1);
 		TestSession.logger.info("Pig Version - " + pigVersion);
 		return pigVersion;
+	}
+	
+	public String getOozieVersion() { 
+		String integrationOozieHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.oozieHostName");
+		String getOozieVersionCommand = "ssh " + integrationOozieHostName  + " \"" + kINIT_COMMAND + ";" + "/home/y/var/yoozieclient/bin/oozie version\"";
+		String outputResult = this.executeCommand(getOozieVersionCommand);
+		TestSession.logger.info("outputResult = " + outputResult);
+		java.util.List<String>outputList = Arrays.asList(outputResult.split(":"));
+		for ( String str : outputList) {
+			TestSession.logger.info(str);
+		}
+		List<String> tempList = Arrays.asList(outputList.get(1).trim());
+		String oozieVersion = tempList.get(tempList.size() - 1);
+		TestSession.logger.info("Pig Version - " + oozieVersion);
+		return oozieVersion;
 	}
 }

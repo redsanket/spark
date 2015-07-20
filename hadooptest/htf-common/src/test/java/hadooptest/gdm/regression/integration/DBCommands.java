@@ -26,10 +26,13 @@ public interface DBCommands {
 			+ "jobEnded VARCHAR(50)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "oozieVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )"; 
+	
+	
 
-	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion)  " 
-			+ "  values (?, ?, ?, ?, ?, ?, ?) ";
+	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion)  " 
+			+ "  values (?, ?, ?, ?, ?, ?, ?, ?) ";
 	
 	String CREATE_NAME_NODE_THREAD_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " + NAME_NODE_THREAD_INFO_TABLE 
 			+ " ( " 
