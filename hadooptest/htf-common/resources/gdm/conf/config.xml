@@ -106,6 +106,8 @@
 		<oozieHostName>$(OOZIE_HOST_NAME)</oozieHostName>
 		<hcatHostName>$(HCAT_HOST_NAME)</hcatHostName>
 		<pullOozieJobLength>$(PULL_OOZIE_JOB_LENGTH)</pullOozieJobLength> 
+		<nameNodeHostName>$(NAME_NODE_HOST_NAME)</nameNodeHostName>
+		<pigHostName>$(PIG_HOST_NAME)</pigHostName>
     </TestWatchForDataDrop>
   </testconfig>
   <auth>

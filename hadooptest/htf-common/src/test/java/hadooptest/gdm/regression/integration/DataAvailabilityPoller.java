@@ -26,10 +26,12 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.junit.Test;
 
 import com.google.common.base.Splitter;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.integration.metrics.NameNodeDFSMemoryDemon;
 import hadooptest.gdm.regression.integration.metrics.NameNodeTheadDemon;
 
@@ -52,6 +54,9 @@ public class DataAvailabilityPoller {
 	private String oozieJobResult;
 	private String currentFrequencyHourlyTimeStamp;
 	private String currentFeedName;
+	 
+	private String currentHadoopVersion;
+	private String currentPigVersion;
 	private Connection con;
 	public SearchDataAvailablity searchDataAvailablity;
 	private NameNodeTheadDemon nameNodeTheadDemonObject;
@@ -186,11 +191,17 @@ public class DataAvailabilityPoller {
 				this.dbOperations.createNameNodeThreadInfoTable();
 				this.dbOperations.createNameNodeMemoryInfoTable();
 				
+				
+				// get installed stack components versions
+				String hadoopVersion = getHadoopVersion();
+				String pigVersion = getPigVersion();
+				
+				
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
 				
 				// add start state to the user stating that job has started for the current frequency.
-				this.dbOperations.insertRecord(this.currentFeedName, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim());
+				this.dbOperations.insertRecord(this.currentFeedName, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigVersion);
 
 				initialCal = null;
 				salStartCal = null;
@@ -427,7 +438,7 @@ public class DataAvailabilityPoller {
 	 * @throws InstantiationException 
 	 */
 	public String pollOozieJob(String jobId , String oozieWorkFlowName) throws InterruptedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		String oozieJobresult = "FAILED";
+		String oozieJobresult = "FAIL";
 		Date d ;
 		long durationPollStart=0 ,durationPollEnd=0 , perPollStartTime=0, perPollEndTime=0 , slaPollStart=0 , slaPollEnd=0;
 		Calendar pollCalendar = Calendar.getInstance();
@@ -727,5 +738,43 @@ public class DataAvailabilityPoller {
 			}
 		}
 		return flag;
-	}	
+	}
+	
+	
+	/**
+	 * Get the hadoop version by running "hadoop version" command on name node
+	 * @return
+	 */
+	public String getHadoopVersion() {
+		String integrationNameNodeHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.nameNodeHostName");
+		String getHadoopVersionCommand = "ssh " + integrationNameNodeHostName  + " \"" + kINIT_COMMAND + ";" + "hadoop version\"";
+		String outputResult = this.executeCommand(getHadoopVersionCommand);
+		TestSession.logger.info("outputResult = " + outputResult);
+		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
+		for ( String str : outputList) {
+			TestSession.logger.info(str);
+		}
+		String hadoopVersion = Arrays.asList(outputList.get(0).split(" ")).get(1);
+		TestSession.logger.info("Hadoop Version - " + hadoopVersion);
+		return hadoopVersion;
+	}
+	
+	/**
+	 * Get the pig version
+	 * @return
+	 */
+	public String getPigVersion() {
+		String integrationPigHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pigHostName");
+		String getPigVersionCommand = "ssh " + integrationPigHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;pig -version\"";
+		String outputResult = this.executeCommand(getPigVersionCommand);
+		TestSession.logger.info("outputResult = " + outputResult);
+		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
+		for ( String str : outputList) {
+			TestSession.logger.info(str);
+		}
+		List<String> tempList = Arrays.asList(outputList.get(1).substring(0, outputList.get(1).indexOf("(")).trim());
+		String pigVersion = tempList.get(tempList.size() - 1);
+		TestSession.logger.info("Pig Version - " + pigVersion);
+		return pigVersion;
+	}
 }
