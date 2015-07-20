@@ -24,12 +24,12 @@ public interface DBCommands {
 			+ "hiveVerify VARCHAR(250) DEFAULT 'UNKNOWN' , " 
 			+ "oozieJobCompleted VARCHAR(50) DEFAULT 'UNKNOWN' , "
 			+ "jobEnded VARCHAR(50)  DEFAULT 'UNKNOWN' , "
-			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )"; 
 
-	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep)  " 
-			+ "  values (?, ?, ?, ?, ?) ";
+	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion)  " 
+			+ "  values (?, ?, ?, ?, ?, ?, ?) ";
 	
 	String CREATE_NAME_NODE_THREAD_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " + NAME_NODE_THREAD_INFO_TABLE 
 			+ " ( " 
