@@ -52,7 +52,9 @@ if [ "$#" -eq 4 ]; then
   for NN in $SOURCE_NN $TARGET_NN; do
     echo "--> Check for references to cluster NN '$NN' in proxy log:"
     set -x
-    ssh $PROXY "find $LOG_DIR -mtime -0.125 -name \*.log | xargs grep -q \"GET http://$NN:50070/webhdfs/v1"$HDFS_TEST_DIR"file_\""
+    # files last modified in the last 3 hours (n*24 hours ago).
+    ssh $PROXY "find $LOG_DIR -mtime -0.125 -name extended2*"
+    ssh $PROXY "find $LOG_DIR -mtime -0.125 -name extended2* | xargs grep -q \"GET http://$NN:50070/webhdfs/v1"$HDFS_TEST_DIR"file_\""
     RC=$?
     EC=$((EC+$RC))
     set +x
