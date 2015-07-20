@@ -794,7 +794,7 @@ public class DataAvailabilityPoller {
 		}
 		List<String> tempList = Arrays.asList(outputList.get(1).trim());
 		String oozieVersion = tempList.get(tempList.size() - 1);
-		TestSession.logger.info("Pig Version - " + oozieVersion);
+		TestSession.logger.info("Oozie Version - " + oozieVersion);
 		return oozieVersion;
 	}
 }
