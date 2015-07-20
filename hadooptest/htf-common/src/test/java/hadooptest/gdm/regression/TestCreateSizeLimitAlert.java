@@ -53,36 +53,39 @@ public class TestCreateSizeLimitAlert extends TestSession {
 		this.dataSetName = "Testing_SizeLimitAlert_" + System.currentTimeMillis();
 		this.workFlowHelperObj = new WorkFlowHelper();
 	}
-	
+
 	@Test
 	public void testSizeLimitAlert() throws Exception {
-		
+
 		// create the dataset.
 		createTestDataSet();
-		
+
 		// activate the dataset
 		this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
 		this.dsActivationTime = GdmUtils.getCalendarAsString();
-		
+
 		// check for acquisition workflow
 		this.workFlowHelperObj.checkWorkFlow(this.dataSetName , "acquisition", this.dsActivationTime);
-		
+
+		// invoke rest api to check whether alert is generated for acquisition facet.
+		checkSizeLimitAlertIsProduced(this.dataSetName , "acquisition");
+
 		// check for replication workflow
 		this.workFlowHelperObj.checkWorkFlow(this.dataSetName , "replication", this.dsActivationTime);
-		
-		// invoke rest api to check whether alert is generated.
-		checkSizeLimitAlertIsProduced(this.dataSetName);
+
+		// invoke rest api to check whether alert is generated for replication facet.
+		checkSizeLimitAlertIsProduced(this.dataSetName , "replication");
 	}
-	
+
 	/**
 	 * Create a dataset
 	 */
 	public void createTestDataSet() {
-		
+
 		StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
 		int indexOf = dataSetBuilder.indexOf("</DiscoveryInterface>") + "</DiscoveryInterface>".length();
 		dataSetBuilder.insert(indexOf, "<SmallestExpectedInstanceSize>100</SmallestExpectedInstanceSize>\n<LargestExpectedInstanceSize>1000</LargestExpectedInstanceSize>");
-		
+
 		String dataSetXml = dataSetBuilder.toString();
 		TestSession.logger.info("dataSetXml  = " + dataSetXml);
 
@@ -95,13 +98,13 @@ public class TestCreateSizeLimitAlert extends TestSession {
 		assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
 		this.consoleHandle.sleep(5000);
 	}
-	
+
 	/**
-	 * Check whether newly created size limit alert is created for the created dataset
+	 * Check whether newly created size limit alert is created for the created dataset on the specified facet.
 	 * @param dataSetName
 	 */
-	public void checkSizeLimitAlertIsProduced(String dataSetName) {
-		
+	public void checkSizeLimitAlertIsProduced(String dataSetName , String facetName) {
+
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -109,17 +112,17 @@ public class TestCreateSizeLimitAlert extends TestSession {
 		cal.add(Calendar.DAY_OF_MONTH, -1);
 		String startDate = sdf.format(cal.getTime());
 		TestSession.logger.info("start date = " + startDate  + "   end date = " + endDate);
-		
+
 		String severityType = "Warning";
 		String facetType = "replication";
 		String alertType = "size-limit";
-		
-		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + severityType + "&starttime=" + startDate + "&endtime=" + endDate 
-				+ "&type=" + alertType +"&facet=replication";
-				
+
+		String testURL = this.consoleHandle.getConsoleURL() + this.ALERT_API +  "severity=" + severityType + "&starttime=" + startDate + "&endtime=" + endDate  
+				+ "&type=" + alertType +"&facet=" + facetName;
+
 		TestSession.logger.info("queueAbortURL  = " + testURL);
 		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(testURL);
-		
+
 		String res = response.getBody().asString();
 		TestSession.logger.info("response = " + res);
 		JSONObject alertObj =  (JSONObject) JSONSerializer.toJSON(res.toString());
@@ -149,7 +152,7 @@ public class TestCreateSizeLimitAlert extends TestSession {
 			assertTrue("Expected longDescription to contain " + this.dataSetName + "  but got  " +longDescription   , longDescription.contains(dataSetName));
 		}
 	}
-	
+
 	@After
 	public void tearDown() throws Exception {
 		// deactivate the dataset
