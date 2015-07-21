@@ -264,6 +264,7 @@ public class TestLogviewer extends TestSessionStorm {
 
         Tidy tidy = new Tidy();
         tidy.setQuiet(true);
+        tidy.setXmlSpace(true);
         Document doc = tidy.parseDOM(new FileInputStream(logPagePath),
                 new NullOutputStream());
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -416,14 +417,11 @@ public class TestLogviewer extends TestSessionStorm {
                         new URL((String)match.get("logviewerURL")));
 
               // We assume the log has no multi-byte characters for this
-              // assertion. The logviewer content is parsed by xpath, therefore in case the logviewer page content contains
-              // a white space or a new-line at the begining of the page, it ignores it, thereby the content is off
-              // by one byte. Hence, the check is done for this extra scenario for centering the page.
-              assertTrue("Link shows a page of the log with match centered",
-                      searchSubstring.equals(logviewerOutput.substring(25600 - searchSubstring.length() / 2,
-                              25600 + searchSubstring.length() / 2)) ||
-                      searchSubstring.equals(logviewerOutput.substring(25599 - searchSubstring.length() / 2,
-                              25599 + searchSubstring.length() / 2)));
+              // assertion.
+              assertEquals("Link shows a page of the log with match centered",
+                      searchSubstring,
+                      logviewerOutput.substring(25600 - searchSubstring.length() / 2,
+                                  25600 + searchSubstring.length() / 2)));
             }
 
             assertTrue("Next byte offset is greater than the start offset.",
