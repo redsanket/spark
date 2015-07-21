@@ -11,6 +11,8 @@ import backtype.storm.blobstore.BlobStoreAclHandler;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
 import hadooptest.cluster.storm.ModifiableStormCluster;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
@@ -24,8 +26,6 @@ import hadooptest.cluster.storm.StormDaemon;
 import hadooptest.automation.utils.http.HTTPHandle;
 import org.apache.commons.httpclient.HttpMethod;
 import hadooptest.automation.utils.http.Response;
-
-
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -100,7 +100,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     testDistCacheIntegration("u:"+conf.getProperty("USER")+":rwa");
   }
 
-  //@Test(timeout=240000)
+  @Test(timeout=240000)
   public void testDistCacheInvalidAcl() throws Exception {
     Boolean didItFail = false;
     testDistCacheIntegration("u:bogus:rwa", true, true);
@@ -187,98 +187,6 @@ public class TestStormDistCacheApi extends TestSessionStorm {
         clientBlobStore.deleteBlob(blobKey);
     }
   }
-
-  @Test(timeout=240000)
-  public void testDistCacheAuthExceptionSupervisorCrash() throws Exception {
-    testDistCacheForSupervisorCrash("u:test:rwa", true);
-  }
-
-  @Test(timeout=240000)
-  public void testDistCacheKeyNotFoundSupervisorCrash() throws Exception {
-    testDistCacheForSupervisorCrash("u:" + conf.getProperty("USER") + ":rwa", false);
-  }
-
-  public boolean checkForSupervisorCrash() throws Exception
-  {
-    backtype.storm.Config theconf = new backtype.storm.Config();
-    theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
-    ModifiableStormCluster mc = (ModifiableStormCluster)cluster;
-    Boolean secure = isUISecure();
-    String pw = null;
-    String user = null;
-
-    // Only get bouncer auth on secure cluster.
-    if ( secure ) {
-      if (mc != null) {
-        user = mc.getBouncerUser();
-        pw = mc.getBouncerPassword();
-      }
-    }
-
-    String newUIPort = "8101";
-
-    logger.info("Setting a new UI port");
-    mc.setConf("ui.port", newUIPort, StormDaemon.UI);
-    logger.info("Restart ui");
-    mc.restartDaemon(StormDaemon.UI);
-    Util.sleep(120);
-
-    logger.info("Asserting test result");
-    //TODO lets find a good way to get the different hosts
-    HTTPHandle client = new HTTPHandle();
-    if (secure) {
-      client.logonToBouncer(user,pw);
-    }
-
-    logger.info("Cookie = " + client.YBYCookie);
-    assertNotNull("Cookie is null", client.YBYCookie);
-    ArrayList<String> uiNodes = mc.lookupRole(StormDaemon.UI);
-    logger.info("Will be connecting to UI at " + uiNodes.get(0));
-    System.out.print("Will be connecting to UI at " + uiNodes.get(0));
-    String uiURL = "http://" + uiNodes.get(0) + ":8101";
-    HttpMethod getMethod = client.makeGET(uiURL, new String(""), null);
-    logger.info("getMethod" + getMethod);
-    Response response = new Response(getMethod);
-    logger.info("response" + response);
-    System.out.print("response" + response.getResponseBodyAsString());
-    response.getJsonObject();
-    logger.info("******* OUTPUT = " + response.getResponseBodyAsString());
-    return true;
-  }
-
-  public void testDistCacheForSupervisorCrash(String blobACLs, Boolean changeUser) throws Exception {
-    UUID uuid = UUID.randomUUID();
-    String blobKey = uuid.toString() + ".jar";
-    String blobContent = "This is integration blob content";
-    String fileName = "myFile";
-
-    // Just in case a hung test left a residual topology...
-    killAll();
-
-    if (changeUser) {
-      kinit(conf.getProperty("SECONDARY_KEYTAB"), conf.getProperty("SECONDARY_PRINCIPAL") );
-      ClientBlobStore clientBlobStore = getClientBlobStore();
-      SettableBlobMeta settableBlobMeta = makeAclBlobMeta(blobACLs);
-      createBlobWithContent(blobKey, blobContent, clientBlobStore, settableBlobMeta);
-      kinit();
-    }
-
-    try {
-      // Launch a topology that will read a local file we give it over drpc
-      logger.debug("About to launch topology");
-      launchBlobStoreTopology(blobKey, fileName);
-
-      // Wait for it to come up
-      Util.sleep(30);
-
-      // Test for supervisors not crashing
-      assertTrue("Supervisor Crashed", checkForSupervisorCrash());
-
-    } finally {
-      killAll();
-    }
-  }
-
 
   @Test(timeout=240000)
   // The purpose of this test is to make sure that we can't create a blob that the owner cannot set acls on
@@ -735,7 +643,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     blobOutputStream.close();
   }
 
-  private void createBlobWithContent(String blobKey, String blobContent, ClientBlobStore clientBlobStore, SettableBlobMeta settableBlobMeta) throws AuthorizationException, KeyAlreadyExistsException, IOException,KeyNotFoundException {
+  protected void createBlobWithContent(String blobKey, String blobContent, ClientBlobStore clientBlobStore, SettableBlobMeta settableBlobMeta) throws AuthorizationException, KeyAlreadyExistsException, IOException,KeyNotFoundException {
     logger.info("About to create content <" + blobContent + "> for key " + blobKey);
     printACLs("  attempting to Create", settableBlobMeta);
     AtomicOutputStream blobStream = clientBlobStore.createBlob(blobKey,settableBlobMeta);

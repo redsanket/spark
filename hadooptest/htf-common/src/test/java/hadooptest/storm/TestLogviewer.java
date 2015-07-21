@@ -135,6 +135,7 @@ public class TestLogviewer extends TestSessionStorm {
             String getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
 			        "/log?file=" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log.1.gz" + "&start=0&length=51200";
+
             String outputPage1 = performHttpRequest(client, getZipURL);
 
             assertTrue("First page of gzip log returned correctly",
@@ -198,10 +199,14 @@ public class TestLogviewer extends TestSessionStorm {
 
       String pw = null;
       String user = null;
+      String filter =
+              (String) backtype.storm.utils.Utils.readStormConfig()
+              .get("ui.filter");
+
       HTTPHandle client = new HTTPHandle();
 
       // Only get bouncer auth on secure storm cluster.
-      if ( isUISecure() && mc != null) {
+      if (filter != null && mc != null) {
           user = mc.getBouncerUser();
           pw = mc.getBouncerPassword();
           client.logonToBouncer(user,pw);
@@ -259,6 +264,7 @@ public class TestLogviewer extends TestSessionStorm {
 
         Tidy tidy = new Tidy();
         tidy.setQuiet(true);
+        tidy.setXmlSpace(true);
         Document doc = tidy.parseDOM(new FileInputStream(logPagePath),
                 new NullOutputStream());
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -364,7 +370,7 @@ public class TestLogviewer extends TestSessionStorm {
                     URLEncoder.encode(searchSubstring, "UTF-8");
             final int numMatches = 3;
             getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                               "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
+			        "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log?search-string="+encodedSearchSubstring+
                     "&num-matches="+numMatches;
             String output = performHttpRequest(client, getURL);
@@ -392,7 +398,7 @@ public class TestLogviewer extends TestSessionStorm {
             final int searchStringSubstringSize =
                     searchSubstring.getBytes("UTF-8").length;
 
-            for (Map match : ((List<Map>) respMap.get("matches"))){
+            for (Map match: ((List<Map>) respMap.get("matches"))) {
                 assertTrue("Matches returned match the given pattern",
                         searchSubstring.equals(
                         (String)match.get("matchString")));
@@ -411,22 +417,19 @@ public class TestLogviewer extends TestSessionStorm {
                         new URL((String)match.get("logviewerURL")));
 
                 // We assume the log has no multi-byte characters for this
-                // assertion. The logviewer content is parsed by xpath, therefore in case the logviewer page content contains
-                // a white space or a new-line at the begining of the page, it ignores it, thereby the content is off
-                // by one byte. Hence, the check is done for this extra scenario for centering the page.
-                assertTrue("Link shows a page of the log with match centered",
-                        searchSubstring.equals(logviewerOutput.substring(25600 - searchSubstring.length() / 2,
-                                25600 + searchSubstring.length() / 2)) ||
-                                searchSubstring.equals(logviewerOutput.substring(25599 - searchSubstring.length() / 2,
-                                        25599 + searchSubstring.length() / 2)));
-          }
+                // assertion.
+                assertEquals("Link shows a page of the log with match centered",
+                    searchSubstring,
+                    logviewerOutput.substring(25600-searchSubstring.length()/2,
+                                25600+searchSubstring.length()/2));
+            }
 
             assertTrue("Next byte offset is greater than the start offset.",
                     nextOffset > (Long) respMap.get("startByteOffset"));
 
             // Advance one page.
             getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                               "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
+			        "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log?search-string=" +
                     URLEncoder.encode(searchSubstring, "UTF-8")+
                     "&start-byte-offset="+nextOffset;
@@ -439,7 +442,7 @@ public class TestLogviewer extends TestSessionStorm {
 
             String unexpectedPattern = UUID.randomUUID().toString();
             getURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
-                               "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
+			        "/search/" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log?search-string=" + unexpectedPattern;
             output = performHttpRequest(client, getURL);
             respMap = (Map) JSONValue.parseWithException(output);
