@@ -416,12 +416,12 @@ public class TestLogviewer extends TestSessionStorm {
                 String logviewerOutput = getLogviewerPageContent(client,
                         new URL((String)match.get("logviewerURL")));
 
-              // We assume the log has no multi-byte characters for this
-              // assertion.
-              assertEquals("Link shows a page of the log with match centered",
-                      searchSubstring,
-                      logviewerOutput.substring(25600 - searchSubstring.length() / 2,
-                                  25600 + searchSubstring.length() / 2)));
+                // We assume the log has no multi-byte characters for this
+                // assertion.
+                assertEquals("Link shows a page of the log with match centered",
+                    searchSubstring,
+                    logviewerOutput.substring(25600 - searchSubstring.length() / 2,
+                              25600 + searchSubstring.length() / 2));
             }
 
             assertTrue("Next byte offset is greater than the start offset.",
