@@ -259,6 +259,7 @@ public class TestLogviewer extends TestSessionStorm {
 
         Tidy tidy = new Tidy();
         tidy.setQuiet(true);
+        tidy.setXmlSpace(true);
         Document doc = tidy.parseDOM(new FileInputStream(logPagePath),
                 new NullOutputStream());
         XPath xpath = XPathFactory.newInstance().newXPath();
