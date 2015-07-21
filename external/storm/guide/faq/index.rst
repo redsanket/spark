@@ -4,21 +4,6 @@ FAQ
 
 .. Status: First draft. The doc has been edited, but could use more FAQs.
 
-Questions
----------
-
-- :ref:`Q: Why am I seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages? <faq-reset_errs>`
-- :ref:`Q: Why is my worker process resetting periodically with no indication of what happened in the logs? <faq-worker_resets>`
-- :ref:`Q: Why am I seeing "Authentication challenge without WWW-Authenticate header" errors in my topology? <faq-auth_errs>`
-- :ref:`Q: Which JDK version does yStorm support? <faq-jdk_version>`
-- :ref:`Q: What are the basic steps to launch Storm topologies? <faq-launch_storm>` 
-- :ref:`Q: Why did StormSummitter fail to find the principal from the Kerberos cache? <faq-kerberos_cache>`
-- :ref:`Q: Does Storm support dependency isolation? <faq-dependency_isolation>`
-- :ref:`Q: Are there any libraries that Storm is not compatible with? <faq-incompatible_libs>`
-
-Answers
--------
-
 .. _faq-reset_errs:
 
 Q: Why am I seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages?
