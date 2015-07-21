@@ -135,7 +135,6 @@ public class TestLogviewer extends TestSessionStorm {
             String getZipURL = "http://" + lqs.host + ":" + lqs.logviewerPort +
 			        "/log?file=" + URLEncoder.encode(topoId + "/" + lqs.workerPort + "/worker", "UTF-8") +
                     ".log.1.gz" + "&start=0&length=51200";
-
             String outputPage1 = performHttpRequest(client, getZipURL);
 
             assertTrue("First page of gzip log returned correctly",
@@ -199,14 +198,10 @@ public class TestLogviewer extends TestSessionStorm {
 
       String pw = null;
       String user = null;
-      String filter =
-              (String) backtype.storm.utils.Utils.readStormConfig()
-              .get("ui.filter");
-
       HTTPHandle client = new HTTPHandle();
 
       // Only get bouncer auth on secure storm cluster.
-      if (filter != null && mc != null) {
+      if ( isUISecure() && mc != null) {
           user = mc.getBouncerUser();
           pw = mc.getBouncerPassword();
           client.logonToBouncer(user,pw);
@@ -264,7 +259,6 @@ public class TestLogviewer extends TestSessionStorm {
 
         Tidy tidy = new Tidy();
         tidy.setQuiet(true);
-        tidy.setXmlSpace(true);
         Document doc = tidy.parseDOM(new FileInputStream(logPagePath),
                 new NullOutputStream());
         XPath xpath = XPathFactory.newInstance().newXPath();
