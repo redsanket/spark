@@ -420,8 +420,8 @@ public class TestLogviewer extends TestSessionStorm {
                 // assertion.
                 assertEquals("Link shows a page of the log with match centered",
                     searchSubstring,
-                    logviewerOutput.substring(25600 - searchSubstring.length() / 2,
-                              25600 + searchSubstring.length() / 2));
+                    logviewerOutput.substring(25600-searchSubstring.length()/2,
+                                25600+searchSubstring.length()/2));
             }
 
             assertTrue("Next byte offset is greater than the start offset.",
