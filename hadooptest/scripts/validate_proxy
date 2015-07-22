@@ -64,14 +64,16 @@ else
   echo " pass through the proxy hosts '$LOCAL_PROXY'/'$REMOTE_PROXY':"
   echo "--> Check for references to the REMOTE PROXY $REMOTE_PROXY in the LOCAL PROXY log:"
   set -x
-  ssh $LOCAL_PROXY "find $LOG_DIR -mtime -0.125 -name \*.log | xargs grep -q \"GET https://$REMOTE_PROXY:$PROXY_PORT/webhdfs/v1"$HDFS_TEST_DIR"file_\""
+  ssh $LOCAL_PROXY "find $LOG_DIR -mtime -0.125 -name extended2*"
+  ssh $LOCAL_PROXY "find $LOG_DIR -mtime -0.125 -name extended2* | xargs grep -q \"GET https://$REMOTE_PROXY:$PROXY_PORT/webhdfs/v1"$HDFS_TEST_DIR"file_\""
   RC=$?
   EC=$((EC+$RC))
   set +x
 
   echo "--> Check for references to the TARGET CLUSTER NN '$TARGET_NN' in the REMOTE PROXY log:"
   set -x
-  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 -name \*.log | xargs grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1"$HDFS_TEST_DIR"file_\""
+  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 -name extended2*"
+  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 -name extended2* | xargs grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1"$HDFS_TEST_DIR"file_\""
   RC=$?
   EC=$((EC+$RC))
   set +x
