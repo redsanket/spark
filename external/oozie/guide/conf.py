@@ -177,20 +177,3 @@ html_show_sourcelink = False
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'OozieUserGuide'
 
-pdf_documents = [
- ('index', u'OozieUserGuide', u'Oozie User Guide', u'Joseph Catera'),
-]
-pdf_stylesheets = ['sphinx','kerning','a4']
-# pdf_style_path = ['.', '_styles']
-pdf_toc_depth = 9999
-pdf_use_numbered_links = False
-pdf_fit_background_mode = 'scale'
-pdf_fit_mode = "shrink"
-pdf_default_dpi = 72
-pdf_use_toc = True
-pdf_page_template = 'cutePage'
-pdf_use_index = True
-pdf_language = "en_US"
-pdf_verbosity = 1
-pdf_use_coverpage = True
-
