@@ -1066,7 +1066,10 @@ what we've done thus far.
       :alt: Adding Job XML for Hive task.
       :align: left   
   
-   To run Hive queries in Oozie, you need to provide a ``hive-site.xml``. 
+   .. note:: To run Hive queries in Oozie, you need to provide a ``hive-site.xml``. 
+             If you're not working on the Cobalt Blue Hue instance, you'll have to copy the file from 
+             https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/view/user/sumeetsi/HueTalk/hive-site.xml              to your home directory and enter the path **/user/{your_user_name}/hive-site.xml**.
+   
 
 #. Create another **Hive** task for your Oozie Workflow:
 
