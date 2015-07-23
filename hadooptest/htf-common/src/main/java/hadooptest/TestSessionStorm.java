@@ -3,6 +3,8 @@ package hadooptest;
 import backtype.storm.generated.TopologySummary;
 import backtype.storm.generated.KillOptions;
 import backtype.storm.generated.TopologyInfo;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.json.simple.JSONValue;
 import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.automation.utils.http.Response;
@@ -17,6 +19,7 @@ import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
@@ -26,6 +29,8 @@ import org.junit.BeforeClass;
 
 import yjava.security.yca.CertDatabase;
 import yjava.security.yca.YCAException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * TestSession is the main driver for the automation framework.  It
@@ -47,7 +52,7 @@ import yjava.security.yca.YCAException;
 public abstract class TestSessionStorm extends TestSessionCore {
     /** The Storm Cluster to use for the test session */
     public static StormCluster cluster;
-
+    private ModifiableStormCluster mc = (ModifiableStormCluster) cluster;
     public static void killAll() throws Exception {
         boolean killedOne = false;
         if (cluster != null) {
@@ -380,6 +385,45 @@ public abstract class TestSessionStorm extends TestSessionCore {
         // Debug.  Let's do a klist and see what's there
         String[] klistReturnValue = exec.runProcBuilder(new String[] { "klist" }, true);
         logger.info("Principal is now " + klistReturnValue[1]);
+    }
+
+    public HTTPHandle bouncerAuthentication() throws Exception {
+      Boolean secure = isUISecure();
+      String pw = null;
+      String user = null;
+
+      // Only get bouncer auth on secure cluster.
+      if (secure) {
+        if (mc != null) {
+         user = mc.getBouncerUser();
+          pw = mc.getBouncerPassword();
+        }
+      }
+
+      logger.info("Asserting test result");
+      //TODO lets find a good way to get the different hosts
+      HTTPHandle client = new HTTPHandle();
+      if (secure) {
+        client.logonToBouncer(user, pw);
+      }
+      return client;
+    }
+
+    public JSONArray getSupervisorsUptime() throws Exception {
+      Integer port = null;
+      HTTPHandle client = bouncerAuthentication();
+      logger.info("Cookie = " + client.YBYCookie);
+      assertNotNull("Cookie is null", client.YBYCookie);
+      ArrayList<String> uiNodes = mc.lookupRole(StormDaemon.UI);
+      logger.debug("Will be connecting to UI at " + uiNodes.get(0));
+      port = Integer.parseInt((String)mc.getConf("ystorm.ui_port", StormDaemon.UI));
+      String uiURL = "http://" + uiNodes.get(0) + ":" + port + "/api/v1/supervisor/summary";
+      HttpMethod getMethod = client.makeGET(uiURL, new String(""), null);
+      Response response = new Response(getMethod);
+      JSONObject obj = response.getJsonObject();
+      JSONArray supervisorsUptimeDetails = obj.getJSONArray("supervisors");
+      logger.debug("******* OUTPUT = " + response.getResponseBodyAsString());
+      return supervisorsUptimeDetails;
     }
     
     protected void kinit() throws Exception {

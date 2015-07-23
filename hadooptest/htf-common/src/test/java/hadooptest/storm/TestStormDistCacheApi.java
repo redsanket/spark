@@ -10,6 +10,9 @@ import backtype.storm.utils.Utils;
 import backtype.storm.blobstore.BlobStoreAclHandler;
 import hadooptest.SerialTests;
 import hadooptest.TestSessionStorm;
+import hadooptest.cluster.storm.ModifiableStormCluster;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
@@ -20,6 +23,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import static org.junit.Assume.assumeTrue;
 
+import hadooptest.cluster.storm.StormDaemon;
+import hadooptest.automation.utils.http.HTTPHandle;
+import org.apache.commons.httpclient.HttpMethod;
+import hadooptest.automation.utils.http.Response;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,17 +35,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.lang.System;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
 @Category(SerialTests.class)
 public class TestStormDistCacheApi extends TestSessionStorm {
   int MAX_RETRIES = 10;
-
   @BeforeClass
   public static void setup() throws Exception {
     start();
@@ -98,6 +106,86 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     testDistCacheIntegration("u:bogus:rwa", true, true);
   }
 
+  @Test(timeout=240000)
+  // The purpose of this test is to check whether supervisor crashes if an authorization exception is triggered
+  // in the blobstore
+  public void testDistCacheAuthExceptionForSupervisorCrash() throws Exception {
+    testDistCacheForSupervisorCrash("u:test:rwa", true);
+  }
+
+  @Test(timeout=240000)
+  // The purpose of this test is to check whether supervisor crashes if an keynotfound exception is triggered
+  // in the blobstore
+  public void testDistCacheKeyNotFoundExceptionForSupervisorCrash() throws Exception {
+    testDistCacheForSupervisorCrash("u:"+conf.getProperty("USER")+":rwa", false);
+  }
+
+  public boolean convertAndCheckUptime(String beforeTopoLaunchUptime, String afterTopoLaunchUptime) {
+    String[] btlu = beforeTopoLaunchUptime.split(" ");
+    String[] atlu = afterTopoLaunchUptime.split(" ");
+    int[] seconds_weight = {86400,3600,60,1};
+    int seconds_length = seconds_weight.length;
+    int uptimeBeforeLaunch = 0;
+    int uptimeAfterLaunch = 0;
+    for (int i = btlu.length-1; i > -1; i--) {
+      uptimeBeforeLaunch += Integer.parseInt(btlu[i].substring(0, btlu[i].length()-1)) * seconds_weight[--seconds_length];
+    }
+    seconds_length = seconds_weight.length;
+    for (int i = atlu.length-1; i > -1; i--) {
+      uptimeAfterLaunch += Integer.parseInt(atlu[i].substring(0, atlu[i].length()-1)) * seconds_weight[--seconds_length];
+    }
+    return uptimeAfterLaunch < uptimeBeforeLaunch;
+  }
+
+  public boolean checkForSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch) {
+    if (supervisorsUptimeBeforeTopoLaunch.size() > supervisorsUptimeAfterTopoLaunch.size())
+      return false;
+
+    for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
+      if (convertAndCheckUptime((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
+              (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public void testDistCacheForSupervisorCrash(String blobACLs, boolean changeUser) throws Exception {
+    UUID uuid = UUID.randomUUID();
+    String blobKey = uuid.toString() + ".jar";
+    String blobContent = "This is integration blob content";
+    String fileName = "myFile";
+
+    // Just in case a hung test left a residual topology...
+    killAll();
+
+    if(changeUser) {
+      kinit(conf.getProperty("SECONDARY_KEYTAB"), conf.getProperty("SECONDARY_PRINCIPAL"));
+      ClientBlobStore clientBlobStore = getClientBlobStore();
+      SettableBlobMeta settableBlobMeta = makeAclBlobMeta(blobACLs);
+      createBlobWithContent(blobKey, blobContent, clientBlobStore, settableBlobMeta);
+      kinit();
+    }
+
+    try {
+      // Launch a topology that will read a local file we give it over drpc
+      logger.info("About to launch topology");
+
+      HTTPHandle client = bouncerAuthentication();
+      JSONArray supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
+      launchBlobStoreTopology(blobKey, fileName);
+      // Wait for it to come up
+      Util.sleep(30);
+      JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
+
+      // Test for supervisors not crashing
+      assertTrue("Supervisor Crashed", checkForSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch));
+
+    } finally {
+      killAll();
+    }
+  }
+
   public void testDistCacheIntegration(String blobACLs) throws Exception {
     testDistCacheIntegration(blobACLs, false, false);
   }
@@ -132,7 +220,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
         // Wait for it to come up
         Util.sleep(30);
-    
+
         // Hit it with drpc function
         String drpcResult = cluster.DRPCExecute( "blobstore", fileName );
         logger.debug("drpc result = " + drpcResult);
@@ -299,7 +387,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     assertTrue("Hadoopqa was not found in the modified acl list",
         lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
-    //Now turn off my own write, and then try to write 
+    //Now turn off my own write, and then try to write
     AccessControl noWriteAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":r-a");
     List<AccessControl> noWriteAcls = new LinkedList<AccessControl>();
     noWriteAcls.add(noWriteAcl);
