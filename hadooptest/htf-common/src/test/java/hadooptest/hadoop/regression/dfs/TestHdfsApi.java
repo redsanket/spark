@@ -94,9 +94,7 @@ public class TestHdfsApi extends DfsTestsBaseClass {
 		}
 		this.cluster = cluster;
 		this.schema = HadooptestConstants.Schema.HDFS;
-		this.nameNode = crossClusterProperties.getProperty(cluster
-				.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
-		;
+        this.nameNode = TestSession.getNamenodeURL(cluster);
 		logger.info("Invoked test for:[" + cluster + "] Scheme:[" + schema
 				+ "] NodeName:[" + nameNode + "]");
 		

@@ -131,14 +131,13 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
         if (DfsTestsBaseClass.crosscoloPerf == false) {
             if (versionStore.containsKey(this.parametrizedCluster)) {
-                // Do not make an unnecessary call to get the version, if you'
-                // ve
-                // already made it once.
+                // Do not make an unnecessary call to get the version, if
+                // you've already made it once.
                 remoteHadoopVersion =
                         versionStore.get(this.parametrizedCluster);
             } else {
-                remoteHadoopVersion = rmUtils
-                        .getHadoopVersion(this.parametrizedCluster);
+                remoteHadoopVersion =
+                        rmUtils.getHadoopVersion(this.parametrizedCluster);
                 remoteHadoopVersion = remoteHadoopVersion.split("\\.")[0];
                 versionStore.put(this.parametrizedCluster, remoteHadoopVersion);
             }
