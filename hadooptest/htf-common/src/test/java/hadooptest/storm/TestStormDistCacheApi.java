@@ -47,7 +47,6 @@ import static org.junit.Assert.*;
 @Category(SerialTests.class)
 public class TestStormDistCacheApi extends TestSessionStorm {
   int MAX_RETRIES = 10;
-  private ModifiableStormCluster mc = (ModifiableStormCluster) cluster;
   @BeforeClass
   public static void setup() throws Exception {
     start();
@@ -121,48 +120,6 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     testDistCacheForSupervisorCrash("u:"+conf.getProperty("USER")+":rwa", false);
   }
 
-  public HTTPHandle bouncerAuthentication() throws Exception {
-    backtype.storm.Config theconf = new backtype.storm.Config();
-    theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
-    Boolean secure = isUISecure();
-    String pw = null;
-    String user = null;
-
-    // Only get bouncer auth on secure cluster.
-    if (secure) {
-      if (mc != null) {
-        user = mc.getBouncerUser();
-        pw = mc.getBouncerPassword();
-      }
-    }
-
-    logger.info("Asserting test result");
-    //TODO lets find a good way to get the different hosts
-    HTTPHandle client = new HTTPHandle();
-    if (secure) {
-      client.logonToBouncer(user, pw);
-    }
-    return client;
-  }
-
-  public JSONArray getSupervisorsUptime(HTTPHandle client) throws Exception {
-    Integer port = null;
-
-    logger.info("Cookie = " + client.YBYCookie);
-    assertNotNull("Cookie is null", client.YBYCookie);
-    ArrayList<String> uiNodes = mc.lookupRole(StormDaemon.UI);
-    logger.debug("Will be connecting to UI at " + uiNodes.get(0));
-    port = Integer.parseInt((String)mc.getConf("ystorm.ui_port", StormDaemon.UI));
-    String uiURL = "http://" + uiNodes.get(0) + ":" + port + "/api/v1/supervisor/summary";
-
-    HttpMethod getMethod = client.makeGET(uiURL, new String(""), null);
-    Response response = new Response(getMethod);
-    JSONObject obj = response.getJsonObject();
-    JSONArray supervisorsUptimeDetails = obj.getJSONArray("supervisors");
-    logger.debug("******* OUTPUT = " + response.getResponseBodyAsString());
-    return supervisorsUptimeDetails;
-  }
-
   public boolean convertAndCheckUptime(String beforeTopoLaunchUptime, String afterTopoLaunchUptime) {
     String[] btlu = beforeTopoLaunchUptime.split(" ");
     String[] atlu = afterTopoLaunchUptime.split(" ");
@@ -181,17 +138,16 @@ public class TestStormDistCacheApi extends TestSessionStorm {
   }
 
   public boolean checkForSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch) {
-    boolean checkCrash = false;
     if (supervisorsUptimeBeforeTopoLaunch.size() > supervisorsUptimeAfterTopoLaunch.size())
-      return checkCrash;
+      return false;
 
     for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
       if (convertAndCheckUptime((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
               (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"))) {
-        return checkCrash;
+        return false;
       }
     }
-    return !checkCrash;
+    return true;
   }
 
   public void testDistCacheForSupervisorCrash(String blobACLs, boolean changeUser) throws Exception {
@@ -216,14 +172,14 @@ public class TestStormDistCacheApi extends TestSessionStorm {
       logger.info("About to launch topology");
 
       HTTPHandle client = bouncerAuthentication();
-      JSONArray supervisorUptimeBeforeTopoLaunch = getSupervisorsUptime(client);
+      JSONArray supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
       launchBlobStoreTopology(blobKey, fileName);
       // Wait for it to come up
       Util.sleep(30);
-      JSONArray supervisorUptimeAfterTopoLaunch = getSupervisorsUptime(client);
+      JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
 
       // Test for supervisors not crashing
-      assertTrue("Supervisor Crashed", checkForSupervisorCrash(supervisorUptimeBeforeTopoLaunch, supervisorUptimeAfterTopoLaunch));
+      assertTrue("Supervisor Crashed", checkForSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch));
 
     } finally {
       killAll();
@@ -264,7 +220,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
         // Wait for it to come up
         Util.sleep(30);
-    
+
         // Hit it with drpc function
         String drpcResult = cluster.DRPCExecute( "blobstore", fileName );
         logger.debug("drpc result = " + drpcResult);
@@ -431,7 +387,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     assertTrue("Hadoopqa was not found in the modified acl list",
         lookForAcl(clientBlobStore, blobKey, "u:"+conf.getProperty("USER")+":rwa"));
 
-    //Now turn off my own write, and then try to write 
+    //Now turn off my own write, and then try to write
     AccessControl noWriteAcl = BlobStoreAclHandler.parseAccessControl("u:"+conf.getProperty("USER")+":r-a");
     List<AccessControl> noWriteAcls = new LinkedList<AccessControl>();
     noWriteAcls.add(noWriteAcl);
