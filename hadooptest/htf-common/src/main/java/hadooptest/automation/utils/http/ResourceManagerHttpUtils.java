@@ -5,6 +5,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import hadooptest.TestSession;
 
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.log4j.Logger;
@@ -14,8 +15,8 @@ public class ResourceManagerHttpUtils {
 	Properties crossClusterProperties;
 
 	public ResourceManagerHttpUtils() {
-		String workingDir = System
-				.getProperty(HadooptestConstants.Miscellaneous.USER_DIR);
+		String workingDir = System.getProperty(
+		        HadooptestConstants.Miscellaneous.USER_DIR);
 		crossClusterProperties = new Properties();
 		try {
 			crossClusterProperties.load(new FileInputStream(workingDir
@@ -23,28 +24,17 @@ public class ResourceManagerHttpUtils {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-
 	}
 
-        public String getResourceManagerURL(String clusterName) {
-		logger.info("Resource Manager URL read as"
-				+ crossClusterProperties.getProperty(clusterName.toLowerCase() + "."
-						+ HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-		String resourceManager = crossClusterProperties.getProperty(clusterName
-				+ "." + HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-                return resourceManager;
-        }
+	public String getResourceManagerURL(String clusterName) {
+	    return TestSession.getResourceManagerURL(clusterName);
+	}
 
 	public String about(String clusterName) {
 		HTTPHandle httpHandle = new HTTPHandle();
 		String resource = "/cluster/cluster";
-		logger.info("Resource Manager URL read as"
-				+ crossClusterProperties.getProperty(clusterName.toLowerCase() + "."
-						+ HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-		String resourceManager = crossClusterProperties.getProperty(clusterName
-				+ "." + HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
-		HttpMethod getMethod = httpHandle.makeGET(resourceManager, resource,
-				null);
+		String rmURL = getResourceManagerURL(clusterName);
+		HttpMethod getMethod = httpHandle.makeGET(rmURL, resource, null);
 		Response response = new Response(getMethod, false);
 		return response.getResponseBodyAsString();
 	}
@@ -72,7 +62,8 @@ public class ResourceManagerHttpUtils {
 				break;
 			}
 		}
-		logger.info("Returning version line as[" + lineContainingVersion.trim() + "]");
+		logger.info("Returning version line for cluster " + clusterName +
+		        " : [" + lineContainingVersion.trim() + "]");
 		lineContainingVersion = lineContainingVersion.trim();
 		return lineContainingVersion.split("\\s+")[0];
 	}

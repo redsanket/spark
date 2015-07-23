@@ -83,9 +83,7 @@ public class TestWebHdfsApi extends DfsTestsBaseClass {
 		}
 
 		this.schema = HadooptestConstants.Schema.WEBHDFS;
-		this.nameNode = crossClusterProperties.getProperty(cluster
-				.toLowerCase() + "." + HadooptestConstants.NodeTypes.NAMENODE);
-		;
+        this.nameNode = TestSession.getNamenodeURL(cluster);
 		logger.info("Invoked test for:[" + cluster + "] Scheme:[" + schema
 				+ "] NodeName:[" + nameNode + "]");
 		
