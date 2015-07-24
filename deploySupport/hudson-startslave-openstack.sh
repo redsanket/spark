@@ -27,8 +27,14 @@ cd deploySupport
 export HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon gridjdk64 gridjdk"
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 
-if [ ! -z "$HADOOP_RELEASE_TAG" ]
+if [ -n "$HADOOP_RELEASE_TAG" ]
 then
+    # Check if dist_tag is valid. If not, exit.
+    DIST_TAG_LIST=`dist_tag list $HADOOP_RELEASE_TAG`
+    if [[ $? != "0" ]];then
+	echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Existing!!!"
+	exit 1;
+    fi
     export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
     for i in $HADOOP_CORE_PKGS
     do
@@ -42,8 +48,12 @@ then
     done
     export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
     export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
-    export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
-    export FULLHADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG | grep hadoopcoretree | cut -f2,3 -d'-'`
+    export FULLHADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2`
+    if [ -z "$FULLHADOOPVERSION" ]; then
+        echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
+        exit 1
+    fi
+    export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
     then
@@ -111,6 +121,8 @@ echo ===
 echo ===
 echo ===
 echo ===  New Dist Tag: $NEW_DIST_TAG
+echo ===  Dist Tag: $HADOOP_RELEASE_TAG
+echo ===  Hadoop Version: $FULLHADOOPVERSION
 echo ===  Requested to install $HADOOP_INSTALL_STRING
 echo ===  Requested configs: $HADOOP_CONFIG_INSTALL_STRING
 echo ===  Requested MVN pkgs: $HADOOP_MVN_INSTALL_STRING
@@ -211,6 +223,8 @@ done
 ## HIT test pkg
 
 set -e
+export BUILD_DESC="Deploy to $CLUSTER $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
+echo "$BUILD_DESC"
 
 export DATESTRING=`date +%y%m%d%H%M`
 sh yinstify.sh  -v 0.0.1.${CLUSTER}.$DATESTRING
