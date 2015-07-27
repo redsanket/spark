@@ -100,7 +100,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     testDistCacheIntegration("u:"+conf.getProperty("USER")+":rwa");
   }
 
-  //@Test(timeout=240000)
+  @Test(timeout=240000)
   public void testDistCacheInvalidAcl() throws Exception {
     Boolean didItFail = false;
     testDistCacheIntegration("u:bogus:rwa", true, true);
