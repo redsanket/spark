@@ -46,7 +46,7 @@
         <scala.version>2.10.3</scala.version>
         <storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
         <storm.version.community>0.9.2-incubating-security</storm.version.community>
-        <storm.version.release>352</storm.version.release>
+        <storm.version.release>501</storm.version.release>
         <jetty.version>9.1.4.v20140401</jetty.version>
         <jetty.version.release>65</jetty.version.release>
         <thread.count>8</thread.count>
