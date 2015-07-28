@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
@@ -71,9 +73,23 @@ public class TestStormKafkaBolt extends TestSessionStorm {
         topic = uuid.toString();
         LOG.info("Topic: " + topic);
         LOG.info("LAUNCHED ZOOKEEPER");
-        String[] returnTopicValue = exec.runProcBuilder(new String[]{pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
-                zookeeperHostPort, "--replication-factor", "1", "--partitions", "1", "--topic", topic}, true);
+        // for secure kafka you have to create the topic as the super user.
+        kinit(conf.getProperty("KAFKA_KEYTAB"), conf.getProperty("KAFKA_PRINCIPAL") );
+        Map<String, String> newEnv = new HashMap<String, String>();
+        newEnv.put("KAFKA_KERBEROS_PARAMS", "-Djava.security.auth.login.config=" + conf.getProperty("KAFKA_CLIENT_JAAS"));
+        String[] returnTopicValue = exec.runProcBuilder(new String[]{
+                pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
+                zookeeperHostPort, "--replication-factor", "1", "--partitions", "1", "--topic", topic}, newEnv, true);
         assertTrue("Could not create topic for consuming", returnTopicValue[0].equals("0"));
+        String user = conf.getProperty("USER"); 
+        String byUser = mc.getBouncerUser();
+        String[] returnAclValue = exec.runProcBuilder(new String[]{
+                pathToScripts + "kafka-acl.sh", "--topic", topic, "--add", "--operations", "WRITE,READ", 
+                "--allowprincipals", "user:" + user + ",user:" + byUser,
+                "--config", pathToScripts + "/../config/server.properties"},
+                newEnv, true);
+        assertTrue("Could not set acls", returnAclValue[0].equals("0"));
+        kinit();
     }
 
     public void launchKafkaBoltTopology() throws Exception {
@@ -87,11 +103,13 @@ public class TestStormKafkaBolt extends TestSessionStorm {
     public boolean kafkaConsumer() throws Exception {
         String[] serverDetails = brokerHostPortInfo.split(":");
         LOG.info("server details" + serverDetails[0] + " " + serverDetails[1]);
+        System.setProperty("java.security.auth.login.config", conf.getProperty("KAFKA_CLIENT_JAAS"));
         SimpleConsumer simpleConsumer = new SimpleConsumer(serverDetails[0],
                 Integer.parseInt(serverDetails[1]),
                 connectionTimeOut,
                 kafkaProducerBufferSize,
-                clientId);
+                clientId,
+                "PLAINTEXTSASL");
 
         System.out.println("Testing single fetch");
         FetchRequest req = new FetchRequestBuilder()
@@ -117,9 +135,14 @@ public class TestStormKafkaBolt extends TestSessionStorm {
             LOG.info("Starting simple consumer to consume the messages");
             assertTrue("No relevant messages found in the server", kafkaConsumer());
         } finally {
-            String[] returnTopicValue = exec.runProcBuilder(new String[]{pathToScripts + "kafka-topics.sh", "--zookeeper",
-                    zookeeperHostPort, "--delete", "--topic", topic}, true);
+            kinit(conf.getProperty("KAFKA_KEYTAB"), conf.getProperty("KAFKA_PRINCIPAL") );
+            Map<String, String> newEnv = new HashMap<String, String>();
+            newEnv.put("KAFKA_KERBEROS_PARAMS", "-Djava.security.auth.login.config=" + conf.getProperty("KAFKA_CLIENT_JAAS"));
+            String[] returnTopicValue = exec.runProcBuilder(new String[]{
+                    pathToScripts + "kafka-topics.sh", "--zookeeper",
+                    zookeeperHostPort, "--delete", "--topic", topic}, newEnv, true);
             assertTrue("Could not delete topic", returnTopicValue[0].equals("0"));
+            kinit();
         }
     }
 }
