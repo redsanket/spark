@@ -17,6 +17,8 @@ import java.nio.charset.Charset;
 import java.security.PrivilegedExceptionAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,6 +78,7 @@ public class WorkFlowHelper {
 	private static final String RUNNING = "running";
 	private static final String COMPLETE_STEPS = "COMPLETE_STEPS";
 	private static final String LAST_STEP = "LAST_STEP";
+	private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
 	
 	private HTTPHandle httpHandle;
 	private String cookie;
@@ -1074,5 +1077,48 @@ public class WorkFlowHelper {
 			TestSession.logger.info("log = " + output);
 		}
 		return output;
+	}
+	
+	/**
+	 * return the hostname of the specified facet
+	 * @return
+	 */
+	public String getFacetHostNameForStaging(String facetName) {
+		String tempConsoleHostName = Arrays.asList(this.consoleHandle.getConsoleURL().split(":")).get(1);
+		String consoleHostName = tempConsoleHostName.replaceAll("//", "");
+		String command = "ssh " + consoleHostName + "  " + "yinst set | grep " + facetName + "_end_point" ;
+		String output = this.executeCommand(command);
+		TestSession.logger.info("output = " + output);
+		String path = Arrays.asList(output.split(" ")).get(1).trim();
+		TestSession.logger.info("facet hostname = " + path);
+		return path;
+	}
+	
+	/**
+	 * Return the datapath of the specified dataset on the datasource
+	 * @param dataSourceName
+	 * @param dataSetName
+	 * @return
+	 */
+	public List<String> getInstanceFileAfterWorkflow(String dataSourceName , String dataSetName) {
+		JSONArray jsonArray = null;
+		List<String> dataPath = new ArrayList<String>();
+		String testURL = this.consoleHandle.getConsoleURL() + this.HADOOP_LS_PATH + dataSourceName + "&dataSet=" + dataSetName + "&format=json";
+		TestSession.logger.info("Test url = " + testURL);
+		com.jayway.restassured.response.Response res = given().cookie(this.cookie).get(testURL);
+		assertTrue("Failed to get the respons  " + res , (res != null ) );
+		jsonArray = this.consoleHandle.convertResponseToJSONArray(res , "Files");
+		if ( jsonArray.size() > 0 ) {
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject dSObject = (JSONObject) iterator.next();
+				String  directory = dSObject.getString("Directory");
+				if (directory.equals("yes")) {
+					String path = dSObject.getString("Path");
+					dataPath.add(path);
+				}
+			}
+		}
+		return dataPath;
 	}
 }
