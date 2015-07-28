@@ -33,6 +33,7 @@ public class StormKafkaOpaqueTridentTopology {
         BrokerHosts hosts = new ZkHosts(zookeeperHostPortInfo);
         TridentKafkaConfig spoutConf = new TridentKafkaConfig(hosts, topic, "OpaqueTridentKafkaSpout");
         spoutConf.forceFromStart = true;
+        spoutConf.securityProtocol = "PLAINTEXTSASL";
         spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
 
         OpaqueTridentKafkaSpout spout = new OpaqueTridentKafkaSpout(spoutConf);
