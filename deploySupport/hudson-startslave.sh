@@ -230,7 +230,18 @@ done
 [ -z "$HADOOPCORE_TEST_PKG" ] && export HADOOPCORE_TEST_PKG=none
 ## HIT test pkg
 
+#################################################################################
+# The 'set -e' option will cause the script to terminate immediately on error.
+# The intent is to exit when the first build errors occurs.
+# We do want to trap the error so it can be handle more gracefully, and provide
+# information on the origination of the error.
+#################################################################################
 set -e
+function error_handler {
+   LASTLINE="$1"
+   echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
+}
+trap 'error_handler ${LINENO}' ERR
 
 export DATESTRING=`date +%y%m%d%H%M`
 sh yinstify.sh  -v 0.0.1.${CLUSTER}.$DATESTRING
@@ -245,7 +256,8 @@ ssh $ADMIN_HOST "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLU
 # echo "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist "
 # echo "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
 # echo 'finalstatus=$?'
-# echo 'echo finalstatus=$finalstaut'
+# echo 'echo finalstatus=$finalstatus'
+# echo 'exit $finalstatus'
 # )| ssh $ADMIN_HOST
 
 st=$?
