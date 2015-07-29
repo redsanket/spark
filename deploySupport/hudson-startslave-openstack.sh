@@ -246,15 +246,15 @@ filelist=`ls  *.${CLUSTER}.*.tgz`
 
 scp $filelist  $ADMIN_HOST:/tmp/
 (
-echo "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist "
-echo "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
+echo "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist -set root.propagate_start_failures=1 "
+echo "/usr/local/bin/yinst start -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING hadoopgridrollout"
 echo 'finalstatus=$?'
 echo 'echo finalstatus=$finalstatus'
 echo 'exit $finalstatus'
 )| ssh $ADMIN_HOST
 
 st=$?
-echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout status: $st"
+echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING hadoopgridrollout status: $st"
 
 if [ "$st" -ne 0 ]
 then
