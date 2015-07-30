@@ -144,7 +144,7 @@ public class TestDiscoveryPathSpecifiedAfterDateWithExtraStringSpecified extends
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", this.dataSetName);
 		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_DATA_PATH", this.getReplicationPath());
 		dataSetXml = dataSetXml.replaceAll("<Path location=\"REPLICATION_SOURCE_SCHEMA_PATH\" type=\"schema\"/>", "");
-		dataSetXml = dataSetXml.replaceAll(" <Path location=\"REPLICATION_SOURCE_COUNT_PATH\" type=\"count\"/>", "");
+		dataSetXml = dataSetXml.replaceAll("<Path location=\"REPLICATION_SOURCE_COUNT_PATH\" type=\"count\"/>", "");
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", this.getCustomPath());
 		dataSetXml = dataSetXml.replaceAll("<Path location=\"CUSTOM_COUNT_PATH\" type=\"count\"/>", "");
 		dataSetXml = dataSetXml.replaceAll("<Path location=\"CUSTOM_SCHEMA_PATH\" type=\"schema\"/>", "");
