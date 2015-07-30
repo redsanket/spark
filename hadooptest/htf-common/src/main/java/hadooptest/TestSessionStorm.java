@@ -415,18 +415,60 @@ public abstract class TestSessionStorm extends TestSessionCore {
       logger.info("Cookie = " + client.YBYCookie);
       assertNotNull("Cookie is null", client.YBYCookie);
       ArrayList<String> uiNodes = mc.lookupRole(StormDaemon.UI);
-      logger.debug("Will be connecting to UI at " + uiNodes.get(0));
+      logger.info("Will be connecting to UI at " + uiNodes.get(0));
       port = Integer.parseInt((String)mc.getConf("ystorm.ui_port", StormDaemon.UI));
       String uiURL = "http://" + uiNodes.get(0) + ":" + port + "/api/v1/supervisor/summary";
       HttpMethod getMethod = client.makeGET(uiURL, new String(""), null);
       Response response = new Response(getMethod);
+      logger.info("******* OUTPUT = " + response.getResponseBodyAsString());
       JSONObject obj = response.getJsonObject();
       JSONArray supervisorsUptimeDetails = obj.getJSONArray("supervisors");
-      logger.debug("******* OUTPUT = " + response.getResponseBodyAsString());
       return supervisorsUptimeDetails;
     }
     
     protected void kinit() throws Exception {
         kinit(conf.getProperty("DEFAULT_KEYTAB"), conf.getProperty("DEFAULT_PRINCIPAL") );
+    }
+
+    public boolean convertAndCheckUptime(String beforeTopoLaunchUptime, String afterTopoLaunchUptime) {
+        String[] btlu = beforeTopoLaunchUptime.split(" ");
+        String[] atlu = afterTopoLaunchUptime.split(" ");
+        int[] seconds_weight = {86400,3600,60,1};
+        int seconds_length = seconds_weight.length;
+        int uptimeBeforeLaunch = 0;
+        int uptimeAfterLaunch = 0;
+        for (int i = btlu.length-1; i > -1; i--) {
+            uptimeBeforeLaunch += Integer.parseInt(btlu[i].substring(0, btlu[i].length()-1)) * seconds_weight[--seconds_length];
+        }
+        seconds_length = seconds_weight.length;
+        for (int i = atlu.length-1; i > -1; i--) {
+            uptimeAfterLaunch += Integer.parseInt(atlu[i].substring(0, atlu[i].length()-1)) * seconds_weight[--seconds_length];
+        }
+        return uptimeAfterLaunch < uptimeBeforeLaunch;
+    }
+
+    public boolean checkForSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch) {
+        if (supervisorsUptimeBeforeTopoLaunch.size() > supervisorsUptimeAfterTopoLaunch.size())
+            return false;
+
+        for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
+            if (convertAndCheckUptime((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
+                (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean checkForSupervisorCrash(int sleepTime) throws Exception{
+        JSONArray supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
+        Util.sleep(sleepTime);
+        JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
+        return checkForSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch);
+    }
+
+
+    public boolean checkForSupervisorCrash() throws Exception {
+        return checkForSupervisorCrash(30);
     }
 }
