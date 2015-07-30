@@ -102,7 +102,6 @@ public class TestStormDistCacheApi extends TestSessionStorm {
 
   @Test(timeout=240000)
   public void testDistCacheInvalidAcl() throws Exception {
-    Boolean didItFail = false;
     testDistCacheIntegration("u:bogus:rwa", true, true);
   }
 
@@ -221,6 +220,26 @@ public class TestStormDistCacheApi extends TestSessionStorm {
         // Wait for it to come up
         Util.sleep(30);
 
+        // Make sure topology is up
+        if (expectFailure) {
+            Boolean failed = false;
+            try {
+                // Really wait for it to come up.
+                Util.sleep(30);
+
+                // If we can't get the log, then let's flag that an error.
+                String log=getLogForTopology("blob");
+                logger.info("Got log=" + log);
+                failed = (log.contains("Page not found"));
+            } catch (Exception il) {
+                failed = true;
+            } finally {
+                killAll();
+            }
+            assertTrue("Did not get expected failure", failed);
+            return;
+        }
+ 
         // Hit it with drpc function
         String drpcResult = cluster.DRPCExecute( "blobstore", fileName );
         logger.debug("drpc result = " + drpcResult);
