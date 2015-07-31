@@ -149,7 +149,7 @@ public class TestCreateSizeLimitAlert extends TestSession {
 			String alterTypeName = AlertEventsObj.getString("name").trim();	
 			assertTrue("Expected alter name to be size-limit, but got  " + alterTypeName , alterTypeName.equals("size-limit"));
 			String longDescription = AlertEventsObj.getString("longDescription").trim();
-			assertTrue("Expected longDescription to contain " + this.dataSetName + "  but got  " +longDescription   , longDescription.contains(dataSetName));
+			assertTrue("Expected longDescription to contain " + this.dataSetName + "  but got  " + longDescription   , longDescription.indexOf(dataSetName) > 0);
 		}
 	}
 
