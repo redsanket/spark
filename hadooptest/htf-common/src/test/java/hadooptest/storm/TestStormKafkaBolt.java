@@ -95,8 +95,16 @@ public class TestStormKafkaBolt extends TestSessionStorm {
     public void launchKafkaBoltTopology() throws Exception {
         String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
         String byUser = mc.getBouncerUser();
-        String[] returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, "hadooptest.topologies.StormKafkaBoltTopology", topologyName, topic, brokerHostPortInfo, "-c",
-                "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]"}, true);
+        String[] returnValue = null;
+
+        if (conf.getProperty("KAFKA_AUTO_JAAS") != null && conf.getProperty("KAFKA_AUTO_JAAS").length() > 0) {
+            returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, "hadooptest.topologies.StormKafkaBoltTopology", topologyName, topic, brokerHostPortInfo, "-c",
+                    "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]",
+                    "-c", "topology.worker.childopts=\"-Djava.security.auth.login.config="+conf.getProperty("KAFKA_AUTO_JAAS")+"\""}, true);
+        } else {
+            returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, "hadooptest.topologies.StormKafkaBoltTopology", topologyName, topic, brokerHostPortInfo, "-c",
+                    "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]"}, true);
+        }
         assertTrue("Problem running Storm jar command", returnValue[0].equals("0"));
     }
 
