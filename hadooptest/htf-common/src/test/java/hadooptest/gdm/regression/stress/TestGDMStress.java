@@ -228,12 +228,12 @@ public class TestGDMStress extends TestSession {
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_NAME", dsName);
 		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_DATA_PATH", "/data/daqdev/" + this.stressTestingInitObj.getDataSourcePath() + "/%{date}");
-		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_COUNT_PATH", "" );
-		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_SCHEMA_PATH", "");
+		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_COUNT_PATH", "/data/daqdev/" + this.stressTestingInitObj.getDataSourcePath() + "/%{date}" );
+		dataSetXml = dataSetXml.replaceAll("REPLICATION_SOURCE_SCHEMA_PATH", "/data/daqdev/" + this.stressTestingInitObj.getDataSourcePath() + "/%{date}" );
 		dataSetXml = dataSetXml.replaceAll("HCAT_TABLE_PROPAGATION", "false");
 		dataSetXml = dataSetXml.replaceAll("CUSTOM_DATA_PATH", this.getCustomPath("data" , dsName));
-		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", "");
-		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", "");
+		dataSetXml = dataSetXml.replaceAll("CUSTOM_SCHEMA_PATH", this.getCustomPath("data" , dsName));
+		dataSetXml = dataSetXml.replaceAll("CUSTOM_COUNT_PATH", this.getCustomPath("data" , dsName));
 		dataSetXml = dataSetXml.replaceAll("20130725", this.startDate);
 		dataSetXml = dataSetXml.replaceAll("20220131", this.endDate);
 		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", "gdm");
