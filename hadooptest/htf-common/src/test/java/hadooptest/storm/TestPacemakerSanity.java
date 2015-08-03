@@ -53,7 +53,7 @@ public class TestPacemakerSanity extends TestSessionStorm {
     @Test(timeout = 600000)
     public void sanityTest() throws Exception {
         // Test and make sure supervisors are alive
-        //checkForSupervisorCrash();
+        assertTrue("Supervisor did not stay up", checkForSupervisorCrash());
 
         try {
             // Now Launch topology, test topology, kill topology
