@@ -47,6 +47,8 @@ public class TestDSDDiscoveryWithCustomPaths  extends TestSession {
 	private static final String EXTARA_PATH_BEFORE_DSD_SRC = "DSDExtraPathBeforeSRCID";
 	private static int SUCCESS = 200;
 	private static final String customPathString = "<Paths><Path location=\"CUSTOM_COUNT_PATH\" type=\"count\"/><Path location=\"CUSTOM_DATA_PATH\" type=\"data\"/><Path location=\"CUSTOM_SCHEMA_PATH\" type=\"schema\"/></Paths>";
+	private static final String FIRST_DSD_VALUE = "1780";
+	private static final String SECOND_DSD_VALUE = "23440";
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -110,7 +112,7 @@ public class TestDSDDiscoveryWithCustomPaths  extends TestSession {
 		// check whether path exists
 		for ( String pathValue : pathList) {
 			
-			if (pathValue.contains("1780")) {
+			if (pathValue.indexOf(FIRST_DSD_VALUE) > 0) {
 				if (testScenarioNo == 1) {
 					assertTrue("Expected that path's subdirectory to "+ EXTRA_PATH_AFTER_DATE + " , but got " + pathValue ,  pathValue.indexOf(EXTRA_PATH_AFTER_DATE) > 0);
 				} else if (testScenarioNo == 2) {
@@ -120,7 +122,7 @@ public class TestDSDDiscoveryWithCustomPaths  extends TestSession {
 				} else if (testScenarioNo == 4) {
 					assertTrue("Expected that path's subdirectory to "+ EXTARA_PATH_BEFORE_DSD_SRC + " , but got " + pathValue ,  pathValue.indexOf(EXTARA_PATH_BEFORE_DSD_SRC) > 0);
 				}
-			} else if (pathValue.contains("23440")) {
+			} else if (pathValue.indexOf(SECOND_DSD_VALUE) > 0) {
 				if (testScenarioNo == 1) {
 					assertTrue("Expected that path's subdirectory to "+ EXTRA_PATH_AFTER_DATE + " , but got " + pathValue ,  pathValue.indexOf(EXTRA_PATH_AFTER_DATE) > 0);
 				} else if (testScenarioNo == 2) {
@@ -198,7 +200,7 @@ public class TestDSDDiscoveryWithCustomPaths  extends TestSession {
 	private String getCustomPath(String pathType , String dataSet  , int testScenarioNo) {
 		if (testScenarioNo == 1) {
 			return  "/data/daqdev/"+ pathType +"/"+ dataSet + "/%{srcid}/%{date}" + EXTRA_PATH_AFTER_DATE; 
-		} else if (testScenarioNo == 1)  {
+		} else if (testScenarioNo == 2)  {
 			return  "/data/daqdev/"+ pathType +"/"+ dataSet + "/%{srcid}/"+ EXTRA_PATH_BEFORE_DATE  + "%{date}";
 		}  else if(testScenarioNo == 3)  {
 			return  "/data/daqdev/"+ pathType +"/"+ dataSet + "/%{srcid}"+ EXTARA_PATH_AFTER_DSD_SRC + "/%{date}";
