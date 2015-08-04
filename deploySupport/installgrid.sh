@@ -118,6 +118,12 @@ echo MAPREDUSER = $MAPREDUSER
 
 export TIMESTAMP=$DATESTRING
 
+function error_handler {
+   LASTLINE="$1"
+   echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
+}
+trap 'error_handler ${LINENO}' ERR
+
 base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
 if [ -f ${base}/cluster-list.sh ]
 then
@@ -242,7 +248,7 @@ if [[ "${INSTALL_TEZ}" == only ]]; then
     st=$?
     echo "Running $f Status: $st"
     if [ "$EXIT_ON_ERROR" = "true" ]; then
-        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running and exit '" $f "' <<<<<<<<<<" && exit $st
+        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $f "': Exit $st <<<<<<<<<<" && exit $st
     else
        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $f "' <<<<<<<<<<"
     fi
