@@ -430,45 +430,59 @@ public abstract class TestSessionStorm extends TestSessionCore {
         kinit(conf.getProperty("DEFAULT_KEYTAB"), conf.getProperty("DEFAULT_PRINCIPAL") );
     }
 
-    public boolean convertAndCheckUptime(String beforeTopoLaunchUptime, String afterTopoLaunchUptime) {
-        String[] btlu = beforeTopoLaunchUptime.split(" ");
-        String[] atlu = afterTopoLaunchUptime.split(" ");
+    /*
+     * convertStringTimeToSeconds:  Converts a string of the format d h m s to seconds
+     */
+    public int convertStringTimeToSeconds(String timeString) {
+        int returnValue = 0;
+
+        String[] times = timeString.split(" ");
         int[] seconds_weight = {86400,3600,60,1};
         int seconds_length = seconds_weight.length;
-        int uptimeBeforeLaunch = 0;
-        int uptimeAfterLaunch = 0;
-        for (int i = btlu.length-1; i > -1; i--) {
-            uptimeBeforeLaunch += Integer.parseInt(btlu[i].substring(0, btlu[i].length()-1)) * seconds_weight[--seconds_length];
+        for (int i = times.length-1; i > -1; i--) {
+            returnValue += Integer.parseInt(times[i].substring(0, times[i].length()-1)) * seconds_weight[--seconds_length];
         }
-        seconds_length = seconds_weight.length;
-        for (int i = atlu.length-1; i > -1; i--) {
-            uptimeAfterLaunch += Integer.parseInt(atlu[i].substring(0, atlu[i].length()-1)) * seconds_weight[--seconds_length];
-        }
-        return uptimeAfterLaunch < uptimeBeforeLaunch;
+
+        return returnValue;
     }
 
-    public boolean checkForSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch) {
-        if (supervisorsUptimeBeforeTopoLaunch.size() > supervisorsUptimeAfterTopoLaunch.size())
-            return false;
+    /*
+     * isTimeGreater  Did we not stay up for at least sleepTime?
+     */
+    public boolean isTimeGreater(String beforeUptime, String afterUptime, int sleepTime) {
+        int beforeSeconds = convertStringTimeToSeconds(beforeUptime);
+        int afterSeconds = convertStringTimeToSeconds(afterUptime);
+
+        return (beforeSeconds + sleepTime) > afterSeconds;
+    }
+
+    public boolean didSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch, int sleepTime) {
+        if (supervisorsUptimeBeforeTopoLaunch.size() != supervisorsUptimeAfterTopoLaunch.size()) {
+            return true;
+        }
 
         for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
-            if (convertAndCheckUptime((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
-                (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"))) {
-                return false;
+            if (isTimeGreater((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
+                (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"), sleepTime)) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
-    public boolean checkForSupervisorCrash(int sleepTime) throws Exception{
+    public boolean didSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch) {
+        return didSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch, 0);
+    }
+
+    public boolean didSupervisorCrash(int sleepTime) throws Exception{
         JSONArray supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
         Util.sleep(sleepTime);
         JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
-        return checkForSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch);
+        return didSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch, sleepTime);
     }
 
 
-    public boolean checkForSupervisorCrash() throws Exception {
-        return checkForSupervisorCrash(30);
+    public boolean didSupervisorCrash() throws Exception {
+        return didSupervisorCrash(30);
     }
 }

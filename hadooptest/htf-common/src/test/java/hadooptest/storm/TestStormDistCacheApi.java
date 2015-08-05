@@ -148,7 +148,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
       JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
 
       // Test for supervisors not crashing
-      assertTrue("Supervisor Crashed", checkForSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch));
+      assertTrue("Supervisor Crashed", !didSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch, 30));
 
     } finally {
       killAll();

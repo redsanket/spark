@@ -224,7 +224,7 @@ public abstract class StormCluster {
     }
 
     /**
-     * Lookup the Registry node for a cluster.
+     * Lookup the Pacemaker node for a cluster.
      * 
      * @return ArrayList<String> the Pacemaker nodes.
      * 
