@@ -222,6 +222,19 @@ public abstract class StormCluster {
             throws Exception {
         return lookupYamlRole(StormDaemon.REGISTRY);
     }
+
+    /**
+     * Lookup the Pacemaker node for a cluster.
+     * 
+     * @return ArrayList<String> the Pacemaker nodes.
+     * 
+     * @throws Exception
+     */
+    public static ArrayList<String> lookupYamlClusterRolePacemaker() 
+            throws Exception {
+        return lookupYamlRole(StormDaemon.PACEMAKER);
+    }
+    
     
     /**
      * Lookup the Supervisor node for a cluster.

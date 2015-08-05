@@ -415,18 +415,74 @@ public abstract class TestSessionStorm extends TestSessionCore {
       logger.info("Cookie = " + client.YBYCookie);
       assertNotNull("Cookie is null", client.YBYCookie);
       ArrayList<String> uiNodes = mc.lookupRole(StormDaemon.UI);
-      logger.debug("Will be connecting to UI at " + uiNodes.get(0));
+      logger.info("Will be connecting to UI at " + uiNodes.get(0));
       port = Integer.parseInt((String)mc.getConf("ystorm.ui_port", StormDaemon.UI));
       String uiURL = "http://" + uiNodes.get(0) + ":" + port + "/api/v1/supervisor/summary";
       HttpMethod getMethod = client.makeGET(uiURL, new String(""), null);
       Response response = new Response(getMethod);
+      logger.info("******* OUTPUT = " + response.getResponseBodyAsString());
       JSONObject obj = response.getJsonObject();
       JSONArray supervisorsUptimeDetails = obj.getJSONArray("supervisors");
-      logger.debug("******* OUTPUT = " + response.getResponseBodyAsString());
       return supervisorsUptimeDetails;
     }
     
     protected void kinit() throws Exception {
         kinit(conf.getProperty("DEFAULT_KEYTAB"), conf.getProperty("DEFAULT_PRINCIPAL") );
+    }
+
+    /*
+     * convertStringTimeToSeconds:  Converts a string of the format d h m s to seconds
+     */
+    public int convertStringTimeToSeconds(String timeString) {
+        int returnValue = 0;
+
+        String[] times = timeString.split(" ");
+        int[] seconds_weight = {86400,3600,60,1};
+        int seconds_length = seconds_weight.length;
+        for (int i = times.length-1; i > -1; i--) {
+            returnValue += Integer.parseInt(times[i].substring(0, times[i].length()-1)) * seconds_weight[--seconds_length];
+        }
+
+        return returnValue;
+    }
+
+    /*
+     * isTimeGreater  Did we not stay up for at least sleepTime?
+     */
+    public boolean isTimeGreater(String beforeUptime, String afterUptime, int sleepTime) {
+        int beforeSeconds = convertStringTimeToSeconds(beforeUptime);
+        int afterSeconds = convertStringTimeToSeconds(afterUptime);
+
+        return (beforeSeconds + sleepTime) > afterSeconds;
+    }
+
+    public boolean didSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch, int sleepTime) {
+        if (supervisorsUptimeBeforeTopoLaunch.size() != supervisorsUptimeAfterTopoLaunch.size()) {
+            return true;
+        }
+
+        for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
+            if (isTimeGreater((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
+                (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"), sleepTime)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean didSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch) {
+        return didSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch, 0);
+    }
+
+    public boolean didSupervisorCrash(int sleepTime) throws Exception{
+        JSONArray supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
+        Util.sleep(sleepTime);
+        JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
+        return didSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch, sleepTime);
+    }
+
+
+    public boolean didSupervisorCrash() throws Exception {
+        return didSupervisorCrash(30);
     }
 }

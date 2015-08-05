@@ -119,36 +119,6 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     testDistCacheForSupervisorCrash("u:"+conf.getProperty("USER")+":rwa", false);
   }
 
-  public boolean convertAndCheckUptime(String beforeTopoLaunchUptime, String afterTopoLaunchUptime) {
-    String[] btlu = beforeTopoLaunchUptime.split(" ");
-    String[] atlu = afterTopoLaunchUptime.split(" ");
-    int[] seconds_weight = {86400,3600,60,1};
-    int seconds_length = seconds_weight.length;
-    int uptimeBeforeLaunch = 0;
-    int uptimeAfterLaunch = 0;
-    for (int i = btlu.length-1; i > -1; i--) {
-      uptimeBeforeLaunch += Integer.parseInt(btlu[i].substring(0, btlu[i].length()-1)) * seconds_weight[--seconds_length];
-    }
-    seconds_length = seconds_weight.length;
-    for (int i = atlu.length-1; i > -1; i--) {
-      uptimeAfterLaunch += Integer.parseInt(atlu[i].substring(0, atlu[i].length()-1)) * seconds_weight[--seconds_length];
-    }
-    return uptimeAfterLaunch < uptimeBeforeLaunch;
-  }
-
-  public boolean checkForSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch) {
-    if (supervisorsUptimeBeforeTopoLaunch.size() > supervisorsUptimeAfterTopoLaunch.size())
-      return false;
-
-    for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
-      if (convertAndCheckUptime((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
-              (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   public void testDistCacheForSupervisorCrash(String blobACLs, boolean changeUser) throws Exception {
     UUID uuid = UUID.randomUUID();
     String blobKey = uuid.toString() + ".jar";
@@ -178,7 +148,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
       JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
 
       // Test for supervisors not crashing
-      assertTrue("Supervisor Crashed", checkForSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch));
+      assertTrue("Supervisor Crashed", !didSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch, 30));
 
     } finally {
       killAll();
