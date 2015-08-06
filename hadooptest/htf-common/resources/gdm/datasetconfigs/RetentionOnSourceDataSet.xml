@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog"
+    description="test gdm retention on datasource"
+    name="NEW_DATA_SET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>GDM dataset for retention on datasource </Comments>
+    <UGI group="users" permission="755"/>
+    <RunAsOwner/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>80</DiscoveryFrequency>
+    <DiscoveryInterface>HCAT</DiscoveryInterface>
+    <SmallestExpectedInstanceSize/>
+    <LargestExpectedInstanceSize/>
+    <Paths>
+        <Path
+            location="CUSTOM_DATA_PATH" type="data"/>
+        <Path
+            location="CUSTOM_COUNT_PATH" type="count"/>
+        <Path
+            location="CUSTOM_SCHEMA_PATH" type="schema"/>
+    </Paths>
+      <Parameters>
+        <attribute value='FEED_NAME' name='feed'></attribute>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="bucket" value="0-998"/>
+        <attribute name="statsfeed" value='FEED_STATS' />
+        <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="retentionPeriod" value="390"/>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>mrkt_sid</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720" name="TARGET1" switchovertype="Standard">
+            <DateRange end="20220131" start="20130725"/>
+            <HCatSourceRetention>TRUE</HCatSourceRetention>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 0" type="retention"/>
+            </Policies>
+        </Source>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="1440" name="TARGET2">
+            <DateRange>
+                <EndDate type="Fixed"/>
+                <StartDate type="Fixed"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Policies>
+                <Policy
+                    condition="instanceDate(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+    </Targets>
+    <HCat>
+        <HCatDatabaseName>gdm</HCatDatabaseName>
+        <HCatForceExternalTables>FALSE</HCatForceExternalTables>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatRunTargetFilter>FALSE</HCatRunTargetFilter>
+        <HCatTableName>HCAT_TABLE_NAME</HCatTableName>
+        <HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>
+    </HCat>
+    <SelfServe>
+        <RequireGroupAdmin>FALSE</RequireGroupAdmin>
+        <SelfServeEnabled>FALSE</SelfServeEnabled>
+        <UseOpsdbGroup>FALSE</UseOpsdbGroup>
+    </SelfServe>
+   <!--  <ExtendedState>
+        <History>Last edited by lawkp (2015/8/6 20:13:22)</History>
+    </ExtendedState> -->
+    <Project/>
+    <Tags/>
+    <SchemaVersion>3</SchemaVersion>
+</DataSet>
