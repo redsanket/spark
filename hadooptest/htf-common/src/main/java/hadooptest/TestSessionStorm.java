@@ -453,17 +453,24 @@ public abstract class TestSessionStorm extends TestSessionCore {
         int beforeSeconds = convertStringTimeToSeconds(beforeUptime);
         int afterSeconds = convertStringTimeToSeconds(afterUptime);
 
+        logger.info("beforeSeconds=" + Integer.toString(beforeSeconds));
+        logger.info("afterSeconds=" + Integer.toString(afterSeconds));
+        logger.info("sleepTime=" + Integer.toString(sleepTime));
+
         return (beforeSeconds + sleepTime) > afterSeconds;
     }
 
     public boolean didSupervisorCrash(JSONArray supervisorsUptimeBeforeTopoLaunch, JSONArray supervisorsUptimeAfterTopoLaunch, int sleepTime) {
         if (supervisorsUptimeBeforeTopoLaunch.size() != supervisorsUptimeAfterTopoLaunch.size()) {
+            logger.warn("Number of supervisors did not match. " + "Before = " + Integer.toString(supervisorsUptimeBeforeTopoLaunch.size()) +
+                " After " + Integer.toString(supervisorsUptimeAfterTopoLaunch.size()));
             return true;
         }
 
         for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
             if (isTimeGreater((String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"),
                 (String) supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"), sleepTime)) {
+                logger.warn("Failed time check.");
                 return true;
             }
         }

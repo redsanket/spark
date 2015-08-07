@@ -136,21 +136,31 @@ public class TestStormDistCacheApi extends TestSessionStorm {
       kinit();
     }
 
+    JSONArray supervisorsUptimeBeforeTopoLaunch = null;
+    JSONArray supervisorsUptimeAfterTopoLaunch = null;
+
     try {
       // Launch a topology that will read a local file we give it over drpc
       logger.info("About to launch topology");
 
       HTTPHandle client = bouncerAuthentication();
-      JSONArray supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
+      supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
       launchBlobStoreTopology(blobKey, fileName);
       // Wait for it to come up
       Util.sleep(30);
-      JSONArray supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
+      supervisorsUptimeAfterTopoLaunch = getSupervisorsUptime();
 
       // Test for supervisors not crashing
       assertTrue("Supervisor Crashed", !didSupervisorCrash(supervisorsUptimeBeforeTopoLaunch, supervisorsUptimeAfterTopoLaunch, 30));
 
     } finally {
+      if ( supervisorsUptimeBeforeTopoLaunch != null && supervisorsUptimeAfterTopoLaunch != null ) {
+        // If we got supervisor uptimes, print them out.
+        for (int i=0; i<supervisorsUptimeBeforeTopoLaunch.size(); i++) {
+              logger.warn("Starting uptime for sup " + Integer.toString(i) + " " + (String)supervisorsUptimeBeforeTopoLaunch.getJSONObject(i).get("uptime"));
+              logger.warn("Ending uptime for sup " + Integer.toString(i) + " " + (String)supervisorsUptimeAfterTopoLaunch.getJSONObject(i).get("uptime"));
+        }
+      }
       killAll();
     }
   }
