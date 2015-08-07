@@ -106,6 +106,9 @@ public class TestSourceRetentionIncludingHCat  extends TestSession {
 			String tableOwner = this.hcatHelperObject.getHCatTableName(this.targetGrid1 , this.acquisitionDataSetName , "acquisition");
             String tableName = this.acquisitionDataSetName.toLowerCase().replaceAll("-", "_");
             assertTrue("Expected " + tableOwner  + "  data owner but got " + tableOwner ,   tableOwner.equals(tableName) == true);
+            
+            
+            this.workFlowHelper.checkStepExistsInWorkFlowExecutionSteps(this.acquisitionDataSetName, this.datasetActivationTime , "completed", "Step Name" , "data.publish");
 		}
 
 		// retention
@@ -120,6 +123,9 @@ public class TestSourceRetentionIncludingHCat  extends TestSession {
 
 			// check for replication workflow
 			this.workFlowHelper.checkWorkFlow(this.retentionDataSetName , "retention" , this.datasetActivationTime  );
+		
+			// check whether unpublish step exists
+			this.workFlowHelper.checkStepExistsInWorkFlowExecutionSteps(this.retentionDataSetName, this.datasetActivationTime , "completed", "Step Name" , "retention." + this.targetGrid1.trim()  + ".unpublish");
 		}
 	}
 
