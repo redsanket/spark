@@ -143,8 +143,18 @@ public class TestStormDistCacheApi extends TestSessionStorm {
       // Launch a topology that will read a local file we give it over drpc
       logger.info("About to launch topology");
 
+      // It's possible that a prior test restarted supervisors.  Make sure they are all up.
+      int tryCount = 0;
+      do {
+        if (tryCount > 0) {
+            Util.sleep(10);
+        }
+        supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
+      } while ( supervisorsUptimeBeforeTopoLaunch.size() < cluster.lookupRole(StormDaemon.SUPERVISOR).size() && ++tryCount < 10);
+      assertTrue("All supervisors were not up to start with", tryCount < 10);
+
+      // Now that all of the supervisors are up, we can get on with it.
       HTTPHandle client = bouncerAuthentication();
-      supervisorsUptimeBeforeTopoLaunch = getSupervisorsUptime();
       launchBlobStoreTopology(blobKey, fileName);
       // Wait for it to come up
       Util.sleep(30);
