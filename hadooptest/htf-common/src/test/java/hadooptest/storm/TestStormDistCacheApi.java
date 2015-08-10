@@ -144,6 +144,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
       logger.info("About to launch topology");
 
       // It's possible that a prior test restarted supervisors.  Make sure they are all up.
+      HTTPHandle client = bouncerAuthentication();
       int tryCount = 0;
       do {
         if (tryCount > 0) {
@@ -154,7 +155,6 @@ public class TestStormDistCacheApi extends TestSessionStorm {
       assertTrue("All supervisors were not up to start with", tryCount < 10);
 
       // Now that all of the supervisors are up, we can get on with it.
-      HTTPHandle client = bouncerAuthentication();
       launchBlobStoreTopology(blobKey, fileName);
       // Wait for it to come up
       Util.sleep(30);
