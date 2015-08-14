@@ -102,22 +102,12 @@ public class TestHCATWithABFData  extends TestSession {
 		for (String date : dates ) {
 			this.workFlowHelper.checkWorkFlow(this.dataSetName , "replication" , datasetActivationTime , date);
 		}
-
-		// get Hcat server name for targetGrid
-		String hCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
-		assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , hCatServerName != null);
-		TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
-
-		// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server
-		boolean isTableCreated = this.hcatHelperObject.isTableExists(hCatServerName, this.dataSetName , this.DATABASE_NAME);
-		assertTrue("Failed to HCAT create table for " + this.dataSetName , isTableCreated == true);
-
-		// check whether partition is created
-		String tableName = this.dataSetName.toLowerCase().trim();
-		for (String date : dates ) {
-			boolean partitionExists = this.hcatHelperObject.isPartitionIDExists(this.DATABASE_NAME , hCatServerName, tableName, date);
-			assertTrue(date  + "  partition does not exists in "  + tableName , partitionExists == true);
-		}
+		
+		String tableOwner = this.hcatHelperObject.getHCatTableName(this.targetGrid1 , this.dataSetName , "replication");
+		String tableName = this.dataSetName.toLowerCase().replaceAll("-", "_");
+		assertTrue("Expected " + tableOwner + " data owner but got " + tableOwner , tableOwner.equals(tableName) == true);
+		
+		this.workFlowHelper.checkStepExistsInWorkFlowExecutionSteps(this.dataSetName, datasetActivationTime , "completed", "Step Name" , "publish." + this.SOURCE_NAME.trim() + "." + this.targetGrid1.trim()  );
 	}
 
 	/**

@@ -70,6 +70,7 @@
         </Target>
     </Targets>
     <HCat>
+     	<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
         <HCatInstanceKey>instancedate</HCatInstanceKey>
         <HCatPartitionDataPathMask>$instancedate/$pagivity/$validity/$property</HCatPartitionDataPathMask>
         <HCatPartitionKeys>instancedate,pagivity,validity,property</HCatPartitionKeys>

@@ -125,8 +125,7 @@ public class TestDiscoveryMonitorWithNoPartitionDataSet extends TestSession {
 				String poolFrequency = jsonObject.getString("Polling Frequency");
 				assertTrue("Looks like there is some issue while discovery " + status  , status.equalsIgnoreCase("OK") );
 				assertTrue("Failed expected  HIGHEST prioroty, but got " + priority  , priority.equalsIgnoreCase("HIGHEST") );
-				assertTrue("Failed FDI discover interface , but got " + discoverInterface  , discoverInterface.equalsIgnoreCase("fdi") );
-				assertTrue("Failed daily feedFrequency , but got " + feedFrequency  , feedFrequency.equalsIgnoreCase("daily") );
+				assertTrue("Failed daily feedFrequency , but got " + feedFrequency  , feedFrequency.equalsIgnoreCase("daily") || feedFrequency.equalsIgnoreCase("hourly"));
 				assertTrue("Failed 180 sec for poolFrequency , but got " + poolFrequency  , poolFrequency.equalsIgnoreCase("100")  || poolFrequency.equalsIgnoreCase("180") );
 			}
 		}
@@ -154,7 +153,7 @@ public class TestDiscoveryMonitorWithNoPartitionDataSet extends TestSession {
 				assertTrue("Failed to get the srcid & partition id " + partition  , partition.equalsIgnoreCase("srcid_1780") || partition.equalsIgnoreCase("srcid_23440") );
 				assertTrue("Looks like there is some issue while discovery " + status  , status.equalsIgnoreCase("OK") );
 				assertTrue("Failed expected  HIGHEST prioroty, but got " + priority  , priority.equalsIgnoreCase("HIGHEST") );
-				assertTrue("Failed FDI discover interface , but got " + discoverInterface  , discoverInterface.equalsIgnoreCase("fdi") );
+				//assertTrue("Failed FDI discover interface , but got " + discoverInterface  , discoverInterface.equalsIgnoreCase("fdi") );
 				assertTrue("Failed daily feedFrequency , but got " + feedFrequency  , feedFrequency.equalsIgnoreCase("daily") );
 				assertTrue("Failed 100 sec for poolFrequency , but got " + poolFrequency  , poolFrequency.equalsIgnoreCase("100") );
 			}
