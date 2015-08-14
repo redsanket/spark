@@ -39,7 +39,7 @@ open(my $fh_issues, '>', $issues_report) or die "Could not open file '$issues_re
 open(my $fh_webui, '>', $webui_report) or die "Could not open file '$webui_report' $!";
 print $fh_webui "<Pre>\n";
 chomp(my $ts=`date -u +%m/%d/%Y-%H:%M:%S`);
-my rolesdb_url="http://roles.corp.yahoo.com:9999/ui/role?action=list&role=grid_re.clusters";
+my $rolesdb_url="http://roles.corp.yahoo.com:9999/ui/role?action=list&role=grid_re.clusters";
 print $fh_webui "Auto-generated on ${ts} using <a href={$rolesdb_url}>${rolesdb_url}</a>\n\n";
 
 sub print_cluster_header() {
