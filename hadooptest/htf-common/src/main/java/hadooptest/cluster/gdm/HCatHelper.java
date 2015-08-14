@@ -297,4 +297,37 @@ public class HCatHelper {
 		}
 		return tableOwner;
 	}
+	
+	
+	/**
+	 * Get the owner of the table
+	 * @param dataSourceName  - name of the grid or target cluster name
+	 * @param dataSetName - dataset naem
+	 * @param facetName - facet name either acquisition ,  replication , retention
+	 * @return
+	 */
+	public String getHCatTableName(String dataSourceName , String  dataSetName , String facetName) {
+		String tableName = null;
+		String url = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName.trim())) + "/" + facetName + "/api/admin/hcat/table/list?dataSource=" + dataSourceName + "&dataSet=" + dataSetName;
+		TestSession.logger.info("Test URL - " + url);
+		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
+		String res = response.getBody().asString();
+		TestSession.logger.info("Response - " + res);
+		JSONObject jsonObject =  (JSONObject) JSONSerializer.toJSON(res);
+		JSONArray jsonArray = jsonObject.getJSONArray("Tables");
+		
+		if (jsonArray.size() > 0 ) {
+			Iterator iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject tableObject = (JSONObject) iterator.next();
+				if (tableObject.has("TableName")) {
+					tableName = tableObject.getString("TableName");
+					break;
+				}
+			}
+		}else {
+			fail("Failed to get the table for dataset - " + dataSetName + " Response - " + res);
+		}
+		return tableName;
+	}
 }
