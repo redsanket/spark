@@ -300,7 +300,7 @@ public class HCatHelper {
 	
 	
 	/**
-	 * Get the owner of the table
+	 * Get the table name 
 	 * @param dataSourceName  - name of the grid or target cluster name
 	 * @param dataSetName - dataset naem
 	 * @param facetName - facet name either acquisition ,  replication , retention
