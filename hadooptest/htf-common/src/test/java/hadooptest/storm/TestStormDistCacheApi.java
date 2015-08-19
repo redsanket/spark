@@ -217,7 +217,7 @@ public class TestStormDistCacheApi extends TestSessionStorm {
                 // If we can't get the log, then let's flag that an error.
                 String log = getLogForTopology("blob");
                 logger.info("Got log=" + log);
-                failed = (log.contains("Page not found"));
+                failed = (log.contains("Page not found") || log.contains("HTTP ERROR"));
             } catch (Exception il) {
                 failed = true;
             } finally {
