@@ -148,8 +148,8 @@ public class HadooptestConstants {
 		}
 		
 		public static class Identity{
-			public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
-			public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
+			public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/home/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+			public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/home/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
 
 		}
 	}
