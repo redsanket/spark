@@ -36,9 +36,9 @@ public class DfsTestsBaseClass extends TestSession {
 	/**
 	 * Identity files needed for SSH
 	 */
-	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
-	public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
-	public static final String HADOOPQA_BLUE_DSA = "/homes/hadoopqa/.ssh/blue_dsa";
+	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/home/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+	public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/home/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
+	public static final String HADOOPQA_BLUE_DSA = "/home/hadoopqa/.ssh/blue_dsa";
 	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
 	/**
