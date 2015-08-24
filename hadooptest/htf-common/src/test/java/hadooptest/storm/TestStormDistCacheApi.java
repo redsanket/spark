@@ -561,7 +561,6 @@ public class TestStormDistCacheApi extends TestSessionStorm {
     UUID uuid = UUID.randomUUID();
     String blobKey = uuid.toString() + ".jar";
     String blobACLs = "u:"+conf.getProperty("USER")+":rwa";
-    String fileName = "/home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar";
     String blobContent = "This is a sample blob content";
 
     ClientBlobStore clientBlobStore = getClientBlobStore();
