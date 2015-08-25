@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +73,7 @@ public class DataAvailabilityPoller {
 	private final static String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
 	private final static String HIVE_SITE_FILE_LOCATION = "/home/y/libexec/hive/conf/hive-site.xml";
 	private final static Map <String,String> columnName = new HashMap<String,String>(); 
-	
+	private final static int DAY=0,HOUR=1,MIN=2,SEC=3,MILL_SEC=4;
 	
 	private void setCurrentFeedName(String feedName) {
 		this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue() ;
@@ -91,6 +93,7 @@ public class DataAvailabilityPoller {
 
 	public void dataPoller() throws InterruptedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		
+		columnName.put("start", "start");
 		columnName.put("cleanup_output", "cleanUpOutput");
 		columnName.put("check_input", "checkInput");
 		columnName.put("pig_raw_processor", "pigRawProcessor");
@@ -296,14 +299,15 @@ public class DataAvailabilityPoller {
 						this.dbOperations.updateRecord(this.con , "oozieJobStarted" , "STARTED" , "currentStep" , "oozieJobStarted" , this.currentFeedName);
 						
 						String oozieWorkFlowName = "stackint_oozie_RawInput_" + this.getCurrentFrequencyValue();
+						TestSession.logger.info("*************************************************************************************************************************************************");
 						this.oozieJobResult = this.pollOozieJob(this.oozieJobID , oozieWorkFlowName);
-						if (this.isOozieJobCompleted == false) {
-							this.searchDataAvailablity.setState("DONE");
-							this.isOozieJobCompleted = true;
-						} else {
-							this.searchDataAvailablity.setState("DONE");
-							this.isOozieJobCompleted = true;
-						}
+//						if (this.isOozieJobCompleted == false) {
+//							this.searchDataAvailablity.setState("DONE");
+//							this.isOozieJobCompleted = true;
+//						} else {
+//							this.searchDataAvailablity.setState("DONE");
+//							this.isOozieJobCompleted = true;
+//						}
 					}
 				}
 			}
@@ -454,62 +458,7 @@ public class DataAvailabilityPoller {
 		String id = Arrays.asList(jobId.split(" ")).get(1).toLowerCase();
 		String subId = Arrays.asList(id.split("-")).get(0).toLowerCase();
 		while (perPollStartTime <= perPollEndTime) {
-			String oozieCommand = "ssh " + this.oozieHostName +  " \"" + this.OOZIE_COMMAND + " jobs -len " + this.pullOozieJobLength + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos | grep " + "\"" + subId.trim() + "\"" + "\"" ;
-			TestSession.logger.info("oozieCommand poll status command - " + oozieCommand);
-			String result = this.executeCommand(oozieCommand);
-			TestSession.logger.info("result - " + result);
-			int start = result.indexOf(jobId);
-			int end = result.indexOf("dfsload");
-			String jobStatus = result.substring(start + jobId.length() , end).trim();
-			TestSession.logger.info("jobStatus - " + jobStatus);
-			start = oozieWorkFlowName.length();
-			String jobResult = jobStatus.substring(oozieWorkFlowName.length(), jobStatus.length());
-			TestSession.logger.info("Job Result = " + jobResult);
-			if (jobResult.equals("KILLED")) {
-				TestSession.logger.info("oozie for " + jobId  + "  killed, please check the reason for job killed using" + this.oozieHostName + ":4080/oozie ");
-				oozieJobresult = "KILLED";
-				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_KILLED");
-				String state = this.searchDataAvailablity.getState();
-				String mrValue = this.executeOozieCurlCommand(jobId);
-				this.dbOperations.updateRecord(this.con ,  "status" , "KILLED" , this.columnName.get(state) , "KILLED" + "~" + mrValue , "result" , "FAIL"  , this.currentFeedName);
-				
-				// mark the testcase as failed
-				fail( this.currentFeedName + " failed in " + this.columnName.get(state)  + "  step for more debugging informatin " + mrValue);
-				
-				this.isOozieJobCompleted = true;
-				break;
-			} else if (jobStatus.equals("SUCCEEDED")) {
-				TestSession.logger.info("oozie for " + jobId  + " is SUCCEDED");
-				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_SUCCEDED");
-				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "SUCCEEDED" , this.columnName.get(state) , "SUCCEEDED" , "result" , "PASS"  , this.currentFeedName);
-				this.isOozieJobCompleted = true;
-				oozieJobresult = "SUCCEEDED";
-				break;
-			} else if (jobStatus.equals("SUSPENDED")) {
-				TestSession.logger.info("oozie for " + jobId  + " is SUSPENDED");
-				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_SUSPENDED");
-				String state = this.searchDataAvailablity.getState();
-				String mrValue = this.executeOozieCurlCommand(jobId);
-				this.dbOperations.updateRecord(this.con ,  "status" , "SUSPENDED" , this.columnName.get(state) , "SUSPENDED" + "~" + mrValue , "result" , "FAIL",  this.currentFeedName);
-				this.isOozieJobCompleted = true;
-				
-				// mark the testcase as failed
-				fail( this.currentFeedName + " suspended in " + this.columnName.get(state)  + "  step for more debugging informatin " + mrValue);
-				
-				oozieJobresult = "SUSPENDED";
-				this.executeOozieCurlCommand(jobId);
-				break;
-			} else if (jobStatus.equals("RUNNING")) {
-				TestSession.logger.info("oozie for " + jobId  + " is RUNNING");
-				this.searchDataAvailablity.setCurrentWorkingState("OOZIE:JOB_RUNNING");
-				String state = this.searchDataAvailablity.getState();
-				this.dbOperations.updateRecord(this.con ,  "status" , "RUNNING" , this.columnName.get(state) , "RUNNING" , "result" , "UNKNOWN", this.currentFeedName);
-				this.isOozieJobCompleted = false;
-				oozieJobresult = "RUNNING";
-			}
-			
-			String currentOozieStep = this.getOoozieJobDetails(jobId);
+			this.executeOozieCurlCommand(jobId);
 			Thread.sleep(1000);
 			d = new Date();
 			perPollStartTime = Long.parseLong(perPollSDF.format(d));
@@ -523,8 +472,13 @@ public class DataAvailabilityPoller {
 	 * Execute oozie curl command to get the consoleURL ( MP job url ) to know the reason of failure.
 	 * @param jobId
 	 * @return
+	 * @throws IOException 
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public String  executeOozieCurlCommand(String jobId) {
+	public String  executeOozieCurlCommand(String jobId) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
 		String jobIdValue =  Arrays.asList(jobId.split(" ")).get(1).trim();
 		String mrJobValue = null;
 		JSONObject finalFailedJSONObject = null;
@@ -537,25 +491,85 @@ public class DataAvailabilityPoller {
 		JSONObject obj =  (JSONObject) JSONSerializer.toJSON(oozieResult.toString());
 		TestSession.logger.info("\n \n \n JSONObject jsonResponse   =  "  + obj.toString() );
 		
+		String jobStartedTime = obj.getString("startTime");
+		String jobEndedTime = obj.getString("endTime");
+		
 		JSONArray jsonArray = obj.getJSONArray("actions");
 		if ( jsonArray.size() > 0 ) {
 			Iterator iterator = jsonArray.iterator();
 			while (iterator.hasNext()) {
 				JSONObject jsonObject = (JSONObject) iterator.next();
 				String status = jsonObject.getString("status");
-				if (status.equals("ERROR")) {
-					String stepName = jsonObject.getString("name");
-					String externalStatus = jsonObject.getString("externalStatus");
-					String consoleUrl = jsonObject.getString("consoleUrl");
-					mrJobValue = consoleUrl;
-					TestSession.logger.info("stepName = " + stepName  + " externalStatus = " + externalStatus   + " consoleUrl =  " + consoleUrl);
-					break;
+				String stepName = jsonObject.getString("name");
+				String startTime = jsonObject.getString("startTime");
+				String endTime = jsonObject.getString("endTime");
+				TestSession.logger.info("stepName = " + stepName + "    startTime = " + startTime  + "   endTime  = " + endTime);
+				long total=0;
+				if ( (startTime != null) && (endTime != null) ) {
+					total = this.getTotalExecutionDuration(startTime, endTime);
+
+					if (stepName.equals("cleanup_output")) {
+						this.searchDataAvailablity.setState(stepName);
+						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "cleanUpOutput" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);
+					} else if (stepName.equals("check_input")) {
+						this.searchDataAvailablity.setState(stepName);
+						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "checkInput" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+					} else if (stepName.equals("pig_raw_processor")) {
+						this.searchDataAvailablity.setState(stepName);
+						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "pigRawProcessor" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+					} else if (stepName.equals("hive_storage")) {
+						this.searchDataAvailablity.setState(stepName);
+						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "hiveStorage" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+					} else if (stepName.equals("hive_verify")) {
+						this.searchDataAvailablity.setState(stepName);
+						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "hiveVerify" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+					}  else if (stepName.equals("end")) {
+						this.searchDataAvailablity.setState(stepName);
+						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "oozieJobCompleted" , status + "~" + startTime + "~" +  endTime + "~" + "" + total ,  "result" , "PASS" , this.currentFeedName);
+					}
+					
+					if (status.equals("ERROR")) {
+						String externalStatus = jsonObject.getString("externalStatus");
+						String consoleUrl = jsonObject.getString("consoleUrl");
+						mrJobValue = consoleUrl;
+						TestSession.logger.info("****************  stepName = " + stepName  + " externalStatus = " + externalStatus   + " consoleUrl =  " + consoleUrl  + "   startTime = " + jobStartedTime   + "   endTime = " + jobEndedTime  +  "  *****************");
+						long totalExecution = this.getTotalExecutionDuration(jobStartedTime, jobEndedTime);
+						this.dbOperations.updateRecord(this.con, this.columnName.get(stepName) , status + "~" + consoleUrl + "~" + startTime + "~" +  endTime + "~" + "" + total , "result" , status , "startTime" , jobStartedTime , "endTime" ,  jobEndedTime , "totalExecutionTime" ,  "" + totalExecution, this.currentFeedName );
+						fail("failed in " + stepName + "  reason  " +  status  + "  additional information " + consoleUrl);
+						break;
+					}
 				}
 			}
 		}
 		return mrJobValue;
 	}
 
+	
+	private long getTotalExecutionDuration(final String startTimeStr  , final String endTimeStr) {
+		
+		TestSession.logger.info("startTimeStr  = " + startTimeStr   + "  endTimeStr   " + endTimeStr);
+		
+		long[] durations = null;
+		long total = 0L;
+		try {
+			durations = this.getTimeDifference(startTimeStr , endTimeStr);
+			
+			if (durations[MIN] > 0) {
+				total = durations[MIN] * 60; 
+			}
+			if (durations[SEC] > 0) {
+				total = total + durations[SEC];
+			}
+			for ( long d : durations) {
+				TestSession.logger.info(d);
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		TestSession.logger.info("StartTime = " + startTimeStr + "    jobEndTime = " + startTimeStr  + " Total duration - " + total);
+		return total;
+	}
+	
 	public void addNewStatusToDB(String currentStep , String currentStatus) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Connection con = this.dbOperations.getConnection();
 		String oldSteps = this.dbOperations.getRecord(con , "steps" , this.currentFeedName);
@@ -796,5 +810,47 @@ public class DataAvailabilityPoller {
 		String oozieVersion = tempList.get(tempList.size() - 1);
 		TestSession.logger.info("Oozie Version - " + oozieVersion);
 		return oozieVersion;
+	}
+	
+	private long[] getTimeDifference(final String startTimeStr  , final String endTimeStr) throws ParseException {
+		DateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+		Date d1 = null , d2 = null;
+		d1 = format.parse(startTimeStr);
+		d2 = format.parse(endTimeStr);
+		long[] result = new long[5];
+		Calendar c = Calendar.getInstance();
+		c.setTimeZone(TimeZone.getTimeZone("GMT"));
+		c.setTime(d1);
+		
+		long  t1 = c.getTimeInMillis();
+		c.setTime(d2);
+		long diff = Math.abs(c.getTimeInMillis() - t1);
+		final int ONE_DAY = 1000 * 60 * 60 * 24;
+		final int ONE_HOUR = ONE_DAY / 24;
+		final int ONE_MINUTE = ONE_HOUR / 60;
+		final int ONE_SECOND = ONE_MINUTE / 60;
+
+		long d = diff / ONE_DAY;
+		diff %= ONE_DAY;
+
+		long h = diff / ONE_HOUR;
+		diff %= ONE_HOUR;
+
+		long m = diff / ONE_MINUTE;
+		diff %= ONE_MINUTE;
+
+		long s = diff / ONE_SECOND;
+		long ms = diff % ONE_SECOND;
+		result[0] = d;
+		result[1] = h;
+		result[2] = m;
+		result[3] = s;
+		result[4] = ms;
+		
+		for ( long r : result ) {
+			TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!v getTimeDifference = " + r);
+		}
+
+		return result;
 	}
 }
