@@ -74,7 +74,7 @@ use Getopt::Long;
 my $result = 
 GetOptions(\%options,
     "cluster|c=s"          => \$cluster,
-    "proxy|p=s"            => \$hproxy,
+    "proxy|x=s"            => \$hproxy,
     "payload_size|p=s"     => \$payload_size,
     "payload_unit|u=s"     => \$payload_unit,
     "file_size|f=s"        => \$file_size,
@@ -88,9 +88,12 @@ usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
 chomp(my $hostname=`hostname`);
 
-# trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
-trim($hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
+# If hproxy is not defined or has the value 'default', then fetch the proxy host
+# value from the rolesdb role for the cluster
 # $hproxy="gsbl90600.blue.ygrid.yahoo.com";
+if ((!defined($hproxy)) || ($hproxy eq "default")) {
+    trim($hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
+}
 
 note("Running on host '$hostname', using hdfsproxy '$hproxy' ");
 
