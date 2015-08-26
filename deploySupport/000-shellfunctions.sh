@@ -11,6 +11,45 @@ fanoutnogw() {
         [ -n "$HOSTLISTNOGW" ] && pdsh -w "$HOSTLISTNOGW" -u 180 -f 25 $*
         # echo 'fanoutnogw: (not to gateway) end on ' `date +%H:%M:%S`
 }
+
+fanoutcmd() {
+    command=$1
+    if [[ -z $command ]]; then
+        echo "ERROR: Required command argument is missing!!!"
+        return 1
+    fi
+
+    # host is comma separated list of hosts
+    hosts=$2
+    if [[ -z $hosts ]]; then
+        echo "ERROR: Required hosts argument is missing!!!"
+        return 1
+    else
+        hosts=`echo $hosts|tr "," " "`
+    fi
+
+    num_hosts=`echo $hosts|wc -w`
+
+    echo "fanout to '$num_hosts' hosts '"$hosts"':"
+    echo "base command='$command'"
+
+    count=1
+    pids=""
+    for hostname in $hosts; do
+        cmd=`echo "$command" | sed s/__HOSTNAME__/$hostname/g`
+        echo "Run command [$count/$num_hosts]: '$cmd &'"
+        $cmd &
+        pid=$!
+        pids=$pids$pid" "
+        count=$((count+1))
+    done
+
+    set -x
+    wait $pids
+    set +x
+    return 0
+}
+
 initManifest() {
   [ -n "$MANIFEST" ] && cp /dev/null  $MANIFEST
 }
