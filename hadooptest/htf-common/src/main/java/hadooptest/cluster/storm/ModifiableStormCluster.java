@@ -12,6 +12,8 @@ public abstract class ModifiableStormCluster extends StormCluster {
     public abstract void unsetConf(String key, StormDaemon daemon) throws Exception;
     public abstract void stopCluster() throws Exception;
     public abstract void startCluster() throws Exception;
+    public abstract void stopDaemon(StormDaemon daemon) throws Exception;
+    public abstract void startDaemon(StormDaemon daemon) throws Exception;
     public abstract void stopRegistryServer() throws Exception;
     public abstract void startRegistryServer() throws Exception;
     public abstract void setRegistryServerURI(String uri) throws Exception;

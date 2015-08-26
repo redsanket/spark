@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public enum StormDaemon {
     
-    ALL ("all"), NIMBUS("nimbus"), UI("ui"), SUPERVISOR("supervisor"), LOGVIEWER("logviewer"), REGISTRY("registry"), CONTRIB("contrib"), DRPC("drpc"), GATEWAY("gateway");
+    ALL ("all"), NIMBUS("nimbus"), UI("ui"), SUPERVISOR("supervisor"), LOGVIEWER("logviewer"), REGISTRY("registry"), CONTRIB("contrib"), DRPC("drpc"), GATEWAY("gateway"), PACEMAKER("pacemaker");
     private final String enumName;
 
     private StormDaemon(String s) {
@@ -54,6 +54,9 @@ public enum StormDaemon {
         else if (daemon == StormDaemon.DRPC) {
             daemonString = "ystorm_drpc";
         }
+        else if (daemon == StormDaemon.PACEMAKER) {
+            daemonString = "ystorm_pacemaker";
+        }
         
         return daemonString;
     }
@@ -80,6 +83,9 @@ public enum StormDaemon {
         }
         else if (daemon.equals(StormDaemon.UI)) {
             dnsNames = StormCluster.lookupYamlClusterRoleUI();
+        }
+        else if (daemon.equals(StormDaemon.PACEMAKER)) {
+            dnsNames = StormCluster.lookupYamlClusterRolePacemaker();
         }
         else if (daemon.equals(StormDaemon.SUPERVISOR)) {
             dnsNames = StormCluster.lookupYamlClusterRoleSupervisor();

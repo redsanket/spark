@@ -29,6 +29,7 @@ public class StormKafkaTopology {
         BrokerHosts hosts = new ZkHosts(zookeeperHostPortInfo);
         SpoutConfig spoutConfig = new SpoutConfig(hosts, topic, "/"+topic, "KafkaSpout");
         spoutConfig.forceFromStart = true;
+        spoutConfig.securityProtocol = "PLAINTEXTSASL";
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
         TopologyBuilder builder = new TopologyBuilder();

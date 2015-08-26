@@ -46,7 +46,7 @@
         <scala.version>2.10.3</scala.version>
         <storm.version.yinst>0.9.2_incubating_security</storm.version.yinst>
         <storm.version.community>0.9.2-incubating-security</storm.version.community>
-        <storm.version.release>352</storm.version.release>
+        <storm.version.release>501</storm.version.release>
         <jetty.version>9.1.4.v20140401</jetty.version>
         <jetty.version.release>65</jetty.version.release>
         <thread.count>8</thread.count>
@@ -452,14 +452,14 @@
                 <dependency>
                     <groupId>yahoo.yinst.ykafka</groupId>
                     <artifactId>kafka-clients</artifactId>
-                    <version>0.8.2.1</version>
+                    <version>0.8.2.200.5</version>
                     <scope>provided</scope>
                 </dependency>
 
                 <dependency>
                     <groupId>yahoo.yinst.ykafka</groupId>
-                    <artifactId>kafka_2.10-0.8.2.1</artifactId>
-                    <version>0.8.2.1</version>
+                    <artifactId>kafka_2.10-0.8.2.200.5</artifactId>
+                    <version>0.8.2.200.5</version>
                     <scope>provided</scope>
                 </dependency>
 
@@ -2177,7 +2177,7 @@
                 <dependency>
                     <groupId>system</groupId>
                     <artifactId>kafka-clients</artifactId>
-                    <version>0.8.2.1</version>
+                    <version>0.8.2.200.5</version>
                     <scope>system</scope>
                     <systemPath>${yinst.home}/share/kafka/libs/kafka-clients.jar</systemPath>
                 </dependency>
@@ -2198,8 +2198,8 @@
 
                 <dependency>
                     <groupId>system</groupId>
-                    <artifactId>kafka_2.10-0.8.2.1</artifactId>
-                    <version>0.8.2.1</version>
+                    <artifactId>kafka_2.10-0.8.2.200.5</artifactId>
+                    <version>0.8.2.200.5</version>
                     <scope>system</scope>
                     <systemPath>${yinst.home}/share/kafka/libs/kafka.jar</systemPath>
                 </dependency>
@@ -3062,7 +3062,7 @@
                 <dependency>
                     <groupId>system</groupId>
                     <artifactId>fetched_ykafka_clients</artifactId>
-                    <version>0.8.2.1</version>
+                    <version>0.8.2.200.5</version>
                     <scope>system</scope>
                     <systemPath>
                         ${HTF_WORKSPACE}/yinst_fetch_dependencies/ykafka_fetch/share/kafka/libs/kafka-clients.jar
@@ -3072,7 +3072,7 @@
                 <dependency>
                     <groupId>system</groupId>
                     <artifactId>fetched_ykafka</artifactId>
-                    <version>0.8.2.1</version>
+                    <version>0.8.2.200.5</version>
                     <scope>system</scope>
                     <systemPath>
                         ${HTF_WORKSPACE}/yinst_fetch_dependencies/ykafka_fetch/share/kafka/libs/kafka.jar

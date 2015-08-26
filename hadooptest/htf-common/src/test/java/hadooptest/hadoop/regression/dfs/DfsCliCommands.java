@@ -36,9 +36,8 @@ public class DfsCliCommands {
 	public DfsCliCommands() {
 		crossClusterProperties = new Properties();
 		try {
-			crossClusterProperties
-					.load(new FileInputStream(
-							HadooptestConstants.Location.TestProperties.CrossClusterProperties));
+			crossClusterProperties.load(new FileInputStream(
+			        HadooptestConstants.Location.TestProperties.CrossClusterProperties));
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -1177,10 +1176,7 @@ public class DfsCliCommands {
 
 		} else {
 			// Remote cluster
-			namenodeHost = crossClusterProperties.getProperty(cluster
-					.toLowerCase()
-					+ "."
-					+ HadooptestConstants.NodeTypes.NAMENODE);
+	        namenodeHost = TestSession.getNamenodeURL(cluster);
 			nameNodeWithNoPortButSchemaSetAsWebhdfs = namenodeHost.replace(
 					":50070", "");
 			nameNodeWithNoPortButSchemaSetAsWebhdfs = nameNodeWithNoPortButSchemaSetAsWebhdfs
@@ -1210,10 +1206,7 @@ public class DfsCliCommands {
 
 		} else {
 			// Remote cluster
-			namenodeHost = crossClusterProperties.getProperty(cluster
-					.toLowerCase()
-					+ "."
-					+ HadooptestConstants.NodeTypes.NAMENODE);
+			namenodeHost = TestSession.getNamenodeURL(cluster);
 			nameNodeWithNoPortButSchemaSetAsHdfs = namenodeHost.replace(
 					":50070", "");
 			nameNodeWithNoPortButSchemaSetAsHdfs = nameNodeWithNoPortButSchemaSetAsHdfs
@@ -1232,10 +1225,7 @@ public class DfsCliCommands {
 	 * @return
 	 */
 	private String getNNUrlForHftp(String cluster) {
-		String nnReadFromPropFile = crossClusterProperties.getProperty(cluster
-				.trim().toLowerCase()
-				+ "."
-				+ HadooptestConstants.NodeTypes.NAMENODE);
+        String nnReadFromPropFile = TestSession.getNamenodeURL(cluster);
 		String nameNodeWithPortAndSchemaForHftp = nnReadFromPropFile.replace(
 				HadooptestConstants.Schema.HTTP,
 				HadooptestConstants.Schema.HFTP);

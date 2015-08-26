@@ -36,10 +36,14 @@ import org.junit.runners.Parameterized.Parameters;
 import hadooptest.SerialTests;
 
 /*
- * Push file from Blue to Tan:
+ * This test runs testWebhdfsToHdfsPerf(), and performs cross colo distcp from
+ * a blue gateway via the ycrypt proxy.
+ * It does both a data push from blue to tan, and a data pull from tan to blue.
+ *
+ * 1) Push file(s) from Blue to Tan via distcp through the ycrypt proxy:
  * E.g. hadoop distcp -pbugp webhdfs://gsbl90882.blue.ygrid.yahoo.com/HTF/testdata/dfs/file_16M_{1..64} hdfs://gsta325n38.tan.ygrid.yahoo.com/HTF/testdata/dfs/file_16M/
  *
- * Pull file from Tan to Blue:
+ * 2) Pull file(s) from Tan to Blue via distcp through the ycrypt proxy:
  * E.g. hadoop distcp -pbugp webhdfs://gsta325n38.tan.ygrid.yahoo.com/HTF/testdata/dfs/file_16M_{1..64} hdfs://gsbl90882.blue.ygrid.yahoo.com/HTF/testdata/dfs/file_16M/
  *
  */
@@ -127,14 +131,13 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
 
         if (DfsTestsBaseClass.crosscoloPerf == false) {
             if (versionStore.containsKey(this.parametrizedCluster)) {
-                // Do not make an unnecessary call to get the version, if you'
-                // ve
-                // already made it once.
+                // Do not make an unnecessary call to get the version, if
+                // you've already made it once.
                 remoteHadoopVersion =
                         versionStore.get(this.parametrizedCluster);
             } else {
-                remoteHadoopVersion = rmUtils
-                        .getHadoopVersion(this.parametrizedCluster);
+                remoteHadoopVersion =
+                        rmUtils.getHadoopVersion(this.parametrizedCluster);
                 remoteHadoopVersion = remoteHadoopVersion.split("\\.")[0];
                 versionStore.put(this.parametrizedCluster, remoteHadoopVersion);
             }
@@ -362,6 +365,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     + "/scripts/validate_proxy");
             cmd.add(this.localCluster);
             cmd.add(this.parametrizedCluster);
+            cmd.add(DATA_DIR_IN_HDFS);
             cmd.add(httpProxyHost);
             if (DfsTestsBaseClass.crosscoloPerf == true) {
                 String remoteHttpProxyHost =

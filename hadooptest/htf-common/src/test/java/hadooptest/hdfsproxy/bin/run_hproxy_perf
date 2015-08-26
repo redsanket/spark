@@ -1,18 +1,26 @@
-#!/home/y/bin64/perl
 #!/usr/bin/env perl 
 
 # HDFS Proxy Performance Test
-# Get the hosts for the cluster under test
-# Run load / performance tests on each hosts
+# Takes parameters of 1) cluster, 2) hdfsproxy host, 3) total data payload, and 4) number of threads per host
+# The test will run:
+# 1. Get the cluster hosts from the specified clusters
+# 2. Run load / performance tests on each hosts as forked processes and wait for them to finish.
+#    A) The top level script run_hproxy_perf will call the script
+#       run_hproxy_perf_single_host for each host in the cluster
+#    B) The run_hproxy_perf_single_host script will then call the script
+#       run_hproxy_perf_single_thread for each of the specified number of threads
+#    C) Each thread will then issue a curl command with op=create
+#       E.g. curl -s \
+#            -b /tmp/hdfsproxy_perf_hadoopqa/cookies.txt \
+#            --negotiate -u: -k -T "/grid/0/tmp/file-64M" \
+#            "https://gsbl90063.blue.ygrid.yahoo.com:4443/fs/tmp/file-64M-gsbl90321-thread-14-1?op=create"
+# 3. When all the forked threads are finished, fetch and grapch the
+#    kbps in and out from ysar after the payload transfer has completed.
 #
-# 1. run_hproxy_perf --> 
-# 2. run_hproxy_perf_single_host --> 
-# 3. run_hproxy_perf_single_thread
-# 
+# Example Usage:
 # run_hproxy_perf -cluster <cluster> -payload_size <payload size> -payload_unit=<payload unit> -threads_per_host=<num threads>
 # run_hproxy_perf -cluster sam -payload_size=500 -payload_unit=G -threads_per_host=16
 #
-
 # Requires:
 # yinst i ypan/perl-Data-Dumper-2.139_05
 # yinst i ypan/perl-JSON-2.90_148
@@ -45,12 +53,8 @@ sub usage {
 # PARAM
 my %options=();
 my $cluster='sam';
-# trim(my $hproxy=`echo \$HIT_HDFS_PROXY`);
-trim(my $hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
-# $hproxy="gsbl90600.blue.ygrid.yahoo.com";
 
-trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
-
+my $hproxy;
 my $payload_size = "500";
 my $payload_unit = "G";
 my $threads_per_host=16;
@@ -62,8 +66,6 @@ my $tmpdir = "/tmp/hdfsproxy_perf_$username";
 execute("rm -rf $tmpdir");
 execute("mkdir -p $tmpdir");
 
-execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
-
 #
 # Command line options processing
 #
@@ -72,7 +74,7 @@ use Getopt::Long;
 my $result = 
 GetOptions(\%options,
     "cluster|c=s"          => \$cluster,
-    "proxy|p=s"            => \$hproxy,
+    "proxy|x=s"            => \$hproxy,
     "payload_size|p=s"     => \$payload_size,
     "payload_unit|u=s"     => \$payload_unit,
     "file_size|f=s"        => \$file_size,
@@ -83,6 +85,25 @@ GetOptions(\%options,
 usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
+
+chomp(my $hostname=`hostname`);
+
+# If hproxy is not defined or has the value 'default', then fetch the proxy host
+# value from the rolesdb role for the cluster
+# $hproxy="gsbl90600.blue.ygrid.yahoo.com";
+if ((!defined($hproxy)) || ($hproxy eq "default")) {
+    trim($hproxy = `yinst range -ir "(\@grid_re.clusters.$cluster.hdfsproxy)"`);
+}
+
+note("Running on host '$hostname', using hdfsproxy '$hproxy' ");
+
+trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
+
+execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
+execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy ls -l /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
+
+# execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
+execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 
 my $cmd;
 my $hproxy_url="https://$hproxy:4443";
@@ -131,6 +152,9 @@ note("(Payload per host='$payload_per_host$payload_unit')/(Number of threads per
 my $num_iterate=round(convert_to_mb($payload_per_thread,$payload_unit)/convert_to_mb($file_size,$file_unit));
 #note("Number of iterations per thread='$num_iterate'");
 note("(Payload per host thread='$payload_per_thread$payload_unit')/(File size='$file_size$file_unit')=(Number of iterations per thread='$num_iterate')");
+if ($num_iterate < 1) {
+    die("Number of iteration for file create cannot be less than 1!!!");
+}
 
 # debug
 # exit;
@@ -358,8 +382,8 @@ sub run_threads_on_single_host {
     $cmd="scp $Bin/$remote_test_script $Bin/$remote_test_script2 $tmpdir/ca.crt $host:$tmpdir";
     execute($cmd);
 
-    # $cmd = "ssh -t $host yinst i ypan/perl-XML-XML2JSON";
-    # execute($cmd);
+    $cmd = "ssh -t $host yinst i -y ypan/perl-JSON ypan/perl-XML-XML2JSON ypan/perl-Text-Trim";
+    execute($cmd);
 
     # $cmd = "ssh $host \"kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM\"";
     $cmd = "ssh $host \"kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa\"";

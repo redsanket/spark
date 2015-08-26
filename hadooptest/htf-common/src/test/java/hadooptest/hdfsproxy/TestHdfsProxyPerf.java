@@ -3,6 +3,7 @@ package hadooptest.hdfsproxy;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 
 import hadooptest.TestSession;
 
@@ -46,19 +47,26 @@ public class TestHdfsProxyPerf extends TestSession {
 	    assertTrue( "Could not run hdfsproxy perf!!!", output[0].equals("0") );
 	    */
 
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(script);
+        cmd.add("-cluster");
+        cmd.add(TestSession.cluster.getClusterName());
+        cmd.add("-payload_size");
+        cmd.add(System.getProperty("PAYLOAD_SIZE", DEFAULT_PAYLOAD_SIZE));
+        cmd.add("-payload_unit");
+        cmd.add(System.getProperty("PAYLOAD_UNIT", DEFAULT_PAYLOAD_UNIT));
+        cmd.add("-threads_per_host");
+        cmd.add(System.getProperty("THREADS_PER_HOST", DEFAULT_NUM_THREADS));
+        String proxyHost=System.getProperty("PROXY_HOST");
+        if ((proxyHost != null) && (!proxyHost.isEmpty()) &&
+                (!proxyHost.equals("default"))) {
+            cmd.add("-proxy");
+            cmd.add(proxyHost);
+        }
+        String[] command = cmd.toArray(new String[0]);
+
 	    Process process = null;
-	    process = TestSession.exec.runProcBuilderGetProc(
-                new String[] {
-                        script,
-                        "-cluster",
-                        TestSession.cluster.getClusterName(),
-                        "-payload_size",
-                        System.getProperty("PAYLOAD_SIZE", DEFAULT_PAYLOAD_SIZE),
-                        "-payload_unit",
-                        System.getProperty("PAYLOAD_UNIT", DEFAULT_PAYLOAD_UNIT),
-                        "-threads_per_host",
-                        System.getProperty("THREADS_PER_HOST", DEFAULT_NUM_THREADS),
-                        });
+	    process = TestSession.exec.runProcBuilderGetProc(command);
 	    String response = TestSession.exec.getProcessInputStream(process);
 	}
 

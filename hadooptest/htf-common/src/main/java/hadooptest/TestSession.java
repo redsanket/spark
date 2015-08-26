@@ -344,6 +344,67 @@ public abstract class TestSession extends TestSessionCore {
 		}
 	}
 	
+    public static String getNamenodeURL(String clusterName) {
+        return getCompURL(clusterName, "namenode", "50070");
+    }
+
+    public static String getResourceManagerURL(String clusterName) {
+        return getCompURL(clusterName, "resourcemanager", "8088");
+    }
+
+    public static String getCompURL(
+            String clusterName, String compType, String compPort) {
+        clusterName = clusterName.trim().toLowerCase();
+        String compNode="";
+        String compURL="";
+        try {
+            // Fetch the component node from rolesdb via yinst
+            String rolesdbCompType = (compType.equals("resourcemanager")) ?
+                    "jobtracker" : compType;
+            String[] output = TestSession.exec.runProcBuilder(new String[] {
+                    "/usr/local/bin/yinst", "range", "-ir",
+                    "@grid_re.clusters." + clusterName + "." +
+                    rolesdbCompType });
+            if (!output[0].equals("0")) {
+                TestSession.logger.info(
+                        "Got unexpected non-zero exit code: " + output[0]);
+                TestSession.logger.info("stdout" + output[1]);
+                TestSession.logger.info("stderr" + output[2]);
+            } else {
+                compNode = output[1].trim();
+                compURL = "http://" + compNode + ":" + compPort;
+                TestSession.logger.info(compType + " for cluster " +
+                        clusterName + " is: '" + compNode + "'");
+                // For namenode, use the hostname from rolesdb to check the
+                // hadoop config file to determine if HA is used.
+                if (compType.equals("namenode")) {
+                    TestSession.logger.info("Check for HA namenode:");
+                    output = TestSession.exec.runProcBuilder(new String[] {
+                            "/usr/bin/ssh", compNode,
+                            "grep -A 2 defaultFS " +
+                            "/home/gs/conf/current/core-site.xml | " +
+                            "tr '>' '\n' | tr '<' '\n' | grep com | " +
+                            "sed 's|hdfs://||'" });
+                    if (!output[0].equals("0")) {
+                        TestSession.logger.info(
+                                "Got unexpected non-zero exit code: " + output[0]);
+                        TestSession.logger.info("stdout" + output[1]);
+                        TestSession.logger.info("stderr" + output[2]);
+                    } else {
+                        compNode = output[1].trim();
+                        compURL = "http://" + compNode + ":" + compPort;
+                        TestSession.logger.info(compType + " for cluster " +
+                                clusterName + " is: '" + compNode + "'");
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        logger.info(compType + " URL read as '" + compURL + "'");
+        return compURL;
+    }
+
 	/**
 	 * Start listening for framework clients on other cluster gateways.
 	 */

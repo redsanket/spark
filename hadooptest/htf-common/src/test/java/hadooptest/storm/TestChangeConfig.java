@@ -41,12 +41,12 @@ public class TestChangeConfig extends TestSessionStorm {
         backtype.storm.Config theconf = new backtype.storm.Config();
         theconf.putAll(backtype.storm.utils.Utils.readStormConfig());
 
-        String filter = (String)theconf.get("ui.filter");
+        Boolean secure = isUISecure();
         String pw = null;
         String user = null;
 
         // Only get bouncer auth on secure cluster.
-        if ( filter != null ) {
+        if ( secure ) {
             if (mc != null) {
                 user = mc.getBouncerUser();
                 pw = mc.getBouncerPassword();
@@ -64,7 +64,7 @@ public class TestChangeConfig extends TestSessionStorm {
         logger.info("Asserting test result");
         //TODO lets find a good way to get the different hosts
         HTTPHandle client = new HTTPHandle();
-        if (filter != null) {
+        if ( secure ) {
             client.logonToBouncer(user,pw);
         }
         logger.info("Cookie = " + client.YBYCookie);

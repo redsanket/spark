@@ -28,7 +28,7 @@ public class TestStormCli extends TestSessionStorm {
     }
 
     public void LaunchExclamationTopology() throws Exception {
-        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", "/home/y/lib/storm-starter/0.0.1-SNAPSHOT/storm-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "storm.starter.ExclamationTopology",  "exclaim", "-c", "ui.users=[\"user1\", \"user2\", \"user3\"]" }, true);
+        String[] returnValue = exec.runProcBuilder(new String[] { "storm", "jar", "/home/y/lib64/jars/storm-starter.jar", "storm.starter.ExclamationTopology",  "exclaim", "-c", "ui.users=[\"user1\", \"user2\", \"user3\"]" }, true);
         assertTrue( "Could not launch topology", returnValue[0].equals("0") );
     }
 

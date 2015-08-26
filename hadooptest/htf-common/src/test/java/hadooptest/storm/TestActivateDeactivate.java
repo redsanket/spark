@@ -186,8 +186,8 @@ public class TestActivateDeactivate extends TestSessionStorm {
             String host = ti.get_executors().get(0).get_host();
 
             mc.stopDaemonNode( StormDaemon.SUPERVISOR, host );
-            mc.deactivateYinstPackageOnNode( StormDaemon.SUPERVISOR, host );
-            mc.activateYinstPackageOnNode( StormDaemon.SUPERVISOR, host );
+            String myPackage = mc.deactivateYinstPackageOnNode( StormDaemon.SUPERVISOR, host );
+            mc.activateYinstPackageOnNode( myPackage, host );
             mc.startDaemonNode( StormDaemon.SUPERVISOR, host );
             Util.sleep(30);
             

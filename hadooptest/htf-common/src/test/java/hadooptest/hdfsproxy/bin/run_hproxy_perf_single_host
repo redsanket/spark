@@ -1,5 +1,3 @@
-#!/home/y/bin/perl
-#!/home/y/bin64/perl
 #!/usr/bin/env perl 
 
 # HDFS Proxy Performance Test
@@ -76,6 +74,9 @@ note("Payload per host per thread='$payload_size$payload_unit'");
 note("Number threads per host='$threads_per_host'");
 note("File size='$file_size$file_unit'");
 note("num iterations per thread='$num_iterate'");
+if ($num_iterate < 1) {
+    die("Number of iteration for file create cannot be less than 1!!!");
+}
 
 # DEBUG
 # note("sleep 20...");

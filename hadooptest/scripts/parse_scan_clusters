@@ -19,36 +19,52 @@ my $prev_hostname="";
 my $hostname;
 my $version;
 my $time;
-my $tmpfile="/tmp/clusterinfo.raw";
+my $webui;
+my $webui_cluster;
+my $webui_comp;
 
+#################################################################################
+# Reports to output
+#################################################################################
 my $output_dir="$Bin/../target";
 mkdir $output_dir unless (-d $output_dir);
-my $issues_log="$output_dir/cluster_issues.log";
+my $cluster_usage_report="$output_dir/cluster_usage.log";
+my $issues_report="$output_dir/cluster_issues.log";
+my $webui_report="$output_dir/webui.html";
 
+my $tmpfile="/tmp/clusterinfo.raw";
 system("rm -f $tmpfile");
 
-open(my $fh2, '>', $issues_log) or die "Could not open file '$issues_log' $!";
+open(my $fh_issues, '>', $issues_report) or die "Could not open file '$issues_report' $!";
+open(my $fh_webui, '>', $webui_report) or die "Could not open file '$webui_report' $!";
+print $fh_webui "<Pre>\n";
+chomp(my $ts=`date -u +%m/%d/%Y-%H:%M:%S`);
+my $rolesdb_url="http://roles.corp.yahoo.com:9999/ui/role?action=list&role=grid_re.clusters";
+print $fh_webui "Auto-generated on ${ts} using <a href={$rolesdb_url}>${rolesdb_url}</a>\n\n";
 
 sub print_cluster_header() {
     print("--------------------\n");
     print("cluster=$cluster\n");
     print("--------------------\n");
 
-    print $fh2 "--------------------\n";
-    print $fh2 "cluster=$cluster\n";
-    print $fh2 "--------------------\n";
+    print $fh_issues "--------------------\n";
+    print $fh_issues "cluster=$cluster\n";
+    print $fh_issues "--------------------\n";
 
     $show_cluster_header=0;
 }
 
 sub print_df_header() {
     print($df_header);
-    print $fh2 $df_header;
+    print $fh_issues $df_header;
     $show_df_header=0;
 }
 
+#################################################################################
+# Parse the input file
 # open call is not needed when opening the file specified as the first argument
 # open(FILE1, $ARGV[0]);
+#################################################################################
 while (<>) {
     # $. keep track of the current line number
     # printf("line %2d: %s", $., $_);
@@ -92,6 +108,14 @@ while (<>) {
         next;
     }
 
+    if ($line =~ m/(^WEBUI.*:)\s+(.*)\s+(.*)\s+(http.*)/) {
+        $webui_cluster=$2;
+        $webui_comp=$3;
+        $webui = $4;
+        printf $fh_webui "%-12s %s %s %s\n", "$webui_cluster", "$webui_comp", "-", "<a href=$webui>$webui</a>";
+        next;
+    }
+
     # Check percentage
     if ($line =~ m/(.*)\s+(\d+)(%)\s+(.*)/) {
         $$fs_used_percentage=$2;
@@ -99,7 +123,7 @@ while (<>) {
             print_cluster_header() if ($show_cluster_header == 1);
             print_df_header() if ($show_df_header == 1);
             print($line);
-            print $fh2 $line;
+            print $fh_issues $line;
         }
     } else {
         if ($line =~ "/vol/") {
@@ -107,7 +131,7 @@ while (<>) {
         }
         print_cluster_header() if ($show_cluster_header == 1);
         printf("%s", $line);
-        print $fh2 $line;
+        print $fh_issues $line;
 
         # Attempt to reboot the node
         if (($_ =~ m/(.*)\s+(gsbl.*)(:.*)/) || 
@@ -117,7 +141,7 @@ while (<>) {
             unless ($hostname =~ $prev_hostname) {
                 # reboot the node
                 print("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n");
-                print $fh2 "ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n";
+                print $fh_issues "ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n";
 
                 # system("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname");
                 # Sorry, user hadoopqa is not allowed to execute '/home/y/bin/flubber_conutil -m reboot dense28.blue.ygrid.yahoo.com' as hadoopqa on adm102.blue.ygrid.yahoo.com.
@@ -129,12 +153,15 @@ while (<>) {
         }       
     }
 }
+close $fh_issues;
 
-close $fh2;
+print $fh_webui "<Pre>\n";
+close $fh_webui;
 
-my $cluster_usage_report="$output_dir/cluster_usage.log";
+#################################################################################
+# Write the cluster usage report
+#################################################################################
 open(my $fh, '>', $cluster_usage_report) or die "Could not open file '$cluster_usage_report' $!";
-
 print $fh "-------------------------------------------\n";
 print $fh "cluster, version, time of last job\n";
 print $fh "-------------------------------------------\n";

@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
@@ -50,14 +52,30 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         UUID uuid = UUID.randomUUID();
         topic = uuid.toString();
         LOG.info("Topic: " + topic);
-        String[] returnTopicValue = exec.runProcBuilder(new String[]{pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
-                zookeeperHostPort, "--replication-factor", "1", "--partitions", "1", "--topic", topic}, true);
+        // for secure kafka you have to create the topic as the super user.
+        kinit(conf.getProperty("KAFKA_KEYTAB"), conf.getProperty("KAFKA_PRINCIPAL") );
+        Map<String, String> newEnv = new HashMap<String, String>();
+        newEnv.put("KAFKA_KERBEROS_PARAMS", "-Djava.security.auth.login.config=" + conf.getProperty("KAFKA_CLIENT_JAAS"));
+        String[] returnTopicValue = exec.runProcBuilder(new String[]{
+                pathToScripts + "kafka-topics.sh", "--create", "--zookeeper",
+                zookeeperHostPort, "--replication-factor", "1", "--partitions", "1", "--topic", topic}, newEnv, true);
         assertTrue("Could not create topic for consuming", returnTopicValue[0].equals("0"));
+        String byUser = mc.getBouncerUser();
+        String user = conf.getProperty("USER");
+        String[] returnAclValue = exec.runProcBuilder(new String[]{
+                pathToScripts + "kafka-acl.sh", "--topic", topic, "--add", "--operations", "WRITE,READ",
+                "--allowprincipals", "user:" + user + ",user:" + byUser, "--config", 
+                pathToScripts + "/../config/server.properties"},
+                newEnv, true);
+        kinit();
+        assertTrue("Could set acls", returnAclValue[0].equals("0"));
 
+        System.setProperty("java.security.auth.login.config", conf.getProperty("KAFKA_CLIENT_JAAS"));
         Properties props = new Properties();
         props.put("bootstrap.servers", brokerHostPortInfo);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("security.protocol", "PLAINTEXTSASL");
 
         // New JAVA KAFKA CLIENT API
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
@@ -76,8 +94,15 @@ public class TestStormKafkaTopology extends TestSessionStorm {
     public void launchKafkaTopology(String className, String topoName) throws Exception {
         String pathToJar = conf.getProperty("WORKSPACE") + "/topologies/target/topologies-1.0-SNAPSHOT-jar-with-dependencies.jar";
         String byUser = mc.getBouncerUser();
-        String[] returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, className, topoName, topic, function, zookeeperHostPort, "-c",
-                "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]"}, true);
+        String[] returnValue = null;
+        if (conf.getProperty("KAFKA_AUTO_JAAS")!=null && conf.getProperty("KAFKA_AUTO_JAAS").length() > 0) {
+            returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, className, topoName, topic, function, zookeeperHostPort, "-c",
+                    "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]",
+                    "-c", "topology.worker.childopts=\"-Djava.security.auth.login.config="+conf.getProperty("KAFKA_AUTO_JAAS")+"\""}, true);
+        } else {
+            returnValue = exec.runProcBuilder(new String[]{"storm", "jar", pathToJar, className, topoName, topic, function, zookeeperHostPort, "-c",
+                    "ui.users=[\"" + byUser + "\"]", "-c", "logs.users=[\"" + byUser + "\"]"}, true);
+        }
         assertTrue("Problem running Storm jar command", returnValue[0].equals("0"));
     }
 
@@ -86,17 +111,22 @@ public class TestStormKafkaTopology extends TestSessionStorm {
         try {
             initiateKafkaProducer();
             LOG.info("Intiated kafka topic:" + topic + " and entered data");
-            launchKafkaTopology("hadooptest.topologies.StormKafkaTopology", "test");
+            launchKafkaTopology("hadooptest.topologies.StormKafkaTopology", "testStormKafka");
             LOG.info("Topology Launched");
             Util.sleep(30);
             String drpcResult = cluster.DRPCExecute(function, "hello");
             logger.debug("drpc result = " + drpcResult);
             assertTrue("Did not get expected result back from stormkafka topology", drpcResult.equals("2"));
         } finally {
-            cluster.killTopology("test");
-            String[] returnTopicValue = exec.runProcBuilder(new String[]{pathToScripts + "kafka-topics.sh", "--zookeeper",
-                    zookeeperHostPort, "--delete", "--topic", topic}, true);
+            cluster.killTopology("testStormKafka");
+            kinit(conf.getProperty("KAFKA_KEYTAB"), conf.getProperty("KAFKA_PRINCIPAL") );
+            Map<String, String> newEnv = new HashMap<String, String>();
+            newEnv.put("KAFKA_KERBEROS_PARAMS", "-Djava.security.auth.login.config=" + conf.getProperty("KAFKA_CLIENT_JAAS"));
+            String[] returnTopicValue = exec.runProcBuilder(new String[]{
+                    pathToScripts + "kafka-topics.sh", "--zookeeper",
+                    zookeeperHostPort, "--delete", "--topic", topic}, newEnv, true);
             assertTrue("Could not delete topic", returnTopicValue[0].equals("0"));
+            kinit();
         }
     }
 

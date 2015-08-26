@@ -37,6 +37,7 @@ public class StormKafkaBoltTopology {
         LOG.info("Setting Properties for Kafka Bolt");
         Properties props = new Properties();
         props.put("metadata.broker.list", brokerHostPortInfo);
+        props.put("security.protocol", "PLAINTEXTSASL");
         props.put("request.required.acks", "1");
         props.put("serializer.class", "kafka.serializer.StringEncoder");
         storm_conf.put(KafkaBolt.KAFKA_BROKER_PROPERTIES, props);

@@ -36,9 +36,9 @@ public class DfsTestsBaseClass extends TestSession {
 	/**
 	 * Identity files needed for SSH
 	 */
-	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
-	public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
-	public static final String HADOOPQA_BLUE_DSA = "/homes/hadoopqa/.ssh/blue_dsa";
+	public static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/home/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+	public static final String HADOOPQA_AS_MAPREDQA_IDENTITY_FILE = "/home/hadoopqa/.ssh/flubber_hadoopqa_as_mapredqa";
+	public static final String HADOOPQA_BLUE_DSA = "/home/hadoopqa/.ssh/blue_dsa";
 	public final String HADOOP_TOKEN_FILE_LOCATION = "HADOOP_TOKEN_FILE_LOCATION";
 
 	/**
@@ -49,7 +49,10 @@ public class DfsTestsBaseClass extends TestSession {
 	protected static Set<String> setOfTestDataFilesInHdfs;
 	protected static Set<String> setOfTestDataFilesInLocalFs;
 	public static final String INPUT_TO_WORD_COUNT = "input_to_word_count.txt";
-	public static final String DATA_DIR_IN_HDFS = "/HTF/testdata/dfs/";
+
+        public static final String DATA_DIR_IN_HDFS =
+            System.getProperty("HDFS_TEST_DATA_DIR", "/HTF/testdata/dfs/");
+
 	public static final String GRID_0 = "/grid/0/";
 	public static final String DATA_DIR_IN_LOCAL_FS = GRID_0
 			+ "tmp/HTF/testdata/dfs/";

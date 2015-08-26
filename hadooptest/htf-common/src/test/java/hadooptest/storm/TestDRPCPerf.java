@@ -69,16 +69,6 @@ public class TestDRPCPerf extends TestSessionStorm {
         _conf2 = new backtype.storm.Config();
     }
 
-    public boolean secureMode() throws Exception {
-        String filter = null;
-        filter = (String)_conf.get("drpc.http.filter");
-                
-        if ( filter != null && filter.equals("yjava.servlet.filter.YCAFilter")) {
-            return true;
-        }
-        return false;
-    }
-
     @Test(timeout=600000)
     public void TestDRPCPerformance() throws Exception{
         logger.info("Starting TestDRPCPerformance");
@@ -103,7 +93,8 @@ public class TestDRPCPerf extends TestSessionStorm {
             throw new RuntimeException("No DRPC servers configured for topology");
         }
 
-        String DRPCURI = "https://" + servers.get(0) + ":" + _conf.get(backtype.storm.Config.DRPC_HTTPS_PORT) + "/drpc/" + function;
+        String drpcHttpsPort = (String)mc.getConf("ystorm.drpc_https_port", hadooptest.cluster.storm.StormDaemon.DRPC);
+        String DRPCURI = "https://" + servers.get(0) + ":" + drpcHttpsPort + "/drpc/" + function;
         String [] drpcURIs = new String[] { DRPCURI };
         // Let's set up the test cert
         DRPCClient.setUpTrustStore( new String[] { "/etc/grid-keytabs/testcert" }, drpcURIs );

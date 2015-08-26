@@ -528,9 +528,9 @@ public abstract class HadoopCluster {
         // Namenode
         TestSession.logger.info("Initialize the namenode node(s):");
         if (nnHosts == null || nnHosts.length == 0) {
-            String namenode_addr =
-                    this.getConf().get("dfs.namenode.https-address");
-            String namenode = namenode_addr.split(":")[0];
+            String defaultFS = this.getConf().get("fs.defaultFS");
+            String namenode = defaultFS.replaceFirst("hdfs://","");
+            namenode = namenode.split(":")[0];
             nnHosts = new String[] {namenode};
         }
         initComponentNodes(HadoopCluster.NAMENODE, nnHosts);

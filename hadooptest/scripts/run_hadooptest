@@ -34,6 +34,7 @@ The options
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark12                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark13                          ] : Install and setup a Spark environment on the gateway prior to running tests
+        [ -spark14                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -hadoop26                         ] : use Hadoop dependencies for Hadoop 2.6 (Hadoop 2.5 dependencies are default)
         [ -hadoop27                         ] : use Hadoop dependencies for Hadoop 2.7 (Hadoop 2.5 dependencies are default)
         [ -n|--nopasswd                     ] : no password prompt
@@ -85,6 +86,7 @@ my $hadoop27 = 0;
 my $pig = 0;
 my $spark12 = 0;
 my $spark13 = 0;
+my $spark14 = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $nk = 0;
@@ -114,6 +116,7 @@ GetOptions(\%options,
     "spark"              => \$spark,
     "spark12"            => \$spark12,
     "spark13"            => \$spark13,
+    "spark14"            => \$spark14,
     "storm"              => \$storm,
     "storm090"           => \$storm090,
     "stormconf|y=s"      => \$stormconf,
@@ -183,6 +186,14 @@ else {
     	unless ($nopasswd);
 }
 
+if ($hadoop27) {
+    # Copy a hadoop 2.7+ specific capacity-scheduler.xml over the existing one to support a change
+    # in yarn.scheduler.capacity.maximum-am-resource-percent from 0.1 to 0.3 in hadoop 2.7 
+    note("copy updated capacity-scheduler.xml for hadoop 2.7 over existing single-queue capacity-scheduler.xml:");
+    copy("$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml.hadoop27plus","$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml");
+}
+
+
 # Temporarily removing help:active-profiles as the maven-help-plugin is not
 # resolving from an offline local repository.  It keeps trying to download
 # the metadata from a versionless instance of the plugin.
@@ -234,6 +245,9 @@ elsif ($spark12) {
 }
 elsif ($spark13) {
     $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.6.1502061521 -Dspark.version=1.3.1.0 -Dspark.version.full=1.3.1.0_2.6.0.6.1502061521_1504272233 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+}
+elsif ($spark14) {
+    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.16.1506060127 -Dspark.version=1.4.0.0 -Dspark.version.full=1.4.0.0_2.6.0.16.1506060127_1506241920 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 elsif ($tez){
     $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
@@ -313,6 +327,9 @@ if ($spark) {
     }
 } elsif ($spark13) {
     execute("yinst i yspark_yarn -tag yspark_yarn_1_3_latest_hadoop2 -live -downgrade -br quarantine");
+} elsif ($spark14) {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_4_latest_hadoop2 -live -downgrade -br quarantine");
 } else {
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
@@ -465,6 +482,8 @@ if ($use_mvn) {
       }
     } elsif ($spark13) {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark13");
+    } elsif ($spark14) {
+      execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark14");
     } else {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
     }

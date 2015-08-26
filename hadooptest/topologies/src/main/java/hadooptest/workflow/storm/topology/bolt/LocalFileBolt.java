@@ -39,7 +39,7 @@ public class LocalFileBolt extends BaseBasicBolt {
 	try {
 	    output = getBlobContent(distFile);
 	} catch (IOException io) {
-            output = "IO Exception";
+            output = "Got IO Exception";
             LOG.error("Got IO exception");
 	}
         collector.emit(new Values(output, returnInfo));

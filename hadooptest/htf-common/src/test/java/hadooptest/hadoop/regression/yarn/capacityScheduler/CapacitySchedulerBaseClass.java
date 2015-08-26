@@ -771,14 +771,8 @@ public class CapacitySchedulerBaseClass extends YarnTestsBaseClass {
 		}
 
 		HashMap<String, HashMap<String, String>> limitsReadViaRest = new HashMap<String, HashMap<String, String>>();
-		logger.info("Resource Manager URL read as"
-				+ crossClusterProperties.getProperty(System.getProperty(
-						"CLUSTER_NAME").toLowerCase()
-						+ "." + HadooptestConstants.NodeTypes.RESOURCE_MANAGER));
-		String resourceManager = crossClusterProperties.getProperty(System
-				.getProperty("CLUSTER_NAME")
-				+ "."
-				+ HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
+		String resourceManager = TestSession.getResourceManagerURL(
+		        System.getProperty("CLUSTER_NAME"));
 
 		String resource = "/ws/v1/cluster/scheduler";
 		HTTPHandle httpHandle = new HTTPHandle();
