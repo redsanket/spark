@@ -149,7 +149,7 @@ fi
 # use, that has had "pdsh....... hostname" run to verify that it is working.
 #
 ALLHOSTS=`cat hostlist.$1.txt`
-echo hostlist = $ALLHOSTS | fmt
+echo "hostlist = '$ALLHOSTS'" | fmt
 ALLNAMENODES=`cat namenodes.$cluster.txt`
 ALLSECONDARYNAMENODES=`cat secondarynamenodes.$cluster.txt`
 ALLNAMENODESAndSecondaries=`cat allnamenodes.$cluster.txt`
@@ -162,15 +162,15 @@ HOSTLISTNOGW=`echo $HOSTLISTNOGW1 | tr ' ' ,`
 [ -e regionservernodes.$cluster.txt ] && export REGIONSERVERNODES=`cat regionservernodes.$cluster.txt`
 
 ALLSLAVES=`cat slaves.$1.txt`
-echo slavelist = $ALLSLAVES | fmt
+echo "slavelist = '$ALLSLAVES'" | fmt
 
 if [ -z "$NAMENODE_Primary" ] 
 then
 	echo "failure: No namenodes indicated in list."
 	exit 1
 else
-        echo ".... namenode (primary): " $NAMENODE_Primary
-        echo ".... namenodes: " $ALLNAMENODES
+        echo "namenode (primary): " $NAMENODE_Primary
+        echo "namenodes: " $ALLNAMENODES
 fi
 
     # cp slaves.$cluster.txt  /tmp/slaves.$cluster.txt
@@ -196,7 +196,7 @@ echo ===  namenode=$NAMENODE_Primary
 echo ===  namenodes="$ALLNAMENODES"
 #[ -n "$yroots" ] && echo ===  gateways/yroots="$yroots"
 [ -n "$gateways" ] && echo ===  gateways/yroots="$gateways"
-[ -n "$hitnodes" ] && echo              gateways/hit-yroots="$hitnodes"
+[ -n "$hitnodes" ] && echo gateways/hit-yroots="$hitnodes"
 echo ===  jobtrackernode=$jobtrackernode
 echo ===  confpkg=$confpkg
 echo =====================================================
@@ -220,9 +220,13 @@ base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
 export MANIFEST=${YINST_ROOT}/manifest.txt
 .  ${base}/000-shellfunctions.sh
 	
-for f in ${base}/[0-9][0-9]*-create-conf-*.sh
+echo "================================================================================="
+echo "installgrid.sh: run create conf scripts to auto-generate scripts to be run later:"
+echo "================================================================================="
+for script in ${base}/[0-9][0-9]*-create-conf-*.sh
 do
-    eval ". $f"
+    echo "eval . $script"
+    eval ". $script"
 done
 
 #
@@ -262,22 +266,46 @@ if [[ "${INSTALL_TEZ}" == only ]]; then
     exit $st
 fi
 
-for f in ${base}/[0-9][0-9]*-installsteps-*.sh
+timeline="$scripttmp/timeline.log"
+cat /dev/null > $timeline
+pwd=`pwd`
+hostname=`hostname`
+whoami=`whoami`
+index=1
+for script in ${base}/[0-9][0-9]*-installsteps-*.sh
 do
-if [[  -e $f ]]
-then
+  if [[  -e $script ]]
+  then
+    #banner running $f
+    set +x
+    sleep 1
+    banner2 "START INSTALL STEP #$index: '$script'" "Called from $hostname:$pwd/installgrid.sh as $whoami"
 
-    banner running $f
-    . "$f"
+    start=`date +%s`
+    h_start=`date +%Y/%m/%d-%H:%M:%S`
+    set -x
+    time . "$script"
     st=$?
-    echo "Running $f Status: $st"
-    if [ "$EXIT_ON_ERROR" = "true" ]; then
-        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running and exit '" $f "' <<<<<<<<<<" && exit $st
-    else
-        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $f "' <<<<<<<<<<"   
-    fi
+    set +x
+    end=`date +%s`
+    h_end=`date +%Y/%m/%d-%H:%M:%S`
+    runtime=$((end-start))
 
-fi
+    echo "CURRENT COMPLETED EXECUTION STEPS:"
+    printf "%-2s %-124s : %.0f min (%.0f sec) : %s : %s : %s\n" $index $script $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
+    cat $timeline
+
+    banner "END INSTALL STEP #$index: '$script': status='$st'"
+    if [ "$st" -ne 0 ]; then
+        echo "EXIT_ON_ERROR=$EXIT_ON_ERROR"
+        if [ "$EXIT_ON_ERROR" = "true" ]; then
+            echo ">>>>>>>> EXIT ON ERROR <<<<<<<<<<" && exit $st
+        fi
+    fi
+    index=$((index+1))
+  else
+    echo "WARNING!!! deploy script $script not found!!!"
+  fi
 done
 echo FinalStatus: $st
 # Review: Note that exit-status is not dealt with, either here or in the hudson-startup script.
