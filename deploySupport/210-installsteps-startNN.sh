@@ -43,15 +43,17 @@ then
     echo "export YARN_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder"
-    echo "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/namenode-part-1-script.sh  /tmp/namenode-part-1-script.sh"
     echo "sh /tmp/namenode-part-1-script.sh $arg " 
     echo "rm /tmp/namenode-part-1-script.sh"
     ) > /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh
-    fanoutNN "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/startnn1.sh /tmp/ ; su $HDFSUSER  -c 'sh /tmp/startnn1.sh'"
+    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
+    fanoutNN "su $HDFSUSER -c 'sh /tmp/startnn1.sh'"
     st=$?
     [ "$st" -ne 0 ] && echo "Failed to run namenode-part-1-script.sh" && exit $st
+
     if [ -n "$secondarynamenode" ]
     then
+
     (
     echo "export CLUSTERID=$CLUSTERID"
     echo "export GSHOME=$GSHOME"
@@ -69,11 +71,11 @@ then
     echo "export YARN_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   "
-    echo "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/namenode2-part-1-script.sh  /tmp/namenode2-part-1-script.sh"
     echo "sh /tmp/namenode2-part-1-script.sh $arg " 
     echo "rm /tmp/namenode2-part-1-script.sh"
     ) > /grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh
-    fanoutSecondary "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh /tmp/ ; su $HDFSUSER  -c 'sh /tmp/startsecondary.sh'"
+    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh __HOSTNAME__:/tmp/" "$ALLSECONDARYNAMENODESLIST"
+    fanoutSecondary "su $HDFSUSER -c 'sh /tmp/startsecondary.sh'"
 #    st=$?
 #    [ "$st" -ne 0 ] && echo "Failed to run namenode2-part-1-script.sh" && exit $st
     fi
@@ -81,7 +83,9 @@ then
     ## dnstartupuser=$HDFSUSER
     ## pdsh -w "$SLAVELIST"  "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh  /tmp/datanode-script.sh  && export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && su $dnstartupuser  -c 'sh /tmp/datanode-script.sh $arg $cluster' "
 
-    pdsh -w "$SLAVELIST"  "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh  /tmp/datanode-script.sh  && export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export  JAVA_HOME=$GSHOME/java/jdk64/current && sh /tmp/datanode-script.sh $arg $cluster  && rm -f /tmp/datanode-script.sh"
+    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
+    pdsh -w "$SLAVELIST" "export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export  JAVA_HOME=$GSHOME/java/jdk64/current && sh /tmp/datanode-script.sh $arg $cluster  && rm -f /tmp/datanode-script.sh"
+
     (
     echo "export GSHOME=$GSHOME"
     echo "export yroothome=$yroothome"
@@ -97,12 +101,13 @@ then
     echo "export YARN_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   "
-    echo "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/namenode-part-3-script.sh  /tmp/namenode-part-3-script.sh"
     echo "sh /tmp/namenode-part-3-script.sh $arg "
     ) > /grid/0/tmp/scripts.deploy.$cluster/finishNN.sh
-    fanoutNN "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/finishNN.sh /tmp/ ; su $HDFSUSER  -c 'sh /tmp/finishNN.sh'"
+    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN.sh __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
+    fanoutNN "su $HDFSUSER -c 'sh /tmp/finishNN.sh'"
     st=$?
     [ "$st" -ne 0 ] && echo "Failed to run namenode-part-3-script.sh" && exit $st
+
     (
     echo "export GSHOME=$GSHOME"
     echo "export yroothome=$yroothome"
@@ -118,8 +123,8 @@ then
     echo "export YARN_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   "
-    echo "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/namenode2-part-3-script.sh  /tmp/namenode2-part-3-script.sh"
     echo "sh /tmp/namenode2-part-3-script.sh $arg "
     ) > /grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh
-    fanoutSecondary "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh /tmp/ ; su $HDFSUSER  -c 'sh /tmp/finishNN2.sh'"
+    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh __HOSTNAME__:/tmp/" "$ALLSECONDARYNAMENODESLIST"
+    fanoutSecondary "su $HDFSUSER -c 'sh /tmp/finishNN2.sh'"
 fi

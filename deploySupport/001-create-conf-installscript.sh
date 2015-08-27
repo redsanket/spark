@@ -6,10 +6,10 @@ cp namenodes.$cluster.txt /grid/0/tmp/
 cp secondarynamenodes.$cluster.txt /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
 (
-    echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
-    echo "scp  $ADMIN_HOST:/grid/0/tmp/namenodes.$cluster.txt  /tmp/ "
-    echo "scp  $ADMIN_HOST:/grid/0/tmp/secondarynamenodes.$cluster.txt  /tmp/ "
-    echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
+    # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
+    # echo "scp  $ADMIN_HOST:/grid/0/tmp/namenodes.$cluster.txt  /tmp/ "
+    # echo "scp  $ADMIN_HOST:/grid/0/tmp/secondarynamenodes.$cluster.txt  /tmp/ "
+    # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     echo 'if grep -q `hostname`  ' /tmp/namenodes.$cluster.txt 
     echo 'then'
     echo '	export  nn=`hostname`'

@@ -53,7 +53,8 @@ do
 done
 echo \$cnt namenodes up.
 zz
-fanoutGW "rsync -a $scriptaddr/$cluster.testNNdeploy.sh /tmp/ && su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
+fanoutcmd "scp $scripttmp/$cluster.testNNdeploy.sh __HOSTNAME__:/tmp/" "$gateway"
+fanoutGW "su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
 [ $? -eq 0 ] && (
    rm -fr /tmp/$cluster.*.handoff.txt
    for c in common hdfs

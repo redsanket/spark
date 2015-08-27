@@ -9,7 +9,8 @@ then
         rm -rf $SHARED_DIR
     done
     cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/cleangrid.sh  $scripttmp/cleangrid.sh
-fanout "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/cleangrid.sh   /tmp/cleangrid.sh && export GSHOME=$GSHOME && export HDFSUSER=$HDFSUSER && export MAPREDUSER=$MAPREDUSER &&  sh /tmp/cleangrid.sh && rm /tmp/cleangrid.sh "
+    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/cleangrid.sh __HOSTNAME__:/tmp/cleangrid.sh" "$HOSTLIST"
+    fanout "export GSHOME=$GSHOME && export HDFSUSER=$HDFSUSER && export MAPREDUSER=$MAPREDUSER &&  sh /tmp/cleangrid.sh && rm /tmp/cleangrid.sh "
 
 else
     echo == not removing existing data on grid.

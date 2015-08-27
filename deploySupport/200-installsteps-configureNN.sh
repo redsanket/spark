@@ -14,7 +14,7 @@
 if [ "$CONFIGURENAMENODE" = true ]
 then
     echo == Copying namenode-start scripts to namenodes.
-    fanoutNN "rsync -a '$scriptaddr/nameno*.sh' /tmp/ && rsync -a '$scriptaddr/getclusterid.pl'   /tmp/"
+    fanoutcmd "scp $scripttmp/nameno*.sh $scripttmp/getclusterid.pl __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
 
     echo == Running namenode-configure script
     fanoutNN "/bin/sh $yrootHadoopConf/cfg-${scriptnames}-namenode.sh " 
