@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import hadooptest.workflow.spark.app.SparkRunClass;
 import org.junit.experimental.categories.Category;
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 
