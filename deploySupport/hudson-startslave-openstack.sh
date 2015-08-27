@@ -239,8 +239,12 @@ export BUILD_DESC="Deploy to $CLUSTER $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
 echo "$BUILD_DESC"
 
 export DATESTRING=`date +%y%m%d%H%M`
-sh yinstify.sh  -v 0.0.1.${CLUSTER}.$DATESTRING
-filelist=`ls  *.${CLUSTER}.*.tgz`
+# GRIDCI-426: component name cannot exceed 10 characters.
+component=${CLUSTER:0:10}
+set -x
+sh yinstify.sh  -v 0.0.1.${component}.$DATESTRING
+set +x
+filelist=`ls  *.${component}.*.tgz`
 
 # From above: "then copies that package to the destination machine and runs it..."
 

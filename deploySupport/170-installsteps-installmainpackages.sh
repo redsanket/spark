@@ -19,7 +19,10 @@ then
 #
 #    f=YahooDNSToSwitchMapping-0.2.1111040716.jar
 #    f=YahooDNSToSwitchMapping-0.22.0.1011272126.jar
-    cmd="scp $ADMIN_HOST:/grid/0/tmp/deploy.$cluster.confoptions.sh   /tmp/deploy.$cluster.confoptions.sh ; GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.confoptions.sh && cp /tmp/deploy.$cluster.confoptions.sh  ${yroothome}/conf/hadoop/ "
+
+    fanoutcmd "scp /grid/0/tmp/deploy.$cluster.confoptions.sh /grid/0/tmp/processNameNodeEntries.py /grid/0/tmp/namenodes.$cluster.txt /grid/0/tmp/secondarynamenodes.$cluster.txt /grid/0/tmp/processNameNodeEntries.py __HOSTNAME__:/tmp/" "$HOSTLIST"
+    cmd="GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.confoptions.sh && cp /tmp/deploy.$cluster.confoptions.sh  ${yroothome}/conf/hadoop/ "
+
 #    echo ====== install workaround to get $f copied: Dec 22 2010 ;  \
 #    [ -f ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f ] || scp $ADMIN_HOST:/grid/0/tmp/$f  ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f  "
     fanout "$cmd"

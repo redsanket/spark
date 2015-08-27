@@ -4,9 +4,10 @@ then
     [ -d $scripttmp ] || mkdir -p $scripttmp
     cp slaves.$cluster.txt  $scripttmp/slaves.$cluster.txt
 
+    fanoutcmd "scp $scripttmp/slaves.$cluster.txt __HOSTNAME__:${GSHOME}/conf/local/slaves" "$HOSTLIST"
+    fanoutcmd "scp $scripttmp/slaves.$cluster.txt __HOSTNAME__:${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
+
     (
-    echo "rsync -a $scriptaddr/slaves.$cluster.txt  ${GSHOME}/conf/local/slaves " 
-    echo "rsync -a $scriptaddr/slaves.$cluster.txt  ${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt "
     echo "cd /tmp"
     echo 'mkdir /tmp/$$ && cd /tmp/$$ '
     echo "/usr/local/bin/yinst fetch  $LOCAL_CONFIG_INSTALL_STRING "
@@ -30,7 +31,8 @@ then
     echo 'cd /tmp && rm -rf /tmp/$$'
     ) > $scripttmp/$cluster.cplocalfiles.sh
 
-    cmd="rsync -a $scriptaddr/$cluster.cplocalfiles.sh /tmp/$cluster.cplocalfiles.sh ; GSHOME=${GSHOME} sh -x /tmp/$cluster.cplocalfiles.sh"
+    fanoutcmd "scp $scripttmp/$cluster.cplocalfiles.sh __HOSTNAME__:/tmp/$cluster.cplocalfiles.sh" "$HOSTLIST"
+    cmd="GSHOME=${GSHOME} sh -x /tmp/$cluster.cplocalfiles.sh"
     fanout "$cmd"
     fanoutGW "$cmd"
 

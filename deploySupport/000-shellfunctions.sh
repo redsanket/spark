@@ -35,6 +35,7 @@ fanoutcmd() {
 
     count=1
     pids=""
+    local hostname
     for hostname in $hosts; do
         cmd=`echo "$command" | sed s/__HOSTNAME__/$hostname/g`
         echo "Run command [$count/$num_hosts]: '$cmd &'"
