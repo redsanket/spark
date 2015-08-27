@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import hadooptest.workflow.spark.app.SparkRunClass;
 import org.junit.experimental.categories.Category;
+import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 
@@ -12,7 +13,9 @@ import org.junit.Test;
 
 import hadooptest.Util;
 
-@Category(hadooptest.ParallelClassAndMethodTests.class)
+// QE cluster isn't large enough to do in parallel
+//@Category(hadooptest.ParallelClassAndMethodTests.class)
+@Category(SerialTests.class)
 public class TestSparkHackJetty extends TestSession {
 
         private static String localJar = null;
