@@ -13,7 +13,9 @@ import org.junit.Test;
 
 import hadooptest.Util;
 
-@Category(hadooptest.ParallelClassAndMethodTests.class)
+// QE cluster isn't large enough to run in parallel
+//@Category(hadooptest.ParallelClassAndMethodTests.class)
+@Category(SerialTests.class)
 public class TestSparkHackCM extends TestSession {
 
     private static String localJar = null;
