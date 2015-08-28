@@ -82,7 +82,7 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 
 		// check for hadoop job end notification.
 		checkHadoopJobEndNotification(this.dataSetName , "acquisition");
-		
+
 		workFlowHelperObj.checkWorkFlow(this.dataSetName, "replication", this.datasetActivationTime);
 		checkHadoopJobEndNotification(this.dataSetName , "replication");
 	}
@@ -130,7 +130,7 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 				List<String> workFlowInstance = Arrays.asList(wflowName.split("/"));
 				String dsName = workFlowInstance.get(0);
 				String instanceId = workFlowInstance.get(1);
-				
+
 				this.consoleHandle.sleep(30000);
 
 				// Get details information about the completed workflow i,e get step details and fetch only map reduce url
@@ -145,7 +145,7 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 				jsonArray = jsonObject.getJSONArray("Step Executions");
 				iterator = jsonArray.iterator();
 				String jobId = null;
-				
+
 				// build the notification string that has to be searched in facet application.log file.
 				while (iterator.hasNext()) {
 					JSONObject tempJsonObj = (JSONObject) iterator.next();
@@ -197,46 +197,46 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 
 			// read the log file.
 			String facetApplicationLogFile = null , hostName = null;
-			
+
 			org.apache.commons.configuration.Configuration configuration = consoleHandle.getConf();
 			String environmentType = configuration.getString("hostconfig.console.test_environment_type");
 			if (environmentType.equals("oneNode")) {
-					TestSession.logger.info("****** QE or Dev test Environment ******** ");
-					hostName = configuration.getString("hostconfig.console.base_url");
-					facetApplicationLogFile = "/grid/0/yroot/var/yroots/"+ facetName.trim() +"/"+LOG_FILE.replaceAll("FACET_NAME", facetName);
-					
-					// Read the facet application log file.
-					FileInputStream input = new FileInputStream(facetApplicationLogFile);
-					FileChannel channel = input.getChannel();
+				TestSession.logger.info("****** QE or Dev test Environment ******** ");
+				hostName = configuration.getString("hostconfig.console.base_url");
+				facetApplicationLogFile = "/grid/0/yroot/var/yroots/"+ facetName.trim() +"/"+LOG_FILE.replaceAll("FACET_NAME", facetName);
 
-					ByteBuffer bbuf = channel.map(FileChannel.MapMode.READ_ONLY, 0, (int) channel.size());
-					CharBuffer cbuf = Charset.forName("8859_1").newDecoder().decode(bbuf);
-					Matcher matcher = pattern.matcher(cbuf);
-					long count = 0;
-					while (matcher.find()) {
-						String match = matcher.group().trim();
-						System.out.println(match);
-						assertTrue("Failed : " + value + " dn't match with  " +  match , value.equals(match));
-						count++;
-					}
-					TestSession.logger.info("count = " + count);
+				// Read the facet application log file.
+				FileInputStream input = new FileInputStream(facetApplicationLogFile);
+				FileChannel channel = input.getChannel();
+
+				ByteBuffer bbuf = channel.map(FileChannel.MapMode.READ_ONLY, 0, (int) channel.size());
+				CharBuffer cbuf = Charset.forName("8859_1").newDecoder().decode(bbuf);
+				Matcher matcher = pattern.matcher(cbuf);
+				long count = 0;
+				while (matcher.find()) {
+					String match = matcher.group().trim();
+					System.out.println(match);
+					assertTrue("Failed : " + value + " dn't match with  " +  match , value.equals(match));
+					count++;
+				}
+				TestSession.logger.info("count = " + count);
 			} else if (environmentType.equals("staging")) {
-					TestSession.logger.info("****** Staging test Environment ******** ");
-					String tempHostName = configuration.getString("hostconfig.console.staging_console_url");
-					TestSession.logger.info("tempHostName  = " +   tempHostName   );
-					facetApplicationLogFile = LOG_FILE.replaceAll("FACET_NAME", facetName);
-					String temp =  workFlowHelperObj.getFacetHostName(tempHostName , facetName);
-					hostName = Arrays.asList(temp.split(":")).get(1).replaceAll("//", "");
-					String command = "ssh " + hostName  + "  cat  " +  facetApplicationLogFile  + "  | grep \"Got job end notification from hadoop:\" | grep  "  + this.dataSetName; 
-					String output = workFlowHelperObj.executeCommand(command);
-					assertTrue("Expected job end notification from hadoop for " + this.dataSetName + " but got " + output , output.indexOf(this.dataSetName) > 0);
+				TestSession.logger.info("****** Staging test Environment ******** ");
+				String tempHostName = configuration.getString("hostconfig.console.staging_console_url");
+				TestSession.logger.info("tempHostName  = " +   tempHostName   );
+				facetApplicationLogFile = LOG_FILE.replaceAll("FACET_NAME", facetName);
+				String temp =  workFlowHelperObj.getFacetHostName(tempHostName , facetName);
+				hostName = Arrays.asList(temp.split(":")).get(1).replaceAll("//", "");
+				String command = "ssh " + hostName  + "  cat  " +  facetApplicationLogFile  + "  | grep \"Got job end notification from hadoop:\" | grep  "  + this.dataSetName; 
+				String output = workFlowHelperObj.executeCommand(command);
+				assertTrue("Expected job end notification from hadoop for " + this.dataSetName + " but got " + output , output.indexOf(this.dataSetName) > 0);
 			} else  {
-					TestSession.logger.info("****** Specified invalid test environment ******** ");
-					fail("You have specified a Unknow execution environment ( oneNode or stage) ");
+				TestSession.logger.info("****** Specified invalid test environment ******** ");
+				fail("You have specified a Unknow execution environment ( oneNode or stage) ");
 			}
 		}
 	}
-	
+
 	@After
 	public void tearDown() throws Exception {
 		// deactivate the dataset
