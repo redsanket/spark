@@ -35,6 +35,7 @@ The options
         [ -spark12                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark13                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark14                          ] : Install and setup a Spark environment on the gateway prior to running tests
+        [ -spark15                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -hadoop26                         ] : use Hadoop dependencies for Hadoop 2.6 (Hadoop 2.5 dependencies are default)
         [ -hadoop27                         ] : use Hadoop dependencies for Hadoop 2.7 (Hadoop 2.5 dependencies are default)
         [ -n|--nopasswd                     ] : no password prompt
@@ -87,6 +88,7 @@ my $pig = 0;
 my $spark12 = 0;
 my $spark13 = 0;
 my $spark14 = 0;
+my $spark15 = 0;
 my $workspace = "$Bin/..";
 my $adm_box = "adm103.blue.ygrid.yahoo.com";
 my $nk = 0;
@@ -117,6 +119,7 @@ GetOptions(\%options,
     "spark12"            => \$spark12,
     "spark13"            => \$spark13,
     "spark14"            => \$spark14,
+    "spark15"            => \$spark15,
     "storm"              => \$storm,
     "storm090"           => \$storm090,
     "stormconf|y=s"      => \$stormconf,
@@ -249,6 +252,9 @@ elsif ($spark13) {
 elsif ($spark14) {
     $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.16.1506060127 -Dspark.version=1.4.0.0 -Dspark.version.full=1.4.0.0_2.6.0.16.1506060127_1506241920 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
+elsif ($spark15) {
+    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.16.1506060127 -Dspark.version=1.5.0.0 -Dspark.version.full=1.5.0.0_2.6.0.16.1506060127_1506241920 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+}
 elsif ($tez){
     $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
 }
@@ -330,6 +336,9 @@ if ($spark) {
 } elsif ($spark14) {
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
     execute("yinst i yspark_yarn -tag yspark_yarn_1_4_latest_hadoop2 -live -downgrade -br quarantine");
+} elsif ($spark15) {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_5_latest_hadoop2 -live -downgrade -br quarantine");
 } else {
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
@@ -484,6 +493,8 @@ if ($use_mvn) {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark13");
     } elsif ($spark14) {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark14");
+    } elsif ($spark15) {
+      execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark15");
     } else {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
     }
