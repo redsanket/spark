@@ -28,6 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -46,6 +48,7 @@ import com.jayway.restassured.path.json.JsonPath;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.SystemCommand;
 import hadooptest.TestSession;
+import hadooptest.Util;
 
 /**
  * This is the workflow helper class, having methods to check workflow and methods to create dataset files.
@@ -55,6 +58,7 @@ public class WorkFlowHelper {
 
 	private ConsoleHandle consoleHandle;
 	private Response response;
+	private Configuration conf = null; 
 
 	private static final int SUCCESS = 200;
 	private static final long waitTimeBeforeWorkflowPollingInMs =  180000L;
@@ -92,8 +96,9 @@ public class WorkFlowHelper {
 	public WorkFlowHelper(String userName , String passWord) {
 		this.consoleHandle = new ConsoleHandle(userName, passWord);
 		httpHandle = new HTTPHandle(userName ,passWord);
-		this.cookie = httpHandle.getBouncerCookie();
+		this.cookie = httpHandle.getBouncerCookie();	
 	}
+	
 
 	/**
 	 * Method that checks whether workflow is completed and returns PASS else checks whether workflow failed and returns FAIL 
@@ -513,8 +518,27 @@ public class WorkFlowHelper {
 		long sleepTime = 5000; // 5 sec  sleep time.
 		long waitTime=0;
 		JSONArray jsonArray = null;
+		String testURL = null;
+		
+		org.apache.commons.configuration.Configuration configuration = this.consoleHandle.getConf();
+		String environmentType = configuration.getString("hostconfig.console.test_environment_type");
+		if (environmentType.equals("oneNode")) {
+			TestSession.logger.info("****** QE or Dev test Environment ******** ");
+			String hostName = configuration.getString("hostconfig.console.base_url");
+			testURL = hostName.replace("9999", this.consoleHandle.getFacetPortNo(facetName)) + "/" + facetName + this.DISCOVERY_MONITOR + "?dataset=" + dataSetName;
+		} else if (environmentType.equals("staging")) {
+			TestSession.logger.info("****** Staging test Environment ******** ");
+			String stagingHostName = configuration.getString("hostconfig.console.staging_console_url");
+			WorkFlowHelper workFlowHelperObj = new WorkFlowHelper();
+			String hostName = workFlowHelperObj.getFacetHostName(stagingHostName , facetName);
+			testURL = hostName + this.DISCOVERY_MONITOR + "?dataset=" + dataSetName;
+		} else  {
+			TestSession.logger.info("****** Specified invalid test environment ******** ");
+			System.exit(1);
+		}
+		
 		while (waitTime <= waitTimeForWorkflowPolling) {
-			String discoveryMonitoringStarted = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName)) + "/" + facetName + this.DISCOVERY_MONITOR + "?dataset=" + dataSetName;
+			String discoveryMonitoringStarted = testURL;
 			TestSession.logger.info("discoveryMonitoringStarted = " + discoveryMonitoringStarted);
 			com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(discoveryMonitoringStarted);
 			jsonArray = this.consoleHandle.convertResponseToJSONArray(response, "Results");
@@ -1092,6 +1116,24 @@ public class WorkFlowHelper {
 		String path = Arrays.asList(output.split(" ")).get(1).trim();
 		TestSession.logger.info("facet hostname = " + path);
 		return path;
+	}
+	
+	/**
+	 * return  the specified hostname, by executing the yinst command on console host.
+	 * Note : make sure that hadoopqa is able to do ssh to the console host.
+	 * @param consoleHostName
+	 * @param facetName
+	 * @return
+	 */
+	public String getFacetHostName(String consoleHostName , String facetName) {
+		String facetHostName = null;
+		String hostName = Arrays.asList(consoleHostName.split(":")).get(1).replaceAll("//" , "").trim();
+		final String command = "ssh " + hostName.trim() + " " + "yinst set | grep " + facetName + "_end_point" ;
+		TestSession.logger.info("command " + command);
+		String output = this.executeCommand(command);
+		facetHostName = Arrays.asList(output.split(" ")).get(1).trim();
+		TestSession.logger.info("facet hostname = " + facetHostName);
+		return facetHostName;
 	}
 	
 	/**

@@ -3,6 +3,7 @@ package hadooptest.gdm.regression;
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
@@ -152,6 +153,7 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 					if ( ! (mapReduceURL.contains("#") || mapReduceURL.contains("loadproxy"))) {
 						jobId = getJobId(mapReduceURL);
 						String urlTemp = "Got job end notification from hadoop: /" + fName + "/jobEndNotificationjobId=" + jobId + "&dataSetName=" + dsName +  "&instanceID=" + instanceId;
+						TestSession.logger.info("*******************  urlTemp   = " + urlTemp);
 						jobs.put(instanceId, urlTemp);
 					}
 				}
@@ -194,23 +196,44 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 			Pattern pattern = Pattern.compile(value);
 
 			// read the log file.
-			String facetApplicationLogFile = "/grid/0/yroot/var/yroots/"+ facetName.trim() +"/"+LOG_FILE.replaceAll("FACET_NAME", facetName);
+			String facetApplicationLogFile = null , hostName = null;
 			
-			// Read the facet application log file.
-			FileInputStream input = new FileInputStream(facetApplicationLogFile);
-			FileChannel channel = input.getChannel();
+			org.apache.commons.configuration.Configuration configuration = consoleHandle.getConf();
+			String environmentType = configuration.getString("hostconfig.console.test_environment_type");
+			if (environmentType.equals("oneNode")) {
+					TestSession.logger.info("****** QE or Dev test Environment ******** ");
+					hostName = configuration.getString("hostconfig.console.base_url");
+					facetApplicationLogFile = "/grid/0/yroot/var/yroots/"+ facetName.trim() +"/"+LOG_FILE.replaceAll("FACET_NAME", facetName);
+					
+					// Read the facet application log file.
+					FileInputStream input = new FileInputStream(facetApplicationLogFile);
+					FileChannel channel = input.getChannel();
 
-			ByteBuffer bbuf = channel.map(FileChannel.MapMode.READ_ONLY, 0, (int) channel.size());
-			CharBuffer cbuf = Charset.forName("8859_1").newDecoder().decode(bbuf);
-			Matcher matcher = pattern.matcher(cbuf);
-			long count = 0;
-			while (matcher.find()) {
-				String match = matcher.group().trim();
-				System.out.println(match);
-				assertTrue("Failed : " + value + " dn't match with  " +  match , value.equals(match));
-				count++;
+					ByteBuffer bbuf = channel.map(FileChannel.MapMode.READ_ONLY, 0, (int) channel.size());
+					CharBuffer cbuf = Charset.forName("8859_1").newDecoder().decode(bbuf);
+					Matcher matcher = pattern.matcher(cbuf);
+					long count = 0;
+					while (matcher.find()) {
+						String match = matcher.group().trim();
+						System.out.println(match);
+						assertTrue("Failed : " + value + " dn't match with  " +  match , value.equals(match));
+						count++;
+					}
+					TestSession.logger.info("count = " + count);
+			} else if (environmentType.equals("staging")) {
+					TestSession.logger.info("****** Staging test Environment ******** ");
+					String tempHostName = configuration.getString("hostconfig.console.staging_console_url");
+					TestSession.logger.info("tempHostName  = " +   tempHostName   );
+					facetApplicationLogFile = LOG_FILE.replaceAll("FACET_NAME", facetName);
+					String temp =  workFlowHelperObj.getFacetHostName(tempHostName , facetName);
+					hostName = Arrays.asList(temp.split(":")).get(1).replaceAll("//", "");
+					String command = "ssh " + hostName  + "  cat  " +  facetApplicationLogFile  + "  | grep \"Got job end notification from hadoop:\" | grep  "  + this.dataSetName; 
+					String output = workFlowHelperObj.executeCommand(command);
+					assertTrue("Expected job end notification from hadoop for " + this.dataSetName + " but got " + output , output.indexOf(this.dataSetName) > 0);
+			} else  {
+					TestSession.logger.info("****** Specified invalid test environment ******** ");
+					fail("You have specified a Unknow execution environment ( oneNode or stage) ");
 			}
-			TestSession.logger.info("count = " + count);
 		}
 	}
 	
