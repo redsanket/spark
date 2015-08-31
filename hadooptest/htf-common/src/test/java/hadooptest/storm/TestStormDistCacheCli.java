@@ -82,20 +82,13 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     String blobKey = UUID.randomUUID().toString();
     String[] returnValue = null;
 
-    // Get superuser from conf principal.
-    Pattern p = Pattern.compile("(\\w*)");
-    Matcher regexMatcher = p.matcher(conf.getProperty("BLOB_SUPERUSER_PRINCIPAL"));
-    assertTrue ("Couldn't get superuser from BLOB_SUPERUSER_PRINCIPAL", regexMatcher.find());
-    String superuser = regexMatcher.group(1);
-    String superuserAcl = "u:" + superuser +":rwa";
-    
     // Create it with empty string permissions
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
             "create", blobKey, "-f", fileName, "-a", "" }, true);
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa");
 
     // Now delete it.
     String[] deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -108,7 +101,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa");
 
     // Now delete it.
     deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -121,7 +114,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertTrue( "Could not create the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", "o::r--", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", "o::r--");
 
     // modify blob with bad permissions
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -129,7 +122,7 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa");
 
     // modify blob with no permissions
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
@@ -137,21 +130,14 @@ public class TestStormDistCacheCli extends TestSessionStorm {
     assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":--a", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":--a");
 
     returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
             "set-acl", blobKey, "-s", "u:"+conf.getProperty("USER")+":rwa" }, true);
     assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
 
     // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
-
-    // Now try to remove superuser acl
-    returnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
-            "set-acl", blobKey, "-s", "u:"+conf.getProperty("USER")+":rwa,u:" + superuser + ":-wa" }, true);
-    assertTrue( "Could not modify the blob", returnValue[0].equals("0"));
-    // Make sure the one we want is there.
-    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa", superuserAcl);
+    findAclInFile(blobKey, "u:"+conf.getProperty("USER")+":rwa");
 
     // Now delete it.
     deleteReturnValue = exec.runProcBuilder(new String[] { "storm", "blobstore",
