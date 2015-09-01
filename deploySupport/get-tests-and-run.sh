@@ -11,7 +11,7 @@ yinst install -root /grid/0/tmp/validate.$CLUSTER -nosudo -yes  -branch test  ha
 export PATH=/usr/kerberos/bin:$PATH
 
 
-kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
+kinit -k -t /$HOMEDIR/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
 cd /grid/0/tmp/validate.$CLUSTER/share/hadoopvalidation/
 ls
 if [ -f bin/wordcount-simple ]

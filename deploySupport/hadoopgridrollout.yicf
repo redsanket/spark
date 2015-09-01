@@ -94,7 +94,7 @@ YINST set INSTALL_TEZ false
 YINST set TEZVERSION false
 YINST start 200 conf/hadoop/hadoopAutomation/installgrid.sh "${CLUSTER}"
 YINST set autostartup false
-YINST set referencedir /homes/hadoopqa
+YINST set referencedir /$HOMEDIR/hadoopqa
 f 0755 - - conf/hadoop/hadoopAutomation/installgrid.sh  installgrid.sh 
 f 0755 - - conf/hadoop/hadoopAutomation/cleangrid.sh  cleangrid.sh
 f 0755 - - conf/hadoop/hadoopAutomation/namenode2-part-1-script.sh  namenode2-part-1-script.sh

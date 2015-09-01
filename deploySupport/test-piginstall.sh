@@ -51,7 +51,7 @@ runPigWordCount() {
 	yinst fetch  -branch test hadoopvalidation
 	tar xzf *.tgz
 	
-	kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
+	kinit -k -t /$HOMEDIR/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
 	cd share/hadoopvalidation/
 	
 	export VALIDATION_DIR=`ls -d /tmp/$cluster.$$.validation*/share/hadoopvalidation`
@@ -127,7 +127,7 @@ if [ -e share/pig ]
 then
 	export PIG_HOME=${yroothome}/share/pig
 fi
-kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
+kinit -k -t /$HOMEDIR/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
 
 $HADOOP_HOME/bin/hadoop version  | sed -n 1p
 finalstatus=`$HADOOP_HOME/bin/hadoop version  | sed -n 1p`

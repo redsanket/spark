@@ -34,7 +34,7 @@ mkyicf() {
 	echo "YINST set autostartup false"
 	# echo "YINST bug-product $(PRODUCT_NAME)"
 	# echo "YINST bug-component General"
-	echo "YINST set referencedir /homes/hadoopqa"
+	echo "YINST set referencedir /$HOMEDIR/hadoopqa"
 	) > $outfile
 
 

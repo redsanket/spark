@@ -41,7 +41,7 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         export HADOOP_CONF_DIR=/home/gs/conf/current ; \
         export HADOOP_CLASSPATH="$yroothome/:$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*" ; \
         export JAVA_HOME=$GSHOME/java/jdk ; \
-        kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
+        kinit -k -t /$HOMEDIR/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
         echo installing Tez into hdfs ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
@@ -67,7 +67,7 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         export HADOOP_CONF_DIR=/home/gs/conf/current ; \
         export HADOOP_CLASSPATH="$yroothome/:$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*" ; \
         export JAVA_HOME=$GSHOME/java/jdk ; \
-        kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
+        kinit -k -t /$HOMEDIR/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
         echo installing Tez into hdfs ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/ ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/gridre/yroot.$CLUSTER/tez-$TEZVERSION/tez-$TEZVERSION-minimal.tar.gz /sharelib/v1/tez/ytez-$TEZVERSION/ ; \
