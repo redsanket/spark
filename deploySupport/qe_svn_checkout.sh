@@ -5,7 +5,7 @@ dest_dir=$2
 dest_dir=${dest_dir:-/home/y/var/builds/workspace/NightlyHadoopQEAutomation-23}
 
 artifacts_dir=$3
-artifacts_dir=${artifacts_dir:-/homes/hadoopqa/hudson_artifacts/hudson_artifacts-0.23}
+artifacts_dir=${artifacts_dir:-$HOMEDIR/hadoopqa/hudson_artifacts/hudson_artifacts-0.23}
 
 svn_repo=svn+ssh://svn.corp.yahoo.com/yahoo/platform/grid/projects/trunk/hudson/internal/HadoopQEAutomation/branch-23
 cd ${WORKSPACE}

@@ -34,7 +34,7 @@ fi
 export PATH=/usr/kerberos/bin:\$PATH
 
 \$HADOOP_COMMON_HOME/bin/hadoop fs -ls -R /user
-kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
+kinit -k -t $HOMEDIR/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
 export cnt=0
 for i in `echo $namenode`
 do

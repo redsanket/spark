@@ -12,7 +12,7 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/current ; \
      export HADOOP_CONF_DIR=/home/gs/conf/current ; \
      export HADOOP_CLASSPATH="$yroothome/:$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*" ; \
      export JAVA_HOME=$GSHOME/java/jdk ; \
-     kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
+     kinit -k -t $HOMEDIR/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
      echo Running Tez word count ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -rm -R /tmp/output/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put $TEZ_CONF_DIR/tez-site.xml /tmp/ ; \
