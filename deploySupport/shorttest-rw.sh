@@ -43,7 +43,7 @@ else
 fi
 export PATH=/usr/kerberos/bin:$PATH
 
-kinit -k -t /$HOMEDIR/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
+kinit -k -t $HOMEDIR/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa
 
 if [ "$readonly" = true ]
 then

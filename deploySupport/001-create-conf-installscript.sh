@@ -69,9 +69,9 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "  " -set $confpkg.TODO_YGRID_CLUSTER=$cluster \\
     if [ "$ENABLE_HA" = true ]; then
         echo "  " -set $confpkg.TODO_DFS_HA_LOGICAL_NAME=${cluster}-\$shortname \\
-        echo "  " -set $confpkg.TODO_DFS_HA_SHARED_EDITS_DIR=file:///$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/edits \\
-        echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_ANN=\"file:///grid/2/hadoop/var/hdfs/name,file:///$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name1\" \\
-        echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name,file:///$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name2\" \\
+        echo "  " -set $confpkg.TODO_DFS_HA_SHARED_EDITS_DIR=file://$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/edits \\
+        echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_ANN=\"file:///grid/2/hadoop/var/hdfs/name,file://$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name1\" \\
+        echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name,file://$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name2\" \\
         echo "  " -set $confpkg.TODO_DFS_HA_EDITS_DIR_ANN=\"file:///grid/2/hadoop/var/hdfs/name\" \\
         echo "  " -set $confpkg.TODO_DFS_HA_EDITS_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name\" \\
         echo "  " -set $confpkg.TODO_FIRST_HANN_HOSTNAME=\$nn \\

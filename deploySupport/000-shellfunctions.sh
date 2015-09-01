@@ -309,21 +309,6 @@ function execCmd() {
    #[ "$status" -ne 0 ] && echo ">>>> Error! failed to execute cmd '" $1  "' " && exit $status
 }
 
-# set the home directory based on the openstack node's zone,
-# this is needed for the grid-backplane nodes because they use
-# 'home' instead of 'homes', and export this as HOMEDIR
-NODE_DOMAIN=`echo $jobtrackernode | cut -d'.' -f2-10`
-if [[ "$NODE_DOMAIN" == "blue.ygrid.yahoo.com" ]]; then
-  echo "Setting HOME_DIR to home"
-  export HOMEDIR=home 
-elif [[ -n "$NODE_DOMAIN" ]]; then 
-  echo "Setting HOME_DIR to homes"
-  export HOMEDIR=homes 
-else
-  echo "Error: unable to determine NODE_DOMAIN, HOME_DIR is not set!"
-  exit 1
-fi
-
 export PARTITIONHOME=/home
 export GSHOME=$PARTITIONHOME/gs
 export yroothome=$GSHOME/gridre/yroot.$cluster

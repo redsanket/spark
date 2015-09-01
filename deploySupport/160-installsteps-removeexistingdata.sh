@@ -4,7 +4,7 @@ then
     for nnode in $namenode
     do
         short_name=`echo $nnode| sed 's/\..*$//g'`
-        SHARED_DIR=/$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_${short_name}
+        SHARED_DIR=$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_${short_name}
         echo "Removing $SHARED_DIR."
         rm -rf $SHARED_DIR
     done

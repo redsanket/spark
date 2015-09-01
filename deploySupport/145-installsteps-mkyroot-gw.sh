@@ -67,8 +67,8 @@ do
     echo "/home/y/bin/yrootcp /usr/lib64/liblzo2* ${yrootname}:/usr/lib64/" |  ssh $machname
     echo 'chsh -s /bin/bash hadoopqa' | ssh ${machname} /home/y/bin/yroot ${yrootname}
     echo "mkdir -p /home/y/var/yroots/${yrootname}/home/hadoopqa/.ssh " |  ssh $machname
-    echo "/home/y/bin/yrootcp /$HOMEDIR/hadoopqa/.ssh/* ${yrootname}:/$HOMEDIR/hadoopqa/.ssh/ " |  ssh $machname
-    echo "/home/y/bin/yrootcp /$HOMEDIR/hadoopqa/hadoopqa.dev* ${yrootname}:/$HOMEDIR/hadoopqa/ " |  ssh $machname
+    echo "/home/y/bin/yrootcp $HOMEDIR/hadoopqa/.ssh/* ${yrootname}:$HOMEDIR/hadoopqa/.ssh/ " |  ssh $machname
+    echo "/home/y/bin/yrootcp $HOMEDIR/hadoopqa/hadoopqa.dev* ${yrootname}:$HOMEDIR/hadoopqa/ " |  ssh $machname
     echo "chown -R hadoopqa /home/y/var/yroots/${yrootname}/home/hadoopqa " |  ssh $machname
     echo "chgrp -R users /home/y/var/yroots/${yrootname}/home/hadoopqa " |  ssh $machname
     echo "chmod 700 /home/y/var/yroots/${yrootname}/home/hadoopqa/.ssh " |  ssh $machname

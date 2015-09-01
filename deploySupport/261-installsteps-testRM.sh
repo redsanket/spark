@@ -47,7 +47,7 @@ cd ${yroothome}
 #
 # At least one namenode must be able to work with the JT.
 #
-kinit -k -t /$HOMEDIR/mapred/mapred.dev.headless.keytab mapred
+kinit -k -t $HOMEDIR/mapred/mapred.dev.headless.keytab mapred
 export written=0
 export read=0
 tmpfile=tmp-\`date +%y%m%d%H%M\`
