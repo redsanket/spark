@@ -9,7 +9,9 @@ die() {
 # set the home directory based on the openstack node's zone,
 # this is needed for the grid-backplane nodes because they use
 # 'home' instead of 'homes', and export this as HOMEDIR
-NODE_DOMAIN=`echo $jobtrackernode | cut -d'.' -f2-`
+set -x
+RM_NODE=`rocl -r grid_re.clusters.$cluster.jobtracker -m`
+NODE_DOMAIN=`echo $RM_NODE | cut -d'.' -f2-`
 if [[ "$NODE_DOMAIN" == "blue.ygrid.yahoo.com" ]]; then
   echo "Setting HOME_DIR to home"
   export HOMEDIR="/home"
@@ -20,6 +22,7 @@ else
   echo "Error: unable to determine NODE_DOMAIN, HOME_DIR is not set!"
   exit 1
 fi
+set +x
 
 mkyicf() {
 	local pkgname=$1
