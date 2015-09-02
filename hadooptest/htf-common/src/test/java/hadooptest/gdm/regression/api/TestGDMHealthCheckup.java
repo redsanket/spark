@@ -167,13 +167,7 @@ public class TestGDMHealthCheckup extends TestSession {
 	 * @return
 	 */
 	private Map<String , String> getHealthCheckDetails(String facetName) {
-		String consoleHealthCheckUpTestURL  = null;
-		String environmentType = this.consoleHandle.getTestExecutionEnvironmentType();
-		if (environmentType.equals("oneNode"))  {
-			consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName)) +   "/" +facetName + "/api/summary" ;
-		} else {
-			consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL() + "/console/api/proxy/health?colo=gq1&facet=" + facetName ;
-		}
+		String	consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL()+ "/console/api/proxy/health?colo=gq1&facet=" + facetName;
 		TestSession.logger.info("consoleHealthCheckUpTestURL = " +consoleHealthCheckUpTestURL );
 		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(consoleHealthCheckUpTestURL);
 		assertTrue("Failed to get the response for " + consoleHealthCheckUpTestURL , (response != null) );
