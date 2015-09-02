@@ -16,7 +16,8 @@ then
 
     # GRIDCI-440, from RM node need to ssh to each NM as $MAPREDUSER with StrictHostKeyChecking=no
     # in order to create known_hosts, else RM access fails
-    for node in $SLAVELIST; do
+    SLAVELIST_TMP=`echo $SLAVELIST | tr ',' ' '`
+    for node in $SLAVELIST_TMP; do
       (
         echo "ssh -o StrictHostKeyChecking=no $node  hostname"
       ) | ssh  $jobtrackernode su - $MAPREDUSER

@@ -5,6 +5,11 @@
 # gridci-441, force pdsh to return non-zero on any node having an error
 # without this a failure will allow pdsh to continue, the error will
 # not be detected and cause other failures downstream
+#
+# NOTE: pdsh has a bug which will break a commandline if it has a trailing
+# ';' char, see:
+#       http://sourceforge.net/p/pdsh/mailman/message/290409/
+#
 FAST_WAIT_MIN=3
 # 10 minutes was not enought for wait for exit safemode
 SLOW_WAIT_MIN=15

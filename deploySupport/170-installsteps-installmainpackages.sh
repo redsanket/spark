@@ -43,4 +43,11 @@ echo ......
 fi
 
 # make sure the permission on var and var/run is correct. the cfg-datanode-mkdirs.sh in old config packates have a bug.
-fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi; "
+#
+# Need to remove the trailing ';' in the last 'fi', this causes pdsh -S to fail with:
+#    bash: -c: line 0: syntax error near unexpected token `;;'
+#    bash: -c: line 0: `<COMMAND_LINE> fi;;echo XXRETCODE:$?'
+# For details on the pdsh bug see:
+#  http://sourceforge.net/p/pdsh/mailman/message/290409/
+#
+fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi "

@@ -187,7 +187,6 @@ export ALLNAMENODESLIST=`echo $ALLNAMENODES  | tr ' ' ,`
 export ALLSECONDARYNAMENODESLIST=`echo $ALLSECONDARYNAMENODES  | tr ' ' ,`
 export ALLNAMENODESAndSecondariesList=`echo $ALLNAMENODESAndSecondaries  | tr ' ' ,`
 
-echo $HOSTLIST
 echo =====================================================
 echo ===  installing grid: $cluster
 echo =====================================================
@@ -199,6 +198,8 @@ echo ===  namenodes="$ALLNAMENODES"
 [ -n "$hitnodes" ] && echo gateways/hit-yroots="$hitnodes"
 echo ===  jobtrackernode=$jobtrackernode
 echo ===  confpkg=$confpkg
+echo ===  HOSTLIST=$HOSTLIST all nodes
+echo ===  SLAVELIST=$SLAVELIST slave nodes
 echo =====================================================
 echo =====================================================
 scripttmp=/grid/0/tmp/scripts.deploy.$cluster
