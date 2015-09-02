@@ -18,7 +18,7 @@ then
     # in order to create known_hosts, else RM access fails
     for node in $SLAVELIST; do
       (
-        echo "ssh -o StrictHostKeyChecking=no $node  hostname;exit"
+        echo "ssh -o StrictHostKeyChecking=no $node  hostname"
       ) | ssh  $jobtrackernode su - $MAPREDUSER
     done
 
