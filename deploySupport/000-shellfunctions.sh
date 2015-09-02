@@ -1,14 +1,20 @@
 #
 # Various forms of 'pdsh' invocation, with different expected timeout values.
 #
+
+# gridci-441, force pdsh to return non-zero on any node having an error
+# without this a failure will allow pdsh to continue, the error will
+# not be detected and cause other failures downstream
+PDSH="pdsh -S "
+
 fanout() {
 	# echo 'fanout: start on ' `date +%H:%M:%S`
-	[ -n "$HOSTLIST" ] && pdsh -w "$HOSTLIST" -u 180 -f 25 $*
+	[ -n "$HOSTLIST" ] && $PDSH -w "$HOSTLIST" -u 180 -f 25 $*
 	# echo 'fanout: end on ' `date +%H:%M:%S`
 }
 fanoutnogw() {
         # echo 'fanoutnogw: (not to gateway) start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLISTNOGW" ] && pdsh -w "$HOSTLISTNOGW" -u 180 -f 25 $*
+        [ -n "$HOSTLISTNOGW" ] && $PDSH -w "$HOSTLISTNOGW" -u 180 -f 25 $*
         # echo 'fanoutnogw: (not to gateway) end on ' `date +%H:%M:%S`
 }
 
@@ -72,35 +78,35 @@ recordpkginstall() {
 }
 slavefanout() {
 	echo 'slavefanout: start on ' `date +%H:%M:%S`
-	pdsh -w "$SLAVELIST" -u 180 -f 25 $*
+	$PDSH -w "$SLAVELIST" -u 180 -f 25 $*
 	echo 'slavefanout: end on ' `date +%H:%M:%S`
 }
 slownogwfanout() {
         echo 'slownogwfanout: (not to gateway) start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLISTNOGW" ] && pdsh -w "$HOSTLISTNOGW" -u 600 -f 25 $*
+        [ -n "$HOSTLISTNOGW" ] && $PDSH -w "$HOSTLISTNOGW" -u 600 -f 25 $*
         echo 'slownogwfanout: (not to gateway) end on ' `date +%H:%M:%S`
 }
 
 slowfanout() {
 	echo 'slowfanout: start on ' `date +%H:%M:%S`
-	pdsh -w "$HOSTLIST" -u 600 -f 25 $*
+	$PDSH -w "$HOSTLIST" -u 600 -f 25 $*
 	echo 'slowfanout: end on ' `date +%H:%M:%S`
 }
 export ALLNAMENODESLIST=`echo $ALLNAMENODES  | tr ' ' ,`
 export ALLNAMENODESAndSecondariesList=`echo $ALLNAMENODESAndSecondaries  | tr ' ' ,`
 fanoutNN() {
 	echo 'fanoutNN: start on ' `date +%H:%M:%S`
-	pdsh -w "$ALLNAMENODESLIST" -u 600 -f 25 $*
+	$PDSH -w "$ALLNAMENODESLIST" -u 600 -f 25 $*
 	echo 'fanoutNN: end on ' `date +%H:%M:%S`
 }
 fanoutSecondary() {
 	echo 'fanoutSecondary: start on ' `date +%H:%M:%S`
-	pdsh -w "$ALLSECONDARYNAMENODESLIST" -u 600 -f 25 $*
+	$PDSH -w "$ALLSECONDARYNAMENODESLIST" -u 600 -f 25 $*
 	echo 'fanoutSecondary: end on ' `date +%H:%M:%S`
 }
 fanoutNNAndSecondary() {
 	echo 'fanoutNNAndSecondary: start on ' `date +%H:%M:%S`
-	pdsh -w "$ALLNAMENODESAndSecondaries" -u 600 -f 25 $*
+	$PDSH -w "$ALLNAMENODESAndSecondaries" -u 600 -f 25 $*
 	echo 'fanoutNNAndSecondary: end on ' `date +%H:%M:%S`
 }
 fanoutHBASETestClient() {
@@ -128,7 +134,7 @@ fanoutHBASEMASTER() {
 fanoutHBASEZOOKEEPER() {
         echo 'fanoutHBASEZOOKEEPER: start on ' `date +%H:%M:%S`
         HBASEZOOKEEPERNODELIST=`echo $HBASEZOOKEEPERNODE| tr ' ' ,`
-        pdsh -w "$HBASEZOOKEEPERNODELIST" -u 600 -f 25 -S $*
+        $PDSH -w "$HBASEZOOKEEPERNODELIST" -u 600 -f 25 -S $*
         st=$?
         echo 'fanoutHBASEZOOKEEPER: end on ' `date +%H:%M:%S`
         return $st
@@ -136,7 +142,7 @@ fanoutHBASEZOOKEEPER() {
 fanoutREGIONSERVER() {
         echo 'fanoutREGIONSERVER: start on ' `date +%H:%M:%S`
         REGIONSERVERLIST=`echo $REGIONSERVERNODES| tr ' ' ,`
-        pdsh -w "$REGIONSERVERLIST" -u 600 -f 25 -S $*
+        $PDSH -w "$REGIONSERVERLIST" -u 600 -f 25 -S $*
         st=$?
         echo 'fanoutREGIONSERVER: end on ' `date +%H:%M:%S`
         return $st
@@ -146,7 +152,7 @@ fanoutREGIONSERVER() {
 fanoutHiveServer2() {
         echo 'fanoutHiveServer2: start on ' `date +%H:%M:%S`
         HIVE_SERVER2_LIST=`echo $hs2_nodes | tr ' ' ,`
-        pdsh -w "$HIVE_SERVER2_LIST" -u 600 -f 25 -S $*
+        $PDSH -w "$HIVE_SERVER2_LIST" -u 600 -f 25 -S $*
         st=$?
         echo 'fanoutHiveServer2: end on ' `date +%H:%M:%S`
         return $st
@@ -155,7 +161,7 @@ fanoutHiveServer2() {
 fanoutHiveClient() {
         echo 'fanoutHiveClient: start on ' `date +%H:%M:%S`
         HIVE_CLIENT_LIST=`echo $hive_client | tr ' ' ,`
-        pdsh -w "$HIVE_CLIENT_LIST" -u 600 -f 25 -S $*
+        $PDSH -w "$HIVE_CLIENT_LIST" -u 600 -f 25 -S $*
         st=$?
         echo 'fanoutHiveClient: end on ' `date +%H:%M:%S`
         return $st
@@ -164,7 +170,7 @@ fanoutHiveClient() {
 fanoutHiveJdbcClient() {
         echo 'fanoutHiveJdbcClient: start on ' `date +%H:%M:%S`
         JDBC_CLIENT_LIST=`echo $jdbc_client | tr ' ' ,`
-        pdsh -w "$JDBC_CLIENT_LIST" -u 600 -f 25 -S $*
+        $PDSH -w "$JDBC_CLIENT_LIST" -u 600 -f 25 -S $*
         st=$?
         echo 'fanoutHiveJdbcClient: end on ' `date +%H:%M:%S`
         return $st
@@ -173,7 +179,7 @@ fanoutHiveJdbcClient() {
 fanoutHiveMysql() {
         echo 'fanoutHiveMysql: start on ' `date +%H:%M:%S`
         HIVE_MYSQL_LIST=`echo $hive_mysql | tr ' ' ,`
-        pdsh -w "$HIVE_MYSQL_LIST" -u 600 -f 25 -S $*
+        $PDSH -w "$HIVE_MYSQL_LIST" -u 600 -f 25 -S $*
         st=$?
         echo 'fanoutHiveMysql: end on ' `date +%H:%M:%S`
         return $st
@@ -182,7 +188,7 @@ fanoutHiveMysql() {
 fanoutHcatServer() {
         echo 'fanoutHcatServer: start on ' `date +%H:%M:%S`
         HCAT_SERVER_LIST=`echo $hcat_server | tr ' ' ,`
-        pdsh -w "$HCAT_SERVER_LIST" -u 600 -f 25 -S $*
+        $PDSH -w "$HCAT_SERVER_LIST" -u 600 -f 25 -S $*
         st=$?
         echo 'fanoutHcatServer: end on ' `date +%H:%M:%S`
         return $st
@@ -195,7 +201,7 @@ fanoutTez() {
       return 1
    fi
    TEZ_NODE_LIST=`echo $teznode | tr ' ' ,`
-   pdsh -w "$TEZ_NODE_LIST" -u 600 -f 25 -S $*
+   $PDSH -w "$TEZ_NODE_LIST" -u 600 -f 25 -S $*
    st=$?
    echo 'fanoutTez: end on ' `date +%H:%M:%S`
    return $st
@@ -204,7 +210,7 @@ fanoutTez() {
 fanoutOneTez() {
    echo 'fanoutOneTez: start on ' `date +%H:%M:%S`
    TEZ_NODE_LIST=`echo $teznode | cut -f1 -d ' '`
-   pdsh -w "$TEZ_NODE_LIST" -u 600 -f 25 -S $*
+   $PDSH -w "$TEZ_NODE_LIST" -u 600 -f 25 -S $*
    st=$?
    echo 'fanoutOneTez: end on ' `date +%H:%M:%S`
    return $st
@@ -217,7 +223,7 @@ fanoutTezUI() {
      return 1
   fi 
   TEZ_UI_NODE_LIST=`echo $jobtrackernode | tr ' ' ,`
-  pdsh -w "$TEZ_UI_NODE_LIST" -u 600 -f 25 -S $*
+  $PDSH -w "$TEZ_UI_NODE_LIST" -u 600 -f 25 -S $*
   st=$?
   echo 'fanoutTez_UI: end on ' `date +%H:%M:%S`
   return $st

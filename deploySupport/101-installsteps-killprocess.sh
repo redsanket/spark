@@ -17,7 +17,7 @@ then
 
 	echo "Step 1c: stop data nodes, if running."
 	fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
-	pdsh -w "$SLAVELIST" "export HDFSUSER=$HDFSUSER && sh /tmp/datanode-script.sh stop $cluster > /dev/null 2>&1"
+	$PDSH -w "$SLAVELIST" "export HDFSUSER=$HDFSUSER && sh /tmp/datanode-script.sh stop $cluster > /dev/null 2>&1"
 
 	# kill any running processes.
 
