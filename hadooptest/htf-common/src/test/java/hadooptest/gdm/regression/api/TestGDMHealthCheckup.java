@@ -2,18 +2,13 @@ package hadooptest.gdm.regression.api;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import hadooptest.TestSession;
-import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.XMLConfiguration;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,20 +17,13 @@ import org.junit.Test;
 import com.jayway.restassured.path.json.JsonPath;
 
 /**
- * 
- *  Test Case : To test GDM HealthCheckup on facets. 
- *
+ *  Test Case : To test GDM HealthCheckup on facets.
  */
 public class TestGDMHealthCheckup extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private String cookie;
-	private String url;
 	private String targetGrid1;
-	private String targetGrid2;
-	private Configuration conf;
-	private String environmentType;
-	private String testURL;
 	private List<String> hcatSupportedGrid;
 	private static final String HCAT_ENABLED = "TRUE";
 	private static final String HCAT_DISABLED = "FALSE";
@@ -50,7 +38,6 @@ public class TestGDMHealthCheckup extends TestSession {
 		this.consoleHandle = new ConsoleHandle();
 		HTTPHandle httpHandle = new HTTPHandle();
 		this.cookie = httpHandle.getBouncerCookie();
-		this.url = this.consoleHandle.getConsoleURL();
 
 		// get all the hcat supported clusters
 		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
@@ -65,20 +52,6 @@ public class TestGDMHealthCheckup extends TestSession {
 			
 			// initially disable hcat 
 			disableHCatOnDataSource(this.targetGrid1);
-		}
-		String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
-		this.conf = new XMLConfiguration(configPath);
-		this.environmentType = this.conf.getString("hostconfig.console.test_environment_type");
-		if (this.environmentType.equals("oneNode")) {
-			String consoleURL = this.conf.getString("hostconfig.console.base_url");
-			this.testURL = consoleURL;
-		} else if (this.environmentType.equals("staging")) {
-			TestSession.logger.info("**  staging **");
-			String consoleURL = this.conf.getString("hostconfig.console.staging_console_url");
-			this.testURL = consoleURL + "/console/api/proxy/health?colo=gq1&facet=" ;
-		} else  {
-			TestSession.logger.info("****** Specified invalid test environment ******** ");
-			fail("Unknown test environment specified.");
 		}
 	}
 
@@ -195,10 +168,11 @@ public class TestGDMHealthCheckup extends TestSession {
 	 */
 	private Map<String , String> getHealthCheckDetails(String facetName) {
 		String consoleHealthCheckUpTestURL  = null;
-		if (this.environmentType.equals("oneNode"))  {
-			consoleHealthCheckUpTestURL = this.testURL.replace("9999", this.consoleHandle.getFacetPortNo(facetName)) +   "/" +facetName + "/api/summary" ;
+		String environmentType = this.consoleHandle.getTestExecutionEnvironmentType();
+		if (environmentType.equals("oneNode"))  {
+			consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName)) +   "/" +facetName + "/api/summary" ;
 		} else {
-			consoleHealthCheckUpTestURL = this.testURL + facetName ;
+			consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL() + "/console/api/proxy/health?colo=gq1&facet=" + facetName ;
 		}
 		TestSession.logger.info("consoleHealthCheckUpTestURL = " +consoleHealthCheckUpTestURL );
 		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(consoleHealthCheckUpTestURL);
