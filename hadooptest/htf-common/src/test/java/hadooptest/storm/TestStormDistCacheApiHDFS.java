@@ -40,6 +40,11 @@ public class TestStormDistCacheApiHDFS extends TestStormDistCacheApi {
             mc.setConf("nimbus_blobstore_class", "backtype.storm.blobstore.HdfsBlobStore", StormDaemon.NIMBUS);
             mc.setConf("supervisor_blobstore_class", "backtype.storm.blobstore.HdfsClientBlobStore", StormDaemon.SUPERVISOR);
             mc.restartCluster();
+            String cmdHost = conf.getProperty("BLOB_SETUP_HDFS_HOST");
+            String mkUserScript = conf.getProperty("BLOB_SETUP_HDFS_CMD");
+            if ( cmdHost !=null && mkUserScript != null ) {
+                exec.runProcBuilder( new String[] { "ssh", cmdHost, mkUserScript }, true );
+            }
         }
     }
 
