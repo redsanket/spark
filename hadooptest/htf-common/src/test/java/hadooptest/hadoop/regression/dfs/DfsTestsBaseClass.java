@@ -478,7 +478,7 @@ public class DfsTestsBaseClass extends TestSession {
 		// JSch.setLogger(new MyLogger());
 
 		TestSession.logger.info("SSH Client is about to run command:" + command
-				+ " on host:" + host + "as user:" + user
+				+ " on host:" + host + " as user:" + user
 				+ " using identity file:" + identityFile);
 		Session session;
 		StringBuilder sb = new StringBuilder();
