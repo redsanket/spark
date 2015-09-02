@@ -14,6 +14,14 @@ if [ "$STARTYARN" = true ]
 then
     echo == starting up yarn servers.
 
+    # GRIDCI-440, from RM node need to ssh to each NM as $MAPREDUSER with StrictHostKeyChecking=no
+    # in order to create known_hosts, else RM access fails
+    for node in $SLAVELIST; do
+      (
+        echo "ssh -o StrictHostKeyChecking=no $node  hostname;exit"
+      ) | ssh  $jobtrackernode su - $MAPREDUSER
+    done
+
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
 #    echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode
 
