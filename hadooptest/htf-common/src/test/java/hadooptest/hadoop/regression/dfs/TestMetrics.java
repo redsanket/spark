@@ -17,6 +17,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runners.Parameterized.Parameters;
 
+import java.net.InetAddress;
+
 @Category(SerialTests.class)
 public class TestMetrics extends DfsTestsBaseClass {
 	String protocol;
@@ -110,7 +112,12 @@ public class TestMetrics extends DfsTestsBaseClass {
 		sb.append(" ");
 		sb.append("-f2");
 
-		String response = doJavaSSHClientExec("hdfsqa", "localhost",
+		InetAddress ip;
+		String hostname;
+
+		ip = InetAddress.getLocalHost();
+		hostname = ip.getHostName();
+		String response = doJavaSSHClientExec("hdfsqa", hostname,
 				sb.toString(), HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
 		PROP_REFRESH_TIME = Integer.parseInt(response.trim());
 
