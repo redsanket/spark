@@ -81,10 +81,10 @@ then
     fi
     echo "======= short-term workaround Nov 15: start up DN as $HDFSUSER"
     ## dnstartupuser=$HDFSUSER
-    ## pdsh -w "$SLAVELIST"  "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh  /tmp/datanode-script.sh  && export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && su $dnstartupuser  -c 'sh /tmp/datanode-script.sh $arg $cluster' "
+    ## $PDSH -w "$SLAVELIST"  "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh  /tmp/datanode-script.sh  && export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && su $dnstartupuser  -c 'sh /tmp/datanode-script.sh $arg $cluster' "
 
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
-    pdsh -w "$SLAVELIST" "export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export  JAVA_HOME=$GSHOME/java/jdk64/current && sh /tmp/datanode-script.sh $arg $cluster  && rm -f /tmp/datanode-script.sh"
+    $PDSH -w "$SLAVELIST" "export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export  JAVA_HOME=$GSHOME/java/jdk64/current && sh /tmp/datanode-script.sh $arg $cluster  && rm -f /tmp/datanode-script.sh"
 
     (
     echo "export GSHOME=$GSHOME"
