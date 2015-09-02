@@ -272,10 +272,22 @@ pwd=`pwd`
 hostname=`hostname`
 whoami=`whoami`
 index=1
+START_STEP=${START_STEP:="0"}
+echo "==============================================="
+echo "installgrid.sh: run install steps scripts:"
+echo "==============================================="
 for script in ${base}/[0-9][0-9]*-installsteps-*.sh
 do
   if [[  -e $script ]]
   then
+
+    script_sn=`basename $script`
+    current_step=`echo $script_sn|cut -d'-' -f1|bc`
+    if [[ $current_step -lt $START_STEP ]];then
+       echo "SKIP deploy script: ${script_sn}: less than starting step '$START_STEP'"
+       continue;
+    fi
+
     #banner running $f
     set +x
     sleep 1
