@@ -1,10 +1,10 @@
 package hadooptest.gdm.regression.selfserve;
 
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import hadooptest.TestSession;
@@ -13,10 +13,10 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
-import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedExecutor;
 
-import org.junit.After;
-import org.junit.AfterClass;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.XMLConfiguration;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,16 +24,16 @@ import org.junit.Test;
 public class TestCreateRetentionOnlyDataSet extends TestSession {
 
 	private ConsoleHandle consoleHandle;
-
 	private String target1;
 	private String target2;
 	private List<String> grids = new ArrayList<String>();
-	private HTTPHandle httpHandle = null; 
 	private WorkFlowHelper workFlowHelperObj = null;
-	private FullyDistributedExecutor executor = new FullyDistributedExecutor();
+	private String hostName;
+	private String environmentType;
+	private Configuration conf;
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	public static final int FAILED = 500;
-	
+
 	@BeforeClass
 	public static void startTestSession() {
 		TestSession.start();
@@ -49,35 +49,42 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 		this.target1 = this.grids.get(0);
 		this.target2 = this.grids.get(1);
 		TestSession.logger.info("Using grids " + this.target1  + "  & " +  this.target2);
-		
-		// set the yinst setting 
-		String []yinst  = executor.runProcBuilder(new String [] {"./resources/gdm/restart/gdm_yinst_set.sh" , "console" , "ygrid_gdm_console_server.bouncer_selfserve_create_retentionOnly_role" , "B"});
-		for ( String  s : yinst ) {
-			TestSession.logger.info(s);
+
+		workFlowHelperObj = new WorkFlowHelper();
+		WorkFlowHelper workFlowHelperObj  = new WorkFlowHelper();
+		String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
+		this.conf = new XMLConfiguration(configPath);
+		this.environmentType = this.conf.getString("hostconfig.console.test_environment_type");
+		if (environmentType.equals("oneNode")) {
+			TestSession.logger.info("Test can't  be executed on oneNode");
+		} else if (environmentType.equals("staging")) {
+			TestSession.logger.info("**  staging **");
+			String consoleURL = this.conf.getString("hostconfig.console.staging_console_url");
+			this.hostName = Arrays.asList(consoleURL.split(":")).get(1).replaceAll("//", "").trim();
+			String YINST_COMMAND = "ssh " + this.hostName + "  \"yinst set ygrid_gdm_console_server.bouncer_selfserve_create_retentionOnly_role=B\""  ;
+			String output = workFlowHelperObj.executeCommand(YINST_COMMAND);
+			this.consoleHandle.sleep(30000);			
+			YINST_COMMAND = "ssh " + this.hostName + "  yinst restart ygrid_gdm_console_server";
+			output = workFlowHelperObj.executeCommand(YINST_COMMAND);
+			this.consoleHandle.sleep(60000);
+		} else  {
+			TestSession.logger.info("****** Specified invalid test environment ******** ");
+			fail("Unknown test environment specified.");
 		}
+	}
 
-		// stop the retention facet
-		String stop[] =  executor.runProcBuilder(new String [] {"./resources/gdm/restart/StopStartFacet.sh" , "console" , "stop" });
-		for ( String  s : stop ) {
-			TestSession.logger.info(s);
-		}
-
-		// start the retention facet
-		String start[] =  executor.runProcBuilder(new String [] {"./resources/gdm/restart/StopStartFacet.sh" , "console" , "start" });
-		for ( String  s : start ) {
-			TestSession.logger.info(s);
-		}
-
-		// wait for some time, so that classes gets loaded successfully
-		TestSession.logger.info("Please wait for a minutes, so that discovery can start...! ");
-		this.consoleHandle.sleep(60000);
-
+	@Test
+	public void test() throws Exception {
+		testCreatingRetentionDataSetWithOutEnablingSelfServe();
+		testCreatingRetentionDataSetWithOutEnablingDoAs();
+		testCreatingRetentionDataSetWithOutEnablingReplicationDoAs();
+		testCreatingRetentionDataSetWithOutEnablingRetentionDoAs();
+		testCreatingRetentionOnlyDataSuccessfully();
 	}
 
 	/**
 	 * Test Scenario : Verify whether non-admin user is not able to create the dataset, when self serve is not enabled.
 	 */
-	@Test
 	public  void testCreatingRetentionDataSetWithOutEnablingSelfServe() {
 		String dataSetName = "CreateDataSetWithOutSelfServerEnabled_" + System.currentTimeMillis();
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/DoAsRetentionDataSet.xml");
@@ -113,7 +120,6 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 	/**
 	 * Test Scenario : Verify whether non-admin user is not able to create the dataset, when doAs is not enabled.
 	 */
-	@Test
 	public void testCreatingRetentionDataSetWithOutEnablingDoAs() {
 		String dataSetName = "CreateDataSetWithOutDoAsEnabled_" + System.currentTimeMillis();
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/DoAsRetentionDataSet.xml");
@@ -154,7 +160,6 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 	/**
 	 * Test Scenario : Verify whether non-admin user is not able to create the dataset, when Replication doAs is not enabled.
 	 */
-	@Test
 	public void testCreatingRetentionDataSetWithOutEnablingReplicationDoAs() {
 
 		//Note : <RunAsOwner>retention</RunAsOwner> tag exists in  DoAsRetentionDataSet.xml file.
@@ -195,7 +200,6 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 	/**
 	 * Verify whether non-admin user is not able to create the dataset, when retention doAs is not enabled.
 	 */
-	@Test
 	public void testCreatingRetentionDataSetWithOutEnablingRetentionDoAs() {
 		String dataSetName = "CreateDataSetWithOutDoAsRetentionEnabled_" + System.currentTimeMillis();
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/DoAsRetentionDataSet.xml");
@@ -231,12 +235,10 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 		}
 	}
 
-
 	/**
 	 * Verify whether non-admin user is able to create a dataset, when doAs (replication and retention) and self serve is enabled. 
 	 * @throws Exception 
 	 */
-	@Test
 	public void testCreatingRetentionOnlyDataSuccessfully() throws Exception {
 		String dataSetName = "CreateRetentionOnlyDataSet_NonAdmin_" + System.currentTimeMillis();
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/DoAsRetentionDataSet.xml");
