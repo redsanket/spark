@@ -38,6 +38,14 @@ esac
 # echo "Part 2: beginning."
 if [ $CMD == "start" ]; then
     # echo "Part 2 started and we really should be running as root, for this."
+
+    # GRIDCI-443 - CID out of sync
+    if [[ $ERASEENABLED == "true" ]]; then
+        if [ -e /grid/0/tmp/hadoop-$HDFSUSER ]; then
+            rm -rf /grid/0/tmp/hadoop-$HDFSUSER
+        fi
+    fi
+
     if [ "`whoami`" != "root" ]
     then
         $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start datanode $nameStartOpt
