@@ -76,8 +76,10 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 			throw new Exception("Unable to run " + this.dataSetName1  +" 2 grid datasources are required.");
 		}
 
-		this.targetGrid1 = hcatSupportedGrid.get(0).trim();
-		TestSession.logger.info("Using grids " + this.targetGrid1  );
+		if (! this.hcatSupportedGrid.get(0).equals(SOURCE_NAME) ) {
+			this.targetGrid1 = hcatSupportedGrid.get(1).trim();
+			TestSession.logger.info("Using grids " + this.targetGrid1  );	
+		}
 
 		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
 		TestSession.logger.info("Using grids " + this.targetGrid2  );
@@ -97,10 +99,10 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 
 	@Test
 	public void testTablePropagation() throws Exception {
+
 		// check whether ABF data is available on the specified source
 		List<String>instanceDates = getInstanceFiles();
 		assertTrue("ABF data is missing so testing can't be done, make sure whether the ABF data path is correct...!" , instanceDates != null);
-
 
 		// Base dataset that replicates the data on the target1 and creates the hcat table and partition (hierachical-partitions)
 		{
@@ -117,27 +119,10 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 				this.workFlowHelper.checkWorkFlow(this.dataSetName1 , "replication" , datasetActivationTime , instanceDate);
 			}
 
-			// get Hcat server name for targetGrid
-			String hCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
-			assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , hCatServerName != null);
-			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
-
-			// check whether hcat table is created for Mixed HCatTargetType on replication facet's HCat server
-			boolean isTableCreated = this.hcatHelperObject.isTableExists(hCatServerName, this.dataSetName1 , this.DATABASE_NAME);
-			assertTrue("Failed to HCAT create table for " + this.dataSetName1 , isTableCreated == true);
-
-			// get the partition details of the dataset
-			JSONArray jsonArray = getPartitionDetails(this.targetGrid1 , this.dataSetName1);
-
-			// check whether instance is part of the files on the HDFS
-			for (String instanceDate : instanceDates ) {
-				checkInstanceExistsInLocationPath(jsonArray , instanceDate);
-			}
-
-			// check whether location matches with the partition keys
-			checkLocationMatchesWithPartitionKeys(jsonArray , "hdfs");
+			String replicationHTableName = this.hcatHelperObject.getHCatTableName(this.targetGrid1 , this.dataSetName1, "replication");
+			String tempDataSetName = this.dataSetName1.trim().toLowerCase().replaceAll("-", "_");
+			assertTrue("Expected " + tempDataSetName   + "  but got " + replicationHTableName , replicationHTableName.equals(tempDataSetName));
 		}
-
 
 		// table propagation with hierachical-partitions
 		{
@@ -153,25 +138,9 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 				this.workFlowHelper.checkWorkFlow(this.dataSetName2 , "replication" , datasetActivationTime , instanceDate);
 			}
 
-			// get Hcat server name for targetGrid
-			String hCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
-			assertTrue("Failed to get the HCatServer Name for " + this.targetGrid2 , hCatServerName != null);
-			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + hCatServerName);
-
-			boolean isTableCreated = this.hcatHelperObject.isTableExists(hCatServerName, this.dataSetName1 , this.DATABASE_NAME);
-			assertTrue("Failed to HCAT create table for " + this.dataSetName1 , isTableCreated == true);
-
-			// get the partition details of the dataset
-			JSONArray jsonArray = getPartitionDetails(this.targetGrid2 , this.dataSetName2);
-
-			// check whether instance is part of the files on the HDFS
-			for (String instanceDate : instanceDates ) {
-				checkInstanceExistsInLocationPath(jsonArray , instanceDate);
-			}
-
-			// check whether location matches with the partition keys
-			// changed to hdfs after webhdfs https://jira.corp.yahoo.com/browse/GDM-333
-			checkLocationMatchesWithPartitionKeys(jsonArray , "hdfs");
+			String replicationHTableName = this.hcatHelperObject.getHCatTableName(this.targetGrid2 , this.dataSetName2, "replication");
+			String tempDataSetName = this.dataSetName2.trim().toLowerCase().replaceAll("-", "_");
+			assertTrue("Expected " + tempDataSetName + "  but got " + replicationHTableName , replicationHTableName.equals(tempDataSetName));
 		}
 	}
 
@@ -200,9 +169,7 @@ public class TestABFHCATHierachicalPartitions extends TestSession {
 		dataSetXml = dataSetXml.replaceAll("owner=\"DATA_OWNER\"", "");
 		dataSetXml = dataSetXml.replaceAll("<RunAsOwner>FACET</RunAsOwner>", "");
 		dataSetXml = dataSetXml.replace("DATABASE", this.DATABASE_NAME);
-
 		TestSession.logger.info(dataSetXml);
-
 		Response response = this.consoleHandle.createDataSet(this.dataSetName1, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
 			try {
