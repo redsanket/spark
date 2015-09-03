@@ -16,12 +16,12 @@ then
 
     # GRIDCI-440, from RM node need to ssh to each NM as $MAPREDUSER with StrictHostKeyChecking=no
     # in order to create known_hosts, else RM access fails
-    SLAVELIST_TMP=`echo $SLAVELIST | tr ',' ' '`
-    for node in $SLAVELIST_TMP; do
-      (
-        echo "ssh -o StrictHostKeyChecking=no $node  hostname"
-      ) | ssh  $jobtrackernode su - $MAPREDUSER
-    done
+    ( echo "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' /usr/bin/pdsh -w $SLAVELIST hostname" ) |\
+ssh  $jobtrackernode su - $MAPREDUSER
+
+    # GRIDCI-444 - nm health check for openstack
+    fanoutcmd "scp $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
+    slavefanout "sh -x /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
 
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
 #    echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode

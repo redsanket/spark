@@ -31,6 +31,10 @@ fanoutnogw() {
         # echo 'fanoutnogw: (not to gateway) end on ' `date +%H:%M:%S`
 }
 
+# parameter 1 - command to run
+# parameter 2 - comma separated host names
+# __HOSTNAME__ in the command arg will be replaced by a singe hostname
+# for each execution.
 fanoutcmd() {
     command=$1
     if [[ -z $command ]]; then
