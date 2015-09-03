@@ -277,6 +277,8 @@ START_STEP=${START_STEP:="0"}
 echo "==============================================="
 echo "installgrid.sh: run install steps scripts:"
 echo "==============================================="
+# Be careful not to name any variable in any downstream scripts with the name
+# $script because it will override the $script variable here.
 for script in ${base}/[0-9][0-9]*-installsteps-*.sh
 do
   if [[  -e $script ]]
@@ -287,6 +289,13 @@ do
     if [[ $current_step -lt $START_STEP ]];then
        echo "SKIP deploy script: ${script_sn}: less than starting step '$START_STEP'"
        continue;
+    fi
+
+    if ([[ $RUN_HIT_TESTS == "false" ]] && [[ $INSTALL_HIT_TEST_PACKAGES == "false" ]]); then
+        if [[ $script_sn =~ "-HIT-" ]]; then
+            echo "RUN_HIT_TESTS and INSTALL_HIT_TEST_PACKAGES are false: SKIP HIT deployment script: $script"
+            continue
+        fi
     fi
 
     #banner running $f

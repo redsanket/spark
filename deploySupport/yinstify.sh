@@ -98,8 +98,21 @@ mkyicf  "$pkg"  "$pkg.yicf"  "YINST start 200  $cmd"
 # echo "YINST start 100 env" >> $pkg.yicf
 echo "f 0755 - - conf/hadoop/hadoopAutomation/$f  $f " >> $pkg.yicf
 
-for f in cleangrid.sh namenode*.sh datanode*.sh cluster-list.sh *-rw.sh   dump*.sh [0-9]*-*.sh HIT-hdfsproxy-install.sh *.pl *.py *igor*.sh
-do
+scripts="\
+*.pl \
+*.py \
+*igor*.sh \
+HIT-hdfsproxy-install.sh \
+[0-9]*-*.sh \
+cleangrid.sh \
+cluster-list.sh *-rw.sh \
+datanode*.sh \
+dump*.sh \
+namenode*.sh \
+setup_nm_health_check_script.sh \
+"
+
+for f in $scripts do
     echo "f 0755 - - conf/hadoop/hadoopAutomation/$f  $f" >> $pkg.yicf
 done
 
