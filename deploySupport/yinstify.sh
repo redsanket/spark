@@ -112,7 +112,7 @@ namenode*.sh \
 setup_nm_health_check_script.sh \
 "
 
-for f in $scripts do
+for f in $scripts; do
     echo "f 0755 - - conf/hadoop/hadoopAutomation/$f  $f" >> $pkg.yicf
 done
 
