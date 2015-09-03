@@ -2,7 +2,7 @@
 
 # Move the existing file if it exists
 script="/home/gs/conf/local/nm_health_check"
-if [[ -f $script ]]; do
+if [[ -f $script ]]; then
   mv $script $script.orig.`date +%s`
 fi
 
