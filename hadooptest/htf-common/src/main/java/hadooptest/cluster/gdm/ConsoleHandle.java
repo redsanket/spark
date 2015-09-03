@@ -42,7 +42,9 @@ public final class ConsoleHandle
 	private static final String WORKFLOW_COMPLETED_EXIT_STATUS = "COMPLETED";
 	private static final String WORKFLOW_FAILED_EXIT_STATUS = "FAILED";
 	private static final int SUCCESS = 200;
-
+	public static final String HCAT_LIST_REST_API = "/api/admin/hcat/table/list?dataSource=";
+	
+	
 	public HTTPHandle httpHandle = null;
 	private Response response;
 	private String consoleURL;
@@ -59,7 +61,10 @@ public final class ConsoleHandle
 	private String target2;
 	private String target3;
 	private String environmentType;
-
+	private String acquisitionHostName;
+	private String replicationHostName;
+	private String retentionHostName;
+	
 	public ConsoleHandle() {
 		init();
 		this.httpHandle = new HTTPHandle();
@@ -105,6 +110,9 @@ public final class ConsoleHandle
 			} else if (this.environmentType.equals("staging")) {
 				TestSession.logger.info("****** Staging test Environment ******** ");
 				this.consoleURL = this.conf.getString("hostconfig.console.staging_console_url");
+				this.acquisitionHostName = this.conf.getString("hostconfig.console.acquisitionHostName");
+				this.replicationHostName = this.conf.getString("hostconfig.console.replicationHostName");
+				this.retentionHostName = this.conf.getString("hostconfig.console.retentionHostName");
 			} else  {
 				TestSession.logger.info("****** Specified invalid test environment ******** ");
 				System.exit(1);
@@ -125,11 +133,88 @@ public final class ConsoleHandle
 		}
 	}
 	
+	/**
+	 * return the execution environment type ( either oneNode or staging)
+	 * @return
+	 */
 	public String getTestExecutionEnvironmentType() {
 		return this.environmentType.trim();
 	}
-	
 
+	/**
+	 * return the acquisition hostname
+	 * @return
+	 */
+	private String getAcquisitionHostName(){
+		return this.acquisitionHostName;
+	}
+
+	/**
+	 * return the replication name
+	 * @return
+	 */
+	private String getReplicationHostName() {
+		return this.replicationHostName;
+	}
+
+	/**
+	 * return the retention hostname
+	 * @return
+	 */
+	private String getRetentionHostName() {
+		return this.retentionHostName;
+	}
+
+	/**
+	 * return the specified facet hostname
+	 * @param facetName
+	 * @return
+	 */
+	public String getFacetHostName(String facetName) {
+		String hostName = null;
+		if (facetName.equals("acquisition")) {
+			hostName = this.getAcquisitionHostName();
+		} else if (facetName.equals("replication")) {
+			hostName = this.getReplicationHostName();
+		} else if (facetName.equals("retention")) {
+			hostName = this.getRetentionHostName();
+		} else if (facetName.equals("console")) {
+			hostName = Arrays.asList(this.consoleURL.split(":")).get(1).replaceAll("//", "");
+		} else {
+			TestSession.logger.error("Unknown facetName specified " + facetName);
+			fail("Unknown facetName specified " + facetName);
+		}
+		return hostName;
+	}
+	
+	/**
+	 * get the rest api based on the environment and facet type
+	 * @param restApiType
+	 * @param facetName
+	 * @return
+	 */
+	public String getRestAPI(String restApiType , String facetName ) {
+		String api = this.getAPI(restApiType);
+		String url = null; 
+		if (this.getTestExecutionEnvironmentType().equals("oneNode")) {
+			StringBuffer buffer = new StringBuffer(this.getConsoleURL().replaceAll("9999", this.getFacetPortNo(facetName))).append("/" + facetName).append(api);
+			url = buffer.toString();
+		} else if (this.getTestExecutionEnvironmentType().equals("staging")) {
+			StringBuffer buffer = new StringBuffer("http://").append(this.getFacetHostName(facetName)).append(":9999/").append(facetName).append(api);
+			url = buffer.toString();
+		}
+		return url;
+	}
+	
+	private String getAPI(String restApiType) {
+		String api = null;
+		if (restApiType.equals(HCAT_LIST_REST_API)) {
+			api = HCAT_LIST_REST_API;
+		}
+		return api;
+	}
+	
+	
 	/**
 	 * Return the instance of Configuration
 	 * @return

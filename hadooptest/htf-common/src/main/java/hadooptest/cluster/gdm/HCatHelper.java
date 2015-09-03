@@ -4,15 +4,20 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import hadooptest.TestSession;
+import hadooptest.Util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,14 +30,25 @@ import net.sf.json.JSONSerializer;
 /*
  * HCat helper class, implemented using HCAT data discovery API.
  */
-public class HCatHelper { 
+public class HCatHelper {
 	
 	private ConsoleHandle consoleHandle = null;
 	private HTTPHandle httpHandle = null;
+	private Configuration conf = null;
 
 	public HCatHelper() {
 		this.httpHandle = new HTTPHandle();
 		this.consoleHandle = new ConsoleHandle();
+		this.init();
+	}
+	
+	private void init() {
+		String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
+		try {
+			this.conf = new XMLConfiguration(configPath);
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -43,7 +59,6 @@ public class HCatHelper {
 	 */
 	public boolean isTableExists(String hcatServerName , String datasetName , String dataBaseName) {
 		String tableName = datasetName.toLowerCase().trim();
-		
 		String url = "http://"+  hcatServerName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/" + dataBaseName.trim()  + "/table";
 		TestSession.logger.info("Check hcat table created url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
@@ -275,7 +290,8 @@ public class HCatHelper {
 	 */
 	public String getHCatTableOwner(String dataSourceName , String  dataSetName , String facetName) {
 		String tableOwner = null;
-		String url = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName.trim())) + "/" + facetName + "/api/admin/hcat/table/list?dataSource=" + dataSourceName + "&dataSet=" + dataSetName;
+		String temp = this.consoleHandle.getRestAPI(ConsoleHandle.HCAT_LIST_REST_API , facetName);
+		String url = temp +  dataSourceName + "&dataSet=" + dataSetName;
 		TestSession.logger.info("Test URL - " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
@@ -308,7 +324,11 @@ public class HCatHelper {
 	 */
 	public String getHCatTableName(String dataSourceName , String  dataSetName , String facetName) {
 		String tableName = null;
-		String url = this.consoleHandle.getConsoleURL().replace("9999", this.consoleHandle.getFacetPortNo(facetName.trim())) + "/" + facetName + "/api/admin/hcat/table/list?dataSource=" + dataSourceName + "&dataSet=" + dataSetName;
+		String hostName = null;
+		String url = null;
+		
+		String temp = this.consoleHandle.getRestAPI(ConsoleHandle.HCAT_LIST_REST_API , facetName);
+		url = temp +  dataSourceName + "&dataSet=" + dataSetName;
 		TestSession.logger.info("Test URL - " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
 		String res = response.getBody().asString();
