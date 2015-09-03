@@ -58,6 +58,7 @@ public final class ConsoleHandle
 	private String target1;
 	private String target2;
 	private String target3;
+	private String environmentType;
 
 	public ConsoleHandle() {
 		init();
@@ -97,11 +98,11 @@ public final class ConsoleHandle
 		{
 			String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
 			this.conf = new XMLConfiguration(configPath);
-			String environmentType = this.conf.getString("hostconfig.console.test_environment_type");
-			if (environmentType.equals("oneNode")) {
+			this.environmentType = this.conf.getString("hostconfig.console.test_environment_type");
+			if (this.environmentType.equals("oneNode")) {
 				TestSession.logger.info("****** QE or Dev test Environment ******** ");
 				this.consoleURL = this.conf.getString("hostconfig.console.base_url");
-			} else if (environmentType.equals("staging")) {
+			} else if (this.environmentType.equals("staging")) {
 				TestSession.logger.info("****** Staging test Environment ******** ");
 				this.consoleURL = this.conf.getString("hostconfig.console.staging_console_url");
 			} else  {
@@ -123,9 +124,26 @@ public final class ConsoleHandle
 			TestSession.logger.error(ex.toString());
 		}
 	}
+	
+	public String getTestExecutionEnvironmentType() {
+		return this.environmentType.trim();
+	}
+	
 
-	public Configuration getConf (){
-		return conf;
+	/**
+	 * Return the instance of Configuration
+	 * @return
+	 */
+	public Configuration getConf(){
+		if (this.conf == null) {
+			String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
+			try {
+				this.conf = new XMLConfiguration(configPath);
+			} catch (ConfigurationException e) {
+				e.printStackTrace();
+			}
+		}
+		return this.conf;
 	}
 
 	public String getConsoleURL() {

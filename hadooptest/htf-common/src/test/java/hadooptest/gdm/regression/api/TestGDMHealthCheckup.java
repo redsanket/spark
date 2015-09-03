@@ -17,17 +17,13 @@ import org.junit.Test;
 import com.jayway.restassured.path.json.JsonPath;
 
 /**
- * 
- *  Test Case : To test GDM HealthCheckup on facets. 
- *
+ *  Test Case : To test GDM HealthCheckup on facets.
  */
 public class TestGDMHealthCheckup extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private String cookie;
-	private String url;
 	private String targetGrid1;
-	private String targetGrid2;
 	private List<String> hcatSupportedGrid;
 	private static final String HCAT_ENABLED = "TRUE";
 	private static final String HCAT_DISABLED = "FALSE";
@@ -42,22 +38,21 @@ public class TestGDMHealthCheckup extends TestSession {
 		this.consoleHandle = new ConsoleHandle();
 		HTTPHandle httpHandle = new HTTPHandle();
 		this.cookie = httpHandle.getBouncerCookie();
-		this.url = this.consoleHandle.getConsoleURL();
 
 		// get all the hcat supported clusters
 		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
 
 		// check whether we have two hcat cluster one for acquisition and replication
-		if (hcatSupportedGrid.size() < 2) {
-			throw new Exception("There is no HCAT enabled cluster.");
+		if (hcatSupportedGrid.size() == 0 ) {
+			TestSession.logger.info("There is not hive installed on any cluster.");
 		}
-		this.targetGrid1 = hcatSupportedGrid.get(0).trim();
-		this.targetGrid2 = hcatSupportedGrid.get(1).trim();
-		TestSession.logger.info("Using grids " + this.targetGrid1 + " , " + this.targetGrid2 );
-
-		// initially disable hcat 
-		disableHCatOnDataSource(this.targetGrid1);
-		disableHCatOnDataSource(this.targetGrid2);
+		if (hcatSupportedGrid.size() >= 1) {
+			this.targetGrid1 = hcatSupportedGrid.get(0).trim();
+			TestSession.logger.info("Using grids " + this.targetGrid1 );
+			
+			// initially disable hcat 
+			disableHCatOnDataSource(this.targetGrid1);
+		}
 	}
 
 	@Test
@@ -172,7 +167,7 @@ public class TestGDMHealthCheckup extends TestSession {
 	 * @return
 	 */
 	private Map<String , String> getHealthCheckDetails(String facetName) {
-		String consoleHealthCheckUpTestURL = this.url.replace("9999", this.consoleHandle.getFacetPortNo(facetName)) +   "/" +facetName + "/api/summary" ;
+		String	consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL()+ "/console/api/proxy/health?colo=gq1&facet=" + facetName;
 		TestSession.logger.info("consoleHealthCheckUpTestURL = " +consoleHealthCheckUpTestURL );
 		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(consoleHealthCheckUpTestURL);
 		assertTrue("Failed to get the response for " + consoleHealthCheckUpTestURL , (response != null) );
