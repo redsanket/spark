@@ -33,7 +33,7 @@ fanoutnogw() {
 
 # parameter 1 - command to run
 # parameter 2 - comma separated host names
-# __HOSTNAME__ in the command arg will be replaced by a singe hostname
+# __HOSTNAME__ in the command arg will be replaced by a single hostname
 # for each execution.
 fanoutcmd() {
     command=$1

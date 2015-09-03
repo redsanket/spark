@@ -16,7 +16,7 @@ then
 
     # GRIDCI-440, from RM node need to ssh to each NM as $MAPREDUSER with StrictHostKeyChecking=no
     # in order to create known_hosts, else RM access fails
-    ( echo "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' /usr/bin/pdsh -w $SLAVELIST hostname" ) |\
+    ( echo "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' $PDSH -w $SLAVELIST hostname" ) |\
 ssh  $jobtrackernode su - $MAPREDUSER
 
     # GRIDCI-444 - nm health check for openstack
