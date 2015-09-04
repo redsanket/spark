@@ -135,6 +135,8 @@ if [ $CMD == "start" ]; then
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /user/
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapred/system
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/system
 
 	RMSTORE="/mapred/rmstore"
 	echo "============ creating resourcemanager state store at $RMSTORE"
