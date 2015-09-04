@@ -55,7 +55,7 @@ use Getopt::Long;
 my $result = 
 GetOptions(\%options,
     "proxy|p=s"            => \$hproxy,
-    "proxyurl|u=s"         => \$hproxy_url,
+    "proxyurl=s"         => \$hproxy_url,
     "load|l=s"             => \$payload_size, 
     "threads_per_host|t=s" => \$threads_per_host,
     "thread_id|i=s"        => \$thread_id,

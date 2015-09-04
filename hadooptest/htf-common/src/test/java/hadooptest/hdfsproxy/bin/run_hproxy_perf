@@ -416,6 +416,5 @@ sub run_threads_on_single_host {
     $cmd .= " -host_index $host_index";
     $cmd .= " -num_hosts $num_hosts";
     $cmd .= " -iterate $num_iterate";
-    note("Executing '$cmd'");
     execute($cmd);
 }
