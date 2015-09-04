@@ -75,8 +75,8 @@ use Getopt::Long;
 &Getopt::Long::Configure( 'pass_through');
 my $result = 
 GetOptions(\%options,
-    "client_hosts|i=s"          => \$client_hosts,
-    "hproxy_http|l=s"          => \$hproxy_http,
+    "client_hosts|i=s"     => \$client_hosts,
+    "hproxy_http|l=s"      => \$hproxy_http,
     "cluster|c=s"          => \$cluster,
     "proxy|x=s"            => \$hproxy,
     "payload_size|p=s"     => \$payload_size,
