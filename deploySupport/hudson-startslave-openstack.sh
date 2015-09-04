@@ -14,6 +14,13 @@ echo =========================================
 export PATH=$PATH:/usr/bin:/usr/local/bin:/bin:/home/y/bin:/sroot:/sbin
 export DATESTRING=`date +%y%m%d%H%M`
 
+# Setup and cleanup artifacts directory
+artifacts_dir="${WORKSPACE}/artifacts"
+if [[ -d $artifacts_dir ]]; then
+    rm -rf $artifacts_dir
+fi
+mkdir -p $artifacts_dir
+
 # echo environment follows:
 # /bin/env
 cd deploySupport
@@ -222,6 +229,15 @@ done
 [ -z "$HADOOPCORE_TEST_PKG" ] && export HADOOPCORE_TEST_PKG=none
 ## HIT test pkg
 
+# Fetch build artifacts from the admin box
+function fetch_artifacts() {
+    set -x
+    scp $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
+    scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
+    cat $artifacts_dir/manifest.txt
+    set +x
+}
+
 #################################################################################
 # The 'set -e' option will cause the script to terminate immediately on error.
 # The intent is to exit when the first build errors occurs.
@@ -232,12 +248,17 @@ set -e
 function error_handler {
    LASTLINE="$1"
    echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
+   fetch_artifacts
 }
 trap 'error_handler ${LINENO}' ERR
 
 export BUILD_DESC="Deploy to $CLUSTER $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
 echo "$BUILD_DESC"
 
+#################################################################################
+# RUN THE INSTALL SCRIPT ON THE ADM HOST
+# From above: "then copies that package to the destination machine and runs it..."
+#################################################################################
 export DATESTRING=`date +%y%m%d%H%M`
 # GRIDCI-426: component name cannot exceed 10 characters.
 component=${CLUSTER:0:10}
@@ -245,35 +266,35 @@ set -x
 sh yinstify.sh  -v 0.0.1.${component}.$DATESTRING
 set +x
 filelist=`ls  *.${component}.*.tgz`
-
-# From above: "then copies that package to the destination machine and runs it..."
-
 scp $filelist  $ADMIN_HOST:/tmp/
-(
-echo "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist -set root.propagate_start_failures=1 "
-echo "/usr/local/bin/yinst start -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING hadoopgridrollout"
-echo 'finalstatus=$?'
-echo 'echo finalstatus=$finalstatus'
-echo 'exit $finalstatus'
-)| ssh $ADMIN_HOST
 
-st=$?
-echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING hadoopgridrollout status: $st"
-
+# Install and start the deployment package on the adm admin box to commence
+# deployment as root.
+ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
+ssh $ADMIN_HOST "\
+cd /tmp/ && /usr/local/bin/yinst install -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
+yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
+/usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
+"
+st=$?;
+echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout status: $st"
 if [ "$st" -ne 0 ]
 then
+    echo "Exit on non-zero yinst exit status: $st"
+    get_cluster_exit_status
     exit $st
 fi
 
-(
-echo "/usr/local/bin/yinst  remove -all -live   -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
-echo "cd /tmp && rm -rf $filelist"
-)| ssh $ADMIN_HOST
+# Clean up hadoopgridrollout
+CLEANUP_ON_EXIT=${CLEANUP_ON_EXIT:="true"}
+if [ "$CLEANUP_ON_EXIT" = "true" ]; then
+    (
+        echo "/usr/local/bin/yinst  remove -all -live -root $ADMIN_WORKSPACE hadoopgridrollout"
+        echo "cd /tmp && rm -rf $filelist"
+    )| ssh $ADMIN_HOST
+fi
 
-scp $ADMIN_HOST:/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING/manifest.txt  manifest.txt
-
-cp  manifest.txt ${WORKSPACE}/
-cat manifest.txt
+fetch_artifacts
 
 # Copy HIT test results back if there is any
 if [ $RUN_HIT_TESTS = "true" ]; then

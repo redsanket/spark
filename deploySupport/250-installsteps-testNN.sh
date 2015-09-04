@@ -59,6 +59,9 @@ fanoutGW "su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
    rm -fr /tmp/$cluster.*.handoff.txt
    for c in common hdfs
    do
+       # TODO: The following is failing with the error message:
+       # scp: /home/gs/gridre/yroot.openqe2blue/share/hadoopcommon/handoff.txt: No such file or directory
+       # ver shows empty string, even in our classic deploy logs!!!
       scp ${NAMENODE_Primary}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
       recordpkginstall  hadoop$c `cat /tmp/$cluster.$c.handoff.txt`
       banner SUCCESS: hadoop-$c is correctly installed: ver=`cat /tmp/$cluster.$c.handoff.txt`
