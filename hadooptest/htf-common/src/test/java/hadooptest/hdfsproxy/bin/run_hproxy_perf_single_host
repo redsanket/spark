@@ -52,7 +52,7 @@ use Getopt::Long;
 my $result = 
 GetOptions(\%options,
     "proxy|p=s"          => \$hproxy,
-    "proxyurl=s"       => \$hproxy_url,
+    "proxyurl=s"         => \$hproxy_url,
     "load|l=s"           => \$payload_size,
     "thread|t=s"         => \$threads_per_host,
     "file_size|f=s"      => \$file_size,
@@ -69,7 +69,9 @@ my $username = getpwuid( $< );
 my $tmpdir = "/tmp/hdfsproxy_perf_$username";
 
 my $cmd;
-#my $hproxy_url="https://$hproxy:4443";
+if (!defined($hproxy_url)) {
+    $hproxy_url="https://$hproxy:4443";
+}
 note("hdfsproxy server='$hproxy'");
 note("hdfsproxy URL='$hproxy_url'");
 note("Payload per host per thread='$payload_size$payload_unit'");
