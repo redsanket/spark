@@ -63,6 +63,18 @@ public class TestHdfsProxyPerf extends TestSession {
             cmd.add("-proxy");
             cmd.add(proxyHost);
         }
+        String clientHosts=System.getProperty("CLIENT_HOSTS");
+        if ((clientHosts!= null) && (!clientHosts.isEmpty()) &&
+                (!clientHosts.equals("default"))) {
+            cmd.add("-client_hosts");
+            cmd.add(clientHosts);
+        }
+        String testHttp=System.getProperty("TEST_HTTP");
+        if ((testHttp!= null) && (!testHttp.isEmpty()) &&
+                (!testHttp.equals("default")) && (!testHttp.equals("false"))) {
+            cmd.add("hproxy_http");
+            cmd.add(testHttp);
+        }
         String[] command = cmd.toArray(new String[0]);
 
 	    Process process = null;
