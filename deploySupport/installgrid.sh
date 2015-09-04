@@ -118,6 +118,10 @@ echo MAPREDUSER = $MAPREDUSER
 
 export TIMESTAMP=$DATESTRING
 
+# Even though 'set -o' is set from the upstream hudson-startslave scripts, it
+# needs to be set here because this script is run via the yinst start. If not
+# set, the script will continue downstream after failure is encountered.
+set -e
 function error_handler {
    LASTLINE="$1"
    echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
