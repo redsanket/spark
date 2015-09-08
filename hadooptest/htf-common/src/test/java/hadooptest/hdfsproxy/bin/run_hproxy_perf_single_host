@@ -42,7 +42,7 @@ my $file_unit="M";
 my $num_iterate="1";
 my $host_index;
 my $num_hosts;
-my $hproxy_url;
+my $hproxy_http;
 
 #
 # Command line options processing
@@ -52,7 +52,7 @@ use Getopt::Long;
 my $result = 
 GetOptions(\%options,
     "proxy|p=s"          => \$hproxy,
-    "proxyurl=s"         => \$hproxy_url,
+    "hproxy_http=s"      => \$hproxy_http,
     "load|l=s"           => \$payload_size,
     "thread|t=s"         => \$threads_per_host,
     "file_size|f=s"      => \$file_size,
@@ -69,11 +69,7 @@ my $username = getpwuid( $< );
 my $tmpdir = "/tmp/hdfsproxy_perf_$username";
 
 my $cmd;
-if (!defined($hproxy_url)) {
-    $hproxy_url="https://$hproxy:4443";
-}
 note("hdfsproxy server='$hproxy'");
-note("hdfsproxy URL='$hproxy_url'");
 note("Payload per host per thread='$payload_size$payload_unit'");
 note("Number threads per host='$threads_per_host'");
 note("File size='$file_size$file_unit'");
@@ -146,7 +142,7 @@ sub run_single_thread {
     # sleep(20);
     my $cmd  = "$tmpdir/$perf_test_script";
     $cmd .= " -proxy $hproxy";
-    $cmd .= " -proxyurl $hproxy_url";
+    $cmd .= " -proxy_http $hproxy_http";
     $cmd .= " -thread_id $num_thread";
     $cmd .= " -threads_per_host $threads_per_host";
     $cmd .= " -file_size $file_size -file_unit $file_unit";

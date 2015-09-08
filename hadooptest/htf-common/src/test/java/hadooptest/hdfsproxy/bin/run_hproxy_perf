@@ -110,16 +110,8 @@ execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy ls -l /home/y/co
 execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 
 my $cmd;
-my $hproxy_url;
-if ((!defined($hproxy_http)) || ($hproxy_http eq "default")) {
-    $hproxy_url="https://$hproxy:4443";
-}
-else {
-    $hproxy_url="http://$hproxy:4080";
-}
 note("cluster='$cluster'");
 note("hdfsproxy server='$hproxy'");
-note("hdfsproxy URL='$hproxy_url'");
 
 trim(my $start_time=`date +%s`);
 
@@ -131,7 +123,7 @@ if ((!defined($client_hosts)) || ($client_hosts eq "default")) {
     @hosts=split("\n", `yinst range -ir "(\@grid_re.clusters.$cluster,-\@grid_re.clusters.$cluster.namenode,-\@grid_re.clusters.$cluster.namenode2,-\@grid_re.clusters.$cluster.hdfsproxy)"`);
 } 
 else {
-    @hosts=split(" ", $client_hosts);
+    @hosts=split(",", $client_hosts);
 }
 note("hosts='".join(",",@hosts)."'");
 my $num_hosts=scalar(@hosts);
@@ -241,8 +233,6 @@ execute($cmd);
 my $target_dir="fs/tmp";
 my $file_prefix="file-".$file_size.$file_unit;
 my $target_files = "$target_dir/$file_prefix"."*";
-# my $cmd = "curl -s -k --negotiate -u: \"$hproxy_url/$target_files?op=status\" >> $curl_log";
-# $cmd = "curl -k --negotiate -u: \"$hproxy_url/$target_files?op=status\"";
 
 $cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
 $cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
@@ -410,7 +400,7 @@ sub run_threads_on_single_host {
 
     $cmd  = "ssh $host $tmpdir/$remote_test_script";
     $cmd .= " -proxy $hproxy";
-    $cmd .= " -proxyurl $hproxy_url";
+    $cmd .= " -proxy_http $hproxy_http";
     $cmd .= " -thread $threads_per_host";
     $cmd .= " -file_size $file_size -file_unit $file_unit";
     $cmd .= " -host_index $host_index";
