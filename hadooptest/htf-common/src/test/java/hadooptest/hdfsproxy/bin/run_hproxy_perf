@@ -123,7 +123,7 @@ if ((!defined($client_hosts)) || ($client_hosts eq "default")) {
     @hosts=split("\n", `yinst range -ir "(\@grid_re.clusters.$cluster,-\@grid_re.clusters.$cluster.namenode,-\@grid_re.clusters.$cluster.namenode2,-\@grid_re.clusters.$cluster.hdfsproxy)"`);
 } 
 else {
-    @hosts=split(" ", $client_hosts);
+    @hosts=split(",", $client_hosts);
 }
 note("hosts='".join(",",@hosts)."'");
 my $num_hosts=scalar(@hosts);
