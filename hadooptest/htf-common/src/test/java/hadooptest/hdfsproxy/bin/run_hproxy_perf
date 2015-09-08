@@ -410,7 +410,7 @@ sub run_threads_on_single_host {
 
     $cmd  = "ssh $host $tmpdir/$remote_test_script";
     $cmd .= " -proxy $hproxy";
-    $cmd .= " -proxyurl $hproxy_url";
+    $cmd .= " -proxy_http $hproxy_http";
     $cmd .= " -thread $threads_per_host";
     $cmd .= " -file_size $file_size -file_unit $file_unit";
     $cmd .= " -host_index $host_index";
