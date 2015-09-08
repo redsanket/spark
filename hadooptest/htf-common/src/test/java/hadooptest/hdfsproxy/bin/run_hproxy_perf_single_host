@@ -42,7 +42,6 @@ my $file_unit="M";
 my $num_iterate="1";
 my $host_index;
 my $num_hosts;
-my $hproxy_url;
 my $hproxy_http;
 
 #
@@ -70,14 +69,7 @@ my $username = getpwuid( $< );
 my $tmpdir = "/tmp/hdfsproxy_perf_$username";
 
 my $cmd;
-if ((!defined($hproxy_http)) || ($hproxy_http eq "false") || ($hproxy_http eq "default")) {
-    $hproxy_url="https://$hproxy:4443";
-}
-else {
-    $hproxy_url="http://$hproxy:4080";
-}
 note("hdfsproxy server='$hproxy'");
-note("hdfsproxy URL='$hproxy_url'");
 note("Payload per host per thread='$payload_size$payload_unit'");
 note("Number threads per host='$threads_per_host'");
 note("File size='$file_size$file_unit'");
