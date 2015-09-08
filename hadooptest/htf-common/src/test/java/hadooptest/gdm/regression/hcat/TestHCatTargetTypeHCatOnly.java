@@ -94,15 +94,9 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 
 			// check for workflow
 			this.workFlowHelper.checkWorkFlow(this.acqDataSetName , "acquisition" , this.datasetActivationTime  );
-
-			// get Hcat server name for targetGrid1
-			String acquisitionHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid1);
-			assertTrue("Failed to get the HCatServer Name for " + this.targetGrid1 , acquisitionHCatServerName != null);
-			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + acquisitionHCatServerName);
-
-			// check whether hcat table is created for Mixed HCatTargetType.
-			boolean isAcqusitionTableCreated = this.hcatHelperObject.isTableExists(acquisitionHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
-			assertTrue("Failed : Expected that HCAT table is created " + this.acqDataSetName , isAcqusitionTableCreated == true);
+			String acqHCatTableName = this.hcatHelperObject.getHCatTableName(this.targetGrid1 , this.acqDataSetName, "replication");
+			String tempDataSetName = this.acqDataSetName.trim().toLowerCase().replaceAll("-", "_");
+			assertTrue("Expected " + tempDataSetName   + "  but got " + acqHCatTableName , acqHCatTableName.equals(tempDataSetName));
 		}
 
 		// replication
@@ -115,15 +109,9 @@ public class TestHCatTargetTypeHCatOnly extends TestSession {
 
 			// check for replication workflow
 			this.workFlowHelper.checkWorkFlow(this.repDataSetName , "replication" , this.datasetActivationTime  );
-
-			// get Hcat server name for targetGrid2
-			String replicationHCatServerName = this.hcatHelperObject.getHCatServerHostName(this.targetGrid2);
-			assertTrue("Failed to get the HCatServer Name for " + this.targetGrid2 , replicationHCatServerName != null);
-			TestSession.logger.info("Hcat Server for " + this.targetGrid1  + "  is " + replicationHCatServerName);
-
-			// check whether hcat table is created for HCatOnly HCatTargetType.
-			boolean isTableCreated = this.hcatHelperObject.isTableExists(replicationHCatServerName, this.acqDataSetName , this.DATABASE_NAME);
-			assertTrue("Failed : Expected that HCAT table is  created  " + this.repDataSetName , isTableCreated == true);
+			String repHCatTableName = this.hcatHelperObject.getHCatTableName(this.targetGrid1 , this.repDataSetName, "replication");
+			String tempDataSetName = this.repDataSetName.trim().toLowerCase().replaceAll("-", "_");
+			assertTrue("Expected " + tempDataSetName   + "  but got " + repHCatTableName , repHCatTableName.equals(tempDataSetName));
 		}
 	}
 
