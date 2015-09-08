@@ -88,17 +88,18 @@ done
 [ "\$written" -gt 0  -a "\$read" = "\$written" ]
 zz
 fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
-fanoutGW "mount gridnfs-b.blue.ygrid.yahoo.com:/vol/gridhomevol/mapred
-  ~mapred ; chsh -s /bin/bash mapred ; && su mapred -c 'sh  /tmp/$cluster.testYarndeploy.sh' " # > /dev/null 2>&1"
-[ $? -eq 0 ] && (
-   rm -fr /tmp/$cluster.*.handoff.txt
-   for c in mapred yarn
-   do
-      scp ${jobtrackernode}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
-      recordpkginstall  hadoop$c `cat /tmp/$cluster.$c.handoff.txt`
-      banner SUCCESS: hadoop-$c is correctly installed: ver=`cat /tmp/$cluster.$c.handoff.txt`
-   done
-)
+fanoutGW "mount gridnfs-b.blue.ygrid.yahoo.com:/vol/gridhomevol/mapred ~mapred; \
+chsh -s /bin/bash mapred; \
+su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " # > /dev/null 2>&1"
+# [ $? -eq 0 ] && (
+#    rm -fr /tmp/$cluster.*.handoff.txt
+#    for c in mapred yarn
+#    do
+#       scp ${jobtrackernode}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
+#       recordpkginstall  hadoop$c `cat /tmp/$cluster.$c.handoff.txt`
+#       banner SUCCESS: hadoop-$c is correctly installed: ver=`cat /tmp/$cluster.$c.handoff.txt`
+#    done
+# )
 else
    banner  not running Yarn tests: \$STARTYARN set to $STARTYARN.
    return 0
