@@ -83,7 +83,9 @@ roleExists() {
 export roleList=/tmp/$cluster.rolelist.txt
 setroleList() {
 	export roleList=$1
-	[ -e $roleList ] && rm -f $roleList
+        if [[ -e $roleList ]]; then
+            rm -f $roleList
+        fi
 	}
 	
 setGridParameters() {

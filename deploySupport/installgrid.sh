@@ -310,8 +310,9 @@ do
     start=`date +%s`
     h_start=`date +%Y/%m/%d-%H:%M:%S`
 
+    # For general shutdown and cleanup scripts, temporarily disable exit on failure.
     SKIP_ERROR_ON_STEP="false"
-    if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]]); then
+    if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]] || [[ $script =~ "140-" ]]); then
         SKIP_ERROR_ON_STEP="true"
         set +e
     fi
