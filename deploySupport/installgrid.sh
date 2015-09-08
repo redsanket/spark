@@ -309,6 +309,13 @@ do
 
     start=`date +%s`
     h_start=`date +%Y/%m/%d-%H:%M:%S`
+
+    SKIP_ERROR_ON_STEP="false"
+    if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]]); then
+        SKIP_ERROR_ON_STEP="true"
+        set +e
+    fi
+
     set -x
     time . "$script"
     st=$?
@@ -316,6 +323,10 @@ do
     end=`date +%s`
     h_end=`date +%Y/%m/%d-%H:%M:%S`
     runtime=$((end-start))
+
+    if [[ "$SKIP_ERROR_ON_STEP" == "true" ]]; then
+        set -e
+    fi
 
     echo "CURRENT COMPLETED EXECUTION STEPS:"
     printf "%-2s %-124s : %.0f min (%.0f sec) : %s : %s : %s\n" $index $script $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
