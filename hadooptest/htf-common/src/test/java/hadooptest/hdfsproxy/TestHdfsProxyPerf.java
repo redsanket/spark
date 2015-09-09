@@ -75,6 +75,10 @@ public class TestHdfsProxyPerf extends TestSession {
             cmd.add("-hproxy_http");
             cmd.add(testHttp);
         }
+        else {
+            cmd.add("-hproxy_http");
+            cmd.add("false");
+        } 
         String[] command = cmd.toArray(new String[0]);
 
 	    Process process = null;
