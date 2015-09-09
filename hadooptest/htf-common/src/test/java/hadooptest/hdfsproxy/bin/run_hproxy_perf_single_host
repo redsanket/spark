@@ -142,7 +142,7 @@ sub run_single_thread {
     # sleep(20);
     my $cmd  = "$tmpdir/$perf_test_script";
     $cmd .= " -proxy $hproxy";
-    $cmd .= " -proxy_http $hproxy_http";
+    $cmd .= " -hproxy_http $hproxy_http";
     $cmd .= " -thread_id $num_thread";
     $cmd .= " -threads_per_host $threads_per_host";
     $cmd .= " -file_size $file_size -file_unit $file_unit";

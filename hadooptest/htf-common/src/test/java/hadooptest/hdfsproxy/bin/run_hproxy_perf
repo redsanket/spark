@@ -55,7 +55,7 @@ my %options=();
 my $cluster='sam';
 
 my $hproxy;
-my $hproxy_http;
+my $hproxy_http="false";
 my $client_hosts;
 my $payload_size = "500";
 my $payload_unit = "G";
@@ -400,7 +400,7 @@ sub run_threads_on_single_host {
 
     $cmd  = "ssh $host $tmpdir/$remote_test_script";
     $cmd .= " -proxy $hproxy";
-    $cmd .= " -proxy_http $hproxy_http";
+    $cmd .= " -hproxy_http $hproxy_http";
     $cmd .= " -thread $threads_per_host";
     $cmd .= " -file_size $file_size -file_unit $file_unit";
     $cmd .= " -host_index $host_index";
