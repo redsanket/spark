@@ -44,6 +44,7 @@ my $host_index;
 my $num_hosts;
 my $thread_id=1;
 my $hproxy_url;
+my $hproxy_http;
 trim(my $hostname=`hostname -s`);
 my $curl_log="/tmp/run3.log";
 
