@@ -2,6 +2,7 @@ package hadooptest.gdm.regression.nonAdmin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,7 @@ public class TestNonAdminChaningFromStandardToSwitchOverSource extends TestSessi
 			this.testModifySourceFromStandardToSwitchOver(this.dataSetName);
 		}  else {
 			TestSession.logger.info("there is no enough targets.");
+			fail("there is no enough targets.");
 		}
 	}
 
@@ -71,7 +73,7 @@ public class TestNonAdminChaningFromStandardToSwitchOverSource extends TestSessi
 		boolean flag = false;
 		String sourceName = this.consoleHandle.getDataSetTagsAttributeValue(this.baseDataSetName , "Sources" , "name").trim();
 		List<String> targetList = this.consoleHandle.getDataSource(this.baseDataSetName , "target" , "name");
-		
+
 		// create a dataset.
 		String dataSetXml = this.consoleHandle.getDataSetXml(this.baseDataSetName);
 		dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);		
@@ -92,7 +94,7 @@ public class TestNonAdminChaningFromStandardToSwitchOverSource extends TestSessi
 		}
 		return flag;
 	}
-	
+
 	/**
 	 * Remove all the similar item from l2 matching in l1.
 	 * @param l1
@@ -104,14 +106,14 @@ public class TestNonAdminChaningFromStandardToSwitchOverSource extends TestSessi
 		result.removeAll(l1);
 		return result;
 	}
-	
+
 	/*
 	 * Non-Admin user is trying to modify the to switch over. Non-Admin should be able to do.
 	 */
 	public void testModifySourceFromStandardToSwitchOver(String datasetName) {
 		this.httpHandle.logonToBouncer(this.nonAdminUserName, this.nonAdminPassWord);
 		String dataSetXML = this.consoleHandle.getDataSetXml(datasetName);
-		
+
 		// switch over will work when discovery is of HDFS type.
 		dataSetXML = dataSetXML.replaceAll("FDI", "HDFS");
 		dataSetXML = dataSetXML.replaceAll("Standard", "Switchover");
