@@ -15,8 +15,6 @@ import hadooptest.cluster.gdm.CreateDataSet;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.SourcePath;
 import hadooptest.cluster.gdm.Target;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 public class TestCreatingDataSetThroughDoppler extends TestSession {
 
