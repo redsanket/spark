@@ -271,18 +271,18 @@ trim(my $end_time=`date +%s`);
 # note("start_time='$start_time, end_time='$end_time'");
 show_time("start_time", $start_time);
 show_time("end_time", $end_time);
-my $duration=($end_time-$start_time);
-note("duration='$duration"."s'");
-my $midpoint_duration=round(($duration)/2);
-my $midpoint_time=$start_time+$midpoint_duration;
-show_time("midpoint runtime", $midpoint_time);
+#my $duration=($end_time-$start_time);
+#note("duration='$duration"."s'");
+#my $midpoint_duration=round(($duration)/2);
+#my $midpoint_time=$start_time+$midpoint_duration;
+#show_time("midpoint runtime", $midpoint_time);
 # note("midpoint runtime='$midpoint_time'");
 # note("midpoint runtime='".strftime("%m/%d-%H:%M", localtime($midpoint_time))."'");
 
 #################################################################################
 # Construct the time string to grep from ysar
 #################################################################################
-my $seek_time=strftime("%m/%d-%H:%M", localtime($midpoint_time));
+#my $seek_time=strftime("%m/%d-%H:%M", localtime($midpoint_time));
 
 # # Rounding
 # my $seek_time=strftime("%m/%d-%H:", localtime($midpoint_time));
@@ -302,13 +302,46 @@ my $seek_time=strftime("%m/%d-%H:%M", localtime($midpoint_time));
 # Get the ysar output for the specified time, and parse the in and out kbps
 # E.g. 09/19-12:00
 #################################################################################
-$cmd="ssh $hproxy $ysar |grep $seek_time|head -1";
+#$cmd="ssh $hproxy $ysar |grep $seek_time|head -1";
+$cmd="ssh $hproxy $ysar | awk -v start_time=$start_time -v end_time=$end_time '{
+    year=strftime(\"%Y\",systime())
+    split(\$1,tokens,\"/\")
+    month=tokens[1]
+    split(tokens[2],tokens,\"-\")
+    day=tokens[1]
+    split(tokens[2],tokens,\":\")
+    hour=tokens[1]
+    min=tokens[2]
+    sec=\"00\"
+    time=year FS month FS day FS hour FS min FS sec
+    timeCand = mktime(time)
+    if(timeCand >= start_time && timeCand <= end_time) print \$0
+
+}'
+";
 note($cmd);
 trim($ysar_output = `$cmd`);
 note("ysar_out='$ysar_output'");
-my @tokens=split(" ", $ysar_output);
-my $inkbps = $tokens[-2];
-my $outkbps = $tokens[-1];
+#my @tokens=split(" ", $ysar_output);
+#my $inkbps = $tokens[-2];
+#my $outkbps = $tokens[-1];
+my $max=0;
+my $seek_time;
+my $outkbps;
+my $inkbps;
+my @lines = split("\n", $ysar_out);
+foreach my $line( @lines ) {
+    #print "$line\n";
+    my @token = split(" ",$line);
+    $outkbps=$token[-1];
+    if($outkbps > $max){
+        $max = $outkbps;
+        $seek_time = $token[0];
+        $inkbps = $token[-2];
+    }
+}
+$outkbps=$max;
+
 note("inkbps='$inkbps', outkbps='$outkbps'");
 
 # Plot Data
