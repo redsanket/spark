@@ -126,7 +126,6 @@ public class TestDiscoveryMonitorWithNoPartitionDataSet extends TestSession {
 				assertTrue("Looks like there is some issue while discovery " + status  , status.equalsIgnoreCase("OK") );
 				assertTrue("Failed expected  HIGHEST prioroty, but got " + priority  , priority.equalsIgnoreCase("HIGHEST") );
 				assertTrue("Failed daily feedFrequency , but got " + feedFrequency  , feedFrequency.equalsIgnoreCase("daily") || feedFrequency.equalsIgnoreCase("hourly"));
-				assertTrue("Failed 180 sec for poolFrequency , but got " + poolFrequency  , poolFrequency.equalsIgnoreCase("100")  || poolFrequency.equalsIgnoreCase("180") );
 			}
 		}
 	}
