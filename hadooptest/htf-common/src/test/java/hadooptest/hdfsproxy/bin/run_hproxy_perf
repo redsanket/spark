@@ -329,7 +329,7 @@ my $max=0;
 my $seek_time;
 my $outkbps;
 my $inkbps;
-my @lines = split("\n", $ysar_out);
+my @lines = split("\n", $ysar_output);
 foreach my $line( @lines ) {
     #print "$line\n";
     my @token = split(" ",$line);
