@@ -271,38 +271,15 @@ trim(my $end_time=`date +%s`);
 note("start_time='$start_time', end_time='$end_time'");
 show_time("start_time", $start_time);
 show_time("end_time", $end_time);
-#my $duration=($end_time-$start_time);
-#note("duration='$duration"."s'");
-#my $midpoint_duration=round(($duration)/2);
-#my $midpoint_time=$start_time+$midpoint_duration;
-#show_time("midpoint runtime", $midpoint_time);
-# note("midpoint runtime='$midpoint_time'");
-# note("midpoint runtime='".strftime("%m/%d-%H:%M", localtime($midpoint_time))."'");
 
 #################################################################################
 # Construct the time string to grep from ysar
 #################################################################################
-#my $seek_time=strftime("%m/%d-%H:%M", localtime($midpoint_time));
-
-# # Rounding
-# my $seek_time=strftime("%m/%d-%H:", localtime($midpoint_time));
-# my $seek_time_min=strftime("%M", localtime($midpoint_time))+0;
-# # DEBUG
-# # $seek_time_min="11"+0;
-# # note("seek time min='$seek_time_min'");
-# use POSIX qw(ceil floor);
-# $seek_time_min= floor($seek_time_min/5)*5;
-# # This could be in the future
-# # $seek_time_min = nearest(5, $seek_time_min);
-# $seek_time_min = sprintf("%02d", $seek_time_min);
-# # note("seek time min='$seek_time_min'");
-# $seek_time.=$seek_time_min;
 
 #################################################################################
 # Get the ysar output for the specified time, and parse the in and out kbps
 # E.g. 09/19-12:00
 #################################################################################
-#$cmd="ssh $hproxy $ysar |grep $seek_time|head -1";
 $cmd="ssh $hproxy $ysar | awk -v start_time=$start_time -v end_time=$end_time '{
     year=strftime(\"%Y\",systime())
     split(\$1,tokens,\"/\")
@@ -322,16 +299,12 @@ $cmd="ssh $hproxy $ysar | awk -v start_time=$start_time -v end_time=$end_time '{
 note($cmd);
 trim($ysar_output = `$cmd`);
 note("ysar_out='$ysar_output'");
-#my @tokens=split(" ", $ysar_output);
-#my $inkbps = $tokens[-2];
-#my $outkbps = $tokens[-1];
 my $max=0;
 my $seek_time;
 my $outkbps;
 my $inkbps;
 my @lines = split("\n", $ysar_output);
 foreach my $line( @lines ) {
-    #print "$line\n";
     my @token = split(" ",$line);
     $outkbps=$token[-1];
     if($outkbps > $max){
