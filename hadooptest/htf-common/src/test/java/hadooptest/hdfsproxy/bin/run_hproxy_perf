@@ -268,7 +268,7 @@ note("##########################################################################
 #################################################################################
 use POSIX qw(strftime);
 trim(my $end_time=`date +%s`);
-# note("start_time='$start_time, end_time='$end_time'");
+note("start_time='$start_time', end_time='$end_time'");
 show_time("start_time", $start_time);
 show_time("end_time", $end_time);
 #my $duration=($end_time-$start_time);
@@ -342,6 +342,7 @@ foreach my $line( @lines ) {
 }
 $outkbps=$max;
 
+note("seek_time='$seek_time'");
 note("inkbps='$inkbps', outkbps='$outkbps'");
 
 # Plot Data
