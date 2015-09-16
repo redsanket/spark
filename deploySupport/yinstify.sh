@@ -10,7 +10,8 @@ die() {
 # this is needed for the grid-backplane nodes because they use
 # 'home' instead of 'homes', and export this as HOMEDIR
 set -x
-RM_NODE=`rocl -r grid_re.clusters.$CLUSTER.jobtracker -m`
+RM_NODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.jobtracker)"`;
+
 NODE_DOMAIN=`echo $RM_NODE | cut -d'.' -f2-`
 if [[ "$NODE_DOMAIN" == "blue.ygrid.yahoo.com" ]]; then
   echo "Setting HOME_DIR to home"
