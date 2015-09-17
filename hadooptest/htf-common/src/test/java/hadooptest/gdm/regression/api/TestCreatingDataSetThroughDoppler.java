@@ -15,6 +15,8 @@ import hadooptest.cluster.gdm.CreateDataSet;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.SourcePath;
 import hadooptest.cluster.gdm.Target;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 public class TestCreatingDataSetThroughDoppler extends TestSession {
 
@@ -351,14 +353,14 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
 	 */
 	@Test
 	public void testCreatingDataSet() throws Exception {
-		String dsName = "Test_CreateNewDataSetSuccessFully_"  + System.currentTimeMillis();
+		this.dataSetName = "Test_CreateNewDataSetSuccessFully_"  + System.currentTimeMillis();
 		SourcePath sourcePath = new SourcePath();
-		sourcePath.addSourcePath("/data/daqdev/data/${DataSetName}/%{date}").addSourcePath("/data/daqdev/count/${DataSetName}/%{date}").addSourcePath("/data/daqdev/schema/${DataSetName}/%{date}");
+		sourcePath.addSourcePath("/data/SOURCE_ABF/data/ABF_DAILY/%{date}").addSourcePath("/data/SOURCE_ABF/schema/ABF_DAILY/%{date}").addSourcePath("/data/SOURCE_ABF/count/ABF_DAILY/%{date}");
 		Target target = new Target();
-		target.targetName(this.targetGridName).addPath("/data/daqdev/data/${DataSetName}/%{date}").addPath("/data/daqdev/count/${DataSetName}/%{date}").addPath("/data/daqdev/schema/${DataSetName}/%{date}").retentionDays("92").numMaps("3");;
+		target.targetName(this.targetGridName).addPath("/data/daqdev/data/${DataSetName}/%{date}").addPath("/data/daqdev/schema/${DataSetName}/%{date}").addPath("/data/daqdev/count/${DataSetName}/%{date}").retentionDays("92").numMaps("3");;
 		CreateDataSet createDSetObject = new CreateDataSet();
 		
-		createDSetObject.dataSetName(dsName)
+		createDSetObject.dataSetName(this.dataSetName)
 		.description("Testing dataset creation")
 		.projectName("apollo")
 		.sourceCluster(this.sourceGridName)
@@ -373,12 +375,24 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
 		.frequency("daily")
 		.addSourcePath(sourcePath).addTarget(target);
 		TestSession.logger.info("createDSetObject = " + createDSetObject.toString());
-		this.executeMethod(createDSetObject.toString(), 200 ) ;
+		this.executeMethod(createDSetObject.toString(), 200 );
 		
 		this.consoleHandle.sleep(30000);
 		List<String> dataSetList = this.consoleHandle.getAllDataSetName();
-		assertTrue("Expected dataset to be created with dataset name = " + dsName + "   but failed =  " + dataSetList.toString() , dataSetList.contains(dsName) == true);
+		assertTrue("Expected dataset to be created with dataset name = " + this.dataSetName + "   but failed =  " + dataSetList.toString() , dataSetList.contains(this.dataSetName) == true);
+		
+		String getDataSetURL = this.consoleHandle.getConsoleURL() + "/console/query/config/dataset/v1/" + this.dataSetName + "?format=json";
+		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(getDataSetURL);
+		assertTrue("Expected that http status code is success, but got " + response.getStatusCode() , response.getStatusCode() == 200);
+		
+		String responseString = response.getBody().asString(); 
+		TestSession.logger.info("responseString = " + responseString);
+		JSONObject responseJsonObject =  (JSONObject) JSONSerializer.toJSON(responseString);
+		JSONObject dataSetJsonObject = responseJsonObject.getJSONObject("DataSet");
+		
+		assertTrue("Expected that dataSetName to be " + createDSetObject.getDataSetName() + "  but got  " + dataSetJsonObject.getString("DataSetName") , dataSetJsonObject.getString("DataSetName").equals(createDSetObject.getDataSetName()));
 	}
+	
 	
 	/**
 	 * method that send request and get response and checks for the response code.
