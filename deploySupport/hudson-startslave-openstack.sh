@@ -250,7 +250,7 @@ function fetch_artifacts() {
     URL="http://$rm:8088/cluster"
     echo "WEBUI: $cluster RM $URL"
     printf "%-12s %s %s %s\n" "$CLUSTER" "RM" "-" "<a href=$URL>$URL</a>"  >> $webui_file;
-    echo "</Pre>" > $webui_file;
+    echo "</Pre>" >> $webui_file;
 
     set +x
 }
