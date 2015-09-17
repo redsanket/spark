@@ -29,6 +29,12 @@ ssh  $jobtrackernode su - $MAPREDUSER
     fanout "/usr/local/bin/yinst set -root ${yroothome} $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory   $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
     fanoutGW "/usr/local/bin/yinst set -root ${yroothome} $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory   $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
     tmpfile=/tmp/xx.$$
+
+    if [[ "$HADOOP_27" == "true" ]]; then
+        JAVA_HOME="$GSHOME/java8/jdk64/current"
+    else
+        JAVA_HOME="$GSHOME/java/jdk64/current"
+    fi
     (
         echo "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop"
         echo "export HADOOP_PREFIX=${yroothome}/share/hadoop"
@@ -38,7 +44,7 @@ ssh  $jobtrackernode su - $MAPREDUSER
         echo "export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop"
         echo "export YARN_HOME=${yroothome}/share/hadoop"
     	echo "export MAPREDUSER=$MAPREDUSER"
-        echo "export JAVA_HOME=$GSHOME/java/jdk64/current"
+        echo "export JAVA_HOME=$JAVA_HOME"
      ) > $tmpfile
 
     (

@@ -27,10 +27,15 @@ then
         exit 1
     fi
     nn=$NAMENODE_Primary
+    if [[ "$HADOOP_27" == "true" ]]; then
+        JAVA_HOME="$GSHOME/java8/jdk64/current"
+    else
+        JAVA_HOME="$GSHOME/java/jdk64/current"
+    fi
     (
         set -x
         echo "cd ${yroothome}"
-        echo "JAVA_HOME=$GSHOME/java/jdk64/current HADOOP_PREFIX=${yroothome}/share/hadoop  perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
+        echo "JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop  perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
     ) | ssh $nn su - $HDFSUSER
     st=$?
     echo Exit status of ssh for getclusterid was $st

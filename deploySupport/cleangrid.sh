@@ -18,6 +18,8 @@ if [ -d /grid/0/tmp/yarn-local/taskTracker ]; then
     chmod 777 /grid/0/tmp/yarn-local/taskTracker
 fi
 
+# Remove prior history files. Deploy will remake directories with correct
+# owner and permissions
 if [ -d /home/gs/var/run ]; then
     rm -rf /home/gs/var/run
 fi
@@ -63,13 +65,19 @@ do
         mv /grid/${i}/hadoop/var/hdfs/name /grid/${i}/hadoop/var/hdfs/name.dead
         find /grid/${i}/hadoop/var/hdfs/name.dead -prune -exec rm -rf {} \;  > /dev/null 2>&1 &
     fi
+    if [ -d /grid/${i}/hadoop/var/hdfs/oiv_images ]; then
+        mv /grid/${i}/hadoop/var/hdfs/oiv_images /grid/${i}/hadoop/var/hdfs/oiv_images.dead
+        find /grid/${i}/hadoop/var/hdfs/oiv_images.dead -prune -exec rm -rf {} \;  > /dev/null 2>&1 &
+    fi
+    mkdir -p /grid/${i}/hadoop/var/hdfs/oiv_images
+    chmod 700 /grid/${i}/hadoop/var/hdfs/oiv_images
+    chown ${HDFSUSER} /grid/${i}/hadoop/var/hdfs/oiv_images
     if [ -d /grid/${i}/hadoop/var/hdfs/data ]; then
         # make sure one data file exists
         mv /grid/${i}/hadoop/var/hdfs/data /grid/${i}/hadoop/var/hdfs/data.dead
         find /grid/${i}/hadoop/var/hdfs/data.dead -prune -exec rm -rf {} \;  > /dev/null 2>&1 &
-    else
-        mkdir -p /grid/${i}/hadoop/var/hdfs/data
-        chmod 700 /grid/${i}/hadoop/var/hdfs/data
-        chown ${HDFSUSER} /grid/${i}/hadoop/var/hdfs/data
     fi
+    mkdir -p /grid/${i}/hadoop/var/hdfs/data
+    chmod 700 /grid/${i}/hadoop/var/hdfs/data
+    chown ${HDFSUSER} /grid/${i}/hadoop/var/hdfs/data
 done

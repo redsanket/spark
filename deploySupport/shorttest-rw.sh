@@ -28,7 +28,11 @@ echo namenodelist = $NAMENODELIST
 export HADOOP_HDFS_HOME=${yroothome}/share/hadoop
 export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop
-export JAVA_HOME=$GSHOME/java/jdk32/current
+if [[ "$HADOOP_27" == "true" ]]; then
+    export JAVA_HOME=$GSHOME/java8/jdk64/curren
+else
+    export JAVA_HOME=$GSHOME/java/jdk32/current
+fi
 export YARN_HOME=${yroothome}/share/hadoop
 export yarnparms="-Dmapreduce.job.user.name=$MAPREDUSER -Dmapreduce.framework.name=yarn "
 

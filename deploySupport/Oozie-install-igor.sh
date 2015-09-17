@@ -79,42 +79,45 @@ if [[ $OOZIEIGORTAG =~ $regex ]]; then
         
         ssh $oozienode $cmd
 
-    
-    # remove old files
-    ssh $oozienode rm -rf /home/y/libexec/yjava_tomcat/lib/mapred-site.xml /home/y/libexec/yjava_tomcat/lib/core-site.xml /home/y/libexec/yjava_tomcat/lib/hdfs-site.xml /home/y/libexec/yjava_tomcat/lib/yarn-site.xml /home/y/libexec/yjava_tomcat/lib/hbase-site.xml
-    # link core-site.xml
-    ssh $oozienode ln -s $yroothome/conf/hadoop/core-site.xml /home/y/libexec/yjava_tomcat/lib/
-    ssh $oozienode ln -s $yroothome/conf/hadoop/hdfs-site.xml /home/y/libexec/yjava_tomcat/lib/
-    ssh $oozienode ln -s $yroothome/conf/hadoop/mapred-site.xml /home/y/libexec/yjava_tomcat/lib/ 
-    ssh $oozienode ln -s $yroothome/conf/hadoop/yarn-site.xml /home/y/libexec/yjava_tomcat/lib/ 
+    if [[ "$HADOOP_27" != "true" ]]; then
+        # remove old files
+        ssh $oozienode rm -rf /home/y/libexec/yjava_tomcat/lib/mapred-site.xml /home/y/libexec/yjava_tomcat/lib/core-site.xml /home/y/libexec/yjava_tomcat/lib/hdfs-site.xml /home/y/libexec/yjava_tomcat/lib/yarn-site.xml /home/y/libexec/yjava_tomcat/lib/hbase-site.xml
+        # link core-site.xml
+        ssh $oozienode ln -s $yroothome/conf/hadoop/core-site.xml /home/y/libexec/yjava_tomcat/lib/
+        ssh $oozienode ln -s $yroothome/conf/hadoop/hdfs-site.xml /home/y/libexec/yjava_tomcat/lib/
+        ssh $oozienode ln -s $yroothome/conf/hadoop/mapred-site.xml /home/y/libexec/yjava_tomcat/lib/
+        ssh $oozienode ln -s $yroothome/conf/hadoop/yarn-site.xml /home/y/libexec/yjava_tomcat/lib/
 
-    ssh $oozienode cp /home/y/libexec/hbase/conf/hbase-site.xml /home/y/libexec/yjava_tomcat/lib/
+        ssh $oozienode cp /home/y/libexec/hbase/conf/hbase-site.xml /home/y/libexec/yjava_tomcat/lib/
 
-    ssh $oozienode rm -rf /home/y/lib/libhadoop.so.1.0.0 /home/y/lib/libhadoop.so.1 /home/y/lib/libhadoop.so /home/y/lib/libhadoop.a /home/y/lib/libhadoop.la 
-    ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.so.1  /home/y/lib/libhadoop.so.1.0.0 
-    ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.so.1  /home/y/lib/libhadoop.so.1 
-    ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.so.1  /home/y/lib/libhadoop.so 
+        ssh $oozienode rm -rf /home/y/lib/libhadoop.so.1.0.0 /home/y/lib/libhadoop.so.1 /home/y/lib/libhadoop.so /home/y/lib/libhadoop.a /home/y/lib/libhadoop.la
+        ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.so.1  /home/y/lib/libhadoop.so.1.0.0
+        ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.so.1  /home/y/lib/libhadoop.so.1
+        ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.so.1  /home/y/lib/libhadoop.so
 
-    ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.a  /home/y/lib/libhadoop.a
-    ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.la /home/y/lib/libhadoop.la
+        ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.a  /home/y/lib/libhadoop.a
+        ssh $oozienode ln -s $yroothome/share/hadoop/lib/native/Linux-i386-32/libhadoop.la /home/y/lib/libhadoop.la
+    fi
 
     ssh $oozienode rm /home/y/lib/hadoop
-    ssh $oozienode ln -s $yroothome/share/hadoop /home/y/lib/hadoop 
+    ssh $oozienode ln -s $yroothome/share/hadoop /home/y/lib/hadoop
 
-    # Copy the jce_policy jar files
-    ssh $oozienode "rm -rf /home/y/share/yjava_jdk/java/jre/lib/security/*.jar"
-    ssh $oozienode "mkdir -p /home/y/share/yjava_jdk/java/jre/lib/security/"
+    if [[ "$HADOOP_27" != "true" ]]; then
+        # Copy the jce_policy jar files
+        ssh $oozienode "rm -rf /home/y/share/yjava_jdk/java/jre/lib/security/*.jar"
+        ssh $oozienode "mkdir -p /home/y/share/yjava_jdk/java/jre/lib/security/"
    
-    jdkversion=`ssh $oozienode "yinst ls | egrep 'yjava_jdk-' | sed -e 's/yjava_jdk-//'" ` 
-    if [[ $jdkversion =~ "(1.7.*)" ]]; then
-       jcedir="policy_jdk1.7.0"
-    else
-       jcedir="policy_jdk1.6.0"
-    fi
-    scp /grid/0/gs/gridre/tmplib/${jcedir}/local_policy.jar $oozienode:/home/y/share/yjava_jdk/java/jre/lib/security/
-    scp /grid/0/gs/gridre/tmplib/${jcedir}/US_export_policy.jar $oozienode:/home/y/share/yjava_jdk/java/jre/lib/security/
+        jdkversion=`ssh $oozienode "yinst ls | egrep 'yjava_jdk-' | sed -e 's/yjava_jdk-//'" `
+        if [[ $jdkversion =~ "(1.7.*)" ]]; then
+            jcedir="policy_jdk1.7.0"
+        else
+            jcedir="policy_jdk1.6.0"
+        fi
+        scp /grid/0/gs/gridre/tmplib/${jcedir}/local_policy.jar $oozienode:/home/y/share/yjava_jdk/java/jre/lib/security/
+        scp /grid/0/gs/gridre/tmplib/${jcedir}/US_export_policy.jar $oozienode:/home/y/share/yjava_jdk/java/jre/lib/security/
 
-    ssh $oozienode "chown root:bin /home/y/share/yjava_jdk/java/jre/lib/security/*.jar"
+        ssh $oozienode "chown root:bin /home/y/share/yjava_jdk/java/jre/lib/security/*.jar"
+    fi
 
     # restart oozie service
     ssh $oozienode /usr/local/bin/yinst restart yoozie

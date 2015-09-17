@@ -1,5 +1,10 @@
 #!/bin/sh
-export JAVA_HOME=$GSHOME/java/jdk64/current                                                                    
+
+if [[ "$HADOOP_27" == "true" ]]; then
+    export JAVA_HOME=$GSHOME/java8/jdk64/current
+else
+    export JAVA_HOME=$GSHOME/java/jdk64/current
+fi
 
 [ -z "$HADOOP_CONF_DIR" ] && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 [ -z "$HDFSUSER" ] && export HDFSUSER=hdfs
@@ -8,8 +13,8 @@ echo $0 -- HDFSUSER=$HDFSUSER
 
 if [ `whoami` != $HDFSUSER ]
 then
-  echo "failure: need to run $0 as $HDFSUSER." 1>&2
-  exit 2
+    echo "failure: need to run $0 as $HDFSUSER." 1>&2
+    exit 2
 fi
 case $1 in
     start+erase)

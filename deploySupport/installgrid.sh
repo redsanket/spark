@@ -71,12 +71,15 @@ echo MAPREDUSER = $MAPREDUSER
 [ -z "$NO_CERTIFICATION" ] && export NO_CERTIFICATION=$hadoopgridrollout__NO_CERTIFICATION
 
 [ -z "$TEZVERSION" ] && export TEZVERSION=$hadoopgridrollout__TEZVERSION
+[ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=$hadoopgridrollout__TEZ_QUEUE
 [ -z "$PIGVERSION" ] && export PIGVERSION=$hadoopgridrollout__PIGVERSION
 [ -z "$HITVERSION" ] && export HITVERSION=$hadoopgridrollout__HITVERSION
 [ -z "$STARLINGVERSION" ] && export STARLINGVERSION=$hadoopgridrollout__STARLINGVERSION
 [ -z "$EXCLUDE_HIT_TESTS" ] && export EXCLUDE_HIT_TESTS=$hadoopgridrollout__EXCLUDE_HIT_TESTS
 [ -z "$INSTALL_HIT_TEST_PACKAGES" ] && export INSTALL_HIT_TEST_PACKAGES=$hadoopgridrollout__INSTALL_HIT_TEST_PACKAGES
 [ -z "$RUN_HIT_TESTS" ] && export RUN_HIT_TESTS=$hadoopgridrollout__RUN_HIT_TESTS
+[ -z "$KEEP_HIT_YROOT" ] && export KEEP_HIT_YROOT=$hadoopgridrollout__KEEP_HIT_YROOT
+[ -z "$HIT_DEPLOY" ] && export HIT_DEPLOY=$hadoopgridrollout__HIT_DEPLOY
 [ -z "$HIT_DEPLOYMENT_TAG" ] && export HIT_DEPLOYMENT_TAG=$hadoopgridrollout__HIT_DEPLOYMENT_TAG
 [ -z "$DATESTRING" ] && export DATESTRING=$hadoopgridrollout__DATESTRING
 [ -z "$QA_PACKAGES" ] && export DATESTRING=$hadoopgridrollout__QA_PACKAGES
@@ -247,6 +250,7 @@ cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.pl $scripttmp
 
 
 echo installing onto $1....
+echo HIT_DEPLOY: ${HIT_DEPLOY}
 
 export EXIT_ON_ERROR=true
 

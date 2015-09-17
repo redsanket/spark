@@ -5,6 +5,13 @@ export TEZ_HOME=/home/gs/tez/current
 export PATH=$PATH:/home/gs/current/bin
 
 if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
+
+    if [[ "$HADOOP_27" == "true" ]]; then
+        JAVA_HOME="$GSHOME/java8/jdk64/current"
+    else
+        JAVA_HOME="$GSHOME/java/jdk"
+    fi
+
      TEZ_RELEASE_VERSION=`echo $TEZVERSION | cut -c1-3`
      cmd="echo installing Tez on Tez hosts ; \
         export TEZ_HOME=/home/gs/tez/current ; \
@@ -40,7 +47,7 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         export HADOOP_PREFIX=$GSHOME/hadoop/current ; \
         export HADOOP_CONF_DIR=/home/gs/conf/current ; \
         export HADOOP_CLASSPATH="$yroothome/:$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*" ; \
-        export JAVA_HOME=$GSHOME/java/jdk ; \
+        export JAVA_HOME=$JAVA_HOME ; \
         kinit -k -t $HOMEDIR/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
         echo installing Tez into hdfs ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/libexec/tez ; \
@@ -66,7 +73,7 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         export HADOOP_PREFIX=$GSHOME/hadoop/current ; \
         export HADOOP_CONF_DIR=/home/gs/conf/current ; \
         export HADOOP_CLASSPATH="$yroothome/:$TEZ_CONF_DIR:$TEZ_HOME/*:$TEZ_HOME/lib/*" ; \
-        export JAVA_HOME=$GSHOME/java/jdk ; \
+        export JAVA_HOME=$JAVA_HOME ; \
         kinit -k -t $HOMEDIR/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
         echo installing Tez into hdfs ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/ ; \

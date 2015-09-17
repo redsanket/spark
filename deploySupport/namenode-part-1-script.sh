@@ -1,5 +1,9 @@
 #!/bin/sh
-export JAVA_HOME=$GSHOME/java/jdk64/current                                                                 
+if [[ "$HADOOP_27" == "true" ]]; then
+    export JAVA_HOME=$GSHOME/java8/jdk64/current
+else
+    export JAVA_HOME=$GSHOME/java/jdk64/current
+fi
 
 [ -z "$HADOOP_CONF_DIR" ] && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 
@@ -50,6 +54,11 @@ if [ $CMD == "start" ]; then
            # "-nonInteractive" will make it bail out if there is existing data in the shared dir.
            $HADOOP_HDFS_HOME/bin/hdfs namenode -initializeSharedEdits -nonInteractive
     fi
+    if [[ "$HADOOP_27" == "true" ]]; then
+        nameStartOpt="-upgrade $nameStartOpt"
+    fi
+
+    echo "${HADOOP_HDFS_HOME}/bin/hdfs start namenode -upgrade ${nameStartOpt}"
     $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start namenode $nameStartOpt
 
     # transition ha1 to active. wait until it comes up in standby mode.
