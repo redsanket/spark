@@ -26,13 +26,20 @@ then
     fi
 
     fanoutNN "rm /tmp/namenode-part-*-script.sh"
+
+    if [[ "$HADOOP_27" == "true" ]]; then
+        JAVA_HOME="$GSHOME/java8/jdk64/current"
+    else
+        JAVA_HOME="$GSHOME/java/jdk64/current"
+    fi
+
     (
     echo "export CLUSTERID=$CLUSTERID"
     echo "export GSHOME=$GSHOME"
     echo "export yroothome=$yroothome"
     echo "export HDFSUSER=$HDFSUSER"
     echo "export MAPREDUSER=$MAPREDUSER"
-    echo "export JAVA_HOME=$GSHOME/java/jdk64/current"
+    echo "export JAVA_HOME=$JAVA_HOME"
     echo "export HADOOP_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export ENABLE_HA=$ENABLE_HA"
      #workaround for one-day with older name for common, expires sept 9
@@ -61,7 +68,7 @@ then
     echo "export yroothome=$yroothome"
     echo "export HDFSUSER=$HDFSUSER"
     echo "export MAPREDUSER=$MAPREDUSER"
-    echo "export JAVA_HOME=$GSHOME/java/jdk64/current"
+    echo "export JAVA_HOME=$JAVA_HOME"
     echo "export HADOOP_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export ENABLE_HA=$ENABLE_HA"
     echo "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop"
@@ -86,14 +93,14 @@ then
     fanoutSecondary "rm /tmp/namenode2-part-1-script.sh"
 
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
-    $PDSH -w "$SLAVELIST" "export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export  JAVA_HOME=$GSHOME/java/jdk64/current && sh /tmp/datanode-script.sh $arg $cluster  && rm -f /tmp/datanode-script.sh"
+    $PDSH -w "$SLAVELIST" "export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export  JAVA_HOME=$JAVA_HOME && sh /tmp/datanode-script.sh $arg $cluster  && rm -f /tmp/datanode-script.sh"
 
     (
     echo "export GSHOME=$GSHOME"
     echo "export yroothome=$yroothome"
     echo "export HDFSUSER=$HDFSUSER"
     echo "export MAPREDUSER=$MAPREDUSER"
-    echo "export JAVA_HOME=$GSHOME/java/jdk64/current"
+    echo "export JAVA_HOME=$JAVA_HOME"
     echo "export HADOOP_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_PREFIX=${yroothome}/share/hadoop"
@@ -115,7 +122,7 @@ then
     echo "export yroothome=$yroothome"
     echo "export HDFSUSER=$HDFSUSER"
     echo "export MAPREDUSER=$MAPREDUSER"
-    echo "export JAVA_HOME=$GSHOME/java/jdk64/current"
+    echo "export JAVA_HOME=$JAVA_HOME"
     echo "export HADOOP_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_PREFIX=${yroothome}/share/hadoop"

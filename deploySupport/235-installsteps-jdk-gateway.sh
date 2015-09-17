@@ -1,9 +1,15 @@
 echo cluster=$cluster
 echo gateway=$gateway
 
+if [[ "$HADOOP_27" == "true" ]]; then
+    JAVA_RPATH="share/yjava_jdk/java"
+else
+    JAVA_RPATH="share/gridjdk-${GRIDJDK_VERSION}"
+fi
+
 (
     echo cd ${yroothome}
-    echo "a=\`ls -d share/gridjdk-${GRIDJDK_VERSION} 2> /dev/null\`"
+    echo "a=\`ls -d $JAVA_RPATH 2> /dev/null\`"
     echo echo \$a
     echo "
           if [ -e \$a/bin/java ]

@@ -103,7 +103,7 @@ fi
 /bin/mkdir -p /grid/0/tmp/$cluster.$TIMESTAMP/HIT
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst ls -yroot $YR > /grid/0/tmp/$cluster.$TIMESTAMP/HIT/hp-manifest.txt
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set -yroot $YR >> /grid/0/tmp/$cluster.$TIMESTAMP/HIT/hp-manifest.txt
-scp fsbl295n25.blue.ygrid.yahoo.com:/grid/0/yroot/var/yroots/hit_hp/home/y/libexec/yjava_tomcat/webapps/logs/hdfsproxy.log /grid/0/tmp/$cluster.$TIMESTAMP/HIT/hdfsproxy.log
+scp $HIT_HDFS_PROXY:/grid/0/yroot/var/yroots/hit_hp/home/y/libexec/yjava_tomcat/webapps/logs/hdfsproxy.log /grid/0/tmp/$cluster.$TIMESTAMP/HIT/hdfsproxy.log
 # files created has owner and group of root, but need to be changed to user and
 # group nobody to accommodate the rsync that will occur at the end of the HIT
 # run when test results are copied back from the gateway to the adm machine. 

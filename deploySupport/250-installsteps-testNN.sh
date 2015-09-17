@@ -17,12 +17,18 @@
 
 
 debug=
+if [[ "$HADOOP_27" == "true" ]]; then
+    JAVA_HOME="$GSHOME/java8/jdk64/current"
+else
+    JAVA_HOME="$GSHOME/java/jdk64/current"
+fi
+
 cat > $scripttmp/$cluster.testNNdeploy.sh <<zz
 cd ${yroothome}
    export HADOOP_HDFS_HOME=${yroothome}/share/hadoop
    export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
    export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop
-   export JAVA_HOME=$GSHOME/java/jdk64/current
+   export JAVA_HOME=$JAVA_HOME
 if [ -e share/hadoop-current ]
 then
 	export HADOOP_COMMON_HOME=${yroothome}/share/hadoop-current

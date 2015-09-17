@@ -17,7 +17,14 @@
 
 if [ "$STARTYARN" = true ]
 then
-     banner  running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn.
+    banner  running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn.
+
+    if [[ "$HADOOP_27" == "true" ]]; then
+        JAVA_HOME="$GSHOME/java8/jdk64/current"
+    else
+        JAVA_HOME="$GSHOME/java/jdk64/current"
+    fi
+
 debug=
 cat > $scripttmp/$cluster.testYarndeploy.sh <<zz
 cd ${yroothome}
@@ -25,7 +32,7 @@ cd ${yroothome}
    export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
    export YARN_HOME=$HADOOP_MAPRED_HOME
    export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop
-   export JAVA_HOME=$GSHOME/java/jdk64/current
+   export JAVA_HOME=$JAVA_HOME
    if [ -e share/hadoop-current ]
    then
        export HADOOP_COMMON_HOME=${yroothome}/share/hadoop-current

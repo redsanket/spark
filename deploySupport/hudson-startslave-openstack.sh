@@ -31,17 +31,46 @@ cd deploySupport
 
 [ -z "$LOCAL_CONFIG_PKG_NAME" ] && export LOCAL_CONFIG_PKG_NAME=$localconfpkg
 
-export HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon gridjdk64 gridjdk"
+# Check if dist_tag is valid. If not, exit.
+DIST_TAG_LIST=`dist_tag list $HADOOP_RELEASE_TAG`
+if [[ $? != "0" ]];then
+    echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
+    exit 1;
+fi
+
+# Fetch the hadoop version
+set -x
+export FULLHADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2`
+set +x
+if [ -z "$FULLHADOOPVERSION" ]; then
+    echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
+    exit 1
+fi
+# short version: e.g 2.6
+set -x
+export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
+set +x
+
+if [[ "$HADOOPVERSION" > "2.6" ]]; then
+    HADOOP_27="true"
+else
+    HADOOP_27="false"
+fi
+set -x
+export HADOOP_27=$HADOOP_27
+set +x
+
+
+HADOOP_CORE_BASE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
+if [[ "$HADOOP_27" == "true" ]]; then
+    export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk yspark_yarn_shuffle"
+else
+    export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS gridjdk64 gridjdk"
+fi
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 
 if [ -n "$HADOOP_RELEASE_TAG" ]
 then
-    # Check if dist_tag is valid. If not, exit.
-    DIST_TAG_LIST=`dist_tag list $HADOOP_RELEASE_TAG`
-    if [[ $? != "0" ]];then
-	echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Existing!!!"
-	exit 1;
-    fi
     export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
     for i in $HADOOP_CORE_PKGS
     do
@@ -55,12 +84,6 @@ then
     done
     export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
     export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
-    export FULLHADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2`
-    if [ -z "$FULLHADOOPVERSION" ]; then
-        echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
-        exit 1
-    fi
-    export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
     then
@@ -158,7 +181,13 @@ rm -f *.tgz > /dev/null 2>&1
 [ -z "$HDFSUSER" ] && export HDFSUSER=`echo $USERNAMES | cut -f2 -d:`
 [ -z "$MAPREDUSER" ] && export MAPREDUSER=`echo $USERNAMES | cut -f1 -d:`
 [ -z "$GRIDJDK64_INSTALL_STRING" ] && export GRIDJDK64_INSTALL_STRING=gridjdk64:hadoopXXX2X0X5Xlatest
-[ -z "$HADOOP_INSTALL_STRING" ] && export HADOOP_INSTALL_STRING=hadoop:hadoopXXX2X0X5Xlatest
+if [[ "$HADOOP_27" == "true" ]]; then
+    [ -z "$HADOOP_INSTALL_STRING" ] && export HADOOP_INSTALL_STRING=HADOOP_2_LATEST
+    [ -z "$LOCAL_CONFIG_INSTALL_STRING" ] && export LOCAL_CONFIG_INSTALL_STRING=$LOCAL_CONFIG_PKG_NAME:HADOOP_2_LATEST
+else
+    [ -z "$HADOOP_INSTALL_STRING" ] && export HADOOP_INSTALL_STRING=hadoop:hadoopXXX2X0X5Xlatest
+    [ -z "$LOCAL_CONFIG_INSTALL_STRING" ] && export LOCAL_CONFIG_INSTALL_STRING=$LOCAL_CONFIG_PKG_NAME:hadoop_23_localconfig_latest
+fi
 
 [ -z "$HADOOP_CONFIG_INSTALL_STRING" ] && export HADOOP_CONFIG_INSTALL_STRING=HadoopConfigopenstacklargedisk:hadoopXXX2X0X5Xlatest
 [ -z "$KILLALLPROCESSES" ] && export KILLALLPROCESSES=true
@@ -180,7 +209,6 @@ done
 
 [ -z "$STARTNAMENODE" ] && export STARTNAMENODE=true
 [ -z "$INSTALLLOCALSAVE" ] && export INSTALLLOCALSAVE=true
-[ -z "$LOCAL_CONFIG_INSTALL_STRING" ] && export LOCAL_CONFIG_INSTALL_STRING=$LOCAL_CONFIG_PKG_NAME:hadoop_23_localconfig_latest
 
 [ -z "$HITVERSION" ] && export HITVERSION=none
 [ -z "$INSTALL_HIT_TEST_PACKAGES" ] && export INSTALL_HIT_TEST_PACKAGES=false

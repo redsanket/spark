@@ -1,5 +1,9 @@
 #!/bin/sh
-export JAVA_HOME=$GSHOME/java/jdk64/current                                                                  
+if [[ "$HADOOP_27" == "true" ]]; then
+    export JAVA_HOME=$GSHOME/java8/jdk64/current
+else
+    export JAVA_HOME=$GSHOME/java/jdk64/current
+fi
 
 [ -z "$HADOOP_CONF_DIR" ] && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 
