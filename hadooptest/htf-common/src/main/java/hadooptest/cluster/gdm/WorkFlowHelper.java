@@ -47,7 +47,6 @@ import com.jayway.restassured.path.json.JsonPath;
 
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.SystemCommand;
-import hadooptest.cluster.gdm.RestAPI.DataSets.Activate;
 import hadooptest.TestSession;
 import hadooptest.Util;
 
