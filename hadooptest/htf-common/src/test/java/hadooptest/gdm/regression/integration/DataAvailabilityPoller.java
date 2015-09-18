@@ -800,7 +800,7 @@ public class DataAvailabilityPoller {
 			if ( index > 0) {
 				String tempStr = str.substring(index, str.indexOf("(rexported)"));
 				List<String> tempList = Arrays.asList(tempStr.split(" "));
-				pigVersion = tempList.get(tempList.size());
+				pigVersion = tempList.get(tempList.size() - 1);
 				flag = true;
 				break;
 			}
