@@ -503,6 +503,7 @@ public class DataAvailabilityPoller {
 				String stepName = jsonObject.getString("name");
 				String startTime = jsonObject.getString("startTime");
 				String endTime = jsonObject.getString("endTime");
+				String consoleUrl = jsonObject.getString("consoleUrl");
 				TestSession.logger.info("stepName = " + stepName + "    startTime = " + startTime  + "   endTime  = " + endTime);
 				long total=0;
 				if ( (startTime != null) && (endTime != null) ) {
@@ -510,27 +511,28 @@ public class DataAvailabilityPoller {
 
 					if (stepName.equals("cleanup_output")) {
 						this.searchDataAvailablity.setState(stepName);
-						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "cleanUpOutput" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);
+						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "cleanUpOutput" , status + "~" + consoleUrl + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);
 					} else if (stepName.equals("check_input")) {
 						this.searchDataAvailablity.setState(stepName);
-						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "checkInput" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "checkInput" , status + "~" + consoleUrl + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
 					} else if (stepName.equals("pig_raw_processor")) {
 						this.searchDataAvailablity.setState(stepName);
-						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "pigRawProcessor" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "pigRawProcessor" , status + "~" + consoleUrl + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
 					} else if (stepName.equals("hive_storage")) {
 						this.searchDataAvailablity.setState(stepName);
-						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "hiveStorage" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "hiveStorage" , status + "~" + consoleUrl + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
 					} else if (stepName.equals("hive_verify")) {
 						this.searchDataAvailablity.setState(stepName);
-						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "hiveVerify" , status + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
+						this.dbOperations.updateRecord(this.con ,"currentStep", stepName , "status" , status , "hiveVerify" , status  + "~" + consoleUrl + "~" + startTime + "~" +  endTime + "~" + "" + total , this.currentFeedName);	
 					}  else if (stepName.equals("end")) {
 						this.searchDataAvailablity.setState(stepName);
-						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "oozieJobCompleted" , status + "~" + startTime + "~" +  endTime + "~" + "" + total ,  "result" , "PASS" , this.currentFeedName);
+						this.dbOperations.updateRecord(this.con , "currentStep", stepName , "status" , status , "oozieJobCompleted" , status + "~" + consoleUrl + "~" + startTime + "~" +  endTime + "~" + "" + total ,  "result" , "PASS" , this.currentFeedName);
 					}
 					
 					if (status.equals("ERROR")) {
 						String externalStatus = jsonObject.getString("externalStatus");
-						String consoleUrl = jsonObject.getString("consoleUrl");
+						// commenting the following statement since i am reading the consoleUrl value above
+						//String consoleUrl = jsonObject.getString("consoleUrl");
 						mrJobValue = consoleUrl;
 						TestSession.logger.info("****************  stepName = " + stepName  + " externalStatus = " + externalStatus   + " consoleUrl =  " + consoleUrl  + "   startTime = " + jobStartedTime   + "   endTime = " + jobEndedTime  +  "  *****************");
 						long totalExecution = this.getTotalExecutionDuration(jobStartedTime, jobEndedTime);
@@ -761,6 +763,8 @@ public class DataAvailabilityPoller {
 	 * @return
 	 */
 	public String getHadoopVersion() {
+		String hadoopVersion = "Failed to get hadoop version";
+		boolean flag = false;
 		String integrationNameNodeHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.nameNodeHostName");
 		String getHadoopVersionCommand = "ssh " + integrationNameNodeHostName  + " \"" + kINIT_COMMAND + ";" + "hadoop version\"";
 		String outputResult = this.executeCommand(getHadoopVersionCommand);
@@ -768,8 +772,12 @@ public class DataAvailabilityPoller {
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
 		for ( String str : outputList) {
 			TestSession.logger.info(str);
+			if ( str.indexOf("Hadoop") > 0 ){
+				hadoopVersion = Arrays.asList(str.split(" ")).get(1);
+				flag = true;
+				break;
+			}		
 		}
-		String hadoopVersion = Arrays.asList(outputList.get(0).split(" ")).get(1);
 		TestSession.logger.info("Hadoop Version - " + hadoopVersion);
 		return hadoopVersion;
 	}
@@ -779,6 +787,8 @@ public class DataAvailabilityPoller {
 	 * @return
 	 */
 	public String getPigVersion() {
+		String pigVersion = "Failed to get pig version";
+		boolean flag = false;
 		String integrationPigHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pigHostName");
 		String getPigVersionCommand = "ssh " + integrationPigHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;pig -version\"";
 		String outputResult = this.executeCommand(getPigVersionCommand);
@@ -786,13 +796,15 @@ public class DataAvailabilityPoller {
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
 		for ( String str : outputList) {
 			TestSession.logger.info(str);
+			int index = str.indexOf("Pig");
+			if ( index > 0) {
+				String tempStr = str.substring(index, str.indexOf("(rexported)"));
+				List<String> tempList = Arrays.asList(tempStr.split(" "));
+				pigVersion = tempList.get(tempList.size());
+				flag = true;
+				break;
+			}
 		}
-		List<String> tempList = Arrays.asList(outputList.get(1).substring(0, outputList.get(1).indexOf("(")).trim());
-		String temp = tempList.get(tempList.size() - 1);
-		TestSession.logger.info("temp  = "  + temp);
-		
-		List<String>tempList1 = Arrays.asList(temp.split(" "));
-		String pigVersion = tempList1.get(tempList1.size() - 1);
 		TestSession.logger.info("Pig Version - " + pigVersion);
 		return pigVersion;
 	}
