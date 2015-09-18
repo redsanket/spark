@@ -95,7 +95,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		
 		this.gdmVersion = this.consoleHandle.getGDMVersion();
 		this.hadoopVersion = this.consoleHandle.getClusterInstalledVersion("denseb");
-		TestSession.logger.info(this.clusterName + "  installed hadoop version - " + this.hadoopVersion  + "   GDM Vesion = " + this.gdmVersion);
+		TestSession.logger.info(this.clusterName + "  installed hadoop version - " + this.hadoopVersion  + "   GDM Version = " + this.gdmVersion);
 
 		List<String> gridNames = this.consoleHandle.getAllInstalledGridName();
 		TestSession.logger.info("________________________________Grids - " + gridNames);
