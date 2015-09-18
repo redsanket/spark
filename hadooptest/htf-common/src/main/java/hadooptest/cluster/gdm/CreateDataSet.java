@@ -35,11 +35,33 @@ public class CreateDataSet {
 		this.datasetRequest.put("DataSetName", this.dataSetName);
 		return this;
 	}
+	
+	public String getDataSetName() {
+		if (this.dataSetName == null) {
+			try {
+				throw new Exception("Dataset Name not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.dataSetName;
+	}
 
 	public CreateDataSet description(String descritionName) {
 		this.descritionName = descritionName;
 		this.datasetRequest.put("Description", this.descritionName);
 		return this;
+	}
+	
+	public String getDescription(){
+		if (this.descritionName == null) {
+			try {
+				throw new Exception("Description not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.descritionName;
 	}
 
 	public CreateDataSet frequency(String frequency) {
@@ -47,11 +69,33 @@ public class CreateDataSet {
 		this.datasetRequest.put("Frequency", this.frequency);
 		return this;
 	}
+	
+	public String getFrequency() {
+		if (this.frequency == null) {
+			try {
+				throw new Exception("Frequency not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.frequency;
+	}
 
 	public CreateDataSet projectName(String projectName) {
 		this.projectName = projectName;
 		this.datasetRequest.put("Project", this.projectName);
 		return this;
+	}
+	
+	public String getProjectName() {
+		if(this.projectName == null) {
+			try {
+				throw new Exception("Project name not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.projectName;
 	}
 
 	public CreateDataSet sourceCluster(String sourceClusterName) {
@@ -60,10 +104,32 @@ public class CreateDataSet {
 		return this;
 	}
 	
+	public String getSourceCluster() {
+		if (this.sourceCluster == null) {
+			try {
+				throw new Exception("Source Cluster not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.sourceCluster;
+	}
+	
 	public CreateDataSet uGIGroup(String uGIGroup) {
 		this.uGIGroup = uGIGroup;
 		this.datasetRequest.put("UGIGroup", this.uGIGroup);
 		return this;
+	}
+	
+	public String getuGIGroup() {
+		if (this.uGIGroup == null) {
+			try {
+				throw new Exception("UGI group not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.uGIGroup;
 	}
 	
 	public CreateDataSet uGIOwner(String uGIOwner) {
@@ -72,10 +138,32 @@ public class CreateDataSet {
 		return this;
 	}
 	
+	public String getUgiOwner() {
+		if (this.uGIOwner == null) {
+			try {
+				throw new Exception("UGI owner not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.uGIOwner;
+	}
+	
 	public CreateDataSet uGIPermission(String uGIPermission) {
 		this.uGIPermission = uGIPermission;
 		this.datasetRequest.put("UGIPermission", this.uGIPermission);
 		return this;
+	}
+	
+	public String getUgiPermission() {
+		if (this.uGIPermission == null) {
+			try {
+				throw new Exception("UGI permission not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.uGIPermission;
 	}
 	
 	public CreateDataSet consumerContact(String consumerContact) {
@@ -84,10 +172,32 @@ public class CreateDataSet {
 		return this;
 	}
 	
+	public String getConsumerContact() {
+		if (this.consumerContact == null) {
+			try {
+				throw new Exception("consumer contact not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.consumerContact;
+	}
+	
 	public CreateDataSet ownerContact(String ownerContact) {
 		this.ownerContact = ownerContact;
 		this.datasetRequest.put("OwnerContact", this.ownerContact);
 		return this;
+	}
+	
+	public String getOwnerContact() {
+		if (this.ownerContact == null){
+			try {
+				throw new Exception("Owner Contact is not specified.");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.ownerContact;
 	}
 	
 	public CreateDataSet publisherContact(String publisherContact) {
@@ -113,10 +223,32 @@ public class CreateDataSet {
 		return this;
 	}
 	
+	public String getComments(){
+		if (this.comments == null) {
+			try {
+				throw new Exception("comments not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.comments;
+	}
+	
 	public CreateDataSet  doneFilePath(String doneFilePath){
 		this.doneFilePath = doneFilePath;
 		this.datasetRequest.put("DoneFilePath", this.doneFilePath);
 		return this;
+	}
+	
+	public String getDoneFilePath() {
+		if (this.doneFilePath == null) {
+			try {
+				throw new Exception("Done file path not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.doneFilePath;
 	}
 	
 	public CreateDataSet addTarget(Target target ) throws Exception {
@@ -132,7 +264,7 @@ public class CreateDataSet {
 	public JSONArray getTargets() {
 		if (this.targets == null) {
 			try {
-				throw new Exception("");
+				throw new Exception("Targets not specified.");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -145,6 +277,19 @@ public class CreateDataSet {
 		this.datasetRequest.put("SourcePaths",this.sourcesPath.toString());
 		return this;
 	}
+	
+	
+	public JSONArray getSourcePath() {
+		if (this.sourcesPath == null) {
+			try {
+				throw new Exception("Source Path not specified");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return this.sourcesPath;
+	}
+	
 
 	public String toString() {
 		String returnValue = null;

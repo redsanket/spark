@@ -262,7 +262,7 @@ public class WorkFlowHelper {
 		if (checkInstanceDate == true) {
 			waitTimeForWorkflowPolling = 40 * 60 * 1000; // 40 minutes  this is due to large dataset files 
 		} else if (checkInstanceDate == false) {
-			waitTimeForWorkflowPolling = 15 * 60 * 1000; // 15 minutes
+			waitTimeForWorkflowPolling = 20 * 60 * 1000; // 20 minutes
 		}
 		long sleepTime = 5000; // 5 sec  sleep time.
 		long waitTime=0;
@@ -1163,4 +1163,5 @@ public class WorkFlowHelper {
 		}
 		return dataPath;
 	}
+	
 }

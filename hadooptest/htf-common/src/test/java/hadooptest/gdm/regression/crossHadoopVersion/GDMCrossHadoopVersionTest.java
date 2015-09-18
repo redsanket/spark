@@ -11,6 +11,9 @@ import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +25,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -54,6 +58,8 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	private String cookie;
 	private Configuration conf;
 	private String gdmVersion;
+	private String hadoopVersion;
+	private String clusterName;
 	private WorkFlowHelper workFlowHelperObj = null;
 	private List<String> testMatrixList ;
 	private Response response;
@@ -70,7 +76,6 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	private static final String BASE_PATH = "/data/daqdev";
 	private final static String LOG_FILE = "/home/y/libexec/yjava_tomcat/webapps/logs/FACET_NAME-application.log";
 	
-
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
@@ -87,8 +92,11 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		this.workFlowHelperObj = new WorkFlowHelper();
 		this.dateValue = String.valueOf(System.currentTimeMillis());
 		this.dataPath = "Cross-Hadoop-Version-Testing-" +  this.dateValue;
+		
+		this.gdmVersion = this.consoleHandle.getGDMVersion();
+		this.hadoopVersion = this.consoleHandle.getClusterInstalledVersion("denseb");
+		TestSession.logger.info(this.clusterName + "  installed hadoop version - " + this.hadoopVersion  + "   GDM Vesion = " + this.gdmVersion);
 
-		//List<String> gridNames = this.consoleHandle.getAllGridNames();
 		List<String> gridNames = this.consoleHandle.getAllInstalledGridName();
 		TestSession.logger.info("________________________________Grids - " + gridNames);
 
