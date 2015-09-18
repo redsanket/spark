@@ -125,15 +125,13 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	@Test
 	public void testRepWorkFlowExecution() throws IOException {
 
-		/*for (String dataSetName : datasets) {						
+		for (String dataSetName : datasets) {						
 			String datasetActivationTime = this.dataSetActivationTimeMap.get(dataSetName);
 			TestSession.logger.info("**** Verifying replication workflow for " + dataSetName);
 
 			// check for workflow
 			this.checkWorkFlow(dataSetName , "replication" , datasetActivationTime ,  this.instanceDateList);
-		}*/
-		
-		TestSession.logger.info("GDM Version - " + this.gdmVersion);
+		}
 	}
 
 	// check whether path exists and has permission
