@@ -43,7 +43,10 @@ public final class ConsoleHandle
 	private static final String WORKFLOW_FAILED_EXIT_STATUS = "FAILED";
 	private static final int SUCCESS = 200;
 	public static final String HCAT_LIST_REST_API = "/api/admin/hcat/table/list?dataSource=";
-	
+	public static final String RUNNING_WORKFLOW = "/api/workflows/running?exclude=false&joinType=innerJoin";
+	public static final String KILL_WORKFLOW = "/api/admin/proxy/workflows";
+	public static final String HCAT_TABLE_PROPAGATION = "replication/api/admin/hcat/table/propagate";
+	public static final String HCAT_TABLE_PARTITION = "replication/api/admin/hcat/partition/list?";
 	
 	public HTTPHandle httpHandle = null;
 	private Response response;
@@ -210,6 +213,14 @@ public final class ConsoleHandle
 		String api = null;
 		if (restApiType.equals(HCAT_LIST_REST_API)) {
 			api = HCAT_LIST_REST_API;
+		} else if (restApiType.equals(RUNNING_WORKFLOW)) {
+			api = RUNNING_WORKFLOW;
+		} else if (restApiType.equals(KILL_WORKFLOW)) {
+			api = KILL_WORKFLOW;
+		} else if (restApiType.equals(HCAT_LIST_REST_API)) {
+			api = HCAT_LIST_REST_API;
+		} else if (restApiType.equals(HCAT_TABLE_PARTITION)) {
+			api = HCAT_TABLE_PARTITION;
 		}
 		return api;
 	}
@@ -1362,6 +1373,47 @@ public final class ConsoleHandle
 		}
 		return hcatEnabledGridList;
 	}
+	
+	/**
+	 * Get the hadoop vesion installed on the specified cluster.
+	 * @param clusterName
+	 * @return
+	 */
+	public String getClusterInstalledVersion(String clusterName) {
+		boolean flag = false;
+		String version = null;
+		String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
+		TestSession.logger.info("testURL = " + testURL);		
+		com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
+		String responseString = response.getBody().asString();
+		String gridName="";
+		JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
+		Object obj = versionObj.get("HadoopClusterVersions");
+		if (obj instanceof JSONArray) {
+			JSONArray sizeLimitAlertArray = versionObj.getJSONArray("HadoopClusterVersions");
+			Iterator iterator = sizeLimitAlertArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				Iterator<String> keys  = jsonObject.keys();
+				while( keys.hasNext() ) {
+				    String key = (String)keys.next();
+					if (key.equals("ClusterTag") ) {
+						gridName = jsonObject.getString(key);
+						if (gridName.equals(clusterName)) {
+							version = jsonObject.getString("Package1");
+							flag = true;
+							break;
+						}
+					}
+					if (flag == true) {
+						break;
+					}
+				}
+			}
+		}
+		return version;
+	}
+	
 
 	/**
 	 * Get HCatSupported tag value for a given datasource
@@ -1906,5 +1958,43 @@ public final class ConsoleHandle
 		responseMessage = jsonPath.getString("Response.ResponseMessage");
 		flag = responseMessage.contains(dataSourceName.trim()) && responseMessage.contains("successful");
 		assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
+	}
+	
+	/**
+	 * Get the current gdm version
+	 * @return gdm version
+	 */
+	public String getGDMVersion() {
+		String version = null;
+		boolean flag = false;
+		String url = this.getConsoleURL() + "/console/api/proxy/health?facet=console&colo=gq1";
+		com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(url);
+		String responseString = response.getBody().asString(); 
+		TestSession.logger.info("responseString = " + responseString);
+		JSONObject responseJsonObject =  (JSONObject) JSONSerializer.toJSON(responseString);
+		Object obj  = responseJsonObject.getJSONArray("ApplicationSummary");
+		if (obj instanceof JSONArray) {
+			JSONArray applicationSummaryJsonArray  = responseJsonObject.getJSONArray("ApplicationSummary");
+			Iterator iterator = applicationSummaryJsonArray.iterator();
+			while (iterator.hasNext()) {
+				JSONObject jsonObject = (JSONObject) iterator.next();
+				Iterator<String> keys  = jsonObject.keys();
+				while( keys.hasNext() ) {
+					String key = (String)keys.next();
+					if (key.equals("Parameter") ) {
+						String value = jsonObject.getString(key);
+						if (value.equals("build.version")) {
+							version = jsonObject.getString("Value");
+							flag = true;
+							break;
+						}
+					}
+				}
+				if (flag == true) {
+					break;
+				}
+			}
+		}
+		return version;
 	}
 }
