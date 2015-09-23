@@ -33,6 +33,7 @@ else
    ssh $gateway "su - hadoopqa -c '\
 export GSHOME=$GSHOME && \
 export yroothome=$yroothome && \
+export HADOOP_27=$HADOOP_27 && \
 export HOMEDIR=$HOMEDIR && \
 sh /tmp/${cluster}-${testname} \
 -c $cluster -N $namenode ${writeenabledflag} -P ${yarnProcessor} -u ${MAPREDUSER} \
