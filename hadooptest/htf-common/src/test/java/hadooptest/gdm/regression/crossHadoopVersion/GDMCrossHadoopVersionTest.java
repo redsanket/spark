@@ -31,7 +31,6 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.integration.metrics.NameNodeThreadInfo;
 
-
 /**
  * Test Case : To verify whether replication workflow correct between different clusters ( actually testing replication between two different hadoop versions)
  * 
@@ -94,10 +93,8 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 
 		this.gridNames = this.consoleHandle.getAllInstalledGridName();
 		TestSession.logger.info("________________________________Grids - " + gridNames);
-
-		StackComponentsHealthCheckup healthCheckup = new StackComponentsHealthCheckup();
-		healthCheckup.setGridList(gridNames);
-		healthCheckup.checkClusteHealthCheckup();
+		
+		checkClusteHealthCheckup();
 		
 		// copy data to the grid
 		for (String gridName : gridNames ) {
