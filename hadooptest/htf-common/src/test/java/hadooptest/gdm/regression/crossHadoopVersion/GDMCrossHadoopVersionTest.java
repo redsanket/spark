@@ -1,6 +1,7 @@
 package hadooptest.gdm.regression.crossHadoopVersion;
 
 import static com.jayway.restassured.RestAssured.given;
+import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -28,6 +29,8 @@ import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
+import hadooptest.gdm.regression.integration.StackComponentsHealthCheckup;
+import hadooptest.gdm.regression.integration.metrics.NameNodeThreadInfo;
 
 
 /**
@@ -56,6 +59,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	private JSONUtil jsonUtil;
 	private String dateValue;
 	private List<String> instanceDateList ;
+	private List<String> gridNames ;
 	private List<String> datasets = new ArrayList<String>();
 	private List<String> datasetActivationTimeList = new ArrayList<String>();
 	private Map<String,String> dataSetActivationTimeMap = new HashMap<String , String>();
@@ -89,9 +93,13 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		this.hadoopVersion = this.getHadoopVersion(nameNodeName);
 		TestSession.logger.info(this.clusterName + "  installed hadoop version - " + this.hadoopVersion  + "   GDM Version = " + this.gdmVersion);
 
-		List<String> gridNames = this.consoleHandle.getAllInstalledGridName();
+		this.gridNames = this.consoleHandle.getAllInstalledGridName();
 		TestSession.logger.info("________________________________Grids - " + gridNames);
 
+		StackComponentsHealthCheckup healthCheckup = new StackComponentsHealthCheckup();
+		healthCheckup.setGridList(gridNames);
+		healthCheckup.checkClusteHealthCheckup();
+		
 		// copy data to the grid
 		for (String gridName : gridNames ) {
 			this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
@@ -393,7 +401,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	 * Get the hadoop version by running "hadoop version" command on name node
 	 * @return
 	 */
-	public String getHadoopVersion(String nameNodeName) {
+	private String getHadoopVersion(String nameNodeName) {
 		String hadoopVersion = "Failed to get hadoop version";
 		boolean flag = false;
 		String getHadoopVersionCommand = "ssh " + nameNodeName  + " \"" + kINIT_COMMAND + ";" + "hadoop version\"";
@@ -410,6 +418,22 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		}
 		TestSession.logger.info("Hadoop Version - " + hadoopVersion);
 		return hadoopVersion;
+	}
+	
+	/**
+	 * Check the health of all the clusters
+	 */
+	private void checkClusteHealthCheckup() {
+		NameNodeThreadInfo nameNodeThreadInfo = new NameNodeThreadInfo();
+		for ( String clusterName : this.gridNames ) {
+			String clusterNameNode = this.consoleHandle.getClusterNameNodeName(clusterName);
+			out.println(clusterName  + " 's name node = " + clusterNameNode);
+			nameNodeThreadInfo.setNameNodeName(clusterNameNode);
+			nameNodeThreadInfo.getNameNodeThreadInfo();
+			String nameNodeCurrentState = nameNodeThreadInfo.getNameNodeCurrentState();
+			out.println( clusterName + " namenode is in " + nameNodeCurrentState + " state.");
+			assertTrue( clusterName + " namenode is in " + nameNodeCurrentState + " state." , nameNodeCurrentState.equals("active"));
+		}
 	}
 }
 
