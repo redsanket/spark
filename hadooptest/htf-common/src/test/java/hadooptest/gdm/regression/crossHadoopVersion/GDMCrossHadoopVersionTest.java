@@ -29,7 +29,6 @@ import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
-import hadooptest.gdm.regression.integration.StackComponentsHealthCheckup;
 import hadooptest.gdm.regression.integration.metrics.NameNodeThreadInfo;
 
 
