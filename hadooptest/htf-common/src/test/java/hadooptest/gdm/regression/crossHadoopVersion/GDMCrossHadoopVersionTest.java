@@ -1,35 +1,16 @@
 package hadooptest.gdm.regression.crossHadoopVersion;
 
 import static com.jayway.restassured.RestAssured.given;
+import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import hadooptest.TestSession;
-import hadooptest.Util;
-import hadooptest.cluster.gdm.ConsoleHandle;
-import hadooptest.cluster.gdm.GdmUtils;
-import hadooptest.cluster.gdm.HTTPHandle;
-import hadooptest.cluster.gdm.JSONUtil;
-import hadooptest.cluster.gdm.Response;
-import hadooptest.cluster.gdm.WorkFlowHelper;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -40,6 +21,15 @@ import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 
+import hadooptest.TestSession;
+import hadooptest.Util;
+import hadooptest.cluster.gdm.ConsoleHandle;
+import hadooptest.cluster.gdm.GdmUtils;
+import hadooptest.cluster.gdm.HTTPHandle;
+import hadooptest.cluster.gdm.JSONUtil;
+import hadooptest.cluster.gdm.Response;
+import hadooptest.cluster.gdm.WorkFlowHelper;
+import hadooptest.gdm.regression.integration.metrics.NameNodeThreadInfo;
 
 /**
  * Test Case : To verify whether replication workflow correct between different clusters ( actually testing replication between two different hadoop versions)
@@ -67,6 +57,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	private JSONUtil jsonUtil;
 	private String dateValue;
 	private List<String> instanceDateList ;
+	private List<String> gridNames ;
 	private List<String> datasets = new ArrayList<String>();
 	private List<String> datasetActivationTimeList = new ArrayList<String>();
 	private Map<String,String> dataSetActivationTimeMap = new HashMap<String , String>();
@@ -75,6 +66,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	private static final long SLEEP = 30000;
 	private static final String BASE_PATH = "/data/daqdev";
 	private final static String LOG_FILE = "/home/y/libexec/yjava_tomcat/webapps/logs/FACET_NAME-application.log";
+	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -94,12 +86,16 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		this.dataPath = "Cross-Hadoop-Version-Testing-" +  this.dateValue;
 		
 		this.gdmVersion = this.consoleHandle.getGDMVersion();
-		this.hadoopVersion = this.consoleHandle.getClusterInstalledVersion("denseb");
+		String nameNodeName = this.consoleHandle.getClusterNameNodeName("denseb");
+		//this.hadoopVersion = this.consoleHandle.getClusterInstalledVersion("denseb");
+		this.hadoopVersion = this.getHadoopVersion(nameNodeName);
 		TestSession.logger.info(this.clusterName + "  installed hadoop version - " + this.hadoopVersion  + "   GDM Version = " + this.gdmVersion);
 
-		List<String> gridNames = this.consoleHandle.getAllInstalledGridName();
+		this.gridNames = this.consoleHandle.getAllInstalledGridName();
 		TestSession.logger.info("________________________________Grids - " + gridNames);
-
+		
+		checkClusteHealthCheckup();
+		
 		// copy data to the grid
 		for (String gridName : gridNames ) {
 			this.checkPathExistAndHasPermission(gridName, BASE_PATH , this.dataPath);
@@ -132,6 +128,8 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 			// check for workflow
 			this.checkWorkFlow(dataSetName , "replication" , datasetActivationTime ,  this.instanceDateList);
 		}
+		
+		TestSession.logger.info("gdm version - " + this.gdmVersion  + "   hadoop version - " + this.hadoopVersion);
 	}
 
 	// check whether path exists and has permission
@@ -392,6 +390,45 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 			String responseId = jsonPath.getString("Response.ResponseId");
 			assertTrue("Expected terminate keyword, but got " + actionName , actionName.equals("remove"));
 			assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
+		}
+	}
+	
+	/**
+	 * Get the hadoop version by running "hadoop version" command on name node
+	 * @return
+	 */
+	private String getHadoopVersion(String nameNodeName) {
+		String hadoopVersion = "Failed to get hadoop version";
+		boolean flag = false;
+		String getHadoopVersionCommand = "ssh " + nameNodeName  + " \"" + kINIT_COMMAND + ";" + "hadoop version\"";
+		String outputResult = this.workFlowHelperObj.executeCommand(getHadoopVersionCommand);
+		TestSession.logger.info("outputResult = " + outputResult);
+		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
+		for ( String str : outputList) {
+			TestSession.logger.info(str);
+			if ( str.startsWith("Hadoop")){
+				hadoopVersion = Arrays.asList(str.split(" ")).get(1);
+				flag = true;
+				break;
+			}		
+		}
+		TestSession.logger.info("Hadoop Version - " + hadoopVersion);
+		return hadoopVersion;
+	}
+	
+	/**
+	 * Check the health of all the clusters
+	 */
+	private void checkClusteHealthCheckup() {
+		NameNodeThreadInfo nameNodeThreadInfo = new NameNodeThreadInfo();
+		for ( String clusterName : this.gridNames ) {
+			String clusterNameNode = this.consoleHandle.getClusterNameNodeName(clusterName);
+			out.println(clusterName  + " 's name node = " + clusterNameNode);
+			nameNodeThreadInfo.setNameNodeName(clusterNameNode);
+			nameNodeThreadInfo.getNameNodeThreadInfo();
+			String nameNodeCurrentState = nameNodeThreadInfo.getNameNodeCurrentState();
+			out.println( clusterName + " namenode is in " + nameNodeCurrentState + " state.");
+			assertTrue( clusterName + " namenode is in " + nameNodeCurrentState + " state." , nameNodeCurrentState.equals("active"));
 		}
 	}
 }
