@@ -201,11 +201,12 @@ public class TestBenchmarksDFSIO extends TestSession {
         testDFSIO(percentage, OPERATION[1]);
     }
 
+    // Temporarily removing test as it doesn't work with small clusters with less than 4 task trackers
     // DFSIO 25% write & read
-    @Test 
-    public void testDFSIO_WriteAndRead_25percent() throws Exception{
-        testDFSIO_WriteAndRead(PERCENTAGE[0]);
-    }
+    //@Test 
+    //public void testDFSIO_WriteAndRead_25percent() throws Exception{
+    //    testDFSIO_WriteAndRead(PERCENTAGE[0]);
+    //}
     
     // DFSIO 50% write & read
     @Test 
