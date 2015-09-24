@@ -184,7 +184,7 @@ You will have to transmit those credentials with the topology.
 There are numerous services used at Yahoo that require authentication to be able to access them. 
 We are working on proper solutions and examples for many of these. If you need 
 more of them, please mention it when `on-boarding <../onboarding>`_ 
-or `file a bug <http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency>`_
+or `file a yo/ystorm-request <http://yo/ystorm-request>`_
 so that we can work on it with the other teams involved.
 
 Credentials API
