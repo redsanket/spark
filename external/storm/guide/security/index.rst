@@ -184,7 +184,7 @@ You will have to transmit those credentials with the topology.
 There are numerous services used at Yahoo that require authentication to be able to access them. 
 We are working on proper solutions and examples for many of these. If you need 
 more of them, please mention it when `on-boarding <../onboarding>`_ 
-or `file a bug <http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency>`_
+or `file a yo/ystorm-request <http://yo/ystorm-request>`_
 so that we can work on it with the other teams involved.
 
 Credentials API
@@ -416,10 +416,53 @@ Include a file like the following ``hadoop-site.xml`` in your topology jar:
 HDFS
 ----
 
-HDFS is similar to HBase and should work when you have shipped the correct configurations
-and JARs with your topology, but because HDFS access is typically for a cluster 
-that is not tied very closely to the storm cluster, often it is preferable to use 
-``HdfsProxy`` and YCAv2. Once HDFS 2.0 has rolled out everywhere at Yahoo, the RPC 
-will be based on protocol buffers and you will have more luck in accessing clusters 
-directly.
+HDFS is similar to HBase except the configuration is much simpler.
 
+`yahoo examples <https://git.corp.yahoo.com/storm/storm/tree/master-security/examples/yahoo-examples>`_ in the storm repo includes an example topology accessing HDFS.  This particular one uses storm-hdfs to access it, but you can access HDFS directly if you prefer.  The important things to remember to do are
+
+first include the storm client conf as a dependency.
+
+.. code-block:: xml
+   <dependency>
+     <groupId>yahoo.yinst.storm_hadoop_client_conf</groupId>
+     <artifactId>storm_hadoop_client_conf</artifactId>
+     <version>1.0.0</version>
+   </dependency>
+
+Second make sure you create your uber jar using the shade plugin.
+
+.. code-block:: xml
+   <plugin>
+     <groupId>org.apache.maven.plugins</groupId>
+     <artifactId>maven-shade-plugin</artifactId>
+     <version>1.4</version>
+     <configuration>
+       <createDependencyReducedPom>true</createDependencyReducedPom>
+     </configuration>
+     <executions>
+       <execution>
+         <phase>package</phase>
+         <goals>
+           <goal>shade</goal>
+         </goals>
+         <configuration>
+           <finalName>${artifactId}-${version}-jar-with-dependencies</finalName>
+		   <transformers>
+			 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+			 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+			   <mainClass></mainClass>
+			 </transformer>
+		   </transformers>
+		 </configuration>
+	   </execution>
+	 </executions>
+   </plugin>
+
+This allows the hadoop client to be packaged properly.  It uses service loaders, and the assembly plugin does not combine the service loader config files properly.  If you make this mistake you will get an error about not knowing how to handle "hdfs://"
+
+Finally you need to use a fully qualified path to get the FileSystem, and ideally access it as well.
+
+.. code-block:: xml
+   Path path = new Path("hdfs://mithrilred-nn1.red.ygrid.yahoo.com:8020/");
+   Configuration conf = new Configuration();
+   FileSystem fs = path.getFileSystem(conf);
