@@ -423,6 +423,7 @@ HDFS is similar to HBase except the configuration is much simpler.
 first include the storm client conf as a dependency.
 
 .. code-block:: xml
+
    <dependency>
      <groupId>yahoo.yinst.storm_hadoop_client_conf</groupId>
      <artifactId>storm_hadoop_client_conf</artifactId>
@@ -432,6 +433,7 @@ first include the storm client conf as a dependency.
 Second make sure you create your uber jar using the shade plugin.
 
 .. code-block:: xml
+
    <plugin>
      <groupId>org.apache.maven.plugins</groupId>
      <artifactId>maven-shade-plugin</artifactId>
@@ -447,15 +449,15 @@ Second make sure you create your uber jar using the shade plugin.
          </goals>
          <configuration>
            <finalName>${artifactId}-${version}-jar-with-dependencies</finalName>
-		   <transformers>
-			 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-			 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-			   <mainClass></mainClass>
-			 </transformer>
-		   </transformers>
-		 </configuration>
-	   </execution>
-	 </executions>
+           <transformers>
+             <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+               <mainClass></mainClass>
+             </transformer>
+           </transformers>
+         </configuration>
+       </execution>
+     </executions>
    </plugin>
 
 This allows the hadoop client to be packaged properly.  It uses service loaders, and the assembly plugin does not combine the service loader config files properly.  If you make this mistake you will get an error about not knowing how to handle "hdfs://"
