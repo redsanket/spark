@@ -65,7 +65,7 @@ public class TestMetrics extends DfsTestsBaseClass {
     @Test public void test_FilesInGetListingOps6_webhdfs() throws Exception { test_FilesInGetListingOps6(HadooptestConstants.Schema.WEBHDFS); }
     @Test public void test_FilesInGetListingOps6_none() throws Exception { test_FilesInGetListingOps6(""); }
     @Test public void test_FilesInGetListingOps6_hdfs() throws Exception { test_FilesInGetListingOps6(HadooptestConstants.Schema.HDFS); }
-    
+
 	private void setupTest(String protocol) throws Exception {
         this.protocol = protocol;
         logger.info("Test invoked for protocol/schema:" + protocol);
@@ -284,14 +284,41 @@ public class TestMetrics extends DfsTestsBaseClass {
 
 	}
 
-	void resetInfo() {
+    public int getJMXPropertyValue(String pid)
+	throws Exception {
+
+	String workspace = TestSession.conf.getProperty("WORKSPACE");
+	TestSession.logger.info("Workspace directory: " + workspace);
+	
+	String[] cmd = { "/usr/bin/scp", workspace + "/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar ", namenodeHostname + ":/tmp/"} ;
+	
+	TestSession.logger.info("Command is: " + cmd);
+	String[] output = TestSession.exec.runProcBuilder(cmd);
+	
+	String response = doJavaSSHClientExec(
+					      "hdfsqa",
+					      namenodeHostname,
+					      "(echo open "
+					      + pid
+					      + "; echo get -b "
+					      + SERVICE
+					      + " "
+					      + PROPERTY
+					      + ")|/home/gs/java/jdk/bin/java -jar /tmp/jmxterm-1.0-SNAPSHOT-uber.jar |grep "
+					      + PROPERTY, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
+	TestSession.logger.info("Read back from JMX[" + response + "]");
+	response = response.split("\\s+")[2];
+	response = response.replaceAll(";", "");
+	return Integer.parseInt(response.trim());
+    }
+
+	void resetInfo() throws Exception {
 		StringBuilder sb = new StringBuilder();
 		String pid = getNamenodePID();
 
 		CURRENT_VALUE = getJMXPropertyValue(pid);
 		TestSession.logger.info("Current value read from JMX:" + CURRENT_VALUE
 				+ " , read off of Namenode:" + namenodeHostname);
-
 	}
 
 	String getNamenodePID() {
@@ -313,35 +340,6 @@ public class TestMetrics extends DfsTestsBaseClass {
 
 	}
 
-	int getJMXPropertyValue(String pid) {
-		StringBuilder sb = new StringBuilder();
-		// Get JMX Property value
-		sb = new StringBuilder();
-		sb.append("ps aux");
-		sb.append(" | ");
-		sb.append("grep ");
-		sb.append("namenode");
-		sb.append(" | ");
-		sb.append("grep [j]ava ");
-		sb.append(" | ");
-		sb.append("awk '{print $2}'");
-		String response = doJavaSSHClientExec(
-				"hdfsqa",
-				namenodeHostname,
-				"(echo open "
-						+ pid
-						+ "; echo get -b "
-						+ SERVICE
-						+ " "
-						+ PROPERTY
-						+ ")|/home/gs/java/jdk/bin/java -jar /homes/mapred/jmxterm-1.0-SNAPSHOT-uber.jar |grep "
-						+ PROPERTY, HADOOPQA_AS_HDFSQA_IDENTITY_FILE);
-		TestSession.logger.info("Read back from JMX[" + response + "]");
-		response = response.split("\\s+")[2];
-		response = response.replaceAll(";", "");
-		return Integer.parseInt(response.trim());
-
-	}
 
 	private void test_FilesInGetListingOps1(String protocol) throws Exception {
 	    setupTest(protocol);
