@@ -123,14 +123,8 @@ public class NameNodeThreadInfo {
 		Calendar initialCal = Calendar.getInstance();
 		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String currentiMin = feed_sdf.format(initialCal.getTime());
-		String url = null;
 		String nameNode = this.getNameNodeName().trim();
-		/*if ( nameNode == null) {
-			url = "http://" + NAME_NODE_NAME + ":" + MetricFields.NAME_NAME_METRIC_PORT + "/" + MetricFields.JMX_METRIC;
-		} else {
-			url = "http://" + nameNode + ":" + MetricFields.NAME_NAME_METRIC_PORT + "/" + MetricFields.JMX_METRIC;
-		}*/
-		url = "http://" + nameNode + ":" + MetricFields.NAME_NAME_METRIC_PORT + "/" + MetricFields.JMX_METRIC;
+		String url = "http://" + nameNode + ":" + MetricFields.NAME_NAME_METRIC_PORT + "/" + MetricFields.JMX_METRIC;
 		System.out.println("url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(url);
 		String responseString = response.getBody().asString();
