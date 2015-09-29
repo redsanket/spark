@@ -2,6 +2,7 @@ package hadooptest.gdm.regression.integration;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static java.lang.System.out;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 import static org.junit.Assert.assertTrue;
@@ -31,11 +32,13 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 
 import com.google.common.base.Splitter;
+import hadooptest.cluster.gdm.ConsoleHandle;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.integration.metrics.NameNodeDFSMemoryDemon;
 import hadooptest.gdm.regression.integration.metrics.NameNodeTheadDemon;
+import hadooptest.gdm.regression.integration.metrics.NameNodeThreadInfo;
 
 /**
  * Class that polls for the data on the grid and starts the oozie job and checks for the status of the oozie job.
@@ -88,7 +91,18 @@ public class DataAvailabilityPoller {
 		this.oozieHostName = oozieHostName;
 		this.hcatHostName = hcatHostName;
 		this.pullOozieJobLength = Integer.parseInt(pullOozieJobLength);
+		this.createDB();
 		this.searchDataAvailablity = new SearchDataAvailablity(this.clusterName , this.directoryPath , this.filePattern , this.operationType);
+	}
+	
+	public void createDB() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+		this.dbOperations = new DataBaseOperations();
+		this.dbOperations.createDB();
+		this.dbOperations.createIntegrationResultTable();
+		this.dbOperations.createNameNodeThreadInfoTable();
+		this.dbOperations.createNameNodeMemoryInfoTable();
+		this.dbOperations.createHealthCheckupTable();
+		
 	}
 
 	public void dataPoller() throws InterruptedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
@@ -137,12 +151,6 @@ public class DataAvailabilityPoller {
 		boolean isDataAvailable = false;
 		this.isOozieJobCompleted = false;
 		
-		this.dbOperations = new DataBaseOperations();
-		this.dbOperations.createDB();
-		this.dbOperations.createTable();
-		this.dbOperations.createNameNodeThreadInfoTable();
-		this.dbOperations.createNameNodeMemoryInfoTable();
-		
 		// start namenode thread demon
 		this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
 		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();
@@ -150,7 +158,6 @@ public class DataAvailabilityPoller {
 		// start namenode dfs memory demon
 		this.nameNodeDFSMemoryDemonObject = new NameNodeDFSMemoryDemon();
 		this.nameNodeDFSMemoryDemonObject.startNameNodeDFSMemoryDemon();
-
 		while (toDay <= lastDay) {
 			Date d = new Date();
 			long initTime = Long.parseLong(sdf.format(d));
@@ -188,18 +195,38 @@ public class DataAvailabilityPoller {
 			 		this.con.close();
 			 		this.con = this.dbOperations.getConnection();
 			 	}
+			
+			 	this.createDB();
 				
-				this.dbOperations.createDB();
-				this.dbOperations.createTable();
-				this.dbOperations.createNameNodeThreadInfoTable();
-				this.dbOperations.createNameNodeMemoryInfoTable();
+				// insert record into the health check up table only once per day 
+				int healthRowCount = this.dbOperations.isHealthCheckupRecordExits();
+				if (healthRowCount == 0) {
+					TestSession.logger.info("******************************  inserting record into health table *************************************************");
+					NameNodeThreadInfo nameNodeThreadInfo = new NameNodeThreadInfo();
+					ConsoleHandle consoleHandle = new ConsoleHandle();
+					String clusterNameNode = consoleHandle.getClusterNameNodeName(clusterName);
+					out.println(clusterName  + " 's name node = " + clusterNameNode);
+					nameNodeThreadInfo.setNameNodeName(clusterNameNode);
+					nameNodeThreadInfo.getNameNodeThreadInfo();
+					String nameNodeCurrentState = nameNodeThreadInfo.getNameNodeCurrentState();
+					String currentHadoopVersion = Arrays.asList(nameNodeThreadInfo.getHadoopVersion().split(",")).get(0).trim();
+					Connection con1  = this.dbOperations.getConnection();
+					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+				    Date date = new Date();
+				    String dt = dateFormat.format(date);
+				    DateFormat dateFormat1 = new SimpleDateFormat("yyyy/MM/dd");
+				    String updateTime = dateFormat1.format(date);
+					this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion);
+					con1.close();
+					TestSession.logger.info("******************************  inserting record into health table *************************************************");
+				}
 				
+				// TODO check health of all the stack components
 				
 				// get installed stack components versions
 				String hadoopVersion = this.getHadoopVersion();
 				String pigVersion = this.getPigVersion();
 				String oozieVersion = this.getOozieVersion();
-				
 				
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
@@ -742,7 +769,7 @@ public class DataAvailabilityPoller {
 			}
 		} else {
 			TestSession.logger.info(hiveSiteXMLFileLocation + " already exists ");
-			String command = "scp  " + this.oozieHostName + ":" + this.HIVE_SITE_FILE_LOCATION + "   "  + hiveSiteXMLFileLocation   ;
+			String command = "scp  " + this.oozieHostName + ":" + this.HIVE_SITE_FILE_LOCATION + "   "  + hiveSiteXMLFileLocation;
 			this.executeCommand(command);
 
 			String hiveFilePath = hiveSiteXMLFileLocation + "/hive-site.xml";
@@ -772,7 +799,8 @@ public class DataAvailabilityPoller {
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
 		for ( String str : outputList) {
 			TestSession.logger.info(str);
-			if ( str.indexOf("Hadoop") > 0 ){
+			
+			if ( str.startsWith("Hadoop") == true ){
 				hadoopVersion = Arrays.asList(str.split(" ")).get(1);
 				flag = true;
 				break;
