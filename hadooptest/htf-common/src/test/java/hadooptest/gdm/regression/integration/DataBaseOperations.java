@@ -1,6 +1,7 @@
 package hadooptest.gdm.regression.integration;
 
 import static org.junit.Assert.assertTrue;
+import static java.lang.System.out;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,14 +9,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+
+import hadooptest.TestSession;
 
 
 public class DataBaseOperations {
 
 	private final static String DRIVER = "com.mysql.jdbc.Driver";
+	private final static String DB_USER_NAME = "hadoopqa";
+	private final static String DB_PASS_WORD = "*38480E511C26DD7BDEEB8FFB196B9D82A11C212E";
+	private final static String DB_HOST_NAME = "dev-corp-rw.yds.corp.yahoodns.net"; 
+	private final static String DB_NAME = "hadoop_stack_integration";
 
 	public DataBaseOperations() { }
 
@@ -30,14 +40,15 @@ public class DataBaseOperations {
 	public void createDB() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		Class.forName(DRIVER).newInstance();
 		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" ,"root","");
+		//Connection con = DriverManager.getConnection("jdbc:mysql://dev-corp-rw.yds.corp.yahoodns.net/" ,"hadoopqa","");
 		if (con != null ) {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate(DBCommands.CREATE_DB); 
-			System.out.println("Database created successfully...");
+			out.println("Database created successfully...");
 			stmt.close();	
 			con.close();
 		} else {
-			System.out.println("Failed to open the connection to database.");
+			out.println("Failed to open the connection to database.");
 		}
 	}
 
@@ -51,8 +62,9 @@ public class DataBaseOperations {
 	 */
 	public Connection getConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Class.forName(DRIVER).newInstance();
-		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + DBCommands.TABLE_NAME  ,"root","");
-		//Connection con = DriverManager.getConnection("jdbc:mysql://dense34.blue.ygrid.yahoo.com/" + DBCommands.TABLE_NAME  ,"root","");
+		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + DBCommands.DB_NAME  ,"root","");
+		//Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + "integration_test"  ,"root","");
+		//Connection con = DriverManager.getConnection("jdbc:mysql://" + DB_HOST_NAME + "/" +  DB_NAME  ,DB_USER_NAME , DB_PASS_WORD);
 		if (con != null ) {
 			return con;
 		} else {
@@ -68,41 +80,28 @@ public class DataBaseOperations {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 */
-	public void createTable() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		Connection con = this.getConnection();
-		if (con != null) {
-			System.out.println("Connected to database con = " + con.toString());
-			Statement stmt = con.createStatement();
-			stmt.execute(DBCommands.CREATE_TABLE);
-			System.out.println("Table created successfully...");
-			stmt.close();	
-			con.close();
-		} else {
-			System.out.println("Failed to connect database..!");
-		}
+	public void createIntegrationResultTable() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		createTable(DBCommands.CREATE_TABLE);
 	}
 	
 	public void createNameNodeThreadInfoTable() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		Connection con = this.getConnection();
-		if (con != null) {
-			System.out.println("Connected to database con = " + con.toString());
-			Statement stmt = con.createStatement();
-			stmt.execute(DBCommands.CREATE_NAME_NODE_THREAD_INFO_TABLE);
-			System.out.println("Table created successfully...");
-			stmt.close();	
-			con.close();
-		} else {
-			System.out.println("Failed to connect database..!");
-		}
+		createTable(DBCommands.CREATE_NAME_NODE_THREAD_INFO_TABLE);
 	}
-	
 	
 	public void createNameNodeMemoryInfoTable() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+		createTable(DBCommands.CREATE_NAME_NODE_MEMORY_INFO_TABLE);
+	}
+	
+	public void createHealthCheckupTable() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+		createTable(DBCommands.CREATE_HEALTH_CHECKUP_TABLE);
+	}
+	
+	public void createTable(final String TABLE_NAME) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Connection con = this.getConnection();
 		if (con != null) {
 			System.out.println("Connected to database con = " + con.toString());
 			Statement stmt = con.createStatement();
-			stmt.execute(DBCommands.CREATE_NAME_NODE_MEMORY_INFO_TABLE);
+			stmt.execute(TABLE_NAME);
 			System.out.println("Table created successfully...");
 			stmt.close();	
 			con.close();
@@ -110,7 +109,6 @@ public class DataBaseOperations {
 			System.out.println("Failed to connect database..!");
 		}
 	}
-	
 
 	/**
 	 * Insert the record into the table
@@ -213,6 +211,51 @@ public class DataBaseOperations {
 			System.out.println("Failed to connect database.");
 		}
 	}
+	
+	
+	/**
+	 * Insert the record into health checkup table
+	 * @param con db connection
+	 * @param date  current date
+	 * @param clusterState cluster name
+	 * @throws SQLException
+	 */
+	public void insertHealthCheckInfoRecord(Connection con , String date , String clusterState) throws SQLException {
+		if (con != null) {
+			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_HEALTH_CHECKUP_INFO_ROW);
+			preparedStatement.setString(1, date);
+			preparedStatement.setString(2, clusterState);
+			boolean isRecoredInserted = preparedStatement.execute();
+			assertTrue("Failed to insert record "  + DBCommands.INSERT_HEALTH_CHECKUP_INFO_ROW  , isRecoredInserted != true);
+		}
+	}
+	
+	/**
+	 * Check whether current day record exists in health checkup table.
+	 * @return
+	 * @throws SQLException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	public int isHealthCheckupRecordExits() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		int recordCount = -1;
+		Connection con = this.getConnection();
+		assertTrue("Failed to open database connection in isHealthCheckupRecordExits . "  , con != null );
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+	    Date date = new Date();
+	    String dt = dateFormat.format(date);
+		final String SELECT_QUERY= "SELECT * FROM " + DBCommands.HEALTH_CHECKUP_UP_TABLE + " where date=\"" + dt + "\"";
+		TestSession.logger.info("SELECT_QUERY = " + SELECT_QUERY);
+		Statement stmt = con.createStatement();
+		ResultSet resultSet = stmt.executeQuery(SELECT_QUERY);
+		if ( resultSet != null ) {
+			recordCount = resultSet.getRow();
+			TestSession.logger.info("Row count in " + DBCommands.HEALTH_CHECKUP_UP_TABLE  + "   = " + recordCount);
+		}
+		return recordCount;
+	}
+	
 
 	/**
 	 * update the specified column value.
