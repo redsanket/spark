@@ -3,6 +3,7 @@ package hadooptest.gdm.regression.integration.metrics;
 import static com.jayway.restassured.RestAssured.given;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import net.sf.json.JSONArray;
@@ -10,6 +11,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
+import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.HTTPHandle;
 
 public class NameNodeThreadInfo {
@@ -25,12 +27,18 @@ public class NameNodeThreadInfo {
 	private String waitingThread;
 	private String timedWaitingThread;
 	private String terminatedThread;
+	private String clusterName;
 	private static final String NAME_NODE_NAME = "gsbl90101.blue.ygrid.yahoo.com";
 
 	public NameNodeThreadInfo() {
 		this.consoleHandle = new ConsoleHandle();
 		HTTPHandle httpHandle = new HTTPHandle();
 		this.cookie = httpHandle.getBouncerCookie();
+		
+		// get the the cluster name and read the value
+		this.clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
+		this.nameNodeName = this.consoleHandle.getClusterNameNodeName(this.clusterName);
+		this.setNameNodeName(nameNodeName);
 	}
 	
 	public void setNameNodeCurrentState(String currentState) {
@@ -115,13 +123,8 @@ public class NameNodeThreadInfo {
 		Calendar initialCal = Calendar.getInstance();
 		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String currentiMin = feed_sdf.format(initialCal.getTime());
-		String url = null;
 		String nameNode = this.getNameNodeName().trim();
-		if ( nameNode == null) {
-			url = "http://" + NAME_NODE_NAME + ":" + MetricFields.NAME_NAME_METRIC_PORT + "/" + MetricFields.JMX_METRIC;
-		} else {
-			url = "http://" + nameNode + ":" + MetricFields.NAME_NAME_METRIC_PORT + "/" + MetricFields.JMX_METRIC;
-		}
+		String url = "http://" + nameNode + ":" + MetricFields.NAME_NAME_METRIC_PORT + "/" + MetricFields.JMX_METRIC;
 		System.out.println("url = " + url);
 		com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(url);
 		String responseString = response.getBody().asString();
@@ -154,7 +157,8 @@ public class NameNodeThreadInfo {
 				this.setNameNodeCurrentState(cState);
 			} 
 			if (threadJsonObject.getString("name").equals("Hadoop:service=NameNode,name=NameNodeInfo")) {
-				String version = threadJsonObject.getString("Version").trim();
+				String ver = threadJsonObject.getString("Version").trim();
+				String version = Arrays.asList(ver.split(",")).get(0).trim();
 				this.setHadoopVersion(version);
 			}
 		}
