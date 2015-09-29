@@ -2,10 +2,11 @@ package hadooptest.gdm.regression.integration;
 
 
 public interface DBCommands {
-	String DB_NAME = "integration_test";
+	String DB_NAME = "integration_test_1";
 	String TABLE_NAME = "integration_test";
 	String NAME_NODE_THREAD_INFO_TABLE = "name_node_thread_info";
 	String NAME_NODE_DFS_MEMORY_INFO_TABLE = "name_node_memory_info";
+	String HEALTH_CHECKUP_UP_TABLE = "health_checkup";
 	String CREATE_DB = "CREATE DATABASE IF NOT EXISTS " + DB_NAME;
 	String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME 
 			+ " ( dataSetName VARCHAR(150) , " 
@@ -17,24 +18,22 @@ public interface DBCommands {
 			+ "endTime VARCHAR(50) DEFAULT 'END_TIME' , " 
 			+ "dataAvailable VARCHAR(50) DEFAULT 'UNKNOWN' , "  // this will cover DATA_AVAILABE , DATA_INCOMPLETE, MISSED_SLA
 			+ "oozieJobStarted VARCHAR(50) DEFAULT 'UNKNOWN' , " 
-			+ "cleanUpOutput VARCHAR(250) DEFAULT 'UNKNOWN' , " 
-			+ "checkInput VARCHAR(250) DEFAULT 'UNKNOWN' , " 
-			+ "pigRawProcessor VARCHAR(250) DEFAULT 'UNKNOWN' , " 
-			+ "hiveStorage VARCHAR(250) DEFAULT 'UNKNOWN' , " 
-			+ "hiveVerify VARCHAR(250) DEFAULT 'UNKNOWN' , " 
+			+ "cleanUpOutput VARCHAR(1000) DEFAULT 'UNKNOWN' , " 
+			+ "checkInput VARCHAR(1000) DEFAULT 'UNKNOWN' , " 
+			+ "pigRawProcessor VARCHAR(1000) DEFAULT 'UNKNOWN' , "
+			+ "hiveStorage VARCHAR(1000) DEFAULT 'UNKNOWN' , " 
+			+ "hiveVerify VARCHAR(1000) DEFAULT 'UNKNOWN' , " 
 			+ "oozieJobCompleted VARCHAR(50) DEFAULT 'UNKNOWN' , "
 			+ "jobEnded VARCHAR(50)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "oozieVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
-			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )"; 
+			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
 	
-	
-
 	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion)  " 
 			+ "  values (?, ?, ?, ?, ?, ?, ?, ?) ";
 	
-	String CREATE_NAME_NODE_THREAD_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " + NAME_NODE_THREAD_INFO_TABLE 
+	String CREATE_NAME_NODE_THREAD_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " + NAME_NODE_THREAD_INFO_TABLE
 			+ " ( " 
 					+ " NameNode_Name VARCHAR(50), "
 					+ "HadoopVersion VARCHAR(50), "
@@ -46,6 +45,22 @@ public interface DBCommands {
 					+ "ThreadsTimedWaiting VARCHAR(20) DEFAULT '0' , "
 					+ "ThreadsTerminated VARCHAR(20) DEFAULT '0' "
 			+ " ) ";
+	
+	String CREATE_HEALTH_CHECKUP_TABLE= "CREATE TABLE IF NOT EXISTS " + HEALTH_CHECKUP_UP_TABLE 
+			+ " ( " 
+				+ " date VARCHAR(50) , "
+				+ " Cluster_State VARCHAR(100) DEFAULT 'UNKNOWN' ," 
+				+ " Oozie_State VARCHAR(100) DEFAULT 'UNKNOWN' ,"
+				+ " Pig_State VARCHAR(100) DEFAULT 'UNKNOWN' ,"
+				+ " Hive_State VARCHAR(100) DEFAULT 'UNKNOWN' ,"
+				+ " Hcat_State VARCHAR(100) DEFAULT 'UNKNOWN' ,"
+				+ " Hbase_State VARCHAR(100) DEFAULT 'UNKNOWN', "
+				+ " Tez_State VARCHAR(100) DEFAULT 'UNKNOWN' , "
+				+ " Last_updated VARCHAR(100) DEFAULT 'UNKNOWN' "
+			+ " ) ";
+	
+	String INSERT_HEALTH_CHECKUP_INFO_ROW = "INSERT INTO " + HEALTH_CHECKUP_UP_TABLE + " ( date , Cluster_State ) "
+			+ "  values ( ?, ?) ";
 	
 	String INSERT_NAME_NODE_THREAD_INFO_ROW = "INSERT INTO " + NAME_NODE_THREAD_INFO_TABLE + "  ( NameNode_Name , HadoopVersion , TimeStamp , ThreadsNew , ThreadsRunnable , ThreadsBlocked ,  ThreadsWaiting , ThreadsTimedWaiting , ThreadsTerminated ) " 
 			+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?) ";
