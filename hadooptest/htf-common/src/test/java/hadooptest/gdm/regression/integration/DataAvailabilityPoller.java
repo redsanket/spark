@@ -2,6 +2,7 @@ package hadooptest.gdm.regression.integration;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static com.jayway.restassured.RestAssured.given;
 import static java.lang.System.out;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
@@ -102,7 +103,6 @@ public class DataAvailabilityPoller {
 		this.dbOperations.createNameNodeThreadInfoTable();
 		this.dbOperations.createNameNodeMemoryInfoTable();
 		this.dbOperations.createHealthCheckupTable();
-		
 	}
 
 	public void dataPoller() throws InterruptedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
@@ -200,7 +200,7 @@ public class DataAvailabilityPoller {
 				
 				// insert record into the health check up table only once per day 
 				int healthRowCount = this.dbOperations.isHealthCheckupRecordExits();
-				if (healthRowCount == 0) {
+				//if (healthRowCount == 0) {
 					TestSession.logger.info("******************************  inserting record into health table *************************************************");
 					NameNodeThreadInfo nameNodeThreadInfo = new NameNodeThreadInfo();
 					ConsoleHandle consoleHandle = new ConsoleHandle();
@@ -216,10 +216,20 @@ public class DataAvailabilityPoller {
 				    String dt = dateFormat.format(date);
 				    DateFormat dateFormat1 = new SimpleDateFormat("yyyy/MM/dd");
 				    String updateTime = dateFormat1.format(date);
-					this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion);
+				    String hbaseMasterResult = this.getHBaseHealthCheck().trim();
+				    int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
+		    		TestSession.logger.info("hbaseResult = " + hbaseMasterResult);
+		    		// if either hbase master or hbase regional server are down, mark hbase as down
+		    		// TODO : Need to find a way to say that which service is down on the front end 
+				    if (hbaseMasterResult.equals("down") || regionalServerStatus == 0) {
+				    	String result = hbaseMasterResult + "~0.0";
+				    	this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , result);
+				    } else {
+				    	this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult);
+				    }
 					con1.close();
 					TestSession.logger.info("******************************  inserting record into health table *************************************************");
-				}
+				//}
 				
 				// TODO check health of all the stack components
 				
@@ -328,13 +338,6 @@ public class DataAvailabilityPoller {
 						String oozieWorkFlowName = "stackint_oozie_RawInput_" + this.getCurrentFrequencyValue();
 						TestSession.logger.info("*************************************************************************************************************************************************");
 						this.oozieJobResult = this.pollOozieJob(this.oozieJobID , oozieWorkFlowName);
-//						if (this.isOozieJobCompleted == false) {
-//							this.searchDataAvailablity.setState("DONE");
-//							this.isOozieJobCompleted = true;
-//						} else {
-//							this.searchDataAvailablity.setState("DONE");
-//							this.isOozieJobCompleted = true;
-//						}
 					}
 				}
 			}
@@ -353,6 +356,114 @@ public class DataAvailabilityPoller {
 		}
 	}
 
+	/**
+	 * Check whethe HBase Master is up or down. If the hbase master is up it returns the value as "active~" + hbase version.
+	 * @return
+	 */
+	private String getHBaseHealthCheck() {
+		String hbaseVersion = null;
+		boolean flag= false;
+		try {
+			String hbaseMasterHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
+			String hbaseMasterPortNo = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterPort").trim();
+			ConsoleHandle consoleHandle = new ConsoleHandle();
+			String cookie  = consoleHandle.httpHandle.getBouncerCookie();
+			String hbaseJmxUrl = "http://" + hbaseMasterHostName + ":" + hbaseMasterPortNo + "/jmx?qry=java.lang:type=Runtime"; 
+			com.jayway.restassured.response.Response response = given().cookie(cookie).get(hbaseJmxUrl);
+			String reponseString = response.getBody().asString();
+			
+			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(reponseString.toString());
+			JSONArray beanJsonArray = obj.getJSONArray("beans");
+			String str = beanJsonArray.getString(0);
+			JSONObject obj1 =  (JSONObject) JSONSerializer.toJSON(str.toString());
+			TestSession.logger.info("name  = " +obj1.getString("name") );
+			JSONArray SystemPropertiesJsonArray = obj1.getJSONArray("SystemProperties");
+			if ( SystemPropertiesJsonArray.size() > 0 ) {
+				Iterator iterator = SystemPropertiesJsonArray.iterator();
+				while (iterator.hasNext()) {
+					JSONObject jsonObject = (JSONObject) iterator.next();
+					String key = jsonObject.getString("key");
+					if (key.equals("java.class.path")) {
+						List<String> paths = Arrays.asList(jsonObject.getString("value").split(":"));
+						for ( String value : paths) {
+							if (value.startsWith("/home/y/libexec/hbase/bin/../lib/hbase-client-")) {
+								
+								// mark that hbase is active
+								hbaseVersion = "active~" + Arrays.asList(value.split("-")).get(2).replaceAll(".jar", "");
+								TestSession.logger.info("hbaseVersion  = " + hbaseVersion);
+								flag = true;
+								break;
+							}
+						}
+						if (flag == true) break;
+					}
+					if (flag == true) break;
+				}
+			}
+			TestSession.logger.info("hbaseVersion  = " + hbaseVersion);
+
+		} catch(Exception e) {
+			TestSession.logger.info("exception " + e );
+			TestSession.logger.info("exception  --------------");
+		} finally {
+			if (flag == false) {
+				hbaseVersion = "down";	
+			}
+			TestSession.logger.info("hbaseVersion  = " + hbaseVersion);
+			TestSession.logger.info("-----------------");
+		}
+		return hbaseVersion;
+	}
+	
+	/**
+	 * Check whether there is any hbase regional server or up and running.
+	 * @return
+	 */
+	public int getHBaseRegionalServerHealthCheckup() {
+		int regionalServersHostSize = 0;
+		try{
+			List<String> reginalServerHostNameList ;
+			String hbaseMasterHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
+			String hbaseMasterPortNo = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterPort").trim();
+			ConsoleHandle consoleHandle = new ConsoleHandle();
+			String cookie  = consoleHandle.httpHandle.getBouncerCookie();
+			String hbaseJmxUrl = "http://" + hbaseMasterHostName + ":" + hbaseMasterPortNo + "/jmx?qry=hadoop:service=Group,name=Group"; 
+			com.jayway.restassured.response.Response response = given().cookie(cookie).get(hbaseJmxUrl);
+			String reponseString = response.getBody().asString();
+			
+			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(reponseString.toString());
+			JSONArray beanJsonArray = obj.getJSONArray("beans");
+			String str = beanJsonArray.getString(0);
+			JSONObject obj1 =  (JSONObject) JSONSerializer.toJSON(str.toString());
+			TestSession.logger.info("name  = " +obj1.getString("name") );
+			JSONArray SystemPropertiesJsonArray = obj1.getJSONArray("ServersByGroup");
+			if ( SystemPropertiesJsonArray.size() > 0 ) {
+				Iterator iterator = SystemPropertiesJsonArray.iterator();
+				while (iterator.hasNext()) {
+					JSONObject jsonObject = (JSONObject) iterator.next();
+					String key = jsonObject.getString("key");
+					if (key.equals("default")) {
+						JSONArray regionalServerHostJsonArray = jsonObject.getJSONArray("value");
+						String tempRegionalServersHostNames = regionalServerHostJsonArray.toString();
+						if (tempRegionalServersHostNames.length() > 0 && tempRegionalServersHostNames != null) {
+							reginalServerHostNameList  = Arrays.asList(tempRegionalServersHostNames.split(","));
+							regionalServersHostSize = reginalServerHostNameList.size();
+							TestSession.logger.info("regionalServerHostJsonArray   = " + reginalServerHostNameList);
+							break;
+						} else {
+							// if there is no regional server exists or down.
+							regionalServersHostSize = 0;
+						}
+					}
+				}
+			}
+		}catch(Exception e) {
+			regionalServersHostSize = 0;
+			TestSession.logger.info("** HBase Regional servers are down..! **** " + e);
+		}
+		return  regionalServersHostSize;
+	}
+	
 	/**
 	 * Execute a given command and return the output of the command.
 	 * @param command
@@ -800,11 +911,11 @@ public class DataAvailabilityPoller {
 		for ( String str : outputList) {
 			TestSession.logger.info(str);
 			
-			if ( str.startsWith("Hadoop") == true ){
+			if ( str.startsWith("Hadoop") == true ) {
 				hadoopVersion = Arrays.asList(str.split(" ")).get(1);
 				flag = true;
 				break;
-			}		
+			}
 		}
 		TestSession.logger.info("Hadoop Version - " + hadoopVersion);
 		return hadoopVersion;

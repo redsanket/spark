@@ -59,8 +59,8 @@ public interface DBCommands {
 				+ " Last_updated VARCHAR(100) DEFAULT 'UNKNOWN' "
 			+ " ) ";
 	
-	String INSERT_HEALTH_CHECKUP_INFO_ROW = "INSERT INTO " + HEALTH_CHECKUP_UP_TABLE + " ( date , Cluster_State ) "
-			+ "  values ( ?, ?) ";
+	String INSERT_HEALTH_CHECKUP_INFO_ROW = "INSERT INTO " + HEALTH_CHECKUP_UP_TABLE + " ( date , Cluster_State , Hbase_State) "
+			+ "  values ( ?, ?, ?) ";
 	
 	String INSERT_NAME_NODE_THREAD_INFO_ROW = "INSERT INTO " + NAME_NODE_THREAD_INFO_TABLE + "  ( NameNode_Name , HadoopVersion , TimeStamp , ThreadsNew , ThreadsRunnable , ThreadsBlocked ,  ThreadsWaiting , ThreadsTimedWaiting , ThreadsTerminated ) " 
 			+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?) ";
