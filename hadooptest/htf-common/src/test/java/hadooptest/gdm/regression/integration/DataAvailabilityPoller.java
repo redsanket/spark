@@ -404,7 +404,7 @@ public class DataAvailabilityPoller {
 
 		} catch(Exception e) {
 			TestSession.logger.info("exception " + e );
-			TestSession.logger.info("exception  --------------");
+			TestSession.logger.info("exception  --------------" + e.getStackTrace());
 		} finally {
 			if (flag == false) {
 				hbaseVersion = "down";	
@@ -430,6 +430,7 @@ public class DataAvailabilityPoller {
 			String hbaseJmxUrl = "http://" + hbaseMasterHostName + ":" + hbaseMasterPortNo + "/jmx?qry=hadoop:service=Group,name=Group"; 
 			com.jayway.restassured.response.Response response = given().cookie(cookie).get(hbaseJmxUrl);
 			String reponseString = response.getBody().asString();
+			TestSession.logger.info("reponseString = " + reponseString);
 			
 			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(reponseString.toString());
 			JSONArray beanJsonArray = obj.getJSONArray("beans");
@@ -437,6 +438,8 @@ public class DataAvailabilityPoller {
 			JSONObject obj1 =  (JSONObject) JSONSerializer.toJSON(str.toString());
 			TestSession.logger.info("name  = " +obj1.getString("name") );
 			JSONArray SystemPropertiesJsonArray = obj1.getJSONArray("ServersByGroup");
+			
+			TestSession.logger.info("SystemPropertiesJsonArray = " + SystemPropertiesJsonArray.toString());
 			if ( SystemPropertiesJsonArray.size() > 0 ) {
 				Iterator iterator = SystemPropertiesJsonArray.iterator();
 				while (iterator.hasNext()) {
