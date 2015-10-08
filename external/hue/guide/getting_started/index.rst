@@ -204,8 +204,6 @@ and then view the results in Hue.
       :alt: Hue Tutorial Directory 
       :align: left 
 
-#. From your home directory, create the directory **hue_scripts** as well. We'll
-   be using this directory to store scripts for an Oozie Workflow.
 
 .. tip:: The **File Browser** also lets you do the 
          following with files and directories:
@@ -455,7 +453,7 @@ Creating the Table
 #. From the **ACTIONS** menu on the left-hand panel, click **Click a new table from a file**.
 #. In the **Name Your Table and Choose A File** panel, enter the table name **sb2014_{your_user_name}_tb**
    in the **Table Name** text field and for the **Input File**, navigate to 
-   **/user/sumeetsi/HueTalk/superbowl2014/superbowl2014_tweets/20140202_014112_e97baf5d-42b8-4d91-8b61-017afdbd4b89.csv.gz**.
+   **/user/sumeetsi/HueTalk/superbowl2014/superbowl2014_tweets/20140202_045947_e97baf5d-42b8-4d91-8b61-017afdbd4b89.csv.gz**.
 #. With **Import data from file** checked, click **Next**.
 #. From the **Choose a Delimiter** panel, use the **Delimiter** drop-down menu to choose **Other**, enter
    the vertical bar character **|**, and click **Preview**.
@@ -500,7 +498,7 @@ Flickr table. We recommend that you try your own queries for the Superbowl table
 you created one.
 
 #. Go to the **Hive Query Editor**. (Click **Query Editors->Hive**.)
-#. From the **Assist** panel on the left-hand side, find your Flickr database from the **Database** drop-down menu.
+#. From the **Assist** panel on the left-hand side, find your Flickr database from the **DATABASE** drop-down menu.
    You should see the one table we created on the **Assist** panel.
 #. Click the **flickr_{your_user_name}_table** to see the available fields.
 
@@ -698,8 +696,8 @@ and Oozie Workflows later.
 
    We're creating a script that deletes the Flickr database 
    and tables. 
-#. Double-click **del_db_tables.hql**.
-#. From the **Actions** panel, double-click **Edit file** to open an editing pane.
+#. Click **del_db_tables.hql**.
+#. From the **Actions** panel, click **Edit file** to open an editing pane.
 
    .. image:: images/edit_file.jpg
       :height: 372 px
