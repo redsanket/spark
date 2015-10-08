@@ -73,6 +73,8 @@ sub writeSparkConf {
     if (-e $outfile) {
         execute("rm $outfile");
     }
+    my $assembly = "spark-assembly-" . $version . "-hadoop" . $hadoopversion . ".jar";
+    my $examples= "spark-examples-" . $version . "-hadoop" . $hadoopversion . ".jar";
     open (FILE, ">> $outfile") || die "problem opening $outfile\n";
     print FILE "USER=hadoopqa\n";
     print FILE "LOG_LEVEL=DEBUG\n";
@@ -80,8 +82,8 @@ sub writeSparkConf {
     print FILE "SPARK_BIN=/home/y/share/spark/bin/spark-class\n";
     print FILE "SPARK_SUBMIT_BIN=/home/y/share/spark/bin/spark-submit\n";
     print FILE "SPARK_HOME=/home/y/share/spark/\n";
-    print FILE "SPARK_JAR=/home/y/share/spark/lib/spark-assembly-" . $version . "-hadoop" . $hadoopversion . ".jar\n";
-    print FILE "SPARK_EXAMPLES_JAR=/home/y/share/spark/lib/spark-examples-" . $version . "-hadoop" . $hadoopversion . ".jar\n";
+    print FILE "SPARK_JAR=/home/y/share/spark/lib/$assembly\n";
+    print FILE "SPARK_EXAMPLES_JAR=/home/y/share/spark/lib/$examples\n";
     print FILE "CHECK_CLUSTER_STATE=false\n";
     close(FILE);
 }
@@ -244,6 +246,43 @@ if ($hadoop27) {
     copy("$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml.hadoop27plus","$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml");
 }
 
+# If the user has provided the -spark option to the script, install the Spark
+# corresponding spark package so that we can run tests against the Spark jars.
+if ($sparkversion) {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+    if ($sparkversionfull) {
+        if ($sparkbranch) {
+            execute("yinst i yspark_yarn-$sparkversionfull -live -downgrade -br $sparkbranch");
+        } else {
+            execute("yinst i yspark_yarn-$sparkversionfull -live -downgrade");
+        }
+    }
+} elsif ($sparktag) {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+    if ($sparkbranch) {
+      execute("yinst i yspark_yarn -tag $sparktag -live -downgrade -br $sparkbranch");
+    } else {
+      execute("yinst i yspark_yarn -tag $sparktag -live -downgrade -br quarantine");
+    }
+    # now that we have installed spark generate the conf again to make sure version in conf matches what was
+    # installed with tag
+    $sparkversionfull = `yinst ls yspark_yarn | awk '{print $1}' | cut -d '-' -f 2`;
+    $sparkversion = `yinst ls yspark_yarn | awk '{print $1}' | cut -d '-' -f 2 | cut -d '_' -f 1`;
+    $sparkhadoopversion = `yinst ls yspark_yarn | awk '{print $1}' | cut -d '-' -f 2 | cut -d '_' -f 2`;
+    chomp($sparkversionfull);
+    chomp($sparkversion);
+    chomp($sparkhadoopversion);
+    writeSparkConf("$workspace/$sparkconf", $sparkversion, $sparkhadoopversion);
+    $conf = "$workspace/$sparkconf";
+} elsif ($spark14) {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_4_latest_hadoop2 -live -downgrade -br quarantine");
+} elsif ($spark15) {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+    execute("yinst i yspark_yarn -tag yspark_yarn_1_5_latest_hadoop2 -live -downgrade -br quarantine");
+} else {
+    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
+}
 
 # Temporarily removing help:active-profiles as the maven-help-plugin is not
 # resolving from an offline local repository.  It keeps trying to download
@@ -353,32 +392,6 @@ if ( grep( /^jacoco$/, @ARGV ) ) {
     # execute("rm -f $jacoco_result_dir/*");
     # $jacoco_result_dir="$workspace/data/exec/jacoco.exec";
     # execute("rm -f $jacoco_result_dir");
-}
-
-# If the user has provided the -spark option to the script, install the Spark
-# corresponding spark package so that we can run tests against the Spark jars.
-if ($sparkversion) {
-    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
-    if ($sparktag) {
-        execute("yinst i yspark_yarn -tag $sparktag -live -downgrade -br quarantine");
-    } elsif ($sparkversionfull) {
-        if ($sparkbranch) {
-            execute("yinst i yspark_yarn-$sparkversionfull -live -downgrade -br $sparkbranch");
-        } else {
-            execute("yinst i yspark_yarn-$sparkversionfull -live -downgrade");
-        }
-    } else {
-       note("ERROR: you must specify either the spark tag or the spark branch to install");
-       exit 1;
-    }
-} elsif ($spark14) {
-    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
-    execute("yinst i yspark_yarn -tag yspark_yarn_1_4_latest_hadoop2 -live -downgrade -br quarantine");
-} elsif ($spark15) {
-    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
-    execute("yinst i yspark_yarn -tag yspark_yarn_1_5_latest_hadoop2 -live -downgrade -br quarantine");
-} else {
-    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
 
 # If the user has provided the -pig option to the script, install the Pig
