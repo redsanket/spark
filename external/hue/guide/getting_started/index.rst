@@ -808,124 +808,124 @@ and Oozie Workflows later.
    process. 
 
 
-7. Creating Actions With the Job Designer
-=========================================
-
-Hue lets you create workflows in two ways: as an
-action or through Oozie workflows.
-The **Job Designer** makes it create a simple Oozie 
-workflow to execute one action without worrying 
-about the configuration.
-
-We're going to use the **Job Designer** to create 
-a couple of actions that we'll import from 
-Oozie workflow we create in the next section.
-
-#. From the top navigation bar, click **Query Editors->Job Designer**.
-
-   .. image:: images/open_job_designer.jpg
-      :height: 137 px
-      :width: 499 px
-      :scale: 95%
-      :alt: Opening Job Designer
-      :align: left 	
-
-#. From the **Designs** panel, click **New action** and select **Fs** as your action.
-
-   .. image:: images/jd_refresh_tutorial.jpg
-      :height: 276 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Create Fs Job
-      :align: left 	
-
-#. Enter **hue_tutorial_refresh** in the **Name** text field and **Cleaning up HDFS for Hue tutorial** 
-   for the **Description** text field.
-
-   .. image:: images/hue_tutorial_refresh_desc.jpg
-      :height: 202 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Refresh Tutorial Description
-      :align: left 	
-
-
-#. Specify the paths to delete and create by doing the following:
-   
-   #. Click **Add path** next to **Delete path** and enter the path **/user/{your_user_name}/hue_tutorial/**.
-   #. To recreate the directory for the latest results, in the **Create directory** field, enter the directory **/user/{your_user_name}/hue_tutorial/**.
-   #. Click **Save**.
-
-
-      .. image:: images/hue_tutorial_delete_paths.jpg
-         :height: 429 px
-         :width: 789 px
-         :scale: 92%
-         :alt: Specify Delete Paths
-         :align: left 	
-
-   We're deleting the path so we can run our scripts 
-   again in an Oozie job that we 
-   create through the **Workflows Editor** in the 
-   next section.
-
-#. From the **Designs** panel, click **New action** and select **Email** as your action.
-
-   .. image:: images/create_mail_notification.jpg
-      :height: 282 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Create a Mail Notification
-      :align: left 	
-
-#. Enter **hue_tutorial_notification** in the **Name** text field and **Email Notification for the Hue Tutorial**
-   for the **Description** text field.
-
-   .. image:: images/email_notification_desc.jpg
-      :height: 273 px
-      :width: 734 px
-      :scale: 92%
-      :alt: Add Description for Notification Mail
-      :align: left 	
-    
-#. In the **TO addresses**, enter your email address. In the **Subject** field, enter **Hue Tutorial Oozie Workflow Has Completed**.
-   Finally, in the **Body** text area, enter the 
-   following and be sure to replace ``{your_user_name}`` with your user name:: 
-
-       See the sanitized 
-       CSV file with the Flickr camera locations at the 
-       following URL: 
-       https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized
-
-   .. image:: images/workflow_email_notification.jpg
-      :height: 253 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Email Address and Body for Notification
-      :align: left 	
-   
-#. Click **Save**.
-#. From the **Designs** pane, check the **hue_tutorial_notification** checkbox and click **Submit**.
-
-   .. image:: images/submit_email_notification_job.jpg
-      :height: 441 px
-      :width: 812 px
-      :scale: 91%
-      :alt: Submit Job
-      :align: left 	
-   
-#. You'll be taken to the **Workflow** pane and quickly see that the **Status** indicate **Succeeded** and
-   the **Progress** bar reach **100%**. You should receive the notification email in a few minutes, too.
-
-   .. image:: images/job_successful.jpg
-      :height: 493 px
-      :width: 950 px
-      :scale: 91%
-      :alt: Successful Job
-      :align: left 	
-    
-#. We're going to create an Oozie Workflow next, which will use 
-   the actions that we just created.
+.. 7. Creating Actions With the Job Designer
+.. =========================================
+.. 
+.. Hue lets you create workflows in two ways: as an
+.. action or through Oozie workflows.
+.. The **Job Designer** makes it create a simple Oozie 
+.. workflow to execute one action without worrying 
+.. about the configuration.
+.. 
+.. We're going to use the **Job Designer** to create 
+.. a couple of actions that we'll import from 
+.. Oozie workflow we create in the next section.
+.. 
+.. #. From the top navigation bar, click **Query Editors->Job Designer**.
+.. 
+..    .. image:: images/open_job_designer.jpg
+..       :height: 137 px
+..       :width: 499 px
+..       :scale: 95%
+..       :alt: Opening Job Designer
+..       :align: left 	
+.. 
+.. #. From the **Designs** panel, click **New action** and select **Fs** as your action.
+.. 
+..    .. image:: images/jd_refresh_tutorial.jpg
+..       :height: 276 px
+..       :width: 950 px
+..       :scale: 90%
+..       :alt: Create Fs Job
+..       :align: left 	
+.. 
+.. #. Enter **hue_tutorial_refresh** in the **Name** text field and **Cleaning up HDFS for Hue tutorial** 
+..    for the **Description** text field.
+.. 
+..    .. image:: images/hue_tutorial_refresh_desc.jpg
+..       :height: 202 px
+..       :width: 950 px
+..       :scale: 90%
+..       :alt: Refresh Tutorial Description
+..       :align: left 	
+.. 
+.. 
+.. #. Specify the paths to delete and create by doing the following:
+..    
+..    #. Click **Add path** next to **Delete path** and enter the path **/user/{your_user_name}/hue_tutorial/**.
+..    #. To recreate the directory for the latest results, in the **Create directory** field, enter the directory **/user/{your_user_name}/hue_tutorial/**.
+..    #. Click **Save**.
+.. 
+.. 
+..       .. image:: images/hue_tutorial_delete_paths.jpg
+..          :height: 429 px
+..          :width: 789 px
+..          :scale: 92%
+..          :alt: Specify Delete Paths
+..          :align: left 	
+.. 
+..    We're deleting the path so we can run our scripts 
+..    again in an Oozie job that we 
+..    create through the **Workflows Editor** in the 
+..    next section.
+.. 
+.. #. From the **Designs** panel, click **New action** and select **Email** as your action.
+.. 
+..    .. image:: images/create_mail_notification.jpg
+..       :height: 282 px
+..       :width: 950 px
+..       :scale: 90%
+..       :alt: Create a Mail Notification
+..       :align: left 	
+.. 
+.. #. Enter **hue_tutorial_notification** in the **Name** text field and **Email Notification for the Hue Tutorial**
+..    for the **Description** text field.
+.. 
+..    .. image:: images/email_notification_desc.jpg
+..       :height: 273 px
+..       :width: 734 px
+..       :scale: 92%
+..       :alt: Add Description for Notification Mail
+..       :align: left 	
+..     
+.. #. In the **TO addresses**, enter your email address. In the **Subject** field, enter **Hue Tutorial Oozie Workflow Has Completed**.
+..    Finally, in the **Body** text area, enter the 
+..    following and be sure to replace ``{your_user_name}`` with your user name:: 
+.. 
+..        See the sanitized 
+..        CSV file with the Flickr camera locations at the 
+..        following URL: 
+..        https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized
+.. 
+..    .. image:: images/workflow_email_notification.jpg
+..       :height: 253 px
+..       :width: 950 px
+..       :scale: 90%
+..       :alt: Email Address and Body for Notification
+..       :align: left 	
+..    
+.. #. Click **Save**.
+.. #. From the **Designs** pane, check the **hue_tutorial_notification** checkbox and click **Submit**.
+.. 
+..    .. image:: images/submit_email_notification_job.jpg
+..       :height: 441 px
+..       :width: 812 px
+..       :scale: 91%
+..       :alt: Submit Job
+..       :align: left 	
+..    
+.. #. You'll be taken to the **Workflow** pane and quickly see that the **Status** indicate **Succeeded** and
+..    the **Progress** bar reach **100%**. You should receive the notification email in a few minutes, too.
+.. 
+..    .. image:: images/job_successful.jpg
+..       :height: 493 px
+..       :width: 950 px
+..       :scale: 91%
+..       :alt: Successful Job
+..       :align: left 	
+..     
+.. #. We're going to create an Oozie Workflow next, which will use 
+..    the actions that we just created.
 
 
 7. Creating Workflows With the Oozie Editor
@@ -990,7 +990,7 @@ what we've done thus far.
    #. Click **DELETE PATH** and enter the path **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
    #. To recreate the directory for the latest results, click **CREATE DIRECTORY** and enter the directory 
       **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
-   #. Click **Save**.
+   #. Click the **Save** icon.
 
    .. image:: images/hdfs_fs_action-add_dirs.jpg
       :height: 586 px
@@ -1163,7 +1163,7 @@ what we've done thus far.
 
 .. _viewing_jobs:
 
-9. Viewing and Managing Jobs
+8. Viewing and Managing Jobs
 ============================
 
 From the **Job Browser**, you can view  your jobs and
