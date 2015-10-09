@@ -94,7 +94,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		this.gridNames = this.consoleHandle.getAllInstalledGridName();
 		TestSession.logger.info("________________________________Grids - " + gridNames);
 		
-		checkClusteHealthCheckup();
+		//checkClusteHealthCheckup();
 		
 		// copy data to the grid
 		for (String gridName : gridNames ) {
@@ -422,6 +422,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 	private void checkClusteHealthCheckup() {
 		NameNodeThreadInfo nameNodeThreadInfo = new NameNodeThreadInfo();
 		for ( String clusterName : this.gridNames ) {
+			TestSession.logger.info("clusterName =  " + clusterName);
 			String clusterNameNode = this.consoleHandle.getClusterNameNodeName(clusterName);
 			out.println(clusterName  + " 's name node = " + clusterNameNode);
 			nameNodeThreadInfo.setNameNodeName(clusterNameNode);
