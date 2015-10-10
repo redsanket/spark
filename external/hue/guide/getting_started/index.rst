@@ -986,7 +986,7 @@ what we've done thus far.
 
 #. Specify the paths to delete and create by doing the following:
   
-   #. Click the link **HDFS Fs** to open a text box. Enter the string **hue_tutorial_refresh** and click the **√** symbol.
+   #. Click the dialog title **HDFS Fs** to open a text box. Enter the string **hue_tutorial_refresh** and click the **√** symbol.
    #. Click **DELETE PATH** and enter the path **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
    #. To recreate the directory for the latest results, click **CREATE DIRECTORY** and enter the directory 
       **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
@@ -1001,98 +1001,64 @@ what we've done thus far.
 
    We're deleting and recreating the path for our results. 
 
-#. Drag the **DistCp** object to the dotted box below **hue_tutorial_refresh**. We're going to 
+#. Drag the **DistCp** object to the gray dotted box below **hue_tutorial_refresh**. We're going to 
    use `DistCp <http://hadoop.apache.org/docs/r1.2.1/distcp2.html>`_ to copy the Flickr dataset 
    to our home directories in an Oozie task.
 #. In the dialog window, do the following: 
  
-   #. Click the **Distcp**, enter the text **copy_flickr_data** in the text box, and then click **√**.
+   #. Click the dialog title **Distcp**, enter the text **copy_flickr_data** in the text box, and then click **√**.
    #. In the **Source** text field, enter **/user/rbernota/Flickr100cc/flickr100m_dataset.bz2**.
    #. In the **Destination** text field, enter **/user/{your_user_name}/hue_tutorial/**.
    #. Click **Add**.
 
-   .. image:: images/drag_distcp.jpg
-      :height: 147px
+   .. image:: images/copy_flickr_data.jpg
+      :height: 144px
       :width: 359 px
       :scale: 100%
       :alt: Create DistCp action.
       :align: left 	
 
-.. TBD: Left off here on 10/08/15.
+   For the rest of the steps in this section, we'll be omitting screenshots unless the interface changes for a step.
+   We feel you have figured out the basic mechanics of creating actions.
 
-#. Drag the **Hive** object to the next available dotted box.
-#. In the **Edit Node** window, enter **del_db_tables** 
-   in the **Name** text field and
-   enter **Delete old tables** in the **Description** 
-   text field.
+#. Drag the **Hive Script** object to the gray dotted box below **copy_flickr_data**.
+#. In the dialog window, do the following: 
 
-   .. image:: images/del_db_tables.jpg
-      :height: 198 px
-      :width: 556 px
-      :scale: 95%
-      :alt: Hive task deletes the Database/Tables.
-      :align: left 	
-   
-#. Click **Advanced** and check the **hcat** checkbox.
-#. From the **Script name** field, click the **..** 
-   navigation box and navigate to 
-   **/user/{your_user_name}/hue_scripts/del_db_tables.hql**. 
+   #. Click the dialog title **Hive Script** to open a text box. Enter the text **del_db_tables** and click the **√** symbol.
+   #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/del_db_tables.hql**.
+   #. In the **Hive XML** text box, enter the path **/user/rbernota/HueTalk/hive-site.xml**.
+   #. Click **Add**.
 
-   .. image:: images/enter_hive_script.jpg
-      :height: 51 px
-      :width: 662 px
-      :scale: 92%
-      :alt: Enter Hive Script
-      :align: left 	
-
-#. For the **Job properties**, do the following:
-
-   #. Click **Add property** and enter **oozie.action.sharelib.for.hive** for the **Property name** and
-      **hcat_current,hive_current** for the **Value**. (Make sure there are no spaces in the values.)
-   #. Click **Add property again** and enter **hive.querylog.location** for the **Property name** field and **hivelogs** 
-      for the **Value** field.
-
-   .. image:: images/job_properties_hive.jpg
-      :height: 145 px
-      :width: 709 px
-      :scale: 92%
-      :alt: Job properties for Hive
-      :align: left  
-
-#. For the **Job XML** text field, enter the following and click **Done**: **/user/sumeetsi/HueTalk/hive-site.xml**
-
-   .. image:: images/hive_job_xml.jpg
-      :height: 246 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Adding Job XML for Hive task.
-      :align: left   
-  
    .. note:: To run Hive queries in Oozie, you need to provide a ``hive-site.xml``. 
-             If you're not working on the Cobalt Blue Hue instance, you'll have to copy the file from 
-             https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/filebrowser/view/user/sumeetsi/HueTalk/hive-site.xml              to your home directory and enter the path **/user/{your_user_name}/hive-site.xml**.
-   
+             If you're not working on the Titanium Tan Hue instance, you'll have to copy the file from 
+             https://titaniumtan-hue.tan.ygrid.yahoo.com:9999/filebrowser/view/user/rbernota/HueTalk/hive-site.xml
+             to your home directory and enter the path **/user/{your_user_name}/hive-site.xml**.
 
-#. Create another **Hive** task for your Oozie Workflow:
+#. Click **PROPERTIES** to open two text fields.
+#. In the two text fields, enter the value **hive.querylog.location** in the left-hand text field (name) and
+   the value **hivelogs** in the right-hand text field (value).
 
-   #. Drag the **Hive** object to the next available dotted box.
-   #. In the **Edit Node** window, enter the name **create_db_tables**,
-      and the description **Creating Hive database
-      and tables**.
-   #. Click **Advanced** and check the **hcat** checkbox.
-   #. Enter the path **/user/{your_user_name}/hue_scripts/create_db_tables.hql**
-      in the **Script name** field. 
-   #. For the **Job Propertes**,  click **Add property** and enter **oozie.action.sharelib.for.hive** 
-      for the **Property name** and **hcat_current,hive_current** for the **Value**. 
-   #. Click **Add property again** and enter **hive.querylog.location** for the **Property name** field and **hivelogs** 
-      for the **Value** field.
-   #. For the **Job XML** text field, enter the following and click **Done**: **/user/sumeetsi/HueTalk/hive-site.xml**
+   .. image:: images/hivelogs_property.jpg
+      :height: 295 px
+      :width: 466 px
+      :scale: 98%
+      :alt: Hive Logs Property
+      :align: left 
+
+#. Create another **Hive** action for your Oozie Workflow:
+
+   #. Use the name **create_db_tables** for the Hive action.
+   #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/create_db_tables.hql**. 
+   #. In the **Hive XML** text box, enter the path **/user/rbernota/HueTalk/hive-site.xml**.
+   #. Click the **Properties** icon and enter **hive.querylog.location** for and **hivelogs** for the name and value.
 
 
+.. TBD: Left off here at 10/09/15
 
 #. We still need to create the Hive table with just the camera 
-   and location data, so
-   create the last Hive task with the script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
+   and location data, so create the last Hive action with the 
+   script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
+   
    Use the file name without the extension for the name and
    the description **Creating camera and locations table**.
 
