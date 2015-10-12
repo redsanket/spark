@@ -929,5 +929,3 @@ compute cost for a given user and queue combination.
          starling_job_summary.queue;
 
 
-
-
