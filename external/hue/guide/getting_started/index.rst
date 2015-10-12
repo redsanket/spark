@@ -105,7 +105,7 @@ and then view the results in Hue.
       :alt: Data Discovery Tool
       :align: left      
 
-#. You'll see the database ``flickr_cc_100m_db`` in the Titanium Tan cluster.
+#. You'll see the database ``flickr_cc_100m_db`` in the Tiberium Tan cluster.
 
    .. image:: images/dd_flickr_database.jpg
       :height: 603px
@@ -154,7 +154,7 @@ and then view the results in Hue.
       :alt: Click File Browser
       :align: left 
  
-#. You should see your home directory on Titanium Tan that gives a long format listing of files.
+#. You should see your home directory on Tiberium Tan that gives a long format listing of files.
 
    .. image:: images/home_directory.jpg
       :height: 355px
@@ -983,7 +983,6 @@ what we've done thus far.
       :align: left 	
 
 #. In the pop-up dialog that opens, click **Add**.
-
 #. Specify the paths to delete and create by doing the following:
   
    #. Click the dialog title **HDFS Fs** to open a text box. Enter the string **hue_tutorial_refresh** and click the **√** symbol.
@@ -1030,8 +1029,8 @@ what we've done thus far.
    #. Click **Add**.
 
    .. note:: To run Hive queries in Oozie, you need to provide a ``hive-site.xml``. 
-             If you're not working on the Titanium Tan Hue instance, you'll have to copy the file from 
-             https://titaniumtan-hue.tan.ygrid.yahoo.com:9999/filebrowser/view/user/rbernota/HueTalk/hive-site.xml
+             If you're not working on the Tiberium Tan Hue instance, you'll have to copy the file from 
+             https://tiberiumtan-hue.tan.ygrid.yahoo.com:9999/filebrowser/view/user/rbernota/HueTalk/hive-site.xml
              to your home directory and enter the path **/user/{your_user_name}/hive-site.xml**.
 
 #. Click **PROPERTIES** to open two text fields.
@@ -1045,12 +1044,15 @@ what we've done thus far.
       :alt: Hive Logs Property
       :align: left 
 
+#. Click the **Save** icon.
 #. Create another **Hive** action for your Oozie Workflow:
 
    #. Use the name **create_db_tables** for the Hive action.
    #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/create_db_tables.hql**. 
    #. In the **Hive XML** text box, enter the path **/user/rbernota/HueTalk/hive-site.xml**.
-   #. Click the **Properties** icon and enter **hive.querylog.location** for and **hivelogs** for the name and value.
+   #. Click the **Properties** icon and then **PROPERTIES**. In the two text boxes, 
+      enter **hive.querylog.location** for and **hivelogs** for the name and value.
+   #. Click the **Save** icon.
 
 
 .. TBD: Left off here at 10/09/15
@@ -1058,30 +1060,29 @@ what we've done thus far.
 #. We still need to create the Hive table with just the camera 
    and location data, so create the last Hive action with the 
    script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
-   
-   Use the file name without the extension for the name and
-   the description **Creating camera and locations table**.
+   Use the name **camera_location_query** for the Hive action.
 
-   .. important:: Remember to check **hcat**, add the job properties **hive.action.sharelib.for.hive**, **hive.querylog.location**, 
-                  and enter **/user/sumeetsi/HueTalk/hive-site.xml** in the **Job XML** field.
+   .. important:: Remember to add **hive.querylog.location** and **hivelogs** as job propertes as well as
+                  to enter **/user/rbernota/HueTalk/hive-site.xml** in the **Hive XML** field.
 
-#. We'll need to create a **Shell** task that creates a CSV file from the Hive table the last
-   task creates. For this, you'll need to do the following:
 
-   #. Enter **write_table_to_csv** in the **Name** field and **Write data from the Hive table to a CSV file** in the
-      **Description** field.
-   #. Check the **hcat** checkbox as the credential.
-   #. From the **Edit node** pane, enter **create_camera_location_csv.sh** in the **Shell command** field.
-   
-   #. In the **Files** field, enter the path to the script: **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**
-   #. Click **Done**.
+#. To create a **Shell** task that creates a CSV file from the Hive table the last
+   task creates, from the **ACTIONS** panel, drag the **Shell** icon to the next empty dotted box under the **camera_location_query** action. 
+
+#. In the pop-up dialog box, do the following:
+
+   #. Click the **Shell** link and enter the title **create_camera_location_csv**.
+   #. For the **Shell command** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
+   #. Click **Add**.
  
-   .. image:: images/ow_shell.jpg
-      :height: 685 px
-      :width: 950 px
-      :scale: 90%
+   .. image:: images/create_shell_action.jpg
+      :height: 139 px
+      :width: 449 px
+      :scale: 98%
       :alt: Creating a Task for Shell Scripts
       :align: left   
+
+.. TBD: Left off here on 10/12/15.
     
 #. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next empty dotted box.
 #. Creating a Pig task is similar to a Hive task, except for the Job properties:
