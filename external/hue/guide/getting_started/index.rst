@@ -1088,9 +1088,6 @@ what we've done thus far.
       enter **hive.querylog.location** for and **hivelogs** for the name and value.
    #. Click the **Save** icon.
 
-
-.. TBD: Left off here at 10/09/15
-
 #. We still need to create the Hive table with just the camera 
    and location data, so create the last Hive action with the 
    script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
@@ -1113,28 +1110,47 @@ what we've done thus far.
       :height: 139 px
       :width: 449 px
       :scale: 98%
-      :alt: Creating a Task for Shell Scripts
+      :alt: Creating a Shell Script Action
       :align: left   
 
-.. TBD: Left off here on 10/12/15.
-    
 #. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next empty dotted box.
-#. Creating a Pig task is similar to a Hive task, except for the Job properties:
+#. Create the Pig action by doing the following:
 
-   #. In the **Edit Node** window, enter **remove_null_camera_locations** in the **Name** field
-      and **Remove rows that have null values for the camera, longitude, or latitude** in the **Description** field.
-   #. Click **Advanced** and check the **hcat** checkbox.
-   #. Enter the script **/user/{your_user_name}/hue_scripts/remove_null_locations.pig**
-      in the **Script name** text field.
-   #. For the **Job properties**, click **Add property** and enter **oozie.action.sharelib.for.pig** 
-      for the **Property name** and **pig_current** for the **Value** text field.
-   #. Click **Done**.
+   #. In the pop-up dialog box, click the link **Pig Script** and enter **remove_null_camera_locations** as the 
+      name of the Pig action.
+   #. Enter the path **/user/{your_user_name}/hue_scripts/remove_null_locations.pig** 
+      in the **Script** text field.
+   #. Click **Add**.
+
+   .. image:: images/create_pig_action.jpg
+      :height: 138 px
+      :width: 449 px
+      :scale: 98%
+      :alt: Creating a Pig Action
+
+#. From the **remove_null_camera_locations** Pig action, click the **Properties** icon to
+   open the **Properties** tab.
+
+#. In the **Properties** tab, click **PROPERTIES** and enter 
+   **oozie.action.sharelib.for.pig** in the name text field and 
+   **pig_current** in the value text field.
+
+   .. image:: images/set_pig_properties.jpg
+      :height: 379 px
+      :width: 567 px
+      :scale: 96%
+      :alt: Setting Properties for Pig Action
+
 
    .. note:: Notice that we don't specify **hcat_current** because Pig
              is accessing a CSV file, not a Hive table, which would
              require access to HCatalog. The Job XML
              ``hive-site.xml`` file is as you might have guessed: 
              only needed for Hive.
+
+#. Click **Save**.
+
+.. TBD: Left off on 10/13/15
 
 #. Finally, we want the job to notify us when we're done. So, go ahead and import the
    **Email** action:
