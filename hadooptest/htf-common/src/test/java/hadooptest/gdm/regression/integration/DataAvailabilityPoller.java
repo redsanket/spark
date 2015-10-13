@@ -317,7 +317,6 @@ public class DataAvailabilityPoller {
 							integrateHBaseObject.setCurrentFeedName(this.currentFeedName);
 							integrateHBaseObject.setDataPath(this.getCurrentFeedBasePath());
 							integrateHBaseObject.setScriptPath(this.getHBaseInsertRecordPigScriptFilePath());
-							integrateHBaseObject.setCSVFilePath(this.getHBaseDataFile());
 							integrateHBaseObject.modifyHBasePigFile();
 							integrateHBaseObject.copyHBasePigScriptToHBaseMasterHost();
 							integrateHBaseObject.executeInsertingRecordsIntoHBase();
@@ -586,70 +585,6 @@ public class DataAvailabilityPoller {
 		}else {
 			TestSession.logger.info(workflowFilePath + " file does not exists.");
 		}
-	}
-
-	public void copyHBasePigScriptToHBaseMasterHost() {
-		String  absolutePath = new File("").getAbsolutePath();
-		File hbaseInsertRecordFilePath = new File(absolutePath + "/resources/stack_integration/HBaseInsertRecord.pig");
-		File hbaseScanTableFilePath = new File(absolutePath + "/resources/stack_integration/HBaseScanTable.pig");
-
-		// check if hbase pig script exists in resource folder ( modified pig scipt file by  modifyHBasePigFile() ).
-		if (hbaseInsertRecordFilePath.exists() && hbaseScanTableFilePath.exists()) {
-
-			// create the folder with timestamp
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
-			Calendar calendar = Calendar.getInstance();
-			Date d = new Date();
-			this.hbasePigScriptLocation = "/tmp/IntegrationTestingHBasePigScript_" + simpleDateFormat.format(d);
-			TestSession.logger.info("hbasePigScriptLocation  = " + hbasePigScriptLocation);
-
-			// copy the pig script to hbase master
-			String hbaseHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName");
-			String hbasePigScriptFileName = hbaseInsertRecordFilePath.toString();
-
-			// make directory in hbase master to copy the hbase pig script
-			String mkdirCommand = "ssh " + hbaseHostName + " mkdir  " + this.hbasePigScriptLocation;
-			String mkdirCommandResult = this.executeCommand(mkdirCommand);
-
-			String scpCommand = "scp " + absolutePath +"/resources/stack_integration/*.pig" + "  " +  hbaseHostName + ":/tmp/" + this.hbasePigScriptLocation;
-			this.executeCommand(scpCommand);
-
-		} else {
-			fail("Either " + hbaseScanTableFilePath.toString()  + "  or " + hbaseScanTableFilePath.toString() + "  file is missing.");
-		}
-	}
-
-	private void modifyHBasePigFile() throws IOException {
-		TestSession.logger.info("####################################################################################");
-		String  absolutePath = new File("").getAbsolutePath();
-		TestSession.logger.info("AbsolutePath = " + absolutePath );
-		File filePath = new File(absolutePath + "/resources/stack_integration/");
-		if (filePath.exists()) {
-			ConsoleHandle consoleHandle = new ConsoleHandle();
-			String nameNode_Name = consoleHandle.getClusterNameNodeName(this.clusterName);
-			String fileContent = new String(readAllBytes(get(filePath + "/HBaseInsertRecord_temp.pig")));
-			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
-			fileContent = fileContent.replaceAll("FILEPATH", this.getHBaseDataFile());
-
-			String newPigScriptFilePath = filePath + "/HBaseInsertRecord.pig";
-			File file = new File(newPigScriptFilePath);
-			if (file.exists()) {
-				TestSession.logger.info(newPigScriptFilePath + "  already exists.");
-				if (file.delete() == true) {
-					TestSession.logger.info(newPigScriptFilePath + " file deleted successfully **** ");
-					java.nio.file.Files.write(java.nio.file.Paths.get(newPigScriptFilePath), fileContent.getBytes());
-					TestSession.logger.info("Successfully " + newPigScriptFilePath + " created. *************");
-				} else {
-					TestSession.logger.info("Failed to delete " + newPigScriptFilePath);	
-				}
-			} else {
-				TestSession.logger.info(newPigScriptFilePath + " does not exists");
-				java.nio.file.Files.write(java.nio.file.Paths.get(newPigScriptFilePath), fileContent.getBytes());
-			}
-		} else {
-			TestSession.logger.info(filePath + " file does not exists.");
-		}
-		TestSession.logger.info("####################################################################################");
 	}
 
 	/**
