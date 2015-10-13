@@ -30,7 +30,7 @@ public interface DBCommands {
 			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "oozieVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
-			+ "hbaseVesion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
 	
 	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion)  " 
