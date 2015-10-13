@@ -4,6 +4,8 @@ Getting Started
 
 **Time Required:** 30-40 minutes
 
+.. _hue_getting_started-intro:
+
 Introduction
 ============
 
@@ -24,6 +26,9 @@ We'll be using Flickr data to do the following in this tutorial:
   execute a Hadoop job with several tasks. 
 - Monitor Hadoop jobs in the **Job Browser**.
 
+
+.. _hue_getting_started-prereq:
+
 Prerequisites
 -------------
 
@@ -38,8 +43,12 @@ Prerequisites
   - `Oozie Overview <http://oozie.apache.org/>`_
   - `Getting Started on the Yahoo Grid <https://yahoo.jiveon.com/docs/DOC-46590>`_
 
+.. _hue_getting_started-about:
+
 About the Tutorial 
 ------------------
+
+.. _about-org:
 
 Organization
 ~~~~~~~~~~~~
@@ -50,6 +59,9 @@ then gradually becoming more complex until you're
 creating an Oozie Workflow to automate several
 jobs. For each section, we also offer additional 
 tips for using Hue.
+
+
+.. _about-conventions:
 
 Conventions
 ~~~~~~~~~~~
@@ -71,6 +83,8 @@ you be told to click the **arrowhead** icon rather
 than shown a shrunken image of the icon.
 
 
+.. _about-queues:
+
 Hadoop Queues
 ~~~~~~~~~~~~~
 
@@ -78,6 +92,7 @@ Also, we'll be using the ``default`` queue for running jobs, but we suggest
 that you use your team's queue because for faster job processing. We'll
 show you how to set the queue in the tutorial.
 
+.. _hue_getting_started-disc_data:
 
 1. Discovering Data
 ===================
@@ -105,14 +120,23 @@ and then view the results in Hue.
       :alt: Data Discovery Tool
       :align: left      
 
-#. You'll see the database ``flickr_cc_100m_db`` in the Tiberium Tan cluster.
+#. From the **Cluster** drop-down menu, select **Tiberium Tan**.
 
-   .. image:: images/dd_flickr_database.jpg
-      :height: 603px
+   .. image:: images/select_cluster.jpg
+      :height: 551px
       :width: 950 px
       :scale: 90%
-      :alt: Flickr Database in Data Discovery Tool 
-      :align: left    
+      :alt: Select Cluster From Data Discovery Tool
+
+#. From the **Search** page, with **Tiberium Tan** selected as the cluster,
+   enter **flickr_rbernota_db** in the **Database** field. The database **flickr_rbernota_db**
+   and the table **flickr_rbernota_table** will be displayed.
+
+   .. image:: images/select_db_table.jpg
+      :height: 298px
+      :width: 950 px
+      :scale: 90%
+      :alt: Enter the Database and Table From Tiberium Tan
 
 #. Click on the database and you'll be taken to a page giving general information and the schema.
    Click **View in Hue**.
@@ -125,7 +149,7 @@ and then view the results in Hue.
       :align: left 
     
 #. Add the exception and accept the certificate for Hue as you did for the **Data Discovery**.
-   You should see the **flickr_cc_100m_db** database in **Hue** as shown below:
+   You should see the **flickr_rbernota_db** database in **Hue** as shown below:
    
    .. image:: images/hue_flickr_db.jpg
       :height: 490px
@@ -141,6 +165,7 @@ and then view the results in Hue.
           database, and table. From the **General Info** page,
           you can view the table in **Hue**.
 
+.. _hue_getting_started-file_browser:
 
 2. Navigating HDFS With File Browser
 ====================================
@@ -154,7 +179,7 @@ and then view the results in Hue.
       :alt: Click File Browser
       :align: left 
  
-#. You should see your home directory on Tiberium Tan that gives a long format listing of files.
+#. You should see your home directory with a long-format listing of files.
 
    .. image:: images/home_directory.jpg
       :height: 355px
@@ -215,6 +240,8 @@ and then view the results in Hue.
          - delete and create 
          - upload 
 
+
+.. _hue_getting_started-create_db_tables:
 
 3. Creating Database/Tables
 ===========================
@@ -374,6 +401,8 @@ you copied to your home directory.
             
 
 
+.. _hue_getting_started-view_metadata:
+
 4. Viewing Metadata and Data from Metastore Manager
 ===================================================
 
@@ -490,8 +519,13 @@ Creating the Table
    to the **Databases > sb2014_{your_user_name} > sb2014_{your_user_name}_tb** panel, where you
    can view the columns (names and types), sample data, and table properties.
 
+
+.. _hue_getting_started-query_data:
+
 5. Querying Data With Hive and Pig
 ==================================
+
+.. _query_data-hive:
 
 Using Hive
 ----------
@@ -1281,6 +1315,8 @@ by a user or key term, also look at the cluster and ResourceManager logs.
 Troubleshooting
 =============== 
 
+.. _gs_troubleshooting-general:
+
 General
 -------
 
@@ -1289,6 +1325,8 @@ General
 - Check the ResourceManager logs. Go to **Job Browser**, click
   the job ID link, and then the logs link. 
  
+
+.. _gs_troubleshooting-hive_pig:
 
 Hive/Pig Jobs 
 -------------
@@ -1312,12 +1350,13 @@ Confirm that you have down the following:
   see what is the available capacity is for your queue. You may want to use 
   a different queue.
 
+.. _gs_troubleshooting-shell:
+
 Shell Scripts
 -------------
 
-- Make sure you have specified the path with the script (i.e., ``/user/{your_user_name}/script.sh``)
-  in the **Files** field.
-
+Make sure you have specified the path with the script (i.e., ``/user/{your_user_name}/script.sh``)
+in the **Files** field.
 
 
 .. *Home page* - shows your project and your history, queries, could share possibly.
