@@ -63,9 +63,6 @@ public class DataAvailabilityPoller {
 	private String hbasePigScriptLocation;
 	private String currentHadoopVersion;
 	private String currentPigVersion;
-	private boolean hbaseInsertStatus = false;
-	private boolean hbaseLoadStatus = false;
-	private boolean hbaseScanStatus = false;
 	private boolean hbaseHealthStatus = false;
 	private Connection con;
 	public SearchDataAvailablity searchDataAvailablity;
@@ -264,25 +261,6 @@ public class DataAvailabilityPoller {
 					this.searchDataAvailablity.setOozieWorkFlowPath(this.getOozieWfApplicationPath());
 					this.searchDataAvailablity.setCurrentFrequencyValue(this.currentFrequencyHourlyTimeStamp);
 					this.searchDataAvailablity.execute();
-
-					/*// if hbase health is good
-					if (this.hbaseHealthStatus == true) {
-						System.out.println("*************************************************************************** ");
-						IntegrateHBase integrateHBaseObject = new IntegrateHBase();
-						integrateHBaseObject.setCurrentFeedName(this.currentFeedName);
-						integrateHBaseObject.setScriptPath(this.getHBaseInsertRecordPigScriptFilePath());
-						integrateHBaseObject.setCSVFilePath(this.getHBaseDataFile());
-						integrateHBaseObject.modifyHBasePigFile();
-						integrateHBaseObject.copyHBasePigScriptToHBaseMasterHost();
-						integrateHBaseObject.executeInsertingRecordsIntoHBase();
-						integrateHBaseObject.executeReadRecordsFromHBaseToPig();
-						integrateHBaseObject.updateHbaseInsertResultIntoDb();
-						integrateHBaseObject.updateHbaseScanResultIntoDb();
-						System.out.println("*************************************************************************** ");
-						TestSession.logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ hbase scipt location " + this.getHBaseInsertRecordPigScriptFilePath());
-						System.out.println("*************************************************************************** ");
-					}*/
-
 					this.searchDataAvailablity.setState("POLLING");
 					this.dbOperations.updateRecord(this.con , "dataAvailable" , "POLLING" , "currentStep" , "dataAvailable" , this.currentFeedName);
 				}
