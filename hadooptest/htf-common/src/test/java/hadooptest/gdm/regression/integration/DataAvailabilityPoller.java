@@ -831,9 +831,6 @@ public class DataAvailabilityPoller {
 		return PIPE_LINE_INSTANCE  + "/" + FEED_NAME + "/" + this.getCurrentFrequencyValue() ;   
 	}
 
-	public String getHBaseDataFile() {
-		return this.getPipeLineInstance() + File.separator + "hbaseDataFile.csv";
-	}
 	public String getHBaseInsertRecordPigScriptFilePath() {
 		return this.getPipeLineInstance() + File.separator + "HBaseInsertRecord.pig";
 	}
