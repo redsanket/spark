@@ -61,6 +61,13 @@ public class IntegrateHBase {
 	public boolean isRecordScannedFromHBase() {
 		return this.isRecordsScaned;
 	}
+	
+	public void resetHBaseRecordInserted(boolean flag) {
+		this.isRecordsInserted = flag;
+	}
+	public void resetHBaseRecordScanned(boolean flag) {
+		this.isRecordsScaned = flag;
+	}
 
 	public void setCurrentFeedName(String feedName) {
 		this.currentFeedName = feedName;

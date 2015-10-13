@@ -183,6 +183,9 @@ public class DataAvailabilityPoller {
 				slaEnd = Long.parseLong(slaSDF.format(salStartCal.getTime()));
 				TestSession.logger.info("SLA will start at - " + slaEnd  + " now  - " + slaStartTime);
 				this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue();
+				IntegrateHBase integrateHBaseObject = new IntegrateHBase();
+				integrateHBaseObject.resetHBaseRecordInserted(false);
+				integrateHBaseObject.resetHBaseRecordScanned(false);
 
 				// set the current feed name
 				this.searchDataAvailablity.setCurrentFeedName(this.currentFeedName);
@@ -216,6 +219,7 @@ public class DataAvailabilityPoller {
 				String hbaseMasterResult = this.getHBaseHealthCheck().trim();
 				int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
 				TestSession.logger.info("hbaseResult = " + hbaseMasterResult);
+				
 				// if either hbase master or hbase regional server are down, mark hbase as down
 				// TODO : Need to find a way to say that which service is down on the front end 
 				if (hbaseMasterResult.equals("down") || regionalServerStatus == 0) {
@@ -227,9 +231,6 @@ public class DataAvailabilityPoller {
 				}
 				con1.close();
 				TestSession.logger.info("******************************  inserting record into health table *************************************************");
-				//}
-
-				// TODO check health of all the stack components
 
 				// get installed stack components versions
 				String hadoopVersion = this.getHadoopVersion();
@@ -310,10 +311,8 @@ public class DataAvailabilityPoller {
 
 					// Test HBase
 					if (this.hbaseHealthStatus == true) {
-						TestSession.logger.info("*************************************************************************** ");
 						IntegrateHBase integrateHBaseObject = new IntegrateHBase();
 						if (integrateHBaseObject.isRecordInsertedIntoHBase() == false && integrateHBaseObject.isRecordScannedFromHBase() == false) {
-						//if (integrateHBaseObject.isRecordInsertedIntoHBase() == false ) {
 							integrateHBaseObject.setCurrentFeedName(this.currentFeedName);
 							integrateHBaseObject.setDataPath(this.getCurrentFeedBasePath());
 							integrateHBaseObject.setScriptPath(this.getHBaseInsertRecordPigScriptFilePath());
@@ -321,9 +320,6 @@ public class DataAvailabilityPoller {
 							integrateHBaseObject.copyHBasePigScriptToHBaseMasterHost();
 							integrateHBaseObject.executeInsertingRecordsIntoHBase();
 							integrateHBaseObject.executeReadRecordsFromHBaseToPig();
-							TestSession.logger.info("*************************************************************************** ");
-							TestSession.logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ hbase scipt location " + this.getHBaseInsertRecordPigScriptFilePath());
-							TestSession.logger.info("*************************************************************************** ");
 						}
 					}
 
