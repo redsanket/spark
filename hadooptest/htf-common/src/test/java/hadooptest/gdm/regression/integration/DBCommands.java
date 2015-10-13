@@ -25,9 +25,12 @@ public interface DBCommands {
 			+ "hiveVerify VARCHAR(1000) DEFAULT 'UNKNOWN' , " 
 			+ "oozieJobCompleted VARCHAR(50) DEFAULT 'UNKNOWN' , "
 			+ "jobEnded VARCHAR(50)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseInsert VARCHAR(1000)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseScan VARCHAR(1000)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "oozieVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseVesion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
 	
 	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion)  " 
