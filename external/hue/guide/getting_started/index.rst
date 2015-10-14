@@ -248,11 +248,10 @@ We're going to use the **Hive Editor** to write a query that creates a table wit
 you copied to your home directory.
 
 #. Click **Query Editors->Hive** to open the **Hive Query Editor**.
-   TBD: Need to replace screenshot (shows Sumeet's home directory now).
 
    .. image:: images/start_hive_editor.jpg
-      :height: 354 px
-      :width: 619 px
+      :height: 445 px
+      :width: 912 px
       :scale: 90%
       :alt: Starting Hive Editor
       :align: left 
@@ -264,8 +263,6 @@ you copied to your home directory.
 
        create database flickr_{user_name}_db comment 'Flickr Creative Commons 100M data dump' location '/user/rbernota/HueTalk/Flickr100cc/';
        
-
-   TBD: Need to replace screenshot.
 
    .. image:: images/hive_editor.jpg
       :height: 237 px
