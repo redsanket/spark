@@ -1108,7 +1108,7 @@ what we've done thus far.
       :alt: Creating a Shell Script Action
       :align: left   
 
-#. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next empty dotted box.
+#. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next gray empty dotted box.
 #. Create the Pig action by doing the following:
 
    #. In the pop-up dialog box, click the link **Pig Script** and enter **remove_null_camera_locations** as the 
@@ -1145,26 +1145,25 @@ what we've done thus far.
 
 #. Click **Save**.
 
-.. TBD: Left off on 10/13/15
 
-#. Finally, we want the job to notify us when we're done. So, go ahead and import the
-   **Email** action:
+#. Finally, we want the job to notify us when we're done. So, go ahead and create an **Email** action
+   by dragging the **Email** icon to the gray empty dotted box under the **remove_null_camera_locations** action. 
+#. In the pop-up dialog box, do the following:
 
-   #. From the **Oozie Editor > Workflows**, click **Import action** in the **Editor** pane.
-   #. From the **Job Designer** tab, click the action **hue_tutorial_notification**.
-   #. Drag **hue_tutorial_notification** to the bottom empty dotted box. 
-#. From the **Oozie Editor**, click **Save** and then **Submit** to start your Oozie Workflow.
+   #. Click the **Email** link and enter the text **hue_tutorial_notification** in the text field, and click **√**. 
+   #. In the **To addresses** text field, enter your email address.
+   #. In the **Subject** text field, enter **Hue Tutorial's Oozie Workflow Has Completed**.
+   #. In the **Body** text area, enter the following::
 
-   .. image:: images/submit_job.jpg
-      :height: 328 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Submit Oozie Workflow:w
-      :align: left   
+          See the sanitized CSV file with the Flickr camera locations at the
+          following URL (replace {your_user_name} with your own):
+          https://tiberiumtan-hue.tan.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized
 
+   #. Click **Add**.
 
-#. While your Oozie Workflow is running, let's move 
-   to the next section to learn about the
+#. Click **Save**.
+#. From the right-hand side of the **Oozie Editor** navigation bar, click |arrowhead| to submit your Oozie job.
+#. While your Oozie Workflow is running, let's move to the next section to learn about the
    **Job Browser**. 
 
 
@@ -1385,4 +1384,4 @@ in the **Files** field.
 .. Name: oozie.actions.sharelib.for.pig
 .. Value:  (pig_current, hcat_current - if you're going through HCat)
 
-
+.. |arrowhead| image:: arrow_head.jpg
