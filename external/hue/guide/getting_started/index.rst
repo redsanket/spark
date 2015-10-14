@@ -225,18 +225,18 @@ and then view the results in Hue.
    .. image:: images/create_tutorial_dir.jpg
       :height: 171px
       :width:  831 px
-      :scale: 93%
+      :scale: 100%
       :alt: Hue Tutorial Directory 
       :align: left 
 
 
-   .. tip:: The **File Browser** also lets you do the 
-            following with files and directories:
+.. tip:: The **File Browser** also lets you do the 
+         following with files and directories:
 
-            - change permissions
-            - rename 
-            - delete and create 
-            - upload 
+         - change permissions
+         - rename 
+         - delete and create 
+         - upload 
 
 
 .. _hue_getting_started-create_db_tables:
