@@ -224,7 +224,7 @@ and then view the results in Hue.
 
    .. image:: images/create_tutorial_dir.jpg
       :height: 171px
-      :width  831 px
+      :width:  831 px
       :scale: 93%
       :alt: Hue Tutorial Directory 
       :align: left 
