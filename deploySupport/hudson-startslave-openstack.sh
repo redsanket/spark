@@ -240,6 +240,10 @@ done
 [ -z "$HIVEIGORTAG" ] && export HIVEIGORTAG=none
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
+# stack component install settings
+[ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=true
+
+
 
 ## HIT test pkg
 [ -z "$PIG_TEST_PKG" ] && export PIG_TEST_PKG=none
@@ -344,35 +348,41 @@ fi
 fetch_artifacts
 
 #################################################################################
-# RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE 
+# CHECK IF NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE 
 #################################################################################
 # gridci-481 install hive server and client
 # this relies on hive service keytab being generated and pushed out in the cluster configure portion
 # of cluster building (cluster-build/configure_cluster)
 
-HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`;
-component=hive
-scp hive-install.sh  $HIVENODE:/tmp/
+if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
+
+  HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`;
+  echo "INFO: Installing Hive component on node $HIVENODE"
+
+  component=hive
+  scp hive-install.sh  $HIVENODE:/tmp/
     
-# Install and start the deployment package on the adm admin box to commence
-# deployment as hadoopqa.
-set -x
-ssh $HIVENODE "cd /tmp/ && /tmp/hive-install.sh" 
-st=$?;
-set +x
+  # Install and start the deployment package on the adm admin box to commence
+  # deployment as hadoopqa.
+  set -x
+  ssh $HIVENODE "cd /tmp/ && /tmp/hive-install.sh" 
+  st=$?;
+  set +x
 
+  # Clean up hive install
+  CLEANUP_ON_EXIT=${CLEANUP_ON_EXIT:="true"}
+  if [ "$CLEANUP_ON_EXIT" = "true" ]; then
+      (
+          echo "rm -rf /tmp/hive-install.sh"
+      )| ssh $HIVENODE
+  fi
 
-# Clean up hive install
-CLEANUP_ON_EXIT=${CLEANUP_ON_EXIT:="true"}
-if [ "$CLEANUP_ON_EXIT" = "true" ]; then
-    (
-        echo "rm -rf /tmp/hive-install.sh"
-    )| ssh $HIVENODE
+  #fetch_artifacts
+else
+  echo "INFO: Not installing Hive component"
 fi
 
-#fetch_artifacts
-
-
+  
 # Copy HIT test results back if there is any
 if [ $RUN_HIT_TESTS = "true" ]; then
     echo "Clean up workspace and remove old HIT test results from previous runs.."
