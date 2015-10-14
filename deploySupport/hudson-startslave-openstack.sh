@@ -240,6 +240,10 @@ done
 [ -z "$HIVEIGORTAG" ] && export HIVEIGORTAG=none
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
+# stack component install settings
+[ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=true
+
+
 
 ## HIT test pkg
 [ -z "$PIG_TEST_PKG" ] && export PIG_TEST_PKG=none
@@ -343,6 +347,32 @@ fi
 
 fetch_artifacts
 
+#################################################################################
+# CHECK IF NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE 
+#################################################################################
+# gridci-481 install hive server and client
+# this relies on hive service keytab being generated and pushed out in the cluster configure portion
+# of cluster building (cluster-build/configure_cluster)
+
+if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
+
+  HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`;
+  if [ -z "$HIVENODE" ]; then
+    echo "ERROR: No Hive node defined, HIVENODE is empty! Is the Rolesdb role correctly set?"
+    echo exit 1
+  fi
+  echo "INFO: Installing Hive component on node $HIVENODE"
+
+  ./hive-install-check.sh $HIVENODE
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Hive component installer failed!"
+  fi
+
+else
+  echo "INFO: Not installing Hive component"
+fi
+
+  
 # Copy HIT test results back if there is any
 if [ $RUN_HIT_TESTS = "true" ]; then
     echo "Clean up workspace and remove old HIT test results from previous runs.."
