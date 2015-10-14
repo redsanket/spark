@@ -1161,6 +1161,12 @@ what we've done thus far.
 
    #. Click **Add**.
 
+   .. image:: images/email_action.jpg
+      :height: 225 px
+      :width: 450 px
+      :scale: 100%
+      :alt: Creating an Email Action
+
 #. Click **Save**.
 #. From the right-hand side of the **Oozie Editor** navigation bar, click |arrowhead| to submit your Oozie job.
 #. While your Oozie Workflow is running, let's move to the next section to learn about the
