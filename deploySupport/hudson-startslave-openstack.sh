@@ -357,6 +357,10 @@ fetch_artifacts
 if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
 
   HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`;
+  if [ -z "$HIVENODE" ]; then
+    echo "ERROR: No Hive node defined, HIVENODE is empty! Is the Rolesdb role correctly set?"
+    echo exit 1
+  fi
   echo "INFO: Installing Hive component on node $HIVENODE"
 
   ./hive-install-check.sh $HIVENODE

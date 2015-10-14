@@ -37,7 +37,7 @@ $SCP $INSTALL_SCRIPT  $HIVENODE:/tmp/
   
 set -x
 $SSH $HIVENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $HIVENODE"
-RC=$?;
+RC=$?
 set +x
 
 if [ $RC -ne 0 ]; then
