@@ -91,7 +91,7 @@ public class IntegrateHBase {
 		String hbaseHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
 		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";pig -x mapreduce " + this.getHbaseExecutePigScriptLocation() + "/HBaseInsertRecord.pig\"";
 		TestSession.logger.info("command = " + command);
-		String output = this.executeCommand(command);
+		String output = this.executeCommand(command , "hbaseInsert");
 		List<String> insertOutputList = Arrays.asList(output.split("\n"));
 		String insertResult = insertOutputList.get(insertOutputList.size() - 1);
 		TestSession.logger.info("Result - " + insertResult );
@@ -119,13 +119,30 @@ public class IntegrateHBase {
 		} else if (result == false) {
 			this.insertRecordResult = "FAIL~" +  mrJobURL + "~" + startTime.trim() + "~" + endTime.trim();
 		}
-
-		// insert hbase insert record into db
-		DataBaseOperations dbOperations = new DataBaseOperations();
-		Connection con = dbOperations.getConnection();
-		dbOperations.updateRecord(con, "hbaseInsert" , this.insertRecordResult , this.getCurrentFeedName());
-		dbOperations = null;
+		this.updateHBaseResultIntoDB( "hbaseInsert" , this.insertRecordResult , this.getCurrentFeedName());
 		this.isRecordsInserted = true;
+	}
+	
+	/**
+	 * update hbase results into database.
+	 * @param colunmName
+	 * @param result
+	 * @param feedName
+	 */
+	private void updateHBaseResultIntoDB(String colunmName, String result , String feedName) {
+		DataBaseOperations dbOperations = new DataBaseOperations();
+		try {
+			Connection con = dbOperations.getConnection();
+			dbOperations.updateRecord(con, colunmName, result , feedName);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch(IllegalAccessException e) {
+			e.printStackTrace();
+		}catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void executeReadRecordsFromHBaseToPig() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
@@ -134,7 +151,7 @@ public class IntegrateHBase {
 		String hbaseHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
 		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";pig -x mapreduce " + this.getHbaseExecutePigScriptLocation() + "/HBaseScanTable.pig\"";
 		TestSession.logger.info("command = " + command);
-		String output = this.executeCommand(command);
+		String output = this.executeCommand(command , "hbaseScan");
 		List<String> scanOuputList = Arrays.asList(output.split("\n"));
 		String scanResult = scanOuputList.get(scanOuputList.size() - 2);
 		TestSession.logger.info("Result - " + scanResult );
@@ -162,11 +179,7 @@ public class IntegrateHBase {
 		} else if (result == false) {
 			this.scanRecordResult = "FAIL~" +  mrJobURL + "~" + startTime.trim() + "~" + endTime.trim();
 		}
-		// insert hbase scan result into db.
-		DataBaseOperations dbOperations = new DataBaseOperations();
-		Connection con = dbOperations.getConnection();
-		dbOperations.updateRecord(con, "hbaseScan" , this.scanRecordResult , this.getCurrentFeedName());
-		dbOperations = null;
+		this.updateHBaseResultIntoDB( "hbaseScan" , this.scanRecordResult , this.getCurrentFeedName());
 		this.isRecordsScaned = true;
 	}
 
@@ -251,9 +264,9 @@ public class IntegrateHBase {
 
 			// make directory in hbase master to copy the hbase pig script
 			String mkdirCommand = "ssh " + hbaseHostName + " mkdir  " + this.getHbaseExecutePigScriptLocation();
-			String mkdirCommandResult = this.executeCommand(mkdirCommand);
+			String mkdirCommandResult = this.executeCommand(mkdirCommand , "dummyValue");
 			String scpCommand = "scp " + absolutePath +"/resources/stack_integration/*.pig" + "  " +  hbaseHostName + ":" + this.getHbaseExecutePigScriptLocation();
-			this.executeCommand(scpCommand);
+			this.executeCommand(scpCommand , "dummyValue");
 		} else {
 			fail("Either " + hbaseScanTableFilePath.toString()  + "  or " + hbaseScanTableFilePath.toString() + "  file is missing.");
 		}
@@ -264,7 +277,7 @@ public class IntegrateHBase {
 	 * @param command
 	 * @return
 	 */
-	public String executeCommand(String command) {
+	public String executeCommand(String command , String hbaseOperationType) {
 		String output = null;
 		TestSession.logger.info("command - " + command);
 		ImmutablePair<Integer, String> result = SystemCommand.runCommand(command);
@@ -273,6 +286,10 @@ public class IntegrateHBase {
 				// save script output to log
 				TestSession.logger.info("Command exit value: " + result.getLeft());
 				TestSession.logger.info(result.getRight());
+			}
+			// if for some reason hbase master is down the operations fails and we need to update the results.
+			if (hbaseOperationType.equals("hbaseInsert") || hbaseOperationType.equals("hbaseScan")) {
+				this.updateHBaseResultIntoDB(hbaseOperationType, "FAIL~JOB_DID_NOT_STARTED~START_TIME~END_TIME", this.getCurrentFeedName());	
 			}
 			throw new RuntimeException("Exception" );
 		} else {
