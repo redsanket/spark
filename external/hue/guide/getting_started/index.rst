@@ -1390,4 +1390,4 @@ in the **Files** field.
 .. Name: oozie.actions.sharelib.for.pig
 .. Value:  (pig_current, hcat_current - if you're going through HCat)
 
-.. |arrowhead| image:: arrow_head.jpg
+.. |arrowhead| image:: images/arrow_head.jpg
