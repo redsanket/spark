@@ -265,7 +265,7 @@ you copied to your home directory.
        
 
    .. image:: images/hive_editor.jpg
-      :height: 237 px
+      :height: 162 px
       :width: 950 px
       :scale: 90%
       :alt: Creating a Database With the Hive Editor
