@@ -359,25 +359,11 @@ if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
   HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`;
   echo "INFO: Installing Hive component on node $HIVENODE"
 
-  component=hive
-  scp hive-install.sh  $HIVENODE:/tmp/
-    
-  # Install and start the deployment package on the adm admin box to commence
-  # deployment as hadoopqa.
-  set -x
-  ssh $HIVENODE "cd /tmp/ && /tmp/hive-install.sh" 
-  st=$?;
-  set +x
-
-  # Clean up hive install
-  CLEANUP_ON_EXIT=${CLEANUP_ON_EXIT:="true"}
-  if [ "$CLEANUP_ON_EXIT" = "true" ]; then
-      (
-          echo "rm -rf /tmp/hive-install.sh"
-      )| ssh $HIVENODE
+  ./hive-install-check.sh $HIVENODE
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Hive component installer failed!"
   fi
 
-  #fetch_artifacts
 else
   echo "INFO: Not installing Hive component"
 fi
