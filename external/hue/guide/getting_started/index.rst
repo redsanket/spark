@@ -191,20 +191,18 @@ and then view the results in Hue.
 
 #. Click the **/user** path. 
 #. Click the **pen** symbol next to the **/user** path, type **/rbernota**, and then the press the **enter** key.
-   TBD: Need to change screenshot once Rick makes it accessible to users.
 
-   .. image:: images/sumeet_dir.jpg
-      :height: 285px
+   .. image:: images/rbernota_dir.jpg
+      :height: 276px
       :width: 950 px
       :scale: 90%
-      :alt: Hue Sumeet Directory
+      :alt: Hue Rick Bernotas Directory
       :align: left 
 
 #. From the **File Browser**, navigate to the directory ``/user/rbernota/HueTalk/Flickr100cc``.
-   TBD: Need to change screenshot.
 
    .. image:: images/hue_talk_dataset.jpg
-      :height: 190px
+      :height: 205px
       :width: 950 px
       :scale: 90%
       :alt: Hue Talk Dataset 
@@ -232,13 +230,13 @@ and then view the results in Hue.
       :align: left 
 
 
-.. tip:: The **File Browser** also lets you do the 
-         following with files and directories:
+   .. tip:: The **File Browser** also lets you do the 
+            following with files and directories:
 
-         - change permissions
-         - rename 
-         - delete and create 
-         - upload 
+            - change permissions
+            - rename 
+            - delete and create 
+            - upload 
 
 
 .. _hue_getting_started-create_db_tables:
