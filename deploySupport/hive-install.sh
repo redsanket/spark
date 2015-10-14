@@ -46,7 +46,7 @@ yinst install cloud_messaging_client -branch current
 #yinst install hcat_server
 yinst install hive -branch current
 yinst install hive_conf -branch current
-yinst i yjava_oracle_jdbc_wrappers -branch test
+yinst install yjava_oracle_jdbc_wrappers -branch test
 yinst install hcat_server -branch current
 
 yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
