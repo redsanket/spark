@@ -318,8 +318,19 @@ public class DataAvailabilityPoller {
 							integrateHBaseObject.setScriptPath(this.getHBaseInsertRecordPigScriptFilePath());
 							integrateHBaseObject.modifyHBasePigFile();
 							integrateHBaseObject.copyHBasePigScriptToHBaseMasterHost();
-							integrateHBaseObject.executeInsertingRecordsIntoHBase();
-							integrateHBaseObject.executeReadRecordsFromHBaseToPig();
+							
+							// create HBase table
+							integrateHBaseObject.createHBaseIntegrationTable();
+							if (integrateHBaseObject.isHBaseTableCreated() == true ) {
+								integrateHBaseObject.executeInsertingRecordsIntoHBase();
+								integrateHBaseObject.executeReadRecordsFromHBaseToPig();
+								integrateHBaseObject.deleteHBaseIntegrationTable();
+							} else if (integrateHBaseObject.isHBaseTableCreated() == false ) {
+								TestSession.logger.error("Failed to create HBase table, no other tests will be executed on hbase.");
+								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseInsert" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseScan" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getCurrentFeedBasePath());
+							}
 						}
 					}
 

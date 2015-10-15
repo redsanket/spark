@@ -25,14 +25,20 @@ public interface DBCommands {
 			+ "hiveVerify VARCHAR(1000) DEFAULT 'UNKNOWN' , " 
 			+ "oozieJobCompleted VARCHAR(50) DEFAULT 'UNKNOWN' , "
 			+ "jobEnded VARCHAR(50)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseCreateTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 			+ "hbaseInsert VARCHAR(1000)  DEFAULT 'UNKNOWN' , "
 			+ "hbaseScan VARCHAR(1000)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseDeleteTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+			+ "tez VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "oozieVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "hbaseVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "tezVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
 	
+	
+	// TODO need to add tez & hbase version
 	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion)  " 
 			+ "  values (?, ?, ?, ?, ?, ?, ?, ?) ";
 	

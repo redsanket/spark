@@ -34,11 +34,13 @@ public class IntegrateHBase {
 	private String hbaseExecutePigScriptLocation;
 	private String dataPath;
 	private String currentFeedName;
-	private static final String PROCOTOL = "hdfs://";
+	private boolean hbaseTableCreated = false;
+	private boolean hbaseTableDeleted = false;
 	public static final String PIG_HOME = "/home/y/share/pig";
 	public static final String HBASE_HOME = "/home/y/libexec/hbase";
 	public static final String KINIT = "kinit -k -t /etc/grid-keytabs/hbaseqa.dev.service.keytab hbaseqa/";
 	public static final String INTEGRATION_JAR="/tmp/integration_test_files/lib/*.jar";
+	public static final String HBASE_TABLE_NAME = "integration_test_table";
 
 	public IntegrateHBase() { }
 
@@ -55,6 +57,14 @@ public class IntegrateHBase {
 		return pathCommand.trim();
 	}
 
+	public boolean isHBaseTableCreated(){
+		return this.hbaseTableCreated;
+	}
+	
+	public boolean isHBaseTableDeleted() {
+		return this.hbaseTableDeleted;
+	}
+	
 	public  boolean isRecordInsertedIntoHBase() {
 		return this.isRecordsInserted;
 	}
@@ -129,7 +139,7 @@ public class IntegrateHBase {
 	 * @param result
 	 * @param feedName
 	 */
-	private void updateHBaseResultIntoDB(String colunmName, String result , String feedName) {
+	public void updateHBaseResultIntoDB(String colunmName, String result , String feedName) {
 		DataBaseOperations dbOperations = new DataBaseOperations();
 		try {
 			Connection con = dbOperations.getConnection();
@@ -145,6 +155,43 @@ public class IntegrateHBase {
 		}
 	}
 
+	/**
+	 * Create HBase table
+	 */
+	public void createHBaseIntegrationTable() {
+		String hbaseHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
+		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";hbase shell " + this.getHbaseExecutePigScriptLocation() + "/createHBaseIntegrationTable.txt\"";
+		TestSession.logger.info("command = " + command);
+		String output = this.executeCommand(command , "hbaseCreateTable");
+		List<String> creatTableLogOuputList = Arrays.asList(output.split("\n"));
+		String createOutput = creatTableLogOuputList.get(creatTableLogOuputList.size() - 2);
+		if ( (createOutput.equals(HBASE_TABLE_NAME) == true) && (creatTableLogOuputList.get(creatTableLogOuputList.size() -1).startsWith("1 row(s)")) ) {
+			this.hbaseTableCreated = true;
+			this.updateHBaseResultIntoDB( "hbaseCreateTable" , "PASS" , this.getCurrentFeedName());
+		} else {
+			this.hbaseTableCreated = false;
+			this.updateHBaseResultIntoDB( "hbaseCreateTable" , "FAIL" , this.getCurrentFeedName());
+		}
+	}
+	
+	/**
+	 * Delete HBase table
+	 */
+	public void deleteHBaseIntegrationTable() {
+		String hbaseHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
+		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";hbase shell " + this.getHbaseExecutePigScriptLocation() + "/deleteHBaseIntegrationTable.txt\"";
+		TestSession.logger.info("command = " + command);
+		String output = this.executeCommand(command , "hbaseDeleteTable");
+		List<String> deleteTableOuputList = Arrays.asList(output.split("\n"));
+		if (deleteTableOuputList.get(deleteTableOuputList.size() -1).trim().startsWith("0 row(s)")) {
+			this.hbaseTableDeleted = true;
+			this.updateHBaseResultIntoDB( "hbaseDeleteTable" , "PASS" , this.getCurrentFeedName());
+		} else {
+			this.hbaseTableDeleted = false;
+			this.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getCurrentFeedName());
+		}
+	}
+	
 	public void executeReadRecordsFromHBaseToPig() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		this.isRecordsScaned = false;
 		boolean result = false;
@@ -265,7 +312,7 @@ public class IntegrateHBase {
 			// make directory in hbase master to copy the hbase pig script
 			String mkdirCommand = "ssh " + hbaseHostName + " mkdir  " + this.getHbaseExecutePigScriptLocation();
 			String mkdirCommandResult = this.executeCommand(mkdirCommand , "dummyValue");
-			String scpCommand = "scp " + absolutePath +"/resources/stack_integration/*.pig" + "  " +  hbaseHostName + ":" + this.getHbaseExecutePigScriptLocation();
+			String scpCommand = "scp " + absolutePath +"/resources/stack_integration/*.*" + "  " +  hbaseHostName + ":" + this.getHbaseExecutePigScriptLocation();
 			this.executeCommand(scpCommand , "dummyValue");
 		} else {
 			fail("Either " + hbaseScanTableFilePath.toString()  + "  or " + hbaseScanTableFilePath.toString() + "  file is missing.");
