@@ -25,6 +25,35 @@ fi
 HIVENODE=$1
 echo "INFO: Installing Hive component on node $HIVENODE"
 
+# check that the hive node's local-superuser-conf.xml is correctly
+# setup with doAs users, if not then hive operations will fail
+# check if hadoopqa properties are set
+EC=0
+$SSH $HIVENODE grep "hadoop.proxyuser.hadoopqa.hosts" /home/gs/conf/local/local-superuser-conf.xml
+RC=$?
+EC=$((EC+RC))
+
+$SSH $HIVENODE grep "hadoop.proxyuser.hadoopqa.groups" /home/gs/conf/local/local-superuser-conf.xml
+RC=$?
+EC=$((EC+RC))
+
+$SSH $HIVENODE grep "hadoop.proxyuser.dfsload.hosts" /home/gs/conf/local/local-superuser-conf.xml
+RC=$?
+EC=$((EC+RC))
+
+$SSH $HIVENODE grep "hadoop.proxyuser.dfsload.groups" /home/gs/conf/local/local-superuser-conf.xml
+RC=$?
+EC=$((EC+RC))
+
+if [ $EC -ne 0 ]; then
+  echo "ERROR: hive node $HIVENODE /home/gs/conf/local/local-superuser-conf.xml is missing doAs users!"
+  echo "       Please run Configure job or manually add these properties!"
+  exit 1
+else
+  echo "INFO: hive node $HIVENODE /home/gs/conf/local/local-superuser-conf.xml is correct"
+fi
+
+
 INSTALL_SCRIPT=hive-install.sh
 
 # setup ssh cmd with parameters
