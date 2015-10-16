@@ -25,6 +25,12 @@ fi
 HIVENODE=$1
 echo "INFO: Installing Hive component on node $HIVENODE"
 
+# setup ssh cmd with parameters
+SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
+SSH="ssh $SSH_OPT"
+SCP="scp $SSH_OPT"
+
+
 # check that the hive node's local-superuser-conf.xml is correctly
 # setup with doAs users, if not then hive operations will fail
 # check if hadoopqa properties are set
@@ -56,11 +62,6 @@ fi
 
 
 INSTALL_SCRIPT=hive-install.sh
-
-# setup ssh cmd with parameters
-SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
-SSH="ssh $SSH_OPT"
-SCP="scp $SSH_OPT"
 
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $HIVENODE:/tmp/
