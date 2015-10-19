@@ -241,7 +241,7 @@ done
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
 # stack component install settings
-[ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=true
+[ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
 
 
 
