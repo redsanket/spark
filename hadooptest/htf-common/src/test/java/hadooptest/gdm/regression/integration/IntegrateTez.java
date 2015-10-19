@@ -91,7 +91,7 @@ public class IntegrateTez {
 		for ( String log : logOutputList) {
 			if (log.startsWith(TEZ_HOME) == true ) {
 				String temp = TEZ_HOME + "/tez-api-";
-				String version = log.substring( temp.length(), log.length()).replace(".jar", "");
+				String version = log.substring( temp.length() - 1, log.length()).replace(".jar", "");
 				this.setTezVersion(version);
 				flag = true;
 				break;
