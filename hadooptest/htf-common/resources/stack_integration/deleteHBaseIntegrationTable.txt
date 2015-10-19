@@ -1,0 +1,4 @@
+disable 'integration_test_table'
+drop 'integration_test_table'
+list 'integration_test_table'
+exit
