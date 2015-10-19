@@ -64,6 +64,7 @@ public class DataAvailabilityPoller {
 	private String currentHadoopVersion;
 	private String currentPigVersion;
 	private boolean hbaseHealthStatus = false;
+	private boolean tezHealthStatus = false;
 	private Connection con;
 	public SearchDataAvailablity searchDataAvailablity;
 	private NameNodeTheadDemon nameNodeTheadDemonObject;
@@ -153,12 +154,13 @@ public class DataAvailabilityPoller {
 		this.isOozieJobCompleted = false;
 
 		// start namenode thread demon
-		this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
-		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();
+	/*  commented intensionally : TODO need to get the scope for this.
+	 * 	this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
+		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();*/
 
 		// start namenode dfs memory demon
-		this.nameNodeDFSMemoryDemonObject = new NameNodeDFSMemoryDemon();
-		this.nameNodeDFSMemoryDemonObject.startNameNodeDFSMemoryDemon();
+		/*this.nameNodeDFSMemoryDemonObject = new NameNodeDFSMemoryDemon();
+		this.nameNodeDFSMemoryDemonObject.startNameNodeDFSMemoryDemon();*/
 		while (toDay <= lastDay) {
 			Date d = new Date();
 			long initTime = Long.parseLong(sdf.format(d));
@@ -236,6 +238,15 @@ public class DataAvailabilityPoller {
 				String hadoopVersion = this.getHadoopVersion();
 				String pigVersion = this.getPigVersion();
 				String oozieVersion = this.getOozieVersion();
+				
+				
+				
+				
+				// tez health checkup
+				
+				IntegrateTez integrateTez = new IntegrateTez();
+				this.tezHealthStatus = integrateTez.getTezHealthCheck();
+				TestSession.logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Tez healthcheckup = " + this.tezHealthStatus);
 
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
@@ -332,8 +343,21 @@ public class DataAvailabilityPoller {
 								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getCurrentFeedBasePath());
 							}
 						}
+						;
 					}
-
+					
+					IntegrateTez integrateTez = new IntegrateTez();
+					if (this.tezHealthStatus == true) {
+						integrateTez.setCurrentFeedName(this.currentFeedName);
+						integrateTez.setDataPath(this.getCurrentFeedBasePath());
+						integrateTez.modifyTezFile();
+						integrateTez.copyTezScriptToHBaseMasterHost();
+						integrateTez.executeTez();
+					} else {
+						// update tez result, if health checkup fails
+						integrateTez.updateHBaseResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+					}
+					
 					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
 					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + hcatHostName + ":/tmp/";
 					String outputResult = this.executeCommand(command);

@@ -111,6 +111,7 @@
 		<hbaseMasterHostName>$(HBASE_MASTER_HOST_NAME)</hbaseMasterHostName>
 		<hbaseMasterPort>$(HBASE_MASTER_PORT)</hbaseMasterPort>
 		<hbaseRegionalServerPort>$(HBASE_REGIONAL_SERVER_PORT)</hbaseRegionalServerPort>
+		<gateWayName>$(GATEWAY_HOST_NAME)</gateWayName>
     </TestWatchForDataDrop>
   </testconfig>
   <auth>

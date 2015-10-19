@@ -25,11 +25,11 @@ public interface DBCommands {
 			+ "hiveVerify VARCHAR(1000) DEFAULT 'UNKNOWN' , " 
 			+ "oozieJobCompleted VARCHAR(50) DEFAULT 'UNKNOWN' , "
 			+ "jobEnded VARCHAR(50)  DEFAULT 'UNKNOWN' , "
-			+ "hbaseCreateTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseCreateTable VARCHAR(20)  DEFAULT 'UNKNOWN' , "
 			+ "hbaseInsert VARCHAR(1000)  DEFAULT 'UNKNOWN' , "
 			+ "hbaseScan VARCHAR(1000)  DEFAULT 'UNKNOWN' , "
-			+ "hbaseDeleteTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
-			+ "tez VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "hbaseDeleteTable VARCHAR(20)  DEFAULT 'UNKNOWN' , "
+			+ "tez VARCHAR(250)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "pigVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "oozieVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
@@ -39,8 +39,8 @@ public interface DBCommands {
 	
 	
 	// TODO need to add tez & hbase version
-	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion)  " 
-			+ "  values (?, ?, ?, ?, ?, ?, ?, ?) ";
+	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion,hbaseVersion,tezVersion)  " 
+			+ "  values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
 	
 	String CREATE_NAME_NODE_THREAD_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " + NAME_NODE_THREAD_INFO_TABLE
 			+ " ( " 

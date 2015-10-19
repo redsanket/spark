@@ -335,6 +335,4 @@ public class DataBaseOperations {
 		}
 		return states.toString();
 	}
-
-
 }
