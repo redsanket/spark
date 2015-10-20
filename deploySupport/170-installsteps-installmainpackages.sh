@@ -8,8 +8,11 @@ then
     fanoutGW "/usr/bin/yum makecache"
     fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64 compat-readline5.x86_64"
     fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
-    fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
-    fanoutGW "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk64/current/bin/java"
+
+    # GRIDCI-501
+    # fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
+    # fanoutGW "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk64/current/bin/java"
+
     # Because we create gateways from new virtual hosts
 #    fanoutGW "$yinst install yhudson_slave"
 #    fanoutGW "mkdir -p /home/y/var/builds"
