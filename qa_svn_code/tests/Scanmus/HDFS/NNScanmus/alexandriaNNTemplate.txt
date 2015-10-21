@@ -1,4 +1,4 @@
-http://gsbl90080.blue.ygrid.yahoo.com:50070/dfshealth.jsp
+http://gsbl90080.blue.ygrid.yahoo.com:50070/dfshealth.html
 http://gsbl90080.blue.ygrid.yahoo.com:50070/nn_browsedfscontent.jsp
 http://gsbl90080.blue.ygrid.yahoo.com:50070/logs/
 http://gsbl90080.blue.ygrid.yahoo.com:50070/dfsnodelist.jsp?whatNodes=LIVE

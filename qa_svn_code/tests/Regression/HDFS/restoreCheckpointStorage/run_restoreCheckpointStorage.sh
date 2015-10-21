@@ -306,11 +306,11 @@ function teardown
 # and current/fsimage and current/edits are both newer than $5
 #
 # The epoch ($5) can be set to 0 if it doesn't need to be used.
-# Also dfshealth.jsp is parsed and the directory is grepped to be IMAGE_AND_EDITS and "Active"
+# Also dfshealth.html is parsed and the directory is grepped to be IMAGE_AND_EDITS and "Active"
 # $1 - the user id to log on to the namenode
 # $2 - the namenode to check on
 # $3 - the directory to check
-# $4 - the Storage Directory section from dfshealth.jsp curl'ed from $1
+# $4 - the Storage Directory section from dfshealth.html curl'ed from $1
 # $5 - epoch after which last change should have come  
 function isValidDirectory
 {
@@ -364,7 +364,7 @@ function isValidDirectory
 	local storageDirs=$4
 	echo "storageDirs: "$storageDirs
 	#if [ -z "`echo \"$storageDirs\" | grep $3 | grep IMAGE_AND_EDITS | grep Active`" ]; then
-		#	echo -n "Fail!!! On namenode $2 the directory $3 either wasn't IMAGE_AND_EDITS or wasn't Active in dfshealth.jsp. The grepped line was:"
+		#	echo -n "Fail!!! On namenode $2 the directory $3 either wasn't IMAGE_AND_EDITS or wasn't Active in dfshealth.html. The grepped line was:"
 		#echo "$storageDirs" | grep $3
 		#echo ""
 		#returnCode=1
@@ -374,11 +374,11 @@ function isValidDirectory
 
 # Verifies that on namenode $1 the directory $2 is an invalid checkpoint storage directory
 # A directory is deemed invalid if the current/edits and current/fsimage files are older than epoch.
-# Also dfshealth.jsp is parsed to check that the directory is either not IMAGE_AND_EDITS or not "Active"
+# Also dfshealth.html is parsed to check that the directory is either not IMAGE_AND_EDITS or not "Active"
 # $1 - the user id to log on to the namenode
 # $2 - the namenode to check on
 # $3 - the directory to check
-# $4 - the Storage Directory section from dfshealth.jsp curl'ed from $1
+# $4 - the Storage Directory section from dfshealth.html curl'ed from $1
 # $5 - epoch after which last change should have come  
 function isInvalidDirectory
 {
@@ -442,7 +442,7 @@ function isInvalidDirectory
 # $4 - comma separated list of storage directories which should be invalid
 # $5 - epoch after which last change should have come
 # return - 0 if $2 are valid and $3 are invalid. 1 otherwise
-# Notes : Assumes webpage is at http://${NN}:50070/dfshealth.jsp
+# Notes : Assumes webpage is at http://${NN}:50070/dfshealth.html
 function verifyCheckpointStorageState
 {
 	if [[ $# -lt 5 || -z $1 || -z $2 ]]; then
@@ -458,8 +458,8 @@ function verifyCheckpointStorageState
 	fi
 	local returnCode=0
 	for NN in `echo $2 | tr ',' ' '`; do
-		echo "Trying curl http://${NN}:50070/dfshealth.jsp"
-		local dfsHealth=`curl http://${NN}:50070/dfshealth.jsp`
+		echo "Trying curl http://${NN}:50070/dfshealth.html"
+		local dfsHealth=`curl http://${NN}:50070/dfshealth.html`
 		local storageDirs=`echo "$dfsHealth" | grep "Storage Directory" | sed 's:<tr>:\n:g'`
 		if [ -z "$dfsHealth" ]; then
 			echo "Fail! Curl did not return anything. Failing test."
