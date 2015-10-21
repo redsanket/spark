@@ -78,7 +78,7 @@ for cluster in $CLUSTERS; do
     echo "Get the namenode and resourcemanager"
     namenode=`yinst range -ir "(@grid_re.clusters.$cluster.namenode)"|head -1`;
     echo "NN=$namenode"
-    echo "WEBUI: $cluster NN http://$namenode:50070/dfshealth.jsp"
+    echo "WEBUI: $cluster NN http://$namenode:50070/dfshealth.html"
 
     rm=`yinst range -ir "(@grid_re.clusters.$cluster.jobtracker)"|tr -s '\n' ','|sed -e  's/,$//'`;
     echo "RM=$rm"
