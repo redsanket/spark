@@ -2397,7 +2397,7 @@ function getClusterId {
     local nn=$(getDefaultNameNode)
     
     #the curl command to get the clusterid
-    local cmd="curl \"http://${nn}:50070/dfshealth.jsp\" | grep 'Cluster ID:' | awk -F'</td><td>' '{print \$2}' | cut -d'<' -f1"
+    local cmd="curl \"http://${nn}:50070/dfshealth.html\" | grep 'Cluster ID:' | awk -F'</td><td>' '{print \$2}' | cut -d'<' -f1"
 
     eval $cmd
 }

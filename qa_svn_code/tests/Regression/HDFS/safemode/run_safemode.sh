@@ -21,7 +21,7 @@ function setup {
   NN=$(getDefaultNameNode)
 
   #Get the address for the namenode
-  NAME_NODE_SERVER="http://${NN}:50070/dfshealth.jsp"
+  NAME_NODE_SERVER="http://${NN}:50070/dfshealth.html"
 
   #get the default FS
   FS=$(getDefaultFS)

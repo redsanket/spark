@@ -488,7 +488,7 @@ sub get_namenode {
 
 sub get_namenode_uri {
     my ($self, $host) = @_;
-    return "http://$host:50070/dfshealth.jsp";
+    return "http://$host:50070/dfshealth.html";
 }
 
 ## Get secondary namenode host
@@ -519,7 +519,7 @@ sub get_secondary_namenode_port {
 
 sub get_secondary_namenode_uri {
     my ($self, $host) = @_;
-    return "http://$host:$self->{NODES}->{SECONDARYNAMENODE}->{PORT}/dfshealth.jsp";
+    return "http://$host:$self->{NODES}->{SECONDARYNAMENODE}->{PORT}/dfshealth.html";
 }
 
 sub get_hadoop_log_dir {
