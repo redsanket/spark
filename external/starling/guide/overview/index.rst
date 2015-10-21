@@ -69,7 +69,7 @@ or frequencies of log-collection without requiring any modification or addition 
 Ways to Access Starling
 =======================
 
-- **Hive** - Starling data is stored in the ``starling`` database on the Cobalt Blue cluster. The database contains 
+- **Hive** - Starling data is stored in the ``starling`` database on the Axonite Blue cluster. The database contains 
   many tables for auditing and getting filesystem, job, queue, and task information.
 - **Pig** - You can access the tables through Pig through HCatalog.  
 - **HCatalog** - 
