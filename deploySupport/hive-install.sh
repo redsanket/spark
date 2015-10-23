@@ -89,5 +89,5 @@ yinst set hcat_server.keydb_passkey=dbpassword
 yinst install pig -br current
 yinst set pig.PIG_HOME=/home/y/share/pig
 
-yinst start hcat_server
+yinst restart hcat_server
 
