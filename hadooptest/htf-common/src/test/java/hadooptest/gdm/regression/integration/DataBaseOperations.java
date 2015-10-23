@@ -124,7 +124,8 @@ public class DataBaseOperations {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 */	
-	public void insertRecord(String dataSetName, String  currentFrequency, String jobStarted ,  String  startTime, String currentStep , String hadoopVersion , String pigVersion , String oozieVersion) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+	public void insertRecord(String dataSetName, String  currentFrequency, String jobStarted ,  String  startTime, String currentStep , String hadoopVersion , String pigVersion ,
+			String oozieVersion , String hbaseVersion , String tezVersion) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Connection con = this.getConnection();
 		if (con != null) {
 			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_ROW);
@@ -136,6 +137,8 @@ public class DataBaseOperations {
 			preparedStatement.setString(6, hadoopVersion);
 			preparedStatement.setString(7, pigVersion);
 			preparedStatement.setString(8, oozieVersion);
+			preparedStatement.setString(9, hbaseVersion);
+			preparedStatement.setString(10, tezVersion);
 			boolean isRecordInserted = preparedStatement.execute();
 			assertTrue("Failed to insert record for " + dataSetName , isRecordInserted != true);
 
@@ -220,12 +223,13 @@ public class DataBaseOperations {
 	 * @param clusterState cluster name
 	 * @throws SQLException
 	 */
-	public void insertHealthCheckInfoRecord(Connection con , String date , String clusterState , String hbaseState) throws SQLException {
+	public void insertHealthCheckInfoRecord(Connection con , String date , String clusterState , String hbaseState , String tezState) throws SQLException {
 		if (con != null) {
 			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_HEALTH_CHECKUP_INFO_ROW);
 			preparedStatement.setString(1, date);
 			preparedStatement.setString(2, clusterState);
 			preparedStatement.setString(3, hbaseState);
+			preparedStatement.setString(4, tezState);
 			boolean isRecoredInserted = preparedStatement.execute();
 			TestSession.logger.info("isRecoredInserted  = " + isRecoredInserted);
 			assertTrue("Failed to insert record "  + DBCommands.INSERT_HEALTH_CHECKUP_INFO_ROW  , isRecoredInserted != true);
@@ -335,6 +339,4 @@ public class DataBaseOperations {
 		}
 		return states.toString();
 	}
-
-
 }

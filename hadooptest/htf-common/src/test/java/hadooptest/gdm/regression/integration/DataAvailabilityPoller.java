@@ -64,6 +64,7 @@ public class DataAvailabilityPoller {
 	private String currentHadoopVersion;
 	private String currentPigVersion;
 	private boolean hbaseHealthStatus = false;
+	private boolean tezHealthStatus = false;
 	private Connection con;
 	public SearchDataAvailablity searchDataAvailablity;
 	private NameNodeTheadDemon nameNodeTheadDemonObject;
@@ -121,14 +122,13 @@ public class DataAvailabilityPoller {
 		Calendar todayCal = Calendar.getInstance();
 		Calendar LastdayCal = Calendar.getInstance();
 		Calendar currentCal = Calendar.getInstance();
-
 		long toDay = Long.parseLong(sdf.format(todayCal.getTime()));
 
 		// set the duration for how long the data has to generate.
 		LastdayCal.add(Calendar.DAY_OF_WEEK_IN_MONTH , 1);
 		long lastDay = Long.parseLong(sdf.format(LastdayCal.getTime()));
-		System.out.println(" Current date - "+ sdf.format(todayCal.getTime()));
-		System.out.println(" Next date - "+ sdf.format(LastdayCal.getTime()));
+		TestSession.logger.info(" Current date - "+ sdf.format(todayCal.getTime()));
+		TestSession.logger.info(" Next date - "+ sdf.format(LastdayCal.getTime()));
 
 		Calendar initialCal = Calendar.getInstance();
 		Calendar futureCal = Calendar.getInstance();
@@ -153,12 +153,13 @@ public class DataAvailabilityPoller {
 		this.isOozieJobCompleted = false;
 
 		// start namenode thread demon
-		this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
-		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();
+	/*  commented intensionally : TODO need to get the scope for this.
+	 * 	this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
+		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();*/
 
 		// start namenode dfs memory demon
-		this.nameNodeDFSMemoryDemonObject = new NameNodeDFSMemoryDemon();
-		this.nameNodeDFSMemoryDemonObject.startNameNodeDFSMemoryDemon();
+		/*this.nameNodeDFSMemoryDemonObject = new NameNodeDFSMemoryDemon();
+		this.nameNodeDFSMemoryDemonObject.startNameNodeDFSMemoryDemon();*/
 		while (toDay <= lastDay) {
 			Date d = new Date();
 			long initTime = Long.parseLong(sdf.format(d));
@@ -219,29 +220,43 @@ public class DataAvailabilityPoller {
 				String hbaseMasterResult = this.getHBaseHealthCheck().trim();
 				int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
 				TestSession.logger.info("hbaseResult = " + hbaseMasterResult);
-				
+				String hbaseVersion = null;
 				// if either hbase master or hbase regional server are down, mark hbase as down
-				// TODO : Need to find a way to say that which service is down on the front end 
+				// TODO : Need to find a way to say that which service is down on the front end
+				
 				if (hbaseMasterResult.equals("down") || regionalServerStatus == 0) {
-					String result = hbaseMasterResult + "~0.0";
-					this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , result);
+					//String result = hbaseMasterResult + "~0.0";
+					hbaseMasterResult = hbaseMasterResult + "~0.0"; 
+					//this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , result);
 				} else {
 					this.hbaseHealthStatus = true;
-					this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult);
+					hbaseVersion = Arrays.asList(hbaseMasterResult.split("~")).get(1).trim();
+					//this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult);
 				}
-				con1.close();
+				
 				TestSession.logger.info("******************************  inserting record into health table *************************************************");
 
 				// get installed stack components versions
 				String hadoopVersion = this.getHadoopVersion();
 				String pigVersion = this.getPigVersion();
 				String oozieVersion = this.getOozieVersion();
-
+				
+				// tez health checkup
+				IntegrateTez integrateTez = new IntegrateTez();
+				this.tezHealthStatus = integrateTez.getTezHealthCheck();
+				String tezVersion = integrateTez.getTezVersion();
+				if (integrateTez.getTezHealthCheck() == false) {
+					this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult , "down~0.0");
+				} else if (integrateTez.getTezHealthCheck() ==  true) {
+					this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult , "active~" + tezVersion);
+				}
+				TestSession.logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Tez healthcheckup = " + this.tezHealthStatus);
+				con1.close();
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
 
 				// add start state to the user stating that job has started for the current frequency.
-				this.dbOperations.insertRecord(this.currentFeedName, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigVersion , oozieVersion);
+				this.dbOperations.insertRecord(this.currentFeedName, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigVersion , oozieVersion , hbaseVersion , tezVersion );
 
 				initialCal = null;
 				salStartCal = null;
@@ -268,13 +283,14 @@ public class DataAvailabilityPoller {
 			}
 
 			if (slaStartTime >= slaEnd  && isDataAvailable == false) {
-				System.out.println("*************************************************************************** ");
-				System.out.println(" \t MISSED SLA for " + this.getCurrentFrequencyValue() );
+				TestSession.logger.info("*************************************************************************** ");
+				TestSession.logger.info(" \t MISSED SLA for " + this.getCurrentFrequencyValue() );
 				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , "result" , "FAIL" ,this.currentFeedName);
-				System.out.println("*************************************************************************** ");
+				TestSession.logger.info("*************************************************************************** ");
 			}
-			System.out.println("Current state = " + this.searchDataAvailablity.getState());
-			System.out.println("pollStart = " + pollStart  + " pollEnd =   " + pollEnd);
+			
+			TestSession.logger.info("Current state = " + this.searchDataAvailablity.getState());
+			TestSession.logger.info("pollStart = " + pollStart  + " pollEnd =   " + pollEnd);
 			if (pollStart >= pollEnd) {
 				pollCalendar = Calendar.getInstance();
 				pollStart = Long.parseLong(slaSDF.format(pollCalendar.getTime()));
@@ -284,7 +300,7 @@ public class DataAvailabilityPoller {
 				// check for data availability
 				isDataAvailable = this.searchDataAvailablity.isDataAvailableOnGrid();
 				if (isDataAvailable == false) {
-					System.out.println("polling for data..!");
+					TestSession.logger.info("polling for data..!");
 					this.searchDataAvailablity.execute();
 					String state = this.searchDataAvailablity.getState();
 					this.dbOperations.updateRecord(this.con , "dataAvailable" , state , "currentStep" , state , this.currentFeedName);
@@ -299,9 +315,9 @@ public class DataAvailabilityPoller {
 						this.dbOperations.updateRecord(this.con , "result" , "PASS"  , this.currentFeedName);
 					}
 				}
-				System.out.println("currents state - " + this.searchDataAvailablity.getState());
-				System.out.println("isPipeLineInstanceCreated = " + this.searchDataAvailablity.isPipeLineInstanceCreated());
-				System.out.println("isOozieJobCompleted - " + this.isOozieJobCompleted);
+				TestSession.logger.info("currents state - " + this.searchDataAvailablity.getState());
+				TestSession.logger.info("isPipeLineInstanceCreated = " + this.searchDataAvailablity.isPipeLineInstanceCreated());
+				TestSession.logger.info("isOozieJobCompleted - " + this.isOozieJobCompleted);
 				if (this.searchDataAvailablity.getState().equals("AVAILABLE") == true  && this.searchDataAvailablity.isPipeLineInstanceCreated() == true && this.isOozieJobCompleted == false) {
 
 					TestSession.logger.info("*** Data for the current hour is found..!  ***");
@@ -333,7 +349,19 @@ public class DataAvailabilityPoller {
 							}
 						}
 					}
-
+					
+					IntegrateTez integrateTez = new IntegrateTez();
+					if (this.tezHealthStatus == true) {
+						integrateTez.setCurrentFeedName(this.currentFeedName);
+						integrateTez.setDataPath(this.getCurrentFeedBasePath());
+						integrateTez.modifyTezFile();
+						integrateTez.copyTezScriptToHBaseMasterHost();
+						integrateTez.executeTez();
+					} else {
+						// update tez result, if health checkup fails
+						integrateTez.updateHBaseResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+					}
+					
 					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
 					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + hcatHostName + ":/tmp/";
 					String outputResult = this.executeCommand(command);
