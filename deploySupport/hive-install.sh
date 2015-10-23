@@ -89,13 +89,5 @@ yinst set hcat_server.keydb_passkey=dbpassword
 yinst install pig -br current
 yinst set pig.PIG_HOME=/home/y/share/pig
 
-# make dfsload path in hdfs
-hadoop fs -mkdir -p /user/dfsload
-RC=$?
-if [[ $RC -ne 0 ]]; then
-  echo "WARN: hadoop mkdir for /user/dfsload failed!"
-  exit 1
-fi
-
 yinst start hcat_server
 
