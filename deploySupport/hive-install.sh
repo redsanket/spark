@@ -85,5 +85,9 @@ yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YA
 yinst set hcat_server.jdbc_driver=com.mysql.jdbc.Driver
 yinst set hcat_server.keydb_passkey=dbpassword
 
+# install pig
+yinst install pig -br current
+yinst set pig.PIG_HOME=/home/y/share/pig
+
 yinst start hcat_server
 
