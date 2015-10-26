@@ -189,7 +189,7 @@ setGridParameters() {
              export daqnode=`$base/dumpMembershipList.sh  $cluster.daq`
         roleExists $cluster.oozie && \
              export oozienode=`$base/dumpMembershipList.sh  $cluster.oozie`
-        roleExists $cluster.tez && \
+        roleExists $cluster && \
              # install tez on all cluster nodes
              export teznode=`$base/dumpMembershipList.sh  $cluster`
         roleExists $cluster.yroots && \
