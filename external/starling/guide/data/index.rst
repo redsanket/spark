@@ -77,7 +77,7 @@ table.
 Where is the Data Warehouse?
 ----------------------------
 
-You can access the Hive ``starling`` database on Cobalt Blue (cobalt-gw.blue.ygrid.yahoo.com).
+You can access the Hive ``starling`` database on Axonite Blue (axonite-gw.blue.ygrid.yahoo.com).
 For many of the source logs discussed in :ref:`What Data is Collected? <data_overview-what>`_,
 there is a corresponding Hive table in the ``starling`` database.
 

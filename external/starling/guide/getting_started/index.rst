@@ -7,7 +7,7 @@ Getting Started
 Introduction
 ============
 
-Starling runs on the Cobalt Blue (CB) cluster and uses the `HCatalog <https://cwiki.apache.org/confluence/display/Hive/HCatalog>`_
+Starling runs on the Axonite Blue (AB) cluster and uses the `HCatalog <https://cwiki.apache.org/confluence/display/Hive/HCatalog>`_
 server to  store the meta-data about its tables and the HDFS on this cluster to store all the 
 data. The tables used by Starling are stored in the ``starling`` database and have 
 the ``starling_`` prefix in their names. 
@@ -19,14 +19,14 @@ Because Starling uses HCatalog, you can use Hive, Pig, or even the MapReduce Jav
 to access data.
 
 .. note:: The HCatalog server on CB is secured: it has the URI 
-          ``thrift://cobaltblue-hcat.ygrid.vip.gq1.yahoo.com:50513`` 
+          ``thrift://axoniteblue-hcat.ygrid.vip.gq1.yahoo.com:50513`` 
           and uses the Kerberos principal ``hcat/_HOST@YGRID.YAHOO.COM``.
 
 Prerequisites
 =============
 
-- :ref:`On-Board to Cobalt Blue <onboard>`_.
-- Log onto Cobalt Blue.
+- :ref:`On-Board to Axonite Blue <onboard>`_.
+- Log onto Axonite Blue.
 
 Querying Data
 =============
