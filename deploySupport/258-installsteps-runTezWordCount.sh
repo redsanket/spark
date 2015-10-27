@@ -9,8 +9,9 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         JAVA_HOME="$GSHOME/java8/jdk64/current"
     else
         JAVA_HOME="$GSHOME/java/jdk"
-        TEZ_QUEUE="default"
     fi
+
+    TEZ_QUEUE="default"
 
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/current ; \
      export TEZ_HOME=/home/gs/tez/current ; \
