@@ -1,0 +1,1 @@
+drop table IF EXISTS gdm.user1;

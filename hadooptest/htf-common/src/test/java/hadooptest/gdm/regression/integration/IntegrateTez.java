@@ -20,7 +20,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 
-public class IntegrateTez {
+public class IntegrateTez  {
 
 	private String tezScriptPath;
 	private String tezVersion;
@@ -36,6 +36,11 @@ public class IntegrateTez {
 	public static final String TEZ_RESULT = "tez_result";
 	
 	public IntegrateTez() {
+	}
+	
+	public IntegrateTez(String currentFeedName , String dataPath) {
+		this.currentFeedName = currentFeedName;
+		this.dataPath = dataPath;
 	}
 	
 	private void setTezScriptPath(String tezScriptPath) {
@@ -70,7 +75,6 @@ public class IntegrateTez {
 	}
 	
 	public String getKinitCommand() {
-		String gatewayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
 		String kinitCommand = kINIT_COMMAND;
 		TestSession.logger.info("kinit command - " + kinitCommand);
 		return kinitCommand;

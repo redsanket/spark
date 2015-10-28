@@ -1,0 +1,1 @@
+load data inpath 'FILEPATH' overwrite into table gdm.user1;

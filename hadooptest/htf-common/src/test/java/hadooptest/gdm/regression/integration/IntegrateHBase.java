@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -24,7 +25,7 @@ import hadooptest.cluster.gdm.GdmUtils;
 /**
  * Integrate HBase 
  */
-public class IntegrateHBase {
+public class IntegrateHBase   {
 	private String hbaseMasterHostName;
 	private String scriptPath;
 	private boolean isRecordsInserted = false;
@@ -43,6 +44,12 @@ public class IntegrateHBase {
 	public static final String HBASE_TABLE_NAME = "integration_test_table";
 
 	public IntegrateHBase() { }
+	
+	public IntegrateHBase(String currentFeedName, String dataPath, String scriptPath) { 
+		this.currentFeedName = currentFeedName;
+		this.dataPath = dataPath;
+		this.scriptPath = scriptPath;
+	}
 
 	public String getKinitCommand() {
 		this.hbaseMasterHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
@@ -345,4 +352,75 @@ public class IntegrateHBase {
 		}
 		return output;
 	}
+
+	/*public String run() {
+		String result = "fail";
+		if (this.isRecordInsertedIntoHBase() == false && this.isRecordScannedFromHBase() == false) {
+			try {
+				this.modifyHBasePigFile();
+				this.copyHBasePigScriptToHBaseMasterHost();
+				this.createHBaseIntegrationTable();
+				if (isHBaseTableCreated() == true ) {
+					try {
+						this.executeInsertingRecordsIntoHBase();
+						this.executeReadRecordsFromHBaseToPig();
+						this.deleteHBaseIntegrationTable();
+						result = "pass";
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				} else if (isHBaseTableCreated() == false ) {
+					TestSession.logger.error("Failed to create HBase table, no other tests will be executed on hbase.");
+					this.updateHBaseResultIntoDB( "hbaseInsert" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getDataPath());
+					this.updateHBaseResultIntoDB( "hbaseScan" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getDataPath());
+					this.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getDataPath());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	
+		}
+		return result;
+	}*/
+
+	/*@Override
+	public Object call() throws Exception {
+		String result = "fail";
+		if (this.isRecordInsertedIntoHBase() == false && this.isRecordScannedFromHBase() == false) {
+			try {
+				this.modifyHBasePigFile();
+				this.copyHBasePigScriptToHBaseMasterHost();
+				this.createHBaseIntegrationTable();
+				if (isHBaseTableCreated() == true ) {
+					try {
+						this.executeInsertingRecordsIntoHBase();
+						this.executeReadRecordsFromHBaseToPig();
+						this.deleteHBaseIntegrationTable();
+						result = "pass";
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				} else if (isHBaseTableCreated() == false ) {
+					TestSession.logger.error("Failed to create HBase table, no other tests will be executed on hbase.");
+					this.updateHBaseResultIntoDB( "hbaseInsert" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getDataPath());
+					this.updateHBaseResultIntoDB( "hbaseScan" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getDataPath());
+					this.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getDataPath());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	
+		}
+		return result;
+	}*/
 }
