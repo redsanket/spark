@@ -1,6 +1,7 @@
 echo ================= Install Tez on /sharelib/v1/tez hdfs directory =================
 export TEZ_CONF_DIR=/home/gs/conf/tez/current
 export TEZ_HOME=/home/gs/tez/current
+export TEZ_UI=$TEZ_HOME/tez-ui.war
 # workaround for OpenStack
 export PATH=$PATH:/home/gs/current/bin
 
@@ -16,10 +17,12 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
      cmd="echo installing Tez on Tez hosts ; \
         export TEZ_HOME=/home/gs/tez/current ; \
         export TEZ_CONF_DIR=/home/gs/conf/tez/current ; \
+	export TEZ_UI=$TEZ_HOME/tez-ui.war ; \
         rm -rf /home/gs/conf/tez ; \
         rm -rf /home/gs/tez ; \
         rm -rf $TEZ_CONF_DIR ; \
         rm -rf $TEZ_HOME ; \
+	rm -rf $TEZ_UI ; \
         mkdir -p `dirname $TEZ_HOME` ; \
         mkdir -p `dirname $TEZ_CONF_DIR` ; \
         mkdir -p ${yroothome}/tez_conf-$TEZVERSION/tez ; \
@@ -30,6 +33,9 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         yinst inst -root ${yroothome}/tez-$TEZVERSION -same -live -yes ytez-$TEZVERSION -br test ; \
         chattr -a ${yroothome}/tez-$TEZVERSION/var/yinst/log/yinstlog ; \
         ln -s ${yroothome}/tez-$TEZVERSION/libexec/tez $TEZ_HOME ; \
+	yinst inst -root ${yroothome}/ -same -live -yes ytez_ui-$TEZVERSION -br test ; \
+	chattr -a ${yroothome}/tez_ui/var/yinst/log/yinstlog ; \
+	ln -s ${yroothome}/share/tez-ui-$TEZVERSION $TEZ_UI ; \
         echo Tez version as I see it ; \
         readlink $TEZ_HOME "
 
@@ -87,9 +93,11 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         echo after chmoding -R 755 /sharelib ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls /sharelib/v1/tez/ "
 
-     if [ $TEZ_RELEASE_VERSION = "0.6" ]; then
-         fanoutOneTez "$cmd"
+     if [ -z $TARBALL_DEPLOY ]; then
+	echo "No tarball detected in tez-site.xml. Continue with non-tarball deploy..."
+	fanoutOneTez "$cmd"
      else
-         fanoutOneTez "$cmd_0_7"
+        echo "Tarball detected in tez-site.xml. Continue with tarball deploy..."
+	fanoutOneTez "$cmd_0_7"
      fi
 fi
