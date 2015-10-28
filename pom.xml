@@ -12,9 +12,6 @@
         <spark.version.full>1.5.1.1_2.6.0.16.1506060127_1510272107</spark.version.full>
         <spark.scala.version>2.10</spark.scala.version>
         <scala.version>2.10.4</scala.version>
-        <PermGen>64m</PermGen>
-        <MaxPermGen>512m</MaxPermGen>
-        <CodeCacheSize>512m</CodeCacheSize>
     </properties>
 
     <repositories>
@@ -29,23 +26,23 @@
             </releases>
         </repository>
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${spark.scala.version}</artifactId>
+            <version>${spark.version.full}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${spark.scala.version}</artifactId>
+            <version>${spark.version.full}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_${spark.scala.version}</artifactId>
             <version>${spark.version.full}</version>
             <scope>provided</scope>
         </dependency>
@@ -113,12 +110,6 @@
                 <version>3.2.0</version>
                 <executions>
                     <execution>
-                        <id>eclipse-add-source</id>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                    </execution>
-                    <execution>
                         <id>scala-compile-first</id>
                         <phase>process-resources</phase>
                         <goals>
@@ -132,31 +123,7 @@
                             <goal>testCompile</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>attach-scaladocs</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>doc-jar</goal>
-                        </goals>
-                    </execution>
                 </executions>
-                <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
-                    <recompileMode>incremental</recompileMode>
-                    <useZincServer>true</useZincServer>
-                    <args>
-                        <arg>-unchecked</arg>
-                        <arg>-deprecation</arg>
-                        <arg>-feature</arg>
-                    </args>
-                    <jvmArgs>
-                        <jvmArg>-Xms1024m</jvmArg>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                        <jvmArg>-XX:PermSize=${PermGen}</jvmArg>
-                        <jvmArg>-XX:MaxPermSize=${MaxPermGen}</jvmArg>
-                        <jvmArg>-XX:ReservedCodeCacheSize=${CodeCacheSize}</jvmArg>
-                    </jvmArgs>
-                </configuration>
             </plugin>
         </plugins>
     </build>

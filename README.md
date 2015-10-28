@@ -2,6 +2,8 @@
 
 spark-starter contains simple examples of using Spark.  These simple examples should get you started with using Spark.  The pom file included in this project should also help you get started with build your own Spark project. 
 
+This includes both a spark java example, spark scala example, and a spark scala example accessing Hive (SparkClusterHive).
+
 #Running with Maven
 
 To create a package:
