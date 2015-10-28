@@ -179,6 +179,7 @@ public class DataAvailabilityPoller {
 				this.hiveHealthStatus = false;
 				this.hbaseHealthStatus = false;
 				this.tezHealthStatus = false;
+				this.pigHealthStatus = false;
 				
 				TestSession.logger.info("------- hr has started..! -------------");
 
