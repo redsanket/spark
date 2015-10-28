@@ -93,12 +93,6 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         echo after chmoding -R 755 /sharelib ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls /sharelib/v1/tez/ "
 
-     # if [ $TEZ_RELEASE_VERSION = "0.6" ]; then
-     #    fanoutOneTez "$cmd"
-     # else
-     #    fanoutOneTez "$cmd_0_7"
-     # fi
-
      if [ -z $TARBALL_DEPLOY ]; then
 	echo "No tarball detected in tez-site.xml. Continue with non-tarball deploy..."
 	fanoutOneTez "$cmd"
