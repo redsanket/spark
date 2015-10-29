@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -24,7 +25,7 @@ import hadooptest.cluster.gdm.GdmUtils;
 /**
  * Integrate HBase 
  */
-public class IntegrateHBase {
+public class IntegrateHBase   {
 	private String hbaseMasterHostName;
 	private String scriptPath;
 	private boolean isRecordsInserted = false;
@@ -43,6 +44,12 @@ public class IntegrateHBase {
 	public static final String HBASE_TABLE_NAME = "integration_test_table";
 
 	public IntegrateHBase() { }
+	
+	public IntegrateHBase(String currentFeedName, String dataPath, String scriptPath) { 
+		this.currentFeedName = currentFeedName;
+		this.dataPath = dataPath;
+		this.scriptPath = scriptPath;
+	}
 
 	public String getKinitCommand() {
 		this.hbaseMasterHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
