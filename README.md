@@ -1,6 +1,6 @@
 # Example Spark Jobs
 
-spark-starter contains simple examples of using Spark.  These simple examples should get you started with using Spark.  The pom file included in this project should also help you get started with build your own Spark project. 
+spark-starter contains simple examples of using Spark. These simple examples should get you started with using Spark. The pom file included in this project should also help you get started with build your own Spark project. It includes stuff to be able to build Java or Scala files as well as the spark dependencies necessary for accessing Spark Core, Sql, and Hive apis.
 
 #Running with Maven
 
