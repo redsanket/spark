@@ -112,6 +112,7 @@
 		<hbaseMasterPort>$(HBASE_MASTER_PORT)</hbaseMasterPort>
 		<hbaseRegionalServerPort>$(HBASE_REGIONAL_SERVER_PORT)</hbaseRegionalServerPort>
 		<gateWayName>$(GATEWAY_HOST_NAME)</gateWayName>
+		<hiveHostName>${HIVE_HOST_NAME}</hiveHostName>
     </TestWatchForDataDrop>
   </testconfig>
   <auth>
