@@ -1,0 +1,33 @@
+[[qs-get_data, Getting Data for Tutorials]]
+== Getting Data for Tutorials
+
+. Log on to the Axonite Red gateway: $ ssh axonite-gw.red.ygrid.yahoo.com
+. We're going to use a Web service to get government data for this tutorial. 
+  Use cURL to make a call to the Government Track API and save the output to a CSV file:
+
+  [source,bash]
+  ----
+  $ curl "https://www.govtrack.us/api/v2/role?current=true&format=csv&role_type=senator&fields=id,title_long,party,person__firstname,person__lastname,person__gender,person__birthday,startdate,enddate,state,website" -s -S -f >us_senators.csv
+  ----
+
+. Confirm that the CSV written to `us_senators.csv` has the same headers as the following:
+
+  ....
+  id,title_long,party,person__firstname,person__lastname,person__gender,person__birthday,startdate,enddate,state,website
+  268,Senator,Republican,Roy,Blunt,male,1950-01-10,2011-01-05,2017-01-03,MO,http://www.blunt.senate.gov
+  317,Senator,Republican,John,Boozman,male,1950-12-10,2011-01-05,2017-01-03,AR,http://www.boozman.senate.gov
+  409,Senator,Republican,Richard,Burr,male,1955-11-30,2011-01-05,2017-01-03,NC,http://www.burr.senate.gov
+  1587,Senator,Republican,John,Isakson,male,1944-12-28,2011-01-05,2017-01-03,GA,http://www.isakson.senate.gov
+  1801,Senator,Republican,Mark,Kirk,male,1959-09-15,2011-01-05,2017-01-03,IL,http://www.kirk.senate.gov
+  2343,Senator,Republican,Jerry,Moran,male,1954-05-29,2011-01-05,2017-01-03,KS,http://www.moran.senate.gov
+  2725,Senator,Republican,Robert,Portman,male,1955-12-19,2011-01-05,2017-01-03,OH,http://www.portman.senate.gov
+  3478,Senator,Republican,Patrick,Toomey,male,1961-11-17,2011-01-05,2017-01-03,PA,http://www.toomey.senate.gov
+  3561,Senator,Republican,David,Vitter,male,1961-05-03,2011-01-05,2017-01-03,LA,http://www.vitter.senate.gov
+  3853,Senator,Democrat,Barbara,Boxer,female,1940-11-11,2011-01-05,2017-01-03,CA,http://www.boxer.senate.gov
+  3953,Senator,Republican,Michael,Crapo,male,1951-05-20,2011-01-05,2017-01-03,ID,http://www.crapo.senate.gov
+  ....
+
+. Remove the first line containing the headers: `$ echo "$(tail -n +2 us_senators.csv)" > us_senators.csv`
+. Copy the file to HDFS: `$ hdfs dfs -copyFromLocal us_senators.csv`
+
+

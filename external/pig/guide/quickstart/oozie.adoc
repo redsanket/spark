@@ -1,0 +1,341 @@
+[[qs-pig_oozie, Using Pig With Oozie]]
+== Using Pig With Oozie
+
+In this section, we're going to create an Oozie Workflow that copies the data 
+from the Government Tracker API, creates a Hive table, populates the table with 
+the data, then processes the data and stores the data in two CSV files. We'll be 
+creating an Oozie Workflow with Shell, Hive, Pig, and DistCp actions. 
+
+[[pig_oozie-setup, Using Pig With Oozie: Setting Up]]
+=== Setting Up
+
+Before we set up the Workflow and write the Pig, Hive, and shell scripts, we need 
+to create some directories, fetch new data and a Hive configuration file.
+
+. Let's directory for Oozie application: `$ mkir pig_oozie`
+. Change to pig_oozie and then create directories for scripts, input, and output.
+
++
+....
+$ cd pig_oozie
+$ mkdir input output hive pig shell 
+....
++
+
+. Your Oozie workflow is not going to create a new database when you run it, 
+  just tables. So, let's create the Hive database where you'll create tables in your workflow:
+
++
+----
+$ hive
+hive> CREATE DATABASE $USER_bills LOCATION '/user/$USER/bills'; 
+----
++
+
+. Copy the file `hive-site.xml` from Cobalt Blue to your local `pig_oozie` directory:
+
++
+....
+$ hdfs dfs -copyToLocal hdfs://cobaltblue-nn1.blue.ygrid.yahoo.com:8020/user/sumeetsi/hive-site.xml pig_oozie
+....
++
+
+. Fetch the data for the Oozie application and copy it to HDFS. (We're using `sed`
+to remove the header line.)
+
++
+----
+$ curl "https://www.govtrack.us/api/v2/bill?format=csv&fields=id,title,bill_type,current_status,current_status_date,link,sponsor__firstname,sponsor__lastname,sponsor__gender,sponsor_role__description,sponsor_role__party,sponsor_role__role_type" -s -S -f | sed '1d' >bills_info.csv // <1>
+$ hdfs dfs -copyFromLocal /homes/$USER/bills_info.csv // <2>
+----
+<1> Copy the government data to a CSV file in your home directory.
+<2> Copy the file to HDFS.
++
+
+
+[[pig_oozie-create_config, Create Configuration]]
+=== Create Configuration
+
+The Oozie Workflow is a combination of code and configuration for that code. The 
+configuration sets variables, provides credentials, organizes the execution of 
+actions, and defines how to handle errors. You can also use Workflow to fork 
+actions, use conditionals, and merge results, but our Workflow will be simple 
+for the purpose of demonstration.
+
+. In the `pig_oozie` directory, create the `job.properties` file with the content 
+below. The Job Properties defines variables that you'll use in your `workflow.xml`. 
+
++
+----
+# General information for Oozie
+nameNode=hdfs://axonitered-nn1.red.ygrid.yahoo.com:8020
+jobTracker=axonitered-jt1.red.ygrid.yahoo.com:8032
+queueName=default
+appRoot=pig_oozie
+oozie.wf.application.path=${nameNode}/user/${user.name}/${appRoot}/
+appPath=${oozie.wf.application.path}
+timezone=UTC
+HCAT_URI=thrift://axonitered-hcat.ygrid.vip.bf1.yahoo.com:50513
+HCAT_PRINCIPAL=hcat/axonitered-hcat.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM
+
+# Original data for application
+CSV=bills_info.csv
+src_dir=${nameNode}/user/${user.name}
+dest_dir=${src_dir}/${appRoot}/input
+
+# Scripts used in Oozie actions
+shellAction=shell/copy_data.sh
+hiveScript=hive/create_table.hql
+
+# Source and storage information for Hive
+hiveLog=./hivelogs
+dataBase=${user.name}_bills
+billsTable=bills_information
+databasePath=/user/jcatera/bills
+dataInputFile=/user/${user.name}/${appRoot}/input/current_${CSV}
+
+# Pig configuration.
+pigScript=pig/process_hive_data.pig
+csvHouse=${appPath}/output/${date}_house_bills
+csvSenate=${appPath}/output/${date}_senate_bills
+----
++
+
+
+. The `workflow.xml` is the driver of your Oozie application. The variables you 
+see in the `workflow.xml` below are defined in the `job.properties` file you just created.
+
++
+[source,xml]
+----
+<workflow-app xmlns="uri:oozie:workflow:0.4" name="bills-wf">
+   <credentials>
+     <!-- Use HCatalog credentials for Pig/Hive. -->
+     <credential name='hcatauth' type='hcat'>
+       <property>
+         <name>hcat.metastore.uri</name>
+         <value>${HCAT_URI}</value>
+       </property>
+       <property>
+         <name>hcat.metastore.principal</name>
+         <value>${HCAT_PRINCIPAL}</value>
+       </property>
+    </credential>
+  </credentials>
+  <start to="shell-copydata"/>
+  <!-- Copies the data from the local file system to HDFS -->
+  <action name="shell-copydata">
+    <shell xmlns="uri:oozie:shell-action:0.3">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <configuration>
+        <property>
+          <name>mapred.job.queue.name</name>
+          <value>${queueName}</value>
+        </property>
+    <property>
+      <name>oozie.action.sharelib.for.distcp</name>
+      <value>distcp</value>
+    </property>
+      </configuration>
+      <exec>shell/copy_data.sh</exec>
+      <argument>${CSV}</argument>
+      <argument>${src_dir}</argument>
+      <argument>${dest_dir}</argument>
+      <file>${wf:appPath()}${shellAction}#${shellAction}</file>
+      <capture-output/>
+    </shell>
+    <ok to="hive-create_table"/>
+    <error to="kill"/>
+  </action>
+  <!-- Create a Hive table for the data and then populate the table. -->
+  <action name='hive-create_table' cred='hcatauth'> 
+   <hive xmlns="uri:oozie:hive-action:0.4">
+     <job-tracker>${jobTracker}</job-tracker>
+     <name-node>${nameNode}</name-node>
+     <configuration>
+       <property>
+         <name>hive.querylog.location</name>
+         <value>${hiveLog}</value>
+       </property>
+       <property>
+         <name>mapred.job.queue.name</name>
+         <value>${queueName}</value>
+       </property>
+       <property>
+         <name>oozie.action.sharelib.for.hive</name>
+         <value>hcat_current,hive_current,tez_current</value>
+       </property>
+     </configuration>
+     <script>${hiveScript}</script>
+     <param>USER=${wf:user()}</param>
+     <param>HIVE_DB_PATH=${databasePath}</param>
+     <param>HIVE_DB=${dataBase}</param>
+     <param>HIVE_TB=${billsTable}</param>
+     <param>NAMENODE=${nameNode}</param>
+     <param>TIMESTAMP=${date}</param>
+     <param>INPUT_DATA=${dataInputFile}</param>
+     <file>${hiveScript}#${hiveScript}</file>
+   </hive>
+   <ok to="pig-process-data"/>
+   <error to="kill"/>
+  </action>
+  <!-- Extract results from the Hive table and create CSV files. -->
+  <action name="pig-process-data" cred='hcatauth'>
+    <pig>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <prepare>
+        <delete path="${nameNode}/user/${wf:user()}/${appRoot}/output/"/>
+        <mkdir path="${nameNode}/user/${wf:user()}/${appRoot}/output/"/>
+      </prepare>
+      <configuration>
+        <property>
+          <name>mapred.job.queue.name</name>
+          <value>${queueName}</value>
+        </property>
+        <property>
+          <name>mapred.compress.map.output</name>
+          <value>true</value>
+        </property>
+        <property>
+          <name>oozie.action.sharelib.for.pig</name>
+          <value>hcat_current,pig_current,tez_current</value>
+        </property>
+      </configuration>
+      <script>${pigScript}</script>
+      <param>USER=${wf:user()}</param>
+      <param>TIMESTAMP=${date}</param>
+      <param>OUTPUT_HOUSE=${csvHouse}</param>
+      <param>OUTPUT_SENATE=${csvSenate}</param>
+      <file>${pigScript}#${pigScript}</file>
+    </pig>
+    <ok to="archive_data"/>
+    <error to="kill"/>
+  </action>
+  <!-- Copy latest results to the archive folder. -->
+  <action name="archive_data">
+    <distcp xmlns="uri:oozie:distcp-action:0.2">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <arg>${nameNode}/user/${wf:user()}/${appRoot}/output/*</arg>
+      <arg>${nameNode}/user/${wf:user()}/${appRoot}/archive/</arg>
+    </distcp>
+    <ok to="end"/>
+    <error to="kill"/>
+  </action>
+  <kill name="kill">
+    <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+  <end name="end"/>
+</workflow-app>
+----
++
+
+
+[[pig_oozie-shell_script, Shell Script]]
+=== Shell Script
+
+Create shell script `get_data.sh` in the shell directory with the code below. The 
+arguments in the shell script are provided by the argument elements of the Shell 
+action in the `workflow.xml`.
+
+[source,bash]
+----
+#! /usr/local/bin/bash
+
+csv_file="$1"
+src_dir="$2"
+dest_dir="$3"
+
+/home/gs/hadoop/current/bin/hdfs dfs -cp -f $src_dir/$csv_file $dest_dir/current_$csv_file
+----
+
+
+[[pig_oozie-hive_script, Hive Script]]
+=== Hive Script
+
+Create the Hive script `hive/create_table.hql` with the following code. You might 
+notice that the `TIMESTAMP` variable is declared, but not assigned a value. We're 
+going to define the value when we run start the Oozie job with the `oozie` command.
+
+[source,hive]
+----
+create external table if not exists ${USER}_bills.information_${TIMESTAMP} (
+  id int,
+  title string,
+  bill_type string,
+  current_status string,
+  current_status_date string,
+  link string,
+  bsponsor__firstname string,
+  sponsor__lastname string,
+  sponsor__gender string,
+  sponsor_role__description string,
+  sponsor_role__party string,
+  sponsor_role__role_type string)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+stored as textfile
+location "${NAMENODE}/user/${USER}/bills/${TIMESTAMP}";
+LOAD DATA INPATH "${INPUT_DATA}" OVERWRITE INTO TABLE ${USER}_bills.information_${TIMESTAMP};
+----
+
+[[pig_oozie-pig_script, Pig Script]]
+=== Pig Script
+
+With the code below, create the file `pig/process_hive_data.pig`. The script is 
+fairly simple: access the Hive table `information_${TIMESTAMP}` through HCatalog 
+and then create two directories containing CSV results based on the bill types.
+
+[source,pig]
+----
+bills = LOAD '${USER}_bills.information_${TIMESTAMP}' using org.apache.hive.hcatalog.pig.HCatLoader();
+house_bills = FILTER bills BY (bill_type == 'house_bill');
+senate_bills = FILTER bills BY (bill_type == 'senate_bill');
+STORE house_bills INTO '${OUTPUT_HOUSE}' USING org.apache.pig.piggybank.storage.CSVExcelStorage();
+STORE senate_bills INTO '${OUTPUT_SENATE}' USING org.apache.pig.piggybank.storage.CSVExcelStorage();
+----
+
+[[pig_oozie-run, Run the Oozie Job]]
+=== Run the Oozie Job
+
+. Copy the directory to HDFS: `$ hdfs dfs -put -f /user/$USER/pig_oozie /user/$USER`
+. From the `pig_oozie` directory, start your Oozie application (we're defining the data variable on the command line): 
++
+....
+ $ oozie job -D date=`date "+%Y_%m_%d"` -config job.properties -run
+....
++
+
+. Oozie will return a job ID that will look similar to that below:
+
++
+....
+job: 0189333-150922143441638-oozie_AR-W
+....
++
+
+. Go to the Oozie Console and find your job ID in the **Job Id** column. 
+Once the job completes and is successful, view the results written to ``pig_oozie/output``: 
+
++
+....
+$ hdfs dfs -cat pig_oozie/output/2015_09_28_senate_bills.csv/part*
+....
++
+
+
+[[pig_oozie-troubleshoot, Troubleshooting the Oozie Job]]
+=== Troubleshooting the Oozie Job
+
+If your job failed or was killed, try the following to find the issue:
+
+. From the **Oozie Console**, click the job ID to open a dialog containing action IDs for each action. 
+. Find the failed action, click the action ID. 
+. From the **Action** dialog, copy the URL of the **Console URL**.
+. Open the Console URL in a new browser tab. (The browser will have to connect to the Internet through the SOCKS proxy (`socks.yahoo.com`) if you're not inside the Yahoo intranet.)
+. From the **Oozie Console**, click the logs link. 
+. You'll be taken to the Job Tracker that has logs for `stderr`, `stdout`, and `syslog`. You can also click a link for each type of log to see the entire log file.
+
+Also, look for common issues such as incorrect file names and script paths, undefined variables, database, or tables, and authorization issues. 
+

@@ -1,0 +1,219 @@
+[[qs-pig_hbase, Using Pig With HBase]]
+== Using Pig With HBase
+
+[[pig_hbase-setup, Using Pig With HBase: Setting Up]]
+=== Setting Up
+
+You do not have to register HBase JAR files in your Pig script. The Pig command 
+adds the HBase JAR files and the file `hbase-site.xml` to your Java `CLASSPATH` if 
+the following is present in the Bash environment:
+
+....
+HBASE_PREFIX=/home/gs/hbase/current
+HBASE_CONF_DIR=/home/gs/conf/hbase
+....
+
+Also, export the variable `HBASE_PREFIX`:
+
+ export HBASE_PREFIX=/home/gs/hbase/current
+
+
+NOTE: The Hadoop variable `HBASE_CONF_DIR` is generally set in the gateway environment.
+
+
+[[pig_hbase-create_table, Create HBase Table]]
+=== Create HBase Table 
+
+. Get your Kerberos credentials that you'll need for accessing the Grid: `$ kinit`
+. Start the HBase shell: `$ hbase shell`
+. Create the Hbase database for the US Senators: `hbase> create '$USER:us_senators', 'senator_info'`
+
+    0 row(s) in 1.1270 seconds
+    => Hbase::Table - jcatera:us_senators
+
+
+[NOTE]
+.Deleting an HBase Table
+====
+
+. Disable the table: `hbase> disable '$USER:us_senators'`
+. Drop the table: `hbase> drop '$USER:us_senators'`
+====
+
+[[pig_hbase-populate_table, Populate HBase Table With Pit]]
+=== Populate HBase Table With Pig
+
+. Start Grunt (the Pig shell): `$ pig`
+. Use the `LOAD` operator and the `CSVExcelStorage` to get the 
+  data from the `CSV` file into Pig. (Be sure to replace <username> with your user name.)
+
+  ....
+  grunt> raw_data = LOAD 'hdfs:/user/$USER/cust_senators.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'YES_MULTILINE') AS
+    (
+       id:long,
+       title:chararray,
+       party:chararray,
+       firstname:chararray,
+       lastname:chararray,
+       gender:chararray,
+       birthday:chararray,
+       startdate:chararray,
+       enddate:chararray,
+       state:chararray,
+       website:chararray
+    );
+  ....
+
+. Confirm that the data was consumed by Pig: `$ dump raw_data;`
+
+   TBD: insert results
+
+. Populate the HBase table you created with the data. Notice we're leaving out 
+  the ID. The first value in the tuple will be automatically used as the row key. 
+  Replace `<namespace>` with your username. See http://pig.apache.org/docs/r0.9.1/api/org/apache/pig/backend/hadoop/hbase/HBaseStorage.html[Class HBaseStorage] for more information.
+
+  ....
+  grunt> STORE raw_data INTO 'hbase://$USER:senators' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+          'senator_info:title,
+           senator_info:party,
+           senator_info:firstname,
+           senator_info:lastname,
+           senator_info:gender,
+           senator_info:birthday,
+           senator_info:startdate,
+           senator_info:enddate,
+           senator_info:state,
+           senator_info:website'
+        );
+  ....
+
+. Exit Grunt: `grunt> quit;`
+
+[[pig_hbase-confirm_data, Confirm HBase Table Has Data]]
+=== Confirm HBase Table Has Data
+
+. Start the HBase shell: `$ hbase shell`
+. Scan the table: `hbase> scan '$USER:senators'`
+ 
+  You should see the ID numbers as rows with the columns.
+  ....
+  ROW                            COLUMN+CELL                                                                            
+  43726                         column=senator_info:birthday, timestamp=1442006981821, value=1964-11-13       
+  43726                         column=senator_info:enddate, timestamp=1442006981821, value=2021-01-03                 
+  43726                         column=senator_info:firstname, timestamp=1442006981821, value=Dan                      
+  43726                         column=senator_info:gender, timestamp=1442006981821, value=male                        
+  43726                         column=senator_info:lastname, timestamp=1442006981821, value=Sullivan                  
+  43726                         column=senator_info:party, timestamp=1442006981821, value=Republican                   
+  43726                         column=senator_info:startdate, timestamp=1442006981821, value=2015-01-06               
+  43726                         column=senator_info:state, timestamp=1442006981821, value=AK                           
+  43726                         column=senator_info:title, timestamp=1442006981821, value=Senator                      
+  43726                         column=senator_info:website, timestamp=1442006981821, value=http://www.sullivan.senate.
+  ....
+
+. To get information about a particular senator, use get with one of the row keys: 
+   hbase> get '$USER:senators', <row_key>
+
+. For example, if we used the row key 43726, you would be returned the information 
+  about the senator with that ID:
+
+  ....
+  COLUMN                         CELL    
+  senator_info:birthday          timestamp=1442006981821, value=1964-11-13                                                                             
+  senator_info:enddate          timestamp=1442006981821, value=2021-01-03                                              
+  senator_info:firstname        timestamp=1442006981821, value=Dan                                                     
+  senator_info:gender           timestamp=1442006981821, value=male                                                    
+  senator_info:lastname         timestamp=1442006981821, value=Sullivan                                                
+  senator_info:party            timestamp=1442006981821, value=Republican                                              
+  senator_info:startdate        timestamp=1442006981821, value=2015-01-06                                              
+  senator_info:state            timestamp=1442006981821, value=AK                                                      
+  senator_info:title            timestamp=1442006981821, value=Senator                                                 
+  senator_info:website          timestamp=1442006981821, value=http://www.sullivan.senate.gov  
+  ....
+
+. Exit the HBase shell: `hbase> exit;`
+
+[[pig_hbase-load_manipulate, Using Pig to Load and Manipulate HBase Data]]
+=== Using Pig to Load and Manipulate HBase Data
+
+We're going back to Grunt to process the data we loaded into the HBase table earlier.
+
+. Start Pig: `$ pig`
+. We'll do a little reverse engineering and now load the data from the HBase table 
+  we created. Notice that we're loading the table with the column cells and requesting 
+  to load the row key (`-loadKey true`), so that the row key will become `'id:lang'` 
+  in our Pig raw data:
+
+  ....
+  grunt> raw = LOAD 'hbase://$USER:senators'
+         USING org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+           'senator_info:title,
+            senator_info:party,
+            senator_info:firstname,
+            senator_info:lastname,
+            senator_info:gender,
+            senator_info:birthday,
+            senator_info:startdate,
+            senator_info:enddate,
+            senator_info:state,
+            senator_info:website', '-loadKey true')
+         AS (	   
+              id:long,
+	      title:chararray,
+	      party:chararray,
+	      firstname:chararray,
+	      lastname:chararray,
+	      gender:chararray,
+              birthday:chararray,
+	      startdate:chararray,
+	      enddate:chararray,
+	      state:chararray,
+	      website:chararray
+	 );
+  ....
+
+. Try dumping the data stored in raw to confirm that the HBase table was read. 
+  If loaded correctly, you should see something similar to the output from when we 
+  read the CSV file: `grunt> dump raw;`
+ 
+  ....
+  (43140,Senator,Republican,Ted,Cruz,male,1970-12-22,2013-01-03,2019-01-03,TX,http://www.cruz.senate.gov)
+  (43123,Senator,Republican,Deb,Fischer,female,1951-03-01,2013-01-03,2019-01-03,NE,http://www.fischer.senate.gov)
+  (43121,Senator,Democrat,Heidi,Heitkamp,female,1955-10-30,2013-01-03,2019-01-03,ND,http://www.heitkamp.senate.gov)
+  (43112,Senator,Independent,Angus,King,male,1944-03-31,2013-01-03,2019-01-03,ME,http://www.king.senate.gov)
+  (43109,Senator,Democrat,Elizabeth,Warren,female,1949-06-22,2013-01-03,2019-01-03,MA,http://www.warren.senate.gov)
+  ....
+
+. Now that we have our data, we can manipulate it with Pig. Let's get a list of 
+  the female Democrat senators: 
+  
+  ....
+  grunt> fem_dems = FILTER raw BY gender == 'female' and party == 'Democrat';
+
+ (3853,Senator,Democrat,Barbara,Boxer,female,2011-01-05,2017-01-03,CA,http://www.boxer.senate.gov)
+ (4205,Senator,Democrat,Barbara,Mikulski,female,2011-01-05,2017-01-03,MD,http://www.mikulski.senate.gov)
+ (4213,Senator,Democrat,Patty,Murray,female,2011-01-05,2017-01-03,WA,http://www.murray.senate.gov)
+ (42686,Senator,Democrat,Tammy,Baldwin,female,2013-01-03,2019-01-03,WI,http://www.baldwin.senate.gov)
+ (42866,Senator,Democrat,Maria,Cantwell,female,2013-01-03,2019-01-03,WA,http://www.cantwell.senate.gov)
+ (42868,Senator,Democrat,Dianne,Feinstein,female,2013-01-03,2019-01-03,CA,http://www.feinstein.senate.gov)
+ (42871,Senator,Democrat,Debbie,Stabenow,female,2013-01-03,2019-01-03,MI,http://www.stabenow.senate.gov)
+ ....
+
+. You can get a count of the female Democratic senators now: 
+   grunt> fem_dems_count = foreach (group fem_dems all) generate COUNT(fem_dems);
+
+. Let's see how many there are: `grunt> dump fem_dems_count;`
+  ....
+  (14)
+  ....
+
+. Try using some of Pig's operators and functions listed in the 
+  http://pig.apache.org/docs/r0.7.0/piglatin_ref2.html[Pig Latin Reference Manual 2] 
+  to further analyze the data.
+
+. Let's quit Grunt for now: `grunt> quit;`
+
+[[load_manipulate-see_also, Using Pig to Load and Manipulate HBase Data: See Also]]
+==== See Also
+
+* http://gethue.com/hadoop-tutorial-use-pig-and-hive-with-hbase/[Use Pig and Hive with HBase]
+

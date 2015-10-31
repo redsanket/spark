@@ -1,0 +1,815 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Using Pig With Oozie | Pig User Guide</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.4.3">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="../gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-expandable-chapters/expandable-chapters.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-edit-link/plugin.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-scrollablecode/scrollablecode.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="../launchers.html" />
+    
+    
+    <link rel="prev" href="../quickstart/hive.html" />
+    
+
+        <link rel="stylesheet" type="text/css" href="../css/footer.css">
+    </head>
+    <body>
+        
+        
+    <div class="book" data-level="1.5" data-basepath=".." data-revision="Fri Oct 30 2015 23:05:16 GMT-0700 (PDT)">
+    
+
+<div class="book-summary">
+    <div class="book-search" role="search">
+        <input type="text" placeholder="Type to search" class="form-control" />
+    </div>
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="../index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="quickstart/quickstart.html">
+            
+                
+                    <a href="../quickstart/quickstart.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        Quick Start
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="quickstart/prereqs.html">
+            
+                
+                    <a href="../quickstart/prereqs.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        Prerequisites
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="quickstart/get_data.html">
+            
+                
+                    <a href="../quickstart/get_data.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.2.</b>
+                        
+                        Getting Data
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="quickstart/hbase.html">
+            
+                
+                    <a href="../quickstart/hbase.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.3.</b>
+                        
+                        Using Pig With HBase
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="quickstart/hive.html">
+            
+                
+                    <a href="../quickstart/hive.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.4.</b>
+                        
+                        Using Pit With Hive Through HCatalog
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.5" data-path="quickstart/oozie.html">
+            
+                
+                    <a href="../quickstart/oozie.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.5.</b>
+                        
+                        Using Pig With Oozie
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="launchers.html">
+            
+                
+                    <a href="../launchers.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Installing Launchers
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="tips.html">
+            
+                
+                    <a href="../tips.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Tips and Tricks
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="styleguide.html">
+            
+                
+                    <a href="../styleguide.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        Style Guide
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="troubleshooting.html">
+            
+                
+                    <a href="../troubleshooting.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        Troubleshooting
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6" data-path="tez.html">
+            
+                
+                    <a href="../tez.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        Pig on Tez
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="performance.html">
+            
+                
+                    <a href="../performance.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.</b>
+                        
+                        Improving Performance
+                    </a>
+            
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    <a href="#" class="btn pull-left toggle-summary" aria-label="Table of Contents"><i class="fa fa-align-justify"></i></a>
+    <a href="#" class="btn pull-left toggle-search" aria-label="Search"><i class="fa fa-search"></i></a>
+    
+    <div id="font-settings-wrapper" class="dropdown pull-left">
+        <a href="#" class="btn toggle-dropdown" aria-label="Font Settings"><i class="fa fa-font"></i>
+        </a>
+        <div class="dropdown-menu font-settings">
+    <div class="dropdown-caret">
+        <span class="caret-outer"></span>
+        <span class="caret-inner"></span>
+    </div>
+
+    <div class="buttons">
+        <button type="button" id="reduce-font-size" class="button size-2">A</button>
+        <button type="button" id="enlarge-font-size" class="button size-2">A</button>
+    </div>
+
+    <div class="buttons font-family-list">
+        <button type="button" data-font="0" class="button">Serif</button>
+        <button type="button" data-font="1" class="button">Sans</button>
+    </div>
+
+    <div class="buttons color-theme-list">
+        <button type="button" id="color-theme-preview-0" class="button size-3" data-theme="0">White</button>
+        <button type="button" id="color-theme-preview-1" class="button size-3" data-theme="1">Sepia</button>
+        <button type="button" id="color-theme-preview-2" class="button size-3" data-theme="2">Night</button>
+    </div>
+</div>
+
+    </div>
+
+    <!-- Actions Right -->
+    
+    <div class="dropdown pull-right">
+        <a href="#" class="btn toggle-dropdown" aria-label="Share"><i class="fa fa-share-alt"></i>
+        </a>
+        <div class="dropdown-menu font-settings dropdown-left">
+            <div class="dropdown-caret">
+                <span class="caret-outer"></span>
+                <span class="caret-inner"></span>
+            </div>
+            <div class="buttons">
+                <button type="button" data-sharing="twitter" class="button">
+                    Share on Twitter
+                </button>
+                <button type="button" data-sharing="google-plus" class="button">
+                    Share on Google
+                </button>
+                <button type="button" data-sharing="facebook" class="button">
+                    Share on Facebook
+                </button>
+                <button type="button" data-sharing="weibo" class="button">
+                    Share on Weibo
+                </button>
+                <button type="button" data-sharing="instapaper" class="button">
+                    Share on Instapaper
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <a href="#" target="_blank" class="btn pull-right google-plus-sharing-link sharing-link" data-sharing="google-plus" aria-label="Google"><i class="fa fa-google-plus"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right facebook-sharing-link sharing-link" data-sharing="facebook" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right twitter-sharing-link sharing-link" data-sharing="twitter" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
+    
+    
+    
+
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../" >Pig User Guide</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <a id="edit-link" href="https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/quickstart/oozie.adoc" class="btn fa fa-edit pull-left">&nbsp;&nbsp;[object Object]</a><div class="sect1">
+<h2 id="qs-pig_oozie"><a name="qs-pig_oozie" class="plugin-anchor" href="#qs-pig_oozie"><span class="fa fa-link"></span></a>Using Pig With Oozie</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this section, we&#x2019;re going to create an Oozie Workflow that copies the data
+from the Government Tracker API, creates a Hive table, populates the table with
+the data, then processes the data and stores the data in two CSV files. We&#x2019;ll be
+creating an Oozie Workflow with Shell, Hive, Pig, and DistCp actions.</p>
+</div>
+<div class="sect2">
+<h3 id="pig_oozie-setup"><a name="pig_oozie-setup" class="plugin-anchor" href="#pig_oozie-setup"><span class="fa fa-link"></span></a>Setting Up</h3>
+<div class="paragraph">
+<p>Before we set up the Workflow and write the Pig, Hive, and shell scripts, we need
+to create some directories, fetch new data and a Hive configuration file.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Let&#x2019;s directory for Oozie application: <code>$ mkir pig_oozie</code></p>
+</li>
+<li>
+<p>Change to pig_oozie and then create directories for scripts, input, and output.</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ cd pig_oozie
+$ mkdir input output hive pig shell</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Your Oozie workflow is not going to create a new database when you run it,
+just tables. So, let&#x2019;s create the Hive database where you&#x2019;ll create tables in your workflow:</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ hive
+hive&gt; CREATE DATABASE $USER_bills LOCATION &apos;/user/$USER/bills&apos;;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Copy the file <code>hive-site.xml</code> from Cobalt Blue to your local <code>pig_oozie</code> directory:</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hdfs dfs -copyToLocal hdfs://cobaltblue-nn1.blue.ygrid.yahoo.com:8020/user/sumeetsi/hive-site.xml pig_oozie</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Fetch the data for the Oozie application and copy it to HDFS. (We&#x2019;re using <code>sed</code>
+to remove the header line.)</p>
+<div class="listingblock">
+<div class="content">
+<pre>$ curl &quot;https://www.govtrack.us/api/v2/bill?format=csv&amp;fields=id,title,bill_type,current_status,current_status_date,link,sponsor__firstname,sponsor__lastname,sponsor__gender,sponsor_role__description,sponsor_role__party,sponsor_role__role_type&quot; -s -S -f | sed &apos;1d&apos; &gt;bills_info.csv <b class="conum">(1)</b>
+$ hdfs dfs -copyFromLocal /homes/$USER/bills_info.csv <b class="conum">(2)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Copy the government data to a CSV file in your home directory.</p>
+</li>
+<li>
+<p>Copy the file to HDFS.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_oozie-create_config"><a name="pig_oozie-create_config" class="plugin-anchor" href="#pig_oozie-create_config"><span class="fa fa-link"></span></a>Create Configuration</h3>
+<div class="paragraph">
+<p>The Oozie Workflow is a combination of code and configuration for that code. The
+configuration sets variables, provides credentials, organizes the execution of
+actions, and defines how to handle errors. You can also use Workflow to fork
+actions, use conditionals, and merge results, but our Workflow will be simple
+for the purpose of demonstration.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the <code>pig_oozie</code> directory, create the <code>job.properties</code> file with the content
+below. The Job Properties defines variables that you&#x2019;ll use in your <code>workflow.xml</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre># General information for Oozie
+nameNode=hdfs://axonitered-nn1.red.ygrid.yahoo.com:8020
+jobTracker=axonitered-jt1.red.ygrid.yahoo.com:8032
+queueName=default
+appRoot=pig_oozie
+oozie.wf.application.path=${nameNode}/user/${user.name}/${appRoot}/
+appPath=${oozie.wf.application.path}
+timezone=UTC
+HCAT_URI=thrift://axonitered-hcat.ygrid.vip.bf1.yahoo.com:50513
+HCAT_PRINCIPAL=hcat/axonitered-hcat.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM
+
+# Original data for application
+CSV=bills_info.csv
+src_dir=${nameNode}/user/${user.name}
+dest_dir=${src_dir}/${appRoot}/input
+
+# Scripts used in Oozie actions
+shellAction=shell/copy_data.sh
+hiveScript=hive/create_table.hql
+
+# Source and storage information for Hive
+hiveLog=./hivelogs
+dataBase=${user.name}_bills
+billsTable=bills_information
+databasePath=/user/jcatera/bills
+dataInputFile=/user/${user.name}/${appRoot}/input/current_${CSV}
+
+# Pig configuration.
+pigScript=pig/process_hive_data.pig
+csvHouse=${appPath}/output/${date}_house_bills
+csvSenate=${appPath}/output/${date}_senate_bills</pre>
+</div>
+</div>
+</li>
+<li>
+<p>The <code>workflow.xml</code> is the driver of your Oozie application. The variables you
+see in the <code>workflow.xml</code> below are defined in the <code>job.properties</code> file you just created.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml"><span class="hljs-tag">&lt;<span class="hljs-title">workflow-app</span> <span class="hljs-attribute">xmlns</span>=<span class="hljs-value">&quot;uri:oozie:workflow:0.4&quot;</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;bills-wf&quot;</span>&gt;</span>
+   <span class="hljs-tag">&lt;<span class="hljs-title">credentials</span>&gt;</span>
+     <span class="hljs-comment">&lt;!-- Use HCatalog credentials for Pig/Hive. --&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">credential</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&apos;hcatauth&apos;</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">&apos;hcat&apos;</span>&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>hcat.metastore.uri<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>${HCAT_URI}<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>hcat.metastore.principal<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>${HCAT_PRINCIPAL}<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">credential</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">credentials</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">start</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;shell-copydata&quot;</span>/&gt;</span>
+  <span class="hljs-comment">&lt;!-- Copies the data from the local file system to HDFS --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">action</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;shell-copydata&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">shell</span> <span class="hljs-attribute">xmlns</span>=<span class="hljs-value">&quot;uri:oozie:shell-action:0.3&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">job-tracker</span>&gt;</span>${jobTracker}<span class="hljs-tag">&lt;/<span class="hljs-title">job-tracker</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">name-node</span>&gt;</span>${nameNode}<span class="hljs-tag">&lt;/<span class="hljs-title">name-node</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>mapred.job.queue.name<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>${queueName}<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>oozie.action.sharelib.for.distcp<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>distcp<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">configuration</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">exec</span>&gt;</span>shell/copy_data.sh<span class="hljs-tag">&lt;/<span class="hljs-title">exec</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">argument</span>&gt;</span>${CSV}<span class="hljs-tag">&lt;/<span class="hljs-title">argument</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">argument</span>&gt;</span>${src_dir}<span class="hljs-tag">&lt;/<span class="hljs-title">argument</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">argument</span>&gt;</span>${dest_dir}<span class="hljs-tag">&lt;/<span class="hljs-title">argument</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">file</span>&gt;</span>${wf:appPath()}${shellAction}#${shellAction}<span class="hljs-tag">&lt;/<span class="hljs-title">file</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">capture-output</span>/&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">shell</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">ok</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;hive-create_table&quot;</span>/&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">error</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;kill&quot;</span>/&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">action</span>&gt;</span>
+  <span class="hljs-comment">&lt;!-- Create a Hive table for the data and then populate the table. --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">action</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&apos;hive-create_table&apos;</span> <span class="hljs-attribute">cred</span>=<span class="hljs-value">&apos;hcatauth&apos;</span>&gt;</span>
+   <span class="hljs-tag">&lt;<span class="hljs-title">hive</span> <span class="hljs-attribute">xmlns</span>=<span class="hljs-value">&quot;uri:oozie:hive-action:0.4&quot;</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">job-tracker</span>&gt;</span>${jobTracker}<span class="hljs-tag">&lt;/<span class="hljs-title">job-tracker</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">name-node</span>&gt;</span>${nameNode}<span class="hljs-tag">&lt;/<span class="hljs-title">name-node</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">configuration</span>&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>hive.querylog.location<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>${hiveLog}<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>mapred.job.queue.name<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>${queueName}<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+       <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>oozie.action.sharelib.for.hive<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>hcat_current,hive_current,tez_current<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+       <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+     <span class="hljs-tag">&lt;/<span class="hljs-title">configuration</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">script</span>&gt;</span><span class="undefined">${hiveScript}</span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>USER=${wf:user()}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>HIVE_DB_PATH=${databasePath}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>HIVE_DB=${dataBase}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>HIVE_TB=${billsTable}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>NAMENODE=${nameNode}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>TIMESTAMP=${date}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>INPUT_DATA=${dataInputFile}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+     <span class="hljs-tag">&lt;<span class="hljs-title">file</span>&gt;</span>${hiveScript}#${hiveScript}<span class="hljs-tag">&lt;/<span class="hljs-title">file</span>&gt;</span>
+   <span class="hljs-tag">&lt;/<span class="hljs-title">hive</span>&gt;</span>
+   <span class="hljs-tag">&lt;<span class="hljs-title">ok</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;pig-process-data&quot;</span>/&gt;</span>
+   <span class="hljs-tag">&lt;<span class="hljs-title">error</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;kill&quot;</span>/&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">action</span>&gt;</span>
+  <span class="hljs-comment">&lt;!-- Extract results from the Hive table and create CSV files. --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">action</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;pig-process-data&quot;</span> <span class="hljs-attribute">cred</span>=<span class="hljs-value">&apos;hcatauth&apos;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">pig</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">job-tracker</span>&gt;</span>${jobTracker}<span class="hljs-tag">&lt;/<span class="hljs-title">job-tracker</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">name-node</span>&gt;</span>${nameNode}<span class="hljs-tag">&lt;/<span class="hljs-title">name-node</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">prepare</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">delete</span> <span class="hljs-attribute">path</span>=<span class="hljs-value">&quot;${nameNode}/user/${wf:user()}/${appRoot}/output/&quot;</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">mkdir</span> <span class="hljs-attribute">path</span>=<span class="hljs-value">&quot;${nameNode}/user/${wf:user()}/${appRoot}/output/&quot;</span>/&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">prepare</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>mapred.job.queue.name<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>${queueName}<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>mapred.compress.map.output<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">property</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">name</span>&gt;</span>oozie.action.sharelib.for.pig<span class="hljs-tag">&lt;/<span class="hljs-title">name</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">value</span>&gt;</span>hcat_current,pig_current,tez_current<span class="hljs-tag">&lt;/<span class="hljs-title">value</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">property</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">configuration</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">script</span>&gt;</span><span class="undefined">${pigScript}</span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>USER=${wf:user()}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>TIMESTAMP=${date}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>OUTPUT_HOUSE=${csvHouse}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">param</span>&gt;</span>OUTPUT_SENATE=${csvSenate}<span class="hljs-tag">&lt;/<span class="hljs-title">param</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">file</span>&gt;</span>${pigScript}#${pigScript}<span class="hljs-tag">&lt;/<span class="hljs-title">file</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">pig</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">ok</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;archive_data&quot;</span>/&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">error</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;kill&quot;</span>/&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">action</span>&gt;</span>
+  <span class="hljs-comment">&lt;!-- Copy latest results to the archive folder. --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">action</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;archive_data&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">distcp</span> <span class="hljs-attribute">xmlns</span>=<span class="hljs-value">&quot;uri:oozie:distcp-action:0.2&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">job-tracker</span>&gt;</span>${jobTracker}<span class="hljs-tag">&lt;/<span class="hljs-title">job-tracker</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">name-node</span>&gt;</span>${nameNode}<span class="hljs-tag">&lt;/<span class="hljs-title">name-node</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">arg</span>&gt;</span>${nameNode}/user/${wf:user()}/${appRoot}/output/*<span class="hljs-tag">&lt;/<span class="hljs-title">arg</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">arg</span>&gt;</span>${nameNode}/user/${wf:user()}/${appRoot}/archive/<span class="hljs-tag">&lt;/<span class="hljs-title">arg</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">distcp</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">ok</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;end&quot;</span>/&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">error</span> <span class="hljs-attribute">to</span>=<span class="hljs-value">&quot;kill&quot;</span>/&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">action</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">kill</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;kill&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">message</span>&gt;</span>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]<span class="hljs-tag">&lt;/<span class="hljs-title">message</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">kill</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">end</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">&quot;end&quot;</span>/&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">workflow-app</span>&gt;</span></code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_oozie-shell_script"><a name="pig_oozie-shell_script" class="plugin-anchor" href="#pig_oozie-shell_script"><span class="fa fa-link"></span></a>Shell Script</h3>
+<div class="paragraph">
+<p>Create shell script <code>get_data.sh</code> in the shell directory with the code below. The
+arguments in the shell script are provided by the argument elements of the Shell
+action in the <code>workflow.xml</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"><span class="hljs-shebang">#! /usr/local/bin/bash
+</span>
+csv_file=<span class="hljs-string">&quot;<span class="hljs-variable">$1</span>&quot;</span>
+src_dir=<span class="hljs-string">&quot;<span class="hljs-variable">$2</span>&quot;</span>
+dest_dir=<span class="hljs-string">&quot;<span class="hljs-variable">$3</span>&quot;</span>
+
+/home/gs/hadoop/current/bin/hdfs dfs -cp <span class="hljs-operator">-f</span> <span class="hljs-variable">$src_dir</span>/<span class="hljs-variable">$csv_file</span> <span class="hljs-variable">$dest_dir</span>/current_<span class="hljs-variable">$csv_file</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_oozie-hive_script"><a name="pig_oozie-hive_script" class="plugin-anchor" href="#pig_oozie-hive_script"><span class="fa fa-link"></span></a>Hive Script</h3>
+<div class="paragraph">
+<p>Create the Hive script <code>hive/create_table.hql</code> with the following code. You might
+notice that the <code>TIMESTAMP</code> variable is declared, but not assigned a value. We&#x2019;re
+going to define the value when we run start the Oozie job with the <code>oozie</code> command.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-hive" data-lang="hive">create external table if not exists ${USER}_bills.information_${TIMESTAMP} (
+  id int,
+  title string,
+  bill_type string,
+  current_status string,
+  current_status_date string,
+  link string,
+  bsponsor__firstname string,
+  sponsor__lastname string,
+  sponsor__gender string,
+  sponsor_role__description string,
+  sponsor_role__party string,
+  sponsor_role__role_type string)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY &apos;,&apos;
+stored as textfile
+location &quot;${NAMENODE}/user/${USER}/bills/${TIMESTAMP}&quot;;
+LOAD DATA INPATH &quot;${INPUT_DATA}&quot; OVERWRITE INTO TABLE ${USER}_bills.information_${TIMESTAMP};</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_oozie-pig_script"><a name="pig_oozie-pig_script" class="plugin-anchor" href="#pig_oozie-pig_script"><span class="fa fa-link"></span></a>Pig Script</h3>
+<div class="paragraph">
+<p>With the code below, create the file <code>pig/process_hive_data.pig</code>. The script is
+fairly simple: access the Hive table <code>information_${TIMESTAMP}</code> through HCatalog
+and then create two directories containing CSV results based on the bill types.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-pig" data-lang="pig">bills = LOAD &apos;${USER}_bills.information_${TIMESTAMP}&apos; using org.apache.hive.hcatalog.pig.HCatLoader();
+house_bills = FILTER bills BY (bill_type == &apos;house_bill&apos;);
+senate_bills = FILTER bills BY (bill_type == &apos;senate_bill&apos;);
+STORE house_bills INTO &apos;${OUTPUT_HOUSE}&apos; USING org.apache.pig.piggybank.storage.CSVExcelStorage();
+STORE senate_bills INTO &apos;${OUTPUT_SENATE}&apos; USING org.apache.pig.piggybank.storage.CSVExcelStorage();</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_oozie-run"><a name="pig_oozie-run" class="plugin-anchor" href="#pig_oozie-run"><span class="fa fa-link"></span></a>Run the Oozie Job</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Copy the directory to HDFS: <code>$ hdfs dfs -put -f /user/$USER/pig_oozie /user/$USER</code></p>
+</li>
+<li>
+<p>From the <code>pig_oozie</code> directory, start your Oozie application (we&#x2019;re defining the data variable on the command line):</p>
+<div class="literalblock">
+<div class="content">
+<pre> $ oozie job -D date=`date &quot;+%Y_%m_%d&quot;` -config job.properties -run</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Oozie will return a job ID that will look similar to that below:</p>
+<div class="literalblock">
+<div class="content">
+<pre>job: 0189333-150922143441638-oozie_AR-W</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Go to the Oozie Console and find your job ID in the <strong>Job Id</strong> column.
+Once the job completes and is successful, view the results written to <code>pig_oozie/output</code>:</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ hdfs dfs -cat pig_oozie/output/2015_09_28_senate_bills.csv/part*</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_oozie-troubleshoot"><a name="pig_oozie-troubleshoot" class="plugin-anchor" href="#pig_oozie-troubleshoot"><span class="fa fa-link"></span></a>Troubleshooting the Oozie Job</h3>
+<div class="paragraph">
+<p>If your job failed or was killed, try the following to find the issue:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>From the <strong>Oozie Console</strong>, click the job ID to open a dialog containing action IDs for each action.</p>
+</li>
+<li>
+<p>Find the failed action, click the action ID.</p>
+</li>
+<li>
+<p>From the <strong>Action</strong> dialog, copy the URL of the <strong>Console URL</strong>.</p>
+</li>
+<li>
+<p>Open the Console URL in a new browser tab. (The browser will have to connect to the Internet through the SOCKS proxy (<code>socks.yahoo.com</code>) if you&#x2019;re not inside the Yahoo intranet.)</p>
+</li>
+<li>
+<p>From the <strong>Oozie Console</strong>, click the logs link.</p>
+</li>
+<li>
+<p>You&#x2019;ll be taken to the Job Tracker that has logs for <code>stderr</code>, <code>stdout</code>, and <code>syslog</code>. You can also click a link for each type of log to see the entire log file.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Also, look for common issues such as incorrect file names and script paths, undefined variables, database, or tables, and authorization issues.</p>
+</div>
+</div>
+</div>
+</div>
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="../quickstart/hive.html" class="navigation navigation-prev " aria-label="Previous page: Using Pit With Hive Through HCatalog"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="../launchers.html" class="navigation navigation-next " aria-label="Next page: Installing Launchers"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="../gitbook/app.js"></script>
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-expandable-chapters/expandable-chapters.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-edit-link/plugin.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"fontSettings":{"theme":null,"family":"sans","size":2},"addcssjs":{"css":["css/footer.css"]},"layout":{"footerPath":"layouts/footer.html"},"expandable-chapters":{},"edit-link":{"base":"https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/","label":{"en":"Edit This Page","de":"Seite bearbeiten"}}};
+    gitbook.start(config);
+});
+</script>
+
+        <footer id="footer">
+<br/>
+<span style="text-size:6px;font-style: italic;">
+This document is Yahoo Proprietary/Confidential. Do not release the contents of this document outside the company.
+</span>
+</footer>
+
+    </body>
+    
+</html>

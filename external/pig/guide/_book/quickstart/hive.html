@@ -1,0 +1,646 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Using Pit With Hive Through HCatalog | Pig User Guide</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.4.3">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="../gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-expandable-chapters/expandable-chapters.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-edit-link/plugin.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-scrollablecode/scrollablecode.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="../quickstart/oozie.html" />
+    
+    
+    <link rel="prev" href="../quickstart/hbase.html" />
+    
+
+        <link rel="stylesheet" type="text/css" href="../css/footer.css">
+    </head>
+    <body>
+        
+        
+    <div class="book" data-level="1.4" data-basepath=".." data-revision="Fri Oct 30 2015 23:05:16 GMT-0700 (PDT)">
+    
+
+<div class="book-summary">
+    <div class="book-search" role="search">
+        <input type="text" placeholder="Type to search" class="form-control" />
+    </div>
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="../index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="quickstart/quickstart.html">
+            
+                
+                    <a href="../quickstart/quickstart.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        Quick Start
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="quickstart/prereqs.html">
+            
+                
+                    <a href="../quickstart/prereqs.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        Prerequisites
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="quickstart/get_data.html">
+            
+                
+                    <a href="../quickstart/get_data.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.2.</b>
+                        
+                        Getting Data
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="quickstart/hbase.html">
+            
+                
+                    <a href="../quickstart/hbase.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.3.</b>
+                        
+                        Using Pig With HBase
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.4" data-path="quickstart/hive.html">
+            
+                
+                    <a href="../quickstart/hive.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.4.</b>
+                        
+                        Using Pit With Hive Through HCatalog
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="quickstart/oozie.html">
+            
+                
+                    <a href="../quickstart/oozie.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.5.</b>
+                        
+                        Using Pig With Oozie
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="launchers.html">
+            
+                
+                    <a href="../launchers.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Installing Launchers
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="tips.html">
+            
+                
+                    <a href="../tips.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Tips and Tricks
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="styleguide.html">
+            
+                
+                    <a href="../styleguide.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        Style Guide
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="troubleshooting.html">
+            
+                
+                    <a href="../troubleshooting.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        Troubleshooting
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6" data-path="tez.html">
+            
+                
+                    <a href="../tez.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        Pig on Tez
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="performance.html">
+            
+                
+                    <a href="../performance.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.</b>
+                        
+                        Improving Performance
+                    </a>
+            
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    <a href="#" class="btn pull-left toggle-summary" aria-label="Table of Contents"><i class="fa fa-align-justify"></i></a>
+    <a href="#" class="btn pull-left toggle-search" aria-label="Search"><i class="fa fa-search"></i></a>
+    
+    <div id="font-settings-wrapper" class="dropdown pull-left">
+        <a href="#" class="btn toggle-dropdown" aria-label="Font Settings"><i class="fa fa-font"></i>
+        </a>
+        <div class="dropdown-menu font-settings">
+    <div class="dropdown-caret">
+        <span class="caret-outer"></span>
+        <span class="caret-inner"></span>
+    </div>
+
+    <div class="buttons">
+        <button type="button" id="reduce-font-size" class="button size-2">A</button>
+        <button type="button" id="enlarge-font-size" class="button size-2">A</button>
+    </div>
+
+    <div class="buttons font-family-list">
+        <button type="button" data-font="0" class="button">Serif</button>
+        <button type="button" data-font="1" class="button">Sans</button>
+    </div>
+
+    <div class="buttons color-theme-list">
+        <button type="button" id="color-theme-preview-0" class="button size-3" data-theme="0">White</button>
+        <button type="button" id="color-theme-preview-1" class="button size-3" data-theme="1">Sepia</button>
+        <button type="button" id="color-theme-preview-2" class="button size-3" data-theme="2">Night</button>
+    </div>
+</div>
+
+    </div>
+
+    <!-- Actions Right -->
+    
+    <div class="dropdown pull-right">
+        <a href="#" class="btn toggle-dropdown" aria-label="Share"><i class="fa fa-share-alt"></i>
+        </a>
+        <div class="dropdown-menu font-settings dropdown-left">
+            <div class="dropdown-caret">
+                <span class="caret-outer"></span>
+                <span class="caret-inner"></span>
+            </div>
+            <div class="buttons">
+                <button type="button" data-sharing="twitter" class="button">
+                    Share on Twitter
+                </button>
+                <button type="button" data-sharing="google-plus" class="button">
+                    Share on Google
+                </button>
+                <button type="button" data-sharing="facebook" class="button">
+                    Share on Facebook
+                </button>
+                <button type="button" data-sharing="weibo" class="button">
+                    Share on Weibo
+                </button>
+                <button type="button" data-sharing="instapaper" class="button">
+                    Share on Instapaper
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <a href="#" target="_blank" class="btn pull-right google-plus-sharing-link sharing-link" data-sharing="google-plus" aria-label="Google"><i class="fa fa-google-plus"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right facebook-sharing-link sharing-link" data-sharing="facebook" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right twitter-sharing-link sharing-link" data-sharing="twitter" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
+    
+    
+    
+
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../" >Pig User Guide</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <a id="edit-link" href="https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/quickstart/hive.adoc" class="btn fa fa-edit pull-left">&nbsp;&nbsp;[object Object]</a><div class="sect1">
+<h2 id="qs-pig_hive"><a name="qs-pig_hive" class="plugin-anchor" href="#qs-pig_hive"><span class="fa fa-link"></span></a>Using Pig With Hive Through HCatalog</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We took a look at how you can use Pig to load Hive data in
+<a href="https://yahoo.jiveon.com/docs/DOC-46646#jive_content_id_Loading_Data_From_HCatalog" target="_blank">Loading Data From HCatalog</a>.
+In this section, we&#x2019;re going to go into more detail, creating a Hive table and
+populating it with data, loading that data into Pig, and then manipulating the data.</p>
+</div>
+<div class="paragraph">
+<p>Before we start, it&#x2019;s important to first understand that HCatalog is a management
+layer that makes Hive metadata available to different Hadoop clients such as Pig
+and MapReduce. Without HCatalog, Pig has no way to access Hive data.</p>
+</div>
+<div class="paragraph">
+<p>We&#x2019;re going to use our <code>senators.csv</code> file again, but this time with Hive and Pig.</p>
+</div>
+<div class="sect2">
+<h3 id="pig_hive-create_table"><a name="pig_hive-create_table" class="plugin-anchor" href="#pig_hive-create_table"><span class="fa fa-link"></span></a>Creating the Hive Table</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start the Hive shell: <code>$ hive</code></p>
+</li>
+<li>
+<p>Create the Hive database that will store the tables with our data using your home
+directory (replace <code>&lt;username&gt;</code> with your username) to store the Hive data:
+&#x2026;&#x200B;.
+hive&gt; CREATE DATABASE $USER_senators LOCATION &apos;/user/$USER/us_senators&apos;;
+&#x2026;&#x200B;.</p>
+</li>
+<li>
+<p>Select the database you created: <code>hive&gt; USE $USER_senators</code></p>
+</li>
+<li>
+<p>Create the Hive external table senator_information:</p>
+<div class="literalblock">
+<div class="content">
+<pre>hive&gt; create external table if not exists senator_information(
+id int,
+title string,
+party string,
+firstname string,
+lastname string,
+gender string,
+birthday string,
+startdate string,
+enddate string,
+state string,
+website string)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY &apos;,&apos;
+stored as textfile
+location &apos;/user/$USER/us_senators/information&apos;;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Load the CSV data into the table:
+[source,hive]
+----
+hive&gt; LOAD DATA INPATH &apos;/user/$USER/us_senators.csv&apos; OVERWRITE INTO TABLE senator_information;
+----</p>
+</li>
+<li>
+<p>Use the <code>DESCRIBE</code> operator to example the Hive data structure:
+[source,hive]
+----
+hive&gt; describe senator_information;
+----</p>
+<div class="literalblock">
+<div class="content">
+<pre>   TBD - need output
+. Based on the table structure, let&apos;s select a few fields and ask for ten rows:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>hive&gt; select title, party, lastname from senator_information LIMIT 10;</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>....
+Senator    Republican    Blunt
+Senator    Republican    Boozman
+Senator    Republican    Burr
+Senator    Republican    Isakson
+Senator    Republican    Kirk
+Senator    Republican    Moran
+Senator    Republican    Portman
+Senator    Republican    Toomey
+Senator    Republican    Vitter
+Senator    Democrat    Boxer
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Let&#x2019;s quit Hive for now: <code>hive&gt; quit;</code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_hive-load_data"><a name="pig_hive-load_data" class="plugin-anchor" href="#pig_hive-load_data"><span class="fa fa-link"></span></a>Load Data From Hive</h3>
+<div class="paragraph">
+<p>In this section, we&#x2019;re going to use Pig to load data from the Hive table we
+created and then use Pig to process the data.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>To use HCatalog within Grunt, you need to pass the option <code>-useHCatalog</code> to the pig program: <code>$ pig -useHCatalog;</code></p>
+</li>
+<li>
+<p>As we did earlier, use the <code>HCatLoader()</code> function to load the data from the <code>senator_information</code> table.</p>
+<div class="listingblock">
+<div class="content">
+<pre>grunt&gt; senators = LOAD &apos;$USER_senators.senator_information&apos; using org.apache.hive.hcatalog.pig.HCatLoader();</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Let&#x2019;s take a look at the raw data represented as Pig tuples:</p>
+<div class="literalblock">
+<div class="content">
+<pre>grunt&gt; dump senators;
+
+(43595,Senator,Republican,Tom,Cotton,male,1977-05-13,2015-01-06,2021-01-03,AR,http://www.cotton.senate.gov)
+(43628,Senator,Republican,Steve,Daines,male,1962-08-20,2015-01-06,2021-01-03,MT,http://www.daines.senate.gov)
+(43661,Senator,Democrat,Cory,Booker,male,1969-04-27,2015-01-06,2021-01-03,NJ,http://www.booker.senate.gov)
+(43726,Senator,Republican,Dan,Sullivan,male,1964-11-13,2015-01-06,2021-01-03,AK,http://www.sullivan.senate.gov)
+(43727,Senator,Republican,David,Perdue,male,1949-12-10,2015-01-06,2021-01-03,GA,http://www.perdue.senate.gov)</pre>
+</div>
+</div>
+</li>
+<li>
+<p>We can use Pig to group senators by gender and then find out the oldest member
+of the Senate for each gender:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-pig" data-lang="pig">grunt&gt; senators_by_gender = group senators by gender; (1)
+grunt&gt; senators_oldest_by_gender = foreach senators_by_gender generate group, MIN(senators.birthday); (2)</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Group senators by gender.</p>
+</li>
+<li>
+<p>Find the oldest member.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Display the results:</p>
+<div class="listingblock">
+<div class="content">
+<pre>grunt&gt; dump senators_oldest_by_gender;
+
+(male,1933-09-17)
+(female,1933-06-22)</pre>
+</div>
+</div>
+</li>
+<li>
+<p>We can do something a little more complicated with the data. The following Pig
+statements will sort the Senators from the oldest to youngest:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-pig" data-lang="pig">grunt&gt; senator_with_age = foreach senators generate firstname, lastname, gender, party, state, YearsBetween(CurrentTime(),ToDate(birthday)) as age; (1)
+grunt&gt; senator_with_age = foreach senator_with_age generate gender, party, state, age, lastname, CONCAT(firstname,&apos; &apos;, lastname) as name; (2)
+grunt&gt; senators_oldest_to_youngest = ORDER senator_with_age BY age DESC, lastname ASC; (3)
+grunt&gt; senators_oldest_to_youngest = foreach senators_oldest_to_youngest generate name, age, gender, party, state; (4)</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Iterate through senators and generate tuple with the information we want.</p>
+</li>
+<li>
+<p>Concatenate the first and last name.</p>
+</li>
+<li>
+<p>Order the results by descending age (oldest to youngest) and then by ascending last name (A-Z).</p>
+</li>
+<li>
+<p>Generate the results with the fields in a logical order.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Display the results:</p>
+<div class="listingblock">
+<div class="content">
+<pre>grunt&gt; dump senators_oldest_to_youngest;
+
+(Dianne Feinstein,82,female,Democrat,CA)
+(Charles Grassley,81,male,Republican,IA)
+(Orrin Hatch,81,male,Republican,UT)
+(Richard Shelby,81,male,Republican,AL)
+(James Inhofe,80,male,Republican,OK)
+(John McCain,79,male,Republican,AZ)
+...</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="../quickstart/hbase.html" class="navigation navigation-prev " aria-label="Previous page: Using Pig With HBase"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="../quickstart/oozie.html" class="navigation navigation-next " aria-label="Next page: Using Pig With Oozie"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="../gitbook/app.js"></script>
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-expandable-chapters/expandable-chapters.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-edit-link/plugin.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"fontSettings":{"theme":null,"family":"sans","size":2},"addcssjs":{"css":["css/footer.css"]},"layout":{"footerPath":"layouts/footer.html"},"expandable-chapters":{},"edit-link":{"base":"https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/","label":{"en":"Edit This Page","de":"Seite bearbeiten"}}};
+    gitbook.start(config);
+});
+</script>
+
+        <footer id="footer">
+<br/>
+<span style="text-size:6px;font-style: italic;">
+This document is Yahoo Proprietary/Confidential. Do not release the contents of this document outside the company.
+</span>
+</footer>
+
+    </body>
+    
+</html>

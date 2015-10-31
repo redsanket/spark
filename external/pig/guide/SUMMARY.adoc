@@ -1,0 +1,14 @@
+= Pig User Guide
+
+. link:quickstart/quickstart.adoc[Quick Start]
+.. link:quickstart/prereqs.adoc[Prerequisites]
+.. link:quickstart/get_data.adoc[Getting Data]
+.. link:quickstart/hbase.adoc[Using Pig With HBase]
+.. link:quickstart/hive.adoc[Using Pit With Hive Through HCatalog]
+.. link:quickstart/oozie.adoc[Using Pig With Oozie]
+. link:launchers.adoc[Installing Launchers]
+. link:tips.adoc[Tips and Tricks]
+. link:styleguide.adoc[Style Guide]
+. link:troubleshooting.adoc[Troubleshooting]
+. link:tez.adoc[Pig on Tez]
+. link:performance.adoc[Improving Performance]

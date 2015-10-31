@@ -1,0 +1,756 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Using Pig With HBase | Pig User Guide</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.4.3">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="../gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-expandable-chapters/expandable-chapters.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-edit-link/plugin.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-scrollablecode/scrollablecode.css">
+        
+    
+        
+        <link rel="stylesheet" href="../gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="../quickstart/hive.html" />
+    
+    
+    <link rel="prev" href="../quickstart/get_data.html" />
+    
+
+        <link rel="stylesheet" type="text/css" href="../css/footer.css">
+    </head>
+    <body>
+        
+        
+    <div class="book" data-level="1.3" data-basepath=".." data-revision="Fri Oct 30 2015 23:05:16 GMT-0700 (PDT)">
+    
+
+<div class="book-summary">
+    <div class="book-search" role="search">
+        <input type="text" placeholder="Type to search" class="form-control" />
+    </div>
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="../index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="quickstart/quickstart.html">
+            
+                
+                    <a href="../quickstart/quickstart.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        Quick Start
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="quickstart/prereqs.html">
+            
+                
+                    <a href="../quickstart/prereqs.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        Prerequisites
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="quickstart/get_data.html">
+            
+                
+                    <a href="../quickstart/get_data.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.2.</b>
+                        
+                        Getting Data
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.3" data-path="quickstart/hbase.html">
+            
+                
+                    <a href="../quickstart/hbase.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.3.</b>
+                        
+                        Using Pig With HBase
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="quickstart/hive.html">
+            
+                
+                    <a href="../quickstart/hive.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.4.</b>
+                        
+                        Using Pit With Hive Through HCatalog
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="quickstart/oozie.html">
+            
+                
+                    <a href="../quickstart/oozie.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.5.</b>
+                        
+                        Using Pig With Oozie
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="launchers.html">
+            
+                
+                    <a href="../launchers.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Installing Launchers
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="tips.html">
+            
+                
+                    <a href="../tips.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Tips and Tricks
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="styleguide.html">
+            
+                
+                    <a href="../styleguide.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        Style Guide
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="troubleshooting.html">
+            
+                
+                    <a href="../troubleshooting.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        Troubleshooting
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6" data-path="tez.html">
+            
+                
+                    <a href="../tez.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        Pig on Tez
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="performance.html">
+            
+                
+                    <a href="../performance.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.</b>
+                        
+                        Improving Performance
+                    </a>
+            
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    <a href="#" class="btn pull-left toggle-summary" aria-label="Table of Contents"><i class="fa fa-align-justify"></i></a>
+    <a href="#" class="btn pull-left toggle-search" aria-label="Search"><i class="fa fa-search"></i></a>
+    
+    <div id="font-settings-wrapper" class="dropdown pull-left">
+        <a href="#" class="btn toggle-dropdown" aria-label="Font Settings"><i class="fa fa-font"></i>
+        </a>
+        <div class="dropdown-menu font-settings">
+    <div class="dropdown-caret">
+        <span class="caret-outer"></span>
+        <span class="caret-inner"></span>
+    </div>
+
+    <div class="buttons">
+        <button type="button" id="reduce-font-size" class="button size-2">A</button>
+        <button type="button" id="enlarge-font-size" class="button size-2">A</button>
+    </div>
+
+    <div class="buttons font-family-list">
+        <button type="button" data-font="0" class="button">Serif</button>
+        <button type="button" data-font="1" class="button">Sans</button>
+    </div>
+
+    <div class="buttons color-theme-list">
+        <button type="button" id="color-theme-preview-0" class="button size-3" data-theme="0">White</button>
+        <button type="button" id="color-theme-preview-1" class="button size-3" data-theme="1">Sepia</button>
+        <button type="button" id="color-theme-preview-2" class="button size-3" data-theme="2">Night</button>
+    </div>
+</div>
+
+    </div>
+
+    <!-- Actions Right -->
+    
+    <div class="dropdown pull-right">
+        <a href="#" class="btn toggle-dropdown" aria-label="Share"><i class="fa fa-share-alt"></i>
+        </a>
+        <div class="dropdown-menu font-settings dropdown-left">
+            <div class="dropdown-caret">
+                <span class="caret-outer"></span>
+                <span class="caret-inner"></span>
+            </div>
+            <div class="buttons">
+                <button type="button" data-sharing="twitter" class="button">
+                    Share on Twitter
+                </button>
+                <button type="button" data-sharing="google-plus" class="button">
+                    Share on Google
+                </button>
+                <button type="button" data-sharing="facebook" class="button">
+                    Share on Facebook
+                </button>
+                <button type="button" data-sharing="weibo" class="button">
+                    Share on Weibo
+                </button>
+                <button type="button" data-sharing="instapaper" class="button">
+                    Share on Instapaper
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <a href="#" target="_blank" class="btn pull-right google-plus-sharing-link sharing-link" data-sharing="google-plus" aria-label="Google"><i class="fa fa-google-plus"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right facebook-sharing-link sharing-link" data-sharing="facebook" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right twitter-sharing-link sharing-link" data-sharing="twitter" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
+    
+    
+    
+
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../" >Pig User Guide</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <a id="edit-link" href="https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/quickstart/hbase.adoc" class="btn fa fa-edit pull-left">&nbsp;&nbsp;[object Object]</a><div class="sect1">
+<h2 id="qs-pig_hbase"><a name="qs-pig_hbase" class="plugin-anchor" href="#qs-pig_hbase"><span class="fa fa-link"></span></a>Using Pig With HBase</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="pig_hbase-setup"><a name="pig_hbase-setup" class="plugin-anchor" href="#pig_hbase-setup"><span class="fa fa-link"></span></a>Setting Up</h3>
+<div class="paragraph">
+<p>You do not have to register HBase JAR files in your Pig script. The Pig command
+adds the HBase JAR files and the file <code>hbase-site.xml</code> to your Java <code>CLASSPATH</code> if
+the following is present in the Bash environment:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>HBASE_PREFIX=/home/gs/hbase/current
+HBASE_CONF_DIR=/home/gs/conf/hbase</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Also, export the variable <code>HBASE_PREFIX</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>export HBASE_PREFIX=/home/gs/hbase/current</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The Hadoop variable <code>HBASE_CONF_DIR</code> is generally set in the gateway environment.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_hbase-create_table"><a name="pig_hbase-create_table" class="plugin-anchor" href="#pig_hbase-create_table"><span class="fa fa-link"></span></a>Create HBase Table</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Get your Kerberos credentials that you&#x2019;ll need for accessing the Grid: <code>$ kinit</code></p>
+</li>
+<li>
+<p>Start the HBase shell: <code>$ hbase shell</code></p>
+</li>
+<li>
+<p>Create the Hbase database for the US Senators: <code>hbase&gt; create &apos;$USER:us_senators&apos;, &apos;senator_info&apos;</code></p>
+<div class="literalblock">
+<div class="content">
+<pre>0 row(s) in 1.1270 seconds
+=&gt; Hbase::Table - jcatera:us_senators</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Deleting an HBase Table</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Disable the table: <code>hbase&gt; disable &apos;$USER:us_senators&apos;</code></p>
+</li>
+<li>
+<p>Drop the table: <code>hbase&gt; drop &apos;$USER:us_senators&apos;</code></p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_hbase-populate_table"><a name="pig_hbase-populate_table" class="plugin-anchor" href="#pig_hbase-populate_table"><span class="fa fa-link"></span></a>Populate HBase Table With Pig</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start Grunt (the Pig shell): <code>$ pig</code></p>
+</li>
+<li>
+<p>Use the <code>LOAD</code> operator and the <code>CSVExcelStorage</code> to get the
+data from the <code>CSV</code> file into Pig. (Be sure to replace &lt;username&gt; with your user name.)</p>
+<div class="literalblock">
+<div class="content">
+<pre>....
+grunt&gt; raw_data = LOAD &apos;hdfs:/user/$USER/cust_senators.csv&apos; USING org.apache.pig.piggybank.storage.CSVExcelStorage(&apos;,&apos;, &apos;YES_MULTILINE&apos;) AS
+  (
+     id:long,
+     title:chararray,
+     party:chararray,
+     firstname:chararray,
+     lastname:chararray,
+     gender:chararray,
+     birthday:chararray,
+     startdate:chararray,
+     enddate:chararray,
+     state:chararray,
+     website:chararray
+  );
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Confirm that the data was consumed by Pig: <code>$ dump raw_data;</code></p>
+<div class="literalblock">
+<div class="content">
+<pre>TBD: insert results</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Populate the HBase table you created with the data. Notice we&#x2019;re leaving out
+the ID. The first value in the tuple will be automatically used as the row key.
+Replace <code>&lt;namespace&gt;</code> with your username. See <a href="http://pig.apache.org/docs/r0.9.1/api/org/apache/pig/backend/hadoop/hbase/HBaseStorage.html" target="_blank">Class HBaseStorage</a> for more information.</p>
+<div class="literalblock">
+<div class="content">
+<pre>....
+grunt&gt; STORE raw_data INTO &apos;hbase://$USER:senators&apos; USING org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+        &apos;senator_info:title,
+         senator_info:party,
+         senator_info:firstname,
+         senator_info:lastname,
+         senator_info:gender,
+         senator_info:birthday,
+         senator_info:startdate,
+         senator_info:enddate,
+         senator_info:state,
+         senator_info:website&apos;
+      );
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Exit Grunt: <code>grunt&gt; quit;</code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_hbase-confirm_data"><a name="pig_hbase-confirm_data" class="plugin-anchor" href="#pig_hbase-confirm_data"><span class="fa fa-link"></span></a>Confirm HBase Table Has Data</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start the HBase shell: <code>$ hbase shell</code></p>
+</li>
+<li>
+<p>Scan the table: <code>hbase&gt; scan &apos;$USER:senators&apos;</code></p>
+<div class="literalblock">
+<div class="content">
+<pre>You should see the ID numbers as rows with the columns.
+....
+ROW                            COLUMN+CELL
+43726                         column=senator_info:birthday, timestamp=1442006981821, value=1964-11-13
+43726                         column=senator_info:enddate, timestamp=1442006981821, value=2021-01-03
+43726                         column=senator_info:firstname, timestamp=1442006981821, value=Dan
+43726                         column=senator_info:gender, timestamp=1442006981821, value=male
+43726                         column=senator_info:lastname, timestamp=1442006981821, value=Sullivan
+43726                         column=senator_info:party, timestamp=1442006981821, value=Republican
+43726                         column=senator_info:startdate, timestamp=1442006981821, value=2015-01-06
+43726                         column=senator_info:state, timestamp=1442006981821, value=AK
+43726                         column=senator_info:title, timestamp=1442006981821, value=Senator
+43726                         column=senator_info:website, timestamp=1442006981821, value=http://www.sullivan.senate.
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>To get information about a particular senator, use get with one of the row keys:
+hbase&gt; get &apos;$USER:senators&apos;, &lt;row_key&gt;</p>
+</li>
+<li>
+<p>For example, if we used the row key 43726, you would be returned the information
+about the senator with that ID:</p>
+<div class="literalblock">
+<div class="content">
+<pre>....
+COLUMN                         CELL
+senator_info:birthday          timestamp=1442006981821, value=1964-11-13
+senator_info:enddate          timestamp=1442006981821, value=2021-01-03
+senator_info:firstname        timestamp=1442006981821, value=Dan
+senator_info:gender           timestamp=1442006981821, value=male
+senator_info:lastname         timestamp=1442006981821, value=Sullivan
+senator_info:party            timestamp=1442006981821, value=Republican
+senator_info:startdate        timestamp=1442006981821, value=2015-01-06
+senator_info:state            timestamp=1442006981821, value=AK
+senator_info:title            timestamp=1442006981821, value=Senator
+senator_info:website          timestamp=1442006981821, value=http://www.sullivan.senate.gov
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Exit the HBase shell: <code>hbase&gt; exit;</code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pig_hbase-load_manipulate"><a name="pig_hbase-load_manipulate" class="plugin-anchor" href="#pig_hbase-load_manipulate"><span class="fa fa-link"></span></a>Using Pig to Load and Manipulate HBase Data</h3>
+<div class="paragraph">
+<p>We&#x2019;re going back to Grunt to process the data we loaded into the HBase table earlier.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start Pig: <code>$ pig</code></p>
+</li>
+<li>
+<p>We&#x2019;ll do a little reverse engineering and now load the data from the HBase table
+we created. Notice that we&#x2019;re loading the table with the column cells and requesting
+to load the row key (<code>-loadKey true</code>), so that the row key will become <code>&apos;id:lang&apos;</code>
+in our Pig raw data:</p>
+<div class="literalblock">
+<div class="content">
+<pre>....
+grunt&gt; raw = LOAD &apos;hbase://$USER:senators&apos;
+       USING org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+         &apos;senator_info:title,
+          senator_info:party,
+          senator_info:firstname,
+          senator_info:lastname,
+          senator_info:gender,
+          senator_info:birthday,
+          senator_info:startdate,
+          senator_info:enddate,
+          senator_info:state,
+          senator_info:website&apos;, &apos;-loadKey true&apos;)
+       AS (
+            id:long,
+        title:chararray,
+        party:chararray,
+        firstname:chararray,
+        lastname:chararray,
+        gender:chararray,
+            birthday:chararray,
+        startdate:chararray,
+        enddate:chararray,
+        state:chararray,
+        website:chararray
+   );
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Try dumping the data stored in raw to confirm that the HBase table was read.
+If loaded correctly, you should see something similar to the output from when we
+read the CSV file: <code>grunt&gt; dump raw;</code></p>
+<div class="literalblock">
+<div class="content">
+<pre>....
+(43140,Senator,Republican,Ted,Cruz,male,1970-12-22,2013-01-03,2019-01-03,TX,http://www.cruz.senate.gov)
+(43123,Senator,Republican,Deb,Fischer,female,1951-03-01,2013-01-03,2019-01-03,NE,http://www.fischer.senate.gov)
+(43121,Senator,Democrat,Heidi,Heitkamp,female,1955-10-30,2013-01-03,2019-01-03,ND,http://www.heitkamp.senate.gov)
+(43112,Senator,Independent,Angus,King,male,1944-03-31,2013-01-03,2019-01-03,ME,http://www.king.senate.gov)
+(43109,Senator,Democrat,Elizabeth,Warren,female,1949-06-22,2013-01-03,2019-01-03,MA,http://www.warren.senate.gov)
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now that we have our data, we can manipulate it with Pig. Let&#x2019;s get a list of
+the female Democrat senators:</p>
+<div class="literalblock">
+<div class="content">
+<pre>....
+grunt&gt; fem_dems = FILTER raw BY gender == &apos;female&apos; and party == &apos;Democrat&apos;;</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>(3853,Senator,Democrat,Barbara,Boxer,female,2011-01-05,2017-01-03,CA,http://www.boxer.senate.gov)
+(4205,Senator,Democrat,Barbara,Mikulski,female,2011-01-05,2017-01-03,MD,http://www.mikulski.senate.gov)
+(4213,Senator,Democrat,Patty,Murray,female,2011-01-05,2017-01-03,WA,http://www.murray.senate.gov)
+(42686,Senator,Democrat,Tammy,Baldwin,female,2013-01-03,2019-01-03,WI,http://www.baldwin.senate.gov)
+(42866,Senator,Democrat,Maria,Cantwell,female,2013-01-03,2019-01-03,WA,http://www.cantwell.senate.gov)
+(42868,Senator,Democrat,Dianne,Feinstein,female,2013-01-03,2019-01-03,CA,http://www.feinstein.senate.gov)
+(42871,Senator,Democrat,Debbie,Stabenow,female,2013-01-03,2019-01-03,MI,http://www.stabenow.senate.gov)
+....</pre>
+</div>
+</div>
+</li>
+<li>
+<p>You can get a count of the female Democratic senators now:
+grunt&gt; fem_dems_count = foreach (group fem_dems all) generate COUNT(fem_dems);</p>
+</li>
+<li>
+<p>Let&#x2019;s see how many there are: <code>grunt&gt; dump fem_dems_count;</code>
+&#x2026;&#x200B;.
+(14)
+&#x2026;&#x200B;.</p>
+</li>
+<li>
+<p>Try using some of Pig&#x2019;s operators and functions listed in the
+<a href="http://pig.apache.org/docs/r0.7.0/piglatin_ref2.html" target="_blank">Pig Latin Reference Manual 2</a>
+to further analyze the data.</p>
+</li>
+<li>
+<p>Let&#x2019;s quit Grunt for now: <code>grunt&gt; quit;</code></p>
+</li>
+</ol>
+</div>
+<div class="sect3">
+<h4 id="load_manipulate-see_also"><a name="load_manipulate-see_also" class="plugin-anchor" href="#load_manipulate-see_also"><span class="fa fa-link"></span></a>See Also</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://gethue.com/hadoop-tutorial-use-pig-and-hive-with-hbase/" target="_blank">Use Pig and Hive with HBase</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="../quickstart/get_data.html" class="navigation navigation-prev " aria-label="Previous page: Getting Data"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="../quickstart/hive.html" class="navigation navigation-next " aria-label="Next page: Using Pit With Hive Through HCatalog"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="../gitbook/app.js"></script>
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-expandable-chapters/expandable-chapters.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-edit-link/plugin.js"></script>
+    
+
+    
+    <script src="../gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"fontSettings":{"theme":null,"family":"sans","size":2},"addcssjs":{"css":["css/footer.css"]},"layout":{"footerPath":"layouts/footer.html"},"expandable-chapters":{},"edit-link":{"base":"https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/","label":{"en":"Edit This Page","de":"Seite bearbeiten"}}};
+    gitbook.start(config);
+});
+</script>
+
+        <footer id="footer">
+<br/>
+<span style="text-size:6px;font-style: italic;">
+This document is Yahoo Proprietary/Confidential. Do not release the contents of this document outside the company.
+</span>
+</footer>
+
+    </body>
+    
+</html>

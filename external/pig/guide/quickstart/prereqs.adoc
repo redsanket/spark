@@ -1,0 +1,17 @@
+[[qs-prereq, Prerequisites]]
+== Prerequisites
+
+The prerequisites should familiarize you with the Pig interactive shell and the 
+command-line program. We're going to look at a more advanced example, so you'll 
+be more comfortable working with Pig before you start your own projects.
+
+* https://yahoo.jiveon.com/docs/DOC-46641#jive_content_id_Pig[Grid Quick Start: Pig]
+* https://yahoo.jiveon.com/docs/DOC-46644#jive_content_id_5_Run_Pig[Run Pig]
+* http://devel.corp.yahoo.com/hue/getting_started/index.html#using-pig[Hue: Using Pig]
+
+[[prereq-see_als, See Also]]
+=== See Also
+
+* http://hortonworks.com/hadoop-tutorial/how-to-use-basic-pig-commands/[How to Use Basic Pig Commands]
+* http://pig.apache.org/docs/r0.7.0/tutorial.html#Pig+Tutorial+File[Hadoop: Pig Tutorial]
+
