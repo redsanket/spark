@@ -409,67 +409,25 @@ if ($use_mvn) {
         		}
         	}
         } else {
-        	$hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
-
-        	# Set up a rule to use to search the GDM Hadoop jars base dir
-        	my $base_dir = "/grid/0/yroot/var/yroots/console/home/y/libexec/gdm_hadoop_configs/";
-        	my $find_rule = File::Find::Rule->new;
-
-        	# Do not descend past the first level
-        	$find_rule->maxdepth(2);
-
-        	# Only return directories
-        	$find_rule->directory;
-
-        	# Apply the rule and retrieve the subdirectories, which should be the
-        	# directories named by Hadoop version.
-        	my @sub_dirs = $find_rule->in($base_dir);
-
-        	# Print out the name of each directory on its own line
-        	print "\nGDM Hadoop dependency directories are:\n";
-        	print join("\n", @sub_dirs);
-        	print "\n\n";
-
-	        # Get the individual directory version names
-    	    my @basedirs;
-		
-			# select only grid folder where GDM hadoop config exists        
-        	foreach my $dirname (@sub_dirs) {
-        		if ( rindex($dirname,"bin") == -1 && rindex($dirname,"local") == -1 && rindex($dirname,"hive-site") == -1 )  {
-        	    	push @basedirs , $dirname;
-        		}
-        	}
         
-        	print "\n ------- Display all the grids installed by one node deployment ----------------:\n";
-        	print join("\n",@basedirs);
-        	print "\n\n";
-        
-        	# Get the last directory which is representing the grid name
-        	my $last_element = $basedirs[@basedirs -1];
-        	print "last element = $last_element\n";
-        
-        	my $finalFolder = "$last_element/hadoopcoretree/share/";
-        	print "finalFolder =  $finalFolder\n" ;
-        
-        	# Get all the directories under hadoopcoretree/share/
-        	$find_rule->maxdepth(1);
-        	my @subDirs = $find_rule->in($finalFolder);
-        	print join("\n",@subDirs);
-        	print "\n\n";
-        
-        	# Navigate hadoopcoretree/share/ directory and get the hadoop version and hadoop shared directory 
-        	foreach my $subDir (@subDirs) {
-        		my $indexOf = rindex($subDir,"hadoop-");
-        			if ( $indexOf > 0) {
-	        	    	my $result = substr( $subDir ,$indexOf + length("hadoop-"), length($subDir));
-	        			$hadoop_version = $result;
-	        			$hadoop_share = "$subDir/share/hadoop/";
-	        			print "hadoop version = $hadoop_version \n";
-	        			print "\n hadoop_share = $hadoop_share \n";
-        			}
-        	}
+        	# Get yroot name , hadoop version and create the hadoop share location.
+        	print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n";
+	        my $cname = "ls -ld /home/gs/gridre/yroot.* | cut -d'.' -f 2 | head -1";
+	        note($cname);
+	        my $CLUSTER_NAME;
+	        chomp($CLUSTER_NAME= `$cname`);
+	        print "CLUSTER_NAME = $CLUSTER_NAME \n";
+	        $hadoop_share  = "/home/gs/gridre/yroot.$CLUSTER_NAME/share/hadoop/share/hadoop/";
+	        print "hShare = $hadoop_share \n";
+	
+	        my $hVersion = "hadoop version  | head -1 | cut -d' ' -f 2";
+	        note($hVersion);
+	        my $hadoopVersion ;
+	        chomp($hadoopVersion = `$hVersion`);
+	        $hadoop_version = $hadoopVersion;
+	        print "hadoop Version = $hadoop_version \n";
+	        print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n";
         }
-        
     }
 
     # Call the script that gets a number of required system dependencies
