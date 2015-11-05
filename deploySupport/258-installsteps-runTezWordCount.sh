@@ -11,8 +11,6 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         JAVA_HOME="$GSHOME/java/jdk"
     fi
 
-    TEZ_QUEUE="default"
-
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/current ; \
      export TEZ_HOME=/home/gs/tez/current ; \
      export HADOOP_HOME=$GSHOME/hadoop/current ; \
