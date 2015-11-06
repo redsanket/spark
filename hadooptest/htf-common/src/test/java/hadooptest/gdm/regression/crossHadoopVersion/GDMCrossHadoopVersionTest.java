@@ -86,7 +86,7 @@ public class GDMCrossHadoopVersionTest extends TestSession {
 		this.dataPath = "Cross-Hadoop-Version-Testing-" +  this.dateValue;
 		
 		this.gdmVersion = this.consoleHandle.getGDMVersion();
-		String nameNodeName = this.consoleHandle.getClusterNameNodeName("denseb");
+		String nameNodeName = this.consoleHandle.getClusterNameNodeName("qe6blue");
 		//this.hadoopVersion = this.consoleHandle.getClusterInstalledVersion("denseb");
 		this.hadoopVersion = this.getHadoopVersion(nameNodeName);
 		TestSession.logger.info(this.clusterName + "  installed hadoop version - " + this.hadoopVersion  + "   GDM Version = " + this.gdmVersion);
