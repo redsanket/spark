@@ -190,8 +190,8 @@ setGridParameters() {
         roleExists $cluster.oozie && \
              export oozienode=`$base/dumpMembershipList.sh  $cluster.oozie`
         roleExists $cluster && \
-             # install tez on all cluster nodes
-             export teznode=`$base/dumpMembershipList.sh  $cluster`
+             # install tez on all cluster nodes and also the gateway node
+             export teznode=`$base/dumpMembershipList.sh  $cluster,$cluster.gateway`
         roleExists $cluster.yroots && \
              export yroots=`$base/dumpMembershipList.sh  $cluster.yroots`
         roleExists $cluster.gateways && \
