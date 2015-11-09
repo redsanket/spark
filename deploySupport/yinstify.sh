@@ -1,4 +1,4 @@
-rm *.tgz
+rm -f *.tgz
 export debug=echo
 #export DATESTRING=`date +%y%m%d%H%M`
 die() {
@@ -9,21 +9,18 @@ die() {
 # set the home directory based on the openstack node's zone,
 # this is needed for the grid-backplane nodes because they use
 # 'home' instead of 'homes', and export this as HOMEDIR
-set -x
 RM_NODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.jobtracker)"`;
-
 NODE_DOMAIN=`echo $RM_NODE | cut -d'.' -f2-`
 if [[ "$NODE_DOMAIN" == "blue.ygrid.yahoo.com" ]]; then
-  echo "Setting HOME_DIR to home"
   export HOMEDIR="/home"
 elif [[ -n "$NODE_DOMAIN" ]]; then
-  echo "Setting HOME_DIR to homes"
   export HOMEDIR="/homes"
 else
   echo "Error: unable to determine NODE_DOMAIN, HOME_DIR is not set!"
   exit 1
 fi
-set +x
+export HOMEDIR=$HOMEDIR
+echo "export HOMEDIR=$HOMEDIR"
 
 mkyicf() {
 	local pkgname=$1
